@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { X, Loader2 } from 'lucide-react';
-import { axiosInstance } from '@/lib/axios';
+import { api } from '@/lib/axios';
 
 interface CreateEmployeeModalProps {
   isOpen: boolean;
@@ -28,7 +28,7 @@ export function CreateEmployeeModal({ isOpen, onClose, onSuccess }: CreateEmploy
     setError('');
 
     try {
-      await axiosInstance.post('/users', formData);
+      await api.post('/users', formData);
       onSuccess();
       onClose();
     } catch (err: any) {

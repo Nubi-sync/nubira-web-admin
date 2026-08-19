@@ -1,10 +1,10 @@
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
-import { CreateEmployeeForm } from './components/CreateEmployeeForm'
-import { EmployeeList } from './components/EmployeeList'
-import { Users } from 'lucide-react'
+import { CreateArticleForm } from './components/CreateArticleForm'
+import { ArticleList } from './components/ArticleList'
+import { Shirt } from 'lucide-react'
 
-export default async function EmployeesPage() {
+export default async function ArticlesPage() {
   const supabase = await createClient()
 
   const {
@@ -15,9 +15,9 @@ export default async function EmployeesPage() {
     redirect('/login')
   }
 
-  // Fetch employees
-  const { data: employees } = await supabase
-    .from('profiles')
+  // Fetch articles
+  const { data: articles } = await supabase
+    .from('articles')
     .select('*')
     .order('created_at', { ascending: false })
 
@@ -28,12 +28,12 @@ export default async function EmployeesPage() {
         {/* Header */}
         <header className="flex justify-between items-center bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
           <div className="flex items-center gap-4">
-            <div className="p-3 bg-blue-50 text-blue-600 rounded-xl">
-              <Users className="h-6 w-6" />
+            <div className="p-3 bg-indigo-50 text-indigo-600 rounded-xl">
+              <Shirt className="h-6 w-6" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-slate-800">Employees</h1>
-              <p className="text-slate-500 mt-1">Manage factory workers and their roles</p>
+              <h1 className="text-2xl font-bold text-slate-800">Articles & Rates</h1>
+              <p className="text-slate-500 mt-1">Manage Art No. and Stitching Rates</p>
             </div>
           </div>
           
@@ -45,12 +45,12 @@ export default async function EmployeesPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column: Form */}
           <div className="lg:col-span-1">
-            <CreateEmployeeForm />
+            <CreateArticleForm />
           </div>
 
           {/* Right Column: List */}
           <div className="lg:col-span-2">
-            <EmployeeList employees={employees || []} />
+            <ArticleList articles={articles || []} />
           </div>
         </div>
 

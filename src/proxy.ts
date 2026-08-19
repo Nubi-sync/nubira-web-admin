@@ -1,21 +1,19 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { type NextRequest } from 'next/server'
+import { updateSession } from '@/utils/supabase/middleware'
 
-export function proxy(request: NextRequest) {
-  const token = request.cookies.get('token')?.value;
-
-  // Protect all non-auth routes
-  if (!token && !request.nextUrl.pathname.startsWith('/login')) {
-    return NextResponse.redirect(new URL('/login', request.url));
-  }
-  
-  if (token && request.nextUrl.pathname.startsWith('/login')) {
-      return NextResponse.redirect(new URL('/dashboard', request.url));
-  }
-
-  return NextResponse.next();
+export async function proxy(request: NextRequest) {
+  return await updateSession(request)
 }
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
-};
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - images, icons, etc (static assets)
+     */
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+  ],
+}
