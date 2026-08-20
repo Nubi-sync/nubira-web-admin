@@ -1,0 +1,95 @@
+import { createClient } from '@/utils/supabase/server'
+import { redirect } from 'next/navigation'
+import { ReportsClient } from './components/ReportsClient'
+
+export const dynamic = 'force-dynamic'
+
+export default async function ReportsPage() {
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    redirect('/login')
+  }
+
+  // 1. Fetch Daily Product logs (Lineman production)
+  const { data: dailyProducts } = await supabase
+    .from('daily_product')
+    .select(`
+      id,
+      entry_date,
+      quantity,
+      notes,
+      lineman:profiles!daily_product_lineman_id_fkey(username),
+      article:articles(art_no, description)
+    `)
+    .order('entry_date', { ascending: false })
+    .order('created_at', { ascending: false })
+
+  // 2. Fetch QC logs
+  const { data: qcLogs } = await supabase
+    .from('qc_logs')
+    .select(`
+      id,
+      entry_date,
+      stage,
+      qty_received,
+      qty_passed,
+      qty_rejected,
+      defect_type,
+      remarks,
+      lineman:profiles!qc_logs_from_lineman_id_fkey(username),
+      article:articles(art_no, description)
+    `)
+    .order('entry_date', { ascending: false })
+    .order('created_at', { ascending: false })
+
+  // 3. Fetch Store transactions
+  const { data: storeTransactions } = await supabase
+    .from('store_transactions')
+    .select(`
+      id,
+      entry_date,
+      created_at,
+      type,
+      quantity,
+      party_name,
+      article:articles(art_no, description)
+    `)
+    .order('created_at', { ascending: false })
+
+  // 4. Fetch Worker Assignments (Lineman -> Worker distribution)
+  const { data: workerAssignments } = await supabase
+    .from('worker_assignments')
+    .select(`
+      id,
+      assigned_qty,
+      completed_qty,
+      status,
+      notes,
+      assigned_at,
+      completed_at,
+      entry_date,
+      lineman:profiles!worker_assignments_lineman_id_fkey(username),
+      worker:profiles!worker_assignments_worker_id_fkey(username),
+      article:articles(art_no, description)
+    `)
+    .order('entry_date', { ascending: false })
+    .order('assigned_at', { ascending: false })
+
+  return (
+    <div className="min-h-screen bg-slate-50 text-slate-900 p-4 md:p-8">
+      <div className="max-w-7xl mx-auto space-y-8">
+        <ReportsClient 
+          dailyProducts={(dailyProducts as any) || []}
+          qcLogs={(qcLogs as any) || []}
+          storeTransactions={(storeTransactions as any) || []}
+          workerAssignments={(workerAssignments as any) || []}
+        />
+      </div>
+    </div>
+  )
+}
