@@ -60,7 +60,7 @@ type WorkerAssignmentRow = {
   completed_at?: string | null
   entry_date: string
   lineman?: { username: string } | null
-  worker?: { username: string } | null
+  worker_name?: string | null
   article?: { art_no: string; description: string } | null
 }
 
@@ -212,7 +212,7 @@ export function ReportsClient({ dailyProducts, qcLogs, storeTransactions, worker
       const matchesSearch =
         !searchTerm ||
         item.lineman?.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.worker?.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.worker_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.article?.art_no?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.status?.toLowerCase().includes(searchTerm.toLowerCase())
       return matchesDate && matchesSearch
@@ -275,7 +275,7 @@ export function ReportsClient({ dailyProducts, qcLogs, storeTransactions, worker
       rows = filteredAssignments.map(r => [
         r.entry_date,
         r.lineman?.username || '-',
-        r.worker?.username || '-',
+        r.worker_name || '-',
         r.article?.art_no || '-',
         r.assigned_qty,
         r.status,
@@ -771,8 +771,8 @@ export function ReportsClient({ dailyProducts, qcLogs, storeTransactions, worker
                       </td>
                       <td className="px-6 py-4 font-bold text-slate-800">
                         <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 rounded-full bg-orange-100 text-orange-700 flex items-center justify-center text-xs font-bold uppercase">{row.worker?.username?.[0] || 'W'}</div>
-                          {row.worker?.username || '-'}
+                          <div className="w-6 h-6 rounded-full bg-orange-100 text-orange-700 flex items-center justify-center text-xs font-bold uppercase">{row.worker_name?.[0] || 'W'}</div>
+                          {row.worker_name || '-'}
                         </div>
                       </td>
                       <td className="px-6 py-4 font-extrabold text-blue-600">{row.article?.art_no || '-'}</td>

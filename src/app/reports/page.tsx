@@ -66,6 +66,7 @@ export default async function ReportsPage() {
     .from('worker_assignments')
     .select(`
       id,
+      worker_name,
       assigned_qty,
       completed_qty,
       status,
@@ -74,7 +75,6 @@ export default async function ReportsPage() {
       completed_at,
       entry_date,
       lineman:profiles!worker_assignments_lineman_id_fkey(username),
-      worker:profiles!worker_assignments_worker_id_fkey(username),
       article:articles(art_no, description)
     `)
     .order('entry_date', { ascending: false })
