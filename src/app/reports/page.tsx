@@ -23,13 +23,15 @@ export default async function ReportsPage() {
       entry_date,
       quantity,
       notes,
+      color,
+      size,
       lineman:profiles!daily_product_lineman_id_fkey(username),
       article:articles(art_no, description)
     `)
     .order('entry_date', { ascending: false })
     .order('created_at', { ascending: false })
 
-  // 2. Fetch QC logs
+  // 2. Fetch QC logs (Enhanced with Color, Size, Mending lifecycle, and Bulking)
   const { data: qcLogs } = await supabase
     .from('qc_logs')
     .select(`
@@ -41,6 +43,15 @@ export default async function ReportsPage() {
       qty_rejected,
       defect_type,
       remarks,
+      color,
+      size,
+      mending_returned_qty,
+      mending_scrap_qty,
+      mending_status,
+      bundle_size,
+      total_bundles,
+      sent_to_store,
+      created_at,
       lineman:profiles!qc_logs_from_lineman_id_fkey(username),
       article:articles(art_no, description)
     `)
@@ -69,6 +80,8 @@ export default async function ReportsPage() {
       worker_name,
       assigned_qty,
       completed_qty,
+      color,
+      size,
       status,
       notes,
       assigned_at,

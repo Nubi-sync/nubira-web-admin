@@ -15,7 +15,11 @@ import {
   TrendingUp, 
   Users, 
   Layers,
-  ArrowLeft
+  ArrowLeft,
+  Inbox,
+  Wrench,
+  Sparkles,
+  ClipboardList
 } from 'lucide-react'
 
 type DailyProductRow = {
@@ -23,6 +27,8 @@ type DailyProductRow = {
   entry_date: string
   quantity: number
   notes?: string | null
+  color?: string | null
+  size?: string | null
   lineman?: { username: string } | null
   article?: { art_no: string; description: string } | null
 }
@@ -36,6 +42,14 @@ type QCLogRow = {
   qty_rejected: number
   defect_type: string
   remarks?: string | null
+  color?: string | null
+  size?: string | null
+  mending_returned_qty?: number
+  mending_scrap_qty?: number
+  mending_status?: string | null
+  bundle_size?: number
+  total_bundles?: number
+  sent_to_store?: boolean
   lineman?: { username: string } | null
   article?: { art_no: string; description: string } | null
 }
@@ -52,48 +66,65 @@ type StoreTxRow = {
 
 type WorkerAssignmentRow = {
   id: string
+  worker_name?: string | null
   assigned_qty: number
   completed_qty: number
+  color?: string | null
+  size?: string | null
   status: string
   notes?: string | null
   assigned_at: string
   completed_at?: string | null
   entry_date: string
   lineman?: { username: string } | null
-  worker_name?: string | null
   article?: { art_no: string; description: string } | null
 }
 
-type Props = {
+interface ReportsClientProps {
   dailyProducts: DailyProductRow[]
   qcLogs: QCLogRow[]
   storeTransactions: StoreTxRow[]
   workerAssignments: WorkerAssignmentRow[]
 }
 
-export function ReportsClient({ dailyProducts, qcLogs, storeTransactions, workerAssignments }: Props) {
-  const [activeTab, setActiveTab] = useState<'production' | 'qc' | 'inventory' | 'employee' | 'assignments'>('production')
-  const [dateFilter, setDateFilter] = useState<'all' | 'today' | 'last7' | 'month'>('all')
+export function ReportsClient({
+  dailyProducts,
+  qcLogs,
+  storeTransactions,
+  workerAssignments,
+}: ReportsClientProps) {
+  const [activeTab, setActiveTab] = useState<'production' | 'qc' | 'inventory' | 'employee' | 'workers'>('production')
+  const [dateFilter, setDateFilter] = useState<'all' | 'today' | 'this_week' | 'this_month'>('today')
   const [searchTerm, setSearchTerm] = useState('')
 
-  const todayStr = useMemo(() => new Date().toISOString().split('T')[0], [])
-  const last7Str = useMemo(() => {
-    const d = new Date()
-    d.setDate(d.getDate() - 7)
-    return d.toISOString().split('T')[0]
-  }, [])
-  const monthStr = useMemo(() => {
-    const d = new Date()
-    d.setDate(1)
-    return d.toISOString().split('T')[0]
-  }, [])
+  const todayStr = new Date().toISOString().split('T')[0]
 
-  // Filter helper
-  const filterByDate = (dateVal: string | undefined) => {
-    if (!dateVal) return true
-    if (dateFilter === 'today') return dateVal === todayStr
-    if (dateFilter === 'last7') return dateVal >= last7Str
-    if (dateFilter === 'month') return dateVal >= monthStr
+  // Date filtering logic
+  const filterByDate = (dateStr?: string | null) => {
+    if (!dateStr) return false
+    if (dateFilter === 'all') return true
+
+    const rowDate = new Date(dateStr)
+    const today = new Date()
+
+    if (dateFilter === 'today') {
+      return dateStr === todayStr
+    }
+
+    if (dateFilter === 'this_week') {
+      const firstDayOfWeek = new Date(today)
+      firstDayOfWeek.setDate(today.getDate() - today.getDay())
+      firstDayOfWeek.setHours(0, 0, 0, 0)
+      return rowDate >= firstDayOfWeek
+    }
+
+    if (dateFilter === 'this_month') {
+      return (
+        rowDate.getMonth() === today.getMonth() &&
+        rowDate.getFullYear() === today.getFullYear()
+      )
+    }
+
     return true
   }
 
@@ -101,66 +132,94 @@ export function ReportsClient({ dailyProducts, qcLogs, storeTransactions, worker
   const filteredProduction = useMemo(() => {
     return dailyProducts.filter(item => {
       const matchesDate = filterByDate(item.entry_date)
-      const matchesSearch = 
-        !searchTerm || 
+      const matchesSearch =
+        !searchTerm ||
         item.lineman?.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.article?.art_no?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.article?.description?.toLowerCase().includes(searchTerm.toLowerCase())
+        item.article?.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.notes?.toLowerCase().includes(searchTerm.toLowerCase())
       return matchesDate && matchesSearch
     })
   }, [dailyProducts, dateFilter, searchTerm])
+
+  const totalProducedQty = filteredProduction.reduce((sum, r) => sum + r.quantity, 0)
 
   // 2. Filtered QC Logs
   const filteredQC = useMemo(() => {
     return qcLogs.filter(item => {
       const matchesDate = filterByDate(item.entry_date)
-      const matchesSearch = 
-        !searchTerm || 
-        item.lineman?.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.article?.art_no?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      const matchesSearch =
+        !searchTerm ||
         item.stage?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.defect_type?.toLowerCase().includes(searchTerm.toLowerCase())
+        item.article?.art_no?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.lineman?.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.defect_type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.remarks?.toLowerCase().includes(searchTerm.toLowerCase())
       return matchesDate && matchesSearch
     })
   }, [qcLogs, dateFilter, searchTerm])
 
-  // 3. Inventory Stock Calculation (Group by Article)
+  const qcStats = useMemo(() => {
+    let rec = 0
+    let checked = 0
+    let passed = 0
+    let inMending = 0
+    let packed = 0
+
+    filteredQC.forEach(r => {
+      const stage = r.stage || ''
+      if (stage === 'RECEIVING') {
+        rec += r.qty_received || 0
+      } else if (stage === 'CHECKING') {
+        checked += (r.qty_passed || 0) + (r.qty_rejected || 0)
+        passed += r.qty_passed || 0
+      } else if (stage === 'MENDING') {
+        if (r.mending_status === 'WITH_LINEMAN_FOR_REPAIR') {
+          inMending += r.qty_rejected || 0
+        } else if (r.mending_status === 'REPAIR_COMPLETED') {
+          passed += r.mending_returned_qty || 0
+        }
+      } else if (stage === 'BULKING') {
+        packed += (r.bundle_size || 0) * (r.total_bundles || 0)
+      }
+    })
+
+    const passRate = checked > 0 ? ((passed / checked) * 100).toFixed(1) : '100.0'
+
+    return { rec, checked, passed, inMending, packed, passRate }
+  }, [filteredQC])
+
+  // 3. Filtered Inventory (Grouped by Article)
   const inventoryReport = useMemo(() => {
     const map: Record<string, {
       art_no: string
       description: string
-      inward: number
-      outward: number
+      totalInward: number
+      totalOutward: number
       balance: number
       lastDate: string
     }> = {}
 
     storeTransactions.forEach(tx => {
-      const artNo = tx.article?.art_no || 'UNKNOWN'
+      const artNo = tx.article?.art_no || 'Unknown'
       const desc = tx.article?.description || '-'
-      const date = tx.entry_date || tx.created_at.split('T')[0]
-
       if (!map[artNo]) {
         map[artNo] = {
           art_no: artNo,
           description: desc,
-          inward: 0,
-          outward: 0,
+          totalInward: 0,
+          totalOutward: 0,
           balance: 0,
-          lastDate: date
+          lastDate: tx.entry_date || tx.created_at?.split('T')[0] || '-'
         }
       }
 
       if (tx.type === 'INWARD') {
-        map[artNo].inward += tx.quantity
+        map[artNo].totalInward += tx.quantity
         map[artNo].balance += tx.quantity
       } else if (tx.type === 'OUTWARD') {
-        map[artNo].outward += tx.quantity
+        map[artNo].totalOutward += tx.quantity
         map[artNo].balance -= tx.quantity
-      }
-
-      if (date > map[artNo].lastDate) {
-        map[artNo].lastDate = date
       }
     })
 
@@ -205,6 +264,7 @@ export function ReportsClient({ dailyProducts, qcLogs, storeTransactions, worker
       topArticle: Object.entries(e.articlesMap).sort((a, b) => b[1] - a[1])[0]?.[0] || '-'
     }))
   }, [filteredProduction])
+
   // 5. Filtered Worker Assignments
   const filteredAssignments = useMemo(() => {
     return workerAssignments.filter(item => {
@@ -229,40 +289,47 @@ export function ReportsClient({ dailyProducts, qcLogs, storeTransactions, worker
     let filename = `report_${activeTab}_${todayStr}.csv`
 
     if (activeTab === 'production') {
-      headers = ['Date', 'Lineman', 'Article No', 'Description', 'Quantity', 'Notes']
+      headers = ['Date', 'Lineman', 'Article No', 'Color', 'Size', 'Description', 'Quantity', 'Notes']
       rows = filteredProduction.map(r => [
         r.entry_date,
         r.lineman?.username || '-',
         r.article?.art_no || '-',
+        r.color || '-',
+        r.size || '-',
         r.article?.description || '-',
         r.quantity,
         `"${(r.notes || '').replace(/"/g, '""')}"`
       ])
     } else if (activeTab === 'qc') {
-      headers = ['Date', 'Stage', 'Article No', 'Lineman', 'Qty Received', 'Qty Passed', 'Qty Rejected', 'Defect Type', 'Remarks']
+      headers = ['Date', 'Stage', 'Article No', 'Color', 'Size', 'Lineman', 'Qty Received', 'Qty Passed', 'Qty Rejected', 'Mending Fixed', 'Mending Scrap', 'Bundle Size', 'Total Bundles', 'Defect Type', 'Remarks']
       rows = filteredQC.map(r => [
         r.entry_date,
         r.stage,
         r.article?.art_no || '-',
+        r.color || '-',
+        r.size || '-',
         r.lineman?.username || '-',
-        r.qty_received,
-        r.qty_passed,
-        r.qty_rejected,
-        r.defect_type,
+        r.qty_received || 0,
+        r.qty_passed || 0,
+        r.qty_rejected || 0,
+        r.mending_returned_qty || 0,
+        r.mending_scrap_qty || 0,
+        r.bundle_size || 0,
+        r.total_bundles || 0,
+        r.defect_type || 'NONE',
         `"${(r.remarks || '').replace(/"/g, '""')}"`
       ])
     } else if (activeTab === 'inventory') {
-      headers = ['Article No', 'Description', 'Total Inward', 'Total Outward', 'Current Balance', 'Last Activity']
+      headers = ['Article No', 'Description', 'Total Inward (QC)', 'Total Outward (Dispatch)', 'Current Godown Balance']
       rows = inventoryReport.map(r => [
         r.art_no,
         r.description,
-        r.inward,
-        r.outward,
-        r.balance,
-        r.lastDate
+        r.totalInward,
+        r.totalOutward,
+        r.balance
       ])
     } else if (activeTab === 'employee') {
-      headers = ['Employee / Lineman', 'Total Produced', 'Days Active', 'Avg Pieces/Day', 'Top Article']
+      headers = ['Lineman', 'Total Pieces Produced', 'Days Active', 'Avg Pieces / Day', 'Top Produced Article']
       rows = employeePerformance.map(r => [
         r.username,
         r.totalPieces,
@@ -270,26 +337,26 @@ export function ReportsClient({ dailyProducts, qcLogs, storeTransactions, worker
         r.avgPerDay,
         r.topArticle
       ])
-    } else if (activeTab === 'assignments') {
-      headers = ['Date', 'Lineman', 'Worker', 'Article No', 'Assigned Qty', 'Status', 'Assigned At', 'Done At', 'Notes']
+    } else if (activeTab === 'workers') {
+      headers = ['Date', 'Lineman', 'Worker Name', 'Article No', 'Color', 'Size', 'Assigned Qty', 'Given Time', 'Completed Time', 'Status', 'Notes']
       rows = filteredAssignments.map(r => [
         r.entry_date,
         r.lineman?.username || '-',
-        r.worker_name || '-',
+        r.worker_name || 'Worker',
         r.article?.art_no || '-',
+        r.color || '-',
+        r.size || '-',
         r.assigned_qty,
+        r.assigned_at ? new Date(r.assigned_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-',
+        r.completed_at ? new Date(r.completed_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-',
         r.status,
-        r.assigned_at ? new Date(r.assigned_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) : '-',
-        r.completed_at ? new Date(r.completed_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) : '-',
-        r.notes || '-'
+        `"${(r.notes || '').replace(/"/g, '""')}"`
       ])
     }
 
-    const csvContent = 'data:text/csv;charset=utf-8,' + [
-      headers.join(','),
-      ...rows.map(e => e.join(','))
-    ].join('\n')
-
+    const csvContent = 'data:text/csv;charset=utf-8,' + 
+      [headers.join(','), ...rows.map(e => e.join(','))].join('\n')
+    
     const encodedUri = encodeURI(csvContent)
     const link = document.createElement('a')
     link.setAttribute('href', encodedUri)
@@ -299,202 +366,154 @@ export function ReportsClient({ dailyProducts, qcLogs, storeTransactions, worker
     document.body.removeChild(link)
   }
 
-  const handlePrint = () => {
-    window.print()
-  }
-
-  // Aggregate Metrics for Header Cards
-  const totalProductionCount = filteredProduction.reduce((sum, r) => sum + r.quantity, 0)
-  const totalQCPassed = filteredQC.reduce((sum, r) => sum + r.qty_passed, 0)
-  const totalQCRejected = filteredQC.reduce((sum, r) => sum + r.qty_rejected, 0)
-  const qcPassRate = (totalQCPassed + totalQCRejected) > 0 
-    ? Math.round((totalQCPassed / (totalQCPassed + totalQCRejected)) * 100) 
-    : 100
-  const totalStockInGodown = inventoryReport.reduce((sum, r) => sum + r.balance, 0)
-
   return (
-    <div className="space-y-8">
-      {/* Top Header Card */}
-      <header className="flex flex-col md:flex-row justify-between items-start md:items-center bg-white p-6 rounded-3xl border border-slate-200 shadow-sm gap-4">
-        <div className="flex items-center gap-4">
-          <div className="p-3.5 bg-gradient-to-tr from-blue-600 to-indigo-600 text-white rounded-2xl shadow-md shadow-blue-500/20">
-            <FileText className="h-6 w-6" />
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-3">
+            <Link 
+              href="/"
+              className="p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Link>
+            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+              <FileText className="w-8 h-8 text-blue-600" />
+              Factory Reports & Analytics
+            </h1>
           </div>
-          <div>
-            <h1 className="text-2xl font-bold text-slate-800">Factory Reports & Analytics</h1>
-            <p className="text-slate-500 text-sm mt-0.5">Comprehensive audit logs, quality control & stock summary</p>
-          </div>
+          <p className="text-sm text-slate-500 mt-1 ml-11">
+            Real-time multi-department production, QC audit, tailor assignments, and store logs.
+          </p>
         </div>
 
-        <div className="flex items-center gap-3 w-full md:w-auto">
+        {/* Action Buttons */}
+        <div className="flex items-center gap-3 self-end sm:self-auto">
           <button 
-            onClick={handleExportCSV}
-            className="flex-1 md:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-semibold rounded-xl text-sm transition-all border border-emerald-200 shadow-sm"
+            onClick={() => window.print()}
+            className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-xl text-sm font-semibold shadow-sm transition-colors"
           >
-            <Download className="h-4 w-4" />
-            Export CSV
-          </button>
-          <button 
-            onClick={handlePrint}
-            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-sm transition-all border border-slate-200 shadow-sm"
-          >
-            <Printer className="h-4 w-4" />
+            <Printer className="w-4 h-4" />
             Print
           </button>
-          <Link 
-            href="/"
-            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-white hover:bg-slate-50 text-slate-700 font-semibold rounded-xl text-sm transition-all border border-slate-200 shadow-sm"
+          <button 
+            onClick={handleExportCSV}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold shadow-md shadow-blue-500/20 transition-colors"
           >
-            <ArrowLeft className="h-4 w-4" />
-            Dashboard
-          </Link>
-        </div>
-      </header>
-
-      {/* Summary KPI Badges */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
-          <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Production (Filtered)</div>
-          <div className="text-2xl font-black text-slate-800 flex items-center gap-2">
-            {totalProductionCount.toLocaleString()}
-            <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-blue-50 text-blue-600">Pcs</span>
-          </div>
-        </div>
-
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
-          <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">QC Pass Rate</div>
-          <div className="text-2xl font-black text-emerald-600 flex items-center gap-2">
-            {qcPassRate}%
-            <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600">{totalQCPassed} Passed</span>
-          </div>
-        </div>
-
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
-          <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Defects / Rejections</div>
-          <div className="text-2xl font-black text-rose-600 flex items-center gap-2">
-            {totalQCRejected}
-            <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-rose-50 text-rose-600">Pcs</span>
-          </div>
-        </div>
-
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
-          <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Godown Stock</div>
-          <div className="text-2xl font-black text-purple-600 flex items-center gap-2">
-            {totalStockInGodown.toLocaleString()}
-            <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-purple-50 text-purple-600">Balance</span>
-          </div>
+            <Download className="w-4 h-4" />
+            Export CSV
+          </button>
         </div>
       </div>
 
-      {/* Tabs & Controls Toolbar */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-4">
+      {/* Tabs & Filter Bar */}
+      <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 bg-white p-3 rounded-2xl border border-slate-200 shadow-sm">
         {/* Navigation Tabs */}
-        <div className="flex bg-slate-100 p-1 rounded-xl gap-1 overflow-x-auto">
+        <div className="flex items-center gap-1 overflow-x-auto pb-2 lg:pb-0">
           <button
             onClick={() => setActiveTab('production')}
-            className={`px-4 py-2 rounded-lg text-xs md:text-sm font-semibold transition-all flex items-center gap-2 whitespace-nowrap ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all ${
               activeTab === 'production'
-                ? 'bg-white text-blue-600 shadow-sm'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
+                : 'text-slate-600 hover:bg-slate-100'
             }`}
           >
-            <TrendingUp className="h-4 w-4" />
-            Daily Production ({filteredProduction.length})
+            <Layers className="w-4 h-4" />
+            Daily Sewing Output ({filteredProduction.length})
+          </button>
+
+          <button
+            onClick={() => setActiveTab('workers')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all ${
+              activeTab === 'workers'
+                ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/20'
+                : 'text-slate-600 hover:bg-slate-100'
+            }`}
+          >
+            <ClipboardList className="w-4 h-4" />
+            Worker Assignments ({filteredAssignments.length})
           </button>
 
           <button
             onClick={() => setActiveTab('qc')}
-            className={`px-4 py-2 rounded-lg text-xs md:text-sm font-semibold transition-all flex items-center gap-2 whitespace-nowrap ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all ${
               activeTab === 'qc'
-                ? 'bg-white text-emerald-600 shadow-sm'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-emerald-600 text-white shadow-md shadow-emerald-500/20'
+                : 'text-slate-600 hover:bg-slate-100'
             }`}
           >
-            <CheckCircle2 className="h-4 w-4" />
-            QC Summary ({filteredQC.length})
+            <CheckCircle2 className="w-4 h-4" />
+            QC & Finishing ({filteredQC.length})
           </button>
 
           <button
             onClick={() => setActiveTab('inventory')}
-            className={`px-4 py-2 rounded-lg text-xs md:text-sm font-semibold transition-all flex items-center gap-2 whitespace-nowrap ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all ${
               activeTab === 'inventory'
-                ? 'bg-white text-purple-600 shadow-sm'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-purple-600 text-white shadow-md shadow-purple-500/20'
+                : 'text-slate-600 hover:bg-slate-100'
             }`}
           >
-            <Package className="h-4 w-4" />
+            <Package className="w-4 h-4" />
             Store Inventory ({inventoryReport.length})
           </button>
 
           <button
             onClick={() => setActiveTab('employee')}
-            className={`px-4 py-2 rounded-lg text-xs md:text-sm font-semibold transition-all flex items-center gap-2 whitespace-nowrap ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all ${
               activeTab === 'employee'
-                ? 'bg-white text-indigo-600 shadow-sm'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-amber-600 text-white shadow-md shadow-amber-500/20'
+                : 'text-slate-600 hover:bg-slate-100'
             }`}
           >
-            <Users className="h-4 w-4" />
-            Worker Performance ({employeePerformance.length})
-          </button>
-
-          <button
-            onClick={() => setActiveTab('assignments')}
-            className={`px-4 py-2 rounded-lg text-xs md:text-sm font-semibold transition-all flex items-center gap-2 whitespace-nowrap ${
-              activeTab === 'assignments'
-                ? 'bg-white text-orange-600 shadow-sm'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <Layers className="h-4 w-4" />
-            Worker Assignments ({filteredAssignments.length})
+            <Users className="w-4 h-4" />
+            Lineman Leaderboard
           </button>
         </div>
 
-        {/* Filter & Search Bar */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-          {/* Date Filter Buttons */}
-          <div className="flex bg-slate-100 p-1 rounded-xl gap-1">
-            <button
-              onClick={() => setDateFilter('all')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                dateFilter === 'all' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-800'
-              }`}
-            >
-              All Time
-            </button>
+        {/* Filters */}
+        <div className="flex flex-wrap sm:flex-nowrap items-center gap-3">
+          <div className="flex items-center bg-slate-100 p-1 rounded-xl w-full sm:w-auto">
             <button
               onClick={() => setDateFilter('today')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                dateFilter === 'today' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-800'
+              className={`flex-1 sm:flex-none px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                dateFilter === 'today' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'
               }`}
             >
               Today
             </button>
             <button
-              onClick={() => setDateFilter('last7')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                dateFilter === 'last7' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-800'
+              onClick={() => setDateFilter('this_week')}
+              className={`flex-1 sm:flex-none px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                dateFilter === 'this_week' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'
               }`}
             >
-              7 Days
+              This Week
             </button>
             <button
-              onClick={() => setDateFilter('month')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                dateFilter === 'month' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-800'
+              onClick={() => setDateFilter('this_month')}
+              className={`flex-1 sm:flex-none px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                dateFilter === 'this_month' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'
               }`}
             >
               This Month
             </button>
+            <button
+              onClick={() => setDateFilter('all')}
+              className={`flex-1 sm:flex-none px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                dateFilter === 'all' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'
+              }`}
+            >
+              All Time
+            </button>
           </div>
 
-          {/* Search Box */}
-          <div className="relative">
-            <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-            <input
+          <div className="relative w-full sm:w-auto">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <input 
               type="text"
-              placeholder="Search Art No / Worker..."
+              placeholder="Search keyword..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-9 pr-4 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full sm:w-48"
@@ -505,307 +524,442 @@ export function ReportsClient({ dailyProducts, qcLogs, storeTransactions, worker
 
       {/* Main Table Content */}
       <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+        
         {/* TAB 1: DAILY PRODUCTION REPORT */}
         {activeTab === 'production' && (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 text-xs uppercase tracking-wider">
-                  <th className="px-6 py-4 font-bold">Date</th>
-                  <th className="px-6 py-4 font-bold">Lineman</th>
-                  <th className="px-6 py-4 font-bold">Article No</th>
-                  <th className="px-6 py-4 font-bold">Description</th>
-                  <th className="px-6 py-4 font-bold text-right">Quantity</th>
-                  <th className="px-6 py-4 font-bold">Notes</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 text-sm">
-                {filteredProduction.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="px-6 py-12 text-center text-slate-400">
-                      No production entries match the selected filters.
-                    </td>
-                  </tr>
-                ) : (
-                  filteredProduction.map((row) => (
-                    <tr key={row.id} className="hover:bg-slate-50/60 transition-colors">
-                      <td className="px-6 py-4 font-semibold text-slate-600 whitespace-nowrap">
-                        {row.entry_date}
-                      </td>
-                      <td className="px-6 py-4 font-bold text-slate-900">
-                        <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold uppercase">
-                            {row.lineman?.username?.[0] || 'L'}
-                          </div>
-                          {row.lineman?.username || 'Unknown'}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 font-extrabold text-blue-600">
-                        {row.article?.art_no || '-'}
-                      </td>
-                      <td className="px-6 py-4 text-slate-500 text-xs">
-                        {row.article?.description || '-'}
-                      </td>
-                      <td className="px-6 py-4 text-right font-black text-slate-800 text-base">
-                        {row.quantity.toLocaleString()}
-                      </td>
-                      <td className="px-6 py-4 text-slate-500 text-xs">
-                        {row.notes || '-'}
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {/* TAB 2: QC SUMMARY REPORT */}
-        {activeTab === 'qc' && (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 text-xs uppercase tracking-wider">
-                  <th className="px-6 py-4 font-bold">Date</th>
-                  <th className="px-6 py-4 font-bold">Stage</th>
-                  <th className="px-6 py-4 font-bold">Article No</th>
-                  <th className="px-6 py-4 font-bold">From Lineman</th>
-                  <th className="px-6 py-4 font-bold text-right text-emerald-600">Passed</th>
-                  <th className="px-6 py-4 font-bold text-right text-rose-600">Rejected</th>
-                  <th className="px-6 py-4 font-bold">Defect Type</th>
-                  <th className="px-6 py-4 font-bold">Remarks</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 text-sm">
-                {filteredQC.length === 0 ? (
-                  <tr>
-                    <td colSpan={8} className="px-6 py-12 text-center text-slate-400">
-                      No quality check logs match the selected filters.
-                    </td>
-                  </tr>
-                ) : (
-                  filteredQC.map((row) => (
-                    <tr key={row.id} className="hover:bg-slate-50/60 transition-colors">
-                      <td className="px-6 py-4 font-semibold text-slate-600 whitespace-nowrap">
-                        {row.entry_date}
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">
-                          {row.stage}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 font-extrabold text-blue-600">
-                        {row.article?.art_no || '-'}
-                      </td>
-                      <td className="px-6 py-4 font-medium text-slate-800">
-                        {row.lineman?.username || '-'}
-                      </td>
-                      <td className="px-6 py-4 text-right font-black text-emerald-600 text-base">
-                        +{row.qty_passed}
-                      </td>
-                      <td className="px-6 py-4 text-right font-black text-rose-600 text-base">
-                        {row.qty_rejected > 0 ? `-${row.qty_rejected}` : '0'}
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                          row.defect_type === 'NONE' 
-                            ? 'bg-emerald-50 text-emerald-700' 
-                            : 'bg-rose-50 text-rose-700 font-semibold'
-                        }`}>
-                          {row.defect_type}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-slate-500 text-xs">
-                        {row.remarks || '-'}
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {/* TAB 3: STORE INVENTORY REPORT */}
-        {activeTab === 'inventory' && (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 text-xs uppercase tracking-wider">
-                  <th className="px-6 py-4 font-bold">Article No</th>
-                  <th className="px-6 py-4 font-bold">Description</th>
-                  <th className="px-6 py-4 font-bold text-right text-emerald-600">Total Inward (QC)</th>
-                  <th className="px-6 py-4 font-bold text-right text-indigo-600">Total Outward (Dispatch)</th>
-                  <th className="px-6 py-4 font-bold text-right text-purple-600">Godown Balance</th>
-                  <th className="px-6 py-4 font-bold text-right">Last Movement</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 text-sm">
-                {inventoryReport.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="px-6 py-12 text-center text-slate-400">
-                      No store transactions recorded yet.
-                    </td>
-                  </tr>
-                ) : (
-                  inventoryReport.map((row) => (
-                    <tr key={row.art_no} className="hover:bg-slate-50/60 transition-colors">
-                      <td className="px-6 py-4 font-black text-blue-600 text-base">
-                        {row.art_no}
-                      </td>
-                      <td className="px-6 py-4 text-slate-600">
-                        {row.description}
-                      </td>
-                      <td className="px-6 py-4 text-right font-bold text-emerald-600">
-                        {row.inward.toLocaleString()} pcs
-                      </td>
-                      <td className="px-6 py-4 text-right font-bold text-indigo-600">
-                        {row.outward.toLocaleString()} pcs
-                      </td>
-                      <td className="px-6 py-4 text-right font-black text-purple-700 text-lg">
-                        {row.balance.toLocaleString()} pcs
-                      </td>
-                      <td className="px-6 py-4 text-right text-xs text-slate-400 font-medium">
-                        {row.lastDate}
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {/* TAB 4: WORKER PERFORMANCE */}
-        {activeTab === 'employee' && (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 text-xs uppercase tracking-wider">
-                  <th className="px-6 py-4 font-bold">Worker / Lineman</th>
-                  <th className="px-6 py-4 font-bold text-right">Total Production</th>
-                  <th className="px-6 py-4 font-bold text-right">Days Logged</th>
-                  <th className="px-6 py-4 font-bold text-right">Avg Output / Day</th>
-                  <th className="px-6 py-4 font-bold">Top Article</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 text-sm">
-                {employeePerformance.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} className="px-6 py-12 text-center text-slate-400">
-                      No worker performance records found.
-                    </td>
-                  </tr>
-                ) : (
-                  employeePerformance.map((row) => (
-                    <tr key={row.username} className="hover:bg-slate-50/60 transition-colors">
-                      <td className="px-6 py-4 font-bold text-slate-900">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-sm font-bold uppercase shadow-sm">
-                            {row.username[0]}
-                          </div>
-                          {row.username}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-right font-black text-blue-600 text-base">
-                        {row.totalPieces.toLocaleString()} pcs
-                      </td>
-                      <td className="px-6 py-4 text-right font-semibold text-slate-600">
-                        {row.daysCount} days
-                      </td>
-                      <td className="px-6 py-4 text-right font-extrabold text-emerald-600 text-base">
-                        ~{row.avgPerDay.toLocaleString()} pcs/day
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-100 text-slate-800">
-                          {row.topArticle}
-                        </span>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {/* TAB 5: WORKER ASSIGNMENTS (Lineman -> Worker distribution) */}
-        {activeTab === 'assignments' && (
-          <div className="overflow-x-auto">
-            <div className="flex flex-wrap items-center gap-6 px-6 py-4 bg-gradient-to-r from-orange-50 to-amber-50 border-b border-orange-200">
-              <div className="text-xs font-semibold text-orange-600 uppercase tracking-wider">Summary</div>
-              <div className="text-sm font-bold text-slate-700">Total Assigned: <span className="text-blue-600">{totalAssignedQty.toLocaleString()} pcs</span></div>
-              <div className="text-sm font-bold text-slate-700">Done: <span className="text-emerald-600">{totalDoneQty.toLocaleString()} pcs</span></div>
-              <div className="text-sm font-bold text-slate-700">Pending: <span className="text-orange-600">{(totalAssignedQty - totalDoneQty).toLocaleString()} pcs</span></div>
+          <div>
+            <div className="p-5 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 border-b border-slate-100 flex items-center justify-between">
+              <div>
+                <h3 className="font-bold text-slate-900 text-base">Sewing Floor Output</h3>
+                <p className="text-xs text-slate-500">Stitched garments logged by floor linemen</p>
+              </div>
+              <div className="text-right">
+                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Output</span>
+                <p className="text-xl font-black text-blue-600">{totalProducedQty.toLocaleString()} pcs</p>
+              </div>
             </div>
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 text-xs uppercase tracking-wider">
-                  <th className="px-6 py-4 font-bold">Date</th>
-                  <th className="px-6 py-4 font-bold">Lineman</th>
-                  <th className="px-6 py-4 font-bold">Worker</th>
-                  <th className="px-6 py-4 font-bold">Art No.</th>
-                  <th className="px-6 py-4 font-bold text-right">Assigned Qty</th>
-                  <th className="px-6 py-4 font-bold text-center">Status</th>
-                  <th className="px-6 py-4 font-bold">Assigned At</th>
-                  <th className="px-6 py-4 font-bold">Done At</th>
-                  <th className="px-6 py-4 font-bold">Notes</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 text-sm">
-                {filteredAssignments.length === 0 ? (
-                  <tr>
-                    <td colSpan={9} className="px-6 py-12 text-center text-slate-400">
-                      No worker assignments found. Lineman assigns work via mobile app.
-                    </td>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 text-xs uppercase tracking-wider">
+                    <th className="px-6 py-4 font-bold">Date</th>
+                    <th className="px-6 py-4 font-bold">Lineman</th>
+                    <th className="px-6 py-4 font-bold">Article No</th>
+                    <th className="px-6 py-4 font-bold">Variant (Color / Size)</th>
+                    <th className="px-6 py-4 font-bold">Description</th>
+                    <th className="px-6 py-4 font-bold text-right">Quantity</th>
+                    <th className="px-6 py-4 font-bold">Notes</th>
                   </tr>
-                ) : (
-                  filteredAssignments.map((row) => (
-                    <tr key={row.id} className="hover:bg-slate-50/60 transition-colors">
-                      <td className="px-6 py-4 font-semibold text-slate-600 whitespace-nowrap">{row.entry_date}</td>
-                      <td className="px-6 py-4 font-bold text-slate-900">
-                        <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold uppercase">{row.lineman?.username?.[0] || 'L'}</div>
-                          {row.lineman?.username || '-'}
-                        </div>
+                </thead>
+                <tbody className="divide-y divide-slate-100 text-sm">
+                  {filteredProduction.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="px-6 py-12 text-center text-slate-400">
+                        No production entries match the selected filters.
                       </td>
-                      <td className="px-6 py-4 font-bold text-slate-800">
-                        <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 rounded-full bg-orange-100 text-orange-700 flex items-center justify-center text-xs font-bold uppercase">{row.worker_name?.[0] || 'W'}</div>
-                          {row.worker_name || '-'}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 font-extrabold text-blue-600">{row.article?.art_no || '-'}</td>
-                      <td className="px-6 py-4 text-right font-black text-slate-800 text-base">{row.assigned_qty.toLocaleString()} pcs</td>
-                      <td className="px-6 py-4 text-center">
-                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ${
-                          row.status === 'DONE'
-                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                            : row.status === 'IN_PROGRESS'
-                            ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                            : 'bg-slate-100 text-slate-600 border border-slate-200'
-                        }`}>
-                          {row.status === 'DONE' ? 'Done' : row.status === 'IN_PROGRESS' ? 'In Progress' : 'Pending'}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-xs text-slate-500 whitespace-nowrap">
-                        {row.assigned_at ? new Date(row.assigned_at).toLocaleString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }) : '-'}
-                      </td>
-                      <td className="px-6 py-4 text-xs whitespace-nowrap">
-                        {row.completed_at ? (
-                          <span className="text-emerald-600 font-semibold">{new Date(row.completed_at).toLocaleString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })}</span>
-                        ) : (
-                          <span className="text-slate-400">--</span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 text-slate-500 text-xs">{row.notes || '-'}</td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                  ) : (
+                    filteredProduction.map((row) => (
+                      <tr key={row.id} className="hover:bg-slate-50/60 transition-colors">
+                        <td className="px-6 py-4 font-semibold text-slate-600 whitespace-nowrap">
+                          {row.entry_date}
+                        </td>
+                        <td className="px-6 py-4 font-bold text-slate-900">
+                          <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold uppercase">
+                              {row.lineman?.username?.[0] || 'L'}
+                            </div>
+                            {row.lineman?.username || 'Unknown'}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 font-extrabold text-blue-600">
+                          {row.article?.art_no || '-'}
+                        </td>
+                        <td className="px-6 py-4">
+                          {(row.color || row.size) ? (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-800 border border-slate-200">
+                              {row.color || ''} {row.size ? `(${row.size})` : ''}
+                            </span>
+                          ) : (
+                            <span className="text-slate-400 text-xs">-</span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 text-slate-500 text-xs">
+                          {row.article?.description || '-'}
+                        </td>
+                        <td className="px-6 py-4 text-right font-black text-slate-800 text-base">
+                          {row.quantity.toLocaleString()}
+                        </td>
+                        <td className="px-6 py-4 text-slate-500 text-xs">
+                          {row.notes || '-'}
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
+
+        {/* TAB 2: WORKER ASSIGNMENTS */}
+        {activeTab === 'workers' && (
+          <div>
+            <div className="p-5 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border-b border-slate-100 flex items-center justify-between">
+              <div>
+                <h3 className="font-bold text-slate-900 text-base">Lineman to Worker Distribution</h3>
+                <p className="text-xs text-slate-500">Live tailor-wise piece tracking and completion timestamps</p>
+              </div>
+              <div className="flex items-center gap-6 text-right">
+                <div>
+                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Assigned</span>
+                  <p className="text-lg font-black text-indigo-600">{totalAssignedQty.toLocaleString()} pcs</p>
+                </div>
+                <div>
+                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Completed</span>
+                  <p className="text-lg font-black text-emerald-600">{totalDoneQty.toLocaleString()} pcs</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 text-xs uppercase tracking-wider">
+                    <th className="px-6 py-4 font-bold">Date</th>
+                    <th className="px-6 py-4 font-bold">Lineman</th>
+                    <th className="px-6 py-4 font-bold">Worker Name (Tailor)</th>
+                    <th className="px-6 py-4 font-bold">Article No</th>
+                    <th className="px-6 py-4 font-bold">Color / Size</th>
+                    <th className="px-6 py-4 font-bold text-right">Assigned Qty</th>
+                    <th className="px-6 py-4 font-bold">Given Time</th>
+                    <th className="px-6 py-4 font-bold">Done Time</th>
+                    <th className="px-6 py-4 font-bold">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 text-sm">
+                  {filteredAssignments.length === 0 ? (
+                    <tr>
+                      <td colSpan={9} className="px-6 py-12 text-center text-slate-400">
+                        No worker assignments found for selected filters.
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredAssignments.map((row) => {
+                      const isDone = row.status === 'DONE'
+                      return (
+                        <tr key={row.id} className="hover:bg-slate-50/60 transition-colors">
+                          <td className="px-6 py-4 font-semibold text-slate-600 whitespace-nowrap">
+                            {row.entry_date}
+                          </td>
+                          <td className="px-6 py-4 font-bold text-slate-900">
+                            {row.lineman?.username || '-'}
+                          </td>
+                          <td className="px-6 py-4 font-extrabold text-indigo-700">
+                            {row.worker_name || 'Worker'}
+                          </td>
+                          <td className="px-6 py-4 font-bold text-blue-600">
+                            {row.article?.art_no || '-'}
+                          </td>
+                          <td className="px-6 py-4">
+                            {(row.color || row.size) ? (
+                              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-slate-100 text-slate-800">
+                                {row.color} {row.size ? `(${row.size})` : ''}
+                              </span>
+                            ) : (
+                              <span className="text-slate-400 text-xs">-</span>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 text-right font-black text-slate-900">
+                            {row.assigned_qty} pcs
+                          </td>
+                          <td className="px-6 py-4 text-slate-500 text-xs">
+                            {row.assigned_at ? new Date(row.assigned_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-'}
+                          </td>
+                          <td className="px-6 py-4 text-slate-500 text-xs">
+                            {row.completed_at ? new Date(row.completed_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-'}
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${
+                              isDone ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                            }`}>
+                              {isDone ? 'Done âœ…' : 'In Progress â³'}
+                            </span>
+                          </td>
+                        </tr>
+                      )
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 3: QC & FINISHING DASHBOARD */}
+        {activeTab === 'qc' && (
+          <div>
+            {/* Top QC Summary Banner */}
+            <div className="p-5 bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-blue-500/10 border-b border-slate-100">
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                <div>
+                  <h3 className="font-bold text-slate-900 text-base">QC Inspection & Finishing Floor Overview</h3>
+                  <p className="text-xs text-slate-500">Live quality metrics, alteration recovery, and store transfers</p>
+                </div>
+                <div className="flex items-center gap-6">
+                  <div className="text-center">
+                    <span className="text-[11px] font-bold text-slate-500 uppercase">Received</span>
+                    <p className="text-base font-black text-blue-600">{qcStats.rec} pcs</p>
+                  </div>
+                  <div className="text-center">
+                    <span className="text-[11px] font-bold text-slate-500 uppercase">Passed</span>
+                    <p className="text-base font-black text-emerald-600">{qcStats.passed} pcs</p>
+                  </div>
+                  <div className="text-center">
+                    <span className="text-[11px] font-bold text-slate-500 uppercase">In Mending</span>
+                    <p className="text-base font-black text-amber-600">{qcStats.inMending} pcs</p>
+                  </div>
+                  <div className="text-center">
+                    <span className="text-[11px] font-bold text-slate-500 uppercase">Packed to Store</span>
+                    <p className="text-base font-black text-purple-600">{qcStats.packed} pcs</p>
+                  </div>
+                  <div className="bg-emerald-600 text-white px-3 py-1.5 rounded-xl text-center shadow-md shadow-emerald-500/20">
+                    <span className="text-[10px] font-bold uppercase tracking-wider block opacity-90">Pass Rate</span>
+                    <span className="text-sm font-black">{qcStats.passRate}%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 text-xs uppercase tracking-wider">
+                    <th className="px-6 py-4 font-bold">Date</th>
+                    <th className="px-6 py-4 font-bold">Stage</th>
+                    <th className="px-6 py-4 font-bold">Article No</th>
+                    <th className="px-6 py-4 font-bold">Color / Size</th>
+                    <th className="px-6 py-4 font-bold">From Lineman</th>
+                    <th className="px-6 py-4 font-bold">Activity Details</th>
+                    <th className="px-6 py-4 font-bold">Defect Type</th>
+                    <th className="px-6 py-4 font-bold">Remarks</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 text-sm">
+                  {filteredQC.length === 0 ? (
+                    <tr>
+                      <td colSpan={8} className="px-6 py-12 text-center text-slate-400">
+                        No quality check logs match the selected filters.
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredQC.map((row) => {
+                      const stage = row.stage || ''
+                      let stageBadge = <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-700">{stage}</span>
+                      let details = ''
+
+                      if (stage === 'RECEIVING') {
+                        stageBadge = <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800 border border-blue-200">ðŸ“¥ Receiving</span>
+                        details = `Received ${row.qty_received} pcs from sewing line`
+                      } else if (stage === 'CHECKING') {
+                        stageBadge = <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">âœ… Checking</span>
+                        details = `${row.qty_passed} Passed â€¢ ${row.qty_rejected} Defect`
+                      } else if (stage === 'MENDING') {
+                        stageBadge = <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">ðŸ”§ Mending</span>
+                        if (row.mending_status === 'REPAIR_COMPLETED') {
+                          details = `Repaired: ${row.mending_returned_qty} Fixed âœ… â€¢ ${row.mending_scrap_qty} Scrap âŒ`
+                        } else {
+                          details = `Sent ${row.qty_rejected} pcs to Lineman for repair â³`
+                        }
+                      } else if (stage === 'BULKING') {
+                        stageBadge = <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-purple-100 text-purple-800 border border-purple-200">ðŸ“¦ Bulking</span>
+                        details = `Packed ${(row.bundle_size || 0) * (row.total_bundles || 0)} pcs (${row.total_bundles} bundles x ${row.bundle_size} pcs) âž” Store Inward`
+                      }
+
+                      return (
+                        <tr key={row.id} className="hover:bg-slate-50/60 transition-colors">
+                          <td className="px-6 py-4 font-semibold text-slate-600 whitespace-nowrap">
+                            {row.entry_date}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            {stageBadge}
+                          </td>
+                          <td className="px-6 py-4 font-extrabold text-blue-600">
+                            {row.article?.art_no || '-'}
+                          </td>
+                          <td className="px-6 py-4">
+                            {(row.color || row.size) ? (
+                              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-slate-100 text-slate-800">
+                                {row.color} {row.size ? `(${row.size})` : ''}
+                              </span>
+                            ) : (
+                              <span className="text-slate-400 text-xs">-</span>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 font-medium text-slate-800">
+                            {row.lineman?.username || '-'}
+                          </td>
+                          <td className="px-6 py-4 font-semibold text-slate-700 text-xs">
+                            {details}
+                          </td>
+                          <td className="px-6 py-4">
+                            {row.defect_type && row.defect_type !== 'NONE' ? (
+                              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                                {row.defect_type}
+                              </span>
+                            ) : (
+                              <span className="text-slate-400 text-xs">-</span>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 text-slate-500 text-xs">
+                            {row.remarks || '-'}
+                          </td>
+                        </tr>
+                      )
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 4: STORE INVENTORY REPORT */}
+        {activeTab === 'inventory' && (
+          <div>
+            <div className="p-5 bg-gradient-to-r from-purple-500/10 to-pink-500/10 border-b border-slate-100 flex items-center justify-between">
+              <div>
+                <h3 className="font-bold text-slate-900 text-base">Finished Goods Godown Stock</h3>
+                <p className="text-xs text-slate-500">Live balance derived from Finishing Inward and Dispatch Outward</p>
+              </div>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 text-xs uppercase tracking-wider">
+                    <th className="px-6 py-4 font-bold">Article No</th>
+                    <th className="px-6 py-4 font-bold">Description</th>
+                    <th className="px-6 py-4 font-bold text-right text-emerald-600">Total Inward (QC)</th>
+                    <th className="px-6 py-4 font-bold text-right text-indigo-600">Total Outward (Dispatch)</th>
+                    <th className="px-6 py-4 font-bold text-right text-purple-600">Godown Balance</th>
+                    <th className="px-6 py-4 font-bold text-right">Last Movement</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 text-sm">
+                  {inventoryReport.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="px-6 py-12 text-center text-slate-400">
+                        No store transactions recorded yet.
+                      </td>
+                    </tr>
+                  ) : (
+                    inventoryReport.map((row) => (
+                      <tr key={row.art_no} className="hover:bg-slate-50/60 transition-colors">
+                        <td className="px-6 py-4 font-extrabold text-blue-600">
+                          {row.art_no}
+                        </td>
+                        <td className="px-6 py-4 text-slate-500 text-xs">
+                          {row.description}
+                        </td>
+                        <td className="px-6 py-4 text-right font-black text-emerald-600 text-base">
+                          +{row.totalInward.toLocaleString()}
+                        </td>
+                        <td className="px-6 py-4 text-right font-black text-indigo-600 text-base">
+                          -{row.totalOutward.toLocaleString()}
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <span className={`inline-flex items-center px-3 py-1 rounded-xl text-sm font-black ${
+                            row.balance > 0 
+                              ? 'bg-purple-100 text-purple-800' 
+                              : row.balance === 0 
+                                ? 'bg-slate-100 text-slate-700' 
+                                : 'bg-rose-100 text-rose-800'
+                          }`}>
+                            {row.balance.toLocaleString()} pcs
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-right text-slate-500 text-xs whitespace-nowrap">
+                          {row.lastDate}
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 5: LINEMAN LEADERBOARD */}
+        {activeTab === 'employee' && (
+          <div>
+            <div className="p-5 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-b border-slate-100 flex items-center justify-between">
+              <div>
+                <h3 className="font-bold text-slate-900 text-base">Lineman Performance Leaderboard</h3>
+                <p className="text-xs text-slate-500">Floor supervisor productivity and daily averages</p>
+              </div>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 text-xs uppercase tracking-wider">
+                    <th className="px-6 py-4 font-bold">Rank</th>
+                    <th className="px-6 py-4 font-bold">Lineman</th>
+                    <th className="px-6 py-4 font-bold text-right">Total Output</th>
+                    <th className="px-6 py-4 font-bold text-right">Active Days</th>
+                    <th className="px-6 py-4 font-bold text-right text-blue-600">Daily Average</th>
+                    <th className="px-6 py-4 font-bold">Top Article</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 text-sm">
+                  {employeePerformance.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="px-6 py-12 text-center text-slate-400">
+                        No production records found for the selected time range.
+                      </td>
+                    </tr>
+                  ) : (
+                    employeePerformance
+                      .sort((a, b) => b.totalPieces - a.totalPieces)
+                      .map((emp, index) => (
+                        <tr key={emp.username} className="hover:bg-slate-50/60 transition-colors">
+                          <td className="px-6 py-4 font-black text-slate-400 text-base">
+                            {index === 0 ? 'ðŸ¥‡' : index === 1 ? 'ðŸ¥ˆ' : index === 2 ? 'ðŸ¥‰' : `#${index + 1}`}
+                          </td>
+                          <td className="px-6 py-4 font-bold text-slate-900">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-xs">
+                                {emp.username[0]?.toUpperCase()}
+                              </div>
+                              {emp.username}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 text-right font-black text-slate-900 text-base">
+                            {emp.totalPieces.toLocaleString()} pcs
+                          </td>
+                          <td className="px-6 py-4 text-right text-slate-600 font-semibold">
+                            {emp.daysCount} days
+                          </td>
+                          <td className="px-6 py-4 text-right font-black text-blue-600 text-base">
+                            ~{emp.avgPerDay.toLocaleString()} / day
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-extrabold bg-blue-50 text-blue-700 border border-blue-100">
+                              {emp.topArticle}
+                            </span>
+                          </td>
+                        </tr>
+                      ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   )
