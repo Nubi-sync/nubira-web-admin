@@ -1,7 +1,15 @@
-﻿import { createClient } from '@/utils/supabase/server'
+import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import DashboardClient from './DashboardClient'
+import { 
+  Users, 
+  Tag, 
+  ClipboardList, 
+  FileText, 
+  Warehouse, 
+  Truck 
+} from 'lucide-react'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -86,46 +94,57 @@ export default async function DashboardPage() {
 
         <DashboardClient stats={stats} chartData={chartData} />
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {/* Employees */}
-          <Link href="/employees" className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm h-48 flex flex-col items-center justify-center text-slate-700 hover:border-blue-300 hover:shadow-md transition-all group cursor-pointer relative z-10">
-            <div className="p-4 bg-blue-50 text-blue-600 rounded-2xl mb-3 group-hover:scale-110 transition-transform shadow-sm">
-              <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-              </svg>
-            </div>
-            <span className="font-bold text-base text-slate-800">Manage Employees</span>
-            <span className="text-xs text-slate-400 mt-1">Add or update workers</span>
-          </Link>
-
-          {/* Articles */}
-          <Link href="/articles" className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm h-48 flex flex-col items-center justify-center text-slate-700 hover:border-indigo-300 hover:shadow-md transition-all group cursor-pointer relative z-10">
-            <div className="p-4 bg-indigo-50 text-indigo-600 rounded-2xl mb-3 group-hover:scale-110 transition-transform shadow-sm">
-              <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
-              </svg>
-            </div>
-            <span className="font-bold text-base text-slate-800">Manage Articles</span>
-            <span className="text-xs text-slate-400 mt-1">Set rates & Art No.</span>
-          </Link>
-
-          {/* Allotments */}
-          <Link href="/allotments" className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm h-48 flex flex-col items-center justify-center text-slate-700 hover:border-purple-300 hover:shadow-md transition-all group cursor-pointer relative z-10">
+        {/* 6 Quick Access Navigation Modules */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* 1. Inventory & Godown */}
+          <Link href="/inventory" className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm h-48 flex flex-col items-center justify-center text-slate-700 hover:border-purple-300 hover:shadow-md transition-all group cursor-pointer relative z-10">
             <div className="p-4 bg-purple-50 text-purple-600 rounded-2xl mb-3 group-hover:scale-110 transition-transform shadow-sm">
-              <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-              </svg>
+              <Warehouse className="w-7 h-7" />
+            </div>
+            <span className="font-bold text-base text-slate-800">Godown & Inventory</span>
+            <span className="text-xs text-slate-400 mt-1">Stock matrix & raw trims</span>
+          </Link>
+
+          {/* 2. Dispatch & Logistics */}
+          <Link href="/dispatch" className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm h-48 flex flex-col items-center justify-center text-slate-700 hover:border-blue-300 hover:shadow-md transition-all group cursor-pointer relative z-10">
+            <div className="p-4 bg-blue-50 text-blue-600 rounded-2xl mb-3 group-hover:scale-110 transition-transform shadow-sm">
+              <Truck className="w-7 h-7" />
+            </div>
+            <span className="font-bold text-base text-slate-800">Dispatch & Challans</span>
+            <span className="text-xs text-slate-400 mt-1">Counting & gate passes</span>
+          </Link>
+
+          {/* 3. Target Allotments */}
+          <Link href="/allotments" className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm h-48 flex flex-col items-center justify-center text-slate-700 hover:border-amber-300 hover:shadow-md transition-all group cursor-pointer relative z-10">
+            <div className="p-4 bg-amber-50 text-amber-600 rounded-2xl mb-3 group-hover:scale-110 transition-transform shadow-sm">
+              <ClipboardList className="w-7 h-7" />
             </div>
             <span className="font-bold text-base text-slate-800">Target Allotments</span>
             <span className="text-xs text-slate-400 mt-1">Assign work to Linemen</span>
           </Link>
 
-          {/* Reports */}
+          {/* 4. Manage Employees */}
+          <Link href="/employees" className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm h-48 flex flex-col items-center justify-center text-slate-700 hover:border-cyan-300 hover:shadow-md transition-all group cursor-pointer relative z-10">
+            <div className="p-4 bg-cyan-50 text-cyan-600 rounded-2xl mb-3 group-hover:scale-110 transition-transform shadow-sm">
+              <Users className="w-7 h-7" />
+            </div>
+            <span className="font-bold text-base text-slate-800">Manage Employees</span>
+            <span className="text-xs text-slate-400 mt-1">Add or update workers</span>
+          </Link>
+
+          {/* 5. Manage Articles */}
+          <Link href="/articles" className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm h-48 flex flex-col items-center justify-center text-slate-700 hover:border-indigo-300 hover:shadow-md transition-all group cursor-pointer relative z-10">
+            <div className="p-4 bg-indigo-50 text-indigo-600 rounded-2xl mb-3 group-hover:scale-110 transition-transform shadow-sm">
+              <Tag className="w-7 h-7" />
+            </div>
+            <span className="font-bold text-base text-slate-800">Manage Articles</span>
+            <span className="text-xs text-slate-400 mt-1">Set rates & Art No.</span>
+          </Link>
+
+          {/* 6. Reports & Analytics */}
           <Link href="/reports" className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm h-48 flex flex-col items-center justify-center text-slate-700 hover:border-emerald-300 hover:shadow-md transition-all group cursor-pointer relative z-10">
             <div className="p-4 bg-emerald-50 text-emerald-600 rounded-2xl mb-3 group-hover:scale-110 transition-transform shadow-sm">
-              <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
+              <FileText className="w-7 h-7" />
             </div>
             <span className="font-bold text-base text-slate-800">Reports & Analytics</span>
             <span className="text-xs text-slate-400 mt-1">Production, QC & Stock</span>

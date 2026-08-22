@@ -77,3 +77,20 @@ export async function updateEmployeeRole(userId: string, newRole: string) {
   revalidatePath('/employees')
   return { success: true }
 }
+
+export async function resetEmployeePassword(userId: string, newPassword: string) {
+  if (!newPassword || newPassword.length < 6) {
+    return { error: 'Password must be at least 6 characters long' }
+  }
+
+  const { error } = await supabaseAdmin.auth.admin.updateUserById(userId, {
+    password: newPassword,
+  })
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  revalidatePath('/employees')
+  return { success: true }
+}

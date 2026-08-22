@@ -49,6 +49,17 @@
 }
 
 :root {
+  --bg: #EEF1F5;
+  --bg-line: #E2E7EE;
+  --card: #FFFFFF;
+  --ink: #1C2733;
+  --ink-soft: #5B6B7C;
+  --border: #E2E8F0;
+  --steel: #2B4C7E;
+  --steel-dark: #1F3A63;
+  --steel-mist: #EEF3FA;
+  --stitch: #C8802B;
+
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
