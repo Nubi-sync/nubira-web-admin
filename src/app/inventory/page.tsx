@@ -1,3 +1,4 @@
+import { AdminShell } from '@/components/layout/AdminShell'
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { InventoryClient } from './components/InventoryClient'
@@ -58,7 +59,8 @@ export default async function InventoryPage() {
     .order('created_at', { ascending: false })
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 p-4 md:p-8">
+    <AdminShell userEmail={user.email}>
+      <div className="flex-1 p-6 md:p-8 max-w-7xl w-full mx-auto space-y-6">
       <div className="max-w-7xl mx-auto space-y-8">
         <InventoryClient 
           articles={(articles as any) || []}
@@ -67,5 +69,6 @@ export default async function InventoryPage() {
         />
       </div>
     </div>
+    </AdminShell>
   )
 }

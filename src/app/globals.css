@@ -54,10 +54,16 @@
   --card: #FFFFFF;
   --ink: #1C2733;
   --ink-soft: #5B6B7C;
+  --ink-faint: #8B9AAB;
   --border: #E2E8F0;
   --steel: #2B4C7E;
   --steel-dark: #1F3A63;
   --steel-mist: #EEF3FA;
+  --steel-tint: #DBE6F5;
+  --green: #1F9D63;
+  --green-mist: #E6F6EE;
+  --amber: #C8802B;
+  --amber-mist: #FBF0E1;
   --stitch: #C8802B;
 
   --background: oklch(1 0 0);

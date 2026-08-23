@@ -1,3 +1,4 @@
+import { AdminShell } from '@/components/layout/AdminShell'
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { CreateArticleForm } from './components/CreateArticleForm'
@@ -22,7 +23,8 @@ export default async function ArticlesPage() {
     .order('created_at', { ascending: false })
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 p-8">
+    <AdminShell userEmail={user.email}>
+      <div className="flex-1 p-6 md:p-8 max-w-7xl w-full mx-auto space-y-6">
       <div className="max-w-6xl mx-auto space-y-8">
         
         {/* Header */}
@@ -56,5 +58,6 @@ export default async function ArticlesPage() {
 
       </div>
     </div>
+    </AdminShell>
   )
 }
