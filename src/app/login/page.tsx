@@ -1,19 +1,26 @@
 'use client'
 
 import { useState } from 'react'
-import { login, requestPasswordReset } from './actions'
-import { ArrowRight, X, KeyRound, CheckCircle2, AlertCircle } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { login, sendPasswordResetOtp, verifyRecoveryOtp, setNewPassword } from './actions'
+import { ArrowRight, X, KeyRound, CheckCircle2, AlertCircle, ShieldCheck, Lock } from 'lucide-react'
 
 export default function LoginPage() {
+  const router = useRouter()
   const [error, setError] = useState<string | null>(null)
   const [isPending, setIsPending] = useState(false)
 
-  // Forgot Password Modal States
+  // 3-Step Forgot Password Modal States
   const [showForgotModal, setShowForgotModal] = useState(false)
+  const [forgotStep, setForgotStep] = useState<1 | 2 | 3>(1) // 1: Email, 2: OTP, 3: New Password
   const [forgotEmail, setForgotEmail] = useState('')
+  const [otpToken, setOtpToken] = useState('')
+  const [newPassword, setNewPasswordVal] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [forgotStatus, setForgotStatus] = useState<string | null>(null)
   const [forgotError, setForgotError] = useState<string | null>(null)
   const [isForgotPending, setIsForgotPending] = useState(false)
+  const [isResetSuccess, setIsResetSuccess] = useState(false)
 
   async function clientAction(formData: FormData) {
     setIsPending(true)
@@ -25,7 +32,8 @@ export default function LoginPage() {
     }
   }
 
-  async function handleForgotSubmit(e: React.FormEvent<HTMLFormElement>) {
+  // STEP 1: Send OTP to Email
+  async function handleSendOtp(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setIsForgotPending(true)
     setForgotError(null)
@@ -34,13 +42,80 @@ export default function LoginPage() {
     const formData = new FormData()
     formData.append('email', forgotEmail)
 
-    const res = await requestPasswordReset(formData)
+    const res = await sendPasswordResetOtp(formData)
     if (res?.error) {
       setForgotError(res.error)
     } else if (res?.success) {
-      setForgotStatus(res.message || 'Password reset link sent! Check your inbox.')
+      setForgotStatus('6-digit OTP has been sent to your email.')
+      setForgotStep(2)
     }
     setIsForgotPending(false)
+  }
+
+  // STEP 2: Verify OTP Only
+  async function handleVerifyOtp(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    setIsForgotPending(true)
+    setForgotError(null)
+
+    const formData = new FormData()
+    formData.append('email', forgotEmail)
+    formData.append('token', otpToken)
+
+    const res = await verifyRecoveryOtp(formData)
+    if (res?.error) {
+      setForgotError(res.error)
+    } else if (res?.success) {
+      setForgotStep(3)
+    }
+    setIsForgotPending(false)
+  }
+
+  // STEP 3: Set New Password
+  async function handleSetNewPassword(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    setIsForgotPending(true)
+    setForgotError(null)
+
+    if (newPassword.length < 6) {
+      setForgotError('Password must be at least 6 characters long.')
+      setIsForgotPending(false)
+      return
+    }
+
+    if (newPassword !== confirmPassword) {
+      setForgotError('Passwords do not match.')
+      setIsForgotPending(false)
+      return
+    }
+
+    const formData = new FormData()
+    formData.append('password', newPassword)
+    formData.append('confirm_password', confirmPassword)
+
+    const res = await setNewPassword(formData)
+    if (res?.error) {
+      setForgotError(res.error)
+      setIsForgotPending(false)
+    } else if (res?.success) {
+      setIsResetSuccess(true)
+      setIsForgotPending(false)
+      setTimeout(() => {
+        router.push('/')
+      }, 1500)
+    }
+  }
+
+  function resetModalState() {
+    setShowForgotModal(false)
+    setForgotStep(1)
+    setForgotEmail('')
+    setOtpToken('')
+    setNewPasswordVal('')
+    setConfirmPassword('')
+    setForgotStatus(null)
+    setForgotError(null)
+    setIsResetSuccess(false)
   }
 
   return (
@@ -59,7 +134,7 @@ export default function LoginPage() {
       {/* Centered Content Container */}
       <div className="z-10 w-full max-w-[380px] flex flex-col items-center">
         
-        {/* 1. Logo Mark (56x56px, rounded 14px, steel background, subtle shadow) */}
+        {/* 1. Logo Mark */}
         <div 
           className="w-14 h-14 rounded-[14px] flex items-center justify-center mb-4 transition-transform duration-200 hover:scale-[1.02]"
           style={{
@@ -77,7 +152,6 @@ export default function LoginPage() {
             strokeLinecap="round" 
             strokeLinejoin="round"
           >
-            {/* Needle and Thread / Garment Craft Icon */}
             <path d="M12 2v20" />
             <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
             <circle cx="12" cy="4" r="1.2" fill="currentColor" />
@@ -93,7 +167,6 @@ export default function LoginPage() {
             Nubira Factory
           </h1>
 
-          {/* Dashed stitch divider rule (120px wide, 6px dash / 5px gap) */}
           <div 
             className="w-[120px] h-[2px] my-2.5"
             style={{
@@ -109,7 +182,7 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* 3. Login Card (380px wide max, 12px radius, stitched top edge) */}
+        {/* 3. Login Card */}
         <div 
           className="w-full relative bg-white border rounded-[12px] p-6 sm:p-[34px_34px_30px]"
           style={{
@@ -126,7 +199,6 @@ export default function LoginPage() {
           />
 
           <form action={clientAction} className="space-y-4">
-            
             {/* Email Field */}
             <div className="space-y-1.5">
               <label 
@@ -215,6 +287,7 @@ export default function LoginPage() {
                 onClick={() => {
                   setForgotError(null)
                   setForgotStatus(null)
+                  setForgotStep(1)
                   setShowForgotModal(true)
                 }}
                 className="text-[12.5px] font-semibold hover:underline transition-colors bg-transparent border-none p-0 cursor-pointer"
@@ -267,7 +340,7 @@ export default function LoginPage() {
       </div>
 
       {/* ======================================================== */}
-      {/* FORGOT PASSWORD MODAL (SUPABASE AUTH INTEGRATED)          */}
+      {/* 3-STEP OTP & PASSWORD RESET MODAL                        */}
       {/* ======================================================== */}
       {showForgotModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-200">
@@ -277,53 +350,59 @@ export default function LoginPage() {
           >
             {/* Close Button */}
             <button 
-              onClick={() => setShowForgotModal(false)}
+              onClick={resetModalState}
               className="absolute top-4 right-4 p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
 
+            {/* Header */}
             <div className="flex items-center gap-3 mb-4">
               <div 
                 className="w-10 h-10 rounded-[10px] flex items-center justify-center"
                 style={{ backgroundColor: 'var(--steel-mist, #EEF3FA)', color: 'var(--steel, #2B4C7E)' }}
               >
-                <KeyRound className="w-5 h-5" />
+                {forgotStep === 1 && <KeyRound className="w-5 h-5" />}
+                {forgotStep === 2 && <ShieldCheck className="w-5 h-5" />}
+                {forgotStep === 3 && <Lock className="w-5 h-5" />}
               </div>
               <div>
                 <h3 
                   className="text-lg font-bold font-[family-name:var(--font-fraunces)] leading-tight"
                   style={{ color: 'var(--ink, #1C2733)' }}
                 >
-                  Reset Password
+                  {forgotStep === 1 && 'Reset Password'}
+                  {forgotStep === 2 && 'Enter 6-Digit OTP'}
+                  {forgotStep === 3 && 'Create New Password'}
                 </h3>
-                <p className="text-xs text-slate-500">Supabase Secure Recovery</p>
+                <p className="text-xs text-slate-500">
+                  {forgotStep === 1 && 'Step 1 of 3: Registered Email'}
+                  {forgotStep === 2 && 'Step 2 of 3: OTP Verification'}
+                  {forgotStep === 3 && 'Step 3 of 3: Set Password'}
+                </p>
               </div>
             </div>
 
-            <p className="text-xs text-slate-600 mb-5 leading-relaxed">
-              Enter your registered account email address. We will send you an official secure link to reset your password.
-            </p>
-
-            {forgotStatus ? (
-              <div className="space-y-4">
-                <div className="p-3.5 rounded-[9px] bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-start gap-2.5">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
-                  <div>
-                    <span className="font-bold block mb-0.5">Check Your Email Inbox</span>
-                    <span>{forgotStatus}</span>
-                  </div>
+            {/* SUCCESS STATE */}
+            {isResetSuccess ? (
+              <div className="text-center space-y-3 py-4">
+                <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto">
+                  <CheckCircle2 className="w-7 h-7" />
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setShowForgotModal(false)}
-                  className="w-full py-2.5 px-4 rounded-[7px] text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors"
-                >
-                  Done & Close
-                </button>
+                <h4 className="text-base font-bold text-slate-800">Password Updated Successfully!</h4>
+                <p className="text-xs text-slate-500">
+                  Your new password has been saved. Redirecting to dashboard...
+                </p>
               </div>
-            ) : (
-              <form onSubmit={handleForgotSubmit} className="space-y-4">
+            ) : forgotStep === 1 ? (
+              /* ======================================================== */
+              /* STEP 1: ENTER EMAIL                                      */
+              /* ======================================================== */
+              <form onSubmit={handleSendOtp} className="space-y-4">
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  Enter your registered email address. We will send you a 6-digit OTP code to verify your identity.
+                </p>
+
                 <div className="space-y-1.5">
                   <label 
                     htmlFor="forgot-email" 
@@ -338,7 +417,7 @@ export default function LoginPage() {
                     required
                     value={forgotEmail}
                     onChange={(e) => setForgotEmail(e.target.value)}
-                    placeholder="e.g. admin@nubira.local"
+                    placeholder="e.g. team.anga9@gmail.com"
                     className="w-full py-[11px] px-[13px] text-[13.5px] rounded-[7px] border transition-colors outline-none"
                     style={{
                       backgroundColor: '#FBFCFD',
@@ -366,7 +445,7 @@ export default function LoginPage() {
                 <div className="flex items-center gap-2 pt-2">
                   <button
                     type="button"
-                    onClick={() => setShowForgotModal(false)}
+                    onClick={resetModalState}
                     className="flex-1 py-2.5 px-3 rounded-[7px] text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors"
                   >
                     Cancel
@@ -377,7 +456,176 @@ export default function LoginPage() {
                     className="flex-2 py-2.5 px-4 rounded-[7px] text-xs font-bold text-white transition-colors disabled:opacity-60"
                     style={{ backgroundColor: 'var(--steel, #2B4C7E)' }}
                   >
-                    {isForgotPending ? 'Sending...' : 'Send Reset Link'}
+                    {isForgotPending ? 'Sending OTP...' : 'Send 6-Digit OTP'}
+                  </button>
+                </div>
+              </form>
+            ) : forgotStep === 2 ? (
+              /* ======================================================== */
+              /* STEP 2: ENTER OTP ONLY                                   */
+              /* ======================================================== */
+              <form onSubmit={handleVerifyOtp} className="space-y-4">
+                <div className="p-3 rounded-[9px] bg-blue-50 border border-blue-100 text-xs text-blue-900 flex items-start justify-between gap-2">
+                  <div>
+                    <span className="font-semibold block">OTP Sent to:</span>
+                    <span className="font-bold text-blue-700">{forgotEmail}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setForgotStep(1)}
+                    className="text-[11px] font-bold text-blue-600 hover:underline shrink-0"
+                  >
+                    Change Email
+                  </button>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label 
+                    htmlFor="otp-token" 
+                    className="block text-[11px] font-semibold uppercase tracking-[1.5px]"
+                    style={{ color: 'var(--ink-soft, #5B6B7C)' }}
+                  >
+                    Enter 6-Digit OTP Code
+                  </label>
+                  <input
+                    id="otp-token"
+                    type="text"
+                    required
+                    maxLength={10}
+                    value={otpToken}
+                    onChange={(e) => setOtpToken(e.target.value)}
+                    placeholder="• • • • • •"
+                    className="w-full py-[12px] px-[13px] text-center tracking-[6px] font-mono text-lg font-bold rounded-[7px] border transition-colors outline-none"
+                    style={{
+                      backgroundColor: '#FBFCFD',
+                      borderColor: 'var(--border, #E2E8F0)',
+                      color: 'var(--steel, #2B4C7E)',
+                    }}
+                    onFocus={(e) => {
+                      e.currentTarget.style.borderColor = 'var(--steel, #2B4C7E)'
+                      e.currentTarget.style.boxShadow = '0 0 0 3px var(--steel-mist, #EEF3FA)'
+                    }}
+                    onBlur={(e) => {
+                      e.currentTarget.style.borderColor = 'var(--border, #E2E8F0)'
+                      e.currentTarget.style.boxShadow = 'none'
+                    }}
+                  />
+                </div>
+
+                {forgotError && (
+                  <div className="p-3 rounded-[7px] text-xs font-medium bg-rose-50 border border-rose-200 text-rose-600 flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 shrink-0" />
+                    <span>{forgotError}</span>
+                  </div>
+                )}
+
+                <div className="flex items-center gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setForgotStep(1)}
+                    className="flex-1 py-2.5 px-3 rounded-[7px] text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors"
+                  >
+                    Back
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isForgotPending}
+                    className="flex-2 py-2.5 px-4 rounded-[7px] text-xs font-bold text-white transition-colors disabled:opacity-60"
+                    style={{ backgroundColor: 'var(--steel, #2B4C7E)' }}
+                  >
+                    {isForgotPending ? 'Verifying OTP...' : 'Verify OTP Code'}
+                  </button>
+                </div>
+              </form>
+            ) : (
+              /* ======================================================== */
+              /* STEP 3: SET NEW PASSWORD                                 */
+              /* ======================================================== */
+              <form onSubmit={handleSetNewPassword} className="space-y-3.5">
+                <div className="p-2.5 rounded-[9px] bg-emerald-50 border border-emerald-100 text-xs text-emerald-800 flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span className="font-semibold">OTP Verified! Create your new password.</span>
+                </div>
+
+                <div className="space-y-1">
+                  <label 
+                    htmlFor="new-password" 
+                    className="block text-[11px] font-semibold uppercase tracking-[1.5px]"
+                    style={{ color: 'var(--ink-soft, #5B6B7C)' }}
+                  >
+                    New Password
+                  </label>
+                  <input
+                    id="new-password"
+                    type="password"
+                    required
+                    value={newPassword}
+                    onChange={(e) => setNewPasswordVal(e.target.value)}
+                    placeholder="At least 6 characters"
+                    className="w-full py-[10px] px-[13px] text-[13.5px] rounded-[7px] border transition-colors outline-none"
+                    style={{
+                      backgroundColor: '#FBFCFD',
+                      borderColor: 'var(--border, #E2E8F0)',
+                      color: 'var(--ink, #1C2733)',
+                    }}
+                    onFocus={(e) => {
+                      e.currentTarget.style.borderColor = 'var(--steel, #2B4C7E)'
+                      e.currentTarget.style.boxShadow = '0 0 0 3px var(--steel-mist, #EEF3FA)'
+                    }}
+                    onBlur={(e) => {
+                      e.currentTarget.style.borderColor = 'var(--border, #E2E8F0)'
+                      e.currentTarget.style.boxShadow = 'none'
+                    }}
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label 
+                    htmlFor="confirm-password" 
+                    className="block text-[11px] font-semibold uppercase tracking-[1.5px]"
+                    style={{ color: 'var(--ink-soft, #5B6B7C)' }}
+                  >
+                    Confirm New Password
+                  </label>
+                  <input
+                    id="confirm-password"
+                    type="password"
+                    required
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Re-enter your new password"
+                    className="w-full py-[10px] px-[13px] text-[13.5px] rounded-[7px] border transition-colors outline-none"
+                    style={{
+                      backgroundColor: '#FBFCFD',
+                      borderColor: 'var(--border, #E2E8F0)',
+                      color: 'var(--ink, #1C2733)',
+                    }}
+                    onFocus={(e) => {
+                      e.currentTarget.style.borderColor = 'var(--steel, #2B4C7E)'
+                      e.currentTarget.style.boxShadow = '0 0 0 3px var(--steel-mist, #EEF3FA)'
+                    }}
+                    onBlur={(e) => {
+                      e.currentTarget.style.borderColor = 'var(--border, #E2E8F0)'
+                      e.currentTarget.style.boxShadow = 'none'
+                    }}
+                  />
+                </div>
+
+                {forgotError && (
+                  <div className="p-3 rounded-[7px] text-xs font-medium bg-rose-50 border border-rose-200 text-rose-600 flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 shrink-0" />
+                    <span>{forgotError}</span>
+                  </div>
+                )}
+
+                <div className="pt-2">
+                  <button
+                    type="submit"
+                    disabled={isForgotPending}
+                    className="w-full py-2.5 px-4 rounded-[7px] text-xs font-bold text-white transition-colors disabled:opacity-60 shadow-sm"
+                    style={{ backgroundColor: 'var(--steel, #2B4C7E)' }}
+                  >
+                    {isForgotPending ? 'Updating Password...' : 'Save Password & Sign In'}
                   </button>
                 </div>
               </form>
