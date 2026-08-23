@@ -1,25 +1,26 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import Link from 'next/link'
 import { 
   FileText, 
   Download, 
   Printer, 
   Calendar, 
   Search, 
-  Filter, 
   CheckCircle2, 
-  XCircle, 
   Package, 
   TrendingUp, 
+  TrendingDown, 
+  Minus, 
   Users, 
   Layers,
-  ArrowLeft,
-  Inbox,
-  Wrench,
-  Sparkles,
-  ClipboardList
+  Scissors,
+  CheckCircle,
+  AlertCircle,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  FilterX
 } from 'lucide-react'
 
 type DailyProductRow = {
@@ -29,6 +30,7 @@ type DailyProductRow = {
   notes?: string | null
   color?: string | null
   size?: string | null
+  created_at?: string
   lineman?: { username: string } | null
   article?: { art_no: string; description: string } | null
 }
@@ -50,6 +52,7 @@ type QCLogRow = {
   bundle_size?: number
   total_bundles?: number
   sent_to_store?: boolean
+  created_at?: string
   lineman?: { username: string } | null
   article?: { art_no: string; description: string } | null
 }
@@ -87,270 +90,368 @@ interface ReportsClientProps {
   workerAssignments: WorkerAssignmentRow[]
 }
 
+type ReportTab = 'production' | 'workers' | 'qc' | 'inventory'
+type DateFilterMode = 'today' | 'this_week' | 'this_month' | 'custom' | 'all'
+
+const TAB_CONFIG: Record<ReportTab, { label: string; icon: any; title: string; subtitle: string; unit: string }> = {
+  production: {
+    label: 'Daily Sewing Output',
+    icon: Scissors,
+    title: 'Sewing Floor Output',
+    subtitle: 'Stitched garments logged by floor linemen',
+    unit: 'pcs'
+  },
+  workers: {
+    label: 'Worker Assignments',
+    icon: Users,
+    title: 'Worker Piece-Rate Distribution',
+    subtitle: 'Cutting bundles and line allotments distributed to tailors',
+    unit: 'pcs'
+  },
+  qc: {
+    label: 'QC & Finishing',
+    icon: CheckCircle2,
+    title: 'QC & Finishing Audits',
+    subtitle: 'Bundle quality inspection results, defect logs, and mending status',
+    unit: 'inspected'
+  },
+  inventory: {
+    label: 'Store Inventory',
+    icon: Package,
+    title: 'Store & Inventory Movements',
+    subtitle: 'Raw trims consumption and finished goods stock transactions',
+    unit: 'units'
+  }
+}
+
 export function ReportsClient({
   dailyProducts,
   qcLogs,
   storeTransactions,
   workerAssignments,
 }: ReportsClientProps) {
-  const [activeTab, setActiveTab] = useState<'production' | 'qc' | 'inventory' | 'employee' | 'workers'>('production')
-  const [dateFilter, setDateFilter] = useState<'all' | 'today' | 'this_week' | 'this_month'>('today')
+  const [activeTab, setActiveTab] = useState<ReportTab>('production')
+  const [dateFilter, setDateFilter] = useState<DateFilterMode>('today')
+  const [customStartDate, setCustomStartDate] = useState('')
+  const [customEndDate, setCustomEndDate] = useState('')
+  const [showCustomModal, setShowCustomModal] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
+  const [currentPage, setCurrentPage] = useState(1)
+  const pageSize = 10
 
-  const todayStr = new Date().toISOString().split('T')[0]
+  const today = new Date()
+  const todayStr = today.toISOString().split('T')[0]
 
-  // Date filtering logic
-  const filterByDate = (dateStr?: string | null) => {
-    if (!dateStr) return false
-    if (dateFilter === 'all') return true
+  // Date range helpers
+  const getDateRangeBounds = (mode: DateFilterMode) => {
+    const now = new Date()
+    let start = new Date(now)
+    let end = new Date(now)
+    let prevStart = new Date(now)
+    let prevEnd = new Date(now)
 
-    const rowDate = new Date(dateStr)
-    const today = new Date()
-
-    if (dateFilter === 'today') {
-      return dateStr === todayStr
+    if (mode === 'today') {
+      start.setHours(0, 0, 0, 0)
+      end.setHours(23, 59, 59, 999)
+      // previous day
+      prevStart.setDate(prevStart.getDate() - 1)
+      prevStart.setHours(0, 0, 0, 0)
+      prevEnd.setDate(prevEnd.getDate() - 1)
+      prevEnd.setHours(23, 59, 59, 999)
+    } else if (mode === 'this_week') {
+      const day = now.getDay()
+      const diff = now.getDate() - day + (day === 0 ? -6 : 1) // Monday as first day
+      start.setDate(diff)
+      start.setHours(0, 0, 0, 0)
+      end.setHours(23, 59, 59, 999)
+      // previous week
+      prevStart.setDate(start.getDate() - 7)
+      prevStart.setHours(0, 0, 0, 0)
+      prevEnd.setDate(start.getDate() - 1)
+      prevEnd.setHours(23, 59, 59, 999)
+    } else if (mode === 'this_month') {
+      start = new Date(now.getFullYear(), now.getMonth(), 1)
+      end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999)
+      // previous month
+      prevStart = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+      prevEnd = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999)
+    } else if (mode === 'custom' && customStartDate && customEndDate) {
+      start = new Date(customStartDate + 'T00:00:00')
+      end = new Date(customEndDate + 'T23:59:59')
+      const durationMs = end.getTime() - start.getTime()
+      prevEnd = new Date(start.getTime() - 1)
+      prevStart = new Date(prevEnd.getTime() - durationMs)
+    } else {
+      // all
+      start = new Date(2000, 0, 1)
+      end = new Date(2100, 0, 1)
+      prevStart = new Date(1990, 0, 1)
+      prevEnd = new Date(1999, 11, 31)
     }
 
-    if (dateFilter === 'this_week') {
-      const firstDayOfWeek = new Date(today)
-      firstDayOfWeek.setDate(today.getDate() - today.getDay())
-      firstDayOfWeek.setHours(0, 0, 0, 0)
-      return rowDate >= firstDayOfWeek
-    }
-
-    if (dateFilter === 'this_month') {
-      return (
-        rowDate.getMonth() === today.getMonth() &&
-        rowDate.getFullYear() === today.getFullYear()
-      )
-    }
-
-    return true
+    return { start, end, prevStart, prevEnd }
   }
 
-  // 1. Filtered Daily Production
-  const filteredProduction = useMemo(() => {
-    return dailyProducts.filter(item => {
-      const matchesDate = filterByDate(item.entry_date)
-      const matchesSearch =
-        !searchTerm ||
-        item.lineman?.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.article?.art_no?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.article?.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.notes?.toLowerCase().includes(searchTerm.toLowerCase())
-      return matchesDate && matchesSearch
+  const dateBounds = useMemo(() => getDateRangeBounds(dateFilter), [dateFilter, customStartDate, customEndDate])
+
+  const isDateInRange = (dateStr: string | undefined | null, start: Date, end: Date) => {
+    if (!dateStr) return false
+    const d = new Date(dateStr.length === 10 ? dateStr + 'T12:00:00' : dateStr)
+    return d >= start && d <= end
+  }
+
+  // 1. Filtered Datasets based on active tab, date, and search
+  const currentTabRawData = useMemo(() => {
+    switch (activeTab) {
+      case 'production': return dailyProducts
+      case 'workers': return workerAssignments
+      case 'qc': return qcLogs
+      case 'inventory': return storeTransactions
+      default: return []
+    }
+  }, [activeTab, dailyProducts, workerAssignments, qcLogs, storeTransactions])
+
+  const getDateField = (item: any) => {
+    return item.entry_date || item.assigned_at || item.created_at
+  }
+
+  const getMetricValue = (item: any, tab: ReportTab): number => {
+    switch (tab) {
+      case 'production': return item.quantity || 0
+      case 'workers': return item.assigned_qty || 0
+      case 'qc': return (item.qty_passed || 0) + (item.qty_rejected || 0) || item.qty_received || 0
+      case 'inventory': return Math.abs(item.quantity || 0)
+      default: return 0
+    }
+  }
+
+  // Filtered rows for the current period
+  const filteredRows = useMemo(() => {
+    const q = searchTerm.toLowerCase().trim()
+
+    return currentTabRawData.filter((item: any) => {
+      // Date Check
+      const dateStr = getDateField(item)
+      if (dateFilter !== 'all' && !isDateInRange(dateStr, dateBounds.start, dateBounds.end)) {
+        return false
+      }
+
+      // Search Check
+      if (!q) return true
+
+      if (activeTab === 'production') {
+        return (
+          item.lineman?.username?.toLowerCase().includes(q) ||
+          item.article?.art_no?.toLowerCase().includes(q) ||
+          item.article?.description?.toLowerCase().includes(q) ||
+          item.color?.toLowerCase().includes(q) ||
+          item.size?.toLowerCase().includes(q) ||
+          item.notes?.toLowerCase().includes(q)
+        )
+      } else if (activeTab === 'workers') {
+        return (
+          item.worker_name?.toLowerCase().includes(q) ||
+          item.lineman?.username?.toLowerCase().includes(q) ||
+          item.article?.art_no?.toLowerCase().includes(q) ||
+          item.status?.toLowerCase().includes(q) ||
+          item.color?.toLowerCase().includes(q)
+        )
+      } else if (activeTab === 'qc') {
+        return (
+          item.defect_type?.toLowerCase().includes(q) ||
+          item.stage?.toLowerCase().includes(q) ||
+          item.remarks?.toLowerCase().includes(q) ||
+          item.article?.art_no?.toLowerCase().includes(q) ||
+          item.lineman?.username?.toLowerCase().includes(q)
+        )
+      } else if (activeTab === 'inventory') {
+        return (
+          item.party_name?.toLowerCase().includes(q) ||
+          item.type?.toLowerCase().includes(q) ||
+          item.article?.art_no?.toLowerCase().includes(q)
+        )
+      }
+
+      return true
     })
-  }, [dailyProducts, dateFilter, searchTerm])
+  }, [currentTabRawData, activeTab, dateFilter, dateBounds, searchTerm])
 
-  const totalProducedQty = filteredProduction.reduce((sum, r) => sum + r.quantity, 0)
+  // Summary Metrics Computation
+  const currentPeriodAggregate = useMemo(() => {
+    return filteredRows.reduce((sum, item) => sum + getMetricValue(item, activeTab), 0)
+  }, [filteredRows, activeTab])
 
-  // 2. Filtered QC Logs
-  const filteredQC = useMemo(() => {
-    return qcLogs.filter(item => {
-      const matchesDate = filterByDate(item.entry_date)
-      const matchesSearch =
-        !searchTerm ||
-        item.stage?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.article?.art_no?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.lineman?.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.defect_type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.remarks?.toLowerCase().includes(searchTerm.toLowerCase())
-      return matchesDate && matchesSearch
-    })
-  }, [qcLogs, dateFilter, searchTerm])
+  // Previous Period Aggregate Calculation
+  const { prevPeriodAggregate, hasPriorData } = useMemo(() => {
+    if (dateFilter === 'all') {
+      return { prevPeriodAggregate: 0, hasPriorData: false }
+    }
 
-  const qcStats = useMemo(() => {
-    let rec = 0
-    let checked = 0
-    let passed = 0
-    let inMending = 0
-    let packed = 0
+    let count = 0
+    let sum = 0
 
-    filteredQC.forEach(r => {
-      const stage = r.stage || ''
-      if (stage === 'RECEIVING') {
-        rec += r.qty_received || 0
-      } else if (stage === 'CHECKING') {
-        checked += (r.qty_passed || 0) + (r.qty_rejected || 0)
-        passed += r.qty_passed || 0
-      } else if (stage === 'MENDING') {
-        if (r.mending_status === 'WITH_LINEMAN_FOR_REPAIR') {
-          inMending += r.qty_rejected || 0
-        } else if (r.mending_status === 'REPAIR_COMPLETED') {
-          passed += r.mending_returned_qty || 0
-        }
-      } else if (stage === 'BULKING') {
-        packed += (r.bundle_size || 0) * (r.total_bundles || 0)
+    currentTabRawData.forEach((item: any) => {
+      const dateStr = getDateField(item)
+      if (isDateInRange(dateStr, dateBounds.prevStart, dateBounds.prevEnd)) {
+        count++
+        sum += getMetricValue(item, activeTab)
       }
     })
 
-    const passRate = checked > 0 ? ((passed / checked) * 100).toFixed(1) : '100.0'
+    return { prevPeriodAggregate: sum, hasPriorData: count > 0 }
+  }, [currentTabRawData, activeTab, dateFilter, dateBounds])
 
-    return { rec, checked, passed, inMending, packed, passRate }
-  }, [filteredQC])
+  // Trend Comparison Computation
+  const trendComparison = useMemo(() => {
+    if (!hasPriorData) {
+      return { status: 'no_data', label: 'No prior data', diffPct: 0 }
+    }
 
-  // 3. Filtered Inventory (Grouped by Article)
-  const inventoryReport = useMemo(() => {
-    const map: Record<string, {
-      art_no: string
-      description: string
-      totalInward: number
-      totalOutward: number
-      balance: number
-      lastDate: string
-    }> = {}
-
-    storeTransactions.forEach(tx => {
-      const artNo = tx.article?.art_no || 'Unknown'
-      const desc = tx.article?.description || '-'
-      if (!map[artNo]) {
-        map[artNo] = {
-          art_no: artNo,
-          description: desc,
-          totalInward: 0,
-          totalOutward: 0,
-          balance: 0,
-          lastDate: tx.entry_date || tx.created_at?.split('T')[0] || '-'
-        }
+    if (prevPeriodAggregate === 0) {
+      if (currentPeriodAggregate > 0) {
+        return { status: 'up', label: '+100%', diffPct: 100 }
       }
+      return { status: 'flat', label: '0%', diffPct: 0 }
+    }
 
-      if (tx.type === 'INWARD') {
-        map[artNo].totalInward += tx.quantity
-        map[artNo].balance += tx.quantity
-      } else if (tx.type === 'OUTWARD') {
-        map[artNo].totalOutward += tx.quantity
-        map[artNo].balance -= tx.quantity
+    const diff = currentPeriodAggregate - prevPeriodAggregate
+    const pct = Math.round((diff / prevPeriodAggregate) * 100)
+
+    if (pct > 0) {
+      return { status: 'up', label: `+${pct}%`, diffPct: pct }
+    } else if (pct < 0) {
+      return { status: 'down', label: `${pct}%`, diffPct: pct }
+    } else {
+      return { status: 'flat', label: '0%', diffPct: 0 }
+    }
+  }, [currentPeriodAggregate, prevPeriodAggregate, hasPriorData])
+
+  // Sparkline data points (last 7 data points from filteredRows sorted by date)
+  const sparklinePoints = useMemo(() => {
+    if (filteredRows.length < 2) return []
+
+    // Group sums by date
+    const dateMap: Record<string, number> = {}
+    filteredRows.forEach(item => {
+      const d = (getDateField(item) || '').split('T')[0]
+      if (d) {
+        dateMap[d] = (dateMap[d] || 0) + getMetricValue(item, activeTab)
       }
     })
 
-    return Object.values(map).filter(item => {
-      if (!searchTerm) return true
-      return item.art_no.toLowerCase().includes(searchTerm.toLowerCase()) ||
-             item.description.toLowerCase().includes(searchTerm.toLowerCase())
-    })
-  }, [storeTransactions, searchTerm])
+    const sortedDates = Object.keys(dateMap).sort()
+    const points = sortedDates.slice(-7).map(d => dateMap[d])
+    return points.length >= 2 ? points : []
+  }, [filteredRows, activeTab])
 
-  // 4. Employee Performance Breakdown
-  const employeePerformance = useMemo(() => {
-    const map: Record<string, {
-      username: string
-      totalPieces: number
-      daysActive: Set<string>
-      articlesMap: Record<string, number>
-    }> = {}
+  // Sparkline SVG Path generator
+  const sparklineSvgPath = useMemo(() => {
+    if (sparklinePoints.length < 2) return ''
+    const min = Math.min(...sparklinePoints)
+    const max = Math.max(...sparklinePoints)
+    const range = max - min || 1
+    const width = 110
+    const height = 36
+    const padding = 4
 
-    filteredProduction.forEach(row => {
-      const username = row.lineman?.username || 'Unknown'
-      if (!map[username]) {
-        map[username] = {
-          username,
-          totalPieces: 0,
-          daysActive: new Set(),
-          articlesMap: {}
-        }
-      }
-      map[username].totalPieces += row.quantity
-      if (row.entry_date) map[username].daysActive.add(row.entry_date)
-      
-      const artNo = row.article?.art_no || 'Unknown'
-      map[username].articlesMap[artNo] = (map[username].articlesMap[artNo] || 0) + row.quantity
+    const coords = sparklinePoints.map((val, idx) => {
+      const x = padding + (idx / (sparklinePoints.length - 1)) * (width - 2 * padding)
+      const y = height - padding - ((val - min) / range) * (height - 2 * padding)
+      return `${x.toFixed(1)},${y.toFixed(1)}`
     })
 
-    return Object.values(map).map(e => ({
-      username: e.username,
-      totalPieces: e.totalPieces,
-      daysCount: e.daysActive.size || 1,
-      avgPerDay: Math.round(e.totalPieces / (e.daysActive.size || 1)),
-      topArticle: Object.entries(e.articlesMap).sort((a, b) => b[1] - a[1])[0]?.[0] || '-'
-    }))
-  }, [filteredProduction])
+    return coords.join(' ')
+  }, [sparklinePoints])
 
-  // 5. Filtered Worker Assignments
-  const filteredAssignments = useMemo(() => {
-    return workerAssignments.filter(item => {
-      const matchesDate = filterByDate(item.entry_date)
-      const matchesSearch =
-        !searchTerm ||
-        item.lineman?.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.worker_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.article?.art_no?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.status?.toLowerCase().includes(searchTerm.toLowerCase())
-      return matchesDate && matchesSearch
-    })
-  }, [workerAssignments, dateFilter, searchTerm])
+  // Pagination
+  const totalItems = filteredRows.length
+  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize))
+  const paginatedRows = useMemo(() => {
+    const start = (currentPage - 1) * pageSize
+    return filteredRows.slice(start, start + pageSize)
+  }, [filteredRows, currentPage, pageSize])
 
-  const totalAssignedQty = filteredAssignments.reduce((sum, r) => sum + r.assigned_qty, 0)
-  const totalDoneQty = filteredAssignments.filter(r => r.status === 'DONE').reduce((sum, r) => sum + (r.completed_qty || r.assigned_qty), 0)
+  // Label for Selected Date Range
+  const rangeLabel = useMemo(() => {
+    switch (dateFilter) {
+      case 'today': return 'Today'
+      case 'this_week': return 'This Week'
+      case 'this_month': return 'This Month'
+      case 'custom': return `${customStartDate} to ${customEndDate}`
+      case 'all': return 'All Time'
+    }
+  }, [dateFilter, customStartDate, customEndDate])
 
-  // Export CSV Helper
+  const prevPeriodLabel = useMemo(() => {
+    switch (dateFilter) {
+      case 'today': return 'yesterday'
+      case 'this_week': return 'last week'
+      case 'this_month': return 'last month'
+      case 'custom': return 'prior period'
+      default: return 'previous period'
+    }
+  }, [dateFilter])
+
+  // Print Handler
+  const handlePrint = () => {
+    window.print()
+  }
+
+  // Export CSV Handler
   const handleExportCSV = () => {
+    if (filteredRows.length === 0) return
+
     let headers: string[] = []
-    let rows: (string | number)[][] = []
-    let filename = `report_${activeTab}_${todayStr}.csv`
+    let rows: any[][] = []
 
     if (activeTab === 'production') {
-      headers = ['Date', 'Lineman', 'Article No', 'Color', 'Size', 'Description', 'Quantity', 'Notes']
-      rows = filteredProduction.map(r => [
+      headers = ['Entry Date', 'Lineman', 'Art No', 'Description', 'Color', 'Size', 'Quantity', 'Notes']
+      rows = (filteredRows as DailyProductRow[]).map(r => [
         r.entry_date,
-        r.lineman?.username || '-',
-        r.article?.art_no || '-',
-        r.color || '-',
-        r.size || '-',
-        r.article?.description || '-',
+        r.lineman?.username || '',
+        r.article?.art_no || '',
+        '"' + (r.article?.description || '').replace(/"/g, '""') + '"',
+        r.color || '',
+        r.size || '',
         r.quantity,
-        `"${(r.notes || '').replace(/"/g, '""')}"`
-      ])
-    } else if (activeTab === 'qc') {
-      headers = ['Date', 'Stage', 'Article No', 'Color', 'Size', 'Lineman', 'Qty Received', 'Qty Passed', 'Qty Rejected', 'Mending Fixed', 'Mending Scrap', 'Bundle Size', 'Total Bundles', 'Defect Type', 'Remarks']
-      rows = filteredQC.map(r => [
-        r.entry_date,
-        r.stage,
-        r.article?.art_no || '-',
-        r.color || '-',
-        r.size || '-',
-        r.lineman?.username || '-',
-        r.qty_received || 0,
-        r.qty_passed || 0,
-        r.qty_rejected || 0,
-        r.mending_returned_qty || 0,
-        r.mending_scrap_qty || 0,
-        r.bundle_size || 0,
-        r.total_bundles || 0,
-        r.defect_type || 'NONE',
-        `"${(r.remarks || '').replace(/"/g, '""')}"`
-      ])
-    } else if (activeTab === 'inventory') {
-      headers = ['Article No', 'Description', 'Total Inward (QC)', 'Total Outward (Dispatch)', 'Current Godown Balance']
-      rows = inventoryReport.map(r => [
-        r.art_no,
-        r.description,
-        r.totalInward,
-        r.totalOutward,
-        r.balance
-      ])
-    } else if (activeTab === 'employee') {
-      headers = ['Lineman', 'Total Pieces Produced', 'Days Active', 'Avg Pieces / Day', 'Top Produced Article']
-      rows = employeePerformance.map(r => [
-        r.username,
-        r.totalPieces,
-        r.daysCount,
-        r.avgPerDay,
-        r.topArticle
+        '"' + (r.notes || '').replace(/"/g, '""') + '"'
       ])
     } else if (activeTab === 'workers') {
-      headers = ['Date', 'Lineman', 'Worker Name', 'Article No', 'Color', 'Size', 'Assigned Qty', 'Given Time', 'Completed Time', 'Status', 'Notes']
-      rows = filteredAssignments.map(r => [
+      headers = ['Entry Date', 'Tailor Worker', 'Lineman', 'Art No', 'Color', 'Size', 'Assigned Qty', 'Completed Qty', 'Status', 'Assigned At']
+      rows = (filteredRows as WorkerAssignmentRow[]).map(r => [
         r.entry_date,
-        r.lineman?.username || '-',
-        r.worker_name || 'Worker',
-        r.article?.art_no || '-',
-        r.color || '-',
-        r.size || '-',
+        r.worker_name || '',
+        r.lineman?.username || '',
+        r.article?.art_no || '',
+        r.color || '',
+        r.size || '',
         r.assigned_qty,
-        r.assigned_at ? new Date(r.assigned_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-',
-        r.completed_at ? new Date(r.completed_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-',
+        r.completed_qty,
         r.status,
-        `"${(r.notes || '').replace(/"/g, '""')}"`
+        r.assigned_at
+      ])
+    } else if (activeTab === 'qc') {
+      headers = ['Entry Date', 'Stage', 'Lineman', 'Art No', 'Color', 'Size', 'Qty Passed', 'Qty Rejected', 'Defect Type', 'Remarks']
+      rows = (filteredRows as QCLogRow[]).map(r => [
+        r.entry_date,
+        r.stage,
+        r.lineman?.username || '',
+        r.article?.art_no || '',
+        r.color || '',
+        r.size || '',
+        r.qty_passed,
+        r.qty_rejected,
+        r.defect_type,
+        '"' + (r.remarks || '').replace(/"/g, '""') + '"'
+      ])
+    } else if (activeTab === 'inventory') {
+      headers = ['Date', 'Type', 'Party Name', 'Art No', 'Quantity']
+      rows = (filteredRows as StoreTxRow[]).map(r => [
+        (r.entry_date || r.created_at).split('T')[0],
+        r.type,
+        r.party_name || '',
+        r.article?.art_no || '',
+        r.quantity
       ])
     }
 
@@ -360,607 +461,681 @@ export function ReportsClient({
     const encodedUri = encodeURI(csvContent)
     const link = document.createElement('a')
     link.setAttribute('href', encodedUri)
-    link.setAttribute('download', filename)
+    link.setAttribute('download', `${activeTab}_report_${new Date().toISOString().split('T')[0]}.csv`)
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
   }
 
+  // Reset Filters Handler
+  const handleClearFilters = () => {
+    setSearchTerm('')
+    setDateFilter('this_week')
+    setCustomStartDate('')
+    setCustomEndDate('')
+    setCurrentPage(1)
+  }
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-3">
-            <Link 
-              href="/"
-              className="p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors"
+    <div className="space-y-5">
+      
+      {/* 1. Sticky Page Header Card */}
+      <div 
+        className="sticky top-[14px] z-20 bg-white p-4 sm:p-5 rounded-[11px] border shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all"
+        style={{ borderColor: 'var(--border, #E2E8F0)' }}
+      >
+        {/* Left: 40x40 Badge + Title + Subtitle */}
+        <div className="flex items-center gap-3.5">
+          <div 
+            className="w-[40px] h-[40px] rounded-[10px] flex items-center justify-center shrink-0 shadow-xs"
+            style={{ backgroundColor: 'var(--steel, #2B4C7E)', color: '#FFFFFF' }}
+          >
+            <FileText className="w-5 h-5" />
+          </div>
+          <div>
+            <h1 
+              className="text-[18px] sm:text-[19px] font-bold font-[family-name:var(--font-fraunces)] leading-tight"
+              style={{ color: 'var(--ink, #1C2733)' }}
             >
-              <ArrowLeft className="w-5 h-5" />
-            </Link>
-            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
-              <FileText className="w-8 h-8 text-blue-600" />
               Factory Reports & Analytics
             </h1>
+            <p className="text-[11.5px] mt-0.5" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+              Real-time multi-department production, QC audit, tailor assignments, and store logs
+            </p>
           </div>
-          <p className="text-sm text-slate-500 mt-1 ml-11">
-            Real-time multi-department production, QC audit, tailor assignments, and store logs.
-          </p>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex items-center gap-3 self-end sm:self-auto">
-          <button 
-            onClick={() => window.print()}
-            className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-xl text-sm font-semibold shadow-sm transition-colors"
+        {/* Right: Print & Export CSV (Solid Steel, No Bright Blue) */}
+        <div className="flex items-center gap-2 self-end sm:self-auto">
+          <button
+            type="button"
+            onClick={handlePrint}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-[8px] text-xs font-semibold border bg-white hover:bg-slate-50 transition-colors shadow-2xs cursor-pointer focus:outline-none focus:ring-2"
+            style={{ borderColor: 'var(--border, #E2E8F0)', color: 'var(--ink-soft, #5B6B7C)' }}
           >
-            <Printer className="w-4 h-4" />
-            Print
+            <Printer className="w-3.5 h-3.5" />
+            <span>Print</span>
           </button>
-          <button 
+
+          <button
+            type="button"
             onClick={handleExportCSV}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold shadow-md shadow-blue-500/20 transition-colors"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-[8px] text-xs font-semibold text-white transition-colors shadow-xs cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-1"
+            style={{ backgroundColor: 'var(--steel, #2B4C7E)' }}
           >
-            <Download className="w-4 h-4" />
-            Export CSV
+            <Download className="w-3.5 h-3.5" />
+            <span>Export CSV</span>
           </button>
         </div>
       </div>
 
-      {/* Tabs & Filter Bar */}
-      <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 bg-white p-3 rounded-2xl border border-slate-200 shadow-sm">
-        {/* Navigation Tabs */}
-        <div className="flex items-center gap-1 overflow-x-auto pb-2 lg:pb-0">
-          <button
-            onClick={() => setActiveTab('production')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all ${
-              activeTab === 'production'
-                ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
-                : 'text-slate-600 hover:bg-slate-100'
-            }`}
-          >
-            <Layers className="w-4 h-4" />
-            Daily Sewing Output ({filteredProduction.length})
-          </button>
+      {/* 2. Report Type Tabs (Hidden Native Scrollbar) */}
+      <div 
+        className="flex items-center gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
+        {(['production', 'workers', 'qc', 'inventory'] as ReportTab[]).map((tabKey) => {
+          const cfg = TAB_CONFIG[tabKey]
+          const TabIcon = cfg.icon
+          const isActive = activeTab === tabKey
+          
+          let count = 0
+          if (tabKey === 'production') count = dailyProducts.length
+          else if (tabKey === 'workers') count = workerAssignments.length
+          else if (tabKey === 'qc') count = qcLogs.length
+          else if (tabKey === 'inventory') count = storeTransactions.length
 
-          <button
-            onClick={() => setActiveTab('workers')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all ${
-              activeTab === 'workers'
-                ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/20'
-                : 'text-slate-600 hover:bg-slate-100'
-            }`}
-          >
-            <ClipboardList className="w-4 h-4" />
-            Worker Assignments ({filteredAssignments.length})
-          </button>
-
-          <button
-            onClick={() => setActiveTab('qc')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all ${
-              activeTab === 'qc'
-                ? 'bg-emerald-600 text-white shadow-md shadow-emerald-500/20'
-                : 'text-slate-600 hover:bg-slate-100'
-            }`}
-          >
-            <CheckCircle2 className="w-4 h-4" />
-            QC & Finishing ({filteredQC.length})
-          </button>
-
-          <button
-            onClick={() => setActiveTab('inventory')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all ${
-              activeTab === 'inventory'
-                ? 'bg-purple-600 text-white shadow-md shadow-purple-500/20'
-                : 'text-slate-600 hover:bg-slate-100'
-            }`}
-          >
-            <Package className="w-4 h-4" />
-            Store Inventory ({inventoryReport.length})
-          </button>
-
-          <button
-            onClick={() => setActiveTab('employee')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all ${
-              activeTab === 'employee'
-                ? 'bg-amber-600 text-white shadow-md shadow-amber-500/20'
-                : 'text-slate-600 hover:bg-slate-100'
-            }`}
-          >
-            <Users className="w-4 h-4" />
-            Lineman Leaderboard
-          </button>
-        </div>
-
-        {/* Filters */}
-        <div className="flex flex-wrap sm:flex-nowrap items-center gap-3">
-          <div className="flex items-center bg-slate-100 p-1 rounded-xl w-full sm:w-auto">
+          return (
             <button
-              onClick={() => setDateFilter('today')}
-              className={`flex-1 sm:flex-none px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                dateFilter === 'today' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'
+              key={tabKey}
+              type="button"
+              onClick={() => {
+                setActiveTab(tabKey)
+                setCurrentPage(1)
+              }}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-[9px] text-xs font-semibold whitespace-nowrap transition-all border cursor-pointer focus:outline-none focus:ring-2 ${
+                isActive
+                  ? 'text-white shadow-xs border-transparent'
+                  : 'bg-white text-slate-700 hover:bg-slate-50 border-[var(--border,#E2E8F0)]'
               }`}
+              style={{
+                backgroundColor: isActive ? 'var(--steel, #2B4C7E)' : '#FFFFFF'
+              }}
             >
-              Today
+              <TabIcon className="w-3.5 h-3.5 shrink-0" />
+              <span>{cfg.label}</span>
+              <span 
+                className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
+                  isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'
+                }`}
+              >
+                {count}
+              </span>
             </button>
-            <button
-              onClick={() => setDateFilter('this_week')}
-              className={`flex-1 sm:flex-none px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                dateFilter === 'this_week' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'
-              }`}
-            >
-              This Week
-            </button>
-            <button
-              onClick={() => setDateFilter('this_month')}
-              className={`flex-1 sm:flex-none px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                dateFilter === 'this_month' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'
-              }`}
-            >
-              This Month
-            </button>
-            <button
-              onClick={() => setDateFilter('all')}
-              className={`flex-1 sm:flex-none px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                dateFilter === 'all' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'
-              }`}
-            >
-              All Time
-            </button>
-          </div>
-
-          <div className="relative w-full sm:w-auto">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input 
-              type="text"
-              placeholder="Search keyword..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-9 pr-4 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full sm:w-48"
-            />
-          </div>
-        </div>
+          )
+        })}
       </div>
 
-      {/* Main Table Content */}
-      <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+      {/* 3. Filter Toolbar (3 Distinct Groups with 10px Gap & Wrapping) */}
+      <div className="flex flex-wrap items-center gap-[10px] justify-between">
         
-        {/* TAB 1: DAILY PRODUCTION REPORT */}
-        {activeTab === 'production' && (
-          <div>
-            <div className="p-5 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 border-b border-slate-100 flex items-center justify-between">
-              <div>
-                <h3 className="font-bold text-slate-900 text-base">Sewing Floor Output</h3>
-                <p className="text-xs text-slate-500">Stitched garments logged by floor linemen</p>
-              </div>
-              <div className="text-right">
-                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Output</span>
-                <p className="text-xl font-black text-blue-600">{totalProducedQty.toLocaleString()} pcs</p>
-              </div>
-            </div>
+        {/* Left Side: Segmented Date Pills + Custom Range Button */}
+        <div className="flex flex-wrap items-center gap-[10px]">
+          
+          {/* Segmented Button Group */}
+          <div 
+            className="inline-flex rounded-[8px] border bg-white p-0.5 shadow-2xs"
+            style={{ borderColor: 'var(--border, #E2E8F0)' }}
+          >
+            {(['today', 'this_week', 'this_month'] as DateFilterMode[]).map((mode, idx) => {
+              const isActive = dateFilter === mode
+              const labelMap: Record<string, string> = {
+                today: 'Today',
+                this_week: 'This Week',
+                this_month: 'This Month'
+              }
+              return (
+                <button
+                  key={mode}
+                  type="button"
+                  onClick={() => {
+                    setDateFilter(mode)
+                    setCurrentPage(1)
+                  }}
+                  className={`px-3 py-1.5 rounded-[6px] text-xs font-semibold transition-all cursor-pointer ${
+                    isActive
+                      ? 'text-white shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                  style={{
+                    backgroundColor: isActive ? 'var(--steel, #2B4C7E)' : 'transparent'
+                  }}
+                >
+                  {labelMap[mode]}
+                </button>
+              )
+            })}
+          </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 text-xs uppercase tracking-wider">
-                    <th className="px-6 py-4 font-bold">Date</th>
-                    <th className="px-6 py-4 font-bold">Lineman</th>
-                    <th className="px-6 py-4 font-bold">Article No</th>
-                    <th className="px-6 py-4 font-bold">Variant (Color / Size)</th>
-                    <th className="px-6 py-4 font-bold">Description</th>
-                    <th className="px-6 py-4 font-bold text-right">Quantity</th>
-                    <th className="px-6 py-4 font-bold">Notes</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 text-sm">
-                  {filteredProduction.length === 0 ? (
-                    <tr>
-                      <td colSpan={7} className="px-6 py-12 text-center text-slate-400">
-                        No production entries match the selected filters.
-                      </td>
-                    </tr>
-                  ) : (
-                    filteredProduction.map((row) => (
-                      <tr key={row.id} className="hover:bg-slate-50/60 transition-colors">
-                        <td className="px-6 py-4 font-semibold text-slate-600 whitespace-nowrap">
+          {/* Custom Range Button */}
+          <button
+            type="button"
+            onClick={() => setShowCustomModal(true)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] text-xs font-semibold border transition-colors cursor-pointer shadow-2xs ${
+              dateFilter === 'custom'
+                ? 'border-[var(--steel,#2B4C7E)] bg-[var(--steel-mist,#EEF3FA)] text-[var(--steel-dark,#1F3A63)]'
+                : 'border-[var(--border,#E2E8F0)] bg-white text-slate-700 hover:bg-slate-50'
+            }`}
+          >
+            <Calendar className="w-3.5 h-3.5" />
+            <span>{dateFilter === 'custom' && customStartDate ? `${customStartDate} ~ ${customEndDate}` : 'Custom Range'}</span>
+          </button>
+        </div>
+
+        {/* Right Side: Search Box */}
+        <div className="relative w-full sm:w-64">
+          <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <input
+            type="text"
+            placeholder="Search keyword..."
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value)
+              setCurrentPage(1)
+            }}
+            className="w-full pl-8 pr-3 py-1.5 bg-white border rounded-[8px] text-xs outline-none transition-colors shadow-2xs"
+            style={{ borderColor: 'var(--border, #E2E8F0)' }}
+            onFocus={(e) => e.currentTarget.style.borderColor = 'var(--steel, #2B4C7E)'}
+            onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border, #E2E8F0)'}
+          />
+        </div>
+      </div>
+
+      {/* 4. NEW — Summary Strip Above Table (Diagonal Gradient Card) */}
+      <div 
+        className="p-4 sm:p-5 rounded-[13px] border shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all"
+        style={{
+          background: 'linear-gradient(135deg, var(--steel-mist, #EEF3FA) 0%, #FFFFFF 100%)',
+          borderColor: 'var(--steel-tint, #DBE6F5)'
+        }}
+      >
+        <div className="space-y-1">
+          <div 
+            className="text-[10.5px] font-bold uppercase tracking-[1.5px]"
+            style={{ color: 'var(--steel, #2B4C7E)' }}
+          >
+            Total Output — {rangeLabel}
+          </div>
+          <div className="flex items-baseline gap-3">
+            <span 
+              className="text-[28px] font-bold font-[family-name:var(--font-fraunces)] leading-none"
+              style={{ color: 'var(--ink, #1C2733)' }}
+            >
+              {currentPeriodAggregate.toLocaleString()}
+            </span>
+            <span className="text-xs font-semibold" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+              {TAB_CONFIG[activeTab].unit}
+            </span>
+
+            {/* vs. Previous Period Badge */}
+            {dateFilter !== 'all' && (
+              <div className="inline-flex items-center gap-1.5 ml-2">
+                {trendComparison.status === 'no_data' ? (
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10.5px] font-semibold bg-slate-200/80 text-slate-600">
+                    No prior data
+                  </span>
+                ) : trendComparison.status === 'up' ? (
+                  <span 
+                    className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10.5px] font-semibold"
+                    style={{ backgroundColor: 'var(--green-mist, #E6F6EE)', color: 'var(--green, #1F9D63)' }}
+                  >
+                    <TrendingUp className="w-3 h-3" />
+                    <span>{trendComparison.label} vs {prevPeriodLabel}</span>
+                  </span>
+                ) : trendComparison.status === 'down' ? (
+                  <span 
+                    className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10.5px] font-semibold"
+                    style={{ backgroundColor: 'var(--amber-mist, #FBF0E1)', color: 'var(--amber, #C8802B)' }}
+                  >
+                    <TrendingDown className="w-3 h-3" />
+                    <span>{trendComparison.label} vs {prevPeriodLabel}</span>
+                  </span>
+                ) : (
+                  <span 
+                    className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10.5px] font-semibold"
+                    style={{ backgroundColor: 'var(--steel-mist, #EEF3FA)', color: 'var(--steel, #2B4C7E)' }}
+                  >
+                    <Minus className="w-3 h-3" />
+                    <span>0% vs {prevPeriodLabel}</span>
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Real SVG Polyline Sparkline (Only if >= 2 points) */}
+        {sparklinePoints.length >= 2 && (
+          <div className="flex flex-col items-end gap-1 shrink-0 self-end sm:self-auto">
+            <div className="text-[10px] font-semibold font-[family-name:var(--font-jetbrains-mono)]" style={{ color: 'var(--ink-faint, #8B9AAB)' }}>
+              7-Day Activity Trend
+            </div>
+            <svg width="110" height="36" className="overflow-visible">
+              <polyline
+                fill="none"
+                stroke="var(--steel, #2B4C7E)"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                points={sparklineSvgPath}
+              />
+            </svg>
+          </div>
+        )}
+      </div>
+
+      {/* 5. Main Data Table Card */}
+      <div 
+        className="bg-white rounded-[11px] border shadow-xs overflow-hidden"
+        style={{ borderColor: 'var(--border, #E2E8F0)' }}
+      >
+        
+        {/* Section Header */}
+        <div 
+          className="p-4 border-b flex items-center justify-between bg-slate-50/50"
+          style={{ borderColor: 'var(--border, #E2E8F0)' }}
+        >
+          <div>
+            <h3 
+              className="text-xs font-bold text-[var(--ink,#1C2733)]"
+            >
+              {TAB_CONFIG[activeTab].title}
+            </h3>
+            <p className="text-[11px] text-slate-500">
+              {TAB_CONFIG[activeTab].subtitle}
+            </p>
+          </div>
+          <span className="text-[11px] px-2 py-0.5 rounded-full bg-slate-200/70 font-semibold text-slate-700">
+            {filteredRows.length} entries
+          </span>
+        </div>
+
+        {/* Table / Empty State */}
+        {filteredRows.length === 0 ? (
+          /* Smart Empty State */
+          <div className="p-12 text-center flex flex-col items-center justify-center space-y-3">
+            <div 
+              className="w-12 h-12 rounded-[10px] flex items-center justify-center"
+              style={{ backgroundColor: 'var(--steel-mist, #EEF3FA)', color: 'var(--steel, #2B4C7E)' }}
+            >
+              <FilterX className="w-6 h-6" />
+            </div>
+            <div className="space-y-1 max-w-sm">
+              <h4 
+                className="text-base font-bold font-[family-name:var(--font-fraunces)]"
+                style={{ color: 'var(--ink, #1C2733)' }}
+              >
+                No {TAB_CONFIG[activeTab].label} entries for {rangeLabel}
+              </h4>
+              <p className="text-xs" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                {searchTerm 
+                  ? `No records match the search keyword "${searchTerm}".`
+                  : 'No logs were registered for this specific date range.'}
+              </p>
+            </div>
+            <div className="flex items-center gap-2 pt-2">
+              <button
+                type="button"
+                onClick={handleClearFilters}
+                className="px-3 py-1.5 rounded-[7px] text-xs font-semibold border bg-white hover:bg-slate-50 text-slate-700 transition-colors shadow-2xs cursor-pointer"
+                style={{ borderColor: 'var(--border, #E2E8F0)' }}
+              >
+                Clear Filters
+              </button>
+              {dateFilter === 'today' && (
+                <button
+                  type="button"
+                  onClick={() => setDateFilter('this_week')}
+                  className="px-3.5 py-1.5 rounded-[7px] text-xs font-semibold text-white transition-colors shadow-xs cursor-pointer"
+                  style={{ backgroundColor: 'var(--steel, #2B4C7E)' }}
+                >
+                  Try This Week
+                </button>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr 
+                  className="bg-slate-50 border-b text-[11px] uppercase tracking-wider font-bold" 
+                  style={{ borderColor: 'var(--border, #E2E8F0)', color: 'var(--ink-soft, #5B6B7C)' }}
+                >
+                  {activeTab === 'production' && (
+                    <>
+                      <th className="px-5 py-3.5">Date</th>
+                      <th className="px-4 py-3.5">Lineman</th>
+                      <th className="px-4 py-3.5">Article No</th>
+                      <th className="px-4 py-3.5">Variant (Color/Size)</th>
+                      <th className="px-4 py-3.5">Description</th>
+                      <th className="px-4 py-3.5 font-bold">Quantity</th>
+                      <th className="px-5 py-3.5">Notes</th>
+                    </>
+                  )}
+
+                  {activeTab === 'workers' && (
+                    <>
+                      <th className="px-5 py-3.5">Date</th>
+                      <th className="px-4 py-3.5">Tailor Worker</th>
+                      <th className="px-4 py-3.5">Assigned By</th>
+                      <th className="px-4 py-3.5">Article No</th>
+                      <th className="px-4 py-3.5">Variant</th>
+                      <th className="px-4 py-3.5 font-bold">Assigned / Done</th>
+                      <th className="px-5 py-3.5 text-center">Status</th>
+                    </>
+                  )}
+
+                  {activeTab === 'qc' && (
+                    <>
+                      <th className="px-5 py-3.5">Date</th>
+                      <th className="px-4 py-3.5">Stage</th>
+                      <th className="px-4 py-3.5">Lineman</th>
+                      <th className="px-4 py-3.5">Article No</th>
+                      <th className="px-4 py-3.5">Passed / Rejected</th>
+                      <th className="px-4 py-3.5">Defect Type</th>
+                      <th className="px-5 py-3.5">Remarks</th>
+                    </>
+                  )}
+
+                  {activeTab === 'inventory' && (
+                    <>
+                      <th className="px-5 py-3.5">Date</th>
+                      <th className="px-4 py-3.5">Transaction Type</th>
+                      <th className="px-4 py-3.5">Party / Source</th>
+                      <th className="px-4 py-3.5">Article No</th>
+                      <th className="px-5 py-3.5 font-bold">Quantity</th>
+                    </>
+                  )}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {paginatedRows.map((row: any) => (
+                  <tr key={row.id} className="hover:bg-slate-50/50 transition-colors">
+                    
+                    {/* TAB 1: DAILY PRODUCTION */}
+                    {activeTab === 'production' && (
+                      <>
+                        <td className="px-5 py-3 font-medium text-slate-900 font-mono text-[11px]">
                           {row.entry_date}
                         </td>
-                        <td className="px-6 py-4 font-bold text-slate-900">
-                          <div className="flex items-center gap-2">
-                            <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold uppercase">
-                              {row.lineman?.username?.[0] || 'L'}
-                            </div>
-                            {row.lineman?.username || 'Unknown'}
-                          </div>
+                        <td className="px-4 py-3 font-semibold text-[var(--steel,#2B4C7E)]">
+                          {row.lineman?.username || '-'}
                         </td>
-                        <td className="px-6 py-4 font-extrabold text-blue-600">
+                        <td className="px-4 py-3 font-bold text-slate-800 font-mono">
                           {row.article?.art_no || '-'}
                         </td>
-                        <td className="px-6 py-4">
-                          {(row.color || row.size) ? (
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-800 border border-slate-200">
-                              {row.color || ''} {row.size ? `(${row.size})` : ''}
-                            </span>
-                          ) : (
-                            <span className="text-slate-400 text-xs">-</span>
-                          )}
+                        <td className="px-4 py-3 text-slate-600">
+                          {row.color || row.size ? `${row.color || '-'} / ${row.size || '-'}` : '-'}
                         </td>
-                        <td className="px-6 py-4 text-slate-500 text-xs">
+                        <td className="px-4 py-3 text-slate-500">
                           {row.article?.description || '-'}
                         </td>
-                        <td className="px-6 py-4 text-right font-black text-slate-800 text-base">
-                          {row.quantity.toLocaleString()}
+                        <td className="px-4 py-3 font-bold font-mono text-slate-900">
+                          {row.quantity} pcs
                         </td>
-                        <td className="px-6 py-4 text-slate-500 text-xs">
+                        <td className="px-5 py-3 text-slate-400 text-[11px]">
                           {row.notes || '-'}
                         </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
+                      </>
+                    )}
 
-        {/* TAB 2: WORKER ASSIGNMENTS */}
-        {activeTab === 'workers' && (
-          <div>
-            <div className="p-5 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border-b border-slate-100 flex items-center justify-between">
-              <div>
-                <h3 className="font-bold text-slate-900 text-base">Lineman to Worker Distribution</h3>
-                <p className="text-xs text-slate-500">Live tailor-wise piece tracking and completion timestamps</p>
-              </div>
-              <div className="flex items-center gap-6 text-right">
-                <div>
-                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Assigned</span>
-                  <p className="text-lg font-black text-indigo-600">{totalAssignedQty.toLocaleString()} pcs</p>
-                </div>
-                <div>
-                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Completed</span>
-                  <p className="text-lg font-black text-emerald-600">{totalDoneQty.toLocaleString()} pcs</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 text-xs uppercase tracking-wider">
-                    <th className="px-6 py-4 font-bold">Date</th>
-                    <th className="px-6 py-4 font-bold">Lineman</th>
-                    <th className="px-6 py-4 font-bold">Worker Name (Tailor)</th>
-                    <th className="px-6 py-4 font-bold">Article No</th>
-                    <th className="px-6 py-4 font-bold">Color / Size</th>
-                    <th className="px-6 py-4 font-bold text-right">Assigned Qty</th>
-                    <th className="px-6 py-4 font-bold">Given Time</th>
-                    <th className="px-6 py-4 font-bold">Done Time</th>
-                    <th className="px-6 py-4 font-bold">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 text-sm">
-                  {filteredAssignments.length === 0 ? (
-                    <tr>
-                      <td colSpan={9} className="px-6 py-12 text-center text-slate-400">
-                        No worker assignments found for selected filters.
-                      </td>
-                    </tr>
-                  ) : (
-                    filteredAssignments.map((row) => {
-                      const isDone = row.status === 'DONE'
-                      return (
-                        <tr key={row.id} className="hover:bg-slate-50/60 transition-colors">
-                          <td className="px-6 py-4 font-semibold text-slate-600 whitespace-nowrap">
-                            {row.entry_date}
-                          </td>
-                          <td className="px-6 py-4 font-bold text-slate-900">
-                            {row.lineman?.username || '-'}
-                          </td>
-                          <td className="px-6 py-4 font-extrabold text-indigo-700">
-                            {row.worker_name || 'Worker'}
-                          </td>
-                          <td className="px-6 py-4 font-bold text-blue-600">
-                            {row.article?.art_no || '-'}
-                          </td>
-                          <td className="px-6 py-4">
-                            {(row.color || row.size) ? (
-                              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-slate-100 text-slate-800">
-                                {row.color} {row.size ? `(${row.size})` : ''}
-                              </span>
-                            ) : (
-                              <span className="text-slate-400 text-xs">-</span>
-                            )}
-                          </td>
-                          <td className="px-6 py-4 text-right font-black text-slate-900">
-                            {row.assigned_qty} pcs
-                          </td>
-                          <td className="px-6 py-4 text-slate-500 text-xs">
-                            {row.assigned_at ? new Date(row.assigned_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-'}
-                          </td>
-                          <td className="px-6 py-4 text-slate-500 text-xs">
-                            {row.completed_at ? new Date(row.completed_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-'}
-                          </td>
-                          <td className="px-6 py-4">
-                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${
-                              isDone ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
-                            }`}>
-                              {isDone ? 'Done âœ…' : 'In Progress â³'}
-                            </span>
-                          </td>
-                        </tr>
-                      )
-                    })
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* TAB 3: QC & FINISHING DASHBOARD */}
-        {activeTab === 'qc' && (
-          <div>
-            {/* Top QC Summary Banner */}
-            <div className="p-5 bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-blue-500/10 border-b border-slate-100">
-              <div className="flex flex-wrap items-center justify-between gap-4">
-                <div>
-                  <h3 className="font-bold text-slate-900 text-base">QC Inspection & Finishing Floor Overview</h3>
-                  <p className="text-xs text-slate-500">Live quality metrics, alteration recovery, and store transfers</p>
-                </div>
-                <div className="flex items-center gap-6">
-                  <div className="text-center">
-                    <span className="text-[11px] font-bold text-slate-500 uppercase">Received</span>
-                    <p className="text-base font-black text-blue-600">{qcStats.rec} pcs</p>
-                  </div>
-                  <div className="text-center">
-                    <span className="text-[11px] font-bold text-slate-500 uppercase">Passed</span>
-                    <p className="text-base font-black text-emerald-600">{qcStats.passed} pcs</p>
-                  </div>
-                  <div className="text-center">
-                    <span className="text-[11px] font-bold text-slate-500 uppercase">In Mending</span>
-                    <p className="text-base font-black text-amber-600">{qcStats.inMending} pcs</p>
-                  </div>
-                  <div className="text-center">
-                    <span className="text-[11px] font-bold text-slate-500 uppercase">Packed to Store</span>
-                    <p className="text-base font-black text-purple-600">{qcStats.packed} pcs</p>
-                  </div>
-                  <div className="bg-emerald-600 text-white px-3 py-1.5 rounded-xl text-center shadow-md shadow-emerald-500/20">
-                    <span className="text-[10px] font-bold uppercase tracking-wider block opacity-90">Pass Rate</span>
-                    <span className="text-sm font-black">{qcStats.passRate}%</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 text-xs uppercase tracking-wider">
-                    <th className="px-6 py-4 font-bold">Date</th>
-                    <th className="px-6 py-4 font-bold">Stage</th>
-                    <th className="px-6 py-4 font-bold">Article No</th>
-                    <th className="px-6 py-4 font-bold">Color / Size</th>
-                    <th className="px-6 py-4 font-bold">From Lineman</th>
-                    <th className="px-6 py-4 font-bold">Activity Details</th>
-                    <th className="px-6 py-4 font-bold">Defect Type</th>
-                    <th className="px-6 py-4 font-bold">Remarks</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 text-sm">
-                  {filteredQC.length === 0 ? (
-                    <tr>
-                      <td colSpan={8} className="px-6 py-12 text-center text-slate-400">
-                        No quality check logs match the selected filters.
-                      </td>
-                    </tr>
-                  ) : (
-                    filteredQC.map((row) => {
-                      const stage = row.stage || ''
-                      let stageBadge = <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-700">{stage}</span>
-                      let details = ''
-
-                      if (stage === 'RECEIVING') {
-                        stageBadge = <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800 border border-blue-200">ðŸ“¥ Receiving</span>
-                        details = `Received ${row.qty_received} pcs from sewing line`
-                      } else if (stage === 'CHECKING') {
-                        stageBadge = <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">âœ… Checking</span>
-                        details = `${row.qty_passed} Passed â€¢ ${row.qty_rejected} Defect`
-                      } else if (stage === 'MENDING') {
-                        stageBadge = <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">ðŸ”§ Mending</span>
-                        if (row.mending_status === 'REPAIR_COMPLETED') {
-                          details = `Repaired: ${row.mending_returned_qty} Fixed âœ… â€¢ ${row.mending_scrap_qty} Scrap âŒ`
-                        } else {
-                          details = `Sent ${row.qty_rejected} pcs to Lineman for repair â³`
-                        }
-                      } else if (stage === 'BULKING') {
-                        stageBadge = <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-purple-100 text-purple-800 border border-purple-200">ðŸ“¦ Bulking</span>
-                        details = `Packed ${(row.bundle_size || 0) * (row.total_bundles || 0)} pcs (${row.total_bundles} bundles x ${row.bundle_size} pcs) âž” Store Inward`
-                      }
-
-                      return (
-                        <tr key={row.id} className="hover:bg-slate-50/60 transition-colors">
-                          <td className="px-6 py-4 font-semibold text-slate-600 whitespace-nowrap">
-                            {row.entry_date}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            {stageBadge}
-                          </td>
-                          <td className="px-6 py-4 font-extrabold text-blue-600">
-                            {row.article?.art_no || '-'}
-                          </td>
-                          <td className="px-6 py-4">
-                            {(row.color || row.size) ? (
-                              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-slate-100 text-slate-800">
-                                {row.color} {row.size ? `(${row.size})` : ''}
-                              </span>
-                            ) : (
-                              <span className="text-slate-400 text-xs">-</span>
-                            )}
-                          </td>
-                          <td className="px-6 py-4 font-medium text-slate-800">
-                            {row.lineman?.username || '-'}
-                          </td>
-                          <td className="px-6 py-4 font-semibold text-slate-700 text-xs">
-                            {details}
-                          </td>
-                          <td className="px-6 py-4">
-                            {row.defect_type && row.defect_type !== 'NONE' ? (
-                              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">
-                                {row.defect_type}
-                              </span>
-                            ) : (
-                              <span className="text-slate-400 text-xs">-</span>
-                            )}
-                          </td>
-                          <td className="px-6 py-4 text-slate-500 text-xs">
-                            {row.remarks || '-'}
-                          </td>
-                        </tr>
-                      )
-                    })
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* TAB 4: STORE INVENTORY REPORT */}
-        {activeTab === 'inventory' && (
-          <div>
-            <div className="p-5 bg-gradient-to-r from-purple-500/10 to-pink-500/10 border-b border-slate-100 flex items-center justify-between">
-              <div>
-                <h3 className="font-bold text-slate-900 text-base">Finished Goods Godown Stock</h3>
-                <p className="text-xs text-slate-500">Live balance derived from Finishing Inward and Dispatch Outward</p>
-              </div>
-            </div>
-
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 text-xs uppercase tracking-wider">
-                    <th className="px-6 py-4 font-bold">Article No</th>
-                    <th className="px-6 py-4 font-bold">Description</th>
-                    <th className="px-6 py-4 font-bold text-right text-emerald-600">Total Inward (QC)</th>
-                    <th className="px-6 py-4 font-bold text-right text-indigo-600">Total Outward (Dispatch)</th>
-                    <th className="px-6 py-4 font-bold text-right text-purple-600">Godown Balance</th>
-                    <th className="px-6 py-4 font-bold text-right">Last Movement</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 text-sm">
-                  {inventoryReport.length === 0 ? (
-                    <tr>
-                      <td colSpan={6} className="px-6 py-12 text-center text-slate-400">
-                        No store transactions recorded yet.
-                      </td>
-                    </tr>
-                  ) : (
-                    inventoryReport.map((row) => (
-                      <tr key={row.art_no} className="hover:bg-slate-50/60 transition-colors">
-                        <td className="px-6 py-4 font-extrabold text-blue-600">
-                          {row.art_no}
+                    {/* TAB 2: WORKER ASSIGNMENTS */}
+                    {activeTab === 'workers' && (
+                      <>
+                        <td className="px-5 py-3 font-medium text-slate-900 font-mono text-[11px]">
+                          {row.entry_date || (row.assigned_at ? row.assigned_at.split('T')[0] : '-')}
                         </td>
-                        <td className="px-6 py-4 text-slate-500 text-xs">
-                          {row.description}
+                        <td className="px-4 py-3 font-bold text-slate-800">
+                          {row.worker_name || 'Floor Worker'}
                         </td>
-                        <td className="px-6 py-4 text-right font-black text-emerald-600 text-base">
-                          +{row.totalInward.toLocaleString()}
+                        <td className="px-4 py-3 font-semibold text-[var(--steel,#2B4C7E)]">
+                          {row.lineman?.username || '-'}
                         </td>
-                        <td className="px-6 py-4 text-right font-black text-indigo-600 text-base">
-                          -{row.totalOutward.toLocaleString()}
+                        <td className="px-4 py-3 font-bold font-mono text-slate-800">
+                          {row.article?.art_no || '-'}
                         </td>
-                        <td className="px-6 py-4 text-right">
-                          <span className={`inline-flex items-center px-3 py-1 rounded-xl text-sm font-black ${
-                            row.balance > 0 
-                              ? 'bg-purple-100 text-purple-800' 
-                              : row.balance === 0 
-                                ? 'bg-slate-100 text-slate-700' 
-                                : 'bg-rose-100 text-rose-800'
-                          }`}>
-                            {row.balance.toLocaleString()} pcs
+                        <td className="px-4 py-3 text-slate-600">
+                          {row.color || row.size ? `${row.color || '-'} / ${row.size || '-'}` : '-'}
+                        </td>
+                        <td className="px-4 py-3 font-bold font-mono">
+                          <span className="text-emerald-700">{row.completed_qty || 0}</span>
+                          <span className="text-slate-400 font-normal"> / </span>
+                          <span className="text-slate-900">{row.assigned_qty} pcs</span>
+                        </td>
+                        <td className="px-5 py-3 text-center">
+                          <span 
+                            className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                              row.status === 'COMPLETED'
+                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                : 'bg-amber-50 text-amber-700 border border-amber-200'
+                            }`}
+                          >
+                            {row.status}
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-right text-slate-500 text-xs whitespace-nowrap">
-                          {row.lastDate}
+                      </>
+                    )}
+
+                    {/* TAB 3: QC & FINISHING */}
+                    {activeTab === 'qc' && (
+                      <>
+                        <td className="px-5 py-3 font-medium text-slate-900 font-mono text-[11px]">
+                          {row.entry_date}
                         </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
+                        <td className="px-4 py-3">
+                          <span className="px-2 py-0.5 rounded bg-slate-100 font-semibold text-[10.5px] text-slate-700 border">
+                            {row.stage}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 font-semibold text-[var(--steel,#2B4C7E)]">
+                          {row.lineman?.username || '-'}
+                        </td>
+                        <td className="px-4 py-3 font-bold font-mono text-slate-800">
+                          {row.article?.art_no || '-'}
+                        </td>
+                        <td className="px-4 py-3 font-mono font-semibold">
+                          <span className="text-emerald-600 font-bold">{row.qty_passed} pass</span>
+                          <span className="text-slate-300"> • </span>
+                          <span className={row.qty_rejected > 0 ? 'text-rose-600 font-bold' : 'text-slate-400'}>
+                            {row.qty_rejected} rej
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-slate-600">
+                          {row.defect_type || '-'}
+                        </td>
+                        <td className="px-5 py-3 text-slate-400 text-[11px]">
+                          {row.remarks || '-'}
+                        </td>
+                      </>
+                    )}
+
+                    {/* TAB 4: STORE INVENTORY */}
+                    {activeTab === 'inventory' && (
+                      <>
+                        <td className="px-5 py-3 font-medium text-slate-900 font-mono text-[11px]">
+                          {(row.entry_date || row.created_at).split('T')[0]}
+                        </td>
+                        <td className="px-4 py-3">
+                          <span 
+                            className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10.5px] font-bold ${
+                              row.type === 'INWARD'
+                                ? 'bg-emerald-50 text-emerald-700'
+                                : 'bg-blue-50 text-blue-700'
+                            }`}
+                          >
+                            {row.type}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-slate-700 font-medium">
+                          {row.party_name || '-'}
+                        </td>
+                        <td className="px-4 py-3 font-bold font-mono text-slate-800">
+                          {row.article?.art_no || '-'}
+                        </td>
+                        <td className="px-5 py-3 font-bold font-mono text-slate-900">
+                          {row.quantity} units
+                        </td>
+                      </>
+                    )}
+
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
 
-        {/* TAB 5: LINEMAN LEADERBOARD */}
-        {activeTab === 'employee' && (
-          <div>
-            <div className="p-5 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-b border-slate-100 flex items-center justify-between">
-              <div>
-                <h3 className="font-bold text-slate-900 text-base">Lineman Performance Leaderboard</h3>
-                <p className="text-xs text-slate-500">Floor supervisor productivity and daily averages</p>
-              </div>
+        {/* 6. Pagination Footer */}
+        {totalItems > 0 && (
+          <div 
+            className="p-4 border-t bg-slate-50/60 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs" 
+            style={{ borderColor: 'var(--border, #E2E8F0)' }}
+          >
+            <div style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+              Showing <span className="font-semibold">{(currentPage - 1) * pageSize + 1}</span>–<span className="font-semibold">{Math.min(currentPage * pageSize, totalItems)}</span> of <span className="font-semibold">{totalItems}</span> entries
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 text-xs uppercase tracking-wider">
-                    <th className="px-6 py-4 font-bold">Rank</th>
-                    <th className="px-6 py-4 font-bold">Lineman</th>
-                    <th className="px-6 py-4 font-bold text-right">Total Output</th>
-                    <th className="px-6 py-4 font-bold text-right">Active Days</th>
-                    <th className="px-6 py-4 font-bold text-right text-blue-600">Daily Average</th>
-                    <th className="px-6 py-4 font-bold">Top Article</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 text-sm">
-                  {employeePerformance.length === 0 ? (
-                    <tr>
-                      <td colSpan={6} className="px-6 py-12 text-center text-slate-400">
-                        No production records found for the selected time range.
-                      </td>
-                    </tr>
-                  ) : (
-                    employeePerformance
-                      .sort((a, b) => b.totalPieces - a.totalPieces)
-                      .map((emp, index) => (
-                        <tr key={emp.username} className="hover:bg-slate-50/60 transition-colors">
-                          <td className="px-6 py-4 font-black text-slate-400 text-base">
-                            {index === 0 ? 'ðŸ¥‡' : index === 1 ? 'ðŸ¥ˆ' : index === 2 ? 'ðŸ¥‰' : `#${index + 1}`}
-                          </td>
-                          <td className="px-6 py-4 font-bold text-slate-900">
-                            <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-xs">
-                                {emp.username[0]?.toUpperCase()}
-                              </div>
-                              {emp.username}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 text-right font-black text-slate-900 text-base">
-                            {emp.totalPieces.toLocaleString()} pcs
-                          </td>
-                          <td className="px-6 py-4 text-right text-slate-600 font-semibold">
-                            {emp.daysCount} days
-                          </td>
-                          <td className="px-6 py-4 text-right font-black text-blue-600 text-base">
-                            ~{emp.avgPerDay.toLocaleString()} / day
-                          </td>
-                          <td className="px-6 py-4">
-                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-extrabold bg-blue-50 text-blue-700 border border-blue-100">
-                              {emp.topArticle}
-                            </span>
-                          </td>
-                        </tr>
-                      ))
-                  )}
-                </tbody>
-              </table>
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                className="p-1.5 rounded-[6px] border bg-white text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors cursor-pointer"
+                style={{ borderColor: 'var(--border, #E2E8F0)' }}
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((pg) => {
+                const isActive = currentPage === pg
+                return (
+                  <button
+                    key={pg}
+                    type="button"
+                    onClick={() => setCurrentPage(pg)}
+                    className={`w-7 h-7 rounded-[6px] text-xs font-semibold border transition-colors cursor-pointer ${
+                      isActive
+                        ? 'text-white border-transparent'
+                        : 'bg-white text-slate-700 hover:bg-slate-50 border-[var(--border,#E2E8F0)]'
+                    }`}
+                    style={{
+                      backgroundColor: isActive ? 'var(--steel, #2B4C7E)' : '#FFFFFF'
+                    }}
+                  >
+                    {pg}
+                  </button>
+                )
+              })}
+
+              <button
+                type="button"
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                className="p-1.5 rounded-[6px] border bg-white text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors cursor-pointer"
+                style={{ borderColor: 'var(--border, #E2E8F0)' }}
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
             </div>
           </div>
         )}
 
       </div>
+
+      {/* ======================================================== */}
+      {/* CUSTOM RANGE PICKER MODAL                                */}
+      {/* ======================================================== */}
+      {showCustomModal && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/45 backdrop-blur-2xs"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowCustomModal(false)
+          }}
+        >
+          <div 
+            className="w-full max-w-sm bg-white rounded-[13px] p-5 shadow-2xl border space-y-4 animate-in fade-in zoom-in-95 duration-150"
+            style={{ borderColor: 'var(--border, #E2E8F0)' }}
+          >
+            <div className="flex items-center justify-between pb-2 border-b" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-[var(--steel,#2B4C7E)]" />
+                <h3 className="text-sm font-bold font-[family-name:var(--font-fraunces)]" style={{ color: 'var(--ink, #1C2733)' }}>
+                  Select Custom Date Range
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowCustomModal(false)}
+                className="w-6 h-6 rounded border flex items-center justify-center text-slate-400 hover:text-slate-700"
+                style={{ borderColor: 'var(--border, #E2E8F0)' }}
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <div>
+                <label className="block text-[11px] font-semibold text-slate-600 mb-1">Start Date</label>
+                <input
+                  type="date"
+                  value={customStartDate}
+                  onChange={(e) => setCustomStartDate(e.target.value)}
+                  className="w-full p-2 border rounded-[7px] bg-slate-50 outline-none focus:bg-white"
+                  style={{ borderColor: 'var(--border, #E2E8F0)' }}
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-semibold text-slate-600 mb-1">End Date</label>
+                <input
+                  type="date"
+                  value={customEndDate}
+                  onChange={(e) => setCustomEndDate(e.target.value)}
+                  className="w-full p-2 border rounded-[7px] bg-slate-50 outline-none focus:bg-white"
+                  style={{ borderColor: 'var(--border, #E2E8F0)' }}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 pt-2 border-t" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+              <button
+                type="button"
+                onClick={() => setShowCustomModal(false)}
+                className="py-2 rounded-[7px] text-xs font-semibold border bg-white text-slate-700 hover:bg-slate-50"
+                style={{ borderColor: 'var(--border, #E2E8F0)' }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (customStartDate && customEndDate) {
+                    setDateFilter('custom')
+                    setShowCustomModal(false)
+                    setCurrentPage(1)
+                  }
+                }}
+                disabled={!customStartDate || !customEndDate}
+                className="py-2 rounded-[7px] text-xs font-semibold text-white transition-colors disabled:opacity-50"
+                style={{ backgroundColor: 'var(--steel, #2B4C7E)' }}
+              >
+                Apply Range
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   )
 }

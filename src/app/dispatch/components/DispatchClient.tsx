@@ -1,23 +1,27 @@
 'use client'
 
 import { useState, useMemo, useTransition } from 'react'
-import Link from 'next/link'
 import { 
   Truck, 
   Download, 
   Printer, 
   Search, 
   Plus, 
-  ArrowLeft,
-  CheckCircle2,
-  AlertTriangle,
-  FileText,
-  Pin,
-  Building2,
-  Calendar,
-  X,
-  Trash2,
-  Eye
+  CheckCircle2, 
+  AlertTriangle, 
+  FileText, 
+  ClipboardCheck,
+  Building2, 
+  Calendar, 
+  X, 
+  Trash2, 
+  Eye,
+  Clock,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react'
 import { createDeliveryChallan, recordCountingAudit } from '../actions'
 
@@ -65,20 +69,41 @@ type CountingReport = {
   article?: Article | null
 }
 
+type Allotment = {
+  id: string
+  article_id: string
+  target_qty: number
+  allotment_date?: string | null
+  article?: Article | null
+}
+
 interface DispatchClientProps {
   articles: Article[]
   deliveryChallans: DeliveryChallan[]
   countingReports: CountingReport[]
+  allotments?: Allotment[]
 }
+
+type TabKey = 'challans' | 'counting'
+type ReconciliationStatus = 'ALL' | 'MATCHED' | 'DISCREPANCY' | 'PENDING'
+type SortOrder = 'asc' | 'desc'
 
 export function DispatchClient({
   articles,
   deliveryChallans,
   countingReports,
+  allotments = [],
 }: DispatchClientProps) {
-  const [activeTab, setActiveTab] = useState<'challans' | 'counting'>('challans')
+  const [activeTab, setActiveTab] = useState<TabKey>('challans')
   const [searchTerm, setSearchTerm] = useState('')
+  const [statusFilter, setStatusFilter] = useState<ReconciliationStatus>('ALL')
+  const [currentPage, setCurrentPage] = useState(1)
+  const pageSize = 10
   const [isPending, startTransition] = useTransition()
+
+  // Sorting state
+  const [sortCol, setSortCol] = useState<string>('default')
+  const [sortOrder, setSortOrder] = useState<SortOrder>('desc')
 
   // Modal States
   const [showCreateChallanModal, setShowCreateChallanModal] = useState(false)
@@ -100,55 +125,189 @@ export function DispatchClient({
     }
   ])
 
-  // 1. Filtered Challans
-  const filteredChallans = useMemo(() => {
-    return deliveryChallans.filter(ch => {
-      if (!searchTerm) return true
-      return (
-        ch.challan_no.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        ch.buyer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (ch.destination && ch.destination.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (ch.vehicle_no && ch.vehicle_no.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (ch.driver_name && ch.driver_name.toLowerCase().includes(searchTerm.toLowerCase()))
-      )
-    })
-  }, [deliveryChallans, searchTerm])
+  const handleTabChange = (tab: TabKey) => {
+    setActiveTab(tab)
+    setCurrentPage(1)
+    setStatusFilter('ALL')
+    setSortCol('default')
+    setSortOrder('desc')
+  }
 
-  // 2. Filtered Counting Audits
-  const filteredCounting = useMemo(() => {
-    return countingReports.filter(c => {
-      if (!searchTerm) return true
-      return (
-        (c.article?.art_no && c.article.art_no.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (c.color && c.color.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (c.size && c.size.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (c.remarks && c.remarks.toLowerCase().includes(searchTerm.toLowerCase()))
-      )
+  const handleSort = (column: string) => {
+    if (sortCol === column) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortCol(column)
+      setSortOrder('desc')
+    }
+  }
+
+  // 1. Calculate Reconciliation Data for Delivery Challans
+  const reconciledChallans = useMemo(() => {
+    return deliveryChallans.map(ch => {
+      // Find linked article IDs from items
+      const coveredArticleIds = (ch.challan_items || []).map(i => i.article_id)
+      
+      // Calculate Cut Qty (from allotments matching covered articles)
+      let cutQty = 0
+      if (coveredArticleIds.length > 0) {
+        cutQty = allotments
+          .filter(a => coveredArticleIds.includes(a.article_id))
+          .reduce((sum, a) => sum + (a.target_qty || 0), 0)
+      }
+      if (cutQty === 0) {
+        cutQty = ch.total_pieces // fallback if no specific allotment is matched
+      }
+
+      // Calculate Counted Qty (from counting reports matching covered articles)
+      let countedQty = 0
+      if (coveredArticleIds.length > 0) {
+        countedQty = countingReports
+          .filter(c => coveredArticleIds.includes(c.article_id))
+          .reduce((sum, c) => sum + (c.counted_qty || 0), 0)
+      }
+      if (countedQty === 0) {
+        countedQty = ch.total_pieces // fallback
+      }
+
+      const dispatchedQty = ch.total_pieces || 0
+
+      // Determine Reconciliation Status & Label
+      let status: 'MATCHED' | 'DISCREPANCY' | 'PENDING' = 'MATCHED'
+      let label = 'Matches lot'
+      let shortPcs = 0
+
+      if (dispatchedQty === 0 && countedQty > 0) {
+        status = 'PENDING'
+        label = 'Pending dispatch'
+      } else if (dispatchedQty < cutQty || dispatchedQty < countedQty) {
+        status = 'DISCREPANCY'
+        const benchmark = Math.max(cutQty, countedQty)
+        shortPcs = benchmark - dispatchedQty
+        label = shortPcs + ' pcs short'
+      } else {
+        status = 'MATCHED'
+        label = 'Matches lot'
+      }
+
+      return {
+        ...ch,
+        cutQty,
+        countedQty,
+        dispatchedQty,
+        reconciliationStatus: status,
+        reconciliationLabel: label,
+        shortPcs
+      }
     })
-  }, [countingReports, searchTerm])
+  }, [deliveryChallans, allotments, countingReports])
+
+  // 2. Filtered & Sorted Challans
+  const filteredChallans = useMemo(() => {
+    let list = reconciledChallans
+
+    // Filter by search
+    if (searchTerm.trim()) {
+      const q = searchTerm.toLowerCase().trim()
+      list = list.filter(ch => 
+        ch.challan_no.toLowerCase().includes(q) ||
+        ch.buyer_name.toLowerCase().includes(q) ||
+        (ch.destination && ch.destination.toLowerCase().includes(q)) ||
+        (ch.vehicle_no && ch.vehicle_no.toLowerCase().includes(q)) ||
+        (ch.driver_name && ch.driver_name.toLowerCase().includes(q)) ||
+        (ch.challan_items && ch.challan_items.some(i => i.article?.art_no.toLowerCase().includes(q)))
+      )
+    }
+
+    // Filter by Reconciliation Status Chip
+    if (statusFilter !== 'ALL') {
+      list = list.filter(ch => ch.reconciliationStatus === statusFilter)
+    }
+
+    // Sort
+    if (sortCol === 'challan_no') {
+      list.sort((a, b) => sortOrder === 'asc' ? a.challan_no.localeCompare(b.challan_no) : b.challan_no.localeCompare(a.challan_no))
+    } else if (sortCol === 'date') {
+      list.sort((a, b) => {
+        const dA = new Date(a.delivery_date || a.created_at).getTime()
+        const dB = new Date(b.delivery_date || b.created_at).getTime()
+        return sortOrder === 'asc' ? dA - dB : dB - dA
+      })
+    } else if (sortCol === 'dispatched') {
+      list.sort((a, b) => sortOrder === 'asc' ? a.total_pieces - b.total_pieces : b.total_pieces - a.total_pieces)
+    } else if (sortCol === 'reconciliation') {
+      list.sort((a, b) => sortOrder === 'asc' ? a.reconciliationStatus.localeCompare(b.reconciliationStatus) : b.reconciliationStatus.localeCompare(a.reconciliationStatus))
+    }
+
+    return list
+  }, [reconciledChallans, searchTerm, statusFilter, sortCol, sortOrder])
+
+  // 3. Filtered & Sorted Counting Audits
+  const filteredCounting = useMemo(() => {
+    let list = countingReports
+
+    if (searchTerm.trim()) {
+      const q = searchTerm.toLowerCase().trim()
+      list = list.filter(c => 
+        (c.article?.art_no && c.article.art_no.toLowerCase().includes(q)) ||
+        (c.color && c.color.toLowerCase().includes(q)) ||
+        (c.size && c.size.toLowerCase().includes(q)) ||
+        (c.remarks && c.remarks.toLowerCase().includes(q))
+      )
+    }
+
+    // Sort
+    if (sortCol === 'date') {
+      list.sort((a, b) => {
+        const dA = new Date(a.entry_date || a.created_at).getTime()
+        const dB = new Date(b.entry_date || b.created_at).getTime()
+        return sortOrder === 'asc' ? dA - dB : dB - dA
+      })
+    } else if (sortCol === 'counted') {
+      list.sort((a, b) => sortOrder === 'asc' ? a.counted_qty - b.counted_qty : b.counted_qty - a.counted_qty)
+    }
+
+    return list
+  }, [countingReports, searchTerm, sortCol, sortOrder])
 
   // Overall KPIs
   const totalDeliveredPieces = deliveryChallans.reduce((sum, c) => sum + (c.total_pieces || 0), 0)
+  const totalChallansCount = deliveryChallans.length
   const totalCountedPieces = countingReports.reduce((sum, c) => sum + (c.counted_qty || 0), 0)
-  const totalDiscrepancies = countingReports.filter(c => c.expected_qty > 0 && c.counted_qty !== c.expected_qty).length
+  const totalDiscrepancies = reconciledChallans.filter(c => c.reconciliationStatus === 'DISCREPANCY').length
+
+  // Pagination Slices
+  const currentListCount = activeTab === 'challans' ? filteredChallans.length : filteredCounting.length
+  const totalPages = Math.max(1, Math.ceil(currentListCount / pageSize))
+
+  const paginatedChallans = useMemo(() => {
+    const start = (currentPage - 1) * pageSize
+    return filteredChallans.slice(start, start + pageSize)
+  }, [filteredChallans, currentPage, pageSize])
+
+  const paginatedCounting = useMemo(() => {
+    const start = (currentPage - 1) * pageSize
+    return filteredCounting.slice(start, start + pageSize)
+  }, [filteredCounting, currentPage, pageSize])
 
   // CSV Export Helper
   const handleExportCSV = () => {
     let headers: string[] = []
     let rows: (string | number)[][] = []
-    const filename = `dispatch_${activeTab}_${new Date().toISOString().split('T')[0]}.csv`
+    const filename = 'dispatch_' + activeTab + '_' + new Date().toISOString().split('T')[0] + '.csv'
 
     if (activeTab === 'challans') {
-      headers = ['Challan No', 'Date', 'Buyer Name', 'Destination', 'Vehicle No', 'Driver Name', 'Driver Phone', 'Total Pieces', 'Status']
+      headers = ['Challan No', 'Date', 'Buyer Name', 'Destination', 'Vehicle No', 'Cut Qty', 'Counted Qty', 'Dispatched Qty', 'Reconciliation', 'Status']
       rows = filteredChallans.map(r => [
         r.challan_no,
         r.delivery_date,
         r.buyer_name,
         r.destination || '-',
         r.vehicle_no || '-',
-        r.driver_name || '-',
-        r.driver_phone || '-',
+        r.cutQty,
+        r.countedQty,
         r.total_pieces,
+        r.reconciliationLabel,
         r.status
       ])
     } else {
@@ -161,7 +320,7 @@ export function DispatchClient({
         r.counted_qty,
         r.expected_qty,
         r.counted_qty - r.expected_qty,
-        `"${(r.remarks || '').replace(/"/g, '""')}"`
+        '"' + (r.remarks || '').replace(/"/g, '""') + '"'
       ])
     }
 
@@ -178,37 +337,47 @@ export function DispatchClient({
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-3">
-            <Link 
-              href="/"
-              className="p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors"
+    <div className="space-y-5">
+      
+      {/* 1. Sticky Page Header */}
+      <div 
+        className="sticky top-[14px] z-20 bg-white p-5 sm:p-6 rounded-[11px] border shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all"
+        style={{ borderColor: 'var(--border, #E2E8F0)' }}
+      >
+        <div className="flex items-center gap-3.5">
+          <div 
+            className="w-[38px] h-[38px] rounded-[10px] flex items-center justify-center shrink-0 shadow-xs"
+            style={{ backgroundColor: 'var(--steel, #2B4C7E)', color: '#FFFFFF' }}
+          >
+            <Truck className="w-5 h-5" />
+          </div>
+          <div>
+            <h1 
+              className="text-[20px] sm:text-[22px] font-bold font-[family-name:var(--font-fraunces)] leading-tight"
+              style={{ color: 'var(--ink, #1C2733)' }}
             >
-              <ArrowLeft className="w-5 h-5" />
-            </Link>
-            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
-              <Truck className="w-8 h-8 text-blue-600" />
               Dispatch & Logistics Hub
             </h1>
+            <p className="text-[13px] mt-0.5" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+              Pre-loading physical counting, delivery challans, and truck transport management
+            </p>
           </div>
-          <p className="text-sm text-slate-500 mt-1 ml-11">
-            Pre-loading physical counting, delivery challans, and truck transport management.
-          </p>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex flex-wrap items-center gap-2 self-end sm:self-auto">
+        <div className="flex flex-wrap items-center gap-2">
           <button 
+            type="button"
             onClick={() => setShowCountingModal(true)}
-            className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-sm transition-colors"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-[7px] text-xs font-semibold border transition-colors bg-white hover:bg-slate-50 cursor-pointer focus:outline-none focus:ring-2"
+            style={{ borderColor: 'var(--steel, #2B4C7E)', color: 'var(--steel, #2B4C7E)' }}
           >
-            <Pin className="w-3.5 h-3.5" />
-            + Record Counting
+            <ClipboardCheck className="w-3.5 h-3.5" />
+            <span>+ Record Counting</span>
           </button>
+          
           <button 
+            type="button"
             onClick={() => {
               setChallanRows([{
                 article_id: articles.length > 0 ? articles[0].id : '',
@@ -218,263 +387,591 @@ export function DispatchClient({
               }])
               setShowCreateChallanModal(true)
             }}
-            className="flex items-center gap-1.5 px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-sm transition-colors"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-[7px] text-xs font-semibold text-white transition-colors shadow-xs cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-1"
+            style={{ backgroundColor: 'var(--green, #1F9D63)' }}
           >
             <Plus className="w-3.5 h-3.5" />
-            + New Delivery Challan
+            <span>+ New Delivery Challan</span>
           </button>
+
           <button 
+            type="button"
             onClick={handleExportCSV}
-            className="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-xl text-xs font-semibold shadow-sm transition-colors"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-[7px] text-xs font-semibold border bg-white hover:bg-slate-50 transition-colors cursor-pointer focus:outline-none focus:ring-2"
+            style={{ borderColor: 'var(--border, #E2E8F0)', color: 'var(--ink, #1C2733)' }}
           >
             <Download className="w-3.5 h-3.5" />
-            Export CSV
+            <span>Export CSV</span>
           </button>
         </div>
       </div>
 
-      {/* KPI Overview Banner */}
+      {/* 2. KPI Overview Banner (Neutral and Semantic Alert Styling) */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
-          <div className="p-3 bg-blue-50 rounded-xl">
-            <Truck className="w-6 h-6 text-blue-600" />
-          </div>
-          <div>
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Total Dispatched</span>
-            <span className="text-xl font-black text-slate-900">{totalDeliveredPieces.toLocaleString()} pcs</span>
-          </div>
-        </div>
-
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
-          <div className="p-3 bg-emerald-50 rounded-xl">
-            <FileText className="w-6 h-6 text-emerald-600" />
-          </div>
-          <div>
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Delivery Challans</span>
-            <span className="text-xl font-black text-slate-900">{deliveryChallans.length} challans</span>
-          </div>
-        </div>
-
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
-          <div className="p-3 bg-purple-50 rounded-xl">
-            <Pin className="w-6 h-6 text-purple-600" />
-          </div>
-          <div>
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Counted Audits</span>
-            <span className="text-xl font-black text-purple-600">{totalCountedPieces.toLocaleString()} pcs</span>
-          </div>
-        </div>
-
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
-          <div className="p-3 bg-rose-50 rounded-xl">
-            <AlertTriangle className="w-6 h-6 text-rose-600" />
-          </div>
-          <div>
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Discrepancies</span>
-            <span className="text-xl font-black text-rose-600">{totalDiscrepancies} alerts</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Tabs & Search Bar */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-white p-3 rounded-2xl border border-slate-200 shadow-sm">
-        {/* Navigation Tabs */}
-        <div className="flex items-center gap-1 overflow-x-auto">
-          <button
-            onClick={() => setActiveTab('challans')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all ${
-              activeTab === 'challans'
-                ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
-                : 'text-slate-600 hover:bg-slate-100'
-            }`}
-          >
-            <FileText className="w-4 h-4" />
-            Delivery Challans Master ({filteredChallans.length})
-          </button>
-
-          <button
-            onClick={() => setActiveTab('counting')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all ${
-              activeTab === 'counting'
-                ? 'bg-purple-600 text-white shadow-md shadow-purple-500/20'
-                : 'text-slate-600 hover:bg-slate-100'
-            }`}
-          >
-            <Pin className="w-4 h-4" />
-            Pre-Loading Counting Audits ({filteredCounting.length})
-          </button>
-        </div>
-
-        {/* Search */}
-        <div className="relative w-full sm:w-64">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-          <input 
-            type="text"
-            placeholder="Search challan, buyer, vehicle..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-9 pr-4 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full"
-          />
-        </div>
-      </div>
-
-      {/* Main Table Content */}
-      <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
         
-        {/* TAB 1: DELIVERY CHALLANS MASTER REGISTER */}
+        {/* Total Dispatched */}
+        <div 
+          className="bg-white p-5 rounded-[11px] border shadow-xs flex items-center justify-between"
+          style={{ borderColor: 'var(--border, #E2E8F0)' }}
+        >
+          <div>
+            <span className="text-[11px] font-semibold uppercase tracking-[1.5px] block" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+              Total Dispatched
+            </span>
+            <span className="text-[24px] font-bold font-[family-name:var(--font-fraunces)] leading-tight block mt-1" style={{ color: 'var(--ink, #1C2733)' }}>
+              {totalDeliveredPieces.toLocaleString()} <span className="text-xs font-normal text-slate-500">pcs</span>
+            </span>
+          </div>
+          <div className="w-[32px] h-[32px] rounded-[8px] flex items-center justify-center shrink-0" style={{ backgroundColor: 'var(--steel-mist, #EEF3FA)', color: 'var(--steel, #2B4C7E)' }}>
+            <Truck className="w-4 h-4" />
+          </div>
+        </div>
+
+        {/* Delivery Challans */}
+        <div 
+          className="bg-white p-5 rounded-[11px] border shadow-xs flex items-center justify-between"
+          style={{ borderColor: 'var(--border, #E2E8F0)' }}
+        >
+          <div>
+            <span className="text-[11px] font-semibold uppercase tracking-[1.5px] block" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+              Delivery Challans
+            </span>
+            <span className="text-[24px] font-bold font-[family-name:var(--font-fraunces)] leading-tight block mt-1" style={{ color: 'var(--ink, #1C2733)' }}>
+              {totalChallansCount} <span className="text-xs font-normal text-slate-500">issued</span>
+            </span>
+          </div>
+          <div className="w-[32px] h-[32px] rounded-[8px] flex items-center justify-center shrink-0" style={{ backgroundColor: 'var(--steel-mist, #EEF3FA)', color: 'var(--steel, #2B4C7E)' }}>
+            <FileText className="w-4 h-4" />
+          </div>
+        </div>
+
+        {/* Counted Audits */}
+        <div 
+          className="bg-white p-5 rounded-[11px] border shadow-xs flex items-center justify-between"
+          style={{ borderColor: 'var(--border, #E2E8F0)' }}
+        >
+          <div>
+            <span className="text-[11px] font-semibold uppercase tracking-[1.5px] block" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+              Counted Audits
+            </span>
+            <span className="text-[24px] font-bold font-[family-name:var(--font-fraunces)] leading-tight block mt-1" style={{ color: 'var(--ink, #1C2733)' }}>
+              {totalCountedPieces.toLocaleString()} <span className="text-xs font-normal text-slate-500">pcs</span>
+            </span>
+          </div>
+          <div className="w-[32px] h-[32px] rounded-[8px] flex items-center justify-center shrink-0" style={{ backgroundColor: 'var(--steel-mist, #EEF3FA)', color: 'var(--steel, #2B4C7E)' }}>
+            <ClipboardCheck className="w-4 h-4" />
+          </div>
+        </div>
+
+        {/* Discrepancies (Semantic Alert State) */}
+        <div 
+          onClick={() => {
+            if (totalDiscrepancies > 0) {
+              setActiveTab('challans')
+              setStatusFilter('DISCREPANCY')
+              setCurrentPage(1)
+            }
+          }}
+          className={`bg-white p-5 rounded-[11px] border shadow-xs flex items-center justify-between transition-all ${
+            totalDiscrepancies > 0 ? 'cursor-pointer hover:shadow-sm' : ''
+          }`}
+          style={{ 
+            borderColor: totalDiscrepancies > 0 ? 'var(--red, #C0392B)' : 'var(--border, #E2E8F0)',
+            backgroundColor: totalDiscrepancies > 0 ? 'var(--red-mist, #FBEAE8)' : '#FFFFFF'
+          }}
+        >
+          <div>
+            <span className="text-[11px] font-semibold uppercase tracking-[1.5px] block" style={{ color: totalDiscrepancies > 0 ? 'var(--red, #C0392B)' : 'var(--ink-soft, #5B6B7C)' }}>
+              Discrepancies
+            </span>
+            <span className="text-[24px] font-bold font-[family-name:var(--font-fraunces)] leading-tight block mt-1" style={{ color: totalDiscrepancies > 0 ? 'var(--red, #C0392B)' : 'var(--ink, #1C2733)' }}>
+              {totalDiscrepancies} <span className="text-xs font-normal text-slate-500">mismatches</span>
+            </span>
+          </div>
+          <div className="w-[32px] h-[32px] rounded-[8px] flex items-center justify-center shrink-0" style={{ backgroundColor: 'var(--red-mist, #FBEAE8)', color: 'var(--red, #C0392B)' }}>
+            <AlertTriangle className="w-4 h-4" />
+          </div>
+        </div>
+      </div>
+
+      {/* 3. Navigation Tabs, Status Filter Chips & Search Toolbar */}
+      <div 
+        className="space-y-3 bg-white p-3.5 rounded-[11px] border shadow-xs"
+        style={{ borderColor: 'var(--border, #E2E8F0)' }}
+      >
+        {/* Top Row: Navigation Tabs */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+          <button
+            type="button"
+            onClick={() => handleTabChange('challans')}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-[6px] text-xs font-semibold whitespace-nowrap transition-all outline-none ${
+              activeTab === 'challans'
+                ? 'bg-[var(--steel,#2B4C7E)] text-white shadow-xs'
+                : 'text-[var(--ink-soft,#5B6B7C)] hover:text-[var(--ink,#1C2733)] bg-transparent'
+            }`}
+          >
+            <FileText className="w-3.5 h-3.5" />
+            <span>Delivery Challans Master ({filteredChallans.length})</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleTabChange('counting')}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-[6px] text-xs font-semibold whitespace-nowrap transition-all outline-none ${
+              activeTab === 'counting'
+                ? 'bg-[var(--steel,#2B4C7E)] text-white shadow-xs'
+                : 'text-[var(--ink-soft,#5B6B7C)] hover:text-[var(--ink,#1C2733)] bg-transparent'
+            }`}
+          >
+            <ClipboardCheck className="w-3.5 h-3.5" />
+            <span>Pre-Loading Counting Audits ({filteredCounting.length})</span>
+          </button>
+        </div>
+
+        {/* Bottom Row: Status Filter Chips + Search Input */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2 border-t" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+          
+          {/* Status Filter Chips (For Challans Tab) */}
+          {activeTab === 'challans' ? (
+            <div className="flex flex-wrap items-center gap-1.5">
+              {(['ALL', 'MATCHED', 'DISCREPANCY', 'PENDING'] as ReconciliationStatus[]).map((st) => {
+                const isSelected = statusFilter === st
+                const labelMap: Record<ReconciliationStatus, string> = {
+                  ALL: 'All',
+                  MATCHED: 'Matched',
+                  DISCREPANCY: 'Discrepancy',
+                  PENDING: 'Pending dispatch'
+                }
+                return (
+                  <button
+                    key={st}
+                    type="button"
+                    onClick={() => {
+                      setStatusFilter(st)
+                      setCurrentPage(1)
+                    }}
+                    className={`px-3 py-1 rounded-[6px] text-xs font-semibold border transition-colors outline-none ${
+                      isSelected
+                        ? 'bg-[var(--steel-mist,#EEF3FA)] border-[var(--steel,#2B4C7E)] text-[var(--steel-dark,#1F3A63)]'
+                        : 'bg-white border-[var(--border,#E2E8F0)] text-[var(--ink-soft,#5B6B7C)] hover:text-[var(--ink,#1C2733)]'
+                    }`}
+                  >
+                    {labelMap[st]}
+                  </button>
+                )
+              })}
+            </div>
+          ) : (
+            <div className="text-xs font-medium" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+              Physical piece count audits conducted before loading
+            </div>
+          )}
+
+          {/* Search Box */}
+          <div className="relative w-full sm:w-72">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <input 
+              type="text"
+              placeholder="Search challan, buyer, vehicle..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value)
+                setCurrentPage(1)
+              }}
+              className="w-full pl-9 pr-3 py-1.5 bg-slate-50 border rounded-[7px] text-xs outline-none transition-colors"
+              style={{ borderColor: 'var(--border, #E2E8F0)' }}
+              onFocus={(e) => e.currentTarget.style.borderColor = 'var(--steel, #2B4C7E)'}
+              onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border, #E2E8F0)'}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* 4. Main Table / Empty State Area */}
+      <div 
+        className="bg-white rounded-[11px] border shadow-xs overflow-hidden"
+        style={{ borderColor: 'var(--border, #E2E8F0)' }}
+      >
+        
+        {/* ======================================================== */}
+        {/* TAB 1: DELIVERY CHALLANS MASTER (WITH RECONCILIATION)    */}
+        {/* ======================================================== */}
         {activeTab === 'challans' && (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 text-xs uppercase tracking-wider">
-                  <th className="px-6 py-4 font-bold">Challan No</th>
-                  <th className="px-6 py-4 font-bold">Date</th>
-                  <th className="px-6 py-4 font-bold">Buyer / Consignee</th>
-                  <th className="px-6 py-4 font-bold">Destination</th>
-                  <th className="px-6 py-4 font-bold">Transporter (Vehicle / Driver)</th>
-                  <th className="px-6 py-4 font-bold text-right text-blue-600">Total Pieces</th>
-                  <th className="px-6 py-4 font-bold text-center">Status</th>
-                  <th className="px-6 py-4 font-bold text-center">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 text-sm">
-                {filteredChallans.length === 0 ? (
-                  <tr>
-                    <td colSpan={8} className="px-6 py-12 text-center text-slate-400">
-                      No delivery challans found. Tap "+ New Delivery Challan" to create one.
-                    </td>
-                  </tr>
-                ) : (
-                  filteredChallans.map((row) => (
-                    <tr key={row.id} className="hover:bg-slate-50/60 transition-colors">
-                      <td className="px-6 py-4 font-black text-blue-600 whitespace-nowrap">
-                        #{row.challan_no}
-                      </td>
-                      <td className="px-6 py-4 text-slate-600 font-semibold whitespace-nowrap text-xs">
-                        {row.delivery_date}
-                      </td>
-                      <td className="px-6 py-4 font-extrabold text-slate-900">
-                        {row.buyer_name}
-                      </td>
-                      <td className="px-6 py-4 text-slate-600 text-xs font-semibold">
-                        {row.destination || '-'}
-                      </td>
-                      <td className="px-6 py-4 text-slate-700 text-xs">
-                        <div className="font-bold text-slate-800">{row.vehicle_no || '-'}</div>
-                        <div className="text-slate-500">{row.driver_name} {row.driver_phone ? `(${row.driver_phone})` : ''}</div>
-                      </td>
-                      <td className="px-6 py-4 text-right font-black text-blue-600 text-base whitespace-nowrap">
-                        {row.total_pieces.toLocaleString()} pcs
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">
-                          Dispatched ðŸšš
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        <button
-                          onClick={() => setSelectedChallanForPrint(row)}
-                          className="inline-flex items-center gap-1 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold transition-colors"
-                        >
-                          <Eye className="w-3.5 h-3.5" />
-                          View / Print
-                        </button>
-                      </td>
+          <div>
+            {filteredChallans.length === 0 ? (
+              <div className="p-12 text-center flex flex-col items-center justify-center space-y-3">
+                <div 
+                  className="w-11 h-11 rounded-full flex items-center justify-center"
+                  style={{ backgroundColor: 'var(--steel-mist, #EEF3FA)', color: 'var(--steel, #2B4C7E)' }}
+                >
+                  <FileText className="w-5 h-5" />
+                </div>
+                <h3 className="text-base font-bold font-[family-name:var(--font-fraunces)]" style={{ color: 'var(--ink, #1C2733)' }}>
+                  No delivery challans yet
+                </h3>
+                <p className="text-xs max-w-sm" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                  Challans you create will show up here, with automatic reconciliation against cut and counted quantities.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setChallanRows([{
+                      article_id: articles.length > 0 ? articles[0].id : '',
+                      color: 'Navy Blue',
+                      size: 'L',
+                      quantity: 200,
+                    }])
+                    setShowCreateChallanModal(true)
+                  }}
+                  className="mt-2 px-4 py-2 rounded-[7px] text-xs font-semibold text-white shadow-xs transition-colors"
+                  style={{ backgroundColor: 'var(--green, #1F9D63)' }}
+                >
+                  + New Delivery Challan
+                </button>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr className="bg-slate-50 border-b text-[11px] uppercase tracking-wider font-bold" style={{ borderColor: 'var(--border, #E2E8F0)', color: 'var(--ink-soft, #5B6B7C)' }}>
+                      
+                      {/* Sortable Challan No */}
+                      <th 
+                        onClick={() => handleSort('challan_no')}
+                        className="px-5 py-3.5 cursor-pointer hover:bg-slate-100 transition-colors select-none font-bold"
+                      >
+                        <div className="flex items-center gap-1.5">
+                          <span>Challan No</span>
+                          {sortCol === 'challan_no' ? (
+                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" /> : <ArrowDown className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" />
+                          ) : (
+                            <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
+                          )}
+                        </div>
+                      </th>
+
+                      {/* Sortable Date */}
+                      <th 
+                        onClick={() => handleSort('date')}
+                        className="px-4 py-3.5 cursor-pointer hover:bg-slate-100 transition-colors select-none font-bold"
+                      >
+                        <div className="flex items-center gap-1.5">
+                          <span>Date</span>
+                          {sortCol === 'date' ? (
+                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" /> : <ArrowDown className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" />
+                          ) : (
+                            <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
+                          )}
+                        </div>
+                      </th>
+
+                      <th className="px-4 py-3.5 font-bold">Buyer / Consignee</th>
+                      <th className="px-4 py-3.5 font-bold">Vehicle / Transporter</th>
+                      
+                      {/* Reconciliation Quantities */}
+                      <th className="px-3 py-3.5 text-right font-bold text-slate-500">Cut Qty</th>
+                      <th className="px-3 py-3.5 text-right font-bold text-slate-500">Counted Qty</th>
+                      
+                      {/* Sortable Dispatched Qty */}
+                      <th 
+                        onClick={() => handleSort('dispatched')}
+                        className="px-4 py-3.5 text-right cursor-pointer hover:bg-slate-100 transition-colors select-none font-bold text-[var(--steel,#2B4C7E)]"
+                      >
+                        <div className="flex items-center justify-end gap-1.5">
+                          <span>Dispatched Qty</span>
+                          {sortCol === 'dispatched' ? (
+                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" /> : <ArrowDown className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" />
+                          ) : (
+                            <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
+                          )}
+                        </div>
+                      </th>
+
+                      {/* Sortable Reconciliation Badge */}
+                      <th 
+                        onClick={() => handleSort('reconciliation')}
+                        className="px-4 py-3.5 text-center cursor-pointer hover:bg-slate-100 transition-colors select-none font-bold"
+                      >
+                        <div className="flex items-center justify-center gap-1.5">
+                          <span>Reconciliation</span>
+                          {sortCol === 'reconciliation' ? (
+                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" /> : <ArrowDown className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" />
+                          ) : (
+                            <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
+                          )}
+                        </div>
+                      </th>
+
+                      <th className="px-4 py-3.5 font-bold text-center">Action</th>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {paginatedChallans.map((row) => (
+                      <tr key={row.id} className="hover:bg-slate-50/50 transition-colors">
+                        <td className="px-5 py-3.5 font-bold" style={{ color: 'var(--steel, #2B4C7E)' }}>
+                          {row.challan_no}
+                        </td>
+                        <td className="px-4 py-3.5 font-mono text-slate-600 whitespace-nowrap">
+                          {row.delivery_date || row.created_at.split('T')[0]}
+                        </td>
+                        <td className="px-4 py-3.5 font-semibold text-slate-900">
+                          <div>{row.buyer_name}</div>
+                          {row.destination && <div className="text-[11px] text-slate-400 font-normal">{row.destination}</div>}
+                        </td>
+                        <td className="px-4 py-3.5 text-slate-600">
+                          <div>{row.vehicle_no || '-'}</div>
+                          {row.driver_name && <div className="text-[11px] text-slate-400">{row.driver_name} {row.driver_phone ? '(' + row.driver_phone + ')' : ''}</div>}
+                        </td>
+                        <td className="px-3 py-3.5 text-right font-mono text-slate-500 font-medium">
+                          {row.cutQty.toLocaleString()} pcs
+                        </td>
+                        <td className="px-3 py-3.5 text-right font-mono text-slate-600 font-medium">
+                          {row.countedQty.toLocaleString()} pcs
+                        </td>
+                        <td className="px-4 py-3.5 text-right font-mono font-bold" style={{ color: 'var(--steel, #2B4C7E)' }}>
+                          {row.total_pieces.toLocaleString()} pcs
+                        </td>
+                        <td className="px-4 py-3.5 text-center">
+                          {row.reconciliationStatus === 'MATCHED' && (
+                            <span 
+                              className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold"
+                              style={{ backgroundColor: 'var(--green-mist, #E6F6EE)', color: 'var(--green, #1F9D63)' }}
+                            >
+                              <CheckCircle2 className="w-3 h-3" />
+                              <span>{row.reconciliationLabel}</span>
+                            </span>
+                          )}
+                          {row.reconciliationStatus === 'DISCREPANCY' && (
+                            <span 
+                              className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold"
+                              style={{ backgroundColor: 'var(--red-mist, #FBEAE8)', color: 'var(--red, #C0392B)' }}
+                            >
+                              <AlertTriangle className="w-3 h-3" />
+                              <span>{row.reconciliationLabel}</span>
+                            </span>
+                          )}
+                          {row.reconciliationStatus === 'PENDING' && (
+                            <span 
+                              className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold"
+                              style={{ backgroundColor: 'var(--amber-mist, #FBF0E1)', color: 'var(--amber, #C8802B)' }}
+                            >
+                              <Clock className="w-3 h-3" />
+                              <span>{row.reconciliationLabel}</span>
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3.5 text-center">
+                          <button
+                            type="button"
+                            onClick={() => setSelectedChallanForPrint(row)}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-[6px] border bg-white hover:bg-slate-50 text-[11px] font-semibold text-slate-700 transition-colors shadow-2xs"
+                            style={{ borderColor: 'var(--border, #E2E8F0)' }}
+                          >
+                            <Printer className="w-3 h-3 text-slate-500" />
+                            <span>Print / View</span>
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         )}
 
-        {/* TAB 2: PRE-LOADING COUNTING AUDITS */}
+        {/* ======================================================== */}
+        {/* TAB 2: PRE-LOADING COUNTING AUDITS                      */}
+        {/* ======================================================== */}
         {activeTab === 'counting' && (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 text-xs uppercase tracking-wider">
-                  <th className="px-6 py-4 font-bold">Date</th>
-                  <th className="px-6 py-4 font-bold">Article No</th>
-                  <th className="px-6 py-4 font-bold">Color / Size</th>
-                  <th className="px-6 py-4 font-bold text-right text-purple-600">Counted Qty</th>
-                  <th className="px-6 py-4 font-bold text-right text-slate-500">Expected Qty</th>
-                  <th className="px-6 py-4 font-bold text-center">Audit Result</th>
-                  <th className="px-6 py-4 font-bold">Remarks</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 text-sm">
-                {filteredCounting.length === 0 ? (
-                  <tr>
-                    <td colSpan={7} className="px-6 py-12 text-center text-slate-400">
-                      No pre-loading counting audits recorded yet.
-                    </td>
-                  </tr>
-                ) : (
-                  filteredCounting.map((row) => {
-                    const finalDiff = row.counted_qty - (row.expected_qty || 0)
-                    const isMismatch = row.expected_qty > 0 && finalDiff !== 0
-
-                    return (
-                      <tr key={row.id} className="hover:bg-slate-50/60 transition-colors">
-                        <td className="px-6 py-4 font-semibold text-slate-600 whitespace-nowrap text-xs">
-                          {row.entry_date}
-                        </td>
-                        <td className="px-6 py-4 font-extrabold text-blue-600">
-                          {row.article?.art_no || '-'}
-                        </td>
-                        <td className="px-6 py-4">
-                          {(row.color || row.size) ? (
-                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-slate-100 text-slate-800">
-                              {row.color} {row.size ? `(${row.size})` : ''}
-                            </span>
+          <div>
+            {filteredCounting.length === 0 ? (
+              <div className="p-12 text-center flex flex-col items-center justify-center space-y-3">
+                <div 
+                  className="w-11 h-11 rounded-full flex items-center justify-center"
+                  style={{ backgroundColor: 'var(--steel-mist, #EEF3FA)', color: 'var(--steel, #2B4C7E)' }}
+                >
+                  <ClipboardCheck className="w-5 h-5" />
+                </div>
+                <h3 className="text-base font-bold font-[family-name:var(--font-fraunces)]" style={{ color: 'var(--ink, #1C2733)' }}>
+                  No counting audits yet
+                </h3>
+                <p className="text-xs max-w-sm" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                  Physical piece counting reports before truck loading will appear here.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setShowCountingModal(true)}
+                  className="mt-2 px-4 py-2 rounded-[7px] text-xs font-semibold text-white shadow-xs transition-colors"
+                  style={{ backgroundColor: 'var(--steel, #2B4C7E)' }}
+                >
+                  + Record Counting
+                </button>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr className="bg-slate-50 border-b text-[11px] uppercase tracking-wider font-bold" style={{ borderColor: 'var(--border, #E2E8F0)', color: 'var(--ink-soft, #5B6B7C)' }}>
+                      
+                      {/* Sortable Date */}
+                      <th 
+                        onClick={() => handleSort('date')}
+                        className="px-5 py-3.5 cursor-pointer hover:bg-slate-100 transition-colors select-none font-bold"
+                      >
+                        <div className="flex items-center gap-1.5">
+                          <span>Date</span>
+                          {sortCol === 'date' ? (
+                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" /> : <ArrowDown className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" />
                           ) : (
-                            <span className="text-slate-400 text-xs">-</span>
+                            <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
                           )}
-                        </td>
-                        <td className="px-6 py-4 text-right font-black text-purple-700 text-base">
-                          {row.counted_qty.toLocaleString()} pcs
-                        </td>
-                        <td className="px-6 py-4 text-right font-bold text-slate-600 text-sm">
-                          {row.expected_qty.toLocaleString()} pcs
-                        </td>
-                        <td className="px-6 py-4 text-center">
-                          <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ${
-                            finalDiff === 0 
-                              ? 'bg-emerald-100 text-emerald-800' 
-                              : finalDiff < 0 
-                                ? 'bg-rose-100 text-rose-800 font-extrabold' 
-                                : 'bg-amber-100 text-amber-800 font-extrabold'
-                          }`}>
-                            {finalDiff === 0 ? 'Exact Match âœ…' : `${finalDiff > 0 ? "+" : ""}${finalDiff} pcs ${finalDiff < 0 ? "Shortage âš ï¸" : "Surplus ðŸ“¦"}`}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 text-slate-500 text-xs">
-                          {row.remarks || '-'}
-                        </td>
-                      </tr>
-                    )
-                  })
-                )}
-              </tbody>
-            </table>
+                        </div>
+                      </th>
+
+                      <th className="px-4 py-3.5 font-bold">Article No</th>
+                      <th className="px-4 py-3.5 font-bold">Color / Size</th>
+                      
+                      {/* Sortable Counted Qty */}
+                      <th 
+                        onClick={() => handleSort('counted')}
+                        className="px-4 py-3.5 text-right cursor-pointer hover:bg-slate-100 transition-colors select-none font-bold text-[var(--steel,#2B4C7E)]"
+                      >
+                        <div className="flex items-center justify-end gap-1.5">
+                          <span>Counted Qty</span>
+                          {sortCol === 'counted' ? (
+                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" /> : <ArrowDown className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" />
+                          ) : (
+                            <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
+                          )}
+                        </div>
+                      </th>
+
+                      <th className="px-4 py-3.5 text-right font-bold text-slate-500">Expected Qty</th>
+                      <th className="px-4 py-3.5 text-center font-bold">Difference</th>
+                      <th className="px-4 py-3.5 font-bold">Remarks</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {paginatedCounting.map((row) => {
+                      const diff = row.counted_qty - row.expected_qty
+                      const isMatch = diff === 0
+                      const isShort = diff < 0
+
+                      return (
+                        <tr key={row.id} className="hover:bg-slate-50/50 transition-colors">
+                          <td className="px-5 py-3.5 font-mono text-slate-600 whitespace-nowrap">
+                            {row.entry_date || row.created_at.split('T')[0]}
+                          </td>
+                          <td className="px-4 py-3.5 font-bold" style={{ color: 'var(--steel, #2B4C7E)' }}>
+                            {row.article?.art_no || '-'}
+                          </td>
+                          <td className="px-4 py-3.5">
+                            {(row.color || row.size) ? (
+                              <span className="inline-flex items-center px-2 py-0.5 rounded-[5px] text-[11px] font-medium bg-slate-100 text-slate-800">
+                                {row.color} {row.size ? '(' + row.size + ')' : ''}
+                              </span>
+                            ) : (
+                              <span className="text-slate-400">-</span>
+                            )}
+                          </td>
+                          <td className="px-4 py-3.5 text-right font-mono font-bold" style={{ color: 'var(--steel, #2B4C7E)' }}>
+                            {row.counted_qty.toLocaleString()} pcs
+                          </td>
+                          <td className="px-4 py-3.5 text-right font-mono text-slate-500">
+                            {row.expected_qty.toLocaleString()} pcs
+                          </td>
+                          <td className="px-4 py-3.5 text-center">
+                            <span 
+                              className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold font-mono"
+                              style={{
+                                backgroundColor: isMatch ? 'var(--green-mist, #E6F6EE)' : isShort ? 'var(--red-mist, #FBEAE8)' : 'var(--amber-mist, #FBF0E1)',
+                                color: isMatch ? 'var(--green, #1F9D63)' : isShort ? 'var(--red, #C0392B)' : 'var(--amber, #C8802B)'
+                              }}
+                            >
+                              {diff > 0 ? '+' + diff : diff} pcs
+                            </span>
+                          </td>
+                          <td className="px-4 py-3.5 text-slate-500 text-[11px]">
+                            {row.remarks || '-'}
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 5. Pagination Controls Footer */}
+        {currentListCount > 0 && (
+          <div className="p-4 border-t bg-slate-50/60 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+            <div style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+              Showing <span className="font-semibold">{(currentPage - 1) * pageSize + 1}</span>–<span className="font-semibold">{Math.min(currentPage * pageSize, currentListCount)}</span> of <span className="font-semibold">{currentListCount}</span> {activeTab === 'challans' ? 'challans' : 'audits'}
+            </div>
+
+            {/* Page Buttons */}
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                className="p-1.5 rounded-[6px] border bg-white text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors cursor-pointer"
+                style={{ borderColor: 'var(--border, #E2E8F0)' }}
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((pg) => {
+                const isActive = currentPage === pg
+                return (
+                  <button
+                    key={pg}
+                    type="button"
+                    onClick={() => setCurrentPage(pg)}
+                    className={`w-7 h-7 rounded-[6px] text-xs font-semibold border transition-colors cursor-pointer ${
+                      isActive
+                        ? 'text-white border-transparent'
+                        : 'bg-white text-slate-700 hover:bg-slate-50 border-[var(--border,#E2E8F0)]'
+                    }`}
+                    style={{
+                      backgroundColor: isActive ? 'var(--steel, #2B4C7E)' : '#FFFFFF'
+                    }}
+                  >
+                    {pg}
+                  </button>
+                )
+              })}
+
+              <button
+                type="button"
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                className="p-1.5 rounded-[6px] border bg-white text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors cursor-pointer"
+                style={{ borderColor: 'var(--border, #E2E8F0)' }}
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         )}
 
       </div>
 
       {/* ======================================================== */}
-      {/* MODAL 1: CREATE DELIVERY CHALLAN                          */}
+      {/* MODAL 1: CREATE NEW DELIVERY CHALLAN (MULTI-ITEM)         */}
       {/* ======================================================== */}
       {showCreateChallanModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-xl w-full p-6 space-y-4 shadow-xl max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
-                <Truck className="w-5 h-5 text-emerald-600" />
+          <div className="bg-white rounded-[11px] max-w-xl w-full p-6 space-y-4 shadow-xl border overflow-y-auto max-h-[90vh]" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+            <div className="flex items-center justify-between pb-3 border-b" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+              <h3 className="text-base font-bold font-[family-name:var(--font-fraunces)] flex items-center gap-2" style={{ color: 'var(--ink, #1C2733)' }}>
+                <Truck className="w-4 h-4 text-[var(--steel,#2B4C7E)]" />
                 Generate Delivery Challan
               </h3>
-              <button onClick={() => setShowCreateChallanModal(false)} className="text-slate-400 hover:text-slate-700">
+              <button onClick={() => setShowCreateChallanModal(false)} className="text-slate-400 hover:text-slate-700 cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -485,152 +982,157 @@ export function DispatchClient({
                 await createDeliveryChallan(formData)
                 setShowCreateChallanModal(false)
               })
-            }} className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
+            }} className="space-y-4">
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Challan No</label>
-                  <input type="text" name="challan_no" defaultValue={`CH-${new Date().getFullYear()}-${Date.now().toString().slice(-4)}`} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm font-bold text-blue-600" />
+                  <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                    Challan Number
+                  </label>
+                  <input 
+                    type="text" 
+                    name="challan_no" 
+                    defaultValue={'CH-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random() * 9000)} 
+                    className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs font-mono font-bold outline-none" 
+                    style={{ borderColor: 'var(--border, #E2E8F0)' }} 
+                  />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Buyer / Consignee</label>
-                  <input type="text" name="buyer_name" required defaultValue="Reliance Retail Pvt Ltd" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm font-semibold" />
+                  <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                    Buyer / Consignee Name
+                  </label>
+                  <input 
+                    type="text" 
+                    name="buyer_name" 
+                    required 
+                    placeholder="e.g. Zara Mumbai Hub" 
+                    className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs font-semibold outline-none" 
+                    style={{ borderColor: 'var(--border, #E2E8F0)' }} 
+                  />
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Destination Address / Hub</label>
-                <input type="text" name="destination" defaultValue="Mumbai Central Hub" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm" />
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                    Destination City
+                  </label>
+                  <input type="text" name="destination" placeholder="Bhiwandi Godown" className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs outline-none" style={{ borderColor: 'var(--border, #E2E8F0)' }} />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                    Vehicle / Truck No
+                  </label>
+                  <input type="text" name="vehicle_no" placeholder="MH-04-AB-1234" className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs outline-none" style={{ borderColor: 'var(--border, #E2E8F0)' }} />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                    Driver Phone
+                  </label>
+                  <input type="text" name="driver_phone" placeholder="9876543210" className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs outline-none" style={{ borderColor: 'var(--border, #E2E8F0)' }} />
+                </div>
               </div>
 
-              {/* Multi-Row Items */}
+              {/* Multi-Item Table Section */}
               <div className="pt-2">
                 <div className="flex items-center justify-between mb-2">
-                  <label className="text-xs font-bold text-slate-800">Challan Items (Articles & Sizes)</label>
+                  <span className="text-[11px] font-bold uppercase tracking-[1.5px]" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                    Challan Items ({challanRows.reduce((sum, r) => sum + (r.quantity || 0), 0)} pcs)
+                  </span>
                   <button
                     type="button"
                     onClick={() => {
                       setChallanRows([...challanRows, {
                         article_id: articles.length > 0 ? articles[0].id : '',
-                        color: 'Black',
-                        size: 'M',
+                        color: 'Standard',
+                        size: 'L',
                         quantity: 100,
                       }])
                     }}
-                    className="text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                    className="text-xs font-semibold text-[var(--steel,#2B4C7E)] hover:underline flex items-center gap-1"
                   >
-                    <Plus className="w-3.5 h-3.5" />
-                    + Add Item
+                    <Plus className="w-3.5 h-3.5" /> + Add Article Row
                   </button>
                 </div>
 
                 <div className="space-y-2">
                   {challanRows.map((row, idx) => (
-                    <div key={idx} className="p-3 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-slate-500">Item #{idx + 1}</span>
-                        {challanRows.length > 1 && (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setChallanRows(challanRows.filter((_, i) => i !== idx))
-                            }}
-                            className="text-rose-500 hover:text-rose-700"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        )}
-                      </div>
+                    <div key={idx} className="flex items-center gap-2 p-2 bg-slate-50 rounded-[8px] border" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+                      <select 
+                        value={row.article_id}
+                        onChange={(e) => {
+                          const updated = [...challanRows]
+                          updated[idx].article_id = e.target.value
+                          setChallanRows(updated)
+                        }}
+                        className="flex-1 bg-white border rounded-[6px] px-2 py-1.5 text-xs font-semibold"
+                        style={{ borderColor: 'var(--border, #E2E8F0)' }}
+                      >
+                        {articles.map(art => (
+                          <option key={art.id} value={art.id}>{art.art_no} ({art.description})</option>
+                        ))}
+                      </select>
 
-                      <div className="grid grid-cols-12 gap-2">
-                        <div className="col-span-5">
-                          <select
-                            value={row.article_id}
-                            onChange={(e) => {
-                              const next = [...challanRows]
-                              next[idx].article_id = e.target.value
-                              setChallanRows(next)
-                            }}
-                            className="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs font-bold"
-                          >
-                            {articles.map(art => (
-                              <option key={art.id} value={art.id}>{art.art_no}</option>
-                            ))}
-                          </select>
-                        </div>
-                        <div className="col-span-3">
-                          <input
-                            type="text"
-                            placeholder="Color"
-                            value={row.color}
-                            onChange={(e) => {
-                              const next = [...challanRows]
-                              next[idx].color = e.target.value
-                              setChallanRows(next)
-                            }}
-                            className="w-full bg-white border border-slate-200 rounded-xl px-2 py-1.5 text-xs"
-                          />
-                        </div>
-                        <div className="col-span-2">
-                          <input
-                            type="text"
-                            placeholder="Size"
-                            value={row.size}
-                            onChange={(e) => {
-                              const next = [...challanRows]
-                              next[idx].size = e.target.value
-                              setChallanRows(next)
-                            }}
-                            className="w-full bg-white border border-slate-200 rounded-xl px-2 py-1.5 text-xs"
-                          />
-                        </div>
-                        <div className="col-span-2">
-                          <input
-                            type="number"
-                            placeholder="Qty"
-                            value={row.quantity}
-                            onChange={(e) => {
-                              const next = [...challanRows]
-                              next[idx].quantity = parseInt(e.target.value) || 0
-                              setChallanRows(next)
-                            }}
-                            className="w-full bg-white border border-slate-200 rounded-xl px-2 py-1.5 text-xs font-bold text-blue-600"
-                          />
-                        </div>
-                      </div>
+                      <input 
+                        type="text" 
+                        placeholder="Color"
+                        value={row.color}
+                        onChange={(e) => {
+                          const updated = [...challanRows]
+                          updated[idx].color = e.target.value
+                          setChallanRows(updated)
+                        }}
+                        className="w-20 bg-white border rounded-[6px] px-2 py-1.5 text-xs"
+                        style={{ borderColor: 'var(--border, #E2E8F0)' }}
+                      />
+
+                      <input 
+                        type="text" 
+                        placeholder="Size"
+                        value={row.size}
+                        onChange={(e) => {
+                          const updated = [...challanRows]
+                          updated[idx].size = e.target.value
+                          setChallanRows(updated)
+                        }}
+                        className="w-14 bg-white border rounded-[6px] px-2 py-1.5 text-xs"
+                        style={{ borderColor: 'var(--border, #E2E8F0)' }}
+                      />
+
+                      <input 
+                        type="number" 
+                        placeholder="Qty"
+                        value={row.quantity}
+                        onChange={(e) => {
+                          const updated = [...challanRows]
+                          updated[idx].quantity = parseInt(e.target.value) || 0
+                          setChallanRows(updated)
+                        }}
+                        className="w-20 bg-white border rounded-[6px] px-2 py-1.5 text-xs font-mono font-bold text-right"
+                        style={{ borderColor: 'var(--border, #E2E8F0)' }}
+                      />
+
+                      {challanRows.length > 1 && (
+                        <button 
+                          type="button"
+                          onClick={() => setChallanRows(challanRows.filter((_, i) => i !== idx))}
+                          className="p-1.5 text-slate-400 hover:text-red-600 transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
                     </div>
                   ))}
-                </div>
-
-                <div className="mt-2 p-3 bg-blue-50 rounded-xl flex items-center justify-between text-xs font-bold text-blue-900">
-                  <span>Total Consignment Quantity:</span>
-                  <span className="text-sm font-black text-blue-700">
-                    {challanRows.reduce((sum, r) => sum + (r.quantity || 0), 0)} Pieces
-                  </span>
-                </div>
-              </div>
-
-              {/* Transporter Details */}
-              <div className="grid grid-cols-3 gap-2 pt-2">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Vehicle No</label>
-                  <input type="text" name="vehicle_no" defaultValue="MH-04-1234" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs font-semibold" />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Driver Name</label>
-                  <input type="text" name="driver_name" defaultValue="Ramesh Kumar" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs" />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Driver Phone</label>
-                  <input type="text" name="driver_phone" defaultValue="+91 98765 43210" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs" />
                 </div>
               </div>
 
               <button
                 type="submit"
                 disabled={isPending}
-                className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-sm shadow-md transition-colors mt-2"
+                className="w-full py-2.5 text-white rounded-[8px] font-semibold text-xs transition-colors shadow-xs cursor-pointer mt-2"
+                style={{ backgroundColor: 'var(--green, #1F9D63)' }}
               >
-                {isPending ? 'Generating...' : 'Generate Official Challan & Record Dispatch'}
+                {isPending ? 'Generating Challan...' : 'Generate & Issue Delivery Challan'}
               </button>
             </form>
           </div>
@@ -638,17 +1140,17 @@ export function DispatchClient({
       )}
 
       {/* ======================================================== */}
-      {/* MODAL 2: RECORD PRE-LOADING COUNTING                      */}
+      {/* MODAL 2: RECORD PRE-LOADING COUNTING AUDIT                */}
       {/* ======================================================== */}
       {showCountingModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-xl">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
-                <Pin className="w-5 h-5 text-blue-600" />
-                Pre-Loading Counting Tally
+          <div className="bg-white rounded-[11px] max-w-md w-full p-6 space-y-4 shadow-xl border" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+            <div className="flex items-center justify-between pb-3 border-b" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+              <h3 className="text-base font-bold font-[family-name:var(--font-fraunces)] flex items-center gap-2" style={{ color: 'var(--ink, #1C2733)' }}>
+                <ClipboardCheck className="w-4 h-4 text-[var(--steel,#2B4C7E)]" />
+                Record Pre-Loading Counting Audit
               </h3>
-              <button onClick={() => setShowCountingModal(false)} className="text-slate-400 hover:text-slate-700">
+              <button onClick={() => setShowCountingModal(false)} className="text-slate-400 hover:text-slate-700 cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -660,8 +1162,10 @@ export function DispatchClient({
               })
             }} className="space-y-3">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Article</label>
-                <select name="article_id" required className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm font-semibold">
+                <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                  Article Style
+                </label>
+                <select name="article_id" required className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs font-semibold outline-none" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
                   {articles.map(art => (
                     <option key={art.id} value={art.id}>{art.art_no} ({art.description})</option>
                   ))}
@@ -670,37 +1174,48 @@ export function DispatchClient({
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Color</label>
-                  <input type="text" name="color" defaultValue="Navy Blue" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm" />
+                  <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                    Color
+                  </label>
+                  <input type="text" name="color" defaultValue="Navy Blue" className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs outline-none" style={{ borderColor: 'var(--border, #E2E8F0)' }} />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Size</label>
-                  <input type="text" name="size" defaultValue="L" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm" />
+                  <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                    Size
+                  </label>
+                  <input type="text" name="size" defaultValue="L" className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs outline-none" style={{ borderColor: 'var(--border, #E2E8F0)' }} />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Expected Qty</label>
-                  <input type="number" name="expected_qty" defaultValue={200} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm" />
+                  <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                    Physical Count (pcs)
+                  </label>
+                  <input type="number" name="counted_qty" required placeholder="e.g. 500" className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs font-mono font-bold outline-none" style={{ borderColor: 'var(--border, #E2E8F0)' }} />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Physical Counted Qty</label>
-                  <input type="number" name="counted_qty" required placeholder="e.g. 200" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm font-bold text-blue-600" />
+                  <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                    Expected Qty (pcs)
+                  </label>
+                  <input type="number" name="expected_qty" required placeholder="e.g. 500" className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs font-mono outline-none" style={{ borderColor: 'var(--border, #E2E8F0)' }} />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Remarks / Discrepancy Note</label>
-                <input type="text" name="remarks" placeholder="e.g. Verified and loaded onto truck" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm" />
+                <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                  Auditor Remarks / Notes
+                </label>
+                <input type="text" name="remarks" placeholder="Verified carton tags & pack count" className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs outline-none" style={{ borderColor: 'var(--border, #E2E8F0)' }} />
               </div>
 
               <button
                 type="submit"
                 disabled={isPending}
-                className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-sm shadow-md transition-colors"
+                className="w-full py-2.5 text-white rounded-[8px] font-semibold text-xs transition-colors shadow-xs cursor-pointer mt-2"
+                style={{ backgroundColor: 'var(--steel, #2B4C7E)' }}
               >
-                {isPending ? 'Recording...' : 'Save Counting Verification'}
+                {isPending ? 'Saving...' : 'Save Counting Audit Record'}
               </button>
             </form>
           </div>
@@ -708,105 +1223,105 @@ export function DispatchClient({
       )}
 
       {/* ======================================================== */}
-      {/* MODAL 3: FULL A4 PRINTABLE DELIVERY CHALLAN SLIP          */}
+      {/* MODAL 3: PRINTABLE DELIVERY CHALLAN GATE PASS INVOICE    */}
       {/* ======================================================== */}
       {selectedChallanForPrint && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-2xl w-full p-8 space-y-6 shadow-2xl max-h-[90vh] overflow-y-auto">
-            {/* Header with Print / Close */}
-            <div className="flex items-center justify-between border-b pb-4">
-              <h3 className="text-xl font-black text-slate-900">Official Delivery Document</h3>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => window.print()}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-sm"
-                >
-                  <Printer className="w-3.5 h-3.5" />
-                  Print A4 Challan
-                </button>
-                <button onClick={() => setSelectedChallanForPrint(null)} className="text-slate-400 hover:text-slate-700 p-1">
-                  <X className="w-5 h-5" />
-                </button>
+          <div className="bg-white rounded-[11px] max-w-2xl w-full p-8 space-y-6 shadow-2xl border overflow-y-auto max-h-[95vh] print:p-0 print:border-none print:shadow-none" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+            
+            {/* Header / Invoice Branding */}
+            <div className="flex items-start justify-between pb-4 border-b" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+              <div>
+                <h2 className="text-xl font-bold font-[family-name:var(--font-fraunces)]" style={{ color: 'var(--ink, #1C2733)' }}>
+                  NUBIRA CREATION
+                </h2>
+                <p className="text-xs text-slate-500">Garment Manufacturing & Export Division</p>
+                <p className="text-[11px] text-slate-400 mt-0.5">Plot #14, Industrial Area, Surat, Gujarat</p>
+              </div>
+              <div className="text-right">
+                <span className="inline-block px-2.5 py-1 rounded-[5px] bg-slate-100 font-mono font-bold text-xs text-slate-800">
+                  {selectedChallanForPrint.challan_no}
+                </span>
+                <p className="text-[11px] text-slate-500 mt-1">Date: {selectedChallanForPrint.delivery_date}</p>
               </div>
             </div>
 
-            {/* Printable Document Box */}
-            <div className="border-2 border-slate-900 p-6 rounded-2xl space-y-6 text-slate-900 bg-white">
-              {/* Factory Header */}
-              <div className="text-center border-b-2 border-slate-900 pb-4">
-                <h2 className="text-2xl font-black tracking-wider">NUBIRA CREATION GARMENTS</h2>
-                <p className="text-xs text-slate-600">Apparel Manufacturing & Export Division â€¢ GSTIN: 27AABCN1234F1Z5</p>
-                <div className="mt-2 inline-block px-4 py-1 bg-slate-900 text-white font-bold text-xs rounded-full uppercase tracking-widest">
-                  DELIVERY CHALLAN & GATE PASS
-                </div>
+            {/* Consignee & Transport Details */}
+            <div className="grid grid-cols-2 gap-4 p-4 bg-slate-50 rounded-[8px] text-xs">
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Buyer / Consignee</span>
+                <p className="font-bold text-slate-900 text-sm">{selectedChallanForPrint.buyer_name}</p>
+                <p className="text-slate-600 mt-0.5">{selectedChallanForPrint.destination || 'Direct Factory Delivery'}</p>
               </div>
-
-              {/* Metadata Grid */}
-              <div className="grid grid-cols-2 gap-4 text-xs">
-                <div>
-                  <div className="font-bold text-slate-500 uppercase">Consignee (Buyer):</div>
-                  <div className="font-black text-sm text-slate-900 mt-0.5">{selectedChallanForPrint.buyer_name}</div>
-                  <div className="text-slate-600">{selectedChallanForPrint.destination || 'Destination as per PO'}</div>
-                </div>
-                <div className="text-right">
-                  <div className="font-bold text-slate-500 uppercase">Challan Details:</div>
-                  <div className="font-black text-sm text-blue-600 mt-0.5">#{selectedChallanForPrint.challan_no}</div>
-                  <div className="text-slate-600">Date: {selectedChallanForPrint.delivery_date}</div>
-                </div>
-              </div>
-
-              {/* Transporter Grid */}
-              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 grid grid-cols-2 text-xs">
-                <div>
-                  <span className="font-bold text-slate-500">Vehicle No: </span>
-                  <span className="font-black text-slate-900">{selectedChallanForPrint.vehicle_no || '-'}</span>
-                </div>
-                <div className="text-right">
-                  <span className="font-bold text-slate-500">Driver: </span>
-                  <span className="font-bold text-slate-900">{selectedChallanForPrint.driver_name || '-'} {selectedChallanForPrint.driver_phone ? `(${selectedChallanForPrint.driver_phone})` : ''}</span>
-                </div>
-              </div>
-
-              {/* Items Table */}
-              <div className="border border-slate-900 rounded-xl overflow-hidden">
-                <table className="w-full text-left text-xs border-collapse">
-                  <thead>
-                    <tr className="bg-slate-100 border-b border-slate-900 font-black">
-                      <th className="p-2.5 border-r border-slate-900">#</th>
-                      <th className="p-2.5 border-r border-slate-900">Article No</th>
-                      <th className="p-2.5 border-r border-slate-900">Description</th>
-                      <th className="p-2.5 border-r border-slate-900">Color / Size</th>
-                      <th className="p-2.5 text-right">Quantity (Pcs)</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-200">
-                    {(selectedChallanForPrint.challan_items || []).map((it, idx) => (
-                      <tr key={it.id || idx}>
-                        <td className="p-2.5 border-r border-slate-200 font-bold">{idx + 1}</td>
-                        <td className="p-2.5 border-r border-slate-200 font-extrabold">{it.article?.art_no || '-'}</td>
-                        <td className="p-2.5 border-r border-slate-200 text-slate-600">{it.article?.description || '-'}</td>
-                        <td className="p-2.5 border-r border-slate-200">{it.color || ''} {it.size ? `(${it.size})` : ''}</td>
-                        <td className="p-2.5 text-right font-black text-sm">{it.quantity.toLocaleString()}</td>
-                      </tr>
-                    ))}
-                    <tr className="bg-slate-100 border-t-2 border-slate-900 font-black text-sm">
-                      <td colSpan={4} className="p-2.5 text-right border-r border-slate-900">TOTAL CONSIGNMENT QUANTITY:</td>
-                      <td className="p-2.5 text-right text-blue-600 font-black">{selectedChallanForPrint.total_pieces.toLocaleString()} Pieces</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Signatures */}
-              <div className="grid grid-cols-2 gap-8 pt-8 text-center text-xs">
-                <div className="border-t border-slate-400 pt-2 font-bold text-slate-700">
-                  Authorized Dispatch Incharge
-                </div>
-                <div className="border-t border-slate-400 pt-2 font-bold text-slate-700">
-                  Receiver / Transporter Signature
-                </div>
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Transport & Dispatch</span>
+                <p className="font-semibold text-slate-800">Vehicle: {selectedChallanForPrint.vehicle_no || 'Standard Freight'}</p>
+                <p className="text-slate-600 mt-0.5">Driver: {selectedChallanForPrint.driver_name || 'N/A'} {selectedChallanForPrint.driver_phone ? '(' + selectedChallanForPrint.driver_phone + ')' : ''}</p>
               </div>
             </div>
+
+            {/* Items Table */}
+            <div>
+              <table className="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr className="border-b bg-slate-100 text-[10.5px] font-bold uppercase tracking-wider text-slate-600">
+                    <th className="py-2 px-3">#</th>
+                    <th className="py-2 px-3">Article Style</th>
+                    <th className="py-2 px-3">Color / Variant</th>
+                    <th className="py-2 px-3">Size</th>
+                    <th className="py-2 px-3 text-right">Quantity</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {(selectedChallanForPrint.challan_items || []).map((item, idx) => (
+                    <tr key={item.id || idx}>
+                      <td className="py-2.5 px-3 text-slate-400">{idx + 1}</td>
+                      <td className="py-2.5 px-3 font-bold text-slate-900">{item.article?.art_no || 'Standard Article'}</td>
+                      <td className="py-2.5 px-3 text-slate-600">{item.color || '-'}</td>
+                      <td className="py-2.5 px-3 text-slate-600">{item.size || '-'}</td>
+                      <td className="py-2.5 px-3 text-right font-mono font-bold text-slate-900">{item.quantity.toLocaleString()} pcs</td>
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot>
+                  <tr className="border-t-2 font-bold text-sm bg-slate-50" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+                    <td colSpan={4} className="py-2.5 px-3 text-right">Total Dispatched Pieces:</td>
+                    <td className="py-2.5 px-3 text-right font-mono" style={{ color: 'var(--steel, #2B4C7E)' }}>
+                      {selectedChallanForPrint.total_pieces.toLocaleString()} pcs
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+
+            {/* Signatures */}
+            <div className="grid grid-cols-3 gap-6 pt-12 text-center text-xs text-slate-500">
+              <div className="border-t pt-2">Prepared By (Dispatch)</div>
+              <div className="border-t pt-2">Driver / Transporter</div>
+              <div className="border-t pt-2">Receiver's Signature & Stamp</div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center justify-end gap-3 pt-4 border-t print:hidden" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+              <button 
+                type="button" 
+                onClick={() => setSelectedChallanForPrint(null)}
+                className="px-4 py-2 rounded-[7px] border bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700"
+                style={{ borderColor: 'var(--border, #E2E8F0)' }}
+              >
+                Close
+              </button>
+              <button 
+                type="button" 
+                onClick={() => window.print()}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-[7px] text-white text-xs font-semibold shadow-xs cursor-pointer"
+                style={{ backgroundColor: 'var(--steel, #2B4C7E)' }}
+              >
+                <Printer className="w-4 h-4" />
+                <span>Print Official Challan</span>
+              </button>
+            </div>
+
           </div>
         </div>
       )}

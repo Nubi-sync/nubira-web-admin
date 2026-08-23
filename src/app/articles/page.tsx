@@ -1,9 +1,10 @@
 import { AdminShell } from '@/components/layout/AdminShell'
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
-import { CreateArticleForm } from './components/CreateArticleForm'
-import { ArticleList } from './components/ArticleList'
-import { Shirt } from 'lucide-react'
+import { ArticlesClient } from './components/ArticlesClient'
+import Link from 'next/link'
+
+export const dynamic = 'force-dynamic'
 
 export default async function ArticlesPage() {
   const supabase = await createClient()
@@ -16,48 +17,40 @@ export default async function ArticlesPage() {
     redirect('/login')
   }
 
-  // Fetch articles
+  // 1. Fetch all articles (both active and archived)
   const { data: articles } = await supabase
     .from('articles')
     .select('*')
     .order('created_at', { ascending: false })
 
+  // 2. Fetch rate history for all articles
+  const { data: rateHistory } = await supabase
+    .from('rate_history')
+    .select('*')
+    .order('created_at', { ascending: false })
+
   return (
     <AdminShell userEmail={user.email}>
-      <div className="flex-1 p-6 md:p-8 max-w-7xl w-full mx-auto space-y-6">
-      <div className="max-w-6xl mx-auto space-y-8">
+      <div className="flex-1 p-6 md:p-8 max-w-7xl w-full mx-auto space-y-5">
         
-        {/* Header */}
-        <header className="flex justify-between items-center bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-indigo-50 text-indigo-600 rounded-xl">
-              <Shirt className="h-6 w-6" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-slate-800">Articles & Rates</h1>
-              <p className="text-slate-500 mt-1">Manage Art No. and Stitching Rates</p>
-            </div>
-          </div>
-          
-          <a href="/" className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition-colors text-sm font-medium border border-slate-200 shadow-sm">
-            Back to Dashboard
-          </a>
-        </header>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column: Form */}
-          <div className="lg:col-span-1">
-            <CreateArticleForm />
-          </div>
-
-          {/* Right Column: List */}
-          <div className="lg:col-span-2">
-            <ArticleList articles={articles || []} />
-          </div>
+        {/* 1. Breadcrumb */}
+        <div className="flex items-center gap-1.5 text-[12px] font-medium" style={{ color: 'var(--ink-faint, #8B9AAB)' }}>
+          <span style={{ color: 'var(--ink-faint, #8B9AAB)' }}>
+            Manage
+          </span>
+          <span>/</span>
+          <span className="font-semibold" style={{ color: 'var(--steel-dark, #1F3A63)' }}>
+            Articles & Rates
+          </span>
         </div>
 
+        {/* 2. Unified Full-Width Client Component */}
+        <ArticlesClient 
+          articles={(articles as any) || []} 
+          rateHistory={(rateHistory as any) || []} 
+        />
+
       </div>
-    </div>
     </AdminShell>
   )
 }

@@ -65,6 +65,10 @@
   --amber: #C8802B;
   --amber-mist: #FBF0E1;
   --stitch: #C8802B;
+  --red: #C0392B;
+  --red-mist: #FBEAE8;
+  --ink-mist: #F1F3F5;
+  --ink-gray-mist: #F1F4F8;
 
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);

@@ -1,8 +1,18 @@
 'use client'
 
 import { toggleEmployeeStatus, updateEmployeeRole, resetEmployeePassword } from '../actions'
-import { useState } from 'react'
-import { KeyRound, X, CheckCircle2 } from 'lucide-react'
+import { useState, useMemo } from 'react'
+import { 
+  KeyRound, 
+  X, 
+  CheckCircle2, 
+  Search, 
+  ArrowUpDown, 
+  ArrowUp, 
+  ArrowDown,
+  ShieldAlert,
+  Users
+} from 'lucide-react'
 
 type Profile = {
   id: string
@@ -12,7 +22,40 @@ type Profile = {
   created_at: string
 }
 
+// Role Badge Styling Lookup (Tiered Steel/Neutral Hierarchy - Zero Purple!)
+const ROLE_BADGE_STYLES: Record<string, { bg: string; text: string; label: string }> = {
+  ADMIN: {
+    bg: 'var(--steel-dark, #1F3A63)',
+    text: '#FFFFFF',
+    label: 'ADMIN'
+  },
+  PRODUCTION: {
+    bg: 'var(--steel, #2B4C7E)',
+    text: '#FFFFFF',
+    label: 'PRODUCTION'
+  },
+  DISPATCH: {
+    bg: 'var(--steel-tint, #DBE6F5)',
+    text: 'var(--steel-dark, #1F3A63)',
+    label: 'DISPATCH'
+  },
+  STORE: {
+    bg: 'var(--ink-mist, #F1F3F5)',
+    text: 'var(--ink-soft, #5B6B7C)',
+    label: 'STORE'
+  },
+  LINEMAN: {
+    bg: 'var(--ink-mist, #F1F3F5)',
+    text: 'var(--ink-soft, #5B6B7C)',
+    label: 'LINEMAN'
+  }
+}
+
+type SortOrder = 'asc' | 'desc'
+
 export function EmployeeList({ employees }: { employees: Profile[] }) {
+  const [searchTerm, setSearchTerm] = useState('')
+  const [sortOrder, setSortOrder] = useState<SortOrder>('asc')
   const [loadingId, setLoadingId] = useState<string | null>(null)
 
   // Reset Password Modal State
@@ -21,6 +64,28 @@ export function EmployeeList({ employees }: { employees: Profile[] }) {
   const [resetSuccess, setResetSuccess] = useState(false)
   const [resetError, setResetError] = useState<string | null>(null)
   const [isResetting, setIsResetting] = useState(false)
+
+  // Filtered & Sorted Employees
+  // Note: Client-side search is fast and responsive for factory staff.
+  // If staff list grows beyond ~100 rows, this can be hooked to a Supabase ilike query.
+  const filteredEmployees = useMemo(() => {
+    let list = employees.filter(emp => {
+      if (!searchTerm.trim()) return true
+      return emp.username.toLowerCase().includes(searchTerm.toLowerCase().trim())
+    })
+
+    list.sort((a, b) => {
+      const uA = a.username.toLowerCase()
+      const uB = b.username.toLowerCase()
+      return sortOrder === 'asc' ? uA.localeCompare(uB) : uB.localeCompare(uA)
+    })
+
+    return list
+  }, [employees, searchTerm, sortOrder])
+
+  const toggleSort = () => {
+    setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')
+  }
 
   async function handleToggle(id: string, currentStatus: boolean) {
     setLoadingId(id)
@@ -37,6 +102,11 @@ export function EmployeeList({ employees }: { employees: Profile[] }) {
   async function handleResetPassword(e: React.FormEvent) {
     e.preventDefault()
     if (!selectedEmp) return
+
+    if (newPassword.length < 6) {
+      setResetError('Password must be at least 6 characters long.')
+      return
+    }
 
     setIsResetting(true)
     setResetError(null)
@@ -56,83 +126,198 @@ export function EmployeeList({ employees }: { employees: Profile[] }) {
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    <div 
+      className="bg-white rounded-[11px] border shadow-xs overflow-hidden"
+      style={{ borderColor: 'var(--border, #E2E8F0)' }}
+    >
+      {/* Search Toolbar */}
+      <div 
+        className="p-4 border-b flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-slate-50/50"
+        style={{ borderColor: 'var(--border, #E2E8F0)' }}
+      >
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-bold text-[var(--ink,#1C2733)]">
+            Staff Directory
+          </span>
+          <span className="text-[11px] px-2 py-0.5 rounded-full bg-slate-200/70 font-semibold text-slate-700">
+            {filteredEmployees.length} {filteredEmployees.length === 1 ? 'user' : 'users'}
+          </span>
+        </div>
+
+        {/* Search Input */}
+        <div className="relative w-full sm:w-64">
+          <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <input
+            type="text"
+            placeholder="Search by username..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-8 pr-3 py-1.5 bg-white border rounded-[7px] text-xs outline-none transition-colors"
+            style={{ borderColor: 'var(--border, #E2E8F0)' }}
+            onFocus={(e) => e.currentTarget.style.borderColor = 'var(--steel, #2B4C7E)'}
+            onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border, #E2E8F0)'}
+          />
+        </div>
+      </div>
+
+      {/* Table */}
       <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse">
+        <table className="w-full text-left border-collapse text-xs">
           <thead>
-            <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 text-sm">
-              <th className="px-6 py-4 font-semibold">Username</th>
-              <th className="px-6 py-4 font-semibold">Role</th>
-              <th className="px-6 py-4 font-semibold">Status</th>
-              <th className="px-6 py-4 font-semibold text-right">Actions</th>
+            <tr className="bg-slate-50 border-b text-[11px] uppercase tracking-wider font-bold" style={{ borderColor: 'var(--border, #E2E8F0)', color: 'var(--ink-soft, #5B6B7C)' }}>
+              
+              {/* Sortable Username */}
+              <th 
+                onClick={toggleSort}
+                className="px-5 py-3.5 cursor-pointer hover:bg-slate-100 transition-colors select-none font-bold"
+              >
+                <div className="flex items-center gap-1.5">
+                  <span>Username</span>
+                  {sortOrder === 'asc' ? (
+                    <ArrowUp className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" />
+                  ) : (
+                    <ArrowDown className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" />
+                  )}
+                </div>
+              </th>
+
+              <th className="px-4 py-3.5 font-bold">Role Assignment</th>
+              <th className="px-4 py-3.5 font-bold">Status</th>
+              <th className="px-5 py-3.5 font-bold text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {employees.length === 0 ? (
+            {filteredEmployees.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-6 py-8 text-center text-slate-500">
-                  No employees found. Add one from the form.
+                <td colSpan={4} className="px-6 py-12 text-center text-slate-500">
+                  <div className="flex flex-col items-center justify-center space-y-2">
+                    <Users className="w-8 h-8 text-slate-300" />
+                    <p className="text-xs font-semibold text-slate-600">No staff members found matching "{searchTerm}"</p>
+                    <p className="text-[11px] text-slate-400">Clear search or add a new employee from the left form.</p>
+                  </div>
                 </td>
               </tr>
             ) : (
-              employees.map((emp) => (
-                <tr key={emp.id} className="hover:bg-slate-50/50 transition-colors">
-                  <td className="px-6 py-4">
-                    <div className="font-medium text-slate-900">{emp.username}</div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <select
-                      value={emp.role}
-                      onChange={(e) => handleRoleChange(emp.id, e.target.value)}
-                      disabled={loadingId === emp.id || emp.username === 'admin'}
-                      className="inline-flex items-center px-2 py-1 rounded-lg text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-100 outline-none cursor-pointer disabled:opacity-50"
-                    >
-                      <option value="LINEMAN">LINEMAN</option>
-                      <option value="PRODUCTION">PRODUCTION</option>
-                      <option value="STORE">STORE</option>
-                      <option value="DISPATCH">DISPATCH</option>
-                      <option value="ADMIN">ADMIN</option>
-                    </select>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${
-                      emp.is_active 
-                        ? 'bg-emerald-50 text-emerald-700 border-emerald-100' 
-                        : 'bg-rose-50 text-rose-700 border-rose-100'
-                    }`}>
-                      {emp.is_active ? 'Active' : 'Inactive'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-right space-x-2">
-                    <button
-                      onClick={() => {
-                        setSelectedEmp(emp)
-                        setNewPassword('')
-                        setResetError(null)
-                        setResetSuccess(false)
-                      }}
-                      className="text-xs font-semibold px-2.5 py-1.5 rounded-lg text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors inline-flex items-center gap-1"
-                    >
-                      <KeyRound className="w-3.5 h-3.5 text-slate-500" />
-                      Reset Password
-                    </button>
+              filteredEmployees.map((emp) => {
+                const isAdminAccount = emp.username === 'admin'
+                const roleBadge = ROLE_BADGE_STYLES[emp.role] || {
+                  bg: 'var(--ink-mist, #F1F3F5)',
+                  text: 'var(--ink-soft, #5B6B7C)',
+                  label: emp.role
+                }
 
-                    {emp.username !== 'admin' && (
-                      <button
-                        onClick={() => handleToggle(emp.id, emp.is_active)}
-                        disabled={loadingId === emp.id}
-                        className={`text-xs font-semibold px-2.5 py-1.5 rounded-lg transition-colors disabled:opacity-50 ${
-                          emp.is_active
-                            ? 'text-rose-600 hover:bg-rose-50'
-                            : 'text-emerald-600 hover:bg-emerald-50'
-                        }`}
+                return (
+                  <tr key={emp.id} className="hover:bg-slate-50/50 transition-colors">
+                    
+                    {/* Username */}
+                    <td className="px-5 py-3.5">
+                      <div className="font-semibold text-slate-900 flex items-center gap-2">
+                        <span>{emp.username}</span>
+                        {isAdminAccount && (
+                          <span 
+                            className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9.5px] font-bold"
+                            style={{ backgroundColor: 'var(--steel-mist, #EEF3FA)', color: 'var(--steel-dark, #1F3A63)' }}
+                          >
+                            Primary
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-[10.5px] text-slate-400 font-mono mt-0.5">
+                        Created {emp.created_at?.split('T')[0]}
+                      </div>
+                    </td>
+
+                    {/* Role Dropdown / Badge */}
+                    <td className="px-4 py-3.5">
+                      {isAdminAccount ? (
+                        <span 
+                          className="inline-flex items-center px-2.5 py-1 rounded-full text-[10.5px] font-semibold shadow-2xs"
+                          style={{ backgroundColor: roleBadge.bg, color: roleBadge.text }}
+                        >
+                          {roleBadge.label}
+                        </span>
+                      ) : (
+                        <select
+                          value={emp.role}
+                          onChange={(e) => handleRoleChange(emp.id, e.target.value)}
+                          disabled={loadingId === emp.id}
+                          className="inline-flex items-center px-2.5 py-1 rounded-[6px] text-xs font-semibold border outline-none cursor-pointer disabled:opacity-50 transition-colors"
+                          style={{
+                            borderColor: 'var(--border, #E2E8F0)',
+                            backgroundColor: roleBadge.bg,
+                            color: roleBadge.text
+                          }}
+                        >
+                          <option value="LINEMAN">LINEMAN (Stitching)</option>
+                          <option value="PRODUCTION">PRODUCTION (QC)</option>
+                          <option value="STORE">STORE (Inventory)</option>
+                          <option value="DISPATCH">DISPATCH (Packing)</option>
+                          <option value="ADMIN">ADMIN</option>
+                        </select>
+                      )}
+                    </td>
+
+                    {/* Status Badge */}
+                    <td className="px-4 py-3.5">
+                      <span 
+                        className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold"
+                        style={{
+                          backgroundColor: emp.is_active ? 'var(--green-mist, #E6F6EE)' : 'var(--red-mist, #FBEAE8)',
+                          color: emp.is_active ? 'var(--green, #1F9D63)' : 'var(--red, #C0392B)'
+                        }}
                       >
-                        {emp.is_active ? 'Deactivate' : 'Activate'}
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))
+                        {emp.is_active ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
+
+                    {/* Actions */}
+                    <td className="px-5 py-3.5 text-right space-x-2">
+                      {/* Reset Password */}
+                      {isAdminAccount ? (
+                        <span 
+                          className="text-[11px] font-medium px-2.5 py-1 rounded-[6px] text-slate-400 bg-slate-100 opacity-60 inline-flex items-center gap-1 cursor-not-allowed"
+                          title="Primary Admin credentials are protected"
+                        >
+                          <KeyRound className="w-3 h-3 text-slate-400" />
+                          Protected
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedEmp(emp)
+                            setNewPassword('')
+                            setResetError(null)
+                            setResetSuccess(false)
+                          }}
+                          className="text-[11px] font-semibold px-2.5 py-1 rounded-[6px] border bg-white hover:bg-slate-50 text-slate-700 transition-colors inline-flex items-center gap-1 cursor-pointer shadow-2xs"
+                          style={{ borderColor: 'var(--border, #E2E8F0)' }}
+                        >
+                          <KeyRound className="w-3 h-3 text-slate-500" />
+                          Reset Password
+                        </button>
+                      )}
+
+                      {/* Deactivate / Activate Button */}
+                      {!isAdminAccount && (
+                        <button
+                          type="button"
+                          onClick={() => handleToggle(emp.id, emp.is_active)}
+                          disabled={loadingId === emp.id}
+                          className={`text-[11px] font-semibold px-2.5 py-1 rounded-[6px] transition-colors cursor-pointer disabled:opacity-50 ${
+                            emp.is_active
+                              ? 'text-red-600 hover:bg-red-50'
+                              : 'text-emerald-600 hover:bg-emerald-50'
+                          }`}
+                        >
+                          {emp.is_active ? 'Deactivate' : 'Activate'}
+                        </button>
+                      )}
+                    </td>
+
+                  </tr>
+                )
+              })
             )}
           </tbody>
         </table>
@@ -140,22 +325,36 @@ export function EmployeeList({ employees }: { employees: Profile[] }) {
 
       {/* Admin Direct Password Reset Modal */}
       {selectedEmp && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="w-full max-w-sm bg-white rounded-2xl p-6 shadow-xl border border-slate-200 relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-2xs animate-in fade-in duration-150">
+          <div 
+            className="w-full max-w-sm bg-white rounded-[11px] p-6 shadow-2xl border relative space-y-4"
+            style={{ borderColor: 'var(--border, #E2E8F0)' }}
+          >
             <button
+              type="button"
               onClick={() => setSelectedEmp(null)}
-              className="absolute top-4 right-4 text-slate-400 hover:text-slate-700"
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-700 cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
 
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
-                <KeyRound className="w-5 h-5" />
+            <div className="flex items-center gap-3">
+              <div 
+                className="w-9 h-9 rounded-[8px] flex items-center justify-center shrink-0"
+                style={{ backgroundColor: 'var(--steel-mist, #EEF3FA)', color: 'var(--steel, #2B4C7E)' }}
+              >
+                <KeyRound className="w-4 h-4" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-slate-900">Reset Staff Password</h3>
-                <p className="text-xs text-slate-500">User: <span className="font-semibold text-blue-600">{selectedEmp.username}</span></p>
+                <h3 
+                  className="text-base font-bold font-[family-name:var(--font-fraunces)]"
+                  style={{ color: 'var(--ink, #1C2733)' }}
+                >
+                  Reset Staff Password
+                </h3>
+                <p className="text-xs text-slate-500">
+                  User: <span className="font-semibold text-slate-900">{selectedEmp.username}</span>
+                </p>
               </div>
             </div>
 
@@ -166,35 +365,43 @@ export function EmployeeList({ employees }: { employees: Profile[] }) {
                 <p className="text-xs text-slate-500">Staff member can now log in with the new password.</p>
               </div>
             ) : (
-              <form onSubmit={handleResetPassword} className="space-y-4">
-                <div className="space-y-1">
-                  <label className="block text-xs font-bold text-slate-700">New Password</label>
+              <form onSubmit={handleResetPassword} className="space-y-4 text-xs">
+                <div>
+                  <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1.5 text-slate-700">
+                    New Password
+                  </label>
                   <input
                     type="password"
                     required
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     placeholder="Enter at least 6 characters"
-                    className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10"
+                    className="w-full px-3 py-2 border rounded-[8px] text-xs outline-none bg-slate-50 focus:bg-white"
+                    style={{ borderColor: 'var(--border, #E2E8F0)' }}
+                    onFocus={(e) => e.currentTarget.style.borderColor = 'var(--steel, #2B4C7E)'}
+                    onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border, #E2E8F0)'}
                   />
                 </div>
 
                 {resetError && (
-                  <p className="text-xs font-medium text-rose-600">{resetError}</p>
+                  <p className="text-[11px] font-medium" style={{ color: 'var(--red, #C0392B)' }}>
+                    {resetError}
+                  </p>
                 )}
 
                 <div className="flex items-center gap-2 pt-2">
                   <button
                     type="button"
                     onClick={() => setSelectedEmp(null)}
-                    className="flex-1 py-2 px-3 rounded-xl text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200"
+                    className="flex-1 py-2 px-3 rounded-[7px] text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={isResetting}
-                    className="flex-2 py-2 px-4 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 transition-colors disabled:opacity-60"
+                    className="flex-2 py-2 px-4 rounded-[7px] text-xs font-semibold text-white transition-colors cursor-pointer disabled:opacity-60 shadow-xs"
+                    style={{ backgroundColor: 'var(--steel, #2B4C7E)' }}
                   >
                     {isResetting ? 'Saving...' : 'Set Password'}
                   </button>

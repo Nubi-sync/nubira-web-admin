@@ -63,6 +63,22 @@ type TabKey = 'finished' | 'accessories' | 'dispatch' | 'inward'
 type StockStatusFilter = 'ALL' | 'IN_STOCK' | 'LOW_STOCK' | 'OUT_OF_STOCK'
 type SortOrder = 'asc' | 'desc'
 
+function formatRelativeDate(dateStr?: string | null) {
+  if (!dateStr) return 'None recorded'
+  const diff = Date.now() - new Date(dateStr).getTime()
+  const mins = Math.floor(diff / (1000 * 60))
+  if (mins < 1) return 'Just now'
+  if (mins < 60) return mins + ' min ago'
+  const hours = Math.floor(mins / 60)
+  if (hours < 24) return hours + ' hr' + (hours > 1 ? 's' : '') + ' ago'
+  const days = Math.floor(hours / 24)
+  if (days === 0) return 'Today'
+  if (days === 1) return 'Yesterday'
+  if (days < 30) return days + ' days ago'
+  const months = Math.floor(days / 30)
+  return months + ' mo' + (months > 1 ? 's' : '') + ' ago'
+}
+
 export function InventoryClient({
   articles,
   storeTransactions,
@@ -344,6 +360,114 @@ export function InventoryClient({
   const totalInwardQty = storeTransactions.filter(t => t.type === 'INWARD').reduce((sum, t) => sum + t.quantity, 0)
   const totalOutwardQty = storeTransactions.filter(t => t.type === 'OUTWARD').reduce((sum, t) => sum + t.quantity, 0)
 
+  // 5. Stock Velocity Smart Derived Calculation (Rolling 30-Day Horizon)
+  const stockVelocity = useMemo(() => {
+    const now = Date.now()
+    const thirtyDaysAgo = now - 30 * 24 * 60 * 60 * 1000
+    const sevenDaysAgo = now - 7 * 24 * 60 * 60 * 1000
+
+    // A. Finished Stock Velocity
+    const recentOutwards = storeTransactions.filter(
+      t => t.type === 'OUTWARD' && new Date(t.entry_date || t.created_at).getTime() >= thirtyDaysAgo
+    )
+    const totalRecentDispatched = recentOutwards.reduce((sum, t) => sum + (t.quantity || 0), 0)
+    const dailyDispatchRate = totalRecentDispatched / 30
+    let finishedStockCaption = 'Steady, no reorder needed'
+    if (dailyDispatchRate > 0 && totalStockBalance > 0) {
+      const daysRemaining = Math.round(totalStockBalance / dailyDispatchRate)
+      if (daysRemaining <= 15) {
+        finishedStockCaption = '~' + daysRemaining + ' days stock at current pace'
+      } else {
+        finishedStockCaption = 'Steady, no reorder needed'
+      }
+    } else if (totalStockBalance === 0) {
+      finishedStockCaption = 'Zero stock · Awaiting floor inward'
+    }
+
+    // B. Accessories Trims Velocity
+    const trimStats: Record<string, { totalOut: number; balance: number; firstDate: number }> = {}
+    accessories.forEach(acc => {
+      const name = acc.item_name.trim()
+      const time = new Date(acc.entry_date || acc.created_at).getTime()
+      if (!trimStats[name]) {
+        trimStats[name] = { totalOut: 0, balance: 0, firstDate: time }
+      }
+      if (acc.action === 'IN') trimStats[name].balance += acc.quantity
+      if (acc.action === 'OUT') {
+        trimStats[name].balance -= acc.quantity
+        if (time >= thirtyDaysAgo) {
+          trimStats[name].totalOut += acc.quantity
+        }
+      }
+      if (time < trimStats[name].firstDate) trimStats[name].firstDate = time
+    })
+
+    let criticalTrimsCount = 0
+    let minDaysToStockOut = Infinity
+    const trimVelocityMap: Record<string, { daysToStockOut: number | null }> = {}
+
+    Object.entries(trimStats).forEach(([name, stat]) => {
+      const daysObserved = Math.max(1, Math.min(30, Math.ceil((now - stat.firstDate) / (1000 * 60 * 60 * 24))))
+      if (daysObserved >= 3 && stat.totalOut > 0) {
+        const dailyBurn = stat.totalOut / daysObserved
+        if (dailyBurn > 0) {
+          const daysLeft = Math.round(stat.balance / dailyBurn)
+          trimVelocityMap[name] = { daysToStockOut: daysLeft }
+          if (daysLeft <= 10 && daysLeft >= 0) {
+            criticalTrimsCount++
+            if (daysLeft < minDaysToStockOut) minDaysToStockOut = daysLeft
+          }
+        } else {
+          trimVelocityMap[name] = { daysToStockOut: null }
+        }
+      } else {
+        trimVelocityMap[name] = { daysToStockOut: null }
+      }
+    })
+
+    let trimsCaption = 'All trims sufficiently stocked'
+    let trimsCardAlert = false
+    if (criticalTrimsCount > 0) {
+      trimsCardAlert = true
+      trimsCaption = criticalTrimsCount + ' item' + (criticalTrimsCount > 1 ? 's' : '') + ' ~' + (minDaysToStockOut === Infinity ? 0 : minDaysToStockOut) + ' days to stock-out'
+    } else if (accessories.length === 0) {
+      trimsCaption = 'Not enough history yet'
+    }
+
+    // C. Last QC Pass
+    const latestInward = storeTransactions
+      .filter(t => t.type === 'INWARD')
+      .sort((a, b) => new Date(b.created_at || b.entry_date || 0).getTime() - new Date(a.created_at || a.entry_date || 0).getTime())[0]
+
+    const lastQcCaption = latestInward 
+      ? 'Last QC pass: ' + formatRelativeDate(latestInward.created_at || latestInward.entry_date)
+      : 'No QC inward recorded yet'
+
+    // D. Last Dispatch
+    const latestDispatch = storeTransactions
+      .filter(t => t.type === 'OUTWARD')
+      .sort((a, b) => new Date(b.created_at || b.entry_date || 0).getTime() - new Date(a.created_at || a.entry_date || 0).getTime())[0]
+
+    let lastDispatchCaption = 'No dispatch this week'
+    if (latestDispatch) {
+      const dispatchTime = new Date(latestDispatch.created_at || latestDispatch.entry_date || 0).getTime()
+      if (dispatchTime >= sevenDaysAgo) {
+        lastDispatchCaption = 'Last dispatch: ' + formatRelativeDate(latestDispatch.created_at || latestDispatch.entry_date)
+      } else {
+        lastDispatchCaption = 'Last dispatch: ' + formatRelativeDate(latestDispatch.created_at || latestDispatch.entry_date)
+      }
+    }
+
+    return {
+      finishedStockCaption,
+      trimsCaption,
+      trimsCardAlert,
+      lastQcCaption,
+      lastDispatchCaption,
+      trimVelocityMap
+    }
+  }, [storeTransactions, accessories, totalStockBalance])
+
   // CSV Export Helper
   const handleExportCSV = () => {
     let headers: string[] = []
@@ -478,78 +602,117 @@ export function InventoryClient({
         </div>
       </div>
 
-      {/* 2. KPI Overview Banner (4 Cards) */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* 2. KPI Overview Banner with Stock Velocity Insight Captions */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         
         {/* Finished Stock */}
         <div 
-          className="bg-white p-5 rounded-[11px] border shadow-xs flex items-center justify-between"
+          className="bg-white p-5 rounded-[11px] border shadow-xs flex flex-col justify-between"
           style={{ borderColor: 'var(--border, #E2E8F0)' }}
         >
-          <div>
+          <div className="flex items-center justify-between">
             <span className="text-[11px] font-semibold uppercase tracking-[1.5px] block" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
               Finished Stock
             </span>
-            <span className="text-[24px] font-bold font-[family-name:var(--font-fraunces)] leading-tight block mt-1" style={{ color: 'var(--ink, #1C2733)' }}>
+            <div className="w-[30px] h-[30px] rounded-[8px] flex items-center justify-center shrink-0" style={{ backgroundColor: 'var(--steel-mist, #EEF3FA)', color: 'var(--steel, #2B4C7E)' }}>
+              <Package className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="mt-2">
+            <span className="text-[24px] font-bold font-[family-name:var(--font-fraunces)] leading-tight block" style={{ color: 'var(--ink, #1C2733)' }}>
               {totalStockBalance.toLocaleString()} <span className="text-xs font-normal text-slate-500">pcs</span>
             </span>
-          </div>
-          <div className="w-[30px] h-[30px] rounded-[8px] flex items-center justify-center shrink-0" style={{ backgroundColor: 'var(--steel-mist, #EEF3FA)', color: 'var(--steel, #2B4C7E)' }}>
-            <Package className="w-4 h-4" />
+            <span 
+              className="text-[10.5px] font-[family-name:var(--font-jetbrains-mono)] block mt-1 truncate"
+              style={{ color: 'var(--ink-faint, #8B9AAB)' }}
+              title={stockVelocity.finishedStockCaption}
+            >
+              {stockVelocity.finishedStockCaption}
+            </span>
           </div>
         </div>
 
         {/* Accessories Trims */}
         <div 
-          className="bg-white p-5 rounded-[11px] border shadow-xs flex items-center justify-between"
-          style={{ borderColor: 'var(--border, #E2E8F0)' }}
+          className="bg-white p-5 rounded-[11px] border shadow-xs flex flex-col justify-between"
+          style={{ 
+            borderColor: stockVelocity.trimsCardAlert ? 'var(--amber, #C8802B)' : 'var(--border, #E2E8F0)',
+            background: stockVelocity.trimsCardAlert ? 'linear-gradient(180deg, #FFFAF3 0%, #FFFFFF 100%)' : '#FFFFFF'
+          }}
         >
-          <div>
-            <span className="text-[11px] font-semibold uppercase tracking-[1.5px] block" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-semibold uppercase tracking-[1.5px] block" style={{ color: stockVelocity.trimsCardAlert ? 'var(--amber, #C8802B)' : 'var(--ink-soft, #5B6B7C)' }}>
               Accessories Trims
             </span>
-            <span className="text-[24px] font-bold font-[family-name:var(--font-fraunces)] leading-tight block mt-1" style={{ color: 'var(--ink, #1C2733)' }}>
+            <div className="w-[30px] h-[30px] rounded-[8px] flex items-center justify-center shrink-0" style={{ backgroundColor: stockVelocity.trimsCardAlert ? 'var(--amber-mist, #FBF0E1)' : 'var(--steel-mist, #EEF3FA)', color: stockVelocity.trimsCardAlert ? 'var(--amber, #C8802B)' : 'var(--steel, #2B4C7E)' }}>
+              <Boxes className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="mt-2">
+            <span className="text-[24px] font-bold font-[family-name:var(--font-fraunces)] leading-tight block" style={{ color: 'var(--ink, #1C2733)' }}>
               {accessories.length} <span className="text-xs font-normal text-slate-500">items</span>
             </span>
-          </div>
-          <div className="w-[30px] h-[30px] rounded-[8px] flex items-center justify-center shrink-0" style={{ backgroundColor: 'var(--steel-mist, #EEF3FA)', color: 'var(--steel, #2B4C7E)' }}>
-            <Boxes className="w-4 h-4" />
+            <span 
+              className="text-[10.5px] font-[family-name:var(--font-jetbrains-mono)] block mt-1 truncate font-medium"
+              style={{ color: stockVelocity.trimsCardAlert ? 'var(--amber, #C8802B)' : 'var(--ink-faint, #8B9AAB)' }}
+              title={stockVelocity.trimsCaption}
+            >
+              {stockVelocity.trimsCaption}
+            </span>
           </div>
         </div>
 
         {/* Total Inward (QC) */}
         <div 
-          className="bg-white p-5 rounded-[11px] border shadow-xs flex items-center justify-between"
+          className="bg-white p-5 rounded-[11px] border shadow-xs flex flex-col justify-between"
           style={{ borderColor: 'var(--border, #E2E8F0)' }}
         >
-          <div>
+          <div className="flex items-center justify-between">
             <span className="text-[11px] font-semibold uppercase tracking-[1.5px] block" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
               Total Inward (QC)
             </span>
-            <span className="text-[24px] font-bold font-[family-name:var(--font-fraunces)] leading-tight block mt-1" style={{ color: 'var(--green, #1F9D63)' }}>
+            <div className="w-[30px] h-[30px] rounded-[8px] flex items-center justify-center shrink-0" style={{ backgroundColor: 'var(--green-mist, #E6F6EE)', color: 'var(--green, #1F9D63)' }}>
+              <CheckCircle2 className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="mt-2">
+            <span className="text-[24px] font-bold font-[family-name:var(--font-fraunces)] leading-tight block" style={{ color: 'var(--green, #1F9D63)' }}>
               +{totalInwardQty.toLocaleString()} <span className="text-xs font-normal text-slate-500">pcs</span>
             </span>
-          </div>
-          <div className="w-[30px] h-[30px] rounded-[8px] flex items-center justify-center shrink-0" style={{ backgroundColor: 'var(--green-mist, #E6F6EE)', color: 'var(--green, #1F9D63)' }}>
-            <CheckCircle2 className="w-4 h-4" />
+            <span 
+              className="text-[10.5px] font-[family-name:var(--font-jetbrains-mono)] block mt-1 truncate"
+              style={{ color: 'var(--ink-faint, #8B9AAB)' }}
+              title={stockVelocity.lastQcCaption}
+            >
+              {stockVelocity.lastQcCaption}
+            </span>
           </div>
         </div>
 
         {/* Dispatched Outward */}
         <div 
-          className="bg-white p-5 rounded-[11px] border shadow-xs flex items-center justify-between"
+          className="bg-white p-5 rounded-[11px] border shadow-xs flex flex-col justify-between"
           style={{ borderColor: 'var(--border, #E2E8F0)' }}
         >
-          <div>
+          <div className="flex items-center justify-between">
             <span className="text-[11px] font-semibold uppercase tracking-[1.5px] block" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
               Dispatched Outward
             </span>
-            <span className="text-[24px] font-bold font-[family-name:var(--font-fraunces)] leading-tight block mt-1" style={{ color: 'var(--steel, #2B4C7E)' }}>
+            <div className="w-[30px] h-[30px] rounded-[8px] flex items-center justify-center shrink-0" style={{ backgroundColor: 'var(--steel-mist, #EEF3FA)', color: 'var(--steel, #2B4C7E)' }}>
+              <Truck className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="mt-2">
+            <span className="text-[24px] font-bold font-[family-name:var(--font-fraunces)] leading-tight block" style={{ color: 'var(--steel, #2B4C7E)' }}>
               -{totalOutwardQty.toLocaleString()} <span className="text-xs font-normal text-slate-500">pcs</span>
             </span>
-          </div>
-          <div className="w-[30px] h-[30px] rounded-[8px] flex items-center justify-center shrink-0" style={{ backgroundColor: 'var(--steel-mist, #EEF3FA)', color: 'var(--steel, #2B4C7E)' }}>
-            <Truck className="w-4 h-4" />
+            <span 
+              className="text-[10.5px] font-[family-name:var(--font-jetbrains-mono)] block mt-1 truncate"
+              style={{ color: 'var(--ink-faint, #8B9AAB)' }}
+              title={stockVelocity.lastDispatchCaption}
+            >
+              {stockVelocity.lastDispatchCaption}
+            </span>
           </div>
         </div>
       </div>
@@ -889,6 +1052,8 @@ export function InventoryClient({
                     {paginatedAccessories.map((row) => {
                       const isLow = row.balance < 10 && row.balance > 0
                       const isOut = row.balance <= 0
+                      const velocityInfo = stockVelocity.trimVelocityMap[row.item_name]
+                      const daysLeft = velocityInfo?.daysToStockOut
 
                       return (
                         <tr key={row.item_name} className="hover:bg-slate-50/50 transition-colors">
@@ -917,13 +1082,17 @@ export function InventoryClient({
                           </td>
                           <td className="px-4 py-3.5 text-center">
                             <span 
-                              className="inline-flex items-center px-2 py-0.5 rounded-full text-[10.5px] font-semibold"
+                              className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold"
                               style={{
                                 backgroundColor: isOut ? 'var(--red-mist, #FBEAE8)' : isLow ? 'var(--amber-mist, #FBF0E1)' : 'var(--green-mist, #E6F6EE)',
                                 color: isOut ? 'var(--red, #C0392B)' : isLow ? 'var(--amber, #C8802B)' : 'var(--green, #1F9D63)'
                               }}
                             >
-                              {isOut ? 'Out of Stock' : isLow ? 'Low Stock' : 'Available'}
+                              {isOut 
+                                ? 'Out of Stock' 
+                                : isLow 
+                                  ? (daysLeft != null ? 'Low Stock · ~' + daysLeft + 'd' : 'Low Stock') 
+                                  : (daysLeft != null ? 'Available · ~' + daysLeft + 'd' : 'Available')}
                             </span>
                           </td>
                         </tr>
@@ -1161,7 +1330,7 @@ export function InventoryClient({
                 type="button"
                 disabled={currentPage === 1}
                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                className="p-1.5 rounded-[6px] border bg-white text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors"
+                className="p-1.5 rounded-[6px] border bg-white text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors cursor-pointer"
                 style={{ borderColor: 'var(--border, #E2E8F0)' }}
               >
                 <ChevronLeft className="w-4 h-4" />
@@ -1174,7 +1343,7 @@ export function InventoryClient({
                     key={pg}
                     type="button"
                     onClick={() => setCurrentPage(pg)}
-                    className={`w-7 h-7 rounded-[6px] text-xs font-semibold border transition-colors ${
+                    className={`w-7 h-7 rounded-[6px] text-xs font-semibold border transition-colors cursor-pointer ${
                       isActive
                         ? 'text-white border-transparent'
                         : 'bg-white text-slate-700 hover:bg-slate-50 border-[var(--border,#E2E8F0)]'
@@ -1192,7 +1361,7 @@ export function InventoryClient({
                 type="button"
                 disabled={currentPage === totalPages}
                 onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                className="p-1.5 rounded-[6px] border bg-white text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors"
+                className="p-1.5 rounded-[6px] border bg-white text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors cursor-pointer"
                 style={{ borderColor: 'var(--border, #E2E8F0)' }}
               >
                 <ChevronRight className="w-4 h-4" />
@@ -1214,7 +1383,7 @@ export function InventoryClient({
                 <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                 Receive Inward (Finished Goods)
               </h3>
-              <button onClick={() => setShowInwardModal(false)} className="text-slate-400 hover:text-slate-700">
+              <button onClick={() => setShowInwardModal(false)} className="text-slate-400 hover:text-slate-700 cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -1297,7 +1466,7 @@ export function InventoryClient({
                 <Truck className="w-4 h-4 text-[var(--steel,#2B4C7E)]" />
                 Dispatch Outward (Delivery)
               </h3>
-              <button onClick={() => setShowOutwardModal(false)} className="text-slate-400 hover:text-slate-700">
+              <button onClick={() => setShowOutwardModal(false)} className="text-slate-400 hover:text-slate-700 cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -1388,7 +1557,7 @@ export function InventoryClient({
                 <Boxes className="w-4 h-4 text-[var(--steel,#2B4C7E)]" />
                 Raw Materials & Trims Movement
               </h3>
-              <button onClick={() => setShowAccessoryModal(false)} className="text-slate-400 hover:text-slate-700">
+              <button onClick={() => setShowAccessoryModal(false)} className="text-slate-400 hover:text-slate-700 cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
             </div>

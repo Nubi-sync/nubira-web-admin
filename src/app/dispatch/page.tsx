@@ -2,6 +2,7 @@ import { AdminShell } from '@/components/layout/AdminShell'
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { DispatchClient } from './components/DispatchClient'
+import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
 
@@ -67,17 +68,41 @@ export default async function DispatchPage() {
     `)
     .order('created_at', { ascending: false })
 
+  // 4. Fetch Allotments for Cut Qty reconciliation
+  const { data: allotments } = await supabase
+    .from('allotments')
+    .select(`
+      id,
+      article_id,
+      target_qty,
+      allotment_date,
+      article:articles(art_no, description)
+    `)
+    .order('created_at', { ascending: false })
+
   return (
     <AdminShell userEmail={user.email}>
-      <div className="flex-1 p-6 md:p-8 max-w-7xl w-full mx-auto space-y-6">
-      <div className="max-w-7xl mx-auto space-y-8">
+      <div className="flex-1 p-6 md:p-8 max-w-7xl w-full mx-auto space-y-5">
+        
+        {/* Breadcrumb */}
+        <div className="flex items-center gap-1.5 text-[12px] font-medium" style={{ color: 'var(--ink-faint, #8B9AAB)' }}>
+          <Link href="/" className="hover:underline hover:text-[var(--ink,#1C2733)]">
+            Production
+          </Link>
+          <span>/</span>
+          <span className="font-semibold" style={{ color: 'var(--steel-dark, #1F3A63)' }}>
+            Dispatch & Challans
+          </span>
+        </div>
+
         <DispatchClient 
           articles={(articles as any) || []}
           deliveryChallans={(deliveryChallans as any) || []}
           countingReports={(countingReports as any) || []}
+          allotments={(allotments as any) || []}
         />
+
       </div>
-    </div>
     </AdminShell>
   )
 }

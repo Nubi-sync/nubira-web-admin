@@ -26,6 +26,7 @@ export default async function ReportsPage() {
       notes,
       color,
       size,
+      created_at,
       lineman:profiles!daily_product_lineman_id_fkey(username),
       article:articles(art_no, description)
     `)
@@ -96,16 +97,24 @@ export default async function ReportsPage() {
 
   return (
     <AdminShell userEmail={user.email}>
-      <div className="flex-1 p-6 md:p-8 max-w-7xl w-full mx-auto space-y-6">
-      <div className="max-w-7xl mx-auto space-y-8">
+      <div className="flex-1 p-6 md:p-8 max-w-7xl w-full mx-auto space-y-5">
+        
+        {/* 1. Breadcrumb (Single Top-Level Item as specified) */}
+        <div className="flex items-center gap-1.5 text-[12px] font-medium" style={{ color: 'var(--ink-faint, #8B9AAB)' }}>
+          <span className="font-semibold" style={{ color: 'var(--steel-dark, #1F3A63)' }}>
+            Reports & Analytics
+          </span>
+        </div>
+
+        {/* 2. Client Reports Component */}
         <ReportsClient 
           dailyProducts={(dailyProducts as any) || []}
           qcLogs={(qcLogs as any) || []}
           storeTransactions={(storeTransactions as any) || []}
           workerAssignments={(workerAssignments as any) || []}
         />
+
       </div>
-    </div>
     </AdminShell>
   )
 }
