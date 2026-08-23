@@ -3,7 +3,6 @@ import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { CreateAllotmentForm } from './components/CreateAllotmentForm'
 import { AllotmentList } from './components/AllotmentList'
-import { ClipboardList, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
@@ -27,10 +26,10 @@ export default async function AllotmentsPage() {
     .eq('is_active', true)
     .order('username')
 
-  // 2. Fetch active articles
+  // 2. Fetch active articles with stitching rate
   const { data: articles } = await supabase
     .from('articles')
-    .select('id, art_no, description')
+    .select('id, art_no, description, stitching_rate')
     .eq('is_active', true)
     .order('art_no')
 
@@ -45,10 +44,10 @@ export default async function AllotmentsPage() {
       allotment_date,
       status,
       profiles ( username ),
-      articles ( art_no, description )
+      articles ( art_no, description, stitching_rate )
     `)
     .order('created_at', { ascending: false })
-    .limit(50)
+    .limit(100)
 
   const allotmentIds = allotmentsRaw?.map(a => a.id) || []
 
@@ -101,34 +100,23 @@ export default async function AllotmentsPage() {
 
   return (
     <AdminShell userEmail={user.email}>
-      <div className="flex-1 p-6 md:p-8 max-w-7xl w-full mx-auto space-y-6">
-      <div className="max-w-7xl mx-auto space-y-8">
+      <div className="flex-1 p-6 md:p-8 max-w-7xl w-full mx-auto space-y-5">
         
-        {/* Header */}
-        <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-6 rounded-3xl border border-slate-200 shadow-sm gap-4">
-          <div className="flex items-center gap-4">
-            <div className="p-3.5 bg-gradient-to-tr from-purple-600 to-indigo-600 text-white rounded-2xl shadow-md shadow-purple-500/20">
-              <ClipboardList className="h-6 w-6" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-slate-800">Target Allotments & Material Handover</h1>
-              <p className="text-slate-500 text-sm mt-0.5">Assign cut-to-sew size-color ratios & verify raw materials issue</p>
-            </div>
-          </div>
-          
-          <Link 
-            href="/" 
-            className="flex items-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition-colors text-sm font-semibold border border-slate-200 shadow-sm"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Dashboard
+        {/* 1. Breadcrumb */}
+        <div className="flex items-center gap-1.5 text-[12px] font-medium" style={{ color: 'var(--ink-faint, #8B9AAB)' }}>
+          <Link href="/" className="hover:underline hover:text-[var(--ink,#1C2733)]">
+            Production
           </Link>
-        </header>
+          <span>/</span>
+          <span className="font-semibold" style={{ color: 'var(--steel-dark, #1F3A63)' }}>
+            Target Allotments
+          </span>
+        </div>
 
         {/* Section 1: Allotment & Handover Creation Form */}
         <CreateAllotmentForm 
-          linemen={linemen || []} 
-          articles={articles || []} 
+          linemen={(linemen as any) || []} 
+          articles={(articles as any) || []} 
         />
 
         {/* Section 2: Allotments List & Live Handshake Status */}
@@ -136,7 +124,6 @@ export default async function AllotmentsPage() {
         <AllotmentList allotments={allotments || []} />
 
       </div>
-    </div>
     </AdminShell>
   )
 }

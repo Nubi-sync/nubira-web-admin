@@ -1,23 +1,22 @@
 'use client'
 
 import { useState, useMemo, useTransition } from 'react'
-import Link from 'next/link'
 import { 
   Package, 
   Download, 
-  Printer, 
   Search, 
   Plus, 
   Upload, 
-  Layers, 
-  ArrowLeft,
-  CheckCircle2,
-  AlertTriangle,
-  FileText,
-  Warehouse,
-  Truck,
-  Sparkles,
-  X
+  Warehouse, 
+  Truck, 
+  CheckCircle2, 
+  Boxes,
+  X,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react'
 import { addStoreTransaction, addAccessoryTransaction } from '../actions'
 
@@ -60,19 +59,48 @@ interface InventoryClientProps {
   accessories: Accessory[]
 }
 
+type TabKey = 'finished' | 'accessories' | 'dispatch' | 'inward'
+type StockStatusFilter = 'ALL' | 'IN_STOCK' | 'LOW_STOCK' | 'OUT_OF_STOCK'
+type SortOrder = 'asc' | 'desc'
+
 export function InventoryClient({
   articles,
   storeTransactions,
   accessories,
 }: InventoryClientProps) {
-  const [activeTab, setActiveTab] = useState<'finished' | 'accessories' | 'dispatch' | 'inward'>('finished')
+  const [activeTab, setActiveTab] = useState<TabKey>('finished')
   const [searchTerm, setSearchTerm] = useState('')
+  const [statusFilter, setStatusFilter] = useState<StockStatusFilter>('ALL')
+  const [currentPage, setCurrentPage] = useState(1)
+  const pageSize = 10
   const [isPending, startTransition] = useTransition()
+
+  // Sorting state per column
+  const [sortCol, setSortCol] = useState<string>('default')
+  const [sortOrder, setSortOrder] = useState<SortOrder>('desc')
 
   // Modal States
   const [showInwardModal, setShowInwardModal] = useState(false)
   const [showOutwardModal, setShowOutwardModal] = useState(false)
   const [showAccessoryModal, setShowAccessoryModal] = useState(false)
+
+  // Switch tabs & reset pagination/filters cleanly
+  const handleTabChange = (tab: TabKey) => {
+    setActiveTab(tab)
+    setCurrentPage(1)
+    setStatusFilter('ALL')
+    setSortCol('default')
+    setSortOrder('desc')
+  }
+
+  const handleSort = (column: string) => {
+    if (sortCol === column) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortCol(column)
+      setSortOrder('desc')
+    }
+  }
 
   // 1. Calculate Finished Goods Stock Matrix
   const finishedStockMatrix = useMemo(() => {
@@ -88,7 +116,7 @@ export function InventoryClient({
     storeTransactions.forEach(tx => {
       const artNo = tx.article?.art_no || 'Unknown'
       const desc = tx.article?.description || '-'
-      const variantKey = `${tx.color || 'Standard'} / ${tx.size || 'Free'}`
+      const variantKey = (tx.color || 'Standard') + ' / ' + (tx.size || 'Free')
 
       if (!map[artNo]) {
         map[artNo] = {
@@ -118,12 +146,37 @@ export function InventoryClient({
       }
     })
 
-    return Object.values(map).filter(item => {
-      if (!searchTerm) return true
-      return item.art_no.toLowerCase().includes(searchTerm.toLowerCase()) ||
-             item.description.toLowerCase().includes(searchTerm.toLowerCase())
-    })
-  }, [storeTransactions, searchTerm])
+    let list = Object.values(map)
+
+    // Search filter
+    if (searchTerm.trim()) {
+      const q = searchTerm.toLowerCase().trim()
+      list = list.filter(item => 
+        item.art_no.toLowerCase().includes(q) ||
+        item.description.toLowerCase().includes(q)
+      )
+    }
+
+    // Status filter
+    if (statusFilter === 'IN_STOCK') {
+      list = list.filter(item => item.balance > 0)
+    } else if (statusFilter === 'LOW_STOCK') {
+      list = list.filter(item => item.balance > 0 && item.balance <= 50)
+    } else if (statusFilter === 'OUT_OF_STOCK') {
+      list = list.filter(item => item.balance <= 0)
+    }
+
+    // Sort
+    if (sortCol === 'art_no') {
+      list.sort((a, b) => sortOrder === 'asc' ? a.art_no.localeCompare(b.art_no) : b.art_no.localeCompare(a.art_no))
+    } else if (sortCol === 'inward') {
+      list.sort((a, b) => sortOrder === 'asc' ? a.totalInward - b.totalInward : b.totalInward - a.totalInward)
+    } else if (sortCol === 'balance') {
+      list.sort((a, b) => sortOrder === 'asc' ? a.balance - b.balance : b.balance - a.balance)
+    }
+
+    return list
+  }, [storeTransactions, searchTerm, statusFilter, sortCol, sortOrder])
 
   // 2. Calculate Raw Materials & Trims Ledger (Accessories)
   const accessoryStockMatrix = useMemo(() => {
@@ -161,43 +214,133 @@ export function InventoryClient({
       }
     })
 
-    return Object.values(map).filter(item => {
-      if (!searchTerm) return true
-      return item.item_name.toLowerCase().includes(searchTerm.toLowerCase())
-    })
-  }, [accessories, searchTerm])
+    let list = Object.values(map)
+
+    // Search filter
+    if (searchTerm.trim()) {
+      const q = searchTerm.toLowerCase().trim()
+      list = list.filter(item => item.item_name.toLowerCase().includes(q))
+    }
+
+    // Status filter
+    if (statusFilter === 'IN_STOCK') {
+      list = list.filter(item => item.balance >= 10)
+    } else if (statusFilter === 'LOW_STOCK') {
+      list = list.filter(item => item.balance > 0 && item.balance < 10)
+    } else if (statusFilter === 'OUT_OF_STOCK') {
+      list = list.filter(item => item.balance <= 0)
+    }
+
+    // Sort
+    if (sortCol === 'item_name') {
+      list.sort((a, b) => sortOrder === 'asc' ? a.item_name.localeCompare(b.item_name) : b.item_name.localeCompare(a.item_name))
+    } else if (sortCol === 'total_in') {
+      list.sort((a, b) => sortOrder === 'asc' ? a.totalIn - b.totalIn : b.totalIn - a.totalIn)
+    } else if (sortCol === 'balance') {
+      list.sort((a, b) => sortOrder === 'asc' ? a.balance - b.balance : b.balance - a.balance)
+    }
+
+    return list
+  }, [accessories, searchTerm, statusFilter, sortCol, sortOrder])
 
   // 3. Filtered Dispatch History
   const filteredDispatch = useMemo(() => {
-    return storeTransactions
-      .filter(tx => tx.type === 'OUTWARD')
-      .filter(tx => {
-        if (!searchTerm) return true
-        return (
-          tx.article?.art_no?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          tx.party_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          tx.challan_no?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          tx.transport_no?.toLowerCase().includes(searchTerm.toLowerCase())
-        )
+    let list = storeTransactions.filter(tx => tx.type === 'OUTWARD')
+
+    if (searchTerm.trim()) {
+      const q = searchTerm.toLowerCase().trim()
+      list = list.filter(tx => 
+        (tx.article?.art_no || '').toLowerCase().includes(q) ||
+        (tx.party_name || '').toLowerCase().includes(q) ||
+        (tx.challan_no || '').toLowerCase().includes(q) ||
+        (tx.transport_no || '').toLowerCase().includes(q) ||
+        (tx.notes || '').toLowerCase().includes(q)
+      )
+    }
+
+    // Sort
+    if (sortCol === 'date') {
+      list.sort((a, b) => {
+        const dA = new Date(a.entry_date || a.created_at).getTime()
+        const dB = new Date(b.entry_date || b.created_at).getTime()
+        return sortOrder === 'asc' ? dA - dB : dB - dA
       })
-  }, [storeTransactions, searchTerm])
+    } else if (sortCol === 'quantity') {
+      list.sort((a, b) => sortOrder === 'asc' ? a.quantity - b.quantity : b.quantity - a.quantity)
+    }
+
+    return list
+  }, [storeTransactions, searchTerm, sortCol, sortOrder])
 
   // 4. Filtered Inward History
   const filteredInward = useMemo(() => {
-    return storeTransactions
-      .filter(tx => tx.type === 'INWARD')
-      .filter(tx => {
-        if (!searchTerm) return true
-        return (
-          tx.article?.art_no?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          tx.party_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          tx.notes?.toLowerCase().includes(searchTerm.toLowerCase())
-        )
-      })
-  }, [storeTransactions, searchTerm])
+    let list = storeTransactions.filter(tx => tx.type === 'INWARD')
 
-  // Overall Global KPI numbers
-  const totalStockBalance = finishedStockMatrix.reduce((sum, i) => sum + i.balance, 0)
+    if (searchTerm.trim()) {
+      const q = searchTerm.toLowerCase().trim()
+      list = list.filter(tx => 
+        (tx.article?.art_no || '').toLowerCase().includes(q) ||
+        (tx.party_name || '').toLowerCase().includes(q) ||
+        (tx.notes || '').toLowerCase().includes(q)
+      )
+    }
+
+    // Sort
+    if (sortCol === 'date') {
+      list.sort((a, b) => {
+        const dA = new Date(a.entry_date || a.created_at).getTime()
+        const dB = new Date(b.entry_date || b.created_at).getTime()
+        return sortOrder === 'asc' ? dA - dB : dB - dA
+      })
+    } else if (sortCol === 'quantity') {
+      list.sort((a, b) => sortOrder === 'asc' ? a.quantity - b.quantity : b.quantity - a.quantity)
+    }
+
+    return list
+  }, [storeTransactions, searchTerm, sortCol, sortOrder])
+
+  // Current active list & pagination slices
+  const currentListCount = useMemo(() => {
+    if (activeTab === 'finished') return finishedStockMatrix.length
+    if (activeTab === 'accessories') return accessoryStockMatrix.length
+    if (activeTab === 'dispatch') return filteredDispatch.length
+    return filteredInward.length
+  }, [activeTab, finishedStockMatrix, accessoryStockMatrix, filteredDispatch, filteredInward])
+
+  const totalPages = Math.max(1, Math.ceil(currentListCount / pageSize))
+
+  const paginatedFinished = useMemo(() => {
+    const start = (currentPage - 1) * pageSize
+    return finishedStockMatrix.slice(start, start + pageSize)
+  }, [finishedStockMatrix, currentPage, pageSize])
+
+  const paginatedAccessories = useMemo(() => {
+    const start = (currentPage - 1) * pageSize
+    return accessoryStockMatrix.slice(start, start + pageSize)
+  }, [accessoryStockMatrix, currentPage, pageSize])
+
+  const paginatedDispatch = useMemo(() => {
+    const start = (currentPage - 1) * pageSize
+    return filteredDispatch.slice(start, start + pageSize)
+  }, [filteredDispatch, currentPage, pageSize])
+
+  const paginatedInward = useMemo(() => {
+    const start = (currentPage - 1) * pageSize
+    return filteredInward.slice(start, start + pageSize)
+  }, [filteredInward, currentPage, pageSize])
+
+  // Overall Global KPI numbers (Unfiltered)
+  const totalStockBalance = useMemo(() => {
+    const map: Record<string, number> = {}
+    storeTransactions.forEach(tx => {
+      const artNo = tx.article?.art_no || 'Unknown'
+      if (!map[artNo]) map[artNo] = 0
+      if (tx.type === 'INWARD') map[artNo] += tx.quantity
+      else if (tx.type === 'OUTWARD') map[artNo] -= tx.quantity
+    })
+    return Object.values(map).reduce((sum, b) => sum + b, 0)
+  }, [storeTransactions])
+
   const totalInwardQty = storeTransactions.filter(t => t.type === 'INWARD').reduce((sum, t) => sum + t.quantity, 0)
   const totalOutwardQty = storeTransactions.filter(t => t.type === 'OUTWARD').reduce((sum, t) => sum + t.quantity, 0)
 
@@ -205,7 +348,7 @@ export function InventoryClient({
   const handleExportCSV = () => {
     let headers: string[] = []
     let rows: (string | number)[][] = []
-    const filename = `inventory_${activeTab}_${new Date().toISOString().split('T')[0]}.csv`
+    const filename = 'inventory_' + activeTab + '_' + new Date().toISOString().split('T')[0] + '.csv'
 
     if (activeTab === 'finished') {
       headers = ['Article No', 'Description', 'Total Inward (QC)', 'Total Outward (Dispatch)', 'Current Balance']
@@ -236,7 +379,7 @@ export function InventoryClient({
         r.party_name || '-',
         r.challan_no || '-',
         r.transport_no || '-',
-        `"${(r.notes || '').replace(/"/g, '""')}"`
+        '"' + (r.notes || '').replace(/"/g, '""') + '"'
       ])
     } else if (activeTab === 'inward') {
       headers = ['Date', 'Article No', 'Color', 'Size', 'Quantity', 'Received From', 'Notes']
@@ -247,7 +390,7 @@ export function InventoryClient({
         r.size || '-',
         r.quantity,
         r.party_name || '-',
-        `"${(r.notes || '').replace(/"/g, '""')}"`
+        '"' + (r.notes || '').replace(/"/g, '""') + '"'
       ])
     }
 
@@ -264,420 +407,797 @@ export function InventoryClient({
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-3">
-            <Link 
-              href="/"
-              className="p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors"
+    <div className="space-y-5">
+      
+      {/* 1. Sticky Page Header */}
+      <div 
+        className="sticky top-[14px] z-20 bg-white p-5 sm:p-6 rounded-[11px] border shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all"
+        style={{ borderColor: 'var(--border, #E2E8F0)' }}
+      >
+        <div className="flex items-center gap-3.5">
+          <div 
+            className="w-[38px] h-[38px] rounded-[10px] flex items-center justify-center shrink-0 shadow-xs"
+            style={{ backgroundColor: 'var(--steel, #2B4C7E)', color: '#FFFFFF' }}
+          >
+            <Warehouse className="w-5 h-5" />
+          </div>
+          <div>
+            <h1 
+              className="text-[20px] sm:text-[22px] font-bold font-[family-name:var(--font-fraunces)] leading-tight"
+              style={{ color: 'var(--ink, #1C2733)' }}
             >
-              <ArrowLeft className="w-5 h-5" />
-            </Link>
-            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
-              <Warehouse className="w-8 h-8 text-purple-600" />
               Godown & Inventory Management
             </h1>
+            <p className="text-[13px] mt-0.5" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+              Real-time finished goods stock, raw trims ledger & store transactions
+            </p>
           </div>
-          <p className="text-sm text-slate-500 mt-1 ml-11">
-            Real-time Finished Goods Godown, Raw Material Accessories, and Delivery Challans.
-          </p>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex flex-wrap items-center gap-2 self-end sm:self-auto">
+        <div className="flex flex-wrap items-center gap-2">
           <button 
+            type="button"
             onClick={() => setShowInwardModal(true)}
-            className="flex items-center gap-1.5 px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-sm transition-colors"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-[7px] text-xs font-semibold text-white transition-colors shadow-xs cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-1"
+            style={{ backgroundColor: 'var(--green, #1F9D63)' }}
           >
             <Plus className="w-3.5 h-3.5" />
-            + Receive Inward
+            <span>+ Receive Inward</span>
           </button>
+          
           <button 
+            type="button"
             onClick={() => setShowOutwardModal(true)}
-            className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-sm transition-colors"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-[7px] text-xs font-semibold text-white transition-colors shadow-xs cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-1"
+            style={{ backgroundColor: 'var(--steel, #2B4C7E)' }}
           >
             <Upload className="w-3.5 h-3.5" />
-            + Dispatch Outward
+            <span>+ Dispatch Outward</span>
           </button>
+
           <button 
+            type="button"
             onClick={() => setShowAccessoryModal(true)}
-            className="flex items-center gap-1.5 px-3 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-xl text-xs font-bold shadow-sm transition-colors"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-[7px] text-xs font-semibold border transition-colors bg-white hover:bg-slate-50 cursor-pointer focus:outline-none focus:ring-2"
+            style={{ borderColor: 'var(--steel, #2B4C7E)', color: 'var(--steel, #2B4C7E)' }}
           >
-            <Sparkles className="w-3.5 h-3.5" />
-            + Accessory Trims
+            <Boxes className="w-3.5 h-3.5" />
+            <span>+ Raw Material Trim</span>
           </button>
+
           <button 
+            type="button"
             onClick={handleExportCSV}
-            className="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-xl text-xs font-semibold shadow-sm transition-colors"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-[7px] text-xs font-semibold border bg-white hover:bg-slate-50 transition-colors cursor-pointer focus:outline-none focus:ring-2"
+            style={{ borderColor: 'var(--border, #E2E8F0)', color: 'var(--ink, #1C2733)' }}
           >
             <Download className="w-3.5 h-3.5" />
-            Export CSV
+            <span>Export CSV</span>
           </button>
         </div>
       </div>
 
-      {/* KPI Overview Banner */}
+      {/* 2. KPI Overview Banner (4 Cards) */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
-          <div className="p-3 bg-purple-50 rounded-xl">
-            <Package className="w-6 h-6 text-purple-600" />
-          </div>
-          <div>
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Finished Stock</span>
-            <span className="text-xl font-black text-slate-900">{totalStockBalance.toLocaleString()} pcs</span>
-          </div>
-        </div>
-
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
-          <div className="p-3 bg-orange-50 rounded-xl">
-            <Sparkles className="w-6 h-6 text-orange-600" />
-          </div>
-          <div>
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Accessories Trims</span>
-            <span className="text-xl font-black text-slate-900">{accessoryStockMatrix.length} items</span>
-          </div>
-        </div>
-
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
-          <div className="p-3 bg-emerald-50 rounded-xl">
-            <CheckCircle2 className="w-6 h-6 text-emerald-600" />
-          </div>
-          <div>
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Total Inward (QC)</span>
-            <span className="text-xl font-black text-emerald-600">+{totalInwardQty.toLocaleString()} pcs</span>
-          </div>
-        </div>
-
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
-          <div className="p-3 bg-blue-50 rounded-xl">
-            <Truck className="w-6 h-6 text-blue-600" />
-          </div>
-          <div>
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Dispatched Outward</span>
-            <span className="text-xl font-black text-blue-600">-{totalOutwardQty.toLocaleString()} pcs</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Tabs & Search Bar */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-white p-3 rounded-2xl border border-slate-200 shadow-sm">
-        {/* Navigation Tabs */}
-        <div className="flex items-center gap-1 overflow-x-auto">
-          <button
-            onClick={() => setActiveTab('finished')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all ${
-              activeTab === 'finished'
-                ? 'bg-purple-600 text-white shadow-md shadow-purple-500/20'
-                : 'text-slate-600 hover:bg-slate-100'
-            }`}
-          >
-            <Package className="w-4 h-4" />
-            Finished Goods Matrix ({finishedStockMatrix.length})
-          </button>
-
-          <button
-            onClick={() => setActiveTab('accessories')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all ${
-              activeTab === 'accessories'
-                ? 'bg-orange-600 text-white shadow-md shadow-orange-500/20'
-                : 'text-slate-600 hover:bg-slate-100'
-            }`}
-          >
-            <Sparkles className="w-4 h-4" />
-            Raw Materials & Trims ({accessoryStockMatrix.length})
-          </button>
-
-          <button
-            onClick={() => setActiveTab('dispatch')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all ${
-              activeTab === 'dispatch'
-                ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
-                : 'text-slate-600 hover:bg-slate-100'
-            }`}
-          >
-            <Truck className="w-4 h-4" />
-            Dispatch & Challans ({filteredDispatch.length})
-          </button>
-
-          <button
-            onClick={() => setActiveTab('inward')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all ${
-              activeTab === 'inward'
-                ? 'bg-emerald-600 text-white shadow-md shadow-emerald-500/20'
-                : 'text-slate-600 hover:bg-slate-100'
-            }`}
-          >
-            <CheckCircle2 className="w-4 h-4" />
-            Inward Receipts ({filteredInward.length})
-          </button>
-        </div>
-
-        {/* Search */}
-        <div className="relative w-full sm:w-64">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-          <input 
-            type="text"
-            placeholder="Search article, buyer, trims..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-9 pr-4 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 w-full"
-          />
-        </div>
-      </div>
-
-      {/* Main Table Content */}
-      <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
         
-        {/* TAB 1: FINISHED GOODS MATRIX */}
-        {activeTab === 'finished' && (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 text-xs uppercase tracking-wider">
-                  <th className="px-6 py-4 font-bold">Article No</th>
-                  <th className="px-6 py-4 font-bold">Description</th>
-                  <th className="px-6 py-4 font-bold text-right text-emerald-600">Total Inward (QC)</th>
-                  <th className="px-6 py-4 font-bold text-right text-blue-600">Total Outward (Dispatch)</th>
-                  <th className="px-6 py-4 font-bold text-right text-purple-600">Godown Balance</th>
-                  <th className="px-6 py-4 font-bold text-center">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 text-sm">
-                {finishedStockMatrix.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="px-6 py-12 text-center text-slate-400">
-                      No finished stock matches your filters.
-                    </td>
-                  </tr>
-                ) : (
-                  finishedStockMatrix.map((row) => (
-                    <tr key={row.art_no} className="hover:bg-slate-50/60 transition-colors">
-                      <td className="px-6 py-4 font-extrabold text-blue-600">
-                        {row.art_no}
-                      </td>
-                      <td className="px-6 py-4 text-slate-500 text-xs">
-                        {row.description}
-                      </td>
-                      <td className="px-6 py-4 text-right font-black text-emerald-600 text-base">
-                        +{row.totalInward.toLocaleString()}
-                      </td>
-                      <td className="px-6 py-4 text-right font-black text-blue-600 text-base">
-                        -{row.totalOutward.toLocaleString()}
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <span className={`inline-flex items-center px-3 py-1 rounded-xl text-sm font-black ${
-                          row.balance > 0 
-                            ? 'bg-purple-100 text-purple-800' 
-                            : row.balance === 0 
-                              ? 'bg-slate-100 text-slate-700' 
-                              : 'bg-rose-100 text-rose-800'
-                        }`}>
-                          {row.balance.toLocaleString()} pcs
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ${
-                          row.balance > 0 
-                            ? 'bg-emerald-100 text-emerald-800' 
-                            : 'bg-amber-100 text-amber-800'
-                        }`}>
-                          {row.balance > 0 ? 'In Stock âœ…' : 'Zero Stock â³'}
-                        </span>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+        {/* Finished Stock */}
+        <div 
+          className="bg-white p-5 rounded-[11px] border shadow-xs flex items-center justify-between"
+          style={{ borderColor: 'var(--border, #E2E8F0)' }}
+        >
+          <div>
+            <span className="text-[11px] font-semibold uppercase tracking-[1.5px] block" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+              Finished Stock
+            </span>
+            <span className="text-[24px] font-bold font-[family-name:var(--font-fraunces)] leading-tight block mt-1" style={{ color: 'var(--ink, #1C2733)' }}>
+              {totalStockBalance.toLocaleString()} <span className="text-xs font-normal text-slate-500">pcs</span>
+            </span>
           </div>
-        )}
+          <div className="w-[30px] h-[30px] rounded-[8px] flex items-center justify-center shrink-0" style={{ backgroundColor: 'var(--steel-mist, #EEF3FA)', color: 'var(--steel, #2B4C7E)' }}>
+            <Package className="w-4 h-4" />
+          </div>
+        </div>
 
-        {/* TAB 2: RAW MATERIALS & TRIMS (ACCESSORIES) */}
-        {activeTab === 'accessories' && (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 text-xs uppercase tracking-wider">
-                  <th className="px-6 py-4 font-bold">Item Name / Trim</th>
-                  <th className="px-6 py-4 font-bold">Unit</th>
-                  <th className="px-6 py-4 font-bold text-right text-emerald-600">Total Received (IN)</th>
-                  <th className="px-6 py-4 font-bold text-right text-orange-600">Total Issued (OUT)</th>
-                  <th className="px-6 py-4 font-bold text-right text-purple-600">Current Godown Balance</th>
-                  <th className="px-6 py-4 font-bold text-center">Inventory Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 text-sm">
-                {accessoryStockMatrix.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="px-6 py-12 text-center text-slate-400">
-                      No raw material accessories logged yet.
-                    </td>
-                  </tr>
-                ) : (
-                  accessoryStockMatrix.map((row) => {
-                    const isLow = row.balance < 10 && row.balance > 0
-                    const isOut = row.balance <= 0
+        {/* Accessories Trims */}
+        <div 
+          className="bg-white p-5 rounded-[11px] border shadow-xs flex items-center justify-between"
+          style={{ borderColor: 'var(--border, #E2E8F0)' }}
+        >
+          <div>
+            <span className="text-[11px] font-semibold uppercase tracking-[1.5px] block" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+              Accessories Trims
+            </span>
+            <span className="text-[24px] font-bold font-[family-name:var(--font-fraunces)] leading-tight block mt-1" style={{ color: 'var(--ink, #1C2733)' }}>
+              {accessories.length} <span className="text-xs font-normal text-slate-500">items</span>
+            </span>
+          </div>
+          <div className="w-[30px] h-[30px] rounded-[8px] flex items-center justify-center shrink-0" style={{ backgroundColor: 'var(--steel-mist, #EEF3FA)', color: 'var(--steel, #2B4C7E)' }}>
+            <Boxes className="w-4 h-4" />
+          </div>
+        </div>
 
-                    return (
-                      <tr key={row.item_name} className="hover:bg-slate-50/60 transition-colors">
-                        <td className="px-6 py-4 font-extrabold text-slate-900">
-                          {row.item_name}
+        {/* Total Inward (QC) */}
+        <div 
+          className="bg-white p-5 rounded-[11px] border shadow-xs flex items-center justify-between"
+          style={{ borderColor: 'var(--border, #E2E8F0)' }}
+        >
+          <div>
+            <span className="text-[11px] font-semibold uppercase tracking-[1.5px] block" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+              Total Inward (QC)
+            </span>
+            <span className="text-[24px] font-bold font-[family-name:var(--font-fraunces)] leading-tight block mt-1" style={{ color: 'var(--green, #1F9D63)' }}>
+              +{totalInwardQty.toLocaleString()} <span className="text-xs font-normal text-slate-500">pcs</span>
+            </span>
+          </div>
+          <div className="w-[30px] h-[30px] rounded-[8px] flex items-center justify-center shrink-0" style={{ backgroundColor: 'var(--green-mist, #E6F6EE)', color: 'var(--green, #1F9D63)' }}>
+            <CheckCircle2 className="w-4 h-4" />
+          </div>
+        </div>
+
+        {/* Dispatched Outward */}
+        <div 
+          className="bg-white p-5 rounded-[11px] border shadow-xs flex items-center justify-between"
+          style={{ borderColor: 'var(--border, #E2E8F0)' }}
+        >
+          <div>
+            <span className="text-[11px] font-semibold uppercase tracking-[1.5px] block" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+              Dispatched Outward
+            </span>
+            <span className="text-[24px] font-bold font-[family-name:var(--font-fraunces)] leading-tight block mt-1" style={{ color: 'var(--steel, #2B4C7E)' }}>
+              -{totalOutwardQty.toLocaleString()} <span className="text-xs font-normal text-slate-500">pcs</span>
+            </span>
+          </div>
+          <div className="w-[30px] h-[30px] rounded-[8px] flex items-center justify-center shrink-0" style={{ backgroundColor: 'var(--steel-mist, #EEF3FA)', color: 'var(--steel, #2B4C7E)' }}>
+            <Truck className="w-4 h-4" />
+          </div>
+        </div>
+      </div>
+
+      {/* 3. Navigation Tabs, Status Filter Chips & Search Toolbar */}
+      <div 
+        className="space-y-3 bg-white p-3.5 rounded-[11px] border shadow-xs"
+        style={{ borderColor: 'var(--border, #E2E8F0)' }}
+      >
+        {/* Top Row: Navigation Tabs */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+          <button
+            type="button"
+            onClick={() => handleTabChange('finished')}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-[6px] text-xs font-semibold whitespace-nowrap transition-all outline-none ${
+              activeTab === 'finished'
+                ? 'bg-[var(--steel,#2B4C7E)] text-white shadow-xs'
+                : 'text-[var(--ink-soft,#5B6B7C)] hover:text-[var(--ink,#1C2733)] bg-transparent'
+            }`}
+          >
+            <Package className="w-3.5 h-3.5" />
+            <span>Finished Goods Matrix ({finishedStockMatrix.length})</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleTabChange('accessories')}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-[6px] text-xs font-semibold whitespace-nowrap transition-all outline-none ${
+              activeTab === 'accessories'
+                ? 'bg-[var(--steel,#2B4C7E)] text-white shadow-xs'
+                : 'text-[var(--ink-soft,#5B6B7C)] hover:text-[var(--ink,#1C2733)] bg-transparent'
+            }`}
+          >
+            <Boxes className="w-3.5 h-3.5" />
+            <span>Raw Materials & Trims ({accessoryStockMatrix.length})</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleTabChange('dispatch')}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-[6px] text-xs font-semibold whitespace-nowrap transition-all outline-none ${
+              activeTab === 'dispatch'
+                ? 'bg-[var(--steel,#2B4C7E)] text-white shadow-xs'
+                : 'text-[var(--ink-soft,#5B6B7C)] hover:text-[var(--ink,#1C2733)] bg-transparent'
+            }`}
+          >
+            <Truck className="w-3.5 h-3.5" />
+            <span>Dispatch & Challans ({filteredDispatch.length})</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleTabChange('inward')}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-[6px] text-xs font-semibold whitespace-nowrap transition-all outline-none ${
+              activeTab === 'inward'
+                ? 'bg-[var(--steel,#2B4C7E)] text-white shadow-xs'
+                : 'text-[var(--ink-soft,#5B6B7C)] hover:text-[var(--ink,#1C2733)] bg-transparent'
+            }`}
+          >
+            <CheckCircle2 className="w-3.5 h-3.5" />
+            <span>Inward Receipts ({filteredInward.length})</span>
+          </button>
+        </div>
+
+        {/* Bottom Row: Status Filter Chips + Search Input */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2 border-t" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+          
+          {/* Status Filter Chips */}
+          <div className="flex flex-wrap items-center gap-1.5">
+            {(['ALL', 'IN_STOCK', 'LOW_STOCK', 'OUT_OF_STOCK'] as StockStatusFilter[]).map((st) => {
+              const isSelected = statusFilter === st
+              const labelMap: Record<StockStatusFilter, string> = {
+                ALL: 'All',
+                IN_STOCK: 'In Stock',
+                LOW_STOCK: 'Low Stock',
+                OUT_OF_STOCK: 'Out of Stock'
+              }
+              return (
+                <button
+                  key={st}
+                  type="button"
+                  onClick={() => {
+                    setStatusFilter(st)
+                    setCurrentPage(1)
+                  }}
+                  className={`px-3 py-1 rounded-[6px] text-xs font-semibold border transition-colors outline-none ${
+                    isSelected
+                      ? 'bg-[var(--steel-mist,#EEF3FA)] border-[var(--steel,#2B4C7E)] text-[var(--steel-dark,#1F3A63)]'
+                      : 'bg-white border-[var(--border,#E2E8F0)] text-[var(--ink-soft,#5B6B7C)] hover:text-[var(--ink,#1C2733)]'
+                  }`}
+                >
+                  {labelMap[st]}
+                </button>
+              )
+            })}
+          </div>
+
+          {/* Search Box */}
+          <div className="relative w-full sm:w-72">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <input 
+              type="text"
+              placeholder="Search article, buyer, trims..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value)
+                setCurrentPage(1)
+              }}
+              className="w-full pl-9 pr-3 py-1.5 bg-slate-50 border rounded-[7px] text-xs outline-none transition-colors"
+              style={{ borderColor: 'var(--border, #E2E8F0)' }}
+              onFocus={(e) => e.currentTarget.style.borderColor = 'var(--steel, #2B4C7E)'}
+              onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border, #E2E8F0)'}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* 4. Main Table / Empty State Area */}
+      <div 
+        className="bg-white rounded-[11px] border shadow-xs overflow-hidden"
+        style={{ borderColor: 'var(--border, #E2E8F0)' }}
+      >
+        
+        {/* ======================================================== */}
+        {/* TAB 1: FINISHED GOODS MATRIX                             */}
+        {/* ======================================================== */}
+        {activeTab === 'finished' && (
+          <div>
+            {finishedStockMatrix.length === 0 ? (
+              <div className="p-12 text-center flex flex-col items-center justify-center space-y-3">
+                <div className="w-12 h-12 rounded-full flex items-center justify-center bg-slate-100 text-slate-400">
+                  <Package className="w-6 h-6" />
+                </div>
+                <h3 className="text-base font-bold font-[family-name:var(--font-fraunces)]" style={{ color: 'var(--ink, #1C2733)' }}>
+                  No finished stock recorded yet
+                </h3>
+                <p className="text-xs max-w-sm" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                  Receive finished garments from the QC Finishing Floor to initialize your godown stock ledger.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setShowInwardModal(true)}
+                  className="mt-2 px-4 py-2 rounded-[7px] text-xs font-semibold text-white shadow-xs transition-colors"
+                  style={{ backgroundColor: 'var(--steel, #2B4C7E)' }}
+                >
+                  + Receive Inward
+                </button>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr className="bg-slate-50 border-b text-[11px] uppercase tracking-wider font-bold" style={{ borderColor: 'var(--border, #E2E8F0)', color: 'var(--ink-soft, #5B6B7C)' }}>
+                      
+                      {/* Sortable Article No */}
+                      <th 
+                        onClick={() => handleSort('art_no')}
+                        className="px-5 py-3.5 cursor-pointer hover:bg-slate-100 transition-colors select-none font-bold"
+                      >
+                        <div className="flex items-center gap-1.5">
+                          <span>Article No</span>
+                          {sortCol === 'art_no' ? (
+                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" /> : <ArrowDown className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" />
+                          ) : (
+                            <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
+                          )}
+                        </div>
+                      </th>
+
+                      <th className="px-4 py-3.5 font-bold">Description</th>
+                      
+                      {/* Sortable Total Inward */}
+                      <th 
+                        onClick={() => handleSort('inward')}
+                        className="px-4 py-3.5 text-right cursor-pointer hover:bg-slate-100 transition-colors select-none font-bold text-[var(--green,#1F9D63)]"
+                      >
+                        <div className="flex items-center justify-end gap-1.5">
+                          <span>Total Inward (QC)</span>
+                          {sortCol === 'inward' ? (
+                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[var(--green,#1F9D63)]" /> : <ArrowDown className="w-3.5 h-3.5 text-[var(--green,#1F9D63)]" />
+                          ) : (
+                            <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
+                          )}
+                        </div>
+                      </th>
+
+                      <th className="px-4 py-3.5 font-bold text-right text-[var(--steel,#2B4C7E)]">Total Outward (Dispatch)</th>
+                      
+                      {/* Sortable Balance */}
+                      <th 
+                        onClick={() => handleSort('balance')}
+                        className="px-4 py-3.5 text-right cursor-pointer hover:bg-slate-100 transition-colors select-none font-bold"
+                      >
+                        <div className="flex items-center justify-end gap-1.5">
+                          <span>Godown Balance</span>
+                          {sortCol === 'balance' ? (
+                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" /> : <ArrowDown className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" />
+                          ) : (
+                            <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
+                          )}
+                        </div>
+                      </th>
+
+                      <th className="px-4 py-3.5 font-bold text-center">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {paginatedFinished.map((row) => (
+                      <tr key={row.art_no} className="hover:bg-slate-50/50 transition-colors">
+                        <td className="px-5 py-3.5 font-bold" style={{ color: 'var(--steel, #2B4C7E)' }}>
+                          {row.art_no}
                         </td>
-                        <td className="px-6 py-4 text-slate-500 font-semibold text-xs">
-                          {row.unit}
+                        <td className="px-4 py-3.5 text-slate-500">
+                          {row.description}
                         </td>
-                        <td className="px-6 py-4 text-right font-black text-emerald-600 text-base">
-                          +{row.totalIn.toLocaleString()}
+                        <td className="px-4 py-3.5 text-right font-mono font-bold" style={{ color: 'var(--green, #1F9D63)' }}>
+                          +{row.totalInward.toLocaleString()}
                         </td>
-                        <td className="px-6 py-4 text-right font-black text-orange-600 text-base">
-                          -{row.totalOut.toLocaleString()}
+                        <td className="px-4 py-3.5 text-right font-mono font-bold" style={{ color: 'var(--steel, #2B4C7E)' }}>
+                          -{row.totalOutward.toLocaleString()}
                         </td>
-                        <td className="px-6 py-4 text-right">
-                          <span className={`inline-flex items-center px-3 py-1 rounded-xl text-sm font-black ${
-                            isOut 
-                              ? 'bg-rose-100 text-rose-800' 
-                              : isLow 
-                                ? 'bg-amber-100 text-amber-800' 
-                                : 'bg-emerald-100 text-emerald-800'
-                          }`}>
-                            {row.balance.toLocaleString()} {row.unit}
+                        <td className="px-4 py-3.5 text-right">
+                          <span 
+                            className="inline-flex items-center px-2.5 py-0.5 rounded-[5px] text-xs font-bold font-mono"
+                            style={{
+                              backgroundColor: row.balance > 0 ? 'var(--steel-tint, #DBE6F5)' : 'var(--red-mist, #FBEAE8)',
+                              color: row.balance > 0 ? 'var(--steel-dark, #1F3A63)' : 'var(--red, #C0392B)'
+                            }}
+                          >
+                            {row.balance.toLocaleString()} pcs
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-center">
-                          <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ${
-                            isOut 
-                              ? 'bg-rose-100 text-rose-800' 
-                              : isLow 
-                                ? 'bg-amber-100 text-amber-800' 
-                                : 'bg-emerald-100 text-emerald-800'
-                          }`}>
-                            {isOut ? 'Out of Stock âŒ' : isLow ? 'Low Stock âš ï¸' : 'Available âœ…'}
+                        <td className="px-4 py-3.5 text-center">
+                          <span 
+                            className="inline-flex items-center px-2 py-0.5 rounded-full text-[10.5px] font-semibold"
+                            style={{
+                              backgroundColor: row.balance > 50 ? 'var(--green-mist, #E6F6EE)' : row.balance > 0 ? 'var(--amber-mist, #FBF0E1)' : 'var(--red-mist, #FBEAE8)',
+                              color: row.balance > 50 ? 'var(--green, #1F9D63)' : row.balance > 0 ? 'var(--amber, #C8802B)' : 'var(--red, #C0392B)'
+                            }}
+                          >
+                            {row.balance > 50 ? 'In Stock' : row.balance > 0 ? 'Low Stock' : 'Zero Stock'}
                           </span>
                         </td>
                       </tr>
-                    )
-                  })
-                )}
-              </tbody>
-            </table>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         )}
 
-        {/* TAB 3: DISPATCH & DELIVERY CHALLANS */}
+        {/* ======================================================== */}
+        {/* TAB 2: RAW MATERIALS & TRIMS (ACCESSORIES)               */}
+        {/* ======================================================== */}
+        {activeTab === 'accessories' && (
+          <div>
+            {accessoryStockMatrix.length === 0 ? (
+              <div className="p-12 text-center flex flex-col items-center justify-center space-y-3">
+                <div className="w-12 h-12 rounded-full flex items-center justify-center bg-slate-100 text-slate-400">
+                  <Boxes className="w-6 h-6" />
+                </div>
+                <h3 className="text-base font-bold font-[family-name:var(--font-fraunces)]" style={{ color: 'var(--ink, #1C2733)' }}>
+                  No trims added yet
+                </h3>
+                <p className="text-xs max-w-sm" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                  Trims and raw accessories (buttons, threads, zippers) you receive from suppliers will show up here.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setShowAccessoryModal(true)}
+                  className="mt-2 px-4 py-2 rounded-[7px] text-xs font-semibold text-white shadow-xs transition-colors"
+                  style={{ backgroundColor: 'var(--steel, #2B4C7E)' }}
+                >
+                  + Raw Material Trim
+                </button>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr className="bg-slate-50 border-b text-[11px] uppercase tracking-wider font-bold" style={{ borderColor: 'var(--border, #E2E8F0)', color: 'var(--ink-soft, #5B6B7C)' }}>
+                      
+                      {/* Sortable Item Name */}
+                      <th 
+                        onClick={() => handleSort('item_name')}
+                        className="px-5 py-3.5 cursor-pointer hover:bg-slate-100 transition-colors select-none font-bold"
+                      >
+                        <div className="flex items-center gap-1.5">
+                          <span>Item Name / Trim</span>
+                          {sortCol === 'item_name' ? (
+                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" /> : <ArrowDown className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" />
+                          ) : (
+                            <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
+                          )}
+                        </div>
+                      </th>
+
+                      <th className="px-4 py-3.5 font-bold">Unit</th>
+
+                      {/* Sortable Total Received */}
+                      <th 
+                        onClick={() => handleSort('total_in')}
+                        className="px-4 py-3.5 text-right cursor-pointer hover:bg-slate-100 transition-colors select-none font-bold text-[var(--green,#1F9D63)]"
+                      >
+                        <div className="flex items-center justify-end gap-1.5">
+                          <span>Total Received (IN)</span>
+                          {sortCol === 'total_in' ? (
+                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[var(--green,#1F9D63)]" /> : <ArrowDown className="w-3.5 h-3.5 text-[var(--green,#1F9D63)]" />
+                          ) : (
+                            <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
+                          )}
+                        </div>
+                      </th>
+
+                      <th className="px-4 py-3.5 font-bold text-right text-[var(--amber,#C8802B)]">Total Issued (OUT)</th>
+                      
+                      {/* Sortable Balance */}
+                      <th 
+                        onClick={() => handleSort('balance')}
+                        className="px-4 py-3.5 text-right cursor-pointer hover:bg-slate-100 transition-colors select-none font-bold"
+                      >
+                        <div className="flex items-center justify-end gap-1.5">
+                          <span>Current Balance</span>
+                          {sortCol === 'balance' ? (
+                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" /> : <ArrowDown className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" />
+                          ) : (
+                            <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
+                          )}
+                        </div>
+                      </th>
+
+                      <th className="px-4 py-3.5 font-bold text-center">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {paginatedAccessories.map((row) => {
+                      const isLow = row.balance < 10 && row.balance > 0
+                      const isOut = row.balance <= 0
+
+                      return (
+                        <tr key={row.item_name} className="hover:bg-slate-50/50 transition-colors">
+                          <td className="px-5 py-3.5 font-bold text-slate-900">
+                            {row.item_name}
+                          </td>
+                          <td className="px-4 py-3.5 text-slate-500 font-medium">
+                            {row.unit}
+                          </td>
+                          <td className="px-4 py-3.5 text-right font-mono font-bold" style={{ color: 'var(--green, #1F9D63)' }}>
+                            +{row.totalIn.toLocaleString()}
+                          </td>
+                          <td className="px-4 py-3.5 text-right font-mono font-bold" style={{ color: 'var(--amber, #C8802B)' }}>
+                            -{row.totalOut.toLocaleString()}
+                          </td>
+                          <td className="px-4 py-3.5 text-right">
+                            <span 
+                              className="inline-flex items-center px-2.5 py-0.5 rounded-[5px] text-xs font-bold font-mono"
+                              style={{
+                                backgroundColor: isOut ? 'var(--red-mist, #FBEAE8)' : 'var(--steel-tint, #DBE6F5)',
+                                color: isOut ? 'var(--red, #C0392B)' : 'var(--steel-dark, #1F3A63)'
+                              }}
+                            >
+                              {row.balance.toLocaleString()} {row.unit}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3.5 text-center">
+                            <span 
+                              className="inline-flex items-center px-2 py-0.5 rounded-full text-[10.5px] font-semibold"
+                              style={{
+                                backgroundColor: isOut ? 'var(--red-mist, #FBEAE8)' : isLow ? 'var(--amber-mist, #FBF0E1)' : 'var(--green-mist, #E6F6EE)',
+                                color: isOut ? 'var(--red, #C0392B)' : isLow ? 'var(--amber, #C8802B)' : 'var(--green, #1F9D63)'
+                              }}
+                            >
+                              {isOut ? 'Out of Stock' : isLow ? 'Low Stock' : 'Available'}
+                            </span>
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ======================================================== */}
+        {/* TAB 3: DISPATCH & DELIVERY CHALLANS                     */}
+        {/* ======================================================== */}
         {activeTab === 'dispatch' && (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 text-xs uppercase tracking-wider">
-                  <th className="px-6 py-4 font-bold">Date</th>
-                  <th className="px-6 py-4 font-bold">Article No</th>
-                  <th className="px-6 py-4 font-bold">Color / Size</th>
-                  <th className="px-6 py-4 font-bold text-right text-blue-600">Dispatched Qty</th>
-                  <th className="px-6 py-4 font-bold">Buyer / Customer</th>
-                  <th className="px-6 py-4 font-bold">Challan / Vehicle No</th>
-                  <th className="px-6 py-4 font-bold">Notes</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 text-sm">
-                {filteredDispatch.length === 0 ? (
-                  <tr>
-                    <td colSpan={7} className="px-6 py-12 text-center text-slate-400">
-                      No dispatch transactions recorded yet.
-                    </td>
-                  </tr>
-                ) : (
-                  filteredDispatch.map((row) => (
-                    <tr key={row.id} className="hover:bg-slate-50/60 transition-colors">
-                      <td className="px-6 py-4 font-semibold text-slate-600 whitespace-nowrap">
-                        {row.entry_date || row.created_at.split('T')[0]}
-                      </td>
-                      <td className="px-6 py-4 font-extrabold text-blue-600">
-                        {row.article?.art_no || '-'}
-                      </td>
-                      <td className="px-6 py-4">
-                        {(row.color || row.size) ? (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-slate-100 text-slate-800">
-                            {row.color} {row.size ? `(${row.size})` : ''}
-                          </span>
-                        ) : (
-                          <span className="text-slate-400 text-xs">-</span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 text-right font-black text-blue-600 text-base">
-                        {row.quantity.toLocaleString()} pcs
-                      </td>
-                      <td className="px-6 py-4 font-bold text-slate-900">
-                        {row.party_name || '-'}
-                      </td>
-                      <td className="px-6 py-4 text-slate-600 text-xs font-semibold">
-                        {row.challan_no ? `Challan: ${row.challan_no}` : ''} {row.transport_no ? `â€¢ ${row.transport_no}` : ''}
-                      </td>
-                      <td className="px-6 py-4 text-slate-500 text-xs">
-                        {row.notes || '-'}
-                      </td>
+          <div>
+            {filteredDispatch.length === 0 ? (
+              <div className="p-12 text-center flex flex-col items-center justify-center space-y-3">
+                <div className="w-12 h-12 rounded-full flex items-center justify-center bg-slate-100 text-slate-400">
+                  <Truck className="w-6 h-6" />
+                </div>
+                <h3 className="text-base font-bold font-[family-name:var(--font-fraunces)]" style={{ color: 'var(--ink, #1C2733)' }}>
+                  No dispatches yet
+                </h3>
+                <p className="text-xs max-w-sm" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                  Buyer orders and delivery gate passes you dispatch will show up here.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setShowOutwardModal(true)}
+                  className="mt-2 px-4 py-2 rounded-[7px] text-xs font-semibold text-white shadow-xs transition-colors"
+                  style={{ backgroundColor: 'var(--steel, #2B4C7E)' }}
+                >
+                  + Dispatch Outward
+                </button>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr className="bg-slate-50 border-b text-[11px] uppercase tracking-wider font-bold" style={{ borderColor: 'var(--border, #E2E8F0)', color: 'var(--ink-soft, #5B6B7C)' }}>
+                      
+                      {/* Sortable Date */}
+                      <th 
+                        onClick={() => handleSort('date')}
+                        className="px-5 py-3.5 cursor-pointer hover:bg-slate-100 transition-colors select-none font-bold"
+                      >
+                        <div className="flex items-center gap-1.5">
+                          <span>Date</span>
+                          {sortCol === 'date' ? (
+                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" /> : <ArrowDown className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" />
+                          ) : (
+                            <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
+                          )}
+                        </div>
+                      </th>
+
+                      <th className="px-4 py-3.5 font-bold">Article No</th>
+                      <th className="px-4 py-3.5 font-bold">Color / Size</th>
+                      
+                      {/* Sortable Dispatched Qty */}
+                      <th 
+                        onClick={() => handleSort('quantity')}
+                        className="px-4 py-3.5 text-right cursor-pointer hover:bg-slate-100 transition-colors select-none font-bold text-[var(--steel,#2B4C7E)]"
+                      >
+                        <div className="flex items-center justify-end gap-1.5">
+                          <span>Dispatched Qty</span>
+                          {sortCol === 'quantity' ? (
+                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" /> : <ArrowDown className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" />
+                          ) : (
+                            <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
+                          )}
+                        </div>
+                      </th>
+
+                      <th className="px-4 py-3.5 font-bold">Buyer / Customer</th>
+                      <th className="px-4 py-3.5 font-bold">Challan / Vehicle No</th>
+                      <th className="px-4 py-3.5 font-bold">Notes</th>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {paginatedDispatch.map((row) => (
+                      <tr key={row.id} className="hover:bg-slate-50/50 transition-colors">
+                        <td className="px-5 py-3.5 font-mono text-slate-600 whitespace-nowrap">
+                          {row.entry_date || row.created_at.split('T')[0]}
+                        </td>
+                        <td className="px-4 py-3.5 font-bold" style={{ color: 'var(--steel, #2B4C7E)' }}>
+                          {row.article?.art_no || '-'}
+                        </td>
+                        <td className="px-4 py-3.5">
+                          {(row.color || row.size) ? (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-[5px] text-[11px] font-medium bg-slate-100 text-slate-800">
+                              {row.color} {row.size ? '(' + row.size + ')' : ''}
+                            </span>
+                          ) : (
+                            <span className="text-slate-400">-</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3.5 text-right font-mono font-bold" style={{ color: 'var(--steel, #2B4C7E)' }}>
+                          {row.quantity.toLocaleString()} pcs
+                        </td>
+                        <td className="px-4 py-3.5 font-semibold text-slate-900">
+                          {row.party_name || '-'}
+                        </td>
+                        <td className="px-4 py-3.5 text-slate-600 text-[11px]">
+                          {row.challan_no ? 'Challan: ' + row.challan_no : ''} {row.transport_no ? '• ' + row.transport_no : ''}
+                        </td>
+                        <td className="px-4 py-3.5 text-slate-500 text-[11px]">
+                          {row.notes || '-'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         )}
 
-        {/* TAB 4: INWARD RECEIPTS */}
+        {/* ======================================================== */}
+        {/* TAB 4: INWARD RECEIPTS                                  */}
+        {/* ======================================================== */}
         {activeTab === 'inward' && (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 text-xs uppercase tracking-wider">
-                  <th className="px-6 py-4 font-bold">Date</th>
-                  <th className="px-6 py-4 font-bold">Article No</th>
-                  <th className="px-6 py-4 font-bold">Color / Size</th>
-                  <th className="px-6 py-4 font-bold text-right text-emerald-600">Received Qty</th>
-                  <th className="px-6 py-4 font-bold">Received From</th>
-                  <th className="px-6 py-4 font-bold">Notes</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 text-sm">
-                {filteredInward.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="px-6 py-12 text-center text-slate-400">
-                      No inward transactions recorded yet.
-                    </td>
-                  </tr>
-                ) : (
-                  filteredInward.map((row) => (
-                    <tr key={row.id} className="hover:bg-slate-50/60 transition-colors">
-                      <td className="px-6 py-4 font-semibold text-slate-600 whitespace-nowrap">
-                        {row.entry_date || row.created_at.split('T')[0]}
-                      </td>
-                      <td className="px-6 py-4 font-extrabold text-blue-600">
-                        {row.article?.art_no || '-'}
-                      </td>
-                      <td className="px-6 py-4">
-                        {(row.color || row.size) ? (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-slate-100 text-slate-800">
-                            {row.color} {row.size ? `(${row.size})` : ''}
-                          </span>
-                        ) : (
-                          <span className="text-slate-400 text-xs">-</span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 text-right font-black text-emerald-600 text-base">
-                        +{row.quantity.toLocaleString()} pcs
-                      </td>
-                      <td className="px-6 py-4 font-bold text-slate-900">
-                        {row.party_name || '-'}
-                      </td>
-                      <td className="px-6 py-4 text-slate-500 text-xs">
-                        {row.notes || '-'}
-                      </td>
+          <div>
+            {filteredInward.length === 0 ? (
+              <div className="p-12 text-center flex flex-col items-center justify-center space-y-3">
+                <div className="w-12 h-12 rounded-full flex items-center justify-center bg-slate-100 text-slate-400">
+                  <CheckCircle2 className="w-6 h-6" />
+                </div>
+                <h3 className="text-base font-bold font-[family-name:var(--font-fraunces)]" style={{ color: 'var(--ink, #1C2733)' }}>
+                  No inward receipts logged yet
+                </h3>
+                <p className="text-xs max-w-sm" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                  Finished garments received from finishing floor will be listed here.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setShowInwardModal(true)}
+                  className="mt-2 px-4 py-2 rounded-[7px] text-xs font-semibold text-white shadow-xs transition-colors"
+                  style={{ backgroundColor: 'var(--steel, #2B4C7E)' }}
+                >
+                  + Receive Inward
+                </button>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr className="bg-slate-50 border-b text-[11px] uppercase tracking-wider font-bold" style={{ borderColor: 'var(--border, #E2E8F0)', color: 'var(--ink-soft, #5B6B7C)' }}>
+                      
+                      {/* Sortable Date */}
+                      <th 
+                        onClick={() => handleSort('date')}
+                        className="px-5 py-3.5 cursor-pointer hover:bg-slate-100 transition-colors select-none font-bold"
+                      >
+                        <div className="flex items-center gap-1.5">
+                          <span>Date</span>
+                          {sortCol === 'date' ? (
+                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" /> : <ArrowDown className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" />
+                          ) : (
+                            <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
+                          )}
+                        </div>
+                      </th>
+
+                      <th className="px-4 py-3.5 font-bold">Article No</th>
+                      <th className="px-4 py-3.5 font-bold">Color / Size</th>
+                      
+                      {/* Sortable Received Qty */}
+                      <th 
+                        onClick={() => handleSort('quantity')}
+                        className="px-4 py-3.5 text-right cursor-pointer hover:bg-slate-100 transition-colors select-none font-bold text-[var(--green,#1F9D63)]"
+                      >
+                        <div className="flex items-center justify-end gap-1.5">
+                          <span>Received Qty</span>
+                          {sortCol === 'quantity' ? (
+                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[var(--green,#1F9D63)]" /> : <ArrowDown className="w-3.5 h-3.5 text-[var(--green,#1F9D63)]" />
+                          ) : (
+                            <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
+                          )}
+                        </div>
+                      </th>
+
+                      <th className="px-4 py-3.5 font-bold">Received From</th>
+                      <th className="px-4 py-3.5 font-bold">Notes</th>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {paginatedInward.map((row) => (
+                      <tr key={row.id} className="hover:bg-slate-50/50 transition-colors">
+                        <td className="px-5 py-3.5 font-mono text-slate-600 whitespace-nowrap">
+                          {row.entry_date || row.created_at.split('T')[0]}
+                        </td>
+                        <td className="px-4 py-3.5 font-bold" style={{ color: 'var(--steel, #2B4C7E)' }}>
+                          {row.article?.art_no || '-'}
+                        </td>
+                        <td className="px-4 py-3.5">
+                          {(row.color || row.size) ? (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-[5px] text-[11px] font-medium bg-slate-100 text-slate-800">
+                              {row.color} {row.size ? '(' + row.size + ')' : ''}
+                            </span>
+                          ) : (
+                            <span className="text-slate-400">-</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3.5 text-right font-mono font-bold" style={{ color: 'var(--green, #1F9D63)' }}>
+                          +{row.quantity.toLocaleString()} pcs
+                        </td>
+                        <td className="px-4 py-3.5 font-semibold text-slate-900">
+                          {row.party_name || '-'}
+                        </td>
+                        <td className="px-4 py-3.5 text-slate-500 text-[11px]">
+                          {row.notes || '-'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 5. Pagination Controls Footer */}
+        {currentListCount > 0 && (
+          <div className="p-4 border-t bg-slate-50/60 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+            <div style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+              Showing <span className="font-semibold">{(currentPage - 1) * pageSize + 1}</span>–<span className="font-semibold">{Math.min(currentPage * pageSize, currentListCount)}</span> of <span className="font-semibold">{currentListCount}</span> {activeTab === 'finished' ? 'articles' : activeTab === 'accessories' ? 'items' : activeTab === 'dispatch' ? 'dispatches' : 'receipts'}
+            </div>
+
+            {/* Page Buttons */}
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                className="p-1.5 rounded-[6px] border bg-white text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors"
+                style={{ borderColor: 'var(--border, #E2E8F0)' }}
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((pg) => {
+                const isActive = currentPage === pg
+                return (
+                  <button
+                    key={pg}
+                    type="button"
+                    onClick={() => setCurrentPage(pg)}
+                    className={`w-7 h-7 rounded-[6px] text-xs font-semibold border transition-colors ${
+                      isActive
+                        ? 'text-white border-transparent'
+                        : 'bg-white text-slate-700 hover:bg-slate-50 border-[var(--border,#E2E8F0)]'
+                    }`}
+                    style={{
+                      backgroundColor: isActive ? 'var(--steel, #2B4C7E)' : '#FFFFFF'
+                    }}
+                  >
+                    {pg}
+                  </button>
+                )
+              })}
+
+              <button
+                type="button"
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                className="p-1.5 rounded-[6px] border bg-white text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors"
+                style={{ borderColor: 'var(--border, #E2E8F0)' }}
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         )}
 
@@ -688,10 +1208,10 @@ export function InventoryClient({
       {/* ======================================================== */}
       {showInwardModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-xl">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
-                <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+          <div className="bg-white rounded-[11px] max-w-md w-full p-6 space-y-4 shadow-xl border" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+            <div className="flex items-center justify-between pb-3 border-b" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+              <h3 className="text-base font-bold font-[family-name:var(--font-fraunces)] flex items-center gap-2" style={{ color: 'var(--ink, #1C2733)' }}>
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                 Receive Inward (Finished Goods)
               </h3>
               <button onClick={() => setShowInwardModal(false)} className="text-slate-400 hover:text-slate-700">
@@ -707,8 +1227,10 @@ export function InventoryClient({
               })
             }} className="space-y-3">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Article</label>
-                <select name="article_id" required className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm font-semibold">
+                <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                  Article Style
+                </label>
+                <select name="article_id" required className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs font-semibold outline-none" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
                   {articles.map(art => (
                     <option key={art.id} value={art.id}>{art.art_no} ({art.description})</option>
                   ))}
@@ -717,34 +1239,45 @@ export function InventoryClient({
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Color</label>
-                  <input type="text" name="color" defaultValue="Navy Blue" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm" />
+                  <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                    Color
+                  </label>
+                  <input type="text" name="color" defaultValue="Navy Blue" className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs outline-none" style={{ borderColor: 'var(--border, #E2E8F0)' }} />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Size</label>
-                  <input type="text" name="size" defaultValue="L" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm" />
+                  <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                    Size
+                  </label>
+                  <input type="text" name="size" defaultValue="L" className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs outline-none" style={{ borderColor: 'var(--border, #E2E8F0)' }} />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Quantity (Pieces)</label>
-                <input type="number" name="quantity" required placeholder="e.g. 150" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm font-bold" />
+                <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                  Quantity (Pieces)
+                </label>
+                <input type="number" name="quantity" required placeholder="e.g. 150" className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs font-bold font-mono outline-none" style={{ borderColor: 'var(--border, #E2E8F0)' }} />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Received From</label>
-                <input type="text" name="party_name" defaultValue="QC Finishing Floor" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm" />
+                <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                  Received From
+                </label>
+                <input type="text" name="party_name" defaultValue="QC Finishing Floor" className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs outline-none" style={{ borderColor: 'var(--border, #E2E8F0)' }} />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Notes / Carton Ref</label>
-                <input type="text" name="notes" placeholder="e.g. Master Carton #3" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm" />
+                <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                  Notes / Carton Ref
+                </label>
+                <input type="text" name="notes" placeholder="e.g. Master Carton #3" className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs outline-none" style={{ borderColor: 'var(--border, #E2E8F0)' }} />
               </div>
 
               <button
                 type="submit"
                 disabled={isPending}
-                className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-sm shadow-md transition-colors"
+                className="w-full py-2.5 text-white rounded-[8px] font-semibold text-xs transition-colors shadow-xs cursor-pointer"
+                style={{ backgroundColor: 'var(--green, #1F9D63)' }}
               >
                 {isPending ? 'Saving...' : 'Save Inward to Stock'}
               </button>
@@ -758,10 +1291,10 @@ export function InventoryClient({
       {/* ======================================================== */}
       {showOutwardModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-xl">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
-                <Truck className="w-5 h-5 text-blue-600" />
+          <div className="bg-white rounded-[11px] max-w-md w-full p-6 space-y-4 shadow-xl border" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+            <div className="flex items-center justify-between pb-3 border-b" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+              <h3 className="text-base font-bold font-[family-name:var(--font-fraunces)] flex items-center gap-2" style={{ color: 'var(--ink, #1C2733)' }}>
+                <Truck className="w-4 h-4 text-[var(--steel,#2B4C7E)]" />
                 Dispatch Outward (Delivery)
               </h3>
               <button onClick={() => setShowOutwardModal(false)} className="text-slate-400 hover:text-slate-700">
@@ -777,8 +1310,10 @@ export function InventoryClient({
               })
             }} className="space-y-3">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Article</label>
-                <select name="article_id" required className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm font-semibold">
+                <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                  Article Style
+                </label>
+                <select name="article_id" required className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs font-semibold outline-none" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
                   {articles.map(art => (
                     <option key={art.id} value={art.id}>{art.art_no} ({art.description})</option>
                   ))}
@@ -787,40 +1322,53 @@ export function InventoryClient({
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Color</label>
-                  <input type="text" name="color" defaultValue="Navy Blue" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm" />
+                  <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                    Color
+                  </label>
+                  <input type="text" name="color" defaultValue="Navy Blue" className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs outline-none" style={{ borderColor: 'var(--border, #E2E8F0)' }} />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Size</label>
-                  <input type="text" name="size" defaultValue="L" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm" />
+                  <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                    Size
+                  </label>
+                  <input type="text" name="size" defaultValue="L" className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs outline-none" style={{ borderColor: 'var(--border, #E2E8F0)' }} />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Dispatch Quantity (Pieces)</label>
-                <input type="number" name="quantity" required placeholder="e.g. 100" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm font-bold" />
+                <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                  Dispatch Quantity (Pieces)
+                </label>
+                <input type="number" name="quantity" required placeholder="e.g. 100" className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs font-bold font-mono outline-none" style={{ borderColor: 'var(--border, #E2E8F0)' }} />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Buyer Name / Customer / PO #</label>
-                <input type="text" name="party_name" required placeholder="e.g. Reliance Retail / Order #PO-882" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm" />
+                <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                  Buyer Name / Customer / PO #
+                </label>
+                <input type="text" name="party_name" required placeholder="e.g. Reliance Retail / PO-882" className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs outline-none" style={{ borderColor: 'var(--border, #E2E8F0)' }} />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Challan No</label>
-                  <input type="text" name="challan_no" placeholder="DC-104" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm" />
+                  <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                    Challan No
+                  </label>
+                  <input type="text" name="challan_no" placeholder="DC-104" className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs outline-none" style={{ borderColor: 'var(--border, #E2E8F0)' }} />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Vehicle / Transport</label>
-                  <input type="text" name="transport_no" placeholder="MH-04-1234" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm" />
+                  <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                    Vehicle / Transport
+                  </label>
+                  <input type="text" name="transport_no" placeholder="MH-04-1234" className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs outline-none" style={{ borderColor: 'var(--border, #E2E8F0)' }} />
                 </div>
               </div>
 
               <button
                 type="submit"
                 disabled={isPending}
-                className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-sm shadow-md transition-colors"
+                className="w-full py-2.5 text-white rounded-[8px] font-semibold text-xs transition-colors shadow-xs cursor-pointer"
+                style={{ backgroundColor: 'var(--steel, #2B4C7E)' }}
               >
                 {isPending ? 'Dispatching...' : 'Confirm Dispatch & Deduct Stock'}
               </button>
@@ -834,10 +1382,10 @@ export function InventoryClient({
       {/* ======================================================== */}
       {showAccessoryModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-xl">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-orange-600" />
+          <div className="bg-white rounded-[11px] max-w-md w-full p-6 space-y-4 shadow-xl border" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+            <div className="flex items-center justify-between pb-3 border-b" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+              <h3 className="text-base font-bold font-[family-name:var(--font-fraunces)] flex items-center gap-2" style={{ color: 'var(--ink, #1C2733)' }}>
+                <Boxes className="w-4 h-4 text-[var(--steel,#2B4C7E)]" />
                 Raw Materials & Trims Movement
               </h3>
               <button onClick={() => setShowAccessoryModal(false)} className="text-slate-400 hover:text-slate-700">
@@ -852,32 +1400,40 @@ export function InventoryClient({
               })
             }} className="space-y-3">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Movement Type</label>
+                <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                  Movement Type
+                </label>
                 <div className="grid grid-cols-2 gap-2">
-                  <label className="flex items-center justify-center gap-2 p-2 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 font-bold text-xs">
+                  <label className="flex items-center justify-center gap-2 p-2 border rounded-[7px] cursor-pointer hover:bg-slate-50 font-bold text-xs" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
                     <input type="radio" name="action" value="IN" defaultChecked />
-                    ðŸ“¥ IN (Stock Received)
+                    <span>IN (Stock Received)</span>
                   </label>
-                  <label className="flex items-center justify-center gap-2 p-2 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 font-bold text-xs">
+                  <label className="flex items-center justify-center gap-2 p-2 border rounded-[7px] cursor-pointer hover:bg-slate-50 font-bold text-xs" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
                     <input type="radio" name="action" value="OUT" />
-                    ðŸ“¤ OUT (Issued to Line)
+                    <span>OUT (Issued to Line)</span>
                   </label>
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Item Name / Trim</label>
-                <input type="text" name="item_name" required defaultValue="Sewing Thread (Navy Blue)" placeholder="e.g. Buttons 18L, Thread, Zipper" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm font-semibold" />
+                <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                  Item Name / Trim
+                </label>
+                <input type="text" name="item_name" required defaultValue="Sewing Thread (Navy Blue)" placeholder="e.g. Buttons 18L, Thread, Zipper" className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs font-semibold outline-none" style={{ borderColor: 'var(--border, #E2E8F0)' }} />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Quantity</label>
-                  <input type="number" name="quantity" required placeholder="e.g. 24" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm font-bold" />
+                  <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                    Quantity
+                  </label>
+                  <input type="number" name="quantity" required placeholder="e.g. 24" className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs font-bold font-mono outline-none" style={{ borderColor: 'var(--border, #E2E8F0)' }} />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Unit</label>
-                  <select name="unit" defaultValue="cones" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm font-semibold">
+                  <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                    Unit
+                  </label>
+                  <select name="unit" defaultValue="cones" className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs font-semibold outline-none" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
                     <option value="cones">Cones</option>
                     <option value="pcs">Pcs</option>
                     <option value="gross">Gross</option>
@@ -889,19 +1445,24 @@ export function InventoryClient({
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Supplier / Issued Line Ref</label>
-                <input type="text" name="party_name" defaultValue="Supplier: Vardhman Threads" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm" />
+                <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                  Supplier / Issued Line Ref
+                </label>
+                <input type="text" name="party_name" defaultValue="Supplier: Vardhman Threads" className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs outline-none" style={{ borderColor: 'var(--border, #E2E8F0)' }} />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Notes (Optional)</label>
-                <input type="text" name="notes" placeholder="e.g. Batch #PO-882" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm" />
+                <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                  Notes (Optional)
+                </label>
+                <input type="text" name="notes" placeholder="e.g. Batch #PO-882" className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs outline-none" style={{ borderColor: 'var(--border, #E2E8F0)' }} />
               </div>
 
               <button
                 type="submit"
                 disabled={isPending}
-                className="w-full py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-xl font-bold text-sm shadow-md transition-colors"
+                className="w-full py-2.5 text-white rounded-[8px] font-semibold text-xs transition-colors shadow-xs cursor-pointer"
+                style={{ backgroundColor: 'var(--steel, #2B4C7E)' }}
               >
                 {isPending ? 'Saving...' : 'Save Trim Transaction'}
               </button>

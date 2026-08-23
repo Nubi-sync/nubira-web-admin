@@ -9,14 +9,13 @@ import {
   Layers, 
   PackageCheck, 
   Loader2, 
-  Sparkles,
-  Palette,
+  Check,
   CheckCircle2,
   AlertCircle
 } from 'lucide-react'
 
 type Profile = { id: string; username: string }
-type Article = { id: string; art_no: string; description?: string }
+type Article = { id: string; art_no: string; description?: string; stitching_rate?: number }
 
 // Preset size groups
 const SIZE_PRESETS: Record<string, { label: string; sizes: string[] }> = {
@@ -42,16 +41,6 @@ const SIZE_PRESETS: Record<string, { label: string; sizes: string[] }> = {
   }
 }
 
-// Preset standard materials for garment factory
-const DEFAULT_MATERIAL_PRESETS = [
-  { item_name: 'Main Fabric Roll', defaultQty: 'Meters' },
-  { item_name: 'Sewing Thread Cones', defaultQty: 'Cones' },
-  { item_name: 'Buttons', defaultQty: 'pcs' },
-  { item_name: 'Main Brand Neck Label', defaultQty: 'pcs' },
-  { item_name: 'Size / Wash Care Labels', defaultQty: 'pcs' },
-  { item_name: 'Packaging Polybags', defaultQty: 'pcs' },
-]
-
 export function CreateAllotmentForm({ 
   linemen, 
   articles 
@@ -62,13 +51,17 @@ export function CreateAllotmentForm({
   const [linemanId, setLinemanId] = useState('')
   const [articleId, setArticleId] = useState('')
   
+  // Touched state for validation
+  const [touchedLineman, setTouchedLineman] = useState(false)
+  const [touchedArticle, setTouchedArticle] = useState(false)
+  const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false)
+
   // Size Management
   const [activePreset, setActivePreset] = useState<string>('alpha')
   const [selectedSizes, setSelectedSizes] = useState<string[]>(['S', 'M', 'L', 'XL'])
   const [customSizeInput, setCustomSizeInput] = useState('')
 
   // Color Matrix Management
-  // Array of { color: string, quantities: { [size: string]: number } }
   const [colorRows, setColorRows] = useState<Array<{
     id: string
     color: string
@@ -99,36 +92,38 @@ export function CreateAllotmentForm({
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
 
-  // Calculate Total Quantity
-  const grandTotal = useMemo(() => {
-    let total = 0
+  // Selected article details
+  const selectedArticle = useMemo(() => {
+    return articles.find(a => a.id === articleId)
+  }, [articles, articleId])
+
+  // Calculate Grand Matrix Total Pieces
+  const totalPieces = useMemo(() => {
+    let sum = 0
     colorRows.forEach(row => {
       selectedSizes.forEach(size => {
-        total += Number(row.quantities[size]) || 0
+        const q = row.quantities[size] || 0
+        sum += q
       })
     })
-    return total
+    return sum
   }, [colorRows, selectedSizes])
 
-  // Handle Preset Change
-  const handlePresetSelect = (presetKey: string) => {
-    setActivePreset(presetKey)
-    setSelectedSizes(SIZE_PRESETS[presetKey].sizes.slice(0, 6)) // default take first 6
-  }
+  // Target progress percentage (capped at 100%)
+  const targetProgress = totalPieces > 0 ? 100 : 0
 
-  // Toggle Size in Active List
+  // Add / Remove Sizes
   const toggleSize = (size: string) => {
     if (selectedSizes.includes(size)) {
-      if (selectedSizes.length > 1) {
-        setSelectedSizes(selectedSizes.filter(s => s !== size))
-      }
+      if (selectedSizes.length === 1) return // Keep at least one size
+      setSelectedSizes(selectedSizes.filter(s => s !== size))
     } else {
       setSelectedSizes([...selectedSizes, size])
     }
   }
 
-  // Add Custom Size
-  const handleAddCustomSize = () => {
+  const handleAddCustomSize = (e: React.FormEvent) => {
+    e.preventDefault()
     const trimmed = customSizeInput.trim().toUpperCase()
     if (trimmed && !selectedSizes.includes(trimmed)) {
       setSelectedSizes([...selectedSizes, trimmed])
@@ -136,33 +131,29 @@ export function CreateAllotmentForm({
     }
   }
 
-  // Color Rows Management
+  // Add / Remove Color Rows
   const addColorRow = () => {
-    setColorRows([
-      ...colorRows,
-      { id: Date.now().toString(), color: '', quantities: {} }
-    ])
+    const newId = Date.now().toString()
+    setColorRows([...colorRows, { id: newId, color: '', quantities: {} }])
   }
 
   const removeColorRow = (id: string) => {
-    if (colorRows.length > 1) {
-      setColorRows(colorRows.filter(r => r.id !== id))
-    }
+    if (colorRows.length === 1) return
+    setColorRows(colorRows.filter(r => r.id !== id))
   }
 
   const updateColorName = (id: string, color: string) => {
     setColorRows(colorRows.map(r => r.id === id ? { ...r, color } : r))
   }
 
-  const updateQuantity = (rowId: string, size: string, qtyStr: string) => {
-    const qty = parseInt(qtyStr, 10) || 0
+  const updateQuantity = (id: string, size: string, qty: number) => {
     setColorRows(colorRows.map(r => {
-      if (r.id === rowId) {
+      if (r.id === id) {
         return {
           ...r,
           quantities: {
             ...r.quantities,
-            [size]: qty
+            [size]: isNaN(qty) || qty < 0 ? 0 : qty
           }
         }
       }
@@ -170,439 +161,658 @@ export function CreateAllotmentForm({
     }))
   }
 
-  // Material Management
-  const addMaterial = () => {
-    if (newMaterialName.trim()) {
-      setMaterials([
-        ...materials,
-        {
-          id: Date.now().toString(),
-          item_name: newMaterialName.trim(),
-          required_qty: newMaterialQty.trim() || 'As Required',
-          admin_issued: true
-        }
-      ])
-      setNewMaterialName('')
-      setNewMaterialQty('')
-    }
+  // Material Checklist Toggles
+  const toggleMaterialIssued = (id: string) => {
+    setMaterials(materials.map(m => m.id === id ? { ...m, admin_issued: !m.admin_issued } : m))
   }
 
   const removeMaterial = (id: string) => {
     setMaterials(materials.filter(m => m.id !== id))
   }
 
-  const toggleMaterialIssued = (id: string) => {
-    setMaterials(materials.map(m => m.id === id ? { ...m, admin_issued: !m.admin_issued } : m))
+  const addCustomMaterial = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!newMaterialName.trim()) return
+    const newId = Date.now().toString()
+    setMaterials([
+      ...materials,
+      {
+        id: newId,
+        item_name: newMaterialName.trim(),
+        required_qty: newMaterialQty.trim() || 'As required',
+        admin_issued: true
+      }
+    ])
+    setNewMaterialName('')
+    setNewMaterialQty('')
   }
 
-  // Form Submit
+  // Form Submission
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    setIsPending(true)
+    setHasAttemptedSubmit(true)
     setError(null)
     setSuccess(false)
 
-    if (!linemanId) {
-      setError('Please select a Lineman.')
-      setIsPending(false)
+    if (!linemanId || !articleId) {
+      setError('Please select both a Lineman and an Article.')
       return
     }
 
-    if (!articleId) {
-      setError('Please select an Article.')
-      setIsPending(false)
+    if (totalPieces <= 0) {
+      setError('Please enter at least 1 piece quantity in the Size & Color Ratio Matrix.')
       return
     }
 
-    if (grandTotal <= 0) {
-      setError('Please enter quantities in the Size & Color Matrix.')
-      setIsPending(false)
-      return
-    }
-
-    // Build variants array
-    const variants: VariantPayload[] = []
+    // Build payload variants
+    const payloadVariants: VariantPayload[] = []
     colorRows.forEach(row => {
-      const color = row.color.trim() || 'Default'
+      const color = row.color.trim() || 'Default Color'
       selectedSizes.forEach(size => {
-        const qty = Number(row.quantities[size]) || 0
+        const qty = row.quantities[size] || 0
         if (qty > 0) {
-          variants.push({ color, size, quantity: qty })
+          payloadVariants.push({
+            color,
+            size,
+            quantity: qty
+          })
         }
       })
     })
 
-    // Build materials array
-    const materialList: MaterialPayload[] = materials.map(m => ({
+    const payloadMaterials: MaterialPayload[] = materials.map(m => ({
       item_name: m.item_name,
       required_qty: m.required_qty,
       admin_issued: m.admin_issued
     }))
 
-    const result = await createDetailedAllotment({
+    setIsPending(true)
+    const res = await createDetailedAllotment({
       lineman_id: linemanId,
       article_id: articleId,
-      target_qty: grandTotal,
-      variants,
-      materials: materialList
+      target_qty: totalPieces,
+      variants: payloadVariants,
+      materials: payloadMaterials
     })
 
-    if (result.error) {
-      setError(result.error)
+    if (res?.error) {
+      setError(res.error)
+      setIsPending(false)
     } else {
       setSuccess(true)
-      // Reset
-      setGrandTotalState()
+      setIsPending(false)
+      // Reset matrix quantities
+      setColorRows(colorRows.map(r => ({ ...r, quantities: {} })))
+      setTimeout(() => setSuccess(false), 3500)
     }
-
-    setIsPending(false)
   }
 
-  const setGrandTotalState = () => {
-    setColorRows([
-      { id: '1', color: 'Navy Blue', quantities: {} },
-      { id: '2', color: 'Black', quantities: {} }
-    ])
-  }
+  // Field validation flags
+  const isLinemanError = (touchedLineman || hasAttemptedSubmit) && !linemanId
+  const isLinemanSuccess = Boolean(linemanId)
+
+  const isArticleError = (touchedArticle || hasAttemptedSubmit) && !articleId
+  const isArticleSuccess = Boolean(articleId)
 
   return (
-    <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 lg:p-8">
-      {/* Header */}
-      <div className="flex items-center justify-between pb-6 mb-6 border-b border-slate-100">
-        <div className="flex items-center gap-3">
-          <div className="p-3 bg-gradient-to-tr from-purple-600 to-indigo-600 text-white rounded-2xl shadow-md shadow-purple-500/20">
-            <ClipboardList className="h-6 w-6" />
+    <div className="space-y-5">
+      
+      {/* 2. Sticky Page Header */}
+      <div 
+        className="sticky top-[14px] z-20 bg-white p-5 sm:p-6 rounded-[11px] border shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all"
+        style={{ borderColor: 'var(--border, #E2E8F0)' }}
+      >
+        <div className="flex items-center gap-3.5">
+          <div 
+            className="w-[38px] h-[38px] rounded-[10px] flex items-center justify-center shrink-0 shadow-xs"
+            style={{ backgroundColor: 'var(--steel, #2B4C7E)', color: '#FFFFFF' }}
+          >
+            <ClipboardList className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-slate-800">Production Allotment & Handover</h2>
-            <p className="text-xs text-slate-500 mt-0.5">Assign target with Size-Color ratio & Material Checklist</p>
+            <h1 
+              className="text-[20px] sm:text-[22px] font-bold font-[family-name:var(--font-fraunces)] leading-tight"
+              style={{ color: 'var(--ink, #1C2733)' }}
+            >
+              Target Allotments & Material Handover
+            </h1>
+            <p className="text-[13px] mt-0.5" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+              Assign cut-to-sew size-color ratios & verify raw materials issue
+            </p>
           </div>
         </div>
 
-        <div className="text-right">
-          <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Grand Target</span>
-          <span className="text-2xl font-black text-purple-600">{grandTotal} <span className="text-xs font-medium text-slate-500">pcs</span></span>
+        {/* Grand Target Metric & Progress Bar */}
+        <div className="w-full sm:w-auto flex flex-col sm:items-end bg-slate-50 sm:bg-transparent p-3 sm:p-0 rounded-lg border sm:border-0 border-slate-200">
+          <div className="flex items-baseline gap-2">
+            <span className="text-[11px] font-semibold uppercase tracking-[1.5px]" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+              Grand Target:
+            </span>
+            <span 
+              className="text-[22px] font-bold font-[family-name:var(--font-fraunces)] leading-none"
+              style={{ color: 'var(--steel, #2B4C7E)' }}
+            >
+              {totalPieces.toLocaleString()} <span className="text-[12px] font-normal text-slate-500">pcs</span>
+            </span>
+          </div>
+
+          {/* 5px Thin Progress Track */}
+          <div 
+            className="w-full sm:w-36 h-[5px] rounded-full mt-2 overflow-hidden"
+            style={{ backgroundColor: 'var(--steel-mist, #EEF3FA)' }}
+          >
+            <div 
+              className="h-full rounded-full transition-all duration-300"
+              style={{ 
+                width: totalPieces > 0 ? '100%' : '0%',
+                backgroundColor: 'var(--steel, #2B4C7E)' 
+              }}
+            />
+          </div>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-8">
-        {/* Step 1: Lineman & Article */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-              1. Select Lineman (Supervisor) *
-            </label>
-            <select
-              value={linemanId}
-              onChange={(e) => setLinemanId(e.target.value)}
-              required
-              className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 rounded-2xl px-4 py-3 text-slate-900 font-medium outline-none transition-all"
-            >
-              <option value="">-- Choose Lineman --</option>
-              {linemen.map((lm) => (
-                <option key={lm.id} value={lm.id}>{lm.username}</option>
-              ))}
-            </select>
+      {/* Main Allotment Form */}
+      <form onSubmit={handleSubmit} className="space-y-5">
+        
+        {/* Step 1: Lineman & Article Selection Card */}
+        <div 
+          className="bg-white rounded-[11px] p-5 sm:p-6 border shadow-xs"
+          style={{ borderColor: 'var(--border, #E2E8F0)' }}
+        >
+          <div className="flex items-center gap-2 mb-4 pb-3 border-b" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+            <span className="w-6 h-6 rounded-full bg-[var(--steel-mist,#EEF3FA)] text-[var(--steel,#2B4C7E)] text-xs font-bold flex items-center justify-center">
+              1
+            </span>
+            <h2 className="text-[15px] font-bold font-[family-name:var(--font-fraunces)]" style={{ color: 'var(--ink, #1C2733)' }}>
+              Select Floor Lineman & Style Article
+            </h2>
           </div>
 
-          <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-              2. Select Article (Style #) *
-            </label>
-            <select
-              value={articleId}
-              onChange={(e) => setArticleId(e.target.value)}
-              required
-              className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 rounded-2xl px-4 py-3 text-slate-900 font-medium outline-none transition-all"
-            >
-              <option value="">-- Choose Article --</option>
-              {articles.map((art) => (
-                <option key={art.id} value={art.id}>
-                  {art.art_no} {art.description ? `(${art.description})` : ''}
-                </option>
-              ))}
-            </select>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            
+            {/* Lineman Field with Error/Success validation */}
+            <div className="space-y-1.5">
+              <label 
+                htmlFor="lineman_id" 
+                className="block text-[11px] font-semibold uppercase tracking-[1.5px]"
+                style={{ color: 'var(--ink-soft, #5B6B7C)' }}
+              >
+                Assign To Lineman <span className="text-red-500">*</span>
+              </label>
+              
+              <select
+                id="lineman_id"
+                value={linemanId}
+                onChange={(e) => {
+                  setLinemanId(e.target.value)
+                  setTouchedLineman(true)
+                }}
+                onBlur={() => setTouchedLineman(true)}
+                className={`w-full py-[11px] px-[13px] text-[13.5px] rounded-[8px] border transition-colors outline-none bg-white ${
+                  isLinemanError
+                    ? 'border-[var(--red,#C0392B)] bg-[var(--red-mist,#FBEAE8)]'
+                    : isLinemanSuccess
+                    ? 'border-[var(--green,#1F9D63)]'
+                    : 'border-[var(--border,#E2E8F0)] focus:border-[var(--steel,#2B4C7E)]'
+                }`}
+              >
+                <option value="">-- Choose Floor Lineman --</option>
+                {linemen.map((l) => (
+                  <option key={l.id} value={l.id}>
+                    {l.username} (Line Supervisor)
+                  </option>
+                ))}
+              </select>
+
+              {/* Validation Messages */}
+              {isLinemanError && (
+                <div className="flex items-center gap-1.5 text-[11px] font-medium" style={{ color: 'var(--red, #C0392B)' }}>
+                  <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                  <span>This field is required before assigning target.</span>
+                </div>
+              )}
+              {isLinemanSuccess && (
+                <div className="flex items-center gap-1.5 text-[11px] font-medium" style={{ color: 'var(--green, #1F9D63)' }}>
+                  <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                  <span>Lineman selected & active on sewing floor.</span>
+                </div>
+              )}
+            </div>
+
+            {/* Article Field with Error/Success validation & Stitching Rate */}
+            <div className="space-y-1.5">
+              <label 
+                htmlFor="article_id" 
+                className="block text-[11px] font-semibold uppercase tracking-[1.5px]"
+                style={{ color: 'var(--ink-soft, #5B6B7C)' }}
+              >
+                Style Article (Art No.) <span className="text-red-500">*</span>
+              </label>
+              
+              <select
+                id="article_id"
+                value={articleId}
+                onChange={(e) => {
+                  setArticleId(e.target.value)
+                  setTouchedArticle(true)
+                }}
+                onBlur={() => setTouchedArticle(true)}
+                className={`w-full py-[11px] px-[13px] text-[13.5px] rounded-[8px] border transition-colors outline-none bg-white ${
+                  isArticleError
+                    ? 'border-[var(--red,#C0392B)] bg-[var(--red-mist,#FBEAE8)]'
+                    : isArticleSuccess
+                    ? 'border-[var(--green,#1F9D63)]'
+                    : 'border-[var(--border,#E2E8F0)] focus:border-[var(--steel,#2B4C7E)]'
+                }`}
+              >
+                <option value="">-- Choose Article Style --</option>
+                {articles.map((a) => (
+                  <option key={a.id} value={a.id}>
+                    {a.art_no} {a.description ? `- ${a.description}` : ''} {a.stitching_rate ? `(₹${a.stitching_rate}/pc)` : ''}
+                  </option>
+                ))}
+              </select>
+
+              {/* Validation Messages */}
+              {isArticleError && (
+                <div className="flex items-center gap-1.5 text-[11px] font-medium" style={{ color: 'var(--red, #C0392B)' }}>
+                  <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                  <span>This field is required before assigning target.</span>
+                </div>
+              )}
+              {isArticleSuccess && selectedArticle && (
+                <div className="flex items-center gap-1.5 text-[11px] font-medium" style={{ color: 'var(--green, #1F9D63)' }}>
+                  <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                  <span>
+                    {selectedArticle.stitching_rate 
+                      ? `Stitching rate ₹${selectedArticle.stitching_rate}/pc loaded` 
+                      : `${selectedArticle.description || selectedArticle.art_no} loaded`}
+                  </span>
+                </div>
+              )}
+            </div>
+
           </div>
         </div>
 
-        {/* Step 2: Dynamic Size Selector */}
-        <div className="bg-slate-50/80 p-5 rounded-2xl border border-slate-200/80 space-y-4">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-            <div className="flex items-center gap-2 text-sm font-bold text-slate-800">
-              <Layers className="h-4 w-4 text-purple-600" />
-              <span>3. Choose Size Category & Presets</span>
+        {/* Step 2: Size & Color Ratio Matrix Card */}
+        <div 
+          className="bg-white rounded-[11px] p-5 sm:p-6 border shadow-xs space-y-5"
+          style={{ borderColor: 'var(--border, #E2E8F0)' }}
+        >
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+            <div className="flex items-center gap-2">
+              <span className="w-6 h-6 rounded-full bg-[var(--steel-mist,#EEF3FA)] text-[var(--steel,#2B4C7E)] text-xs font-bold flex items-center justify-center">
+                2
+              </span>
+              <h2 className="text-[15px] font-bold font-[family-name:var(--font-fraunces)]" style={{ color: 'var(--ink, #1C2733)' }}>
+                Size & Color Ratio Matrix
+              </h2>
             </div>
-            <div className="flex flex-wrap gap-1.5">
-              {Object.entries(SIZE_PRESETS).map(([key, item]) => (
-                <button
-                  type="button"
-                  key={key}
-                  onClick={() => handlePresetSelect(key)}
-                  className={`px-3 py-1 rounded-xl text-xs font-semibold transition-all ${
-                    activePreset === key 
-                      ? 'bg-purple-600 text-white shadow-sm' 
-                      : 'bg-white text-slate-600 hover:bg-slate-200 border border-slate-200'
-                  }`}
-                >
-                  {item.label}
-                </button>
-              ))}
-            </div>
+            <span className="text-xs" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+              Configure cutting batch breakdown
+            </span>
           </div>
 
-          {/* Active Available Sizes Checklist */}
-          <div>
-            <div className="text-xs font-medium text-slate-500 mb-2">
-              Select/Deselect sizes for this garment, or add custom:
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              {SIZE_PRESETS[activePreset]?.sizes.map(size => {
-                const isSelected = selectedSizes.includes(size)
+          {/* Size Preset Selector */}
+          <div className="space-y-2">
+            <label className="block text-[11px] font-semibold uppercase tracking-[1.5px]" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+              Category Preset:
+            </label>
+            <div className="flex flex-wrap gap-1.5">
+              {Object.entries(SIZE_PRESETS).map(([key, group]) => {
+                const isSelected = activePreset === key
                 return (
                   <button
+                    key={key}
                     type="button"
-                    key={size}
-                    onClick={() => toggleSize(size)}
-                    className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                    onClick={() => {
+                      setActivePreset(key)
+                      setSelectedSizes(group.sizes)
+                    }}
+                    className={`px-3 py-1 text-xs font-medium rounded-[6px] border transition-colors outline-none ${
                       isSelected
-                        ? 'bg-purple-100 text-purple-800 border-2 border-purple-400 shadow-sm'
-                        : 'bg-white text-slate-400 border border-slate-200 hover:border-slate-300'
+                        ? 'text-white border-transparent'
+                        : 'bg-white text-[var(--ink-soft,#5B6B7C)] hover:text-[var(--ink,#1C2733)] border-[var(--border,#E2E8F0)]'
                     }`}
+                    style={{
+                      backgroundColor: isSelected ? 'var(--steel, #2B4C7E)' : '#FFFFFF'
+                    }}
                   >
-                    {size} {isSelected ? '✓' : '+'}
+                    {group.label}
                   </button>
                 )
               })}
+            </div>
+          </div>
 
-              {/* Custom Size Addition */}
-              <div className="flex items-center gap-1.5 ml-2">
+          {/* Active Size Chips & Custom Size Add */}
+          <div className="space-y-2">
+            <label className="block text-[11px] font-semibold uppercase tracking-[1.5px]" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+              Selected Sizes for this Article:
+            </label>
+            <div className="flex flex-wrap items-center gap-2">
+              {selectedSizes.map((size) => (
+                <button
+                  key={size}
+                  type="button"
+                  onClick={() => toggleSize(size)}
+                  className="px-3 py-1 text-xs font-semibold rounded-[6px] border transition-colors outline-none flex items-center gap-1.5"
+                  style={{
+                    backgroundColor: 'var(--steel-mist, #EEF3FA)',
+                    borderColor: 'var(--steel, #2B4C7E)',
+                    color: 'var(--steel-dark, #1F3A63)'
+                  }}
+                  title="Click to remove size"
+                >
+                  <span>{size}</span>
+                  <span className="text-[10px] opacity-60">×</span>
+                </button>
+              ))}
+
+              {/* Add Custom Size Inline Form */}
+              <div className="flex items-center gap-1">
                 <input
                   type="text"
-                  placeholder="+ Custom Size (e.g. 50, 2-3Y)"
                   value={customSizeInput}
                   onChange={(e) => setCustomSizeInput(e.target.value)}
-                  className="bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-purple-500 w-36"
+                  placeholder="+ Size"
+                  className="w-20 px-2.5 py-1 text-xs border rounded-[6px] outline-none transition-colors"
+                  style={{ borderColor: 'var(--border, #E2E8F0)' }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      handleAddCustomSize(e)
+                    }
+                  }}
                 />
                 <button
                   type="button"
                   onClick={handleAddCustomSize}
-                  className="px-2.5 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl"
+                  className="px-2.5 py-1 text-xs font-semibold rounded-[6px] border bg-slate-50 hover:bg-slate-100 text-slate-700"
+                  style={{ borderColor: 'var(--border, #E2E8F0)' }}
                 >
                   Add
                 </button>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Step 3: Size & Color Ratio Matrix */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-sm font-bold text-slate-800">
-              <Palette className="h-4 w-4 text-indigo-600" />
-              <span>4. Size & Color Ratio Matrix</span>
+          {/* Color Rows & Matrix Table (Responsive with horizontal scroll under 900px) */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <label className="block text-[11px] font-semibold uppercase tracking-[1.5px]" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                Piece Matrix Breakdown:
+              </label>
+
+              {/* Add Color Button (Outline style in steel) */}
+              <button
+                type="button"
+                onClick={addColorRow}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[7px] text-xs font-semibold border transition-colors bg-white hover:bg-[var(--steel-mist,#EEF3FA)]"
+                style={{
+                  borderColor: 'var(--steel, #2B4C7E)',
+                  color: 'var(--steel, #2B4C7E)'
+                }}
+              >
+                <Plus className="w-3.5 h-3.5" />
+                Add Color Row
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={addColorRow}
-              className="text-xs font-bold text-purple-600 hover:text-purple-700 flex items-center gap-1 bg-purple-50 px-3 py-1.5 rounded-xl border border-purple-200 transition-colors"
-            >
-              <Plus className="h-3.5 w-3.5" /> Add Color
-            </button>
-          </div>
 
-          <div className="overflow-x-auto rounded-2xl border border-slate-200">
-            <table className="w-full text-left border-collapse min-w-[550px]">
-              <thead>
-                <tr className="bg-slate-100/80 border-b border-slate-200 text-slate-700 text-xs uppercase tracking-wider font-bold">
-                  <th className="px-4 py-3 min-w-[140px]">Color / Shade</th>
-                  {selectedSizes.map(size => (
-                    <th key={size} className="px-3 py-3 text-center min-w-[70px]">
-                      {size}
-                    </th>
-                  ))}
-                  <th className="px-4 py-3 text-right min-w-[90px]">Subtotal</th>
-                  <th className="px-2 py-3 w-10"></th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 text-sm bg-white">
-                {colorRows.map((row) => {
-                  const rowSubtotal = selectedSizes.reduce((sum, s) => sum + (Number(row.quantities[s]) || 0), 0)
-
-                  return (
-                    <tr key={row.id} className="hover:bg-slate-50/50">
-                      {/* Color Input */}
-                      <td className="px-4 py-2.5">
-                        <input
-                          type="text"
-                          required
-                          placeholder="e.g. Navy Blue"
-                          value={row.color}
-                          onChange={(e) => updateColorName(row.id, e.target.value)}
-                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-semibold text-slate-800 focus:bg-white focus:border-purple-500 outline-none"
-                        />
-                      </td>
-
-                      {/* Sizes Inputs */}
-                      {selectedSizes.map(size => (
-                        <td key={size} className="px-2 py-2.5 text-center">
+            <div className="overflow-x-auto border rounded-[9px]" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+              <table className="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr className="bg-slate-50 border-b text-[11px] font-bold uppercase tracking-wider" style={{ borderColor: 'var(--border, #E2E8F0)', color: 'var(--ink-soft, #5B6B7C)' }}>
+                    <th className="px-4 py-3 min-w-[160px]">Color / Shade</th>
+                    {selectedSizes.map((size) => (
+                      <th key={size} className="px-3 py-3 text-center min-w-[75px]">
+                        {size}
+                      </th>
+                    ))}
+                    <th className="px-4 py-3 text-right min-w-[90px]">Row Total</th>
+                    <th className="px-3 py-3 text-center w-10"></th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {colorRows.map((row) => {
+                    const rowTotal = selectedSizes.reduce((acc, s) => acc + (row.quantities[s] || 0), 0)
+                    return (
+                      <tr key={row.id} className="hover:bg-slate-50/50 transition-colors">
+                        {/* Color Input */}
+                        <td className="px-4 py-2.5">
                           <input
-                            type="number"
-                            min="0"
-                            placeholder="0"
-                            value={row.quantities[size] || ''}
-                            onChange={(e) => updateQuantity(row.id, size, e.target.value)}
-                            className="w-full text-center bg-slate-50 border border-slate-200 rounded-xl px-2 py-1.5 text-xs font-black text-slate-900 focus:bg-white focus:border-purple-500 outline-none"
+                            type="text"
+                            value={row.color}
+                            onChange={(e) => updateColorName(row.id, e.target.value)}
+                            placeholder="e.g. Navy Blue, Black"
+                            className="w-full px-2.5 py-1.5 border rounded-[6px] text-xs font-medium outline-none transition-colors"
+                            style={{ borderColor: 'var(--border, #E2E8F0)' }}
+                            onFocus={(e) => e.currentTarget.style.borderColor = 'var(--steel, #2B4C7E)'}
+                            onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border, #E2E8F0)'}
                           />
                         </td>
-                      ))}
 
-                      {/* Subtotal */}
-                      <td className="px-4 py-2.5 text-right font-black text-purple-700 text-sm">
-                        {rowSubtotal} <span className="text-xs font-normal text-slate-400">pcs</span>
-                      </td>
+                        {/* Size Inputs */}
+                        {selectedSizes.map((size) => (
+                          <td key={size} className="px-3 py-2.5 text-center">
+                            <input
+                              type="number"
+                              min="0"
+                              value={row.quantities[size] || ''}
+                              onChange={(e) => updateQuantity(row.id, size, parseInt(e.target.value, 10))}
+                              placeholder="0"
+                              className="w-16 px-2 py-1.5 border rounded-[6px] text-xs text-center font-bold font-mono outline-none transition-colors"
+                              style={{ 
+                                borderColor: 'var(--border, #E2E8F0)',
+                                color: (row.quantities[size] || 0) > 0 ? 'var(--steel, #2B4C7E)' : 'var(--ink-soft, #5B6B7C)'
+                              }}
+                              onFocus={(e) => {
+                                e.currentTarget.style.borderColor = 'var(--steel, #2B4C7E)'
+                                e.currentTarget.style.boxShadow = '0 0 0 2px var(--steel-mist, #EEF3FA)'
+                              }}
+                              onBlur={(e) => {
+                                e.currentTarget.style.borderColor = 'var(--border, #E2E8F0)'
+                                e.currentTarget.style.boxShadow = 'none'
+                              }}
+                            />
+                          </td>
+                        ))}
 
-                      {/* Delete Row */}
-                      <td className="px-2 py-2.5 text-center">
-                        {colorRows.length > 1 && (
-                          <button
-                            type="button"
-                            onClick={() => removeColorRow(row.id)}
-                            className="text-slate-300 hover:text-rose-600 transition-colors p-1"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-              <tfoot>
-                <tr className="bg-purple-50/70 border-t-2 border-purple-200 font-bold text-slate-800 text-xs">
-                  <td className="px-4 py-3 uppercase tracking-wider font-extrabold text-purple-900">
-                    Grand Target Total
-                  </td>
-                  {selectedSizes.map(size => {
-                    const colTotal = colorRows.reduce((sum, r) => sum + (Number(r.quantities[size]) || 0), 0)
-                    return (
-                      <td key={size} className="px-2 py-3 text-center text-purple-900 font-black">
-                        {colTotal}
-                      </td>
+                        {/* Row Subtotal */}
+                        <td className="px-4 py-2.5 text-right font-bold font-mono text-[13px]" style={{ color: 'var(--steel, #2B4C7E)' }}>
+                          {rowTotal} pcs
+                        </td>
+
+                        {/* Delete Row Button */}
+                        <td className="px-3 py-2.5 text-center">
+                          {colorRows.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => removeColorRow(row.id)}
+                              className="p-1 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                              title="Delete color row"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                        </td>
+                      </tr>
                     )
                   })}
-                  <td className="px-4 py-3 text-right text-base font-black text-purple-900">
-                    {grandTotal} pcs
-                  </td>
-                  <td></td>
-                </tr>
-              </tfoot>
-            </table>
+
+                  {/* Summary Totals Row */}
+                  <tr className="bg-slate-50 font-bold border-t" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+                    <td className="px-4 py-3 text-[11px] uppercase tracking-wider" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                      Total By Size:
+                    </td>
+                    {selectedSizes.map((size) => {
+                      const colSum = colorRows.reduce((acc, r) => acc + (r.quantities[size] || 0), 0)
+                      return (
+                        <td key={size} className="px-3 py-3 text-center font-mono text-xs font-bold" style={{ color: 'var(--steel, #2B4C7E)' }}>
+                          {colSum}
+                        </td>
+                      )
+                    })}
+                    <td className="px-4 py-3 text-right font-bold font-mono text-sm" style={{ color: 'var(--steel-dark, #1F3A63)' }}>
+                      {totalPieces} pcs
+                    </td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
 
-        {/* Step 4: Material Requirements & Handover Checklist */}
-        <div className="bg-slate-50/80 p-5 rounded-2xl border border-slate-200/80 space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-sm font-bold text-slate-800">
-              <PackageCheck className="h-4 w-4 text-emerald-600" />
-              <span>5. Raw Materials & Accessories Handover Checklist</span>
+        {/* Step 3: Material Checklist Card */}
+        <div 
+          className="bg-white rounded-[11px] p-5 sm:p-6 border shadow-xs space-y-4"
+          style={{ borderColor: 'var(--border, #E2E8F0)' }}
+        >
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+            <div className="flex items-center gap-2">
+              <span className="w-6 h-6 rounded-full bg-[var(--steel-mist,#EEF3FA)] text-[var(--steel,#2B4C7E)] text-xs font-bold flex items-center justify-center">
+                3
+              </span>
+              <h2 className="text-[15px] font-bold font-[family-name:var(--font-fraunces)]" style={{ color: 'var(--ink, #1C2733)' }}>
+                BOM Raw Materials Issue Checklist
+              </h2>
             </div>
-            <span className="text-xs text-slate-500 font-medium">Tick items you have handed over</span>
+            <span className="text-xs" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+              Issued materials will require Lineman digital handshake on mobile
+            </span>
           </div>
 
-          {/* Checklist Items */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-            {materials.map((mat) => (
-              <div 
-                key={mat.id}
-                className={`flex items-center justify-between p-3 rounded-xl border transition-all ${
-                  mat.admin_issued 
-                    ? 'bg-white border-emerald-300 shadow-sm' 
-                    : 'bg-slate-100 border-slate-200 opacity-60'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <input
-                    type="checkbox"
-                    checked={mat.admin_issued}
-                    onChange={() => toggleMaterialIssued(mat.id)}
-                    className="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500 cursor-pointer"
-                  />
-                  <div>
-                    <div className="text-xs font-bold text-slate-800">{mat.item_name}</div>
-                    <div className="text-[11px] text-slate-500">Required: <span className="font-semibold text-emerald-700">{mat.required_qty}</span></div>
+          {/* Checklist Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {materials.map((mat) => {
+              const isChecked = mat.admin_issued
+              return (
+                <div
+                  key={mat.id}
+                  onClick={() => toggleMaterialIssued(mat.id)}
+                  className={`p-3.5 rounded-[9px] border transition-all cursor-pointer flex items-center justify-between gap-3 ${
+                    isChecked
+                      ? 'bg-[var(--green-mist,#E6F6EE)] border-[var(--green,#1F9D63)]'
+                      : 'bg-white border-[var(--border,#E2E8F0)] hover:bg-slate-50'
+                  }`}
+                >
+                  <div className="min-w-0 flex-1">
+                    <span className={`block text-xs font-bold truncate ${isChecked ? 'text-[var(--green,#1F9D63)]' : 'text-slate-800'}`}>
+                      {mat.item_name}
+                    </span>
+                    <span className="block text-[11px] text-slate-500 truncate mt-0.5">
+                      Qty: {mat.required_qty}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <div 
+                      className={`w-5 h-5 rounded-full flex items-center justify-center text-xs ${
+                        isChecked 
+                          ? 'bg-[var(--green,#1F9D63)] text-white' 
+                          : 'border border-slate-300 bg-white'
+                      }`}
+                    >
+                      {isChecked && <Check className="w-3.5 h-3.5" />}
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        removeMaterial(mat.id)
+                      }}
+                      className="p-1 rounded text-slate-400 hover:text-rose-600 transition-colors"
+                      title="Remove material"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
                   </div>
                 </div>
-
-                <button
-                  type="button"
-                  onClick={() => removeMaterial(mat.id)}
-                  className="text-slate-300 hover:text-rose-500 transition-colors p-1"
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </button>
-              </div>
-            ))}
+              )
+            })}
           </div>
 
-          {/* Add Custom Material */}
-          <div className="flex flex-col sm:flex-row gap-2 pt-2">
+          {/* Add Custom Material Inline Form */}
+          <div className="pt-2 flex flex-col sm:flex-row items-center gap-2">
             <input
               type="text"
-              placeholder="Item name (e.g. 5-inch Brass Zipper)"
               value={newMaterialName}
               onChange={(e) => setNewMaterialName(e.target.value)}
-              className="flex-1 bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-purple-500"
+              placeholder="Custom Material Name (e.g. Elastic 25mm)"
+              className="w-full sm:flex-2 px-3 py-2 text-xs border rounded-[7px] outline-none"
+              style={{ borderColor: 'var(--border, #E2E8F0)' }}
             />
             <input
               type="text"
-              placeholder="Quantity (e.g. 500 pcs, 20m)"
               value={newMaterialQty}
               onChange={(e) => setNewMaterialQty(e.target.value)}
-              className="w-full sm:w-44 bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-purple-500"
+              placeholder="Quantity / Unit (e.g. 500 Meters)"
+              className="w-full sm:flex-1 px-3 py-2 text-xs border rounded-[7px] outline-none"
+              style={{ borderColor: 'var(--border, #E2E8F0)' }}
             />
             <button
               type="button"
-              onClick={addMaterial}
-              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl flex items-center justify-center gap-1 shadow-sm transition-colors"
+              onClick={addCustomMaterial}
+              className="w-full sm:w-auto px-4 py-2 text-xs font-semibold rounded-[7px] border bg-white hover:bg-slate-50 transition-colors shrink-0"
+              style={{ 
+                borderColor: 'var(--steel, #2B4C7E)',
+                color: 'var(--steel, #2B4C7E)'
+              }}
             >
-              <Plus className="h-3.5 w-3.5" /> Add Item
+              + Add Material
             </button>
           </div>
         </div>
 
-        {/* Status Alerts */}
+        {/* Form Alerts */}
         {error && (
-          <div className="flex items-center gap-2 bg-rose-50 text-rose-700 text-xs sm:text-sm p-4 rounded-2xl border border-rose-200">
-            <AlertCircle className="h-5 w-5 flex-shrink-0" />
+          <div className="p-3.5 rounded-[8px] bg-rose-50 border border-rose-200 text-rose-700 text-xs font-medium flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 shrink-0" />
             <span>{error}</span>
           </div>
         )}
 
         {success && (
-          <div className="flex items-center gap-2 bg-emerald-50 text-emerald-700 text-xs sm:text-sm p-4 rounded-2xl border border-emerald-200">
-            <CheckCircle2 className="h-5 w-5 flex-shrink-0" />
-            <span>Allotment created with Size-Color Ratio & Material Checklist successfully!</span>
+          <div className="p-3.5 rounded-[8px] bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium flex items-center gap-2 animate-in fade-in">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+            <span>Target allotment and BOM materials successfully issued to sewing floor!</span>
           </div>
         )}
 
-        {/* Submit Button */}
-        <button
-          type="submit"
-          disabled={isPending}
-          className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 disabled:opacity-50 text-white font-bold rounded-2xl px-6 py-4 transition-all duration-200 flex items-center justify-center gap-3 shadow-lg shadow-purple-600/20 text-base"
-        >
-          {isPending ? (
-            <>
-              <Loader2 className="h-5 w-5 animate-spin" /> Creating Allotment & Handover...
-            </>
-          ) : (
-            <>
-              <Sparkles className="h-5 w-5" /> Assign Target ({grandTotal} Pieces)
-            </>
-          )}
-        </button>
+        {/* Step 4: Submit Button (Solid Steel with checkmark icon) */}
+        <div className="flex justify-end pt-2">
+          <button
+            type="submit"
+            disabled={isPending}
+            className="w-full sm:w-auto px-6 py-3 rounded-[8px] text-[14.5px] font-semibold text-white flex items-center justify-center gap-2 transition-colors duration-150 disabled:opacity-60 disabled:cursor-not-allowed shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2"
+            style={{
+              backgroundColor: 'var(--steel, #2B4C7E)'
+            }}
+            onMouseEnter={(e) => {
+              if (!isPending) e.currentTarget.style.backgroundColor = 'var(--steel-dark, #1F3A63)'
+            }}
+            onMouseLeave={(e) => {
+              if (!isPending) e.currentTarget.style.backgroundColor = 'var(--steel, #2B4C7E)'
+            }}
+          >
+            {isPending ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Assigning Target...</span>
+              </>
+            ) : (
+              <>
+                <Check className="w-4 h-4" />
+                <span>Assign Target ({totalPieces.toLocaleString()} pcs)</span>
+              </>
+            )}
+          </button>
+        </div>
+
       </form>
     </div>
   )
