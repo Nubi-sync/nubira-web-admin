@@ -1031,7 +1031,7 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                   >
                     <div>
                       <div className="font-medium text-slate-700 font-mono">
-                        ₹{item.old_rate.toFixed(2)} ➔ <span className="font-bold text-[var(--steel,#2B4C7E)]">₹{item.new_rate.toFixed(2)}</span>
+                        ₹{item.old_rate.toFixed(2)} → <span className="font-bold text-[var(--steel,#2B4C7E)]">₹{item.new_rate.toFixed(2)}</span>
                       </div>
                       <div className="text-[10.5px] text-slate-400 mt-0.5 font-[family-name:var(--font-jetbrains-mono)]">
                         Effective {formatRateDate(item.created_at)}
