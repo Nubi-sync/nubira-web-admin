@@ -161,7 +161,7 @@ export default function LoginPage() {
         {/* 2. Brand Block */}
         <div className="text-center mb-7 flex flex-col items-center">
           <h1 
-            className="text-[30px] leading-tight font-bold tracking-tight font-[family-name:var(--font-fraunces)]"
+            className="text-[30px] leading-tight font-bold tracking-tight font-[family-name:var(--font-heading)]"
             style={{ color: 'var(--ink, #1C2733)' }}
           >
             Nubira Factory
@@ -368,7 +368,7 @@ export default function LoginPage() {
               </div>
               <div>
                 <h3 
-                  className="text-lg font-bold font-[family-name:var(--font-fraunces)] leading-tight"
+                  className="text-lg font-bold font-[family-name:var(--font-heading)] leading-tight"
                   style={{ color: 'var(--ink, #1C2733)' }}
                 >
                   {forgotStep === 1 && 'Reset Password'}

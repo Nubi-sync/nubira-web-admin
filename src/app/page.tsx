@@ -175,7 +175,7 @@ export default async function DashboardPage() {
         <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
           <div>
             <h1 
-              className="text-[24px] font-bold font-[family-name:var(--font-fraunces)] leading-tight"
+              className="text-[24px] font-bold font-[family-name:var(--font-heading)] leading-tight"
               style={{ color: 'var(--ink, #1C2733)' }}
             >
               Admin Dashboard

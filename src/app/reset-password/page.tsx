@@ -75,7 +75,7 @@ export default function ResetPasswordPage() {
         {/* Brand Block */}
         <div className="text-center mb-7 flex flex-col items-center">
           <h1 
-            className="text-[28px] leading-tight font-bold tracking-tight font-[family-name:var(--font-fraunces)]"
+            className="text-[28px] leading-tight font-bold tracking-tight font-[family-name:var(--font-heading)]"
             style={{ color: 'var(--ink, #1C2733)' }}
           >
             Set New Password

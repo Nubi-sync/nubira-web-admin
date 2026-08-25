@@ -139,7 +139,7 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
       <div className="p-5 sm:p-6 border-b flex flex-col sm:flex-row sm:items-center justify-between gap-3" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
         <div>
           <h3 
-            className="text-[17px] font-bold font-[family-name:var(--font-fraunces)]"
+            className="text-[17px] font-bold font-[family-name:var(--font-heading)]"
             style={{ color: 'var(--ink, #1C2733)' }}
           >
             Active Allotments & Handover Status

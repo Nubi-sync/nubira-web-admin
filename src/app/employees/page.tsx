@@ -54,7 +54,7 @@ export default async function EmployeesPage() {
             </div>
             <div>
               <h1 
-                className="text-[20px] sm:text-[22px] font-bold font-[family-name:var(--font-fraunces)] leading-tight"
+                className="text-[20px] sm:text-[22px] font-bold font-[family-name:var(--font-heading)] leading-tight"
                 style={{ color: 'var(--ink, #1C2733)' }}
               >
                 Employees & Staff Management

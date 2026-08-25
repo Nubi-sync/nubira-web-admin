@@ -547,7 +547,7 @@ export function InventoryClient({
           </div>
           <div>
             <h1 
-              className="text-[20px] sm:text-[22px] font-bold font-[family-name:var(--font-fraunces)] leading-tight"
+              className="text-[20px] sm:text-[22px] font-bold font-[family-name:var(--font-heading)] leading-tight"
               style={{ color: 'var(--ink, #1C2733)' }}
             >
               Godown & Inventory Management
@@ -619,7 +619,7 @@ export function InventoryClient({
             </div>
           </div>
           <div className="mt-2">
-            <span className="text-[24px] font-bold font-[family-name:var(--font-fraunces)] leading-tight block" style={{ color: 'var(--ink, #1C2733)' }}>
+            <span className="text-[24px] font-bold font-[family-name:var(--font-heading)] leading-tight block" style={{ color: 'var(--ink, #1C2733)' }}>
               {totalStockBalance.toLocaleString()} <span className="text-xs font-normal text-slate-500">pcs</span>
             </span>
             <span 
@@ -649,7 +649,7 @@ export function InventoryClient({
             </div>
           </div>
           <div className="mt-2">
-            <span className="text-[24px] font-bold font-[family-name:var(--font-fraunces)] leading-tight block" style={{ color: 'var(--ink, #1C2733)' }}>
+            <span className="text-[24px] font-bold font-[family-name:var(--font-heading)] leading-tight block" style={{ color: 'var(--ink, #1C2733)' }}>
               {accessories.length} <span className="text-xs font-normal text-slate-500">items</span>
             </span>
             <span 
@@ -676,7 +676,7 @@ export function InventoryClient({
             </div>
           </div>
           <div className="mt-2">
-            <span className="text-[24px] font-bold font-[family-name:var(--font-fraunces)] leading-tight block" style={{ color: 'var(--green, #1F9D63)' }}>
+            <span className="text-[24px] font-bold font-[family-name:var(--font-heading)] leading-tight block" style={{ color: 'var(--green, #1F9D63)' }}>
               +{totalInwardQty.toLocaleString()} <span className="text-xs font-normal text-slate-500">pcs</span>
             </span>
             <span 
@@ -703,7 +703,7 @@ export function InventoryClient({
             </div>
           </div>
           <div className="mt-2">
-            <span className="text-[24px] font-bold font-[family-name:var(--font-fraunces)] leading-tight block" style={{ color: 'var(--steel, #2B4C7E)' }}>
+            <span className="text-[24px] font-bold font-[family-name:var(--font-heading)] leading-tight block" style={{ color: 'var(--steel, #2B4C7E)' }}>
               -{totalOutwardQty.toLocaleString()} <span className="text-xs font-normal text-slate-500">pcs</span>
             </span>
             <span 
@@ -846,7 +846,7 @@ export function InventoryClient({
                 <div className="w-12 h-12 rounded-full flex items-center justify-center bg-slate-100 text-slate-400">
                   <Package className="w-6 h-6" />
                 </div>
-                <h3 className="text-base font-bold font-[family-name:var(--font-fraunces)]" style={{ color: 'var(--ink, #1C2733)' }}>
+                <h3 className="text-base font-bold font-[family-name:var(--font-heading)]" style={{ color: 'var(--ink, #1C2733)' }}>
                   No finished stock recorded yet
                 </h3>
                 <p className="text-xs max-w-sm" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
@@ -975,7 +975,7 @@ export function InventoryClient({
                 <div className="w-12 h-12 rounded-full flex items-center justify-center bg-slate-100 text-slate-400">
                   <Boxes className="w-6 h-6" />
                 </div>
-                <h3 className="text-base font-bold font-[family-name:var(--font-fraunces)]" style={{ color: 'var(--ink, #1C2733)' }}>
+                <h3 className="text-base font-bold font-[family-name:var(--font-heading)]" style={{ color: 'var(--ink, #1C2733)' }}>
                   No trims added yet
                 </h3>
                 <p className="text-xs max-w-sm" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
@@ -1115,7 +1115,7 @@ export function InventoryClient({
                 <div className="w-12 h-12 rounded-full flex items-center justify-center bg-slate-100 text-slate-400">
                   <Truck className="w-6 h-6" />
                 </div>
-                <h3 className="text-base font-bold font-[family-name:var(--font-fraunces)]" style={{ color: 'var(--ink, #1C2733)' }}>
+                <h3 className="text-base font-bold font-[family-name:var(--font-heading)]" style={{ color: 'var(--ink, #1C2733)' }}>
                   No dispatches yet
                 </h3>
                 <p className="text-xs max-w-sm" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
@@ -1223,7 +1223,7 @@ export function InventoryClient({
                 <div className="w-12 h-12 rounded-full flex items-center justify-center bg-slate-100 text-slate-400">
                   <CheckCircle2 className="w-6 h-6" />
                 </div>
-                <h3 className="text-base font-bold font-[family-name:var(--font-fraunces)]" style={{ color: 'var(--ink, #1C2733)' }}>
+                <h3 className="text-base font-bold font-[family-name:var(--font-heading)]" style={{ color: 'var(--ink, #1C2733)' }}>
                   No inward receipts logged yet
                 </h3>
                 <p className="text-xs max-w-sm" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
@@ -1379,7 +1379,7 @@ export function InventoryClient({
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-[11px] max-w-md w-full p-6 space-y-4 shadow-xl border" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
             <div className="flex items-center justify-between pb-3 border-b" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
-              <h3 className="text-base font-bold font-[family-name:var(--font-fraunces)] flex items-center gap-2" style={{ color: 'var(--ink, #1C2733)' }}>
+              <h3 className="text-base font-bold font-[family-name:var(--font-heading)] flex items-center gap-2" style={{ color: 'var(--ink, #1C2733)' }}>
                 <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                 Receive Inward (Finished Goods)
               </h3>
@@ -1462,7 +1462,7 @@ export function InventoryClient({
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-[11px] max-w-md w-full p-6 space-y-4 shadow-xl border" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
             <div className="flex items-center justify-between pb-3 border-b" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
-              <h3 className="text-base font-bold font-[family-name:var(--font-fraunces)] flex items-center gap-2" style={{ color: 'var(--ink, #1C2733)' }}>
+              <h3 className="text-base font-bold font-[family-name:var(--font-heading)] flex items-center gap-2" style={{ color: 'var(--ink, #1C2733)' }}>
                 <Truck className="w-4 h-4 text-[var(--steel,#2B4C7E)]" />
                 Dispatch Outward (Delivery)
               </h3>
@@ -1553,7 +1553,7 @@ export function InventoryClient({
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-[11px] max-w-md w-full p-6 space-y-4 shadow-xl border" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
             <div className="flex items-center justify-between pb-3 border-b" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
-              <h3 className="text-base font-bold font-[family-name:var(--font-fraunces)] flex items-center gap-2" style={{ color: 'var(--ink, #1C2733)' }}>
+              <h3 className="text-base font-bold font-[family-name:var(--font-heading)] flex items-center gap-2" style={{ color: 'var(--ink, #1C2733)' }}>
                 <Boxes className="w-4 h-4 text-[var(--steel,#2B4C7E)]" />
                 Raw Materials & Trims Movement
               </h3>

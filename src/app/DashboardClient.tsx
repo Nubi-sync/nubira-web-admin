@@ -164,7 +164,7 @@ export default function DashboardClient({
           </div>
           <div className="mt-3">
             <h3 
-              className="text-[30px] leading-tight font-bold font-[family-name:var(--font-fraunces)]"
+              className="text-[30px] leading-tight font-bold font-[family-name:var(--font-heading)]"
               style={{ color: 'var(--ink, #1C2733)' }}
             >
               {overallStats.produced.toLocaleString()}
@@ -199,7 +199,7 @@ export default function DashboardClient({
           </div>
           <div className="mt-3">
             <h3 
-              className="text-[30px] leading-tight font-bold font-[family-name:var(--font-fraunces)]"
+              className="text-[30px] leading-tight font-bold font-[family-name:var(--font-heading)]"
               style={{ color: 'var(--ink, #1C2733)' }}
             >
               {overallStats.passed.toLocaleString()}
@@ -237,7 +237,7 @@ export default function DashboardClient({
           </div>
           <div className="mt-3">
             <h3 
-              className="text-[30px] leading-tight font-bold font-[family-name:var(--font-fraunces)]"
+              className="text-[30px] leading-tight font-bold font-[family-name:var(--font-heading)]"
               style={{ color: 'var(--amber, #C8802B)' }}
             >
               {overallStats.rejected.toLocaleString()}
@@ -272,7 +272,7 @@ export default function DashboardClient({
           </div>
           <div className="mt-3">
             <h3 
-              className="text-[30px] leading-tight font-bold font-[family-name:var(--font-fraunces)]"
+              className="text-[30px] leading-tight font-bold font-[family-name:var(--font-heading)]"
               style={{ color: 'var(--ink, #1C2733)' }}
             >
               {overallStats.inward.toLocaleString()}
@@ -301,7 +301,7 @@ export default function DashboardClient({
             {/* Header with Title & Date Badge */}
             <div className="flex items-center justify-between mb-4">
               <h2 
-                className="text-[15px] font-bold font-[family-name:var(--font-fraunces)]"
+                className="text-[15px] font-bold font-[family-name:var(--font-heading)]"
                 style={{ color: 'var(--ink, #1C2733)' }}
               >
                 QC Pass Rate
@@ -374,7 +374,7 @@ export default function DashboardClient({
                 {/* Center Percentage & Label */}
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
                   <span 
-                    className="text-[24px] font-bold leading-none font-[family-name:var(--font-fraunces)]"
+                    className="text-[24px] font-bold leading-none font-[family-name:var(--font-heading)]"
                     style={{ color: 'var(--ink, #1C2733)' }}
                   >
                     {passRate.toFixed(1)}%
@@ -450,7 +450,7 @@ export default function DashboardClient({
           <div>
             <div className="flex items-center justify-between mb-4">
               <h2 
-                className="text-[15px] font-bold font-[family-name:var(--font-fraunces)]"
+                className="text-[15px] font-bold font-[family-name:var(--font-heading)]"
                 style={{ color: 'var(--ink, #1C2733)' }}
               >
                 Recent Floor Activity

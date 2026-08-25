@@ -53,7 +53,7 @@ export function CreateEmployeeForm() {
         </div>
         <div>
           <h2 
-            className="text-base font-bold font-[family-name:var(--font-fraunces)]"
+            className="text-base font-bold font-[family-name:var(--font-heading)]"
             style={{ color: 'var(--ink, #1C2733)' }}
           >
             Add New Employee

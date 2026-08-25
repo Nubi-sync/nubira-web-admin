@@ -271,7 +271,7 @@ export function CreateAllotmentForm({
           </div>
           <div>
             <h1 
-              className="text-[20px] sm:text-[22px] font-bold font-[family-name:var(--font-fraunces)] leading-tight"
+              className="text-[20px] sm:text-[22px] font-bold font-[family-name:var(--font-heading)] leading-tight"
               style={{ color: 'var(--ink, #1C2733)' }}
             >
               Target Allotments & Material Handover
@@ -289,7 +289,7 @@ export function CreateAllotmentForm({
               Grand Target:
             </span>
             <span 
-              className="text-[22px] font-bold font-[family-name:var(--font-fraunces)] leading-none"
+              className="text-[22px] font-bold font-[family-name:var(--font-heading)] leading-none"
               style={{ color: 'var(--steel, #2B4C7E)' }}
             >
               {totalPieces.toLocaleString()} <span className="text-[12px] font-normal text-slate-500">pcs</span>
@@ -324,7 +324,7 @@ export function CreateAllotmentForm({
             <span className="w-6 h-6 rounded-full bg-[var(--steel-mist,#EEF3FA)] text-[var(--steel,#2B4C7E)] text-xs font-bold flex items-center justify-center">
               1
             </span>
-            <h2 className="text-[15px] font-bold font-[family-name:var(--font-fraunces)]" style={{ color: 'var(--ink, #1C2733)' }}>
+            <h2 className="text-[15px] font-bold font-[family-name:var(--font-heading)]" style={{ color: 'var(--ink, #1C2733)' }}>
               Select Floor Lineman & Style Article
             </h2>
           </div>
@@ -446,7 +446,7 @@ export function CreateAllotmentForm({
               <span className="w-6 h-6 rounded-full bg-[var(--steel-mist,#EEF3FA)] text-[var(--steel,#2B4C7E)] text-xs font-bold flex items-center justify-center">
                 2
               </span>
-              <h2 className="text-[15px] font-bold font-[family-name:var(--font-fraunces)]" style={{ color: 'var(--ink, #1C2733)' }}>
+              <h2 className="text-[15px] font-bold font-[family-name:var(--font-heading)]" style={{ color: 'var(--ink, #1C2733)' }}>
                 Size & Color Ratio Matrix
               </h2>
             </div>
@@ -676,7 +676,7 @@ export function CreateAllotmentForm({
               <span className="w-6 h-6 rounded-full bg-[var(--steel-mist,#EEF3FA)] text-[var(--steel,#2B4C7E)] text-xs font-bold flex items-center justify-center">
                 3
               </span>
-              <h2 className="text-[15px] font-bold font-[family-name:var(--font-fraunces)]" style={{ color: 'var(--ink, #1C2733)' }}>
+              <h2 className="text-[15px] font-bold font-[family-name:var(--font-heading)]" style={{ color: 'var(--ink, #1C2733)' }}>
                 BOM Raw Materials Issue Checklist
               </h2>
             </div>

@@ -337,7 +337,7 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
           </div>
           <div>
             <h1 
-              className="text-[18px] sm:text-[19px] font-bold font-[family-name:var(--font-fraunces)] leading-tight"
+              className="text-[18px] sm:text-[19px] font-bold font-[family-name:var(--font-heading)] leading-tight"
               style={{ color: 'var(--ink, #1C2733)' }}
             >
               Articles & Rates
@@ -752,7 +752,7 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                 </div>
                 <div>
                   <h3 
-                    className="text-[17px] font-bold font-[family-name:var(--font-fraunces)] leading-tight"
+                    className="text-[17px] font-bold font-[family-name:var(--font-heading)] leading-tight"
                     style={{ color: 'var(--ink, #1C2733)' }}
                   >
                     Add New Article
@@ -898,7 +898,7 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
           >
             <div className="flex items-center justify-between pb-3 border-b" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
               <div>
-                <h3 className="text-base font-bold font-[family-name:var(--font-fraunces)]" style={{ color: 'var(--ink, #1C2733)' }}>
+                <h3 className="text-base font-bold font-[family-name:var(--font-heading)]" style={{ color: 'var(--ink, #1C2733)' }}>
                   Update Stitching Rate
                 </h3>
                 <p className="text-xs text-slate-500 font-mono font-bold text-[var(--steel,#2B4C7E)]">
@@ -993,7 +993,7 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                   <History className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold font-[family-name:var(--font-fraunces)]" style={{ color: 'var(--ink, #1C2733)' }}>
+                  <h3 className="text-base font-bold font-[family-name:var(--font-heading)]" style={{ color: 'var(--ink, #1C2733)' }}>
                     Rate History
                   </h3>
                   <p className="text-xs text-slate-500 font-mono font-bold">

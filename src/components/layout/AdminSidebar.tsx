@@ -87,7 +87,7 @@ export function AdminSidebar({ userEmail = 'admin@nubira.local' }: { userEmail?:
 
           <div className="flex flex-col">
             <span 
-              className="text-[17px] font-bold leading-tight font-[family-name:var(--font-fraunces)]"
+              className="text-[17px] font-bold leading-tight font-[family-name:var(--font-heading)]"
               style={{ color: 'var(--ink, #1C2733)' }}
             >
               Nubira

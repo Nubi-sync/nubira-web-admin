@@ -494,7 +494,7 @@ export function ReportsClient({
           </div>
           <div>
             <h1 
-              className="text-[18px] sm:text-[19px] font-bold font-[family-name:var(--font-fraunces)] leading-tight"
+              className="text-[18px] sm:text-[19px] font-bold font-[family-name:var(--font-heading)] leading-tight"
               style={{ color: 'var(--ink, #1C2733)' }}
             >
               Factory Reports & Analytics
@@ -667,7 +667,7 @@ export function ReportsClient({
           </div>
           <div className="flex items-baseline gap-3">
             <span 
-              className="text-[28px] font-bold font-[family-name:var(--font-fraunces)] leading-none"
+              className="text-[28px] font-bold font-[family-name:var(--font-heading)] leading-none"
               style={{ color: 'var(--ink, #1C2733)' }}
             >
               {currentPeriodAggregate.toLocaleString()}
@@ -771,7 +771,7 @@ export function ReportsClient({
             </div>
             <div className="space-y-1 max-w-sm">
               <h4 
-                className="text-base font-bold font-[family-name:var(--font-fraunces)]"
+                className="text-base font-bold font-[family-name:var(--font-heading)]"
                 style={{ color: 'var(--ink, #1C2733)' }}
               >
                 No {TAB_CONFIG[activeTab].label} entries for {rangeLabel}
@@ -1069,7 +1069,7 @@ export function ReportsClient({
             <div className="flex items-center justify-between pb-2 border-b" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-[var(--steel,#2B4C7E)]" />
-                <h3 className="text-sm font-bold font-[family-name:var(--font-fraunces)]" style={{ color: 'var(--ink, #1C2733)' }}>
+                <h3 className="text-sm font-bold font-[family-name:var(--font-heading)]" style={{ color: 'var(--ink, #1C2733)' }}>
                   Select Custom Date Range
                 </h3>
               </div>

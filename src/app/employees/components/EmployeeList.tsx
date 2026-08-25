@@ -347,7 +347,7 @@ export function EmployeeList({ employees }: { employees: Profile[] }) {
               </div>
               <div>
                 <h3 
-                  className="text-base font-bold font-[family-name:var(--font-fraunces)]"
+                  className="text-base font-bold font-[family-name:var(--font-heading)]"
                   style={{ color: 'var(--ink, #1C2733)' }}
                 >
                   Reset Staff Password

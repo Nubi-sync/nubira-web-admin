@@ -353,7 +353,7 @@ export function DispatchClient({
           </div>
           <div>
             <h1 
-              className="text-[20px] sm:text-[22px] font-bold font-[family-name:var(--font-fraunces)] leading-tight"
+              className="text-[20px] sm:text-[22px] font-bold font-[family-name:var(--font-heading)] leading-tight"
               style={{ color: 'var(--ink, #1C2733)' }}
             >
               Dispatch & Logistics Hub
@@ -418,7 +418,7 @@ export function DispatchClient({
             <span className="text-[11px] font-semibold uppercase tracking-[1.5px] block" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
               Total Dispatched
             </span>
-            <span className="text-[24px] font-bold font-[family-name:var(--font-fraunces)] leading-tight block mt-1" style={{ color: 'var(--ink, #1C2733)' }}>
+            <span className="text-[24px] font-bold font-[family-name:var(--font-heading)] leading-tight block mt-1" style={{ color: 'var(--ink, #1C2733)' }}>
               {totalDeliveredPieces.toLocaleString()} <span className="text-xs font-normal text-slate-500">pcs</span>
             </span>
           </div>
@@ -436,7 +436,7 @@ export function DispatchClient({
             <span className="text-[11px] font-semibold uppercase tracking-[1.5px] block" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
               Delivery Challans
             </span>
-            <span className="text-[24px] font-bold font-[family-name:var(--font-fraunces)] leading-tight block mt-1" style={{ color: 'var(--ink, #1C2733)' }}>
+            <span className="text-[24px] font-bold font-[family-name:var(--font-heading)] leading-tight block mt-1" style={{ color: 'var(--ink, #1C2733)' }}>
               {totalChallansCount} <span className="text-xs font-normal text-slate-500">issued</span>
             </span>
           </div>
@@ -454,7 +454,7 @@ export function DispatchClient({
             <span className="text-[11px] font-semibold uppercase tracking-[1.5px] block" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
               Counted Audits
             </span>
-            <span className="text-[24px] font-bold font-[family-name:var(--font-fraunces)] leading-tight block mt-1" style={{ color: 'var(--ink, #1C2733)' }}>
+            <span className="text-[24px] font-bold font-[family-name:var(--font-heading)] leading-tight block mt-1" style={{ color: 'var(--ink, #1C2733)' }}>
               {totalCountedPieces.toLocaleString()} <span className="text-xs font-normal text-slate-500">pcs</span>
             </span>
           </div>
@@ -484,7 +484,7 @@ export function DispatchClient({
             <span className="text-[11px] font-semibold uppercase tracking-[1.5px] block" style={{ color: totalDiscrepancies > 0 ? 'var(--red, #C0392B)' : 'var(--ink-soft, #5B6B7C)' }}>
               Discrepancies
             </span>
-            <span className="text-[24px] font-bold font-[family-name:var(--font-fraunces)] leading-tight block mt-1" style={{ color: totalDiscrepancies > 0 ? 'var(--red, #C0392B)' : 'var(--ink, #1C2733)' }}>
+            <span className="text-[24px] font-bold font-[family-name:var(--font-heading)] leading-tight block mt-1" style={{ color: totalDiscrepancies > 0 ? 'var(--red, #C0392B)' : 'var(--ink, #1C2733)' }}>
               {totalDiscrepancies} <span className="text-xs font-normal text-slate-500">mismatches</span>
             </span>
           </div>
@@ -606,7 +606,7 @@ export function DispatchClient({
                 >
                   <FileText className="w-5 h-5" />
                 </div>
-                <h3 className="text-base font-bold font-[family-name:var(--font-fraunces)]" style={{ color: 'var(--ink, #1C2733)' }}>
+                <h3 className="text-base font-bold font-[family-name:var(--font-heading)]" style={{ color: 'var(--ink, #1C2733)' }}>
                   No delivery challans yet
                 </h3>
                 <p className="text-xs max-w-sm" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
@@ -793,7 +793,7 @@ export function DispatchClient({
                 >
                   <ClipboardCheck className="w-5 h-5" />
                 </div>
-                <h3 className="text-base font-bold font-[family-name:var(--font-fraunces)]" style={{ color: 'var(--ink, #1C2733)' }}>
+                <h3 className="text-base font-bold font-[family-name:var(--font-heading)]" style={{ color: 'var(--ink, #1C2733)' }}>
                   No counting audits yet
                 </h3>
                 <p className="text-xs max-w-sm" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
@@ -967,7 +967,7 @@ export function DispatchClient({
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-[11px] max-w-xl w-full p-6 space-y-4 shadow-xl border overflow-y-auto max-h-[90vh]" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
             <div className="flex items-center justify-between pb-3 border-b" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
-              <h3 className="text-base font-bold font-[family-name:var(--font-fraunces)] flex items-center gap-2" style={{ color: 'var(--ink, #1C2733)' }}>
+              <h3 className="text-base font-bold font-[family-name:var(--font-heading)] flex items-center gap-2" style={{ color: 'var(--ink, #1C2733)' }}>
                 <Truck className="w-4 h-4 text-[var(--steel,#2B4C7E)]" />
                 Generate Delivery Challan
               </h3>
@@ -1146,7 +1146,7 @@ export function DispatchClient({
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-[11px] max-w-md w-full p-6 space-y-4 shadow-xl border" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
             <div className="flex items-center justify-between pb-3 border-b" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
-              <h3 className="text-base font-bold font-[family-name:var(--font-fraunces)] flex items-center gap-2" style={{ color: 'var(--ink, #1C2733)' }}>
+              <h3 className="text-base font-bold font-[family-name:var(--font-heading)] flex items-center gap-2" style={{ color: 'var(--ink, #1C2733)' }}>
                 <ClipboardCheck className="w-4 h-4 text-[var(--steel,#2B4C7E)]" />
                 Record Pre-Loading Counting Audit
               </h3>
@@ -1232,7 +1232,7 @@ export function DispatchClient({
             {/* Header / Invoice Branding */}
             <div className="flex items-start justify-between pb-4 border-b" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
               <div>
-                <h2 className="text-xl font-bold font-[family-name:var(--font-fraunces)]" style={{ color: 'var(--ink, #1C2733)' }}>
+                <h2 className="text-xl font-bold font-[family-name:var(--font-heading)]" style={{ color: 'var(--ink, #1C2733)' }}>
                   NUBIRA CREATION
                 </h2>
                 <p className="text-xs text-slate-500">Garment Manufacturing & Export Division</p>
