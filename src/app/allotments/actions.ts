@@ -49,6 +49,23 @@ export async function createDetailedAllotment(payload: {
 
   const allotmentId = allotment.id
 
+  // 1.1 Link allotment ID to article description so mobile QC can immediately read variants
+  try {
+    const { data: artData } = await supabase.from('articles').select('description').eq('id', article_id).single()
+    if (artData) {
+      const baseDesc = (artData.description || '').replace(/\s*\[.*\]/g, '').trim()
+      const existingMatch = (artData.description || '').match(/\[(.*?)\]/)
+      const existingIds = existingMatch ? existingMatch[1].split(',').map((s: string) => s.trim()) : []
+      if (!existingIds.includes(allotmentId)) {
+        existingIds.push(allotmentId)
+      }
+      const updatedDesc = `${baseDesc} [${existingIds.join(',')}]`
+      await supabase.from('articles').update({ description: updatedDesc }).eq('id', article_id)
+    }
+  } catch (e) {
+    console.error('Error linking allotment to article description:', e)
+  }
+
   // 2. Insert variants if provided
   if (variants && variants.length > 0) {
     const validVariants = variants
@@ -74,6 +91,12 @@ export async function createDetailedAllotment(payload: {
 
   // 3. Insert materials checklist if provided
   if (materials && materials.length > 0) {
+    let linemanName = 'Lineman'
+    try {
+      const { data: prof } = await supabase.from('profiles').select('username').eq('id', lineman_id).single()
+      if (prof?.username) linemanName = prof.username
+    } catch (_) {}
+
     const nowIso = new Date().toISOString()
     const validMaterials = materials
       .filter(m => m.item_name.trim() !== '')
@@ -83,7 +106,8 @@ export async function createDetailedAllotment(payload: {
         required_qty: m.required_qty.trim() || 'As required',
         admin_issued: m.admin_issued ?? true,
         admin_issued_at: m.admin_issued ? nowIso : null,
-        lineman_received: false
+        lineman_received: false,
+        notes: JSON.stringify({ lineman_name: linemanName, lineman_id: lineman_id, status: 'PENDING' })
       }))
 
     if (validMaterials.length > 0) {

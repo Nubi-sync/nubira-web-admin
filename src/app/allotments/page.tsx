@@ -66,7 +66,7 @@ export default async function AllotmentsPage() {
   if (allotmentIds.length > 0) {
     const { data: mData } = await supabase
       .from('allotment_materials')
-      .select('id, allotment_id, item_name, required_qty, admin_issued, lineman_received, lineman_received_at')
+      .select('id, allotment_id, item_name, required_qty, admin_issued, lineman_received, lineman_received_at, notes')
       .in('allotment_id', allotmentIds)
     materials = mData || []
   }

@@ -11,7 +11,8 @@ import {
   Loader2, 
   Check,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  Sparkles
 } from 'lucide-react'
 
 type Profile = { id: string; username: string }
@@ -168,6 +169,78 @@ export function CreateAllotmentForm({
 
   const removeMaterial = (id: string) => {
     setMaterials(materials.filter(m => m.id !== id))
+  }
+
+  
+  // Auto-Generate Size & Color BOM Calculation
+  const handleAutoGenerateBOM = () => {
+    const generated: Array<{
+      id: string
+      item_name: string
+      required_qty: string
+      admin_issued: boolean
+    }> = []
+
+    // 1. Fabric Roll Estimate (approx 0.35 - 0.45 meters per piece)
+    const approxMeters = Math.max(Math.ceil(totalPieces * 0.4), 10)
+    generated.push({
+      id: 'fab_' + Date.now(),
+      item_name: 'Main Fabric Roll',
+      required_qty: totalPieces > 0 ? `${approxMeters} Meters` : 'As required',
+      admin_issued: true
+    })
+
+    // 2. Matching Thread per Color (1 cone per 100 pcs, min 2 cones per active color)
+    colorRows.forEach((row, idx) => {
+      const colorName = row.color.trim() || `Color ${idx + 1}`
+      const colorSum = selectedSizes.reduce((s, size) => s + (row.quantities[size] || 0), 0)
+      const cones = Math.max(Math.ceil(colorSum / 100), 2)
+      generated.push({
+        id: `thread_${idx}_` + Date.now(),
+        item_name: `Matching Sewing Thread (${colorName})`,
+        required_qty: `${cones} Cones`,
+        admin_issued: true
+      })
+    })
+
+    // 3. Size Labels per Size
+    selectedSizes.forEach((size, idx) => {
+      const sizeSum = colorRows.reduce((s, row) => s + (row.quantities[size] || 0), 0)
+      if (sizeSum > 0 || totalPieces === 0) {
+        generated.push({
+          id: `lbl_size_${size}_` + Date.now(),
+          item_name: `Size Labels (${size})`,
+          required_qty: `${sizeSum > 0 ? sizeSum : 500} pcs`,
+          admin_issued: true
+        })
+      }
+    })
+
+    // 4. Main Brand Label & Polybags
+    generated.push({
+      id: 'lbl_brand_' + Date.now(),
+      item_name: 'Main Brand Label',
+      required_qty: `${totalPieces > 0 ? totalPieces : 500} pcs`,
+      admin_issued: true
+    })
+
+    generated.push({
+      id: 'poly_' + Date.now(),
+      item_name: 'Polybags (10x14 Master)',
+      required_qty: `${totalPieces > 0 ? totalPieces : 500} pcs`,
+      admin_issued: true
+    })
+
+    // Retain any existing custom items not matching generated names
+    const existingCustom = materials.filter(m => 
+      !m.item_name.includes('Sewing Thread') && 
+      !m.item_name.includes('Size Labels') &&
+      !m.item_name.includes('Main Fabric Roll') &&
+      !m.item_name.includes('Main Brand Label') &&
+      !m.item_name.includes('Polybags')
+    )
+
+    setMaterials([...generated, ...existingCustom])
   }
 
   const addCustomMaterial = (e: React.FormEvent) => {
@@ -671,18 +744,34 @@ export function CreateAllotmentForm({
           className="bg-white rounded-[11px] p-5 sm:p-6 border shadow-xs space-y-4"
           style={{ borderColor: 'var(--border, #E2E8F0)' }}
         >
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
             <div className="flex items-center gap-2">
               <span className="w-6 h-6 rounded-full bg-[var(--steel-mist,#EEF3FA)] text-[var(--steel,#2B4C7E)] text-xs font-bold flex items-center justify-center">
                 3
               </span>
-              <h2 className="text-[15px] font-bold font-[family-name:var(--font-heading)]" style={{ color: 'var(--ink, #1C2733)' }}>
-                BOM Raw Materials Issue Checklist
-              </h2>
+              <div>
+                <h2 className="text-[15px] font-bold font-[family-name:var(--font-heading)]" style={{ color: 'var(--ink, #1C2733)' }}>
+                  BOM Raw Materials & Trims Checklist
+                </h2>
+                <p className="text-[11px] text-slate-500">
+                  Store will physically inspect this checklist against supplier challan before issuing to Lineman
+                </p>
+              </div>
             </div>
-            <span className="text-xs" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
-              Issued materials will require Lineman digital handshake on mobile
-            </span>
+
+            <button
+              type="button"
+              onClick={handleAutoGenerateBOM}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[7px] text-xs font-bold transition-all shadow-xs cursor-pointer border"
+              style={{
+                backgroundColor: 'var(--green-mist, #E6F6EE)',
+                borderColor: 'var(--green, #1F9D63)',
+                color: 'var(--green, #1F9D63)'
+              }}
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>⚡ Auto-Calculate BOM from Cutting Matrix</span>
+            </button>
           </div>
 
           {/* Checklist Grid */}
@@ -736,35 +825,63 @@ export function CreateAllotmentForm({
             })}
           </div>
 
-          {/* Add Custom Material Inline Form */}
-          <div className="pt-2 flex flex-col sm:flex-row items-center gap-2">
-            <input
-              type="text"
-              value={newMaterialName}
-              onChange={(e) => setNewMaterialName(e.target.value)}
-              placeholder="Custom Material Name (e.g. Elastic 25mm)"
-              className="w-full sm:flex-2 px-3 py-2 text-xs border rounded-[7px] outline-none"
-              style={{ borderColor: 'var(--border, #E2E8F0)' }}
-            />
-            <input
-              type="text"
-              value={newMaterialQty}
-              onChange={(e) => setNewMaterialQty(e.target.value)}
-              placeholder="Quantity / Unit (e.g. 500 Meters)"
-              className="w-full sm:flex-1 px-3 py-2 text-xs border rounded-[7px] outline-none"
-              style={{ borderColor: 'var(--border, #E2E8F0)' }}
-            />
-            <button
-              type="button"
-              onClick={addCustomMaterial}
-              className="w-full sm:w-auto px-4 py-2 text-xs font-semibold rounded-[7px] border bg-white hover:bg-slate-50 transition-colors shrink-0"
-              style={{ 
-                borderColor: 'var(--steel, #2B4C7E)',
-                color: 'var(--steel, #2B4C7E)'
-              }}
-            >
-              + Add Material
-            </button>
+          {/* Add Custom Material Inline Form & Quick Chips */}
+          <div className="pt-3 border-t border-slate-100 space-y-2">
+            <div className="flex flex-col sm:flex-row items-center gap-2">
+              <input
+                type="text"
+                value={newMaterialName}
+                onChange={(e) => setNewMaterialName(e.target.value)}
+                placeholder="Custom Material Name (e.g. Drawcord 45 inch, 18L Buttons, Neck Piping)"
+                className="w-full sm:flex-2 px-3 py-2 text-xs border rounded-[7px] outline-none bg-white"
+                style={{ borderColor: 'var(--border, #E2E8F0)' }}
+              />
+              <input
+                type="text"
+                value={newMaterialQty}
+                onChange={(e) => setNewMaterialQty(e.target.value)}
+                placeholder="Quantity / Unit (e.g. 3300 pcs, 25 kg, 200 Meters)"
+                className="w-full sm:flex-1 px-3 py-2 text-xs border rounded-[7px] outline-none bg-white"
+                style={{ borderColor: 'var(--border, #E2E8F0)' }}
+              />
+              <button
+                type="button"
+                onClick={addCustomMaterial}
+                className="w-full sm:w-auto px-4 py-2 text-xs font-bold rounded-[7px] border bg-white hover:bg-slate-50 transition-colors shrink-0 cursor-pointer shadow-xs"
+                style={{ 
+                  borderColor: 'var(--steel, #2B4C7E)',
+                  color: 'var(--steel, #2B4C7E)'
+                }}
+              >
+                + Add Custom Item
+              </button>
+            </div>
+
+            {/* Quick Trim Suggestions */}
+            <div className="flex items-center gap-1.5 flex-wrap pt-1">
+              <span className="text-[10.5px] text-slate-400 font-medium">Quick Presets:</span>
+              {[
+                { name: '18L 4-Hole Buttons', qty: totalPieces > 0 ? `${totalPieces * 4} pcs` : '1500 pcs' },
+                { name: 'Elastic Waistband 1.5"', qty: totalPieces > 0 ? `${Math.ceil(totalPieces * 0.7)} Meters` : '300 Meters' },
+                { name: 'Drawcord / Dori 45"', qty: totalPieces > 0 ? `${totalPieces} pcs` : '500 pcs' },
+                { name: 'Metal Eyelets #4', qty: totalPieces > 0 ? `${totalPieces * 2} pcs` : '1000 pcs' },
+                { name: 'Care & Wash Labels', qty: totalPieces > 0 ? `${totalPieces} pcs` : '500 pcs' },
+                { name: 'Satin Neck Piping Tape', qty: '100 Meters' },
+                { name: 'Desiccant Silica Gel', qty: totalPieces > 0 ? `${totalPieces} packets` : '500 packets' },
+              ].map((preset) => (
+                <button
+                  key={preset.name}
+                  type="button"
+                  onClick={() => {
+                    setNewMaterialName(preset.name)
+                    setNewMaterialQty(preset.qty)
+                  }}
+                  className="px-2 py-0.5 rounded text-[10.5px] bg-slate-100 hover:bg-slate-200 text-slate-700 font-mono transition-colors cursor-pointer"
+                >
+                  +{preset.name}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
