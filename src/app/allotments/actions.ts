@@ -20,6 +20,11 @@ export async function createDetailedAllotment(payload: {
   lineman_id: string
   article_id: string
   target_qty: number
+  production_order_no?: string
+  manager_name?: string
+  due_date?: string
+  target_hours?: number
+  priority?: 'NORMAL' | 'RUSH' | 'CRITICAL'
   client_challan_no?: string
   sample_photos?: string[]
   variants: VariantPayload[]
@@ -27,7 +32,20 @@ export async function createDetailedAllotment(payload: {
 }) {
   const supabase = await createClient()
 
-  const { lineman_id, article_id, target_qty, client_challan_no, sample_photos, variants, materials } = payload
+  const { 
+    lineman_id, 
+    article_id, 
+    target_qty, 
+    production_order_no, 
+    manager_name, 
+    due_date, 
+    target_hours, 
+    priority, 
+    client_challan_no, 
+    sample_photos, 
+    variants, 
+    materials 
+  } = payload
 
   if (!lineman_id || !article_id || isNaN(target_qty) || target_qty <= 0) {
     return { error: 'Please select a Lineman, an Article, and enter a valid quantity.' }
@@ -41,6 +59,11 @@ export async function createDetailedAllotment(payload: {
     status: 'IN_PROGRESS',
     allotment_date: new Date().toISOString().split('T')[0]
   }
+  if (production_order_no) allotPayload.production_order_no = production_order_no
+  if (manager_name) allotPayload.manager_name = manager_name
+  if (due_date) allotPayload.due_date = due_date
+  if (target_hours) allotPayload.target_hours = target_hours
+  if (priority) allotPayload.priority = priority
   if (client_challan_no) allotPayload.client_challan_no = client_challan_no
   if (sample_photos && sample_photos.length > 0) allotPayload.sample_photos = sample_photos
 
@@ -116,6 +139,11 @@ export async function createDetailedAllotment(payload: {
         notes: JSON.stringify({ 
           lineman_name: linemanName, 
           lineman_id: lineman_id, 
+          production_order_no: production_order_no || '',
+          manager_name: manager_name || 'Production Manager',
+          due_date: due_date || '',
+          target_hours: target_hours || 16,
+          priority: priority || 'NORMAL',
           client_challan_no: client_challan_no || '',
           source: m.source || (m.item_name.includes('Sewing Thread') ? 'FACTORY_STORE' : 'CLIENT'),
           sample_photos: sample_photos || [],
@@ -182,6 +210,77 @@ export async function toggleMaterialIssue(materialId: string, issued: boolean) {
 
   if (error) {
     return { error: error.message }
+  }
+
+  revalidatePath('/allotments')
+  return { success: true }
+}
+
+// =========================================================================
+// FLOOR SOS & ANDON LINE ALERT ACTIONS
+// =========================================================================
+
+export type FloorAlert = {
+  id: string
+  allotment_id: string
+  lineman_id?: string
+  lineman_name?: string
+  production_order_no?: string
+  category: 'MACHINE_BREAKDOWN' | 'MATERIAL_SHORTAGE' | 'CUTTING_DEFECT' | 'GENERAL_DELAY'
+  machine_station?: string
+  description?: string
+  status: 'OPEN' | 'IN_PROGRESS' | 'RESOLVED'
+  resolved_by?: string
+  resolved_at?: string
+  created_at: string
+}
+
+export async function createFloorAlert(payload: {
+  allotment_id: string
+  lineman_id?: string
+  lineman_name?: string
+  production_order_no?: string
+  category: string
+  machine_station?: string
+  description?: string
+}) {
+  const supabase = await createClient()
+
+  const { error } = await supabase
+    .from('floor_alerts')
+    .insert({
+      allotment_id: payload.allotment_id,
+      lineman_id: payload.lineman_id || null,
+      lineman_name: payload.lineman_name || 'Floor Lineman',
+      production_order_no: payload.production_order_no || '',
+      category: payload.category,
+      machine_station: payload.machine_station || 'GENERAL',
+      description: payload.description || '',
+      status: 'OPEN'
+    })
+
+  if (error) {
+    console.warn('Floor alert insert error (table may be pending migration):', error.message)
+  }
+
+  revalidatePath('/allotments')
+  return { success: true }
+}
+
+export async function resolveFloorAlert(alertId: string, resolvedBy: string = 'Production Manager') {
+  const supabase = await createClient()
+
+  const { error } = await supabase
+    .from('floor_alerts')
+    .update({
+      status: 'RESOLVED',
+      resolved_by: resolvedBy,
+      resolved_at: new Date().toISOString()
+    })
+    .eq('id', alertId)
+
+  if (error) {
+    console.warn('Floor alert resolve error:', error.message)
   }
 
   revalidatePath('/allotments')

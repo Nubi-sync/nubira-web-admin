@@ -5,6 +5,10 @@ import { useState, useMemo } from 'react'
 import { createDetailedAllotment, VariantPayload, MaterialPayload } from '../actions'
 import { 
   ClipboardList,
+  Clock,
+  Calendar,
+  Flame,
+  Gauge,
   Building2,
   Boxes,
   FileCheck2,
@@ -88,6 +92,17 @@ export function CreateAllotmentForm({
   ])
 
   // Client Challan & Multi-Sample Photos (Up to 4)
+
+  // Production Order, Deadlines & Priority
+  const [productionOrderNo, setProductionOrderNo] = useState('')
+  const [dueDate, setDueDate] = useState(() => {
+    const d = new Date()
+    d.setDate(d.getDate() + 2)
+    return d.toISOString().split('T')[0]
+  })
+  const [targetHours, setTargetHours] = useState(16)
+  const [priority, setPriority] = useState<'NORMAL' | 'RUSH' | 'CRITICAL'>('NORMAL')
+
   const [clientChallanNo, setClientChallanNo] = useState('')
   const [samplePhotos, setSamplePhotos] = useState<string[]>([])
   const [newPhotoUrl, setNewPhotoUrl] = useState('')
@@ -132,6 +147,11 @@ export function CreateAllotmentForm({
     })
     return sum
   }, [colorRows, selectedSizes])
+
+  const targetRunRate = useMemo(() => {
+    if (totalPieces <= 0) return 0
+    return Math.ceil(totalPieces / (targetHours > 0 ? targetHours : 16))
+  }, [totalPieces, targetHours])
 
 
   // Multi-Sample Photo Handlers (Up to 4)
@@ -365,6 +385,10 @@ export function CreateAllotmentForm({
       lineman_id: linemanId,
       article_id: articleId,
       target_qty: totalPieces,
+      production_order_no: productionOrderNo.trim() || `PO-${Date.now().toString().slice(-6)}`,
+      due_date: dueDate,
+      target_hours: targetHours,
+      priority: priority,
       client_challan_no: clientChallanNo.trim(),
       sample_photos: samplePhotos,
       variants: payloadVariants,
@@ -378,6 +402,7 @@ export function CreateAllotmentForm({
       setSuccess(true)
       setIsPending(false)
       // Reset form fields
+      setProductionOrderNo('')
       setClientChallanNo('')
       setSamplePhotos([])
       setColorRows(colorRows.map(r => ({ ...r, quantities: {} })))
@@ -465,6 +490,67 @@ export function CreateAllotmentForm({
             <h2 className="text-[15px] font-bold font-[family-name:var(--font-heading)]" style={{ color: 'var(--ink, #1C2733)' }}>
               Select Floor Lineman & Style Article
             </h2>
+          </div>
+
+          
+          {/* Row 0: Production Order # & Priority Selector */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5 pb-5 border-b" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+            
+            {/* Production Order # */}
+            <div className="space-y-1.5">
+              <label 
+                htmlFor="production_order_no" 
+                className="block text-[11px] font-semibold uppercase tracking-[1.5px]"
+                style={{ color: 'var(--ink-soft, #5B6B7C)' }}
+              >
+                Production Order # (Job Card / PO #) <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <input
+                  id="production_order_no"
+                  type="text"
+                  value={productionOrderNo}
+                  onChange={(e) => setProductionOrderNo(e.target.value)}
+                  placeholder="e.g. PO-8821 / LOT-2026-04"
+                  className="w-full py-[10px] pl-9 pr-3 text-[13.5px] font-mono font-bold rounded-[8px] border transition-colors outline-none bg-white uppercase text-[var(--steel-dark,#1F3A63)]"
+                  style={{ borderColor: 'var(--border, #E2E8F0)' }}
+                />
+                <FileText className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              </div>
+              <p className="text-[11.5px] text-slate-500">
+                Official factory production order reference for this stitching batch.
+              </p>
+            </div>
+
+            {/* Order Urgency / Priority */}
+            <div className="space-y-1.5">
+              <label className="block text-[11px] font-semibold uppercase tracking-[1.5px]" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                Production Urgency & Priority
+              </label>
+              <div className="grid grid-cols-3 gap-2 pt-0.5">
+                {[
+                  { key: 'NORMAL', label: 'Normal', color: 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100' },
+                  { key: 'RUSH', label: 'Rush Order', color: 'bg-amber-50 text-amber-800 border-amber-300 hover:bg-amber-100' },
+                  { key: 'CRITICAL', label: 'Critical / Export', color: 'bg-rose-50 text-rose-800 border-rose-300 hover:bg-rose-100' },
+                ].map((p) => (
+                  <button
+                    key={p.key}
+                    type="button"
+                    onClick={() => setPriority(p.key as any)}
+                    className={`py-2 px-2 text-xs font-bold rounded-[8px] border transition-all text-center flex items-center justify-center gap-1.5 ${
+                      priority === p.key ? 'ring-2 ring-offset-1 ring-slate-800 font-extrabold ' + p.color : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                    }`}
+                  >
+                    {p.key === 'CRITICAL' && <Flame className="w-3.5 h-3.5 text-rose-600" />}
+                    {p.label}
+                  </button>
+                ))}
+              </div>
+              <p className="text-[11.5px] text-slate-500">
+                Sets high-priority alert badges on the Lineman and QC dashboard.
+              </p>
+            </div>
+
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -572,6 +658,69 @@ export function CreateAllotmentForm({
             </div>
           </div>
 
+
+          
+          {/* PPC Target Deadlines & Calculated Line Speed */}
+          <div className="mt-5 pt-5 border-t grid grid-cols-1 md:grid-cols-3 gap-4" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+            
+            {/* Target Due Date */}
+            <div className="space-y-1.5">
+              <label htmlFor="due_date" className="block text-[11px] font-semibold uppercase tracking-[1.5px]" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                Target Completion Due Date
+              </label>
+              <div className="relative">
+                <input
+                  id="due_date"
+                  type="date"
+                  value={dueDate}
+                  onChange={(e) => setDueDate(e.target.value)}
+                  className="w-full py-[9px] pl-9 pr-3 text-[13px] rounded-[8px] border bg-white outline-none"
+                  style={{ borderColor: 'var(--border, #E2E8F0)' }}
+                />
+                <Calendar className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              </div>
+            </div>
+
+            {/* Target Production Hours / Shifts */}
+            <div className="space-y-1.5">
+              <label htmlFor="target_hours" className="block text-[11px] font-semibold uppercase tracking-[1.5px]" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                Estimated Shift Hours
+              </label>
+              <div className="relative">
+                <input
+                  id="target_hours"
+                  type="number"
+                  min="1"
+                  max="500"
+                  value={targetHours || ''}
+                  onChange={(e) => setTargetHours(parseInt(e.target.value, 10) || 16)}
+                  placeholder="e.g. 16 (2 Days)"
+                  className="w-full py-[9px] pl-9 pr-3 text-[13px] rounded-[8px] border bg-white font-mono font-bold outline-none"
+                  style={{ borderColor: 'var(--border, #E2E8F0)' }}
+                />
+                <Clock className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              </div>
+            </div>
+
+            {/* Live PPC Run-Rate Card */}
+            <div className="p-3 bg-gradient-to-br from-slate-50 to-indigo-50/40 rounded-[10px] border border-indigo-100 flex items-center justify-between">
+              <div>
+                <span className="block text-[10.5px] font-bold uppercase tracking-wider text-indigo-700">
+                  Target Line Speed (PPC)
+                </span>
+                <span className="text-[17px] font-bold font-[family-name:var(--font-heading)] text-indigo-900">
+                  {targetRunRate} <span className="text-xs font-normal text-indigo-600">pcs / hour</span>
+                </span>
+                <span className="block text-[11px] text-slate-500">
+                  ≈ {Math.ceil(targetRunRate * 8)} pcs / shift
+                </span>
+              </div>
+              <div className="w-9 h-9 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-700">
+                <Gauge className="w-5 h-5" />
+              </div>
+            </div>
+
+          </div>
 
           {/* Client Challan & Golden Sample Reference Photos */}
           <div className="mt-5 pt-5 border-t grid grid-cols-1 md:grid-cols-2 gap-5" style={{ borderColor: 'var(--border, #E2E8F0)' }}>

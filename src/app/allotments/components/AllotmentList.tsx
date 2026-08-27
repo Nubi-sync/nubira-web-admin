@@ -3,7 +3,14 @@
 import React, { useState, useMemo, Fragment } from 'react'
 import { updateAllotmentStatus } from '../actions'
 import { 
-  CheckCircle2, 
+  CheckCircle2,
+  ShieldAlert,
+  Wrench,
+  PhoneCall,
+  AlertOctagon,
+  Flame,
+  Calendar,
+  Gauge, 
   Clock, 
   ChevronDown, 
   ChevronUp, 
@@ -47,6 +54,11 @@ export type Allotment = {
   achieved_qty?: number
   allotment_date: string
   status: string
+  production_order_no?: string
+  manager_name?: string
+  due_date?: string
+  target_hours?: number
+  priority?: 'NORMAL' | 'RUSH' | 'CRITICAL'
   client_challan_no?: string
   sample_photos?: string[]
   profiles: { username: string }
@@ -91,6 +103,18 @@ function cleanDescription(desc?: string) {
 
 
 export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) {
+
+  // Active Floor SOS Alerts Radar
+  const [activeAlerts, setActiveAlerts] = useState<Array<{
+    id: string
+    line: string
+    poNo: string
+    category: string
+    station: string
+    time: string
+    desc: string
+  }>>([])
+
   const [expandedId, setExpandedId] = useState<string | null>(null)
   
   // Functional table controls
