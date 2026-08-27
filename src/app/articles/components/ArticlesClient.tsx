@@ -55,6 +55,12 @@ type FilterTab = 'ALL' | 'ACTIVE' | 'ARCHIVED'
 type SortField = 'art_no' | 'stitching_rate' | 'created_at'
 type SortOrder = 'asc' | 'desc'
 
+
+function cleanArticleDesc(desc?: string | null) {
+  if (!desc) return ''
+  return desc.replace(/\s*\[.*?\]/g, '').trim()
+}
+
 function formatRateDate(dateStr?: string | null) {
   if (!dateStr) return ''
   const d = new Date(dateStr)

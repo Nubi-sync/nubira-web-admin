@@ -1,9 +1,19 @@
+
 'use client'
 
 import { useState, useMemo } from 'react'
 import { createDetailedAllotment, VariantPayload, MaterialPayload } from '../actions'
 import { 
-  ClipboardList, 
+  ClipboardList,
+  Building2,
+  Boxes,
+  FileCheck2,
+  Zap,
+  Camera,
+  Image as ImageIcon,
+  Upload,
+  FileText,
+  Tag, 
   Plus, 
   Trash2, 
   Layers, 
@@ -14,6 +24,11 @@ import {
   AlertCircle,
   Sparkles
 } from 'lucide-react'
+
+function cleanArticleDesc(desc?: string) {
+  if (!desc) return ''
+  return desc.replace(/\s*\[.*?\]/g, '').trim()
+}
 
 type Profile = { id: string; username: string }
 type Article = { id: string; art_no: string; description?: string; stitching_rate?: number }
@@ -72,22 +87,30 @@ export function CreateAllotmentForm({
     { id: '2', color: 'Black', quantities: {} }
   ])
 
-  // Material Requirements Checklist
+  // Client Challan & Multi-Sample Photos (Up to 4)
+  const [clientChallanNo, setClientChallanNo] = useState('')
+  const [samplePhotos, setSamplePhotos] = useState<string[]>([])
+  const [newPhotoUrl, setNewPhotoUrl] = useState('')
+  const [photoInputMode, setPhotoInputMode] = useState<'upload' | 'url'>('upload')
+
+  // Material Requirements Checklist with Sourcing Tag
   const [materials, setMaterials] = useState<Array<{
     id: string
     item_name: string
     required_qty: string
     admin_issued: boolean
+    source: 'CLIENT' | 'FACTORY_STORE'
   }>>([
-    { id: '1', item_name: 'Main Fabric Roll', required_qty: '500 Meters', admin_issued: true },
-    { id: '2', item_name: 'Matching Sewing Thread', required_qty: '12 Cones', admin_issued: true },
-    { id: '3', item_name: '18L 4-Hole Buttons', required_qty: '1500 pcs', admin_issued: true },
-    { id: '4', item_name: 'Main Brand Label', required_qty: '500 pcs', admin_issued: true },
-    { id: '5', item_name: 'Size Labels', required_qty: '500 pcs', admin_issued: true },
+    { id: '1', item_name: 'Main Fabric Roll', required_qty: '500 Meters', admin_issued: true, source: 'CLIENT' },
+    { id: '2', item_name: 'Matching Sewing Thread', required_qty: '12 Cones', admin_issued: true, source: 'FACTORY_STORE' },
+    { id: '3', item_name: '18L 4-Hole Buttons', required_qty: '1500 pcs', admin_issued: true, source: 'CLIENT' },
+    { id: '4', item_name: 'Main Brand Label', required_qty: '500 pcs', admin_issued: true, source: 'CLIENT' },
+    { id: '5', item_name: 'Size Labels', required_qty: '500 pcs', admin_issued: true, source: 'CLIENT' },
   ])
 
   const [newMaterialName, setNewMaterialName] = useState('')
   const [newMaterialQty, setNewMaterialQty] = useState('')
+  const [newMaterialSource, setNewMaterialSource] = useState<'CLIENT' | 'FACTORY_STORE'>('CLIENT')
 
   const [isPending, setIsPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -109,6 +132,36 @@ export function CreateAllotmentForm({
     })
     return sum
   }, [colorRows, selectedSizes])
+
+
+  // Multi-Sample Photo Handlers (Up to 4)
+  const handlePhotoFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (!files || files.length === 0) return
+
+    Array.from(files).slice(0, 4 - samplePhotos.length).forEach(file => {
+      const reader = new FileReader()
+      reader.onload = (loadEvent) => {
+        const base64 = loadEvent.target?.result as string
+        if (base64) {
+          setSamplePhotos(prev => prev.length < 4 ? [...prev, base64] : prev)
+        }
+      }
+      reader.readAsDataURL(file)
+    })
+    e.target.value = ''
+  }
+
+  const handleAddPhotoUrl = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!newPhotoUrl.trim() || samplePhotos.length >= 4) return
+    setSamplePhotos(prev => [...prev, newPhotoUrl.trim()])
+    setNewPhotoUrl('')
+  }
+
+  const removePhoto = (index: number) => {
+    setSamplePhotos(samplePhotos.filter((_, i) => i !== index))
+  }
 
   // Target progress percentage (capped at 100%)
   const targetProgress = totalPieces > 0 ? 100 : 0
@@ -179,6 +232,7 @@ export function CreateAllotmentForm({
       item_name: string
       required_qty: string
       admin_issued: boolean
+      source: 'CLIENT' | 'FACTORY_STORE'
     }> = []
 
     // 1. Fabric Roll Estimate (approx 0.35 - 0.45 meters per piece)
@@ -187,7 +241,8 @@ export function CreateAllotmentForm({
       id: 'fab_' + Date.now(),
       item_name: 'Main Fabric Roll',
       required_qty: totalPieces > 0 ? `${approxMeters} Meters` : 'As required',
-      admin_issued: true
+      admin_issued: true,
+      source: 'CLIENT'
     })
 
     // 2. Matching Thread per Color (1 cone per 100 pcs, min 2 cones per active color)
@@ -199,7 +254,8 @@ export function CreateAllotmentForm({
         id: `thread_${idx}_` + Date.now(),
         item_name: `Matching Sewing Thread (${colorName})`,
         required_qty: `${cones} Cones`,
-        admin_issued: true
+        admin_issued: true,
+        source: 'FACTORY_STORE'
       })
     })
 
@@ -211,24 +267,27 @@ export function CreateAllotmentForm({
           id: `lbl_size_${size}_` + Date.now(),
           item_name: `Size Labels (${size})`,
           required_qty: `${sizeSum > 0 ? sizeSum : 500} pcs`,
-          admin_issued: true
+          admin_issued: true,
+          source: 'CLIENT'
         })
       }
     })
 
-    // 4. Main Brand Label & Polybags
+    // 4. Main Brand Label & Polybags (Client Consignment)
     generated.push({
       id: 'lbl_brand_' + Date.now(),
-      item_name: 'Main Brand Label',
+      item_name: 'Main Brand Label & Neck Tag',
       required_qty: `${totalPieces > 0 ? totalPieces : 500} pcs`,
-      admin_issued: true
+      admin_issued: true,
+      source: 'CLIENT'
     })
 
     generated.push({
       id: 'poly_' + Date.now(),
       item_name: 'Polybags (10x14 Master)',
       required_qty: `${totalPieces > 0 ? totalPieces : 500} pcs`,
-      admin_issued: true
+      admin_issued: true,
+      source: 'CLIENT'
     })
 
     // Retain any existing custom items not matching generated names
@@ -240,7 +299,7 @@ export function CreateAllotmentForm({
       !m.item_name.includes('Polybags')
     )
 
-    setMaterials([...generated, ...existingCustom])
+    setMaterials([...generated, ...existingCustom.map(m => ({ ...m, source: m.source || 'CLIENT' }))])
   }
 
   const addCustomMaterial = (e: React.FormEvent) => {
@@ -253,7 +312,8 @@ export function CreateAllotmentForm({
         id: newId,
         item_name: newMaterialName.trim(),
         required_qty: newMaterialQty.trim() || 'As required',
-        admin_issued: true
+        admin_issued: true,
+        source: newMaterialSource
       }
     ])
     setNewMaterialName('')
@@ -296,7 +356,8 @@ export function CreateAllotmentForm({
     const payloadMaterials: MaterialPayload[] = materials.map(m => ({
       item_name: m.item_name,
       required_qty: m.required_qty,
-      admin_issued: m.admin_issued
+      admin_issued: m.admin_issued,
+      source: m.source
     }))
 
     setIsPending(true)
@@ -304,6 +365,8 @@ export function CreateAllotmentForm({
       lineman_id: linemanId,
       article_id: articleId,
       target_qty: totalPieces,
+      client_challan_no: clientChallanNo.trim(),
+      sample_photos: samplePhotos,
       variants: payloadVariants,
       materials: payloadMaterials
     })
@@ -314,7 +377,9 @@ export function CreateAllotmentForm({
     } else {
       setSuccess(true)
       setIsPending(false)
-      // Reset matrix quantities
+      // Reset form fields
+      setClientChallanNo('')
+      setSamplePhotos([])
       setColorRows(colorRows.map(r => ({ ...r, quantities: {} })))
       setTimeout(() => setSuccess(false), 3500)
     }
@@ -482,7 +547,7 @@ export function CreateAllotmentForm({
                 <option value="">-- Choose Article Style --</option>
                 {articles.map((a) => (
                   <option key={a.id} value={a.id}>
-                    {a.art_no} {a.description ? `- ${a.description}` : ''} {a.stitching_rate ? `(₹${a.stitching_rate}/pc)` : ''}
+                    {a.art_no} {cleanArticleDesc(a.description) ? `- ${cleanArticleDesc(a.description)}` : ''} {a.stitching_rate ? `(₹${a.stitching_rate}/pc)` : ''}
                   </option>
                 ))}
               </select>
@@ -500,13 +565,130 @@ export function CreateAllotmentForm({
                   <span>
                     {selectedArticle.stitching_rate 
                       ? `Stitching rate ₹${selectedArticle.stitching_rate}/pc loaded` 
-                      : `${selectedArticle.description || selectedArticle.art_no} loaded`}
+                      : `${cleanArticleDesc(selectedArticle.description) || selectedArticle.art_no} loaded`}
                   </span>
+                </div>
+              )}
+            </div>
+          </div>
+
+
+          {/* Client Challan & Golden Sample Reference Photos */}
+          <div className="mt-5 pt-5 border-t grid grid-cols-1 md:grid-cols-2 gap-5" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+            
+            {/* Client Delivery Challan # */}
+            <div className="space-y-1.5">
+              <label 
+                htmlFor="client_challan_no" 
+                className="block text-[11px] font-semibold uppercase tracking-[1.5px]"
+                style={{ color: 'var(--ink-soft, #5B6B7C)' }}
+              >
+                Client / Buyer Delivery Challan # (Work Order)
+              </label>
+              <div className="relative">
+                <input
+                  id="client_challan_no"
+                  type="text"
+                  value={clientChallanNo}
+                  onChange={(e) => setClientChallanNo(e.target.value)}
+                  placeholder="e.g. CH-8921 / Buyer DC # / Order Ref"
+                  className="w-full py-[10px] pl-9 pr-3 text-[13.5px] rounded-[8px] border transition-colors outline-none bg-white font-mono"
+                  style={{ borderColor: 'var(--border, #E2E8F0)' }}
+                />
+                <FileText className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              </div>
+              <p className="text-[11.5px] text-slate-500">
+                Official delivery challan number provided by the ordering brand company.
+              </p>
+            </div>
+
+            {/* Buyer Golden Sample Photos (Up to 4) */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="block text-[11px] font-semibold uppercase tracking-[1.5px]" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                  Buyer Sample Photos ({samplePhotos.length}/4)
+                </label>
+                <div className="flex items-center gap-1.5 text-[11px]">
+                  <button
+                    type="button"
+                    onClick={() => setPhotoInputMode('upload')}
+                    className={`px-2 py-0.5 rounded text-xs font-medium transition-all ${photoInputMode === 'upload' ? 'bg-[var(--steel,#2B4C7E)] text-white' : 'bg-slate-100 text-slate-600'}`}
+                  >
+                    Upload File
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPhotoInputMode('url')}
+                    className={`px-2 py-0.5 rounded text-xs font-medium transition-all ${photoInputMode === 'url' ? 'bg-[var(--steel,#2B4C7E)] text-white' : 'bg-slate-100 text-slate-600'}`}
+                  >
+                    Paste URL
+                  </button>
+                </div>
+              </div>
+
+              {/* Upload Input or URL Input */}
+              {samplePhotos.length < 4 && (
+                <div>
+                  {photoInputMode === 'upload' ? (
+                    <label className="flex items-center justify-center gap-2 w-full py-2 px-3 border border-dashed rounded-[8px] cursor-pointer hover:bg-slate-50 transition-colors text-[12.5px] text-slate-600 border-slate-300">
+                      <Camera className="w-4 h-4 text-[var(--steel,#2B4C7E)]" />
+                      <span>Click to upload sample image (Front / Back / Label)</span>
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        multiple 
+                        onChange={handlePhotoFileUpload} 
+                        className="hidden" 
+                      />
+                    </label>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="url"
+                        value={newPhotoUrl}
+                        onChange={(e) => setNewPhotoUrl(e.target.value)}
+                        placeholder="https://... image link"
+                        className="flex-1 py-1.5 px-3 text-[12.5px] rounded-[8px] border bg-white border-slate-300 outline-none"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleAddPhotoUrl}
+                        className="px-3 py-1.5 bg-[var(--steel,#2B4C7E)] text-white text-xs font-medium rounded-[8px]"
+                      >
+                        Add
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Photos Gallery Thumbnails */}
+              {samplePhotos.length > 0 && (
+                <div className="grid grid-cols-4 gap-2 pt-1">
+                  {samplePhotos.map((photo, idx) => (
+                    <div key={idx} className="relative group rounded-lg overflow-hidden border border-slate-200 aspect-square bg-slate-100">
+                      <img src={photo} alt={`Sample ${idx + 1}`} className="w-full h-full object-cover" />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => removePhoto(idx)}
+                          className="p-1 bg-red-600 text-white rounded-full hover:bg-red-700 transition-colors"
+                          title="Remove photo"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                      <span className="absolute bottom-0.5 left-0.5 px-1 py-0.2 bg-black/70 text-[9px] text-white rounded font-mono">
+                        {idx === 0 ? 'Front' : idx === 1 ? 'Back' : idx === 2 ? 'Label' : 'Detail'}
+                      </span>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
 
           </div>
+
         </div>
 
         {/* Step 2: Size & Color Ratio Matrix Card */}
@@ -754,8 +936,19 @@ export function CreateAllotmentForm({
                   BOM Raw Materials & Trims Checklist
                 </h2>
                 <p className="text-[11px] text-slate-500">
-                  Store will physically inspect this checklist against supplier challan before issuing to Lineman
+                  Specify material origin: Client / Buyer Consignment vs Factory In-House Sourcing
                 </p>
+                
+            {/* Sourcing Summary Badges */}
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-sky-50 text-sky-700 border border-sky-200">
+                <Building2 className="w-3 h-3 text-sky-600" /> Client Supplied: {materials.filter(m => m.source !== 'FACTORY_STORE').length} items
+              </span>
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
+                <Boxes className="w-3 h-3 text-purple-600" /> Factory Sourced: {materials.filter(m => m.source === 'FACTORY_STORE').length} items
+              </span>
+            </div>
+
               </div>
             </div>
 
@@ -770,7 +963,7 @@ export function CreateAllotmentForm({
               }}
             >
               <Sparkles className="w-3.5 h-3.5" />
-              <span>⚡ Auto-Calculate BOM from Cutting Matrix</span>
+              <span>Auto-Calculate BOM from Matrix</span>
             </button>
           </div>
 
@@ -789,12 +982,44 @@ export function CreateAllotmentForm({
                   }`}
                 >
                   <div className="min-w-0 flex-1">
-                    <span className={`block text-xs font-bold truncate ${isChecked ? 'text-[var(--green,#1F9D63)]' : 'text-slate-800'}`}>
-                      {mat.item_name}
-                    </span>
-                    <span className="block text-[11px] text-slate-500 truncate mt-0.5">
-                      Qty: {mat.required_qty}
-                    </span>
+                    <div className="flex items-center gap-2 flex-wrap mb-1">
+                      <span className={`block text-xs font-bold truncate ${isChecked ? 'text-slate-900' : 'text-slate-700'}`}>
+                        {mat.item_name}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-[11px] font-medium text-slate-500">
+                        Qty: <strong className="text-slate-700">{mat.required_qty}</strong>
+                      </span>
+
+                      {/* 1-Click Sourcing Toggle Badge */}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setMaterials(materials.map(m => m.id === mat.id ? { ...m, source: m.source === 'FACTORY_STORE' ? 'CLIENT' : 'FACTORY_STORE' } : m))
+                        }}
+                        className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-[6px] text-[10.5px] font-semibold border transition-all cursor-pointer ${
+                          mat.source === 'FACTORY_STORE'
+                            ? 'bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100'
+                            : 'bg-sky-50 text-sky-700 border-sky-200 hover:bg-sky-100'
+                        }`}
+                        title="Click to toggle between Client Supplied and Factory Sourced"
+                      >
+                        {mat.source === 'FACTORY_STORE' ? (
+                          <>
+                            <Boxes className="w-3 h-3 text-purple-600" />
+                            <span>Factory Sourced</span>
+                          </>
+                        ) : (
+                          <>
+                            <Building2 className="w-3 h-3 text-sky-600" />
+                            <span>Client Supplied</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
                   </div>
 
                   <div className="flex items-center gap-2">
@@ -833,7 +1058,7 @@ export function CreateAllotmentForm({
                 value={newMaterialName}
                 onChange={(e) => setNewMaterialName(e.target.value)}
                 placeholder="Custom Material Name (e.g. Drawcord 45 inch, 18L Buttons, Neck Piping)"
-                className="w-full sm:flex-2 px-3 py-2 text-xs border rounded-[7px] outline-none bg-white"
+                className="w-full sm:flex-5 px-3 py-2 text-xs border rounded-[7px] outline-none bg-white"
                 style={{ borderColor: 'var(--border, #E2E8F0)' }}
               />
               <input
@@ -841,9 +1066,18 @@ export function CreateAllotmentForm({
                 value={newMaterialQty}
                 onChange={(e) => setNewMaterialQty(e.target.value)}
                 placeholder="Quantity / Unit (e.g. 3300 pcs, 25 kg, 200 Meters)"
-                className="w-full sm:flex-1 px-3 py-2 text-xs border rounded-[7px] outline-none bg-white"
+                className="w-full sm:flex-3 px-3 py-2 text-xs border rounded-[7px] outline-none bg-white"
                 style={{ borderColor: 'var(--border, #E2E8F0)' }}
               />
+              <select
+                value={newMaterialSource}
+                onChange={(e) => setNewMaterialSource(e.target.value as any)}
+                className="w-full sm:flex-3 px-2.5 py-2 text-xs font-semibold border rounded-[7px] bg-slate-50 outline-none cursor-pointer"
+                style={{ borderColor: 'var(--border, #E2E8F0)' }}
+              >
+                <option value="CLIENT">Client Supplied (Buyer)</option>
+                <option value="FACTORY_STORE">Factory Sourced (In-House)</option>
+              </select>
               <button
                 type="button"
                 onClick={addCustomMaterial}

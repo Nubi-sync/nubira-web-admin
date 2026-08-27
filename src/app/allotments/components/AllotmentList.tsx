@@ -47,6 +47,8 @@ export type Allotment = {
   achieved_qty?: number
   allotment_date: string
   status: string
+  client_challan_no?: string
+  sample_photos?: string[]
   profiles: { username: string }
   articles: { art_no: string; description?: string }
   variants?: VariantItem[]
@@ -63,6 +65,9 @@ export type InspectionData = {
   status?: 'PENDING' | 'VERIFIED' | 'SHORTAGE' | 'DEFECTIVE'
   shortage_qty?: string
   supplier_challan_no?: string
+  client_challan_no?: string
+  source?: 'CLIENT' | 'FACTORY_STORE'
+  sample_photos?: string[]
   store_verified?: boolean
   store_verified_at?: string
   store_remarks?: string

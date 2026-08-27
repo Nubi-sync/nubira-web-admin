@@ -13,35 +13,56 @@ export type MaterialPayload = {
   item_name: string
   required_qty: string
   admin_issued: boolean
+  source?: 'CLIENT' | 'FACTORY_STORE'
 }
 
 export async function createDetailedAllotment(payload: {
   lineman_id: string
   article_id: string
   target_qty: number
+  client_challan_no?: string
+  sample_photos?: string[]
   variants: VariantPayload[]
   materials: MaterialPayload[]
 }) {
   const supabase = await createClient()
 
-  const { lineman_id, article_id, target_qty, variants, materials } = payload
+  const { lineman_id, article_id, target_qty, client_challan_no, sample_photos, variants, materials } = payload
 
   if (!lineman_id || !article_id || isNaN(target_qty) || target_qty <= 0) {
     return { error: 'Please select a Lineman, an Article, and enter a valid quantity.' }
   }
 
-  // 1. Insert into allotments
-  const { data: allotment, error: allotError } = await supabase
+  // 1. Insert into allotments (with optional sample_photos & client_challan_no)
+  const allotPayload: any = {
+    lineman_id,
+    article_id,
+    target_qty,
+    status: 'IN_PROGRESS',
+    allotment_date: new Date().toISOString().split('T')[0]
+  }
+  if (client_challan_no) allotPayload.client_challan_no = client_challan_no
+  if (sample_photos && sample_photos.length > 0) allotPayload.sample_photos = sample_photos
+
+  let { data: allotment, error: allotError } = await supabase
     .from('allotments')
-    .insert({
+    .insert(allotPayload)
+    .select('id')
+    .single()
+
+  // Fallback if client_challan_no or sample_photos columns are not yet present in allotments schema
+  if (allotError && (allotError.message?.includes('column') || allotError.code === '42703')) {
+    const fallbackPayload = {
       lineman_id,
       article_id,
       target_qty,
       status: 'IN_PROGRESS',
       allotment_date: new Date().toISOString().split('T')[0]
-    })
-    .select('id')
-    .single()
+    }
+    const res = await supabase.from('allotments').insert(fallbackPayload).select('id').single()
+    allotment = res.data
+    allotError = res.error
+  }
 
   if (allotError || !allotment) {
     return { error: allotError?.message || 'Failed to create allotment' }
@@ -49,22 +70,7 @@ export async function createDetailedAllotment(payload: {
 
   const allotmentId = allotment.id
 
-  // 1.1 Link allotment ID to article description so mobile QC can immediately read variants
-  try {
-    const { data: artData } = await supabase.from('articles').select('description').eq('id', article_id).single()
-    if (artData) {
-      const baseDesc = (artData.description || '').replace(/\s*\[.*\]/g, '').trim()
-      const existingMatch = (artData.description || '').match(/\[(.*?)\]/)
-      const existingIds = existingMatch ? existingMatch[1].split(',').map((s: string) => s.trim()) : []
-      if (!existingIds.includes(allotmentId)) {
-        existingIds.push(allotmentId)
-      }
-      const updatedDesc = `${baseDesc} [${existingIds.join(',')}]`
-      await supabase.from('articles').update({ description: updatedDesc }).eq('id', article_id)
-    }
-  } catch (e) {
-    console.error('Error linking allotment to article description:', e)
-  }
+  // 1.1 Article linking completed directly via allotment_id
 
   // 2. Insert variants if provided
   if (variants && variants.length > 0) {
@@ -107,7 +113,14 @@ export async function createDetailedAllotment(payload: {
         admin_issued: m.admin_issued ?? true,
         admin_issued_at: m.admin_issued ? nowIso : null,
         lineman_received: false,
-        notes: JSON.stringify({ lineman_name: linemanName, lineman_id: lineman_id, status: 'PENDING' })
+        notes: JSON.stringify({ 
+          lineman_name: linemanName, 
+          lineman_id: lineman_id, 
+          client_challan_no: client_challan_no || '',
+          source: m.source || (m.item_name.includes('Sewing Thread') ? 'FACTORY_STORE' : 'CLIENT'),
+          sample_photos: sample_photos || [],
+          status: 'PENDING' 
+        })
       }))
 
     if (validMaterials.length > 0) {

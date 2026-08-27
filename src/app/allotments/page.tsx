@@ -43,6 +43,8 @@ export default async function AllotmentsPage() {
       target_qty,
       allotment_date,
       status,
+      client_challan_no,
+      sample_photos,
       profiles ( username ),
       articles ( art_no, description, stitching_rate )
     `)
