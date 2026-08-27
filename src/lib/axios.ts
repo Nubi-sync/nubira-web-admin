@@ -3,7 +3,7 @@ import Cookies from 'js-cookie';
 import { useAuthStore } from '@/store/authStore';
 
 export const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://nubira-backend.onrender.com',
 });
 
 api.interceptors.request.use(
