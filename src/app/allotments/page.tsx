@@ -26,10 +26,18 @@ export default async function AllotmentsPage() {
     .eq('is_active', true)
     .order('username')
 
+  // 1.1 Fetch active production managers & admins
+  const { data: managers } = await supabase
+    .from('profiles')
+    .select('id, username, role')
+    .in('role', ['PRODUCTION_MANAGER', 'ADMIN'])
+    .eq('is_active', true)
+    .order('username')
+
   // 2. Fetch active articles with stitching rate
   const { data: articles } = await supabase
     .from('articles')
-    .select('id, art_no, description, stitching_rate')
+    .select('id, art_no, description, stitching_rate, size_rates')
     .eq('is_active', true)
     .order('art_no')
 
@@ -43,15 +51,9 @@ export default async function AllotmentsPage() {
       target_qty,
       allotment_date,
       status,
-      production_order_no,
-      manager_name,
-      due_date,
-      target_hours,
-      priority,
-      client_challan_no,
-      sample_photos,
+      created_at,
       profiles ( username ),
-      articles ( art_no, description, stitching_rate )
+      articles ( art_no, description, stitching_rate, size_rates )
     `)
     .order('created_at', { ascending: false })
     .limit(100)
@@ -96,9 +98,40 @@ export default async function AllotmentsPage() {
 
     const alVariants = variants.filter(v => v.allotment_id === al.id)
     const alMaterials = materials.filter(m => m.allotment_id === al.id)
+
+    // Extract extended metadata from materials notes if available
+    let managerName = (al as any).manager_name || ''
+    let poNo = (al as any).production_order_no || ''
+    let dueDate = (al as any).due_date || ''
+    let targetHours = (al as any).target_hours || 16
+    let priority = (al as any).priority || 'NORMAL'
+    let clientChallanNo = (al as any).client_challan_no || ''
+    let samplePhotos = (al as any).sample_photos || []
+
+    for (const m of alMaterials) {
+      if (m.notes) {
+        try {
+          const parsed = JSON.parse(m.notes)
+          if (parsed.manager_name && !managerName) managerName = parsed.manager_name
+          if (parsed.production_order_no && !poNo) poNo = parsed.production_order_no
+          if (parsed.due_date && !dueDate) dueDate = parsed.due_date
+          if (parsed.target_hours && !targetHours) targetHours = parsed.target_hours
+          if (parsed.priority && !priority) priority = parsed.priority
+          if (parsed.client_challan_no && !clientChallanNo) clientChallanNo = parsed.client_challan_no
+          if (parsed.sample_photos && samplePhotos.length === 0) samplePhotos = parsed.sample_photos
+        } catch (_) {}
+      }
+    }
       
     return {
       ...al,
+      manager_name: managerName || 'Production Manager',
+      production_order_no: poNo,
+      due_date: dueDate,
+      target_hours: targetHours,
+      priority: priority,
+      client_challan_no: clientChallanNo,
+      sample_photos: samplePhotos,
       achieved_qty: achieved,
       variants: alVariants,
       materials: alMaterials
@@ -123,6 +156,7 @@ export default async function AllotmentsPage() {
         {/* Section 1: Allotment & Handover Creation Form */}
         <CreateAllotmentForm 
           linemen={(linemen as any) || []} 
+          managers={(managers as any) || []}
           articles={(articles as any) || []} 
         />
 

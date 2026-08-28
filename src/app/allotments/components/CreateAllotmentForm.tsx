@@ -30,13 +30,42 @@ import {
   Sparkles
 } from 'lucide-react'
 
+
+function expandTierSizes(sizeRates: Record<string, number>): string[] {
+  const result: string[] = []
+  for (const key of Object.keys(sizeRates)) {
+    if (key.includes('/')) {
+      const parts = key.split('/').map(s => s.trim()).filter(Boolean)
+      result.push(...parts)
+    } else if (key.includes(',')) {
+      const parts = key.split(',').map(s => s.trim()).filter(Boolean)
+      result.push(...parts)
+    } else {
+      result.push(key.trim())
+    }
+  }
+  return Array.from(new Set(result))
+}
+
+function getRateForIndividualSize(size: string, sizeRates?: Record<string, number> | null, defaultRate?: number): number {
+  if (!sizeRates || Object.keys(sizeRates).length === 0) return defaultRate || 0
+  if (sizeRates[size] !== undefined) return sizeRates[size]
+  for (const [tierKey, rate] of Object.entries(sizeRates)) {
+    const parts = tierKey.split(/[/,-]/).map(s => s.trim().toUpperCase())
+    if (parts.includes(size.toUpperCase())) {
+      return rate
+    }
+  }
+  return defaultRate || 0
+}
+
 function cleanArticleDesc(desc?: string) {
   if (!desc) return ''
   return desc.replace(/\s*\[.*?\]/g, '').trim()
 }
 
 type Profile = { id: string; username: string }
-type Article = { id: string; art_no: string; description?: string; stitching_rate?: number }
+type Article = { id: string; art_no: string; description?: string; stitching_rate?: number; size_rates?: Record<string, number> | null }
 
 // Preset size groups
 const SIZE_PRESETS: Record<string, { label: string; sizes: string[] }> = {
@@ -64,9 +93,11 @@ const SIZE_PRESETS: Record<string, { label: string; sizes: string[] }> = {
 
 export function CreateAllotmentForm({ 
   linemen, 
+  managers = [],
   articles 
 }: { 
   linemen: Profile[], 
+  managers?: Array<{ id: string; username: string; role?: string }>,
   articles: Article[] 
 }) {
   const [linemanId, setLinemanId] = useState('')
@@ -118,11 +149,11 @@ export function CreateAllotmentForm({
     admin_issued: boolean
     source: 'CLIENT' | 'FACTORY_STORE'
   }>>([
-    { id: '1', item_name: 'Main Fabric Roll', required_qty: '500 Meters', admin_issued: true, source: 'CLIENT' },
-    { id: '2', item_name: 'Matching Sewing Thread', required_qty: '12 Cones', admin_issued: true, source: 'FACTORY_STORE' },
-    { id: '3', item_name: '18L 4-Hole Buttons', required_qty: '1500 pcs', admin_issued: true, source: 'CLIENT' },
-    { id: '4', item_name: 'Main Brand Label', required_qty: '500 pcs', admin_issued: true, source: 'CLIENT' },
-    { id: '5', item_name: 'Size Labels', required_qty: '500 pcs', admin_issued: true, source: 'CLIENT' },
+    { id: '1', item_name: 'Main Fabric Roll', required_qty: '500 Meters', admin_issued: false, source: 'CLIENT' },
+    { id: '2', item_name: 'Matching Sewing Thread', required_qty: '12 Cones', admin_issued: false, source: 'FACTORY_STORE' },
+    { id: '3', item_name: '18L 4-Hole Buttons', required_qty: '1500 pcs', admin_issued: false, source: 'CLIENT' },
+    { id: '4', item_name: 'Main Brand Label', required_qty: '500 pcs', admin_issued: false, source: 'CLIENT' },
+    { id: '5', item_name: 'Size Labels', required_qty: '500 pcs', admin_issued: false, source: 'CLIENT' },
   ])
 
   const [newMaterialName, setNewMaterialName] = useState('')
@@ -263,7 +294,7 @@ export function CreateAllotmentForm({
       id: 'fab_' + Date.now(),
       item_name: 'Main Fabric Roll',
       required_qty: totalPieces > 0 ? `${approxMeters} Meters` : 'As required',
-      admin_issued: true,
+      admin_issued: false,
       source: 'CLIENT'
     })
 
@@ -276,7 +307,7 @@ export function CreateAllotmentForm({
         id: `thread_${idx}_` + Date.now(),
         item_name: `Matching Sewing Thread (${colorName})`,
         required_qty: `${cones} Cones`,
-        admin_issued: true,
+        admin_issued: false,
         source: 'FACTORY_STORE'
       })
     })
@@ -289,7 +320,7 @@ export function CreateAllotmentForm({
           id: `lbl_size_${size}_` + Date.now(),
           item_name: `Size Labels (${size})`,
           required_qty: `${sizeSum > 0 ? sizeSum : 500} pcs`,
-          admin_issued: true,
+          admin_issued: false,
           source: 'CLIENT'
         })
       }
@@ -300,7 +331,7 @@ export function CreateAllotmentForm({
       id: 'lbl_brand_' + Date.now(),
       item_name: 'Main Brand Label & Neck Tag',
       required_qty: `${totalPieces > 0 ? totalPieces : 500} pcs`,
-      admin_issued: true,
+      admin_issued: false,
       source: 'CLIENT'
     })
 
@@ -308,7 +339,7 @@ export function CreateAllotmentForm({
       id: 'poly_' + Date.now(),
       item_name: 'Polybags (10x14 Master)',
       required_qty: `${totalPieces > 0 ? totalPieces : 500} pcs`,
-      admin_issued: true,
+      admin_issued: false,
       source: 'CLIENT'
     })
 
@@ -334,7 +365,7 @@ export function CreateAllotmentForm({
         id: newId,
         item_name: newMaterialName.trim(),
         required_qty: newMaterialQty.trim() || 'As required',
-        admin_issued: true,
+        admin_issued: false,
         source: newMaterialSource
       }
     ])
@@ -500,7 +531,7 @@ export function CreateAllotmentForm({
           {/* Row 0: Production Order # & Priority Selector */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5 pb-5 border-b" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
             
-            {/* Production Manager Name */}
+            {/* Production Manager Dropdown from Registered Employees */}
             <div className="space-y-1.5">
               <label 
                 htmlFor="manager_name" 
@@ -510,19 +541,28 @@ export function CreateAllotmentForm({
                 Production Manager (Allotted By) <span className="text-red-500">*</span>
               </label>
               <div className="relative">
-                <input
+                <select
                   id="manager_name"
-                  type="text"
                   value={managerName}
                   onChange={(e) => setManagerName(e.target.value)}
-                  placeholder="e.g. Amit Sharma / Rajesh Verma"
-                  className="w-full py-[10px] pl-9 pr-3 text-[13.5px] font-medium rounded-[8px] border transition-colors outline-none bg-white text-[var(--steel-dark,#1F3A63)]"
+                  className="w-full py-[10px] pl-9 pr-3 text-[13.5px] font-medium rounded-[8px] border transition-colors outline-none bg-white text-[var(--steel-dark,#1F3A63)] cursor-pointer"
                   style={{ borderColor: 'var(--border, #E2E8F0)' }}
-                />
-                <UserCheck className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                >
+                  <option value="">-- Choose Production Manager --</option>
+                  {managers && managers.length > 0 ? (
+                    managers.map((m) => (
+                      <option key={m.id} value={m.username}>
+                        {m.username} ({m.role === 'ADMIN' ? 'Plant Admin' : 'Production Manager'})
+                      </option>
+                    ))
+                  ) : (
+                    <option value="admin">admin (Plant Admin)</option>
+                  )}
+                </select>
+                <UserCheck className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
               </div>
               <p className="text-[11.5px] text-slate-500">
-                Name of the Production Manager issuing this stitching target and deadline.
+                Select from registered Production Managers in Employee list.
               </p>
             </div>
 
@@ -622,8 +662,16 @@ export function CreateAllotmentForm({
                 id="article_id"
                 value={articleId}
                 onChange={(e) => {
-                  setArticleId(e.target.value)
+                  const val = e.target.value
+                  setArticleId(val)
                   setTouchedArticle(true)
+                  const chosen = articles.find(a => a.id === val)
+                  if (chosen && chosen.size_rates && Object.keys(chosen.size_rates).length > 0) {
+                    const expanded = expandTierSizes(chosen.size_rates)
+                    if (expanded.length > 0) {
+                      setSelectedSizes(expanded)
+                    }
+                  }
                 }}
                 onBlur={() => setTouchedArticle(true)}
                 className={`w-full py-[11px] px-[13px] text-[13.5px] rounded-[8px] border transition-colors outline-none bg-white ${
@@ -635,11 +683,24 @@ export function CreateAllotmentForm({
                 }`}
               >
                 <option value="">-- Choose Article Style --</option>
-                {articles.map((a) => (
-                  <option key={a.id} value={a.id}>
-                    {a.art_no} {cleanArticleDesc(a.description) ? `- ${cleanArticleDesc(a.description)}` : ''} {a.stitching_rate ? `(₹${a.stitching_rate}/pc)` : ''}
-                  </option>
-                ))}
+                {articles.map((a) => {
+                  let rateTag = ''
+                  if (a.size_rates && Object.keys(a.size_rates).length > 0) {
+                    const rts = Object.values(a.size_rates).filter(r => !isNaN(r) && r > 0)
+                    if (rts.length > 0) {
+                      const min = Math.min(...rts)
+                      const max = Math.max(...rts)
+                      rateTag = min === max ? `(₹${min}/pc)` : `(₹${min} - ₹${max}/pc Size-Wise)`
+                    }
+                  } else if (a.stitching_rate) {
+                    rateTag = `(₹${a.stitching_rate}/pc)`
+                  }
+                  return (
+                    <option key={a.id} value={a.id}>
+                      {a.art_no} {cleanArticleDesc(a.description) ? `- ${cleanArticleDesc(a.description)}` : ''} {rateTag}
+                    </option>
+                  )
+                })}
               </select>
 
               {/* Validation Messages */}
@@ -653,7 +714,9 @@ export function CreateAllotmentForm({
                 <div className="flex items-center gap-1.5 text-[11px] font-medium" style={{ color: 'var(--green, #1F9D63)' }}>
                   <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
                   <span>
-                    {selectedArticle.stitching_rate 
+                    {selectedArticle.size_rates && Object.keys(selectedArticle.size_rates).length > 0
+                      ? `Size-Wise rates loaded: ${Object.entries(selectedArticle.size_rates).map(([k, v]) => `${k}: ₹${v}`).join(' · ')}`
+                      : selectedArticle.stitching_rate 
                       ? `Stitching rate ₹${selectedArticle.stitching_rate}/pc loaded` 
                       : `${cleanArticleDesc(selectedArticle.description) || selectedArticle.art_no} loaded`}
                   </span>
@@ -974,11 +1037,19 @@ export function CreateAllotmentForm({
                 <thead>
                   <tr className="bg-slate-50 border-b text-[11px] font-bold uppercase tracking-wider" style={{ borderColor: 'var(--border, #E2E8F0)', color: 'var(--ink-soft, #5B6B7C)' }}>
                     <th className="px-4 py-3 min-w-[160px]">Color / Shade</th>
-                    {selectedSizes.map((size) => (
-                      <th key={size} className="px-3 py-3 text-center min-w-[75px]">
-                        {size}
-                      </th>
-                    ))}
+                    {selectedSizes.map((size) => {
+                      const szRate = getRateForIndividualSize(size, selectedArticle?.size_rates, selectedArticle?.stitching_rate)
+                      return (
+                        <th key={size} className="px-3 py-2.5 text-center min-w-[75px]">
+                          <div className="font-bold text-slate-800">{size}</div>
+                          {szRate > 0 && (
+                            <div className="text-[10px] font-mono text-indigo-700 font-semibold mt-0.5">
+                              ₹{szRate}/pc
+                            </div>
+                          )}
+                        </th>
+                      )
+                    })}
                     <th className="px-4 py-3 text-right min-w-[90px]">Row Total</th>
                     <th className="px-3 py-3 text-center w-10"></th>
                   </tr>
