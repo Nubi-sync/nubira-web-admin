@@ -303,22 +303,46 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
     })
   }
 
-  // Add Article Submit
+  // Add Article Submit (Supporting Flat and Size-Wise Tiered Rates)
   const handleCreateArticleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setAddTouched(true)
     setAddError(null)
 
-    const rateNum = parseFloat(addRate)
-    if (!addArtNo.trim() || isNaN(rateNum) || rateNum <= 0) {
-      setAddError('Please enter a valid Art No and a rate greater than ₹0.00')
+    if (!addArtNo.trim()) {
+      setAddError('Please enter a valid Article Number (Art No).')
       return
     }
 
+    let finalBaseRate = 0
+    let sizeRatesMap: Record<string, number> = {}
+
+    if (addRateMode === 'SIZE_WISE') {
+      const validRows = addSizeRateRows.filter(r => r.size.trim() && !isNaN(parseFloat(r.rate)) && parseFloat(r.rate) > 0)
+      if (validRows.length === 0) {
+        setAddError('Please enter at least 1 valid size name and a rate greater than ₹0.00')
+        return
+      }
+      validRows.forEach(r => {
+        sizeRatesMap[r.size.trim()] = parseFloat(r.rate)
+      })
+      const ratesList = Object.values(sizeRatesMap)
+      finalBaseRate = Math.min(...ratesList)
+    } else {
+      finalBaseRate = parseFloat(addRate)
+      if (isNaN(finalBaseRate) || finalBaseRate <= 0) {
+        setAddError('Please enter a valid stitching rate greater than ₹0.00')
+        return
+      }
+    }
+
     const formData = new FormData()
-    formData.append('art_no', addArtNo.trim())
+    formData.append('art_no', addArtNo.trim().toUpperCase())
     formData.append('description', addDescription.trim())
-    formData.append('stitching_rate', addRate)
+    formData.append('stitching_rate', finalBaseRate.toString())
+    if (Object.keys(sizeRatesMap).length > 0) {
+      formData.append('size_rates', JSON.stringify(sizeRatesMap))
+    }
 
     startTransition(async () => {
       const res = await createArticle(formData)
@@ -329,33 +353,45 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
         setAddArtNo('')
         setAddDescription('')
         setAddRate('')
+        setAddRateMode('FLAT')
         setAddTouched(false)
       }
     })
   }
 
-  // Update Rate Submit
+  // Update Rate Submit (Supporting Flat and Size-Wise Tiered Rates)
   const handleUpdateRateSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!selectedArticleForRate) return
     setRateUpdateError(null)
 
-    const rateNum = parseFloat(newRateValue)
-    if (isNaN(rateNum) || rateNum <= 0) {
-      setRateUpdateError('Please enter a valid stitching rate greater than ₹0.00')
-      return
-    }
+    let finalRate = 0
+    let sizeRatesMap: Record<string, number> = {}
 
-    if (rateNum === selectedArticleForRate.stitching_rate) {
-      setShowUpdateRateModal(false)
-      return
+    if (updateRateMode === 'SIZE_WISE') {
+      const validRows = updateSizeRateRows.filter(r => r.size.trim() && !isNaN(parseFloat(r.rate)) && parseFloat(r.rate) > 0)
+      if (validRows.length === 0) {
+        setRateUpdateError('Please enter at least 1 valid size and rate greater than ₹0.00')
+        return
+      }
+      validRows.forEach(r => {
+        sizeRatesMap[r.size.trim()] = parseFloat(r.rate)
+      })
+      finalRate = Math.min(...Object.values(sizeRatesMap))
+    } else {
+      finalRate = parseFloat(newRateValue)
+      if (isNaN(finalRate) || finalRate <= 0) {
+        setRateUpdateError('Please enter a valid stitching rate greater than ₹0.00')
+        return
+      }
     }
 
     startTransition(async () => {
       const res = await updateArticleRate(
         selectedArticleForRate.id, 
         selectedArticleForRate.stitching_rate, 
-        rateNum
+        finalRate,
+        Object.keys(sizeRatesMap).length > 0 ? sizeRatesMap : undefined
       )
       if (res?.error) {
         setRateUpdateError(res.error)
@@ -365,6 +401,33 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
         setNewRateValue('')
       }
     })
+  }
+
+
+  // Open Update Rate Modal with Size-Wise Pre-fill
+  const openUpdateRateModal = (article: Article) => {
+    setSelectedArticleForRate(article)
+    setNewRateValue(article.stitching_rate.toString())
+    setRateUpdateError(null)
+    if (article.size_rates && Object.keys(article.size_rates).length > 0) {
+      setUpdateRateMode('SIZE_WISE')
+      const rows = Object.entries(article.size_rates).map(([sz, rt], idx) => ({
+        id: (idx + 1).toString(),
+        size: sz,
+        rate: rt.toString()
+      }))
+      setUpdateSizeRateRows(rows)
+    } else {
+      setUpdateRateMode('FLAT')
+      setUpdateSizeRateRows([
+        { id: '1', size: 'S', rate: article.stitching_rate.toString() },
+        { id: '2', size: 'M', rate: article.stitching_rate.toString() },
+        { id: '3', size: 'L', rate: article.stitching_rate.toString() },
+        { id: '4', size: 'XL', rate: (article.stitching_rate + 2).toString() },
+        { id: '5', size: 'XXL', rate: (article.stitching_rate + 4).toString() },
+      ])
+    }
+    setShowUpdateRateModal(true)
   }
 
   // View Rate History Modal
@@ -649,12 +712,10 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                         </span>
                       </td>
 
-                      {/* Stitching Rate with Meta Note */}
+                      {/* Stitching Rate with Size-Wise Breakdown */}
                       <td className="px-4 py-3.5">
-                        <div className="font-semibold text-slate-900 font-mono">
-                          ₹{article.stitching_rate.toFixed(2)}
-                        </div>
-                        <div className="text-[10.5px] font-[family-name:var(--font-jetbrains-mono)] mt-0.5" style={{ color: 'var(--ink-faint, #8B9AAB)' }}>
+                        {renderArticleRateBadge(article)}
+                        <div className="text-[10.5px] font-[family-name:var(--font-jetbrains-mono)] mt-1" style={{ color: 'var(--ink-faint, #8B9AAB)' }}>
                           {latestHistory 
                             ? 'was ₹' + latestHistory.old_rate.toFixed(2) + ' · ' + formatRateDate(latestHistory.created_at)
                             : 'unchanged since creation'
@@ -696,12 +757,7 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                           {article.is_active ? (
                             <button
                               type="button"
-                              onClick={() => {
-                                setSelectedArticleForRate(article)
-                                setNewRateValue(article.stitching_rate.toString())
-                                setRateUpdateError(null)
-                                setShowUpdateRateModal(true)
-                              }}
+                              onClick={() => openUpdateRateModal(article)}
                               className="text-xs font-semibold px-2.5 py-1 rounded-[6px] border bg-white hover:bg-slate-50 transition-colors cursor-pointer shadow-2xs"
                               style={{ borderColor: 'var(--border, #E2E8F0)', color: 'var(--steel, #2B4C7E)' }}
                             >
@@ -793,14 +849,14 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
       {/* ======================================================== */}
       {showAddModal && (
         <div 
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
           style={{ backgroundColor: 'rgba(28,39,51,0.45)' }}
           onClick={(e) => {
             if (e.target === e.currentTarget) setShowAddModal(false)
           }}
         >
           <div 
-            className="w-full max-w-[420px] bg-white rounded-[13px] p-[26px] shadow-2xl border relative space-y-5 animate-in fade-in zoom-in-95 duration-150"
+            className="w-full max-w-[540px] my-6 bg-white rounded-[13px] p-[24px] shadow-2xl border relative space-y-4 animate-in fade-in zoom-in-95 duration-150"
             style={{ borderColor: 'var(--border, #E2E8F0)' }}
           >
             {/* Header */}
@@ -819,11 +875,10 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                   >
                     Add New Article
                   </h3>
-                  <p className="text-[11px] text-slate-400">Register new style & stitching rate</p>
+                  <p className="text-[11px] text-slate-400">Register new style & size-wise stitching rates</p>
                 </div>
               </div>
 
-              {/* 28x28 Bordered X Button */}
               <button
                 type="button"
                 onClick={() => setShowAddModal(false)}
@@ -837,75 +892,208 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
             {/* Form */}
             <form onSubmit={handleCreateArticleSubmit} className="space-y-4 text-xs">
               
-              {/* Art No */}
-              <div>
-                <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1.5" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
-                  Article Number (Art No)
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="E.G. A2045"
-                  value={addArtNo}
-                  onChange={(e) => setAddArtNo(e.target.value.toUpperCase())}
-                  className="w-full px-3 py-2 bg-slate-50 border rounded-[7px] text-xs font-mono font-bold uppercase outline-none transition-all focus:bg-white"
-                  style={{ 
-                    borderColor: addTouched && !addArtNo.trim() ? 'var(--red, #C0392B)' : 'var(--border, #E2E8F0)',
-                    backgroundColor: addTouched && !addArtNo.trim() ? 'var(--red-mist, #FBEAE8)' : '#F8FAFC'
-                  }}
-                  onFocus={(e) => e.currentTarget.style.borderColor = 'var(--steel, #2B4C7E)'}
-                  onBlur={(e) => {
-                    if (!addArtNo.trim()) e.currentTarget.style.borderColor = 'var(--red, #C0392B)'
-                    else e.currentTarget.style.borderColor = 'var(--border, #E2E8F0)'
-                  }}
-                />
-              </div>
-
-              {/* Description */}
-              <div>
-                <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1.5" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
-                  Description
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. Blue Denim Jacket"
-                  value={addDescription}
-                  onChange={(e) => setAddDescription(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 border rounded-[7px] text-xs outline-none transition-all focus:bg-white"
-                  style={{ borderColor: 'var(--border, #E2E8F0)' }}
-                  onFocus={(e) => e.currentTarget.style.borderColor = 'var(--steel, #2B4C7E)'}
-                  onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border, #E2E8F0)'}
-                />
-              </div>
-
-              {/* Stitching Rate */}
-              <div>
-                <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1.5" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
-                  Stitching Rate (₹)
-                </label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 font-mono font-bold text-slate-500">₹</span>
+              {/* Art No & Description Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1.5" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                    Article Number (Art No) <span className="text-red-500">*</span>
+                  </label>
                   <input
-                    type="number"
-                    step="0.01"
+                    type="text"
                     required
-                    placeholder="0.00"
-                    value={addRate}
-                    onChange={(e) => setAddRate(e.target.value)}
-                    className="w-full pl-7 pr-3 py-2 bg-slate-50 border rounded-[7px] text-xs font-mono font-bold outline-none transition-all focus:bg-white"
-                    style={{ 
-                      borderColor: addTouched && (isNaN(parseFloat(addRate)) || parseFloat(addRate) <= 0) ? 'var(--red, #C0392B)' : 'var(--border, #E2E8F0)',
-                      backgroundColor: addTouched && (isNaN(parseFloat(addRate)) || parseFloat(addRate) <= 0) ? 'var(--red-mist, #FBEAE8)' : '#F8FAFC'
-                    }}
-                    onFocus={(e) => e.currentTarget.style.borderColor = 'var(--steel, #2B4C7E)'}
-                    onBlur={(e) => {
-                      const val = parseFloat(addRate)
-                      if (isNaN(val) || val <= 0) e.currentTarget.style.borderColor = 'var(--red, #C0392B)'
-                      else e.currentTarget.style.borderColor = 'var(--border, #E2E8F0)'
-                    }}
+                    placeholder="E.G. A2045"
+                    value={addArtNo}
+                    onChange={(e) => setAddArtNo(e.target.value.toUpperCase())}
+                    className="w-full px-3 py-2 bg-slate-50 border rounded-[7px] text-xs font-mono font-bold uppercase outline-none focus:bg-white"
+                    style={{ borderColor: 'var(--border, #E2E8F0)' }}
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1.5" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                    Description
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Blue Denim Jacket"
+                    value={addDescription}
+                    onChange={(e) => setAddDescription(e.target.value)}
+                    className="w-full px-3 py-2 bg-slate-50 border rounded-[7px] text-xs outline-none focus:bg-white"
+                    style={{ borderColor: 'var(--border, #E2E8F0)' }}
                   />
                 </div>
               </div>
+
+              {/* Rate Mode Toggle */}
+              <div className="pt-2 border-t" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-[11px] font-semibold uppercase tracking-[1.5px]" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                    Stitching Rate Structure <span className="text-red-500">*</span>
+                  </label>
+                  <span className="text-[10.5px] text-slate-400">Choose flat or size-wise rates</span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-[9px] border border-slate-200">
+                  <button
+                    type="button"
+                    onClick={() => setAddRateMode('FLAT')}
+                    className={`py-1.5 px-3 rounded-[7px] text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                      addRateMode === 'FLAT'
+                        ? 'bg-white text-[var(--steel,#2B4C7E)] shadow-xs'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    <Tag className="w-3.5 h-3.5" />
+                    <span>Flat Rate (All Sizes Same)</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setAddRateMode('SIZE_WISE')}
+                    className={`py-1.5 px-3 rounded-[7px] text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                      addRateMode === 'SIZE_WISE'
+                        ? 'bg-white text-indigo-700 shadow-xs'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    <Layers className="w-3.5 h-3.5" />
+                    <span>Size-Wise / Tiered Rates</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Mode A: Flat Rate Input */}
+              {addRateMode === 'FLAT' && (
+                <div className="space-y-1.5 pt-1">
+                  <label className="block text-[11px] font-semibold text-slate-700">
+                    Piece Rate for All Sizes (₹)
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 font-mono font-bold text-slate-500">₹</span>
+                    <input
+                      type="number"
+                      step="0.01"
+                      placeholder="e.g. 20.00"
+                      value={addRate}
+                      onChange={(e) => setAddRate(e.target.value)}
+                      className="w-full pl-7 pr-3 py-2 bg-slate-50 border rounded-[7px] text-xs font-mono font-bold outline-none focus:bg-white"
+                      style={{ borderColor: 'var(--border, #E2E8F0)' }}
+                    />
+                  </div>
+                  <p className="text-[11px] text-slate-400">Same rate applied to all sizes stitched by workers.</p>
+                </div>
+              )}
+
+              {/* Mode B: Dynamic Size-Wise Rate Editor */}
+              {addRateMode === 'SIZE_WISE' && (
+                <div className="space-y-3 pt-1">
+                  {/* Quick Preset Buttons */}
+                  <div>
+                    <span className="block text-[10.5px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+                      Quick Fill Presets:
+                    </span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {Object.entries(SIZE_PRESETS).map(([key, preset]) => (
+                        <button
+                          key={key}
+                          type="button"
+                          onClick={() => {
+                            const newRows = preset.sizes.map((sz, idx) => ({
+                              id: (idx + 1).toString(),
+                              size: sz,
+                              rate: addSizeRateRows.find(r => r.size === sz)?.rate || ''
+                            }))
+                            setAddSizeRateRows(newRows)
+                          }}
+                          className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-[11px] font-semibold border border-slate-200 transition-colors"
+                        >
+                          {preset.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Size Rate Table / Rows */}
+                  <div className="border rounded-[8px] overflow-hidden" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+                    <div className="bg-slate-50 px-3 py-2 border-b grid grid-cols-12 gap-2 text-[11px] font-bold text-slate-600 uppercase" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+                      <div className="col-span-5">Size Name (Editable)</div>
+                      <div className="col-span-6">Stitching Rate (₹)</div>
+                      <div className="col-span-1 text-center"></div>
+                    </div>
+
+                    <div className="divide-y max-h-[190px] overflow-y-auto" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+                      {addSizeRateRows.map((row, idx) => (
+                        <div key={row.id} className="p-2 grid grid-cols-12 gap-2 items-center hover:bg-slate-50/50">
+                          {/* Size Name Input */}
+                          <div className="col-span-5">
+                            <input
+                              type="text"
+                              value={row.size}
+                              onChange={(e) => {
+                                const updated = [...addSizeRateRows]
+                                updated[idx].size = e.target.value
+                                setAddSizeRateRows(updated)
+                              }}
+                              placeholder="e.g. XXL / 34 / S-L"
+                              className="w-full px-2.5 py-1.5 bg-white border rounded text-xs font-mono font-bold outline-none"
+                              style={{ borderColor: 'var(--border, #E2E8F0)' }}
+                            />
+                          </div>
+
+                          {/* Rate Input */}
+                          <div className="col-span-6 relative">
+                            <span className="absolute left-2.5 top-1/2 -translate-y-1/2 font-mono font-bold text-slate-400 text-xs">₹</span>
+                            <input
+                              type="number"
+                              step="0.01"
+                              value={row.rate}
+                              onChange={(e) => {
+                                const updated = [...addSizeRateRows]
+                                updated[idx].rate = e.target.value
+                                setAddSizeRateRows(updated)
+                              }}
+                              placeholder="0.00"
+                              className="w-full pl-6 pr-2 py-1.5 bg-white border rounded text-xs font-mono font-bold outline-none text-indigo-900"
+                              style={{ borderColor: 'var(--border, #E2E8F0)' }}
+                            />
+                          </div>
+
+                          {/* Delete Button */}
+                          <div className="col-span-1 text-center">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (addSizeRateRows.length > 1) {
+                                  setAddSizeRateRows(addSizeRateRows.filter(r => r.id !== row.id))
+                                }
+                              }}
+                              className="p-1 text-slate-400 hover:text-rose-600 rounded transition-colors"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Add Custom Row Button */}
+                    <div className="p-2 bg-slate-50/80 border-t flex justify-between items-center" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const nextId = Date.now().toString()
+                          setAddSizeRateRows([...addSizeRateRows, { id: nextId, size: '', rate: '' }])
+                        }}
+                        className="px-2.5 py-1 bg-white hover:bg-slate-100 text-indigo-700 rounded text-xs font-bold border border-indigo-200 flex items-center gap-1 shadow-2xs"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        Add Custom Size Rate
+                      </button>
+                      <span className="text-[10.5px] text-slate-500 font-mono">
+                        {addSizeRateRows.length} sizes configured
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Error Message */}
               {addError && (
@@ -918,12 +1106,12 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                 </div>
               )}
 
-              {/* Footer Buttons (Full-Width Split) */}
+              {/* Buttons */}
               <div className="grid grid-cols-2 gap-3 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="w-full py-2.5 px-4 rounded-[8px] text-xs font-semibold border bg-white hover:bg-slate-50 text-slate-700 transition-colors"
+                  className="w-full py-2.5 px-4 rounded-[8px] text-xs font-semibold border bg-white hover:bg-slate-50 text-slate-700 transition-colors cursor-pointer"
                   style={{ borderColor: 'var(--border, #E2E8F0)' }}
                 >
                   Cancel
@@ -984,24 +1172,26 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                 <button
                   type="button"
                   onClick={() => setUpdateRateMode('FLAT')}
-                  className={`py-1.5 px-3 rounded-[7px] text-xs font-bold transition-all text-center ${
+                  className={`py-1.5 px-3 rounded-[7px] text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
                     updateRateMode === 'FLAT'
                       ? 'bg-white text-[var(--steel,#2B4C7E)] shadow-xs'
                       : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
-                  🏷️ Flat Rate
+                  <Tag className="w-3.5 h-3.5" />
+                  <span>Flat Rate</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setUpdateRateMode('SIZE_WISE')}
-                  className={`py-1.5 px-3 rounded-[7px] text-xs font-bold transition-all text-center ${
+                  className={`py-1.5 px-3 rounded-[7px] text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
                     updateRateMode === 'SIZE_WISE'
                       ? 'bg-white text-indigo-700 shadow-xs'
                       : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
-                  📏 Size-Wise Rates
+                  <Layers className="w-3.5 h-3.5" />
+                  <span>Size-Wise Rates</span>
                 </button>
               </div>
 
@@ -1028,7 +1218,32 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
 
               {/* Mode B: Size-Wise Rates */}
               {updateRateMode === 'SIZE_WISE' && (
-                <div className="space-y-2">
+                <div className="space-y-3">
+                  {/* Quick Preset Buttons */}
+                  <div>
+                    <span className="block text-[10.5px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+                      Quick Fill Presets:
+                    </span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {Object.entries(SIZE_PRESETS).map(([key, preset]) => (
+                        <button
+                          key={key}
+                          type="button"
+                          onClick={() => {
+                            const newRows = preset.sizes.map((sz, idx) => ({
+                              id: (idx + 1).toString(),
+                              size: sz,
+                              rate: updateSizeRateRows.find(r => r.size === sz)?.rate || selectedArticleForRate.stitching_rate.toString()
+                            }))
+                            setUpdateSizeRateRows(newRows)
+                          }}
+                          className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-[11px] font-semibold border border-slate-200 transition-colors"
+                        >
+                          {preset.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                   <div className="border rounded-[8px] overflow-hidden" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
                     <div className="bg-slate-50 px-3 py-2 border-b grid grid-cols-12 gap-2 text-[11px] font-bold text-slate-600 uppercase" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
                       <div className="col-span-5">Size</div>

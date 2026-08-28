@@ -29,6 +29,11 @@ const ROLE_BADGE_STYLES: Record<string, { bg: string; text: string; label: strin
     text: '#FFFFFF',
     label: 'ADMIN'
   },
+  PRODUCTION_MANAGER: {
+    bg: '#0F766E',
+    text: '#FFFFFF',
+    label: 'PROD MANAGER'
+  },
   PRODUCTION: {
     bg: 'var(--steel, #2B4C7E)',
     text: '#FFFFFF',
@@ -248,6 +253,7 @@ export function EmployeeList({ employees }: { employees: Profile[] }) {
                             color: roleBadge.text
                           }}
                         >
+                          <option value="PRODUCTION_MANAGER">PROD MANAGER (PPC & Floor)</option>
                           <option value="LINEMAN">LINEMAN (Stitching)</option>
                           <option value="PRODUCTION">PRODUCTION (QC)</option>
                           <option value="STORE">STORE (Inventory)</option>

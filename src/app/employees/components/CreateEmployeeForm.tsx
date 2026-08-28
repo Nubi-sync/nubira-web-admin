@@ -136,6 +136,7 @@ export function CreateEmployeeForm() {
                   : '#F8FAFC'
               }}
             >
+              <option value="PRODUCTION_MANAGER">Production Manager (PPC & Floor Deadlines)</option>
               <option value="LINEMAN">Lineman (Stitching & Floor Allotment)</option>
               <option value="PRODUCTION">Production (QC Inspection & Finishing)</option>
               <option value="STORE">Store (Godown & Raw Trims)</option>
