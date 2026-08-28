@@ -2,7 +2,10 @@
 
 import { useState, useMemo, useTransition, useEffect } from 'react'
 import { 
-  Tag, 
+  Tag,
+  Trash2,
+  Layers,
+  Sparkles, 
   Plus, 
   Search, 
    
@@ -34,6 +37,7 @@ type Article = {
   art_no: string
   description?: string | null
   stitching_rate: number
+  size_rates?: Record<string, number> | null
   is_active: boolean
   created_at: string
 }
@@ -56,6 +60,15 @@ type SortField = 'art_no' | 'stitching_rate' | 'created_at'
 type SortOrder = 'asc' | 'desc'
 
 
+
+const SIZE_PRESETS: Record<string, { label: string; sizes: string[] }> = {
+  ALPHA: { label: 'Adult Alpha (S-XXL)', sizes: ['S', 'M', 'L', 'XL', 'XXL'] },
+  NUMERIC: { label: 'Numeric Jeans (28-38)', sizes: ['28', '30', '32', '34', '36', '38'] },
+  KIDS_AGE: { label: 'Kids Age (2-13Y)', sizes: ['2-3Y', '4-5Y', '6-7Y', '8-9Y', '10-11Y', '12-13Y'] },
+  KIDS_NUM: { label: 'Kids Num (20-32)', sizes: ['20', '22', '24', '26', '28', '30', '32'] },
+  UNIVERSAL: { label: 'Universal (Free Size)', sizes: ['Free Size'] },
+}
+
 function cleanArticleDesc(desc?: string | null) {
   if (!desc) return ''
   return desc.replace(/\s*\[.*?\]/g, '').trim()
@@ -65,6 +78,36 @@ function formatRateDate(dateStr?: string | null) {
   if (!dateStr) return ''
   const d = new Date(dateStr)
   return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+}
+
+
+function renderArticleRateBadge(item: Article) {
+  if (item.size_rates && Object.keys(item.size_rates).length > 0) {
+    const rates = Object.values(item.size_rates).filter(r => !isNaN(r) && r > 0)
+    if (rates.length > 0) {
+      const min = Math.min(...rates)
+      const max = Math.max(...rates)
+      const label = min === max ? `₹${min.toFixed(2)}` : `₹${min.toFixed(2)} - ₹${max.toFixed(2)}`
+      return (
+        <div className="flex flex-col items-start gap-1">
+          <div className="flex items-center gap-1.5">
+            <span className="font-mono font-bold text-slate-800 text-[13px]">{label}</span>
+            <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
+              Size-Wise
+            </span>
+          </div>
+          <div className="text-[11px] text-slate-500 flex flex-wrap gap-1 max-w-[220px]">
+            {Object.entries(item.size_rates).map(([sz, rt]) => (
+              <span key={sz} className="font-mono text-[10.5px] bg-slate-100 px-1 py-0.2 rounded border border-slate-200">
+                {sz}:₹{rt}
+              </span>
+            ))}
+          </div>
+        </div>
+      )
+    }
+  }
+  return <span className="font-mono font-bold text-slate-800 text-[13px]">₹{item.stitching_rate.toFixed(2)}</span>
 }
 
 export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
@@ -95,6 +138,19 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
   const [historyArticle, setHistoryArticle] = useState<Article | null>(null)
   const [specificHistoryList, setSpecificHistoryList] = useState<RateHistoryItem[]>([])
   const [loadingHistory, setLoadingHistory] = useState(false)
+
+
+  // Rate Mode & Size-Wise State
+  const [addRateMode, setAddRateMode] = useState<'FLAT' | 'SIZE_WISE'>('FLAT')
+  const [addSizeRateRows, setAddSizeRateRows] = useState<Array<{ id: string; size: string; rate: string }>>([
+    { id: '1', size: 'S', rate: '' },
+    { id: '2', size: 'M', rate: '' },
+    { id: '3', size: 'L', rate: '' },
+    { id: '4', size: 'XL', rate: '' },
+    { id: '5', size: 'XXL', rate: '' },
+  ])
+  const [updateRateMode, setUpdateRateMode] = useState<'FLAT' | 'SIZE_WISE'>('FLAT')
+  const [updateSizeRateRows, setUpdateSizeRateRows] = useState<Array<{ id: string; size: string; rate: string }>>([])
 
   // Add Article Form State
   const [addArtNo, setAddArtNo] = useState('')
@@ -888,18 +944,18 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
       )}
 
       {/* ======================================================== */}
-      {/* MODAL 2: UPDATE RATE MODAL                               */}
+      {/* MODAL 2: UPDATE RATE MODAL (WITH SIZE-WISE SUPPORT)      */}
       {/* ======================================================== */}
       {showUpdateRateModal && selectedArticleForRate && (
         <div 
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
           style={{ backgroundColor: 'rgba(28,39,51,0.45)' }}
           onClick={(e) => {
             if (e.target === e.currentTarget) setShowUpdateRateModal(false)
           }}
         >
           <div 
-            className="w-full max-w-[380px] bg-white rounded-[13px] p-[24px] shadow-2xl border relative space-y-4 animate-in fade-in zoom-in-95 duration-150"
+            className="w-full max-w-[500px] my-6 bg-white rounded-[13px] p-[24px] shadow-2xl border relative space-y-4 animate-in fade-in zoom-in-95 duration-150"
             style={{ borderColor: 'var(--border, #E2E8F0)' }}
           >
             <div className="flex items-center justify-between pb-3 border-b" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
@@ -922,29 +978,128 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
             </div>
 
             <form onSubmit={handleUpdateRateSubmit} className="space-y-4 text-xs">
-              <div>
-                <div className="flex justify-between items-center mb-1">
-                  <span className="text-[11px] font-semibold text-slate-500">Current Rate:</span>
-                  <span className="font-mono font-bold text-slate-800">₹{selectedArticleForRate.stitching_rate.toFixed(2)}/pc</span>
-                </div>
-
-                <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mt-3 mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
-                  New Stitching Rate (₹)
-                </label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 font-mono font-bold text-slate-500">₹</span>
-                  <input
-                    type="number"
-                    step="0.01"
-                    required
-                    value={newRateValue}
-                    onChange={(e) => setNewRateValue(e.target.value)}
-                    className="w-full pl-7 pr-3 py-2 bg-slate-50 border rounded-[7px] text-xs font-mono font-bold outline-none focus:bg-white"
-                    style={{ borderColor: 'var(--border, #E2E8F0)' }}
-                    autoFocus
-                  />
-                </div>
+              
+              {/* Rate Mode Tabs */}
+              <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-[9px] border border-slate-200">
+                <button
+                  type="button"
+                  onClick={() => setUpdateRateMode('FLAT')}
+                  className={`py-1.5 px-3 rounded-[7px] text-xs font-bold transition-all text-center ${
+                    updateRateMode === 'FLAT'
+                      ? 'bg-white text-[var(--steel,#2B4C7E)] shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  🏷️ Flat Rate
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setUpdateRateMode('SIZE_WISE')}
+                  className={`py-1.5 px-3 rounded-[7px] text-xs font-bold transition-all text-center ${
+                    updateRateMode === 'SIZE_WISE'
+                      ? 'bg-white text-indigo-700 shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  📏 Size-Wise Rates
+                </button>
               </div>
+
+              {/* Mode A: Flat Rate */}
+              {updateRateMode === 'FLAT' && (
+                <div>
+                  <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                    New Stitching Rate (₹)
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 font-mono font-bold text-slate-500">₹</span>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={newRateValue}
+                      onChange={(e) => setNewRateValue(e.target.value)}
+                      className="w-full pl-7 pr-3 py-2 bg-slate-50 border rounded-[7px] text-xs font-mono font-bold outline-none focus:bg-white"
+                      style={{ borderColor: 'var(--border, #E2E8F0)' }}
+                      autoFocus
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Mode B: Size-Wise Rates */}
+              {updateRateMode === 'SIZE_WISE' && (
+                <div className="space-y-2">
+                  <div className="border rounded-[8px] overflow-hidden" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+                    <div className="bg-slate-50 px-3 py-2 border-b grid grid-cols-12 gap-2 text-[11px] font-bold text-slate-600 uppercase" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+                      <div className="col-span-5">Size</div>
+                      <div className="col-span-6">Rate (₹)</div>
+                      <div className="col-span-1"></div>
+                    </div>
+
+                    <div className="divide-y max-h-[180px] overflow-y-auto" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+                      {updateSizeRateRows.map((row, idx) => (
+                        <div key={row.id} className="p-2 grid grid-cols-12 gap-2 items-center">
+                          <div className="col-span-5">
+                            <input
+                              type="text"
+                              value={row.size}
+                              onChange={(e) => {
+                                const updated = [...updateSizeRateRows]
+                                updated[idx].size = e.target.value
+                                setUpdateSizeRateRows(updated)
+                              }}
+                              className="w-full px-2 py-1 bg-white border rounded text-xs font-mono font-bold outline-none"
+                              style={{ borderColor: 'var(--border, #E2E8F0)' }}
+                            />
+                          </div>
+                          <div className="col-span-6 relative">
+                            <span className="absolute left-2.5 top-1/2 -translate-y-1/2 font-mono font-bold text-slate-400 text-xs">₹</span>
+                            <input
+                              type="number"
+                              step="0.01"
+                              value={row.rate}
+                              onChange={(e) => {
+                                const updated = [...updateSizeRateRows]
+                                updated[idx].rate = e.target.value
+                                setUpdateSizeRateRows(updated)
+                              }}
+                              className="w-full pl-6 pr-2 py-1 bg-white border rounded text-xs font-mono font-bold outline-none text-indigo-900"
+                              style={{ borderColor: 'var(--border, #E2E8F0)' }}
+                            />
+                          </div>
+                          <div className="col-span-1 text-center">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (updateSizeRateRows.length > 1) {
+                                  setUpdateSizeRateRows(updateSizeRateRows.filter(r => r.id !== row.id))
+                                }
+                              }}
+                              className="p-1 text-slate-400 hover:text-rose-600 rounded"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="p-2 bg-slate-50 border-t flex justify-between items-center" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const nextId = Date.now().toString()
+                          setUpdateSizeRateRows([...updateSizeRateRows, { id: nextId, size: '', rate: '' }])
+                        }}
+                        className="px-2.5 py-1 bg-white hover:bg-slate-100 text-indigo-700 rounded text-xs font-bold border border-indigo-200 flex items-center gap-1"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        Add Size Rate
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {rateUpdateError && (
                 <div className="p-2.5 rounded-[7px] text-[11.5px] font-medium" style={{ backgroundColor: 'var(--red-mist, #FBEAE8)', color: 'var(--red, #C0392B)' }}>

@@ -5,6 +5,7 @@ import { useState, useMemo } from 'react'
 import { createDetailedAllotment, VariantPayload, MaterialPayload } from '../actions'
 import { 
   ClipboardList,
+  UserCheck,
   Clock,
   Calendar,
   Flame,
@@ -94,6 +95,7 @@ export function CreateAllotmentForm({
   // Client Challan & Multi-Sample Photos (Up to 4)
 
   // Production Order, Deadlines & Priority
+  const [managerName, setManagerName] = useState('')
   const [productionOrderNo, setProductionOrderNo] = useState('')
   const [dueDate, setDueDate] = useState(() => {
     const d = new Date()
@@ -385,7 +387,8 @@ export function CreateAllotmentForm({
       lineman_id: linemanId,
       article_id: articleId,
       target_qty: totalPieces,
-      production_order_no: productionOrderNo.trim() || `PO-${Date.now().toString().slice(-6)}`,
+      production_order_no: `PO-${Date.now().toString().slice(-6)}`,
+      manager_name: managerName.trim() || 'Production Manager',
       due_date: dueDate,
       target_hours: targetHours,
       priority: priority,
@@ -402,6 +405,7 @@ export function CreateAllotmentForm({
       setSuccess(true)
       setIsPending(false)
       // Reset form fields
+      setManagerName('')
       setProductionOrderNo('')
       setClientChallanNo('')
       setSamplePhotos([])
@@ -496,29 +500,29 @@ export function CreateAllotmentForm({
           {/* Row 0: Production Order # & Priority Selector */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5 pb-5 border-b" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
             
-            {/* Production Order # */}
+            {/* Production Manager Name */}
             <div className="space-y-1.5">
               <label 
-                htmlFor="production_order_no" 
+                htmlFor="manager_name" 
                 className="block text-[11px] font-semibold uppercase tracking-[1.5px]"
                 style={{ color: 'var(--ink-soft, #5B6B7C)' }}
               >
-                Production Order # (Job Card / PO #) <span className="text-red-500">*</span>
+                Production Manager (Allotted By) <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <input
-                  id="production_order_no"
+                  id="manager_name"
                   type="text"
-                  value={productionOrderNo}
-                  onChange={(e) => setProductionOrderNo(e.target.value)}
-                  placeholder="e.g. PO-8821 / LOT-2026-04"
-                  className="w-full py-[10px] pl-9 pr-3 text-[13.5px] font-mono font-bold rounded-[8px] border transition-colors outline-none bg-white uppercase text-[var(--steel-dark,#1F3A63)]"
+                  value={managerName}
+                  onChange={(e) => setManagerName(e.target.value)}
+                  placeholder="e.g. Amit Sharma / Rajesh Verma"
+                  className="w-full py-[10px] pl-9 pr-3 text-[13.5px] font-medium rounded-[8px] border transition-colors outline-none bg-white text-[var(--steel-dark,#1F3A63)]"
                   style={{ borderColor: 'var(--border, #E2E8F0)' }}
                 />
-                <FileText className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <UserCheck className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               </div>
               <p className="text-[11.5px] text-slate-500">
-                Official factory production order reference for this stitching batch.
+                Name of the Production Manager issuing this stitching target and deadline.
               </p>
             </div>
 
