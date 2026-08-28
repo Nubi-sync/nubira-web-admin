@@ -80,6 +80,17 @@ export default async function AllotmentsPage() {
     materials = mData || []
   }
 
+  // 5.1 Fetch live worker assignments for these allotments
+  let assignments: any[] = []
+  if (allotmentIds.length > 0) {
+    const { data: aData } = await supabase
+      .from('worker_assignments')
+      .select('id, allotment_id, worker_name, assigned_qty, completed_qty, color, size, status, notes, assigned_at, completed_at')
+      .in('allotment_id', allotmentIds)
+      .order('assigned_at', { ascending: false })
+    assignments = aData || []
+  }
+
   // 6. Calculate achieved_qty for each allotment based on daily_product
   const allotmentDates = [...new Set(allotmentsRaw?.map(a => a.allotment_date) || [])]
   const { data: dailyProducts } = await supabase
@@ -98,6 +109,7 @@ export default async function AllotmentsPage() {
 
     const alVariants = variants.filter(v => v.allotment_id === al.id)
     const alMaterials = materials.filter(m => m.allotment_id === al.id)
+    const alAssignments = assignments.filter(a => a.allotment_id === al.id)
 
     // Extract extended metadata from materials notes if available
     let managerName = (al as any).manager_name || ''
@@ -134,7 +146,8 @@ export default async function AllotmentsPage() {
       sample_photos: samplePhotos,
       achieved_qty: achieved,
       variants: alVariants,
-      materials: alMaterials
+      materials: alMaterials,
+      assignments: alAssignments
     }
   })
 

@@ -409,7 +409,7 @@ export function CreateAllotmentForm({
     const payloadMaterials: MaterialPayload[] = materials.map(m => ({
       item_name: m.item_name,
       required_qty: m.required_qty,
-      admin_issued: m.admin_issued,
+      admin_issued: false,
       source: m.source
     }))
 

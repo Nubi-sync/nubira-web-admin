@@ -23,7 +23,8 @@ import {
   PackageCheck,
   Layers,
   AlertTriangle,
-  FileText
+  FileText,
+  Users
 } from 'lucide-react'
 
 export type VariantItem = {
@@ -65,6 +66,17 @@ export type Allotment = {
   articles: { art_no: string; description?: string }
   variants?: VariantItem[]
   materials?: MaterialItem[]
+  assignments?: Array<{
+    id: string
+    worker_name: string
+    assigned_qty: number
+    completed_qty?: number
+    color?: string
+    size?: string
+    status: string
+    notes?: string
+    assigned_at?: string
+  }>
 }
 
 type StatusFilter = 'ALL' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED'
@@ -554,6 +566,75 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                                               <span>{item.quantity} pcs</span>
                                             </span>
                                           ))}
+                                        </div>
+                                      </div>
+                                    )
+                                  })}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Live Sewing Floor Tailor Allocations (Machine Stations & Borrowed Workers) */}
+                            {al.assignments && al.assignments.length > 0 && (
+                              <div className="pt-3 border-t border-slate-200/60 space-y-2">
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-2">
+                                    <Users className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" />
+                                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-700">
+                                      Live Floor Tailor Allocations ({al.assignments.length} batches assigned)
+                                    </span>
+                                  </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
+                                  {al.assignments.map((ass) => {
+                                    const notesStr = ass.notes || ''
+                                    let station = 'STITCHING'
+                                    let isBorrowed = false
+                                    let borrowedFrom = ''
+
+                                    if (notesStr.includes('[OVERLOCK]')) station = 'OVERLOCK'
+                                    if (notesStr.includes('[FIVE_THREAD]')) station = '5-THREAD SAFETY'
+                                    if (notesStr.includes('[FLATLOCK]')) station = 'FLATLOCK / RIB'
+                                    if (notesStr.includes('[LOCKING]')) station = 'LOCKING / SINGLE'
+
+                                    if (notesStr.includes('[BORROWED:')) {
+                                      isBorrowed = true
+                                      const match = notesStr.match(/\[BORROWED:\s*(.*?)\]/)
+                                      if (match && match[1]) borrowedFrom = match[1]
+                                    }
+
+                                    return (
+                                      <div 
+                                        key={ass.id}
+                                        className="p-2.5 bg-white rounded-lg border border-slate-200 text-xs space-y-1.5 shadow-2xs"
+                                      >
+                                        <div className="flex items-center justify-between">
+                                          <span className="font-bold text-slate-900">{ass.worker_name}</span>
+                                          <span className="font-mono font-bold text-indigo-900 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100 text-[11px]">
+                                            {ass.assigned_qty} pcs
+                                          </span>
+                                        </div>
+
+                                        <div className="flex flex-wrap items-center gap-1.5 text-[10.5px]">
+                                          {/* Machine Operation Badge */}
+                                          <span className="px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 font-semibold border border-blue-200">
+                                            {station}
+                                          </span>
+
+                                          {/* Color & Size Variant */}
+                                          {(ass.color || ass.size) && (
+                                            <span className="px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 font-mono">
+                                              {ass.color || ''} {ass.size ? `(${ass.size})` : ''}
+                                            </span>
+                                          )}
+
+                                          {/* Borrowed Worker Badge */}
+                                          {isBorrowed && (
+                                            <span className="px-1.5 py-0.5 rounded bg-amber-50 text-amber-800 font-bold border border-amber-300">
+                                              ⇄ Borrowed from {borrowedFrom || 'Other Line'}
+                                            </span>
+                                          )}
                                         </div>
                                       </div>
                                     )

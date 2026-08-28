@@ -133,8 +133,8 @@ export async function createDetailedAllotment(payload: {
         allotment_id: allotmentId,
         item_name: m.item_name.trim(),
         required_qty: m.required_qty.trim() || 'As required',
-        admin_issued: m.admin_issued ?? false,
-        admin_issued_at: m.admin_issued ? nowIso : null,
+        admin_issued: false,
+        admin_issued_at: null,
         lineman_received: false,
         notes: JSON.stringify({ 
           lineman_name: linemanName, 
