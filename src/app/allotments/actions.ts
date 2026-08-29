@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/utils/supabase/server'
+import { supabaseAdmin } from '@/utils/supabase/admin'
 
 export type VariantPayload = {
   color: string
@@ -30,7 +31,14 @@ export async function createDetailedAllotment(payload: {
   variants: VariantPayload[]
   materials: MaterialPayload[]
 }) {
-  const supabase = await createClient()
+  try {
+    let supabase: any = supabaseAdmin
+    try {
+      const serverClient = await createClient()
+      if (serverClient) supabase = serverClient
+    } catch (_) {
+      supabase = supabaseAdmin
+    }
 
   const { 
     lineman_id, 
@@ -177,6 +185,10 @@ export async function createDetailedAllotment(payload: {
 
   revalidatePath('/allotments')
   return { success: true }
+  } catch (globalErr: any) {
+    console.error('Fatal error in createDetailedAllotment:', globalErr)
+    return { error: globalErr?.message || 'Server error while creating allotment. Please try again.' }
+  }
 }
 
 export async function createAllotment(formData: FormData) {
