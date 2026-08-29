@@ -83,7 +83,7 @@ function formatRateDate(dateStr?: string | null) {
 
 function renderArticleRateBadge(item: Article) {
   if (item.size_rates && Object.keys(item.size_rates).length > 0) {
-    const rates = Object.values(item.size_rates).filter(r => !isNaN(r) && r > 0)
+    const validEntries = Object.entries(item.size_rates).filter(([k, v]) => k !== '_meta' && typeof v === 'number' && !isNaN(v) && v > 0); const rates = validEntries.map(([, v]) => v as number)
     if (rates.length > 0) {
       const min = Math.min(...rates)
       const max = Math.max(...rates)
@@ -97,7 +97,7 @@ function renderArticleRateBadge(item: Article) {
             </span>
           </div>
           <div className="text-[11px] text-slate-500 flex flex-wrap gap-1 max-w-[220px]">
-            {Object.entries(item.size_rates).map(([sz, rt]) => (
+            {Object.entries(item.size_rates).filter(([sz, rt]) => sz !== '_meta' && typeof rt === 'number').map(([sz, rt]) => (
               <span key={sz} className="font-mono text-[10.5px] bg-slate-100 px-1 py-0.2 rounded border border-slate-200">
                 {sz}:₹{rt}
               </span>
@@ -411,7 +411,7 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
     setRateUpdateError(null)
     if (article.size_rates && Object.keys(article.size_rates).length > 0) {
       setUpdateRateMode('SIZE_WISE')
-      const rows = Object.entries(article.size_rates).map(([sz, rt], idx) => ({
+      const rows = Object.entries(article.size_rates).filter(([sz]) => sz !== '_meta').map(([sz, rt], idx) => ({
         id: (idx + 1).toString(),
         size: sz,
         rate: rt.toString()
