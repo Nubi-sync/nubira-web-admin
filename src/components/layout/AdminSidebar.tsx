@@ -3,7 +3,8 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { 
-  LayoutDashboard, 
+  LayoutDashboard,
+  Layers, 
   ClipboardList, 
   Warehouse, 
   Truck, 
@@ -33,6 +34,7 @@ const navSections: NavSection[] = [
   {
     section: 'Production',
     items: [
+      { label: 'Production Chart', href: '/production-orders', icon: Layers },
       { label: 'Target Allotments', href: '/allotments', icon: ClipboardList },
       { label: 'Godown & Inventory', href: '/inventory', icon: Warehouse },
       { label: 'Dispatch & Challans', href: '/dispatch', icon: Truck },
