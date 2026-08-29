@@ -126,6 +126,16 @@ export async function createDetailedAllotment(payload: {
       if (prof?.username) linemanName = prof.username
     } catch (_) {}
 
+    let artNo = ''
+    let artDesc = ''
+    try {
+      const { data: aData } = await supabase.from('articles').select('art_no, description').eq('id', article_id).single()
+      if (aData) {
+        artNo = aData.art_no || ''
+        artDesc = aData.description || ''
+      }
+    } catch (_) {}
+
     const nowIso = new Date().toISOString()
     const validMaterials = materials
       .filter(m => m.item_name.trim() !== '')
@@ -138,6 +148,9 @@ export async function createDetailedAllotment(payload: {
         lineman_received: false,
         notes: JSON.stringify({ 
           lineman_name: linemanName, 
+          article_id: article_id,
+          art_no: artNo,
+          article_description: artDesc, 
           lineman_id: lineman_id, 
           production_order_no: production_order_no || '',
           manager_name: manager_name || 'Production Manager',
@@ -188,6 +201,21 @@ export async function updateAllotmentStatus(allotmentId: string, newStatus: stri
     .from('allotments')
     .update({ status: newStatus })
     .eq('id', allotmentId)
+
+  if (!error) {
+    try {
+      // Sync status to allotment_materials notes for mobile dashboard consistency
+      const { data: mats } = await supabase.from('allotment_materials').select('id, notes').eq('allotment_id', allotmentId)
+      if (mats && mats.length > 0) {
+        for (const m of mats) {
+          let nObj: Record<string, any> = {}
+          try { if (m.notes) nObj = JSON.parse(m.notes) } catch (_) {}
+          nObj.status = newStatus
+          await supabase.from('allotment_materials').update({ notes: JSON.stringify(nObj) }).eq('id', m.id)
+        }
+      }
+    } catch (_) {}
+  }
 
   if (error) {
     return { error: error.message }

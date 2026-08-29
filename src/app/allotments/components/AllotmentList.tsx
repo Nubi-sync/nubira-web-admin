@@ -521,6 +521,44 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                         <td colSpan={7} className="px-6 py-4">
                           <div className="space-y-4">
                             
+                            {/* Buyer Golden Sample Reference Photos Gallery */}
+                            {al.sample_photos && al.sample_photos.length > 0 && (
+                              <div className="p-3.5 bg-white rounded-lg border border-slate-200 shadow-2xs space-y-2">
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-2">
+                                    <FileText className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" />
+                                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-700">
+                                      Buyer Golden Sample Reference Photos ({al.sample_photos.length} photos)
+                                    </span>
+                                  </div>
+                                  {al.client_challan_no && (
+                                    <span className="text-[11px] font-mono font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+                                      Challan #: {al.client_challan_no}
+                                    </span>
+                                  )}
+                                </div>
+
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
+                                  {al.sample_photos.map((photo, idx) => (
+                                    <div 
+                                      key={idx} 
+                                      className="relative group rounded-lg overflow-hidden border border-slate-200 aspect-square bg-slate-50 shadow-2xs"
+                                    >
+                                      <img 
+                                        src={photo} 
+                                        alt={`Sample ${idx + 1}`} 
+                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform cursor-pointer"
+                                        onClick={() => window.open(photo, '_blank')}
+                                      />
+                                      <span className="absolute bottom-1 left-1 px-1.5 py-0.5 bg-black/75 text-[10px] text-white rounded font-mono font-semibold">
+                                        {idx === 0 ? 'Front' : idx === 1 ? 'Back' : idx === 2 ? 'Label' : 'Detail'}
+                                      </span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
                             {/* Size & Color Matrix Section */}
                             {variants.length > 0 && (
                               <div>
