@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useTransition } from 'react'
+import { useState, useMemo, useTransition, useRef } from 'react'
 import Link from 'next/link'
 import {
   Calendar,
@@ -22,7 +22,9 @@ import {
   X,
   ExternalLink,
   ChevronDown,
-  UserCheck
+  Upload,
+  Image as ImageIcon,
+  Palette
 } from 'lucide-react'
 import {
   ProductionOrderPayload,
@@ -63,6 +65,7 @@ export function ProductionOrdersClient({
 }: ProductionOrdersClientProps) {
   const [isPending, startTransition] = useTransition()
   const [orders, setOrders] = useState<any[]>(initialOrders || [])
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Filters
   const [searchQuery, setSearchQuery] = useState('')
@@ -81,12 +84,18 @@ export function ProductionOrdersClient({
   const [formArtNo, setFormArtNo] = useState('')
   const [formSubArtNo, setFormSubArtNo] = useState('')
   const [formPictureUrl, setFormPictureUrl] = useState('')
+  const [imageUploadType, setImageUploadType] = useState<'FILE' | 'URL'>('FILE')
   const [formMtCode, setFormMtCode] = useState('')
   const [formFabric, setFormFabric] = useState('PRINTED SINKER')
   const [formPatternNo, setFormPatternNo] = useState('')
   const [formDescription, setFormDescription] = useState('')
-  const [formBodyColor, setFormBodyColor] = useState('')
-  const [formPantColor, setFormPantColor] = useState('')
+  
+  // Multi-Color State
+  const [formBodyColors, setFormBodyColors] = useState<string[]>(['Blue Printed'])
+  const [formPantColors, setFormPantColors] = useState<string[]>(['Blue Printed'])
+  const [newBodyColorInput, setNewBodyColorInput] = useState('')
+  const [newPantColorInput, setNewPantColorInput] = useState('')
+  
   const [formBrand, setFormBrand] = useState('OLLYPOP')
   const [formRibStatus, setFormRibStatus] = useState('PENDING')
   const [formNotes, setFormNotes] = useState('')
@@ -95,6 +104,48 @@ export function ProductionOrdersClient({
     { size: '16X20', sets: 100, ratio: 3, pcs: 300 },
     { size: '22X26', sets: 100, ratio: 3, pcs: 300 }
   ])
+
+  // Handle local image file upload (convert to Base64 data URL)
+  const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert('File size exceeds 5MB. Please choose a smaller image.')
+        return
+      }
+      const reader = new FileReader()
+      reader.onload = (uploadEvent) => {
+        const result = uploadEvent.target?.result as string
+        setFormPictureUrl(result)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  // Multi-Color Add/Remove handlers
+  const handleAddBodyColor = () => {
+    if (newBodyColorInput.trim()) {
+      const parts = newBodyColorInput.split(',').map(s => s.trim()).filter(Boolean)
+      setFormBodyColors(prev => [...prev, ...parts])
+      setNewBodyColorInput('')
+    }
+  }
+
+  const handleRemoveBodyColor = (idx: number) => {
+    setFormBodyColors(prev => prev.filter((_, i) => i !== idx))
+  }
+
+  const handleAddPantColor = () => {
+    if (newPantColorInput.trim()) {
+      const parts = newPantColorInput.split(',').map(s => s.trim()).filter(Boolean)
+      setFormPantColors(prev => [...prev, ...parts])
+      setNewPantColorInput('')
+    }
+  }
+
+  const handleRemovePantColor = (idx: number) => {
+    setFormPantColors(prev => prev.filter((_, i) => i !== idx))
+  }
 
   // Auto-fill when Art No changes
   const handleArtNoSelect = (artNoValue: string) => {
@@ -221,6 +272,9 @@ export function ProductionOrdersClient({
       return
     }
 
+    const bodyColorsStr = formBodyColors.join(' / ')
+    const pantColorsStr = formPantColors.length > 0 ? formPantColors.join(' / ') : bodyColorsStr
+
     const newOrderPayload: ProductionOrderPayload = {
       delivery_date: formDeliveryDate,
       art_no: formArtNo.trim().toUpperCase(),
@@ -230,8 +284,8 @@ export function ProductionOrdersClient({
       fabric: formFabric,
       pattern_no: formPatternNo.trim().toUpperCase(),
       description: formDescription.trim(),
-      body_color: formBodyColor.trim(),
-      pant_color: formPantColor.trim() || formBodyColor.trim(),
+      body_color: bodyColorsStr,
+      pant_color: pantColorsStr,
       brand: formBrand.trim().toUpperCase(),
       rib_status: formRibStatus,
       notes: formNotes.trim(),
@@ -259,8 +313,9 @@ export function ProductionOrdersClient({
         setFormSubArtNo('')
         setFormPatternNo('')
         setFormDescription('')
-        setFormBodyColor('')
-        setFormPantColor('')
+        setFormBodyColors(['Blue Printed'])
+        setFormPantColors(['Blue Printed'])
+        setFormPictureUrl('')
         setFormMtCode('')
       }
     })
@@ -291,8 +346,8 @@ export function ProductionOrdersClient({
       o.fabric,
       o.pattern_no,
       `"${o.description?.replace(/"/g, '""') || ''}"`,
-      o.body_color,
-      o.pant_color,
+      `"${o.body_color || ''}"`,
+      `"${o.pant_color || ''}"`,
       o.brand,
       o.size_matrix?.reduce((acc: number, r: any) => acc + (Number(r.sets) || 0), 0) || o.total_sets || 0,
       o.size_matrix?.reduce((acc: number, r: any) => acc + (Number(r.pcs) || 0), 0) || o.total_pcs || 0,
@@ -485,7 +540,7 @@ export function ProductionOrdersClient({
                 <th className="py-3 px-3 w-[120px]">Fabric</th>
                 <th className="py-3 px-3 w-[110px]">Pattern</th>
                 <th className="py-3 px-3 min-w-[180px]">Description</th>
-                <th className="py-3 px-3 min-w-[150px]">Body / Pant Color</th>
+                <th className="py-3 px-3 min-w-[170px]">Colors Assortment</th>
                 <th className="py-3 px-3 w-[120px]">Size & Sets</th>
                 <th className="py-3 px-3 w-[80px] text-right">Pcs</th>
                 <th className="py-3 px-3 w-[90px]">Brand</th>
@@ -496,9 +551,17 @@ export function ProductionOrdersClient({
             <tbody className="divide-y text-[12.5px] font-medium" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
               {filteredOrders.length === 0 ? (
                 <tr>
-                  <td colSpan={13} className="py-12 text-center text-slate-400">
-                    <Layers className="w-8 h-8 mx-auto text-slate-300 mb-2" />
-                    <p className="text-xs font-semibold">No production orders found matching your filters.</p>
+                  <td colSpan={13} className="py-14 text-center text-slate-400">
+                    <Layers className="w-10 h-10 mx-auto text-slate-300 mb-2" />
+                    <p className="text-sm font-bold text-slate-700">No Production Orders Recorded Yet</p>
+                    <p className="text-xs text-slate-400 mt-1 mb-4">Click "+ New Production Order" to add your first factory job sheet</p>
+                    <button
+                      type="button"
+                      onClick={() => setShowNewOrderModal(true)}
+                      className="px-4 py-2 bg-[var(--steel,#2B4C7E)] text-white text-xs font-bold rounded-xl shadow-xs hover:opacity-95 cursor-pointer"
+                    >
+                      + Add Production Order
+                    </button>
                   </td>
                 </tr>
               ) : (
@@ -584,16 +647,16 @@ export function ProductionOrdersClient({
                         </p>
                       </td>
 
-                      {/* 8. Body / Pant Color */}
+                      {/* 8. Body / Pant Color (Supports Multi-Colors) */}
                       <td className="py-3 px-3 text-xs leading-snug">
-                        <div className="text-slate-800 font-semibold">
-                          <span className="text-[10px] text-slate-400 uppercase font-bold mr-1">Body:</span>
-                          {order.body_color || '-'}
+                        <div className="flex flex-wrap gap-1 items-center">
+                          <span className="text-[10px] text-slate-400 uppercase font-bold">Body:</span>
+                          <span className="font-semibold text-slate-800">{order.body_color || '-'}</span>
                         </div>
                         {order.pant_color && order.pant_color !== order.body_color && (
-                          <div className="text-slate-600 mt-0.5">
-                            <span className="text-[10px] text-slate-400 uppercase font-bold mr-1">Pant:</span>
-                            {order.pant_color}
+                          <div className="flex flex-wrap gap-1 items-center mt-1 pt-1 border-t border-slate-100">
+                            <span className="text-[10px] text-slate-400 uppercase font-bold">Pant:</span>
+                            <span className="font-medium text-slate-600">{order.pant_color}</span>
                           </div>
                         )}
                       </td>
@@ -672,11 +735,13 @@ export function ProductionOrdersClient({
       </div>
 
       {/* ========================================================= */}
-      {/* 5. MODAL: NEW PRODUCTION ORDER CREATION                   */}
+      {/* 5. MODAL: NEW PRODUCTION ORDER CREATION (MULTI-COLOR & UPLOAD)*/}
       {/* ========================================================= */}
       {showNewOrderModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-3xl flex flex-col max-h-[90vh] overflow-hidden">
+          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-3xl flex flex-col max-h-[92vh] overflow-hidden">
+            
+            {/* Sticky Header */}
             <div className="p-4 sm:p-5 border-b flex items-center justify-between bg-slate-50 shrink-0" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-[var(--steel-mist,#EEF3FA)] text-[var(--steel,#2B4C7E)]">
@@ -694,283 +759,460 @@ export function ProductionOrdersClient({
               <button
                 type="button"
                 onClick={() => setShowNewOrderModal(false)}
-                className="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg cursor-pointer"
+                className="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg cursor-pointer hover:bg-slate-200/50"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
+            {/* Scrollable Form Body */}
             <form onSubmit={handleCreateOrder} className="flex flex-col flex-1 overflow-hidden">
-            <div className="p-4 sm:p-6 space-y-4 sm:space-y-5 overflow-y-auto flex-1">
-              
-              {/* Row 1: Delivery Date & Prodn/MT No */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
-                    Delivery Date <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="date"
-                    required
-                    value={formDeliveryDate}
-                    onChange={e => setFormDeliveryDate(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-1 focus:ring-[var(--steel,#2B4C7E)] focus:outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
-                    Production Lot / MT No. <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. MT-1025"
-                    value={formMtCode}
-                    onChange={e => setFormMtCode(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-1 focus:ring-[var(--steel,#2B4C7E)] focus:outline-none font-mono"
-                  />
-                </div>
-              </div>
-
-              {/* Row 2: Brand & Fabric Type */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
-                    Brand / Party <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    list="brand-suggestions"
-                    placeholder="e.g. OLLYPOP"
-                    value={formBrand}
-                    onChange={e => setFormBrand(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-1 focus:ring-[var(--steel,#2B4C7E)] focus:outline-none"
-                  />
-                  <datalist id="brand-suggestions">
-                    {DEFAULT_BRANDS.map(b => (
-                      <option key={b} value={b} />
-                    ))}
-                  </datalist>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
-                    Fabric Type <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    list="fabric-suggestions"
-                    placeholder="e.g. PRINTED SINKER"
-                    value={formFabric}
-                    onChange={e => setFormFabric(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-1 focus:ring-[var(--steel,#2B4C7E)] focus:outline-none"
-                  />
-                  <datalist id="fabric-suggestions">
-                    {DEFAULT_FABRICS.map(f => (
-                      <option key={f} value={f} />
-                    ))}
-                  </datalist>
-                </div>
-              </div>
-
-              {/* Row 3: Art No, Sub-Art & Pattern No */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
-                    Art No. <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. 8941"
-                    value={formArtNo}
-                    onChange={e => handleArtNoSelect(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:ring-1 focus:ring-[var(--steel,#2B4C7E)] focus:outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
-                    Sub-Variant (if any)
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. 8941A"
-                    value={formSubArtNo}
-                    onChange={e => setFormSubArtNo(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-1 focus:ring-[var(--steel,#2B4C7E)] focus:outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
-                    Pattern Master Code
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. LB-816 / G-342"
-                    value={formPatternNo}
-                    onChange={e => setFormPatternNo(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-1 focus:ring-[var(--steel,#2B4C7E)] focus:outline-none font-mono"
-                  />
-                </div>
-              </div>
-
-              {/* Row 4: Description */}
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
-                  Product Description
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. GIRLS FULL SLEEVE FRONT OPEN PEEPING NIGHT SUIT"
-                  value={formDescription}
-                  onChange={e => setFormDescription(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-1 focus:ring-[var(--steel,#2B4C7E)] focus:outline-none"
-                />
-              </div>
-
-              {/* Row 5: Body Color & Pant Color */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
-                    Body Color / Print
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Blue Printed"
-                    value={formBodyColor}
-                    onChange={e => setFormBodyColor(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-1 focus:ring-[var(--steel,#2B4C7E)] focus:outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
-                    Pant / Bottom Color
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Blue Printed (or Black Current)"
-                    value={formPantColor}
-                    onChange={e => setFormPantColor(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-1 focus:ring-[var(--steel,#2B4C7E)] focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              {/* Row 6: Sample Photo URL */}
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
-                  Sample Photo URL (or Image Link)
-                </label>
-                <input
-                  type="url"
-                  placeholder="https://... (or leave blank to use style master image)"
-                  value={formPictureUrl}
-                  onChange={e => setFormPictureUrl(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-1 focus:ring-[var(--steel,#2B4C7E)] focus:outline-none"
-                />
-              </div>
-
-              {/* Row 7: Size, Sets & Pieces Breakdown Matrix */}
-              <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                    Size, Sets & Pieces Matrix
-                  </span>
-                  <button
-                    type="button"
-                    onClick={handleAddSizeRow}
-                    className="px-2.5 py-1 bg-white border border-slate-300 rounded-lg text-xs font-bold text-[var(--steel,#2B4C7E)] hover:bg-slate-100 cursor-pointer"
-                  >
-                    + Add Size Row
-                  </button>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="grid grid-cols-12 gap-2 text-[10.5px] font-bold uppercase text-slate-400 px-1">
-                    <span className="col-span-4">Size Range</span>
-                    <span className="col-span-3">Sets Qty</span>
-                    <span className="col-span-2 text-center">Pcs/Set</span>
-                    <span className="col-span-2 text-right">Total Pcs</span>
-                    <span className="col-span-1 text-center">Del</span>
+              <div className="p-4 sm:p-6 space-y-4 sm:space-y-5 overflow-y-auto flex-1">
+                
+                {/* Row 1: Delivery Date & Prodn/MT No */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
+                      Delivery Date <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="date"
+                      required
+                      value={formDeliveryDate}
+                      onChange={e => setFormDeliveryDate(e.target.value)}
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-1 focus:ring-[var(--steel,#2B4C7E)] focus:outline-none"
+                    />
                   </div>
 
-                  {formSizeMatrix.map((row, rIdx) => (
-                    <div key={rIdx} className="grid grid-cols-12 gap-2 items-center">
-                      <div className="col-span-4">
-                        <input
-                          type="text"
-                          required
-                          placeholder="e.g. 16X20"
-                          value={row.size}
-                          onChange={e => handleSizeRowChange(rIdx, 'size', e.target.value)}
-                          className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-800 focus:ring-1 focus:ring-[var(--steel,#2B4C7E)] focus:outline-none"
-                        />
-                      </div>
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
+                      Production Lot / MT No. <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. MT-1025"
+                      value={formMtCode}
+                      onChange={e => setFormMtCode(e.target.value)}
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-1 focus:ring-[var(--steel,#2B4C7E)] focus:outline-none font-mono"
+                    />
+                  </div>
+                </div>
 
-                      <div className="col-span-3">
-                        <input
-                          type="number"
-                          min="1"
-                          required
-                          placeholder="Sets"
-                          value={row.sets}
-                          onChange={e => handleSizeRowChange(rIdx, 'sets', e.target.value)}
-                          className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-[#2563EB] focus:ring-1 focus:ring-[var(--steel,#2B4C7E)] focus:outline-none"
-                        />
-                      </div>
+                {/* Row 2: Brand & Fabric Type */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
+                      Brand / Party <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      list="brand-suggestions"
+                      placeholder="e.g. OLLYPOP"
+                      value={formBrand}
+                      onChange={e => setFormBrand(e.target.value)}
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-1 focus:ring-[var(--steel,#2B4C7E)] focus:outline-none"
+                    />
+                    <datalist id="brand-suggestions">
+                      {DEFAULT_BRANDS.map(b => (
+                        <option key={b} value={b} />
+                      ))}
+                    </datalist>
+                  </div>
 
-                      <div className="col-span-2">
-                        <input
-                          type="number"
-                          min="1"
-                          required
-                          placeholder="Ratio"
-                          value={row.ratio}
-                          onChange={e => handleSizeRowChange(rIdx, 'ratio', e.target.value)}
-                          className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-center text-slate-700 focus:ring-1 focus:ring-[var(--steel,#2B4C7E)] focus:outline-none"
-                        />
-                      </div>
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
+                      Fabric Type <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      list="fabric-suggestions"
+                      placeholder="e.g. PRINTED SINKER"
+                      value={formFabric}
+                      onChange={e => setFormFabric(e.target.value)}
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-1 focus:ring-[var(--steel,#2B4C7E)] focus:outline-none"
+                    />
+                    <datalist id="fabric-suggestions">
+                      {DEFAULT_FABRICS.map(f => (
+                        <option key={f} value={f} />
+                      ))}
+                    </datalist>
+                  </div>
+                </div>
 
-                      <div className="col-span-2 text-right font-mono font-bold text-xs text-[#059669]">
-                        {row.pcs} pcs
-                      </div>
+                {/* Row 3: Art No, Sub-Art & Pattern No */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
+                      Art No. <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. 8941"
+                      value={formArtNo}
+                      onChange={e => handleArtNoSelect(e.target.value)}
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:ring-1 focus:ring-[var(--steel,#2B4C7E)] focus:outline-none"
+                    />
+                  </div>
 
-                      <div className="col-span-1 text-center">
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveSizeRow(rIdx)}
-                          className="p-1 text-slate-400 hover:text-red-600 rounded cursor-pointer"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
+                      Sub-Variant (if any)
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. 8941A"
+                      value={formSubArtNo}
+                      onChange={e => setFormSubArtNo(e.target.value)}
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-1 focus:ring-[var(--steel,#2B4C7E)] focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
+                      Pattern Master Code
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. LB-816 / G-342"
+                      value={formPatternNo}
+                      onChange={e => setFormPatternNo(e.target.value)}
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-1 focus:ring-[var(--steel,#2B4C7E)] focus:outline-none font-mono"
+                    />
+                  </div>
+                </div>
+
+                {/* Row 4: Description */}
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
+                    Product Description
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. GIRLS FULL SLEEVE FRONT OPEN PEEPING NIGHT SUIT"
+                    value={formDescription}
+                    onChange={e => setFormDescription(e.target.value)}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-1 focus:ring-[var(--steel,#2B4C7E)] focus:outline-none"
+                  />
+                </div>
+
+                {/* Row 5: MULTI-COLOR MANAGEMENT (BODY & PANT COLORS) */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-3.5 bg-slate-50/80 border border-slate-200 rounded-2xl">
+                  
+                  {/* Body Colors */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                        <Palette className="w-3.5 h-3.5 text-indigo-600" />
+                        Body Colors / Assortment
+                      </label>
+                      <span className="text-[10.5px] text-slate-400 font-semibold">
+                        {formBodyColors.length} color{formBodyColors.length > 1 ? 's' : ''}
+                      </span>
                     </div>
-                  ))}
+
+                    {/* Color Chips */}
+                    <div className="flex flex-wrap gap-1.5 min-h-[32px] p-2 bg-white border border-slate-200 rounded-xl">
+                      {formBodyColors.map((color, cIdx) => (
+                        <span
+                          key={cIdx}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 animate-in fade-in"
+                        >
+                          <span>{color}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveBodyColor(cIdx)}
+                            className="text-indigo-400 hover:text-indigo-700 cursor-pointer"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+
+                    {/* Add Color Input */}
+                    <div className="flex items-center gap-1.5">
+                      <input
+                        type="text"
+                        placeholder="Type color (e.g. Deep Mustard) & press Enter"
+                        value={newBodyColorInput}
+                        onChange={e => setNewBodyColorInput(e.target.value)}
+                        onKeyDown={e => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault()
+                            handleAddBodyColor()
+                          }
+                        }}
+                        className="flex-1 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-[var(--steel,#2B4C7E)]"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleAddBodyColor}
+                        className="px-3 py-1.5 bg-[var(--steel,#2B4C7E)] text-white text-xs font-bold rounded-lg hover:opacity-90 cursor-pointer"
+                      >
+                        + Add
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Pant Colors */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                        <Palette className="w-3.5 h-3.5 text-emerald-600" />
+                        Pant / Bottom Colors
+                      </label>
+                      <span className="text-[10.5px] text-slate-400 font-semibold">
+                        {formPantColors.length} color{formPantColors.length > 1 ? 's' : ''}
+                      </span>
+                    </div>
+
+                    {/* Pant Color Chips */}
+                    <div className="flex flex-wrap gap-1.5 min-h-[32px] p-2 bg-white border border-slate-200 rounded-xl">
+                      {formPantColors.map((color, cIdx) => (
+                        <span
+                          key={cIdx}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 animate-in fade-in"
+                        >
+                          <span>{color}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemovePantColor(cIdx)}
+                            className="text-emerald-400 hover:text-emerald-700 cursor-pointer"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+
+                    {/* Add Pant Color Input */}
+                    <div className="flex items-center gap-1.5">
+                      <input
+                        type="text"
+                        placeholder="Type pant color & press Enter"
+                        value={newPantColorInput}
+                        onChange={e => setNewPantColorInput(e.target.value)}
+                        onKeyDown={e => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault()
+                            handleAddPantColor()
+                          }
+                        }}
+                        className="flex-1 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-[var(--steel,#2B4C7E)]"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleAddPantColor}
+                        className="px-3 py-1.5 bg-emerald-700 text-white text-xs font-bold rounded-lg hover:opacity-90 cursor-pointer"
+                      >
+                        + Add
+                      </button>
+                    </div>
+                  </div>
+
                 </div>
 
-                <div className="pt-2 border-t border-slate-200 flex items-center justify-between text-xs font-bold">
-                  <span className="text-slate-600">Total Matrix Calculation:</span>
-                  <div className="flex items-center gap-3">
-                    <span className="text-[#2563EB]">{formTotalSets} Sets</span>
-                    <span className="text-slate-300">|</span>
-                    <span className="text-[#059669]">{formTotalPcs} Total Pieces</span>
+                {/* Row 6: PHOTO UPLOAD (FILE UPLOAD OR URL) */}
+                <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                      <ImageIcon className="w-3.5 h-3.5 text-blue-600" />
+                      Product Sample Photo
+                    </label>
+
+                    {/* Switcher Tab */}
+                    <div className="flex items-center gap-1 bg-white border border-slate-200 rounded-lg p-0.5 text-xs">
+                      <button
+                        type="button"
+                        onClick={() => setImageUploadType('FILE')}
+                        className={`px-2.5 py-0.5 rounded-md font-bold transition-all cursor-pointer ${
+                          imageUploadType === 'FILE'
+                            ? 'bg-[var(--steel,#2B4C7E)] text-white shadow-2xs'
+                            : 'text-slate-600 hover:text-slate-900'
+                        }`}
+                      >
+                        📁 File Upload
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setImageUploadType('URL')}
+                        className={`px-2.5 py-0.5 rounded-md font-bold transition-all cursor-pointer ${
+                          imageUploadType === 'URL'
+                            ? 'bg-[var(--steel,#2B4C7E)] text-white shadow-2xs'
+                            : 'text-slate-600 hover:text-slate-900'
+                        }`}
+                      >
+                        🔗 Image Link
+                      </button>
+                    </div>
+                  </div>
+
+                  {imageUploadType === 'FILE' ? (
+                    <div>
+                      {/* Hidden File Input */}
+                      <input
+                        type="file"
+                        ref={fileInputRef}
+                        accept="image/*"
+                        onChange={handleImageFileChange}
+                        className="hidden"
+                      />
+
+                      {formPictureUrl ? (
+                        <div className="flex items-center gap-3 p-2.5 bg-white border border-slate-200 rounded-xl">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={formPictureUrl}
+                            alt="Preview"
+                            className="w-14 h-14 object-cover rounded-lg border border-slate-200"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-bold text-slate-800 truncate">
+                              Sample photo uploaded successfully
+                            </p>
+                            <span className="text-[11px] text-emerald-600 font-semibold flex items-center gap-1">
+                              <CheckCircle2 className="w-3 h-3" /> Ready for floor specification
+                            </span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setFormPictureUrl('')
+                              if (fileInputRef.current) fileInputRef.current.value = ''
+                            }}
+                            className="px-2.5 py-1 text-xs font-bold text-red-600 hover:bg-red-50 rounded-lg cursor-pointer border border-red-200"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ) : (
+                        <div
+                          onClick={() => fileInputRef.current?.click()}
+                          className="border-2 border-dashed border-slate-300 hover:border-[var(--steel,#2B4C7E)] bg-white rounded-xl p-5 text-center cursor-pointer transition-colors group"
+                        >
+                          <Upload className="w-6 h-6 mx-auto text-slate-400 group-hover:text-[var(--steel,#2B4C7E)] transition-colors mb-1.5" />
+                          <p className="text-xs font-bold text-slate-700">
+                            Click or Drag to Upload Sample Photo
+                          </p>
+                          <p className="text-[11px] text-slate-400 mt-0.5">
+                            PNG, JPG, JPEG, WEBP (Max 5MB)
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div>
+                      <input
+                        type="url"
+                        placeholder="https://... (paste direct image URL)"
+                        value={formPictureUrl}
+                        onChange={e => setFormPictureUrl(e.target.value)}
+                        className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-1 focus:ring-[var(--steel,#2B4C7E)] focus:outline-none"
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {/* Row 7: Size, Sets & Pieces Breakdown Matrix */}
+                <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                      Size, Sets & Pieces Matrix
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleAddSizeRow}
+                      className="px-2.5 py-1 bg-white border border-slate-300 rounded-lg text-xs font-bold text-[var(--steel,#2B4C7E)] hover:bg-slate-100 cursor-pointer shadow-2xs"
+                    >
+                      + Add Size Row
+                    </button>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="grid grid-cols-12 gap-2 text-[10.5px] font-bold uppercase text-slate-400 px-1">
+                      <span className="col-span-4">Size Range</span>
+                      <span className="col-span-3">Sets Qty</span>
+                      <span className="col-span-2 text-center">Pcs/Set</span>
+                      <span className="col-span-2 text-right">Total Pcs</span>
+                      <span className="col-span-1 text-center">Del</span>
+                    </div>
+
+                    {formSizeMatrix.map((row, rIdx) => (
+                      <div key={rIdx} className="grid grid-cols-12 gap-2 items-center">
+                        <div className="col-span-4">
+                          <input
+                            type="text"
+                            required
+                            placeholder="e.g. 16X20"
+                            value={row.size}
+                            onChange={e => handleSizeRowChange(rIdx, 'size', e.target.value)}
+                            className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-800 focus:ring-1 focus:ring-[var(--steel,#2B4C7E)] focus:outline-none"
+                          />
+                        </div>
+
+                        <div className="col-span-3">
+                          <input
+                            type="number"
+                            min="1"
+                            required
+                            placeholder="Sets"
+                            value={row.sets}
+                            onChange={e => handleSizeRowChange(rIdx, 'sets', e.target.value)}
+                            className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-[#2563EB] focus:ring-1 focus:ring-[var(--steel,#2B4C7E)] focus:outline-none"
+                          />
+                        </div>
+
+                        <div className="col-span-2">
+                          <input
+                            type="number"
+                            min="1"
+                            required
+                            placeholder="Ratio"
+                            value={row.ratio}
+                            onChange={e => handleSizeRowChange(rIdx, 'ratio', e.target.value)}
+                            className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-center text-slate-700 focus:ring-1 focus:ring-[var(--steel,#2B4C7E)] focus:outline-none"
+                          />
+                        </div>
+
+                        <div className="col-span-2 text-right font-mono font-bold text-xs text-[#059669]">
+                          {row.pcs} pcs
+                        </div>
+
+                        <div className="col-span-1 text-center">
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveSizeRow(rIdx)}
+                            className="p-1 text-slate-400 hover:text-red-600 rounded cursor-pointer"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="pt-2 border-t border-slate-200 flex items-center justify-between text-xs font-bold">
+                    <span className="text-slate-600">Total Matrix Calculation:</span>
+                    <div className="flex items-center gap-3">
+                      <span className="text-[#2563EB]">{formTotalSets} Sets</span>
+                      <span className="text-slate-300">|</span>
+                      <span className="text-[#059669]">{formTotalPcs} Total Pieces</span>
+                    </div>
                   </div>
                 </div>
-              </div>
 
               </div>
-              {/* Submit Buttons */}
+
+              {/* Sticky Bottom Footer Submit Buttons */}
               <div className="p-3 sm:p-4 border-t flex items-center justify-end gap-3 bg-slate-50 shrink-0" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
                 <button
                   type="button"
                   onClick={() => setShowNewOrderModal(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 cursor-pointer"
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-200/60 cursor-pointer"
                 >
                   Cancel
                 </button>
