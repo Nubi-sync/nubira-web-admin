@@ -77,7 +77,7 @@ type DashboardProps = {
   recentActivities: ActivityItem[]
 }
 
-type DateFilter = 'today' | 'week' | 'month' | 'all'
+type DateFilter = 'today' | 'week' | 'month' | 'custom' | 'all'
 
 function cleanDescription(desc?: string) {
   if (!desc) return ''
@@ -91,7 +91,10 @@ export default function DashboardClient({
   rawQC = [],
   recentActivities = [],
 }: DashboardProps) {
+  const todayStr = new Date().toISOString().split('T')[0]
   const [dateFilter, setDateFilter] = useState<DateFilter>('week')
+  const [customFromDate, setCustomFromDate] = useState<string>(todayStr)
+  const [customToDate, setCustomToDate] = useState<string>(todayStr)
   const [selectedArticleId, setSelectedArticleId] = useState<string>('ALL')
 
   // Compute Article-wise Production Breakdown
@@ -120,21 +123,25 @@ export default function DashboardClient({
     const now = new Date()
     let startDate = new Date()
 
+    let startStr = ''
+    let endStr = new Date().toISOString().split('T')[0]
+
     if (dateFilter === 'today') {
-      startDate.setHours(0, 0, 0, 0)
+      startStr = endStr
     } else if (dateFilter === 'week') {
       const day = now.getDay()
       const diff = now.getDate() - day + (day === 0 ? -6 : 1) // Monday
-      startDate = new Date(now.setDate(diff))
-      startDate.setHours(0, 0, 0, 0)
+      const weekStart = new Date(now.setDate(diff))
+      startStr = weekStart.toISOString().split('T')[0]
     } else if (dateFilter === 'month') {
-      startDate = new Date(now.getFullYear(), now.getMonth(), 1)
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
+      startStr = monthStart.toISOString().split('T')[0]
+    } else if (dateFilter === 'custom') {
+      startStr = customFromDate || endStr
+      endStr = customToDate || customFromDate || endStr
     } else {
-      startDate = new Date(2020, 0, 1)
+      startStr = '2020-01-01'
     }
-
-    const startStr = startDate.toISOString().split('T')[0]
-    const endStr = new Date().toISOString().split('T')[0]
 
     let produced = 0
     let passed = 0
@@ -197,6 +204,7 @@ export default function DashboardClient({
       today: 'Today',
       week: 'This Week',
       month: 'This Month',
+      custom: customFromDate === customToDate ? customFromDate : `${customFromDate} → ${customToDate}`,
       all: 'All Time'
     }
 
@@ -209,7 +217,7 @@ export default function DashboardClient({
       displayPassed: allTimePassed,
       displayRejected: allTimeRejected
     }
-  }, [dateFilter, selectedArticleId, rawProduction, rawQC, overallStats])
+  }, [dateFilter, customFromDate, customToDate, selectedArticleId, rawProduction, rawQC, overallStats])
 
   // Circular progress calculations (Radius = 54, strokeWidth = 13)
   const radius = 54
@@ -479,16 +487,16 @@ export default function DashboardClient({
             </div>
 
             {/* Filter Tabs */}
-            <div className="flex items-center gap-1.5 p-1 bg-slate-50 border rounded-lg mb-6 max-w-max" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
-              {(['today', 'week', 'month', 'all'] as DateFilter[]).map((tab) => {
-                const labelMap = { today: 'Today', week: 'This Week', month: 'This Month', all: 'All Time' }
+            <div className="flex items-center gap-1.5 p-1 bg-slate-50 border rounded-lg mb-3 max-w-max flex-wrap" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+              {(['today', 'week', 'month', 'custom', 'all'] as DateFilter[]).map((tab) => {
+                const labelMap = { today: 'Today', week: 'This Week', month: 'This Month', custom: 'Specific Date', all: 'All Time' }
                 const isSelected = dateFilter === tab
                 return (
                   <button
                     key={tab}
                     type="button"
                     onClick={() => setDateFilter(tab)}
-                    className={`px-3 py-1 text-xs font-semibold rounded-[6px] transition-all outline-none ${
+                    className={`px-3 py-1 text-xs font-semibold rounded-[6px] transition-all outline-none cursor-pointer ${
                       isSelected
                         ? 'text-white shadow-xs'
                         : 'text-[var(--ink-soft,#5B6B7C)] hover:text-[var(--ink,#1C2733)] bg-transparent'
@@ -502,6 +510,47 @@ export default function DashboardClient({
                 )
               })}
             </div>
+
+            {/* Custom Specific Date / Range Picker Input */}
+            {dateFilter === 'custom' && (
+              <div className="flex items-center gap-2 mb-4 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs flex-wrap animate-in fade-in duration-200">
+                <span className="font-semibold text-slate-700 flex items-center gap-1.5">
+                  <Calendar className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" />
+                  Select Date:
+                </span>
+                <input
+                  type="date"
+                  value={customFromDate}
+                  onChange={(e) => {
+                    setCustomFromDate(e.target.value)
+                    if (!customToDate || customToDate < e.target.value) {
+                      setCustomToDate(e.target.value)
+                    }
+                  }}
+                  className="px-2.5 py-1 bg-white border border-slate-200 rounded-lg font-semibold text-slate-800 focus:outline-none focus:ring-1 focus:ring-[var(--steel,#2B4C7E)] cursor-pointer"
+                />
+                <span className="text-slate-400 font-bold">to</span>
+                <input
+                  type="date"
+                  value={customToDate}
+                  min={customFromDate}
+                  onChange={(e) => setCustomToDate(e.target.value)}
+                  className="px-2.5 py-1 bg-white border border-slate-200 rounded-lg font-semibold text-slate-800 focus:outline-none focus:ring-1 focus:ring-[var(--steel,#2B4C7E)] cursor-pointer"
+                />
+                {(customFromDate !== todayStr || customToDate !== todayStr) && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCustomFromDate(todayStr)
+                      setCustomToDate(todayStr)
+                    }}
+                    className="text-[11px] font-semibold text-slate-500 hover:text-slate-800 underline ml-1 cursor-pointer"
+                  >
+                    Reset to Today
+                  </button>
+                )}
+              </div>
+            )}
 
             {/* Donut & Stacked Stats */}
             <div className="flex flex-col sm:flex-row items-center justify-around gap-6 py-2">
