@@ -94,3 +94,25 @@ export async function resetEmployeePassword(userId: string, newPassword: string)
   revalidatePath('/employees')
   return { success: true }
 }
+
+export async function deleteEmployee(userId: string) {
+  try {
+    // 1. Delete from profiles
+    const { error: profError } = await supabaseAdmin.from('profiles').delete().eq('id', userId)
+    if (profError) {
+      console.warn('Profiles delete error:', profError.message)
+    }
+
+    // 2. Delete from auth.users
+    const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(userId)
+    if (authError) {
+      console.warn('Auth delete error:', authError.message)
+    }
+
+    revalidatePath('/employees')
+    return { success: true }
+  } catch (err: any) {
+    console.error('Error deleting employee:', err)
+    return { error: err?.message || 'Failed to delete employee' }
+  }
+}

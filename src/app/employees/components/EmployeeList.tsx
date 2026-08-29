@@ -1,8 +1,11 @@
 'use client'
 
-import { toggleEmployeeStatus, updateEmployeeRole, resetEmployeePassword } from '../actions'
+import { toggleEmployeeStatus, updateEmployeeRole, resetEmployeePassword, deleteEmployee } from '../actions'
+import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 import { useState, useMemo } from 'react'
 import { 
+  Trash2,
   KeyRound, 
   X, 
   CheckCircle2, 
@@ -59,9 +62,15 @@ const ROLE_BADGE_STYLES: Record<string, { bg: string; text: string; label: strin
 type SortOrder = 'asc' | 'desc'
 
 export function EmployeeList({ employees }: { employees: Profile[] }) {
+  const router = useRouter()
+  const [localEmployees, setLocalEmployees] = useState<Profile[]>(employees)
   const [searchTerm, setSearchTerm] = useState('')
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc')
   const [loadingId, setLoadingId] = useState<string | null>(null)
+
+  useEffect(() => {
+    setLocalEmployees(employees)
+  }, [employees])
 
   // Reset Password Modal State
   const [selectedEmp, setSelectedEmp] = useState<Profile | null>(null)
@@ -74,7 +83,7 @@ export function EmployeeList({ employees }: { employees: Profile[] }) {
   // Note: Client-side search is fast and responsive for factory staff.
   // If staff list grows beyond ~100 rows, this can be hooked to a Supabase ilike query.
   const filteredEmployees = useMemo(() => {
-    let list = employees.filter(emp => {
+    let list = localEmployees.filter(emp => {
       if (!searchTerm.trim()) return true
       return emp.username.toLowerCase().includes(searchTerm.toLowerCase().trim())
     })
@@ -86,22 +95,80 @@ export function EmployeeList({ employees }: { employees: Profile[] }) {
     })
 
     return list
-  }, [employees, searchTerm, sortOrder])
+  }, [localEmployees, searchTerm, sortOrder])
 
   const toggleSort = () => {
     setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')
   }
 
   async function handleToggle(id: string, currentStatus: boolean) {
+    const targetEmp = localEmployees.find(e => e.id === id)
+    const empName = targetEmp?.username || 'this user'
+    const actionText = currentStatus ? 'deactivate' : 'activate'
+    
+    if (!confirm(`Are you sure you want to ${actionText} ${empName}?`)) {
+      return
+    }
+
     setLoadingId(id)
-    await toggleEmployeeStatus(id, currentStatus)
-    setLoadingId(null)
+    // Instant optimistic update
+    setLocalEmployees(prev => prev.map(e => e.id === id ? { ...e, is_active: !currentStatus } : e))
+    
+    try {
+      const res = await toggleEmployeeStatus(id, currentStatus)
+      if (res?.error) {
+        alert(`Error: ${res.error}`)
+        // Revert
+        setLocalEmployees(prev => prev.map(e => e.id === id ? { ...e, is_active: currentStatus } : e))
+      } else {
+        router.refresh()
+      }
+    } catch (e: any) {
+      alert(`Error: ${e.message || 'Failed to toggle status'}`)
+      setLocalEmployees(prev => prev.map(e => e.id === id ? { ...e, is_active: currentStatus } : e))
+    } finally {
+      setLoadingId(null)
+    }
   }
 
   async function handleRoleChange(id: string, newRole: string) {
     setLoadingId(id)
-    await updateEmployeeRole(id, newRole)
-    setLoadingId(null)
+    setLocalEmployees(prev => prev.map(e => e.id === id ? { ...e, role: newRole } : e))
+    try {
+      const res = await updateEmployeeRole(id, newRole)
+      if (res?.error) {
+        alert(`Error: ${res.error}`)
+      } else {
+        router.refresh()
+      }
+    } catch (e: any) {
+      alert(`Error: ${e.message || 'Failed to update role'}`)
+    } finally {
+      setLoadingId(null)
+    }
+  }
+
+  async function handleDeleteEmployee(id: string, username: string) {
+    if (!confirm(`Are you sure you want to permanently delete employee account "${username}"? This cannot be undone.`)) {
+      return
+    }
+
+    setLoadingId(id)
+    setLocalEmployees(prev => prev.filter(e => e.id !== id))
+    try {
+      const res = await deleteEmployee(id)
+      if (res?.error) {
+        alert(`Error: ${res.error}`)
+        router.refresh()
+      } else {
+        router.refresh()
+      }
+    } catch (e: any) {
+      alert(`Error: ${e.message || 'Failed to delete employee'}`)
+      router.refresh()
+    } finally {
+      setLoadingId(null)
+    }
   }
 
   async function handleResetPassword(e: React.FormEvent) {
@@ -306,18 +373,30 @@ export function EmployeeList({ employees }: { employees: Profile[] }) {
 
                       {/* Deactivate / Activate Button */}
                       {!isAdminAccount && (
-                        <button
-                          type="button"
-                          onClick={() => handleToggle(emp.id, emp.is_active)}
-                          disabled={loadingId === emp.id}
-                          className={`text-[11px] font-semibold px-2.5 py-1 rounded-[6px] transition-colors cursor-pointer disabled:opacity-50 ${
-                            emp.is_active
-                              ? 'text-red-600 hover:bg-red-50'
-                              : 'text-emerald-600 hover:bg-emerald-50'
-                          }`}
-                        >
-                          {emp.is_active ? 'Deactivate' : 'Activate'}
-                        </button>
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => handleToggle(emp.id, emp.is_active)}
+                            disabled={loadingId === emp.id}
+                            className={`text-[11px] font-semibold px-2.5 py-1 rounded-[6px] border transition-colors cursor-pointer disabled:opacity-50 ${
+                              emp.is_active
+                                ? 'text-amber-700 bg-amber-50 border-amber-200 hover:bg-amber-100'
+                                : 'text-emerald-700 bg-emerald-50 border-emerald-200 hover:bg-emerald-100'
+                            }`}
+                          >
+                            {emp.is_active ? 'Deactivate' : 'Activate'}
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteEmployee(emp.id, emp.username)}
+                            disabled={loadingId === emp.id}
+                            className="text-[11px] font-semibold px-2 py-1 rounded-[6px] border text-red-600 bg-red-50 border-red-200 hover:bg-red-100 transition-colors cursor-pointer disabled:opacity-50"
+                            title="Permanently delete user"
+                          >
+                            <Trash2 className="w-3.5 h-3.5 inline" />
+                          </button>
+                        </>
                       )}
                     </td>
 
