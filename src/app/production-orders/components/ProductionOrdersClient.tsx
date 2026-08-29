@@ -675,9 +675,9 @@ export function ProductionOrdersClient({
       {/* 5. MODAL: NEW PRODUCTION ORDER CREATION                   */}
       {/* ========================================================= */}
       {showNewOrderModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200 overflow-y-auto">
-          <div className="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-3xl overflow-hidden my-8">
-            <div className="p-5 border-b flex items-center justify-between bg-slate-50" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-3xl flex flex-col max-h-[90vh] overflow-hidden">
+            <div className="p-4 sm:p-5 border-b flex items-center justify-between bg-slate-50 shrink-0" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-[var(--steel-mist,#EEF3FA)] text-[var(--steel,#2B4C7E)]">
                   <Plus className="w-5 h-5" />
@@ -700,7 +700,8 @@ export function ProductionOrdersClient({
               </button>
             </div>
 
-            <form onSubmit={handleCreateOrder} className="p-6 space-y-5">
+            <form onSubmit={handleCreateOrder} className="flex flex-col flex-1 overflow-hidden">
+            <div className="p-4 sm:p-6 space-y-4 sm:space-y-5 overflow-y-auto flex-1">
               
               {/* Row 1: Delivery Date & Prodn/MT No */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -963,8 +964,9 @@ export function ProductionOrdersClient({
                 </div>
               </div>
 
+              </div>
               {/* Submit Buttons */}
-              <div className="pt-3 border-t flex items-center justify-end gap-3" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+              <div className="p-3 sm:p-4 border-t flex items-center justify-end gap-3 bg-slate-50 shrink-0" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
                 <button
                   type="button"
                   onClick={() => setShowNewOrderModal(false)}
