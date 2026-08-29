@@ -500,6 +500,45 @@ export function EmployeeList({ employees }: { employees: Profile[] }) {
           </div>
         </div>
       )}
+
+      {/* Toast Error Alert Banner */}
+      {errorMessage && (
+        <div className="fixed bottom-6 right-6 z-50 p-4 bg-red-600 text-white rounded-xl shadow-xl flex items-center gap-3 animate-in slide-in-from-bottom-5 duration-200">
+          <ShieldAlert className="w-5 h-5 shrink-0" />
+          <span className="text-xs font-semibold">{errorMessage}</span>
+          <button type="button" onClick={() => setErrorMessage(null)} className="ml-2 text-white/80 hover:text-white cursor-pointer">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
+      {/* Professional Toggle Status Modal */}
+      <ConfirmDialog
+        isOpen={toggleDialog.isOpen}
+        title={toggleDialog.employee?.is_active ? 'Deactivate Staff Member?' : 'Activate Staff Member?'}
+        description={
+          toggleDialog.employee?.is_active
+            ? `Are you sure you want to deactivate "${toggleDialog.employee?.username}"? They will not be able to log into the mobile app until reactivated.`
+            : `Are you sure you want to activate "${toggleDialog.employee?.username}"? They will regain access to their assigned mobile floor role.`
+        }
+        confirmText={toggleDialog.employee?.is_active ? 'Deactivate' : 'Activate'}
+        variant={toggleDialog.employee?.is_active ? 'warning' : 'success'}
+        isLoading={loadingId === toggleDialog.employee?.id}
+        onConfirm={executeToggleEmployee}
+        onClose={() => setToggleDialog({ isOpen: false, employee: null })}
+      />
+
+      {/* Professional Delete Employee Modal */}
+      <ConfirmDialog
+        isOpen={deleteDialog.isOpen}
+        title="Delete Employee Account?"
+        description={`Are you sure you want to permanently delete "${deleteDialog.employee?.username}"? This user account and all profile records will be permanently removed.`}
+        confirmText="Delete Permanently"
+        variant="danger"
+        isLoading={loadingId === deleteDialog.employee?.id}
+        onConfirm={executeDeleteEmployee}
+        onClose={() => setDeleteDialog({ isOpen: false, employee: null })}
+      />
     </div>
   )
 }
