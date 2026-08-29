@@ -102,7 +102,26 @@ export default async function AllotmentsPage() {
     .select('lineman_id, article_id, quantity, entry_date')
     .in('entry_date', allotmentDates.length > 0 ? allotmentDates : [''])
 
-  const allotments = allotmentsRaw?.map(al => {
+  const activeLinemanIds = (linemen as any[])?.map(l => l.id) || []
+
+  const allotments = (allotmentsRaw || [])
+    .filter(al => {
+      // Must be assigned to an active Lineman on the floor
+      if (!activeLinemanIds.includes(al.lineman_id)) return false
+
+      // Ignore unassigned chart planning orders
+      const alMaterials = materials.filter(m => m.allotment_id === al.id)
+      for (const m of alMaterials) {
+        if (m.notes) {
+          try {
+            const parsed = JSON.parse(m.notes)
+            if (parsed.is_production_chart_only === true) return false
+          } catch (_) {}
+        }
+      }
+      return true
+    })
+    .map(al => {
     const achieved = dailyProducts
       ?.filter(dp => 
         dp.lineman_id === al.lineman_id && 

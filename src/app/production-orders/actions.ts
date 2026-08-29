@@ -209,19 +209,21 @@ export async function createProductionOrder(payload: ProductionOrderPayload) {
   }
 
   // 2. Fetch or select first active lineman for default floor routing
-  let defaultLinemanId = ''
+  let defaultAdminOwnerId = ''
+  const { data: { user } } = await supabase.auth.getUser()
+  if (user) defaultAdminOwnerId = user.id
   try {
-    const { data: lm } = await supabase.from('profiles').select('id').eq('role', 'LINEMAN').eq('is_active', true).limit(1).single()
-    if (lm) defaultLinemanId = lm.id
+    const { data: adm } = await supabase.from('profiles').select('id').eq('role', 'ADMIN').limit(1).single()
+    if (adm) defaultAdminOwnerId = adm.id
   } catch (_) {}
 
   // 3. Create Allotment container for floor synchronization
-  if (defaultLinemanId && articleId) {
+  if (defaultAdminOwnerId && articleId) {
     try {
       const { data: allot, error: allotErr } = await supabase
         .from('allotments')
         .insert({
-          lineman_id: defaultLinemanId,
+          lineman_id: defaultAdminOwnerId,
           article_id: articleId,
           target_qty: totalPcs > 0 ? totalPcs : 300,
           status: 'IN_PROGRESS',
@@ -247,6 +249,7 @@ export async function createProductionOrder(payload: ProductionOrderPayload) {
 
         // Insert structured material & order metadata
         const metadataNote = JSON.stringify({
+          is_production_chart_only: true,
           production_order_no: mt_code,
           due_date: delivery_date,
           art_no,
