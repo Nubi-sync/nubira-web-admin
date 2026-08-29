@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useMemo, Fragment } from 'react'
-import { updateAllotmentStatus } from '../actions'
+import { updateAllotmentStatus, deleteAllotment } from '../actions'
 import { 
   CheckCircle2,
   ShieldAlert,
@@ -140,6 +140,15 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
   async function handleStatusChange(id: string, newStatus: string) {
     if (confirm(`Are you sure you want to mark this target as ${newStatus}?`)) {
       await updateAllotmentStatus(id, newStatus)
+    }
+  }
+
+  async function handleDeleteAllotment(id: string) {
+    if (confirm('Are you sure you want to permanently delete this allotment? This will remove all associated variant ratios and material BOM records.')) {
+      const res = await deleteAllotment(id)
+      if (res?.error) {
+        alert(`Error deleting allotment: ${res.error}`)
+      }
     }
   }
 
@@ -482,36 +491,51 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                         )}
                       </td>
 
-                      {/* Actions: Done & Cancel buttons */}
-                      <td className="px-5 py-3.5 text-right space-x-1.5">
-                        {al.status === 'IN_PROGRESS' && (
-                          <>
-                            <button
-                              type="button"
-                              onClick={() => handleStatusChange(al.id, 'COMPLETED')}
-                              className="px-2.5 py-1 rounded-[6px] text-xs font-semibold transition-colors border cursor-pointer"
-                              style={{
-                                backgroundColor: 'var(--green-mist, #E6F6EE)',
-                                borderColor: 'var(--green, #1F9D63)',
-                                color: 'var(--green, #1F9D63)'
-                              }}
-                            >
-                              Done
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => handleStatusChange(al.id, 'CANCELLED')}
-                              className="px-2.5 py-1 rounded-[6px] text-xs font-semibold transition-colors border cursor-pointer"
-                              style={{
-                                backgroundColor: 'var(--red-mist, #FBEAE8)',
-                                borderColor: 'var(--red, #C0392B)',
-                                color: 'var(--red, #C0392B)'
-                              }}
-                            >
-                              Cancel
-                            </button>
-                          </>
-                        )}
+                      {/* Actions: Done, Cancel & Delete buttons */}
+                      <td className="px-5 py-3.5 text-right">
+                        <div className="flex items-center justify-end gap-1.5">
+                          {al.status === 'IN_PROGRESS' && (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => handleStatusChange(al.id, 'COMPLETED')}
+                                className="px-2.5 py-1 rounded-[6px] text-xs font-semibold transition-colors border cursor-pointer hover:opacity-80"
+                                style={{
+                                  backgroundColor: 'var(--green-mist, #E6F6EE)',
+                                  borderColor: 'var(--green, #1F9D63)',
+                                  color: 'var(--green, #1F9D63)'
+                                }}
+                              >
+                                Done
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleStatusChange(al.id, 'CANCELLED')}
+                                className="px-2.5 py-1 rounded-[6px] text-xs font-semibold transition-colors border cursor-pointer hover:opacity-80"
+                                style={{
+                                  backgroundColor: 'var(--amber-mist, #FBF0E1)',
+                                  borderColor: 'var(--amber, #C8802B)',
+                                  color: 'var(--amber, #C8802B)'
+                                }}
+                              >
+                                Cancel
+                              </button>
+                            </>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteAllotment(al.id)}
+                            className="px-2.5 py-1 rounded-[6px] text-xs font-semibold transition-colors border cursor-pointer hover:bg-red-100 hover:text-red-700"
+                            style={{
+                              backgroundColor: 'var(--red-mist, #FBEAE8)',
+                              borderColor: 'var(--red, #C0392B)',
+                              color: 'var(--red, #C0392B)'
+                            }}
+                            title="Permanently delete allotment"
+                          >
+                            Delete
+                          </button>
+                        </div>
                       </td>
                     </tr>
 

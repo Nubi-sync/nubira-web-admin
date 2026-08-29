@@ -237,6 +237,40 @@ export async function updateAllotmentStatus(allotmentId: string, newStatus: stri
   return { success: true }
 }
 
+export async function deleteAllotment(allotmentId: string) {
+  let supabase: any = supabaseAdmin
+  try {
+    const serverClient = await createClient()
+    if (serverClient) supabase = serverClient
+  } catch (_) {
+    supabase = supabaseAdmin
+  }
+
+  // 1. Delete associated child records first to ensure clean cascade
+  try {
+    await supabase.from('allotment_variants').delete().eq('allotment_id', allotmentId)
+    await supabase.from('allotment_materials').delete().eq('allotment_id', allotmentId)
+    await supabase.from('worker_assignments').delete().eq('allotment_id', allotmentId)
+    await supabase.from('floor_alerts').delete().eq('allotment_id', allotmentId)
+  } catch (e) {
+    console.warn('Child table deletion warning:', e)
+  }
+
+  // 2. Delete main allotment record
+  const { error } = await supabase
+    .from('allotments')
+    .delete()
+    .eq('id', allotmentId)
+
+  if (error) {
+    console.error('Failed to delete allotment:', error)
+    return { error: error.message }
+  }
+
+  revalidatePath('/allotments')
+  return { success: true }
+}
+
 export async function toggleMaterialIssue(materialId: string, issued: boolean) {
   const supabase = await createClient()
 
