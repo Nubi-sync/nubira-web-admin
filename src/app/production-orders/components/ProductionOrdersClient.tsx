@@ -664,9 +664,9 @@ export function ProductionOrdersClient({
                       {/* 9. Size & Sets */}
                       <td className="py-3 px-3 text-xs">
                         {order.size_matrix && order.size_matrix.length > 0 ? (
-                          <div className="space-y-0.5">
+                          <div className="space-y-1 min-w-[130px]">
                             {order.size_matrix.map((s: any, sIdx: number) => (
-                              <div key={sIdx} className="flex items-center justify-between text-[11.5px]">
+                              <div key={sIdx} className="flex items-center justify-between text-xs bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
                                 <span className="font-bold text-slate-700">{s.size}:</span>
                                 <span className="font-semibold text-[#2563EB]">{s.sets} sets</span>
                               </div>

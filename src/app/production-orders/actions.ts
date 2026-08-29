@@ -102,12 +102,18 @@ export async function getProductionOrders() {
           brand: meta.brand || artMeta.party || 'OLLYPOP',
           rib_status: meta.rib_status || 'PENDING',
           status: al.status || 'IN_PROGRESS',
-          size_matrix: alVars.map((v: any) => ({
-            size: v.size,
-            sets: Math.round(v.quantity / 3) || v.quantity,
-            ratio: 3,
-            pcs: v.quantity
-          })),
+          size_matrix: (meta.size_matrix && Array.isArray(meta.size_matrix) && meta.size_matrix.length > 0)
+            ? meta.size_matrix
+            : (() => {
+                const map: Record<string, { size: string; sets: number; pcs: number; ratio: number }> = {}
+                alVars.forEach((v: any) => {
+                  const s = (v.size || 'Free Size').trim()
+                  if (!map[s]) map[s] = { size: s, sets: 0, pcs: 0, ratio: 3 }
+                  map[s].pcs += (v.quantity || 0)
+                  map[s].sets = Math.round(map[s].pcs / 3) || map[s].pcs
+                })
+                return Object.values(map)
+              })(),
           total_sets: alVars.reduce((sum: number, v: any) => sum + (Math.round(v.quantity / 3) || v.quantity), 0) || Math.round(al.target_qty / 3),
           total_pcs: al.target_qty || alVars.reduce((sum: number, v: any) => sum + (v.quantity || 0), 0),
           created_at: al.created_at
@@ -253,6 +259,7 @@ export async function createProductionOrder(payload: ProductionOrderPayload) {
           rib_status,
           total_sets: totalSets,
           total_pcs: totalPcs,
+          size_matrix: size_matrix,
           sample_photos: picture_url ? [picture_url] : [],
           notes,
           status: 'IN_PROGRESS'
