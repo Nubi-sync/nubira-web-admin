@@ -319,7 +319,7 @@ export default function DashboardClient({
                   color: 'var(--green, #1F9D63)' 
                 }}
               >
-                {passRate.toFixed(1)}% Pass
+                {displayPassed + displayRejected > 0 ? `${passRate.toFixed(1)}% Pass` : 'Ready'}
               </span>
             </div>
 
