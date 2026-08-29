@@ -1,5 +1,6 @@
 'use client'
 
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { toggleEmployeeStatus, updateEmployeeRole, resetEmployeePassword, deleteEmployee } from '../actions'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
@@ -68,6 +69,11 @@ export function EmployeeList({ employees }: { employees: Profile[] }) {
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc')
   const [loadingId, setLoadingId] = useState<string | null>(null)
 
+  // Professional Dialog States
+  const [toggleDialog, setToggleDialog] = useState<{ isOpen: boolean; employee: Profile | null }>({ isOpen: false, employee: null })
+  const [deleteDialog, setDeleteDialog] = useState<{ isOpen: boolean; employee: Profile | null }>({ isOpen: false, employee: null })
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+
   useEffect(() => {
     setLocalEmployees(employees)
   }, [employees])
@@ -101,31 +107,28 @@ export function EmployeeList({ employees }: { employees: Profile[] }) {
     setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')
   }
 
-  async function handleToggle(id: string, currentStatus: boolean) {
-    const targetEmp = localEmployees.find(e => e.id === id)
-    const empName = targetEmp?.username || 'this user'
-    const actionText = currentStatus ? 'deactivate' : 'activate'
-    
-    if (!confirm(`Are you sure you want to ${actionText} ${empName}?`)) {
-      return
-    }
+  async function executeToggleEmployee() {
+    const emp = toggleDialog.employee
+    if (!emp) return
 
-    setLoadingId(id)
+    setLoadingId(emp.id)
+    const currentStatus = emp.is_active
+    setToggleDialog({ isOpen: false, employee: null })
+
     // Instant optimistic update
-    setLocalEmployees(prev => prev.map(e => e.id === id ? { ...e, is_active: !currentStatus } : e))
-    
+    setLocalEmployees(prev => prev.map(e => e.id === emp.id ? { ...e, is_active: !currentStatus } : e))
+
     try {
-      const res = await toggleEmployeeStatus(id, currentStatus)
+      const res = await toggleEmployeeStatus(emp.id, currentStatus)
       if (res?.error) {
-        alert(`Error: ${res.error}`)
-        // Revert
-        setLocalEmployees(prev => prev.map(e => e.id === id ? { ...e, is_active: currentStatus } : e))
+        setErrorMessage(res.error)
+        setLocalEmployees(prev => prev.map(e => e.id === emp.id ? { ...e, is_active: currentStatus } : e))
       } else {
         router.refresh()
       }
     } catch (e: any) {
-      alert(`Error: ${e.message || 'Failed to toggle status'}`)
-      setLocalEmployees(prev => prev.map(e => e.id === id ? { ...e, is_active: currentStatus } : e))
+      setErrorMessage(e.message || 'Failed to toggle status')
+      setLocalEmployees(prev => prev.map(e => e.id === emp.id ? { ...e, is_active: currentStatus } : e))
     } finally {
       setLoadingId(null)
     }
@@ -137,34 +140,35 @@ export function EmployeeList({ employees }: { employees: Profile[] }) {
     try {
       const res = await updateEmployeeRole(id, newRole)
       if (res?.error) {
-        alert(`Error: ${res.error}`)
+        setErrorMessage(res.error)
       } else {
         router.refresh()
       }
     } catch (e: any) {
-      alert(`Error: ${e.message || 'Failed to update role'}`)
+      setErrorMessage(e.message || 'Failed to update role')
     } finally {
       setLoadingId(null)
     }
   }
 
-  async function handleDeleteEmployee(id: string, username: string) {
-    if (!confirm(`Are you sure you want to permanently delete employee account "${username}"? This cannot be undone.`)) {
-      return
-    }
+  async function executeDeleteEmployee() {
+    const emp = deleteDialog.employee
+    if (!emp) return
 
-    setLoadingId(id)
-    setLocalEmployees(prev => prev.filter(e => e.id !== id))
+    setLoadingId(emp.id)
+    setDeleteDialog({ isOpen: false, employee: null })
+    setLocalEmployees(prev => prev.filter(e => e.id !== emp.id))
+
     try {
-      const res = await deleteEmployee(id)
+      const res = await deleteEmployee(emp.id)
       if (res?.error) {
-        alert(`Error: ${res.error}`)
+        setErrorMessage(res.error)
         router.refresh()
       } else {
         router.refresh()
       }
     } catch (e: any) {
-      alert(`Error: ${e.message || 'Failed to delete employee'}`)
+      setErrorMessage(e.message || 'Failed to delete employee')
       router.refresh()
     } finally {
       setLoadingId(null)
@@ -376,7 +380,7 @@ export function EmployeeList({ employees }: { employees: Profile[] }) {
                         <>
                           <button
                             type="button"
-                            onClick={() => handleToggle(emp.id, emp.is_active)}
+                            onClick={() => setToggleDialog({ isOpen: true, employee: emp })}
                             disabled={loadingId === emp.id}
                             className={`text-[11px] font-semibold px-2.5 py-1 rounded-[6px] border transition-colors cursor-pointer disabled:opacity-50 ${
                               emp.is_active
@@ -389,7 +393,7 @@ export function EmployeeList({ employees }: { employees: Profile[] }) {
 
                           <button
                             type="button"
-                            onClick={() => handleDeleteEmployee(emp.id, emp.username)}
+                            onClick={() => setDeleteDialog({ isOpen: true, employee: emp })}
                             disabled={loadingId === emp.id}
                             className="text-[11px] font-semibold px-2 py-1 rounded-[6px] border text-red-600 bg-red-50 border-red-200 hover:bg-red-100 transition-colors cursor-pointer disabled:opacity-50"
                             title="Permanently delete user"

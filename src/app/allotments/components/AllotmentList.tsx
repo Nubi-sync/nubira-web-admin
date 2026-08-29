@@ -1,9 +1,11 @@
 'use client'
 
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import React, { useState, useMemo, Fragment } from 'react'
 import { updateAllotmentStatus, deleteAllotment } from '../actions'
 import { 
   Trash2,
+  X,
   CheckCircle2,
   ShieldAlert,
   Wrench,
@@ -131,6 +133,9 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [deletingAllotment, setDeletingAllotment] = useState<Allotment | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [statusDialog, setStatusDialog] = useState<{ isOpen: boolean; allotment: Allotment | null; newStatus: string }>({ isOpen: false, allotment: null, newStatus: '' })
+  const [isStatusLoading, setIsStatusLoading] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
   
   // Functional table controls
   const [searchQuery, setSearchQuery] = useState('')
@@ -140,9 +145,20 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
   const [currentPage, setCurrentPage] = useState(1)
   const pageSize = 10
 
-  async function handleStatusChange(id: string, newStatus: string) {
-    if (confirm(`Are you sure you want to mark this target as ${newStatus}?`)) {
-      await updateAllotmentStatus(id, newStatus)
+  async function executeStatusChange() {
+    if (!statusDialog.allotment) return
+    setIsStatusLoading(true)
+    try {
+      const res = await updateAllotmentStatus(statusDialog.allotment.id, statusDialog.newStatus)
+      if (res?.error) {
+        setErrorMessage(res.error)
+      } else {
+        setStatusDialog({ isOpen: false, allotment: null, newStatus: '' })
+      }
+    } catch (e: any) {
+      setErrorMessage(e.message || 'Failed to update status')
+    } finally {
+      setIsStatusLoading(false)
     }
   }
 
@@ -152,12 +168,12 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
     try {
       const res = await deleteAllotment(deletingAllotment.id)
       if (res?.error) {
-        alert(`Error deleting allotment: ${res.error}`)
+        setErrorMessage(res.error)
       } else {
         setDeletingAllotment(null)
       }
     } catch (e: any) {
-      alert(`Error: ${e.message || 'Failed to delete'}`)
+      setErrorMessage(e.message || 'Failed to delete allotment')
     } finally {
       setIsDeleting(false)
     }
@@ -509,7 +525,7 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                             <>
                               <button
                                 type="button"
-                                onClick={() => handleStatusChange(al.id, 'COMPLETED')}
+                                onClick={() => setStatusDialog({ isOpen: true, allotment: al, newStatus: 'COMPLETED' })}
                                 className="px-2.5 py-1 rounded-[6px] text-xs font-semibold transition-colors border cursor-pointer hover:opacity-80"
                                 style={{
                                   backgroundColor: 'var(--green-mist, #E6F6EE)',
@@ -521,7 +537,7 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                               </button>
                               <button
                                 type="button"
-                                onClick={() => handleStatusChange(al.id, 'CANCELLED')}
+                                onClick={() => setStatusDialog({ isOpen: true, allotment: al, newStatus: 'CANCELLED' })}
                                 className="px-2.5 py-1 rounded-[6px] text-xs font-semibold transition-colors border cursor-pointer hover:opacity-80"
                                 style={{
                                   backgroundColor: 'var(--amber-mist, #FBF0E1)',
@@ -869,6 +885,30 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
           </button>
         </div>
       </div>
+
+
+      {/* Toast Error Alert Banner */}
+      {errorMessage && (
+        <div className="fixed bottom-6 right-6 z-50 p-4 bg-red-600 text-white rounded-xl shadow-xl flex items-center gap-3 animate-in slide-in-from-bottom-5 duration-200">
+          <ShieldAlert className="w-5 h-5 shrink-0" />
+          <span className="text-xs font-semibold">{errorMessage}</span>
+          <button type="button" onClick={() => setErrorMessage(null)} className="ml-2 text-white/80 hover:text-white cursor-pointer">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
+      {/* Professional Status Change Dialog */}
+      <ConfirmDialog
+        isOpen={statusDialog.isOpen}
+        title={statusDialog.newStatus === 'COMPLETED' ? 'Mark Allotment as Done?' : 'Cancel Target Allotment?'}
+        description={`Are you sure you want to mark production target for "${statusDialog.allotment?.articles?.art_no || 'this article'}" (${statusDialog.allotment?.profiles?.username || 'Lineman'}) as ${statusDialog.newStatus}?`}
+        confirmText={statusDialog.newStatus === 'COMPLETED' ? 'Mark as Completed' : 'Cancel Allotment'}
+        variant={statusDialog.newStatus === 'COMPLETED' ? 'success' : 'warning'}
+        isLoading={isStatusLoading}
+        onConfirm={executeStatusChange}
+        onClose={() => setStatusDialog({ isOpen: false, allotment: null, newStatus: '' })}
+      />
 
       {/* ========================================================================= */}
       {/* PREMIUM DELETE CONFIRMATION MODAL */}
