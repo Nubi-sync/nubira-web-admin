@@ -31,6 +31,42 @@ import {
 } from 'lucide-react'
 
 
+function parseAndExpandOrderSizes(sizeMatrix: any[]): { individualSizes: string[]; sizeQuantities: Record<string, number> } {
+  const individualSizes: string[] = []
+  const sizeQuantities: Record<string, number> = {}
+  if (!sizeMatrix || sizeMatrix.length === 0) return { individualSizes: ['S', 'M', 'L', 'XL'], sizeQuantities: {} }
+  for (const item of sizeMatrix) {
+    const rawSize = (item.size || 'Free Size').trim()
+    const totalPcs = Number(item.pcs) || (Number(item.sets) * (Number(item.ratio) || 1)) || 0
+    if (rawSize.includes('/') || (rawSize.includes(',') && !rawSize.match(/\\d+X\\d+/i))) {
+      const parts = rawSize.split(/[/,]/).map((s: string) => s.trim().toUpperCase()).filter(Boolean)
+      if (parts.length > 0) {
+        const perSizeQty = Math.round(totalPcs / parts.length)
+        parts.forEach((p: string) => {
+          if (!individualSizes.includes(p)) individualSizes.push(p)
+          sizeQuantities[p] = (sizeQuantities[p] || 0) + perSizeQty
+        })
+        continue
+      }
+    }
+    const cleanSize = rawSize.toUpperCase()
+    if (!individualSizes.includes(cleanSize)) individualSizes.push(cleanSize)
+    sizeQuantities[cleanSize] = (sizeQuantities[cleanSize] || 0) + totalPcs
+  }
+  return { individualSizes, sizeQuantities }
+}
+
+function parseOrderColors(bodyColorStr?: string, pantColorStr?: string): string[] {
+  const colors = new Set<string>()
+  if (bodyColorStr) {
+    bodyColorStr.split(/[/,]/).map((s: string) => s.trim()).filter(Boolean).forEach((c: string) => colors.add(c))
+  }
+  if (pantColorStr) {
+    pantColorStr.split(/[/,]/).map((s: string) => s.trim()).filter(Boolean).forEach((c: string) => colors.add(c))
+  }
+  return colors.size > 0 ? Array.from(colors) : ['Standard Color']
+}
+
 function expandTierSizes(sizeRates: Record<string, number>): string[] {
   const result: string[] = []
   for (const key of Object.keys(sizeRates)) { if (key.startsWith("_") || key === "_meta" || typeof sizeRates[key] !== "number") continue;
@@ -707,10 +743,49 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                   setArticleId(val)
                   setTouchedArticle(true)
                   const chosen = articles.find(a => a.id === val)
-                  if (chosen && chosen.size_rates && Object.keys(chosen.size_rates).length > 0) {
-                    const expanded = expandTierSizes(chosen.size_rates)
-                    if (expanded.length > 0) {
-                      setSelectedSizes(expanded)
+                  if (chosen) {
+                    const matchingOrder = (productionOrders || []).find((o: any) =>
+                      o.art_no?.trim().toUpperCase() === chosen.art_no?.trim().toUpperCase() ||
+                      o.article_id === chosen.id
+                    )
+                    if (matchingOrder) {
+                      setAutoLoadedOrder(matchingOrder)
+                      if (matchingOrder.mt_code) {
+                        setProductionOrderNo(matchingOrder.mt_code)
+                        setClientChallanNo(matchingOrder.mt_code)
+                      }
+                      if (matchingOrder.delivery_date) {
+                        setDueDate(matchingOrder.delivery_date)
+                      }
+                      if (matchingOrder.picture_url) {
+                        setSamplePhotos([matchingOrder.picture_url])
+                      }
+                      const { individualSizes, sizeQuantities } = parseAndExpandOrderSizes(matchingOrder.size_matrix || [])
+                      if (individualSizes.length > 0) {
+                        setSelectedSizes(individualSizes)
+                      }
+                      const colorList = parseOrderColors(matchingOrder.body_color, matchingOrder.pant_color)
+                      const newColorRows = colorList.map((colName: string, cIdx: number) => {
+                        const rowQtys: Record<string, number> = {}
+                        individualSizes.forEach((sz: string) => {
+                          const totalForSize = sizeQuantities[sz] || 0
+                          rowQtys[sz] = Math.round(totalForSize / colorList.length) || 0
+                        })
+                        return {
+                          id: (cIdx + 1).toString(),
+                          color: colName,
+                          quantities: rowQtys
+                        }
+                      })
+                      setColorRows(newColorRows)
+                    } else {
+                      setAutoLoadedOrder(null)
+                      if (chosen.size_rates && typeof chosen.size_rates === 'object') {
+                        const expanded = expandTierSizes(chosen.size_rates)
+                        if (expanded.length > 0) {
+                          setSelectedSizes(expanded)
+                        }
+                      }
                     }
                   }
                 }}
