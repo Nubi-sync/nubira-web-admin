@@ -3,6 +3,7 @@
 import React, { useState, useMemo, Fragment } from 'react'
 import { updateAllotmentStatus, deleteAllotment } from '../actions'
 import { 
+  Trash2,
   CheckCircle2,
   ShieldAlert,
   Wrench,
@@ -128,6 +129,8 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
   }>>([])
 
   const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [deletingAllotment, setDeletingAllotment] = useState<Allotment | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
   
   // Functional table controls
   const [searchQuery, setSearchQuery] = useState('')
@@ -143,12 +146,20 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
     }
   }
 
-  async function handleDeleteAllotment(id: string) {
-    if (confirm('Are you sure you want to permanently delete this allotment? This will remove all associated variant ratios and material BOM records.')) {
-      const res = await deleteAllotment(id)
+  async function confirmDeleteAllotment() {
+    if (!deletingAllotment) return
+    setIsDeleting(true)
+    try {
+      const res = await deleteAllotment(deletingAllotment.id)
       if (res?.error) {
         alert(`Error deleting allotment: ${res.error}`)
+      } else {
+        setDeletingAllotment(null)
       }
+    } catch (e: any) {
+      alert(`Error: ${e.message || 'Failed to delete'}`)
+    } finally {
+      setIsDeleting(false)
     }
   }
 
@@ -524,7 +535,7 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                           )}
                           <button
                             type="button"
-                            onClick={() => handleDeleteAllotment(al.id)}
+                            onClick={() => setDeletingAllotment(al)}
                             className="px-2.5 py-1 rounded-[6px] text-xs font-semibold transition-colors border cursor-pointer hover:bg-red-100 hover:text-red-700"
                             style={{
                               backgroundColor: 'var(--red-mist, #FBEAE8)',
@@ -859,6 +870,95 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
         </div>
       </div>
 
+      {/* ========================================================================= */}
+      {/* PREMIUM DELETE CONFIRMATION MODAL */}
+      {/* ========================================================================= */}
+      {deletingAllotment && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div 
+            className="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden animate-in zoom-in-95 duration-200"
+            role="dialog"
+            aria-modal="true"
+          >
+            {/* Modal Header */}
+            <div className="p-6 text-center">
+              <div className="w-14 h-14 rounded-2xl bg-red-50 border border-red-100 text-red-600 flex items-center justify-center mx-auto mb-4 shadow-sm">
+                <Trash2 className="w-7 h-7" />
+              </div>
+              <h3 className="text-lg font-bold text-slate-900">
+                Delete Target Allotment?
+              </h3>
+              <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">
+                This action is permanent and cannot be undone. All associated variant ratios, BOM material records, and worker assignments will be deleted from the database.
+              </p>
+
+              {/* Allotment Details Summary Card */}
+              <div className="mt-4 p-4 bg-slate-50/80 border border-slate-200/80 rounded-xl text-left space-y-2 text-xs">
+                <div className="flex justify-between items-center pb-1.5 border-b border-slate-200/60">
+                  <span className="text-slate-500 font-medium">Lineman (Floor):</span>
+                  <span className="font-bold text-slate-800">{deletingAllotment.profiles?.username || 'Lineman'}</span>
+                </div>
+                <div className="flex justify-between items-center pb-1.5 border-b border-slate-200/60">
+                  <span className="text-slate-500 font-medium">Article (Style #):</span>
+                  <span className="font-bold text-slate-800">
+                    {deletingAllotment.articles?.art_no} ({cleanDescription(deletingAllotment.articles?.description)})
+                  </span>
+                </div>
+                {deletingAllotment.production_order_no && (
+                  <div className="flex justify-between items-center pb-1.5 border-b border-slate-200/60">
+                    <span className="text-slate-500 font-medium">Production Order:</span>
+                    <span className="font-bold font-mono text-slate-800">{deletingAllotment.production_order_no}</span>
+                  </div>
+                )}
+                <div className="flex justify-between items-center pb-1.5 border-b border-slate-200/60">
+                  <span className="text-slate-500 font-medium">Target Quantity:</span>
+                  <span className="font-bold text-slate-800">{deletingAllotment.target_qty} pcs</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-500 font-medium">Allotment Status:</span>
+                  <span className={`font-bold px-2 py-0.5 rounded text-[10.5px] ${
+                    deletingAllotment.status === 'COMPLETED' ? 'bg-green-100 text-green-700' :
+                    deletingAllotment.status === 'CANCELLED' ? 'bg-red-100 text-red-700' :
+                    'bg-blue-100 text-blue-700'
+                  }`}>
+                    {deletingAllotment.status}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Actions */}
+            <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex items-center justify-end gap-2.5">
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={() => setDeletingAllotment(null)}
+                className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-200/80 rounded-xl transition-colors cursor-pointer disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={confirmDeleteAllotment}
+                className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 rounded-xl transition-all cursor-pointer shadow-sm shadow-red-200"
+              >
+                {isDeleting ? (
+                  <>
+                    <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <span>Deleting...</span>
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Delete Permanently</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
