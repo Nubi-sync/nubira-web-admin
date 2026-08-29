@@ -33,7 +33,7 @@ import {
 
 function expandTierSizes(sizeRates: Record<string, number>): string[] {
   const result: string[] = []
-  for (const key of Object.keys(sizeRates)) {
+  for (const key of Object.keys(sizeRates)) { if (key.startsWith("_") || key === "_meta" || typeof sizeRates[key] !== "number") continue;
     if (key.includes('/')) {
       const parts = key.split('/').map(s => s.trim()).filter(Boolean)
       result.push(...parts)
@@ -50,7 +50,7 @@ function expandTierSizes(sizeRates: Record<string, number>): string[] {
 function getRateForIndividualSize(size: string, sizeRates?: Record<string, number> | null, defaultRate?: number): number {
   if (!sizeRates || Object.keys(sizeRates).length === 0) return defaultRate || 0
   if (sizeRates[size] !== undefined) return sizeRates[size]
-  for (const [tierKey, rate] of Object.entries(sizeRates)) {
+  for (const [tierKey, rate] of Object.entries(sizeRates)) { if (tierKey.startsWith("_") || typeof rate !== "number") continue;
     const parts = tierKey.split(/[/,-]/).map(s => s.trim().toUpperCase())
     if (parts.includes(size.toUpperCase())) {
       return rate
@@ -723,8 +723,8 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                 <option value="">-- Choose Article Style --</option>
                 {articles.map((a) => {
                   let rateTag = ''
-                  if (a.size_rates && Object.keys(a.size_rates).length > 0) {
-                    const rts = Object.values(a.size_rates).filter(r => !isNaN(r) && r > 0)
+                  if (a.size_rates && typeof a.size_rates === 'object') {
+                    const rts = Object.entries(a.size_rates).filter(([k, v]) => !k.startsWith('_') && typeof v === 'number' && !isNaN(v) && v > 0).map(([, v]) => v as number)
                     if (rts.length > 0) {
                       const min = Math.min(...rts)
                       const max = Math.max(...rts)
@@ -752,8 +752,8 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                 <div className="flex items-center gap-1.5 text-[11px] font-medium" style={{ color: 'var(--green, #1F9D63)' }}>
                   <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
                   <span>
-                    {selectedArticle.size_rates && Object.keys(selectedArticle.size_rates).length > 0
-                      ? `Size-Wise rates loaded: ${Object.entries(selectedArticle.size_rates).map(([k, v]) => `${k}: ₹${v}`).join(' · ')}`
+                    {selectedArticle.size_rates && Object.entries(selectedArticle.size_rates).filter(([k, v]) => !k.startsWith("_") && typeof v === "number").length > 0
+                      ? `Size-Wise rates loaded: ${Object.entries(selectedArticle.size_rates).filter(([k, v]) => !k.startsWith("_") && typeof v === "number").map(([k, v]) => `${k}: ₹${v}`).join(' · ')}`
                       : selectedArticle.stitching_rate 
                       ? `Stitching rate ₹${selectedArticle.stitching_rate}/pc loaded` 
                       : `${cleanArticleDesc(selectedArticle.description) || selectedArticle.art_no} loaded`}
