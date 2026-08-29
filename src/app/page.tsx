@@ -29,10 +29,17 @@ export default async function DashboardPage() {
     redirect('/login')
   }
 
-  // 1. Fetch Production Logs
+  // 0. Fetch Articles
+  const { data: articlesData } = await supabase
+    .from('articles')
+    .select('id, art_no, description')
+    .eq('is_active', true)
+    .order('art_no')
+
+  // 1. Fetch Production Logs with article metadata
   const { data: prodData } = await supabase
     .from('daily_product')
-    .select('quantity, entry_date, created_at')
+    .select('id, quantity, entry_date, created_at, article_id, article:articles(id, art_no, description)')
     .order('created_at', { ascending: false })
 
   // 2. Fetch QC Logs
@@ -46,7 +53,8 @@ export default async function DashboardPage() {
       defect_type,
       entry_date,
       created_at,
-      article:articles(art_no, description)
+      article_id,
+      article:articles(id, art_no, description)
     `)
     .order('created_at', { ascending: false })
 
@@ -78,6 +86,7 @@ export default async function DashboardPage() {
   let totalPassed = 0
   let totalRejected = 0
   let totalInward = 0
+  let totalDispatched = 0
 
   prodData?.forEach(row => {
     totalProduced += row.quantity || 0
@@ -94,6 +103,10 @@ export default async function DashboardPage() {
     if (row.type === 'INWARD') {
       totalInward += row.quantity || 0
     }
+  })
+
+  dispatchData?.forEach(row => {
+    totalDispatched += row.total_pieces || 0
   })
 
   // Build Recent Activity Feed (Top 4 events)
@@ -215,10 +228,12 @@ export default async function DashboardPage() {
             produced: totalProduced,
             passed: totalPassed,
             rejected: totalRejected,
-            inward: totalInward
+            inward: totalInward,
+            dispatched: totalDispatched
           }}
-          rawProduction={prodData || []}
-          rawQC={qcData || []}
+          articles={(articlesData as any) || []}
+          rawProduction={(prodData as any) || []}
+          rawQC={(qcData as any) || []}
           recentActivities={sortedActivities}
         />
 
