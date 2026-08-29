@@ -52,132 +52,6 @@ const DEFAULT_BRANDS = [
   'CHERRY POP'
 ]
 
-const SAMPLE_ORDERS: ProductionOrderPayload[] = [
-  {
-    id: 'sample-1',
-    delivery_date: '2026-07-11',
-    art_no: '8941',
-    sub_art_no: '8941A',
-    picture_url: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=500&auto=format&fit=crop&q=80',
-    mt_code: 'MT-1025',
-    fabric: 'PRINTED SINKER',
-    pattern_no: 'LB-816',
-    description: 'GIRLS FULL SLEEVE FRONT OPEN PEEPING NIGHT SUIT',
-    body_color: 'Blue Printed',
-    pant_color: 'Blue Printed',
-    brand: 'OLLYPOP',
-    rib_status: 'PENDING',
-    status: 'IN_PRODUCTION',
-    size_matrix: [
-      { size: '16X20', sets: 116, ratio: 3, pcs: 348 },
-      { size: '22X26', sets: 116, ratio: 3, pcs: 348 }
-    ]
-  },
-  {
-    id: 'sample-2',
-    delivery_date: '2026-06-30',
-    art_no: '8882',
-    sub_art_no: '8882A',
-    picture_url: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=500&auto=format&fit=crop&q=80',
-    mt_code: 'MT-1072',
-    fabric: 'LY 2FD',
-    pattern_no: 'G-342 / DL-327',
-    description: 'GIRLS FULL SLEEVE SWEATSHIRT SUIT',
-    body_color: 'Turkish Blue',
-    pant_color: 'Black Current',
-    brand: 'OLLYPOP',
-    rib_status: 'PENDING',
-    status: 'IN_PRODUCTION',
-    size_matrix: [
-      { size: 'XS/S', sets: 94, ratio: 4, pcs: 376 },
-      { size: 'M/XXL', sets: 165, ratio: 8, pcs: 1320 }
-    ]
-  },
-  {
-    id: 'sample-3',
-    delivery_date: '2026-06-15',
-    art_no: '6869',
-    sub_art_no: '6869A',
-    picture_url: 'https://images.unsplash.com/photo-1622445262464-84b150777741?w=500&auto=format&fit=crop&q=80',
-    mt_code: 'MT-1043',
-    fabric: 'LY SINKER',
-    pattern_no: 'G-344',
-    description: 'GIRLS FULL SLEEVE SUIT',
-    body_color: 'Paper Mint',
-    pant_color: 'New Peach',
-    brand: 'OLLYPOP',
-    rib_status: 'PENDING',
-    status: 'QC_PASSED',
-    size_matrix: [
-      { size: 'XS/S', sets: 100, ratio: 4, pcs: 400 },
-      { size: 'M/XXL', sets: 200, ratio: 8, pcs: 1600 }
-    ]
-  },
-  {
-    id: 'sample-4',
-    delivery_date: '2026-07-13',
-    art_no: '8505',
-    sub_art_no: '8505A',
-    picture_url: 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=500&auto=format&fit=crop&q=80',
-    mt_code: 'MT-1098',
-    fabric: 'LY 2FD',
-    pattern_no: 'G-342',
-    description: 'GIRLS FULL SLEEVE SWEATSHIRT',
-    body_color: 'Cotton Candy / Lemon Ice',
-    pant_color: 'Macha Green / Cherry Pop',
-    brand: 'LAZY BONES',
-    rib_status: 'PENDING',
-    status: 'IN_PRODUCTION',
-    size_matrix: [
-      { size: '20/24', sets: 587, ratio: 9, pcs: 5283 },
-      { size: '26/30', sets: 391, ratio: 9, pcs: 3522 },
-      { size: '32/36', sets: 195, ratio: 9, pcs: 1761 }
-    ]
-  },
-  {
-    id: 'sample-5',
-    delivery_date: '2026-05-16',
-    art_no: '2308',
-    sub_art_no: '2308A / 2308B',
-    picture_url: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=500&auto=format&fit=crop&q=80',
-    mt_code: 'MT-976',
-    fabric: '28 SINKER',
-    pattern_no: 'MD-270',
-    description: 'BOYS HALF SLEEVE TEE',
-    body_color: 'White / Cream',
-    pant_color: 'White / Cream',
-    brand: 'OLLYPOP',
-    rib_status: 'PENDING',
-    status: 'DISPATCHED',
-    size_matrix: [
-      { size: 'S/M', sets: 120, ratio: 6, pcs: 720 },
-      { size: 'L/XXL', sets: 240, ratio: 9, pcs: 2160 },
-      { size: '22X26', sets: 160, ratio: 9, pcs: 1440 },
-      { size: '28X32', sets: 80, ratio: 9, pcs: 720 }
-    ]
-  },
-  {
-    id: 'sample-6',
-    delivery_date: '2026-07-18',
-    art_no: '5301',
-    sub_art_no: '5301A',
-    picture_url: 'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=500&auto=format&fit=crop&q=80',
-    mt_code: 'MT-1109',
-    fabric: 'HEAVY FLEECE',
-    pattern_no: 'Z-2003 / DL-327 / BL-166',
-    description: 'BOYS FULL SLEEVE FRONT BOX SUIT',
-    body_color: 'Classic Blue Melange',
-    pant_color: 'Biscuit Melange',
-    brand: 'OLLYPOP',
-    rib_status: 'PENDING',
-    status: 'IN_PRODUCTION',
-    size_matrix: [
-      { size: 'XS/S', sets: 196, ratio: 4, pcs: 784 },
-      { size: 'M/XXL', sets: 376, ratio: 8, pcs: 3008 }
-    ]
-  }
-]
-
 interface ProductionOrdersClientProps {
   initialOrders: any[]
   articlesList: any[]
@@ -188,10 +62,7 @@ export function ProductionOrdersClient({
   articlesList = []
 }: ProductionOrdersClientProps) {
   const [isPending, startTransition] = useTransition()
-  const [orders, setOrders] = useState<any[]>(() => {
-    if (initialOrders && initialOrders.length > 0) return initialOrders
-    return SAMPLE_ORDERS
-  })
+  const [orders, setOrders] = useState<any[]>(initialOrders || [])
 
   // Filters
   const [searchQuery, setSearchQuery] = useState('')
