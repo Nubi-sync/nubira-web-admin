@@ -5,6 +5,8 @@ import { createEmployee } from '../actions'
 import { UserPlus, Loader2, CheckCircle2, AlertCircle } from 'lucide-react'
 
 export function CreateEmployeeForm() {
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [isPending, setIsPending] = useState(false)
   const [success, setSuccess] = useState(false)
@@ -29,6 +31,9 @@ export function CreateEmployeeForm() {
       setError(result.error)
     } else {
       setSuccess(true)
+      setUsername('')
+      setPassword('')
+      setTouchedRole(false)
       // reset success message after 3 seconds
       setTimeout(() => setSuccess(false), 3500)
     }
@@ -64,8 +69,12 @@ export function CreateEmployeeForm() {
         </div>
       </div>
 
-      <form action={handleSubmit} className="space-y-4 text-xs">
+      <form action={handleSubmit} autoComplete="off" className="space-y-4 text-xs">
         
+        {/* Hidden dummy fields to absorb aggressive browser autofill */}
+        <input type="text" name="prevent_autofill_user" tabIndex={-1} className="hidden" autoComplete="off" />
+        <input type="password" name="prevent_autofill_pwd" tabIndex={-1} className="hidden" autoComplete="new-password" />
+
         {/* Username */}
         <div>
           <label 
@@ -78,6 +87,9 @@ export function CreateEmployeeForm() {
             name="username"
             type="text"
             required
+            autoComplete="off"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
             placeholder="e.g. ramesh_stitch"
             className="w-full bg-slate-50 border rounded-[8px] px-3.5 py-2.5 text-xs text-[var(--ink,#1C2733)] placeholder-slate-400 outline-none transition-all focus:bg-white"
             style={{ borderColor: 'var(--border, #E2E8F0)' }}
@@ -98,6 +110,9 @@ export function CreateEmployeeForm() {
             name="password"
             type="password"
             required
+            autoComplete="new-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••"
             className="w-full bg-slate-50 border rounded-[8px] px-3.5 py-2.5 text-xs text-[var(--ink,#1C2733)] placeholder-slate-400 outline-none transition-all focus:bg-white"
             style={{ borderColor: 'var(--border, #E2E8F0)' }}
