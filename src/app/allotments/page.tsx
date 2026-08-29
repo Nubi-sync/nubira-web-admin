@@ -3,6 +3,7 @@ import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { CreateAllotmentForm } from './components/CreateAllotmentForm'
 import { AllotmentList } from './components/AllotmentList'
+import { getProductionOrders } from '@/app/production-orders/actions'
 import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
@@ -40,6 +41,9 @@ export default async function AllotmentsPage() {
     .select('id, art_no, description, stitching_rate, size_rates')
     .eq('is_active', true)
     .order('art_no')
+
+  // 2.5 Fetch Production Orders for auto-sync
+  const productionOrders = await getProductionOrders()
 
   // 3. Fetch Allotments
   const { data: allotmentsRaw } = await supabase
@@ -170,7 +174,8 @@ export default async function AllotmentsPage() {
         <CreateAllotmentForm 
           linemen={(linemen as any) || []} 
           managers={(managers as any) || []}
-          articles={(articles as any) || []} 
+          articles={(articles as any) || []}
+          productionOrders={productionOrders || []} 
         />
 
         {/* Section 2: Allotments List & Live Handshake Status */}

@@ -94,12 +94,15 @@ const SIZE_PRESETS: Record<string, { label: string; sizes: string[] }> = {
 export function CreateAllotmentForm({ 
   linemen, 
   managers = [],
-  articles 
+  articles,
+  productionOrders = [] 
 }: { 
   linemen: Profile[], 
   managers?: Array<{ id: string; username: string; role?: string }>,
-  articles: Article[] 
+  articles: Article[]
+  productionOrders?: any[]
 }) {
+  const [autoLoadedOrder, setAutoLoadedOrder] = useState<any>(null)
   const [linemanId, setLinemanId] = useState('')
   const [articleId, setArticleId] = useState('')
   
