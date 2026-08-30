@@ -304,12 +304,12 @@ export async function createChallan(payload: CreateChallanPayload) {
       const lineSets = Number(line.sets) || Math.round(linePcs / (Number(line.pcs_per_set) || 9))
       const lineRatio = Number(line.pcs_per_set) || 9
 
-      // Find or create article in `articles` table
+      // Find or create article in `articles` table by fullArtCode
       let articleId = ''
       const { data: existingArt } = await supabase
         .from('articles')
         .select('id, size_rates')
-        .eq('art_no', cleanArtNo)
+        .eq('art_no', fullArtCode)
         .limit(1)
         .single()
 
@@ -319,15 +319,18 @@ export async function createChallan(payload: CreateChallanPayload) {
         const { data: createdArt } = await supabase
           .from('articles')
           .insert({
-            art_no: cleanArtNo,
-            description: line.description || `${cleanArtNo} ${line.color_pattern || ''}`.trim(),
+            art_no: fullArtCode,
+            description: line.description || `${fullArtCode} - ${line.color_pattern || ''} (${line.size_range || ''})`.trim(),
             stitching_rate: line.stitching_rate || 20,
             is_active: true,
             size_rates: {
               _meta: {
+                base_art: cleanArtNo,
+                sub_art: cleanSubArt,
                 pattern: line.pattern_no || '',
                 fabric: fabric_type,
                 party: brand,
+                size: line.size_range,
                 picture_url: line.picture_url || ''
               }
             }
