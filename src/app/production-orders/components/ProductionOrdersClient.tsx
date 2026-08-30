@@ -1120,7 +1120,7 @@ export function ProductionOrdersClient({
                                 min={1}
                                 required
                                 placeholder="0"
-                                value={line.sets === '' ? '' : line.sets}
+                                value={line.sets || ''}
                                 onChange={e => handleLineChange(idx, 'sets', e.target.value)}
                                 className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-right text-slate-900 placeholder-slate-300 focus:outline-none"
                               />
@@ -1143,7 +1143,7 @@ export function ProductionOrdersClient({
                                 type="number"
                                 min={1}
                                 placeholder="0"
-                                value={line.total_pcs === '' ? '' : line.total_pcs}
+                                value={line.total_pcs || ''}
                                 onChange={e => handleLineChange(idx, 'total_pcs', e.target.value)}
                                 className="w-full px-2.5 py-1.5 bg-emerald-50 border border-emerald-200 rounded-lg text-xs font-extrabold text-right text-emerald-800 placeholder-slate-300 focus:outline-none"
                               />
