@@ -27,7 +27,10 @@ import {
   ShieldAlert,
   ArrowUpRight,
   Search,
-  Check
+  Check,
+  ExternalLink,
+  User,
+  Tag
 } from 'lucide-react'
 
 type RawProd = {
@@ -169,6 +172,7 @@ export default function DashboardClient({
 
   // Selected Stage Drawer State
   const [activeDrilldownStage, setActiveDrilldownStage] = useState<StageType | null>(null)
+  const [drawerSearchQuery, setDrawerSearchQuery] = useState('')
 
   // Filtered Articles for Combobox Search
   const filteredArticlesList = useMemo(() => {
@@ -962,90 +966,243 @@ export default function DashboardClient({
       {/* 5. 1-CLICK DEEP DRILLDOWN SLIDE-OVER DRAWER               */}
       {/* ========================================================= */}
       {activeDrilldownStage && (
-        <div className="fixed inset-0 z-50 flex justify-end bg-slate-900/40 backdrop-blur-xs animate-in fade-in duration-150">
+        <div className="fixed inset-0 z-50 flex justify-end bg-slate-900/50 backdrop-blur-xs animate-in fade-in duration-150">
           <div className="bg-white w-full max-w-2xl h-full shadow-2xl flex flex-col justify-between animate-in slide-in-from-right duration-200 border-l border-slate-200">
             
             {/* Drawer Header */}
-            <div className="p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-[var(--steel-tint,#DBE6F5)] text-[var(--steel-dark,#1F3A63)] tracking-wider">
-                    Stage Detail
-                  </span>
-                  <h3 className="text-base font-bold text-slate-900 font-[family-name:var(--font-heading)]">
-                    {activeDrilldownStage === 'TOTAL_STOCKS' && 'Total Stocks (Order Pipeline)'}
-                    {activeDrilldownStage === 'GOODS_IN_LINE' && 'Goods in Line (Sewing WIP Breakdown)'}
-                    {activeDrilldownStage === 'MENDING_CHECKING' && 'Mending & Checking (QC Inspection Lots)'}
-                    {activeDrilldownStage === 'READY_GOODS' && 'Ready Goods (Finished Godown Stock)'}
-                    {activeDrilldownStage === 'RTO' && 'RTO & Supplier Rejections'}
-                    {activeDrilldownStage === 'READY_DELIVERY' && 'Ready for Delivery (Gate Pass & Dispatched)'}
-                  </h3>
+            <div className="p-5 border-b border-slate-200 bg-slate-50">
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-3">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-xs ${
+                    activeDrilldownStage === 'TOTAL_STOCKS' ? 'bg-[#EEF3FA] text-[#2B4C7E]' :
+                    activeDrilldownStage === 'GOODS_IN_LINE' ? 'bg-[#EEF2FF] text-[#4F46E5]' :
+                    activeDrilldownStage === 'MENDING_CHECKING' ? 'bg-[#FFFBEB] text-[#D97706]' :
+                    activeDrilldownStage === 'READY_GOODS' ? 'bg-[#ECFDF5] text-[#059669]' :
+                    activeDrilldownStage === 'RTO' ? 'bg-[#FEF2F2] text-[#DC2626]' :
+                    'bg-[#F5F3FF] text-[#7C3AED]'
+                  }`}>
+                    {activeDrilldownStage === 'TOTAL_STOCKS' && <Warehouse className="w-5 h-5" />}
+                    {activeDrilldownStage === 'GOODS_IN_LINE' && <Activity className="w-5 h-5" />}
+                    {activeDrilldownStage === 'MENDING_CHECKING' && <AlertTriangle className="w-5 h-5" />}
+                    {activeDrilldownStage === 'READY_GOODS' && <PackageCheck className="w-5 h-5" />}
+                    {activeDrilldownStage === 'RTO' && <RotateCcw className="w-5 h-5" />}
+                    {activeDrilldownStage === 'READY_DELIVERY' && <Truck className="w-5 h-5" />}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-[var(--steel-tint,#DBE6F5)] text-[var(--steel-dark,#1F3A63)] tracking-wider">
+                        Stage Detail
+                      </span>
+                      <h3 className="text-base font-bold text-slate-900 font-[family-name:var(--font-heading)]">
+                        {activeDrilldownStage === 'TOTAL_STOCKS' && '1. Total Stocks (Order Pipeline)'}
+                        {activeDrilldownStage === 'GOODS_IN_LINE' && '2. Goods in Line (Sewing WIP)'}
+                        {activeDrilldownStage === 'MENDING_CHECKING' && '3. Mending & Checking (QC Table)'}
+                        {activeDrilldownStage === 'READY_GOODS' && '4. Ready Goods (Godown Stock)'}
+                        {activeDrilldownStage === 'RTO' && '5. RTO & Rejections'}
+                        {activeDrilldownStage === 'READY_DELIVERY' && '6. Ready for Delivery (Dispatch)'}
+                      </h3>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      {activeDrilldownStage === 'TOTAL_STOCKS' && 'Complete active buyer challans, cutting batches & floor allotments.'}
+                      {activeDrilldownStage === 'GOODS_IN_LINE' && 'Active cut-to-sew lots running on machines by Lineman.'}
+                      {activeDrilldownStage === 'MENDING_CHECKING' && 'Defect tagged pieces, alteration logs, and finishing checks.'}
+                      {activeDrilldownStage === 'READY_GOODS' && '100% verified finished garments packed and stored in godown.'}
+                      {activeDrilldownStage === 'RTO' && 'Defects returned to origin and supplier rejections.'}
+                      {activeDrilldownStage === 'READY_DELIVERY' && 'Outward delivery challans and gate pass consignments.'}
+                    </p>
+                  </div>
                 </div>
-                <p className="text-xs text-slate-500 mt-1">
-                  {activeDrilldownStage === 'TOTAL_STOCKS' && 'Complete list of active buyer challans and floor allotments.'}
-                  {activeDrilldownStage === 'GOODS_IN_LINE' && 'Active allotments running on sewing machines by Lineman.'}
-                  {activeDrilldownStage === 'MENDING_CHECKING' && 'Defect tagged pieces, alteration logs, and finishing checks.'}
-                  {activeDrilldownStage === 'READY_GOODS' && '100% verified finished garments packed and stored.'}
-                  {activeDrilldownStage === 'RTO' && 'Defects returned to origin and supplier rejections.'}
-                  {activeDrilldownStage === 'READY_DELIVERY' && 'Outward delivery challans and gate pass consignments.'}
-                </p>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveDrilldownStage(null)
+                    setDrawerSearchQuery('')
+                  }}
+                  aria-label="Close detail drawer"
+                  className="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-200 transition-colors cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
               </div>
 
-              <button
-                type="button"
-                onClick={() => setActiveDrilldownStage(null)}
-                aria-label="Close detail drawer"
-                className="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-200 transition-colors cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
+              {/* Summary KPI Ribbon */}
+              <div className="mt-4 grid grid-cols-3 gap-2 pt-3 border-t border-slate-200 text-center">
+                <div className="p-2 rounded-lg bg-white border border-slate-200 shadow-2xs">
+                  <span className="text-[10px] font-bold uppercase text-slate-400 block tracking-wider">
+                    Stage Volume
+                  </span>
+                  <p className="text-sm font-extrabold text-slate-900 mt-0.5">
+                    {activeDrilldownStage === 'TOTAL_STOCKS' && `${metrics.totalStocks.toLocaleString()} pcs`}
+                    {activeDrilldownStage === 'GOODS_IN_LINE' && `${metrics.goodsInLine.toLocaleString()} pcs`}
+                    {activeDrilldownStage === 'MENDING_CHECKING' && `${metrics.mendingChecking.toLocaleString()} pcs`}
+                    {activeDrilldownStage === 'READY_GOODS' && `${metrics.readyGoods.toLocaleString()} pcs`}
+                    {activeDrilldownStage === 'RTO' && `${metrics.rto.toLocaleString()} pcs`}
+                    {activeDrilldownStage === 'READY_DELIVERY' && `${metrics.readyDelivery.toLocaleString()} pcs`}
+                  </p>
+                </div>
+
+                <div className="p-2 rounded-lg bg-white border border-slate-200 shadow-2xs">
+                  <span className="text-[10px] font-bold uppercase text-slate-400 block tracking-wider">
+                    Active Brand
+                  </span>
+                  <p className="text-sm font-extrabold text-indigo-600 mt-0.5 truncate">
+                    {selectedBrand === 'ALL' ? 'All Brands' : selectedBrand}
+                  </p>
+                </div>
+
+                <div className="p-2 rounded-lg bg-white border border-slate-200 shadow-2xs">
+                  <span className="text-[10px] font-bold uppercase text-slate-400 block tracking-wider">
+                    Active Lots
+                  </span>
+                  <p className="text-sm font-extrabold text-slate-900 mt-0.5">
+                    {(activeDrilldownStage === 'TOTAL_STOCKS' || activeDrilldownStage === 'GOODS_IN_LINE') && `${filteredData.allotments.length} Allotments`}
+                    {activeDrilldownStage === 'MENDING_CHECKING' && `${filteredData.qc.length} QC Logs`}
+                    {activeDrilldownStage === 'READY_GOODS' && `${filteredData.store.filter(s => s.type === 'INWARD').length} Godown Receipts`}
+                    {activeDrilldownStage === 'RTO' && `${filteredData.store.filter(s => s.type === 'RTO' || s.type === 'REJECT').length} Return Lots`}
+                    {activeDrilldownStage === 'READY_DELIVERY' && `${filteredData.dispatch.length} Challans`}
+                  </p>
+                </div>
+              </div>
+
+              {/* In-Drawer Quick Search Box */}
+              <div className="mt-3 relative">
+                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  value={drawerSearchQuery}
+                  onChange={(e) => setDrawerSearchQuery(e.target.value)}
+                  placeholder="Filter lots by Art No, Lineman, Challan..."
+                  className="w-full text-xs pl-8 pr-7 py-2 bg-white border border-slate-200 rounded-lg outline-none focus:border-[var(--steel,#2B4C7E)] text-slate-800 placeholder:text-slate-400 font-medium"
+                />
+                {drawerSearchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setDrawerSearchQuery('')}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                )}
+              </div>
             </div>
 
-            {/* Drawer Content */}
-            <div className="p-5 overflow-y-auto flex-1 space-y-4">
+            {/* Drawer Content Body */}
+            <div className="p-5 overflow-y-auto flex-1 space-y-3.5 bg-slate-50/50">
               
-              {/* STAGE: TOTAL STOCKS OR GOODS IN LINE */}
+              {/* STAGES: TOTAL STOCKS & GOODS IN LINE */}
               {(activeDrilldownStage === 'TOTAL_STOCKS' || activeDrilldownStage === 'GOODS_IN_LINE') && (
                 <div className="space-y-3">
-                  {filteredData.allotments.map((al, idx) => {
-                    const art = Array.isArray(al.articles) ? al.articles[0] : al.articles
-                    const ch = Array.isArray(al.challans) ? al.challans[0] : al.challans
-                    const lm = Array.isArray(al.profiles) ? al.profiles[0] : al.profiles
+                  {filteredData.allotments
+                    .filter(al => {
+                      if (!drawerSearchQuery.trim()) return true
+                      const q = drawerSearchQuery.toLowerCase()
+                      const art = Array.isArray(al.articles) ? al.articles[0] : al.articles
+                      const ch = Array.isArray(al.challans) ? al.challans[0] : al.challans
+                      const lm = Array.isArray(al.profiles) ? al.profiles[0] : al.profiles
+                      return (
+                        (art?.art_no || '').toLowerCase().includes(q) ||
+                        (art?.description || '').toLowerCase().includes(q) ||
+                        (ch?.challan_no || '').toLowerCase().includes(q) ||
+                        (ch?.brand || '').toLowerCase().includes(q) ||
+                        (lm?.username || '').toLowerCase().includes(q)
+                      )
+                    })
+                    .map((al) => {
+                      const art = Array.isArray(al.articles) ? al.articles[0] : al.articles
+                      const ch = Array.isArray(al.challans) ? al.challans[0] : al.challans
+                      const lm = Array.isArray(al.profiles) ? al.profiles[0] : al.profiles
+                      const lotVariants = (variants || []).filter(v => v.allotment_id === al.id)
 
-                    return (
-                      <div key={al.id} className="p-4 rounded-xl border border-slate-200 bg-white shadow-2xs flex items-center justify-between gap-4">
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="font-bold text-sm text-slate-900">
-                              Art {art?.art_no || 'Style'}
-                            </span>
-                            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700">
-                              {ch?.challan_no ? `JOB-${ch.challan_no}` : 'Floor Lot'}
-                            </span>
-                            {ch?.brand && (
-                              <span className="text-[10px] font-bold text-indigo-600">
-                                {ch.brand}
+                      return (
+                        <div key={al.id} className="p-4 rounded-xl border border-slate-200 bg-white shadow-xs hover:shadow-md transition-all">
+                          {/* Card Header Row */}
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="font-bold text-sm text-slate-900 tracking-tight">
+                                  Art {art?.art_no || 'Style'}
+                                </span>
+                                {ch?.challan_no && (
+                                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
+                                    JOB-{ch.challan_no}
+                                  </span>
+                                )}
+                                {ch?.brand && (
+                                  <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-indigo-50 text-indigo-700">
+                                    {ch.brand}
+                                  </span>
+                                )}
+                              </div>
+                              {cleanDescription(art?.description) && (
+                                <p className="text-xs text-slate-500 mt-1 font-medium">
+                                  {cleanDescription(art?.description).replace(new RegExp(`^${art?.art_no}\\s*[-•:]*\\s*`, 'i'), '').trim()}
+                                </p>
+                              )}
+                            </div>
+
+                            <div className="text-right shrink-0">
+                              <p className="text-base font-extrabold text-slate-900">
+                                {al.target_qty?.toLocaleString()} <span className="text-xs font-normal text-slate-400">pcs</span>
+                              </p>
+                              <span className="inline-block mt-1 px-2 py-0.5 rounded text-[9.5px] font-bold uppercase bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                {al.status || 'IN SEWING'}
                               </span>
+                            </div>
+                          </div>
+
+                          {/* Metadata Chips */}
+                          <div className="mt-3 pt-3 border-t border-slate-100 grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
+                            <div className="flex items-center gap-1.5 text-slate-600">
+                              <User className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                              <span className="truncate">Lineman: <strong className="text-slate-800">{lm?.username || 'admin'}</strong></span>
+                            </div>
+                            <div className="flex items-center gap-1.5 text-slate-600">
+                              <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                              <span>{al.allotment_date || al.created_at?.split('T')[0]}</span>
+                            </div>
+                            {art?.stitching_rate && (
+                              <div className="flex items-center gap-1.5 text-slate-600">
+                                <Tag className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                <span>Rate: <strong className="text-slate-800">₹{art.stitching_rate}/pc</strong></span>
+                              </div>
                             )}
                           </div>
-                          <p className="text-xs text-slate-500 mt-1">
-                            Lineman: <strong className="text-slate-800">{lm?.username || 'Unassigned'}</strong> • Date: {al.allotment_date || al.created_at.split('T')[0]}
-                          </p>
-                        </div>
 
-                        <div className="text-right shrink-0">
-                          <p className="text-base font-bold text-slate-900">
-                            {al.target_qty?.toLocaleString()} <span className="text-xs font-normal text-slate-400">pcs</span>
-                          </p>
-                          <span className="inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-indigo-50 text-indigo-700 border border-indigo-200">
-                            {al.status || 'IN PROGRESS'}
-                          </span>
+                          {/* Size & Color Matrix Chips (if available) */}
+                          {lotVariants.length > 0 && (
+                            <div className="mt-3 pt-2.5 border-t border-slate-100">
+                              <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider block mb-1.5">
+                                Variant Breakdown:
+                              </span>
+                              <div className="flex flex-wrap gap-1.5">
+                                {lotVariants.map(v => (
+                                  <span key={v.id} className="text-[10.5px] px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-medium">
+                                    {v.color || 'Standard'} ({v.size}): <strong className="text-slate-900">{v.quantity} pcs</strong>
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Action Button */}
+                          <div className="mt-3 pt-2 border-t border-slate-100 flex justify-end">
+                            <Link 
+                              href="/allotments"
+                              className="text-[11px] font-bold text-[var(--steel,#2B4C7E)] hover:underline inline-flex items-center gap-1"
+                            >
+                              Open in Floor Allotments <ExternalLink className="w-3 h-3" />
+                            </Link>
+                          </div>
                         </div>
-                      </div>
-                    )
-                  })}
+                      )
+                    })}
                   {filteredData.allotments.length === 0 && (
-                    <p className="text-xs text-slate-400 text-center py-10">No allotments found.</p>
+                    <div className="text-center py-12 bg-white rounded-xl border border-slate-200 p-6">
+                      <Warehouse className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+                      <p className="text-xs font-bold text-slate-700">No active floor allotments found.</p>
+                      <p className="text-[11px] text-slate-400 mt-0.5">Try changing the brand or date filter above.</p>
+                    </div>
                   )}
                 </div>
               )}
@@ -1053,40 +1210,65 @@ export default function DashboardClient({
               {/* STAGE: MENDING & CHECKING */}
               {activeDrilldownStage === 'MENDING_CHECKING' && (
                 <div className="space-y-3">
-                  <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-between">
-                    <div>
-                      <p className="text-xs font-bold text-amber-900">Alteration & Mending Summary</p>
-                      <p className="text-[11px] text-amber-700 mt-0.5">
-                        Defects caught during checking line inspection
-                      </p>
+                  <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-between shadow-2xs">
+                    <div className="flex items-center gap-2.5">
+                      <AlertTriangle className="w-5 h-5 text-amber-700 shrink-0" />
+                      <div>
+                        <p className="text-xs font-extrabold text-amber-950">QC Finishing & Alteration Line</p>
+                        <p className="text-[11px] text-amber-800 mt-0.5">
+                          Total {metrics.mendingAlterationQty} defect pieces caught during inspection
+                        </p>
+                      </div>
                     </div>
-                    <span className="text-sm font-extrabold text-amber-900 bg-white px-2.5 py-1 rounded shadow-2xs">
+                    <span className="text-sm font-extrabold text-amber-950 bg-white px-3 py-1 rounded-lg shadow-2xs border border-amber-200">
                       {metrics.mendingAlterationQty} pcs Alteration
                     </span>
                   </div>
 
-                  {filteredData.qc.map((q, idx) => (
-                    <div key={q.id || idx} className="p-3.5 rounded-xl border border-slate-200 bg-white flex items-center justify-between">
-                      <div>
-                        <p className="text-xs font-bold text-slate-900">
-                          Art {q.article?.art_no || 'Style'} • {q.defect_type || 'Alteration Required'}
-                        </p>
-                        <p className="text-[11px] text-slate-400 mt-0.5">
-                          Date: {q.entry_date || q.created_at?.split('T')[0]} • Stage: {q.stage || 'CHECKING'}
-                        </p>
+                  {filteredData.qc
+                    .filter(q => {
+                      if (!drawerSearchQuery.trim()) return true
+                      const s = drawerSearchQuery.toLowerCase()
+                      return (
+                        (q.article?.art_no || '').toLowerCase().includes(s) ||
+                        (q.defect_type || '').toLowerCase().includes(s)
+                      )
+                    })
+                    .map((q, idx) => (
+                      <div key={q.id || idx} className="p-4 rounded-xl border border-slate-200 bg-white shadow-xs">
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <span className="font-bold text-sm text-slate-900">
+                              Art {q.article?.art_no || 'Style'}
+                            </span>
+                            <p className="text-xs font-semibold text-rose-700 mt-1 flex items-center gap-1">
+                              <ShieldAlert className="w-3.5 h-3.5 shrink-0" />
+                              {q.defect_type || 'Alteration Required (Stitching/Fabric Defect)'}
+                            </p>
+                          </div>
+
+                          <div className="text-right shrink-0">
+                            <span className="text-xs font-extrabold text-rose-700 bg-rose-50 px-2.5 py-1 rounded-lg border border-rose-200 block">
+                              {q.qty_rejected} pcs Defect
+                            </span>
+                            <span className="text-[10.5px] text-emerald-700 font-bold mt-1 block">
+                              {q.qty_passed} pcs Passed
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400">
+                          <span>Inspection Date: {q.entry_date || q.created_at?.split('T')[0]}</span>
+                          <span className="font-semibold text-slate-600">Stage: {q.stage || 'CHECKING'}</span>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <span className="text-xs font-bold text-rose-700 bg-rose-50 px-2 py-1 rounded border border-rose-200 block">
-                          {q.qty_rejected} Defect
-                        </span>
-                        <span className="text-[10px] text-emerald-700 font-semibold mt-1 block">
-                          {q.qty_passed} Passed
-                        </span>
-                      </div>
-                    </div>
-                  ))}
+                    ))}
                   {filteredData.qc.length === 0 && (
-                    <p className="text-xs text-slate-400 text-center py-10">No QC defect logs recorded.</p>
+                    <div className="text-center py-12 bg-white rounded-xl border border-slate-200 p-6">
+                      <CheckCircle2 className="w-8 h-8 text-emerald-400 mx-auto mb-2" />
+                      <p className="text-xs font-bold text-slate-700">Zero Defects on the Checking Line!</p>
+                      <p className="text-[11px] text-slate-400 mt-0.5">All sewn lots have passed quality inspection smoothly.</p>
+                    </div>
                   )}
                 </div>
               )}
@@ -1094,35 +1276,49 @@ export default function DashboardClient({
               {/* STAGE: READY GOODS */}
               {activeDrilldownStage === 'READY_GOODS' && (
                 <div className="space-y-3">
-                  <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-between">
-                    <div>
-                      <p className="text-xs font-bold text-emerald-900">Finished Goods Godown Stock</p>
-                      <p className="text-[11px] text-emerald-700 mt-0.5">
-                        Ready for buyer packaging and gate dispatch
-                      </p>
+                  <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-between shadow-2xs">
+                    <div className="flex items-center gap-2.5">
+                      <PackageCheck className="w-5 h-5 text-emerald-700 shrink-0" />
+                      <div>
+                        <p className="text-xs font-extrabold text-emerald-950">Finished Goods Godown Stock</p>
+                        <p className="text-[11px] text-emerald-800 mt-0.5">
+                          100% QC Passed, ironed, poly-bagged & packed in master cartons
+                        </p>
+                      </div>
                     </div>
-                    <span className="text-sm font-extrabold text-emerald-900 bg-white px-2.5 py-1 rounded shadow-2xs">
+                    <span className="text-sm font-extrabold text-emerald-950 bg-white px-3 py-1 rounded-lg shadow-2xs border border-emerald-200">
                       {metrics.readyGoods.toLocaleString()} pcs Ready
                     </span>
                   </div>
 
                   {filteredData.store.filter(s => s.type === 'INWARD').map((s, idx) => (
-                    <div key={s.id || idx} className="p-3.5 rounded-xl border border-slate-200 bg-white flex items-center justify-between">
+                    <div key={s.id || idx} className="p-4 rounded-xl border border-slate-200 bg-white shadow-xs flex items-center justify-between">
                       <div>
-                        <p className="text-xs font-bold text-slate-900">
-                          {s.article?.art_no || 'Finished Garments'} {s.color && `• ${s.color}`} {s.size && `(${s.size})`}
-                        </p>
-                        <p className="text-[11px] text-slate-400 mt-0.5">
-                          Receipt: {s.party_name || 'Godown Receipt'} • Date: {s.entry_date || s.created_at?.split('T')[0]}
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-sm text-slate-900">
+                            {s.article?.art_no || 'Finished Garments'}
+                          </span>
+                          {s.color && (
+                            <span className="text-[10.5px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700">
+                              {s.color} {s.size && `(${s.size})`}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-slate-500 mt-1">
+                          Receipt: <strong className="text-slate-800">{s.party_name || 'Godown Store Inward'}</strong> • {s.entry_date || s.created_at?.split('T')[0]}
                         </p>
                       </div>
-                      <span className="text-sm font-bold text-emerald-700">
+                      <span className="text-base font-extrabold text-emerald-700 shrink-0">
                         +{s.quantity} pcs
                       </span>
                     </div>
                   ))}
                   {filteredData.store.filter(s => s.type === 'INWARD').length === 0 && (
-                    <p className="text-xs text-slate-400 text-center py-10">No store inward records found.</p>
+                    <div className="text-center py-12 bg-white rounded-xl border border-slate-200 p-6">
+                      <Boxes className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+                      <p className="text-xs font-bold text-slate-700">No Godown Store Inward records yet.</p>
+                      <p className="text-[11px] text-slate-400 mt-0.5">Pieces will appear here as QC checks and godown entries are completed.</p>
+                    </div>
                   )}
                 </div>
               )}
@@ -1130,35 +1326,42 @@ export default function DashboardClient({
               {/* STAGE: RTO */}
               {activeDrilldownStage === 'RTO' && (
                 <div className="space-y-3">
-                  <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 flex items-center justify-between">
-                    <div>
-                      <p className="text-xs font-bold text-rose-900">Return to Origin (RTO)</p>
-                      <p className="text-[11px] text-rose-700 mt-0.5">
-                        Irreparable defects and supplier returned consignments
-                      </p>
+                  <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 flex items-center justify-between shadow-2xs">
+                    <div className="flex items-center gap-2.5">
+                      <RotateCcw className="w-5 h-5 text-rose-700 shrink-0" />
+                      <div>
+                        <p className="text-xs font-extrabold text-rose-950">Return to Origin (RTO & Rejections)</p>
+                        <p className="text-[11px] text-rose-800 mt-0.5">
+                          Irreparable defects or returned fabric lots
+                        </p>
+                      </div>
                     </div>
-                    <span className="text-sm font-extrabold text-rose-900 bg-white px-2.5 py-1 rounded shadow-2xs">
+                    <span className="text-sm font-extrabold text-rose-950 bg-white px-3 py-1 rounded-lg shadow-2xs border border-rose-200">
                       {metrics.rto.toLocaleString()} pcs RTO
                     </span>
                   </div>
 
                   {filteredData.store.filter(s => s.type === 'RTO' || s.type === 'REJECT').map((s, idx) => (
-                    <div key={s.id || idx} className="p-3.5 rounded-xl border border-slate-200 bg-white flex items-center justify-between">
+                    <div key={s.id || idx} className="p-4 rounded-xl border border-slate-200 bg-white shadow-xs flex items-center justify-between">
                       <div>
                         <p className="text-xs font-bold text-slate-900">
-                          {s.article?.art_no || 'Defective Lot'} {s.color && `• ${s.color}`}
+                          {s.article?.art_no || 'Defective Consignment'} {s.color && `• ${s.color}`}
                         </p>
-                        <p className="text-[11px] text-slate-400 mt-0.5">
+                        <p className="text-[11px] text-slate-500 mt-1">
                           Party: {s.party_name || 'Supplier Origin'} • Date: {s.entry_date || s.created_at?.split('T')[0]}
                         </p>
                       </div>
-                      <span className="text-sm font-bold text-rose-700">
+                      <span className="text-sm font-extrabold text-rose-700">
                         {s.quantity} pcs
                       </span>
                     </div>
                   ))}
                   {filteredData.store.filter(s => s.type === 'RTO' || s.type === 'REJECT').length === 0 && (
-                    <p className="text-xs text-slate-400 text-center py-10">No RTO records found (0 Rejections).</p>
+                    <div className="text-center py-12 bg-white rounded-xl border border-slate-200 p-6">
+                      <CheckCircle2 className="w-8 h-8 text-emerald-400 mx-auto mb-2" />
+                      <p className="text-xs font-bold text-slate-700">0 RTO / Zero Supplier Rejections</p>
+                      <p className="text-[11px] text-slate-400 mt-0.5">No lots returned to origin.</p>
+                    </div>
                   )}
                 </div>
               )}
@@ -1166,35 +1369,47 @@ export default function DashboardClient({
               {/* STAGE: READY FOR DELIVERY / DISPATCH */}
               {activeDrilldownStage === 'READY_DELIVERY' && (
                 <div className="space-y-3">
-                  <div className="p-3.5 rounded-xl bg-purple-50 border border-purple-200 flex items-center justify-between">
-                    <div>
-                      <p className="text-xs font-bold text-purple-900">Outward Delivery Challans</p>
-                      <p className="text-[11px] text-purple-700 mt-0.5">
-                        Consignments dispatched with gate pass
-                      </p>
+                  <div className="p-4 rounded-xl bg-purple-50 border border-purple-200 flex items-center justify-between shadow-2xs">
+                    <div className="flex items-center gap-2.5">
+                      <Truck className="w-5 h-5 text-purple-700 shrink-0" />
+                      <div>
+                        <p className="text-xs font-extrabold text-purple-950">Outward Delivery Challans & Gate Passes</p>
+                        <p className="text-[11px] text-purple-800 mt-0.5">
+                          Consignments dispatched from factory to client buyer
+                        </p>
+                      </div>
                     </div>
-                    <span className="text-sm font-extrabold text-purple-900 bg-white px-2.5 py-1 rounded shadow-2xs">
+                    <span className="text-sm font-extrabold text-purple-950 bg-white px-3 py-1 rounded-lg shadow-2xs border border-purple-200">
                       {metrics.readyDelivery.toLocaleString()} pcs Dispatched
                     </span>
                   </div>
 
                   {filteredData.dispatch.map((d, idx) => (
-                    <div key={d.id || idx} className="p-3.5 rounded-xl border border-slate-200 bg-white flex items-center justify-between">
+                    <div key={d.id || idx} className="p-4 rounded-xl border border-slate-200 bg-white shadow-xs flex items-center justify-between">
                       <div>
-                        <p className="text-xs font-bold text-slate-900">
-                          Challan #{d.challan_no} • Buyer: <strong className="text-purple-900">{d.buyer_name || 'Buyer'}</strong>
-                        </p>
-                        <p className="text-[11px] text-slate-400 mt-0.5">
-                          Dispatched: {d.created_at?.split('T')[0]} • Status: {d.status || 'Delivered'}
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-sm text-slate-900">
+                            Challan #{d.challan_no}
+                          </span>
+                          <span className="text-[10.5px] font-bold px-2 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-200">
+                            {d.buyer_name || 'Buyer'}
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-500 mt-1">
+                          Dispatched: {d.created_at?.split('T')[0]} • Status: <strong className="text-slate-800">{d.status || 'Delivered'}</strong>
                         </p>
                       </div>
-                      <span className="text-sm font-bold text-purple-700">
+                      <span className="text-base font-extrabold text-purple-700 shrink-0">
                         {d.total_pieces?.toLocaleString()} pcs
                       </span>
                     </div>
                   ))}
                   {filteredData.dispatch.length === 0 && (
-                    <p className="text-xs text-slate-400 text-center py-10">No delivery challans generated yet.</p>
+                    <div className="text-center py-12 bg-white rounded-xl border border-slate-200 p-6">
+                      <Truck className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+                      <p className="text-xs font-bold text-slate-700">No Delivery Gate Passes generated yet.</p>
+                      <p className="text-[11px] text-slate-400 mt-0.5">Generate delivery challans in the Dispatch section to track shipments.</p>
+                    </div>
                   )}
                 </div>
               )}
@@ -1202,13 +1417,16 @@ export default function DashboardClient({
             </div>
 
             {/* Drawer Footer */}
-            <div className="p-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
-              <span className="text-xs text-slate-500">
-                Click any row or close to return to main dashboard.
+            <div className="p-4 border-t border-slate-200 bg-white flex items-center justify-between">
+              <span className="text-xs font-medium text-slate-500">
+                Stage breakdown synchronized with live MES database
               </span>
               <button
                 type="button"
-                onClick={() => setActiveDrilldownStage(null)}
+                onClick={() => {
+                  setActiveDrilldownStage(null)
+                  setDrawerSearchQuery('')
+                }}
                 className="px-4 py-2 text-xs font-bold bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
               >
                 Close Drawer
