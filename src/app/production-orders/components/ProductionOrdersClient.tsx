@@ -761,7 +761,7 @@ export function ProductionOrdersClient({
                             <th className="py-2.5 px-3 min-w-[140px]">Color / Combination</th>
                             <th className="py-2.5 px-3 w-24">Size Tier</th>
                             <th className="py-2.5 px-3 w-20 text-right">Sets</th>
-                            <th className="py-2.5 px-3 w-20 text-right">Ratio</th>
+                            <th className="py-2.5 px-3 w-20 text-right">Pcs/Set</th>
                             <th className="py-2.5 px-3 w-24 text-right">Total Pcs</th>
                             <th className="py-2.5 px-3 w-40">Assigned Lineman</th>
                             <th className="py-2.5 px-3 w-28">Line Status</th>
@@ -1059,7 +1059,7 @@ export function ProductionOrdersClient({
                           <th className="py-3 px-2 min-w-[170px]">Color / Combination *</th>
                           <th className="py-3 px-2 min-w-[110px]">Size Tier *</th>
                           <th className="py-3 px-2 min-w-[75px] text-right">Sets *</th>
-                          <th className="py-3 px-2 min-w-[65px] text-right">Ratio</th>
+                          <th className="py-3 px-2 min-w-[70px] text-right">Pcs/Set</th>
                           <th className="py-3 px-2 min-w-[95px] text-right">Total Pcs</th>
                           <th className="py-3 px-2 min-w-[145px]">Assign Lineman</th>
                           <th className="py-3 px-2 w-16 text-center">Actions</th>
