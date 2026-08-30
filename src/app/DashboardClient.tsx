@@ -25,7 +25,9 @@ import {
   TrendingUp,
   Clock,
   ShieldAlert,
-  ArrowUpRight
+  ArrowUpRight,
+  Search,
+  Check
 } from 'lucide-react'
 
 type RawProd = {
@@ -162,9 +164,37 @@ export default function DashboardClient({
   const [customToDate, setCustomToDate] = useState<string>(todayStr)
   const [selectedBrand, setSelectedBrand] = useState<string>('ALL')
   const [selectedArticleId, setSelectedArticleId] = useState<string>('ALL')
+  const [isArticleMenuOpen, setIsArticleMenuOpen] = useState(false)
+  const [articleSearchQuery, setArticleSearchQuery] = useState('')
 
   // Selected Stage Drawer State
   const [activeDrilldownStage, setActiveDrilldownStage] = useState<StageType | null>(null)
+
+  // Filtered Articles for Combobox Search
+  const filteredArticlesList = useMemo(() => {
+    if (!articleSearchQuery.trim()) return articles
+    const q = articleSearchQuery.trim().toLowerCase()
+    return articles.filter(a => {
+      const artNo = (a.art_no || '').toLowerCase()
+      const desc = (a.description || '').toLowerCase()
+      return artNo.includes(q) || desc.includes(q)
+    })
+  }, [articles, articleSearchQuery])
+
+  const selectedArticleObj = useMemo(() => {
+    return articles.find(a => a.id === selectedArticleId)
+  }, [articles, selectedArticleId])
+
+  const selectedArticleDisplayText = useMemo(() => {
+    if (selectedArticleId === 'ALL') {
+      return `All Article Styles (${articles.length} styles)`
+    }
+    if (!selectedArticleObj) return 'Select Article'
+    const cleanDesc = cleanDescription(selectedArticleObj.description)
+    if (!cleanDesc) return selectedArticleObj.art_no
+    const stripped = cleanDesc.replace(new RegExp(`^${selectedArticleObj.art_no}\\s*[-•:]*\\s*`, 'i'), '').trim()
+    return stripped ? `${selectedArticleObj.art_no} • ${stripped}` : selectedArticleObj.art_no
+  }, [selectedArticleId, selectedArticleObj, articles.length])
 
   // 1. Extract Unique Brands for Quick Filter Tabs
   const brandTabs = useMemo(() => {
@@ -364,22 +394,121 @@ export default function DashboardClient({
         {/* Article Dropdown & Date Range Selector */}
         <div className="flex items-center gap-3 flex-wrap">
           
-          {/* Article Filter Dropdown */}
-          <div className="relative min-w-[200px]">
-            <select
-              value={selectedArticleId}
-              onChange={(e) => setSelectedArticleId(e.target.value)}
-              aria-label="Filter by Article Style"
-              className="w-full text-xs font-semibold bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-slate-800 focus:outline-none focus:ring-1 focus:ring-[var(--steel,#2B4C7E)] cursor-pointer pr-8 appearance-none"
+          {/* Searchable Article Filter Combobox */}
+          <div className="relative min-w-[240px]">
+            <button
+              type="button"
+              onClick={() => setIsArticleMenuOpen(!isArticleMenuOpen)}
+              className="w-full text-xs font-semibold bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg px-3 py-1.5 text-slate-800 focus:outline-none focus:ring-1 focus:ring-[var(--steel,#2B4C7E)] cursor-pointer flex items-center justify-between gap-2 shadow-2xs transition-colors"
             >
-              <option value="ALL">All Article Styles ({articles.length} styles)</option>
-              {articles.map(art => (
-                <option key={art.id} value={art.id}>
-                  {art.art_no} {cleanDescription(art.description) ? `• ${cleanDescription(art.description)}` : ''}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <div className="flex items-center gap-2 truncate">
+                <Search className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                <span className="truncate">{selectedArticleDisplayText}</span>
+              </div>
+              <ChevronDown className={`w-3.5 h-3.5 text-slate-400 shrink-0 transition-transform ${isArticleMenuOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            {/* Dropdown Popover */}
+            {isArticleMenuOpen && (
+              <>
+                {/* Backdrop to close on click outside */}
+                <div 
+                  className="fixed inset-0 z-40"
+                  onClick={() => setIsArticleMenuOpen(false)}
+                />
+
+                <div className="absolute right-0 top-full mt-1 w-80 max-w-[90vw] bg-white border border-slate-200 rounded-xl shadow-xl z-50 p-2 animate-in fade-in zoom-in-95 duration-100">
+                  
+                  {/* Search Input Box */}
+                  <div className="relative mb-2">
+                    <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="text"
+                      autoFocus
+                      value={articleSearchQuery}
+                      onChange={(e) => setArticleSearchQuery(e.target.value)}
+                      placeholder="Search Art No, Color, Style..."
+                      className="w-full text-xs pl-8 pr-7 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:bg-white focus:border-[var(--steel,#2B4C7E)] text-slate-900 placeholder:text-slate-400 font-medium"
+                    />
+                    {articleSearchQuery && (
+                      <button
+                        type="button"
+                        onClick={() => setArticleSearchQuery('')}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Options List */}
+                  <div className="max-h-60 overflow-y-auto space-y-0.5 pr-1">
+                    
+                    {/* Option: All Articles */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedArticleId('ALL')
+                        setIsArticleMenuOpen(false)
+                        setArticleSearchQuery('')
+                      }}
+                      className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-between transition-colors cursor-pointer ${
+                        selectedArticleId === 'ALL'
+                          ? 'bg-[var(--steel-tint,#DBE6F5)] text-[var(--steel-dark,#1F3A63)] font-bold'
+                          : 'hover:bg-slate-50 text-slate-700'
+                      }`}
+                    >
+                      <span>All Article Styles ({articles.length} styles)</span>
+                      {selectedArticleId === 'ALL' && <Check className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" />}
+                    </button>
+
+                    {/* Filtered Articles */}
+                    {filteredArticlesList.map(art => {
+                      const isSelected = selectedArticleId === art.id
+                      const cleanDesc = cleanDescription(art.description)
+                      const subDesc = cleanDesc ? cleanDesc.replace(new RegExp(`^${art.art_no}\\s*[-•:]*\\s*`, 'i'), '').trim() : ''
+
+                      return (
+                        <button
+                          key={art.id}
+                          type="button"
+                          onClick={() => {
+                            setSelectedArticleId(art.id)
+                            setIsArticleMenuOpen(false)
+                            setArticleSearchQuery('')
+                          }}
+                          className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-colors cursor-pointer flex items-start justify-between gap-2 ${
+                            isSelected
+                              ? 'bg-[var(--steel-tint,#DBE6F5)] text-[var(--steel-dark,#1F3A63)] font-bold'
+                              : 'hover:bg-slate-50 text-slate-700'
+                          }`}
+                        >
+                          <div className="min-w-0 flex-1">
+                            <span className="font-bold text-slate-900 block truncate">
+                              {art.art_no}
+                            </span>
+                            {subDesc && (
+                              <span className="text-[10.5px] text-slate-500 block truncate">
+                                {subDesc}
+                              </span>
+                            )}
+                          </div>
+                          {isSelected && <Check className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)] shrink-0 mt-0.5" />}
+                        </button>
+                      )
+                    })}
+
+                    {filteredArticlesList.length === 0 && (
+                      <p className="text-xs text-slate-400 text-center py-4">
+                        No matching article style found.
+                      </p>
+                    )}
+
+                  </div>
+
+                </div>
+              </>
+            )}
           </div>
 
           {/* Date Filter Pills */}
