@@ -74,13 +74,7 @@ export type ChallanGroupedOrder = {
 // GET PRODUCTION ORDERS / CHALLANS (Hierarchical & Grouped)
 // ----------------------------------------------------------------------
 export async function getProductionOrders(): Promise<ChallanGroupedOrder[]> {
-  let supabase: any = supabaseAdmin
-  try {
-    const serverClient = await createClient()
-    if (serverClient) supabase = serverClient
-  } catch (_) {
-    supabase = supabaseAdmin
-  }
+  const supabase = supabaseAdmin
 
   try {
     // 1. Fetch all challans
@@ -121,7 +115,8 @@ export async function getProductionOrders(): Promise<ChallanGroupedOrder[]> {
 
     // Group allotments into their respective challan or legacy bucket
     if (allotments && allotments.length > 0) {
-      for (const al of allotments) {
+      for (const rawAl of allotments) {
+        const al = rawAl as any
         let meta: any = {}
         const mat = materials?.find((m: any) => m.allotment_id === al.id)
         if (mat?.notes) {
@@ -129,7 +124,8 @@ export async function getProductionOrders(): Promise<ChallanGroupedOrder[]> {
         }
 
         const alVars = variants?.filter((v: any) => v.allotment_id === al.id) || []
-        const artMeta = al.articles?.size_rates?._meta || {}
+        const artObj = (Array.isArray(al.articles) ? al.articles[0] : al.articles) || {}
+        const artMeta = artObj?.size_rates?._meta || {}
 
         const firstVar = alVars[0]
         const colorPattern = meta.color_pattern || firstVar?.color || meta.body_color || 'Standard'
@@ -139,16 +135,16 @@ export async function getProductionOrders(): Promise<ChallanGroupedOrder[]> {
         const sets = meta.sets || Math.round(totalPcs / pcsPerSet) || 1
         const completedQty = alVars.reduce((sum: number, v: any) => sum + (v.completed_qty || 0), 0)
 
-        const linemanObj = al.profiles as any
+        const linemanObj = (Array.isArray(al.profiles) ? al.profiles[0] : al.profiles) || {}
         const linemanName = linemanObj?.full_name || linemanObj?.username || 'Unassigned'
 
         const articleItem = {
           id: al.id,
           allotment_id: al.id,
-          art_no: al.articles?.art_no || meta.art_no || 'Style',
+          art_no: artObj?.art_no || meta.art_no || 'Style',
           sub_art_no: meta.sub_art_no || '',
           pattern_no: meta.pattern_no || artMeta.pattern || '',
-          description: al.articles?.description || meta.article_description || '',
+          description: artObj?.description || meta.article_description || '',
           color_pattern: colorPattern,
           size_range: sizeRange,
           sets: sets,
@@ -158,7 +154,7 @@ export async function getProductionOrders(): Promise<ChallanGroupedOrder[]> {
           assigned_lineman_id: al.lineman_id || '',
           assigned_lineman_name: linemanName,
           picture_url: meta.sample_photos?.[0] || artMeta.picture_url || '',
-          stitching_rate: al.articles?.stitching_rate || 20,
+          stitching_rate: artObj?.stitching_rate || 20,
           status: al.status || 'IN_PROGRESS',
           created_at: al.created_at
         }
@@ -237,13 +233,7 @@ export async function getProductionOrders(): Promise<ChallanGroupedOrder[]> {
 // CREATE MULTI-ARTICLE CHALLAN (Saves Header + All Articles + Allotments)
 // ----------------------------------------------------------------------
 export async function createChallan(payload: CreateChallanPayload) {
-  let supabase: any = supabaseAdmin
-  try {
-    const serverClient = await createClient()
-    if (serverClient) supabase = serverClient
-  } catch (_) {
-    supabase = supabaseAdmin
-  }
+  const supabase = supabaseAdmin
 
   const {
     challan_no,
@@ -468,13 +458,7 @@ export async function createChallan(payload: CreateChallanPayload) {
 // UPDATE STATUS (Challan or Article Line level)
 // ----------------------------------------------------------------------
 export async function updateOrderStatus(orderOrChallanId: string, newStatus: string, isChallanLevel: boolean = false) {
-  let supabase: any = supabaseAdmin
-  try {
-    const serverClient = await createClient()
-    if (serverClient) supabase = serverClient
-  } catch (_) {
-    supabase = supabaseAdmin
-  }
+  const supabase = supabaseAdmin
 
   if (isChallanLevel) {
     // 1. Update challan status
@@ -496,13 +480,7 @@ export async function updateOrderStatus(orderOrChallanId: string, newStatus: str
 // ASSIGN LINEMAN TO AN ARTICLE LINE
 // ----------------------------------------------------------------------
 export async function assignLinemanToArticle(allotmentId: string, linemanId: string) {
-  let supabase: any = supabaseAdmin
-  try {
-    const serverClient = await createClient()
-    if (serverClient) supabase = serverClient
-  } catch (_) {
-    supabase = supabaseAdmin
-  }
+  const supabase = supabaseAdmin
 
   const { error } = await supabase
     .from('allotments')
@@ -522,13 +500,7 @@ export async function assignLinemanToArticle(allotmentId: string, linemanId: str
 // DELETE CHALLAN & ALL ASSOCIATED ALLOTMENTS
 // ----------------------------------------------------------------------
 export async function deleteProductionOrder(challanOrAllotmentId: string, isChallanLevel: boolean = false) {
-  let supabase: any = supabaseAdmin
-  try {
-    const serverClient = await createClient()
-    if (serverClient) supabase = serverClient
-  } catch (_) {
-    supabase = supabaseAdmin
-  }
+  const supabase = supabaseAdmin
 
   if (isChallanLevel) {
     // Find all child allotments
