@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useMemo, useTransition, useRef } from 'react'
-import Link from 'next/link'
 import {
   Calendar,
   Layers,
@@ -20,18 +19,26 @@ import {
   AlertTriangle,
   Sparkles,
   X,
-  ExternalLink,
   ChevronDown,
+  ChevronRight,
   Upload,
   Image as ImageIcon,
-  Palette
+  Palette,
+  UserCheck,
+  Package,
+  Scissors,
+  Copy,
+  FileSpreadsheet
 } from 'lucide-react'
 import {
-  ProductionOrderPayload,
-  SizeMatrixRow,
-  createProductionOrder,
+  ChallanArticleLine,
+  ChallanBomItem,
+  CreateChallanPayload,
+  ChallanGroupedOrder,
+  createChallan,
   updateOrderStatus,
-  deleteProductionOrder
+  deleteProductionOrder,
+  assignLinemanToArticle
 } from '../actions'
 
 const DEFAULT_FABRICS = [
@@ -48,24 +55,34 @@ const DEFAULT_FABRICS = [
 
 const DEFAULT_BRANDS = [
   'OLLYPOP',
+  'FIRST SMILE',
   'LAZY BONES',
   'CANDY POP',
   'NUBIRA IN-HOUSE',
   'CHERRY POP'
 ]
 
+const COMMON_SIZES = ['L/XXL', '22X26', '28X32', '16X20', 'M/L/XL', 'Free Size']
+
 interface ProductionOrdersClientProps {
-  initialOrders: any[]
+  initialOrders: ChallanGroupedOrder[]
   articlesList: any[]
+  linemenList?: any[]
 }
 
 export function ProductionOrdersClient({
   initialOrders = [],
-  articlesList = []
+  articlesList = [],
+  linemenList = []
 }: ProductionOrdersClientProps) {
   const [isPending, startTransition] = useTransition()
-  const [orders, setOrders] = useState<any[]>(initialOrders || [])
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [orders, setOrders] = useState<ChallanGroupedOrder[]>(initialOrders || [])
+  const [expandedChallans, setExpandedChallans] = useState<Record<string, boolean>>(() => {
+    // Open all by default
+    const initial: Record<string, boolean> = {}
+    initialOrders.forEach(o => { initial[o.id] = true })
+    return initial
+  })
 
   // Filters
   const [searchQuery, setSearchQuery] = useState('')
@@ -74,121 +91,159 @@ export function ProductionOrdersClient({
   const [selectedDate, setSelectedDate] = useState('ALL')
 
   // Modals
-  const [showNewOrderModal, setShowNewOrderModal] = useState(false)
+  const [showNewChallanModal, setShowNewChallanModal] = useState(false)
   const [previewPhoto, setPreviewPhoto] = useState<string | null>(null)
   const [previewTitle, setPreviewTitle] = useState('')
 
-  // Form State
+  // ----------------------------------------------------------------------
+  // NEW CHALLAN FORM STATE (Multi-Article & BOM)
+  // ----------------------------------------------------------------------
   const todayStr = new Date().toISOString().split('T')[0]
-  const [formDeliveryDate, setFormDeliveryDate] = useState(todayStr)
-  const [formArtNo, setFormArtNo] = useState('')
-  const [formSubArtNo, setFormSubArtNo] = useState('')
-  const [formPictureUrl, setFormPictureUrl] = useState('')
-  const [imageUploadType, setImageUploadType] = useState<'FILE' | 'URL'>('FILE')
-  const [formMtCode, setFormMtCode] = useState('')
-  const [formFabric, setFormFabric] = useState('PRINTED SINKER')
-  const [formPatternNo, setFormPatternNo] = useState('')
-  const [formDescription, setFormDescription] = useState('')
-  
-  // Multi-Color State
-  const [formBodyColors, setFormBodyColors] = useState<string[]>(['Blue Printed'])
-  const [formPantColors, setFormPantColors] = useState<string[]>(['Blue Printed'])
-  const [newBodyColorInput, setNewBodyColorInput] = useState('')
-  const [newPantColorInput, setNewPantColorInput] = useState('')
-  
+  const [formChallanNo, setFormChallanNo] = useState('JOB-457')
+  const [formChallanDate, setFormChallanDate] = useState(todayStr)
   const [formBrand, setFormBrand] = useState('OLLYPOP')
-  const [formRibStatus, setFormRibStatus] = useState('PENDING')
+  const [formDeliveryDate, setFormDeliveryDate] = useState('')
+  const [formFabric, setFormFabric] = useState('PRINTED SINKER')
+  const [formSampleGiven, setFormSampleGiven] = useState(true)
   const [formNotes, setFormNotes] = useState('')
 
-  const [formSizeMatrix, setFormSizeMatrix] = useState<SizeMatrixRow[]>([
-    { size: '16X20', sets: 100, ratio: 3, pcs: 300 },
-    { size: '22X26', sets: 100, ratio: 3, pcs: 300 }
+  // Article Lines Grid
+  const [articleLines, setArticleLines] = useState<ChallanArticleLine[]>([
+    {
+      art_no: '9433',
+      sub_art_no: '',
+      pattern_no: 'G-342',
+      description: 'F/S Sweatshirt',
+      color_pattern: '3 Colour',
+      size_range: 'L/XXL',
+      sets: 144,
+      pcs_per_set: 9,
+      total_pcs: 1296,
+      assigned_lineman_id: ''
+    },
+    {
+      art_no: '9433',
+      sub_art_no: 'A',
+      pattern_no: 'G-342',
+      description: 'F/S Sweatshirt (Kids)',
+      color_pattern: '3 Colour',
+      size_range: '22X26',
+      sets: 100,
+      pcs_per_set: 9,
+      total_pcs: 900,
+      assigned_lineman_id: ''
+    },
+    {
+      art_no: '9433',
+      sub_art_no: 'B',
+      pattern_no: 'G-342',
+      description: 'F/S Sweatshirt (Junior)',
+      color_pattern: '3 Colour',
+      size_range: '28X32',
+      sets: 64,
+      pcs_per_set: 9,
+      total_pcs: 576,
+      assigned_lineman_id: ''
+    },
+    {
+      art_no: '9433',
+      sub_art_no: '/1',
+      pattern_no: 'G-342',
+      description: 'F/S Sweatshirt',
+      color_pattern: 'Mushroom + Dutch Blue',
+      size_range: 'L/XXL',
+      sets: 61,
+      pcs_per_set: 6,
+      total_pcs: 366,
+      assigned_lineman_id: ''
+    },
+    {
+      art_no: '9433',
+      sub_art_no: 'A/1',
+      pattern_no: 'G-342',
+      description: 'F/S Sweatshirt (Kids)',
+      color_pattern: 'Dutch Blue',
+      size_range: '22X26',
+      sets: 38,
+      pcs_per_set: 6,
+      total_pcs: 228,
+      assigned_lineman_id: ''
+    }
   ])
 
-  // Handle local image file upload (convert to Base64 data URL)
-  const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        alert('File size exceeds 5MB. Please choose a smaller image.')
-        return
+  // BOM / Raw Materials List
+  const [bomItems, setBomItems] = useState<ChallanBomItem[]>([
+    { material_type: 'FABRIC', item_name: 'Body + Rib', lot_no: 'NIP', required_qty: 'Full Lot', status: 'RECEIVED' },
+    { material_type: 'FABRIC', item_name: 'Mushroom Body', lot_no: 'T-03', required_qty: 'Lot T-03', status: 'RECEIVED' },
+    { material_type: 'FABRIC', item_name: 'Dutch Blue Body', lot_no: 'T-03', required_qty: 'Lot T-03', status: 'RECEIVED' },
+    { material_type: 'FABRIC', item_name: 'Scuba Body', lot_no: 'T-03', required_qty: 'Lot T-03', status: 'RECEIVED' },
+    { material_type: 'LABEL', item_name: 'OLLYPOP Main Label', lot_no: 'Standard', required_qty: '3,912 pcs', status: 'PENDING' },
+    { material_type: 'LABEL', item_name: 'FIRST SMILE Brand Label', lot_no: 'Standard', required_qty: '3,912 pcs', status: 'PENDING' }
+  ])
+
+  // Handlers for Article Lines
+  const handleAddArticleLine = () => {
+    const last = articleLines[articleLines.length - 1]
+    setArticleLines(prev => [
+      ...prev,
+      {
+        art_no: last?.art_no || '9433',
+        sub_art_no: '',
+        pattern_no: last?.pattern_no || '',
+        description: last?.description || '',
+        color_pattern: last?.color_pattern || '3 Colour',
+        size_range: '22X26',
+        sets: 50,
+        pcs_per_set: 9,
+        total_pcs: 450,
+        assigned_lineman_id: ''
       }
-      const reader = new FileReader()
-      reader.onload = (uploadEvent) => {
-        const result = uploadEvent.target?.result as string
-        setFormPictureUrl(result)
-      }
-      reader.readAsDataURL(file)
+    ])
+  }
+
+  const handleDuplicateLine = (index: number) => {
+    const target = articleLines[index]
+    setArticleLines(prev => [
+      ...prev.slice(0, index + 1),
+      { ...target, sub_art_no: target.sub_art_no ? `${target.sub_art_no}/1` : 'A' },
+      ...prev.slice(index + 1)
+    ])
+  }
+
+  const handleRemoveArticleLine = (index: number) => {
+    if (articleLines.length <= 1) {
+      alert('Challan must have at least one article line.')
+      return
     }
+    setArticleLines(prev => prev.filter((_, i) => i !== index))
   }
 
-  // Multi-Color Add/Remove handlers
-  const handleAddBodyColor = () => {
-    if (newBodyColorInput.trim()) {
-      const parts = newBodyColorInput.split(',').map(s => s.trim()).filter(Boolean)
-      setFormBodyColors(prev => [...prev, ...parts])
-      setNewBodyColorInput('')
-    }
-  }
-
-  const handleRemoveBodyColor = (idx: number) => {
-    setFormBodyColors(prev => prev.filter((_, i) => i !== idx))
-  }
-
-  const handleAddPantColor = () => {
-    if (newPantColorInput.trim()) {
-      const parts = newPantColorInput.split(',').map(s => s.trim()).filter(Boolean)
-      setFormPantColors(prev => [...prev, ...parts])
-      setNewPantColorInput('')
-    }
-  }
-
-  const handleRemovePantColor = (idx: number) => {
-    setFormPantColors(prev => prev.filter((_, i) => i !== idx))
-  }
-
-  // Auto-fill when Art No changes
-  const handleArtNoSelect = (artNoValue: string) => {
-    setFormArtNo(artNoValue)
-    const existing = articlesList.find(a => a.art_no?.toUpperCase() === artNoValue.trim().toUpperCase())
-    if (existing) {
-      if (existing.description) setFormDescription(existing.description)
-      const meta = existing.size_rates?._meta
-      if (meta) {
-        if (meta.fabric) setFormFabric(meta.fabric)
-        if (meta.pattern) setFormPatternNo(meta.pattern)
-        if (meta.party) setFormBrand(meta.party)
-        if (meta.picture_url) setFormPictureUrl(meta.picture_url)
-        if (meta.mt_code) setFormMtCode(meta.mt_code)
-      }
-    }
-  }
-
-  const handleAddSizeRow = () => {
-    setFormSizeMatrix(prev => [...prev, { size: 'Free Size', sets: 50, ratio: 3, pcs: 150 }])
-  }
-
-  const handleRemoveSizeRow = (index: number) => {
-    setFormSizeMatrix(prev => prev.filter((_, i) => i !== index))
-  }
-
-  const handleSizeRowChange = (index: number, field: keyof SizeMatrixRow, value: any) => {
-    setFormSizeMatrix(prev => {
+  const handleLineChange = (index: number, field: keyof ChallanArticleLine, value: any) => {
+    setArticleLines(prev => {
       const copy = [...prev]
       const current = { ...copy[index] }
-      
-      if (field === 'sets') {
-        const setsVal = parseInt(value, 10) || 0
+
+      if (field === 'sets' || field === 'pcs_per_set') {
+        const setsVal = field === 'sets' ? (parseInt(value, 10) || 0) : current.sets
+        const ratioVal = field === 'pcs_per_set' ? (parseInt(value, 10) || 1) : current.pcs_per_set
         current.sets = setsVal
-        current.pcs = setsVal * (current.ratio || 3)
-      } else if (field === 'ratio') {
-        const ratioVal = parseInt(value, 10) || 1
-        current.ratio = ratioVal
-        current.pcs = (current.sets || 0) * ratioVal
-      } else if (field === 'pcs') {
-        current.pcs = parseInt(value, 10) || 0
+        current.pcs_per_set = ratioVal
+        current.total_pcs = setsVal * ratioVal
+      } else if (field === 'total_pcs') {
+        const pcsVal = parseInt(value, 10) || 0
+        current.total_pcs = pcsVal
+        current.sets = Math.round(pcsVal / (current.pcs_per_set || 9)) || 1
       } else {
         (current as any)[field] = value
+      }
+
+      // Auto fill pattern/desc if art_no matches existing
+      if (field === 'art_no') {
+        const matched = articlesList.find(a => a.art_no?.toUpperCase() === String(value).trim().toUpperCase())
+        if (matched) {
+          if (matched.description) current.description = matched.description
+          if (matched.size_rates?._meta?.pattern) current.pattern_no = matched.size_rates._meta.pattern
+        }
       }
 
       copy[index] = current
@@ -196,169 +251,269 @@ export function ProductionOrdersClient({
     })
   }
 
-  const formTotalSets = useMemo(() => {
-    return formSizeMatrix.reduce((acc, row) => acc + (Number(row.sets) || 0), 0)
-  }, [formSizeMatrix])
+  // BOM Handlers
+  const handleAddBomItem = () => {
+    setBomItems(prev => [
+      ...prev,
+      { material_type: 'FABRIC', item_name: 'New Color/Trim', lot_no: 'T-01', required_qty: 'Lot', status: 'PENDING' }
+    ])
+  }
 
-  const formTotalPcs = useMemo(() => {
-    return formSizeMatrix.reduce((acc, row) => acc + (Number(row.pcs) || 0), 0)
-  }, [formSizeMatrix])
+  const handleRemoveBomItem = (index: number) => {
+    setBomItems(prev => prev.filter((_, i) => i !== index))
+  }
+
+  const handleBomChange = (index: number, field: keyof ChallanBomItem, value: any) => {
+    setBomItems(prev => {
+      const copy = [...prev]
+      copy[index] = { ...copy[index], [field]: value }
+      return copy
+    })
+  }
+
+  // Grand totals of the modal form
+  const formGrandSets = useMemo(() => {
+    return articleLines.reduce((acc, row) => acc + (Number(row.sets) || 0), 0)
+  }, [articleLines])
+
+  const formGrandPcs = useMemo(() => {
+    return articleLines.reduce((acc, row) => acc + (Number(row.total_pcs) || 0), 0)
+  }, [articleLines])
+
+  // Accordion Toggle
+  const toggleChallan = (challanId: string) => {
+    setExpandedChallans(prev => ({ ...prev, [challanId]: !prev[challanId] }))
+  }
+
+  // Summary Metrics Across All Orders
+  const summary = useMemo(() => {
+    let totalChallans = orders.length
+    let totalArticles = 0
+    let totalSets = 0
+    let totalPcs = 0
+    let inProdPcs = 0
+    let readyQcPcs = 0
+    let dispatchedPcs = 0
+
+    orders.forEach(ch => {
+      totalArticles += ch.articles?.length || 0
+      totalSets += ch.total_sets || 0
+      totalPcs += ch.total_pcs || 0
+
+      ch.articles?.forEach(art => {
+        if (art.status === 'QC_PASSED') readyQcPcs += art.total_pcs || 0
+        else if (art.status === 'DISPATCHED') dispatchedPcs += art.total_pcs || 0
+        else inProdPcs += art.total_pcs || 0
+      })
+    })
+
+    return {
+      totalChallans,
+      totalArticles,
+      totalSets,
+      totalPcs,
+      inProdPcs,
+      readyQcPcs,
+      dispatchedPcs
+    }
+  }, [orders])
 
   // Filtered Orders
   const filteredOrders = useMemo(() => {
-    return orders.filter(o => {
+    return orders.filter(ch => {
       const matchSearch =
         searchQuery === '' ||
-        o.art_no?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        o.sub_art_no?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        o.mt_code?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        o.pattern_no?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        o.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        o.brand?.toLowerCase().includes(searchQuery.toLowerCase())
+        ch.challan_no?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        ch.brand?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        ch.fabric_type?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        ch.articles?.some(a =>
+          a.art_no?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          a.color_pattern?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          a.size_range?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          a.assigned_lineman_name?.toLowerCase().includes(searchQuery.toLowerCase())
+        )
 
-      const matchBrand = selectedBrand === 'ALL' || o.brand?.toUpperCase() === selectedBrand.toUpperCase()
-      const matchStatus = selectedStatus === 'ALL' || o.status === selectedStatus
-      const matchDate = selectedDate === 'ALL' || o.delivery_date === selectedDate
+      const matchBrand = selectedBrand === 'ALL' || ch.brand?.toUpperCase() === selectedBrand.toUpperCase()
+      const matchStatus = selectedStatus === 'ALL' || ch.status === selectedStatus
+      const matchDate = selectedDate === 'ALL' || ch.challan_date === selectedDate
 
       return matchSearch && matchBrand && matchStatus && matchDate
     })
   }, [orders, searchQuery, selectedBrand, selectedStatus, selectedDate])
 
-  // Summary Metrics
-  const summary = useMemo(() => {
-    let totalSets = 0
-    let totalPcs = 0
-    let inProd = 0
-    let readyQc = 0
-    let dispatched = 0
-    let pending = 0
-
-    orders.forEach(o => {
-      const sets = o.size_matrix?.reduce((acc: number, r: any) => acc + (Number(r.sets) || 0), 0) || o.total_sets || 0
-      const pcs = o.size_matrix?.reduce((acc: number, r: any) => acc + (Number(r.pcs) || 0), 0) || o.total_pcs || 0
-      totalSets += sets
-      totalPcs += pcs
-
-      if (o.status === 'IN_PRODUCTION') inProd++
-      else if (o.status === 'QC_PASSED') readyQc++
-      else if (o.status === 'DISPATCHED') dispatched++
-      else pending++
-    })
-
-    return {
-      totalOrders: orders.length,
-      totalSets,
-      totalPcs,
-      inProd,
-      readyQc,
-      dispatched,
-      pending
-    }
-  }, [orders])
-
-  // Unique Dates for Date Filter
-  const dateOptions = useMemo(() => {
-    const dates = new Set<string>()
-    orders.forEach(o => {
-      if (o.delivery_date) dates.add(o.delivery_date)
-    })
-    return Array.from(dates).sort()
-  }, [orders])
-
-  const handleCreateOrder = (e: React.FormEvent) => {
+  // Save Challan Action
+  const handleSaveChallan = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!formArtNo || !formMtCode) {
-      alert('Please fill in Article Number and Production/MT Lot Number.')
+    if (!formChallanNo.trim()) {
+      alert('Please enter a Challan / Job Number.')
       return
     }
 
-    const bodyColorsStr = formBodyColors.join(' / ')
-    const pantColorsStr = formPantColors.length > 0 ? formPantColors.join(' / ') : bodyColorsStr
+    if (articleLines.length === 0) {
+      alert('Please add at least one article line.')
+      return
+    }
 
-    const newOrderPayload: ProductionOrderPayload = {
-      delivery_date: formDeliveryDate,
-      art_no: formArtNo.trim().toUpperCase(),
-      sub_art_no: formSubArtNo.trim().toUpperCase(),
-      picture_url: formPictureUrl.trim(),
-      mt_code: formMtCode.trim().toUpperCase(),
-      fabric: formFabric,
-      pattern_no: formPatternNo.trim().toUpperCase(),
-      description: formDescription.trim(),
-      body_color: bodyColorsStr,
-      pant_color: pantColorsStr,
+    const payload: CreateChallanPayload = {
+      challan_no: formChallanNo.trim().toUpperCase(),
+      challan_date: formChallanDate,
       brand: formBrand.trim().toUpperCase(),
-      rib_status: formRibStatus,
+      delivery_date: formDeliveryDate || undefined,
+      fabric_type: formFabric,
+      sample_given: formSampleGiven,
       notes: formNotes.trim(),
-      size_matrix: formSizeMatrix,
+      article_lines: articleLines,
+      bom_items: bomItems,
       status: 'IN_PRODUCTION'
     }
 
     startTransition(async () => {
-      const res = await createProductionOrder(newOrderPayload)
+      const res = await createChallan(payload)
       if (res?.error) {
         alert(res.error)
       } else {
-        setOrders(prev => [
-          {
-            ...newOrderPayload,
-            id: 'temp-' + Date.now(),
-            total_sets: formTotalSets,
-            total_pcs: formTotalPcs
-          },
-          ...prev
-        ])
-        setShowNewOrderModal(false)
-        // Reset form
-        setFormArtNo('')
-        setFormSubArtNo('')
-        setFormPatternNo('')
-        setFormDescription('')
-        setFormBodyColors(['Blue Printed'])
-        setFormPantColors(['Blue Printed'])
-        setFormPictureUrl('')
-        setFormMtCode('')
+        setShowNewChallanModal(false)
+        // Refresh local optimistic state
+        const newGroup: ChallanGroupedOrder = {
+          id: res.challan_id || 'temp-' + Date.now(),
+          challan_no: payload.challan_no,
+          challan_date: payload.challan_date,
+          brand: payload.brand,
+          delivery_date: payload.delivery_date || '',
+          fabric_type: payload.fabric_type || 'PRINTED SINKER',
+          sample_given: !!payload.sample_given,
+          notes: payload.notes || '',
+          total_sets: formGrandSets,
+          total_pcs: formGrandPcs,
+          status: 'IN_PRODUCTION',
+          bom_details: bomItems,
+          articles: articleLines.map((line, idx) => ({
+            ...line,
+            allotment_id: 'temp-art-' + idx,
+            status: 'IN_PROGRESS',
+            assigned_lineman_name: linemenList.find(l => l.id === line.assigned_lineman_id)?.username || 'Unassigned'
+          })),
+          created_at: new Date().toISOString()
+        }
+
+        setOrders(prev => [newGroup, ...prev])
+        setExpandedChallans(prev => ({ ...prev, [newGroup.id]: true }))
       }
     })
   }
 
-  const handleStatusChange = (orderId: string, newStatus: string) => {
+  // Update Status
+  const handleUpdateStatus = (id: string, newStatus: string, isChallan: boolean) => {
     startTransition(async () => {
-      await updateOrderStatus(orderId, newStatus)
-      setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: newStatus } : o))
+      await updateOrderStatus(id, newStatus, isChallan)
+      setOrders(prev =>
+        prev.map(ch => {
+          if (isChallan && ch.id === id) {
+            return {
+              ...ch,
+              status: newStatus,
+              articles: ch.articles.map(a => ({ ...a, status: newStatus }))
+            }
+          } else if (!isChallan) {
+            return {
+              ...ch,
+              articles: ch.articles.map(a => a.allotment_id === id ? { ...a, status: newStatus } : a)
+            }
+          }
+          return ch
+        })
+      )
     })
   }
 
-  const handleDeleteOrder = (orderId: string) => {
-    if (!confirm('Are you sure you want to delete this production order?')) return
+  // Lineman Quick Assignment
+  const handleAssignLineman = (allotmentId: string, linemanId: string) => {
     startTransition(async () => {
-      await deleteProductionOrder(orderId)
-      setOrders(prev => prev.filter(o => o.id !== orderId))
+      await assignLinemanToArticle(allotmentId, linemanId)
+      const lmName = linemenList.find(l => l.id === linemanId)?.username || 'Unassigned'
+      setOrders(prev =>
+        prev.map(ch => ({
+          ...ch,
+          articles: ch.articles.map(a =>
+            a.allotment_id === allotmentId
+              ? { ...a, assigned_lineman_id: linemanId, assigned_lineman_name: lmName }
+              : a
+          )
+        }))
+      )
     })
   }
 
+  // Delete Action
+  const handleDelete = (id: string, isChallan: boolean) => {
+    const msg = isChallan
+      ? 'Are you sure you want to delete this entire Challan and all its articles?'
+      : 'Delete this article line from the floor?'
+    if (!confirm(msg)) return
+
+    startTransition(async () => {
+      await deleteProductionOrder(id, isChallan)
+      if (isChallan) {
+        setOrders(prev => prev.filter(ch => ch.id !== id))
+      } else {
+        setOrders(prev =>
+          prev.map(ch => ({
+            ...ch,
+            articles: ch.articles.filter(a => a.allotment_id !== id)
+          }))
+        )
+      }
+    })
+  }
+
+  // Export CSV
   const handleExportCSV = () => {
-    const headers = ['Delivery Date', 'Art No', 'Sub Art', 'MT Lot', 'Fabric', 'Pattern', 'Description', 'Body Color', 'Pant Color', 'Brand', 'Sets', 'Pieces', 'Status']
-    const rows = filteredOrders.map(o => [
-      o.delivery_date,
-      o.art_no,
-      o.sub_art_no || '-',
-      o.mt_code,
-      o.fabric,
-      o.pattern_no,
-      `"${o.description?.replace(/"/g, '""') || ''}"`,
-      `"${o.body_color || ''}"`,
-      `"${o.pant_color || ''}"`,
-      o.brand,
-      o.size_matrix?.reduce((acc: number, r: any) => acc + (Number(r.sets) || 0), 0) || o.total_sets || 0,
-      o.size_matrix?.reduce((acc: number, r: any) => acc + (Number(r.pcs) || 0), 0) || o.total_pcs || 0,
-      o.status
-    ])
+    const headers = [
+      'Challan No',
+      'Challan Date',
+      'Brand',
+      'Delivery Date',
+      'Fabric',
+      'Art No',
+      'Sub Art',
+      'Pattern',
+      'Color Assortment',
+      'Size Tier',
+      'Sets',
+      'Ratio',
+      'Total Pcs',
+      'Lineman',
+      'Status'
+    ]
+
+    const rows: string[][] = []
+    filteredOrders.forEach(ch => {
+      ch.articles?.forEach(a => {
+        rows.push([
+          ch.challan_no,
+          ch.challan_date,
+          ch.brand,
+          ch.delivery_date || '-',
+          ch.fabric_type,
+          a.art_no,
+          a.sub_art_no || '-',
+          a.pattern_no || '-',
+          `"${a.color_pattern || ''}"`,
+          a.size_range,
+          String(a.sets),
+          String(a.pcs_per_set),
+          String(a.total_pcs),
+          a.assigned_lineman_name || 'Unassigned',
+          a.status || ch.status
+        ])
+      })
+    })
 
     const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n')
     const encodedUri = encodeURI(csvContent)
     const link = document.createElement('a')
     link.setAttribute('href', encodedUri)
-    link.setAttribute('download', `Nubira_Production_Chart_${todayStr}.csv`)
+    link.setAttribute('download', `Nubira_Delivery_Challans_${todayStr}.csv`)
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
@@ -372,16 +527,16 @@ export function ProductionOrdersClient({
       {/* ========================================================= */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight" style={{ color: 'var(--ink, #1C2733)' }}>
-              Digital Production Planning Chart
+          <div className="flex items-center gap-2.5">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+              Delivery Challans & Production Chart
             </h1>
-            <span className="px-2.5 py-0.5 rounded-full text-[10.5px] font-bold bg-[#EFF6FF] text-[#2563EB] border border-[#BFDBFE]">
-              FACTORY LIVE
+            <span className="px-2.5 py-0.5 rounded-full text-[10.5px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+              MULTI-ARTICLE MES
             </span>
           </div>
           <p className="text-xs text-slate-500 mt-1">
-            Exact cutting, lot order matrix & floor tracking matching factory challan sheet
+            Real-world job work challans with multi-article size grids, BOM fabrics & lineman allotments
           </p>
         </div>
 
@@ -389,94 +544,89 @@ export function ProductionOrdersClient({
           <button
             type="button"
             onClick={handleExportCSV}
-            className="px-3.5 py-2 rounded-xl text-xs font-semibold border bg-white shadow-2xs hover:bg-slate-50 text-slate-700 flex items-center gap-2 transition-all cursor-pointer"
-            style={{ borderColor: 'var(--border, #E2E8F0)' }}
+            className="px-3.5 py-2 rounded-xl text-xs font-semibold border bg-white shadow-2xs hover:bg-slate-50 text-slate-700 flex items-center gap-2 transition-all cursor-pointer border-slate-200"
           >
             <Download className="w-4 h-4 text-slate-500" />
-            <span>Export Excel/CSV</span>
+            <span>Export CSV</span>
           </button>
 
           <button
             type="button"
             onClick={() => window.print()}
-            className="px-3.5 py-2 rounded-xl text-xs font-semibold border bg-white shadow-2xs hover:bg-slate-50 text-slate-700 flex items-center gap-2 transition-all cursor-pointer"
-            style={{ borderColor: 'var(--border, #E2E8F0)' }}
+            className="px-3.5 py-2 rounded-xl text-xs font-semibold border bg-white shadow-2xs hover:bg-slate-50 text-slate-700 flex items-center gap-2 transition-all cursor-pointer border-slate-200"
           >
             <Printer className="w-4 h-4 text-slate-500" />
-            <span>Print Sheet</span>
+            <span>Print Chart</span>
           </button>
 
           <button
             type="button"
-            onClick={() => setShowNewOrderModal(true)}
-            className="px-4 py-2 rounded-xl text-xs font-bold text-white shadow-xs hover:opacity-95 flex items-center gap-2 transition-all cursor-pointer"
-            style={{ backgroundColor: 'var(--steel, #2B4C7E)' }}
+            onClick={() => setShowNewChallanModal(true)}
+            className="px-4 py-2 rounded-xl text-xs font-bold text-white shadow-xs hover:opacity-95 flex items-center gap-2 transition-all cursor-pointer bg-slate-900"
           >
             <Plus className="w-4 h-4" />
-            <span>+ New Production Order</span>
+            <span>+ New Delivery Challan</span>
           </button>
         </div>
       </div>
 
       {/* ========================================================= */}
-      {/* 2. KPI SUMMARY STRIP (Total Orders, Sets, Pieces)        */}
+      {/* 2. KPI SUMMARY STRIP                                      */}
       {/* ========================================================= */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
-        <div className="p-3.5 bg-white border rounded-[11px] shadow-2xs" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
-          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Orders</span>
-          <p className="text-xl font-bold text-slate-800 mt-1">{summary.totalOrders}</p>
-          <span className="text-[10px] font-semibold text-slate-400">Active Job Sheets</span>
+        <div className="p-3.5 bg-white border border-slate-200 rounded-[12px] shadow-2xs">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Challans</span>
+          <p className="text-xl font-bold text-slate-900 mt-1">{summary.totalChallans}</p>
+          <span className="text-[10px] font-semibold text-slate-400">Buyer Job Sheets</span>
         </div>
 
-        <div className="p-3.5 bg-white border rounded-[11px] shadow-2xs" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+        <div className="p-3.5 bg-white border border-slate-200 rounded-[12px] shadow-2xs">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Article Lines</span>
+          <p className="text-xl font-bold text-blue-600 mt-1">{summary.totalArticles}</p>
+          <span className="text-[10px] font-semibold text-blue-500">Variants on Floor</span>
+        </div>
+
+        <div className="p-3.5 bg-white border border-slate-200 rounded-[12px] shadow-2xs">
           <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Sets</span>
-          <p className="text-xl font-bold text-[#2563EB] mt-1">{summary.totalSets.toLocaleString()}</p>
-          <span className="text-[10px] font-semibold text-[#3B82F6]">Bundle Units</span>
+          <p className="text-xl font-bold text-indigo-600 mt-1">{summary.totalSets.toLocaleString()}</p>
+          <span className="text-[10px] font-semibold text-indigo-500">Bundle Units</span>
         </div>
 
-        <div className="p-3.5 bg-white border rounded-[11px] shadow-2xs" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+        <div className="p-3.5 bg-white border border-slate-200 rounded-[12px] shadow-2xs">
           <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Pieces</span>
-          <p className="text-xl font-bold text-[#059669] mt-1">{summary.totalPcs.toLocaleString()}</p>
-          <span className="text-[10px] font-semibold text-[#10B981]">Garment Pieces</span>
+          <p className="text-xl font-bold text-emerald-600 mt-1">{summary.totalPcs.toLocaleString()}</p>
+          <span className="text-[10px] font-semibold text-emerald-500">Garment Pieces</span>
         </div>
 
-        <div className="p-3.5 bg-white border rounded-[11px] shadow-2xs" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+        <div className="p-3.5 bg-white border border-slate-200 rounded-[12px] shadow-2xs">
           <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">In Production</span>
-          <p className="text-xl font-bold text-[#D97706] mt-1">{summary.inProd}</p>
-          <span className="text-[10px] font-semibold text-[#F59E0B]">On Sewing Lines</span>
+          <p className="text-xl font-bold text-amber-600 mt-1">{summary.inProdPcs.toLocaleString()} pcs</p>
+          <span className="text-[10px] font-semibold text-amber-500">Active Sewing</span>
         </div>
 
-        <div className="p-3.5 bg-white border rounded-[11px] shadow-2xs" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
-          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Ready in Store</span>
-          <p className="text-xl font-bold text-[#16A34A] mt-1">{summary.readyQc}</p>
-          <span className="text-[10px] font-semibold text-[#22C55E]">QC Passed</span>
-        </div>
-
-        <div className="p-3.5 bg-white border rounded-[11px] shadow-2xs" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
-          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Dispatched</span>
-          <p className="text-xl font-bold text-[#4F46E5] mt-1">{summary.dispatched}</p>
-          <span className="text-[10px] font-semibold text-[#6366F1]">Gate Pass Done</span>
+        <div className="p-3.5 bg-white border border-slate-200 rounded-[12px] shadow-2xs">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Ready / Dispatched</span>
+          <p className="text-xl font-bold text-purple-600 mt-1">{(summary.readyQcPcs + summary.dispatchedPcs).toLocaleString()} pcs</p>
+          <span className="text-[10px] font-semibold text-purple-500">QC Passed / Gate Out</span>
         </div>
       </div>
 
       {/* ========================================================= */}
-      {/* 3. SMART FILTERS BAR                                     */}
+      {/* 3. FILTERS BAR                                            */}
       {/* ========================================================= */}
-      <div className="p-3.5 bg-white border rounded-[12px] shadow-2xs flex items-center justify-between gap-3 flex-wrap" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
-        <div className="flex items-center gap-2.5 flex-1 min-w-[240px]">
-          <div className="relative w-full max-w-sm">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              placeholder="Search Art No, MT Lot, Pattern, Brand..."
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-[var(--steel,#2B4C7E)]"
-            />
-          </div>
+      <div className="p-3.5 bg-white border border-slate-200 rounded-[12px] shadow-2xs flex items-center justify-between gap-3 flex-wrap">
+        <div className="relative w-full max-w-sm">
+          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <input
+            type="text"
+            placeholder="Search Challan #, Art No, Brand, Lineman..."
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            className="w-full pl-9 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-900"
+          />
         </div>
 
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-3 flex-wrap">
           {/* Brand Filter */}
           <div className="flex items-center gap-1 text-xs">
             <span className="text-slate-400 font-medium">Brand:</span>
@@ -492,21 +642,6 @@ export function ProductionOrdersClient({
             </select>
           </div>
 
-          {/* Delivery Date Filter */}
-          <div className="flex items-center gap-1 text-xs">
-            <span className="text-slate-400 font-medium">Delivery:</span>
-            <select
-              value={selectedDate}
-              onChange={e => setSelectedDate(e.target.value)}
-              className="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs font-semibold text-slate-700 cursor-pointer focus:outline-none"
-            >
-              <option value="ALL">All Dates</option>
-              {dateOptions.map(d => (
-                <option key={d} value={d}>{d}</option>
-              ))}
-            </select>
-          </div>
-
           {/* Status Filter */}
           <div className="flex items-center gap-1 text-xs">
             <span className="text-slate-400 font-medium">Status:</span>
@@ -516,8 +651,7 @@ export function ProductionOrdersClient({
               className="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs font-semibold text-slate-700 cursor-pointer focus:outline-none"
             >
               <option value="ALL">All Status</option>
-              <option value="PENDING">Pending</option>
-              <option value="IN_PRODUCTION">In Production</option>
+              <option value="IN_PROGRESS">In Progress</option>
               <option value="QC_PASSED">Ready (QC Passed)</option>
               <option value="DISPATCHED">Dispatched</option>
             </select>
@@ -526,739 +660,678 @@ export function ProductionOrdersClient({
       </div>
 
       {/* ========================================================= */}
-      {/* 4. THE MASTER PRODUCTION CHART TABLE (EXACT PAPER REPLICA)*/}
+      {/* 4. MASTER HIERARCHICAL CHALLANS LIST                      */}
       {/* ========================================================= */}
-      <div className="bg-white border rounded-[12px] shadow-2xs overflow-hidden" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse min-w-[1100px]">
-            <thead>
-              <tr className="bg-slate-100/80 border-b text-[11px] font-bold uppercase tracking-wider text-slate-600 select-none" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
-                <th className="py-3 px-3 w-[100px]">Delivery</th>
-                <th className="py-3 px-3 w-[110px]">Art No</th>
-                <th className="py-3 px-2 w-[60px] text-center">Photo</th>
-                <th className="py-3 px-3 w-[95px]">Prodn No</th>
-                <th className="py-3 px-3 w-[120px]">Fabric</th>
-                <th className="py-3 px-3 w-[110px]">Pattern</th>
-                <th className="py-3 px-3 min-w-[180px]">Description</th>
-                <th className="py-3 px-3 min-w-[170px]">Colors Assortment</th>
-                <th className="py-3 px-3 w-[120px]">Size & Sets</th>
-                <th className="py-3 px-3 w-[80px] text-right">Pcs</th>
-                <th className="py-3 px-3 w-[90px]">Brand</th>
-                <th className="py-3 px-3 w-[110px]">Status</th>
-                <th className="py-3 px-2 w-[50px] text-center">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y text-[12.5px] font-medium" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
-              {filteredOrders.length === 0 ? (
-                <tr>
-                  <td colSpan={13} className="py-14 text-center text-slate-400">
-                    <Layers className="w-10 h-10 mx-auto text-slate-300 mb-2" />
-                    <p className="text-sm font-bold text-slate-700">No Production Orders Recorded Yet</p>
-                    <p className="text-xs text-slate-400 mt-1 mb-4">Click "+ New Production Order" to add your first factory job sheet</p>
+      {filteredOrders.length === 0 ? (
+        <div className="p-12 bg-white border border-slate-200 rounded-[12px] text-center shadow-2xs">
+          <FileSpreadsheet className="w-12 h-12 mx-auto text-slate-300 mb-3" />
+          <h3 className="text-sm font-bold text-slate-800">No Job Work Challans Found</h3>
+          <p className="text-xs text-slate-400 mt-1 mb-4">Click "+ New Delivery Challan" to enter a multi-article job sheet from Ollypop or your buyers.</p>
+          <button
+            type="button"
+            onClick={() => setShowNewChallanModal(true)}
+            className="px-4 py-2 bg-slate-900 text-white text-xs font-bold rounded-xl shadow-xs hover:opacity-95 cursor-pointer"
+          >
+            + Create New Delivery Challan
+          </button>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {filteredOrders.map(challan => {
+            const isExpanded = !!expandedChallans[challan.id]
+            const articleCount = challan.articles?.length || 0
+
+            return (
+              <div
+                key={challan.id}
+                className="bg-white border border-slate-200 rounded-[12px] shadow-2xs overflow-hidden transition-all"
+              >
+                {/* Challan Card Header */}
+                <div
+                  onClick={() => toggleChallan(challan.id)}
+                  className="p-4 bg-slate-50/80 hover:bg-slate-100/70 cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-200 select-none"
+                >
+                  <div className="flex items-center gap-3">
                     <button
                       type="button"
-                      onClick={() => setShowNewOrderModal(true)}
-                      className="px-4 py-2 bg-[var(--steel,#2B4C7E)] text-white text-xs font-bold rounded-xl shadow-xs hover:opacity-95 cursor-pointer"
+                      className="p-1 rounded-lg hover:bg-slate-200 text-slate-600 transition-transform"
                     >
-                      + Add Production Order
+                      {isExpanded ? (
+                        <ChevronDown className="w-5 h-5" />
+                      ) : (
+                        <ChevronRight className="w-5 h-5" />
+                      )}
                     </button>
-                  </td>
-                </tr>
-              ) : (
-                filteredOrders.map((order, idx) => {
-                  const totalSets = order.size_matrix?.reduce((acc: number, r: any) => acc + (Number(r.sets) || 0), 0) || order.total_sets || 0
-                  const totalPcs = order.size_matrix?.reduce((acc: number, r: any) => acc + (Number(r.pcs) || 0), 0) || order.total_pcs || 0
 
-                  return (
-                    <tr
-                      key={order.id || idx}
-                      className="hover:bg-slate-50/80 transition-colors group"
-                    >
-                      {/* 1. Delivery Date */}
-                      <td className="py-3 px-3 font-semibold text-slate-700 whitespace-nowrap">
-                        <div className="flex items-center gap-1.5">
-                          <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                          <span>{order.delivery_date || '-'}</span>
-                        </div>
-                      </td>
-
-                      {/* 2. Art No + Sub Art */}
-                      <td className="py-3 px-3">
-                        <div className="font-bold text-slate-900 leading-tight">
-                          {order.art_no}
-                        </div>
-                        {order.sub_art_no && (
-                          <span className="inline-block mt-0.5 px-1.5 py-0.2 rounded text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
-                            {order.sub_art_no}
+                    <div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-extrabold text-sm text-slate-900 tracking-tight">
+                          📋 {challan.challan_no}
+                        </span>
+                        <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-200 text-slate-800">
+                          {challan.brand}
+                        </span>
+                        <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                          {challan.fabric_type}
+                        </span>
+                        {challan.sample_given && (
+                          <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            ✓ Sample Given
                           </span>
                         )}
-                      </td>
+                      </div>
 
-                      {/* 3. Photo Thumbnail */}
-                      <td className="py-3 px-2 text-center">
-                        {order.picture_url ? (
-                          <div
-                            onClick={() => {
-                              setPreviewPhoto(order.picture_url)
-                              setPreviewTitle(`${order.art_no} - ${order.description || ''}`)
-                            }}
-                            className="w-10 h-10 rounded-lg overflow-hidden border border-slate-200 shadow-2xs mx-auto cursor-pointer relative group/thumb hover:ring-2 hover:ring-[var(--steel,#2B4C7E)] transition-all bg-slate-100"
-                          >
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
-                              src={order.picture_url}
-                              alt={order.art_no}
-                              className="w-full h-full object-cover"
-                            />
-                            <div className="absolute inset-0 bg-black/30 opacity-0 group-hover/thumb:opacity-100 flex items-center justify-center transition-opacity">
-                              <Eye className="w-3.5 h-3.5 text-white" />
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="w-10 h-10 rounded-lg border border-dashed border-slate-300 bg-slate-50 flex items-center justify-center mx-auto text-slate-300">
-                            <Tag className="w-4 h-4" />
-                          </div>
+                      <div className="flex items-center gap-3 text-xs text-slate-500 mt-1 flex-wrap">
+                        <span>Challan Date: <strong>{challan.challan_date}</strong></span>
+                        {challan.delivery_date && (
+                          <span>• Expected Delivery: <strong>{challan.delivery_date}</strong></span>
                         )}
-                      </td>
-
-                      {/* 4. Prodn No / MT Lot */}
-                      <td className="py-3 px-3 font-mono font-bold text-slate-800 text-xs">
-                        <span className="px-2 py-0.5 rounded bg-slate-100 border border-slate-200">
-                          {order.mt_code || 'MT-1001'}
-                        </span>
-                      </td>
-
-                      {/* 5. Fabric */}
-                      <td className="py-3 px-3">
-                        <span className="text-xs font-semibold text-slate-700">
-                          {order.fabric || '-'}
-                        </span>
-                      </td>
-
-                      {/* 6. Pattern No */}
-                      <td className="py-3 px-3 font-mono text-xs font-bold text-indigo-700">
-                        {order.pattern_no || '-'}
-                      </td>
-
-                      {/* 7. Description */}
-                      <td className="py-3 px-3">
-                        <p className="text-xs text-slate-800 leading-snug line-clamp-2" title={order.description}>
-                          {order.description || '-'}
-                        </p>
-                      </td>
-
-                      {/* 8. Body / Pant Color (Supports Multi-Colors) */}
-                      <td className="py-3 px-3 text-xs leading-snug">
-                        <div className="flex flex-wrap gap-1 items-center">
-                          <span className="text-[10px] text-slate-400 uppercase font-bold">Body:</span>
-                          <span className="font-semibold text-slate-800">{order.body_color || '-'}</span>
-                        </div>
-                        {order.pant_color && order.pant_color !== order.body_color && (
-                          <div className="flex flex-wrap gap-1 items-center mt-1 pt-1 border-t border-slate-100">
-                            <span className="text-[10px] text-slate-400 uppercase font-bold">Pant:</span>
-                            <span className="font-medium text-slate-600">{order.pant_color}</span>
-                          </div>
-                        )}
-                      </td>
-
-                      {/* 9. Size & Sets */}
-                      <td className="py-3 px-3 text-xs">
-                        {order.size_matrix && order.size_matrix.length > 0 ? (
-                          <div className="space-y-1 min-w-[130px]">
-                            {order.size_matrix.map((s: any, sIdx: number) => (
-                              <div key={sIdx} className="flex items-center justify-between text-xs bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
-                                <span className="font-bold text-slate-700">{s.size}:</span>
-                                <span className="font-semibold text-[#2563EB]">{s.sets} sets</span>
-                              </div>
-                            ))}
-                            <div className="pt-0.5 border-t border-slate-200 text-[10px] font-bold text-slate-500">
-                              Total: {totalSets} Sets
-                            </div>
-                          </div>
-                        ) : (
-                          <span className="font-semibold text-slate-600">{totalSets} Sets</span>
-                        )}
-                      </td>
-
-                      {/* 10. Total Pieces */}
-                      <td className="py-3 px-3 font-mono font-bold text-right text-xs text-[#059669]">
-                        {totalPcs.toLocaleString()}
-                      </td>
-
-                      {/* 11. Brand */}
-                      <td className="py-3 px-3">
-                        <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
-                          {order.brand || 'OLLYPOP'}
-                        </span>
-                      </td>
-
-                      {/* 12. Status Switcher */}
-                      <td className="py-3 px-3">
-                        <select
-                          value={order.status || 'IN_PRODUCTION'}
-                          onChange={e => handleStatusChange(order.id, e.target.value)}
-                          className={`text-[11px] font-bold rounded-lg px-2 py-1 border cursor-pointer focus:outline-none ${
-                            order.status === 'QC_PASSED'
-                              ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
-                              : order.status === 'DISPATCHED'
-                              ? 'bg-indigo-50 text-indigo-700 border-indigo-300'
-                              : order.status === 'IN_PRODUCTION'
-                              ? 'bg-amber-50 text-amber-700 border-amber-300'
-                              : 'bg-slate-50 text-slate-600 border-slate-300'
-                          }`}
-                        >
-                          <option value="PENDING">PENDING</option>
-                          <option value="IN_PRODUCTION">IN PRODUCTION</option>
-                          <option value="QC_PASSED">QC PASSED</option>
-                          <option value="DISPATCHED">DISPATCHED</option>
-                        </select>
-                      </td>
-
-                      {/* 13. Delete Action */}
-                      <td className="py-3 px-2 text-center">
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteOrder(order.id)}
-                          className="p-1 text-slate-400 hover:text-red-600 rounded transition-colors cursor-pointer"
-                          title="Delete Order"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </td>
-                    </tr>
-                  )
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* ========================================================= */}
-      {/* 5. MODAL: NEW PRODUCTION ORDER CREATION (MULTI-COLOR & UPLOAD)*/}
-      {/* ========================================================= */}
-      {showNewOrderModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-3xl flex flex-col max-h-[92vh] overflow-hidden">
-            
-            {/* Sticky Header */}
-            <div className="p-4 sm:p-5 border-b flex items-center justify-between bg-slate-50 shrink-0" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-[var(--steel-mist,#EEF3FA)] text-[var(--steel,#2B4C7E)]">
-                  <Plus className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-slate-900">
-                    Create New Production Order / Challan
-                  </h3>
-                  <p className="text-xs text-slate-500">
-                    Enter factory lot matrix directly from client job sheet
-                  </p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowNewOrderModal(false)}
-                className="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg cursor-pointer hover:bg-slate-200/50"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Scrollable Form Body */}
-            <form onSubmit={handleCreateOrder} className="flex flex-col flex-1 overflow-hidden">
-              <div className="p-4 sm:p-6 space-y-4 sm:space-y-5 overflow-y-auto flex-1">
-                
-                {/* Row 1: Delivery Date & Prodn/MT No */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
-                      Delivery Date <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="date"
-                      required
-                      value={formDeliveryDate}
-                      onChange={e => setFormDeliveryDate(e.target.value)}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-1 focus:ring-[var(--steel,#2B4C7E)] focus:outline-none"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
-                      Production Lot / MT No. <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. MT-1025"
-                      value={formMtCode}
-                      onChange={e => setFormMtCode(e.target.value)}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-1 focus:ring-[var(--steel,#2B4C7E)] focus:outline-none font-mono"
-                    />
-                  </div>
-                </div>
-
-                {/* Row 2: Brand & Fabric Type */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
-                      Brand / Party <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      list="brand-suggestions"
-                      placeholder="e.g. OLLYPOP"
-                      value={formBrand}
-                      onChange={e => setFormBrand(e.target.value)}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-1 focus:ring-[var(--steel,#2B4C7E)] focus:outline-none"
-                    />
-                    <datalist id="brand-suggestions">
-                      {DEFAULT_BRANDS.map(b => (
-                        <option key={b} value={b} />
-                      ))}
-                    </datalist>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
-                      Fabric Type <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      list="fabric-suggestions"
-                      placeholder="e.g. PRINTED SINKER"
-                      value={formFabric}
-                      onChange={e => setFormFabric(e.target.value)}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-1 focus:ring-[var(--steel,#2B4C7E)] focus:outline-none"
-                    />
-                    <datalist id="fabric-suggestions">
-                      {DEFAULT_FABRICS.map(f => (
-                        <option key={f} value={f} />
-                      ))}
-                    </datalist>
-                  </div>
-                </div>
-
-                {/* Row 3: Art No, Sub-Art & Pattern No */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
-                      Art No. <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. 8941"
-                      value={formArtNo}
-                      onChange={e => handleArtNoSelect(e.target.value)}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:ring-1 focus:ring-[var(--steel,#2B4C7E)] focus:outline-none"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
-                      Sub-Variant (if any)
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="e.g. 8941A"
-                      value={formSubArtNo}
-                      onChange={e => setFormSubArtNo(e.target.value)}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-1 focus:ring-[var(--steel,#2B4C7E)] focus:outline-none"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
-                      Pattern Master Code
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="e.g. LB-816 / G-342"
-                      value={formPatternNo}
-                      onChange={e => setFormPatternNo(e.target.value)}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-1 focus:ring-[var(--steel,#2B4C7E)] focus:outline-none font-mono"
-                    />
-                  </div>
-                </div>
-
-                {/* Row 4: Description */}
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
-                    Product Description
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. GIRLS FULL SLEEVE FRONT OPEN PEEPING NIGHT SUIT"
-                    value={formDescription}
-                    onChange={e => setFormDescription(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-1 focus:ring-[var(--steel,#2B4C7E)] focus:outline-none"
-                  />
-                </div>
-
-                {/* Row 5: MULTI-COLOR MANAGEMENT (BODY & PANT COLORS) */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-3.5 bg-slate-50/80 border border-slate-200 rounded-2xl">
-                  
-                  {/* Body Colors */}
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <label className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-                        <Palette className="w-3.5 h-3.5 text-indigo-600" />
-                        Body Colors / Assortment
-                      </label>
-                      <span className="text-[10.5px] text-slate-400 font-semibold">
-                        {formBodyColors.length} color{formBodyColors.length > 1 ? 's' : ''}
-                      </span>
-                    </div>
-
-                    {/* Color Chips */}
-                    <div className="flex flex-wrap gap-1.5 min-h-[32px] p-2 bg-white border border-slate-200 rounded-xl">
-                      {formBodyColors.map((color, cIdx) => (
-                        <span
-                          key={cIdx}
-                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 animate-in fade-in"
-                        >
-                          <span>{color}</span>
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveBodyColor(cIdx)}
-                            className="text-indigo-400 hover:text-indigo-700 cursor-pointer"
-                          >
-                            <X className="w-3 h-3" />
-                          </button>
-                        </span>
-                      ))}
-                    </div>
-
-                    {/* Add Color Input */}
-                    <div className="flex items-center gap-1.5">
-                      <input
-                        type="text"
-                        placeholder="Type color (e.g. Deep Mustard) & press Enter"
-                        value={newBodyColorInput}
-                        onChange={e => setNewBodyColorInput(e.target.value)}
-                        onKeyDown={e => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault()
-                            handleAddBodyColor()
-                          }
-                        }}
-                        className="flex-1 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-[var(--steel,#2B4C7E)]"
-                      />
-                      <button
-                        type="button"
-                        onClick={handleAddBodyColor}
-                        className="px-3 py-1.5 bg-[var(--steel,#2B4C7E)] text-white text-xs font-bold rounded-lg hover:opacity-90 cursor-pointer"
-                      >
-                        + Add
-                      </button>
+                        <span>• <strong>{articleCount} Articles</strong></span>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Pant Colors */}
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <label className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-                        <Palette className="w-3.5 h-3.5 text-emerald-600" />
-                        Pant / Bottom Colors
-                      </label>
-                      <span className="text-[10.5px] text-slate-400 font-semibold">
-                        {formPantColors.length} color{formPantColors.length > 1 ? 's' : ''}
-                      </span>
+                  <div className="flex items-center gap-3 flex-wrap self-end md:self-center" onClick={e => e.stopPropagation()}>
+                    <div className="text-right">
+                      <div className="text-xs font-bold text-slate-900">
+                        {challan.total_sets.toLocaleString()} Sets <span className="text-slate-400 font-normal">|</span> <span className="text-emerald-600 font-extrabold">{challan.total_pcs.toLocaleString()} Pcs</span>
+                      </div>
+                      <span className="text-[10.5px] font-semibold text-slate-400">Grand Batch Total</span>
                     </div>
 
-                    {/* Pant Color Chips */}
-                    <div className="flex flex-wrap gap-1.5 min-h-[32px] p-2 bg-white border border-slate-200 rounded-xl">
-                      {formPantColors.map((color, cIdx) => (
-                        <span
-                          key={cIdx}
-                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 animate-in fade-in"
-                        >
-                          <span>{color}</span>
-                          <button
-                            type="button"
-                            onClick={() => handleRemovePantColor(cIdx)}
-                            className="text-emerald-400 hover:text-emerald-700 cursor-pointer"
-                          >
-                            <X className="w-3 h-3" />
-                          </button>
-                        </span>
-                      ))}
-                    </div>
+                    <select
+                      value={challan.status}
+                      onChange={e => handleUpdateStatus(challan.id, e.target.value, true)}
+                      className={`text-xs font-bold px-2.5 py-1.5 rounded-lg border cursor-pointer focus:outline-none ${
+                        challan.status === 'QC_PASSED'
+                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                          : challan.status === 'DISPATCHED'
+                          ? 'bg-purple-50 text-purple-700 border-purple-200'
+                          : 'bg-amber-50 text-amber-700 border-amber-200'
+                      }`}
+                    >
+                      <option value="IN_PROGRESS">In Progress</option>
+                      <option value="QC_PASSED">Ready (QC Passed)</option>
+                      <option value="DISPATCHED">Dispatched</option>
+                    </select>
 
-                    {/* Add Pant Color Input */}
-                    <div className="flex items-center gap-1.5">
-                      <input
-                        type="text"
-                        placeholder="Type pant color & press Enter"
-                        value={newPantColorInput}
-                        onChange={e => setNewPantColorInput(e.target.value)}
-                        onKeyDown={e => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault()
-                            handleAddPantColor()
-                          }
-                        }}
-                        className="flex-1 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-[var(--steel,#2B4C7E)]"
-                      />
-                      <button
-                        type="button"
-                        onClick={handleAddPantColor}
-                        className="px-3 py-1.5 bg-emerald-700 text-white text-xs font-bold rounded-lg hover:opacity-90 cursor-pointer"
-                      >
-                        + Add
-                      </button>
-                    </div>
-                  </div>
-
-                </div>
-
-                {/* Row 6: PHOTO UPLOAD (FILE UPLOAD OR URL) */}
-                <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl space-y-2.5">
-                  <div className="flex items-center justify-between">
-                    <label className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-                      <ImageIcon className="w-3.5 h-3.5 text-blue-600" />
-                      Product Sample Photo
-                    </label>
-
-                    {/* Switcher Tab */}
-                    <div className="flex items-center gap-1 bg-white border border-slate-200 rounded-lg p-0.5 text-xs">
-                      <button
-                        type="button"
-                        onClick={() => setImageUploadType('FILE')}
-                        className={`px-2.5 py-0.5 rounded-md font-bold transition-all cursor-pointer ${
-                          imageUploadType === 'FILE'
-                            ? 'bg-[var(--steel,#2B4C7E)] text-white shadow-2xs'
-                            : 'text-slate-600 hover:text-slate-900'
-                        }`}
-                      >
-                        📁 File Upload
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setImageUploadType('URL')}
-                        className={`px-2.5 py-0.5 rounded-md font-bold transition-all cursor-pointer ${
-                          imageUploadType === 'URL'
-                            ? 'bg-[var(--steel,#2B4C7E)] text-white shadow-2xs'
-                            : 'text-slate-600 hover:text-slate-900'
-                        }`}
-                      >
-                        🔗 Image Link
-                      </button>
-                    </div>
-                  </div>
-
-                  {imageUploadType === 'FILE' ? (
-                    <div>
-                      {/* Hidden File Input */}
-                      <input
-                        type="file"
-                        ref={fileInputRef}
-                        accept="image/*"
-                        onChange={handleImageFileChange}
-                        className="hidden"
-                      />
-
-                      {formPictureUrl ? (
-                        <div className="flex items-center gap-3 p-2.5 bg-white border border-slate-200 rounded-xl">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src={formPictureUrl}
-                            alt="Preview"
-                            className="w-14 h-14 object-cover rounded-lg border border-slate-200"
-                          />
-                          <div className="flex-1 min-w-0">
-                            <p className="text-xs font-bold text-slate-800 truncate">
-                              Sample photo uploaded successfully
-                            </p>
-                            <span className="text-[11px] text-emerald-600 font-semibold flex items-center gap-1">
-                              <CheckCircle2 className="w-3 h-3" /> Ready for floor specification
-                            </span>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setFormPictureUrl('')
-                              if (fileInputRef.current) fileInputRef.current.value = ''
-                            }}
-                            className="px-2.5 py-1 text-xs font-bold text-red-600 hover:bg-red-50 rounded-lg cursor-pointer border border-red-200"
-                          >
-                            Remove
-                          </button>
-                        </div>
-                      ) : (
-                        <div
-                          onClick={() => fileInputRef.current?.click()}
-                          className="border-2 border-dashed border-slate-300 hover:border-[var(--steel,#2B4C7E)] bg-white rounded-xl p-5 text-center cursor-pointer transition-colors group"
-                        >
-                          <Upload className="w-6 h-6 mx-auto text-slate-400 group-hover:text-[var(--steel,#2B4C7E)] transition-colors mb-1.5" />
-                          <p className="text-xs font-bold text-slate-700">
-                            Click or Drag to Upload Sample Photo
-                          </p>
-                          <p className="text-[11px] text-slate-400 mt-0.5">
-                            PNG, JPG, JPEG, WEBP (Max 5MB)
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <div>
-                      <input
-                        type="url"
-                        placeholder="https://... (paste direct image URL)"
-                        value={formPictureUrl}
-                        onChange={e => setFormPictureUrl(e.target.value)}
-                        className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-1 focus:ring-[var(--steel,#2B4C7E)] focus:outline-none"
-                      />
-                    </div>
-                  )}
-                </div>
-
-                {/* Row 7: Size, Sets & Pieces Breakdown Matrix */}
-                <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                      Size, Sets & Pieces Matrix
-                    </span>
                     <button
                       type="button"
-                      onClick={handleAddSizeRow}
-                      className="px-2.5 py-1 bg-white border border-slate-300 rounded-lg text-xs font-bold text-[var(--steel,#2B4C7E)] hover:bg-slate-100 cursor-pointer shadow-2xs"
+                      onClick={() => handleDelete(challan.id, true)}
+                      title="Delete Challan"
+                      className="p-1.5 text-slate-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition-colors"
                     >
-                      + Add Size Row
+                      <Trash2 className="w-4 h-4" />
                     </button>
-                  </div>
-
-                  <div className="space-y-2">
-                    <div className="grid grid-cols-12 gap-2 text-[10.5px] font-bold uppercase text-slate-400 px-1">
-                      <span className="col-span-4">Size Range</span>
-                      <span className="col-span-3">Sets Qty</span>
-                      <span className="col-span-2 text-center">Pcs/Set</span>
-                      <span className="col-span-2 text-right">Total Pcs</span>
-                      <span className="col-span-1 text-center">Del</span>
-                    </div>
-
-                    {formSizeMatrix.map((row, rIdx) => (
-                      <div key={rIdx} className="grid grid-cols-12 gap-2 items-center">
-                        <div className="col-span-4">
-                          <input
-                            type="text"
-                            required
-                            placeholder="e.g. 16X20"
-                            value={row.size}
-                            onChange={e => handleSizeRowChange(rIdx, 'size', e.target.value)}
-                            className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-800 focus:ring-1 focus:ring-[var(--steel,#2B4C7E)] focus:outline-none"
-                          />
-                        </div>
-
-                        <div className="col-span-3">
-                          <input
-                            type="number"
-                            min="1"
-                            required
-                            placeholder="Sets"
-                            value={row.sets}
-                            onChange={e => handleSizeRowChange(rIdx, 'sets', e.target.value)}
-                            className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-[#2563EB] focus:ring-1 focus:ring-[var(--steel,#2B4C7E)] focus:outline-none"
-                          />
-                        </div>
-
-                        <div className="col-span-2">
-                          <input
-                            type="number"
-                            min="1"
-                            required
-                            placeholder="Ratio"
-                            value={row.ratio}
-                            onChange={e => handleSizeRowChange(rIdx, 'ratio', e.target.value)}
-                            className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-center text-slate-700 focus:ring-1 focus:ring-[var(--steel,#2B4C7E)] focus:outline-none"
-                          />
-                        </div>
-
-                        <div className="col-span-2 text-right font-mono font-bold text-xs text-[#059669]">
-                          {row.pcs} pcs
-                        </div>
-
-                        <div className="col-span-1 text-center">
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveSizeRow(rIdx)}
-                            className="p-1 text-slate-400 hover:text-red-600 rounded cursor-pointer"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="pt-2 border-t border-slate-200 flex items-center justify-between text-xs font-bold">
-                    <span className="text-slate-600">Total Matrix Calculation:</span>
-                    <div className="flex items-center gap-3">
-                      <span className="text-[#2563EB]">{formTotalSets} Sets</span>
-                      <span className="text-slate-300">|</span>
-                      <span className="text-[#059669]">{formTotalPcs} Total Pieces</span>
-                    </div>
                   </div>
                 </div>
 
-              </div>
+                {/* Expanded Article Lines Table */}
+                {isExpanded && (
+                  <div>
+                    {/* BOM & Lots Summary Bar if present */}
+                    {challan.bom_details && challan.bom_details.length > 0 && (
+                      <div className="p-3 bg-slate-50/50 border-b border-slate-100 flex items-center gap-2 flex-wrap text-xs">
+                        <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1">
+                          <Tag className="w-3.5 h-3.5 text-slate-400" /> BOM / Lots:
+                        </span>
+                        {challan.bom_details.map((bom, bIdx) => (
+                          <span
+                            key={bIdx}
+                            className="px-2 py-0.5 bg-white border border-slate-200 rounded-md text-[11px] font-medium text-slate-700"
+                          >
+                            <strong>{bom.item_name}</strong> {bom.lot_no ? `(Lot #${bom.lot_no})` : ''}
+                          </span>
+                        ))}
+                      </div>
+                    )}
 
-              {/* Sticky Bottom Footer Submit Buttons */}
-              <div className="p-3 sm:p-4 border-t flex items-center justify-end gap-3 bg-slate-50 shrink-0" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
-                <button
-                  type="button"
-                  onClick={() => setShowNewOrderModal(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-200/60 cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isPending}
-                  className="px-5 py-2 rounded-xl text-xs font-bold text-white shadow-xs hover:opacity-95 flex items-center gap-2 cursor-pointer transition-all disabled:opacity-50"
-                  style={{ backgroundColor: 'var(--steel, #2B4C7E)' }}
-                >
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>{isPending ? 'Saving to System...' : 'Save & Send to Floor 💾'}</span>
-                </button>
-              </div>
+                    {/* Article Lines Grid */}
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left border-collapse text-xs">
+                        <thead>
+                          <tr className="bg-slate-100/60 border-b border-slate-200 text-[10.5px] font-bold uppercase tracking-wider text-slate-500">
+                            <th className="py-2.5 px-3 w-10 text-center">#</th>
+                            <th className="py-2.5 px-3 w-32">Art No.</th>
+                            <th className="py-2.5 px-3 w-28">Pattern</th>
+                            <th className="py-2.5 px-3 min-w-[140px]">Color / Combination</th>
+                            <th className="py-2.5 px-3 w-24">Size Tier</th>
+                            <th className="py-2.5 px-3 w-20 text-right">Sets</th>
+                            <th className="py-2.5 px-3 w-20 text-right">Ratio</th>
+                            <th className="py-2.5 px-3 w-24 text-right">Total Pcs</th>
+                            <th className="py-2.5 px-3 w-40">Assigned Lineman</th>
+                            <th className="py-2.5 px-3 w-28">Line Status</th>
+                            <th className="py-2.5 px-2 w-12 text-center">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                          {challan.articles?.map((line, lIdx) => (
+                            <tr key={line.allotment_id || lIdx} className="hover:bg-slate-50/80 transition-colors">
+                              <td className="py-2.5 px-3 text-center text-slate-400 font-semibold">{lIdx + 1}</td>
+                              
+                              {/* Art No + Sub Art */}
+                              <td className="py-2.5 px-3 font-bold text-slate-900">
+                                <div className="flex items-center gap-1.5">
+                                  <span>{line.art_no}</span>
+                                  {line.sub_art_no && (
+                                    <span className="px-1.5 py-0.2 rounded text-[9.5px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                                      {line.sub_art_no}
+                                    </span>
+                                  )}
+                                </div>
+                              </td>
 
-            </form>
-          </div>
+                              {/* Pattern Master */}
+                              <td className="py-2.5 px-3 text-slate-600 font-medium">
+                                {line.pattern_no || '-'}
+                              </td>
+
+                              {/* Color Combination */}
+                              <td className="py-2.5 px-3 font-semibold text-slate-800">
+                                <div className="flex items-center gap-1.5">
+                                  <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0" />
+                                  <span>{line.color_pattern}</span>
+                                </div>
+                              </td>
+
+                              {/* Size Tier */}
+                              <td className="py-2.5 px-3 font-bold text-slate-700">
+                                {line.size_range}
+                              </td>
+
+                              {/* Sets */}
+                              <td className="py-2.5 px-3 text-right font-medium text-slate-700">
+                                {line.sets}
+                              </td>
+
+                              {/* Ratio */}
+                              <td className="py-2.5 px-3 text-right text-slate-500">
+                                {line.pcs_per_set} pcs/set
+                              </td>
+
+                              {/* Total Pcs */}
+                              <td className="py-2.5 px-3 text-right font-extrabold text-emerald-700">
+                                {line.total_pcs.toLocaleString()} pcs
+                              </td>
+
+                              {/* Lineman Assignment */}
+                              <td className="py-2.5 px-3">
+                                <select
+                                  value={line.assigned_lineman_id || ''}
+                                  onChange={e => handleAssignLineman(line.allotment_id, e.target.value)}
+                                  className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-[11px] font-semibold text-slate-700 cursor-pointer focus:outline-none"
+                                >
+                                  <option value="">Select Lineman...</option>
+                                  {linemenList.map(lm => (
+                                    <option key={lm.id} value={lm.id}>
+                                      👤 {lm.username} {lm.full_name ? `(${lm.full_name})` : ''}
+                                    </option>
+                                  ))}
+                                </select>
+                              </td>
+
+                              {/* Line Status */}
+                              <td className="py-2.5 px-3">
+                                <select
+                                  value={line.status || 'IN_PROGRESS'}
+                                  onChange={e => handleUpdateStatus(line.allotment_id, e.target.value, false)}
+                                  className="text-[10.5px] font-bold px-2 py-1 rounded-md border cursor-pointer focus:outline-none bg-white border-slate-200"
+                                >
+                                  <option value="IN_PROGRESS">In Progress</option>
+                                  <option value="QC_PASSED">QC Passed</option>
+                                  <option value="DISPATCHED">Dispatched</option>
+                                </select>
+                              </td>
+
+                              {/* Action */}
+                              <td className="py-2.5 px-2 text-center">
+                                <button
+                                  type="button"
+                                  onClick={() => handleDelete(line.allotment_id, false)}
+                                  title="Delete Article Line"
+                                  className="p-1 text-slate-300 hover:text-red-500 rounded transition-colors"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )
+          })}
         </div>
       )}
 
       {/* ========================================================= */}
-      {/* 6. MODAL: HD PHOTO ZOOM PREVIEW                           */}
+      {/* 5. CREATE NEW DELIVERY CHALLAN MODAL (OLLYPOP REPLICA)    */}
       {/* ========================================================= */}
-      {previewPhoto && (
-        <div
-          onClick={() => setPreviewPhoto(null)}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-in fade-in duration-200 cursor-pointer"
-        >
-          <div className="relative max-w-2xl w-full bg-white rounded-2xl overflow-hidden shadow-2xl p-2" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between p-3 border-b border-slate-100">
-              <h4 className="text-sm font-bold text-slate-800">{previewTitle}</h4>
+      {showNewChallanModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs overflow-y-auto">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[92vh] flex flex-col overflow-hidden border border-slate-200 my-auto animate-in fade-in zoom-in-95 duration-150">
+            
+            {/* Modal Header */}
+            <div className="p-4 sm:p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50/90">
+              <div>
+                <h2 className="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2">
+                  <span>📋 New Job Work Delivery Challan Entry</span>
+                </h2>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Enter multi-article cutting lots, sizes, and BOM materials directly from client delivery challan
+                </p>
+              </div>
+
               <button
                 type="button"
-                onClick={() => setPreviewPhoto(null)}
-                className="p-1 text-slate-400 hover:text-slate-700 rounded-lg cursor-pointer"
+                onClick={() => setShowNewChallanModal(false)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <div className="p-2 flex items-center justify-center bg-slate-50 rounded-xl min-h-[300px]">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={previewPhoto}
-                alt="Product Spec Preview"
-                className="max-h-[600px] w-auto object-contain rounded-lg shadow-sm"
-              />
-            </div>
+
+            {/* Modal Body */}
+            <form onSubmit={handleSaveChallan} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
+              
+              {/* SECTION A: CHALLAN HEADER */}
+              <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3.5">
+                <div className="text-xs font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
+                  <span>1. Challan Metadata</span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                      JOB / CHALLAN NO. *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. JOB-457"
+                      value={formChallanNo}
+                      onChange={e => setFormChallanNo(e.target.value)}
+                      className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                      CHALLAN DATE *
+                    </label>
+                    <input
+                      type="date"
+                      required
+                      value={formChallanDate}
+                      onChange={e => setFormChallanDate(e.target.value)}
+                      className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                      BRAND / PARTY *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      list="brands-list"
+                      placeholder="e.g. OLLYPOP"
+                      value={formBrand}
+                      onChange={e => setFormBrand(e.target.value)}
+                      className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 focus:outline-none"
+                    />
+                    <datalist id="brands-list">
+                      {DEFAULT_BRANDS.map(b => <option key={b} value={b} />)}
+                    </datalist>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                      FABRIC TYPE
+                    </label>
+                    <input
+                      type="text"
+                      list="fabrics-list"
+                      placeholder="e.g. PRINTED SINKER"
+                      value={formFabric}
+                      onChange={e => setFormFabric(e.target.value)}
+                      className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 focus:outline-none"
+                    />
+                    <datalist id="fabrics-list">
+                      {DEFAULT_FABRICS.map(f => <option key={f} value={f} />)}
+                    </datalist>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 pt-1">
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                      EXPECTED DELIVERY DATE
+                    </label>
+                    <input
+                      type="date"
+                      value={formDeliveryDate}
+                      onChange={e => setFormDeliveryDate(e.target.value)}
+                      className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-2 pt-6">
+                    <input
+                      type="checkbox"
+                      id="sample_given_cb"
+                      checked={formSampleGiven}
+                      onChange={e => setFormSampleGiven(e.target.checked)}
+                      className="w-4 h-4 text-slate-900 rounded border-slate-300 focus:ring-slate-900 cursor-pointer"
+                    />
+                    <label htmlFor="sample_given_cb" className="text-xs font-bold text-slate-800 cursor-pointer">
+                      Ready Sample Given (Approved by Buyer)
+                    </label>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                      SPECIAL NOTES / REMARKS
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Ext=3=27, 2=18, 1=9 / Body+Rib N.P"
+                      value={formNotes}
+                      onChange={e => setFormNotes(e.target.value)}
+                      className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-800 focus:outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* SECTION B: ARTICLE LINES GRID (THE HEART OF THE CHALLAN) */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
+                    <span>2. Article Lines Matrix ({articleLines.length} Lines)</span>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleAddArticleLine}
+                    className="px-3 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>+ Add Article Line</span>
+                  </button>
+                </div>
+
+                <div className="border border-slate-200 rounded-xl overflow-hidden shadow-2xs">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse text-xs">
+                      <thead>
+                        <tr className="bg-slate-100 border-b border-slate-200 text-[10.5px] font-bold uppercase tracking-wider text-slate-600">
+                          <th className="py-2.5 px-2 w-8 text-center">#</th>
+                          <th className="py-2.5 px-2 w-28">Art No *</th>
+                          <th className="py-2.5 px-2 w-16">Sub</th>
+                          <th className="py-2.5 px-2 w-24">Pattern</th>
+                          <th className="py-2.5 px-2 min-w-[140px]">Color / Combination *</th>
+                          <th className="py-2.5 px-2 w-24">Size Tier *</th>
+                          <th className="py-2.5 px-2 w-20 text-right">Sets *</th>
+                          <th className="py-2.5 px-2 w-16 text-right">Ratio</th>
+                          <th className="py-2.5 px-2 w-24 text-right">Total Pcs</th>
+                          <th className="py-2.5 px-2 w-32">Assign Lineman</th>
+                          <th className="py-2.5 px-2 w-14 text-center">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {articleLines.map((line, idx) => (
+                          <tr key={idx} className="hover:bg-slate-50/50">
+                            <td className="py-2 px-2 text-center text-slate-400 font-bold">{idx + 1}</td>
+
+                            {/* Art No */}
+                            <td className="py-2 px-2">
+                              <input
+                                type="text"
+                                required
+                                placeholder="9433"
+                                value={line.art_no}
+                                onChange={e => handleLineChange(idx, 'art_no', e.target.value)}
+                                className="w-full px-2 py-1 bg-white border border-slate-200 rounded text-xs font-bold text-slate-900 focus:outline-none"
+                              />
+                            </td>
+
+                            {/* Sub Art */}
+                            <td className="py-2 px-2">
+                              <input
+                                type="text"
+                                placeholder="A, /1"
+                                value={line.sub_art_no || ''}
+                                onChange={e => handleLineChange(idx, 'sub_art_no', e.target.value)}
+                                className="w-full px-1.5 py-1 bg-white border border-slate-200 rounded text-xs font-bold text-amber-700 focus:outline-none"
+                              />
+                            </td>
+
+                            {/* Pattern Master */}
+                            <td className="py-2 px-2">
+                              <input
+                                type="text"
+                                placeholder="G-342"
+                                value={line.pattern_no || ''}
+                                onChange={e => handleLineChange(idx, 'pattern_no', e.target.value)}
+                                className="w-full px-2 py-1 bg-white border border-slate-200 rounded text-xs text-slate-700 focus:outline-none"
+                              />
+                            </td>
+
+                            {/* Color Pattern */}
+                            <td className="py-2 px-2">
+                              <input
+                                type="text"
+                                required
+                                placeholder="e.g. Mushroom + Dutch Blue"
+                                value={line.color_pattern}
+                                onChange={e => handleLineChange(idx, 'color_pattern', e.target.value)}
+                                className="w-full px-2 py-1 bg-white border border-slate-200 rounded text-xs font-semibold text-slate-800 focus:outline-none"
+                              />
+                            </td>
+
+                            {/* Size Range */}
+                            <td className="py-2 px-2">
+                              <input
+                                type="text"
+                                list="common-sizes"
+                                placeholder="L/XXL"
+                                value={line.size_range}
+                                onChange={e => handleLineChange(idx, 'size_range', e.target.value)}
+                                className="w-full px-2 py-1 bg-white border border-slate-200 rounded text-xs font-bold text-slate-800 focus:outline-none"
+                              />
+                              <datalist id="common-sizes">
+                                {COMMON_SIZES.map(s => <option key={s} value={s} />)}
+                              </datalist>
+                            </td>
+
+                            {/* Sets */}
+                            <td className="py-2 px-2 text-right">
+                              <input
+                                type="number"
+                                min={1}
+                                required
+                                value={line.sets}
+                                onChange={e => handleLineChange(idx, 'sets', e.target.value)}
+                                className="w-full px-2 py-1 bg-white border border-slate-200 rounded text-xs font-bold text-right text-slate-900 focus:outline-none"
+                              />
+                            </td>
+
+                            {/* Ratio / Pcs per Set */}
+                            <td className="py-2 px-2 text-right">
+                              <input
+                                type="number"
+                                min={1}
+                                value={line.pcs_per_set}
+                                onChange={e => handleLineChange(idx, 'pcs_per_set', e.target.value)}
+                                className="w-full px-1.5 py-1 bg-white border border-slate-200 rounded text-xs text-right text-slate-600 focus:outline-none"
+                              />
+                            </td>
+
+                            {/* Total Pcs (Calculated) */}
+                            <td className="py-2 px-2 text-right">
+                              <input
+                                type="number"
+                                min={1}
+                                required
+                                value={line.total_pcs}
+                                onChange={e => handleLineChange(idx, 'total_pcs', e.target.value)}
+                                className="w-full px-2 py-1 bg-emerald-50 border border-emerald-200 rounded text-xs font-extrabold text-right text-emerald-800 focus:outline-none"
+                              />
+                            </td>
+
+                            {/* Lineman Assignment */}
+                            <td className="py-2 px-2">
+                              <select
+                                value={line.assigned_lineman_id || ''}
+                                onChange={e => handleLineChange(idx, 'assigned_lineman_id', e.target.value)}
+                                className="w-full bg-white border border-slate-200 rounded px-1.5 py-1 text-[11px] font-semibold text-slate-700 focus:outline-none"
+                              >
+                                <option value="">Assign later...</option>
+                                {linemenList.map(lm => (
+                                  <option key={lm.id} value={lm.id}>
+                                    👤 {lm.username}
+                                  </option>
+                                ))}
+                              </select>
+                            </td>
+
+                            {/* Actions */}
+                            <td className="py-2 px-2 text-center">
+                              <div className="flex items-center justify-center gap-1">
+                                <button
+                                  type="button"
+                                  onClick={() => handleDuplicateLine(idx)}
+                                  title="Duplicate Row"
+                                  className="p-1 text-slate-400 hover:text-blue-600 rounded"
+                                >
+                                  <Copy className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveArticleLine(idx)}
+                                  title="Delete Line"
+                                  className="p-1 text-slate-400 hover:text-red-600 rounded"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              {/* SECTION C: BOM / RAW MATERIALS & LOTS */}
+              <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                    <span>3. BOM / Raw Materials & Lots (For Store Handover)</span>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleAddBomItem}
+                    className="px-2.5 py-1 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg text-xs font-bold flex items-center gap-1 cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>+ Add Material Lot</span>
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
+                  {bomItems.map((bom, bIdx) => (
+                    <div key={bIdx} className="p-2.5 bg-white border border-slate-200 rounded-lg flex items-center justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <input
+                          type="text"
+                          value={bom.item_name}
+                          onChange={e => handleBomChange(bIdx, 'item_name', e.target.value)}
+                          placeholder="Material Name"
+                          className="w-full text-xs font-bold text-slate-800 bg-transparent border-none p-0 focus:outline-none"
+                        />
+                        <div className="flex items-center gap-2 mt-1">
+                          <input
+                            type="text"
+                            value={bom.lot_no || ''}
+                            onChange={e => handleBomChange(bIdx, 'lot_no', e.target.value)}
+                            placeholder="Lot # (e.g. T-03)"
+                            className="text-[11px] font-semibold text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 w-24 focus:outline-none"
+                          />
+                          <select
+                            value={bom.status || 'PENDING'}
+                            onChange={e => handleBomChange(bIdx, 'status', e.target.value)}
+                            className="text-[10px] font-bold px-1.5 py-0.5 rounded border bg-slate-50 border-slate-200"
+                          >
+                            <option value="RECEIVED">Received</option>
+                            <option value="PENDING">Pending</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveBomItem(bIdx)}
+                        className="p-1 text-slate-300 hover:text-red-500 rounded"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* MODAL FOOTER & GRAND TOTALS */}
+              <div className="pt-4 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-4 text-xs">
+                  <div>
+                    <span className="text-slate-400 font-medium">Total Lines:</span>{' '}
+                    <strong className="text-slate-900 font-bold">{articleLines.length}</strong>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 font-medium">Total Sets:</span>{' '}
+                    <strong className="text-blue-700 font-bold">{formGrandSets.toLocaleString()}</strong>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 font-medium">Total Pieces:</span>{' '}
+                    <strong className="text-emerald-700 font-extrabold text-sm">{formGrandPcs.toLocaleString()} Pcs</strong>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 w-full sm:w-auto">
+                  <button
+                    type="button"
+                    onClick={() => setShowNewChallanModal(false)}
+                    className="w-1/2 sm:w-auto px-4 py-2 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-50 cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    type="submit"
+                    disabled={isPending}
+                    className="w-1/2 sm:w-auto px-6 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all disabled:opacity-50"
+                  >
+                    {isPending ? (
+                      <span>Saving Challan...</span>
+                    ) : (
+                      <>
+                        <CheckCircle2 className="w-4 h-4" />
+                        <span>Save & Send Challan to Floor 🚀</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+            </form>
           </div>
         </div>
       )}

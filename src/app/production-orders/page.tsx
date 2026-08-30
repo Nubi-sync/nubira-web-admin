@@ -25,7 +25,14 @@ export default async function ProductionOrdersPage() {
     .eq('is_active', true)
     .order('art_no')
 
-  // 2. Fetch all live production orders
+  // 2. Fetch active linemen list for assignment dropdowns
+  const { data: linemen } = await supabase
+    .from('profiles')
+    .select('id, username, full_name, role')
+    .eq('role', 'LINEMAN')
+    .order('username')
+
+  // 3. Fetch all live grouped challans & production orders
   const orders = await getProductionOrders()
 
   return (
@@ -39,7 +46,7 @@ export default async function ProductionOrdersPage() {
           </Link>
           <span>/</span>
           <span className="font-semibold" style={{ color: 'var(--steel-dark, #1F3A63)' }}>
-            Digital Production Chart
+            Digital Production & Challan Chart
           </span>
         </div>
 
@@ -47,6 +54,7 @@ export default async function ProductionOrdersPage() {
         <ProductionOrdersClient 
           initialOrders={orders || []} 
           articlesList={articles || []} 
+          linemenList={linemen || []}
         />
 
       </div>
