@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import Link from 'next/link'
 import { 
   Warehouse, 
@@ -181,6 +181,19 @@ export default function DashboardClient({
   // Selected Stage Drawer State
   const [activeDrilldownStage, setActiveDrilldownStage] = useState<StageType | null>(null)
   const [drawerSearchQuery, setDrawerSearchQuery] = useState('')
+
+  // Close drawer or dropdowns on Escape key press
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setActiveDrilldownStage(null)
+        setDrawerSearchQuery('')
+        setIsArticleMenuOpen(false)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
 
   // Filtered Articles for Combobox Search
   const filteredArticlesList = useMemo(() => {
@@ -974,8 +987,18 @@ export default function DashboardClient({
       {/* 5. 1-CLICK DEEP DRILLDOWN SLIDE-OVER DRAWER               */}
       {/* ========================================================= */}
       {activeDrilldownStage && (
-        <div className="fixed inset-0 z-50 flex justify-end bg-slate-900/50 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="bg-white w-full max-w-2xl h-full shadow-2xl flex flex-col justify-between animate-in slide-in-from-right duration-200 border-l border-slate-200">
+        <div className="fixed inset-0 z-50 flex justify-end animate-in fade-in duration-150">
+          
+          {/* Dimmed backdrop overlay - click outside to close */}
+          <div 
+            className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs transition-opacity cursor-pointer"
+            onClick={() => {
+              setActiveDrilldownStage(null)
+              setDrawerSearchQuery('')
+            }}
+          />
+
+          <div className="relative z-10 bg-white w-full max-w-2xl h-full shadow-2xl flex flex-col justify-between animate-in slide-in-from-right duration-200 border-l border-slate-200">
             
             {/* Drawer Header */}
             <div className="p-5 border-b border-slate-200 bg-slate-50">
