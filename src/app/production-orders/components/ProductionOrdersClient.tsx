@@ -942,15 +942,11 @@ export function ProductionOrdersClient({
                     <input
                       type="text"
                       required
-                      list="brands-list"
                       placeholder="e.g. OLLYPOP"
                       value={formBrand}
                       onChange={e => setFormBrand(e.target.value)}
-                      className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none"
+                      className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-900"
                     />
-                    <datalist id="brands-list">
-                      {DEFAULT_BRANDS.map(b => <option key={b} value={b} />)}
-                    </datalist>
                   </div>
 
                   <div>
@@ -959,15 +955,11 @@ export function ProductionOrdersClient({
                     </label>
                     <input
                       type="text"
-                      list="fabrics-list"
                       placeholder="e.g. PRINTED SINKER"
                       value={formFabric}
                       onChange={e => setFormFabric(e.target.value)}
-                      className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none"
+                      className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-900"
                     />
-                    <datalist id="fabrics-list">
-                      {DEFAULT_FABRICS.map(f => <option key={f} value={f} />)}
-                    </datalist>
                   </div>
                 </div>
 
@@ -1014,9 +1006,35 @@ export function ProductionOrdersClient({
 
               {/* SECTION B: ARTICLE LINES GRID (EXPANDED WIDTHS, NO SQUISHING) */}
               <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
-                    <span>2. Article Lines Matrix ({articleLines.length} Lines)</span>
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                      2. Article Lines Matrix ({articleLines.length} Lines)
+                    </span>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="text-[10.5px] font-semibold text-slate-400">Quick Sizes:</span>
+                      {COMMON_SIZES.map(sz => (
+                        <button
+                          key={sz}
+                          type="button"
+                          onClick={() => {
+                            setArticleLines(prev => {
+                              const copy = [...prev]
+                              const lastIdx = copy.length - 1
+                              if (copy[lastIdx] && !copy[lastIdx].size_range) {
+                                copy[lastIdx] = { ...copy[lastIdx], size_range: sz }
+                              } else {
+                                copy.push({ ...createEmptyArticleLine(), size_range: sz })
+                              }
+                              return copy
+                            })
+                          }}
+                          className="px-2 py-0.5 rounded text-[10.5px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer border border-slate-200"
+                        >
+                          + {sz}
+                        </button>
+                      ))}
+                    </div>
                   </div>
 
                   <button
@@ -1102,15 +1120,11 @@ export function ProductionOrdersClient({
                             <td className="py-2.5 px-2">
                               <input
                                 type="text"
-                                list="common-sizes"
                                 placeholder="e.g. L/XXL"
                                 value={line.size_range}
                                 onChange={e => handleLineChange(idx, 'size_range', e.target.value)}
-                                className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-800 placeholder-slate-300 focus:outline-none"
+                                className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-800 placeholder-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-900"
                               />
-                              <datalist id="common-sizes">
-                                {COMMON_SIZES.map(s => <option key={s} value={s} />)}
-                              </datalist>
                             </td>
 
                             {/* Sets */}
