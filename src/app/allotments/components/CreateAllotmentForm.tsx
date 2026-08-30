@@ -31,6 +31,63 @@ import {
 } from 'lucide-react'
 
 
+function expandGarmentSizeTier(sizeTier?: string): string[] {
+  if (!sizeTier) return ['L', 'XL', 'XXL']
+  const upper = sizeTier.trim().toUpperCase()
+
+  if (upper === 'L/XXL' || upper === 'L-XXL' || upper === 'L/XL/XXL') {
+    return ['L', 'XL', 'XXL']
+  }
+  if (upper === '22X26' || upper === '22-26' || upper === '22/26') {
+    return ['22', '24', '26']
+  }
+  if (upper === '28X32' || upper === '28-32' || upper === '28/32') {
+    return ['28', '30', '32']
+  }
+  if (upper === '16X20' || upper === '16-20' || upper === '16/20') {
+    return ['16', '18', '20']
+  }
+  if (upper === 'S/M/L' || upper === 'S-L') {
+    return ['S', 'M', 'L']
+  }
+  if (upper === 'M/L/XL' || upper === 'M-XL') {
+    return ['M', 'L', 'XL']
+  }
+  if (upper === '2X6' || upper === '2X8') {
+    return ['2', '4', '6']
+  }
+  if (upper.includes('/') || upper.includes(',')) {
+    return upper.split(/[/,]/).map(s => s.trim()).filter(Boolean)
+  }
+  return [upper]
+}
+
+function expandGarmentColors(colorPattern?: string, challanBomItems: any[] = []): string[] {
+  if (!colorPattern) return ['Mushroom', 'Dutch Blue', 'Scuba']
+  const upper = colorPattern.trim()
+
+  if (upper.match(/3\s*colou?r/i)) {
+    const bomShades = (challanBomItems || [])
+      .filter((b: any) => b.material_type === 'FABRIC' || !b.material_type || b.item_name?.toLowerCase().includes('roll') || b.lot_no)
+      .map((b: any) => b.item_name?.replace(/fabric|roll|body/gi, '').trim())
+      .filter((name: string) => name && !name.toLowerCase().includes('body + rib') && !name.toLowerCase().includes('rib'))
+
+    if (bomShades.length >= 2) {
+      return bomShades
+    }
+    return ['Mushroom', 'Dutch Blue', 'Scuba']
+  }
+
+  if (upper.includes('+')) {
+    return upper.split('+').map(s => s.trim()).filter(Boolean)
+  }
+  if (upper.includes('/') || upper.includes(',')) {
+    return upper.split(/[/,]/).map(s => s.trim()).filter(Boolean)
+  }
+
+  return [upper]
+}
+
 function parseAndExpandOrderSizes(sizeMatrix: any[]): { individualSizes: string[]; sizeQuantities: Record<string, number> } {
   const individualSizes: string[] = []
   const sizeQuantities: Record<string, number> = {}
@@ -744,32 +801,70 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                   setTouchedArticle(true)
                   const chosen = articles.find(a => a.id === val)
                   if (chosen) {
-                    const matchingOrder = (productionOrders || []).find((o: any) =>
-                      o.art_no?.trim().toUpperCase() === chosen.art_no?.trim().toUpperCase() ||
-                      o.article_id === chosen.id
-                    )
-                    if (matchingOrder) {
-                      setAutoLoadedOrder(matchingOrder)
-                      if (matchingOrder.mt_code) {
-                        setProductionOrderNo(matchingOrder.mt_code)
-                        setClientChallanNo(matchingOrder.mt_code)
+                    // Search in production orders across all grouped challans
+                    let matchedChallan: any = null
+                    let matchedArticleLine: any = null
+
+                    const cleanChosenArtNo = chosen.art_no?.trim().toUpperCase()
+                    const chosenMeta = (chosen.size_rates as any)?._meta || {}
+
+                    for (const ch of productionOrders || []) {
+                      if (ch.articles && ch.articles.length > 0) {
+                        for (const art of ch.articles) {
+                          const artCode = `${art.art_no || ''}${art.sub_art_no || ''}`.trim().toUpperCase()
+                          if (
+                            artCode === cleanChosenArtNo ||
+                            art.art_no?.trim().toUpperCase() === cleanChosenArtNo ||
+                            art.allotment_id === chosen.id ||
+                            (chosenMeta.base_art && art.art_no?.trim().toUpperCase() === chosenMeta.base_art.trim().toUpperCase() && (art.sub_art_no || '').trim().toUpperCase() === (chosenMeta.sub_art || '').trim().toUpperCase())
+                          ) {
+                            matchedChallan = ch
+                            matchedArticleLine = art
+                            break
+                          }
+                        }
                       }
-                      if (matchingOrder.delivery_date) {
-                        setDueDate(matchingOrder.delivery_date)
+                      if (matchedArticleLine) break
+                    }
+
+                    if (matchedArticleLine) {
+                      setAutoLoadedOrder(matchedArticleLine)
+                      
+                      // 1. Challan & Work Order Reference
+                      const challanRef = matchedChallan?.challan_no 
+                        ? (matchedChallan.challan_no.startsWith('JOB-') ? matchedChallan.challan_no : `JOB-${matchedChallan.challan_no}`) 
+                        : 'JOB-457'
+                      setProductionOrderNo(challanRef)
+                      setClientChallanNo(challanRef)
+
+                      // 2. Deadlines & Lineman
+                      if (matchedChallan?.delivery_date) {
+                        setDueDate(matchedChallan.delivery_date)
                       }
-                      if (matchingOrder.picture_url) {
-                        setSamplePhotos([matchingOrder.picture_url])
+                      if (matchedArticleLine.assigned_lineman_id) {
+                        setLinemanId(matchedArticleLine.assigned_lineman_id)
+                        setTouchedLineman(true)
                       }
-                      const { individualSizes, sizeQuantities } = parseAndExpandOrderSizes(matchingOrder.size_matrix || [])
-                      if (individualSizes.length > 0) {
-                        setSelectedSizes(individualSizes)
+                      if (matchedArticleLine.picture_url) {
+                        setSamplePhotos([matchedArticleLine.picture_url])
                       }
-                      const colorList = parseOrderColors(matchingOrder.body_color, matchingOrder.pant_color)
+
+                      // 3. Expand Sizes Tier (e.g. L/XXL -> L, XL, XXL)
+                      const sizeTier = matchedArticleLine.size_range || chosenMeta.size || 'L/XXL'
+                      const expandedSizes = expandGarmentSizeTier(sizeTier)
+                      setSelectedSizes(expandedSizes)
+
+                      // 4. Expand Colors (e.g. 3 Colour -> Mushroom, Dutch Blue, Scuba)
+                      const colorPattern = matchedArticleLine.color_pattern || chosenMeta.color || chosen.description || '3 Colour Pattern'
+                      const colorList = expandGarmentColors(colorPattern, matchedChallan?.bom_details || [])
+
+                      // 5. Calculate Sets & Per-Cell Quantities
+                      const setsCount = Number(matchedArticleLine.sets) || (matchedArticleLine.total_pcs ? Math.round(matchedArticleLine.total_pcs / ((colorList.length || 1) * (expandedSizes.length || 1))) : 144) || 144
+
                       const newColorRows = colorList.map((colName: string, cIdx: number) => {
                         const rowQtys: Record<string, number> = {}
-                        individualSizes.forEach((sz: string) => {
-                          const totalForSize = sizeQuantities[sz] || 0
-                          rowQtys[sz] = Math.round(totalForSize / colorList.length) || 0
+                        expandedSizes.forEach((sz: string) => {
+                          rowQtys[sz] = setsCount
                         })
                         return {
                           id: (cIdx + 1).toString(),
@@ -778,14 +873,49 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                         }
                       })
                       setColorRows(newColorRows)
-                    } else {
-                      setAutoLoadedOrder(null)
-                      if (chosen.size_rates && typeof chosen.size_rates === 'object') {
-                        const expanded = expandTierSizes(chosen.size_rates)
-                        if (expanded.length > 0) {
-                          setSelectedSizes(expanded)
-                        }
+
+                      // 6. Auto-Populate BOM Materials Checklist from Challan
+                      const newMaterials: any[] = []
+                      if (matchedChallan?.fabric_type) {
+                        newMaterials.push({
+                          id: 'mat_fab_' + Date.now(),
+                          item_name: `Main Fabric: ${matchedChallan.fabric_type} (Challan #${matchedChallan.challan_no})`,
+                          required_qty: `${matchedArticleLine.total_pcs || (setsCount * colorList.length * expandedSizes.length)} pcs cut marker`,
+                          admin_issued: true,
+                          source: 'CLIENT' as const
+                        })
                       }
+                      if (matchedChallan?.bom_details && Array.isArray(matchedChallan.bom_details) && matchedChallan.bom_details.length > 0) {
+                        matchedChallan.bom_details.forEach((b: any, bIdx: number) => {
+                          newMaterials.push({
+                            id: `mat_bom_${bIdx}_` + Date.now(),
+                            item_name: `${b.item_name} ${b.lot_no ? `(Lot #${b.lot_no})` : ''}`.trim(),
+                            required_qty: b.required_qty || 'As per lot',
+                            admin_issued: b.status === 'RECEIVED',
+                            source: 'CLIENT' as const
+                          })
+                        })
+                      }
+                      if (newMaterials.length > 0) {
+                        setMaterials(newMaterials)
+                      }
+
+                    } else {
+                      // Fallback for standalone articles (use _meta if present)
+                      setAutoLoadedOrder(null)
+                      const sizeTier = chosenMeta.size || 'L/XXL'
+                      const expandedSizes = expandGarmentSizeTier(sizeTier)
+                      setSelectedSizes(expandedSizes)
+
+                      const colorPattern = chosenMeta.color || chosen.description || 'Standard Color'
+                      const colorList = expandGarmentColors(colorPattern, [])
+
+                      const newColorRows = colorList.map((colName, cIdx) => ({
+                        id: (cIdx + 1).toString(),
+                        color: colName,
+                        quantities: Object.fromEntries(expandedSizes.map(s => [s, 0]))
+                      }))
+                      setColorRows(newColorRows)
                     }
                   }
                 }}
