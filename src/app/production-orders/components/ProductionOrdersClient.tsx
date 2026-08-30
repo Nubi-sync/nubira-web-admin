@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useTransition, useRef } from 'react'
+import { useState, useMemo, useTransition } from 'react'
 import {
   Calendar,
   Layers,
@@ -9,24 +9,13 @@ import {
   CheckCircle2,
   Clock,
   Truck,
-  Eye,
-  Filter,
   Download,
   Printer,
   Trash2,
-  ArrowUpDown,
   Tag,
-  AlertTriangle,
-  Sparkles,
   X,
   ChevronDown,
   ChevronRight,
-  Upload,
-  Image as ImageIcon,
-  Palette,
-  UserCheck,
-  Package,
-  Scissors,
   Copy,
   FileSpreadsheet
 } from 'lucide-react'
@@ -64,6 +53,19 @@ const DEFAULT_BRANDS = [
 
 const COMMON_SIZES = ['L/XXL', '22X26', '28X32', '16X20', 'M/L/XL', 'Free Size']
 
+const createEmptyArticleLine = (): ChallanArticleLine => ({
+  art_no: '',
+  sub_art_no: '',
+  pattern_no: '',
+  description: '',
+  color_pattern: '',
+  size_range: '',
+  sets: '' as any,
+  pcs_per_set: 9,
+  total_pcs: '' as any,
+  assigned_lineman_id: ''
+})
+
 interface ProductionOrdersClientProps {
   initialOrders: ChallanGroupedOrder[]
   articlesList: any[]
@@ -78,7 +80,6 @@ export function ProductionOrdersClient({
   const [isPending, startTransition] = useTransition()
   const [orders, setOrders] = useState<ChallanGroupedOrder[]>(initialOrders || [])
   const [expandedChallans, setExpandedChallans] = useState<Record<string, boolean>>(() => {
-    // Open all by default
     const initial: Record<string, boolean> = {}
     initialOrders.forEach(o => { initial[o.id] = true })
     return initial
@@ -92,94 +93,38 @@ export function ProductionOrdersClient({
 
   // Modals
   const [showNewChallanModal, setShowNewChallanModal] = useState(false)
-  const [previewPhoto, setPreviewPhoto] = useState<string | null>(null)
-  const [previewTitle, setPreviewTitle] = useState('')
 
   // ----------------------------------------------------------------------
-  // NEW CHALLAN FORM STATE (Multi-Article & BOM)
+  // NEW CHALLAN FORM STATE (Clean / Fresh / No Hardcoded Defaults)
   // ----------------------------------------------------------------------
   const todayStr = new Date().toISOString().split('T')[0]
-  const [formChallanNo, setFormChallanNo] = useState('JOB-457')
+  const [formChallanNo, setFormChallanNo] = useState('')
   const [formChallanDate, setFormChallanDate] = useState(todayStr)
-  const [formBrand, setFormBrand] = useState('OLLYPOP')
+  const [formBrand, setFormBrand] = useState('')
   const [formDeliveryDate, setFormDeliveryDate] = useState('')
-  const [formFabric, setFormFabric] = useState('PRINTED SINKER')
-  const [formSampleGiven, setFormSampleGiven] = useState(true)
+  const [formFabric, setFormFabric] = useState('')
+  const [formSampleGiven, setFormSampleGiven] = useState(false)
   const [formNotes, setFormNotes] = useState('')
 
-  // Article Lines Grid
-  const [articleLines, setArticleLines] = useState<ChallanArticleLine[]>([
-    {
-      art_no: '9433',
-      sub_art_no: '',
-      pattern_no: 'G-342',
-      description: 'F/S Sweatshirt',
-      color_pattern: '3 Colour',
-      size_range: 'L/XXL',
-      sets: 144,
-      pcs_per_set: 9,
-      total_pcs: 1296,
-      assigned_lineman_id: ''
-    },
-    {
-      art_no: '9433',
-      sub_art_no: 'A',
-      pattern_no: 'G-342',
-      description: 'F/S Sweatshirt (Kids)',
-      color_pattern: '3 Colour',
-      size_range: '22X26',
-      sets: 100,
-      pcs_per_set: 9,
-      total_pcs: 900,
-      assigned_lineman_id: ''
-    },
-    {
-      art_no: '9433',
-      sub_art_no: 'B',
-      pattern_no: 'G-342',
-      description: 'F/S Sweatshirt (Junior)',
-      color_pattern: '3 Colour',
-      size_range: '28X32',
-      sets: 64,
-      pcs_per_set: 9,
-      total_pcs: 576,
-      assigned_lineman_id: ''
-    },
-    {
-      art_no: '9433',
-      sub_art_no: '/1',
-      pattern_no: 'G-342',
-      description: 'F/S Sweatshirt',
-      color_pattern: 'Mushroom + Dutch Blue',
-      size_range: 'L/XXL',
-      sets: 61,
-      pcs_per_set: 6,
-      total_pcs: 366,
-      assigned_lineman_id: ''
-    },
-    {
-      art_no: '9433',
-      sub_art_no: 'A/1',
-      pattern_no: 'G-342',
-      description: 'F/S Sweatshirt (Kids)',
-      color_pattern: 'Dutch Blue',
-      size_range: '22X26',
-      sets: 38,
-      pcs_per_set: 6,
-      total_pcs: 228,
-      assigned_lineman_id: ''
-    }
-  ])
+  // Article Lines Grid (Starts with 1 empty clean row)
+  const [articleLines, setArticleLines] = useState<ChallanArticleLine[]>([createEmptyArticleLine()])
 
-  // BOM / Raw Materials List
-  const [bomItems, setBomItems] = useState<ChallanBomItem[]>([
-    { material_type: 'FABRIC', item_name: 'Body + Rib', lot_no: 'NIP', required_qty: 'Full Lot', status: 'RECEIVED' },
-    { material_type: 'FABRIC', item_name: 'Mushroom Body', lot_no: 'T-03', required_qty: 'Lot T-03', status: 'RECEIVED' },
-    { material_type: 'FABRIC', item_name: 'Dutch Blue Body', lot_no: 'T-03', required_qty: 'Lot T-03', status: 'RECEIVED' },
-    { material_type: 'FABRIC', item_name: 'Scuba Body', lot_no: 'T-03', required_qty: 'Lot T-03', status: 'RECEIVED' },
-    { material_type: 'LABEL', item_name: 'OLLYPOP Main Label', lot_no: 'Standard', required_qty: '3,912 pcs', status: 'PENDING' },
-    { material_type: 'LABEL', item_name: 'FIRST SMILE Brand Label', lot_no: 'Standard', required_qty: '3,912 pcs', status: 'PENDING' }
-  ])
+  // BOM / Raw Materials List (Starts clean empty)
+  const [bomItems, setBomItems] = useState<ChallanBomItem[]>([])
+
+  // Reset & Open Modal
+  const handleOpenNewChallan = () => {
+    setFormChallanNo('')
+    setFormChallanDate(new Date().toISOString().split('T')[0])
+    setFormBrand('')
+    setFormDeliveryDate('')
+    setFormFabric('')
+    setFormSampleGiven(false)
+    setFormNotes('')
+    setArticleLines([createEmptyArticleLine()])
+    setBomItems([])
+    setShowNewChallanModal(true)
+  }
 
   // Handlers for Article Lines
   const handleAddArticleLine = () => {
@@ -187,15 +132,15 @@ export function ProductionOrdersClient({
     setArticleLines(prev => [
       ...prev,
       {
-        art_no: last?.art_no || '9433',
+        art_no: last?.art_no || '',
         sub_art_no: '',
         pattern_no: last?.pattern_no || '',
         description: last?.description || '',
-        color_pattern: last?.color_pattern || '3 Colour',
-        size_range: '22X26',
-        sets: 50,
-        pcs_per_set: 9,
-        total_pcs: 450,
+        color_pattern: last?.color_pattern || '',
+        size_range: '',
+        sets: '' as any,
+        pcs_per_set: last?.pcs_per_set || 9,
+        total_pcs: '' as any,
         assigned_lineman_id: ''
       }
     ])
@@ -205,14 +150,17 @@ export function ProductionOrdersClient({
     const target = articleLines[index]
     setArticleLines(prev => [
       ...prev.slice(0, index + 1),
-      { ...target, sub_art_no: target.sub_art_no ? `${target.sub_art_no}/1` : 'A' },
+      {
+        ...target,
+        sub_art_no: target.sub_art_no ? `${target.sub_art_no}/1` : 'A'
+      },
       ...prev.slice(index + 1)
     ])
   }
 
   const handleRemoveArticleLine = (index: number) => {
     if (articleLines.length <= 1) {
-      alert('Challan must have at least one article line.')
+      setArticleLines([createEmptyArticleLine()])
       return
     }
     setArticleLines(prev => prev.filter((_, i) => i !== index))
@@ -224,25 +172,35 @@ export function ProductionOrdersClient({
       const current = { ...copy[index] }
 
       if (field === 'sets' || field === 'pcs_per_set') {
-        const setsVal = field === 'sets' ? (parseInt(value, 10) || 0) : current.sets
-        const ratioVal = field === 'pcs_per_set' ? (parseInt(value, 10) || 1) : current.pcs_per_set
+        const rawSets = field === 'sets' ? value : current.sets
+        const rawRatio = field === 'pcs_per_set' ? value : current.pcs_per_set
+        
+        const setsVal = rawSets === '' ? ('' as any) : (parseInt(rawSets, 10) || 0)
+        const ratioVal = rawRatio === '' ? 9 : (parseInt(rawRatio, 10) || 1)
+        
         current.sets = setsVal
         current.pcs_per_set = ratioVal
-        current.total_pcs = setsVal * ratioVal
+        current.total_pcs = setsVal === '' ? ('' as any) : (Number(setsVal) * Number(ratioVal))
       } else if (field === 'total_pcs') {
-        const pcsVal = parseInt(value, 10) || 0
+        const pcsVal = value === '' ? ('' as any) : (parseInt(value, 10) || 0)
         current.total_pcs = pcsVal
-        current.sets = Math.round(pcsVal / (current.pcs_per_set || 9)) || 1
+        if (pcsVal !== '') {
+          current.sets = Math.round(Number(pcsVal) / (current.pcs_per_set || 9)) || 1
+        } else {
+          current.sets = '' as any
+        }
       } else {
         (current as any)[field] = value
       }
 
-      // Auto fill pattern/desc if art_no matches existing
-      if (field === 'art_no') {
+      // Auto fill pattern/desc if art_no matches existing article in database
+      if (field === 'art_no' && value) {
         const matched = articlesList.find(a => a.art_no?.toUpperCase() === String(value).trim().toUpperCase())
         if (matched) {
-          if (matched.description) current.description = matched.description
-          if (matched.size_rates?._meta?.pattern) current.pattern_no = matched.size_rates._meta.pattern
+          if (matched.description && !current.description) current.description = matched.description
+          if (matched.size_rates?._meta?.pattern && !current.pattern_no) current.pattern_no = matched.size_rates._meta.pattern
+          if (matched.size_rates?._meta?.party && !formBrand) setFormBrand(matched.size_rates._meta.party)
+          if (matched.size_rates?._meta?.fabric && !formFabric) setFormFabric(matched.size_rates._meta.fabric)
         }
       }
 
@@ -255,7 +213,7 @@ export function ProductionOrdersClient({
   const handleAddBomItem = () => {
     setBomItems(prev => [
       ...prev,
-      { material_type: 'FABRIC', item_name: 'New Color/Trim', lot_no: 'T-01', required_qty: 'Lot', status: 'PENDING' }
+      { material_type: 'FABRIC', item_name: '', lot_no: '', required_qty: '', status: 'PENDING' }
     ])
   }
 
@@ -345,25 +303,31 @@ export function ProductionOrdersClient({
   const handleSaveChallan = (e: React.FormEvent) => {
     e.preventDefault()
     if (!formChallanNo.trim()) {
-      alert('Please enter a Challan / Job Number.')
+      alert('Please enter a Challan / Job Number (e.g. JOB-457).')
       return
     }
 
-    if (articleLines.length === 0) {
-      alert('Please add at least one article line.')
+    const validLines = articleLines.filter(l => l.art_no && l.art_no.trim())
+    if (validLines.length === 0) {
+      alert('Please enter at least one article with an Article Number.')
       return
     }
 
     const payload: CreateChallanPayload = {
       challan_no: formChallanNo.trim().toUpperCase(),
       challan_date: formChallanDate,
-      brand: formBrand.trim().toUpperCase(),
+      brand: (formBrand || 'OLLYPOP').trim().toUpperCase(),
       delivery_date: formDeliveryDate || undefined,
-      fabric_type: formFabric,
+      fabric_type: formFabric.trim() || 'PRINTED SINKER',
       sample_given: formSampleGiven,
       notes: formNotes.trim(),
-      article_lines: articleLines,
-      bom_items: bomItems,
+      article_lines: validLines.map(l => ({
+        ...l,
+        sets: Number(l.sets) || 1,
+        pcs_per_set: Number(l.pcs_per_set) || 9,
+        total_pcs: Number(l.total_pcs) || ((Number(l.sets) || 1) * (Number(l.pcs_per_set) || 9))
+      })),
+      bom_items: bomItems.filter(b => b.item_name && b.item_name.trim()),
       status: 'IN_PRODUCTION'
     }
 
@@ -386,8 +350,8 @@ export function ProductionOrdersClient({
           total_sets: formGrandSets,
           total_pcs: formGrandPcs,
           status: 'IN_PRODUCTION',
-          bom_details: bomItems,
-          articles: articleLines.map((line, idx) => ({
+          bom_details: payload.bom_items || [],
+          articles: payload.article_lines.map((line, idx) => ({
             ...line,
             allotment_id: 'temp-art-' + idx,
             status: 'IN_PROGRESS',
@@ -561,7 +525,7 @@ export function ProductionOrdersClient({
 
           <button
             type="button"
-            onClick={() => setShowNewChallanModal(true)}
+            onClick={handleOpenNewChallan}
             className="px-4 py-2 rounded-xl text-xs font-bold text-white shadow-xs hover:opacity-95 flex items-center gap-2 transition-all cursor-pointer bg-slate-900"
           >
             <Plus className="w-4 h-4" />
@@ -665,11 +629,11 @@ export function ProductionOrdersClient({
       {filteredOrders.length === 0 ? (
         <div className="p-12 bg-white border border-slate-200 rounded-[12px] text-center shadow-2xs">
           <FileSpreadsheet className="w-12 h-12 mx-auto text-slate-300 mb-3" />
-          <h3 className="text-sm font-bold text-slate-800">No Job Work Challans Found</h3>
-          <p className="text-xs text-slate-400 mt-1 mb-4">Click "+ New Delivery Challan" to enter a multi-article job sheet from Ollypop or your buyers.</p>
+          <h3 className="text-sm font-bold text-slate-800">No Job Work Challans Recorded Yet</h3>
+          <p className="text-xs text-slate-400 mt-1 mb-4">Click "+ New Delivery Challan" to enter your first multi-article job sheet.</p>
           <button
             type="button"
-            onClick={() => setShowNewChallanModal(true)}
+            onClick={handleOpenNewChallan}
             className="px-4 py-2 bg-slate-900 text-white text-xs font-bold rounded-xl shadow-xs hover:opacity-95 cursor-pointer"
           >
             + Create New Delivery Challan
@@ -908,11 +872,11 @@ export function ProductionOrdersClient({
       )}
 
       {/* ========================================================= */}
-      {/* 5. CREATE NEW DELIVERY CHALLAN MODAL (OLLYPOP REPLICA)    */}
+      {/* 5. CREATE NEW DELIVERY CHALLAN MODAL (CLEAN & PROFESSIONAL)*/}
       {/* ========================================================= */}
       {showNewChallanModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs overflow-y-auto">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[92vh] flex flex-col overflow-hidden border border-slate-200 my-auto animate-in fade-in zoom-in-95 duration-150">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-900/60 backdrop-blur-xs overflow-y-auto">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-6xl max-h-[94vh] flex flex-col overflow-hidden border border-slate-200 my-auto animate-in fade-in zoom-in-95 duration-150">
             
             {/* Modal Header */}
             <div className="p-4 sm:p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50/90">
@@ -940,10 +904,10 @@ export function ProductionOrdersClient({
               {/* SECTION A: CHALLAN HEADER */}
               <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3.5">
                 <div className="text-xs font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
-                  <span>1. Challan Metadata</span>
+                  <span>1. Challan Header</span>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3.5">
                   <div>
                     <label className="block text-[11px] font-bold text-slate-700 mb-1">
                       JOB / CHALLAN NO. *
@@ -954,7 +918,7 @@ export function ProductionOrdersClient({
                       placeholder="e.g. JOB-457"
                       value={formChallanNo}
                       onChange={e => setFormChallanNo(e.target.value)}
-                      className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900"
+                      className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-900"
                     />
                   </div>
 
@@ -967,7 +931,7 @@ export function ProductionOrdersClient({
                       required
                       value={formChallanDate}
                       onChange={e => setFormChallanDate(e.target.value)}
-                      className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 focus:outline-none"
+                      className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 focus:outline-none"
                     />
                   </div>
 
@@ -982,7 +946,7 @@ export function ProductionOrdersClient({
                       placeholder="e.g. OLLYPOP"
                       value={formBrand}
                       onChange={e => setFormBrand(e.target.value)}
-                      className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 focus:outline-none"
+                      className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none"
                     />
                     <datalist id="brands-list">
                       {DEFAULT_BRANDS.map(b => <option key={b} value={b} />)}
@@ -999,7 +963,7 @@ export function ProductionOrdersClient({
                       placeholder="e.g. PRINTED SINKER"
                       value={formFabric}
                       onChange={e => setFormFabric(e.target.value)}
-                      className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 focus:outline-none"
+                      className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none"
                     />
                     <datalist id="fabrics-list">
                       {DEFAULT_FABRICS.map(f => <option key={f} value={f} />)}
@@ -1007,7 +971,7 @@ export function ProductionOrdersClient({
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 pt-1">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5 pt-1">
                   <div>
                     <label className="block text-[11px] font-bold text-slate-700 mb-1">
                       EXPECTED DELIVERY DATE
@@ -1016,11 +980,11 @@ export function ProductionOrdersClient({
                       type="date"
                       value={formDeliveryDate}
                       onChange={e => setFormDeliveryDate(e.target.value)}
-                      className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 focus:outline-none"
+                      className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 focus:outline-none"
                     />
                   </div>
 
-                  <div className="flex items-center gap-2 pt-6">
+                  <div className="flex items-center gap-2.5 pt-6">
                     <input
                       type="checkbox"
                       id="sample_given_cb"
@@ -1028,7 +992,7 @@ export function ProductionOrdersClient({
                       onChange={e => setFormSampleGiven(e.target.checked)}
                       className="w-4 h-4 text-slate-900 rounded border-slate-300 focus:ring-slate-900 cursor-pointer"
                     />
-                    <label htmlFor="sample_given_cb" className="text-xs font-bold text-slate-800 cursor-pointer">
+                    <label htmlFor="sample_given_cb" className="text-xs font-bold text-slate-800 cursor-pointer select-none">
                       Ready Sample Given (Approved by Buyer)
                     </label>
                   </div>
@@ -1039,16 +1003,16 @@ export function ProductionOrdersClient({
                     </label>
                     <input
                       type="text"
-                      placeholder="e.g. Ext=3=27, 2=18, 1=9 / Body+Rib N.P"
+                      placeholder="e.g. Body+Rib N.P, Ext=3=27, 2=18, 1=9..."
                       value={formNotes}
                       onChange={e => setFormNotes(e.target.value)}
-                      className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-800 focus:outline-none"
+                      className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-800 placeholder-slate-400 focus:outline-none"
                     />
                   </div>
                 </div>
               </div>
 
-              {/* SECTION B: ARTICLE LINES GRID (THE HEART OF THE CHALLAN) */}
+              {/* SECTION B: ARTICLE LINES GRID (EXPANDED WIDTHS, NO SQUISHING) */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
@@ -1058,91 +1022,91 @@ export function ProductionOrdersClient({
                   <button
                     type="button"
                     onClick={handleAddArticleLine}
-                    className="px-3 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                    className="px-3.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>+ Add Article Line</span>
                   </button>
                 </div>
 
-                <div className="border border-slate-200 rounded-xl overflow-hidden shadow-2xs">
+                <div className="border border-slate-200 rounded-xl overflow-hidden shadow-2xs bg-white">
                   <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse text-xs">
+                    <table className="w-full text-left border-collapse text-xs min-w-[960px]">
                       <thead>
-                        <tr className="bg-slate-100 border-b border-slate-200 text-[10.5px] font-bold uppercase tracking-wider text-slate-600">
-                          <th className="py-2.5 px-2 w-8 text-center">#</th>
-                          <th className="py-2.5 px-2 w-28">Art No *</th>
-                          <th className="py-2.5 px-2 w-16">Sub</th>
-                          <th className="py-2.5 px-2 w-24">Pattern</th>
-                          <th className="py-2.5 px-2 min-w-[140px]">Color / Combination *</th>
-                          <th className="py-2.5 px-2 w-24">Size Tier *</th>
-                          <th className="py-2.5 px-2 w-20 text-right">Sets *</th>
-                          <th className="py-2.5 px-2 w-16 text-right">Ratio</th>
-                          <th className="py-2.5 px-2 w-24 text-right">Total Pcs</th>
-                          <th className="py-2.5 px-2 w-32">Assign Lineman</th>
-                          <th className="py-2.5 px-2 w-14 text-center">Actions</th>
+                        <tr className="bg-slate-100 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-600">
+                          <th className="py-3 px-2 w-8 text-center">#</th>
+                          <th className="py-3 px-2 min-w-[120px]">Art No *</th>
+                          <th className="py-3 px-2 min-w-[65px]">Sub</th>
+                          <th className="py-3 px-2 min-w-[90px]">Pattern</th>
+                          <th className="py-3 px-2 min-w-[170px]">Color / Combination *</th>
+                          <th className="py-3 px-2 min-w-[110px]">Size Tier *</th>
+                          <th className="py-3 px-2 min-w-[75px] text-right">Sets *</th>
+                          <th className="py-3 px-2 min-w-[65px] text-right">Ratio</th>
+                          <th className="py-3 px-2 min-w-[95px] text-right">Total Pcs</th>
+                          <th className="py-3 px-2 min-w-[145px]">Assign Lineman</th>
+                          <th className="py-3 px-2 w-16 text-center">Actions</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100">
                         {articleLines.map((line, idx) => (
-                          <tr key={idx} className="hover:bg-slate-50/50">
-                            <td className="py-2 px-2 text-center text-slate-400 font-bold">{idx + 1}</td>
+                          <tr key={idx} className="hover:bg-slate-50/60 transition-colors">
+                            <td className="py-2.5 px-2 text-center text-slate-400 font-bold">{idx + 1}</td>
 
                             {/* Art No */}
-                            <td className="py-2 px-2">
+                            <td className="py-2.5 px-2">
                               <input
                                 type="text"
                                 required
-                                placeholder="9433"
+                                placeholder="e.g. 9433"
                                 value={line.art_no}
                                 onChange={e => handleLineChange(idx, 'art_no', e.target.value)}
-                                className="w-full px-2 py-1 bg-white border border-slate-200 rounded text-xs font-bold text-slate-900 focus:outline-none"
+                                className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-900 placeholder-slate-300 focus:outline-none focus:border-slate-800"
                               />
                             </td>
 
                             {/* Sub Art */}
-                            <td className="py-2 px-2">
+                            <td className="py-2.5 px-2">
                               <input
                                 type="text"
                                 placeholder="A, /1"
                                 value={line.sub_art_no || ''}
                                 onChange={e => handleLineChange(idx, 'sub_art_no', e.target.value)}
-                                className="w-full px-1.5 py-1 bg-white border border-slate-200 rounded text-xs font-bold text-amber-700 focus:outline-none"
+                                className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-amber-700 placeholder-slate-300 focus:outline-none"
                               />
                             </td>
 
                             {/* Pattern Master */}
-                            <td className="py-2 px-2">
+                            <td className="py-2.5 px-2">
                               <input
                                 type="text"
-                                placeholder="G-342"
+                                placeholder="e.g. G-342"
                                 value={line.pattern_no || ''}
                                 onChange={e => handleLineChange(idx, 'pattern_no', e.target.value)}
-                                className="w-full px-2 py-1 bg-white border border-slate-200 rounded text-xs text-slate-700 focus:outline-none"
+                                className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs text-slate-700 placeholder-slate-300 focus:outline-none"
                               />
                             </td>
 
                             {/* Color Pattern */}
-                            <td className="py-2 px-2">
+                            <td className="py-2.5 px-2">
                               <input
                                 type="text"
                                 required
-                                placeholder="e.g. Mushroom + Dutch Blue"
+                                placeholder="e.g. 3 Colour, Dutch Blue"
                                 value={line.color_pattern}
                                 onChange={e => handleLineChange(idx, 'color_pattern', e.target.value)}
-                                className="w-full px-2 py-1 bg-white border border-slate-200 rounded text-xs font-semibold text-slate-800 focus:outline-none"
+                                className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 placeholder-slate-300 focus:outline-none"
                               />
                             </td>
 
                             {/* Size Range */}
-                            <td className="py-2 px-2">
+                            <td className="py-2.5 px-2">
                               <input
                                 type="text"
                                 list="common-sizes"
-                                placeholder="L/XXL"
+                                placeholder="e.g. L/XXL"
                                 value={line.size_range}
                                 onChange={e => handleLineChange(idx, 'size_range', e.target.value)}
-                                className="w-full px-2 py-1 bg-white border border-slate-200 rounded text-xs font-bold text-slate-800 focus:outline-none"
+                                className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-800 placeholder-slate-300 focus:outline-none"
                               />
                               <datalist id="common-sizes">
                                 {COMMON_SIZES.map(s => <option key={s} value={s} />)}
@@ -1150,46 +1114,47 @@ export function ProductionOrdersClient({
                             </td>
 
                             {/* Sets */}
-                            <td className="py-2 px-2 text-right">
+                            <td className="py-2.5 px-2 text-right">
                               <input
                                 type="number"
                                 min={1}
                                 required
-                                value={line.sets}
+                                placeholder="0"
+                                value={line.sets === '' ? '' : line.sets}
                                 onChange={e => handleLineChange(idx, 'sets', e.target.value)}
-                                className="w-full px-2 py-1 bg-white border border-slate-200 rounded text-xs font-bold text-right text-slate-900 focus:outline-none"
+                                className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-right text-slate-900 placeholder-slate-300 focus:outline-none"
                               />
                             </td>
 
                             {/* Ratio / Pcs per Set */}
-                            <td className="py-2 px-2 text-right">
+                            <td className="py-2.5 px-2 text-right">
                               <input
                                 type="number"
                                 min={1}
                                 value={line.pcs_per_set}
                                 onChange={e => handleLineChange(idx, 'pcs_per_set', e.target.value)}
-                                className="w-full px-1.5 py-1 bg-white border border-slate-200 rounded text-xs text-right text-slate-600 focus:outline-none"
+                                className="w-full px-1.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs text-right text-slate-600 focus:outline-none"
                               />
                             </td>
 
                             {/* Total Pcs (Calculated) */}
-                            <td className="py-2 px-2 text-right">
+                            <td className="py-2.5 px-2 text-right">
                               <input
                                 type="number"
                                 min={1}
-                                required
-                                value={line.total_pcs}
+                                placeholder="0"
+                                value={line.total_pcs === '' ? '' : line.total_pcs}
                                 onChange={e => handleLineChange(idx, 'total_pcs', e.target.value)}
-                                className="w-full px-2 py-1 bg-emerald-50 border border-emerald-200 rounded text-xs font-extrabold text-right text-emerald-800 focus:outline-none"
+                                className="w-full px-2.5 py-1.5 bg-emerald-50 border border-emerald-200 rounded-lg text-xs font-extrabold text-right text-emerald-800 placeholder-slate-300 focus:outline-none"
                               />
                             </td>
 
                             {/* Lineman Assignment */}
-                            <td className="py-2 px-2">
+                            <td className="py-2.5 px-2">
                               <select
                                 value={line.assigned_lineman_id || ''}
                                 onChange={e => handleLineChange(idx, 'assigned_lineman_id', e.target.value)}
-                                className="w-full bg-white border border-slate-200 rounded px-1.5 py-1 text-[11px] font-semibold text-slate-700 focus:outline-none"
+                                className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-[11px] font-semibold text-slate-700 focus:outline-none cursor-pointer"
                               >
                                 <option value="">Assign later...</option>
                                 {linemenList.map(lm => (
@@ -1201,13 +1166,13 @@ export function ProductionOrdersClient({
                             </td>
 
                             {/* Actions */}
-                            <td className="py-2 px-2 text-center">
+                            <td className="py-2.5 px-2 text-center">
                               <div className="flex items-center justify-center gap-1">
                                 <button
                                   type="button"
                                   onClick={() => handleDuplicateLine(idx)}
                                   title="Duplicate Row"
-                                  className="p-1 text-slate-400 hover:text-blue-600 rounded"
+                                  className="p-1.5 text-slate-400 hover:text-blue-600 rounded hover:bg-blue-50 transition-colors"
                                 >
                                   <Copy className="w-3.5 h-3.5" />
                                 </button>
@@ -1215,7 +1180,7 @@ export function ProductionOrdersClient({
                                   type="button"
                                   onClick={() => handleRemoveArticleLine(idx)}
                                   title="Delete Line"
-                                  className="p-1 text-slate-400 hover:text-red-600 rounded"
+                                  className="p-1.5 text-slate-400 hover:text-red-600 rounded hover:bg-red-50 transition-colors"
                                 >
                                   <Trash2 className="w-3.5 h-3.5" />
                                 </button>
@@ -1233,67 +1198,75 @@ export function ProductionOrdersClient({
               <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-                    <span>3. BOM / Raw Materials & Lots (For Store Handover)</span>
+                    <span>3. BOM / Raw Materials & Lots (Optional)</span>
                   </div>
 
                   <button
                     type="button"
                     onClick={handleAddBomItem}
-                    className="px-2.5 py-1 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg text-xs font-bold flex items-center gap-1 cursor-pointer"
+                    className="px-3 py-1 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg text-xs font-bold flex items-center gap-1 cursor-pointer transition-colors"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>+ Add Material Lot</span>
                   </button>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
-                  {bomItems.map((bom, bIdx) => (
-                    <div key={bIdx} className="p-2.5 bg-white border border-slate-200 rounded-lg flex items-center justify-between gap-2">
-                      <div className="flex-1 min-w-0">
-                        <input
-                          type="text"
-                          value={bom.item_name}
-                          onChange={e => handleBomChange(bIdx, 'item_name', e.target.value)}
-                          placeholder="Material Name"
-                          className="w-full text-xs font-bold text-slate-800 bg-transparent border-none p-0 focus:outline-none"
-                        />
-                        <div className="flex items-center gap-2 mt-1">
+                {bomItems.length === 0 ? (
+                  <div className="p-4 bg-white border border-dashed border-slate-200 rounded-lg text-center">
+                    <p className="text-xs text-slate-400">
+                      No BOM material lots added yet. Click <strong>"+ Add Material Lot"</strong> to specify fabric roll lots (e.g. Mushroom T-03) or brand labels.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
+                    {bomItems.map((bom, bIdx) => (
+                      <div key={bIdx} className="p-3 bg-white border border-slate-200 rounded-lg flex items-center justify-between gap-2 shadow-2xs">
+                        <div className="flex-1 min-w-0">
                           <input
                             type="text"
-                            value={bom.lot_no || ''}
-                            onChange={e => handleBomChange(bIdx, 'lot_no', e.target.value)}
-                            placeholder="Lot # (e.g. T-03)"
-                            className="text-[11px] font-semibold text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 w-24 focus:outline-none"
+                            value={bom.item_name}
+                            onChange={e => handleBomChange(bIdx, 'item_name', e.target.value)}
+                            placeholder="Material Name (e.g. Body Fabric)"
+                            className="w-full text-xs font-bold text-slate-800 bg-transparent border-none p-0 focus:outline-none placeholder-slate-300"
                           />
-                          <select
-                            value={bom.status || 'PENDING'}
-                            onChange={e => handleBomChange(bIdx, 'status', e.target.value)}
-                            className="text-[10px] font-bold px-1.5 py-0.5 rounded border bg-slate-50 border-slate-200"
-                          >
-                            <option value="RECEIVED">Received</option>
-                            <option value="PENDING">Pending</option>
-                          </select>
+                          <div className="flex items-center gap-2 mt-1.5">
+                            <input
+                              type="text"
+                              value={bom.lot_no || ''}
+                              onChange={e => handleBomChange(bIdx, 'lot_no', e.target.value)}
+                              placeholder="Lot # (e.g. T-03)"
+                              className="text-[11px] font-semibold text-slate-600 bg-slate-50 px-2 py-0.5 rounded border border-slate-200 w-24 focus:outline-none placeholder-slate-300"
+                            />
+                            <select
+                              value={bom.status || 'PENDING'}
+                              onChange={e => handleBomChange(bIdx, 'status', e.target.value)}
+                              className="text-[10.5px] font-bold px-2 py-0.5 rounded border bg-slate-50 border-slate-200 cursor-pointer"
+                            >
+                              <option value="RECEIVED">Received</option>
+                              <option value="PENDING">Pending</option>
+                            </select>
+                          </div>
                         </div>
-                      </div>
 
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveBomItem(bIdx)}
-                        className="p-1 text-slate-300 hover:text-red-500 rounded"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveBomItem(bIdx)}
+                          className="p-1 text-slate-300 hover:text-red-500 rounded"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* MODAL FOOTER & GRAND TOTALS */}
               <div className="pt-4 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div className="flex items-center gap-4 text-xs">
+                <div className="flex items-center gap-5 text-xs">
                   <div>
                     <span className="text-slate-400 font-medium">Total Lines:</span>{' '}
-                    <strong className="text-slate-900 font-bold">{articleLines.length}</strong>
+                    <strong className="text-slate-900 font-bold">{articleLines.filter(l => l.art_no).length}</strong>
                   </div>
                   <div>
                     <span className="text-slate-400 font-medium">Total Sets:</span>{' '}
@@ -1309,7 +1282,7 @@ export function ProductionOrdersClient({
                   <button
                     type="button"
                     onClick={() => setShowNewChallanModal(false)}
-                    className="w-1/2 sm:w-auto px-4 py-2 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-50 cursor-pointer"
+                    className="w-1/2 sm:w-auto px-5 py-2.5 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-50 cursor-pointer transition-colors"
                   >
                     Cancel
                   </button>
@@ -1317,7 +1290,7 @@ export function ProductionOrdersClient({
                   <button
                     type="submit"
                     disabled={isPending}
-                    className="w-1/2 sm:w-auto px-6 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all disabled:opacity-50"
+                    className="w-1/2 sm:w-auto px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all disabled:opacity-50"
                   >
                     {isPending ? (
                       <span>Saving Challan...</span>
