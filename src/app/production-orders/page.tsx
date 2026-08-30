@@ -28,7 +28,7 @@ export default async function ProductionOrdersPage() {
   // 2. Fetch active linemen list for assignment dropdowns
   const { data: linemen } = await supabase
     .from('profiles')
-    .select('id, username, full_name, role')
+    .select('id, username, role')
     .eq('role', 'LINEMAN')
     .order('username')
 

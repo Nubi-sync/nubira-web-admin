@@ -828,7 +828,7 @@ export function ProductionOrdersClient({
                                   <option value="">Select Lineman...</option>
                                   {linemenList.map(lm => (
                                     <option key={lm.id} value={lm.id}>
-                                      👤 {lm.username} {lm.full_name ? `(${lm.full_name})` : ''}
+                                      👤 {lm.username}
                                     </option>
                                   ))}
                                 </select>

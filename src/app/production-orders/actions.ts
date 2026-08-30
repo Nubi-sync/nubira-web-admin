@@ -94,7 +94,7 @@ export async function getProductionOrders(): Promise<ChallanGroupedOrder[]> {
         status,
         created_at,
         lineman_id,
-        profiles:lineman_id ( id, username, full_name ),
+        profiles:lineman_id ( id, username ),
         articles ( id, art_no, description, size_rates, stitching_rate )
       `)
       .order('created_at', { ascending: true })
