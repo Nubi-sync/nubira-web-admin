@@ -1,10 +1,16 @@
 import { createClient } from '@/utils/supabase/server'
+import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { redirect } from 'next/navigation'
 import { AdminShell } from '@/components/layout/AdminShell'
 import DashboardClient from './DashboardClient'
 import { LogOut } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
+
+const supabaseAdmin = createAdminClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
 
 function formatRelativeTime(dateStr?: string) {
   if (!dateStr) return 'Just now'
@@ -30,20 +36,54 @@ export default async function DashboardPage() {
   }
 
   // 0. Fetch Articles
-  const { data: articlesData } = await supabase
+  const { data: articlesData } = await supabaseAdmin
     .from('articles')
-    .select('id, art_no, description')
+    .select('id, art_no, description, stitching_rate, size_rates')
     .eq('is_active', true)
     .order('art_no')
 
-  // 1. Fetch Production Logs with article metadata
-  const { data: prodData } = await supabase
-    .from('daily_product')
-    .select('id, quantity, entry_date, created_at, article_id, article:articles(id, art_no, description)')
+  // 1. Fetch Allotments with Challan & Lineman Metadata (Full Factory Pipeline)
+  const { data: allotmentsData } = await supabaseAdmin
+    .from('allotments')
+    .select(`
+      id,
+      challan_id,
+      lineman_id,
+      article_id,
+      target_qty,
+      status,
+      allotment_date,
+      created_at,
+      profiles:lineman_id ( id, username ),
+      articles ( id, art_no, description, size_rates, stitching_rate ),
+      challans ( id, challan_no, brand, fabric_type )
+    `)
     .order('created_at', { ascending: false })
 
-  // 2. Fetch QC Logs
-  const { data: qcData } = await supabase
+  // 1.1 Fetch Allotment Variants
+  const { data: variantsData } = await supabaseAdmin
+    .from('allotment_variants')
+    .select('id, allotment_id, color, size, quantity, completed_qty')
+
+  // 1.2 Fetch Allotment Materials (BOM)
+  const { data: materialsData } = await supabaseAdmin
+    .from('allotment_materials')
+    .select('id, allotment_id, item_name, required_qty, notes')
+
+  // 1.3 Fetch Challans
+  const { data: challansData } = await supabaseAdmin
+    .from('challans')
+    .select('id, challan_no, brand, fabric_type, created_at')
+    .order('created_at', { ascending: false })
+
+  // 2. Fetch Production Logs
+  const { data: prodData } = await supabaseAdmin
+    .from('daily_product')
+    .select('id, quantity, entry_date, created_at, article_id, lineman_id, article:articles(id, art_no, description)')
+    .order('created_at', { ascending: false })
+
+  // 3. Fetch QC Logs
+  const { data: qcData } = await supabaseAdmin
     .from('qc_logs')
     .select(`
       id,
@@ -58,8 +98,8 @@ export default async function DashboardPage() {
     `)
     .order('created_at', { ascending: false })
 
-  // 3. Fetch Store Transactions
-  const { data: storeData } = await supabase
+  // 4. Fetch Store Transactions
+  const { data: storeData } = await supabaseAdmin
     .from('store_transactions')
     .select(`
       id,
@@ -75,44 +115,16 @@ export default async function DashboardPage() {
     `)
     .order('created_at', { ascending: false })
 
-  // 4. Fetch Delivery Challans
-  const { data: dispatchData } = await supabase
+  // 5. Fetch Delivery Challans (Dispatch)
+  const { data: dispatchData } = await supabaseAdmin
     .from('delivery_challans')
     .select('id, challan_no, buyer_name, total_pieces, created_at, status')
     .order('created_at', { ascending: false })
 
-  // Calculate Overall Totals
-  let totalProduced = 0
-  let totalPassed = 0
-  let totalRejected = 0
-  let totalInward = 0
-  let totalDispatched = 0
-
-  prodData?.forEach(row => {
-    totalProduced += row.quantity || 0
-  })
-
-  qcData?.forEach(row => {
-    if (row.stage === 'CHECKING' || row.stage === 'BULKING') {
-      totalPassed += row.qty_passed || 0
-      totalRejected += row.qty_rejected || 0
-    }
-  })
-
-  storeData?.forEach(row => {
-    if (row.type === 'INWARD') {
-      totalInward += row.quantity || 0
-    }
-  })
-
-  dispatchData?.forEach(row => {
-    totalDispatched += row.total_pieces || 0
-  })
-
-  // Build Recent Activity Feed (Top 4 events)
+  // Build Recent Activity Feed (Top 6 events)
   const activities: Array<{
     id: string
-    type: 'QC_PASS' | 'QC_REJECT' | 'STORE_INWARD' | 'DISPATCH'
+    type: 'QC_PASS' | 'QC_REJECT' | 'STORE_INWARD' | 'DISPATCH' | 'ALLOTMENT'
     title: string
     details: string
     location: string
@@ -175,10 +187,10 @@ export default async function DashboardPage() {
     })
   })
 
-  // Sort activities newest first and pick top 4
+  // Sort activities newest first and pick top 6
   const sortedActivities = activities
     .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-    .slice(0, 4)
+    .slice(0, 6)
 
   return (
     <AdminShell userEmail={user.email}>
@@ -187,25 +199,30 @@ export default async function DashboardPage() {
         {/* Top Bar inside content area */}
         <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
           <div>
-            <h1 
-              className="text-[24px] font-bold font-[family-name:var(--font-heading)] leading-tight"
-              style={{ color: 'var(--ink, #1C2733)' }}
-            >
-              Admin Dashboard
-            </h1>
+            <div className="flex items-center gap-2">
+              <h1 
+                className="text-[24px] font-bold font-[family-name:var(--font-heading)] leading-tight"
+                style={{ color: 'var(--ink, #1C2733)' }}
+              >
+                Plant Operations Control Center
+              </h1>
+              <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-slate-900 text-white tracking-wider">
+                MES Live
+              </span>
+            </div>
             <p 
               className="text-[13px] mt-0.5"
               style={{ color: 'var(--ink-soft, #5B6B7C)' }}
             >
-              Welcome back — here's what's moving on the floor today
+              Real-time 6-stage garment manufacturing floor throughput and inventory lifecycle
             </p>
           </div>
 
-          {/* Ghost Sign Out Button */}
+          {/* Sign Out Button */}
           <form action={async () => {
             'use server'
-            const supabase = await createClient()
-            await supabase.auth.signOut()
+            const sb = await createClient()
+            await sb.auth.signOut()
             redirect('/login')
           }}>
             <button 
@@ -222,18 +239,17 @@ export default async function DashboardPage() {
           </form>
         </header>
 
-        {/* Dashboard Client Component */}
+        {/* Enhanced 6-Stage Dashboard Client Component */}
         <DashboardClient
-          overallStats={{
-            produced: totalProduced,
-            passed: totalPassed,
-            rejected: totalRejected,
-            inward: totalInward,
-            dispatched: totalDispatched
-          }}
           articles={(articlesData as any) || []}
+          allotments={(allotmentsData as any) || []}
+          variants={(variantsData as any) || []}
+          materials={(materialsData as any) || []}
+          challans={(challansData as any) || []}
           rawProduction={(prodData as any) || []}
           rawQC={(qcData as any) || []}
+          rawStore={(storeData as any) || []}
+          rawDispatch={(dispatchData as any) || []}
           recentActivities={sortedActivities}
         />
 
