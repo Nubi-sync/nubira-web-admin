@@ -149,6 +149,14 @@ function cleanDescription(desc?: string) {
   return desc.replace(/\s*\[.*\]/g, '').trim()
 }
 
+function formatLinemanName(lm?: { username?: string } | { username?: string }[]) {
+  const profile = Array.isArray(lm) ? lm[0] : lm
+  if (!profile?.username || profile.username.toLowerCase() === 'admin') {
+    return 'Unassigned (Floor Order)'
+  }
+  return profile.username
+}
+
 export default function DashboardClient({
   articles = [],
   allotments = [],
@@ -878,7 +886,7 @@ export default function DashboardClient({
                         )}
                       </td>
                       <td className="py-2.5 px-3 text-slate-600 font-medium">
-                        {lm?.username || 'Unassigned'}
+                        {formatLinemanName(lm)}
                       </td>
                       <td className="py-2.5 px-3 text-right font-bold text-slate-800">
                         {al.target_qty?.toLocaleString()} pcs
@@ -1155,7 +1163,7 @@ export default function DashboardClient({
                           <div className="mt-3 pt-3 border-t border-slate-100 grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
                             <div className="flex items-center gap-1.5 text-slate-600">
                               <User className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                              <span className="truncate">Lineman: <strong className="text-slate-800">{lm?.username || 'admin'}</strong></span>
+                              <span className="truncate">Lineman: <strong className="text-slate-800">{formatLinemanName(lm)}</strong></span>
                             </div>
                             <div className="flex items-center gap-1.5 text-slate-600">
                               <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
