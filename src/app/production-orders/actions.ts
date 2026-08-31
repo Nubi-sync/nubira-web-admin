@@ -414,6 +414,26 @@ export async function updateOrderStatus(orderOrChallanId: string, newStatus: str
 }
 
 // ----------------------------------------------------------------------
+// ASSIGN LINEMAN TO AN ARTICLE LINE
+// ----------------------------------------------------------------------
+export async function assignLinemanToArticle(allotmentId: string, linemanId: string) {
+  const supabase = supabaseAdmin
+
+  const { error } = await supabase
+    .from('allotments')
+    .update({ lineman_id: linemanId })
+    .eq('id', allotmentId)
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  revalidatePath('/production-orders')
+  revalidatePath('/allotments')
+  return { success: true }
+}
+
+// ----------------------------------------------------------------------
 // ASSIGN ENTIRE CHALLAN TO A SINGLE LINEMAN (1-Click Full Allotment)
 // ----------------------------------------------------------------------
 export async function allotEntireChallan(challanId: string, linemanId: string) {
