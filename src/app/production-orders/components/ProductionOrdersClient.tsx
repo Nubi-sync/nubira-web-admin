@@ -836,65 +836,65 @@ export function ProductionOrdersClient({
             return (
               <div
                 key={challan.id}
-                className="bg-white border border-slate-200 rounded-[12px] shadow-2xs overflow-hidden transition-all"
+                className="bg-white border border-slate-200/90 rounded-2xl shadow-xs overflow-hidden transition-all"
               >
                 {/* Challan Card Header */}
                 <div
                   onClick={() => toggleChallan(challan.id)}
-                  className="p-4 bg-slate-50/80 hover:bg-slate-100/70 cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-200 select-none"
+                  className="p-4.5 bg-gradient-to-r from-slate-50 via-white to-slate-50/50 hover:from-slate-100/70 hover:to-white cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 select-none transition-colors"
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3.5">
                     <button
                       type="button"
-                      className="p-1 rounded-lg hover:bg-slate-200 text-slate-600 transition-transform"
+                      className="p-1.5 rounded-xl bg-white border border-slate-200 shadow-2xs hover:bg-slate-100 text-slate-700 transition-transform"
                     >
                       {isExpanded ? (
-                        <ChevronDown className="w-5 h-5" />
+                        <ChevronDown className="w-4 h-4 text-indigo-600" />
                       ) : (
-                        <ChevronRight className="w-5 h-5" />
+                        <ChevronRight className="w-4 h-4 text-slate-500" />
                       )}
                     </button>
 
                     <div>
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-extrabold text-sm text-slate-900 tracking-tight">
+                        <span className="font-black text-sm px-2.5 py-0.5 rounded-lg bg-slate-900 text-white tracking-tight flex items-center gap-1.5 shadow-2xs">
                           📋 {challan.challan_no}
                         </span>
-                        <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-200 text-slate-800">
+                        <span className="px-2.5 py-0.5 rounded-lg text-xs font-black bg-indigo-50 text-indigo-700 border border-indigo-200/80">
                           {challan.brand}
                         </span>
-                        <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                        <span className="px-2.5 py-0.5 rounded-lg text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200/80">
                           {challan.fabric_type}
                         </span>
                         {challan.sample_given && (
-                          <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                            ✓ Sample Given
+                          <span className="px-2.5 py-0.5 rounded-lg text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/80 flex items-center gap-1">
+                            ✓ Sample Attached
                           </span>
                         )}
                       </div>
 
-                      <div className="flex items-center gap-3 text-xs text-slate-500 mt-1 flex-wrap">
-                        <span>Challan Date: <strong>{challan.challan_date}</strong></span>
+                      <div className="flex items-center gap-3 text-xs text-slate-500 mt-1.5 flex-wrap">
+                        <span>Challan Date: <strong className="text-slate-800 font-mono">{challan.challan_date}</strong></span>
                         {challan.delivery_date && (
-                          <span>• Expected Delivery: <strong>{challan.delivery_date}</strong></span>
+                          <span>• Delivery: <strong className="text-slate-800 font-mono">{challan.delivery_date}</strong></span>
                         )}
-                        <span>• <strong>{articleCount} Articles</strong></span>
+                        <span>• <strong className="text-slate-800">{articleCount} Article Styles</strong></span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3 flex-wrap self-end md:self-center" onClick={e => e.stopPropagation()}>
-                    <div className="text-right">
-                      <div className="text-xs font-bold text-slate-900">
-                        {challan.total_sets.toLocaleString()} Sets <span className="text-slate-400 font-normal">|</span> <span className="text-emerald-600 font-extrabold">{challan.total_pcs.toLocaleString()} Pcs</span>
+                  <div className="flex items-center gap-3.5 flex-wrap self-end md:self-center" onClick={e => e.stopPropagation()}>
+                    <div className="text-right px-3.5 py-1.5 bg-slate-50 border border-slate-200/80 rounded-xl shadow-2xs">
+                      <div className="text-xs font-bold text-slate-800 font-mono">
+                        <span className="font-extrabold text-indigo-700">{challan.total_sets.toLocaleString()}</span> Sets <span className="text-slate-300">|</span> <span className="text-emerald-700 font-black">{challan.total_pcs.toLocaleString()} Pcs</span>
                       </div>
-                      <span className="text-[10.5px] font-semibold text-slate-400">Grand Batch Total</span>
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Grand Batch Total</span>
                     </div>
 
                     <select
                       value={challan.status}
                       onChange={e => handleUpdateStatus(challan.id, e.target.value, true)}
-                      className={`text-xs font-bold px-2.5 py-1.5 rounded-lg border cursor-pointer focus:outline-none ${
+                      className={`text-xs font-extrabold px-3 py-1.5 rounded-xl border cursor-pointer focus:outline-none shadow-2xs transition-all ${
                         challan.status === 'QC_PASSED'
                           ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                           : challan.status === 'DISPATCHED'
@@ -911,7 +911,7 @@ export function ProductionOrdersClient({
                       type="button"
                       onClick={() => handleDelete(challan.id, true)}
                       title="Delete Challan"
-                      className="p-1.5 text-slate-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition-colors"
+                      className="p-2 text-slate-400 hover:text-red-600 rounded-xl hover:bg-red-50 border border-transparent hover:border-red-100 transition-all cursor-pointer"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -920,28 +920,37 @@ export function ProductionOrdersClient({
 
                 {/* Expanded Article Lines Table & Smart Allotment Hub */}
                 {isExpanded && (
-                  <div>
+                  <div className="bg-slate-50/40">
                     {/* Success notification if allotted */}
                     {allotSuccessMsg[challan.id] && (
-                      <div className="p-3 bg-emerald-50 border-b border-emerald-200 text-emerald-800 text-xs font-bold flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                        <span>{allotSuccessMsg[challan.id]}</span>
+                      <div className="p-3.5 bg-emerald-500 text-white text-xs font-bold flex items-center justify-between shadow-xs animate-in fade-in duration-300">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-white shrink-0" />
+                          <span>{allotSuccessMsg[challan.id]}</span>
+                        </div>
+                        <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded font-mono">LIVE SYNCED</span>
                       </div>
                     )}
 
                     {/* BOM & Lots Summary Bar if present */}
                     {challan.bom_details && challan.bom_details.length > 0 && (
-                      <div className="p-3 bg-slate-50/50 border-b border-slate-100 flex items-center gap-2 flex-wrap text-xs">
-                        <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1">
-                          <Tag className="w-3.5 h-3.5 text-slate-400" /> BOM / Lots:
+                      <div className="px-5 py-3 bg-white border-b border-slate-100 flex items-center gap-2.5 flex-wrap text-xs">
+                        <span className="text-[10.5px] font-extrabold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                          <Tag className="w-3.5 h-3.5 text-indigo-500" /> BOM LOTS:
                         </span>
                         {challan.bom_details.map((bom, bIdx) => (
-                          <span
+                          <div
                             key={bIdx}
-                            className="px-2 py-0.5 bg-white border border-slate-200 rounded-md text-[11px] font-medium text-slate-700"
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-50 border border-slate-200/90 rounded-lg text-xs text-slate-700 shadow-2xs"
                           >
-                            <strong>{bom.item_name}</strong> {bom.lot_no ? `(Lot #${bom.lot_no})` : ''}
-                          </span>
+                            <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+                            <strong className="text-slate-900 font-semibold">{bom.item_name}</strong>
+                            {bom.lot_no && (
+                              <span className="text-[10px] px-1.5 py-0.2 rounded bg-indigo-50 text-indigo-700 font-bold font-mono">
+                                Lot #{bom.lot_no}
+                              </span>
+                            )}
+                          </div>
                         ))}
                       </div>
                     )}
@@ -949,44 +958,52 @@ export function ProductionOrdersClient({
                     {/* ========================================================= */}
                     {/* SMART LINE ALLOTMENT HUB (Sir's Exact Factory Rules)      */}
                     {/* ========================================================= */}
-                    <div className="p-4 bg-slate-50/90 border-b border-slate-200">
-                      <div className="flex items-center justify-between gap-3 flex-wrap mb-3">
-                        <div className="flex items-center gap-2">
-                          <Sparkles className="w-4 h-4 text-indigo-600" />
-                          <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-800">
-                            Smart Line Allotment Hub
-                          </h4>
-                          <span className="px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
-                            Fast Line Distribution
-                          </span>
+                    <div className="p-5 border-b border-slate-200/80 bg-gradient-to-b from-slate-50/80 to-slate-100/30">
+                      <div className="flex items-center justify-between gap-3 flex-wrap mb-4">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-7 h-7 rounded-lg bg-indigo-600 flex items-center justify-center text-white shadow-xs">
+                            <Sparkles className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <h4 className="text-xs font-black uppercase tracking-wider text-slate-900 flex items-center gap-2">
+                              SMART LINE ALLOTMENT HUB
+                              <span className="px-2 py-0.5 rounded-md text-[9.5px] font-bold bg-indigo-100 text-indigo-800 border border-indigo-200">
+                                Continuous Sewing Optimizer
+                              </span>
+                            </h4>
+                            <p className="text-[11px] text-slate-500">
+                              Dispatch full batch to 1 Lineman or split by continuous color lines for maximum line output
+                            </p>
+                          </div>
                         </div>
                       </div>
 
                       {/* 1. Full Challan 1-Click Allotment Bar */}
-                      <div className="p-3.5 bg-white border border-slate-200 rounded-xl shadow-2xs mb-3 flex flex-col md:flex-row md:items-center justify-between gap-3">
-                        <div className="flex items-center gap-2.5">
-                          <div className="w-8 h-8 rounded-lg bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-700 shrink-0">
-                            <Zap className="w-4 h-4" />
+                      <div className="p-3.5 bg-slate-900 border border-slate-800 rounded-xl shadow-xs mb-4 flex flex-col md:flex-row md:items-center justify-between gap-3.5 text-white">
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-xl bg-amber-400/20 border border-amber-400/30 flex items-center justify-center text-amber-300 shrink-0">
+                            <Zap className="w-5 h-5 fill-amber-300" />
                           </div>
                           <div>
-                            <div className="text-xs font-bold text-slate-900">
+                            <div className="text-xs font-bold text-white flex items-center gap-2">
                               Assign Entire Challan ({challan.total_pcs.toLocaleString()} Pcs) to 1 Lineman
+                              <span className="text-[10px] font-normal text-slate-400">({challan.articles?.length || 8} Articles Total)</span>
                             </div>
-                            <div className="text-[11px] text-slate-500">
-                              1-Click assigns all {challan.articles?.length || 8} articles in this batch to a single production line
+                            <div className="text-[11px] text-slate-300">
+                              1-Click creates/updates all article allotments in this challan to a single production line
                             </div>
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-2 shrink-0">
+                        <div className="flex items-center gap-2.5 shrink-0">
                           <select
                             value={selectedFullLineman[challan.id] || ''}
                             onChange={e => setSelectedFullLineman(prev => ({ ...prev, [challan.id]: e.target.value }))}
-                            className="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-800 cursor-pointer focus:outline-none"
+                            className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs font-semibold text-white cursor-pointer focus:outline-none focus:ring-1 focus:ring-amber-400"
                           >
-                            <option value="">Select Lineman...</option>
+                            <option value="" className="text-slate-400">Select Lineman...</option>
                             {linemenList.map(lm => (
-                              <option key={lm.id} value={lm.id}>
+                              <option key={lm.id} value={lm.id} className="text-slate-900 bg-white">
                                 👤 {lm.username}
                               </option>
                             ))}
@@ -996,9 +1013,9 @@ export function ProductionOrdersClient({
                             type="button"
                             disabled={isPending}
                             onClick={() => handleAllotEntireChallan(challan.id)}
-                            className="px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-bold shadow-2xs transition-all disabled:opacity-50 cursor-pointer flex items-center gap-1.5"
+                            className="px-4 py-2 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-950 rounded-lg text-xs font-black shadow-xs transition-all disabled:opacity-50 cursor-pointer flex items-center gap-1.5 shrink-0"
                           >
-                            <Zap className="w-3.5 h-3.5 text-amber-400" />
+                            <Zap className="w-3.5 h-3.5 fill-slate-950" />
                             <span>Allot Full Challan</span>
                           </button>
                         </div>
@@ -1011,49 +1028,81 @@ export function ProductionOrdersClient({
 
                         return (
                           <div>
-                            <div className="flex items-center gap-1.5 mb-2 text-xs font-bold text-slate-700">
-                              <Palette className="w-3.5 h-3.5 text-slate-500" />
-                              <span>Color-Wise Line Split (Continuous Color Sewing for Speed)</span>
+                            <div className="flex items-center justify-between mb-2.5">
+                              <div className="flex items-center gap-2 text-xs font-extrabold text-slate-800 uppercase tracking-wide">
+                                <Palette className="w-4 h-4 text-indigo-600" />
+                                <span>COLOR-WISE LINE DISTRIBUTION (SIR'S CONTINUOUS SEWING MATRIX)</span>
+                              </div>
+                              <span className="text-[11px] font-semibold text-slate-400">
+                                {colorCards.length} Active Color Lines
+                              </span>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
                               {colorCards.map((cg, cIdx) => (
                                 <div
                                   key={cIdx}
-                                  style={{ backgroundColor: cg.bgLight, borderColor: cg.borderTheme }}
-                                  className="border rounded-xl p-3.5 flex flex-col justify-between shadow-2xs"
+                                  className="bg-white border-2 rounded-xl p-4 flex flex-col justify-between shadow-2xs hover:shadow-xs transition-all"
+                                  style={{ borderColor: cg.borderTheme }}
                                 >
                                   <div>
-                                    <div className="flex items-center justify-between gap-2 mb-2">
-                                      <div className="flex items-center gap-2">
-                                        <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: cg.themeColor }} />
-                                        <span className="font-extrabold text-xs text-slate-900 uppercase">
-                                          {cg.colorName} LINE
+                                    {/* Color Header Banner */}
+                                    <div className="flex items-center justify-between gap-2 pb-3 mb-3 border-b border-slate-100">
+                                      <div className="flex items-center gap-2.5">
+                                        <span
+                                          className="w-4 h-4 rounded-full shadow-2xs shrink-0 ring-2 ring-white"
+                                          style={{ backgroundColor: cg.themeColor }}
+                                        />
+                                        <div>
+                                          <span className="font-black text-xs text-slate-900 tracking-tight block">
+                                            {cg.colorName} LINE
+                                          </span>
+                                          <span className="text-[10px] font-medium text-slate-400">
+                                            Continuous Floor Thread
+                                          </span>
+                                        </div>
+                                      </div>
+
+                                      <div
+                                        className="text-right px-2.5 py-1 rounded-lg border font-mono"
+                                        style={{ backgroundColor: cg.bgLight, borderColor: cg.borderTheme }}
+                                      >
+                                        <span
+                                          style={{ color: cg.themeColor }}
+                                          className="text-xs font-black block"
+                                        >
+                                          {cg.totalPcs.toLocaleString()} PCS
                                         </span>
                                       </div>
-                                      <span
-                                        style={{ color: cg.themeColor }}
-                                        className="text-xs font-black font-mono px-2 py-0.5 bg-white/80 rounded-md border border-slate-200"
-                                      >
-                                        {cg.totalPcs.toLocaleString()} Pcs
-                                      </span>
                                     </div>
 
-                                    {/* Size Groups Breakdown */}
-                                    <div className="bg-white/90 rounded-lg p-2 border border-slate-200/80 mb-3 space-y-1">
-                                      <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                                        Size Groups Breakdown:
+                                    {/* Size Groups Grid */}
+                                    <div className="mb-4">
+                                      <div className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                                        <span>Size Tier Breakdown</span>
+                                        <span>Quantity</span>
                                       </div>
-                                      {Object.entries(cg.sizeBreakdown).map(([sz, count], sIdx) => (
-                                        <div key={sIdx} className="flex items-center justify-between text-[11px] font-medium text-slate-700">
-                                          <span>Tier {sz}:</span>
-                                          <span className="font-bold text-slate-900">{count} pcs</span>
-                                        </div>
-                                      ))}
+                                      <div className="space-y-1 bg-slate-50/80 rounded-lg p-2 border border-slate-100">
+                                        {Object.entries(cg.sizeBreakdown).map(([sz, count], sIdx) => (
+                                          <div
+                                            key={sIdx}
+                                            className="flex items-center justify-between text-xs py-0.5 px-1 rounded hover:bg-white transition-colors"
+                                          >
+                                            <div className="flex items-center gap-1.5">
+                                              <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
+                                              <span className="font-semibold text-slate-700">Tier {sz}</span>
+                                            </div>
+                                            <span className="font-extrabold text-slate-900 font-mono">
+                                              {count.toLocaleString()} pcs
+                                            </span>
+                                          </div>
+                                        ))}
+                                      </div>
                                     </div>
                                   </div>
 
-                                  <div className="space-y-2 pt-2 border-t border-slate-200/60">
+                                  {/* Allotment Footer */}
+                                  <div className="space-y-2 pt-2 border-t border-slate-100">
                                     <select
                                       value={selectedColorLineman[challan.id]?.[cg.colorName] || cg.assignedLinemanId || ''}
                                       onChange={e => {
@@ -1066,7 +1115,7 @@ export function ProductionOrdersClient({
                                           }
                                         }))
                                       }}
-                                      className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs font-semibold text-slate-800 cursor-pointer focus:outline-none"
+                                      className="w-full bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-800 cursor-pointer focus:outline-none focus:ring-1 focus:ring-slate-800 transition-all"
                                     >
                                       <option value="">Assign {cg.colorName} to Lineman...</option>
                                       {linemenList.map(lm => (
@@ -1081,9 +1130,9 @@ export function ProductionOrdersClient({
                                       disabled={isPending}
                                       onClick={() => handleAllotColorLine(challan.id, cg.colorName)}
                                       style={{ backgroundColor: cg.themeColor }}
-                                      className="w-full py-1.5 text-white rounded-lg text-xs font-bold shadow-2xs hover:opacity-95 transition-all disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1.5"
+                                      className="w-full py-2 text-white rounded-lg text-xs font-bold shadow-xs hover:opacity-95 active:scale-[0.99] transition-all disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1.5"
                                     >
-                                      <UserCheck className="w-3.5 h-3.5" />
+                                      <UserCheck className="w-4 h-4" />
                                       <span>Allot {cg.colorName} ({cg.totalPcs} pcs)</span>
                                     </button>
                                   </div>
@@ -1095,115 +1144,139 @@ export function ProductionOrdersClient({
                       })()}
                     </div>
 
-                    {/* Article Lines Reference Grid (No manual row dropdowns) */}
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-left border-collapse text-xs">
-                        <thead>
-                          <tr className="bg-slate-100/60 border-b border-slate-200 text-[10.5px] font-bold uppercase tracking-wider text-slate-500">
-                            <th className="py-2.5 px-3 w-10 text-center">#</th>
-                            <th className="py-2.5 px-3 w-32">Art No.</th>
-                            <th className="py-2.5 px-3 w-28">Pattern</th>
-                            <th className="py-2.5 px-3 min-w-[140px]">Color / Combination</th>
-                            <th className="py-2.5 px-3 w-24">Size Tier</th>
-                            <th className="py-2.5 px-3 w-20 text-right">Sets</th>
-                            <th className="py-2.5 px-3 w-20 text-right">Pcs/Set</th>
-                            <th className="py-2.5 px-3 w-24 text-right">Total Pcs</th>
-                            <th className="py-2.5 px-3 w-40">Assigned Line</th>
-                            <th className="py-2.5 px-3 w-28">Line Status</th>
-                            <th className="py-2.5 px-2 w-12 text-center">Action</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100">
-                          {challan.articles?.map((line, lIdx) => (
-                            <tr key={line.allotment_id || lIdx} className="hover:bg-slate-50/80 transition-colors">
-                              <td className="py-2.5 px-3 text-center text-slate-400 font-semibold">{lIdx + 1}</td>
-                              
-                              {/* Art No + Sub Art */}
-                              <td className="py-2.5 px-3 font-bold text-slate-900">
-                                <div className="flex items-center gap-1.5">
-                                  <span>{line.art_no}</span>
-                                  {line.sub_art_no && (
-                                    <span className="px-1.5 py-0.2 rounded text-[9.5px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
-                                      {line.sub_art_no}
+                    {/* Article Lines Reference Grid (Professional ERP Table) */}
+                    <div className="p-5">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <h5 className="text-xs font-extrabold uppercase tracking-wider text-slate-800">
+                            Challan Article Reference Sheet
+                          </h5>
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-200 text-slate-700">
+                            {challan.articles?.length || 0} Lines
+                          </span>
+                        </div>
+                        <span className="text-[11px] text-slate-400">
+                          Auto-synced with smart line distribution
+                        </span>
+                      </div>
+
+                      <div className="overflow-x-auto border border-slate-200 rounded-xl bg-white shadow-2xs">
+                        <table className="w-full text-left border-collapse text-xs">
+                          <thead>
+                            <tr className="bg-slate-50 border-b border-slate-200 text-[10.5px] font-extrabold uppercase tracking-wider text-slate-500">
+                              <th className="py-3 px-3.5 w-12 text-center">#</th>
+                              <th className="py-3 px-3.5 w-32">Art No.</th>
+                              <th className="py-3 px-3.5 w-28">Pattern</th>
+                              <th className="py-3 px-3.5 min-w-[160px]">Color / Combination</th>
+                              <th className="py-3 px-3.5 w-24">Size Tier</th>
+                              <th className="py-3 px-3.5 w-20 text-right">Sets</th>
+                              <th className="py-3 px-3.5 w-20 text-right">Pcs/Set</th>
+                              <th className="py-3 px-3.5 w-24 text-right">Total Pcs</th>
+                              <th className="py-3 px-3.5 w-44">Assigned Line</th>
+                              <th className="py-3 px-3.5 w-32">Line Status</th>
+                              <th className="py-3 px-2 w-12 text-center">Action</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-100">
+                            {challan.articles?.map((line, lIdx) => (
+                              <tr key={line.allotment_id || lIdx} className="hover:bg-slate-50/90 transition-colors">
+                                <td className="py-3 px-3.5 text-center text-slate-400 font-semibold">{lIdx + 1}</td>
+                                
+                                {/* Art No + Sub Art */}
+                                <td className="py-3 px-3.5 font-bold text-slate-900">
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="font-mono">{line.art_no}</span>
+                                    {line.sub_art_no && (
+                                      <span className="px-1.5 py-0.2 rounded text-[9.5px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                                        {line.sub_art_no}
+                                      </span>
+                                    )}
+                                  </div>
+                                </td>
+
+                                {/* Pattern Master */}
+                                <td className="py-3 px-3.5 text-slate-600 font-medium">
+                                  {line.pattern_no || 'Standard'}
+                                </td>
+
+                                {/* Color Combination */}
+                                <td className="py-3 px-3.5 font-semibold text-slate-800">
+                                  <div className="flex items-center gap-2">
+                                    <span className="w-2 h-2 rounded-full bg-indigo-500 shrink-0" />
+                                    <span>{line.color_pattern}</span>
+                                  </div>
+                                </td>
+
+                                {/* Size Tier */}
+                                <td className="py-3 px-3.5 font-bold text-slate-700">
+                                  <span className="px-2 py-0.5 rounded-md bg-slate-100 border border-slate-200 text-[11px]">
+                                    {line.size_range}
+                                  </span>
+                                </td>
+
+                                {/* Sets */}
+                                <td className="py-3 px-3.5 text-right font-medium text-slate-700 font-mono">
+                                  {line.sets}
+                                </td>
+
+                                {/* Ratio */}
+                                <td className="py-3 px-3.5 text-right text-slate-500 font-mono">
+                                  {line.pcs_per_set} pcs/set
+                                </td>
+
+                                {/* Total Pcs */}
+                                <td className="py-3 px-3.5 text-right font-black text-emerald-700 font-mono">
+                                  {line.total_pcs.toLocaleString()} pcs
+                                </td>
+
+                                {/* Assigned Line (Clean Auto-Badge) */}
+                                <td className="py-3 px-3.5">
+                                  {line.assigned_lineman_name && line.assigned_lineman_name !== 'Unassigned' && line.assigned_lineman_name !== 'Unassigned (Floor Order)' ? (
+                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 shadow-2xs">
+                                      👤 {line.assigned_lineman_name}
+                                    </span>
+                                  ) : (
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10.5px] font-medium bg-slate-100 text-slate-500">
+                                      ⏳ Pending Allotment
                                     </span>
                                   )}
-                                </div>
-                              </td>
+                                </td>
 
-                              {/* Pattern Master */}
-                              <td className="py-2.5 px-3 text-slate-600 font-medium">
-                                {line.pattern_no || '-'}
-                              </td>
+                                {/* Line Status */}
+                                <td className="py-3 px-3.5">
+                                  <select
+                                    value={line.status || 'IN_PROGRESS'}
+                                    onChange={e => handleUpdateStatus(line.allotment_id, e.target.value, false)}
+                                    className={`text-[10.5px] font-bold px-2 py-1 rounded-lg border cursor-pointer focus:outline-none ${
+                                      line.status === 'QC_PASSED'
+                                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                        : line.status === 'DISPATCHED'
+                                        ? 'bg-purple-50 text-purple-700 border-purple-200'
+                                        : 'bg-white text-slate-700 border-slate-200'
+                                    }`}
+                                  >
+                                    <option value="IN_PROGRESS">In Progress</option>
+                                    <option value="QC_PASSED">QC Passed</option>
+                                    <option value="DISPATCHED">Dispatched</option>
+                                  </select>
+                                </td>
 
-                              {/* Color Combination */}
-                              <td className="py-2.5 px-3 font-semibold text-slate-800">
-                                <div className="flex items-center gap-1.5">
-                                  <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0" />
-                                  <span>{line.color_pattern}</span>
-                                </div>
-                              </td>
-
-                              {/* Size Tier */}
-                              <td className="py-2.5 px-3 font-bold text-slate-700">
-                                {line.size_range}
-                              </td>
-
-                              {/* Sets */}
-                              <td className="py-2.5 px-3 text-right font-medium text-slate-700">
-                                {line.sets}
-                              </td>
-
-                              {/* Ratio */}
-                              <td className="py-2.5 px-3 text-right text-slate-500">
-                                {line.pcs_per_set} pcs/set
-                              </td>
-
-                              {/* Total Pcs */}
-                              <td className="py-2.5 px-3 text-right font-extrabold text-emerald-700">
-                                {line.total_pcs.toLocaleString()} pcs
-                              </td>
-
-                              {/* Assigned Line (Clean Auto-Badge) */}
-                              <td className="py-2.5 px-3">
-                                {line.assigned_lineman_name && line.assigned_lineman_name !== 'Unassigned' && line.assigned_lineman_name !== 'Unassigned (Floor Order)' ? (
-                                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
-                                    👤 {line.assigned_lineman_name}
-                                  </span>
-                                ) : (
-                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10.5px] font-medium bg-slate-100 text-slate-500">
-                                    ⏳ Pending Allotment
-                                  </span>
-                                )}
-                              </td>
-
-                              {/* Line Status */}
-                              <td className="py-2.5 px-3">
-                                <select
-                                  value={line.status || 'IN_PROGRESS'}
-                                  onChange={e => handleUpdateStatus(line.allotment_id, e.target.value, false)}
-                                  className="text-[10.5px] font-bold px-2 py-1 rounded-md border cursor-pointer focus:outline-none bg-white border-slate-200"
-                                >
-                                  <option value="IN_PROGRESS">In Progress</option>
-                                  <option value="QC_PASSED">QC Passed</option>
-                                  <option value="DISPATCHED">Dispatched</option>
-                                </select>
-                              </td>
-
-                              {/* Action */}
-                              <td className="py-2.5 px-2 text-center">
-                                <button
-                                  type="button"
-                                  onClick={() => handleDelete(line.allotment_id, false)}
-                                  title="Delete Article Line"
-                                  className="p-1 text-slate-300 hover:text-red-500 rounded transition-colors"
-                                >
-                                  <Trash2 className="w-3.5 h-3.5" />
-                                </button>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                                {/* Action */}
+                                <td className="py-3 px-2 text-center">
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDelete(line.allotment_id, false)}
+                                    title="Delete Article Line"
+                                    className="p-1.5 text-slate-300 hover:text-red-500 rounded-lg hover:bg-red-50 transition-colors cursor-pointer"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                  </button>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
                   </div>
                 )}
