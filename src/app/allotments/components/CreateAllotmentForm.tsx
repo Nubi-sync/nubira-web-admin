@@ -1104,7 +1104,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
               )}
             </div>
 
-            {/* Interactive Target Selector Hero Card (No native select) */}
+            {/* Interactive Target Selector (Sleek 44px Enterprise Input) */}
             <div className="space-y-1.5">
               <label 
                 className="block text-[11px] font-semibold uppercase tracking-[1.5px]"
@@ -1117,67 +1117,51 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                 <button
                   type="button"
                   onClick={() => setIsTargetModalOpen(true)}
-                  className={`w-full p-4 rounded-xl border-2 border-dashed transition-all flex items-center justify-between gap-3 text-left group cursor-pointer ${
+                  className={`w-full py-[10px] px-[13px] text-[13.5px] rounded-[8px] border transition-all flex items-center justify-between gap-2 bg-white text-left group cursor-pointer shadow-2xs hover:shadow-xs ${
                     isArticleError
-                      ? 'border-red-400 bg-red-50/50 hover:bg-red-50'
-                      : 'border-indigo-300 hover:border-indigo-500 bg-indigo-50/40 hover:bg-indigo-50/70'
+                      ? 'border-[var(--red,#C0392B)] bg-[var(--red-mist,#FBEAE8)]'
+                      : 'border-[var(--border,#E2E8F0)] hover:border-indigo-400 focus:border-[var(--steel,#2B4C7E)]'
                   }`}
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-xs group-hover:scale-105 transition-transform shrink-0">
-                      <Search className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <div className="text-xs sm:text-sm font-black text-slate-900 flex items-center gap-2">
-                        Click to Search & Select Job Challan or Article
-                        <span className="text-[9.5px] font-bold px-2 py-0.5 rounded-full bg-indigo-200 text-indigo-800">
-                          Visual Picker
-                        </span>
-                      </div>
-                      <div className="text-[11.5px] text-slate-500 mt-0.5">
-                        Choose from Color Sewing Lines (Mushroom, Dutch Blue, Scuba) or Factory Master Styles
-                      </div>
-                    </div>
+                  <div className="flex items-center gap-2.5 min-w-0 text-slate-500 group-hover:text-slate-700">
+                    <Search className="w-4 h-4 text-slate-400 shrink-0 group-hover:text-indigo-600 transition-colors" />
+                    <span className="text-xs sm:text-[13px] font-medium truncate">
+                      Search or choose Style Article / Job Challan...
+                    </span>
                   </div>
-                  <div className="px-3 py-1.5 rounded-lg bg-indigo-600 group-hover:bg-indigo-700 text-white text-xs font-bold shadow-xs transition-colors shrink-0 flex items-center gap-1">
-                    <span>Open Picker</span>
-                    <ChevronRight className="w-4 h-4" />
+                  <div className="px-2 py-0.5 rounded-md bg-slate-100 group-hover:bg-indigo-50 border border-slate-200 group-hover:border-indigo-200 text-slate-600 group-hover:text-indigo-700 text-[11px] font-bold transition-colors shrink-0 flex items-center gap-1">
+                    <span>Browse</span>
+                    <ChevronRight className="w-3 h-3" />
                   </div>
                 </button>
               ) : (
                 <div
-                  className="p-3.5 sm:p-4 rounded-xl border-2 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-all"
+                  className="w-full py-[7px] px-[10px] text-[13px] rounded-[8px] border transition-all flex items-center justify-between gap-2 bg-white shadow-2xs"
                   style={{
-                    backgroundColor: selectedTargetSummary?.themeBg || '#EEF2FF',
                     borderColor: selectedTargetSummary?.badgeColor || '#6366F1'
                   }}
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 min-w-0">
                     <span
-                      className="w-4 h-4 rounded-full shrink-0 ring-2 ring-white shadow-xs"
+                      className="w-3.5 h-3.5 rounded-full shrink-0 ring-2 ring-white shadow-2xs"
                       style={{ backgroundColor: selectedTargetSummary?.badgeColor || '#4F46E5' }}
                     />
-                    <div>
-                      <div className="text-xs sm:text-sm font-black text-slate-900 flex items-center gap-2 flex-wrap">
-                        <span>{selectedTargetSummary?.title || selectedArticle?.art_no}</span>
-                        {selectedTargetSummary?.totalPcs ? (
-                          <span className="px-2 py-0.5 rounded-md text-[10.5px] font-black bg-white/90 border border-slate-200 text-slate-900 font-mono shadow-2xs">
-                            {selectedTargetSummary.totalPcs.toLocaleString()} PCS TARGET
-                          </span>
-                        ) : null}
-                      </div>
-                      <div className="text-[11.5px] text-slate-600 mt-0.5 font-medium">
-                        {selectedTargetSummary?.subtitle || cleanArticleDesc(selectedArticle?.description) || 'Target Configured'}
-                      </div>
-                    </div>
+                    <span className="font-extrabold text-xs sm:text-[12.5px] text-slate-900 truncate">
+                      {selectedTargetSummary?.title || selectedArticle?.art_no}
+                    </span>
+                    {selectedTargetSummary?.totalPcs ? (
+                      <span className="px-1.5 py-0.5 rounded text-[10px] font-black bg-slate-100 border border-slate-200 text-slate-900 font-mono shrink-0">
+                        {selectedTargetSummary.totalPcs.toLocaleString()} Pcs
+                      </span>
+                    ) : null}
                   </div>
 
                   <button
                     type="button"
                     onClick={() => setIsTargetModalOpen(true)}
-                    className="self-start sm:self-center px-3 py-1.5 rounded-lg bg-white hover:bg-slate-50 border border-slate-300 text-slate-800 text-xs font-extrabold shadow-2xs hover:shadow-xs transition-all cursor-pointer flex items-center gap-1.5 shrink-0"
+                    className="px-2 py-1 rounded bg-slate-100 hover:bg-indigo-50 border border-slate-200 hover:border-indigo-200 text-slate-700 hover:text-indigo-700 text-[11px] font-extrabold transition-all cursor-pointer flex items-center gap-1 shrink-0"
                   >
-                    <span>🔄 Change Style / Color Line</span>
+                    <span>🔄 Change</span>
                   </button>
                 </div>
               )}
@@ -1186,7 +1170,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
               {isArticleError && (
                 <div className="flex items-center gap-1.5 text-[11px] font-medium" style={{ color: 'var(--red, #C0392B)' }}>
                   <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                  <span>Please click above to select an Article or Color Line before submitting.</span>
+                  <span>Please select an Article or Color Line before submitting.</span>
                 </div>
               )}
               {isArticleSuccess && (
