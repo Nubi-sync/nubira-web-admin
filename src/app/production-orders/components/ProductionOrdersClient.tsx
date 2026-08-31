@@ -417,14 +417,13 @@ export function ProductionOrdersClient({
       assignedLinemanName?: string
     }> = {}
 
-    const standardColors = ['MUSHROOM', 'DUTCH BLUE', 'SCUBA']
-    const detectedFromBom = (challan.bom_details || [])
-      .map(b => b.item_name.toUpperCase())
-      .filter(name => !name.includes('BODY') && !name.includes('RIB') && !name.includes('LABEL') && !name.includes('POLYBAG') && !name.includes('THREAD'))
-    
-    const activeColorNames = new Set<string>()
-    standardColors.forEach(c => activeColorNames.add(c))
-    detectedFromBom.forEach(c => activeColorNames.add(c))
+    const normalizeColor = (raw: string): string => {
+      const c = raw.trim().toUpperCase().replace(/\s+/g, ' ')
+      if (c.includes('MUSHROOM')) return 'MUSHROOM'
+      if (c.includes('DUTCH')) return 'DUTCH BLUE'
+      if (c.includes('SCUBA') || c.includes('SEUBA')) return 'SCUBA'
+      return c
+    }
 
     const getTheme = (cName: string) => {
       const c = cName.toUpperCase()
@@ -436,7 +435,18 @@ export function ProductionOrdersClient({
       return { themeColor: '#4F46E5', bgLight: '#EEF2FF', borderTheme: '#C7D2FE' }
     }
 
-    activeColorNames.forEach(cName => {
+    // Determine primary color groups from Challan
+    const canonicalColors = new Set<string>(['MUSHROOM', 'DUTCH BLUE', 'SCUBA'])
+    if (challan.bom_details && Array.isArray(challan.bom_details)) {
+      challan.bom_details.forEach(b => {
+        const n = normalizeColor(b.item_name || '')
+        if (n && !n.includes('BODY') && !n.includes('RIB') && !n.includes('LABEL') && !n.includes('POLYBAG') && !n.includes('THREAD') && !n.includes('SINKER') && !n.includes('FABRIC')) {
+          canonicalColors.add(n)
+        }
+      })
+    }
+
+    canonicalColors.forEach(cName => {
       const th = getTheme(cName)
       colorMap[cName] = {
         colorName: cName,
@@ -449,21 +459,27 @@ export function ProductionOrdersClient({
     })
 
     challan.articles.forEach(art => {
-      const patternUpper = (art.color_pattern || art.description || '').toUpperCase()
+      const patternRaw = (art.color_pattern || art.description || '').toUpperCase()
       const sizeTier = art.size_range || 'Free Size'
       const totalPcs = Number(art.total_pcs) || 0
 
-      const matchedColors: string[] = []
-      if (patternUpper.includes('3 COLOUR') || patternUpper.includes('3 COLOR') || patternUpper.includes('ALL')) {
-        matchedColors.push('MUSHROOM', 'DUTCH BLUE', 'SCUBA')
+      // Match canonical colors precisely (No double-counting of DUTCHBLUE vs DUTCH BLUE or SEUBA vs SCUBA)
+      const matchedSet = new Set<string>()
+      if (patternRaw.includes('3 COLOUR') || patternRaw.includes('3 COLOR') || patternRaw.includes('ALL')) {
+        matchedSet.add('MUSHROOM')
+        matchedSet.add('DUTCH BLUE')
+        matchedSet.add('SCUBA')
       } else {
-        activeColorNames.forEach(cName => {
-          if (patternUpper.includes(cName) || (cName.includes('SCUBA') && patternUpper.includes('SEUBA'))) {
-            matchedColors.push(cName)
-          }
+        if (patternRaw.includes('MUSHROOM')) matchedSet.add('MUSHROOM')
+        if (patternRaw.includes('DUTCH')) matchedSet.add('DUTCH BLUE')
+        if (patternRaw.includes('SCUBA') || patternRaw.includes('SEUBA')) matchedSet.add('SCUBA')
+
+        canonicalColors.forEach(cName => {
+          if (patternRaw.includes(cName)) matchedSet.add(cName)
         })
       }
 
+      const matchedColors = Array.from(matchedSet)
       if (matchedColors.length > 0) {
         const pcsPerColor = Math.round(totalPcs / matchedColors.length)
         matchedColors.forEach(cName => {
