@@ -238,30 +238,6 @@ export async function getProductionOrders(): Promise<ChallanGroupedOrder[]> {
       }
     }
 
-    // 5. If there are legacy allotments without challan_id, add a clean container
-    if (challanArticlesMap['LEGACY_UNASSIGNED'] && challanArticlesMap['LEGACY_UNASSIGNED'].length > 0) {
-      const legArticles = challanArticlesMap['LEGACY_UNASSIGNED']
-      const legSets = legArticles.reduce((sum, a) => sum + (Number(a.sets) || 0), 0)
-      const legPcs = legArticles.reduce((sum, a) => sum + (Number(a.total_pcs) || 0), 0)
-
-      challanGroups.push({
-        id: 'LEGACY_UNASSIGNED',
-        challan_no: 'DIRECT-FLOOR-LOTS',
-        challan_date: legArticles[0]?.created_at?.split('T')[0] || new Date().toISOString().split('T')[0],
-        brand: 'INTERNAL / DIRECT',
-        delivery_date: '',
-        fabric_type: 'Assorted',
-        sample_given: false,
-        notes: 'Direct floor allotments issued from Target Allotments',
-        total_sets: legSets,
-        total_pcs: legPcs,
-        status: 'IN_PROGRESS',
-        bom_details: [],
-        articles: legArticles,
-        created_at: legArticles[0]?.created_at || new Date().toISOString()
-      })
-    }
-
     return challanGroups
   } catch (err) {
     console.error('Error fetching production orders:', err)
