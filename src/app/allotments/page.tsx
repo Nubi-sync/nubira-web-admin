@@ -1,5 +1,6 @@
 import { AdminShell } from '@/components/layout/AdminShell'
 import { createClient } from '@/utils/supabase/server'
+import { supabaseAdmin } from '@/utils/supabase/admin'
 import { redirect } from 'next/navigation'
 import { CreateAllotmentForm } from './components/CreateAllotmentForm'
 import { AllotmentList } from './components/AllotmentList'
@@ -19,8 +20,8 @@ export default async function AllotmentsPage() {
     redirect('/login')
   }
 
-  // 1. Fetch active linemen
-  const { data: linemen } = await supabase
+  // 1. Fetch active linemen using supabaseAdmin
+  const { data: linemen } = await supabaseAdmin
     .from('profiles')
     .select('id, username')
     .eq('role', 'LINEMAN')
@@ -28,7 +29,7 @@ export default async function AllotmentsPage() {
     .order('username')
 
   // 1.1 Fetch active production managers & admins
-  const { data: managers } = await supabase
+  const { data: managers } = await supabaseAdmin
     .from('profiles')
     .select('id, username, role')
     .in('role', ['PRODUCTION_MANAGER', 'ADMIN'])
@@ -36,7 +37,7 @@ export default async function AllotmentsPage() {
     .order('username')
 
   // 2. Fetch active articles with stitching rate
-  const { data: articles } = await supabase
+  const { data: articles } = await supabaseAdmin
     .from('articles')
     .select('id, art_no, description, stitching_rate, size_rates')
     .eq('is_active', true)
@@ -46,7 +47,7 @@ export default async function AllotmentsPage() {
   const productionOrders = await getProductionOrders()
 
   // 3. Fetch Allotments
-  const { data: allotmentsRaw } = await supabase
+  const { data: allotmentsRaw } = await supabaseAdmin
     .from('allotments')
     .select(`
       id,
@@ -56,8 +57,8 @@ export default async function AllotmentsPage() {
       allotment_date,
       status,
       created_at,
-      profiles ( username ),
-      articles ( art_no, description, stitching_rate, size_rates )
+      profiles ( id, username ),
+      articles ( id, art_no, description, stitching_rate, size_rates )
     `)
     .order('created_at', { ascending: false })
     .limit(100)
@@ -67,7 +68,7 @@ export default async function AllotmentsPage() {
   // 4. Fetch variants for these allotments
   let variants: any[] = []
   if (allotmentIds.length > 0) {
-    const { data: vData } = await supabase
+    const { data: vData } = await supabaseAdmin
       .from('allotment_variants')
       .select('id, allotment_id, color, size, quantity, completed_qty')
       .in('allotment_id', allotmentIds)
@@ -77,7 +78,7 @@ export default async function AllotmentsPage() {
   // 5. Fetch materials for these allotments
   let materials: any[] = []
   if (allotmentIds.length > 0) {
-    const { data: mData } = await supabase
+    const { data: mData } = await supabaseAdmin
       .from('allotment_materials')
       .select('id, allotment_id, item_name, required_qty, admin_issued, lineman_received, lineman_received_at, notes')
       .in('allotment_id', allotmentIds)
@@ -87,7 +88,7 @@ export default async function AllotmentsPage() {
   // 5.1 Fetch live worker assignments for these allotments
   let assignments: any[] = []
   if (allotmentIds.length > 0) {
-    const { data: aData } = await supabase
+    const { data: aData } = await supabaseAdmin
       .from('worker_assignments')
       .select('id, allotment_id, worker_name, assigned_qty, completed_qty, color, size, status, notes, assigned_at, completed_at')
       .in('allotment_id', allotmentIds)
@@ -97,31 +98,12 @@ export default async function AllotmentsPage() {
 
   // 6. Calculate achieved_qty for each allotment based on daily_product
   const allotmentDates = [...new Set(allotmentsRaw?.map(a => a.allotment_date) || [])]
-  const { data: dailyProducts } = await supabase
+  const { data: dailyProducts } = await supabaseAdmin
     .from('daily_product')
     .select('lineman_id, article_id, quantity, entry_date')
     .in('entry_date', allotmentDates.length > 0 ? allotmentDates : [''])
 
-  const activeLinemanIds = (linemen as any[])?.map(l => l.id) || []
-
-  const allotments = (allotmentsRaw || [])
-    .filter(al => {
-      // Must be assigned to an active Lineman on the floor
-      if (!activeLinemanIds.includes(al.lineman_id)) return false
-
-      // Ignore unassigned chart planning orders
-      const alMaterials = materials.filter(m => m.allotment_id === al.id)
-      for (const m of alMaterials) {
-        if (m.notes) {
-          try {
-            const parsed = JSON.parse(m.notes)
-            if (parsed.is_production_chart_only === true) return false
-          } catch (_) {}
-        }
-      }
-      return true
-    })
-    .map(al => {
+  const allotments = (allotmentsRaw || []).map(al => {
     const achieved = dailyProducts
       ?.filter(dp => 
         dp.lineman_id === al.lineman_id && 
@@ -157,9 +139,15 @@ export default async function AllotmentsPage() {
         } catch (_) {}
       }
     }
+
+    const rawProfile = Array.isArray(al.profiles) ? al.profiles[0] : al.profiles
+    const displayUsername = rawProfile?.username && rawProfile.username.toLowerCase() !== 'admin'
+      ? rawProfile.username
+      : 'Unassigned (Floor Order)'
       
     return {
       ...al,
+      profiles: { username: displayUsername },
       manager_name: managerName || 'Production Manager',
       production_order_no: poNo,
       due_date: dueDate,
