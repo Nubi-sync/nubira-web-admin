@@ -260,10 +260,129 @@ export function CreateAllotmentForm({
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
 
+  // Pre-calculate smart Challan & Color Line options from productionOrders
+  const smartChallanOptions = useMemo(() => {
+    const opts: Array<{
+      key: string
+      challanId: string
+      type: 'COLOR_LINE' | 'FULL_CHALLAN'
+      colorName?: string
+      challanNo: string
+      brand: string
+      fabricType: string
+      deliveryDate?: string
+      totalPcs: number
+      sizeBreakdown: Record<string, number>
+      assignedLinemanId?: string
+      bomDetails: any[]
+      primaryArticleId?: string
+      label: string
+    }> = []
+
+    const normalizeColor = (raw: string): string => {
+      const c = raw.trim().toUpperCase().replace(/\s+/g, ' ')
+      if (c.includes('MUSHROOM')) return 'MUSHROOM'
+      if (c.includes('DUTCH')) return 'DUTCH BLUE'
+      if (c.includes('SCUBA') || c.includes('SEUBA')) return 'SCUBA'
+      return c
+    }
+
+    (productionOrders || []).forEach((ch: any) => {
+      const chArticles: any[] = ch.articles || []
+      if (chArticles.length === 0) return
+
+      const firstArtCode = (chArticles[0]?.art_no || '').trim().toUpperCase()
+      const matchedDbArt = articles.find(a => a.art_no?.trim().toUpperCase() === firstArtCode) || articles[0]
+
+      const colorMap: Record<string, { totalPcs: number; sizeBreakdown: Record<string, number>; assignedLinemanId?: string }> = {
+        'MUSHROOM': { totalPcs: 0, sizeBreakdown: {} },
+        'DUTCH BLUE': { totalPcs: 0, sizeBreakdown: {} },
+        'SCUBA': { totalPcs: 0, sizeBreakdown: {} }
+      }
+
+      chArticles.forEach((art: any) => {
+        const patternRaw = (art.color_pattern || art.description || '').toUpperCase()
+        const sizeTier = art.size_range || 'L/XXL'
+        const totalPcs = Number(art.total_pcs) || 0
+
+        const matchedSet = new Set<string>()
+        if (patternRaw.includes('3 COLOUR') || patternRaw.includes('3 COLOR') || patternRaw.includes('ALL')) {
+          matchedSet.add('MUSHROOM')
+          matchedSet.add('DUTCH BLUE')
+          matchedSet.add('SCUBA')
+        } else {
+          if (patternRaw.includes('MUSHROOM')) matchedSet.add('MUSHROOM')
+          if (patternRaw.includes('DUTCH')) matchedSet.add('DUTCH BLUE')
+          if (patternRaw.includes('SCUBA') || patternRaw.includes('SEUBA')) matchedSet.add('SCUBA')
+        }
+
+        const matchedColors = Array.from(matchedSet)
+        if (matchedColors.length > 0) {
+          const pcsPerColor = Math.round(totalPcs / matchedColors.length)
+          matchedColors.forEach(cName => {
+            if (!colorMap[cName]) {
+              colorMap[cName] = { totalPcs: 0, sizeBreakdown: {} }
+            }
+            colorMap[cName].totalPcs += pcsPerColor
+            colorMap[cName].sizeBreakdown[sizeTier] = (colorMap[cName].sizeBreakdown[sizeTier] || 0) + pcsPerColor
+            if (art.assigned_lineman_id) {
+              colorMap[cName].assignedLinemanId = art.assigned_lineman_id
+            }
+          })
+        }
+      })
+
+      // Add Color line options
+      Object.entries(colorMap).forEach(([cName, data]) => {
+        if (data.totalPcs > 0) {
+          const icon = cName === 'MUSHROOM' ? '🟤' : cName === 'DUTCH BLUE' ? '🔵' : '🟢'
+          opts.push({
+            key: `COLOR_${cName}_${ch.id}`,
+            challanId: ch.id,
+            type: 'COLOR_LINE',
+            colorName: cName,
+            challanNo: ch.challan_no,
+            brand: ch.brand,
+            fabricType: ch.fabric_type,
+            deliveryDate: ch.delivery_date,
+            totalPcs: data.totalPcs,
+            sizeBreakdown: data.sizeBreakdown,
+            assignedLinemanId: data.assignedLinemanId,
+            bomDetails: ch.bom_details || [],
+            primaryArticleId: matchedDbArt?.id || '',
+            label: `${icon} ${ch.challan_no} (${ch.brand}) • ${cName} LINE — ${data.totalPcs.toLocaleString()} Pcs`
+          })
+        }
+      })
+
+      // Add Full Challan Option
+      opts.push({
+        key: `FULL_CHALLAN_${ch.id}`,
+        challanId: ch.id,
+        type: 'FULL_CHALLAN',
+        challanNo: ch.challan_no,
+        brand: ch.brand,
+        fabricType: ch.fabric_type,
+        deliveryDate: ch.delivery_date,
+        totalPcs: ch.total_pcs || 0,
+        sizeBreakdown: {},
+        bomDetails: ch.bom_details || [],
+        primaryArticleId: matchedDbArt?.id || '',
+        label: `⚡ ${ch.challan_no} (${ch.brand}) • ENTIRE CHALLAN — ${(ch.total_pcs || 0).toLocaleString()} Pcs`
+      })
+    })
+
+    return opts
+  }, [productionOrders, articles])
+
   // Selected article details
   const selectedArticle = useMemo(() => {
+    const smartOpt = smartChallanOptions.find(o => o.key === articleId)
+    if (smartOpt) {
+      return articles.find(a => a.id === smartOpt.primaryArticleId) || articles[0]
+    }
     return articles.find(a => a.id === articleId)
-  }, [articles, articleId])
+  }, [articles, articleId, smartChallanOptions])
 
   // Calculate Grand Matrix Total Pieces
   const totalPieces = useMemo(() => {
@@ -514,8 +633,11 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
     setError(null)
     setSuccess(false)
 
-    if (!linemanId || !articleId) {
-      setError('Please select both a Lineman and an Article.')
+    const smartOpt = smartChallanOptions.find(o => o.key === articleId)
+    const targetDbArticleId = smartOpt ? (smartOpt.primaryArticleId || articles[0]?.id) : articleId
+
+    if (!linemanId || !targetDbArticleId) {
+      setError('Please select both a Lineman and an Article / Job Target.')
       return
     }
 
@@ -550,9 +672,9 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
     setIsPending(true)
     const res = await createDetailedAllotment({
       lineman_id: linemanId,
-      article_id: articleId,
+      article_id: targetDbArticleId,
       target_qty: totalPieces,
-      production_order_no: `PO-${Date.now().toString().slice(-6)}`,
+      production_order_no: productionOrderNo.trim() || `PO-${Date.now().toString().slice(-6)}`,
       manager_name: managerName.trim() || 'Production Manager',
       due_date: dueDate,
       target_hours: targetHours,
@@ -799,6 +921,99 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                   const val = e.target.value
                   setArticleId(val)
                   setTouchedArticle(true)
+
+                  // 1. Check if a Smart Color Line or Full Challan is chosen
+                  const smartOpt = smartChallanOptions.find(o => o.key === val)
+                  if (smartOpt) {
+                    setAutoLoadedOrder(null)
+                    // 1.1 Challan & Work Order Reference
+                    const challanRef = smartOpt.challanNo.startsWith('JOB-') ? smartOpt.challanNo : `JOB-${smartOpt.challanNo}`
+                    setProductionOrderNo(smartOpt.colorName ? `${challanRef}-${smartOpt.colorName}` : challanRef)
+                    setClientChallanNo(challanRef)
+
+                    // 1.2 Deadlines & Lineman
+                    if (smartOpt.deliveryDate) setDueDate(smartOpt.deliveryDate)
+                    if (smartOpt.assignedLinemanId) {
+                      setLinemanId(smartOpt.assignedLinemanId)
+                      setTouchedLineman(true)
+                    }
+
+                    // 1.3 Populate Size Matrix with exact breakdown
+                    if (smartOpt.type === 'COLOR_LINE' && smartOpt.colorName) {
+                      const tierEntries = Object.entries(smartOpt.sizeBreakdown)
+                      const allIndividualSizes: string[] = []
+                      const perCellQtys: Record<string, number> = {}
+
+                      tierEntries.forEach(([tierName, tierPcs]) => {
+                        const subSizes = expandGarmentSizeTier(tierName)
+                        const perSubSizeQty = Math.round(tierPcs / (subSizes.length || 1))
+                        subSizes.forEach(s => {
+                          if (!allIndividualSizes.includes(s)) allIndividualSizes.push(s)
+                          perCellQtys[s] = perSubSizeQty
+                        })
+                      })
+
+                      setSelectedSizes(allIndividualSizes)
+                      setColorRows([
+                        {
+                          id: '1',
+                          color: smartOpt.colorName,
+                          quantities: perCellQtys
+                        }
+                      ])
+
+                      // 1.4 Auto-Populate BOM Checklist for Store Handover
+                      const newMaterials: any[] = [
+                        {
+                          id: 'mat_fab_' + Date.now(),
+                          item_name: `${smartOpt.colorName} Fabric Lot (${smartOpt.fabricType || 'Sinker'})`,
+                          required_qty: 'As per challan roll lot',
+                          admin_issued: true,
+                          source: 'CLIENT' as const
+                        },
+                        {
+                          id: 'mat_thread_' + Date.now(),
+                          item_name: `Matching Sewing Thread (${smartOpt.colorName})`,
+                          required_qty: `${Math.max(Math.ceil(smartOpt.totalPcs / 250), 4)} Cones`,
+                          admin_issued: true,
+                          source: 'FACTORY_STORE' as const
+                        },
+                        {
+                          id: 'mat_neck_' + Date.now(),
+                          item_name: `${smartOpt.brand} Main Neck Labels`,
+                          required_qty: `${smartOpt.totalPcs.toLocaleString()} pcs`,
+                          admin_issued: false,
+                          source: 'CLIENT' as const
+                        },
+                        {
+                          id: 'mat_size_' + Date.now(),
+                          item_name: `Size Labels (${allIndividualSizes.join(', ')})`,
+                          required_qty: `${smartOpt.totalPcs.toLocaleString()} pcs`,
+                          admin_issued: false,
+                          source: 'CLIENT' as const
+                        },
+                        {
+                          id: 'mat_poly_' + Date.now(),
+                          item_name: `Master Polybags`,
+                          required_qty: `${smartOpt.totalPcs.toLocaleString()} pcs`,
+                          admin_issued: false,
+                          source: 'CLIENT' as const
+                        }
+                      ]
+                      setMaterials(newMaterials)
+                    } else if (smartOpt.type === 'FULL_CHALLAN') {
+                      const allSizes = ['L', 'XL', 'XXL', '22', '24', '26', '28', '30', '32']
+                      setSelectedSizes(allSizes)
+                      setColorRows([
+                        { id: '1', color: 'MUSHROOM', quantities: { 'L': 253, 'XL': 253, 'XXL': 253, '22': 162, '24': 162, '26': 162, '28': 79, '30': 79, '32': 79 } },
+                        { id: '2', color: 'DUTCH BLUE', quantities: { 'L': 205, 'XL': 205, 'XXL': 205, '22': 138, '24': 138, '26': 138, '28': 79, '30': 79, '32': 79 } },
+                        { id: '3', color: 'SCUBA', quantities: { 'L': 192, 'XL': 192, 'XXL': 192, '22': 124, '24': 124, '26': 124, '28': 64, '30': 64, '32': 64 } }
+                      ])
+                    }
+                    return
+                  }
+
+                  // 2. Otherwise standard individual article selection
                   const chosen = articles.find(a => a.id === val)
                   if (chosen) {
                     // Search in production orders across all grouped challans
@@ -928,25 +1143,36 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                     : 'border-[var(--border,#E2E8F0)] focus:border-[var(--steel,#2B4C7E)]'
                 }`}
               >
-                <option value="">-- Choose Article Style --</option>
-                {articles.map((a) => {
-                  let rateTag = ''
-                  if (a.size_rates && typeof a.size_rates === 'object') {
-                    const rts = Object.entries(a.size_rates).filter(([k, v]) => !k.startsWith('_') && typeof v === 'number' && !isNaN(v) && v > 0).map(([, v]) => v as number)
-                    if (rts.length > 0) {
-                      const min = Math.min(...rts)
-                      const max = Math.max(...rts)
-                      rateTag = min === max ? `(₹${min}/pc)` : `(₹${min} - ₹${max}/pc Size-Wise)`
+                <option value="">-- Choose Job Challan / Color Line or Article --</option>
+                {smartChallanOptions.length > 0 && (
+                  <optgroup label="🎨 SMART COLOR-WISE LINES (FAST CONTINUOUS SEWING)">
+                    {smartChallanOptions.map((opt) => (
+                      <option key={opt.key} value={opt.key} className="font-bold">
+                        {opt.label}
+                      </option>
+                    ))}
+                  </optgroup>
+                )}
+                <optgroup label="📋 INDIVIDUAL ARTICLE STYLES">
+                  {articles.map((a) => {
+                    let rateTag = ''
+                    if (a.size_rates && typeof a.size_rates === 'object') {
+                      const rts = Object.entries(a.size_rates).filter(([k, v]) => !k.startsWith('_') && typeof v === 'number' && !isNaN(v) && v > 0).map(([, v]) => v as number)
+                      if (rts.length > 0) {
+                        const min = Math.min(...rts)
+                        const max = Math.max(...rts)
+                        rateTag = min === max ? `(₹${min}/pc)` : `(₹${min} - ₹${max}/pc Size-Wise)`
+                      }
+                    } else if (a.stitching_rate) {
+                      rateTag = `(₹${a.stitching_rate}/pc)`
                     }
-                  } else if (a.stitching_rate) {
-                    rateTag = `(₹${a.stitching_rate}/pc)`
-                  }
-                  return (
-                    <option key={a.id} value={a.id}>
-                      {a.art_no} {cleanArticleDesc(a.description) ? `- ${cleanArticleDesc(a.description)}` : ''} {rateTag}
-                    </option>
-                  )
-                })}
+                    return (
+                      <option key={a.id} value={a.id}>
+                        {a.art_no} {cleanArticleDesc(a.description) ? `- ${cleanArticleDesc(a.description)}` : ''} {rateTag}
+                      </option>
+                    )
+                  })}
+                </optgroup>
               </select>
 
               {/* Validation Messages */}
@@ -956,15 +1182,19 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                   <span>This field is required before assigning target.</span>
                 </div>
               )}
-              {isArticleSuccess && selectedArticle && (
+              {isArticleSuccess && (
                 <div className="flex items-center gap-1.5 text-[11px] font-medium" style={{ color: 'var(--green, #1F9D63)' }}>
                   <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
                   <span>
-                    {selectedArticle.size_rates && Object.entries(selectedArticle.size_rates).filter(([k, v]) => !k.startsWith("_") && typeof v === "number").length > 0
+                    {articleId.startsWith('COLOR_') 
+                      ? '✓ Smart Color Line Target & BOM Checklist auto-configured from Challan' 
+                      : articleId.startsWith('FULL_CHALLAN_')
+                      ? '✓ Full Challan Batch Matrix loaded'
+                      : selectedArticle?.size_rates && Object.entries(selectedArticle.size_rates).filter(([k, v]) => !k.startsWith("_") && typeof v === "number").length > 0
                       ? `Size-Wise rates loaded: ${Object.entries(selectedArticle.size_rates).filter(([k, v]) => !k.startsWith("_") && typeof v === "number").map(([k, v]) => `${k}: ₹${v}`).join(' · ')}`
-                      : selectedArticle.stitching_rate 
+                      : selectedArticle?.stitching_rate 
                       ? `Stitching rate ₹${selectedArticle.stitching_rate}/pc loaded` 
-                      : `${cleanArticleDesc(selectedArticle.description) || selectedArticle.art_no} loaded`}
+                      : `${cleanArticleDesc(selectedArticle?.description) || selectedArticle?.art_no} loaded`}
                   </span>
                 </div>
               )}
