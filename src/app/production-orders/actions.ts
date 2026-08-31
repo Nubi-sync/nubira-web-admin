@@ -168,7 +168,47 @@ export async function getProductionOrders(): Promise<ChallanGroupedOrder[]> {
     // 4. Construct Challan Group records
     if (challansList && challansList.length > 0) {
       for (const ch of challansList) {
-        const articles = challanArticlesMap[ch.id] || []
+        let articles = challanArticlesMap[ch.id] || []
+
+        // If no floor allotments created yet from Target Allotments, load planned article lines from challan notes
+        if (articles.length === 0 && ch.notes) {
+          try {
+            const parsedNotes = JSON.parse(ch.notes)
+            const rawLines = parsedNotes.article_lines || parsedNotes
+            if (Array.isArray(rawLines)) {
+              articles = rawLines.map((line: any, idx: number) => {
+                const linePcs = Number(line.total_pcs) || ((Number(line.sets) || 1) * (Number(line.pcs_per_set) || 9))
+                const lineSets = Number(line.sets) || Math.round(linePcs / (Number(line.pcs_per_set) || 9))
+                const lineRatio = Number(line.pcs_per_set) || 9
+                const cleanArtNo = (line.art_no || '9433').trim().toUpperCase()
+                const cleanSubArt = (line.sub_art_no || '').trim().toUpperCase()
+                const fullArtCode = line.full_art_code || (cleanSubArt ? `${cleanArtNo}${cleanSubArt}` : cleanArtNo)
+
+                return {
+                  id: `${ch.id}-line-${idx}`,
+                  allotment_id: '',
+                  art_no: fullArtCode,
+                  sub_art_no: cleanSubArt,
+                  pattern_no: line.pattern_no || '',
+                  description: line.description || `${fullArtCode} - ${line.color_pattern || ''} (${line.size_range || ''})`,
+                  color_pattern: line.color_pattern || 'Standard',
+                  size_range: line.size_range || 'Free Size',
+                  sets: lineSets,
+                  pcs_per_set: lineRatio,
+                  total_pcs: linePcs,
+                  completed_qty: 0,
+                  assigned_lineman_id: '',
+                  assigned_lineman_name: 'Unassigned (Floor Order)',
+                  picture_url: line.picture_url || '',
+                  stitching_rate: line.stitching_rate || 20,
+                  status: 'PLANNED',
+                  created_at: ch.created_at
+                }
+              })
+            }
+          } catch (_) {}
+        }
+
         const totalSets = articles.reduce((sum, a) => sum + (Number(a.sets) || 0), 0) || ch.total_sets || 0
         const totalPcs = articles.reduce((sum, a) => sum + (Number(a.total_pcs) || 0), 0) || ch.total_pcs || 0
 
@@ -212,7 +252,7 @@ export async function getProductionOrders(): Promise<ChallanGroupedOrder[]> {
         delivery_date: '',
         fabric_type: 'Assorted',
         sample_given: false,
-        notes: 'Legacy allotments created before multi-article challan system',
+        notes: 'Direct floor allotments issued from Target Allotments',
         total_sets: legSets,
         total_pcs: legPcs,
         status: 'IN_PROGRESS',
@@ -230,7 +270,8 @@ export async function getProductionOrders(): Promise<ChallanGroupedOrder[]> {
 }
 
 // ----------------------------------------------------------------------
-// CREATE MULTI-ARTICLE CHALLAN (Saves Header + All Articles + Allotments)
+// CREATE MULTI-ARTICLE CHALLAN (Saves Planning Blueprint in Challan)
+// NOTE: Floor Allotments are ONLY created when Admin/Manager assigns from /allotments!
 // ----------------------------------------------------------------------
 export async function createChallan(payload: CreateChallanPayload) {
   const supabase = supabaseAdmin
@@ -258,43 +299,9 @@ export async function createChallan(payload: CreateChallanPayload) {
   const grandTotalSets = article_lines.reduce((acc, row) => acc + (Number(row.sets) || 0), 0)
   const grandTotalPcs = article_lines.reduce((acc, row) => acc + (Number(row.total_pcs) || 0), 0)
 
-  // 1. Fetch default admin owner ID as fallback for unassigned allotments
-  let defaultAdminOwnerId = ''
-  const { data: { user } } = await supabase.auth.getUser()
-  if (user) defaultAdminOwnerId = user.id
   try {
-    const { data: adm } = await supabase.from('profiles').select('id').eq('role', 'ADMIN').limit(1).single()
-    if (adm) defaultAdminOwnerId = adm.id
-  } catch (_) {}
-
-  try {
-    // 2. Insert into `challans` table
-    const { data: newChallan, error: challanInsertErr } = await supabase
-      .from('challans')
-      .insert({
-        challan_no: challan_no.trim().toUpperCase(),
-        challan_date: challan_date || new Date().toISOString().split('T')[0],
-        brand: brand.trim().toUpperCase(),
-        delivery_date: delivery_date || null,
-        fabric_type: fabric_type.trim(),
-        sample_given: !!sample_given,
-        notes: notes.trim(),
-        total_sets: grandTotalSets,
-        total_pcs: grandTotalPcs,
-        status: 'IN_PROGRESS',
-        bom_details: bom_items
-      })
-      .select('id')
-      .single()
-
-    if (challanInsertErr || !newChallan) {
-      console.error('Failed to create challan header:', challanInsertErr)
-      return { error: `Failed to create Challan: ${challanInsertErr?.message || 'Unknown database error'}` }
-    }
-
-    const challanId = newChallan.id
-
-    // 3. Process each Article Line
+    // 1. Process and save Article Styles into master catalog
+    const processedLines = []
     for (let idx = 0; idx < article_lines.length; idx++) {
       const line = article_lines[idx]
       const cleanArtNo = line.art_no.trim().toUpperCase()
@@ -304,19 +311,16 @@ export async function createChallan(payload: CreateChallanPayload) {
       const lineSets = Number(line.sets) || Math.round(linePcs / (Number(line.pcs_per_set) || 9))
       const lineRatio = Number(line.pcs_per_set) || 9
 
-      // Find or create article in `articles` table by fullArtCode
-      let articleId = ''
+      // Ensure style exists in `articles` master catalog
       const { data: existingArt } = await supabase
         .from('articles')
-        .select('id, size_rates')
+        .select('id')
         .eq('art_no', fullArtCode)
         .limit(1)
         .single()
 
-      if (existingArt) {
-        articleId = existingArt.id
-      } else {
-        const { data: createdArt } = await supabase
+      if (!existingArt) {
+        await supabase
           .from('articles')
           .insert({
             art_no: fullArtCode,
@@ -335,125 +339,55 @@ export async function createChallan(payload: CreateChallanPayload) {
               }
             }
           })
-          .select('id')
-          .single()
-
-        if (createdArt) articleId = createdArt.id
       }
 
-      // Determine Lineman for this article
-      const assignedLineman = line.assigned_lineman_id || defaultAdminOwnerId
+      processedLines.push({
+        ...line,
+        full_art_code: fullArtCode,
+        sets: lineSets,
+        pcs_per_set: lineRatio,
+        total_pcs: linePcs
+      })
+    }
 
-      // Insert Allotment container linked to this challan
-      if (articleId && assignedLineman) {
-        const { data: allot, error: allotErr } = await supabase
-          .from('allotments')
-          .insert({
-            challan_id: challanId,
-            lineman_id: assignedLineman,
-            article_id: articleId,
-            target_qty: linePcs,
-            status: 'IN_PROGRESS',
-            allotment_date: challan_date || new Date().toISOString().split('T')[0]
-          })
-          .select('id')
-          .single()
+    // 2. Structured Challan Notes containing complete article blueprint & user notes
+    const challanNotesJson = JSON.stringify({
+      user_notes: notes.trim(),
+      article_lines: processedLines
+    })
 
-        if (allot) {
-          const allotmentId = allot.id
+    // 3. Insert into `challans` table
+    const { data: newChallan, error: challanInsertErr } = await supabase
+      .from('challans')
+      .insert({
+        challan_no: challan_no.trim().toUpperCase(),
+        challan_date: challan_date || new Date().toISOString().split('T')[0],
+        brand: brand.trim().toUpperCase(),
+        delivery_date: delivery_date || null,
+        fabric_type: fabric_type.trim(),
+        sample_given: !!sample_given,
+        notes: challanNotesJson,
+        total_sets: grandTotalSets,
+        total_pcs: grandTotalPcs,
+        status: 'IN_PROGRESS',
+        bom_details: bom_items
+      })
+      .select('id')
+      .single()
 
-          // Insert variant
-          await supabase.from('allotment_variants').insert({
-            allotment_id: allotmentId,
-            color: line.color_pattern || 'Standard',
-            size: line.size_range || 'Free Size',
-            quantity: linePcs,
-            completed_qty: 0
-          })
-
-          // Structured metadata for fast floor consumption
-          const metadataNote = JSON.stringify({
-            challan_id: challanId,
-            challan_no: challan_no.trim().toUpperCase(),
-            art_no: cleanArtNo,
-            sub_art_no: cleanSubArt,
-            pattern_no: line.pattern_no || '',
-            article_description: line.description || '',
-            color_pattern: line.color_pattern || 'Standard',
-            size_range: line.size_range || 'Free Size',
-            sets: lineSets,
-            pcs_per_set: lineRatio,
-            total_pcs: linePcs,
-            brand: brand.trim().toUpperCase(),
-            fabric: fabric_type,
-            sample_photos: line.picture_url ? [line.picture_url] : [],
-            bom_items: bom_items,
-            notes: notes
-          })
-
-          // Insert Materials BOM Handover records for Store
-          const materialRows: any[] = [
-            {
-              allotment_id: allotmentId,
-              item_name: `Fabric: ${fabric_type} (Challan #${challan_no})`,
-              required_qty: `${linePcs} pcs marker`,
-              admin_issued: true,
-              admin_issued_at: new Date().toISOString(),
-              lineman_received: false,
-              notes: metadataNote
-            },
-            {
-              allotment_id: allotmentId,
-              item_name: `Brand Labels & Tags (${brand})`,
-              required_qty: `${linePcs} pcs`,
-              admin_issued: false,
-              lineman_received: false,
-              notes: metadataNote
-            }
-          ]
-
-          if (line.pattern_no) {
-            materialRows.push({
-              allotment_id: allotmentId,
-              item_name: `Pattern Cutout: ${line.pattern_no}`,
-              required_qty: 'Master Pattern',
-              admin_issued: true,
-              admin_issued_at: new Date().toISOString(),
-              lineman_received: false,
-              notes: metadataNote
-            })
-          }
-
-          // Add specific lot records from BOM if available
-          if (bom_items && bom_items.length > 0) {
-            bom_items.forEach(bom => {
-              if (bom.item_name) {
-                materialRows.push({
-                  allotment_id: allotmentId,
-                  item_name: `${bom.material_type || 'Material'}: ${bom.item_name} ${bom.lot_no ? `(Lot #${bom.lot_no})` : ''}`.trim(),
-                  required_qty: bom.required_qty || 'As per lot',
-                  admin_issued: bom.status === 'RECEIVED',
-                  admin_issued_at: bom.status === 'RECEIVED' ? new Date().toISOString() : null,
-                  lineman_received: false,
-                  notes: metadataNote
-                })
-              }
-            })
-          }
-
-          await supabase.from('allotment_materials').insert(materialRows)
-        }
-      }
+    if (challanInsertErr || !newChallan) {
+      console.error('Failed to create challan header:', challanInsertErr)
+      return { error: `Failed to create Challan: ${challanInsertErr?.message || 'Unknown database error'}` }
     }
 
     revalidatePath('/production-orders')
     revalidatePath('/allotments')
     revalidatePath('/articles')
     revalidatePath('/')
-    return { success: true, challan_id: challanId }
+    return { success: true, challan_id: newChallan.id }
   } catch (err: any) {
-    console.error('Error creating challan:', err)
-    return { error: err?.message || 'Server error creating challan.' }
+    console.error('Error in createChallan:', err)
+    return { error: err?.message || 'Server error while creating delivery challan.' }
   }
 }
 
