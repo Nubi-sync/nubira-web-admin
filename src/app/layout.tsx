@@ -21,8 +21,8 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Nubira Factory - Web Admin",
-  description: "Garment Manufacturing & Supply Chain ERP",
+  title: "Zigza - Garment Manufacturing ERP",
+  description: "Zigza - Garment Manufacturing, Production Allotment & Supply Chain ERP",
 };
 
 import { ReactQueryProvider } from "@/lib/react-query-provider";

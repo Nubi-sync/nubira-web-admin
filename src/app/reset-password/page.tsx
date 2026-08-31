@@ -254,7 +254,7 @@ export default function ResetPasswordPage() {
           className="text-[11px] font-[family-name:var(--font-jetbrains-mono)] opacity-70 pointer-events-auto"
           style={{ color: 'var(--ink-soft, #5B6B7C)' }}
         >
-          NUBIRA CREATION · v2.4.1
+          ZIGZA GARMENT ERP · v2.4.1
         </div>
 
         <div className="flex items-center gap-2 pointer-events-auto">

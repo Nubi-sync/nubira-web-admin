@@ -665,7 +665,7 @@ export function ProductionOrdersClient({
     const encodedUri = encodeURI(csvContent)
     const link = document.createElement('a')
     link.setAttribute('href', encodedUri)
-    link.setAttribute('download', `Nubira_Delivery_Challans_${todayStr}.csv`)
+    link.setAttribute('download', `Zigza_Delivery_Challans_${todayStr}.csv`)
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)

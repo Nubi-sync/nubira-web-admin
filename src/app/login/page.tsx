@@ -142,29 +142,27 @@ export default function LoginPage() {
             boxShadow: '0 8px 20px -6px rgba(31, 58, 99, 0.45)',
           }}
         >
-          {/* TODO: replace with actual Nubira Creation logo file */}
+          {/* Zigza Logo Mark */}
           <svg 
             className="w-7 h-7 text-white" 
             viewBox="0 0 24 24" 
             fill="none" 
             stroke="currentColor" 
-            strokeWidth="1.75" 
+            strokeWidth="2.5" 
             strokeLinecap="round" 
             strokeLinejoin="round"
           >
-            <path d="M12 2v20" />
-            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-            <circle cx="12" cy="4" r="1.2" fill="currentColor" />
+            <path d="M4 4h16l-12 16h12" />
           </svg>
         </div>
 
         {/* 2. Brand Block */}
         <div className="text-center mb-7 flex flex-col items-center">
           <h1 
-            className="text-[30px] leading-tight font-bold tracking-tight font-[family-name:var(--font-heading)]"
+            className="text-[32px] leading-tight font-black tracking-tight font-[family-name:var(--font-heading)]"
             style={{ color: 'var(--ink, #1C2733)' }}
           >
-            Nubira Factory
+            Zigza ERP
           </h1>
 
           <div 
@@ -640,7 +638,7 @@ export default function LoginPage() {
           className="text-[11px] font-[family-name:var(--font-jetbrains-mono)] opacity-70 pointer-events-auto"
           style={{ color: 'var(--ink-soft, #5B6B7C)' }}
         >
-          NUBIRA CREATION · v2.4.1
+          ZIGZA GARMENT ERP · v2.4.1
         </div>
 
         <div className="flex items-center gap-2 pointer-events-auto">

@@ -66,39 +66,36 @@ export function AdminSidebar({ userEmail = 'admin@nubira.local' }: { userEmail?:
       {/* Top Header / Brand Block */}
       <div>
         <div className="p-5 pb-4 border-b flex items-center gap-3" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
-          {/* 34x34px Logo Mark */}
+          {/* 34x34px Zigza Logo Mark */}
           <div 
-            className="w-[34px] h-[34px] rounded-[9px] flex items-center justify-center shrink-0 shadow-xs"
-            style={{ backgroundColor: 'var(--steel, #2B4C7E)' }}
+            className="w-[34px] h-[34px] rounded-[10px] bg-gradient-to-br from-indigo-600 to-indigo-800 flex items-center justify-center shrink-0 shadow-sm ring-1 ring-indigo-500/30"
           >
-            {/* TODO: replace with real logo */}
+            {/* Dynamic Sharp Zigza 'Z' Stitch Icon */}
             <svg 
               className="w-4 h-4 text-white" 
               viewBox="0 0 24 24" 
               fill="none" 
               stroke="currentColor" 
-              strokeWidth="1.85" 
+              strokeWidth="2.5" 
               strokeLinecap="round" 
               strokeLinejoin="round"
             >
-              <path d="M12 2v20" />
-              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-              <circle cx="12" cy="4" r="1.2" fill="currentColor" />
+              <path d="M4 4h16l-12 16h12" />
             </svg>
           </div>
 
           <div className="flex flex-col">
             <span 
-              className="text-[17px] font-bold leading-tight font-[family-name:var(--font-heading)]"
+              className="text-[17.5px] font-black leading-tight tracking-tight font-[family-name:var(--font-heading)]"
               style={{ color: 'var(--ink, #1C2733)' }}
             >
-              Nubira
+              Zigza
             </span>
             <span 
-              className="text-[9.5px] font-bold tracking-[2.5px] uppercase font-[family-name:var(--font-public-sans)]"
+              className="text-[9px] font-extrabold tracking-[2.5px] uppercase font-[family-name:var(--font-public-sans)]"
               style={{ color: 'var(--ink-faint, #8B9AAB)' }}
             >
-              FACTORY
+              GARMENT ERP
             </span>
           </div>
         </div>
