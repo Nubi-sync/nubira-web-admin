@@ -27,7 +27,10 @@ import {
   Check,
   CheckCircle2,
   AlertCircle,
-  Sparkles
+  Sparkles,
+  Search,
+  X,
+  ChevronRight
 } from 'lucide-react'
 
 
@@ -260,6 +263,17 @@ export function CreateAllotmentForm({
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
 
+  // Target Selection Modal & Search State
+  const [isTargetModalOpen, setIsTargetModalOpen] = useState(false)
+  const [targetSearchQuery, setTargetSearchQuery] = useState('')
+  const [selectedTargetSummary, setSelectedTargetSummary] = useState<{
+    title: string
+    subtitle: string
+    totalPcs: number
+    badgeColor: string
+    themeBg: string
+  } | null>(null)
+
   // Pre-calculate smart Challan & Color Line options from productionOrders
   const smartChallanOptions = useMemo(() => {
     const opts: Array<{
@@ -374,6 +388,192 @@ export function CreateAllotmentForm({
 
     return opts
   }, [productionOrders, articles])
+
+  // Filtered standalone articles (exclude fragmented sub-articles)
+  const standaloneArticles = useMemo(() => {
+    return articles.filter(a => {
+      const art = (a.art_no || '').trim().toUpperCase()
+      if (art.startsWith('9433/') || art.startsWith('9433A/') || art.startsWith('9433B/')) return false
+      if (art === '9433A' || art === '9433B') return false
+      return true
+    })
+  }, [articles])
+
+  // Filtered Challans for Modal
+  const filteredChallans = useMemo(() => {
+    const q = targetSearchQuery.trim().toLowerCase()
+    if (!q) return productionOrders || []
+    return (productionOrders || []).filter((ch: any) => {
+      const chNo = (ch.challan_no || '').toLowerCase()
+      const brand = (ch.brand || '').toLowerCase()
+      const fabric = (ch.fabric_type || '').toLowerCase()
+      const hasMatchingArt = (ch.articles || []).some((a: any) => 
+        (a.art_no || '').toLowerCase().includes(q) ||
+        (a.color_pattern || '').toLowerCase().includes(q) ||
+        (a.size_range || '').toLowerCase().includes(q)
+      )
+      return chNo.includes(q) || brand.includes(q) || fabric.includes(q) || hasMatchingArt
+    })
+  }, [productionOrders, targetSearchQuery])
+
+  // Filtered Standalone Articles for Modal
+  const filteredStandaloneArticles = useMemo(() => {
+    const q = targetSearchQuery.trim().toLowerCase()
+    if (!q) return standaloneArticles
+    return standaloneArticles.filter((a: any) => {
+      const art = (a.art_no || '').toLowerCase()
+      const desc = (a.description || '').toLowerCase()
+      return art.includes(q) || desc.includes(q)
+    })
+  }, [standaloneArticles, targetSearchQuery])
+
+  // Apply Target Selection Handler
+  const applySmartTarget = (smartOpt: any) => {
+    setArticleId(smartOpt.key)
+    setTouchedArticle(true)
+    setAutoLoadedOrder(null)
+
+    const challanRef = smartOpt.challanNo.startsWith('JOB-') ? smartOpt.challanNo : `JOB-${smartOpt.challanNo}`
+    setProductionOrderNo(smartOpt.colorName ? `${challanRef}-${smartOpt.colorName}` : challanRef)
+    setClientChallanNo(challanRef)
+
+    if (smartOpt.deliveryDate) setDueDate(smartOpt.deliveryDate)
+    if (smartOpt.assignedLinemanId) {
+      setLinemanId(smartOpt.assignedLinemanId)
+      setTouchedLineman(true)
+    }
+
+    if (smartOpt.type === 'COLOR_LINE' && smartOpt.colorName) {
+      const tierEntries = Object.entries(smartOpt.sizeBreakdown)
+      const allIndividualSizes: string[] = []
+      const perCellQtys: Record<string, number> = {}
+
+      tierEntries.forEach(([tierName, tierPcs]: [string, any]) => {
+        const subSizes = expandGarmentSizeTier(tierName)
+        const perSubSizeQty = Math.round(Number(tierPcs) / (subSizes.length || 1))
+        subSizes.forEach(s => {
+          if (!allIndividualSizes.includes(s)) allIndividualSizes.push(s)
+          perCellQtys[s] = perSubSizeQty
+        })
+      })
+
+      setSelectedSizes(allIndividualSizes)
+      setColorRows([
+        {
+          id: '1',
+          color: smartOpt.colorName,
+          quantities: perCellQtys
+        }
+      ])
+
+      const colorLower = smartOpt.colorName.toLowerCase()
+      let themeColor = '#854D0E'
+      let themeBg = '#FEFCE8'
+      if (colorLower.includes('dutch') || colorLower.includes('blue')) {
+        themeColor = '#1D4ED8'
+        themeBg = '#EFF6FF'
+      } else if (colorLower.includes('scuba') || colorLower.includes('green') || colorLower.includes('seuba')) {
+        themeColor = '#047857'
+        themeBg = '#ECFDF5'
+      }
+
+      setSelectedTargetSummary({
+        title: `${smartOpt.challanNo} (${smartOpt.brand}) • ${smartOpt.colorName} LINE`,
+        subtitle: `${allIndividualSizes.length} Sizes (${allIndividualSizes.join(', ')}) • Continuous Sewing`,
+        totalPcs: smartOpt.totalPcs,
+        badgeColor: themeColor,
+        themeBg: themeBg
+      })
+
+      // BOM Checklist
+      const newMaterials: any[] = [
+        {
+          id: 'mat_fab_' + Date.now(),
+          item_name: `${smartOpt.colorName} Fabric Lot (${smartOpt.fabricType || 'Sinker'})`,
+          required_qty: 'As per roll marker',
+          admin_issued: true,
+          source: 'CLIENT' as const
+        },
+        {
+          id: 'mat_thread_' + Date.now(),
+          item_name: `Matching Sewing Thread (${smartOpt.colorName})`,
+          required_qty: `${Math.max(Math.ceil(smartOpt.totalPcs / 250), 4)} Cones`,
+          admin_issued: true,
+          source: 'FACTORY_STORE' as const
+        },
+        {
+          id: 'mat_neck_' + Date.now(),
+          item_name: `${smartOpt.brand} Main Neck Labels`,
+          required_qty: `${smartOpt.totalPcs.toLocaleString()} pcs`,
+          admin_issued: false,
+          source: 'CLIENT' as const
+        },
+        {
+          id: 'mat_size_' + Date.now(),
+          item_name: `Size Labels (${allIndividualSizes.join(', ')})`,
+          required_qty: `${smartOpt.totalPcs.toLocaleString()} pcs`,
+          admin_issued: false,
+          source: 'CLIENT' as const
+        },
+        {
+          id: 'mat_poly_' + Date.now(),
+          item_name: `Master Polybags`,
+          required_qty: `${smartOpt.totalPcs.toLocaleString()} pcs`,
+          admin_issued: false,
+          source: 'CLIENT' as const
+        }
+      ]
+      setMaterials(newMaterials)
+    } else if (smartOpt.type === 'FULL_CHALLAN') {
+      const allSizes = ['L', 'XL', 'XXL', '22', '24', '26', '28', '30', '32']
+      setSelectedSizes(allSizes)
+      setColorRows([
+        { id: '1', color: 'MUSHROOM', quantities: { 'L': 253, 'XL': 253, 'XXL': 253, '22': 162, '24': 162, '26': 162, '28': 79, '30': 79, '32': 79 } },
+        { id: '2', color: 'DUTCH BLUE', quantities: { 'L': 205, 'XL': 205, 'XXL': 205, '22': 138, '24': 138, '26': 138, '28': 79, '30': 79, '32': 79 } },
+        { id: '3', color: 'SCUBA', quantities: { 'L': 192, 'XL': 192, 'XXL': 192, '22': 124, '24': 124, '26': 124, '28': 64, '30': 64, '32': 64 } }
+      ])
+      setSelectedTargetSummary({
+        title: `${smartOpt.challanNo} (${smartOpt.brand}) • ENTIRE CHALLAN BATCH`,
+        subtitle: `All Colors (Mushroom, Dutch Blue, Scuba) & 9 Sizes Combined`,
+        totalPcs: smartOpt.totalPcs,
+        badgeColor: '#0F172A',
+        themeBg: '#F8FAFC'
+      })
+    }
+
+    setIsTargetModalOpen(false)
+  }
+
+  const applyStandaloneArticle = (chosenArt: any) => {
+    setArticleId(chosenArt.id)
+    setTouchedArticle(true)
+    setAutoLoadedOrder(null)
+
+    const chosenMeta = (chosenArt.size_rates as any)?._meta || {}
+    const sizeTier = chosenMeta.size || 'L/XXL'
+    const expandedSizes = expandGarmentSizeTier(sizeTier)
+    setSelectedSizes(expandedSizes)
+
+    const colorPattern = chosenMeta.color || chosenArt.description || 'Standard Color'
+    const colorList = expandGarmentColors(colorPattern, [])
+
+    const newColorRows = colorList.map((colName, cIdx) => ({
+      id: (cIdx + 1).toString(),
+      color: colName,
+      quantities: Object.fromEntries(expandedSizes.map(s => [s, 0]))
+    }))
+    setColorRows(newColorRows)
+
+    setSelectedTargetSummary({
+      title: `Article ${chosenArt.art_no}`,
+      subtitle: cleanArticleDesc(chosenArt.description) || 'Factory Standalone Catalog Style',
+      totalPcs: 0,
+      badgeColor: '#4F46E5',
+      themeBg: '#EEF2FF'
+    })
+
+    setIsTargetModalOpen(false)
+  }
 
   // Selected article details
   const selectedArticle = useMemo(() => {
@@ -904,302 +1104,383 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
               )}
             </div>
 
-            {/* Article Field with Error/Success validation & Stitching Rate */}
+            {/* Interactive Target Selector Hero Card (No native select) */}
             <div className="space-y-1.5">
               <label 
-                htmlFor="article_id" 
                 className="block text-[11px] font-semibold uppercase tracking-[1.5px]"
                 style={{ color: 'var(--ink-soft, #5B6B7C)' }}
               >
-                Style Article (Art No.) <span className="text-red-500">*</span>
+                Style Article / Job Color Line <span className="text-red-500">*</span>
               </label>
-              
-              <select
-                id="article_id"
-                value={articleId}
-                onChange={(e) => {
-                  const val = e.target.value
-                  setArticleId(val)
-                  setTouchedArticle(true)
 
-                  // 1. Check if a Smart Color Line or Full Challan is chosen
-                  const smartOpt = smartChallanOptions.find(o => o.key === val)
-                  if (smartOpt) {
-                    setAutoLoadedOrder(null)
-                    // 1.1 Challan & Work Order Reference
-                    const challanRef = smartOpt.challanNo.startsWith('JOB-') ? smartOpt.challanNo : `JOB-${smartOpt.challanNo}`
-                    setProductionOrderNo(smartOpt.colorName ? `${challanRef}-${smartOpt.colorName}` : challanRef)
-                    setClientChallanNo(challanRef)
+              {!selectedTargetSummary && !articleId ? (
+                <button
+                  type="button"
+                  onClick={() => setIsTargetModalOpen(true)}
+                  className={`w-full p-4 rounded-xl border-2 border-dashed transition-all flex items-center justify-between gap-3 text-left group cursor-pointer ${
+                    isArticleError
+                      ? 'border-red-400 bg-red-50/50 hover:bg-red-50'
+                      : 'border-indigo-300 hover:border-indigo-500 bg-indigo-50/40 hover:bg-indigo-50/70'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-xs group-hover:scale-105 transition-transform shrink-0">
+                      <Search className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <div className="text-xs sm:text-sm font-black text-slate-900 flex items-center gap-2">
+                        Click to Search & Select Job Challan or Article
+                        <span className="text-[9.5px] font-bold px-2 py-0.5 rounded-full bg-indigo-200 text-indigo-800">
+                          Visual Picker
+                        </span>
+                      </div>
+                      <div className="text-[11.5px] text-slate-500 mt-0.5">
+                        Choose from Color Sewing Lines (Mushroom, Dutch Blue, Scuba) or Factory Master Styles
+                      </div>
+                    </div>
+                  </div>
+                  <div className="px-3 py-1.5 rounded-lg bg-indigo-600 group-hover:bg-indigo-700 text-white text-xs font-bold shadow-xs transition-colors shrink-0 flex items-center gap-1">
+                    <span>Open Picker</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </div>
+                </button>
+              ) : (
+                <div
+                  className="p-3.5 sm:p-4 rounded-xl border-2 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-all"
+                  style={{
+                    backgroundColor: selectedTargetSummary?.themeBg || '#EEF2FF',
+                    borderColor: selectedTargetSummary?.badgeColor || '#6366F1'
+                  }}
+                >
+                  <div className="flex items-center gap-3">
+                    <span
+                      className="w-4 h-4 rounded-full shrink-0 ring-2 ring-white shadow-xs"
+                      style={{ backgroundColor: selectedTargetSummary?.badgeColor || '#4F46E5' }}
+                    />
+                    <div>
+                      <div className="text-xs sm:text-sm font-black text-slate-900 flex items-center gap-2 flex-wrap">
+                        <span>{selectedTargetSummary?.title || selectedArticle?.art_no}</span>
+                        {selectedTargetSummary?.totalPcs ? (
+                          <span className="px-2 py-0.5 rounded-md text-[10.5px] font-black bg-white/90 border border-slate-200 text-slate-900 font-mono shadow-2xs">
+                            {selectedTargetSummary.totalPcs.toLocaleString()} PCS TARGET
+                          </span>
+                        ) : null}
+                      </div>
+                      <div className="text-[11.5px] text-slate-600 mt-0.5 font-medium">
+                        {selectedTargetSummary?.subtitle || cleanArticleDesc(selectedArticle?.description) || 'Target Configured'}
+                      </div>
+                    </div>
+                  </div>
 
-                    // 1.2 Deadlines & Lineman
-                    if (smartOpt.deliveryDate) setDueDate(smartOpt.deliveryDate)
-                    if (smartOpt.assignedLinemanId) {
-                      setLinemanId(smartOpt.assignedLinemanId)
-                      setTouchedLineman(true)
-                    }
-
-                    // 1.3 Populate Size Matrix with exact breakdown
-                    if (smartOpt.type === 'COLOR_LINE' && smartOpt.colorName) {
-                      const tierEntries = Object.entries(smartOpt.sizeBreakdown)
-                      const allIndividualSizes: string[] = []
-                      const perCellQtys: Record<string, number> = {}
-
-                      tierEntries.forEach(([tierName, tierPcs]) => {
-                        const subSizes = expandGarmentSizeTier(tierName)
-                        const perSubSizeQty = Math.round(tierPcs / (subSizes.length || 1))
-                        subSizes.forEach(s => {
-                          if (!allIndividualSizes.includes(s)) allIndividualSizes.push(s)
-                          perCellQtys[s] = perSubSizeQty
-                        })
-                      })
-
-                      setSelectedSizes(allIndividualSizes)
-                      setColorRows([
-                        {
-                          id: '1',
-                          color: smartOpt.colorName,
-                          quantities: perCellQtys
-                        }
-                      ])
-
-                      // 1.4 Auto-Populate BOM Checklist for Store Handover
-                      const newMaterials: any[] = [
-                        {
-                          id: 'mat_fab_' + Date.now(),
-                          item_name: `${smartOpt.colorName} Fabric Lot (${smartOpt.fabricType || 'Sinker'})`,
-                          required_qty: 'As per challan roll lot',
-                          admin_issued: true,
-                          source: 'CLIENT' as const
-                        },
-                        {
-                          id: 'mat_thread_' + Date.now(),
-                          item_name: `Matching Sewing Thread (${smartOpt.colorName})`,
-                          required_qty: `${Math.max(Math.ceil(smartOpt.totalPcs / 250), 4)} Cones`,
-                          admin_issued: true,
-                          source: 'FACTORY_STORE' as const
-                        },
-                        {
-                          id: 'mat_neck_' + Date.now(),
-                          item_name: `${smartOpt.brand} Main Neck Labels`,
-                          required_qty: `${smartOpt.totalPcs.toLocaleString()} pcs`,
-                          admin_issued: false,
-                          source: 'CLIENT' as const
-                        },
-                        {
-                          id: 'mat_size_' + Date.now(),
-                          item_name: `Size Labels (${allIndividualSizes.join(', ')})`,
-                          required_qty: `${smartOpt.totalPcs.toLocaleString()} pcs`,
-                          admin_issued: false,
-                          source: 'CLIENT' as const
-                        },
-                        {
-                          id: 'mat_poly_' + Date.now(),
-                          item_name: `Master Polybags`,
-                          required_qty: `${smartOpt.totalPcs.toLocaleString()} pcs`,
-                          admin_issued: false,
-                          source: 'CLIENT' as const
-                        }
-                      ]
-                      setMaterials(newMaterials)
-                    } else if (smartOpt.type === 'FULL_CHALLAN') {
-                      const allSizes = ['L', 'XL', 'XXL', '22', '24', '26', '28', '30', '32']
-                      setSelectedSizes(allSizes)
-                      setColorRows([
-                        { id: '1', color: 'MUSHROOM', quantities: { 'L': 253, 'XL': 253, 'XXL': 253, '22': 162, '24': 162, '26': 162, '28': 79, '30': 79, '32': 79 } },
-                        { id: '2', color: 'DUTCH BLUE', quantities: { 'L': 205, 'XL': 205, 'XXL': 205, '22': 138, '24': 138, '26': 138, '28': 79, '30': 79, '32': 79 } },
-                        { id: '3', color: 'SCUBA', quantities: { 'L': 192, 'XL': 192, 'XXL': 192, '22': 124, '24': 124, '26': 124, '28': 64, '30': 64, '32': 64 } }
-                      ])
-                    }
-                    return
-                  }
-
-                  // 2. Otherwise standard individual article selection
-                  const chosen = articles.find(a => a.id === val)
-                  if (chosen) {
-                    // Search in production orders across all grouped challans
-                    let matchedChallan: any = null
-                    let matchedArticleLine: any = null
-
-                    const cleanChosenArtNo = chosen.art_no?.trim().toUpperCase()
-                    const chosenMeta = (chosen.size_rates as any)?._meta || {}
-
-                    for (const ch of productionOrders || []) {
-                      if (ch.articles && ch.articles.length > 0) {
-                        for (const art of ch.articles) {
-                          const artCode = `${art.art_no || ''}${art.sub_art_no || ''}`.trim().toUpperCase()
-                          if (
-                            artCode === cleanChosenArtNo ||
-                            art.art_no?.trim().toUpperCase() === cleanChosenArtNo ||
-                            art.allotment_id === chosen.id ||
-                            (chosenMeta.base_art && art.art_no?.trim().toUpperCase() === chosenMeta.base_art.trim().toUpperCase() && (art.sub_art_no || '').trim().toUpperCase() === (chosenMeta.sub_art || '').trim().toUpperCase())
-                          ) {
-                            matchedChallan = ch
-                            matchedArticleLine = art
-                            break
-                          }
-                        }
-                      }
-                      if (matchedArticleLine) break
-                    }
-
-                    if (matchedArticleLine) {
-                      setAutoLoadedOrder(matchedArticleLine)
-                      
-                      // 1. Challan & Work Order Reference
-                      const challanRef = matchedChallan?.challan_no 
-                        ? (matchedChallan.challan_no.startsWith('JOB-') ? matchedChallan.challan_no : `JOB-${matchedChallan.challan_no}`) 
-                        : 'JOB-457'
-                      setProductionOrderNo(challanRef)
-                      setClientChallanNo(challanRef)
-
-                      // 2. Deadlines & Lineman
-                      if (matchedChallan?.delivery_date) {
-                        setDueDate(matchedChallan.delivery_date)
-                      }
-                      if (matchedArticleLine.assigned_lineman_id) {
-                        setLinemanId(matchedArticleLine.assigned_lineman_id)
-                        setTouchedLineman(true)
-                      }
-                      if (matchedArticleLine.picture_url) {
-                        setSamplePhotos([matchedArticleLine.picture_url])
-                      }
-
-                      // 3. Expand Sizes Tier (e.g. L/XXL -> L, XL, XXL)
-                      const sizeTier = matchedArticleLine.size_range || chosenMeta.size || 'L/XXL'
-                      const expandedSizes = expandGarmentSizeTier(sizeTier)
-                      setSelectedSizes(expandedSizes)
-
-                      // 4. Expand Colors (e.g. 3 Colour -> Mushroom, Dutch Blue, Scuba)
-                      const colorPattern = matchedArticleLine.color_pattern || chosenMeta.color || chosen.description || '3 Colour Pattern'
-                      const colorList = expandGarmentColors(colorPattern, matchedChallan?.bom_details || [])
-
-                      // 5. Calculate Sets & Per-Cell Quantities
-                      const setsCount = Number(matchedArticleLine.sets) || (matchedArticleLine.total_pcs ? Math.round(matchedArticleLine.total_pcs / ((colorList.length || 1) * (expandedSizes.length || 1))) : 144) || 144
-
-                      const newColorRows = colorList.map((colName: string, cIdx: number) => {
-                        const rowQtys: Record<string, number> = {}
-                        expandedSizes.forEach((sz: string) => {
-                          rowQtys[sz] = setsCount
-                        })
-                        return {
-                          id: (cIdx + 1).toString(),
-                          color: colName,
-                          quantities: rowQtys
-                        }
-                      })
-                      setColorRows(newColorRows)
-
-                      // 6. Auto-Populate BOM Materials Checklist from Challan
-                      const newMaterials: any[] = []
-                      if (matchedChallan?.fabric_type) {
-                        newMaterials.push({
-                          id: 'mat_fab_' + Date.now(),
-                          item_name: `Main Fabric: ${matchedChallan.fabric_type} (Challan #${matchedChallan.challan_no})`,
-                          required_qty: `${matchedArticleLine.total_pcs || (setsCount * colorList.length * expandedSizes.length)} pcs cut marker`,
-                          admin_issued: true,
-                          source: 'CLIENT' as const
-                        })
-                      }
-                      if (matchedChallan?.bom_details && Array.isArray(matchedChallan.bom_details) && matchedChallan.bom_details.length > 0) {
-                        matchedChallan.bom_details.forEach((b: any, bIdx: number) => {
-                          newMaterials.push({
-                            id: `mat_bom_${bIdx}_` + Date.now(),
-                            item_name: `${b.item_name} ${b.lot_no ? `(Lot #${b.lot_no})` : ''}`.trim(),
-                            required_qty: b.required_qty || 'As per lot',
-                            admin_issued: b.status === 'RECEIVED',
-                            source: 'CLIENT' as const
-                          })
-                        })
-                      }
-                      if (newMaterials.length > 0) {
-                        setMaterials(newMaterials)
-                      }
-
-                    } else {
-                      // Fallback for standalone articles (use _meta if present)
-                      setAutoLoadedOrder(null)
-                      const sizeTier = chosenMeta.size || 'L/XXL'
-                      const expandedSizes = expandGarmentSizeTier(sizeTier)
-                      setSelectedSizes(expandedSizes)
-
-                      const colorPattern = chosenMeta.color || chosen.description || 'Standard Color'
-                      const colorList = expandGarmentColors(colorPattern, [])
-
-                      const newColorRows = colorList.map((colName, cIdx) => ({
-                        id: (cIdx + 1).toString(),
-                        color: colName,
-                        quantities: Object.fromEntries(expandedSizes.map(s => [s, 0]))
-                      }))
-                      setColorRows(newColorRows)
-                    }
-                  }
-                }}
-                onBlur={() => setTouchedArticle(true)}
-                className={`w-full py-[11px] px-[13px] text-[13.5px] rounded-[8px] border transition-colors outline-none bg-white ${
-                  isArticleError
-                    ? 'border-[var(--red,#C0392B)] bg-[var(--red-mist,#FBEAE8)]'
-                    : isArticleSuccess
-                    ? 'border-[var(--green,#1F9D63)]'
-                    : 'border-[var(--border,#E2E8F0)] focus:border-[var(--steel,#2B4C7E)]'
-                }`}
-              >
-                <option value="">-- Choose Job Challan / Color Line or Article --</option>
-                {smartChallanOptions.length > 0 && (
-                  <optgroup label="🎨 SMART COLOR-WISE LINES (FAST CONTINUOUS SEWING)">
-                    {smartChallanOptions.map((opt) => (
-                      <option key={opt.key} value={opt.key} className="font-bold">
-                        {opt.label}
-                      </option>
-                    ))}
-                  </optgroup>
-                )}
-                <optgroup label="📋 INDIVIDUAL ARTICLE STYLES">
-                  {articles.map((a) => {
-                    let rateTag = ''
-                    if (a.size_rates && typeof a.size_rates === 'object') {
-                      const rts = Object.entries(a.size_rates).filter(([k, v]) => !k.startsWith('_') && typeof v === 'number' && !isNaN(v) && v > 0).map(([, v]) => v as number)
-                      if (rts.length > 0) {
-                        const min = Math.min(...rts)
-                        const max = Math.max(...rts)
-                        rateTag = min === max ? `(₹${min}/pc)` : `(₹${min} - ₹${max}/pc Size-Wise)`
-                      }
-                    } else if (a.stitching_rate) {
-                      rateTag = `(₹${a.stitching_rate}/pc)`
-                    }
-                    return (
-                      <option key={a.id} value={a.id}>
-                        {a.art_no} {cleanArticleDesc(a.description) ? `- ${cleanArticleDesc(a.description)}` : ''} {rateTag}
-                      </option>
-                    )
-                  })}
-                </optgroup>
-              </select>
+                  <button
+                    type="button"
+                    onClick={() => setIsTargetModalOpen(true)}
+                    className="self-start sm:self-center px-3 py-1.5 rounded-lg bg-white hover:bg-slate-50 border border-slate-300 text-slate-800 text-xs font-extrabold shadow-2xs hover:shadow-xs transition-all cursor-pointer flex items-center gap-1.5 shrink-0"
+                  >
+                    <span>🔄 Change Style / Color Line</span>
+                  </button>
+                </div>
+              )}
 
               {/* Validation Messages */}
               {isArticleError && (
                 <div className="flex items-center gap-1.5 text-[11px] font-medium" style={{ color: 'var(--red, #C0392B)' }}>
                   <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                  <span>This field is required before assigning target.</span>
+                  <span>Please click above to select an Article or Color Line before submitting.</span>
                 </div>
               )}
               {isArticleSuccess && (
-                <div className="flex items-center gap-1.5 text-[11px] font-medium" style={{ color: 'var(--green, #1F9D63)' }}>
-                  <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                <div className="flex items-center gap-1.5 text-[11px] font-medium text-emerald-700">
+                  <CheckCircle2 className="w-3.5 h-3.5 shrink-0 text-emerald-600" />
                   <span>
                     {articleId.startsWith('COLOR_') 
                       ? '✓ Smart Color Line Target & BOM Checklist auto-configured from Challan' 
                       : articleId.startsWith('FULL_CHALLAN_')
                       ? '✓ Full Challan Batch Matrix loaded'
-                      : selectedArticle?.size_rates && Object.entries(selectedArticle.size_rates).filter(([k, v]) => !k.startsWith("_") && typeof v === "number").length > 0
-                      ? `Size-Wise rates loaded: ${Object.entries(selectedArticle.size_rates).filter(([k, v]) => !k.startsWith("_") && typeof v === "number").map(([k, v]) => `${k}: ₹${v}`).join(' · ')}`
-                      : selectedArticle?.stitching_rate 
-                      ? `Stitching rate ₹${selectedArticle.stitching_rate}/pc loaded` 
-                      : `${cleanArticleDesc(selectedArticle?.description) || selectedArticle?.art_no} loaded`}
+                      : '✓ Style target loaded'}
                   </span>
                 </div>
               )}
             </div>
           </div>
+
+          {/* ========================================================= */}
+          {/* GLASSMORPHIC FULL-SCREEN TARGET SELECTION MODAL           */}
+          {/* ========================================================= */}
+          {isTargetModalOpen && (
+            <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200">
+              <div 
+                className="bg-white/95 backdrop-blur-xl border border-white/40 rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden text-slate-900 animate-in zoom-in-95 duration-200"
+                onClick={e => e.stopPropagation()}
+              >
+                {/* Modal Header */}
+                <div className="p-4 sm:p-5 bg-gradient-to-r from-slate-900 to-indigo-950 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center text-indigo-300 shadow-xs">
+                      <Sparkles className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-base sm:text-lg font-black tracking-tight flex items-center gap-2">
+                        Select Production Target / Color Line
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-indigo-500/30 text-indigo-200 border border-indigo-400/30">
+                          Visual Picker
+                        </span>
+                      </h3>
+                      <p className="text-xs text-slate-300 mt-0.5">
+                        1-Click selects color sewing line or full batch and auto-populates exact size ratios
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setIsTargetModalOpen(false)}
+                    className="self-end sm:self-center px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 text-white text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
+                  >
+                    <X className="w-4 h-4" />
+                    <span>Close (Esc)</span>
+                  </button>
+                </div>
+
+                {/* Live Search Bar */}
+                <div className="p-4 bg-slate-50 border-b border-slate-200 shrink-0">
+                  <div className="relative">
+                    <input
+                      type="text"
+                      autoFocus
+                      value={targetSearchQuery}
+                      onChange={e => setTargetSearchQuery(e.target.value)}
+                      placeholder="Search by article number, brand, color, or challan (e.g. 9433, Ollypop, Mushroom, 457)..."
+                      className="w-full pl-10 pr-10 py-2.5 text-xs sm:text-sm font-medium bg-white border border-slate-300 rounded-xl shadow-2xs focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all placeholder:text-slate-400"
+                    />
+                    <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                    {targetSearchQuery && (
+                      <button
+                        type="button"
+                        onClick={() => setTargetSearchQuery('')}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-700"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Modal Scrollable Body */}
+                <div className="p-4 sm:p-6 overflow-y-auto space-y-6 flex-1">
+                  {/* Active Job Work Challans */}
+                  {filteredChallans && filteredChallans.length > 0 && (
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-2 pb-2 border-b border-slate-200">
+                        <Boxes className="w-4 h-4 text-indigo-600" />
+                        <h4 className="text-xs font-black uppercase tracking-wider text-slate-800">
+                          Active Job Work Delivery Challans ({filteredChallans.length})
+                        </h4>
+                      </div>
+
+                      {filteredChallans.map((ch: any) => {
+                        const challanOpts = smartChallanOptions.filter(o => o.challanId === ch.id)
+                        const colorLines = challanOpts.filter(o => o.type === 'COLOR_LINE')
+                        const fullChallan = challanOpts.find(o => o.type === 'FULL_CHALLAN')
+
+                        return (
+                          <div
+                            key={ch.id}
+                            className="bg-white border-2 border-slate-200 rounded-2xl p-4 sm:p-5 shadow-xs hover:border-slate-300 transition-all space-y-3.5"
+                          >
+                            {/* Challan Card Top Header */}
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-3 border-b border-slate-100">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="font-black text-xs sm:text-sm px-2.5 py-0.5 rounded-lg bg-slate-900 text-white font-mono shadow-2xs">
+                                  📋 JOB #{ch.challan_no}
+                                </span>
+                                <span className="px-2.5 py-0.5 rounded-lg text-xs font-black bg-indigo-50 text-indigo-700 border border-indigo-200">
+                                  {ch.brand}
+                                </span>
+                                <span className="px-2.5 py-0.5 rounded-lg text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                                  {ch.fabric_type}
+                                </span>
+                              </div>
+
+                              <div className="text-xs font-bold text-slate-700 font-mono">
+                                <span className="text-indigo-700 font-extrabold">{ch.total_sets?.toLocaleString() || 0}</span> Sets <span className="text-slate-300">|</span> <span className="text-emerald-700 font-black">{ch.total_pcs?.toLocaleString() || 0} Pcs Total</span>
+                              </div>
+                            </div>
+
+                            {/* Visual Grid of Color Line Cards + Full Batch */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                              {/* Color Line Cards */}
+                              {colorLines.map((colOpt, cIdx) => {
+                                const colorLower = (colOpt.colorName || '').toLowerCase()
+                                let themeColor = '#854D0E'
+                                let bgLight = '#FEFCE8'
+                                let borderTheme = '#FEF08A'
+                                if (colorLower.includes('dutch') || colorLower.includes('blue')) {
+                                  themeColor = '#1D4ED8'
+                                  bgLight = '#EFF6FF'
+                                  borderTheme = '#BFDBFE'
+                                } else if (colorLower.includes('scuba') || colorLower.includes('green') || colorLower.includes('seuba')) {
+                                  themeColor = '#047857'
+                                  bgLight = '#ECFDF5'
+                                  borderTheme = '#A7F3D0'
+                                }
+
+                                return (
+                                  <div
+                                    key={cIdx}
+                                    style={{ backgroundColor: bgLight, borderColor: borderTheme }}
+                                    className="border-2 rounded-xl p-3.5 flex flex-col justify-between shadow-2xs hover:shadow-md transition-all group"
+                                  >
+                                    <div>
+                                      <div className="flex items-center justify-between gap-1.5 pb-2 mb-2 border-b border-black/5">
+                                        <div className="flex items-center gap-2">
+                                          <span className="w-3.5 h-3.5 rounded-full shrink-0 shadow-2xs ring-2 ring-white" style={{ backgroundColor: themeColor }} />
+                                          <span className="font-extrabold text-xs text-slate-900 uppercase tracking-tight">
+                                            {colOpt.colorName}
+                                          </span>
+                                        </div>
+                                        <span
+                                          style={{ color: themeColor }}
+                                          className="text-xs font-black font-mono px-2 py-0.5 bg-white/90 rounded-md border border-slate-200/80 shadow-2xs"
+                                        >
+                                          {colOpt.totalPcs.toLocaleString()} PCS
+                                        </span>
+                                      </div>
+
+                                      {/* Size breakdown list */}
+                                      <div className="space-y-1 mb-3 bg-white/70 rounded-lg p-2 border border-slate-200/60 text-[11px]">
+                                        {Object.entries(colOpt.sizeBreakdown).map(([sz, count], sIdx) => (
+                                          <div key={sIdx} className="flex items-center justify-between text-slate-700">
+                                            <span className="font-semibold">Tier {sz}:</span>
+                                            <span className="font-bold text-slate-900 font-mono">{count} pcs</span>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </div>
+
+                                    <button
+                                      type="button"
+                                      onClick={() => applySmartTarget(colOpt)}
+                                      style={{ backgroundColor: themeColor }}
+                                      className="w-full py-2 text-white text-xs font-extrabold rounded-lg shadow-xs hover:opacity-90 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                                    >
+                                      <span>👉 Select {colOpt.colorName}</span>
+                                    </button>
+                                  </div>
+                                )
+                              })}
+
+                              {/* Full Batch Card */}
+                              {fullChallan && (
+                                <div className="bg-slate-900 border-2 border-slate-800 rounded-xl p-3.5 flex flex-col justify-between shadow-2xs hover:shadow-md transition-all text-white">
+                                  <div>
+                                    <div className="flex items-center justify-between gap-1.5 pb-2 mb-2 border-b border-slate-700">
+                                      <div className="flex items-center gap-1.5">
+                                        <Zap className="w-4 h-4 text-amber-400 fill-amber-400 shrink-0" />
+                                        <span className="font-black text-xs text-white uppercase tracking-tight">
+                                          FULL BATCH
+                                        </span>
+                                      </div>
+                                      <span className="text-xs font-black font-mono px-2 py-0.5 bg-amber-400 text-slate-950 rounded-md">
+                                        {fullChallan.totalPcs.toLocaleString()} PCS
+                                      </span>
+                                    </div>
+
+                                    <div className="p-2 bg-slate-800/80 rounded-lg border border-slate-700 mb-3 text-[11px] text-slate-300">
+                                      <span>All colors & sizes combined to 1 Lineman</span>
+                                    </div>
+                                  </div>
+
+                                  <button
+                                    type="button"
+                                    onClick={() => applySmartTarget(fullChallan)}
+                                    className="w-full py-2 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-950 text-xs font-black rounded-lg shadow-xs active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                                  >
+                                    <Zap className="w-3.5 h-3.5 fill-slate-950" />
+                                    <span>Select Entire Batch</span>
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
+
+                  {/* Standalone Articles Section */}
+                  {filteredStandaloneArticles && filteredStandaloneArticles.length > 0 && (
+                    <div className="space-y-3 pt-2">
+                      <div className="flex items-center gap-2 pb-2 border-b border-slate-200">
+                        <Tag className="w-4 h-4 text-indigo-600" />
+                        <h4 className="text-xs font-black uppercase tracking-wider text-slate-800">
+                          Other In-House / Standalone Styles ({filteredStandaloneArticles.length})
+                        </h4>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                        {filteredStandaloneArticles.map((art: any) => {
+                          let rateTag = ''
+                          if (art.size_rates && typeof art.size_rates === 'object') {
+                            const rts = Object.entries(art.size_rates).filter(([k, v]) => !k.startsWith('_') && typeof v === 'number' && !isNaN(v) && v > 0).map(([, v]) => v as number)
+                            if (rts.length > 0) {
+                              const min = Math.min(...rts)
+                              const max = Math.max(...rts)
+                              rateTag = min === max ? `₹${min}/pc` : `₹${min} - ₹${max}/pc`
+                            }
+                          } else if (art.stitching_rate) {
+                            rateTag = `₹${art.stitching_rate}/pc`
+                          }
+
+                          return (
+                            <div
+                              key={art.id}
+                              className="bg-white border border-slate-200 hover:border-indigo-300 rounded-xl p-3.5 flex flex-col justify-between shadow-2xs hover:shadow-xs transition-all"
+                            >
+                              <div>
+                                <div className="flex items-center justify-between gap-2 mb-1.5">
+                                  <span className="font-extrabold text-xs text-slate-900 font-mono">
+                                    {art.art_no}
+                                  </span>
+                                  {rateTag && (
+                                    <span className="text-[10.5px] font-extrabold px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded-md border border-indigo-100 font-mono">
+                                      {rateTag}
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="text-xs text-slate-600 line-clamp-2 mb-3">
+                                  {cleanArticleDesc(art.description) || 'Standard Article Style'}
+                                </p>
+                              </div>
+
+                              <button
+                                type="button"
+                                onClick={() => applyStandaloneArticle(art)}
+                                className="w-full py-1.5 bg-slate-100 hover:bg-indigo-600 hover:text-white text-slate-800 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1"
+                              >
+                                <span>Select Style</span>
+                              </button>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Empty state if nothing matches search */}
+                  {filteredChallans.length === 0 && filteredStandaloneArticles.length === 0 && (
+                    <div className="py-12 text-center">
+                      <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mx-auto mb-3">
+                        <Search className="w-6 h-6" />
+                      </div>
+                      <h4 className="text-sm font-bold text-slate-800">No matching orders or styles found</h4>
+                      <p className="text-xs text-slate-500 mt-1">Try searching with a different keyword like 9433, Ollypop, or Mushroom</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
 
 
           
