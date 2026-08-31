@@ -414,23 +414,286 @@ export async function updateOrderStatus(orderOrChallanId: string, newStatus: str
 }
 
 // ----------------------------------------------------------------------
-// ASSIGN LINEMAN TO AN ARTICLE LINE
+// ASSIGN ENTIRE CHALLAN TO A SINGLE LINEMAN (1-Click Full Allotment)
 // ----------------------------------------------------------------------
-export async function assignLinemanToArticle(allotmentId: string, linemanId: string) {
+export async function allotEntireChallan(challanId: string, linemanId: string) {
   const supabase = supabaseAdmin
 
-  const { error } = await supabase
-    .from('allotments')
-    .update({ lineman_id: linemanId })
-    .eq('id', allotmentId)
-
-  if (error) {
-    return { error: error.message }
+  if (!challanId || !linemanId) {
+    return { error: 'Please select a valid Challan and Lineman.' }
   }
 
-  revalidatePath('/production-orders')
-  revalidatePath('/allotments')
-  return { success: true }
+  try {
+    // 1. Fetch lineman profile username
+    let linemanName = 'Lineman'
+    const { data: prof } = await supabase.from('profiles').select('username').eq('id', linemanId).single()
+    if (prof?.username) linemanName = prof.username
+
+    // 2. Fetch challan details
+    const { data: challan } = await supabase.from('challans').select('*').eq('id', challanId).single()
+    if (!challan) return { error: 'Challan not found.' }
+
+    // 3. Update existing allotments for this challan
+    const { data: existingAllots } = await supabase
+      .from('allotments')
+      .select('id, article_id')
+      .eq('challan_id', challanId)
+
+    if (existingAllots && existingAllots.length > 0) {
+      await supabase
+        .from('allotments')
+        .update({ lineman_id: linemanId })
+        .eq('challan_id', challanId)
+
+      // Sync materials notes
+      const allotIds = existingAllots.map(a => a.id)
+      const { data: mats } = await supabase
+        .from('allotment_materials')
+        .select('id, notes')
+        .in('allotment_id', allotIds)
+
+      if (mats && mats.length > 0) {
+        for (const m of mats) {
+          let nObj: any = {}
+          if (m.notes) {
+            try { nObj = JSON.parse(m.notes) } catch (_) {}
+          }
+          nObj.lineman_id = linemanId
+          nObj.lineman_name = linemanName
+          await supabase.from('allotment_materials').update({ notes: JSON.stringify(nObj) }).eq('id', m.id)
+        }
+      }
+    }
+
+    // 4. Check if there are planned lines in challan.notes not yet in allotments
+    if (challan.notes) {
+      try {
+        const parsed = JSON.parse(challan.notes)
+        const plannedLines = parsed.article_lines || parsed
+        if (Array.isArray(plannedLines)) {
+          const existingArtIds = new Set((existingAllots || []).map(a => a.article_id))
+
+          for (const line of plannedLines) {
+            const cleanArtNo = (line.art_no || '9433').trim().toUpperCase()
+            const cleanSubArt = (line.sub_art_no || '').trim().toUpperCase()
+            const fullArtCode = line.full_art_code || (cleanSubArt ? `${cleanArtNo}${cleanSubArt}` : cleanArtNo)
+            const targetQty = Number(line.total_pcs) || ((Number(line.sets) || 1) * (Number(line.pcs_per_set) || 9))
+
+            // Find article in articles table
+            const { data: artObj } = await supabase
+              .from('articles')
+              .select('id, art_no, description')
+              .eq('art_no', fullArtCode)
+              .limit(1)
+              .single()
+
+            if (artObj && !existingArtIds.has(artObj.id)) {
+              // Create new allotment
+              const { data: newAl } = await supabase
+                .from('allotments')
+                .insert({
+                  challan_id: challanId,
+                  lineman_id: linemanId,
+                  article_id: artObj.id,
+                  target_qty: targetQty,
+                  status: 'IN_PROGRESS',
+                  allotment_date: new Date().toISOString().split('T')[0]
+                })
+                .select('id')
+                .single()
+
+              if (newAl) {
+                // Insert default variants
+                const sizeList = (line.size_range || 'L/XXL').split('/').map((s: string) => s.trim())
+                const perSizeQty = Math.round(targetQty / (sizeList.length || 1))
+                const varsToInsert = sizeList.map((sz: string) => ({
+                  allotment_id: newAl.id,
+                  color: line.color_pattern || 'Standard',
+                  size: sz,
+                  quantity: perSizeQty,
+                  completed_qty: 0
+                }))
+                await supabase.from('allotment_variants').insert(varsToInsert)
+
+                // Insert default materials
+                const matNote = JSON.stringify({
+                  lineman_id: linemanId,
+                  lineman_name: linemanName,
+                  article_id: artObj.id,
+                  art_no: fullArtCode,
+                  article_description: artObj.description || '',
+                  client_challan_no: challan.challan_no,
+                  brand: challan.brand,
+                  total_pcs: targetQty,
+                  status: 'PENDING'
+                })
+                await supabase.from('allotment_materials').insert([
+                  { allotment_id: newAl.id, item_name: `Main Fabric (${challan.fabric_type || 'Sinker'})`, required_qty: 'As per lot', admin_issued: false, notes: matNote },
+                  { allotment_id: newAl.id, item_name: 'Matching Sewing Thread', required_qty: '5 Cones', admin_issued: false, notes: matNote },
+                  { allotment_id: newAl.id, item_name: 'Main Brand Neck Tag', required_qty: `${targetQty} pcs`, admin_issued: false, notes: matNote },
+                  { allotment_id: newAl.id, item_name: 'Master Polybags', required_qty: `${targetQty} pcs`, admin_issued: false, notes: matNote }
+                ])
+              }
+            }
+          }
+        }
+      } catch (_) {}
+    }
+
+    revalidatePath('/production-orders')
+    revalidatePath('/allotments')
+    revalidatePath('/')
+    return { success: true }
+  } catch (err: any) {
+    console.error('Error in allotEntireChallan:', err)
+    return { error: err?.message || 'Server error while assigning entire challan.' }
+  }
+}
+
+// ----------------------------------------------------------------------
+// ASSIGN SPECIFIC COLOR GROUP TO A LINEMAN (Color-Wise Split)
+// ----------------------------------------------------------------------
+export async function allotChallanByColor(challanId: string, colorName: string, linemanId: string) {
+  const supabase = supabaseAdmin
+
+  if (!challanId || !colorName || !linemanId) {
+    return { error: 'Please select a valid Color and Lineman.' }
+  }
+
+  try {
+    let linemanName = 'Lineman'
+    const { data: prof } = await supabase.from('profiles').select('username').eq('id', linemanId).single()
+    if (prof?.username) linemanName = prof.username
+
+    const { data: challan } = await supabase.from('challans').select('*').eq('id', challanId).single()
+    if (!challan) return { error: 'Challan not found.' }
+
+    const cleanColor = colorName.trim().toUpperCase()
+
+    // 1. Check existing allotments for this challan
+    const { data: existingAllots } = await supabase
+      .from('allotments')
+      .select('id, article_id, articles(art_no, description)')
+      .eq('challan_id', challanId)
+
+    if (existingAllots && existingAllots.length > 0) {
+      for (const al of existingAllots) {
+        const artObj = (Array.isArray(al.articles) ? al.articles[0] : al.articles) || {}
+        const artDesc = (artObj.description || '').toUpperCase()
+
+        if (artDesc.includes(cleanColor) || cleanColor.includes('MUSHROOM') || cleanColor.includes('DUTCH') || cleanColor.includes('SCUBA')) {
+          await supabase.from('allotments').update({ lineman_id: linemanId }).eq('id', al.id)
+
+          const { data: mats } = await supabase.from('allotment_materials').select('id, notes').eq('allotment_id', al.id)
+          if (mats) {
+            for (const m of mats) {
+              let nObj: any = {}
+              if (m.notes) {
+                try { nObj = JSON.parse(m.notes) } catch (_) {}
+              }
+              nObj.lineman_id = linemanId
+              nObj.lineman_name = linemanName
+              await supabase.from('allotment_materials').update({ notes: JSON.stringify(nObj) }).eq('id', m.id)
+            }
+          }
+        }
+      }
+    }
+
+    // 2. Check planned lines in challan notes
+    if (challan.notes) {
+      try {
+        const parsed = JSON.parse(challan.notes)
+        const plannedLines = parsed.article_lines || parsed
+        if (Array.isArray(plannedLines)) {
+          for (const line of plannedLines) {
+            const lineCol = (line.color_pattern || line.description || '').toUpperCase()
+            if (lineCol.includes(cleanColor) || lineCol.includes('3 COLOUR') || lineCol.includes('3 COLOR') || cleanColor === 'ALL') {
+              const cleanArtNo = (line.art_no || '9433').trim().toUpperCase()
+              const cleanSubArt = (line.sub_art_no || '').trim().toUpperCase()
+              const fullArtCode = line.full_art_code || (cleanSubArt ? `${cleanArtNo}${cleanSubArt}` : cleanArtNo)
+              const targetQty = Number(line.total_pcs) || ((Number(line.sets) || 1) * (Number(line.pcs_per_set) || 9))
+
+              const { data: artObj } = await supabase
+                .from('articles')
+                .select('id, art_no, description')
+                .eq('art_no', fullArtCode)
+                .limit(1)
+                .single()
+
+              if (artObj) {
+                // Check if already created
+                const { data: alreadyCreated } = await supabase
+                  .from('allotments')
+                  .select('id')
+                  .eq('challan_id', challanId)
+                  .eq('article_id', artObj.id)
+                  .limit(1)
+                  .single()
+
+                if (alreadyCreated) {
+                  await supabase.from('allotments').update({ lineman_id: linemanId }).eq('id', alreadyCreated.id)
+                } else {
+                  const { data: newAl } = await supabase
+                    .from('allotments')
+                    .insert({
+                      challan_id: challanId,
+                      lineman_id: linemanId,
+                      article_id: artObj.id,
+                      target_qty: targetQty,
+                      status: 'IN_PROGRESS',
+                      allotment_date: new Date().toISOString().split('T')[0]
+                    })
+                    .select('id')
+                    .single()
+
+                  if (newAl) {
+                    const sizeList = (line.size_range || 'L/XXL').split('/').map((s: string) => s.trim())
+                    const perSizeQty = Math.round(targetQty / (sizeList.length || 1))
+                    const varsToInsert = sizeList.map((sz: string) => ({
+                      allotment_id: newAl.id,
+                      color: line.color_pattern || colorName,
+                      size: sz,
+                      quantity: perSizeQty,
+                      completed_qty: 0
+                    }))
+                    await supabase.from('allotment_variants').insert(varsToInsert)
+
+                    const matNote = JSON.stringify({
+                      lineman_id: linemanId,
+                      lineman_name: linemanName,
+                      article_id: artObj.id,
+                      art_no: fullArtCode,
+                      article_description: artObj.description || '',
+                      client_challan_no: challan.challan_no,
+                      brand: challan.brand,
+                      color_focus: colorName,
+                      total_pcs: targetQty,
+                      status: 'PENDING'
+                    })
+                    await supabase.from('allotment_materials').insert([
+                      { allotment_id: newAl.id, item_name: `${colorName} Fabric Lot`, required_qty: 'As per lot', admin_issued: false, notes: matNote },
+                      { allotment_id: newAl.id, item_name: `Matching Thread (${colorName})`, required_qty: '5 Cones', admin_issued: false, notes: matNote },
+                      { allotment_id: newAl.id, item_name: 'Size & Main Neck Labels', required_qty: `${targetQty} pcs`, admin_issued: false, notes: matNote },
+                      { allotment_id: newAl.id, item_name: 'Master Polybags', required_qty: `${targetQty} pcs`, admin_issued: false, notes: matNote }
+                    ])
+                  }
+                }
+              }
+            }
+          }
+        }
+      } catch (_) {}
+    }
+
+    revalidatePath('/production-orders')
+    revalidatePath('/allotments')
+    revalidatePath('/')
+    return { success: true }
+  } catch (err: any) {
+    console.error('Error in allotChallanByColor:', err)
+    return { error: err?.message || 'Server error while assigning color line.' }
+  }
 }
 
 // ----------------------------------------------------------------------

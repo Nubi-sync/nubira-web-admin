@@ -27,8 +27,16 @@ import {
   createChallan,
   updateOrderStatus,
   deleteProductionOrder,
-  assignLinemanToArticle
+  assignLinemanToArticle,
+  allotEntireChallan,
+  allotChallanByColor
 } from '../actions'
+import {
+  Palette,
+  Zap,
+  UserCheck,
+  Sparkles
+} from 'lucide-react'
 
 const DEFAULT_FABRICS = [
   'PRINTED SINKER',
@@ -93,6 +101,12 @@ export function ProductionOrdersClient({
 
   // Modals
   const [showNewChallanModal, setShowNewChallanModal] = useState(false)
+
+  // Smart Allotment States
+  const [selectedFullLineman, setSelectedFullLineman] = useState<Record<string, string>>({})
+  const [selectedColorLineman, setSelectedColorLineman] = useState<Record<string, Record<string, string>>>({})
+  const [activeActionTab, setActiveActionTab] = useState<Record<string, 'COLOR_SPLIT' | 'FULL_CHALLAN' | 'TABLE'>>({})
+  const [allotSuccessMsg, setAllotSuccessMsg] = useState<Record<string, string>>({})
 
   // ----------------------------------------------------------------------
   // NEW CHALLAN FORM STATE (Clean / Fresh / No Hardcoded Defaults)
@@ -390,21 +404,179 @@ export function ProductionOrdersClient({
     })
   }
 
-  // Lineman Quick Assignment
-  const handleAssignLineman = (allotmentId: string, linemanId: string) => {
+  // Helper: Compute Color & Size Matrix for any Challan (Sir's Exact Formula)
+  const computeColorBreakdown = (challan: ChallanGroupedOrder) => {
+    const colorMap: Record<string, {
+      colorName: string
+      themeColor: string
+      bgLight: string
+      borderTheme: string
+      totalPcs: number
+      sizeBreakdown: Record<string, number>
+      assignedLinemanId?: string
+      assignedLinemanName?: string
+    }> = {}
+
+    const standardColors = ['MUSHROOM', 'DUTCH BLUE', 'SCUBA']
+    const detectedFromBom = (challan.bom_details || [])
+      .map(b => b.item_name.toUpperCase())
+      .filter(name => !name.includes('BODY') && !name.includes('RIB') && !name.includes('LABEL') && !name.includes('POLYBAG') && !name.includes('THREAD'))
+    
+    const activeColorNames = new Set<string>()
+    standardColors.forEach(c => activeColorNames.add(c))
+    detectedFromBom.forEach(c => activeColorNames.add(c))
+
+    const getTheme = (cName: string) => {
+      const c = cName.toUpperCase()
+      if (c.includes('MUSHROOM')) return { themeColor: '#854D0E', bgLight: '#FEFCE8', borderTheme: '#FEF08A' }
+      if (c.includes('DUTCH') || c.includes('BLUE')) return { themeColor: '#1D4ED8', bgLight: '#EFF6FF', borderTheme: '#BFDBFE' }
+      if (c.includes('SCUBA') || c.includes('GREEN') || c.includes('SEUBA')) return { themeColor: '#047857', bgLight: '#ECFDF5', borderTheme: '#A7F3D0' }
+      if (c.includes('RED') || c.includes('PINK') || c.includes('CHERRY')) return { themeColor: '#BE123C', bgLight: '#FFF1F2', borderTheme: '#FECDD3' }
+      if (c.includes('BLACK') || c.includes('CHARCOAL')) return { themeColor: '#334155', bgLight: '#F8FAFC', borderTheme: '#E2E8F0' }
+      return { themeColor: '#4F46E5', bgLight: '#EEF2FF', borderTheme: '#C7D2FE' }
+    }
+
+    activeColorNames.forEach(cName => {
+      const th = getTheme(cName)
+      colorMap[cName] = {
+        colorName: cName,
+        themeColor: th.themeColor,
+        bgLight: th.bgLight,
+        borderTheme: th.borderTheme,
+        totalPcs: 0,
+        sizeBreakdown: {}
+      }
+    })
+
+    challan.articles.forEach(art => {
+      const patternUpper = (art.color_pattern || art.description || '').toUpperCase()
+      const sizeTier = art.size_range || 'Free Size'
+      const totalPcs = Number(art.total_pcs) || 0
+
+      const matchedColors: string[] = []
+      if (patternUpper.includes('3 COLOUR') || patternUpper.includes('3 COLOR') || patternUpper.includes('ALL')) {
+        matchedColors.push('MUSHROOM', 'DUTCH BLUE', 'SCUBA')
+      } else {
+        activeColorNames.forEach(cName => {
+          if (patternUpper.includes(cName) || (cName.includes('SCUBA') && patternUpper.includes('SEUBA'))) {
+            matchedColors.push(cName)
+          }
+        })
+      }
+
+      if (matchedColors.length > 0) {
+        const pcsPerColor = Math.round(totalPcs / matchedColors.length)
+        matchedColors.forEach(cName => {
+          if (!colorMap[cName]) {
+            const th = getTheme(cName)
+            colorMap[cName] = {
+              colorName: cName,
+              themeColor: th.themeColor,
+              bgLight: th.bgLight,
+              borderTheme: th.borderTheme,
+              totalPcs: 0,
+              sizeBreakdown: {}
+            }
+          }
+          colorMap[cName].totalPcs += pcsPerColor
+          colorMap[cName].sizeBreakdown[sizeTier] = (colorMap[cName].sizeBreakdown[sizeTier] || 0) + pcsPerColor
+          if (art.assigned_lineman_id) {
+            colorMap[cName].assignedLinemanId = art.assigned_lineman_id
+            colorMap[cName].assignedLinemanName = art.assigned_lineman_name
+          }
+        })
+      }
+    })
+
+    return Object.values(colorMap).filter(c => c.totalPcs > 0)
+  }
+
+  // Handle Allot Entire Challan to 1 Lineman
+  const handleAllotEntireChallan = (challanId: string) => {
+    const lmId = selectedFullLineman[challanId]
+    if (!lmId) {
+      alert('Please select a Lineman first.')
+      return
+    }
+
     startTransition(async () => {
-      await assignLinemanToArticle(allotmentId, linemanId)
-      const lmName = linemenList.find(l => l.id === linemanId)?.username || 'Unassigned'
+      const res = await allotEntireChallan(challanId, lmId)
+      if (res?.error) {
+        alert(res.error)
+        return
+      }
+
+      const lmName = linemenList.find(l => l.id === lmId)?.username || 'Lineman'
       setOrders(prev =>
-        prev.map(ch => ({
-          ...ch,
-          articles: ch.articles.map(a =>
-            a.allotment_id === allotmentId
-              ? { ...a, assigned_lineman_id: linemanId, assigned_lineman_name: lmName }
-              : a
-          )
-        }))
+        prev.map(ch =>
+          ch.id === challanId
+            ? {
+                ...ch,
+                articles: ch.articles.map(a => ({
+                  ...a,
+                  assigned_lineman_id: lmId,
+                  assigned_lineman_name: lmName,
+                  status: 'IN_PROGRESS'
+                }))
+              }
+            : ch
+        )
       )
+
+      setAllotSuccessMsg(prev => ({
+        ...prev,
+        [challanId]: `All ${orders.find(o => o.id === challanId)?.total_pcs.toLocaleString()} pieces allotted to ${lmName}!`
+      }))
+      setTimeout(() => {
+        setAllotSuccessMsg(prev => ({ ...prev, [challanId]: '' }))
+      }, 4000)
+    })
+  }
+
+  // Handle Allot by Color Group
+  const handleAllotColorLine = (challanId: string, colorName: string) => {
+    const lmId = selectedColorLineman[challanId]?.[colorName]
+    if (!lmId) {
+      alert(`Please select a Lineman for ${colorName} line.`)
+      return
+    }
+
+    startTransition(async () => {
+      const res = await allotChallanByColor(challanId, colorName, lmId)
+      if (res?.error) {
+        alert(res.error)
+        return
+      }
+
+      const lmName = linemenList.find(l => l.id === lmId)?.username || 'Lineman'
+      setOrders(prev =>
+        prev.map(ch => {
+          if (ch.id !== challanId) return ch
+          return {
+            ...ch,
+            articles: ch.articles.map(a => {
+              const pUpper = (a.color_pattern || a.description || '').toUpperCase()
+              if (pUpper.includes(colorName.toUpperCase()) || pUpper.includes('3 COLOUR') || pUpper.includes('3 COLOR')) {
+                return {
+                  ...a,
+                  assigned_lineman_id: lmId,
+                  assigned_lineman_name: lmName,
+                  status: 'IN_PROGRESS'
+                }
+              }
+              return a
+            })
+          }
+        })
+      )
+
+      setAllotSuccessMsg(prev => ({
+        ...prev,
+        [challanId]: `${colorName} line successfully allotted to ${lmName}!`
+      }))
+      setTimeout(() => {
+        setAllotSuccessMsg(prev => ({ ...prev, [challanId]: '' }))
+      }, 4000)
     })
   }
 
@@ -730,9 +902,17 @@ export function ProductionOrdersClient({
                   </div>
                 </div>
 
-                {/* Expanded Article Lines Table */}
+                {/* Expanded Article Lines Table & Smart Allotment Hub */}
                 {isExpanded && (
                   <div>
+                    {/* Success notification if allotted */}
+                    {allotSuccessMsg[challan.id] && (
+                      <div className="p-3 bg-emerald-50 border-b border-emerald-200 text-emerald-800 text-xs font-bold flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                        <span>{allotSuccessMsg[challan.id]}</span>
+                      </div>
+                    )}
+
                     {/* BOM & Lots Summary Bar if present */}
                     {challan.bom_details && challan.bom_details.length > 0 && (
                       <div className="p-3 bg-slate-50/50 border-b border-slate-100 flex items-center gap-2 flex-wrap text-xs">
@@ -750,7 +930,156 @@ export function ProductionOrdersClient({
                       </div>
                     )}
 
-                    {/* Article Lines Grid */}
+                    {/* ========================================================= */}
+                    {/* SMART LINE ALLOTMENT HUB (Sir's Exact Factory Rules)      */}
+                    {/* ========================================================= */}
+                    <div className="p-4 bg-slate-50/90 border-b border-slate-200">
+                      <div className="flex items-center justify-between gap-3 flex-wrap mb-3">
+                        <div className="flex items-center gap-2">
+                          <Sparkles className="w-4 h-4 text-indigo-600" />
+                          <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-800">
+                            Smart Line Allotment Hub
+                          </h4>
+                          <span className="px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                            Fast Line Distribution
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* 1. Full Challan 1-Click Allotment Bar */}
+                      <div className="p-3.5 bg-white border border-slate-200 rounded-xl shadow-2xs mb-3 flex flex-col md:flex-row md:items-center justify-between gap-3">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-8 h-8 rounded-lg bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-700 shrink-0">
+                            <Zap className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <div className="text-xs font-bold text-slate-900">
+                              Assign Entire Challan ({challan.total_pcs.toLocaleString()} Pcs) to 1 Lineman
+                            </div>
+                            <div className="text-[11px] text-slate-500">
+                              1-Click assigns all {challan.articles?.length || 8} articles in this batch to a single production line
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 shrink-0">
+                          <select
+                            value={selectedFullLineman[challan.id] || ''}
+                            onChange={e => setSelectedFullLineman(prev => ({ ...prev, [challan.id]: e.target.value }))}
+                            className="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-800 cursor-pointer focus:outline-none"
+                          >
+                            <option value="">Select Lineman...</option>
+                            {linemenList.map(lm => (
+                              <option key={lm.id} value={lm.id}>
+                                👤 {lm.username}
+                              </option>
+                            ))}
+                          </select>
+
+                          <button
+                            type="button"
+                            disabled={isPending}
+                            onClick={() => handleAllotEntireChallan(challan.id)}
+                            className="px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-bold shadow-2xs transition-all disabled:opacity-50 cursor-pointer flex items-center gap-1.5"
+                          >
+                            <Zap className="w-3.5 h-3.5 text-amber-400" />
+                            <span>Allot Full Challan</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* 2. Color-Wise Line Distribution Matrix (Sir's Exact Formula Cards) */}
+                      {(() => {
+                        const colorCards = computeColorBreakdown(challan)
+                        if (colorCards.length === 0) return null
+
+                        return (
+                          <div>
+                            <div className="flex items-center gap-1.5 mb-2 text-xs font-bold text-slate-700">
+                              <Palette className="w-3.5 h-3.5 text-slate-500" />
+                              <span>Color-Wise Line Split (Continuous Color Sewing for Speed)</span>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                              {colorCards.map((cg, cIdx) => (
+                                <div
+                                  key={cIdx}
+                                  style={{ backgroundColor: cg.bgLight, borderColor: cg.borderTheme }}
+                                  className="border rounded-xl p-3.5 flex flex-col justify-between shadow-2xs"
+                                >
+                                  <div>
+                                    <div className="flex items-center justify-between gap-2 mb-2">
+                                      <div className="flex items-center gap-2">
+                                        <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: cg.themeColor }} />
+                                        <span className="font-extrabold text-xs text-slate-900 uppercase">
+                                          {cg.colorName} LINE
+                                        </span>
+                                      </div>
+                                      <span
+                                        style={{ color: cg.themeColor }}
+                                        className="text-xs font-black font-mono px-2 py-0.5 bg-white/80 rounded-md border border-slate-200"
+                                      >
+                                        {cg.totalPcs.toLocaleString()} Pcs
+                                      </span>
+                                    </div>
+
+                                    {/* Size Groups Breakdown */}
+                                    <div className="bg-white/90 rounded-lg p-2 border border-slate-200/80 mb-3 space-y-1">
+                                      <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                                        Size Groups Breakdown:
+                                      </div>
+                                      {Object.entries(cg.sizeBreakdown).map(([sz, count], sIdx) => (
+                                        <div key={sIdx} className="flex items-center justify-between text-[11px] font-medium text-slate-700">
+                                          <span>Tier {sz}:</span>
+                                          <span className="font-bold text-slate-900">{count} pcs</span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+
+                                  <div className="space-y-2 pt-2 border-t border-slate-200/60">
+                                    <select
+                                      value={selectedColorLineman[challan.id]?.[cg.colorName] || cg.assignedLinemanId || ''}
+                                      onChange={e => {
+                                        const val = e.target.value
+                                        setSelectedColorLineman(prev => ({
+                                          ...prev,
+                                          [challan.id]: {
+                                            ...(prev[challan.id] || {}),
+                                            [cg.colorName]: val
+                                          }
+                                        }))
+                                      }}
+                                      className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs font-semibold text-slate-800 cursor-pointer focus:outline-none"
+                                    >
+                                      <option value="">Assign {cg.colorName} to Lineman...</option>
+                                      {linemenList.map(lm => (
+                                        <option key={lm.id} value={lm.id}>
+                                          👤 {lm.username}
+                                        </option>
+                                      ))}
+                                    </select>
+
+                                    <button
+                                      type="button"
+                                      disabled={isPending}
+                                      onClick={() => handleAllotColorLine(challan.id, cg.colorName)}
+                                      style={{ backgroundColor: cg.themeColor }}
+                                      className="w-full py-1.5 text-white rounded-lg text-xs font-bold shadow-2xs hover:opacity-95 transition-all disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1.5"
+                                    >
+                                      <UserCheck className="w-3.5 h-3.5" />
+                                      <span>Allot {cg.colorName} ({cg.totalPcs} pcs)</span>
+                                    </button>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )
+                      })()}
+                    </div>
+
+                    {/* Article Lines Reference Grid (No manual row dropdowns) */}
                     <div className="overflow-x-auto">
                       <table className="w-full text-left border-collapse text-xs">
                         <thead>
@@ -763,7 +1092,7 @@ export function ProductionOrdersClient({
                             <th className="py-2.5 px-3 w-20 text-right">Sets</th>
                             <th className="py-2.5 px-3 w-20 text-right">Pcs/Set</th>
                             <th className="py-2.5 px-3 w-24 text-right">Total Pcs</th>
-                            <th className="py-2.5 px-3 w-40">Assigned Lineman</th>
+                            <th className="py-2.5 px-3 w-40">Assigned Line</th>
                             <th className="py-2.5 px-3 w-28">Line Status</th>
                             <th className="py-2.5 px-2 w-12 text-center">Action</th>
                           </tr>
@@ -818,20 +1147,17 @@ export function ProductionOrdersClient({
                                 {line.total_pcs.toLocaleString()} pcs
                               </td>
 
-                              {/* Lineman Assignment */}
+                              {/* Assigned Line (Clean Auto-Badge) */}
                               <td className="py-2.5 px-3">
-                                <select
-                                  value={line.assigned_lineman_id || ''}
-                                  onChange={e => handleAssignLineman(line.allotment_id, e.target.value)}
-                                  className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-[11px] font-semibold text-slate-700 cursor-pointer focus:outline-none"
-                                >
-                                  <option value="">Select Lineman...</option>
-                                  {linemenList.map(lm => (
-                                    <option key={lm.id} value={lm.id}>
-                                      👤 {lm.username}
-                                    </option>
-                                  ))}
-                                </select>
+                                {line.assigned_lineman_name && line.assigned_lineman_name !== 'Unassigned' && line.assigned_lineman_name !== 'Unassigned (Floor Order)' ? (
+                                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                                    👤 {line.assigned_lineman_name}
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10.5px] font-medium bg-slate-100 text-slate-500">
+                                    ⏳ Pending Allotment
+                                  </span>
+                                )}
                               </td>
 
                               {/* Line Status */}
