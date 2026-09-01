@@ -1,12 +1,13 @@
 'use client'
 
-import { useState, useMemo, useTransition } from 'react'
+import { useState, useMemo, useTransition, useRef } from 'react'
 import {
   Calendar,
   Layers,
   Plus,
   Search,
   CheckCircle2,
+  AlertCircle,
   Clock,
   Truck,
   Download,
@@ -17,7 +18,9 @@ import {
   ChevronDown,
   ChevronRight,
   Copy,
-  FileSpreadsheet
+  FileSpreadsheet,
+  UploadCloud,
+  FileUp
 } from 'lucide-react'
 import {
   ChallanArticleLine,
@@ -37,6 +40,10 @@ import {
   UserCheck,
   Sparkles
 } from 'lucide-react'
+import {
+  downloadCleanChallanTemplate,
+  parseChallanExcelFile
+} from '@/lib/excelChallanParser'
 
 const DEFAULT_FABRICS = [
   'PRINTED SINKER',
@@ -69,7 +76,7 @@ const createEmptyArticleLine = (): ChallanArticleLine => ({
   color_pattern: '',
   size_range: '',
   sets: '' as any,
-  pcs_per_set: 9,
+  pcs_per_set: '' as any,
   total_pcs: '' as any,
   assigned_lineman_id: ''
 })
@@ -102,6 +109,11 @@ export function ProductionOrdersClient({
   // Modals
   const [showNewChallanModal, setShowNewChallanModal] = useState(false)
 
+  // Excel Bulk Import States
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [isImporting, setIsImporting] = useState(false)
+  const [importStatus, setImportStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
+
   // Smart Allotment States
   const [selectedFullLineman, setSelectedFullLineman] = useState<Record<string, string>>({})
   const [selectedColorLineman, setSelectedColorLineman] = useState<Record<string, Record<string, string>>>({})
@@ -109,7 +121,7 @@ export function ProductionOrdersClient({
   const [allotSuccessMsg, setAllotSuccessMsg] = useState<Record<string, string>>({})
 
   // ----------------------------------------------------------------------
-  // NEW CHALLAN FORM STATE (Clean / Fresh / No Hardcoded Defaults)
+  // NEW CHALLAN FORM STATE (Clean / Fresh / Zero Hardcoded Defaults)
   // ----------------------------------------------------------------------
   const todayStr = new Date().toISOString().split('T')[0]
   const [formChallanNo, setFormChallanNo] = useState('')
@@ -137,7 +149,50 @@ export function ProductionOrdersClient({
     setFormNotes('')
     setArticleLines([createEmptyArticleLine()])
     setBomItems([])
+    setImportStatus(null)
     setShowNewChallanModal(true)
+  }
+
+  // Handle Excel File Upload & Auto-fill
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    try {
+      setIsImporting(true)
+      setImportStatus(null)
+      const data = await parseChallanExcelFile(file)
+
+      if (data.header.challan_no) setFormChallanNo(data.header.challan_no)
+      if (data.header.brand) setFormBrand(data.header.brand)
+      if (data.header.challan_date) setFormChallanDate(data.header.challan_date)
+      if (data.header.fabric_type) setFormFabric(data.header.fabric_type)
+      if (data.header.delivery_date) setFormDeliveryDate(data.header.delivery_date)
+      if (data.header.sample_given !== undefined) setFormSampleGiven(data.header.sample_given)
+      if (data.header.notes) setFormNotes(data.header.notes)
+
+      if (data.articleLines && data.articleLines.length > 0) {
+        setArticleLines(data.articleLines as any)
+      }
+      if (data.bomItems && data.bomItems.length > 0) {
+        setBomItems(data.bomItems as any)
+      }
+
+      setImportStatus({
+        type: 'success',
+        message: `Imported ${data.summary.lineCount} article lines from "${file.name}" (Total ${data.summary.totalPcs.toLocaleString()} Pieces).`
+      })
+      setShowNewChallanModal(true)
+    } catch (err: any) {
+      setImportStatus({
+        type: 'error',
+        message: err.message || 'Failed to parse Excel file. Please check the file structure.'
+      })
+      setShowNewChallanModal(true)
+    } finally {
+      setIsImporting(false)
+      if (fileInputRef.current) fileInputRef.current.value = ''
+    }
   }
 
   // Handlers for Article Lines
@@ -153,7 +208,7 @@ export function ProductionOrdersClient({
         color_pattern: last?.color_pattern || '',
         size_range: '',
         sets: '' as any,
-        pcs_per_set: last?.pcs_per_set || 9,
+        pcs_per_set: (last?.pcs_per_set !== undefined && (last?.pcs_per_set as any) !== '') ? last.pcs_per_set : ('' as any),
         total_pcs: '' as any,
         assigned_lineman_id: ''
       }
@@ -190,17 +245,17 @@ export function ProductionOrdersClient({
         const rawRatio = field === 'pcs_per_set' ? value : current.pcs_per_set
         
         const setsVal = rawSets === '' ? ('' as any) : (parseInt(rawSets, 10) || 0)
-        const ratioVal = rawRatio === '' ? 9 : (parseInt(rawRatio, 10) || 1)
+        const ratioVal = rawRatio === '' ? ('' as any) : (parseInt(rawRatio, 10) || 0)
         
         current.sets = setsVal
         current.pcs_per_set = ratioVal
-        current.total_pcs = setsVal === '' ? ('' as any) : (Number(setsVal) * Number(ratioVal))
+        current.total_pcs = (setsVal === '' || ratioVal === '') ? ('' as any) : (Number(setsVal) * Number(ratioVal))
       } else if (field === 'total_pcs') {
         const pcsVal = value === '' ? ('' as any) : (parseInt(value, 10) || 0)
         current.total_pcs = pcsVal
-        if (pcsVal !== '') {
-          current.sets = Math.round(Number(pcsVal) / (current.pcs_per_set || 9)) || 1
-        } else {
+        if (pcsVal !== '' && current.pcs_per_set && Number(current.pcs_per_set) > 0) {
+          current.sets = Math.round(Number(pcsVal) / Number(current.pcs_per_set)) || ('' as any)
+        } else if (pcsVal === '') {
           current.sets = '' as any
         }
       } else {
@@ -693,6 +748,35 @@ export function ProductionOrdersClient({
         </div>
 
         <div className="flex items-center gap-2.5 flex-wrap">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".xlsx, .xls, .csv"
+            className="hidden"
+            onChange={handleFileUpload}
+          />
+
+          <button
+            type="button"
+            onClick={downloadCleanChallanTemplate}
+            className="px-3.5 py-2 rounded-xl text-xs font-semibold border bg-white shadow-2xs hover:bg-slate-50 text-slate-700 flex items-center gap-2 transition-all cursor-pointer border-slate-200"
+            title="Download clean blank Excel template"
+          >
+            <Download className="w-4 h-4 text-slate-500" />
+            <span>Download Template</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isImporting}
+            className="px-3.5 py-2 rounded-xl text-xs font-semibold border bg-white shadow-2xs hover:bg-slate-50 text-slate-700 flex items-center gap-2 transition-all cursor-pointer border-slate-200"
+            title="Import Challan from Excel (.xlsx) or CSV"
+          >
+            <UploadCloud className="w-4 h-4 text-blue-600" />
+            <span>{isImporting ? 'Importing...' : 'Import Excel'}</span>
+          </button>
+
           <button
             type="button"
             onClick={handleExportCSV}
@@ -1294,24 +1378,73 @@ export function ProductionOrdersClient({
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-6xl max-h-[94vh] flex flex-col overflow-hidden border border-slate-200 my-auto animate-in fade-in zoom-in-95 duration-150">
             
             {/* Modal Header */}
-            <div className="p-4 sm:p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50/90">
+            <div className="p-4 sm:p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50/90 flex-wrap gap-3">
               <div>
                 <h2 className="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2">
-                  <span>📋 New Job Work Delivery Challan Entry</span>
+                  <FileSpreadsheet className="w-5 h-5 text-slate-700" />
+                  <span>New Job Work Delivery Challan Entry</span>
                 </h2>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  Enter multi-article cutting lots, sizes, and BOM materials directly from client delivery challan
+                  Enter multi-article cutting lots, sizes, and BOM materials directly or import via Excel
                 </p>
               </div>
 
-              <button
-                type="button"
-                onClick={() => setShowNewChallanModal(false)}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={downloadCleanChallanTemplate}
+                  className="px-3 py-1.5 rounded-lg text-xs font-semibold border bg-white hover:bg-slate-50 text-slate-700 flex items-center gap-1.5 border-slate-200 shadow-2xs transition-colors cursor-pointer"
+                  title="Download clean Excel template"
+                >
+                  <Download className="w-3.5 h-3.5 text-slate-500" />
+                  <span>Template</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isImporting}
+                  className="px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
+                  title="Import from Excel or CSV"
+                >
+                  <UploadCloud className="w-3.5 h-3.5 text-blue-600" />
+                  <span>{isImporting ? 'Importing...' : 'Import Excel'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setShowNewChallanModal(false)}
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition-colors cursor-pointer ml-1"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
             </div>
+
+            {/* Import Status Alert Banner */}
+            {importStatus && (
+              <div className={`mx-4 sm:mx-6 mt-4 p-3 rounded-xl border flex items-center justify-between gap-3 text-xs animate-in fade-in duration-150 ${
+                importStatus.type === 'success'
+                  ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                  : 'bg-rose-50 border-rose-200 text-rose-800'
+              }`}>
+                <div className="flex items-center gap-2">
+                  {importStatus.type === 'success' ? (
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  ) : (
+                    <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+                  )}
+                  <span className="font-semibold">{importStatus.message}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setImportStatus(null)}
+                  className="text-slate-400 hover:text-slate-700 p-1"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
 
             {/* Modal Body */}
             <form onSubmit={handleSaveChallan} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
@@ -1726,7 +1859,7 @@ export function ProductionOrdersClient({
                     ) : (
                       <>
                         <CheckCircle2 className="w-4 h-4" />
-                        <span>Save & Send Challan to Floor 🚀</span>
+                        <span>Save & Send Challan to Floor</span>
                       </>
                     )}
                   </button>
