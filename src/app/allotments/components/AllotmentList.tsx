@@ -204,7 +204,9 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
         const desc = (a.articles?.description || '').toLowerCase()
         const lineman = (a.profiles?.username || '').toLowerCase()
         const date = (a.allotment_date || '').toLowerCase()
-        return art.includes(q) || desc.includes(q) || lineman.includes(q) || date.includes(q)
+        const orderNo = (a.production_order_no || '').toLowerCase()
+        const variantColors = (a.variants || []).map((v: any) => (v.color || '').toLowerCase()).join(' ')
+        return art.includes(q) || desc.includes(q) || lineman.includes(q) || date.includes(q) || orderNo.includes(q) || variantColors.includes(q)
       })
     }
 
@@ -386,11 +388,33 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                         <div className="text-[11px] font-mono text-slate-400 mt-0.5">{al.allotment_date}</div>
                       </td>
 
-                      {/* Article Style */}
-                      <td className="px-4 py-3.5">
-                        <div className="font-bold text-[var(--steel,#2B4C7E)]">{al.articles?.art_no}</div>
-                        <div className="text-[11px] text-slate-500 truncate max-w-[150px]">{cleanDescription(al.articles?.description)}</div>
-                      </td>
+                      {/* Article Style & Assigned Color Line */}
+                      {(() => {
+                        const distinctColors = Array.from(new Set((variants || []).map(v => v.color?.trim()).filter(Boolean)))
+                        const colorLabel = distinctColors.length === 1 
+                          ? `${distinctColors[0]} LINE`
+                          : distinctColors.length > 1
+                          ? `${distinctColors.join(', ')}`
+                          : al.production_order_no
+                          ? al.production_order_no
+                          : cleanDescription(al.articles?.description)
+
+                        return (
+                          <td className="px-4 py-3.5">
+                            <div className="font-bold text-[var(--steel,#2B4C7E)] flex items-center gap-1.5 flex-wrap">
+                              <span>{al.articles?.art_no}</span>
+                              {distinctColors.length === 1 && (
+                                <span className="text-[10px] font-black px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200">
+                                  {distinctColors[0]}
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-[11px] text-slate-600 font-semibold truncate max-w-[170px] mt-0.5" title={colorLabel}>
+                              {colorLabel}
+                            </div>
+                          </td>
+                        )
+                      })()}
 
                       {/* Size & Color Ratio Summary */}
                       <td className="px-4 py-3.5">
