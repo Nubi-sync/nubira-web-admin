@@ -59,6 +59,44 @@ export default async function InventoryPage() {
     `)
     .order('created_at', { ascending: false })
 
+  // 4. Fetch Truck & Accessory Challan Inwards (GRN)
+  let truckInwards: any[] = []
+  try {
+    const { data: tiData } = await supabase
+      .from('truck_inwards')
+      .select(`
+        id,
+        grn_no,
+        party_name,
+        article_no,
+        challan_no,
+        inward_date,
+        truck_no,
+        challan_photo_url,
+        receiver_name,
+        status,
+        total_items,
+        due_items_count,
+        shortage_items_count,
+        notes,
+        created_at,
+        items:truck_inward_items(
+          id,
+          item_name,
+          size_label,
+          quantity,
+          unit,
+          status,
+          shortage_qty,
+          remarks
+        )
+      `)
+      .order('created_at', { ascending: false })
+    if (tiData) truckInwards = tiData
+  } catch (err) {
+    console.error('truck_inwards fetch warning:', err)
+  }
+
   return (
     <AdminShell userEmail={user.email}>
       <div className="flex-1 p-6 md:p-8 max-w-7xl w-full mx-auto space-y-5">
@@ -78,6 +116,7 @@ export default async function InventoryPage() {
           articles={(articles as any) || []}
           storeTransactions={(storeTransactions as any) || []}
           accessories={(accessories as any) || []}
+          truckInwards={truckInwards}
         />
 
       </div>

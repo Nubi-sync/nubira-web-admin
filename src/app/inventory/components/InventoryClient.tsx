@@ -16,7 +16,14 @@ import {
   ArrowUp,
   ArrowDown,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  FileText,
+  Image as ImageIcon,
+  AlertTriangle,
+  Clock,
+  Eye,
+  Check,
+  ExternalLink
 } from 'lucide-react'
 import { addStoreTransaction, addAccessoryTransaction } from '../actions'
 
@@ -53,13 +60,44 @@ type Accessory = {
   notes?: string | null
 }
 
+export type TruckInwardItem = {
+  id: string
+  item_name: string
+  size_label?: string | null
+  quantity: number
+  unit?: string | null
+  status: 'RECEIVED' | 'SHORTAGE' | 'DUE' | 'DEFECTIVE'
+  shortage_qty?: number | null
+  remarks?: string | null
+}
+
+export type TruckInward = {
+  id: string
+  grn_no: string
+  party_name: string
+  article_no?: string | null
+  challan_no?: string | null
+  inward_date: string
+  truck_no?: string | null
+  challan_photo_url?: string | null
+  receiver_name?: string | null
+  status: 'VERIFIED' | 'SHORTAGE' | 'DUE_PENDING'
+  total_items: number
+  due_items_count: number
+  shortage_items_count: number
+  notes?: string | null
+  created_at: string
+  items?: TruckInwardItem[]
+}
+
 interface InventoryClientProps {
   articles: Article[]
   storeTransactions: StoreTransaction[]
   accessories: Accessory[]
+  truckInwards?: TruckInward[]
 }
 
-type TabKey = 'finished' | 'accessories' | 'dispatch' | 'inward'
+type TabKey = 'finished' | 'challans' | 'accessories' | 'dispatch' | 'inward'
 type StockStatusFilter = 'ALL' | 'IN_STOCK' | 'LOW_STOCK' | 'OUT_OF_STOCK'
 type SortOrder = 'asc' | 'desc'
 
@@ -83,6 +121,7 @@ export function InventoryClient({
   articles,
   storeTransactions,
   accessories,
+  truckInwards = [],
 }: InventoryClientProps) {
   const [activeTab, setActiveTab] = useState<TabKey>('finished')
   const [searchTerm, setSearchTerm] = useState('')
@@ -99,6 +138,8 @@ export function InventoryClient({
   const [showInwardModal, setShowInwardModal] = useState(false)
   const [showOutwardModal, setShowOutwardModal] = useState(false)
   const [showAccessoryModal, setShowAccessoryModal] = useState(false)
+  const [activePhoto, setActivePhoto] = useState<{ url: string; title: string } | null>(null)
+  const [expandedGrnId, setExpandedGrnId] = useState<string | null>(null)
 
   // Switch tabs & reset pagination/filters cleanly
   const handleTabChange = (tab: TabKey) => {
@@ -315,13 +356,55 @@ export function InventoryClient({
     return list
   }, [storeTransactions, searchTerm, sortCol, sortOrder])
 
+  // 5. Filtered Truck Inwards & Accessory Challans (GRN)
+  const filteredChallans = useMemo(() => {
+    let list = [...(truckInwards || [])]
+
+    if (searchTerm.trim()) {
+      const q = searchTerm.toLowerCase().trim()
+      list = list.filter(c =>
+        (c.grn_no || '').toLowerCase().includes(q) ||
+        (c.party_name || '').toLowerCase().includes(q) ||
+        (c.article_no || '').toLowerCase().includes(q) ||
+        (c.challan_no || '').toLowerCase().includes(q) ||
+        (c.truck_no || '').toLowerCase().includes(q) ||
+        (c.notes || '').toLowerCase().includes(q) ||
+        (c.items || []).some(i => i.item_name.toLowerCase().includes(q))
+      )
+    }
+
+    if (statusFilter === 'IN_STOCK') {
+      list = list.filter(c => c.status === 'VERIFIED')
+    } else if (statusFilter === 'LOW_STOCK') {
+      list = list.filter(c => c.status === 'SHORTAGE')
+    } else if (statusFilter === 'OUT_OF_STOCK') {
+      list = list.filter(c => c.status === 'DUE_PENDING')
+    }
+
+    // Sort
+    if (sortCol === 'date') {
+      list.sort((a, b) => {
+        const dA = new Date(a.inward_date || a.created_at).getTime()
+        const dB = new Date(b.inward_date || b.created_at).getTime()
+        return sortOrder === 'asc' ? dA - dB : dB - dA
+      })
+    } else if (sortCol === 'party_name') {
+      list.sort((a, b) => sortOrder === 'asc' ? a.party_name.localeCompare(b.party_name) : b.party_name.localeCompare(a.party_name))
+    } else if (sortCol === 'items') {
+      list.sort((a, b) => sortOrder === 'asc' ? a.total_items - b.total_items : b.total_items - a.total_items)
+    }
+
+    return list
+  }, [truckInwards, searchTerm, statusFilter, sortCol, sortOrder])
+
   // Current active list & pagination slices
   const currentListCount = useMemo(() => {
     if (activeTab === 'finished') return finishedStockMatrix.length
+    if (activeTab === 'challans') return filteredChallans.length
     if (activeTab === 'accessories') return accessoryStockMatrix.length
     if (activeTab === 'dispatch') return filteredDispatch.length
     return filteredInward.length
-  }, [activeTab, finishedStockMatrix, accessoryStockMatrix, filteredDispatch, filteredInward])
+  }, [activeTab, finishedStockMatrix, filteredChallans, accessoryStockMatrix, filteredDispatch, filteredInward])
 
   const totalPages = Math.max(1, Math.ceil(currentListCount / pageSize))
 
@@ -329,6 +412,11 @@ export function InventoryClient({
     const start = (currentPage - 1) * pageSize
     return finishedStockMatrix.slice(start, start + pageSize)
   }, [finishedStockMatrix, currentPage, pageSize])
+
+  const paginatedChallans = useMemo(() => {
+    const start = (currentPage - 1) * pageSize
+    return filteredChallans.slice(start, start + pageSize)
+  }, [filteredChallans, currentPage, pageSize])
 
   const paginatedAccessories = useMemo(() => {
     const start = (currentPage - 1) * pageSize
@@ -739,6 +827,19 @@ export function InventoryClient({
 
           <button
             type="button"
+            onClick={() => handleTabChange('challans')}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-[6px] text-xs font-semibold whitespace-nowrap transition-all outline-none ${
+              activeTab === 'challans'
+                ? 'bg-[var(--steel,#2B4C7E)] text-white shadow-xs'
+                : 'text-[var(--ink-soft,#5B6B7C)] hover:text-[var(--ink,#1C2733)] bg-transparent'
+            }`}
+          >
+            <FileText className="w-3.5 h-3.5" />
+            <span>Supplier Challans & GRN ({filteredChallans.length})</span>
+          </button>
+
+          <button
+            type="button"
             onClick={() => handleTabChange('accessories')}
             className={`flex items-center gap-2 px-3 py-1.5 rounded-[6px] text-xs font-semibold whitespace-nowrap transition-all outline-none ${
               activeTab === 'accessories'
@@ -958,6 +1059,186 @@ export function InventoryClient({
                         </td>
                       </tr>
                     ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ======================================================== */}
+        {/* TAB: SUPPLIER CHALLANS & GRN                            */}
+        {/* ======================================================== */}
+        {activeTab === 'challans' && (
+          <div>
+            {/* Supplier Due Items Alert Banner */}
+            {truckInwards.some(c => (c.due_items_count || 0) > 0) && (
+              <div className="m-4 p-4 rounded-[10px] bg-purple-50 border border-purple-200 flex items-start gap-3">
+                <div className="w-8 h-8 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center shrink-0">
+                  <Clock className="w-4 h-4" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-purple-900">
+                    Supplier Follow-up Alert: Pending Items on Delivery
+                  </h4>
+                  <p className="text-[11.5px] text-purple-800 mt-0.5">
+                    Certain accessories were marked as <strong>Due / Pending from Supplier</strong> at factory gate inward. Please contact the respective suppliers for delivery status.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {filteredChallans.length === 0 ? (
+              <div className="p-12 text-center flex flex-col items-center justify-center space-y-3">
+                <div className="w-12 h-12 rounded-full flex items-center justify-center bg-slate-100 text-slate-400">
+                  <FileText className="w-6 h-6" />
+                </div>
+                <h3 className="text-base font-bold font-[family-name:var(--font-heading)]" style={{ color: 'var(--ink, #1C2733)' }}>
+                  No supplier challans or truck inwards logged yet
+                </h3>
+                <p className="text-xs max-w-sm" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                  Delivery challans recorded by Store Managers at factory gate will appear here with line items and paper slip photo proofs.
+                </p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr className="bg-slate-50 border-b text-[11px] uppercase tracking-wider font-bold" style={{ borderColor: 'var(--border, #E2E8F0)', color: 'var(--ink-soft, #5B6B7C)' }}>
+                      <th 
+                        onClick={() => handleSort('date')}
+                        className="px-5 py-3.5 cursor-pointer hover:bg-slate-100 transition-colors select-none font-bold"
+                      >
+                        <div className="flex items-center gap-1.5">
+                          <span>GRN # & Date</span>
+                          {sortCol === 'date' ? (
+                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" /> : <ArrowDown className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" />
+                          ) : (
+                            <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
+                          )}
+                        </div>
+                      </th>
+                      <th className="px-4 py-3.5 font-bold">Supplier / Brand</th>
+                      <th className="px-4 py-3.5 font-bold">Article No</th>
+                      <th className="px-4 py-3.5 font-bold">Challan / Vehicle</th>
+                      <th className="px-4 py-3.5 font-bold">Items Breakdown</th>
+                      <th className="px-4 py-3.5 font-bold text-center">Status</th>
+                      <th className="px-4 py-3.5 font-bold text-center">Slip Proof</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {paginatedChallans.map((row) => {
+                      const isExpanded = expandedGrnId === row.id
+                      const isVerified = row.status === 'VERIFIED'
+                      const isShortage = row.status === 'SHORTAGE'
+                      const isDue = row.status === 'DUE_PENDING'
+
+                      return (
+                        <tr key={row.id} className="hover:bg-slate-50/50 transition-colors align-top">
+                          <td className="px-5 py-3.5 whitespace-nowrap">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-[5px] text-[11px] font-mono font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                              {row.grn_no}
+                            </span>
+                            <div className="text-[11px] text-slate-500 mt-1 font-mono">
+                              {row.inward_date || row.created_at.split('T')[0]}
+                            </div>
+                          </td>
+
+                          <td className="px-4 py-3.5">
+                            <div className="font-bold text-slate-900">{row.party_name}</div>
+                            {row.receiver_name && (
+                              <div className="text-[11px] text-slate-500 mt-0.5">By: {row.receiver_name}</div>
+                            )}
+                          </td>
+
+                          <td className="px-4 py-3.5">
+                            {row.article_no ? (
+                              <span className="inline-flex items-center px-2 py-0.5 rounded-[5px] text-[11px] font-bold bg-slate-100 text-slate-800">
+                                Art {row.article_no}
+                              </span>
+                            ) : (
+                              <span className="text-slate-400">-</span>
+                            )}
+                          </td>
+
+                          <td className="px-4 py-3.5 text-slate-600 text-[11px]">
+                            <div>{row.challan_no ? 'Challan #' + row.challan_no : 'Direct Delivery'}</div>
+                            {row.truck_no && (
+                              <div className="text-slate-400 mt-0.5">{row.truck_no}</div>
+                            )}
+                          </td>
+
+                          <td className="px-4 py-3.5">
+                            <div className="space-y-1 max-w-md">
+                              {(row.items || []).slice(0, isExpanded ? (row.items || []).length : 3).map((it, i) => (
+                                <div key={i} className="flex items-center gap-1.5 text-[11.5px] text-slate-700">
+                                  <span className={`w-1.5 h-1.5 rounded-full ${it.status === 'DUE' ? 'bg-purple-500' : it.status === 'SHORTAGE' ? 'bg-amber-500' : 'bg-emerald-500'}`} />
+                                  <span className="font-medium">{it.item_name}</span>
+                                  {it.size_label && <span className="text-slate-400 text-[10.5px]">({it.size_label})</span>}
+                                  <span className="text-slate-400 font-mono">: {it.quantity} {it.unit}</span>
+                                  {it.status === 'DUE' && (
+                                    <span className="px-1.5 py-0.2 rounded text-[10px] font-bold bg-purple-100 text-purple-700">DUE</span>
+                                  )}
+                                  {it.status === 'SHORTAGE' && (
+                                    <span className="px-1.5 py-0.2 rounded text-[10px] font-bold bg-amber-100 text-amber-700">SHORT</span>
+                                  )}
+                                </div>
+                              ))}
+                              {(row.items || []).length > 3 && (
+                                <button
+                                  type="button"
+                                  onClick={() => setExpandedGrnId(isExpanded ? null : row.id)}
+                                  className="text-[11px] font-bold text-blue-600 hover:underline pt-0.5 block"
+                                >
+                                  {isExpanded ? 'Show less' : `+ ${(row.items || []).length - 3} more items`}
+                                </button>
+                              )}
+                            </div>
+                            {row.notes && (
+                              <div className="text-[11px] text-slate-400 italic mt-1">
+                                Note: {row.notes}
+                              </div>
+                            )}
+                          </td>
+
+                          <td className="px-4 py-3.5 text-center">
+                            {isVerified && (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-[6px] text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                <Check className="w-3 h-3" />
+                                Verified
+                              </span>
+                            )}
+                            {isShortage && (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-[6px] text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                                <AlertTriangle className="w-3 h-3" />
+                                Shortage ({row.shortage_items_count})
+                              </span>
+                            )}
+                            {isDue && (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-[6px] text-[11px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
+                                <Clock className="w-3 h-3" />
+                                Due ({row.due_items_count})
+                              </span>
+                            )}
+                          </td>
+
+                          <td className="px-4 py-3.5 text-center">
+                            {row.challan_photo_url ? (
+                              <button
+                                type="button"
+                                onClick={() => setActivePhoto({ url: row.challan_photo_url!, title: `${row.party_name} • ${row.grn_no}` })}
+                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-[6px] text-[11px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 transition-colors cursor-pointer"
+                              >
+                                <ImageIcon className="w-3.5 h-3.5 text-blue-600" />
+                                View Slip
+                              </button>
+                            ) : (
+                              <span className="text-slate-300 text-[11px] italic">No photo</span>
+                            )}
+                          </td>
+                        </tr>
+                      )
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -1636,6 +1917,36 @@ export function InventoryClient({
                 {isPending ? 'Saving...' : 'Save Trim Transaction'}
               </button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* MODAL 4: CHALLAN SLIP PHOTO VIEWER                       */}
+      {/* ======================================================== */}
+      {activePhoto && (
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+          <div className="bg-slate-900 rounded-[14px] max-w-3xl w-full p-4 space-y-3 shadow-2xl border border-slate-700">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+              <div className="flex items-center gap-2 text-white">
+                <ImageIcon className="w-4 h-4 text-blue-400" />
+                <h3 className="text-sm font-bold truncate">{activePhoto.title}</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActivePhoto(null)}
+                className="p-1 rounded-full text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="max-h-[75vh] overflow-auto flex items-center justify-center rounded-lg bg-black/40 p-2">
+              <img
+                src={activePhoto.url}
+                alt="Challan Slip"
+                className="max-h-[70vh] w-auto object-contain rounded-md shadow-md"
+              />
+            </div>
           </div>
         </div>
       )}
