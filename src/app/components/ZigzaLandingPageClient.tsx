@@ -101,12 +101,12 @@ export function ZigzaLandingPageClient({
       {/* =================================================================== */}
       {/* 1. STICKY ENTERPRISE HEADER                                         */}
       {/* =================================================================== */}
-      <header className="sticky top-0 z-40 bg-white/85 backdrop-blur-md border-b border-slate-200/70 shadow-2xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200/80 shadow-2xs">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 sm:h-[84px] flex items-center justify-between gap-4">
           
           {/* Brand Logo with Smooth Scroll Transition */}
           <Link href="/" className="group relative flex items-center cursor-pointer select-none py-1">
-            {/* 1. Initial State (At Top): Refined rounded black badge */}
+            {/* 1. Initial State (At Top): Prominent rounded black badge */}
             <div 
               className={`flex items-center transition-all duration-300 ease-in-out ${
                 isScrolled 
@@ -114,11 +114,11 @@ export function ZigzaLandingPageClient({
                   : 'opacity-100 scale-100'
               }`}
             >
-              <div className="h-9 px-3.5 bg-black rounded-xl flex items-center justify-center shadow-xs border border-slate-900/10 hover:bg-slate-900 transition-colors">
+              <div className="h-12 sm:h-13 px-5 sm:px-5.5 bg-black rounded-2xl flex items-center justify-center shadow-xs border border-slate-900/15 hover:bg-slate-900 transition-colors">
                 <img 
                   src="/zigza_white.png" 
                   alt="zigza." 
-                  className="h-5 w-auto object-contain"
+                  className="h-7 sm:h-7.5 w-auto object-contain"
                 />
               </div>
             </div>
@@ -131,75 +131,75 @@ export function ZigzaLandingPageClient({
                   : 'opacity-0 scale-95 pointer-events-none'
               }`}
             >
-              <div className="h-9 px-3.5 flex items-center justify-center">
+              <div className="h-12 sm:h-13 px-5 sm:px-5.5 flex items-center justify-center">
                 <img 
                   src="/zigza_dark.png" 
                   alt="zigza." 
-                  className="h-5 w-auto object-contain transition-transform group-hover:scale-[1.02]"
+                  className="h-7 sm:h-7.5 w-auto object-contain transition-transform group-hover:scale-[1.02]"
                 />
               </div>
             </div>
           </Link>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden md:flex items-center gap-1 text-[13.5px] font-medium text-slate-600">
+          <nav className="hidden md:flex items-center gap-1.5 text-[15px] font-semibold text-slate-600">
             <a 
               href="#modules" 
-              className="px-3 py-1.5 rounded-lg hover:text-slate-900 hover:bg-slate-100/80 transition-all duration-150"
+              className="px-3.5 py-2 rounded-xl hover:text-slate-900 hover:bg-slate-100/80 transition-all duration-150"
             >
               Modules
             </a>
             <a 
               href="#workflow" 
-              className="px-3 py-1.5 rounded-lg hover:text-slate-900 hover:bg-slate-100/80 transition-all duration-150"
+              className="px-3.5 py-2 rounded-xl hover:text-slate-900 hover:bg-slate-100/80 transition-all duration-150"
             >
               Floor Workflow
             </a>
             <a 
               href="#roles" 
-              className="px-3 py-1.5 rounded-lg hover:text-slate-900 hover:bg-slate-100/80 transition-all duration-150"
+              className="px-3.5 py-2 rounded-xl hover:text-slate-900 hover:bg-slate-100/80 transition-all duration-150"
             >
               Solutions
             </a>
             <a 
               href="#roi" 
-              className="px-3 py-1.5 rounded-lg hover:text-slate-900 hover:bg-slate-100/80 transition-all duration-150"
+              className="px-3.5 py-2 rounded-xl hover:text-slate-900 hover:bg-slate-100/80 transition-all duration-150"
             >
               ROI Estimator
             </a>
             <a 
               href="#faq" 
-              className="px-3 py-1.5 rounded-lg hover:text-slate-900 hover:bg-slate-100/80 transition-all duration-150"
+              className="px-3.5 py-2 rounded-xl hover:text-slate-900 hover:bg-slate-100/80 transition-all duration-150"
             >
               FAQ
             </a>
           </nav>
 
-          {/* Top Right Action Buttons (Clear Visual Hierarchy) */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          {/* Top Right Action Buttons */}
+          <div className="flex items-center gap-3">
             {isAuthenticated ? (
               <Link
                 href="/production-orders"
-                className="px-4 py-2 rounded-xl text-[13.5px] font-medium bg-slate-900 text-white hover:bg-slate-800 shadow-xs hover:shadow transition-all flex items-center gap-1.5 cursor-pointer"
+                className="px-5 py-2.5 rounded-xl text-[15px] font-semibold bg-slate-900 text-white hover:bg-slate-800 shadow-xs hover:shadow transition-all flex items-center gap-2 cursor-pointer"
               >
                 <span>Control Center</span>
-                <ArrowRight className="w-3.5 h-3.5" />
+                <ArrowRight className="w-4 h-4" />
               </Link>
             ) : (
               <>
                 <Link
                   href="/login"
-                  className="px-3 py-2 rounded-xl text-[13.5px] font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition-all duration-150 cursor-pointer"
+                  className="px-4 py-2.5 rounded-xl text-[15px] font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition-all duration-150 cursor-pointer"
                 >
                   Sign In
                 </Link>
                 <button
                   type="button"
                   onClick={() => setIsDemoModalOpen(true)}
-                  className="px-4 py-2 rounded-xl text-[13.5px] font-medium bg-slate-900 text-white hover:bg-slate-800 shadow-xs hover:shadow hover:-translate-y-0.5 transition-all duration-150 cursor-pointer flex items-center gap-1.5"
+                  className="px-5 py-2.5 rounded-xl text-[15px] font-semibold bg-slate-900 text-white hover:bg-slate-800 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-150 cursor-pointer flex items-center gap-2"
                 >
                   <span>Request a Demo</span>
-                  <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
+                  <ArrowRight className="w-4 h-4 text-slate-400" />
                 </button>
               </>
             )}
