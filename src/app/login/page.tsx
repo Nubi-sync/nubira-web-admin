@@ -134,39 +134,32 @@ export default function LoginPage() {
       {/* Centered Content Container */}
       <div className="z-10 w-full max-w-[380px] flex flex-col items-center">
         
-        {/* 1. Logo Mark */}
-        <div 
-          className="w-14 h-14 rounded-[14px] flex items-center justify-center mb-4 transition-transform duration-200 hover:scale-[1.02]"
-          style={{
-            backgroundColor: 'var(--steel, #2B4C7E)',
-            boxShadow: '0 8px 20px -6px rgba(31, 58, 99, 0.45)',
-          }}
-        >
-          {/* Zigza Logo Mark */}
-          <svg 
-            className="w-7 h-7 text-white" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="currentColor" 
-            strokeWidth="2.5" 
-            strokeLinecap="round" 
-            strokeLinejoin="round"
+        {/* 1. Official Zigza Logo */}
+        <div className="mb-4">
+          <div 
+            className="h-14 px-4 rounded-[14px] bg-black flex items-center justify-center border border-slate-800 shadow-md transition-transform duration-200 hover:scale-[1.02]"
           >
-            <path d="M4 4h16l-12 16h12" />
-          </svg>
+            <img 
+              src="/z_i_g_z_a.png" 
+              alt="zigza." 
+              className="h-8 w-auto object-contain"
+            />
+          </div>
         </div>
 
         {/* 2. Brand Block */}
-        <div className="text-center mb-7 flex flex-col items-center">
-          <h1 
-            className="text-[32px] leading-tight font-black tracking-tight font-[family-name:var(--font-heading)]"
-            style={{ color: 'var(--ink, #1C2733)' }}
-          >
-            Zigza ERP
-          </h1>
+        <div className="text-center mb-6 flex flex-col items-center">
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-extrabold uppercase px-2 py-0.5 rounded bg-[var(--green-mist,#E6F6EE)] text-[var(--green,#1F9D63)] border border-[var(--green,#1F9D63)]/20">
+              MES Control Center
+            </span>
+            <span className="text-[11px] font-bold text-[var(--ink-soft,#5B6B7C)]">
+              by Nubira
+            </span>
+          </div>
 
           <div 
-            className="w-[120px] h-[2px] my-2.5"
+            className="w-[120px] h-[2px] my-2"
             style={{
               backgroundImage: 'repeating-linear-gradient(90deg, var(--stitch, #C8802B) 0px, var(--stitch, #C8802B) 6px, transparent 6px, transparent 11px)',
             }}
@@ -176,7 +169,7 @@ export default function LoginPage() {
             className="text-[11px] font-semibold tracking-[3px] uppercase"
             style={{ color: 'var(--ink-soft, #5B6B7C)' }}
           >
-            WEB ADMIN PANEL
+            WEB ADMIN PORTAL
           </p>
         </div>
 

@@ -95,23 +95,23 @@ export function ZigzaLandingPageClient({
           
           {/* Brand Logo & Product Name */}
           <Link href="/" className="flex items-center gap-3 group cursor-pointer">
-            <div className="w-9 h-9 rounded-xl bg-[var(--steel,#2B4C7E)] text-white flex items-center justify-center font-bold shadow-xs group-hover:bg-[var(--steel-dark,#1F3A63)] transition-colors">
-              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M4 4l16 0" />
-                <path d="M20 4l-12 16" />
-                <path d="M8 20l12 0" />
-              </svg>
+            <div className="h-9 px-2.5 rounded-xl bg-black text-white flex items-center justify-center shadow-xs border border-slate-800 hover:border-slate-600 transition-colors">
+              <img 
+                src="/z_i_g_z_a.png" 
+                alt="zigza." 
+                className="h-5 w-auto object-contain"
+              />
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="text-xl font-black tracking-tight text-[var(--ink,#1C2733)]">
-                  Zigza
-                </span>
                 <span className="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-[var(--green-mist,#E6F6EE)] text-[var(--green,#1F9D63)] border border-[var(--green,#1F9D63)]/20">
                   MES
                 </span>
+                <span className="text-[10px] font-bold text-[var(--ink-soft,#5B6B7C)]">
+                  by Nubira
+                </span>
               </div>
-              <p className="text-[10px] font-semibold text-[var(--ink-soft,#5B6B7C)] -mt-1 hidden sm:block">
+              <p className="text-[10px] font-semibold text-[var(--ink-soft,#5B6B7C)] -mt-0.5 hidden sm:block">
                 Apparel Manufacturing OS
               </p>
             </div>
@@ -1140,10 +1140,14 @@ export function ZigzaLandingPageClient({
           {/* Brand Info */}
           <div className="col-span-2 md:col-span-1 space-y-3">
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-[var(--steel,#2B4C7E)] text-white flex items-center justify-center font-bold">
-                Z
+              <div className="h-8 px-2 rounded-lg bg-black text-white flex items-center justify-center border border-slate-700">
+                <img 
+                  src="/z_i_g_z_a.png" 
+                  alt="zigza." 
+                  className="h-4.5 w-auto object-contain"
+                />
               </div>
-              <span className="text-base font-black text-white">Zigza MES</span>
+              <span className="text-xs font-bold text-slate-300">MES Cloud</span>
             </div>
             <p className="text-[11px] text-slate-400 leading-relaxed">
               Industrial Manufacturing Execution System by Nubira Creation. Powering modern apparel factories with 
@@ -1230,8 +1234,12 @@ export function ZigzaLandingPageClient({
             </button>
 
             <div className="flex items-center gap-2.5 mb-1">
-              <div className="w-7 h-7 rounded-lg bg-[var(--steel,#2B4C7E)] text-white flex items-center justify-center font-bold text-xs">
-                Z
+              <div className="h-7 px-2 rounded-lg bg-black text-white flex items-center justify-center border border-slate-700">
+                <img 
+                  src="/z_i_g_z_a.png" 
+                  alt="zigza." 
+                  className="h-4 w-auto object-contain"
+                />
               </div>
               <h3 className="text-base font-bold text-[var(--ink,#1C2733)]">
                 Request a Live Zigza Demo

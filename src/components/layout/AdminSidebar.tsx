@@ -65,39 +65,19 @@ export function AdminSidebar({ userEmail = 'admin@nubira.local' }: { userEmail?:
     >
       {/* Top Header / Brand Block */}
       <div>
-        <div className="p-5 pb-4 border-b flex items-center gap-3" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
-          {/* 34x34px Zigza Logo Mark */}
-          <div 
-            className="w-[34px] h-[34px] rounded-[10px] bg-gradient-to-br from-indigo-600 to-indigo-800 flex items-center justify-center shrink-0 shadow-sm ring-1 ring-indigo-500/30"
+        <div className="p-4 pb-3.5 border-b flex items-center justify-between" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+          <div className="h-9 px-3 rounded-lg bg-black text-white flex items-center justify-center shadow-xs border border-slate-800">
+            <img 
+              src="/z_i_g_z_a.png" 
+              alt="zigza." 
+              className="h-5 w-auto object-contain"
+            />
+          </div>
+          <span 
+            className="text-[9px] font-extrabold tracking-[2px] uppercase px-1.5 py-0.5 rounded bg-[var(--steel-mist,#EEF3FA)] text-[var(--steel,#2B4C7E)] border border-[var(--steel-tint,#DBE6F5)]"
           >
-            {/* Dynamic Sharp Zigza 'Z' Stitch Icon */}
-            <svg 
-              className="w-4 h-4 text-white" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="2.5" 
-              strokeLinecap="round" 
-              strokeLinejoin="round"
-            >
-              <path d="M4 4h16l-12 16h12" />
-            </svg>
-          </div>
-
-          <div className="flex flex-col">
-            <span 
-              className="text-[17.5px] font-black leading-tight tracking-tight font-[family-name:var(--font-heading)]"
-              style={{ color: 'var(--ink, #1C2733)' }}
-            >
-              Zigza
-            </span>
-            <span 
-              className="text-[9px] font-extrabold tracking-[2.5px] uppercase font-[family-name:var(--font-public-sans)]"
-              style={{ color: 'var(--ink-faint, #8B9AAB)' }}
-            >
-              GARMENT ERP
-            </span>
-          </div>
+            ERP MES
+          </span>
         </div>
 
         {/* Navigation Sections */}
