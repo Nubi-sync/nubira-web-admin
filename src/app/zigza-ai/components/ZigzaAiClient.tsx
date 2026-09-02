@@ -92,7 +92,7 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
   const [isLoading, setIsLoading] = useState(false)
   const [copiedMsgId, setCopiedMsgId] = useState<string | null>(null)
 
-  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const messagesContainerRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const syncTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
@@ -250,12 +250,29 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
     }, 400)
   }
 
-  // Auto-scroll to bottom of message stream
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [currentSessionId, sessions, isLoading])
-
   const currentSession = sessions.find(s => s.id === currentSessionId) || sessions[0]
+
+  // Scroll internal message stream container to bottom ONLY when messages change or loading,
+  // without calling window.scrollIntoView (which aggressively scrolled the viewport and hid the top bar on mobile)
+  const scrollToBottom = (smooth = true) => {
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTo({
+        top: messagesContainerRef.current.scrollHeight,
+        behavior: smooth ? 'smooth' : 'auto'
+      })
+    }
+  }
+
+  const prevMsgCountRef = useRef(0)
+  useEffect(() => {
+    const msgCount = currentSession?.messages?.length || 0
+    if (msgCount > 0 && (msgCount !== prevMsgCountRef.current || isLoading)) {
+      const timer = setTimeout(() => scrollToBottom(true), 60)
+      prevMsgCountRef.current = msgCount
+      return () => clearTimeout(timer)
+    }
+    prevMsgCountRef.current = msgCount
+  }, [currentSessionId, currentSession?.messages?.length, isLoading])
 
   function createNewSession() {
     const newSession: ChatSession = {
@@ -270,7 +287,10 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
     if (typeof window !== 'undefined' && window.innerWidth < 1024) {
       setIsHistoryOpen(false) // auto-close drawer on mobile
     }
-    setTimeout(() => inputRef.current?.focus(), 50)
+    // Only auto-focus on desktop so mobile doesn't trigger virtual keyboard and viewport shift
+    if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
+      setTimeout(() => inputRef.current?.focus(), 50)
+    }
   }
 
   function deleteSession(e: React.MouseEvent, id: string) {
@@ -752,14 +772,9 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
               <Bot className="w-5 h-5 sm:w-5.5 sm:h-5.5" />
             </div>
             <div className="min-w-0 hidden sm:block">
-              <div className="flex items-center gap-2 sm:gap-2.5">
-                <h1 className="text-base sm:text-lg md:text-xl font-extrabold text-slate-900 tracking-tight font-[family-name:var(--font-heading)] whitespace-nowrap">
-                  Zigza AI
-                </h1>
-                <span className="inline-block text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs">
-                  LIVE AI
-                </span>
-              </div>
+              <h1 className="text-base sm:text-lg md:text-xl font-extrabold text-slate-900 tracking-tight font-[family-name:var(--font-heading)] whitespace-nowrap">
+                Zigza AI
+              </h1>
               <p className="text-xs text-slate-500 truncate font-medium">
                 Direct database queries connected to live plant operations
               </p>
@@ -801,8 +816,11 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
           </div>
         </header>
 
-        {/* Message Stream Area */}
-        <div className="flex-1 overflow-y-auto px-3 sm:px-6 md:px-8 py-3 sm:py-6 space-y-4 sm:space-y-6 max-w-4xl w-full mx-auto flex flex-col">
+        {/* Message Stream Area - contained scroll so the top bar and mobile viewport NEVER scroll off-screen */}
+        <div 
+          ref={messagesContainerRef}
+          className="flex-1 overflow-y-auto px-3 sm:px-6 md:px-8 py-3 sm:py-6 space-y-4 sm:space-y-6 max-w-4xl w-full mx-auto flex flex-col min-h-0"
+        >
           
           {/* EMPTY STATE: Welcome & Prewritten Query Cards */}
           {(!currentSession || displayMessages.length === 0) && (
@@ -939,8 +957,6 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
               </div>
             </div>
           )}
-
-          <div ref={messagesEndRef} />
         </div>
 
         {/* ======================================================== */}
@@ -960,11 +976,6 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
                 type="text"
                 value={inputPrompt}
                 onChange={(e) => setInputPrompt(e.target.value)}
-                onFocus={() => {
-                  setTimeout(() => {
-                    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-                  }, 120)
-                }}
                 placeholder="Ask about orders, godown stock, linemen, QC..."
                 disabled={isLoading}
                 className="flex-1 bg-transparent text-xs sm:text-sm text-slate-900 placeholder:text-slate-500 outline-none font-medium min-w-0 py-1"
