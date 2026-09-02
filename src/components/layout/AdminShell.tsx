@@ -51,10 +51,19 @@ function AdminShellContent({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isDesktopCollapsed, setIsDesktopCollapsed] = useState(false)
 
+  const isAiPage = pathname === '/zigza-ai' || pathname?.startsWith('/zigza-ai')
+
   // Close mobile menu on route change
   useEffect(() => {
     setIsMobileMenuOpen(false)
   }, [pathname])
+
+  // Listen for mobile menu toggle event from Zigza AI single header
+  useEffect(() => {
+    const handleToggle = () => setIsMobileMenuOpen(prev => !prev)
+    window.addEventListener('toggle-mobile-menu', handleToggle)
+    return () => window.removeEventListener('toggle-mobile-menu', handleToggle)
+  }, [])
 
   // Lock body scroll when mobile menu is open
   useEffect(() => {
@@ -82,7 +91,11 @@ function AdminShellContent({
       )}
 
       {/* Main Content Area */}
-      <main className="flex-1 min-w-0 flex flex-col min-h-screen overflow-y-auto transition-all relative">
+      <main className={`flex-1 min-w-0 flex flex-col transition-all relative ${
+        isAiPage 
+          ? 'h-dvh overflow-hidden' 
+          : 'min-h-screen overflow-y-auto'
+      }`}>
         {/* Floating Show Sidebar Button for Desktop when collapsed */}
         {!isTvMode && isDesktopCollapsed && (
           <div className="hidden lg:block fixed left-4 top-4 z-40 animate-in fade-in slide-in-from-left-2 duration-150">
@@ -102,12 +115,12 @@ function AdminShellContent({
         {/* TV Mode Top Bar */}
         {isTvMode && <TvTopBar />}
 
-        {/* Mobile Top Bar — visible <lg, hidden in TV mode */}
-        {!isTvMode && (
+        {/* Mobile Top Bar — visible <lg, hidden in TV mode, and hidden on /zigza-ai to prevent double navbar */}
+        {!isTvMode && !isAiPage && (
           <MobileTopBar onMenuToggle={() => setIsMobileMenuOpen(prev => !prev)} />
         )}
 
-        <div className={`flex-1 ${isTvMode ? 'w-full max-w-none' : ''}`}>
+        <div className={`flex-1 min-h-0 ${isTvMode ? 'w-full max-w-none' : ''}`}>
           {children}
         </div>
 

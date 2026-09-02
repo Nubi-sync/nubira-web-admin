@@ -67,16 +67,26 @@ export default function LoginPage() {
   const [isForgotPending, setIsForgotPending] = useState(false)
   const [isResetSuccess, setIsResetSuccess] = useState(false)
 
-  async function clientAction(formData: FormData) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
     setIsPending(true)
     setError(null)
-    const result = await login(formData)
-    if (result?.error) {
-      setError(result.error)
-      setIsPending(false)
-      setIsSuccess(false)
-    } else {
-      setIsSuccess(true)
+    const formData = new FormData(e.currentTarget)
+    try {
+      const result = await login(formData)
+      if (result?.error) {
+        setError(result.error)
+        setIsPending(false)
+        setIsSuccess(false)
+      } else {
+        setIsSuccess(true)
+      }
+    } catch (err: any) {
+      if (err?.message?.includes('NEXT_REDIRECT')) {
+        setIsSuccess(true)
+        return
+      }
+      setError(err?.message || 'Failed to sign in')
       setIsPending(false)
     }
   }
@@ -225,7 +235,7 @@ export default function LoginPage() {
               </p>
             </div>
 
-            <form action={clientAction} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
               
               {/* Work Email Field */}
               <div>

@@ -20,7 +20,8 @@ import {
   Truck, 
   ArrowRight,
   Loader2,
-  X
+  X,
+  Menu
 } from 'lucide-react'
 import { TvViewButton } from '@/components/ui/TvViewButton'
 
@@ -80,6 +81,7 @@ const PREWRITTEN_QUERIES = [
 ]
 
 export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?: string }) {
+  const [isMounted, setIsMounted] = useState(false)
   const [sessions, setSessions] = useState<ChatSession[]>([])
   const [currentSessionId, setCurrentSessionId] = useState<string>('')
   // Right-side history drawer
@@ -87,48 +89,22 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
   const [inputPrompt, setInputPrompt] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [copiedMsgId, setCopiedMsgId] = useState<string | null>(null)
-  
-  // Dynamic visual viewport height to eliminate mobile keyboard gap
-  const [keyboardViewportHeight, setKeyboardViewportHeight] = useState<number | null>(null)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const syncTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
-  // 1. Mobile Virtual Keyboard Tracker (Eliminates dead space when keyboard opens)
+  // 1. Client mount trigger to eliminate any hydration mismatch
   useEffect(() => {
-    if (typeof window === 'undefined') return
-
-    // Desktop default open right drawer
-    if (window.innerWidth >= 1024) {
+    setIsMounted(true)
+    if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
       setIsHistoryOpen(true)
-    }
-
-    const visualViewport = window.visualViewport
-    if (!visualViewport) return
-
-    const handleViewportChange = () => {
-      // If keyboard is open, visualViewport.height is significantly less than window.innerHeight
-      if (window.innerWidth < 1024) {
-        setKeyboardViewportHeight(visualViewport.height)
-      } else {
-        setKeyboardViewportHeight(null)
-      }
-    }
-
-    visualViewport.addEventListener('resize', handleViewportChange)
-    visualViewport.addEventListener('scroll', handleViewportChange)
-    handleViewportChange()
-
-    return () => {
-      visualViewport.removeEventListener('resize', handleViewportChange)
-      visualViewport.removeEventListener('scroll', handleViewportChange)
     }
   }, [])
 
-  // 2. Load & Sync Chat Sessions across account devices
+  // 2. Load & Sync Chat Sessions across account devices by Email
   useEffect(() => {
-    // Step A: Load instantly from local storage for zero-delay initial render
+    // Step A: Load from localStorage for zero-delay instant render
     try {
       const local = localStorage.getItem('zigza_ai_chat_sessions')
       if (local) {
@@ -142,10 +118,11 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
       console.error('Failed to parse local sessions', e)
     }
 
-    // Step B: Cloud Sync: Fetch account-synced chat history from Supabase
+    // Step B: Cloud Sync: Fetch email-synced chat history from Supabase
     async function loadAccountSyncedHistory() {
       try {
-        const res = await fetch('/api/chat/history', { cache: 'no-store' })
+        const emailQuery = userEmail ? `?email=${encodeURIComponent(userEmail)}` : ''
+        const res = await fetch(`/api/chat/history${emailQuery}`, { cache: 'no-store' })
         if (res.ok) {
           const data = await res.json()
           if (Array.isArray(data.sessions) && data.sessions.length > 0) {
@@ -180,9 +157,9 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
     }
 
     loadAccountSyncedHistory()
-  }, [])
+  }, [userEmail])
 
-  // Helper: Persist updated sessions to localStorage AND Supabase Cloud
+  // Helper: Persist updated sessions to localStorage AND Supabase Cloud for this Email
   function persistSessions(newSessions: ChatSession[]) {
     setSessions(newSessions)
     try {
@@ -198,12 +175,15 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
         await fetch('/api/chat/history', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ sessions: newSessions })
+          body: JSON.stringify({ 
+            email: userEmail,
+            sessions: newSessions 
+          })
         })
       } catch (err) {
         console.error('Cloud chat sync error:', err)
       }
-    }, 600)
+    }, 400)
   }
 
   // Auto-scroll to bottom of message stream
@@ -495,25 +475,47 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
     return <div className="space-y-1">{blocks}</div>
   }
 
-  // Calculate dynamic style to eliminate mobile keyboard space
-  const containerStyle: React.CSSProperties = keyboardViewportHeight
-    ? { height: `${keyboardViewportHeight - 57}px` }
-    : {}
+  // Pre-mount loading placeholder to prevent any SSR hydration mismatch
+  if (!isMounted) {
+    return (
+      <div className="flex h-full w-full items-center justify-center bg-[#FAFAF8]">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 rounded-2xl bg-[#3A3564] text-[#FAF7F0] flex items-center justify-center shadow-md animate-pulse">
+            <BrainCircuit className="w-5 h-5" />
+          </div>
+          <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
+            Loading Zigza AI...
+          </span>
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <div 
-      className="flex h-[calc(100dvh-57px)] lg:h-screen w-full overflow-hidden bg-[#FAFAF8] relative"
-      style={containerStyle}
-    >
+    <div className="flex h-full w-full overflow-hidden bg-[#FAFAF8] relative">
       
       {/* ======================================================== */}
       {/* 1. MAIN CONVERSATION CANVAS (Left on Desktop & Mobile)   */}
       {/* ======================================================== */}
       <main className="flex-1 flex flex-col min-w-0 h-full relative overflow-hidden bg-[#FAFAF8]">
         
-        {/* Top App Bar with Right-side History Toggle */}
+        {/* Top App Bar: Single clean bar on mobile with hamburger, Zigza AI, New Chat, and History */}
         <header className="px-3 sm:px-6 py-2 sm:py-3 border-b border-slate-200/80 bg-white/95 backdrop-blur-md flex items-center justify-between z-10 shrink-0 shadow-2xs">
-          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+          <div className="flex items-center gap-1.5 sm:gap-3 min-w-0">
+            {/* Mobile Hamburger Menu Button to open AdminSidebar */}
+            <button
+              type="button"
+              onClick={() => {
+                if (typeof window !== 'undefined') {
+                  window.dispatchEvent(new CustomEvent('toggle-mobile-menu'))
+                }
+              }}
+              className="lg:hidden w-8 h-8 rounded-xl border border-slate-200 flex items-center justify-center text-slate-700 hover:text-slate-900 hover:bg-[#FAF7F0] transition-colors cursor-pointer shadow-2xs shrink-0 mr-1"
+              aria-label="Open staff navigation menu"
+            >
+              <Menu className="w-4 h-4 text-[#3A3564]" />
+            </button>
+
             <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-[#3A3564] text-[#FAF7F0] flex items-center justify-center shadow-xs shrink-0">
               <BrainCircuit className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
@@ -538,6 +540,7 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
               <TvViewButton size="sm" />
             </div>
 
+            {/* New Chat Button with visible label */}
             <button
               type="button"
               onClick={createNewSession}
@@ -548,7 +551,7 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
               <span className="text-[11px] sm:text-xs font-bold whitespace-nowrap">New Chat</span>
             </button>
 
-            {/* History Toggle Button — Positioned on RIGHT with Name */}
+            {/* History Toggle Button — Positioned on RIGHT with visible label */}
             <button
               type="button"
               onClick={() => setIsHistoryOpen(prev => !prev)}
@@ -707,12 +710,10 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
         </div>
 
         {/* ======================================================== */}
-        {/* MOBILE KEYBOARD-PERFECTED BOTTOM PROMPT BAR              */}
+        {/* MOBILE FLUSH BOTTOM PROMPT BAR                           */}
         {/* ======================================================== */}
-        <div className="p-2 sm:p-3.5 border-t border-slate-200/90 bg-white shadow-xs shrink-0 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+        <div className="p-2 sm:p-3 border-t border-slate-200/90 bg-white shadow-xs shrink-0">
           <div className="max-w-4xl mx-auto">
-            
-            {/* Input Container */}
             <form
               onSubmit={(e) => {
                 e.preventDefault()
@@ -732,7 +733,7 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
                 }}
                 placeholder="Ask about orders, godown stock, linemen, QC..."
                 disabled={isLoading}
-                className="flex-1 bg-transparent text-xs sm:text-sm text-slate-900 placeholder-slate-400 outline-none font-medium min-w-0"
+                className="flex-1 bg-transparent text-xs sm:text-sm text-slate-900 placeholder-slate-400 outline-none font-medium min-w-0 py-1"
               />
 
               <button
@@ -802,7 +803,7 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
         {/* Sessions List */}
         <div className="flex-1 overflow-y-auto px-3 py-1 space-y-1">
           <div className="px-2 text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 mb-1">
-            Recent Chats (Cloud Synced)
+            Recent Chats ({userEmail})
           </div>
 
           {sessions.map(s => {
