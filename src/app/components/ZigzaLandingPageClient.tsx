@@ -168,14 +168,14 @@ ${demoForm.ownerName}`
       {/* 1. STICKY ENTERPRISE HEADER                                         */}
       {/* =================================================================== */}
       <header className="sticky top-0 z-40 bg-[#FAFAF8]/90 backdrop-blur-md border-b border-[#57564E]/15">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[64px] sm:h-[84px] flex items-center justify-between gap-3">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[68px] sm:h-[88px] flex items-center justify-between gap-3">
           
           {/* Brand Logo: Single new_logo.png without scroll switching */}
           <Link href="/" className="group flex items-center cursor-pointer select-none shrink-0">
             <img 
               src="/z i g z a (1) copy.png" 
               alt="zigza." 
-              className="h-[36px] sm:h-[44px] w-auto object-contain rounded-md sm:rounded-lg overflow-hidden shadow-xs transition-transform duration-150 group-hover:scale-[1.02]"
+              className="h-[42px] sm:h-[54px] lg:h-[60px] w-auto object-contain rounded-xl overflow-hidden shadow-xs transition-transform duration-150 group-hover:scale-[1.02]"
             />
           </Link>
 

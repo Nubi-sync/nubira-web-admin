@@ -182,7 +182,7 @@ export default function LoginPage() {
             <img 
               src="/z i g z a (1) copy.png" 
               alt="zigza." 
-              className="h-10 sm:h-12 w-auto object-contain rounded-md transition-opacity group-hover:opacity-85"
+              className="h-10 sm:h-12 w-auto object-contain rounded-xl overflow-hidden transition-opacity group-hover:opacity-85"
             />
           </Link>
           <span className="hidden sm:inline-block px-3 py-1 rounded-full border border-black bg-white text-[11px] font-mono font-bold uppercase tracking-wider text-[#3A3564]">

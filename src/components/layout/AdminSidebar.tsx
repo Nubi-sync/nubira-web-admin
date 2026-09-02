@@ -13,7 +13,8 @@ import {
   Tag, 
   FileText,
   Loader2,
-  X
+  X,
+  PanelLeftClose
 } from 'lucide-react'
 
 type NavItem = {
@@ -57,12 +58,16 @@ interface AdminSidebarProps {
   userEmail?: string
   isMobileOpen?: boolean
   onMobileClose?: () => void
+  isDesktopCollapsed?: boolean
+  onDesktopCollapse?: () => void
 }
 
 export function AdminSidebar({ 
   userEmail = 'admin@nubira.local',
   isMobileOpen = false,
-  onMobileClose
+  onMobileClose,
+  isDesktopCollapsed = false,
+  onDesktopCollapse
 }: AdminSidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
@@ -114,25 +119,41 @@ export function AdminSidebar({
             <img 
               src="/z i g z a (1) copy.png" 
               alt="zigza." 
-              className="h-8 w-auto object-contain rounded-md transition-opacity group-hover:opacity-85"
+              className="h-9 sm:h-10 w-auto object-contain rounded-xl overflow-hidden shadow-2xs transition-opacity group-hover:opacity-85"
             />
           </Link>
           <div className="flex items-center gap-2">
-            <span 
-              className="text-[11px] font-mono font-bold tracking-wider uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15"
-            >
-              ERP MES
-            </span>
-            {/* Mobile close button */}
-            {onMobileClose && (
+            {/* Desktop: Hide sidebar icon button replacing the ERP MES tag */}
+            {onDesktopCollapse && (
               <button
                 type="button"
-                onClick={onMobileClose}
-                className="lg:hidden w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
+                onClick={onDesktopCollapse}
+                title="Hide sidebar"
+                className="hidden lg:flex w-8 h-8 rounded-xl border border-slate-200 items-center justify-center text-slate-500 hover:text-[#3A3564] hover:bg-[#FAF7F0] hover:border-black/20 transition-all cursor-pointer shadow-2xs group"
+                aria-label="Hide sidebar"
               >
-                <X className="w-4 h-4" />
+                <PanelLeftClose className="w-4 h-4 transition-transform group-hover:scale-110" />
               </button>
             )}
+
+            {/* Mobile: ERP MES Tag + Close button */}
+            <div className="lg:hidden flex items-center gap-2">
+              <span 
+                className="text-[11px] font-mono font-bold tracking-wider uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15"
+              >
+                ERP MES
+              </span>
+              {onMobileClose && (
+                <button
+                  type="button"
+                  onClick={onMobileClose}
+                  className="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
+                  aria-label="Close menu"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
@@ -230,12 +251,14 @@ export function AdminSidebar({
 
   return (
     <>
-      {/* ====== DESKTOP SIDEBAR (lg and up) — always visible ====== */}
-      <aside 
-        className="hidden lg:flex w-[264px] shrink-0 min-h-screen h-screen sticky top-0 bg-white border-r border-slate-200 flex-col justify-between z-30 transition-all duration-200"
-      >
-        {sidebarContent}
-      </aside>
+      {/* ====== DESKTOP SIDEBAR (lg and up) ====== */}
+      {!isDesktopCollapsed && (
+        <aside 
+          className="hidden lg:flex w-[264px] shrink-0 min-h-screen h-screen sticky top-0 bg-white border-r border-slate-200 flex-col justify-between z-30 transition-all duration-200"
+        >
+          {sidebarContent}
+        </aside>
+      )}
 
       {/* ====== MOBILE DRAWER OVERLAY (below lg) ====== */}
       {/* Backdrop */}
