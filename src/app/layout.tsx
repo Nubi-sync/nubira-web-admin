@@ -23,6 +23,14 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "Zigza - Garment Manufacturing ERP",
   description: "Zigza - Garment Manufacturing, Production Allotment & Supply Chain ERP",
+  icons: {
+    icon: [
+      { url: '/icon.svg', type: 'image/svg+xml' },
+      { url: '/favicon.ico', sizes: 'any' }
+    ],
+    shortcut: '/favicon.ico',
+    apple: '/icon.svg'
+  }
 };
 
 import { ReactQueryProvider } from "@/lib/react-query-provider";

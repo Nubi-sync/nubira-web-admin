@@ -157,8 +157,8 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* Login Form Card */}
-        <div className="w-full bg-white rounded-2xl border border-slate-200/90 shadow-xl p-6 sm:p-8">
+        {/* Login Form Card: Slim Black Outline without shadow */}
+        <div className="w-full bg-white rounded-2xl border border-black p-6 sm:p-8">
           <form action={clientAction} className="space-y-4">
             
             {/* Email Field */}
