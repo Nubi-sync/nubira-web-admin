@@ -134,7 +134,7 @@ const jsonLd = {
   ]
 };
 
-import { ReactQueryProvider } from "@/lib/react-query-provider";
+import { ReactQueryProvider } from "../lib/react-query-provider";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

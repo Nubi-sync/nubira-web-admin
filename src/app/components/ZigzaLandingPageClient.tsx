@@ -173,7 +173,7 @@ ${demoForm.ownerName}`
           {/* Brand Logo: Single new_logo.png without scroll switching */}
           <Link href="/" className="group flex items-center cursor-pointer select-none shrink-0">
             <img 
-              src="/new_logo.png" 
+              src="/z i g z a (1).png" 
               alt="zigza." 
               className="h-[36px] sm:h-[44px] w-auto object-contain rounded-md sm:rounded-lg overflow-hidden shadow-xs transition-transform duration-150 group-hover:scale-[1.02]"
             />
@@ -267,9 +267,15 @@ ${demoForm.ownerName}`
 
         </div>
 
-        {/* Mobile Navigation Drawer */}
-        {isMobileMenuOpen && (
-          <div className="md:hidden bg-[#FAFAF8] border-b border-[#57564E]/15 px-5 pt-3 pb-6 space-y-4 shadow-lg">
+        {/* Mobile Navigation Drawer with Sliding Opening Transition */}
+        <div
+          className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out bg-[#FAFAF8] ${
+            isMobileMenuOpen
+              ? 'max-h-[520px] opacity-100 translate-y-0 border-b border-[#57564E]/15 shadow-lg'
+              : 'max-h-0 opacity-0 -translate-y-2 border-b-0 pointer-events-none'
+          }`}
+        >
+          <div className="px-5 pt-3 pb-6 space-y-4">
             <nav className="flex flex-col space-y-1">
               {[
                 { id: 'modules', label: 'Modules' },
@@ -299,7 +305,7 @@ ${demoForm.ownerName}`
                   setIsDemoModalOpen(true)
                   setIsMobileMenuOpen(false)
                 }}
-                className="w-full py-3 rounded-md text-[15px] font-medium bg-[#3A3564] text-white hover:bg-[#2F2B52] transition-colors flex items-center justify-center gap-2"
+                className="w-full py-3 rounded-md text-[15px] font-medium bg-[#3A3564] text-white hover:bg-[#2F2B52] transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs"
               >
                 <span>Request a Live Demo</span>
                 <ArrowRight className="w-4 h-4 text-white/70" />
@@ -307,14 +313,14 @@ ${demoForm.ownerName}`
               <Link
                 href="/login"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="w-full py-2.5 rounded-md text-[15px] font-medium text-[#14140F] border border-[#57564E]/25 bg-transparent hover:bg-[#14140F]/5 transition-colors flex items-center justify-center gap-2"
+                className="w-full py-2.5 rounded-md text-[15px] font-medium text-[#14140F] border border-[#57564E]/25 bg-transparent hover:bg-[#14140F]/5 transition-colors flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Lock className="w-4 h-4 text-[#57564E]" />
                 <span>Staff Portal Sign In</span>
               </Link>
             </div>
           </div>
-        )}
+        </div>
       </header>
 
       {/* =================================================================== */}
@@ -1761,7 +1767,7 @@ ${demoForm.ownerName}`
             <div className="col-span-2 space-y-4">
               <Link href="/" className="inline-block group">
                 <img 
-                  src="/new_logo.png" 
+                  src="/z i g z a (1).png" 
                   alt="zigza." 
                   className="h-8 sm:h-9 w-auto object-contain rounded-md sm:rounded-lg overflow-hidden group-hover:opacity-90 transition-opacity duration-150"
                 />
@@ -1964,7 +1970,7 @@ ${demoForm.ownerName}`
 
             <div className="flex items-center gap-3 mb-2">
               <img 
-                src="/new_logo.png" 
+                src="/z i g z a (1).png" 
                 alt="zigza." 
                 className="h-7 w-auto object-contain rounded-md overflow-hidden"
               />
