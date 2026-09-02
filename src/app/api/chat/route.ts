@@ -3,8 +3,15 @@ import { GEMINI_TOOLS_DECLARATIONS, executeAiTool } from '@/lib/ai/tools'
 
 export const dynamic = 'force-dynamic'
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || ''
-const GEMINI_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${GEMINI_API_KEY}`
+function getGeminiApiKey(): string {
+  return (
+    process.env.GEMINI_API_KEY ||
+    process.env.NEXT_PUBLIC_GEMINI_API_KEY ||
+    process.env.GOOGLE_GEMINI_API_KEY ||
+    process.env.GEMINI_KEY ||
+    ''
+  ).trim()
+}
 
 const SYSTEM_INSTRUCTION = `You are Zigza AI, the dedicated manufacturing intelligence system for Zigza ERP & MES garment plant.
 Your primary role is to accurately answer operational questions by fetching real-time data from the factory database using the provided tools.
@@ -19,12 +26,15 @@ CRITICAL BRANDING RULES:
 
 export async function POST(req: NextRequest) {
   try {
-    if (!GEMINI_API_KEY) {
+    const apiKey = getGeminiApiKey()
+    if (!apiKey) {
       return NextResponse.json(
-        { error: 'Gemini API key is not configured in server environment.' },
+        { error: 'Gemini API key is not configured in server environment. Please add GEMINI_API_KEY to your Vercel/Render Environment Variables and redeploy.' },
         { status: 500 }
       )
     }
+
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${apiKey}`
 
     const { message, history = [] } = await req.json()
 
@@ -69,7 +79,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const firstRes = await fetch(GEMINI_ENDPOINT, {
+    const firstRes = await fetch(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(initialPayload)
@@ -130,7 +140,7 @@ export async function POST(req: NextRequest) {
         }
       }
 
-      const secondRes = await fetch(GEMINI_ENDPOINT, {
+      const secondRes = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(secondPayload)
