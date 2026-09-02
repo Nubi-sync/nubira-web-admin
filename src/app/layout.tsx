@@ -66,24 +66,19 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/icon.png",
+        url: "https://zigza.in/icon.png",
         width: 512,
         height: 512,
+        type: "image/png",
         alt: "Zigza MES Icon",
-      },
-      {
-        url: "/new_logo.png",
-        width: 1200,
-        height: 630,
-        alt: "Zigza MES Platform for Apparel Factories",
       },
     ],
   },
   twitter: {
-    card: "summary_large_image",
+    card: "summary",
     title: "Zigza MES | Modern Apparel Manufacturing",
     description: "Streamline cutting tables, bundle allotments, 3-stage QC, and lineman wages with zero leakage.",
-    images: ["/icon.png"],
+    images: ["https://zigza.in/icon.png"],
   },
   robots: {
     index: true,
