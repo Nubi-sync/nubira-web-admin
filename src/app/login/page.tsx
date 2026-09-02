@@ -180,7 +180,7 @@ export default function LoginPage() {
         <div className="flex items-center gap-3.5">
           <Link href="/" className="inline-block group">
             <img 
-              src="/z i g z a (1).png" 
+              src="/z i g z a (1) copy.png" 
               alt="zigza." 
               className="h-10 sm:h-12 w-auto object-contain rounded-md transition-opacity group-hover:opacity-85"
             />

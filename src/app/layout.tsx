@@ -122,14 +122,14 @@ const jsonLd = {
         "@type": "Organization",
         "name": "Zigza Technologies",
         "url": "https://zigza.in",
-        "logo": "https://zigza.in/new_logo.png"
+        "logo": "https://zigza.in/z%20i%20g%20z%20a%20(1)%20copy.png"
       }
     },
     {
       "@type": "Organization",
       "name": "Zigza",
       "url": "https://zigza.in",
-      "logo": "https://zigza.in/new_logo.png"
+      "logo": "https://zigza.in/z%20i%20g%20z%20a%20(1)%20copy.png"
     }
   ]
 };

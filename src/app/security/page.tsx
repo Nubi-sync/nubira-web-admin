@@ -47,7 +47,7 @@ export default function SecurityStandardsPage() {
       <header className="sticky top-0 z-40 px-6 py-4 sm:px-10 flex items-center justify-between border-b border-slate-200/80 bg-white/80 backdrop-blur-md">
         <Link href="/" className="inline-flex items-center gap-2 group">
           <img 
-            src="/new_logo.png" 
+            src="/z i g z a (1) copy.png" 
             alt="zigza." 
             className="h-7 sm:h-8 w-auto object-contain rounded-md transition-opacity group-hover:opacity-85"
           />

@@ -173,7 +173,7 @@ ${demoForm.ownerName}`
           {/* Brand Logo: Single new_logo.png without scroll switching */}
           <Link href="/" className="group flex items-center cursor-pointer select-none shrink-0">
             <img 
-              src="/z i g z a (1).png" 
+              src="/z i g z a (1) copy.png" 
               alt="zigza." 
               className="h-[36px] sm:h-[44px] w-auto object-contain rounded-md sm:rounded-lg overflow-hidden shadow-xs transition-transform duration-150 group-hover:scale-[1.02]"
             />
@@ -1780,7 +1780,7 @@ ${demoForm.ownerName}`
             <div className="col-span-2 space-y-4">
               <Link href="/" className="inline-block group">
                 <img 
-                  src="/z i g z a (1).png" 
+                  src="/z i g z a (1) copy.png" 
                   alt="zigza." 
                   className="h-8 sm:h-9 w-auto object-contain rounded-md sm:rounded-lg overflow-hidden group-hover:opacity-90 transition-opacity duration-150"
                 />
@@ -1983,7 +1983,7 @@ ${demoForm.ownerName}`
 
             <div className="flex items-center gap-3 mb-2">
               <img 
-                src="/z i g z a (1).png" 
+                src="/z i g z a (1) copy.png" 
                 alt="zigza." 
                 className="h-7 w-auto object-contain rounded-md overflow-hidden"
               />

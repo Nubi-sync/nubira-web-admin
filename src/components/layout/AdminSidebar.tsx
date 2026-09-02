@@ -112,7 +112,7 @@ export function AdminSidebar({
         <div className="p-4 pb-3.5 border-b border-slate-200 flex items-center justify-between">
           <Link href="/dashboard" className="flex items-center gap-2.5 group">
             <img 
-              src="/z i g z a (1).png" 
+              src="/z i g z a (1) copy.png" 
               alt="zigza." 
               className="h-8 w-auto object-contain rounded-md transition-opacity group-hover:opacity-85"
             />
