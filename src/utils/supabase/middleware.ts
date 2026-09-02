@@ -32,17 +32,20 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   // Redirect logic
-  const isLoginPage = request.nextUrl.pathname.startsWith('/login')
+  const pathname = request.nextUrl.pathname
+  const isLoginPage = pathname.startsWith('/login')
+  const isLandingPage = pathname === '/'
+  const isPublicRoute = isLoginPage || isLandingPage || pathname.startsWith('/auth')
   
-  if (!user && !isLoginPage) {
-    // If not logged in and not on login page, redirect to login
+  if (!user && !isPublicRoute) {
+    // If not logged in and accessing protected internal pages, redirect to login
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)
   }
 
   if (user && isLoginPage) {
-    // If logged in and on login page, redirect to dashboard
+    // If logged in and on login page, redirect to root
     const url = request.nextUrl.clone()
     url.pathname = '/'
     return NextResponse.redirect(url)

@@ -3,7 +3,9 @@ import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { redirect } from 'next/navigation'
 import { AdminShell } from '@/components/layout/AdminShell'
 import DashboardClient from './DashboardClient'
-import { LogOut } from 'lucide-react'
+import { ZigzaLandingPageClient } from './components/ZigzaLandingPageClient'
+import { LogOut, Globe } from 'lucide-react'
+import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
 
@@ -24,15 +26,28 @@ function formatRelativeTime(dateStr?: string) {
   return days + ' day' + (days > 1 ? 's' : '') + ' ago'
 }
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams
+}: {
+  searchParams?: Promise<{ showcase?: string }>
+}) {
   const supabase = await createClient()
 
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (!user) {
-    redirect('/login')
+  const resolvedParams = searchParams ? await searchParams : {}
+  const isShowcase = resolvedParams?.showcase === 'true'
+
+  // If user is not authenticated or explicitly requested showcase, render the Zigza Landing Page
+  if (!user || isShowcase) {
+    return (
+      <ZigzaLandingPageClient
+        isAuthenticated={!!user}
+        userEmail={user?.email || ''}
+      />
+    )
   }
 
   // 0. Fetch Articles
@@ -218,25 +233,39 @@ export default async function DashboardPage() {
             </p>
           </div>
 
-          {/* Sign Out Button */}
-          <form action={async () => {
-            'use server'
-            const sb = await createClient()
-            await sb.auth.signOut()
-            redirect('/login')
-          }}>
-            <button 
-              type="submit"
+          <div className="flex items-center gap-2.5">
+            <Link
+              href="/?showcase=true"
               className="inline-flex items-center gap-2 px-3.5 py-2 bg-white border rounded-[8px] text-[13px] font-semibold transition-colors shadow-2xs hover:border-[var(--steel,#2B4C7E)] hover:text-[var(--steel,#2B4C7E)] cursor-pointer"
               style={{ 
                 borderColor: 'var(--border, #E2E8F0)',
                 color: 'var(--ink, #1C2733)'
               }}
             >
-              <LogOut className="w-4 h-4" />
-              <span>Sign Out</span>
-            </button>
-          </form>
+              <Globe className="w-4 h-4 text-[var(--steel,#2B4C7E)]" />
+              <span>Public Website</span>
+            </Link>
+
+            {/* Sign Out Button */}
+            <form action={async () => {
+              'use server'
+              const sb = await createClient()
+              await sb.auth.signOut()
+              redirect('/login')
+            }}>
+              <button 
+                type="submit"
+                className="inline-flex items-center gap-2 px-3.5 py-2 bg-white border rounded-[8px] text-[13px] font-semibold transition-colors shadow-2xs hover:border-[var(--steel,#2B4C7E)] hover:text-[var(--steel,#2B4C7E)] cursor-pointer"
+                style={{ 
+                  borderColor: 'var(--border, #E2E8F0)',
+                  color: 'var(--ink, #1C2733)'
+                }}
+              >
+                <LogOut className="w-4 h-4" />
+                <span>Sign Out</span>
+              </button>
+            </form>
+          </div>
         </header>
 
         {/* Enhanced 6-Stage Dashboard Client Component */}
