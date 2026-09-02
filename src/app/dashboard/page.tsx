@@ -225,27 +225,27 @@ export default async function DashboardPage() {
       <div className="p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto">
         
         {/* Top Bar inside content area */}
-        <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200">
+        <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-slate-200">
           <div>
-            <div className="flex items-center gap-2.5">
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+            <div className="flex items-center gap-3">
+              <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
                 Plant Operations Control Center
               </h1>
-              <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#3A3564] text-white tracking-wider shadow-2xs">
+              <span className="text-[11px] font-mono font-bold uppercase px-3 py-1 rounded-full bg-[#3A3564] text-white tracking-wider shadow-2xs">
                 MES Live
               </span>
             </div>
-            <p className="text-xs sm:text-sm text-slate-600 mt-1">
+            <p className="text-sm sm:text-base text-slate-600 mt-1.5">
               Real-time 6-stage garment manufacturing floor throughput and inventory lifecycle
             </p>
           </div>
 
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-3">
             <Link
               href="/?showcase=true"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-black/15 rounded-xl text-xs sm:text-sm font-bold text-slate-900 hover:bg-slate-50 transition-all shadow-2xs cursor-pointer"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-black/15 rounded-xl text-sm font-bold text-slate-900 hover:bg-slate-50 transition-all shadow-2xs cursor-pointer"
             >
-              <Globe className="w-4 h-4 text-[#3A3564]" />
+              <Globe className="w-[18px] h-[18px] text-[#3A3564]" />
               <span>Public Website</span>
             </Link>
 
@@ -258,9 +258,9 @@ export default async function DashboardPage() {
             }}>
               <button 
                 type="submit"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-black/15 rounded-xl text-xs sm:text-sm font-bold text-slate-700 hover:bg-rose-50 hover:text-rose-600 transition-all shadow-2xs cursor-pointer"
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-black/15 rounded-xl text-sm font-bold text-slate-700 hover:bg-rose-50 hover:text-rose-600 transition-all shadow-2xs cursor-pointer"
               >
-                <LogOut className="w-4 h-4" />
+                <LogOut className="w-[18px] h-[18px]" />
                 <span>Sign Out</span>
               </button>
             </form>
