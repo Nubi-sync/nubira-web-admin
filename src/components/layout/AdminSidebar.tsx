@@ -14,13 +14,15 @@ import {
   FileText,
   Loader2,
   X,
-  PanelLeftClose
+  PanelLeftClose,
+  Sparkles
 } from 'lucide-react'
 
 type NavItem = {
   label: string
   href: string
   icon: React.ComponentType<{ className?: string }>
+  badge?: string
 }
 
 type NavSection = {
@@ -33,6 +35,7 @@ const navSections: NavSection[] = [
     section: 'Overview',
     items: [
       { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+      { label: 'Zigza AI', href: '/zigza-ai', icon: Sparkles, badge: 'AI' },
     ],
   },
   {
@@ -208,11 +211,15 @@ export function AdminSidebar({
                       </div>
 
                       {/* Pill indicator on navigating */}
-                      {isLoading && (
+                      {isLoading ? (
                         <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#3A3564] bg-white px-2 py-0.5 rounded-md border border-black/10 animate-pulse shrink-0">
                           Opening...
                         </span>
-                      )}
+                      ) : item.badge ? (
+                        <span className="text-[10px] font-mono font-extrabold uppercase tracking-wider text-[#3A3564] bg-[#FAF7F0] border border-black/15 px-2 py-0.5 rounded-md shadow-2xs shrink-0">
+                          {item.badge}
+                        </span>
+                      ) : null}
                     </Link>
                   )
                 })}

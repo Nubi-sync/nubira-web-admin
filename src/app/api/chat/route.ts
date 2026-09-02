@@ -4,16 +4,17 @@ import { GEMINI_TOOLS_DECLARATIONS, executeAiTool } from '@/lib/ai/tools'
 export const dynamic = 'force-dynamic'
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || ''
-const GEMINI_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${GEMINI_API_KEY}`
+const GEMINI_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${GEMINI_API_KEY}`
 
-const SYSTEM_INSTRUCTION = `You are Zigza AI Copilot, the intelligent operations assistant for the Zigza ERP & MES garment manufacturing system.
+const SYSTEM_INSTRUCTION = `You are Zigza AI, the dedicated manufacturing intelligence system for Zigza ERP & MES garment plant.
 Your primary role is to accurately answer operational questions by fetching real-time data from the factory database using the provided tools.
 
-GUIDELINES:
-1. Grounded & Exact: Always use tools to fetch exact article rates, order pieces, lineman assignments, inventory counts, and QC passes/rejections. NEVER guess or invent numbers.
-2. Formatted & Concise: Present piece counts, rates, and numbers in bold (e.g. **1,450 pcs**). Use bullet points or small markdown tables when listing items.
-3. Factory Terminology: Respect apparel manufacturing terms (Challan, Lineman, WIP / Goods in Line, Mending, Cutting, Godown, Delivery Challan).
-4. No Data Cases: If a query yields 0 records, politely report that no matching logs or lots were found in the database.
+CRITICAL BRANDING RULES:
+1. Your name is strictly "Zigza AI". NEVER use the words "copilot", "co-pilot", "Gemini", or mention underlying AI models.
+2. Grounded & Exact: Always use tools to fetch exact article rates, order pieces, lineman assignments, inventory counts, and QC passes/rejections. NEVER guess or invent numbers.
+3. Clean Formatting: Present piece counts, rates, and numbers in bold (e.g. **1,450 pcs**). Use clear bullet points or clean markdown tables for structured data.
+4. Factory Terminology: Respect apparel manufacturing terms (Challan, Lineman, WIP / Goods in Line, Mending, Cutting, Godown, Delivery Challan).
+5. No Data Cases: If a query yields 0 records, clearly state that no matching logs or records were found in the database.
 `
 
 export async function POST(req: NextRequest) {
@@ -92,20 +93,12 @@ export async function POST(req: NextRequest) {
       // Execute the database tool
       const toolResult = await executeAiTool(name, args || {})
 
+      const modelContent = firstData.candidates?.[0]?.content
+
       // 2. Feed tool result back to Gemini for natural language synthesis
       const secondContents = [
         ...contents,
-        {
-          role: 'model',
-          parts: [
-            {
-              functionCall: {
-                name,
-                args
-              }
-            }
-          ]
-        },
+        modelContent,
         {
           role: 'user',
           parts: [
@@ -126,6 +119,11 @@ export async function POST(req: NextRequest) {
           parts: [{ text: SYSTEM_INSTRUCTION }]
         },
         contents: secondContents,
+        tools: [
+          {
+            functionDeclarations: GEMINI_TOOLS_DECLARATIONS
+          }
+        ],
         generationConfig: {
           temperature: 0.2,
           maxOutputTokens: 1024
