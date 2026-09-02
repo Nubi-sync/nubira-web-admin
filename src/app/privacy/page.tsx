@@ -3,8 +3,8 @@ import Link from 'next/link'
 import { ArrowLeft, Home, Shield, Lock, Eye, Database, Server, RefreshCw, Mail } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy | Zigza MES',
-  description: 'Learn how Zigza MES collects, stores, and protects proprietary factory data, BOM specifications, cutting lots, and floor telemetry.',
+  title: 'Privacy Policy | Zigza',
+  description: 'Learn how Zigza collects, stores, and protects proprietary factory data, BOM specifications, cutting lots, and floor telemetry.',
   alternates: {
     canonical: 'https://zigza.in/privacy',
   },

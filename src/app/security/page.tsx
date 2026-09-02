@@ -3,8 +3,8 @@ import Link from 'next/link'
 import { ArrowLeft, Home, ShieldCheck, Lock, Key, Server, RefreshCw, Cpu, CheckCircle2 } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'Security Standards & Factory Data Protection | Zigza MES',
-  description: 'Learn how Zigza MES safeguards proprietary buyer CAD specs, cutting table matrices, lineman wage records, and fabric inventories.',
+  title: 'Security Standards & Factory Data Protection | Zigza',
+  description: 'Learn how Zigza safeguards proprietary buyer CAD specs, cutting table matrices, lineman wage records, and fabric inventories.',
   alternates: {
     canonical: 'https://zigza.in/security',
   },

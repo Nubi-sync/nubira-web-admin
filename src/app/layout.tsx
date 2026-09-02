@@ -36,15 +36,14 @@ const caveat = Caveat({
 export const metadata: Metadata = {
   metadataBase: new URL('https://zigza.in'),
   title: {
-    default: "Zigza MES | Apparel Manufacturing & Floor Execution Platform",
-    template: "%s | Zigza MES"
+    default: "Zigza | Apparel Manufacturing & Floor Execution Platform",
+    template: "%s | Zigza"
   },
-  description: "Zigza is India's premier Manufacturing Execution System (MES) built for modern garment factories. Eliminate manual paper logs, automate cutting lot matrices, track live bundle allotments, and calculate lineman piece rates with zero ghost pieces.",
+  description: "Zigza is India's premier operations and floor execution platform built for modern garment factories. Eliminate manual paper logs, automate cutting lot matrices, track live bundle allotments, and calculate lineman piece rates with zero ghost pieces.",
   keywords: [
     "Zigza",
-    "Zigza MES",
     "garment manufacturing software",
-    "apparel MES India",
+    "apparel software India",
     "garment factory ERP",
     "cutting lot matrix software",
     "apparel bundle tracking",
@@ -65,10 +64,10 @@ export const metadata: Metadata = {
     canonical: "https://zigza.in",
   },
   openGraph: {
-    title: "Zigza MES | The Operating System for Apparel Factories",
+    title: "Zigza | The Operating System for Apparel Factories",
     description: "Replace paper registers with real-time floor synchronization from fabric store to carton dispatch. Designed for modern garment manufacturers.",
     url: "https://zigza.in",
-    siteName: "Zigza MES",
+    siteName: "Zigza",
     locale: "en_IN",
     type: "website",
     images: [
@@ -77,13 +76,13 @@ export const metadata: Metadata = {
         width: 512,
         height: 512,
         type: "image/png",
-        alt: "Zigza MES Icon",
+        alt: "Zigza Icon",
       },
     ],
   },
   twitter: {
     card: "summary",
-    title: "Zigza MES | Modern Apparel Manufacturing",
+    title: "Zigza | Modern Apparel Manufacturing",
     description: "Streamline cutting tables, bundle allotments, 3-stage QC, and lineman wages with zero leakage.",
     images: ["https://zigza.in/icon.png"],
   },
@@ -115,11 +114,11 @@ const jsonLd = {
   "@graph": [
     {
       "@type": "SoftwareApplication",
-      "name": "Zigza MES",
+      "name": "Zigza",
       "operatingSystem": "Web, Android, iOS",
       "applicationCategory": "BusinessApplication",
       "url": "https://zigza.in",
-      "description": "Manufacturing Execution System engineered for modern apparel factories. Eliminating paper registers with synchronized floor intelligence.",
+      "description": "Floor execution platform engineered for modern apparel factories. Eliminating paper registers with synchronized floor intelligence.",
       "offers": {
         "@type": "Offer",
         "price": "0",

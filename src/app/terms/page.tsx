@@ -3,8 +3,8 @@ import Link from 'next/link'
 import { ArrowLeft, Home, FileText, CheckCircle2, ShieldCheck, AlertCircle } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'Terms and Conditions | Zigza MES',
-  description: 'Terms of Service and commercial SaaS agreement for apparel manufacturing units subscribing to Zigza MES.',
+  title: 'Terms and Conditions | Zigza',
+  description: 'Terms of Service and commercial SaaS agreement for apparel manufacturing units subscribing to Zigza.',
   alternates: {
     canonical: 'https://zigza.in/terms',
   },

@@ -199,9 +199,11 @@ export function AdminSidebar({
                 className="h-9 w-auto object-contain rounded-xl shadow-2xs transition-opacity"
               />
             ) : (
-              <div className="w-10 h-10 rounded-xl bg-[#3A3564] text-[#FAF7F0] font-black font-[family-name:var(--font-heading)] text-lg flex items-center justify-center shadow-xs mx-auto">
-                Z
-              </div>
+              <img 
+                src="/favicon.ico" 
+                alt="zigza." 
+                className="w-10 h-10 object-contain rounded-xl shadow-xs mx-auto"
+              />
             )}
           </Link>
         </div>
