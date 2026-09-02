@@ -731,9 +731,9 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
       {/* ======================================================== */}
       <main className="flex-1 flex flex-col min-w-0 h-full relative overflow-hidden bg-[#FAFAF8]">
         
-        {/* Top App Bar with Navigation, Title, and Action Buttons */}
-        <header className="px-3 sm:px-6 py-2 sm:py-3 border-b border-slate-200/80 bg-white/95 backdrop-blur-md flex items-center justify-between z-10 shrink-0 shadow-2xs">
-          <div className="flex items-center gap-1.5 sm:gap-3 min-w-0">
+        {/* Top App Bar with Navigation, Title, and Action Buttons (Elevated & Spacious) */}
+        <header className="px-4 sm:px-8 py-3.5 sm:py-4.5 border-b border-slate-200/80 bg-white/95 backdrop-blur-md flex items-center justify-between z-10 shrink-0 shadow-xs">
+          <div className="flex items-center gap-2 sm:gap-3.5 min-w-0">
             {/* Mobile Hamburger Menu Button to open AdminSidebar */}
             <button
               type="button"
@@ -742,61 +742,61 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
                   window.dispatchEvent(new CustomEvent('toggle-mobile-menu'))
                 }
               }}
-              className="lg:hidden w-8 h-8 rounded-xl border border-slate-200 flex items-center justify-center text-slate-700 hover:text-slate-900 hover:bg-[#FAF7F0] transition-colors cursor-pointer shadow-2xs shrink-0 mr-1"
+              className="lg:hidden w-10 h-10 rounded-xl border border-slate-200 flex items-center justify-center text-slate-700 hover:text-slate-900 hover:bg-[#FAF7F0] transition-colors cursor-pointer shadow-2xs shrink-0 mr-1 active:scale-95"
               aria-label="Open staff navigation menu"
             >
-              <Menu className="w-4 h-4 text-[#3A3564]" />
+              <Menu className="w-5 h-5 text-[#3A3564]" />
             </button>
 
-            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-[#3A3564] text-[#FAF7F0] flex items-center justify-center shadow-xs shrink-0">
-              <Bot className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-[#3A3564] text-[#FAF7F0] flex items-center justify-center shadow-xs shrink-0">
+              <Bot className="w-5 h-5 sm:w-5.5 sm:h-5.5" />
             </div>
-            <div className="min-w-0">
-              <div className="flex items-center gap-1.5 sm:gap-2">
-                <h1 className="text-sm sm:text-base font-extrabold text-slate-900 tracking-tight font-[family-name:var(--font-heading)] whitespace-nowrap">
+            <div className="min-w-0 hidden sm:block">
+              <div className="flex items-center gap-2 sm:gap-2.5">
+                <h1 className="text-base sm:text-lg md:text-xl font-extrabold text-slate-900 tracking-tight font-[family-name:var(--font-heading)] whitespace-nowrap">
                   Zigza AI
                 </h1>
-                <span className="hidden sm:inline-block text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs">
+                <span className="inline-block text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs">
                   LIVE AI
                 </span>
               </div>
-              <p className="text-[10px] sm:text-[11px] text-slate-500 truncate hidden sm:block">
+              <p className="text-xs text-slate-500 truncate font-medium">
                 Direct database queries connected to live plant operations
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             {/* TV View button hidden on small screens */}
             <div className="hidden sm:block">
-              <TvViewButton size="sm" />
+              <TvViewButton size="md" />
             </div>
 
-            {/* New Chat Button with visible label */}
+            {/* New Chat Button with prominent visible label */}
             <button
               type="button"
               onClick={createNewSession}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-1.5 bg-white border border-black/15 rounded-xl text-xs font-bold text-slate-700 hover:bg-[#FAF7F0] shadow-2xs transition-colors cursor-pointer shrink-0"
+              className="inline-flex items-center gap-2 px-3.5 py-2 sm:px-4 sm:py-2.5 bg-white border border-black/15 hover:border-black/30 rounded-xl text-xs sm:text-sm font-bold text-slate-700 hover:bg-[#FAF7F0] shadow-2xs transition-all cursor-pointer shrink-0 active:scale-95"
               title="New Chat"
             >
-              <Plus className="w-3.5 h-3.5 text-[#3A3564]" />
-              <span className="text-[11px] sm:text-xs font-bold whitespace-nowrap">New Chat</span>
+              <Plus className="w-4 h-4 text-[#3A3564]" />
+              <span className="text-xs sm:text-sm font-bold whitespace-nowrap">New Chat</span>
             </button>
 
             {/* History Toggle Button: PanelLeft for desktop (left panel), PanelRight for mobile (right drawer) */}
             <button
               type="button"
               onClick={() => setIsHistoryOpen(prev => !prev)}
-              className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-1.5 border rounded-xl text-xs font-bold transition-all cursor-pointer shadow-2xs shrink-0 ${
+              className={`inline-flex items-center gap-2 px-3.5 py-2 sm:px-4 sm:py-2.5 border rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shadow-2xs shrink-0 active:scale-95 ${
                 isHistoryOpen
-                  ? 'bg-[#3A3564] text-white border-[#3A3564]'
-                  : 'bg-white border-slate-200 text-slate-700 hover:text-slate-900 hover:bg-[#FAF7F0]'
+                  ? 'bg-[#3A3564] text-white border-[#3A3564] shadow-xs'
+                  : 'bg-white border-slate-200 text-slate-700 hover:text-slate-900 hover:bg-[#FAF7F0] hover:border-slate-300'
               }`}
               title="Toggle chat history"
             >
-              <PanelLeft className="w-3.5 h-3.5 hidden lg:block" />
-              <PanelRight className="w-3.5 h-3.5 lg:hidden" />
-              <span className="text-[11px] sm:text-xs font-bold whitespace-nowrap">History</span>
+              <PanelLeft className="w-4 h-4 hidden lg:block" />
+              <PanelRight className="w-4 h-4 lg:hidden" />
+              <span className="text-xs sm:text-sm font-bold whitespace-nowrap">History</span>
             </button>
           </div>
         </header>
@@ -812,7 +812,8 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
               <div className="space-y-2 sm:space-y-3 text-center max-w-xl mx-auto px-2">
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 text-[10px] sm:text-xs font-mono font-bold shadow-2xs">
                   <Bot className="w-3.5 h-3.5" />
-                  <span>PLANT INTELLIGENCE</span>
+                  <span className="sm:hidden">ZIGZA AI</span>
+                  <span className="hidden sm:inline">PLANT INTELLIGENCE</span>
                 </div>
                 <h2 className="text-xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight leading-snug">
                   What factory data would you like to check?
