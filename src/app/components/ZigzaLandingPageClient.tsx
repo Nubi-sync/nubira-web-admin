@@ -66,7 +66,7 @@ export function ZigzaLandingPageClient({
   useEffect(() => {
     const pipelineTimer = setInterval(() => {
       setActivePipelineStep(prev => (prev + 1) % 5)
-    }, 1200) 
+    }, 1200)
     return () => clearInterval(pipelineTimer)
   }, [])
 
