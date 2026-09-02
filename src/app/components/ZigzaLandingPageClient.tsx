@@ -32,7 +32,8 @@ import {
   Lock,
   MessageSquareCheck,
   Menu,
-  Check
+  Check,
+  Mail
 } from 'lucide-react'
 
 interface ZigzaLandingPageClientProps {
@@ -74,14 +75,12 @@ export function ZigzaLandingPageClient({
   const [monthlyPieces, setMonthlyPieces] = useState<number>(35000)
   const [linemenCount, setLinemenCount] = useState<number>(24)
 
-  // Demo Form State
+  // Demo Form State: Company Name, Owner Name, Phone, Business Email
   const [demoForm, setDemoForm] = useState({
-    factoryName: '',
-    contactName: '',
+    companyName: '',
+    ownerName: '',
     phone: '',
-    volume: '10,000 - 50,000 Pcs',
-    selectedModules: ['Store GRN', 'Excel Challan Matrix', 'Lineman Wages'],
-    notes: ''
+    email: ''
   })
   const [isSubmitted, setIsSubmitted] = useState(false)
 
@@ -93,18 +92,30 @@ export function ZigzaLandingPageClient({
   const handleDemoSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitted(true)
-  }
 
-  const toggleModule = (moduleName: string) => {
-    setDemoForm(prev => {
-      const exists = prev.selectedModules.includes(moduleName)
-      return {
-        ...prev,
-        selectedModules: exists
-          ? prev.selectedModules.filter(m => m !== moduleName)
-          : [...prev.selectedModules, moduleName]
-      }
-    })
+    const subject = `Zigza Live Demo Request - ${demoForm.companyName || 'New Factory'}`
+    const body = `Hi Sumit,
+
+I would like to request a live demo walkthrough of Zigza MES for our garment manufacturing unit.
+
+Details:
+• Company / Factory Name: ${demoForm.companyName}
+• Owner / Plant Head Name: ${demoForm.ownerName}
+• Phone / WhatsApp Number: ${demoForm.phone}
+• Business Email ID: ${demoForm.email}
+
+Please contact us to schedule the live walkthrough.
+
+Best regards,
+${demoForm.ownerName}`
+
+    const mailtoUrl = `mailto:shawsumit6286@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
+    
+    try {
+      window.location.href = mailtoUrl
+    } catch {
+      // Fallback handled by direct link in UI
+    }
   }
 
   const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
@@ -1451,26 +1462,39 @@ export function ZigzaLandingPageClient({
             return (
               <div
                 key={idx}
-                className="bg-[#FAFAF8] border border-[#57564E]/15 rounded-xl overflow-hidden transition-colors"
+                className={`bg-white rounded-2xl border transition-all duration-300 overflow-hidden ${
+                  isOpen ? 'border-black shadow-sm ring-1 ring-black/5' : 'border-slate-200 hover:border-black/40'
+                }`}
               >
                 <button
                   type="button"
                   onClick={() => setExpandedFaq(isOpen ? null : idx)}
-                  className="w-full p-4 sm:p-5 text-left flex items-center justify-between gap-4 font-medium text-base sm:text-lg text-[#14140F] hover:text-[#3A3564] transition-colors cursor-pointer"
+                  className="w-full p-4 sm:p-5 text-left flex items-center justify-between gap-4 cursor-pointer group"
                 >
-                  <span>{faq.q}</span>
-                  {isOpen ? (
-                    <ChevronUp className="w-5 h-5 text-[#3A3564] shrink-0" />
-                  ) : (
-                    <ChevronDown className="w-5 h-5 text-[#57564E] shrink-0" />
-                  )}
+                  <span className={`font-bold text-base sm:text-lg transition-colors ${
+                    isOpen ? 'text-[#3A3564]' : 'text-slate-900 group-hover:text-[#3A3564]'
+                  }`}>
+                    {faq.q}
+                  </span>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-all duration-300 ${
+                    isOpen ? 'bg-[#3A3564] text-white rotate-180 shadow-xs' : 'bg-[#FAF7F0] border border-black/10 text-slate-500 rotate-0'
+                  }`}>
+                    <ChevronDown className="w-4 h-4 transition-transform duration-300" />
+                  </div>
                 </button>
 
-                {isOpen && (
-                  <div className="px-4 sm:px-5 pb-5 pt-1 text-sm sm:text-base text-[#57564E] leading-relaxed border-t border-[#57564E]/10 animate-in fade-in duration-150">
-                    {faq.a}
+                {/* Sliding Height Transition via CSS Grid rows */}
+                <div
+                  className={`grid transition-all duration-300 ease-in-out ${
+                    isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
+                  }`}
+                >
+                  <div className="overflow-hidden">
+                    <div className="px-4 sm:px-5 pb-5 pt-1 text-sm sm:text-base text-slate-600 leading-relaxed border-t border-slate-100">
+                      {faq.a}
+                    </div>
                   </div>
-                )}
+                </div>
               </div>
             )
           })}
@@ -1480,135 +1504,168 @@ export function ZigzaLandingPageClient({
       {/* =================================================================== */}
       {/* 9. BOTTOM CALL TO ACTION BANNER & REQUEST DEMO FORM                 */}
       {/* =================================================================== */}
-      <section className="bg-[#1C1A2E] text-white py-16 sm:py-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-        <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-center">
-          
-          {/* Left Text */}
-          <div className="space-y-4 text-center lg:text-left">
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight">
-              Transform Your Garment Factory with Zigza Today
-            </h2>
-            <p className="text-base sm:text-lg text-[#FAFAF8]/80 mt-3 leading-relaxed">
-              Book a personalized 20-minute live demonstration tailored to your plant capacity, 
-              cutting tables, and floor workflow.
-            </p>
-            <div className="pt-2 flex items-center justify-center lg:justify-start gap-3">
-              <a
-                href="https://wa.me/?text=Hi,%20I%20would%20like%20to%20request%20a%20live%20demo%20of%20Zigza%20MES%20for%20our%20garment%20factory."
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-5 py-3 rounded-md bg-[#1F9D63] hover:bg-emerald-600 text-white text-[15px] font-medium transition-colors cursor-pointer"
-              >
-                <Phone className="w-4 h-4" />
-                <span>Instant WhatsApp Consultation</span>
-              </a>
-            </div>
-          </div>
+      <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-white border-t border-slate-200/80">
+        <div className="max-w-5xl mx-auto bg-[#FAF7F0] border border-black rounded-3xl p-6 sm:p-10 lg:p-12 shadow-sm">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+            
+            {/* Left Text */}
+            <div className="lg:col-span-7 space-y-4 text-center lg:text-left">
+              <span className="inline-flex items-center gap-1.5 text-[11px] font-mono font-bold uppercase tracking-wider text-[#3A3564] bg-white border border-black/15 px-3 py-1 rounded-md">
+                Fast Onboarding · 24-48 Hour Go-Live
+              </span>
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
+                Transform Your Garment Factory Today
+              </h2>
+              <p className="text-base sm:text-lg text-slate-600 leading-relaxed">
+                Book a personalized 20-minute live demonstration tailored to your plant capacity, 
+                cutting tables, and floor workflow.
+              </p>
 
-          {/* Right Consultation Form Card: Slim Black Outline (Matching Screenshot 3) */}
-          <div className="bg-white text-slate-900 p-6 sm:p-7 rounded-2xl border border-black">
-            <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-1">
-              Request a Live Demonstration
-            </h3>
-            <p className="text-xs sm:text-sm text-slate-500 mb-4">
-              Enter your factory details for a customized walkthrough.
-            </p>
-
-            {isSubmitted ? (
-              <div className="p-6 bg-[#EDF5F0] rounded-xl border border-[#C7E2D3] text-center space-y-2.5">
-                <Check className="w-10 h-10 text-[#2E6B4F] mx-auto" />
-                <h4 className="text-sm font-bold text-[#2E6B4F]">Demo Request Received!</h4>
-                <p className="text-xs text-slate-500">
-                  Our plant solutions team will contact you within 24 hours to schedule your live walkthrough.
-                </p>
-                <button
-                  type="button"
-                  onClick={() => setIsSubmitted(false)}
-                  className="mt-2 text-xs font-semibold text-[#3A3564] hover:underline cursor-pointer"
-                >
-                  Submit another request
-                </button>
-              </div>
-            ) : (
-              <form onSubmit={handleDemoSubmit} className="space-y-3.5">
-                <div>
-                  <label className="block text-xs sm:text-[13px] font-medium text-slate-700 mb-1">
-                    Factory / Company Name *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Shree Garments / Ollypop Job Work"
-                    value={demoForm.factoryName}
-                    onChange={e => setDemoForm({ ...demoForm, factoryName: e.target.value })}
-                    className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent"
-                  />
+              {/* Trust Points */}
+              <div className="space-y-2.5 pt-1 text-xs sm:text-sm font-semibold text-slate-800 text-left">
+                <div className="flex items-center gap-2.5">
+                  <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0" />
+                  <span>Zero commitment — test with your live buyer Excel sheet</span>
                 </div>
+                <div className="flex items-center gap-2.5">
+                  <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0" />
+                  <span>Direct walkthrough with an apparel MES operations engineer</span>
+                </div>
+                <div className="flex items-center gap-2.5">
+                  <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0" />
+                  <span>Full lineman wage ledger & QC alteration setup included</span>
+                </div>
+              </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="pt-3 flex items-center justify-center lg:justify-start gap-3">
+                <a
+                  href="https://wa.me/?text=Hi,%20I%20would%20like%20to%20request%20a%20live%20demo%20of%20Zigza%20MES%20for%20our%20garment%20factory."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-5 py-3.5 rounded-xl bg-[#1F9D63] hover:bg-emerald-700 text-white text-sm font-bold transition-all shadow-xs cursor-pointer"
+                >
+                  <Phone className="w-4 h-4" />
+                  <span>Instant WhatsApp Consultation</span>
+                </a>
+              </div>
+            </div>
+
+            {/* Right Consultation Form Card: Slim Black Outline */}
+            <div className="lg:col-span-5 bg-white text-slate-900 p-6 sm:p-7 rounded-2xl border border-black shadow-sm">
+              <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-1">
+                Request a Live Demonstration
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-500 mb-4">
+                Enter your factory details for a customized walkthrough.
+              </p>
+
+              {isSubmitted ? (
+                <div className="p-6 bg-[#FAF7F0] rounded-xl border border-black/15 text-center space-y-3">
+                  <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto">
+                    <Check className="w-5 h-5 stroke-[2.5]" />
+                  </div>
+                  <h4 className="text-base font-bold text-slate-900">Demo Request Dispatched!</h4>
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    Your mail client has been opened with your request addressed to <strong>shawsumit6286@gmail.com</strong>.
+                  </p>
+                  <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-2">
+                    <a
+                      href={`https://mail.google.com/mail/?view=cm&fs=1&to=shawsumit6286@gmail.com&su=${encodeURIComponent(`Live Demo Request - ${demoForm.companyName || 'Apparel Factory'}`)}&body=${encodeURIComponent(`Hi Sumit,\n\nI would like to request a live demo of Zigza MES for our garment manufacturing unit.\n\nDetails:\n• Company: ${demoForm.companyName}\n• Owner / Plant Head: ${demoForm.ownerName}\n• Phone / WhatsApp: ${demoForm.phone}\n• Business Email: ${demoForm.email}\n\nPlease contact us to schedule the walkthrough.\n\nBest regards,\n${demoForm.ownerName}`)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-4 py-2 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs font-bold transition-colors inline-flex items-center gap-1.5 cursor-pointer shadow-xs"
+                    >
+                      <Mail className="w-3.5 h-3.5" />
+                      <span>Open in Gmail Web</span>
+                    </a>
+                    <button
+                      type="button"
+                      onClick={() => setIsSubmitted(false)}
+                      className="px-3.5 py-2 bg-white border border-black/15 text-slate-700 rounded-xl text-xs font-semibold cursor-pointer"
+                    >
+                      Reset Form
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <form onSubmit={handleDemoSubmit} className="space-y-3.5">
                   <div>
-                    <label className="block text-xs sm:text-[13px] font-medium text-slate-700 mb-1">
-                      Contact Person *
+                    <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1">
+                      Company / Factory Name *
                     </label>
                     <input
                       type="text"
                       required
-                      placeholder="e.g. Rajesh Sharma"
-                      value={demoForm.contactName}
-                      onChange={e => setDemoForm({ ...demoForm, contactName: e.target.value })}
-                      className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent"
+                      placeholder="e.g. Shree Garments / Ollypop Unit"
+                      value={demoForm.companyName}
+                      onChange={e => setDemoForm({ ...demoForm, companyName: e.target.value })}
+                      className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs sm:text-[13px] font-medium text-slate-700 mb-1">
-                      Phone / WhatsApp *
+                    <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1">
+                      Owner / Plant Head Name *
                     </label>
                     <input
-                      type="tel"
+                      type="text"
                       required
-                      placeholder="+91 98765 43210"
-                      value={demoForm.phone}
-                      onChange={e => setDemoForm({ ...demoForm, phone: e.target.value })}
-                      className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#3A3564] focus:border-transparent"
+                      placeholder="e.g. Rajesh Sharma / Anil Gupta"
+                      value={demoForm.ownerName}
+                      onChange={e => setDemoForm({ ...demoForm, ownerName: e.target.value })}
+                      className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent"
                     />
                   </div>
-                </div>
 
-                <div>
-                  <label className="block text-xs sm:text-[13px] font-medium text-slate-700 mb-1">
-                    Monthly Output Volume
-                  </label>
-                  <select
-                    value={demoForm.volume}
-                    onChange={e => setDemoForm({ ...demoForm, volume: e.target.value })}
-                    className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm text-slate-900 bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent"
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1">
+                        Phone Number *
+                      </label>
+                      <input
+                        type="tel"
+                        required
+                        placeholder="+91 98765 43210"
+                        value={demoForm.phone}
+                        onChange={e => setDemoForm({ ...demoForm, phone: e.target.value })}
+                        className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1">
+                        Business Email ID *
+                      </label>
+                      <input
+                        type="email"
+                        required
+                        placeholder="owner@factory.com"
+                        value={demoForm.email}
+                        onChange={e => setDemoForm({ ...demoForm, email: e.target.value })}
+                        className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent"
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="w-full py-3.5 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-sm font-bold transition-all shadow-sm hover:shadow-md cursor-pointer flex items-center justify-center gap-2 mt-2"
                   >
-                    <option value="< 10,000 Pcs">Less than 10,000 Pieces / mo</option>
-                    <option value="10,000 - 50,000 Pcs">10,000 - 50,000 Pieces / mo</option>
-                    <option value="50,000 - 200,000 Pcs">50,000 - 200,000 Pieces / mo</option>
-                    <option value="200,000+ Pcs">200,000+ Pieces / mo (Enterprise)</option>
-                  </select>
-                </div>
+                    <Mail className="w-4 h-4" />
+                    <span>Send Demo Request (to shawsumit6286@gmail.com)</span>
+                  </button>
+                </form>
+              )}
+            </div>
 
-                <button
-                  type="submit"
-                  className="w-full py-3 bg-[#3A3564] hover:bg-[#2F2B52] text-white rounded-xl text-sm font-semibold transition-all shadow-sm cursor-pointer flex items-center justify-center gap-2 mt-2"
-                >
-                  <Check className="w-4 h-4" />
-                  <span>Submit Demo Request</span>
-                </button>
-              </form>
-            )}
           </div>
-
         </div>
       </section>
 
       {/* =================================================================== */}
-      {/* 10. ENTERPRISE FOOTER                                              */}
+      {/* 10. ENTERPRISE FOOTER (LIGHT MODERN PALETTE)                       */}
       {/* =================================================================== */}
-      <footer className="bg-[#1C1A2E] text-[#9E9BAE] pt-14 pb-10 sm:pt-20 sm:pb-14 px-4 sm:px-6 lg:px-8 border-t border-white/10">
+      <footer className="bg-[#FDFBF7] text-slate-600 pt-16 pb-12 px-4 sm:px-6 lg:px-8 border-t border-slate-200">
         <div className="max-w-7xl mx-auto">
           
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-8 sm:gap-10 lg:gap-12 mb-12 sm:mb-16">
@@ -1622,14 +1679,14 @@ export function ZigzaLandingPageClient({
                   className="h-8 sm:h-9 w-auto object-contain rounded-md sm:rounded-lg overflow-hidden group-hover:opacity-90 transition-opacity duration-150"
                 />
               </Link>
-              <p className="text-sm text-[#9E9BAE] leading-relaxed max-w-sm font-normal">
-                Manufacturing Execution System engineered for modern apparel factories. Replacing manual paper logs with real-time floor synchronization.
+              <p className="text-sm text-slate-600 leading-relaxed max-w-sm font-normal">
+                Manufacturing Execution System engineered for modern apparel factories. Replacing manual paper registers with real-time floor synchronization.
               </p>
             </div>
 
-            {/* Platform Column: Sentence case, Small/Caption Slate */}
+            {/* Platform Column */}
             <div className="space-y-3.5">
-              <h5 className="text-[13px] font-medium text-[#9E9BAE]">
+              <h5 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-900">
                 Platform
               </h5>
               <ul className="space-y-2.5 text-sm">
@@ -1637,7 +1694,7 @@ export function ZigzaLandingPageClient({
                   <a 
                     href="#modules" 
                     onClick={(e) => scrollToSection(e, 'modules')}
-                    className="text-[#FAFAF8]/80 hover:text-white transition-colors inline-block cursor-pointer"
+                    className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block cursor-pointer"
                   >
                     Store & Fabric GRN
                   </a>
@@ -1646,7 +1703,7 @@ export function ZigzaLandingPageClient({
                   <a 
                     href="#modules" 
                     onClick={(e) => scrollToSection(e, 'modules')}
-                    className="text-[#FAFAF8]/80 hover:text-white transition-colors inline-block cursor-pointer"
+                    className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block cursor-pointer"
                   >
                     Cutting Lot Matrix
                   </a>
@@ -1655,7 +1712,7 @@ export function ZigzaLandingPageClient({
                   <a 
                     href="#modules" 
                     onClick={(e) => scrollToSection(e, 'modules')}
-                    className="text-[#FAFAF8]/80 hover:text-white transition-colors inline-block cursor-pointer"
+                    className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block cursor-pointer"
                   >
                     Bundle Allotments
                   </a>
@@ -1664,7 +1721,7 @@ export function ZigzaLandingPageClient({
                   <a 
                     href="#modules" 
                     onClick={(e) => scrollToSection(e, 'modules')}
-                    className="text-[#FAFAF8]/80 hover:text-white transition-colors inline-block cursor-pointer"
+                    className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block cursor-pointer"
                   >
                     3-Stage QC Audit
                   </a>
@@ -1673,7 +1730,7 @@ export function ZigzaLandingPageClient({
                   <a 
                     href="#modules" 
                     onClick={(e) => scrollToSection(e, 'modules')}
-                    className="text-[#FAFAF8]/80 hover:text-white transition-colors inline-block cursor-pointer"
+                    className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block cursor-pointer"
                   >
                     Dispatch Bay
                   </a>
@@ -1681,9 +1738,9 @@ export function ZigzaLandingPageClient({
               </ul>
             </div>
 
-            {/* Solutions Column: Sentence case, Small/Caption Slate */}
+            {/* Roles Column */}
             <div className="space-y-3.5">
-              <h5 className="text-[13px] font-medium text-[#9E9BAE]">
+              <h5 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-900">
                 Roles
               </h5>
               <ul className="space-y-2.5 text-sm">
@@ -1691,7 +1748,7 @@ export function ZigzaLandingPageClient({
                   <a 
                     href="#roles" 
                     onClick={(e) => scrollToSection(e, 'roles')}
-                    className="text-[#FAFAF8]/80 hover:text-white transition-colors inline-block cursor-pointer"
+                    className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block cursor-pointer"
                   >
                     Factory Heads & MDs
                   </a>
@@ -1700,7 +1757,7 @@ export function ZigzaLandingPageClient({
                   <a 
                     href="#roles" 
                     onClick={(e) => scrollToSection(e, 'roles')}
-                    className="text-[#FAFAF8]/80 hover:text-white transition-colors inline-block cursor-pointer"
+                    className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block cursor-pointer"
                   >
                     Cutting Masters
                   </a>
@@ -1709,7 +1766,7 @@ export function ZigzaLandingPageClient({
                   <a 
                     href="#roles" 
                     onClick={(e) => scrollToSection(e, 'roles')}
-                    className="text-[#FAFAF8]/80 hover:text-white transition-colors inline-block cursor-pointer"
+                    className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block cursor-pointer"
                   >
                     Store Managers
                   </a>
@@ -1718,7 +1775,7 @@ export function ZigzaLandingPageClient({
                   <a 
                     href="#roles" 
                     onClick={(e) => scrollToSection(e, 'roles')}
-                    className="text-[#FAFAF8]/80 hover:text-white transition-colors inline-block cursor-pointer"
+                    className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block cursor-pointer"
                   >
                     Linemen & Tailors
                   </a>
@@ -1727,7 +1784,7 @@ export function ZigzaLandingPageClient({
                   <a 
                     href="#roles" 
                     onClick={(e) => scrollToSection(e, 'roles')}
-                    className="text-[#FAFAF8]/80 hover:text-white transition-colors inline-block cursor-pointer"
+                    className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block cursor-pointer"
                   >
                     QC Inspectors
                   </a>
@@ -1735,26 +1792,26 @@ export function ZigzaLandingPageClient({
               </ul>
             </div>
 
-            {/* Access & Gateway Column: Sentence case, Small/Caption Slate */}
+            {/* Access & Gateway Column */}
             <div className="space-y-3.5">
-              <h5 className="text-[13px] font-medium text-[#9E9BAE]">
+              <h5 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-900">
                 Access
               </h5>
               <ul className="space-y-2.5 text-sm">
                 <li>
                   <Link 
                     href="/login" 
-                    className="text-[#FAFAF8]/80 hover:text-white transition-colors inline-flex items-center gap-1.5"
+                    className="text-slate-600 hover:text-slate-900 transition-colors inline-flex items-center gap-1.5"
                   >
                     <span>Staff Portal Sign In</span>
-                    <ArrowRight className="w-3.5 h-3.5 text-[#9E9BAE]" />
+                    <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
                   </Link>
                 </li>
                 <li>
                   <button
                     type="button"
                     onClick={() => setIsDemoModalOpen(true)}
-                    className="text-[#FAFAF8]/80 hover:text-white transition-colors inline-block cursor-pointer"
+                    className="text-slate-600 hover:text-slate-900 transition-colors inline-block cursor-pointer"
                   >
                     Schedule Live Demo
                   </button>
@@ -1762,7 +1819,7 @@ export function ZigzaLandingPageClient({
                 <li>
                   <a 
                     href="#roi" 
-                    className="text-[#FAFAF8]/80 hover:text-white transition-colors inline-block"
+                    className="text-slate-600 hover:text-slate-900 transition-colors inline-block"
                   >
                     ROI Estimator
                   </a>
@@ -1772,7 +1829,7 @@ export function ZigzaLandingPageClient({
                     href="https://wa.me/?text=Hi,%20I%20would%20like%20to%20request%20a%20live%20demo%20of%20Zigza%20MES." 
                     target="_blank" 
                     rel="noopener noreferrer" 
-                    className="text-emerald-400 hover:text-emerald-300 transition-colors inline-block font-medium"
+                    className="text-[#1F9D63] hover:text-emerald-700 transition-colors inline-block font-bold"
                   >
                     WhatsApp Consultation
                   </a>
@@ -1782,13 +1839,21 @@ export function ZigzaLandingPageClient({
 
           </div>
 
-          {/* Bottom Divider & Minimal Legal Bar */}
-          <div className="pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#9E9BAE]">
-            <p>© {new Date().getFullYear()} Zigza MES. Built for modern apparel manufacturing.</p>
-            <div className="flex items-center gap-6">
-              <span className="hover:text-white transition-colors cursor-pointer">Privacy</span>
-              <span className="hover:text-white transition-colors cursor-pointer">Terms</span>
-              <span className="hover:text-white transition-colors cursor-pointer">Security</span>
+          {/* Bottom Divider & Proudly Made in India Bar */}
+          <div className="pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+            <div className="flex flex-col items-center sm:items-start gap-1 text-center sm:text-left">
+              <div className="text-[15px] font-bold italic flex items-center gap-1.5 tracking-wide">
+                <span className="bg-gradient-to-r from-orange-600 via-slate-800 to-emerald-600 bg-clip-text text-transparent font-extrabold">
+                  Proudly Made in India
+                </span>
+                <span className="not-italic text-base">🇮🇳</span>
+              </div>
+              <p>© {new Date().getFullYear()} Zigza MES. Built for modern apparel manufacturing.</p>
+            </div>
+            <div className="flex items-center gap-6 text-xs text-slate-500">
+              <span className="hover:text-slate-900 transition-colors cursor-pointer">Privacy Policy</span>
+              <span className="hover:text-slate-900 transition-colors cursor-pointer">Terms of Service</span>
+              <span className="hover:text-slate-900 transition-colors cursor-pointer">Security Standards</span>
             </div>
           </div>
 
@@ -1825,60 +1890,77 @@ export function ZigzaLandingPageClient({
             </p>
 
             {isSubmitted ? (
-              <div className="p-6 bg-[#EDF5F0] rounded-xl border border-[#C7E2D3] text-center space-y-3">
-                <Check className="w-12 h-12 text-[#2E6B4F] mx-auto" />
-                <h4 className="text-sm font-bold text-[#2E6B4F]">Demo Scheduled!</h4>
-                <p className="text-xs text-slate-600">
-                  Thank you, <strong>{demoForm.contactName || 'Plant Head'}</strong>. Our garment solutions engineer 
-                  will connect with you on WhatsApp / Phone within 24 hours.
+              <div className="p-6 bg-[#FAF7F0] rounded-2xl border border-black/15 text-center space-y-3">
+                <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto">
+                  <Check className="w-6 h-6 stroke-[2.5]" />
+                </div>
+                <h4 className="text-base font-bold text-slate-900">Demo Request Generated!</h4>
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-sm mx-auto">
+                  Your mail client has been opened with your request addressed to <strong>shawsumit6286@gmail.com</strong>.
                 </p>
-                <div className="pt-2">
+                <div className="p-3 bg-white border border-black/10 rounded-xl text-left text-xs space-y-1 font-mono">
+                  <div className="text-slate-500 font-sans">Details being sent:</div>
+                  <div className="text-slate-800"><strong>Company:</strong> {demoForm.companyName}</div>
+                  <div className="text-slate-800"><strong>Owner:</strong> {demoForm.ownerName}</div>
+                  <div className="text-slate-800"><strong>Phone:</strong> {demoForm.phone}</div>
+                  <div className="text-slate-800"><strong>Email:</strong> {demoForm.email}</div>
+                </div>
+                <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-2.5">
+                  <a
+                    href={`https://mail.google.com/mail/?view=cm&fs=1&to=shawsumit6286@gmail.com&su=${encodeURIComponent(`Live Demo Request - ${demoForm.companyName || 'Apparel Factory'}`)}&body=${encodeURIComponent(`Hi Sumit,\n\nI would like to request a live demo of Zigza MES for our garment manufacturing unit.\n\nDetails:\n• Company Name: ${demoForm.companyName}\n• Owner / Contact Name: ${demoForm.ownerName}\n• Phone / WhatsApp: ${demoForm.phone}\n• Business Email: ${demoForm.email}\n\nPlease contact us to schedule the live walkthrough.\n\nBest regards,\n${demoForm.ownerName}`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-4 py-2.5 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs font-bold transition-colors inline-flex items-center gap-2 cursor-pointer shadow-xs"
+                  >
+                    <Mail className="w-4 h-4" />
+                    <span>Open in Gmail Web</span>
+                  </a>
                   <button
                     type="button"
                     onClick={() => {
                       setIsSubmitted(false)
                       setIsDemoModalOpen(false)
                     }}
-                    className="px-4 py-2 bg-[#3A3564] text-white rounded-xl text-xs font-semibold"
+                    className="px-4 py-2.5 bg-white border border-black/15 text-slate-700 hover:text-black rounded-xl text-xs font-semibold transition-colors cursor-pointer"
                   >
-                    Close
+                    Done / Close
                   </button>
                 </div>
               </div>
             ) : (
-              <form onSubmit={handleDemoSubmit} className="space-y-3.5">
+              <form onSubmit={handleDemoSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-xs sm:text-[13px] font-medium text-slate-700 mb-1">
-                    Factory / Brand Name *
+                  <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1.5">
+                    Company / Factory Name *
                   </label>
                   <input
                     type="text"
                     required
-                    placeholder="e.g. Ollypop Garment Unit"
-                    value={demoForm.factoryName}
-                    onChange={e => setDemoForm({ ...demoForm, factoryName: e.target.value })}
-                    className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent"
+                    placeholder="e.g. Shree Garments / Ollypop Unit"
+                    value={demoForm.companyName}
+                    onChange={e => setDemoForm({ ...demoForm, companyName: e.target.value })}
+                    className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent"
                   />
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs sm:text-[13px] font-medium text-slate-700 mb-1">
-                      Contact Name *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. Anil Gupta"
-                      value={demoForm.contactName}
-                      onChange={e => setDemoForm({ ...demoForm, contactName: e.target.value })}
-                      className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent"
-                    />
-                  </div>
+                <div>
+                  <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1.5">
+                    Owner / Plant Head Name *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Rajesh Sharma / Anil Gupta"
+                    value={demoForm.ownerName}
+                    onChange={e => setDemoForm({ ...demoForm, ownerName: e.target.value })}
+                    className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent"
+                  />
+                </div>
 
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                   <div>
-                    <label className="block text-xs sm:text-[13px] font-medium text-slate-700 mb-1">
-                      Phone / WhatsApp *
+                    <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1.5">
+                      Phone Number *
                     </label>
                     <input
                       type="tel"
@@ -1886,58 +1968,31 @@ export function ZigzaLandingPageClient({
                       placeholder="+91 98765 43210"
                       value={demoForm.phone}
                       onChange={e => setDemoForm({ ...demoForm, phone: e.target.value })}
-                      className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent"
+                      className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent"
                     />
                   </div>
-                </div>
 
-                <div>
-                  <label className="block text-xs sm:text-[13px] font-medium text-slate-700 mb-1">
-                    Monthly Production Capacity
-                  </label>
-                  <select
-                    value={demoForm.volume}
-                    onChange={e => setDemoForm({ ...demoForm, volume: e.target.value })}
-                    className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm text-slate-900 bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent"
-                  >
-                    <option value="< 10,000 Pcs">Less than 10,000 Pcs/mo</option>
-                    <option value="10,000 - 50,000 Pcs">10,000 - 50,000 Pcs/mo</option>
-                    <option value="50,000 - 200,000 Pcs">50,000 - 200,000 Pcs/mo</option>
-                    <option value="200,000+ Pcs">200,000+ Pcs/mo</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs sm:text-[13px] font-medium text-slate-700 mb-1.5">
-                    Modules Interested In
-                  </label>
-                  <div className="flex flex-wrap gap-1.5">
-                    {['Store GRN', 'Excel Challan Matrix', 'Lineman Wages', 'Mobile Floor App', 'QC Gate', 'Dispatch'].map(mod => {
-                      const isSelected = demoForm.selectedModules.includes(mod)
-                      return (
-                        <button
-                          key={mod}
-                          type="button"
-                          onClick={() => toggleModule(mod)}
-                          className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors cursor-pointer ${
-                            isSelected
-                              ? 'bg-[#3A3564] text-white border-[#3A3564]'
-                              : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
-                          }`}
-                        >
-                          {mod}
-                        </button>
-                      )
-                    })}
+                  <div>
+                    <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1.5">
+                      Business Email ID *
+                    </label>
+                    <input
+                      type="email"
+                      required
+                      placeholder="owner@company.com"
+                      value={demoForm.email}
+                      onChange={e => setDemoForm({ ...demoForm, email: e.target.value })}
+                      className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent"
+                    />
                   </div>
                 </div>
 
                 <button
                   type="submit"
-                  className="w-full py-3 bg-[#3A3564] hover:bg-[#2F2B52] text-white rounded-xl text-sm font-semibold transition-all shadow-sm cursor-pointer flex items-center justify-center gap-2 mt-3"
+                  className="w-full py-3.5 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-sm font-bold transition-all shadow-sm hover:shadow-md cursor-pointer flex items-center justify-center gap-2 mt-4"
                 >
-                  <Check className="w-4 h-4" />
-                  <span>Confirm Live Demo Booking</span>
+                  <Mail className="w-4 h-4" />
+                  <span>Send Demo Request (to shawsumit6286@gmail.com)</span>
                 </button>
               </form>
             )}
