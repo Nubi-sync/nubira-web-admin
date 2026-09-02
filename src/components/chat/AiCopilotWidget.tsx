@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { useRouter, usePathname } from 'next/navigation'
-import { Sparkles } from 'lucide-react'
+import { BrainCircuit } from 'lucide-react'
 
 export function AiCopilotWidget() {
   const router = useRouter()
@@ -22,7 +22,7 @@ export function AiCopilotWidget() {
         aria-label="Open Zigza AI"
       >
         <div className="relative">
-          <Sparkles className="w-6 h-6 text-[#FAF7F0] group-hover:rotate-12 transition-transform" />
+          <BrainCircuit className="w-6 h-6 text-[#FAF7F0] group-hover:scale-110 transition-transform" />
           <span className="absolute -top-1 -right-1 flex h-3 w-3">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>

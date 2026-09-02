@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import { 
-  Sparkles, 
+  BrainCircuit, 
   Send, 
   Trash2, 
   Plus, 
@@ -515,7 +515,7 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
         <header className="px-3 sm:px-6 py-2 sm:py-3 border-b border-slate-200/80 bg-white/95 backdrop-blur-md flex items-center justify-between z-10 shrink-0 shadow-2xs">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-[#3A3564] text-[#FAF7F0] flex items-center justify-center shadow-xs shrink-0">
-              <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <BrainCircuit className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-1.5 sm:gap-2">
@@ -573,7 +573,7 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
               {/* Hero Greeting */}
               <div className="space-y-1.5 sm:space-y-2 text-center max-w-xl mx-auto px-2">
                 <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 text-[10px] sm:text-xs font-mono font-bold shadow-2xs">
-                  <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                  <BrainCircuit className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                   <span>PLANT MANUFACTURING INTELLIGENCE</span>
                 </div>
                 <h2 className="text-xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
@@ -626,7 +626,7 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
             >
               {msg.role === 'model' && (
                 <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-[#3A3564] text-[#FAF7F0] flex items-center justify-center shrink-0 mt-1 shadow-2xs">
-                  <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <BrainCircuit className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 </div>
               )}
 
@@ -690,7 +690,7 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
           {isLoading && (
             <div className="flex gap-2 sm:gap-3.5 justify-start items-center">
               <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-[#3A3564] text-[#FAF7F0] flex items-center justify-center shrink-0 shadow-2xs">
-                <Sparkles className="w-3.5 h-3.5 animate-pulse" />
+                <BrainCircuit className="w-3.5 h-3.5 animate-pulse" />
               </div>
               <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-black/10 shadow-xs flex items-center gap-2.5">
                 <Loader2 className="w-4 h-4 text-[#3A3564] animate-spin shrink-0" />
@@ -770,7 +770,7 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
         <div className="p-3.5 space-y-3">
           <div className="flex items-center justify-between pb-2 border-b border-slate-100">
             <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-[#3A3564]" />
+              <BrainCircuit className="w-4 h-4 text-[#3A3564]" />
               <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-600">
                 Chat History
               </span>

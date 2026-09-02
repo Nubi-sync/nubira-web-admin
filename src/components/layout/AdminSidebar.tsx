@@ -15,7 +15,7 @@ import {
   Loader2,
   X,
   PanelLeftClose,
-  Sparkles
+  BrainCircuit
 } from 'lucide-react'
 
 type NavItem = {
@@ -35,7 +35,7 @@ const navSections: NavSection[] = [
     section: 'Overview',
     items: [
       { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-      { label: 'Zigza AI', href: '/zigza-ai', icon: Sparkles },
+      { label: 'Zigza AI', href: '/zigza-ai', icon: BrainCircuit },
     ],
   },
   {
