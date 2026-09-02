@@ -7,6 +7,7 @@ import { TvModeProvider, useTvMode } from '@/context/TvModeContext'
 import { TvTopBar } from './TvTopBar'
 import { Menu, PanelLeftOpen } from 'lucide-react'
 import Link from 'next/link'
+import { AiCopilotWidget } from '../chat/AiCopilotWidget'
 
 function MobileTopBar({ onMenuToggle }: { onMenuToggle: () => void }) {
   return (
@@ -109,6 +110,9 @@ function AdminShellContent({
         <div className={`flex-1 ${isTvMode ? 'w-full max-w-none' : ''}`}>
           {children}
         </div>
+
+        {/* AI Copilot Chatbot Widget */}
+        {!isTvMode && <AiCopilotWidget />}
       </main>
     </div>
   )
