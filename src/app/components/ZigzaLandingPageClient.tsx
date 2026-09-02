@@ -468,11 +468,11 @@ export function ZigzaLandingPageClient({
       <section className="py-14 sm:py-20 bg-white border-y border-slate-200/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 tracking-tight">
+          <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">
               Why Garment Factories Are Switching from Paper to Zigza
             </h2>
-            <p className="text-sm sm:text-base text-slate-600 mt-2.5">
+            <p className="text-base sm:text-lg text-slate-600 mt-3 leading-relaxed">
               Compare traditional manual paper registers with Zigza's synchronized floor execution.
             </p>
           </div>
@@ -872,155 +872,355 @@ export function ZigzaLandingPageClient({
       {/* 6. SOLUTIONS TAILORED FOR FACTORY ROLES (INTERACTIVE TABS)          */}
       {/* =================================================================== */}
       <section id="roles" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
-          <h2 className="text-3xl sm:text-4xl font-semibold text-[#14140F] tracking-tight">
+        <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">
             Built for Every Stakeholder on the Factory Floor
           </h2>
-          <p className="text-base sm:text-lg text-[#57564E] mt-3 leading-relaxed">
+          <p className="text-base sm:text-lg text-slate-600 mt-3 leading-relaxed">
             Tailored interfaces engineered for the specific daily goals of each factory role.
           </p>
 
-          {/* Role Switcher Tabs */}
-          <div className="mt-6 -mx-4 sm:mx-0 px-4 sm:px-0 overflow-x-auto">
-            <div className="flex items-center justify-start sm:justify-center gap-2 min-w-max sm:min-w-0 sm:flex-wrap">
+          {/* Tactile Segmented Role Switcher Buttons */}
+          <div className="mt-8 sm:mt-10 flex justify-center">
+            <div className="inline-flex p-1.5 bg-[#EAE8DF] border border-black/20 rounded-2xl shadow-inner max-w-full overflow-x-auto gap-1.5">
               {(
                 [
-                  { key: 'MD', label: 'Factory Owners' },
-                  { key: 'CUTTING', label: 'Cutting Masters' },
-                  { key: 'STORE', label: 'Store Managers' },
-                  { key: 'LINEMAN', label: 'Linemen' },
-                  { key: 'QC', label: 'QC Inspectors' }
+                  { key: 'MD', label: 'Factory Owners', icon: Users },
+                  { key: 'CUTTING', label: 'Cutting Masters', icon: Scissors },
+                  { key: 'STORE', label: 'Store Managers', icon: Truck },
+                  { key: 'LINEMAN', label: 'Stitching Linemen', icon: Layers },
+                  { key: 'QC', label: 'QC Inspectors', icon: ClipboardCheck }
                 ] as const
               ).map(tab => (
                 <button
                   key={tab.key}
                   type="button"
                   onClick={() => setActiveRoleTab(tab.key)}
-                  className={`px-4 py-2 rounded-md text-xs sm:text-[13px] font-medium transition-colors cursor-pointer whitespace-nowrap ${
+                  className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 cursor-pointer whitespace-nowrap ${
                     activeRoleTab === tab.key
-                      ? 'bg-[#3A3564] text-white shadow-xs'
-                      : 'bg-[#FAFAF8] border border-[#57564E]/20 text-[#57564E] hover:text-[#14140F] hover:bg-white'
+                      ? 'bg-white text-slate-950 shadow-md border border-black/15 scale-[1.02] ring-1 ring-black/5'
+                      : 'text-slate-600 hover:text-slate-950 hover:bg-white/50 border border-transparent'
                   }`}
                 >
-                  {tab.label}
+                  <tab.icon className={`w-4 h-4 ${activeRoleTab === tab.key ? 'text-[#3A3564]' : 'text-slate-400'}`} />
+                  <span>{tab.label}</span>
                 </button>
               ))}
             </div>
           </div>
         </div>
 
-        {/* Tab Content Box: Flat bordered card, monochrome feature pills */}
-        <div className="max-w-4xl mx-auto bg-[#FAFAF8] border border-[#57564E]/15 rounded-xl p-6 sm:p-8">
+        {/* Role Showcase Card: Slim black outline, 2-column layout with real floor UI mockup */}
+        <div className="max-w-5xl mx-auto bg-white border border-black rounded-2xl p-6 sm:p-8 lg:p-10 shadow-sm transition-all">
           {activeRoleTab === 'MD' && (
-            <div className="space-y-4">
-              <div className="flex items-center gap-2.5 text-[#3A3564]">
-                <Users className="w-5 h-5" />
-                <h3 className="text-lg sm:text-xl font-medium text-[#14140F]">For Factory Managing Directors & Plant Heads</h3>
-              </div>
-              <p className="text-sm text-[#57564E] leading-relaxed">
-                Gain 360-degree real-time visibility into active buyer job work, WIP throughput, and piece-rate 
-                labor expenses across all lines. Stop relying on stale paper registers and eliminate ghost piece losses.
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs sm:text-[13px] font-medium text-[#14140F]">
-                <div className="p-3 bg-white border border-[#57564E]/15 rounded-lg flex items-center gap-2.5">
-                  <Check className="w-4 h-4 text-[#57564E] shrink-0" />
-                  <span>Real-time plant utilization & bottlenecks</span>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+              <div className="lg:col-span-7 space-y-4">
+                <span className="inline-flex items-center gap-1.5 text-[11px] font-mono font-bold uppercase tracking-wider text-[#3A3564] bg-[#FAF7F0] border border-black/15 px-3 py-1 rounded-md">
+                  Executive Suite · Plant Leadership
+                </span>
+                <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                  360° Real-Time Floor Visibility From Cloth to Cash
+                </h3>
+                <p className="text-sm sm:text-[15px] text-slate-600 leading-relaxed">
+                  Gain live visibility into active buyer orders, machine line throughput, and piece-rate labor 
+                  expenses across all factory floors. Eliminate morning paper register disputes and ghost piece losses.
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                  <div className="p-3.5 bg-[#FAF7F0] border border-black/10 rounded-xl flex items-start gap-2.5">
+                    <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5" />
+                    <span className="text-xs sm:text-[13px] font-semibold text-slate-800 leading-snug">
+                      Live WIP piece count tracking & bottleneck line alerts
+                    </span>
+                  </div>
+                  <div className="p-3.5 bg-[#FAF7F0] border border-black/10 rounded-xl flex items-start gap-2.5">
+                    <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5" />
+                    <span className="text-xs sm:text-[13px] font-semibold text-slate-800 leading-snug">
+                      Automated daily payroll sync without paper register loss
+                    </span>
+                  </div>
                 </div>
-                <div className="p-3 bg-white border border-[#57564E]/15 rounded-lg flex items-center gap-2.5">
-                  <Check className="w-4 h-4 text-[#57564E] shrink-0" />
-                  <span>Accurate labor wage & piece accounting</span>
+              </div>
+
+              {/* Right Side UI Preview: Executive Dashboard Snapshot */}
+              <div className="lg:col-span-5 bg-[#FAF7F0] border border-black/15 rounded-xl p-5 shadow-xs font-mono">
+                <div className="flex items-center justify-between pb-3 mb-3 border-b border-black/10 text-xs">
+                  <span className="font-bold text-slate-900 flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    PLANT OVERVIEW
+                  </span>
+                  <span className="text-slate-500 text-[11px]">SHIFT 1 ACTIVE</span>
+                </div>
+                <div className="space-y-2.5 text-xs">
+                  <div className="bg-white p-3 rounded-lg border border-black/10 flex items-center justify-between">
+                    <span className="text-slate-600 font-sans">WIP on Floor:</span>
+                    <span className="font-bold text-slate-900">14,820 Pcs (98.8%)</span>
+                  </div>
+                  <div className="bg-white p-3 rounded-lg border border-black/10 flex items-center justify-between">
+                    <span className="text-slate-600 font-sans">Stitched Today:</span>
+                    <span className="font-bold text-emerald-700">4,120 Units</span>
+                  </div>
+                  <div className="bg-white p-3 rounded-lg border border-black/10 flex items-center justify-between">
+                    <span className="text-slate-600 font-sans">Active Bottleneck:</span>
+                    <span className="font-bold text-amber-700">Line 4 (Collar)</span>
+                  </div>
+                </div>
+                <div className="mt-3 pt-3 border-t border-black/10 text-[11px] text-slate-600 font-sans flex items-center gap-1.5">
+                  <Check className="w-3.5 h-3.5 text-[#3A3564] stroke-[2.5]" />
+                  <span>Real-time payroll & order delivery sync</span>
                 </div>
               </div>
             </div>
           )}
 
           {activeRoleTab === 'CUTTING' && (
-            <div className="space-y-4">
-              <div className="flex items-center gap-2.5 text-[#3A3564]">
-                <Scissors className="w-5 h-5" />
-                <h3 className="text-lg sm:text-xl font-medium text-[#14140F]">For Cutting Masters & Table Supervisors</h3>
-              </div>
-              <p className="text-sm text-[#57564E] leading-relaxed">
-                Upload raw buyer Excel sheets to instantly generate multi-article size grids. Never spend hours doing 
-                manual ratio calculations (1:9, L/XXL, 22x26). Generate bundle allotment cards in 1 click.
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs sm:text-[13px] font-medium text-[#14140F]">
-                <div className="p-3 bg-white border border-[#57564E]/15 rounded-lg flex items-center gap-2.5">
-                  <Check className="w-4 h-4 text-[#57564E] shrink-0" />
-                  <span>1-Click Excel template & bulk upload</span>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+              <div className="lg:col-span-7 space-y-4">
+                <span className="inline-flex items-center gap-1.5 text-[11px] font-mono font-bold uppercase tracking-wider text-[#3A3564] bg-[#FAF7F0] border border-black/15 px-3 py-1 rounded-md">
+                  Cutting Department · Lay Planning
+                </span>
+                <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                  1-Click Excel Order Ingestion & Size Lay Matrix
+                </h3>
+                <p className="text-sm sm:text-[15px] text-slate-600 leading-relaxed">
+                  Upload raw buyer spreadsheets to auto-generate multi-article lay plans in seconds. Eliminate hours 
+                  of manual ratio math (1:9, L/XXL, 22x26) and generate barcode bundle allotment cards in 1 click.
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                  <div className="p-3.5 bg-[#FAF7F0] border border-black/10 rounded-xl flex items-start gap-2.5">
+                    <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5" />
+                    <span className="text-xs sm:text-[13px] font-semibold text-slate-800 leading-snug">
+                      Instant size & color ratio breakdown without calculator math
+                    </span>
+                  </div>
+                  <div className="p-3.5 bg-[#FAF7F0] border border-black/10 rounded-xl flex items-start gap-2.5">
+                    <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5" />
+                    <span className="text-xs sm:text-[13px] font-semibold text-slate-800 leading-snug">
+                      Automated bundle ticket generation for linemen
+                    </span>
+                  </div>
                 </div>
-                <div className="p-3 bg-white border border-[#57564E]/15 rounded-lg flex items-center gap-2.5">
-                  <Check className="w-4 h-4 text-[#57564E] shrink-0" />
-                  <span>Zero ratio calculation mistakes</span>
+              </div>
+
+              {/* Right Side UI Preview: Cutting Lay Matrix Mockup */}
+              <div className="lg:col-span-5 bg-[#FAF7F0] border border-black/15 rounded-xl p-5 shadow-xs font-mono">
+                <div className="flex items-center justify-between pb-3 mb-3 border-b border-black/10 text-xs">
+                  <span className="font-bold text-slate-900 flex items-center gap-1.5">
+                    <Scissors className="w-3.5 h-3.5 text-[#3A3564]" />
+                    LAY MATRIX ENGINE
+                  </span>
+                  <span className="text-slate-500 text-[11px]">ORDER #Z-8419</span>
+                </div>
+                <div className="space-y-2 text-xs">
+                  <div className="bg-white p-2.5 rounded-lg border border-black/10 flex justify-between">
+                    <span className="text-slate-600 font-sans">Article / Plies:</span>
+                    <span className="font-bold text-slate-900">Polo Shirt • 24 Plies</span>
+                  </div>
+                  <div className="grid grid-cols-4 gap-1.5 text-center text-[11px]">
+                    <div className="bg-white p-1.5 rounded border border-black/10">
+                      <div className="text-slate-400">S</div>
+                      <div className="font-bold text-slate-900">120</div>
+                    </div>
+                    <div className="bg-white p-1.5 rounded border border-black/10">
+                      <div className="text-slate-400">M</div>
+                      <div className="font-bold text-slate-900">240</div>
+                    </div>
+                    <div className="bg-white p-1.5 rounded border border-black/10">
+                      <div className="text-slate-400">L</div>
+                      <div className="font-bold text-slate-900">240</div>
+                    </div>
+                    <div className="bg-white p-1.5 rounded border border-black/10">
+                      <div className="text-slate-400">XL</div>
+                      <div className="font-bold text-slate-900">120</div>
+                    </div>
+                  </div>
+                  <div className="bg-white p-2.5 rounded-lg border border-black/10 flex justify-between">
+                    <span className="text-slate-600 font-sans">Bundles Ready:</span>
+                    <span className="font-bold text-emerald-700">12 Bundles (720 Pcs)</span>
+                  </div>
+                </div>
+                <div className="mt-3 pt-3 border-t border-black/10 text-[11px] text-slate-600 font-sans flex items-center gap-1.5">
+                  <Check className="w-3.5 h-3.5 text-[#3A3564] stroke-[2.5]" />
+                  <span>0 Manual ratio mistakes • Ready for linemen</span>
                 </div>
               </div>
             </div>
           )}
 
           {activeRoleTab === 'STORE' && (
-            <div className="space-y-4">
-              <div className="flex items-center gap-2.5 text-[#3A3564]">
-                <Truck className="w-5 h-5" />
-                <h3 className="text-lg sm:text-xl font-medium text-[#14140F]">For Store Managers & Gate Keepers</h3>
-              </div>
-              <p className="text-sm text-[#57564E] leading-relaxed">
-                Photograph supplier delivery slips at the truck bay and assign roll lot barcodes. Track pending trims 
-                and accessories with automatic follow-up tags before cutting begins.
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs sm:text-[13px] font-medium text-[#14140F]">
-                <div className="p-3 bg-white border border-[#57564E]/15 rounded-lg flex items-center gap-2.5">
-                  <Check className="w-4 h-4 text-[#57564E] shrink-0" />
-                  <span>Delivery slip camera capture</span>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+              <div className="lg:col-span-7 space-y-4">
+                <span className="inline-flex items-center gap-1.5 text-[11px] font-mono font-bold uppercase tracking-wider text-[#3A3564] bg-[#FAF7F0] border border-black/15 px-3 py-1 rounded-md">
+                  Warehouse & Gate · Store Inward
+                </span>
+                <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                  Mobile Delivery Slip OCR & Fabric Roll Barcoding
+                </h3>
+                <p className="text-sm sm:text-[15px] text-slate-600 leading-relaxed">
+                  Photograph supplier paper challans directly at the truck gate. Automatically tag fabric rolls 
+                  with unique barcode labels (Sinker, Rib, Fleece) and flag missing accessories before production begins.
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                  <div className="p-3.5 bg-[#FAF7F0] border border-black/10 rounded-xl flex items-start gap-2.5">
+                    <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5" />
+                    <span className="text-xs sm:text-[13px] font-semibold text-slate-800 leading-snug">
+                      Camera capture converts paper challan slips into inventory
+                    </span>
+                  </div>
+                  <div className="p-3.5 bg-[#FAF7F0] border border-black/10 rounded-xl flex items-start gap-2.5">
+                    <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5" />
+                    <span className="text-xs sm:text-[13px] font-semibold text-slate-800 leading-snug">
+                      Automatic trim and accessory due follow-up tracking
+                    </span>
+                  </div>
                 </div>
-                <div className="p-3 bg-white border border-[#57564E]/15 rounded-lg flex items-center gap-2.5">
-                  <Check className="w-4 h-4 text-[#57564E] shrink-0" />
-                  <span>Supplier due accessory follow-up</span>
+              </div>
+
+              {/* Right Side UI Preview: Gate Inward GRN Card */}
+              <div className="lg:col-span-5 bg-[#FAF7F0] border border-black/15 rounded-xl p-5 shadow-xs font-mono">
+                <div className="flex items-center justify-between pb-3 mb-3 border-b border-black/10 text-xs">
+                  <span className="font-bold text-slate-900 flex items-center gap-1.5">
+                    <Truck className="w-3.5 h-3.5 text-[#3A3564]" />
+                    GATE INWARD GRN
+                  </span>
+                  <span className="text-slate-500 text-[11px]">CHALLAN #1042</span>
+                </div>
+                <div className="space-y-2.5 text-xs">
+                  <div className="bg-white p-2.5 rounded-lg border border-black/10 flex justify-between">
+                    <span className="text-slate-600 font-sans">Mill Supplier:</span>
+                    <span className="font-bold text-slate-900">Vardhman Mills</span>
+                  </div>
+                  <div className="bg-white p-2.5 rounded-lg border border-black/10 flex justify-between">
+                    <span className="text-slate-600 font-sans">Fabric / Weight:</span>
+                    <span className="font-bold text-slate-900">Sinker 180 GSM • 42.5 Kg</span>
+                  </div>
+                  <div className="bg-white p-2.5 rounded-lg border border-black/10 flex justify-between">
+                    <span className="text-slate-600 font-sans">Pending Trims:</span>
+                    <span className="font-bold text-amber-700">2,400 Mtr Elastic Due</span>
+                  </div>
+                </div>
+                <div className="mt-3 pt-3 border-t border-black/10 text-[11px] text-slate-600 font-sans flex items-center gap-1.5">
+                  <Check className="w-3.5 h-3.5 text-[#3A3564] stroke-[2.5]" />
+                  <span>Barcode printed & inventory updated live</span>
                 </div>
               </div>
             </div>
           )}
 
           {activeRoleTab === 'LINEMAN' && (
-            <div className="space-y-4">
-              <div className="flex items-center gap-2.5 text-[#3A3564]">
-                <Scissors className="w-5 h-5" />
-                <h3 className="text-lg sm:text-xl font-medium text-[#14140F]">For Stitching Linemen & Operators</h3>
-              </div>
-              <p className="text-sm text-[#57564E] leading-relaxed">
-                Clear transparency over daily stitched bundles and piece-rate earnings. No more lost piece counts or 
-                conflicts at payout time. Every completed bundle is verifiable on mobile.
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs sm:text-[13px] font-medium text-[#14140F]">
-                <div className="p-3 bg-white border border-[#57564E]/15 rounded-lg flex items-center gap-2.5">
-                  <Check className="w-4 h-4 text-[#57564E] shrink-0" />
-                  <span>Transparent daily wage record</span>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+              <div className="lg:col-span-7 space-y-4">
+                <span className="inline-flex items-center gap-1.5 text-[11px] font-mono font-bold uppercase tracking-wider text-[#3A3564] bg-[#FAF7F0] border border-black/15 px-3 py-1 rounded-md">
+                  Sewing Floor · Linemen & Operators
+                </span>
+                <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                  Transparent Daily Wage Records & Zero Ticket Disputes
+                </h3>
+                <p className="text-sm sm:text-[15px] text-slate-600 leading-relaxed">
+                  Give operators full visibility into completed bundles and daily earnings right on their mobile phone. 
+                  Eliminate lost paper tickets and conflicting piece accounts at weekly salary payout.
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                  <div className="p-3.5 bg-[#FAF7F0] border border-black/10 rounded-xl flex items-start gap-2.5">
+                    <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5" />
+                    <span className="text-xs sm:text-[13px] font-semibold text-slate-800 leading-snug">
+                      Real-time piece-rate earnings ledger verified on supervisor scan
+                    </span>
+                  </div>
+                  <div className="p-3.5 bg-[#FAF7F0] border border-black/10 rounded-xl flex items-start gap-2.5">
+                    <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5" />
+                    <span className="text-xs sm:text-[13px] font-semibold text-slate-800 leading-snug">
+                      Color-split bundle assignment without missing pieces
+                    </span>
+                  </div>
                 </div>
-                <div className="p-3 bg-white border border-[#57564E]/15 rounded-lg flex items-center gap-2.5">
-                  <Check className="w-4 h-4 text-[#57564E] shrink-0" />
-                  <span>Color & bundle breakdown</span>
+              </div>
+
+              {/* Right Side UI Preview: Lineman Wage Portal Screen */}
+              <div className="lg:col-span-5 bg-[#FAF7F0] border border-black/15 rounded-xl p-5 shadow-xs font-mono">
+                <div className="flex items-center justify-between pb-3 mb-3 border-b border-black/10 text-xs">
+                  <span className="font-bold text-slate-900 flex items-center gap-1.5">
+                    <Layers className="w-3.5 h-3.5 text-[#3A3564]" />
+                    OPERATOR WAGE PORTAL
+                  </span>
+                  <span className="text-slate-500 text-[11px]">LINE 3 • SHIFT 1</span>
+                </div>
+                <div className="space-y-2.5 text-xs">
+                  <div className="bg-white p-2.5 rounded-lg border border-black/10 flex justify-between">
+                    <span className="text-slate-600 font-sans">Operator Name:</span>
+                    <span className="font-bold text-slate-900">Ramesh Kumar</span>
+                  </div>
+                  <div className="bg-white p-2.5 rounded-lg border border-black/10 flex justify-between">
+                    <span className="text-slate-600 font-sans">Bundles Stitched:</span>
+                    <span className="font-bold text-slate-900">18 Bundles (540 Pcs)</span>
+                  </div>
+                  <div className="bg-white p-2.5 rounded-lg border border-black/10 flex justify-between">
+                    <span className="text-slate-600 font-sans">Today's Earnings:</span>
+                    <span className="font-bold text-emerald-700">₹1,512.00 (₹2.80/pc)</span>
+                  </div>
+                </div>
+                <div className="mt-3 pt-3 border-t border-black/10 text-[11px] text-slate-600 font-sans flex items-center gap-1.5">
+                  <Check className="w-3.5 h-3.5 text-[#3A3564] stroke-[2.5]" />
+                  <span>Mobile verified • No salary dispute at week-end</span>
                 </div>
               </div>
             </div>
           )}
 
           {activeRoleTab === 'QC' && (
-            <div className="space-y-4">
-              <div className="flex items-center gap-2.5 text-[#3A3564]">
-                <ClipboardCheck className="w-5 h-5" />
-                <h3 className="text-lg sm:text-xl font-medium text-[#14140F]">For QC Inspectors & Finishing Supervisors</h3>
-              </div>
-              <p className="text-sm text-[#57564E] leading-relaxed">
-                Log inspected pieces at lightbox checkpoints with 1 tap. Tag alterations with specific defect reasons 
-                (oil stain, stitch open, measurement fault) and route them back to responsible lines immediately.
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs sm:text-[13px] font-medium text-[#14140F]">
-                <div className="p-3 bg-white border border-[#57564E]/15 rounded-lg flex items-center gap-2.5">
-                  <Check className="w-4 h-4 text-[#57564E] shrink-0" />
-                  <span>1-Tap pass & alteration logging</span>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+              <div className="lg:col-span-7 space-y-4">
+                <span className="inline-flex items-center gap-1.5 text-[11px] font-mono font-bold uppercase tracking-wider text-[#3A3564] bg-[#FAF7F0] border border-black/15 px-3 py-1 rounded-md">
+                  Finishing & Quality · Audit Checkpoints
+                </span>
+                <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                  1-Tap Lightbox Audit & Instant Defect Routing
+                </h3>
+                <p className="text-sm sm:text-[15px] text-slate-600 leading-relaxed">
+                  Log passed garments and categorize defects (oil stains, open seams, tension faults) with 1 tap at 
+                  lightbox inspection stations. Instantly re-route alteration tickets back to the responsible operator.
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                  <div className="p-3.5 bg-[#FAF7F0] border border-black/10 rounded-xl flex items-start gap-2.5">
+                    <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5" />
+                    <span className="text-xs sm:text-[13px] font-semibold text-slate-800 leading-snug">
+                      1-Tap pass logging and defect category tagging
+                    </span>
+                  </div>
+                  <div className="p-3.5 bg-[#FAF7F0] border border-black/10 rounded-xl flex items-start gap-2.5">
+                    <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5" />
+                    <span className="text-xs sm:text-[13px] font-semibold text-slate-800 leading-snug">
+                      Instant tailor accountability for speedy rework
+                    </span>
+                  </div>
                 </div>
-                <div className="p-3 bg-white border border-[#57564E]/15 rounded-lg flex items-center gap-2.5">
-                  <Check className="w-4 h-4 text-[#57564E] shrink-0" />
-                  <span>Instant lineman alteration accountability</span>
+              </div>
+
+              {/* Right Side UI Preview: Lightbox Audit Screen */}
+              <div className="lg:col-span-5 bg-[#FAF7F0] border border-black/15 rounded-xl p-5 shadow-xs font-mono">
+                <div className="flex items-center justify-between pb-3 mb-3 border-b border-black/10 text-xs">
+                  <span className="font-bold text-slate-900 flex items-center gap-1.5">
+                    <ClipboardCheck className="w-3.5 h-3.5 text-[#3A3564]" />
+                    LIGHTBOX AUDIT BAY 2
+                  </span>
+                  <span className="text-slate-500 text-[11px]">LOT #819</span>
+                </div>
+                <div className="space-y-2.5 text-xs">
+                  <div className="bg-white p-2.5 rounded-lg border border-black/10 flex justify-between">
+                    <span className="text-slate-600 font-sans">Inspection Status:</span>
+                    <span className="font-bold text-emerald-700">138 Passed (97.2%)</span>
+                  </div>
+                  <div className="bg-white p-2.5 rounded-lg border border-black/10 flex justify-between">
+                    <span className="text-slate-600 font-sans">Defects Logged:</span>
+                    <span className="font-bold text-red-600">4 Alterations</span>
+                  </div>
+                  <div className="bg-white p-2.5 rounded-lg border border-black/10 flex justify-between">
+                    <span className="text-slate-600 font-sans">Auto Re-Routed:</span>
+                    <span className="font-bold text-slate-900">Tailor #8 (Line 2)</span>
+                  </div>
+                </div>
+                <div className="mt-3 pt-3 border-t border-black/10 text-[11px] text-slate-600 font-sans flex items-center gap-1.5">
+                  <Check className="w-3.5 h-3.5 text-[#3A3564] stroke-[2.5]" />
+                  <span>1-Tap defect tagging • Real-time re-work cycle</span>
                 </div>
               </div>
             </div>
@@ -1039,10 +1239,10 @@ export function ZigzaLandingPageClient({
             <p className="text-xs sm:text-[13px] font-normal text-[#57564E] mb-2.5">
               Interactive ROI estimator
             </p>
-            <h2 className="text-3xl sm:text-4xl font-semibold text-[#14140F] tracking-tight">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">
               Estimate Your Plant's Monthly Time & Error Savings
             </h2>
-            <p className="text-base sm:text-lg text-[#57564E] mt-3 leading-relaxed">
+            <p className="text-base sm:text-lg text-slate-600 mt-3 leading-relaxed">
               Adjust the sliders based on your factory's production volume to see estimated impact.
             </p>
           </div>
@@ -1147,10 +1347,10 @@ export function ZigzaLandingPageClient({
       {/* =================================================================== */}
       <section id="faq" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
         <div className="text-center mb-12 sm:mb-16">
-          <h2 className="text-3xl sm:text-4xl font-semibold text-[#14140F] tracking-tight">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">
             Frequently Asked Questions
           </h2>
-          <p className="text-base sm:text-lg text-[#57564E] mt-3 leading-relaxed">
+          <p className="text-base sm:text-lg text-slate-600 mt-3 leading-relaxed">
             Everything you need to know about implementing Zigza MES in your garment manufacturing unit.
           </p>
         </div>
