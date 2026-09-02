@@ -95,6 +95,21 @@ export function ZigzaLandingPageClient({
     })
   }
 
+  const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+    e.preventDefault()
+    const element = document.getElementById(id)
+    if (element) {
+      const headerOffset = 95
+      const elementPosition = element.getBoundingClientRect().top
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      })
+    }
+  }
+
   return (
     <div className="min-h-screen bg-[var(--bg,#EEF1F5)] text-[var(--ink,#1C2733)] font-sans antialiased selection:bg-[var(--steel,#2B4C7E)] selection:text-white">
       
@@ -144,34 +159,44 @@ export function ZigzaLandingPageClient({
           {/* Desktop Navigation Links */}
           <nav className="hidden md:flex items-center gap-1.5 text-[15px] font-semibold text-slate-600">
             <a 
-              href="#modules" 
-              className="px-3.5 py-2 rounded-xl hover:text-slate-900 hover:bg-slate-100/80 transition-all duration-150"
+              href="#modules"
+              onClick={(e) => scrollToSection(e, 'modules')}
+              className="group relative px-3 py-2 text-slate-600 hover:text-slate-900 transition-colors duration-200 cursor-pointer"
             >
-              Modules
+              <span>Modules</span>
+              <span className="absolute bottom-0 left-3 right-3 h-[2.5px] bg-slate-900 rounded-full scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out origin-left" />
             </a>
             <a 
-              href="#workflow" 
-              className="px-3.5 py-2 rounded-xl hover:text-slate-900 hover:bg-slate-100/80 transition-all duration-150"
+              href="#workflow"
+              onClick={(e) => scrollToSection(e, 'workflow')}
+              className="group relative px-3 py-2 text-slate-600 hover:text-slate-900 transition-colors duration-200 cursor-pointer"
             >
-              Floor Workflow
+              <span>Floor Workflow</span>
+              <span className="absolute bottom-0 left-3 right-3 h-[2.5px] bg-slate-900 rounded-full scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out origin-left" />
             </a>
             <a 
-              href="#roles" 
-              className="px-3.5 py-2 rounded-xl hover:text-slate-900 hover:bg-slate-100/80 transition-all duration-150"
+              href="#roles"
+              onClick={(e) => scrollToSection(e, 'roles')}
+              className="group relative px-3 py-2 text-slate-600 hover:text-slate-900 transition-colors duration-200 cursor-pointer"
             >
-              Solutions
+              <span>Solutions</span>
+              <span className="absolute bottom-0 left-3 right-3 h-[2.5px] bg-slate-900 rounded-full scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out origin-left" />
             </a>
             <a 
-              href="#roi" 
-              className="px-3.5 py-2 rounded-xl hover:text-slate-900 hover:bg-slate-100/80 transition-all duration-150"
+              href="#roi"
+              onClick={(e) => scrollToSection(e, 'roi')}
+              className="group relative px-3 py-2 text-slate-600 hover:text-slate-900 transition-colors duration-200 cursor-pointer"
             >
-              ROI Estimator
+              <span>ROI Estimator</span>
+              <span className="absolute bottom-0 left-3 right-3 h-[2.5px] bg-slate-900 rounded-full scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out origin-left" />
             </a>
             <a 
-              href="#faq" 
-              className="px-3.5 py-2 rounded-xl hover:text-slate-900 hover:bg-slate-100/80 transition-all duration-150"
+              href="#faq"
+              onClick={(e) => scrollToSection(e, 'faq')}
+              className="group relative px-3 py-2 text-slate-600 hover:text-slate-900 transition-colors duration-200 cursor-pointer"
             >
-              FAQ
+              <span>FAQ</span>
+              <span className="absolute bottom-0 left-3 right-3 h-[2.5px] bg-slate-900 rounded-full scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out origin-left" />
             </a>
           </nav>
 
@@ -1145,27 +1170,47 @@ export function ZigzaLandingPageClient({
               </h5>
               <ul className="space-y-2.5 text-sm">
                 <li>
-                  <a href="#modules" className="text-slate-400 hover:text-white transition-all duration-150 hover:translate-x-0.5 inline-block">
+                  <a 
+                    href="#modules" 
+                    onClick={(e) => scrollToSection(e, 'modules')}
+                    className="text-slate-400 hover:text-white transition-all duration-150 hover:translate-x-0.5 inline-block cursor-pointer"
+                  >
                     Store & Fabric GRN
                   </a>
                 </li>
                 <li>
-                  <a href="#modules" className="text-slate-400 hover:text-white transition-all duration-150 hover:translate-x-0.5 inline-block">
+                  <a 
+                    href="#modules" 
+                    onClick={(e) => scrollToSection(e, 'modules')}
+                    className="text-slate-400 hover:text-white transition-all duration-150 hover:translate-x-0.5 inline-block cursor-pointer"
+                  >
                     Cutting Lot Matrix
                   </a>
                 </li>
                 <li>
-                  <a href="#modules" className="text-slate-400 hover:text-white transition-all duration-150 hover:translate-x-0.5 inline-block">
+                  <a 
+                    href="#modules" 
+                    onClick={(e) => scrollToSection(e, 'modules')}
+                    className="text-slate-400 hover:text-white transition-all duration-150 hover:translate-x-0.5 inline-block cursor-pointer"
+                  >
                     Bundle Allotments
                   </a>
                 </li>
                 <li>
-                  <a href="#modules" className="text-slate-400 hover:text-white transition-all duration-150 hover:translate-x-0.5 inline-block">
+                  <a 
+                    href="#modules" 
+                    onClick={(e) => scrollToSection(e, 'modules')}
+                    className="text-slate-400 hover:text-white transition-all duration-150 hover:translate-x-0.5 inline-block cursor-pointer"
+                  >
                     3-Stage QC Audit
                   </a>
                 </li>
                 <li>
-                  <a href="#modules" className="text-slate-400 hover:text-white transition-all duration-150 hover:translate-x-0.5 inline-block">
+                  <a 
+                    href="#modules" 
+                    onClick={(e) => scrollToSection(e, 'modules')}
+                    className="text-slate-400 hover:text-white transition-all duration-150 hover:translate-x-0.5 inline-block cursor-pointer"
+                  >
                     Dispatch Bay
                   </a>
                 </li>
@@ -1179,27 +1224,47 @@ export function ZigzaLandingPageClient({
               </h5>
               <ul className="space-y-2.5 text-sm">
                 <li>
-                  <a href="#roles" className="text-slate-400 hover:text-white transition-all duration-150 hover:translate-x-0.5 inline-block">
+                  <a 
+                    href="#roles" 
+                    onClick={(e) => scrollToSection(e, 'roles')}
+                    className="text-slate-400 hover:text-white transition-all duration-150 hover:translate-x-0.5 inline-block cursor-pointer"
+                  >
                     Factory Heads & MDs
                   </a>
                 </li>
                 <li>
-                  <a href="#roles" className="text-slate-400 hover:text-white transition-all duration-150 hover:translate-x-0.5 inline-block">
+                  <a 
+                    href="#roles" 
+                    onClick={(e) => scrollToSection(e, 'roles')}
+                    className="text-slate-400 hover:text-white transition-all duration-150 hover:translate-x-0.5 inline-block cursor-pointer"
+                  >
                     Cutting Masters
                   </a>
                 </li>
                 <li>
-                  <a href="#roles" className="text-slate-400 hover:text-white transition-all duration-150 hover:translate-x-0.5 inline-block">
+                  <a 
+                    href="#roles" 
+                    onClick={(e) => scrollToSection(e, 'roles')}
+                    className="text-slate-400 hover:text-white transition-all duration-150 hover:translate-x-0.5 inline-block cursor-pointer"
+                  >
                     Store Managers
                   </a>
                 </li>
                 <li>
-                  <a href="#roles" className="text-slate-400 hover:text-white transition-all duration-150 hover:translate-x-0.5 inline-block">
+                  <a 
+                    href="#roles" 
+                    onClick={(e) => scrollToSection(e, 'roles')}
+                    className="text-slate-400 hover:text-white transition-all duration-150 hover:translate-x-0.5 inline-block cursor-pointer"
+                  >
                     Linemen & Tailors
                   </a>
                 </li>
                 <li>
-                  <a href="#roles" className="text-slate-400 hover:text-white transition-all duration-150 hover:translate-x-0.5 inline-block">
+                  <a 
+                    href="#roles" 
+                    onClick={(e) => scrollToSection(e, 'roles')}
+                    className="text-slate-400 hover:text-white transition-all duration-150 hover:translate-x-0.5 inline-block cursor-pointer"
+                  >
                     QC Inspectors
                   </a>
                 </li>
