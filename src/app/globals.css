@@ -208,4 +208,50 @@ html {
 .font-caveat {
   font-family: var(--font-caveat), 'Caveat', 'Segoe Print', cursive;
 }
+
+/* ============================================ */
+/* Mobile / Tablet Responsive Helpers           */
+/* ============================================ */
+
+/* Horizontal scroll wrapper for tables on mobile */
+.mobile-scroll-x {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+.mobile-scroll-x::-webkit-scrollbar {
+  height: 4px;
+}
+
+.mobile-scroll-x::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.mobile-scroll-x::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 999px;
+}
+
+/* Prevent content jump when mobile drawer opens/closes */
+@media (max-width: 1023px) {
+  .tv-mode-active {
+    overflow: hidden;
+  }
+}
+
+/* Print: hide sidebar, mobile nav, TV bar */
+@media print {
+  aside,
+  .lg\\:hidden,
+  header.sticky {
+    display: none !important;
+  }
+
+  main {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+}
+
 

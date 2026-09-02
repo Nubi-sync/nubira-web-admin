@@ -12,7 +12,8 @@ import {
   Users, 
   Tag, 
   FileText,
-  Loader2
+  Loader2,
+  X
 } from 'lucide-react'
 
 type NavItem = {
@@ -52,7 +53,17 @@ const navSections: NavSection[] = [
   },
 ]
 
-export function AdminSidebar({ userEmail = 'admin@nubira.local' }: { userEmail?: string }) {
+interface AdminSidebarProps {
+  userEmail?: string
+  isMobileOpen?: boolean
+  onMobileClose?: () => void
+}
+
+export function AdminSidebar({ 
+  userEmail = 'admin@nubira.local',
+  isMobileOpen = false,
+  onMobileClose
+}: AdminSidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
@@ -62,6 +73,13 @@ export function AdminSidebar({ userEmail = 'admin@nubira.local' }: { userEmail?:
   useEffect(() => {
     setNavigatingTo(null)
   }, [pathname])
+
+  // Auto-close mobile drawer on route change
+  useEffect(() => {
+    if (onMobileClose) {
+      onMobileClose()
+    }
+  }, [pathname]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Generate initials for avatar
   const initials = userEmail
@@ -73,7 +91,11 @@ export function AdminSidebar({ userEmail = 'admin@nubira.local' }: { userEmail?:
       ? pathname === '/dashboard' || pathname === '/'
       : pathname.startsWith(href)
 
-    if (isCurrentActive) return // Don't trigger navigation if already on this exact page
+    if (isCurrentActive) {
+      // Still close drawer on mobile even if same page
+      onMobileClose?.()
+      return
+    }
 
     e.preventDefault()
     setNavigatingTo(href)
@@ -82,10 +104,9 @@ export function AdminSidebar({ userEmail = 'admin@nubira.local' }: { userEmail?:
     })
   }
 
-  return (
-    <aside 
-      className="w-[264px] shrink-0 min-h-screen h-screen sticky top-0 bg-white border-r border-slate-200 flex flex-col justify-between z-30 transition-all duration-200"
-    >
+  // Shared sidebar content — used by both desktop and mobile
+  const sidebarContent = (
+    <>
       {/* Top Header / Brand Block */}
       <div>
         <div className="p-4 pb-3.5 border-b border-slate-200 flex items-center justify-between">
@@ -96,11 +117,23 @@ export function AdminSidebar({ userEmail = 'admin@nubira.local' }: { userEmail?:
               className="h-8 w-auto object-contain rounded-md transition-opacity group-hover:opacity-85"
             />
           </Link>
-          <span 
-            className="text-[11px] font-mono font-bold tracking-wider uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15"
-          >
-            ERP MES
-          </span>
+          <div className="flex items-center gap-2">
+            <span 
+              className="text-[11px] font-mono font-bold tracking-wider uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15"
+            >
+              ERP MES
+            </span>
+            {/* Mobile close button */}
+            {onMobileClose && (
+              <button
+                type="button"
+                onClick={onMobileClose}
+                className="lg:hidden w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Navigation Sections */}
@@ -192,6 +225,35 @@ export function AdminSidebar({ userEmail = 'admin@nubira.local' }: { userEmail?:
           </span>
         </div>
       </div>
-    </aside>
+    </>
+  )
+
+  return (
+    <>
+      {/* ====== DESKTOP SIDEBAR (lg and up) — always visible ====== */}
+      <aside 
+        className="hidden lg:flex w-[264px] shrink-0 min-h-screen h-screen sticky top-0 bg-white border-r border-slate-200 flex-col justify-between z-30 transition-all duration-200"
+      >
+        {sidebarContent}
+      </aside>
+
+      {/* ====== MOBILE DRAWER OVERLAY (below lg) ====== */}
+      {/* Backdrop */}
+      <div 
+        className={`lg:hidden fixed inset-0 z-40 bg-black/50 backdrop-blur-[2px] transition-opacity duration-300 ${
+          isMobileOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        }`}
+        onClick={onMobileClose}
+      />
+
+      {/* Drawer Panel */}
+      <aside 
+        className={`lg:hidden fixed inset-y-0 left-0 z-50 w-[280px] max-w-[85vw] bg-white flex flex-col justify-between shadow-2xl transition-transform duration-300 ease-out ${
+          isMobileOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
+        {sidebarContent}
+      </aside>
+    </>
   )
 }
