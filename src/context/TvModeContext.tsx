@@ -21,7 +21,7 @@ const TvModeContext = createContext<TvModeContextType>({
   exitTvMode: () => {},
   currentTime: '',
   currentDate: '',
-  refreshCountdown: 45,
+  refreshCountdown: 30,
   triggerManualRefresh: () => {},
 })
 
@@ -29,7 +29,7 @@ export function useTvMode() {
   return useContext(TvModeContext)
 }
 
-const REFRESH_INTERVAL_SECONDS = 45
+const REFRESH_INTERVAL_SECONDS = 30
 
 export function TvModeProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter()
