@@ -1235,10 +1235,7 @@ export function ZigzaLandingPageClient({
       <section id="roi" className="py-14 sm:py-20 bg-white border-y border-[#57564E]/15">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          <div className="text-center mb-10 sm:mb-12">
-            <p className="text-xs sm:text-[13px] font-normal text-[#57564E] mb-2.5">
-              Interactive ROI estimator
-            </p>
+          <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">
               Estimate Your Plant's Monthly Time & Error Savings
             </h2>
@@ -1247,18 +1244,23 @@ export function ZigzaLandingPageClient({
             </p>
           </div>
 
-          {/* Outer ROI Box with Slim Black Outline (Matching Screenshot 2) */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center bg-white p-6 sm:p-8 rounded-2xl border border-black">
+          {/* Outer ROI Box with Slim Black Outline */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-stretch bg-white p-6 sm:p-8 lg:p-10 rounded-2xl border border-black shadow-sm">
             
-            {/* Sliders Area */}
-            <div className="space-y-6">
+            {/* Sliders Area (7 Cols) */}
+            <div className="lg:col-span-7 flex flex-col justify-between space-y-8">
+              
+              {/* Slider 1: Garment Output */}
               <div>
-                <div className="flex justify-between items-center text-xs sm:text-sm font-semibold text-slate-800 mb-2">
-                  <span>Monthly garment output:</span>
-                  <span className="text-base font-bold text-slate-900 font-mono tabular-nums">
-                    {monthlyPieces.toLocaleString()} pieces
+                <div className="flex justify-between items-center mb-3">
+                  <label className="text-sm sm:text-base font-bold text-slate-900">
+                    Monthly Garment Output
+                  </label>
+                  <span className="px-3 py-1 rounded-lg bg-[#FAF7F0] border border-black/15 text-slate-900 font-mono font-bold text-sm sm:text-base tabular-nums">
+                    {monthlyPieces.toLocaleString()} pcs
                   </span>
                 </div>
+                
                 <input
                   type="range"
                   min="5000"
@@ -1266,22 +1268,47 @@ export function ZigzaLandingPageClient({
                   step="5000"
                   value={monthlyPieces}
                   onChange={e => setMonthlyPieces(Number(e.target.value))}
-                  className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#3A3564]"
+                  className="w-full h-2.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-[#3A3564] border border-black/10"
                 />
-                <div className="flex justify-between text-[11px] text-slate-500 font-mono tabular-nums mt-1">
+                
+                <div className="flex justify-between text-[11px] text-slate-500 font-mono tabular-nums mt-1.5">
                   <span>5,000 pcs</span>
+                  <span>50,000 pcs</span>
                   <span>100,000 pcs</span>
                   <span>200,000+ pcs</span>
                 </div>
+
+                {/* Quick Presets */}
+                <div className="flex items-center gap-1.5 mt-3 flex-wrap">
+                  <span className="text-xs text-slate-400 mr-1">Quick presets:</span>
+                  {[15000, 35000, 75000, 150000].map(val => (
+                    <button
+                      key={val}
+                      type="button"
+                      onClick={() => setMonthlyPieces(val)}
+                      className={`px-2.5 py-1 rounded-md text-xs font-mono font-semibold transition-all cursor-pointer ${
+                        monthlyPieces === val
+                          ? 'bg-[#3A3564] text-white shadow-xs'
+                          : 'bg-[#FAF7F0] border border-black/10 text-slate-600 hover:text-black hover:border-black/30'
+                      }`}
+                    >
+                      {(val / 1000)}k pcs
+                    </button>
+                  ))}
+                </div>
               </div>
 
+              {/* Slider 2: Linemen Count */}
               <div>
-                <div className="flex justify-between items-center text-xs sm:text-sm font-semibold text-slate-800 mb-2">
-                  <span>Active stitching linemen:</span>
-                  <span className="text-base font-bold text-slate-900 font-mono tabular-nums">
+                <div className="flex justify-between items-center mb-3">
+                  <label className="text-sm sm:text-base font-bold text-slate-900">
+                    Active Stitching Linemen
+                  </label>
+                  <span className="px-3 py-1 rounded-lg bg-[#FAF7F0] border border-black/15 text-slate-900 font-mono font-bold text-sm sm:text-base tabular-nums">
                     {linemenCount} operators
                   </span>
                 </div>
+                
                 <input
                   type="range"
                   min="5"
@@ -1289,51 +1316,89 @@ export function ZigzaLandingPageClient({
                   step="1"
                   value={linemenCount}
                   onChange={e => setLinemenCount(Number(e.target.value))}
-                  className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#3A3564]"
+                  className="w-full h-2.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-[#3A3564] border border-black/10"
                 />
-                <div className="flex justify-between text-[11px] text-slate-500 font-mono tabular-nums mt-1">
+                
+                <div className="flex justify-between text-[11px] text-slate-500 font-mono tabular-nums mt-1.5">
                   <span>5 linemen</span>
+                  <span>25 linemen</span>
                   <span>50 linemen</span>
                   <span>100+ linemen</span>
                 </div>
+
+                {/* Quick Presets */}
+                <div className="flex items-center gap-1.5 mt-3 flex-wrap">
+                  <span className="text-xs text-slate-400 mr-1">Quick presets:</span>
+                  {[12, 24, 48, 80].map(val => (
+                    <button
+                      key={val}
+                      type="button"
+                      onClick={() => setLinemenCount(val)}
+                      className={`px-2.5 py-1 rounded-md text-xs font-mono font-semibold transition-all cursor-pointer ${
+                        linemenCount === val
+                          ? 'bg-[#3A3564] text-white shadow-xs'
+                          : 'bg-[#FAF7F0] border border-black/10 text-slate-600 hover:text-black hover:border-black/30'
+                      }`}
+                    >
+                      {val} lines
+                    </button>
+                  ))}
+                </div>
               </div>
+
             </div>
 
-            {/* Calculated Output Card */}
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-              <span className="text-xs font-normal text-slate-500">
-                Projected monthly savings
-              </span>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div className="p-3.5 bg-white border border-slate-200 rounded-xl">
-                  <span className="text-xs font-normal text-slate-500">Floor hours saved</span>
-                  <p className="text-2xl font-bold text-slate-900 font-mono tabular-nums mt-1">
-                    ~{estimatedHoursSaved} hrs/mo
-                  </p>
+            {/* Calculated Output Card (5 Cols) */}
+            <div className="lg:col-span-5 bg-[#FAF7F0] p-6 sm:p-7 rounded-2xl border border-black/15 flex flex-col justify-between space-y-5">
+              <div>
+                <div className="flex items-center justify-between pb-3 mb-4 border-b border-black/10">
+                  <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#3A3564]">
+                    Estimated Monthly Savings
+                  </span>
+                  <span className="text-[11px] font-mono text-slate-500">
+                    PER FACTORY SHIFT
+                  </span>
                 </div>
 
-                <div className="p-3.5 bg-emerald-50/50 border border-emerald-200 rounded-xl">
-                  <span className="text-xs font-normal text-emerald-700">Dispute reduction</span>
-                  <p className="text-2xl font-bold text-emerald-600 font-mono tabular-nums mt-1">
-                    {disputeReductionRate}%
+                <div className="grid grid-cols-2 gap-3 mb-4">
+                  {/* Metric 1 */}
+                  <div className="bg-white p-3.5 rounded-xl border border-black/10">
+                    <span className="text-[11px] font-medium text-slate-500 block">Floor Hours Saved</span>
+                    <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 font-mono tabular-nums mt-1">
+                      ~{estimatedHoursSaved}h
+                    </p>
+                    <span className="text-[10px] text-slate-400 mt-1 block">per month</span>
+                  </div>
+
+                  {/* Metric 2 */}
+                  <div className="bg-white p-3.5 rounded-xl border border-black/10">
+                    <span className="text-[11px] font-medium text-slate-500 block">Payout Disputes</span>
+                    <p className="text-2xl sm:text-3xl font-extrabold text-[#3A3564] font-mono tabular-nums mt-1">
+                      0%
+                    </p>
+                    <span className="text-[10px] text-slate-400 mt-1 block">100% reconciled</span>
+                  </div>
+                </div>
+
+                {/* Zero Mismatch Guarantee Note */}
+                <div className="bg-white p-3.5 rounded-xl border border-black/10">
+                  <span className="font-bold text-slate-900 text-xs flex items-center gap-1.5 mb-1">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-[#3A3564]" />
+                    Zero Ghost Piece Guarantee
+                  </span>
+                  <p className="text-[11.5px] leading-relaxed text-slate-600">
+                    Every garment cut on table is reconciled across lineman bundle tickets, QC lightboxes, and dispatch cartons.
                   </p>
                 </div>
-              </div>
-
-              <div className="p-3.5 bg-amber-50/60 border border-amber-200 rounded-xl text-xs">
-                <span className="font-semibold text-amber-900 block mb-0.5">Zero mismatch guarantee</span>
-                <p className="text-[11.5px] leading-relaxed text-amber-800">
-                  Every piece cut on table is reconciled across lineman bundles, QC pass counts, and dispatch cartons.
-                </p>
               </div>
 
               <button
                 type="button"
                 onClick={() => setIsDemoModalOpen(true)}
-                className="w-full py-3 bg-[#3A3564] hover:bg-[#2F2B52] text-white rounded-xl text-sm font-semibold transition-all shadow-xs cursor-pointer"
+                className="w-full py-3.5 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-sm font-bold transition-all shadow-sm hover:shadow-md cursor-pointer flex items-center justify-center gap-2"
               >
-                Schedule Free Factory Audit
+                <span>Schedule Free Factory Audit</span>
+                <ArrowRight className="w-4 h-4" />
               </button>
             </div>
 
@@ -1420,10 +1485,10 @@ export function ZigzaLandingPageClient({
           
           {/* Left Text */}
           <div className="space-y-4 text-center lg:text-left">
-            <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight leading-tight">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight">
               Transform Your Garment Factory with Zigza Today
             </h2>
-            <p className="text-sm sm:text-base text-[#FAFAF8]/80 leading-relaxed font-normal">
+            <p className="text-base sm:text-lg text-[#FAFAF8]/80 mt-3 leading-relaxed">
               Book a personalized 20-minute live demonstration tailored to your plant capacity, 
               cutting tables, and floor workflow.
             </p>
