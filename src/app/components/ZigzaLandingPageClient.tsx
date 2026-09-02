@@ -122,37 +122,13 @@ export function ZigzaLandingPageClient({
       <header className="sticky top-0 z-40 bg-[#FAFAF8]/90 backdrop-blur-md border-b border-[#57564E]/15">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[64px] sm:h-[84px] flex items-center justify-between gap-3">
           
-          {/* Brand Logo with Smooth Scroll Transition */}
-          <Link href="/" className="group relative flex items-center cursor-pointer select-none shrink-0">
-            {/* Initial State (At Top): Rounded indigo badge with zigza_logo.png */}
-            <div 
-              className={`flex items-center transition-all duration-300 ease-in-out ${
-                isScrolled 
-                  ? 'opacity-0 scale-95 pointer-events-none' 
-                  : 'opacity-100 scale-100'
-              }`}
-            >
-              <img 
-                src="/zigza_logo.png" 
-                alt="zigza." 
-                className="h-[36px] sm:h-[44px] w-auto object-contain rounded-md sm:rounded-lg overflow-hidden shadow-xs group-hover:opacity-95 transition-opacity"
-              />
-            </div>
-
-            {/* Scrolled State: Clean wordmark with image.png */}
-            <div 
-              className={`absolute left-0 top-0 bottom-0 flex items-center transition-all duration-300 ease-in-out ${
-                isScrolled 
-                  ? 'opacity-100 scale-100' 
-                  : 'opacity-0 scale-95 pointer-events-none'
-              }`}
-            >
-              <img 
-                src="/image.png" 
-                alt="zigza." 
-                className="h-[36px] sm:h-[44px] w-auto object-contain mix-blend-multiply transition-transform group-hover:scale-[1.02]"
-              />
-            </div>
+          {/* Brand Logo: Single new_logo.png without scroll switching */}
+          <Link href="/" className="group flex items-center cursor-pointer select-none shrink-0">
+            <img 
+              src="/new_logo.png" 
+              alt="zigza." 
+              className="h-[36px] sm:h-[44px] w-auto object-contain rounded-md sm:rounded-lg overflow-hidden shadow-xs transition-transform duration-150 group-hover:scale-[1.02]"
+            />
           </Link>
 
           {/* Desktop Navigation Links — Slate text, Indigo hover/active underline */}
@@ -298,9 +274,9 @@ export function ZigzaLandingPageClient({
       {/* =================================================================== */}
       <section className="relative pt-10 sm:pt-16 pb-16 sm:pb-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto overflow-hidden">
         <div className="text-center max-w-4xl mx-auto space-y-5">
-          {/* Main Hero Headline: Display scale, Semibold, confident single Ink statement */}
+          {/* Main Hero Headline: Restored keyword underline on Garment Factories */}
           <h1 className="text-4xl sm:text-5xl lg:text-[58px] font-semibold tracking-tight text-[#14140F] leading-[1.08]">
-            The Manufacturing OS for Modern Garment Factories
+            The Manufacturing OS for Modern <span className="text-[#3A3564] underline decoration-[#C8802B] decoration-4 underline-offset-8">Garment Factories</span>
           </h1>
 
           {/* Subtitle: Body Large, Slate, capped line length */}
@@ -480,70 +456,122 @@ export function ZigzaLandingPageClient({
       {/* =================================================================== */}
       {/* 3. PROBLEM VS. SOLUTION SECTION (TRADITIONAL VS. ZIGZA)            */}
       {/* =================================================================== */}
-      <section className="py-14 sm:py-20 bg-white border-y border-[#57564E]/15">
+      <section className="py-14 sm:py-20 bg-white border-y border-slate-200/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
-            <h2 className="text-3xl sm:text-4xl font-semibold text-[#14140F] tracking-tight">
+          <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 tracking-tight">
               Why Garment Factories Are Switching from Paper to Zigza
             </h2>
-            <p className="text-base sm:text-lg text-[#57564E] mt-3 leading-relaxed">
-              Compare the friction of traditional manual paper registers with Zigza's digital execution platform.
+            <p className="text-sm sm:text-base text-slate-600 mt-2.5">
+              Compare traditional manual paper registers with Zigza's synchronized floor execution.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 max-w-5xl mx-auto">
             
-            {/* Traditional Challenges Card: Muted Terracotta */}
-            <div className="p-6 sm:p-7 rounded-xl border border-[#F2CAC5] bg-[#FDF2F0]/60 space-y-4">
-              <div className="flex items-center gap-2.5 text-[#8A3B34]">
-                <AlertTriangle className="w-5 h-5 shrink-0" />
-                <h3 className="text-lg sm:text-xl font-medium">Traditional manufacturing friction</h3>
+            {/* Traditional Challenges Card: Darker Rose Outline with Generous Spacing */}
+            <div className="bg-white rounded-2xl border-2 border-rose-400 p-6 sm:p-8">
+              {/* Card Header */}
+              <div className="flex items-center gap-2.5 pb-4 border-b border-rose-200 mb-6">
+                <AlertTriangle className="w-5 h-5 text-rose-600 shrink-0" />
+                <h3 className="text-lg sm:text-xl font-bold text-slate-900">Traditional Factory Friction</h3>
               </div>
-              <ul className="space-y-3.5 text-sm text-[#57564E]">
-                <li className="flex items-start gap-2.5">
-                  <X className="w-4 h-4 text-[#8A3B34] shrink-0 mt-0.5" />
-                  <span><strong className="text-[#14140F] font-medium">Lost paper challans & slips:</strong> Supplier delivery slips get misplaced, causing raw fabric shortages and billing confusion.</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <X className="w-4 h-4 text-[#8A3B34] shrink-0 mt-0.5" />
-                  <span><strong className="text-[#14140F] font-medium">Lineman wage disputes:</strong> Daily arguments over bundle piece counts and missing stitched units during wage payouts.</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <X className="w-4 h-4 text-[#8A3B34] shrink-0 mt-0.5" />
-                  <span><strong className="text-[#14140F] font-medium">Late QC defect discovery:</strong> Stains and stitching alterations discovered at packing bay, causing shipment delays.</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <X className="w-4 h-4 text-[#8A3B34] shrink-0 mt-0.5" />
-                  <span><strong className="text-[#14140F] font-medium">WIP blind spots:</strong> Factory owners have zero real-time visibility into floor bottlenecks or cutting table pace.</span>
-                </li>
-              </ul>
+
+              {/* 4 Pain Points - Proper Spacing for Readability */}
+              <div className="space-y-6">
+                <div className="flex items-start gap-3.5">
+                  <X className="w-4 h-4 text-rose-600 shrink-0 mt-1 stroke-[2.5]" />
+                  <div>
+                    <h4 className="text-[15px] sm:text-base font-bold text-slate-900">Lost Paper Challans & Slips</h4>
+                    <p className="text-sm text-slate-600 mt-1 leading-relaxed">
+                      Misplaced slips cause fabric shortages, billing confusion, and supplier disputes.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3.5">
+                  <X className="w-4 h-4 text-rose-600 shrink-0 mt-1 stroke-[2.5]" />
+                  <div>
+                    <h4 className="text-[15px] sm:text-base font-bold text-slate-900">Lineman Wage Disputes</h4>
+                    <p className="text-sm text-slate-600 mt-1 leading-relaxed">
+                      Daily arguments at payout time over bundle piece counts and missing stitched units.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3.5">
+                  <X className="w-4 h-4 text-rose-600 shrink-0 mt-1 stroke-[2.5]" />
+                  <div>
+                    <h4 className="text-[15px] sm:text-base font-bold text-slate-900">Late QC Defect Discovery</h4>
+                    <p className="text-sm text-slate-600 mt-1 leading-relaxed">
+                      Defects caught late at packing bay, causing emergency rework and delayed buyer dispatch.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3.5">
+                  <X className="w-4 h-4 text-rose-600 shrink-0 mt-1 stroke-[2.5]" />
+                  <div>
+                    <h4 className="text-[15px] sm:text-base font-bold text-slate-900">Zero Real-Time WIP Visibility</h4>
+                    <p className="text-sm text-slate-600 mt-1 leading-relaxed">
+                      Owners lack live visibility into cutting pace and floor bottlenecks during the shift.
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            {/* Zigza Digital Solution Card: Muted Sage */}
-            <div className="p-6 sm:p-7 rounded-xl border border-[#C7E2D3] bg-[#EDF5F0]/60 space-y-4">
-              <div className="flex items-center gap-2.5 text-[#2E6B4F]">
-                <Check className="w-5 h-5 shrink-0" />
-                <h3 className="text-lg sm:text-xl font-medium">The Zigza MES digital workflow</h3>
+            {/* Zigza Digital Solution Card: Darker Emerald Outline with Generous Spacing */}
+            <div className="bg-white rounded-2xl border-2 border-emerald-500 p-6 sm:p-8">
+              {/* Card Header */}
+              <div className="flex items-center gap-2.5 pb-4 border-b border-emerald-200 mb-6">
+                <Check className="w-5 h-5 text-emerald-600 shrink-0 stroke-[2.5]" />
+                <h3 className="text-lg sm:text-xl font-bold text-slate-900">The Zigza Digital Solution</h3>
               </div>
-              <ul className="space-y-3.5 text-sm text-[#57564E]">
-                <li className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-[#2E6B4F] shrink-0 mt-0.5" />
-                  <span><strong className="text-[#14140F] font-medium">Digital gate inward (GRN):</strong> Supplier paper slips photographed on mobile and instantly reconciled with fabric roll lots.</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-[#2E6B4F] shrink-0 mt-0.5" />
-                  <span><strong className="text-[#14140F] font-medium">1-Click Excel challan import:</strong> Raw buyer spreadsheets automatically map to cutting lot matrices and size tiers.</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-[#2E6B4F] shrink-0 mt-0.5" />
-                  <span><strong className="text-[#14140F] font-medium">Dispute-free piece-rate wages:</strong> Automated bundle allocation per lineman with live mobile app verification.</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-[#2E6B4F] shrink-0 mt-0.5" />
-                  <span><strong className="text-[#14140F] font-medium">3-Stage live QC & alteration routing:</strong> Immediate defect tagging on mobile with instant supervisor rework dispatch.</span>
-                </li>
-              </ul>
+
+              {/* 4 Solutions - Proper Spacing for Readability */}
+              <div className="space-y-6">
+                <div className="flex items-start gap-3.5">
+                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-1 stroke-[2.5]" />
+                  <div>
+                    <h4 className="text-[15px] sm:text-base font-bold text-slate-900">Digital Gate Inward (Store GRN)</h4>
+                    <p className="text-sm text-slate-600 mt-1 leading-relaxed">
+                      Photograph paper challans on mobile and reconcile cloth roll barcodes instantly.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3.5">
+                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-1 stroke-[2.5]" />
+                  <div>
+                    <h4 className="text-[15px] sm:text-base font-bold text-slate-900">1-Click Excel Challan Import</h4>
+                    <p className="text-sm text-slate-600 mt-1 leading-relaxed">
+                      Buyer sheets auto-map to size breakdown matrices without manual calculation errors.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3.5">
+                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-1 stroke-[2.5]" />
+                  <div>
+                    <h4 className="text-[15px] sm:text-base font-bold text-slate-900">Dispute-Free Piece-Rate Wages</h4>
+                    <p className="text-sm text-slate-600 mt-1 leading-relaxed">
+                      Automated bundle credits per lineman with transparent mobile app verification.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3.5">
+                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-1 stroke-[2.5]" />
+                  <div>
+                    <h4 className="text-[15px] sm:text-base font-bold text-slate-900">3-Stage Live QC Routing</h4>
+                    <p className="text-sm text-slate-600 mt-1 leading-relaxed">
+                      Tag defects on mobile at audit checkpoints and dispatch instant rework to tailors.
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
 
           </div>
@@ -914,14 +942,14 @@ export function ZigzaLandingPageClient({
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center bg-[#FAFAF8] p-6 sm:p-8 rounded-xl border border-[#57564E]/15">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-xs">
             
             {/* Sliders Area */}
             <div className="space-y-6">
               <div>
-                <div className="flex justify-between items-center text-xs sm:text-sm font-medium text-[#14140F] mb-2">
+                <div className="flex justify-between items-center text-xs sm:text-sm font-semibold text-slate-800 mb-2">
                   <span>Monthly garment output:</span>
-                  <span className="text-base font-medium text-[#14140F] font-mono tabular-nums">
+                  <span className="text-base font-bold text-slate-900 font-mono tabular-nums">
                     {monthlyPieces.toLocaleString()} pieces
                   </span>
                 </div>
@@ -932,9 +960,9 @@ export function ZigzaLandingPageClient({
                   step="5000"
                   value={monthlyPieces}
                   onChange={e => setMonthlyPieces(Number(e.target.value))}
-                  className="w-full h-2 bg-[#57564E]/20 rounded-lg appearance-none cursor-pointer accent-[#3A3564]"
+                  className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#3A3564]"
                 />
-                <div className="flex justify-between text-[11px] text-[#57564E] font-mono tabular-nums mt-1">
+                <div className="flex justify-between text-[11px] text-slate-500 font-mono tabular-nums mt-1">
                   <span>5,000 pcs</span>
                   <span>100,000 pcs</span>
                   <span>200,000+ pcs</span>
@@ -942,9 +970,9 @@ export function ZigzaLandingPageClient({
               </div>
 
               <div>
-                <div className="flex justify-between items-center text-xs sm:text-sm font-medium text-[#14140F] mb-2">
+                <div className="flex justify-between items-center text-xs sm:text-sm font-semibold text-slate-800 mb-2">
                   <span>Active stitching linemen:</span>
-                  <span className="text-base font-medium text-[#14140F] font-mono tabular-nums">
+                  <span className="text-base font-bold text-slate-900 font-mono tabular-nums">
                     {linemenCount} operators
                   </span>
                 </div>
@@ -955,9 +983,9 @@ export function ZigzaLandingPageClient({
                   step="1"
                   value={linemenCount}
                   onChange={e => setLinemenCount(Number(e.target.value))}
-                  className="w-full h-2 bg-[#57564E]/20 rounded-lg appearance-none cursor-pointer accent-[#3A3564]"
+                  className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#3A3564]"
                 />
-                <div className="flex justify-between text-[11px] text-[#57564E] font-mono tabular-nums mt-1">
+                <div className="flex justify-between text-[11px] text-slate-500 font-mono tabular-nums mt-1">
                   <span>5 linemen</span>
                   <span>50 linemen</span>
                   <span>100+ linemen</span>
@@ -965,31 +993,31 @@ export function ZigzaLandingPageClient({
               </div>
             </div>
 
-            {/* Calculated Output Card: Tabular numbers */}
-            <div className="bg-white p-6 rounded-xl border border-[#57564E]/15 space-y-4">
-              <span className="text-xs font-normal text-[#57564E]">
+            {/* Calculated Output Card */}
+            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+              <span className="text-xs font-normal text-slate-500">
                 Projected monthly savings
               </span>
 
               <div className="grid grid-cols-2 gap-3">
-                <div className="p-3.5 bg-[#FAFAF8] border border-[#57564E]/15 rounded-lg">
-                  <span className="text-xs font-normal text-[#57564E]">Floor hours saved</span>
-                  <p className="text-2xl font-medium text-[#14140F] font-mono tabular-nums mt-1">
+                <div className="p-3.5 bg-white border border-slate-200 rounded-xl">
+                  <span className="text-xs font-normal text-slate-500">Floor hours saved</span>
+                  <p className="text-2xl font-bold text-slate-900 font-mono tabular-nums mt-1">
                     ~{estimatedHoursSaved} hrs/mo
                   </p>
                 </div>
 
-                <div className="p-3.5 bg-[#EDF5F0] border border-[#C7E2D3] rounded-lg">
-                  <span className="text-xs font-normal text-[#2E6B4F]">Dispute reduction</span>
-                  <p className="text-2xl font-medium text-[#2E6B4F] font-mono tabular-nums mt-1">
+                <div className="p-3.5 bg-emerald-50/50 border border-emerald-200 rounded-xl">
+                  <span className="text-xs font-normal text-emerald-700">Dispute reduction</span>
+                  <p className="text-2xl font-bold text-emerald-600 font-mono tabular-nums mt-1">
                     {disputeReductionRate}%
                   </p>
                 </div>
               </div>
 
-              <div className="p-3.5 bg-[#FBF4E8] border border-[#F0DEC0] rounded-lg text-xs text-[#8C601A]">
-                <span className="font-medium block mb-0.5">Zero mismatch guarantee</span>
-                <p className="text-[11.5px] leading-relaxed text-[#8C601A]/90">
+              <div className="p-3.5 bg-amber-50/60 border border-amber-200 rounded-xl text-xs">
+                <span className="font-semibold text-amber-900 block mb-0.5">Zero mismatch guarantee</span>
+                <p className="text-[11.5px] leading-relaxed text-amber-800">
                   Every piece cut on table is reconciled across lineman bundles, QC pass counts, and dispatch cartons.
                 </p>
               </div>
@@ -997,7 +1025,7 @@ export function ZigzaLandingPageClient({
               <button
                 type="button"
                 onClick={() => setIsDemoModalOpen(true)}
-                className="w-full py-2.5 bg-[#3A3564] hover:bg-[#2F2B52] text-white rounded-md text-[13px] font-medium transition-colors cursor-pointer"
+                className="w-full py-3 bg-[#3A3564] hover:bg-[#2F2B52] text-white rounded-xl text-sm font-semibold transition-all shadow-xs cursor-pointer"
               >
                 Schedule Free Factory Audit
               </button>
@@ -1106,26 +1134,26 @@ export function ZigzaLandingPageClient({
             </div>
           </div>
 
-          {/* Right Consultation Form Card: Consistent 6px radius and thin borders */}
-          <div className="bg-white text-[#14140F] p-6 sm:p-7 rounded-xl border border-[#57564E]/20 shadow-sm">
-            <h3 className="text-lg sm:text-xl font-medium text-[#14140F] mb-1">
+          {/* Right Consultation Form Card: Matching Image 2 */}
+          <div className="bg-white text-slate-900 p-6 sm:p-7 rounded-2xl shadow-xl border border-slate-100">
+            <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-1">
               Request a Live Demonstration
             </h3>
-            <p className="text-xs sm:text-[13px] text-[#57564E] mb-4">
+            <p className="text-xs sm:text-sm text-slate-500 mb-4">
               Enter your factory details for a customized walkthrough.
             </p>
 
             {isSubmitted ? (
-              <div className="p-6 bg-[#EDF5F0] rounded-lg border border-[#C7E2D3] text-center space-y-2.5">
+              <div className="p-6 bg-[#EDF5F0] rounded-xl border border-[#C7E2D3] text-center space-y-2.5">
                 <Check className="w-10 h-10 text-[#2E6B4F] mx-auto" />
-                <h4 className="text-sm font-medium text-[#2E6B4F]">Demo Request Received!</h4>
-                <p className="text-xs text-[#57564E]">
+                <h4 className="text-sm font-bold text-[#2E6B4F]">Demo Request Received!</h4>
+                <p className="text-xs text-slate-500">
                   Our plant solutions team will contact you within 24 hours to schedule your live walkthrough.
                 </p>
                 <button
                   type="button"
                   onClick={() => setIsSubmitted(false)}
-                  className="mt-2 text-xs font-medium text-[#3A3564] hover:underline cursor-pointer"
+                  className="mt-2 text-xs font-semibold text-[#3A3564] hover:underline cursor-pointer"
                 >
                   Submit another request
                 </button>
@@ -1133,7 +1161,7 @@ export function ZigzaLandingPageClient({
             ) : (
               <form onSubmit={handleDemoSubmit} className="space-y-3.5">
                 <div>
-                  <label className="block text-xs sm:text-[13px] font-normal text-[#57564E] mb-1">
+                  <label className="block text-xs sm:text-[13px] font-medium text-slate-700 mb-1">
                     Factory / Company Name *
                   </label>
                   <input
@@ -1142,13 +1170,13 @@ export function ZigzaLandingPageClient({
                     placeholder="e.g. Shree Garments / Ollypop Job Work"
                     value={demoForm.factoryName}
                     onChange={e => setDemoForm({ ...demoForm, factoryName: e.target.value })}
-                    className="w-full px-3.5 py-2.5 border border-[#57564E]/30 rounded-md text-sm text-[#14140F] focus:outline-none focus:border-[#3A3564] focus:ring-1 focus:ring-[#3A3564]"
+                    className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent"
                   />
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs sm:text-[13px] font-normal text-[#57564E] mb-1">
+                    <label className="block text-xs sm:text-[13px] font-medium text-slate-700 mb-1">
                       Contact Person *
                     </label>
                     <input
@@ -1157,12 +1185,12 @@ export function ZigzaLandingPageClient({
                       placeholder="e.g. Rajesh Sharma"
                       value={demoForm.contactName}
                       onChange={e => setDemoForm({ ...demoForm, contactName: e.target.value })}
-                      className="w-full px-3.5 py-2.5 border border-[#57564E]/30 rounded-md text-sm text-[#14140F] focus:outline-none focus:border-[#3A3564] focus:ring-1 focus:ring-[#3A3564]"
+                      className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs sm:text-[13px] font-normal text-[#57564E] mb-1">
+                    <label className="block text-xs sm:text-[13px] font-medium text-slate-700 mb-1">
                       Phone / WhatsApp *
                     </label>
                     <input
@@ -1171,19 +1199,19 @@ export function ZigzaLandingPageClient({
                       placeholder="+91 98765 43210"
                       value={demoForm.phone}
                       onChange={e => setDemoForm({ ...demoForm, phone: e.target.value })}
-                      className="w-full px-3.5 py-2.5 border border-[#57564E]/30 rounded-md text-sm text-[#14140F] focus:outline-none focus:border-[#3A3564] focus:ring-1 focus:ring-[#3A3564]"
+                      className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#3A3564] focus:border-transparent"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs sm:text-[13px] font-normal text-[#57564E] mb-1">
+                  <label className="block text-xs sm:text-[13px] font-medium text-slate-700 mb-1">
                     Monthly Output Volume
                   </label>
                   <select
                     value={demoForm.volume}
                     onChange={e => setDemoForm({ ...demoForm, volume: e.target.value })}
-                    className="w-full px-3.5 py-2.5 border border-[#57564E]/30 rounded-md text-sm text-[#14140F] bg-white cursor-pointer focus:outline-none focus:border-[#3A3564] focus:ring-1 focus:ring-[#3A3564]"
+                    className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm text-slate-900 bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent"
                   >
                     <option value="< 10,000 Pcs">Less than 10,000 Pieces / mo</option>
                     <option value="10,000 - 50,000 Pcs">10,000 - 50,000 Pieces / mo</option>
@@ -1194,7 +1222,7 @@ export function ZigzaLandingPageClient({
 
                 <button
                   type="submit"
-                  className="w-full py-3 bg-[#3A3564] hover:bg-[#2F2B52] text-white rounded-md text-[15px] font-medium transition-colors cursor-pointer flex items-center justify-center gap-2 mt-2"
+                  className="w-full py-3 bg-[#3A3564] hover:bg-[#2F2B52] text-white rounded-xl text-sm font-semibold transition-all shadow-sm cursor-pointer flex items-center justify-center gap-2 mt-2"
                 >
                   <Check className="w-4 h-4" />
                   <span>Submit Demo Request</span>
@@ -1218,9 +1246,9 @@ export function ZigzaLandingPageClient({
             <div className="col-span-2 space-y-4">
               <Link href="/" className="inline-block group">
                 <img 
-                  src="/zigza_white.png" 
+                  src="/new_logo.png" 
                   alt="zigza." 
-                  className="h-7 w-auto object-contain group-hover:opacity-80 transition-opacity duration-150"
+                  className="h-8 sm:h-9 w-auto object-contain rounded-md sm:rounded-lg overflow-hidden group-hover:opacity-90 transition-opacity duration-150"
                 />
               </Link>
               <p className="text-sm text-[#9E9BAE] leading-relaxed max-w-sm font-normal">
@@ -1401,35 +1429,35 @@ export function ZigzaLandingPageClient({
       {/* =================================================================== */}
       {isDemoModalOpen && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-[#1C1A2E]/60 backdrop-blur-xs overflow-y-auto animate-in fade-in duration-150">
-          <div className="bg-[#FAFAF8] rounded-t-xl sm:rounded-xl shadow-2xl max-w-lg w-full p-5 sm:p-6 border border-[#57564E]/20 sm:my-auto relative max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl max-w-lg w-full p-5 sm:p-6 border border-slate-100 sm:my-auto relative max-h-[90vh] overflow-y-auto">
             
             <button
               type="button"
               onClick={() => setIsDemoModalOpen(false)}
-              className="absolute top-4 right-4 p-1.5 rounded-md text-[#57564E] hover:text-[#14140F] hover:bg-[#14140F]/5 transition-colors"
+              className="absolute top-4 right-4 p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
 
             <div className="flex items-center gap-3 mb-2">
               <img 
-                src="/zigza_dark.png" 
+                src="/new_logo.png" 
                 alt="zigza." 
-                className="h-7 w-auto object-contain"
+                className="h-7 w-auto object-contain rounded-md overflow-hidden"
               />
-              <h3 className="text-lg font-medium text-[#14140F]">
+              <h3 className="text-xl font-bold text-slate-900">
                 Request a Live Demo
               </h3>
             </div>
-            <p className="text-xs sm:text-[13px] text-[#57564E] mb-4">
+            <p className="text-xs sm:text-sm text-slate-500 mb-4">
               Schedule a personalized walkthrough of the apparel MES platform.
             </p>
 
             {isSubmitted ? (
-              <div className="p-6 bg-[#EDF5F0] rounded-lg border border-[#C7E2D3] text-center space-y-3">
+              <div className="p-6 bg-[#EDF5F0] rounded-xl border border-[#C7E2D3] text-center space-y-3">
                 <Check className="w-12 h-12 text-[#2E6B4F] mx-auto" />
-                <h4 className="text-sm font-medium text-[#2E6B4F]">Demo Scheduled!</h4>
-                <p className="text-xs text-[#57564E]">
+                <h4 className="text-sm font-bold text-[#2E6B4F]">Demo Scheduled!</h4>
+                <p className="text-xs text-slate-600">
                   Thank you, <strong>{demoForm.contactName || 'Plant Head'}</strong>. Our garment solutions engineer 
                   will connect with you on WhatsApp / Phone within 24 hours.
                 </p>
@@ -1440,7 +1468,7 @@ export function ZigzaLandingPageClient({
                       setIsSubmitted(false)
                       setIsDemoModalOpen(false)
                     }}
-                    className="px-4 py-2 bg-[#3A3564] text-white rounded-md text-xs font-medium"
+                    className="px-4 py-2 bg-[#3A3564] text-white rounded-xl text-xs font-semibold"
                   >
                     Close
                   </button>
@@ -1449,7 +1477,7 @@ export function ZigzaLandingPageClient({
             ) : (
               <form onSubmit={handleDemoSubmit} className="space-y-3.5">
                 <div>
-                  <label className="block text-xs sm:text-[13px] font-normal text-[#57564E] mb-1">
+                  <label className="block text-xs sm:text-[13px] font-medium text-slate-700 mb-1">
                     Factory / Brand Name *
                   </label>
                   <input
@@ -1458,13 +1486,13 @@ export function ZigzaLandingPageClient({
                     placeholder="e.g. Ollypop Garment Unit"
                     value={demoForm.factoryName}
                     onChange={e => setDemoForm({ ...demoForm, factoryName: e.target.value })}
-                    className="w-full px-3.5 py-2.5 border border-[#57564E]/30 rounded-md text-sm text-[#14140F] focus:outline-none focus:border-[#3A3564] focus:ring-1 focus:ring-[#3A3564]"
+                    className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent"
                   />
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs sm:text-[13px] font-normal text-[#57564E] mb-1">
+                    <label className="block text-xs sm:text-[13px] font-medium text-slate-700 mb-1">
                       Contact Name *
                     </label>
                     <input
@@ -1473,12 +1501,12 @@ export function ZigzaLandingPageClient({
                       placeholder="e.g. Anil Gupta"
                       value={demoForm.contactName}
                       onChange={e => setDemoForm({ ...demoForm, contactName: e.target.value })}
-                      className="w-full px-3.5 py-2.5 border border-[#57564E]/30 rounded-md text-sm text-[#14140F] focus:outline-none focus:border-[#3A3564] focus:ring-1 focus:ring-[#3A3564]"
+                      className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs sm:text-[13px] font-normal text-[#57564E] mb-1">
+                    <label className="block text-xs sm:text-[13px] font-medium text-slate-700 mb-1">
                       Phone / WhatsApp *
                     </label>
                     <input
@@ -1487,19 +1515,19 @@ export function ZigzaLandingPageClient({
                       placeholder="+91 98765 43210"
                       value={demoForm.phone}
                       onChange={e => setDemoForm({ ...demoForm, phone: e.target.value })}
-                      className="w-full px-3.5 py-2.5 border border-[#57564E]/30 rounded-md text-sm text-[#14140F] focus:outline-none focus:border-[#3A3564] focus:ring-1 focus:ring-[#3A3564]"
+                      className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs sm:text-[13px] font-normal text-[#57564E] mb-1">
+                  <label className="block text-xs sm:text-[13px] font-medium text-slate-700 mb-1">
                     Monthly Production Capacity
                   </label>
                   <select
                     value={demoForm.volume}
                     onChange={e => setDemoForm({ ...demoForm, volume: e.target.value })}
-                    className="w-full px-3.5 py-2.5 border border-[#57564E]/30 rounded-md text-sm text-[#14140F] bg-white cursor-pointer focus:outline-none focus:border-[#3A3564] focus:ring-1 focus:ring-[#3A3564]"
+                    className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm text-slate-900 bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent"
                   >
                     <option value="< 10,000 Pcs">Less than 10,000 Pcs/mo</option>
                     <option value="10,000 - 50,000 Pcs">10,000 - 50,000 Pcs/mo</option>
@@ -1509,7 +1537,7 @@ export function ZigzaLandingPageClient({
                 </div>
 
                 <div>
-                  <label className="block text-xs sm:text-[13px] font-normal text-[#57564E] mb-1.5">
+                  <label className="block text-xs sm:text-[13px] font-medium text-slate-700 mb-1.5">
                     Modules Interested In
                   </label>
                   <div className="flex flex-wrap gap-1.5">
@@ -1520,10 +1548,10 @@ export function ZigzaLandingPageClient({
                           key={mod}
                           type="button"
                           onClick={() => toggleModule(mod)}
-                          className={`px-3 py-1.5 rounded-md text-xs font-medium border transition-colors cursor-pointer ${
+                          className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors cursor-pointer ${
                             isSelected
                               ? 'bg-[#3A3564] text-white border-[#3A3564]'
-                              : 'bg-white text-[#57564E] border-[#57564E]/25 hover:bg-[#FAFAF8]'
+                              : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
                           }`}
                         >
                           {mod}
@@ -1535,7 +1563,7 @@ export function ZigzaLandingPageClient({
 
                 <button
                   type="submit"
-                  className="w-full py-3 bg-[#3A3564] hover:bg-[#2F2B52] text-white rounded-md text-[15px] font-medium transition-colors cursor-pointer flex items-center justify-center gap-2 mt-3"
+                  className="w-full py-3 bg-[#3A3564] hover:bg-[#2F2B52] text-white rounded-xl text-sm font-semibold transition-all shadow-sm cursor-pointer flex items-center justify-center gap-2 mt-3"
                 >
                   <Check className="w-4 h-4" />
                   <span>Confirm Live Demo Booking</span>
