@@ -1842,13 +1842,11 @@ ${demoForm.ownerName}`
           {/* Bottom Divider & Proudly Made in India Bar */}
           <div className="pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
             <div className="flex flex-col items-center sm:items-start gap-1 text-center sm:text-left">
-              <div className="text-[15px] font-bold italic flex items-center gap-1.5 tracking-wide">
-                <span className="bg-gradient-to-r from-orange-600 via-slate-800 to-emerald-600 bg-clip-text text-transparent font-extrabold">
-                  Proudly Made in India
-                </span>
-                <span className="not-italic text-base">🇮🇳</span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-proudly-india">Proudly Made in India</span>
+                <span className="text-base select-none">🇮🇳</span>
               </div>
-              <p>© {new Date().getFullYear()} Zigza MES. Built for modern apparel manufacturing.</p>
+              <p className="text-xs text-slate-500">© {new Date().getFullYear()} Zigza. All rights reserved.</p>
             </div>
             <div className="flex items-center gap-6 text-xs text-slate-500">
               <span className="hover:text-slate-900 transition-colors cursor-pointer">Privacy Policy</span>

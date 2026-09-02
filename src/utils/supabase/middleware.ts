@@ -35,7 +35,7 @@ export async function updateSession(request: NextRequest) {
   const pathname = request.nextUrl.pathname
   const isLoginPage = pathname.startsWith('/login')
   const isLandingPage = pathname === '/'
-  const isPublicRoute = isLoginPage || isLandingPage || pathname.startsWith('/auth')
+  const isPublicRoute = isLoginPage || isLandingPage || pathname.startsWith('/auth') || pathname === '/404' || pathname === '/not-found'
   
   if (!user && !isPublicRoute) {
     // If not logged in and accessing protected internal pages, redirect to login

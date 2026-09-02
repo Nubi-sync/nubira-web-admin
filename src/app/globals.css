@@ -193,4 +193,17 @@ html {
 .animate-spin-once {
   animation: spinOnce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
+
+.text-proudly-india {
+  font-family: var(--font-caveat), 'Segoe Print', 'Comic Sans MS', cursive;
+  font-size: 1.25rem;
+  line-height: 1.2;
+  font-weight: 700;
+  font-style: italic;
+  letter-spacing: 0.02em;
+  background: linear-gradient(90deg, #D45B1E 0%, #B8652D 22%, #2B78C5 45%, #1F6EB8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+}
 
