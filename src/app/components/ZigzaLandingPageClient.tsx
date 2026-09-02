@@ -228,9 +228,9 @@ ${demoForm.ownerName}`
             {isAuthenticated ? (
               <Link
                 href="/production-orders"
-                className="px-5 py-2.5 rounded-md text-[15px] font-medium bg-[#3A3564] text-white hover:bg-[#2F2B52] transition-colors flex items-center gap-2 cursor-pointer"
+                className="px-5 py-2.5 rounded-md text-[15px] font-medium bg-[#3A3564] text-white hover:bg-[#2F2B52] transition-colors flex items-center gap-2 cursor-pointer shadow-xs"
               >
-                <span>Control Center</span>
+                <span>Continue to Dashboard</span>
                 <ArrowRight className="w-4 h-4" />
               </Link>
             ) : (
@@ -299,25 +299,38 @@ ${demoForm.ownerName}`
             </nav>
 
             <div className="pt-3 border-t border-[#57564E]/15 flex flex-col gap-2.5">
-              <button
-                type="button"
-                onClick={() => {
-                  setIsDemoModalOpen(true)
-                  setIsMobileMenuOpen(false)
-                }}
-                className="w-full py-3 rounded-md text-[15px] font-medium bg-[#3A3564] text-white hover:bg-[#2F2B52] transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs"
-              >
-                <span>Request a Live Demo</span>
-                <ArrowRight className="w-4 h-4 text-white/70" />
-              </button>
-              <Link
-                href="/login"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="w-full py-2.5 rounded-md text-[15px] font-medium text-[#14140F] border border-[#57564E]/25 bg-transparent hover:bg-[#14140F]/5 transition-colors flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <Lock className="w-4 h-4 text-[#57564E]" />
-                <span>Staff Portal Sign In</span>
-              </Link>
+              {isAuthenticated ? (
+                <Link
+                  href="/production-orders"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="w-full py-3 rounded-md text-[15px] font-medium bg-[#3A3564] text-white hover:bg-[#2F2B52] transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+                >
+                  <span>Continue to Dashboard</span>
+                  <ArrowRight className="w-4 h-4 text-white/70" />
+                </Link>
+              ) : (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsDemoModalOpen(true)
+                      setIsMobileMenuOpen(false)
+                    }}
+                    className="w-full py-3 rounded-md text-[15px] font-medium bg-[#3A3564] text-white hover:bg-[#2F2B52] transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+                  >
+                    <span>Request a Live Demo</span>
+                    <ArrowRight className="w-4 h-4 text-white/70" />
+                  </button>
+                  <Link
+                    href="/login"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="w-full py-2.5 rounded-md text-[15px] font-medium text-[#14140F] border border-[#57564E]/25 bg-transparent hover:bg-[#14140F]/5 transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <Lock className="w-4 h-4 text-[#57564E]" />
+                    <span>Staff Portal Sign In</span>
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>

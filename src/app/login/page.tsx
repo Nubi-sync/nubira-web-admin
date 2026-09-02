@@ -16,7 +16,8 @@ import {
   Mail, 
   Eye, 
   EyeOff,
-  Sparkles
+  Sparkles,
+  Loader2
 } from 'lucide-react'
 
 function IndiaFlag({ className = "w-5 h-3.5" }: { className?: string }) {
@@ -51,6 +52,7 @@ export default function LoginPage() {
   const router = useRouter()
   const [error, setError] = useState<string | null>(null)
   const [isPending, setIsPending] = useState(false)
+  const [isSuccess, setIsSuccess] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
 
   // 3-Step Forgot Password Modal States
@@ -71,6 +73,10 @@ export default function LoginPage() {
     const result = await login(formData)
     if (result?.error) {
       setError(result.error)
+      setIsPending(false)
+      setIsSuccess(false)
+    } else {
+      setIsSuccess(true)
       setIsPending(false)
     }
   }
@@ -315,11 +321,20 @@ export default function LoginPage() {
               {/* Submit Button */}
               <button
                 type="submit"
-                disabled={isPending}
-                className="w-full py-3.5 px-4 rounded-xl text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2F2B52] flex items-center justify-center gap-2 transition-all shadow-sm hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed mt-2 cursor-pointer"
+                disabled={isPending || isSuccess}
+                className="w-full py-3.5 px-4 rounded-xl text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2F2B52] flex items-center justify-center gap-2 transition-all shadow-sm hover:shadow-md disabled:opacity-85 disabled:cursor-not-allowed mt-2 cursor-pointer"
               >
-                {isPending ? (
-                  <span>Authenticating...</span>
+                {isSuccess ? (
+                  <>
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                    <span>Continue to Dashboard</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </>
+                ) : isPending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin text-white" />
+                    <span>Signing in...</span>
+                  </>
                 ) : (
                   <>
                     <span>Sign In to Dashboard</span>
