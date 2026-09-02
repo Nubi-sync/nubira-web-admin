@@ -61,6 +61,15 @@ export function ZigzaLandingPageClient({
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
+  // Sequential 5-Step Factory Pipeline Animation (1.2s per box)
+  const [activePipelineStep, setActivePipelineStep] = useState(0)
+  useEffect(() => {
+    const pipelineTimer = setInterval(() => {
+      setActivePipelineStep(prev => (prev + 1) % 5)
+    }, 1200) 
+    return () => clearInterval(pipelineTimer)
+  }, [])
+
   // ROI Calculator State
   const [monthlyPieces, setMonthlyPieces] = useState<number>(35000)
   const [linemenCount, setLinemenCount] = useState<number>(24)
@@ -584,101 +593,176 @@ export function ZigzaLandingPageClient({
       {/* =================================================================== */}
       <section id="modules" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="text-center max-w-3xl mx-auto mb-14 sm:mb-16">
-          <p className="text-xs sm:text-[13px] font-normal text-[#57564E] mb-2.5">
-            End-to-end modular architecture
-          </p>
-          <h2 className="text-3xl sm:text-4xl font-semibold text-[#14140F] tracking-tight">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">
             Specialized Engines Engineered for Floor Precision
           </h2>
-          <p className="text-base sm:text-lg text-[#57564E] mt-3 leading-relaxed">
-            Every department in your factory gets dedicated tools connected to a single live database.
+          <p className="text-base sm:text-lg text-slate-600 mt-3 leading-relaxed">
+            Every department in your garment factory gets dedicated tools connected to one live database.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 items-stretch">
           
           {/* Module 1: Store GRN */}
-          <div className="p-6 sm:p-7 bg-[#FAFAF8] border border-[#57564E]/15 rounded-xl hover:border-[#57564E]/30 transition-colors group">
-            <div className="w-11 h-11 rounded-lg border border-[#57564E]/20 bg-white text-[#3A3564] flex items-center justify-center mb-4.5">
-              <Truck className="w-5 h-5" />
+          <div className="bg-white rounded-2xl border border-slate-200 hover:border-black p-6 sm:p-7 transition-colors flex flex-col justify-between h-full">
+            <div>
+              <div className="flex items-center justify-between gap-3 pb-3 mb-5 border-b-2 border-[#3A3564]">
+                <h3 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
+                  Truck Inward & Store GRN
+                </h3>
+                <Truck className="w-5 h-5 text-[#3A3564] shrink-0" />
+              </div>
+
+              <ul className="space-y-3 text-sm text-slate-600">
+                <li className="flex items-start gap-2.5">
+                  <Check className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5 stroke-[2.5]" />
+                  <span>Photo capture for supplier delivery challans</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <Check className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5 stroke-[2.5]" />
+                  <span>Fabric roll barcode tracking (Sinker, Rib, Lycra)</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <Check className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5 stroke-[2.5]" />
+                  <span>Live trims & accessories balance reconciliation</span>
+                </li>
+              </ul>
             </div>
-            <h3 className="text-lg sm:text-xl font-medium text-[#14140F] mb-2">
-              Truck Inward & Store GRN
-            </h3>
-            <p className="text-sm sm:text-[15px] text-[#57564E] leading-relaxed font-normal">
-              Capture delivery challan slips via mobile camera. Log fabric rolls (Sinker, Rib), lot barcodes, 
-              trims, and track supplier pending accessories.
-            </p>
           </div>
 
-          {/* Module 2: Excel Challan Matrix */}
-          <div className="p-6 sm:p-7 bg-[#FAFAF8] border border-[#57564E]/15 rounded-xl hover:border-[#57564E]/30 transition-colors group">
-            <div className="w-11 h-11 rounded-lg border border-[#57564E]/20 bg-white text-[#3A3564] flex items-center justify-center mb-4.5">
-              <FileSpreadsheet className="w-5 h-5" />
+          {/* Module 2: Excel Ingestion */}
+          <div className="bg-white rounded-2xl border border-slate-200 hover:border-black p-6 sm:p-7 transition-colors flex flex-col justify-between h-full">
+            <div>
+              <div className="flex items-center justify-between gap-3 pb-3 mb-5 border-b-2 border-[#3A3564]">
+                <h3 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
+                  1-Click Excel Ingestion
+                </h3>
+                <FileSpreadsheet className="w-5 h-5 text-[#3A3564] shrink-0" />
+              </div>
+
+              <ul className="space-y-3 text-sm text-slate-600">
+                <li className="flex items-start gap-2.5">
+                  <Check className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5 stroke-[2.5]" />
+                  <span>Direct import of buyer purchase spreadsheets</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <Check className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5 stroke-[2.5]" />
+                  <span>Auto-calculated size & color breakdown matrix</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <Check className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5 stroke-[2.5]" />
+                  <span>Zero manual entry errors or ratio mismatches</span>
+                </li>
+              </ul>
             </div>
-            <h3 className="text-lg sm:text-xl font-medium text-[#14140F] mb-2">
-              1-Click Excel Challan Ingestion
-            </h3>
-            <p className="text-sm sm:text-[15px] text-[#57564E] leading-relaxed font-normal">
-              Upload buyer spreadsheets to instantly generate multi-article size matrices, 
-              sets, and piece ratios without manual data entry.
-            </p>
           </div>
 
-          {/* Module 3: Piece-Rate Wages */}
-          <div className="p-6 sm:p-7 bg-[#FAFAF8] border border-[#57564E]/15 rounded-xl hover:border-[#57564E]/30 transition-colors group">
-            <div className="w-11 h-11 rounded-lg border border-[#57564E]/20 bg-white text-[#3A3564] flex items-center justify-center mb-4.5">
-              <Scissors className="w-5 h-5" />
+          {/* Module 3: Smart Allotment & Wages */}
+          <div className="bg-white rounded-2xl border border-slate-200 hover:border-black p-6 sm:p-7 transition-colors flex flex-col justify-between h-full">
+            <div>
+              <div className="flex items-center justify-between gap-3 pb-3 mb-5 border-b-2 border-[#3A3564]">
+                <h3 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
+                  Smart Allotment & Wages
+                </h3>
+                <Scissors className="w-5 h-5 text-[#3A3564] shrink-0" />
+              </div>
+
+              <ul className="space-y-3 text-sm text-slate-600">
+                <li className="flex items-start gap-2.5">
+                  <Check className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5 stroke-[2.5]" />
+                  <span>Lot allotment across linemen by color & size</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <Check className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5 stroke-[2.5]" />
+                  <span>Real-time QR barcode scan per stitched unit</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <Check className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5 stroke-[2.5]" />
+                  <span>Automated, dispute-free piece-rate wage ledger</span>
+                </li>
+              </ul>
             </div>
-            <h3 className="text-lg sm:text-xl font-medium text-[#14140F] mb-2">
-              Smart Allotment & Piece-Rate Wages
-            </h3>
-            <p className="text-sm sm:text-[15px] text-[#57564E] leading-relaxed font-normal">
-              Allot cutting lots entirely or split by color combinations across linemen. Automated wage 
-              calculation with zero discrepancy.
-            </p>
           </div>
 
-          {/* Module 4: Floor Mobile App */}
-          <div className="p-6 sm:p-7 bg-[#FAFAF8] border border-[#57564E]/15 rounded-xl hover:border-[#57564E]/30 transition-colors group">
-            <div className="w-11 h-11 rounded-lg border border-[#57564E]/20 bg-white text-[#3A3564] flex items-center justify-center mb-4.5">
-              <Smartphone className="w-5 h-5" />
+          {/* Module 4: Mobile Floor Supervisor */}
+          <div className="bg-white rounded-2xl border border-slate-200 hover:border-black p-6 sm:p-7 transition-colors flex flex-col justify-between h-full">
+            <div>
+              <div className="flex items-center justify-between gap-3 pb-3 mb-5 border-b-2 border-[#3A3564]">
+                <h3 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
+                  Mobile Floor Supervisor
+                </h3>
+                <Smartphone className="w-5 h-5 text-[#3A3564] shrink-0" />
+              </div>
+
+              <ul className="space-y-3 text-sm text-slate-600">
+                <li className="flex items-start gap-2.5">
+                  <Check className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5 stroke-[2.5]" />
+                  <span>Fast scanner companion for Android smartphones</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <Check className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5 stroke-[2.5]" />
+                  <span>Continuous offline logging during WiFi dropouts</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <Check className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5 stroke-[2.5]" />
+                  <span>Live line output pace & bottleneck alerts</span>
+                </li>
+              </ul>
             </div>
-            <h3 className="text-lg sm:text-xl font-medium text-[#14140F] mb-2">
-              Mobile Floor Supervisor App
-            </h3>
-            <p className="text-sm sm:text-[15px] text-[#57564E] leading-relaxed font-normal">
-              Android companion app with offline support. Supervisors record daily production, scan bundle QR 
-              barcodes, and view active line targets.
-            </p>
           </div>
 
-          {/* Module 5: 3-Stage QC Gate */}
-          <div className="p-6 sm:p-7 bg-[#FAFAF8] border border-[#57564E]/15 rounded-xl hover:border-[#57564E]/30 transition-colors group">
-            <div className="w-11 h-11 rounded-lg border border-[#57564E]/20 bg-white text-[#3A3564] flex items-center justify-center mb-4.5">
-              <ClipboardCheck className="w-5 h-5" />
+          {/* Module 5: 3-Stage Quality Control */}
+          <div className="bg-white rounded-2xl border border-slate-200 hover:border-black p-6 sm:p-7 transition-colors flex flex-col justify-between h-full">
+            <div>
+              <div className="flex items-center justify-between gap-3 pb-3 mb-5 border-b-2 border-[#3A3564]">
+                <h3 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
+                  3-Stage Quality Control
+                </h3>
+                <ClipboardCheck className="w-5 h-5 text-[#3A3564] shrink-0" />
+              </div>
+
+              <ul className="space-y-3 text-sm text-slate-600">
+                <li className="flex items-start gap-2.5">
+                  <Check className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5 stroke-[2.5]" />
+                  <span>1-Tap defect tagging at lightbox checkpoints</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <Check className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5 stroke-[2.5]" />
+                  <span>Instant alteration routing directly back to tailors</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <Check className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5 stroke-[2.5]" />
+                  <span>Operator defect tracking & pass-rate analytics</span>
+                </li>
+              </ul>
             </div>
-            <h3 className="text-lg sm:text-xl font-medium text-[#14140F] mb-2">
-              3-Stage Quality Control Gate
-            </h3>
-            <p className="text-sm sm:text-[15px] text-[#57564E] leading-relaxed font-normal">
-              Lightbox garment audit with passing vs defect classification (stain, stitch open, mending). 
-              Instant floor alteration re-routing.
-            </p>
           </div>
 
-          {/* Module 6: Dispatch Bay */}
-          <div className="p-6 sm:p-7 bg-[#FAFAF8] border border-[#57564E]/15 rounded-xl hover:border-[#57564E]/30 transition-colors group">
-            <div className="w-11 h-11 rounded-lg border border-[#57564E]/20 bg-white text-[#3A3564] flex items-center justify-center mb-4.5">
-              <PackageCheck className="w-5 h-5" />
+          {/* Module 6: Carton Packing & Dispatch */}
+          <div className="bg-white rounded-2xl border border-slate-200 hover:border-black p-6 sm:p-7 transition-colors flex flex-col justify-between h-full">
+            <div>
+              <div className="flex items-center justify-between gap-3 pb-3 mb-5 border-b-2 border-[#3A3564]">
+                <h3 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
+                  Carton Packing & Dispatch
+                </h3>
+                <PackageCheck className="w-5 h-5 text-[#3A3564] shrink-0" />
+              </div>
+
+              <ul className="space-y-3 text-sm text-slate-600">
+                <li className="flex items-start gap-2.5">
+                  <Check className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5 stroke-[2.5]" />
+                  <span>Auto-generated carton packing lists & piece counts</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <Check className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5 stroke-[2.5]" />
+                  <span>Buyer delivery challans with transport metadata</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <Check className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5 stroke-[2.5]" />
+                  <span>Finished goods inventory deducted at gate exit</span>
+                </li>
+              </ul>
             </div>
-            <h3 className="text-lg sm:text-xl font-medium text-[#14140F] mb-2">
-              Dispatch Bay & Carton Reconciliation
-            </h3>
-            <p className="text-sm sm:text-[15px] text-[#57564E] leading-relaxed font-normal">
-              Carton packing lists, buyer delivery challan generation with transport metadata, and automated 
-              finished goods inventory deductions.
-            </p>
           </div>
 
         </div>
@@ -687,77 +771,98 @@ export function ZigzaLandingPageClient({
       {/* =================================================================== */}
       {/* 5. 5-STEP FACTORY FLOW PIPELINE (ROADMAP)                          */}
       {/* =================================================================== */}
-      <section id="workflow" className="py-14 sm:py-20 bg-white border-y border-[#57564E]/15">
+      {/* =================================================================== */}
+      {/* 5. 5-STEP FACTORY FLOW PIPELINE (FLOW CHART)                       */}
+      {/* =================================================================== */}
+      <section id="workflow" className="py-16 sm:py-24 bg-white border-y border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
-            <h2 className="text-3xl sm:text-4xl font-semibold text-[#14140F] tracking-tight">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">
               The 5-Step Synchronized Factory Pipeline
             </h2>
-            <p className="text-base sm:text-lg text-[#57564E] mt-3 leading-relaxed">
-              From raw cloth arrival to buyer truck dispatch — every milestone is tracked in real time.
+            <p className="text-base sm:text-lg text-slate-600 mt-3 leading-relaxed">
+              From raw cloth arrival to buyer truck exit — every milestone is verified in real time.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 relative">
-            {/* Desktop Connecting Line behind step badges */}
-            <div className="hidden lg:block absolute top-[30px] left-[10%] right-[10%] h-px bg-[#57564E]/20 -z-0" />
+          {/* Connected Process Track with Flowing Animation */}
+          <div className="relative">
             
-            {/* Step 1 */}
-            <div className="p-4 sm:p-5 bg-[#FAFAF8] border border-[#57564E]/15 rounded-xl relative z-10">
-              <div className="w-8 h-8 rounded-full bg-[#3A3564] text-white text-xs font-medium flex items-center justify-center mb-3">
-                1
-              </div>
-              <h4 className="text-base font-medium text-[#14140F]">Store GRN</h4>
-              <p className="text-xs text-[#57564E] mt-1.5 leading-relaxed">
-                Fabric roll barcoding and paper delivery slip photo capture.
-              </p>
+            {/* Continuous Black Connecting Line running across all 5 boxes */}
+            <div className="hidden lg:block absolute top-[36px] left-[5%] right-[5%] h-[1.5px] bg-black z-0 pointer-events-none">
+              {/* Traveling Bead gliding along the line from box to box */}
+              <div 
+                className="absolute -top-[5px] w-3.5 h-3.5 rounded-full bg-[#3A3564] border-2 border-white shadow-md transition-all duration-[600ms] ease-in-out z-20"
+                style={{ left: `calc(${activePipelineStep * 20 + 10}% - 7px)` }}
+              />
             </div>
 
-            {/* Step 2 */}
-            <div className="p-4 sm:p-5 bg-[#FAFAF8] border border-[#57564E]/15 rounded-xl relative z-10">
-              <div className="w-8 h-8 rounded-full bg-[#3A3564] text-white text-xs font-medium flex items-center justify-center mb-3">
-                2
-              </div>
-              <h4 className="text-base font-medium text-[#14140F]">Excel Cutting Matrix</h4>
-              <p className="text-xs text-[#57564E] mt-1.5 leading-relaxed">
-                Automatic generation of size tiers (L/XXL, 22x26) from buyer Excel sheet.
-              </p>
-            </div>
+            {/* 5 Connected Boxes with Sequential Spin & Flow */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 lg:gap-5 items-stretch relative z-10">
+              {[
+                {
+                  step: '01',
+                  title: 'Store Inward',
+                  desc: 'Photo OCR capture of supplier paper challans and fabric roll barcode tagging.'
+                },
+                {
+                  step: '02',
+                  title: 'Cutting Matrix',
+                  desc: 'Auto-converts buyer order Excel sheets into size lay ratios in 1 click.'
+                },
+                {
+                  step: '03',
+                  title: 'Line Allotment',
+                  desc: 'Color-split bundle assignment to linemen with live piece-rate wage sync.'
+                },
+                {
+                  step: '04',
+                  title: 'Quality Audit',
+                  desc: '1-Tap lightbox pass and defect logging with instant tailor rework routing.'
+                },
+                {
+                  step: '05',
+                  title: 'Carton Dispatch',
+                  desc: 'Piece-count carton packing reconciliation and official delivery challans.'
+                }
+              ].map((stage, idx) => {
+                const isActive = activePipelineStep === idx;
+                return (
+                  <div
+                    key={stage.step}
+                    onClick={() => setActivePipelineStep(idx)}
+                    className={`cursor-pointer bg-white rounded-2xl border border-black p-5 sm:p-6 transition-all duration-500 flex flex-col justify-between ${
+                      isActive
+                        ? 'shadow-lg ring-1 ring-black -translate-y-1 bg-[#FCFBF9]'
+                        : 'hover:shadow-md'
+                    }`}
+                  >
+                    <div>
+                      {/* Number Circle (cream bg, indigo text, slim black outline) + Header beside it */}
+                      <div className="flex items-center gap-3 mb-3">
+                        <span
+                          key={isActive ? `active-${idx}` : `idle-${idx}`}
+                          className={`w-8 h-8 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/80 font-mono font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs ${
+                            isActive ? 'animate-spin-once ring-2 ring-[#3A3564]/30' : ''
+                          }`}
+                        >
+                          {stage.step}
+                        </span>
+                        <h3 className="text-[15px] sm:text-base font-bold text-slate-900 tracking-tight">
+                          {stage.title}
+                        </h3>
+                      </div>
 
-            {/* Step 3 */}
-            <div className="p-4 sm:p-5 bg-[#FAFAF8] border border-[#57564E]/15 rounded-xl relative z-10">
-              <div className="w-8 h-8 rounded-full bg-[#3A3564] text-white text-xs font-medium flex items-center justify-center mb-3">
-                3
-              </div>
-              <h4 className="text-base font-medium text-[#14140F]">Lineman Allotment</h4>
-              <p className="text-xs text-[#57564E] mt-1.5 leading-relaxed">
-                Color-split bundle distribution with piece-rate rate tracking.
-              </p>
+                      {/* Clear Description (No truncation) */}
+                      <p className="text-xs sm:text-[13px] text-slate-600 leading-relaxed">
+                        {stage.desc}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-
-            {/* Step 4 */}
-            <div className="p-4 sm:p-5 bg-[#FAFAF8] border border-[#57564E]/15 rounded-xl relative z-10">
-              <div className="w-8 h-8 rounded-full bg-[#3A3564] text-white text-xs font-medium flex items-center justify-center mb-3">
-                4
-              </div>
-              <h4 className="text-base font-medium text-[#14140F]">3-Stage QC Audit</h4>
-              <p className="text-xs text-[#57564E] mt-1.5 leading-relaxed">
-                Mobile garment passing and defect alteration routing.
-              </p>
-            </div>
-
-            {/* Step 5 */}
-            <div className="p-4 sm:p-5 bg-[#FAFAF8] border border-[#57564E]/15 rounded-xl relative z-10">
-              <div className="w-8 h-8 rounded-full bg-[#3A3564] text-white text-xs font-medium flex items-center justify-center mb-3">
-                5
-              </div>
-              <h4 className="text-base font-medium text-[#14140F]">Buyer Dispatch</h4>
-              <p className="text-xs text-[#57564E] mt-1.5 leading-relaxed">
-                Carton packing verification and delivery challan issuance.
-              </p>
-            </div>
-
           </div>
 
         </div>
@@ -942,7 +1047,8 @@ export function ZigzaLandingPageClient({
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-xs">
+          {/* Outer ROI Box with Slim Black Outline (Matching Screenshot 2) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center bg-white p-6 sm:p-8 rounded-2xl border border-black">
             
             {/* Sliders Area */}
             <div className="space-y-6">
@@ -1134,8 +1240,8 @@ export function ZigzaLandingPageClient({
             </div>
           </div>
 
-          {/* Right Consultation Form Card: Matching Image 2 */}
-          <div className="bg-white text-slate-900 p-6 sm:p-7 rounded-2xl shadow-xl border border-slate-100">
+          {/* Right Consultation Form Card: Slim Black Outline (Matching Screenshot 3) */}
+          <div className="bg-white text-slate-900 p-6 sm:p-7 rounded-2xl border border-black">
             <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-1">
               Request a Live Demonstration
             </h3>
