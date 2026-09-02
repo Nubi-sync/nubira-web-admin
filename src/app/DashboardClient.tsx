@@ -157,6 +157,128 @@ function formatLinemanName(lm?: { username?: string } | { username?: string }[])
   return profile.username
 }
 
+function VariantMatrixTable({ variants = [] }: { variants?: any[] }) {
+  if (!variants || variants.length === 0) return null
+
+  // Collect unique sizes
+  const rawSizes = Array.from(new Set(variants.map(v => (v.size || 'STD').trim().toUpperCase())))
+  
+  const standardLetterOrder: Record<string, number> = {
+    '2XS': 1, 'XXS': 1, 'XS': 2, 'S': 3, 'M': 4, 'L': 5, 'XL': 6, '2XL': 7, 'XXL': 7, '3XL': 8, 'XXXL': 8, '4XL': 9, '5XL': 10, 'FREE': 11, 'STD': 12
+  }
+
+  const sortedSizes = [...rawSizes].sort((a, b) => {
+    const numA = Number(a)
+    const numB = Number(b)
+    const isNumA = !isNaN(numA) && a.trim() !== ''
+    const isNumB = !isNaN(numB) && b.trim() !== ''
+
+    if (isNumA && isNumB) return numA - numB
+    if (isNumA && !isNumB) return 1
+    if (!isNumA && isNumB) return -1
+    
+    const rankA = standardLetterOrder[a] ?? 99
+    const rankB = standardLetterOrder[b] ?? 99
+    if (rankA !== rankB) return rankA - rankB
+    return a.localeCompare(b)
+  })
+
+  // Group by unique colors
+  const colorMap: Record<string, Record<string, number>> = {}
+  const colorTotals: Record<string, number> = {}
+  const sizeTotals: Record<string, number> = {}
+  let grandTotal = 0
+
+  variants.forEach(v => {
+    const col = (v.color || 'Standard').trim().toUpperCase()
+    const sz = (v.size || 'STD').trim().toUpperCase()
+    const qty = Number(v.quantity) || 0
+
+    if (!colorMap[col]) colorMap[col] = {}
+    colorMap[col][sz] = (colorMap[col][sz] || 0) + qty
+    colorTotals[col] = (colorTotals[col] || 0) + qty
+    sizeTotals[sz] = (sizeTotals[sz] || 0) + qty
+    grandTotal += qty
+  })
+
+  const colors = Object.keys(colorMap)
+
+  return (
+    <div className="mt-3 overflow-hidden rounded-xl border border-slate-200/90 bg-white shadow-2xs">
+      <div className="px-3 py-2 bg-slate-50/90 border-b border-slate-200/90 flex items-center justify-between">
+        <div className="flex items-center gap-1.5">
+          <Layers className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" />
+          <span className="text-[10.5px] font-extrabold uppercase tracking-wider text-slate-700">
+            Colour × Size Matrix
+          </span>
+        </div>
+        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-50 text-[var(--steel,#2B4C7E)] border border-blue-200/60">
+          {colors.length} {colors.length === 1 ? 'Colour' : 'Colours'} • {sortedSizes.length} Sizes
+        </span>
+      </div>
+
+      <div className="overflow-x-auto max-w-full">
+        <table className="w-full text-[11px] text-left border-collapse">
+          <thead>
+            <tr className="bg-slate-100/80 border-b border-slate-200 text-slate-600 font-bold uppercase text-[9.5px] tracking-wider">
+              <th className="py-2 px-3 border-r border-slate-200 font-extrabold text-slate-800 whitespace-nowrap min-w-[110px]">
+                Colour / Shade
+              </th>
+              {sortedSizes.map(sz => (
+                <th key={sz} className="py-2 px-2.5 text-center border-r border-slate-200/60 whitespace-nowrap min-w-[44px]">
+                  {sz}
+                </th>
+              ))}
+              <th className="py-2 px-3 text-right font-extrabold text-slate-900 bg-slate-200/60 whitespace-nowrap min-w-[70px]">
+                Total
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100">
+            {colors.map(col => {
+              const rowTotal = colorTotals[col] || 0
+              return (
+                <tr key={col} className="hover:bg-slate-50/70 transition-colors">
+                  <td className="py-2 px-3 font-bold text-slate-800 border-r border-slate-200/70 whitespace-nowrap flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-[var(--steel,#2B4C7E)] shrink-0" />
+                    <span>{col}</span>
+                  </td>
+                  {sortedSizes.map(sz => {
+                    const qty = colorMap[col]?.[sz]
+                    return (
+                      <td key={sz} className={`py-2 px-2.5 text-center border-r border-slate-100 font-semibold ${qty ? 'text-slate-900' : 'text-slate-300'}`}>
+                        {qty ? qty.toLocaleString() : '-'}
+                      </td>
+                    )
+                  })}
+                  <td className="py-2 px-3 text-right font-extrabold text-slate-900 bg-slate-50/50">
+                    {rowTotal.toLocaleString()} <span className="text-[9.5px] font-normal text-slate-400">pcs</span>
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+          <tfoot>
+            <tr className="bg-slate-100 border-t-2 border-slate-200 font-bold text-slate-800 text-[10.5px]">
+              <td className="py-2 px-3 border-r border-slate-200 font-extrabold uppercase tracking-wide">
+                Total Pcs
+              </td>
+              {sortedSizes.map(sz => (
+                <td key={sz} className="py-2 px-2.5 text-center border-r border-slate-200/60 font-extrabold text-slate-900">
+                  {(sizeTotals[sz] || 0).toLocaleString()}
+                </td>
+              ))}
+              <td className="py-2 px-3 text-right font-black text-slate-950 bg-slate-200/80">
+                {grandTotal.toLocaleString()} <span className="text-[9.5px] font-medium text-slate-500">pcs</span>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  )
+}
+
 export default function DashboardClient({
   articles = [],
   allotments = [],
@@ -181,6 +303,15 @@ export default function DashboardClient({
   // Selected Stage Drawer State
   const [activeDrilldownStage, setActiveDrilldownStage] = useState<StageType | null>(null)
   const [drawerSearchQuery, setDrawerSearchQuery] = useState('')
+  const [expandedLinemen, setExpandedLinemen] = useState<Record<string, boolean>>({})
+
+  // Toggle Lineman accordion
+  const toggleLineman = (key: string) => {
+    setExpandedLinemen(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }))
+  }
 
   // Close drawer or dropdowns on Escape key press
   useEffect(() => {
@@ -1122,121 +1253,246 @@ export default function DashboardClient({
             <div className="p-5 overflow-y-auto flex-1 space-y-3.5 bg-slate-50/50">
               
               {/* STAGES: TOTAL STOCKS & GOODS IN LINE */}
-              {(activeDrilldownStage === 'TOTAL_STOCKS' || activeDrilldownStage === 'GOODS_IN_LINE') && (
-                <div className="space-y-3">
-                  {filteredData.allotments
-                    .filter(al => {
-                      if (!drawerSearchQuery.trim()) return true
-                      const q = drawerSearchQuery.toLowerCase()
-                      const art = Array.isArray(al.articles) ? al.articles[0] : al.articles
-                      const ch = Array.isArray(al.challans) ? al.challans[0] : al.challans
-                      const lm = Array.isArray(al.profiles) ? al.profiles[0] : al.profiles
-                      return (
-                        (art?.art_no || '').toLowerCase().includes(q) ||
-                        (art?.description || '').toLowerCase().includes(q) ||
-                        (ch?.challan_no || '').toLowerCase().includes(q) ||
-                        (ch?.brand || '').toLowerCase().includes(q) ||
-                        (lm?.username || '').toLowerCase().includes(q)
-                      )
-                    })
-                    .map((al) => {
-                      const art = Array.isArray(al.articles) ? al.articles[0] : al.articles
-                      const ch = Array.isArray(al.challans) ? al.challans[0] : al.challans
-                      const lm = Array.isArray(al.profiles) ? al.profiles[0] : al.profiles
-                      const lotVariants = (variants || []).filter(v => v.allotment_id === al.id)
+              {(activeDrilldownStage === 'TOTAL_STOCKS' || activeDrilldownStage === 'GOODS_IN_LINE') && (() => {
+                const filteredDrawerAllotments = filteredData.allotments.filter(al => {
+                  if (!drawerSearchQuery.trim()) return true
+                  const q = drawerSearchQuery.toLowerCase()
+                  const art = Array.isArray(al.articles) ? al.articles[0] : al.articles
+                  const ch = Array.isArray(al.challans) ? al.challans[0] : al.challans
+                  const lm = Array.isArray(al.profiles) ? al.profiles[0] : al.profiles
+                  return (
+                    (art?.art_no || '').toLowerCase().includes(q) ||
+                    (art?.description || '').toLowerCase().includes(q) ||
+                    (ch?.challan_no || '').toLowerCase().includes(q) ||
+                    (ch?.brand || '').toLowerCase().includes(q) ||
+                    (lm?.username || '').toLowerCase().includes(q)
+                  )
+                })
 
-                      return (
-                        <div key={al.id} className="p-4 rounded-xl border border-slate-200 bg-white shadow-xs hover:shadow-md transition-all">
-                          {/* Card Header Row */}
-                          <div className="flex items-start justify-between gap-3">
-                            <div>
-                              <div className="flex items-center gap-2 flex-wrap">
-                                <span className="font-bold text-sm text-slate-900 tracking-tight">
-                                  Art {art?.art_no || 'Style'}
-                                </span>
-                                {ch?.challan_no && (
-                                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
-                                    JOB-{ch.challan_no}
-                                  </span>
-                                )}
-                                {ch?.brand && (
-                                  <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-indigo-50 text-indigo-700">
-                                    {ch.brand}
-                                  </span>
-                                )}
-                              </div>
-                              {cleanDescription(art?.description) && (
-                                <p className="text-xs text-slate-500 mt-1 font-medium">
-                                  {cleanDescription(art?.description).replace(new RegExp(`^${art?.art_no}\\s*[-•:]*\\s*`, 'i'), '').trim()}
-                                </p>
-                              )}
-                            </div>
+                // Group by Lineman
+                const groups: Record<string, {
+                  key: string
+                  name: string
+                  profile: any
+                  allotments: typeof filteredDrawerAllotments
+                  totalPcs: number
+                  totalWage: number
+                  articleNumbers: string[]
+                }> = {}
 
-                            <div className="text-right shrink-0">
-                              <p className="text-base font-extrabold text-slate-900">
-                                {al.target_qty?.toLocaleString()} <span className="text-xs font-normal text-slate-400">pcs</span>
-                              </p>
-                              <span className="inline-block mt-1 px-2 py-0.5 rounded text-[9.5px] font-bold uppercase bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                {al.status || 'IN SEWING'}
-                              </span>
-                            </div>
-                          </div>
+                filteredDrawerAllotments.forEach(al => {
+                  const lm = Array.isArray(al.profiles) ? al.profiles[0] : al.profiles
+                  const art = Array.isArray(al.articles) ? al.articles[0] : al.articles
+                  const key = lm?.id || lm?.username || 'unassigned'
+                  const name = formatLinemanName(lm)
 
-                          {/* Metadata Chips */}
-                          <div className="mt-3 pt-3 border-t border-slate-100 grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
-                            <div className="flex items-center gap-1.5 text-slate-600">
-                              <User className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                              <span className="truncate">Lineman: <strong className="text-slate-800">{formatLinemanName(lm)}</strong></span>
-                            </div>
-                            <div className="flex items-center gap-1.5 text-slate-600">
-                              <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                              <span>{al.allotment_date || al.created_at?.split('T')[0]}</span>
-                            </div>
-                            {art?.stitching_rate && (
-                              <div className="flex items-center gap-1.5 text-slate-600">
-                                <Tag className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                                <span>Rate: <strong className="text-slate-800">₹{art.stitching_rate}/pc</strong></span>
-                              </div>
-                            )}
-                          </div>
+                  if (!groups[key]) {
+                    groups[key] = {
+                      key,
+                      name,
+                      profile: lm,
+                      allotments: [],
+                      totalPcs: 0,
+                      totalWage: 0,
+                      articleNumbers: [],
+                    }
+                  }
 
-                          {/* Size & Color Matrix Chips (if available) */}
-                          {lotVariants.length > 0 && (
-                            <div className="mt-3 pt-2.5 border-t border-slate-100">
-                              <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider block mb-1.5">
-                                Variant Breakdown:
-                              </span>
-                              <div className="flex flex-wrap gap-1.5">
-                                {lotVariants.map(v => (
-                                  <span key={v.id} className="text-[10.5px] px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-medium">
-                                    {v.color || 'Standard'} ({v.size}): <strong className="text-slate-900">{v.quantity} pcs</strong>
-                                  </span>
-                                ))}
-                              </div>
-                            </div>
-                          )}
+                  groups[key].allotments.push(al)
+                  const qty = Number(al.target_qty) || 0
+                  groups[key].totalPcs += qty
 
-                          {/* Action Button */}
-                          <div className="mt-3 pt-2 border-t border-slate-100 flex justify-end">
-                            <Link 
-                              href="/allotments"
-                              className="text-[11px] font-bold text-[var(--steel,#2B4C7E)] hover:underline inline-flex items-center gap-1"
-                            >
-                              Open in Floor Allotments <ExternalLink className="w-3 h-3" />
-                            </Link>
-                          </div>
-                        </div>
-                      )
-                    })}
-                  {filteredData.allotments.length === 0 && (
+                  const rate = Number(art?.stitching_rate) || 0
+                  groups[key].totalWage += (qty * rate)
+
+                  if (art?.art_no && !groups[key].articleNumbers.includes(art.art_no)) {
+                    groups[key].articleNumbers.push(art.art_no)
+                  }
+                })
+
+                const linemanGroups = Object.values(groups).sort((a, b) => b.totalPcs - a.totalPcs)
+
+                if (linemanGroups.length === 0) {
+                  return (
                     <div className="text-center py-12 bg-white rounded-xl border border-slate-200 p-6">
                       <Warehouse className="w-8 h-8 text-slate-300 mx-auto mb-2" />
                       <p className="text-xs font-bold text-slate-700">No active floor allotments found.</p>
                       <p className="text-[11px] text-slate-400 mt-0.5">Try changing the brand or date filter above.</p>
                     </div>
-                  )}
-                </div>
-              )}
+                  )
+                }
+
+                return (
+                  <div className="space-y-3">
+                    {/* Linemen Toolbar */}
+                    <div className="flex items-center justify-between px-1 text-xs">
+                      <span className="font-extrabold text-slate-700 flex items-center gap-1.5">
+                        <Users className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" />
+                        <span>{linemanGroups.length} {linemanGroups.length === 1 ? 'Lineman Working' : 'Linemen Working'}</span>
+                      </span>
+                      <div className="flex items-center gap-2 font-bold text-[11px]">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const allExpanded: Record<string, boolean> = {}
+                            linemanGroups.forEach(g => { allExpanded[g.key] = true })
+                            setExpandedLinemen(allExpanded)
+                          }}
+                          className="text-[var(--steel,#2B4C7E)] hover:underline cursor-pointer"
+                        >
+                          Expand All
+                        </button>
+                        <span className="text-slate-300">•</span>
+                        <button
+                          type="button"
+                          onClick={() => setExpandedLinemen({})}
+                          className="text-slate-500 hover:text-slate-800 hover:underline cursor-pointer"
+                        >
+                          Collapse All
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Lineman Accordion Cards */}
+                    {linemanGroups.map((group) => {
+                      const isExpanded = expandedLinemen[group.key] ?? false // clean default collapsed as requested: "yah per bass jo lineman ka kaam chlrha h vo line man ka naam dikna chaiye and jaise hi vo lineman pe click kregey then uska pura content show hona chaiye"
+
+                      return (
+                        <div key={group.key} className="rounded-xl border border-slate-200/90 bg-white shadow-2xs overflow-hidden transition-all">
+                          {/* Lineman Header Row (Click to Toggle) */}
+                          <button
+                            type="button"
+                            onClick={() => toggleLineman(group.key)}
+                            className="w-full text-left p-3.5 bg-white hover:bg-slate-50/90 flex items-center justify-between gap-3 transition-colors cursor-pointer border-b border-transparent data-[open=true]:border-slate-200"
+                            data-open={isExpanded}
+                          >
+                            <div className="flex items-center gap-3 min-w-0">
+                              <div className="w-9 h-9 rounded-lg bg-[var(--steel,#2B4C7E)]/10 text-[var(--steel,#2B4C7E)] flex items-center justify-center font-black text-sm shrink-0 border border-[var(--steel,#2B4C7E)]/20">
+                                <User className="w-4 h-4 text-[var(--steel,#2B4C7E)]" />
+                              </div>
+                              <div className="min-w-0">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="font-extrabold text-sm text-slate-900 tracking-tight">
+                                    Lineman: {group.name}
+                                  </span>
+                                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-blue-50 text-[var(--steel,#2B4C7E)] border border-blue-200/70">
+                                    {group.allotments.length} {group.allotments.length === 1 ? 'Lot' : 'Lots'}
+                                  </span>
+                                  {group.articleNumbers.map(artNo => (
+                                    <span key={artNo} className="text-[10px] font-extrabold px-2 py-0.5 rounded bg-slate-100 text-slate-700">
+                                      Art {artNo}
+                                    </span>
+                                  ))}
+                                </div>
+                                <p className="text-[11.5px] text-slate-500 mt-0.5 flex items-center gap-2">
+                                  <span>Active on sewing machines</span>
+                                  {group.totalWage > 0 && (
+                                    <>
+                                      <span>•</span>
+                                      <span className="font-bold text-emerald-700">Est. Wage: ₹{group.totalWage.toLocaleString()}</span>
+                                    </>
+                                  )}
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-3 shrink-0">
+                              <div className="text-right">
+                                <span className="text-sm font-black text-slate-900">
+                                  {group.totalPcs.toLocaleString()} <span className="text-[10.5px] font-normal text-slate-400">pcs</span>
+                                </span>
+                                <span className="block text-[9.5px] font-bold uppercase tracking-wider text-emerald-600">
+                                  In Production
+                                </span>
+                              </div>
+                              <div className={`p-1 rounded-md text-slate-400 transition-transform duration-200 ${isExpanded ? 'rotate-180 text-slate-700' : ''}`}>
+                                <ChevronDown className="w-4 h-4" />
+                              </div>
+                            </div>
+                          </button>
+
+                          {/* Lineman Expanded Lots */}
+                          {isExpanded && (
+                            <div className="p-3.5 bg-slate-50/70 border-t border-slate-100 space-y-3">
+                              {group.allotments.map((al) => {
+                                const art = Array.isArray(al.articles) ? al.articles[0] : al.articles
+                                const ch = Array.isArray(al.challans) ? al.challans[0] : al.challans
+                                const lotVariants = (variants || []).filter(v => v.allotment_id === al.id)
+
+                                return (
+                                  <div key={al.id} className="p-4 rounded-xl border border-slate-200 bg-white shadow-xs hover:shadow-md transition-all">
+                                    {/* Card Header Row */}
+                                    <div className="flex items-start justify-between gap-3">
+                                      <div>
+                                        <div className="flex items-center gap-2 flex-wrap">
+                                          <span className="font-extrabold text-sm text-slate-900 tracking-tight">
+                                            Art {art?.art_no || 'Style'}
+                                          </span>
+                                          {ch?.challan_no && (
+                                            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
+                                              JOB-{ch.challan_no}
+                                            </span>
+                                          )}
+                                          {ch?.brand && (
+                                            <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-indigo-50 text-indigo-700">
+                                              {ch.brand}
+                                            </span>
+                                          )}
+                                        </div>
+                                        {cleanDescription(art?.description) && (
+                                          <p className="text-xs text-slate-500 mt-1 font-medium">
+                                            {cleanDescription(art?.description).replace(new RegExp(`^${art?.art_no}\\s*[-•:]*\\s*`, 'i'), '').trim()}
+                                          </p>
+                                        )}
+                                      </div>
+
+                                      <div className="text-right shrink-0">
+                                        <p className="text-base font-black text-slate-900">
+                                          {al.target_qty?.toLocaleString()} <span className="text-xs font-normal text-slate-400">pcs</span>
+                                        </p>
+                                        <span className="inline-block mt-1 px-2 py-0.5 rounded text-[9.5px] font-bold uppercase bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                          {al.status || 'IN SEWING'}
+                                        </span>
+                                      </div>
+                                    </div>
+
+                                    {/* Metadata Chips */}
+                                    <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-600 flex-wrap gap-2">
+                                      <div className="flex items-center gap-1.5">
+                                        <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                        <span>Allotment Date: <strong className="text-slate-800">{al.allotment_date || al.created_at?.split('T')[0]}</strong></span>
+                                      </div>
+                                      {art?.stitching_rate && (
+                                        <div className="flex items-center gap-1.5">
+                                          <Tag className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                          <span>Stitching Rate: <strong className="text-slate-800">₹{art.stitching_rate}/pc</strong></span>
+                                        </div>
+                                      )}
+                                    </div>
+
+                                    {/* Colour x Size Matrix Table */}
+                                    <VariantMatrixTable variants={lotVariants} />
+
+                                    {/* Action Button */}
+                                    <div className="mt-3 pt-2 border-t border-slate-100 flex justify-end">
+                                      <Link 
+                                        href="/allotments"
+                                        className="text-[11px] font-bold text-[var(--steel,#2B4C7E)] hover:underline inline-flex items-center gap-1"
+                                      >
+                                        Open in Floor Allotments <ExternalLink className="w-3 h-3" />
+                                      </Link>
+                                    </div>
+                                  </div>
+                                )
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                )
+              })()}
 
               {/* STAGE: MENDING & CHECKING */}
               {activeDrilldownStage === 'MENDING_CHECKING' && (
