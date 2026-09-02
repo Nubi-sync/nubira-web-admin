@@ -23,6 +23,7 @@ import {
   ChevronLeft,
   ChevronRight
 } from 'lucide-react'
+import { TvViewButton } from '@/components/ui/TvViewButton'
 import { createDeliveryChallan, recordCountingAudit } from '../actions'
 
 type Article = {
@@ -397,6 +398,8 @@ export function DispatchClient({
             <Download className="w-4 h-4 text-slate-500" />
             <span>Export CSV</span>
           </button>
+
+          <TvViewButton />
         </div>
       </div>
 

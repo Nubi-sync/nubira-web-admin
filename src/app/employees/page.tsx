@@ -5,6 +5,7 @@ import { CreateEmployeeForm } from './components/CreateEmployeeForm'
 import { EmployeeList } from './components/EmployeeList'
 import { Users } from 'lucide-react'
 import Link from 'next/link'
+import { TvViewButton } from '@/components/ui/TvViewButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -63,6 +64,8 @@ export default async function EmployeesPage() {
               </p>
             </div>
           </div>
+
+          <TvViewButton />
         </div>
 
         {/* 3. Main Content Grid */}

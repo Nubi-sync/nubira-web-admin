@@ -22,6 +22,7 @@ import {
   ChevronRight,
   FilterX
 } from 'lucide-react'
+import { TvViewButton } from '@/components/ui/TvViewButton'
 
 type DailyProductRow = {
   id: string
@@ -502,8 +503,10 @@ export function ReportsClient({
           </div>
         </div>
 
-        {/* Right: Print & Export CSV */}
+        {/* Right: Print, Export CSV & TV View */}
         <div className="flex items-center gap-2.5 self-end sm:self-auto">
+          <TvViewButton />
+
           <button
             type="button"
             onClick={handlePrint}

@@ -23,6 +23,7 @@ import {
   AlertCircle,
   Clock
 } from 'lucide-react'
+import { TvViewButton } from '@/components/ui/TvViewButton'
 import { 
   createArticle, 
   updateArticleRate, 
@@ -470,8 +471,10 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
           </div>
         </div>
 
-        {/* Right Side: Add Article Button */}
-        <div className="flex items-center gap-2 self-end sm:self-auto">
+        {/* Right Side: TV View & Add Article Button */}
+        <div className="flex items-center gap-2.5 self-end sm:self-auto">
+          <TvViewButton />
+
           <button
             type="button"
             onClick={() => {
