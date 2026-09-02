@@ -732,17 +732,17 @@ export function ProductionOrdersClient({
       {/* ========================================================= */}
       {/* 1. TOP HEADER & ACTION BUTTONS                            */}
       {/* ========================================================= */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-3 border-b border-slate-200">
         <div>
-          <div className="flex items-center gap-2.5">
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
               Delivery Challans & Production Chart
             </h1>
-            <span className="px-2.5 py-0.5 rounded-full text-[10.5px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+            <span className="px-2.5 py-1 rounded-full text-[11px] font-mono font-bold uppercase tracking-wider bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs">
               MULTI-ARTICLE MES
             </span>
           </div>
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-sm sm:text-base text-slate-600 mt-1">
             Real-world job work challans with multi-article size grids, BOM fabrics & lineman allotments
           </p>
         </div>
@@ -759,7 +759,7 @@ export function ProductionOrdersClient({
           <button
             type="button"
             onClick={downloadCleanChallanTemplate}
-            className="px-3.5 py-2 rounded-xl text-xs font-semibold border bg-white shadow-2xs hover:bg-slate-50 text-slate-700 flex items-center gap-2 transition-all cursor-pointer border-slate-200"
+            className="px-4 py-2.5 rounded-xl text-sm font-bold border border-black/15 bg-white shadow-2xs hover:bg-slate-50 text-slate-700 flex items-center gap-2 transition-all cursor-pointer"
             title="Download clean blank Excel template"
           >
             <Download className="w-4 h-4 text-slate-500" />
@@ -770,17 +770,17 @@ export function ProductionOrdersClient({
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={isImporting}
-            className="px-3.5 py-2 rounded-xl text-xs font-semibold border bg-white shadow-2xs hover:bg-slate-50 text-slate-700 flex items-center gap-2 transition-all cursor-pointer border-slate-200"
+            className="px-4 py-2.5 rounded-xl text-sm font-bold border border-black/15 bg-white shadow-2xs hover:bg-slate-50 text-slate-700 flex items-center gap-2 transition-all cursor-pointer"
             title="Import Challan from Excel (.xlsx) or CSV"
           >
-            <UploadCloud className="w-4 h-4 text-blue-600" />
+            <UploadCloud className="w-4 h-4 text-[#3A3564]" />
             <span>{isImporting ? 'Importing...' : 'Import Excel'}</span>
           </button>
 
           <button
             type="button"
             onClick={handleExportCSV}
-            className="px-3.5 py-2 rounded-xl text-xs font-semibold border bg-white shadow-2xs hover:bg-slate-50 text-slate-700 flex items-center gap-2 transition-all cursor-pointer border-slate-200"
+            className="px-4 py-2.5 rounded-xl text-sm font-bold border border-black/15 bg-white shadow-2xs hover:bg-slate-50 text-slate-700 flex items-center gap-2 transition-all cursor-pointer"
           >
             <Download className="w-4 h-4 text-slate-500" />
             <span>Export CSV</span>
@@ -789,7 +789,7 @@ export function ProductionOrdersClient({
           <button
             type="button"
             onClick={() => window.print()}
-            className="px-3.5 py-2 rounded-xl text-xs font-semibold border bg-white shadow-2xs hover:bg-slate-50 text-slate-700 flex items-center gap-2 transition-all cursor-pointer border-slate-200"
+            className="px-4 py-2.5 rounded-xl text-sm font-bold border border-black/15 bg-white shadow-2xs hover:bg-slate-50 text-slate-700 flex items-center gap-2 transition-all cursor-pointer"
           >
             <Printer className="w-4 h-4 text-slate-500" />
             <span>Print Chart</span>
@@ -798,7 +798,7 @@ export function ProductionOrdersClient({
           <button
             type="button"
             onClick={handleOpenNewChallan}
-            className="px-4 py-2 rounded-xl text-xs font-bold text-white shadow-xs hover:opacity-95 flex items-center gap-2 transition-all cursor-pointer bg-slate-900"
+            className="px-5 py-2.5 rounded-xl text-sm font-bold text-white shadow-xs hover:bg-[#2A2649] flex items-center gap-2 transition-all cursor-pointer bg-[#3A3564]"
           >
             <Plus className="w-4 h-4" />
             <span>+ New Delivery Challan</span>
@@ -809,67 +809,67 @@ export function ProductionOrdersClient({
       {/* ========================================================= */}
       {/* 2. KPI SUMMARY STRIP                                      */}
       {/* ========================================================= */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
-        <div className="p-3.5 bg-white border border-slate-200 rounded-[12px] shadow-2xs">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Challans</span>
-          <p className="text-xl font-bold text-slate-900 mt-1">{summary.totalChallans}</p>
-          <span className="text-[10px] font-semibold text-slate-400">Buyer Job Sheets</span>
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div className="bg-white rounded-2xl p-5 border border-black/10 shadow-2xs hover:border-black/25 transition-all">
+          <span className="text-xs font-bold uppercase tracking-wider text-slate-500 block">Total Challans</span>
+          <p className="text-[26px] sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none mt-2">{summary.totalChallans}</p>
+          <span className="text-xs font-medium text-slate-400 mt-1.5 block">Buyer Job Sheets</span>
         </div>
 
-        <div className="p-3.5 bg-white border border-slate-200 rounded-[12px] shadow-2xs">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Article Lines</span>
-          <p className="text-xl font-bold text-blue-600 mt-1">{summary.totalArticles}</p>
-          <span className="text-[10px] font-semibold text-blue-500">Variants on Floor</span>
+        <div className="bg-white rounded-2xl p-5 border border-black/10 shadow-2xs hover:border-black/25 transition-all">
+          <span className="text-xs font-bold uppercase tracking-wider text-slate-500 block">Article Lines</span>
+          <p className="text-[26px] sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-[#3A3564] leading-none mt-2">{summary.totalArticles}</p>
+          <span className="text-xs font-medium text-slate-400 mt-1.5 block">Variants on Floor</span>
         </div>
 
-        <div className="p-3.5 bg-white border border-slate-200 rounded-[12px] shadow-2xs">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Sets</span>
-          <p className="text-xl font-bold text-indigo-600 mt-1">{summary.totalSets.toLocaleString()}</p>
-          <span className="text-[10px] font-semibold text-indigo-500">Bundle Units</span>
+        <div className="bg-white rounded-2xl p-5 border border-black/10 shadow-2xs hover:border-black/25 transition-all">
+          <span className="text-xs font-bold uppercase tracking-wider text-slate-500 block">Total Sets</span>
+          <p className="text-[26px] sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-[#4F46E5] leading-none mt-2">{summary.totalSets.toLocaleString()}</p>
+          <span className="text-xs font-medium text-slate-400 mt-1.5 block">Bundle Units</span>
         </div>
 
-        <div className="p-3.5 bg-white border border-slate-200 rounded-[12px] shadow-2xs">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Pieces</span>
-          <p className="text-xl font-bold text-emerald-600 mt-1">{summary.totalPcs.toLocaleString()}</p>
-          <span className="text-[10px] font-semibold text-emerald-500">Garment Pieces</span>
+        <div className="bg-white rounded-2xl p-5 border border-black/10 shadow-2xs hover:border-black/25 transition-all">
+          <span className="text-xs font-bold uppercase tracking-wider text-slate-500 block">Total Pieces</span>
+          <p className="text-[26px] sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-[#059669] leading-none mt-2">{summary.totalPcs.toLocaleString()}</p>
+          <span className="text-xs font-medium text-slate-400 mt-1.5 block">Garment Pieces</span>
         </div>
 
-        <div className="p-3.5 bg-white border border-slate-200 rounded-[12px] shadow-2xs">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">In Production</span>
-          <p className="text-xl font-bold text-amber-600 mt-1">{summary.inProdPcs.toLocaleString()} pcs</p>
-          <span className="text-[10px] font-semibold text-amber-500">Active Sewing</span>
+        <div className="bg-white rounded-2xl p-5 border border-black/10 shadow-2xs hover:border-black/25 transition-all">
+          <span className="text-xs font-bold uppercase tracking-wider text-slate-500 block">In Production</span>
+          <p className="text-[26px] sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-[#D97706] leading-none mt-2">{summary.inProdPcs.toLocaleString()} <span className="text-xs font-medium text-slate-400">pcs</span></p>
+          <span className="text-xs font-medium text-slate-400 mt-1.5 block">Active Sewing</span>
         </div>
 
-        <div className="p-3.5 bg-white border border-slate-200 rounded-[12px] shadow-2xs">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Ready / Dispatched</span>
-          <p className="text-xl font-bold text-purple-600 mt-1">{(summary.readyQcPcs + summary.dispatchedPcs).toLocaleString()} pcs</p>
-          <span className="text-[10px] font-semibold text-purple-500">QC Passed / Gate Out</span>
+        <div className="bg-white rounded-2xl p-5 border border-black/10 shadow-2xs hover:border-black/25 transition-all">
+          <span className="text-xs font-bold uppercase tracking-wider text-slate-500 block">Ready / Dispatched</span>
+          <p className="text-[26px] sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-[#7C3AED] leading-none mt-2">{(summary.readyQcPcs + summary.dispatchedPcs).toLocaleString()} <span className="text-xs font-medium text-slate-400">pcs</span></p>
+          <span className="text-xs font-medium text-slate-400 mt-1.5 block">QC Passed / Gate Out</span>
         </div>
       </div>
 
       {/* ========================================================= */}
       {/* 3. FILTERS BAR                                            */}
       {/* ========================================================= */}
-      <div className="p-3.5 bg-white border border-slate-200 rounded-[12px] shadow-2xs flex items-center justify-between gap-3 flex-wrap">
-        <div className="relative w-full max-w-sm">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+      <div className="p-4 sm:p-5 bg-white border border-black/10 rounded-2xl shadow-2xs flex items-center justify-between gap-4 flex-wrap">
+        <div className="relative w-full max-w-md">
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             placeholder="Search Challan #, Art No, Brand, Lineman..."
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-900"
+            className="w-full pl-10 pr-4 py-2.5 bg-slate-50/70 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 transition-all"
           />
         </div>
 
         <div className="flex items-center gap-3 flex-wrap">
           {/* Brand Filter */}
-          <div className="flex items-center gap-1 text-xs">
-            <span className="text-slate-400 font-medium">Brand:</span>
+          <div className="flex items-center gap-2 text-sm">
+            <span className="text-slate-400 font-bold uppercase text-xs tracking-wider">Brand:</span>
             <select
               value={selectedBrand}
               onChange={e => setSelectedBrand(e.target.value)}
-              className="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs font-semibold text-slate-700 cursor-pointer focus:outline-none"
+              className="bg-slate-50/70 border border-slate-200 rounded-xl px-3.5 py-2 text-sm font-semibold text-slate-800 cursor-pointer focus:outline-none focus:border-[#3A3564] transition-all"
             >
               <option value="ALL">All Brands</option>
               {DEFAULT_BRANDS.map(b => (
@@ -879,12 +879,12 @@ export function ProductionOrdersClient({
           </div>
 
           {/* Status Filter */}
-          <div className="flex items-center gap-1 text-xs">
-            <span className="text-slate-400 font-medium">Status:</span>
+          <div className="flex items-center gap-2 text-sm">
+            <span className="text-slate-400 font-bold uppercase text-xs tracking-wider">Status:</span>
             <select
               value={selectedStatus}
               onChange={e => setSelectedStatus(e.target.value)}
-              className="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs font-semibold text-slate-700 cursor-pointer focus:outline-none"
+              className="bg-slate-50/70 border border-slate-200 rounded-xl px-3.5 py-2 text-sm font-semibold text-slate-800 cursor-pointer focus:outline-none focus:border-[#3A3564] transition-all"
             >
               <option value="ALL">All Status</option>
               <option value="IN_PROGRESS">In Progress</option>
@@ -899,16 +899,19 @@ export function ProductionOrdersClient({
       {/* 4. MASTER HIERARCHICAL CHALLANS LIST                      */}
       {/* ========================================================= */}
       {filteredOrders.length === 0 ? (
-        <div className="p-12 bg-white border border-slate-200 rounded-[12px] text-center shadow-2xs">
-          <FileSpreadsheet className="w-12 h-12 mx-auto text-slate-300 mb-3" />
-          <h3 className="text-sm font-bold text-slate-800">No Job Work Challans Recorded Yet</h3>
-          <p className="text-xs text-slate-400 mt-1 mb-4">Click "+ New Delivery Challan" to enter your first multi-article job sheet.</p>
+        <div className="p-12 sm:p-16 bg-white border border-black/10 rounded-2xl text-center shadow-2xs">
+          <div className="w-14 h-14 rounded-2xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center mx-auto mb-3.5 shadow-2xs">
+            <FileSpreadsheet className="w-7 h-7" />
+          </div>
+          <h3 className="text-base sm:text-lg font-bold text-slate-900">No Job Work Challans Recorded Yet</h3>
+          <p className="text-sm text-slate-500 mt-1 mb-5 max-w-md mx-auto">Click "+ New Delivery Challan" to enter your first multi-article job sheet.</p>
           <button
             type="button"
             onClick={handleOpenNewChallan}
-            className="px-4 py-2 bg-slate-900 text-white text-xs font-bold rounded-xl shadow-xs hover:opacity-95 cursor-pointer"
+            className="px-5 py-2.5 bg-[#3A3564] hover:bg-[#2A2649] text-white text-sm font-bold rounded-xl shadow-xs transition-all cursor-pointer inline-flex items-center gap-2"
           >
-            + Create New Delivery Challan
+            <Plus className="w-4 h-4" />
+            <span>+ Create New Delivery Challan</span>
           </button>
         </div>
       ) : (
@@ -920,12 +923,12 @@ export function ProductionOrdersClient({
             return (
               <div
                 key={challan.id}
-                className="bg-white border border-slate-200/90 rounded-2xl shadow-xs overflow-hidden transition-all"
+                className="bg-white border border-black/10 rounded-2xl shadow-2xs overflow-hidden transition-all"
               >
                 {/* Challan Card Header */}
                 <div
                   onClick={() => toggleChallan(challan.id)}
-                  className="p-4.5 bg-gradient-to-r from-slate-50 via-white to-slate-50/50 hover:from-slate-100/70 hover:to-white cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 select-none transition-colors"
+                  className="p-5 bg-gradient-to-r from-[#FAF7F0]/60 via-white to-[#FAF7F0]/30 hover:from-[#FAF7F0] hover:to-white cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-black/10 select-none transition-colors"
                 >
                   <div className="flex items-center gap-3.5">
                     <button

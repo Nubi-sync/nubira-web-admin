@@ -909,57 +909,51 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
   const isArticleSuccess = Boolean(articleId)
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       
-      {/* 2. Sticky Page Header */}
+      {/* 2. Page Header Card */}
       <div 
-        className="sticky top-[14px] z-20 bg-white p-5 sm:p-6 rounded-[11px] border shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all"
-        style={{ borderColor: 'var(--border, #E2E8F0)' }}
+        className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all"
       >
         <div className="flex items-center gap-3.5">
           <div 
-            className="w-[38px] h-[38px] rounded-[10px] flex items-center justify-center shrink-0 shadow-xs"
-            style={{ backgroundColor: 'var(--steel, #2B4C7E)', color: '#FFFFFF' }}
+            className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10"
           >
             <ClipboardList className="w-5 h-5" />
           </div>
           <div>
             <h1 
-              className="text-[20px] sm:text-[22px] font-bold font-[family-name:var(--font-heading)] leading-tight"
-              style={{ color: 'var(--ink, #1C2733)' }}
+              className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900"
             >
               Target Allotments & Material Handover
             </h1>
-            <p className="text-[13px] mt-0.5" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+            <p className="text-sm sm:text-base text-slate-600 mt-1">
               Assign cut-to-sew size-color ratios & verify raw materials issue
             </p>
           </div>
         </div>
 
         {/* Grand Target Metric & Progress Bar */}
-        <div className="w-full sm:w-auto flex flex-col sm:items-end bg-slate-50 sm:bg-transparent p-3 sm:p-0 rounded-lg border sm:border-0 border-slate-200">
+        <div className="w-full sm:w-auto flex flex-col sm:items-end bg-slate-50/70 sm:bg-transparent p-3 sm:p-0 rounded-xl border sm:border-0 border-slate-200">
           <div className="flex items-baseline gap-2">
-            <span className="text-[11px] font-semibold uppercase tracking-[1.5px]" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
               Grand Target:
             </span>
             <span 
-              className="text-[22px] font-bold font-[family-name:var(--font-heading)] leading-none"
-              style={{ color: 'var(--steel, #2B4C7E)' }}
+              className="text-[28px] sm:text-[30px] font-bold font-[family-name:var(--font-heading)] leading-none text-[#3A3564]"
             >
-              {totalPieces.toLocaleString()} <span className="text-[12px] font-normal text-slate-500">pcs</span>
+              {totalPieces.toLocaleString()} <span className="text-sm font-normal text-slate-500">pcs</span>
             </span>
           </div>
 
-          {/* 5px Thin Progress Track */}
+          {/* 6px Thin Progress Track */}
           <div 
-            className="w-full sm:w-36 h-[5px] rounded-full mt-2 overflow-hidden"
-            style={{ backgroundColor: 'var(--steel-mist, #EEF3FA)' }}
+            className="w-full sm:w-44 h-1.5 rounded-full mt-2.5 overflow-hidden bg-slate-100 border border-black/5"
           >
             <div 
-              className="h-full rounded-full transition-all duration-300"
+              className="h-full rounded-full transition-all duration-300 bg-[#3A3564]"
               style={{ 
-                width: totalPieces > 0 ? '100%' : '0%',
-                backgroundColor: 'var(--steel, #2B4C7E)' 
+                width: totalPieces > 0 ? '100%' : '0%'
               }}
             />
           </div>
@@ -967,32 +961,30 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
       </div>
 
       {/* Main Allotment Form */}
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form onSubmit={handleSubmit} className="space-y-6">
         
         {/* Step 1: Lineman & Article Selection Card */}
         <div 
-          className="bg-white rounded-[11px] p-5 sm:p-6 border shadow-xs"
-          style={{ borderColor: 'var(--border, #E2E8F0)' }}
+          className="bg-white rounded-2xl p-6 sm:p-7 border border-black/10 shadow-2xs"
         >
-          <div className="flex items-center gap-2 mb-4 pb-3 border-b" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
-            <span className="w-6 h-6 rounded-full bg-[var(--steel-mist,#EEF3FA)] text-[var(--steel,#2B4C7E)] text-xs font-bold flex items-center justify-center">
+          <div className="flex items-center gap-2.5 mb-5 pb-3.5 border-b border-slate-100">
+            <span className="w-7 h-7 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 text-xs font-bold font-mono flex items-center justify-center">
               1
             </span>
-            <h2 className="text-[15px] font-bold font-[family-name:var(--font-heading)]" style={{ color: 'var(--ink, #1C2733)' }}>
+            <h2 className="text-base sm:text-lg font-bold text-slate-900 font-[family-name:var(--font-heading)]">
               Select Floor Lineman & Style Article
             </h2>
           </div>
 
           
           {/* Row 0: Production Order # & Priority Selector */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5 pb-5 border-b" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5 pb-5 border-b border-slate-100">
             
             {/* Production Manager Dropdown from Registered Employees */}
             <div className="space-y-1.5">
               <label 
                 htmlFor="manager_name" 
-                className="block text-[11px] font-semibold uppercase tracking-[1.5px]"
-                style={{ color: 'var(--ink-soft, #5B6B7C)' }}
+                className="block text-xs font-bold uppercase tracking-wider text-slate-500"
               >
                 Production Manager (Allotted By) <span className="text-red-500">*</span>
               </label>
@@ -1001,8 +993,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                   id="manager_name"
                   value={managerName}
                   onChange={(e) => setManagerName(e.target.value)}
-                  className="w-full py-[10px] pl-9 pr-3 text-[13.5px] font-medium rounded-[8px] border transition-colors outline-none bg-white text-[var(--steel-dark,#1F3A63)] cursor-pointer"
-                  style={{ borderColor: 'var(--border, #E2E8F0)' }}
+                  className="w-full py-2.5 pl-10 pr-3.5 text-sm font-medium rounded-xl border border-slate-200 transition-all outline-none bg-slate-50/70 hover:bg-white focus:bg-white focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 text-slate-900 cursor-pointer"
                 >
                   <option value="">-- Choose Production Manager --</option>
                   {managers && managers.length > 0 ? (
@@ -1015,30 +1006,30 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                     <option value="admin">admin (Plant Admin)</option>
                   )}
                 </select>
-                <UserCheck className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                <UserCheck className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
               </div>
-              <p className="text-[11.5px] text-slate-500">
+              <p className="text-xs text-slate-400">
                 Select from registered Production Managers in Employee list.
               </p>
             </div>
 
             {/* Order Urgency / Priority */}
             <div className="space-y-1.5">
-              <label className="block text-[11px] font-semibold uppercase tracking-[1.5px]" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500">
                 Production Urgency & Priority
               </label>
-              <div className="grid grid-cols-3 gap-2 pt-0.5">
+              <div className="grid grid-cols-3 gap-2.5 pt-0.5">
                 {[
-                  { key: 'NORMAL', label: 'Normal', color: 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100' },
-                  { key: 'RUSH', label: 'Rush Order', color: 'bg-amber-50 text-amber-800 border-amber-300 hover:bg-amber-100' },
-                  { key: 'CRITICAL', label: 'Critical / Export', color: 'bg-rose-50 text-rose-800 border-rose-300 hover:bg-rose-100' },
+                  { key: 'NORMAL', label: 'Normal', color: 'bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100' },
+                  { key: 'RUSH', label: 'Rush Order', color: 'bg-amber-50 text-amber-900 border-amber-300 hover:bg-amber-100' },
+                  { key: 'CRITICAL', label: 'Critical / Export', color: 'bg-rose-50 text-rose-900 border-rose-300 hover:bg-rose-100' },
                 ].map((p) => (
                   <button
                     key={p.key}
                     type="button"
                     onClick={() => setPriority(p.key as any)}
-                    className={`py-2 px-2 text-xs font-bold rounded-[8px] border transition-all text-center flex items-center justify-center gap-1.5 ${
-                      priority === p.key ? 'ring-2 ring-offset-1 ring-slate-800 font-extrabold ' + p.color : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                    className={`py-2.5 px-3 text-xs font-bold rounded-xl border transition-all text-center flex items-center justify-center gap-1.5 cursor-pointer ${
+                      priority === p.key ? 'ring-2 ring-offset-1 ring-slate-900 font-extrabold shadow-2xs ' + p.color : 'bg-slate-50/70 text-slate-700 border-slate-200 hover:bg-white'
                     }`}
                   >
                     {p.key === 'CRITICAL' && <Flame className="w-3.5 h-3.5 text-rose-600" />}
@@ -1046,7 +1037,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                   </button>
                 ))}
               </div>
-              <p className="text-[11.5px] text-slate-500">
+              <p className="text-xs text-slate-400">
                 Sets high-priority alert badges on the Lineman and QC dashboard.
               </p>
             </div>
@@ -1059,8 +1050,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
             <div className="space-y-1.5">
               <label 
                 htmlFor="lineman_id" 
-                className="block text-[11px] font-semibold uppercase tracking-[1.5px]"
-                style={{ color: 'var(--ink-soft, #5B6B7C)' }}
+                className="block text-xs font-bold uppercase tracking-wider text-slate-500"
               >
                 Assign To Lineman <span className="text-red-500">*</span>
               </label>
@@ -1073,12 +1063,12 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                   setTouchedLineman(true)
                 }}
                 onBlur={() => setTouchedLineman(true)}
-                className={`w-full py-[11px] px-[13px] text-[13.5px] rounded-[8px] border transition-colors outline-none bg-white ${
+                className={`w-full py-2.5 px-3.5 text-sm font-medium rounded-xl border transition-all outline-none bg-slate-50/70 hover:bg-white focus:bg-white text-slate-900 cursor-pointer ${
                   isLinemanError
-                    ? 'border-[var(--red,#C0392B)] bg-[var(--red-mist,#FBEAE8)]'
+                    ? 'border-rose-400 bg-rose-50/50'
                     : isLinemanSuccess
-                    ? 'border-[var(--green,#1F9D63)]'
-                    : 'border-[var(--border,#E2E8F0)] focus:border-[var(--steel,#2B4C7E)]'
+                    ? 'border-emerald-400'
+                    : 'border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10'
                 }`}
               >
                 <option value="">-- Choose Floor Lineman --</option>
@@ -1091,13 +1081,13 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
 
               {/* Validation Messages */}
               {isLinemanError && (
-                <div className="flex items-center gap-1.5 text-[11px] font-medium" style={{ color: 'var(--red, #C0392B)' }}>
+                <div className="flex items-center gap-1.5 text-xs font-medium text-rose-600">
                   <AlertCircle className="w-3.5 h-3.5 shrink-0" />
                   <span>This field is required before assigning target.</span>
                 </div>
               )}
               {isLinemanSuccess && (
-                <div className="flex items-center gap-1.5 text-[11px] font-medium" style={{ color: 'var(--green, #1F9D63)' }}>
+                <div className="flex items-center gap-1.5 text-xs font-medium text-emerald-700">
                   <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
                   <span>Lineman selected & active on sewing floor.</span>
                 </div>
@@ -1107,8 +1097,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
             {/* Interactive Target Selector (Sleek 44px Enterprise Input) */}
             <div className="space-y-1.5">
               <label 
-                className="block text-[11px] font-semibold uppercase tracking-[1.5px]"
-                style={{ color: 'var(--ink-soft, #5B6B7C)' }}
+                className="block text-xs font-bold uppercase tracking-wider text-slate-500"
               >
                 Style Article / Job Color Line <span className="text-red-500">*</span>
               </label>
@@ -1117,40 +1106,40 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                 <button
                   type="button"
                   onClick={() => setIsTargetModalOpen(true)}
-                  className={`w-full py-[10px] px-[13px] text-[13.5px] rounded-[8px] border transition-all flex items-center justify-between gap-2 bg-white text-left group cursor-pointer shadow-2xs hover:shadow-xs ${
+                  className={`w-full py-2.5 px-3.5 text-sm rounded-xl border transition-all flex items-center justify-between gap-2 bg-slate-50/70 hover:bg-white text-left group cursor-pointer shadow-2xs hover:shadow-xs ${
                     isArticleError
-                      ? 'border-[var(--red,#C0392B)] bg-[var(--red-mist,#FBEAE8)]'
-                      : 'border-[var(--border,#E2E8F0)] hover:border-indigo-400 focus:border-[var(--steel,#2B4C7E)]'
+                      ? 'border-rose-400 bg-rose-50/50'
+                      : 'border-slate-200 hover:border-[#3A3564] focus:border-[#3A3564]'
                   }`}
                 >
                   <div className="flex items-center gap-2.5 min-w-0 text-slate-500 group-hover:text-slate-700">
-                    <Search className="w-4 h-4 text-slate-400 shrink-0 group-hover:text-indigo-600 transition-colors" />
-                    <span className="text-xs sm:text-[13px] font-medium truncate">
+                    <Search className="w-4 h-4 text-slate-400 shrink-0 group-hover:text-[#3A3564] transition-colors" />
+                    <span className="text-sm font-medium truncate">
                       Search or choose Style Article / Job Challan...
                     </span>
                   </div>
-                  <div className="px-2 py-0.5 rounded-md bg-slate-100 group-hover:bg-indigo-50 border border-slate-200 group-hover:border-indigo-200 text-slate-600 group-hover:text-indigo-700 text-[11px] font-bold transition-colors shrink-0 flex items-center gap-1">
+                  <div className="px-2.5 py-1 rounded-lg bg-white group-hover:bg-[#FAF7F0] border border-slate-200 group-hover:border-black/15 text-slate-700 group-hover:text-[#3A3564] text-xs font-bold transition-colors shrink-0 flex items-center gap-1">
                     <span>Browse</span>
-                    <ChevronRight className="w-3 h-3" />
+                    <ChevronRight className="w-3.5 h-3.5" />
                   </div>
                 </button>
               ) : (
                 <div
-                  className="w-full py-[7px] px-[10px] text-[13px] rounded-[8px] border transition-all flex items-center justify-between gap-2 bg-white shadow-2xs"
+                  className="w-full py-2 px-3 text-sm rounded-xl border transition-all flex items-center justify-between gap-2 bg-white shadow-2xs"
                   style={{
-                    borderColor: selectedTargetSummary?.badgeColor || '#6366F1'
+                    borderColor: selectedTargetSummary?.badgeColor || '#3A3564'
                   }}
                 >
-                  <div className="flex items-center gap-2 min-w-0">
+                  <div className="flex items-center gap-2.5 min-w-0">
                     <span
                       className="w-3.5 h-3.5 rounded-full shrink-0 ring-2 ring-white shadow-2xs"
-                      style={{ backgroundColor: selectedTargetSummary?.badgeColor || '#4F46E5' }}
+                      style={{ backgroundColor: selectedTargetSummary?.badgeColor || '#3A3564' }}
                     />
-                    <span className="font-extrabold text-xs sm:text-[12.5px] text-slate-900 truncate">
+                    <span className="font-extrabold text-sm text-slate-900 truncate">
                       {selectedTargetSummary?.title || selectedArticle?.art_no}
                     </span>
                     {selectedTargetSummary?.totalPcs ? (
-                      <span className="px-1.5 py-0.5 rounded text-[10px] font-black bg-slate-100 border border-slate-200 text-slate-900 font-mono shrink-0">
+                      <span className="px-2 py-0.5 rounded-md text-[11px] font-bold bg-[#FAF7F0] border border-black/10 text-[#3A3564] font-mono shrink-0">
                         {selectedTargetSummary.totalPcs.toLocaleString()} Pcs
                       </span>
                     ) : null}
@@ -1159,7 +1148,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                   <button
                     type="button"
                     onClick={() => setIsTargetModalOpen(true)}
-                    className="px-2 py-1 rounded bg-slate-100 hover:bg-indigo-50 border border-slate-200 hover:border-indigo-200 text-slate-700 hover:text-indigo-700 text-[11px] font-extrabold transition-all cursor-pointer flex items-center gap-1 shrink-0"
+                    className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-[#FAF7F0] border border-slate-200 hover:border-black/15 text-slate-700 hover:text-[#3A3564] text-xs font-extrabold transition-all cursor-pointer flex items-center gap-1 shrink-0"
                   >
                     <span>🔄 Change</span>
                   </button>
@@ -1168,13 +1157,13 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
 
               {/* Validation Messages */}
               {isArticleError && (
-                <div className="flex items-center gap-1.5 text-[11px] font-medium" style={{ color: 'var(--red, #C0392B)' }}>
+                <div className="flex items-center gap-1.5 text-xs font-medium text-rose-600">
                   <AlertCircle className="w-3.5 h-3.5 shrink-0" />
                   <span>Please select an Article or Color Line before submitting.</span>
                 </div>
               )}
               {isArticleSuccess && (
-                <div className="flex items-center gap-1.5 text-[11px] font-medium text-emerald-700">
+                <div className="flex items-center gap-1.5 text-xs font-medium text-emerald-700">
                   <CheckCircle2 className="w-3.5 h-3.5 shrink-0 text-emerald-600" />
                   <span>
                     {articleId.startsWith('COLOR_') 
@@ -1466,14 +1455,12 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
             </div>
           )}
 
-
-          
           {/* PPC Target Deadlines & Calculated Line Speed */}
-          <div className="mt-5 pt-5 border-t grid grid-cols-1 md:grid-cols-3 gap-4" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+          <div className="mt-5 pt-5 border-t border-slate-100 grid grid-cols-1 md:grid-cols-3 gap-4">
             
             {/* Target Due Date */}
             <div className="space-y-1.5">
-              <label htmlFor="due_date" className="block text-[11px] font-semibold uppercase tracking-[1.5px]" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+              <label htmlFor="due_date" className="block text-xs font-bold uppercase tracking-wider text-slate-500">
                 Target Completion Due Date
               </label>
               <div className="relative">
@@ -1482,16 +1469,15 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                   type="date"
                   value={dueDate}
                   onChange={(e) => setDueDate(e.target.value)}
-                  className="w-full py-[9px] pl-9 pr-3 text-[13px] rounded-[8px] border bg-white outline-none"
-                  style={{ borderColor: 'var(--border, #E2E8F0)' }}
+                  className="w-full py-2.5 pl-10 pr-3 text-sm font-medium rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-white focus:bg-white focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 outline-none text-slate-900 transition-all"
                 />
-                <Calendar className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <Calendar className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
               </div>
             </div>
 
             {/* Target Production Hours / Shifts */}
             <div className="space-y-1.5">
-              <label htmlFor="target_hours" className="block text-[11px] font-semibold uppercase tracking-[1.5px]" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+              <label htmlFor="target_hours" className="block text-xs font-bold uppercase tracking-wider text-slate-500">
                 Estimated Shift Hours
               </label>
               <div className="relative">
@@ -1503,27 +1489,26 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                   value={targetHours || ''}
                   onChange={(e) => setTargetHours(parseInt(e.target.value, 10) || 16)}
                   placeholder="e.g. 16 (2 Days)"
-                  className="w-full py-[9px] pl-9 pr-3 text-[13px] rounded-[8px] border bg-white font-mono font-bold outline-none"
-                  style={{ borderColor: 'var(--border, #E2E8F0)' }}
+                  className="w-full py-2.5 pl-10 pr-3 text-sm font-mono font-bold rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-white focus:bg-white focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 outline-none text-slate-900 transition-all"
                 />
-                <Clock className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <Clock className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
               </div>
             </div>
 
             {/* Live PPC Run-Rate Card */}
-            <div className="p-3 bg-gradient-to-br from-slate-50 to-indigo-50/40 rounded-[10px] border border-indigo-100 flex items-center justify-between">
+            <div className="p-3.5 bg-gradient-to-br from-[#FAF7F0] to-[#FAF7F0]/40 rounded-xl border border-black/10 flex items-center justify-between shadow-2xs">
               <div>
-                <span className="block text-[10.5px] font-bold uppercase tracking-wider text-indigo-700">
+                <span className="block text-xs font-bold uppercase tracking-wider text-[#3A3564]">
                   Target Line Speed (PPC)
                 </span>
-                <span className="text-[17px] font-bold font-[family-name:var(--font-heading)] text-indigo-900">
-                  {targetRunRate} <span className="text-xs font-normal text-indigo-600">pcs / hour</span>
+                <span className="text-xl font-bold font-[family-name:var(--font-heading)] text-slate-900 mt-0.5 block">
+                  {targetRunRate} <span className="text-xs font-medium text-slate-500">pcs / hour</span>
                 </span>
-                <span className="block text-[11px] text-slate-500">
+                <span className="block text-xs text-slate-500 mt-0.5">
                   ≈ {Math.ceil(targetRunRate * 8)} pcs / shift
                 </span>
               </div>
-              <div className="w-9 h-9 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-700">
+              <div className="w-10 h-10 rounded-xl bg-white border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
                 <Gauge className="w-5 h-5" />
               </div>
             </div>
@@ -1531,14 +1516,13 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
           </div>
 
           {/* Client Challan & Golden Sample Reference Photos */}
-          <div className="mt-5 pt-5 border-t grid grid-cols-1 md:grid-cols-2 gap-5" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+          <div className="mt-5 pt-5 border-t border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-5">
             
             {/* Client Delivery Challan # */}
             <div className="space-y-1.5">
               <label 
                 htmlFor="client_challan_no" 
-                className="block text-[11px] font-semibold uppercase tracking-[1.5px]"
-                style={{ color: 'var(--ink-soft, #5B6B7C)' }}
+                className="block text-xs font-bold uppercase tracking-wider text-slate-500"
               >
                 Client / Buyer Delivery Challan # (Work Order)
               </label>
@@ -1549,12 +1533,11 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                   value={clientChallanNo}
                   onChange={(e) => setClientChallanNo(e.target.value)}
                   placeholder="e.g. CH-8921 / Buyer DC # / Order Ref"
-                  className="w-full py-[10px] pl-9 pr-3 text-[13.5px] rounded-[8px] border transition-colors outline-none bg-white font-mono"
-                  style={{ borderColor: 'var(--border, #E2E8F0)' }}
+                  className="w-full py-2.5 pl-10 pr-3.5 text-sm rounded-xl border border-slate-200 transition-all outline-none bg-slate-50/70 hover:bg-white focus:bg-white focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 font-mono text-slate-900"
                 />
-                <FileText className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <FileText className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
               </div>
-              <p className="text-[11.5px] text-slate-500">
+              <p className="text-xs text-slate-400">
                 Official delivery challan number provided by the ordering brand company.
               </p>
             </div>
@@ -1562,21 +1545,21 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
             {/* Buyer Golden Sample Photos (Up to 4) */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <label className="block text-[11px] font-semibold uppercase tracking-[1.5px]" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500">
                   Buyer Sample Photos ({samplePhotos.length}/4)
                 </label>
-                <div className="flex items-center gap-1.5 text-[11px]">
+                <div className="flex items-center gap-1.5 text-xs">
                   <button
                     type="button"
                     onClick={() => setPhotoInputMode('upload')}
-                    className={`px-2 py-0.5 rounded text-xs font-medium transition-all ${photoInputMode === 'upload' ? 'bg-[var(--steel,#2B4C7E)] text-white' : 'bg-slate-100 text-slate-600'}`}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${photoInputMode === 'upload' ? 'bg-[#3A3564] text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
                   >
                     Upload File
                   </button>
                   <button
                     type="button"
                     onClick={() => setPhotoInputMode('url')}
-                    className={`px-2 py-0.5 rounded text-xs font-medium transition-all ${photoInputMode === 'url' ? 'bg-[var(--steel,#2B4C7E)] text-white' : 'bg-slate-100 text-slate-600'}`}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${photoInputMode === 'url' ? 'bg-[#3A3564] text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
                   >
                     Paste URL
                   </button>
@@ -1587,8 +1570,8 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
               {samplePhotos.length < 4 && (
                 <div>
                   {photoInputMode === 'upload' ? (
-                    <label className="flex items-center justify-center gap-2 w-full py-2 px-3 border border-dashed rounded-[8px] cursor-pointer hover:bg-slate-50 transition-colors text-[12.5px] text-slate-600 border-slate-300">
-                      <Camera className="w-4 h-4 text-[var(--steel,#2B4C7E)]" />
+                    <label className="flex items-center justify-center gap-2 w-full py-2.5 px-4 border-2 border-dashed rounded-xl cursor-pointer hover:bg-slate-50 transition-colors text-sm text-slate-600 border-slate-300">
+                      <Camera className="w-4 h-4 text-[#3A3564]" />
                       <span>Click to upload sample image (Front / Back / Label)</span>
                       <input 
                         type="file" 
@@ -1605,12 +1588,12 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                         value={newPhotoUrl}
                         onChange={(e) => setNewPhotoUrl(e.target.value)}
                         placeholder="https://... image link"
-                        className="flex-1 py-1.5 px-3 text-[12.5px] rounded-[8px] border bg-white border-slate-300 outline-none"
+                        className="flex-1 py-2 px-3.5 text-sm rounded-xl border border-slate-300 bg-white outline-none focus:border-[#3A3564]"
                       />
                       <button
                         type="button"
                         onClick={handleAddPhotoUrl}
-                        className="px-3 py-1.5 bg-[var(--steel,#2B4C7E)] text-white text-xs font-medium rounded-[8px]"
+                        className="px-4 py-2 bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold rounded-xl shadow-xs transition-all cursor-pointer"
                       >
                         Add
                       </button>
@@ -1623,19 +1606,19 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
               {samplePhotos.length > 0 && (
                 <div className="grid grid-cols-4 gap-2 pt-1">
                   {samplePhotos.map((photo, idx) => (
-                    <div key={idx} className="relative group rounded-lg overflow-hidden border border-slate-200 aspect-square bg-slate-100">
+                    <div key={idx} className="relative group rounded-xl overflow-hidden border border-slate-200 aspect-square bg-slate-100">
                       <img src={photo} alt={`Sample ${idx + 1}`} className="w-full h-full object-cover" />
                       <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5">
                         <button
                           type="button"
                           onClick={() => removePhoto(idx)}
-                          className="p-1 bg-red-600 text-white rounded-full hover:bg-red-700 transition-colors"
+                          className="p-1.5 bg-red-600 text-white rounded-full hover:bg-red-700 transition-colors"
                           title="Remove photo"
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
-                      <span className="absolute bottom-0.5 left-0.5 px-1 py-0.2 bg-black/70 text-[9px] text-white rounded font-mono">
+                      <span className="absolute bottom-1 left-1 px-1.5 py-0.5 bg-black/70 text-[10px] text-white rounded font-mono">
                         {idx === 0 ? 'Front' : idx === 1 ? 'Back' : idx === 2 ? 'Label' : 'Detail'}
                       </span>
                     </div>
@@ -1650,19 +1633,18 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
 
         {/* Step 2: Size & Color Ratio Matrix Card */}
         <div 
-          className="bg-white rounded-[11px] p-5 sm:p-6 border shadow-xs space-y-5"
-          style={{ borderColor: 'var(--border, #E2E8F0)' }}
+          className="bg-white rounded-2xl p-6 sm:p-7 border border-black/10 shadow-2xs space-y-6"
         >
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
-            <div className="flex items-center gap-2">
-              <span className="w-6 h-6 rounded-full bg-[var(--steel-mist,#EEF3FA)] text-[var(--steel,#2B4C7E)] text-xs font-bold flex items-center justify-center">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3.5 border-b border-slate-100">
+            <div className="flex items-center gap-2.5">
+              <span className="w-7 h-7 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 text-xs font-bold font-mono flex items-center justify-center">
                 2
               </span>
-              <h2 className="text-[15px] font-bold font-[family-name:var(--font-heading)]" style={{ color: 'var(--ink, #1C2733)' }}>
+              <h2 className="text-base sm:text-lg font-bold text-slate-900 font-[family-name:var(--font-heading)]">
                 Size & Color Ratio Matrix
               </h2>
             </div>
-            <span className="text-xs" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+            <span className="text-xs text-slate-400 font-medium">
               Configure cutting batch breakdown
             </span>
           </div>
@@ -2099,21 +2081,12 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
           </div>
         )}
 
-        {/* Step 4: Submit Button (Solid Steel with checkmark icon) */}
+        {/* Step 4: Submit Button */}
         <div className="flex justify-end pt-2">
           <button
             type="submit"
             disabled={isPending}
-            className="w-full sm:w-auto px-6 py-3 rounded-[8px] text-[14.5px] font-semibold text-white flex items-center justify-center gap-2 transition-colors duration-150 disabled:opacity-60 disabled:cursor-not-allowed shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2"
-            style={{
-              backgroundColor: 'var(--steel, #2B4C7E)'
-            }}
-            onMouseEnter={(e) => {
-              if (!isPending) e.currentTarget.style.backgroundColor = 'var(--steel-dark, #1F3A63)'
-            }}
-            onMouseLeave={(e) => {
-              if (!isPending) e.currentTarget.style.backgroundColor = 'var(--steel, #2B4C7E)'
-            }}
+            className="w-full sm:w-auto px-7 py-3 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2 transition-all duration-150 disabled:opacity-60 disabled:cursor-not-allowed shadow-xs bg-[#3A3564] hover:bg-[#2A2649] cursor-pointer"
           >
             {isPending ? (
               <>

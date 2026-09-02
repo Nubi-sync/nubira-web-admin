@@ -242,42 +242,35 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
 
   return (
     <div 
-      className="bg-white rounded-[11px] border shadow-xs overflow-hidden"
-      style={{ borderColor: 'var(--border, #E2E8F0)' }}
+      className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden"
     >
       {/* Header with dynamic Count Badge */}
-      <div className="p-5 sm:p-6 border-b flex flex-col sm:flex-row sm:items-center justify-between gap-3" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+      <div className="p-5 sm:p-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h3 
-            className="text-[17px] font-bold font-[family-name:var(--font-heading)]"
-            style={{ color: 'var(--ink, #1C2733)' }}
+            className="text-base sm:text-lg font-bold font-[family-name:var(--font-heading)] text-slate-900"
           >
             Active Allotments & Handover Status
           </h3>
-          <p className="text-xs mt-0.5" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+          <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
             Tracking size ratios & raw materials issued to lines
           </p>
         </div>
 
         {/* Dynamic Allotments Count Pill */}
         <div 
-          className="text-xs font-semibold px-3 py-1 rounded-full border max-w-max"
-          style={{
-            backgroundColor: 'var(--steel-tint, #DBE6F5)',
-            borderColor: 'var(--border, #E2E8F0)',
-            color: 'var(--steel-dark, #1F3A63)'
-          }}
+          className="text-xs font-bold px-3 py-1 rounded-full border border-black/10 bg-[#FAF7F0] text-[#3A3564] max-w-max shadow-2xs"
         >
           {filteredAllotments.length} {filteredAllotments.length === 1 ? 'Allotment' : 'Allotments'}
         </div>
       </div>
 
       {/* Toolbar: Search Box & Status Filter Chips */}
-      <div className="p-4 border-b bg-slate-50/60 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+      <div className="p-4 sm:p-5 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         
         {/* Search Box */}
         <div className="relative flex-1 max-w-md">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
             value={searchQuery}
@@ -286,10 +279,7 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
               setCurrentPage(1)
             }}
             placeholder="Search by article, lineman, or date..."
-            className="w-full pl-9 pr-3 py-2 bg-white border rounded-[7px] text-xs outline-none transition-colors"
-            style={{ borderColor: 'var(--border, #E2E8F0)' }}
-            onFocus={(e) => e.currentTarget.style.borderColor = 'var(--steel, #2B4C7E)'}
-            onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border, #E2E8F0)'}
+            className="w-full pl-10 pr-3.5 py-2 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-900 placeholder-slate-400 outline-none focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 transition-all shadow-2xs"
           />
         </div>
 
@@ -306,10 +296,10 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                   setStatusFilter(st)
                   setCurrentPage(1)
                 }}
-                className={`px-3 py-1.5 rounded-[6px] text-xs font-semibold border transition-colors outline-none ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all cursor-pointer outline-none ${
                   isSelected
-                    ? 'bg-[var(--steel-mist,#EEF3FA)] border-[var(--steel,#2B4C7E)] text-[var(--steel,#2B4C7E)]'
-                    : 'bg-white border-[var(--border,#E2E8F0)] text-[var(--ink-soft,#5B6B7C)] hover:text-[var(--ink,#1C2733)]'
+                    ? 'bg-[#3A3564] text-white border-transparent shadow-xs'
+                    : 'bg-white border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-100'
                 }`}
               >
                 {labelMap[st]}
@@ -323,7 +313,7 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse text-xs">
           <thead>
-            <tr className="bg-slate-50 border-b text-[11px] uppercase tracking-wider font-bold" style={{ borderColor: 'var(--border, #E2E8F0)', color: 'var(--ink-soft, #5B6B7C)' }}>
+            <tr className="bg-[#FAF7F0] border-b border-slate-100 text-[11px] font-mono uppercase tracking-wider font-bold text-slate-500">
               
               {/* Sortable Date & Lineman */}
               <th 

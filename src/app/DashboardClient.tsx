@@ -1067,7 +1067,7 @@ export default function DashboardClient({
 
             <div className="mt-4 space-y-3">
               {recentActivities.map(act => (
-                <div className="flex items-start gap-3 p-3 rounded-lg bg-slate-50 border border-slate-100">
+                <div key={act.id} className="flex items-start gap-3 p-3 rounded-lg bg-slate-50 border border-slate-100">
                   <div className={`w-8 h-8 rounded-md flex items-center justify-center shrink-0 ${
                     act.type === 'QC_PASS' ? 'bg-emerald-100 text-emerald-700' :
                     act.type === 'QC_REJECT' ? 'bg-rose-100 text-rose-700' :

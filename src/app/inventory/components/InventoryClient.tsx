@@ -619,72 +619,65 @@ export function InventoryClient({
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       
-      {/* 1. Sticky Page Header */}
+      {/* 1. Page Header Card */}
       <div 
-        className="sticky top-[14px] z-20 bg-white p-5 sm:p-6 rounded-[11px] border shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all"
-        style={{ borderColor: 'var(--border, #E2E8F0)' }}
+        className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all"
       >
         <div className="flex items-center gap-3.5">
           <div 
-            className="w-[38px] h-[38px] rounded-[10px] flex items-center justify-center shrink-0 shadow-xs"
-            style={{ backgroundColor: 'var(--steel, #2B4C7E)', color: '#FFFFFF' }}
+            className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10"
           >
             <Warehouse className="w-5 h-5" />
           </div>
           <div>
             <h1 
-              className="text-[20px] sm:text-[22px] font-bold font-[family-name:var(--font-heading)] leading-tight"
-              style={{ color: 'var(--ink, #1C2733)' }}
+              className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900"
             >
               Godown & Inventory Management
             </h1>
-            <p className="text-[13px] mt-0.5" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+            <p className="text-sm sm:text-base text-slate-600 mt-1">
               Real-time finished goods stock, raw trims ledger & store transactions
             </p>
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2.5">
           <button 
             type="button"
             onClick={() => setShowInwardModal(true)}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-[7px] text-xs font-semibold text-white transition-colors shadow-xs cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-1"
-            style={{ backgroundColor: 'var(--green, #1F9D63)' }}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] transition-all shadow-xs cursor-pointer"
           >
-            <Plus className="w-3.5 h-3.5" />
+            <Plus className="w-4 h-4" />
             <span>+ Receive Inward</span>
           </button>
           
           <button 
             type="button"
             onClick={() => setShowOutwardModal(true)}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-[7px] text-xs font-semibold text-white transition-colors shadow-xs cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-1"
-            style={{ backgroundColor: 'var(--steel, #2B4C7E)' }}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold border border-black/15 bg-white hover:bg-slate-50 text-slate-700 transition-all shadow-2xs cursor-pointer"
           >
-            <Upload className="w-3.5 h-3.5" />
+            <Upload className="w-4 h-4" />
             <span>+ Dispatch Outward</span>
           </button>
 
           <button 
             type="button"
             onClick={() => setShowAccessoryModal(true)}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-[7px] text-xs font-semibold border transition-colors bg-white hover:bg-slate-50 cursor-pointer focus:outline-none focus:ring-2"
-            style={{ borderColor: 'var(--steel, #2B4C7E)', color: 'var(--steel, #2B4C7E)' }}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold border border-black/15 bg-white hover:bg-slate-50 text-slate-700 transition-all shadow-2xs cursor-pointer"
           >
-            <Boxes className="w-3.5 h-3.5" />
+            <Boxes className="w-4 h-4" />
             <span>+ Raw Material Trim</span>
           </button>
 
           <button 
             type="button"
             onClick={handleExportCSV}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-[7px] text-xs font-semibold border bg-white hover:bg-slate-50 transition-colors cursor-pointer focus:outline-none focus:ring-2"
-            style={{ borderColor: 'var(--border, #E2E8F0)', color: 'var(--ink, #1C2733)' }}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold border border-black/15 bg-white hover:bg-slate-50 text-slate-700 transition-all shadow-2xs cursor-pointer"
           >
-            <Download className="w-3.5 h-3.5" />
+            <Download className="w-4 h-4 text-slate-500" />
             <span>Export CSV</span>
           </button>
         </div>
@@ -695,24 +688,22 @@ export function InventoryClient({
         
         {/* Finished Stock */}
         <div 
-          className="bg-white p-5 rounded-[11px] border shadow-xs flex flex-col justify-between"
-          style={{ borderColor: 'var(--border, #E2E8F0)' }}
+          className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs hover:border-black/25 transition-all flex flex-col justify-between"
         >
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold uppercase tracking-[1.5px] block" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 block">
               Finished Stock
             </span>
-            <div className="w-[30px] h-[30px] rounded-[8px] flex items-center justify-center shrink-0" style={{ backgroundColor: 'var(--steel-mist, #EEF3FA)', color: 'var(--steel, #2B4C7E)' }}>
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs">
               <Package className="w-4 h-4" />
             </div>
           </div>
-          <div className="mt-2">
-            <span className="text-[24px] font-bold font-[family-name:var(--font-heading)] leading-tight block" style={{ color: 'var(--ink, #1C2733)' }}>
-              {totalStockBalance.toLocaleString()} <span className="text-xs font-normal text-slate-500">pcs</span>
+          <div className="mt-3">
+            <span className="text-[28px] sm:text-[30px] font-bold font-[family-name:var(--font-heading)] leading-none text-slate-900 block">
+              {totalStockBalance.toLocaleString()} <span className="text-xs font-normal text-slate-400">pcs</span>
             </span>
             <span 
-              className="text-[10.5px] font-[family-name:var(--font-jetbrains-mono)] block mt-1 truncate"
-              style={{ color: 'var(--ink-faint, #8B9AAB)' }}
+              className="text-xs font-mono font-medium block mt-1.5 truncate text-slate-400"
               title={stockVelocity.finishedStockCaption}
             >
               {stockVelocity.finishedStockCaption}
@@ -722,27 +713,27 @@ export function InventoryClient({
 
         {/* Accessories Trims */}
         <div 
-          className="bg-white p-5 rounded-[11px] border shadow-xs flex flex-col justify-between"
+          className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs hover:border-black/25 transition-all flex flex-col justify-between"
           style={{ 
-            borderColor: stockVelocity.trimsCardAlert ? 'var(--amber, #C8802B)' : 'var(--border, #E2E8F0)',
-            background: stockVelocity.trimsCardAlert ? 'linear-gradient(180deg, #FFFAF3 0%, #FFFFFF 100%)' : '#FFFFFF'
+            borderColor: stockVelocity.trimsCardAlert ? '#F59E0B' : undefined,
+            background: stockVelocity.trimsCardAlert ? 'linear-gradient(180deg, #FFFDF8 0%, #FFFFFF 100%)' : '#FFFFFF'
           }}
         >
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold uppercase tracking-[1.5px] block" style={{ color: stockVelocity.trimsCardAlert ? 'var(--amber, #C8802B)' : 'var(--ink-soft, #5B6B7C)' }}>
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 block" style={{ color: stockVelocity.trimsCardAlert ? '#B45309' : undefined }}>
               Accessories Trims
             </span>
-            <div className="w-[30px] h-[30px] rounded-[8px] flex items-center justify-center shrink-0" style={{ backgroundColor: stockVelocity.trimsCardAlert ? 'var(--amber-mist, #FBF0E1)' : 'var(--steel-mist, #EEF3FA)', color: stockVelocity.trimsCardAlert ? 'var(--amber, #C8802B)' : 'var(--steel, #2B4C7E)' }}>
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-[#FFFBEB] text-[#D97706] shadow-2xs">
               <Boxes className="w-4 h-4" />
             </div>
           </div>
-          <div className="mt-2">
-            <span className="text-[24px] font-bold font-[family-name:var(--font-heading)] leading-tight block" style={{ color: 'var(--ink, #1C2733)' }}>
-              {accessories.length} <span className="text-xs font-normal text-slate-500">items</span>
+          <div className="mt-3">
+            <span className="text-[28px] sm:text-[30px] font-bold font-[family-name:var(--font-heading)] leading-none text-slate-900 block">
+              {accessories.length} <span className="text-xs font-normal text-slate-400">items</span>
             </span>
             <span 
-              className="text-[10.5px] font-[family-name:var(--font-jetbrains-mono)] block mt-1 truncate font-medium"
-              style={{ color: stockVelocity.trimsCardAlert ? 'var(--amber, #C8802B)' : 'var(--ink-faint, #8B9AAB)' }}
+              className="text-xs font-mono font-medium block mt-1.5 truncate"
+              style={{ color: stockVelocity.trimsCardAlert ? '#B45309' : '#94A3B8' }}
               title={stockVelocity.trimsCaption}
             >
               {stockVelocity.trimsCaption}
@@ -752,24 +743,22 @@ export function InventoryClient({
 
         {/* Total Inward (QC) */}
         <div 
-          className="bg-white p-5 rounded-[11px] border shadow-xs flex flex-col justify-between"
-          style={{ borderColor: 'var(--border, #E2E8F0)' }}
+          className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs hover:border-black/25 transition-all flex flex-col justify-between"
         >
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold uppercase tracking-[1.5px] block" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 block">
               Total Inward (QC)
             </span>
-            <div className="w-[30px] h-[30px] rounded-[8px] flex items-center justify-center shrink-0" style={{ backgroundColor: 'var(--green-mist, #E6F6EE)', color: 'var(--green, #1F9D63)' }}>
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-[#ECFDF5] text-[#059669] shadow-2xs">
               <CheckCircle2 className="w-4 h-4" />
             </div>
           </div>
-          <div className="mt-2">
-            <span className="text-[24px] font-bold font-[family-name:var(--font-heading)] leading-tight block" style={{ color: 'var(--green, #1F9D63)' }}>
-              +{totalInwardQty.toLocaleString()} <span className="text-xs font-normal text-slate-500">pcs</span>
+          <div className="mt-3">
+            <span className="text-[28px] sm:text-[30px] font-bold font-[family-name:var(--font-heading)] leading-none text-[#059669] block">
+              +{totalInwardQty.toLocaleString()} <span className="text-xs font-normal text-slate-400">pcs</span>
             </span>
             <span 
-              className="text-[10.5px] font-[family-name:var(--font-jetbrains-mono)] block mt-1 truncate"
-              style={{ color: 'var(--ink-faint, #8B9AAB)' }}
+              className="text-xs font-mono font-medium block mt-1.5 truncate text-slate-400"
               title={stockVelocity.lastQcCaption}
             >
               {stockVelocity.lastQcCaption}
@@ -779,24 +768,22 @@ export function InventoryClient({
 
         {/* Dispatched Outward */}
         <div 
-          className="bg-white p-5 rounded-[11px] border shadow-xs flex flex-col justify-between"
-          style={{ borderColor: 'var(--border, #E2E8F0)' }}
+          className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs hover:border-black/25 transition-all flex flex-col justify-between"
         >
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold uppercase tracking-[1.5px] block" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 block">
               Dispatched Outward
             </span>
-            <div className="w-[30px] h-[30px] rounded-[8px] flex items-center justify-center shrink-0" style={{ backgroundColor: 'var(--steel-mist, #EEF3FA)', color: 'var(--steel, #2B4C7E)' }}>
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-[#F5F3FF] text-[#7C3AED] shadow-2xs">
               <Truck className="w-4 h-4" />
             </div>
           </div>
-          <div className="mt-2">
-            <span className="text-[24px] font-bold font-[family-name:var(--font-heading)] leading-tight block" style={{ color: 'var(--steel, #2B4C7E)' }}>
-              -{totalOutwardQty.toLocaleString()} <span className="text-xs font-normal text-slate-500">pcs</span>
+          <div className="mt-3">
+            <span className="text-[28px] sm:text-[30px] font-bold font-[family-name:var(--font-heading)] leading-none text-[#7C3AED] block">
+              -{totalOutwardQty.toLocaleString()} <span className="text-xs font-normal text-slate-400">pcs</span>
             </span>
             <span 
-              className="text-[10.5px] font-[family-name:var(--font-jetbrains-mono)] block mt-1 truncate"
-              style={{ color: 'var(--ink-faint, #8B9AAB)' }}
+              className="text-xs font-mono font-medium block mt-1.5 truncate text-slate-400"
               title={stockVelocity.lastDispatchCaption}
             >
               {stockVelocity.lastDispatchCaption}
@@ -807,79 +794,78 @@ export function InventoryClient({
 
       {/* 3. Navigation Tabs, Status Filter Chips & Search Toolbar */}
       <div 
-        className="space-y-3 bg-white p-3.5 rounded-[11px] border shadow-xs"
-        style={{ borderColor: 'var(--border, #E2E8F0)' }}
+        className="space-y-4 bg-white p-4 sm:p-5 rounded-2xl border border-black/10 shadow-2xs"
       >
         {/* Top Row: Navigation Tabs */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+        <div className="flex items-center gap-2 overflow-x-auto pb-1">
           <button
             type="button"
             onClick={() => handleTabChange('finished')}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-[6px] text-xs font-semibold whitespace-nowrap transition-all outline-none ${
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap transition-all cursor-pointer outline-none ${
               activeTab === 'finished'
-                ? 'bg-[var(--steel,#2B4C7E)] text-white shadow-xs'
-                : 'text-[var(--ink-soft,#5B6B7C)] hover:text-[var(--ink,#1C2733)] bg-transparent'
+                ? 'bg-[#3A3564] text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 bg-transparent'
             }`}
           >
-            <Package className="w-3.5 h-3.5" />
+            <Package className="w-4 h-4" />
             <span>Finished Goods Matrix ({finishedStockMatrix.length})</span>
           </button>
 
           <button
             type="button"
             onClick={() => handleTabChange('challans')}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-[6px] text-xs font-semibold whitespace-nowrap transition-all outline-none ${
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap transition-all cursor-pointer outline-none ${
               activeTab === 'challans'
-                ? 'bg-[var(--steel,#2B4C7E)] text-white shadow-xs'
-                : 'text-[var(--ink-soft,#5B6B7C)] hover:text-[var(--ink,#1C2733)] bg-transparent'
+                ? 'bg-[#3A3564] text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 bg-transparent'
             }`}
           >
-            <FileText className="w-3.5 h-3.5" />
+            <FileText className="w-4 h-4" />
             <span>Supplier Challans & GRN ({filteredChallans.length})</span>
           </button>
 
           <button
             type="button"
             onClick={() => handleTabChange('accessories')}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-[6px] text-xs font-semibold whitespace-nowrap transition-all outline-none ${
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap transition-all cursor-pointer outline-none ${
               activeTab === 'accessories'
-                ? 'bg-[var(--steel,#2B4C7E)] text-white shadow-xs'
-                : 'text-[var(--ink-soft,#5B6B7C)] hover:text-[var(--ink,#1C2733)] bg-transparent'
+                ? 'bg-[#3A3564] text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 bg-transparent'
             }`}
           >
-            <Boxes className="w-3.5 h-3.5" />
+            <Boxes className="w-4 h-4" />
             <span>Raw Materials & Trims ({accessoryStockMatrix.length})</span>
           </button>
 
           <button
             type="button"
             onClick={() => handleTabChange('dispatch')}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-[6px] text-xs font-semibold whitespace-nowrap transition-all outline-none ${
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap transition-all cursor-pointer outline-none ${
               activeTab === 'dispatch'
-                ? 'bg-[var(--steel,#2B4C7E)] text-white shadow-xs'
-                : 'text-[var(--ink-soft,#5B6B7C)] hover:text-[var(--ink,#1C2733)] bg-transparent'
+                ? 'bg-[#3A3564] text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 bg-transparent'
             }`}
           >
-            <Truck className="w-3.5 h-3.5" />
+            <Truck className="w-4 h-4" />
             <span>Dispatch & Challans ({filteredDispatch.length})</span>
           </button>
 
           <button
             type="button"
             onClick={() => handleTabChange('inward')}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-[6px] text-xs font-semibold whitespace-nowrap transition-all outline-none ${
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap transition-all cursor-pointer outline-none ${
               activeTab === 'inward'
-                ? 'bg-[var(--steel,#2B4C7E)] text-white shadow-xs'
-                : 'text-[var(--ink-soft,#5B6B7C)] hover:text-[var(--ink,#1C2733)] bg-transparent'
+                ? 'bg-[#3A3564] text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 bg-transparent'
             }`}
           >
-            <CheckCircle2 className="w-3.5 h-3.5" />
+            <CheckCircle2 className="w-4 h-4" />
             <span>Inward Receipts ({filteredInward.length})</span>
           </button>
         </div>
 
         {/* Bottom Row: Status Filter Chips + Search Input */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2 border-t" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pt-3 border-t border-slate-100">
           
           {/* Status Filter Chips */}
           <div className="flex flex-wrap items-center gap-1.5">
@@ -899,10 +885,10 @@ export function InventoryClient({
                     setStatusFilter(st)
                     setCurrentPage(1)
                   }}
-                  className={`px-3 py-1 rounded-[6px] text-xs font-semibold border transition-colors outline-none ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all cursor-pointer outline-none ${
                     isSelected
-                      ? 'bg-[var(--steel-mist,#EEF3FA)] border-[var(--steel,#2B4C7E)] text-[var(--steel-dark,#1F3A63)]'
-                      : 'bg-white border-[var(--border,#E2E8F0)] text-[var(--ink-soft,#5B6B7C)] hover:text-[var(--ink,#1C2733)]'
+                      ? 'bg-[#3A3564] text-white border-transparent shadow-xs'
+                      : 'bg-white border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                   }`}
                 >
                   {labelMap[st]}
@@ -912,8 +898,8 @@ export function InventoryClient({
           </div>
 
           {/* Search Box */}
-          <div className="relative w-full sm:w-72">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <div className="relative w-full sm:w-80">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input 
               type="text"
               placeholder="Search article, buyer, trims..."
@@ -922,10 +908,7 @@ export function InventoryClient({
                 setSearchTerm(e.target.value)
                 setCurrentPage(1)
               }}
-              className="w-full pl-9 pr-3 py-1.5 bg-slate-50 border rounded-[7px] text-xs outline-none transition-colors"
-              style={{ borderColor: 'var(--border, #E2E8F0)' }}
-              onFocus={(e) => e.currentTarget.style.borderColor = 'var(--steel, #2B4C7E)'}
-              onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border, #E2E8F0)'}
+              className="w-full pl-10 pr-4 py-2 bg-slate-50/70 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 placeholder-slate-400 outline-none focus:bg-white focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 transition-all shadow-2xs"
             />
           </div>
         </div>
@@ -933,8 +916,7 @@ export function InventoryClient({
 
       {/* 4. Main Table / Empty State Area */}
       <div 
-        className="bg-white rounded-[11px] border shadow-xs overflow-hidden"
-        style={{ borderColor: 'var(--border, #E2E8F0)' }}
+        className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden"
       >
         
         {/* ======================================================== */}
@@ -943,23 +925,23 @@ export function InventoryClient({
         {activeTab === 'finished' && (
           <div>
             {finishedStockMatrix.length === 0 ? (
-              <div className="p-12 text-center flex flex-col items-center justify-center space-y-3">
-                <div className="w-12 h-12 rounded-full flex items-center justify-center bg-slate-100 text-slate-400">
-                  <Package className="w-6 h-6" />
+              <div className="p-12 sm:p-16 text-center flex flex-col items-center justify-center space-y-3.5">
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs">
+                  <Package className="w-7 h-7" />
                 </div>
-                <h3 className="text-base font-bold font-[family-name:var(--font-heading)]" style={{ color: 'var(--ink, #1C2733)' }}>
+                <h3 className="text-base sm:text-lg font-bold font-[family-name:var(--font-heading)] text-slate-900">
                   No finished stock recorded yet
                 </h3>
-                <p className="text-xs max-w-sm" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                <p className="text-sm text-slate-500 max-w-md">
                   Receive finished garments from the QC Finishing Floor to initialize your godown stock ledger.
                 </p>
                 <button
                   type="button"
                   onClick={() => setShowInwardModal(true)}
-                  className="mt-2 px-4 py-2 rounded-[7px] text-xs font-semibold text-white shadow-xs transition-colors"
-                  style={{ backgroundColor: 'var(--steel, #2B4C7E)' }}
+                  className="px-5 py-2.5 bg-[#3A3564] hover:bg-[#2A2649] text-white text-sm font-bold rounded-xl shadow-xs transition-all cursor-pointer inline-flex items-center gap-2 mt-2"
                 >
-                  + Receive Inward
+                  <Plus className="w-4 h-4" />
+                  <span>+ Receive Inward</span>
                 </button>
               </div>
             ) : (
