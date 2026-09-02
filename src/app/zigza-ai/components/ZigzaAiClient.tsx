@@ -541,24 +541,26 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
             <button
               type="button"
               onClick={createNewSession}
-              className="inline-flex items-center gap-1 px-2.5 py-1.5 sm:px-3 sm:py-1.5 bg-white border border-black/15 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-50 shadow-2xs transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-1.5 bg-white border border-black/15 rounded-xl text-xs font-bold text-slate-700 hover:bg-[#FAF7F0] shadow-2xs transition-colors cursor-pointer shrink-0"
+              title="New Chat"
             >
-              <Plus className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">New Chat</span>
+              <Plus className="w-3.5 h-3.5 text-[#3A3564]" />
+              <span className="text-[11px] sm:text-xs font-bold whitespace-nowrap">New Chat</span>
             </button>
 
-            {/* History Toggle Button — Positioned on RIGHT */}
+            {/* History Toggle Button — Positioned on RIGHT with Name */}
             <button
               type="button"
               onClick={() => setIsHistoryOpen(prev => !prev)}
-              className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl border flex items-center justify-center transition-all cursor-pointer shadow-2xs ${
+              className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-1.5 border rounded-xl text-xs font-bold transition-all cursor-pointer shadow-2xs shrink-0 ${
                 isHistoryOpen
                   ? 'bg-[#3A3564] text-white border-[#3A3564]'
-                  : 'bg-white border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                  : 'bg-white border-slate-200 text-slate-700 hover:text-slate-900 hover:bg-[#FAF7F0]'
               }`}
-              title="Toggle chat history (right panel)"
+              title="Toggle chat history"
             >
-              <PanelRight className="w-4 h-4" />
+              <PanelRight className="w-3.5 h-3.5" />
+              <span className="text-[11px] sm:text-xs font-bold whitespace-nowrap">History</span>
             </button>
           </div>
         </header>
