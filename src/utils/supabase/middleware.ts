@@ -15,7 +15,7 @@ export async function updateSession(request: NextRequest) {
           return request.cookies.getAll()
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value))
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
           supabaseResponse = NextResponse.next({
             request,
           })
@@ -33,7 +33,7 @@ export async function updateSession(request: NextRequest) {
 
   // Redirect logic
   const pathname = request.nextUrl.pathname
-  const isLoginPage = pathname.startsWith('/login')
+  const isLoginPage = pathname === '/login' || pathname.startsWith('/login')
   
   // Explicit protected dashboard pages that require login
   const PROTECTED_DASHBOARD_ROUTES = [
@@ -46,6 +46,7 @@ export async function updateSession(request: NextRequest) {
     '/production-orders',
     '/reports',
     '/reset-password',
+    '/zigza-ai',
   ]
   const isProtectedRoute = PROTECTED_DASHBOARD_ROUTES.some(route => pathname.startsWith(route))
 
@@ -57,7 +58,7 @@ export async function updateSession(request: NextRequest) {
   }
 
   if (user && isLoginPage) {
-    // If already logged in and visiting /login, redirect to /dashboard
+    // If already logged in and visiting /login in another tab, redirect to /dashboard
     const url = request.nextUrl.clone()
     url.pathname = '/dashboard'
     return NextResponse.redirect(url)

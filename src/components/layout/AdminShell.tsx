@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
+import Link from 'next/link'
+import { Menu } from 'lucide-react'
 import { AdminSidebar } from './AdminSidebar'
 import { TvModeProvider, useTvMode } from '@/context/TvModeContext'
 import { TvTopBar } from './TvTopBar'
-import { Menu, PanelLeftOpen } from 'lucide-react'
-import Link from 'next/link'
 import { AiCopilotWidget } from '../chat/AiCopilotWidget'
 
 function MobileTopBar({ onMenuToggle }: { onMenuToggle: () => void }) {
@@ -22,7 +22,7 @@ function MobileTopBar({ onMenuToggle }: { onMenuToggle: () => void }) {
         <Menu className="w-5 h-5" />
       </button>
 
-      {/* Center: Brand Logo (Enlarged with rounded corners) */}
+      {/* Center: Brand Logo */}
       <Link href="/dashboard" className="flex items-center">
         <img 
           src="/z i g z a (1) copy.png" 
@@ -49,7 +49,6 @@ function AdminShellContent({
   const { isTvMode } = useTvMode()
   const pathname = usePathname()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const [isDesktopCollapsed, setIsDesktopCollapsed] = useState(false)
 
   const isAiPage = pathname === '/zigza-ai' || pathname?.startsWith('/zigza-ai')
 
@@ -79,39 +78,21 @@ function AdminShellContent({
 
   return (
     <div className={`min-h-screen w-full flex flex-col lg:flex-row bg-[#FAFAF8] text-slate-900 font-[family-name:var(--font-public-sans)] ${isTvMode ? 'tv-mode-active' : ''}`}>
-      {/* Sidebar — Desktop: hideable; Mobile: hamburger drawer */}
+      {/* Sidebar — Desktop: Always icon rail, hover-to-slide open; Mobile: drawer */}
       {!isTvMode && (
         <AdminSidebar 
           userEmail={userEmail} 
           isMobileOpen={isMobileMenuOpen}
           onMobileClose={() => setIsMobileMenuOpen(false)}
-          isDesktopCollapsed={isDesktopCollapsed}
-          onDesktopCollapse={() => setIsDesktopCollapsed(true)}
         />
       )}
 
-      {/* Main Content Area */}
-      <main className={`flex-1 min-w-0 flex flex-col transition-all relative ${
+      {/* Main Content Area — offset by 72px on desktop for the permanent icon rail */}
+      <main className={`flex-1 min-w-0 flex flex-col transition-all relative ${!isTvMode ? 'lg:pl-[72px]' : ''} ${
         isAiPage 
           ? 'h-dvh overflow-hidden' 
           : 'min-h-screen overflow-y-auto'
       }`}>
-        {/* Floating Show Sidebar Button for Desktop when collapsed */}
-        {!isTvMode && isDesktopCollapsed && (
-          <div className="hidden lg:block fixed left-4 top-4 z-40 animate-in fade-in slide-in-from-left-2 duration-150">
-            <button
-              type="button"
-              onClick={() => setIsDesktopCollapsed(false)}
-              title="Show sidebar"
-              className="flex items-center gap-2 px-3.5 py-2.5 bg-white/95 backdrop-blur-md border border-black/15 hover:border-black/30 rounded-xl text-xs font-bold text-slate-800 hover:bg-[#FAF7F0] shadow-md hover:shadow-lg transition-all cursor-pointer group select-none"
-              aria-label="Show sidebar"
-            >
-              <PanelLeftOpen className="w-4 h-4 text-[#3A3564] group-hover:scale-110 transition-transform" />
-              <span>Show Sidebar</span>
-            </button>
-          </div>
-        )}
-
         {/* TV Mode Top Bar */}
         {isTvMode && <TvTopBar />}
 
