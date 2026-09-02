@@ -107,7 +107,7 @@ export default async function InventoryPage() {
         
         {/* Breadcrumb */}
         <div className="flex items-center gap-1.5 text-[12px] font-medium" style={{ color: 'var(--ink-faint, #8B9AAB)' }}>
-          <Link href="/" className="hover:underline hover:text-[var(--ink,#1C2733)]">
+          <Link href="/dashboard" className="hover:underline hover:text-[var(--ink,#1C2733)]">
             Production
           </Link>
           <span>/</span>

@@ -16,84 +16,88 @@ export default async function ReportsPage() {
     redirect('/login')
   }
 
-  // 1. Fetch Daily Product logs (Lineman production)
-  const { data: dailyProducts } = await supabase
-    .from('daily_product')
-    .select(`
-      id,
-      entry_date,
-      quantity,
-      notes,
-      color,
-      size,
-      created_at,
-      lineman:profiles!daily_product_lineman_id_fkey(username),
-      article:articles(art_no, description)
-    `)
-    .order('entry_date', { ascending: false })
-    .order('created_at', { ascending: false })
+  // Parallel concurrent data fetching
+  const [
+    { data: dailyProducts },
+    { data: qcLogs },
+    { data: storeTransactions },
+    { data: workerAssignments }
+  ] = await Promise.all([
+    supabase
+      .from('daily_product')
+      .select(`
+        id,
+        entry_date,
+        quantity,
+        notes,
+        color,
+        size,
+        created_at,
+        lineman:profiles!daily_product_lineman_id_fkey(username),
+        article:articles(art_no, description)
+      `)
+      .order('entry_date', { ascending: false })
+      .order('created_at', { ascending: false }),
 
-  // 2. Fetch QC logs (Enhanced with Color, Size, Mending lifecycle, and Bulking)
-  const { data: qcLogs } = await supabase
-    .from('qc_logs')
-    .select(`
-      id,
-      entry_date,
-      stage,
-      qty_received,
-      qty_passed,
-      qty_rejected,
-      defect_type,
-      remarks,
-      color,
-      size,
-      mending_returned_qty,
-      mending_scrap_qty,
-      mending_status,
-      bundle_size,
-      total_bundles,
-      sent_to_store,
-      created_at,
-      lineman:profiles!qc_logs_from_lineman_id_fkey(username),
-      article:articles(art_no, description)
-    `)
-    .order('entry_date', { ascending: false })
-    .order('created_at', { ascending: false })
+    supabase
+      .from('qc_logs')
+      .select(`
+        id,
+        entry_date,
+        stage,
+        qty_received,
+        qty_passed,
+        qty_rejected,
+        defect_type,
+        remarks,
+        color,
+        size,
+        mending_returned_qty,
+        mending_scrap_qty,
+        mending_status,
+        bundle_size,
+        total_bundles,
+        sent_to_store,
+        created_at,
+        lineman:profiles!qc_logs_from_lineman_id_fkey(username),
+        article:articles(art_no, description)
+      `)
+      .order('entry_date', { ascending: false })
+      .order('created_at', { ascending: false }),
 
-  // 3. Fetch Store transactions
-  const { data: storeTransactions } = await supabase
-    .from('store_transactions')
-    .select(`
-      id,
-      entry_date,
-      created_at,
-      type,
-      quantity,
-      party_name,
-      article:articles(art_no, description)
-    `)
-    .order('created_at', { ascending: false })
+    supabase
+      .from('store_transactions')
+      .select(`
+        id,
+        entry_date,
+        created_at,
+        type,
+        quantity,
+        party_name,
+        article:articles(art_no, description)
+      `)
+      .order('created_at', { ascending: false }),
 
-  // 4. Fetch Worker Assignments (Lineman -> Worker distribution)
-  const { data: workerAssignments } = await supabase
-    .from('worker_assignments')
-    .select(`
-      id,
-      worker_name,
-      assigned_qty,
-      completed_qty,
-      color,
-      size,
-      status,
-      notes,
-      assigned_at,
-      completed_at,
-      entry_date,
-      lineman:profiles!worker_assignments_lineman_id_fkey(username),
-      article:articles(art_no, description)
-    `)
-    .order('entry_date', { ascending: false })
-    .order('assigned_at', { ascending: false })
+    supabase
+      .from('worker_assignments')
+      .select(`
+        id,
+        worker_name,
+        assigned_qty,
+        completed_qty,
+        color,
+        size,
+        status,
+        notes,
+        assigned_at,
+        completed_at,
+        entry_date,
+        lineman:profiles!worker_assignments_lineman_id_fkey(username),
+        article:articles(art_no, description)
+      `)
+      .order('entry_date', { ascending: false })
+      .order('assigned_at', { ascending: false })
+  ])
 
   return (
     <AdminShell userEmail={user.email}>

@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { useState, useTransition } from 'react'
+import { useState, useTransition, useEffect } from 'react'
 import { 
   LayoutDashboard,
   Layers, 
@@ -58,17 +58,22 @@ export function AdminSidebar({ userEmail = 'admin@nubira.local' }: { userEmail?:
   const [isPending, startTransition] = useTransition()
   const [navigatingTo, setNavigatingTo] = useState<string | null>(null)
 
+  // Reset loading state whenever the active route changes
+  useEffect(() => {
+    setNavigatingTo(null)
+  }, [pathname])
+
   // Generate initials for avatar
   const initials = userEmail
     ? userEmail.split('@')[0].slice(0, 2).toUpperCase()
     : 'SA'
 
   function handleNavClick(e: React.MouseEvent, href: string) {
-    const isActive = href === '/dashboard'
+    const isCurrentActive = href === '/dashboard'
       ? pathname === '/dashboard' || pathname === '/'
       : pathname.startsWith(href)
 
-    if (isActive) return // Don't navigate if already on that page
+    if (isCurrentActive) return // Don't trigger navigation if already on this exact page
 
     e.preventDefault()
     setNavigatingTo(href)
@@ -77,19 +82,9 @@ export function AdminSidebar({ userEmail = 'admin@nubira.local' }: { userEmail?:
     })
   }
 
-  // Clear navigatingTo when transition completes and pathname matches
-  if (!isPending && navigatingTo) {
-    const arrived = navigatingTo === '/dashboard'
-      ? pathname === '/dashboard' || pathname === '/'
-      : pathname.startsWith(navigatingTo)
-    if (arrived) {
-      setNavigatingTo(null)
-    }
-  }
-
   return (
     <aside 
-      className="w-[260px] shrink-0 min-h-screen h-screen sticky top-0 bg-white border-r border-slate-200 flex flex-col justify-between z-30 transition-all duration-200"
+      className="w-[264px] shrink-0 min-h-screen h-screen sticky top-0 bg-white border-r border-slate-200 flex flex-col justify-between z-30 transition-all duration-200"
     >
       {/* Top Header / Brand Block */}
       <div>
@@ -102,14 +97,14 @@ export function AdminSidebar({ userEmail = 'admin@nubira.local' }: { userEmail?:
             />
           </Link>
           <span 
-            className="text-[10px] font-mono font-bold tracking-wider uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15"
+            className="text-[11px] font-mono font-bold tracking-wider uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15"
           >
             ERP MES
           </span>
         </div>
 
         {/* Navigation Sections */}
-        <nav className="p-4 space-y-5 overflow-y-auto max-h-[calc(100vh-140px)]">
+        <nav className="p-3.5 space-y-5 overflow-y-auto max-h-[calc(100vh-140px)]">
           {navSections.map((group) => (
             <div key={group.section} className="space-y-1">
               <div 
@@ -118,40 +113,52 @@ export function AdminSidebar({ userEmail = 'admin@nubira.local' }: { userEmail?:
                 {group.section}
               </div>
 
-              <div className="space-y-0.5">
+              <div className="space-y-1">
                 {group.items.map((item) => {
                   const Icon = item.icon
                   const isActive = item.href === '/dashboard'
                     ? pathname === '/dashboard' || pathname === '/'
                     : pathname.startsWith(item.href)
-                  const isLoading = navigatingTo === item.href && isPending
+                  const isLoading = (navigatingTo === item.href) && isPending
 
                   return (
                     <Link
                       key={item.href}
                       href={item.href}
                       onClick={(e) => handleNavClick(e, item.href)}
-                      className={`relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all outline-none focus-visible:ring-2 focus-visible:ring-[#3A3564] ${
+                      className={`relative flex items-center justify-between px-3 py-2.5 rounded-xl text-sm transition-all outline-none focus-visible:ring-2 focus-visible:ring-[#3A3564] cursor-pointer ${
                         isActive
                           ? 'font-bold text-[#3A3564] bg-[#FAF7F0] border border-black/10 shadow-2xs'
                           : isLoading
-                            ? 'font-semibold text-[#3A3564] bg-[#FAF7F0]/50 border border-black/5'
+                            ? 'font-semibold text-[#3A3564] bg-[#FAF7F0]/80 border border-black/15 shadow-2xs'
                             : 'font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                       }`}
                     >
-                      {/* Left 3px active accent bar */}
+                      {/* Left 3.5px active accent bar */}
                       {isActive && (
                         <div 
-                          className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-[#3A3564]"
+                          className="absolute left-0 top-1/2 -translate-y-1/2 w-[3.5px] h-6 rounded-r-full bg-[#3A3564]"
                         />
                       )}
 
-                      {isLoading ? (
-                        <Loader2 className="w-[18px] h-[18px] shrink-0 text-[#3A3564] animate-spin" />
-                      ) : (
-                        <Icon className={`w-[18px] h-[18px] shrink-0 ${isActive ? 'text-[#3A3564]' : 'text-slate-500'}`} />
+                      <div className="flex items-center gap-3 min-w-0 flex-1">
+                        {/* Spinner animation directly in front of the text */}
+                        {isLoading ? (
+                          <div className="w-[18px] h-[18px] flex items-center justify-center shrink-0">
+                            <Loader2 className="w-[18px] h-[18px] text-[#3A3564] animate-spin" />
+                          </div>
+                        ) : (
+                          <Icon className={`w-[18px] h-[18px] shrink-0 ${isActive ? 'text-[#3A3564]' : 'text-slate-500'}`} />
+                        )}
+                        <span className="truncate">{item.label}</span>
+                      </div>
+
+                      {/* Pill indicator on navigating */}
+                      {isLoading && (
+                        <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#3A3564] bg-white px-2 py-0.5 rounded-md border border-black/10 animate-pulse shrink-0">
+                          Opening...
+                        </span>
                       )}
-                      <span className="truncate">{item.label}</span>
                     </Link>
                   )
                 })}

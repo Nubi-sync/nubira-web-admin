@@ -524,19 +524,19 @@ export default function DashboardClient({
       {/* ========================================================= */}
       {/* 1. FILTER CONTROLS & BRAND TABS                           */}
       {/* ========================================================= */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white p-4 sm:p-5 rounded-2xl border border-black/10 shadow-2xs">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs">
         
         {/* Brand Selector Tabs */}
-        <div className="flex items-center gap-1.5 flex-wrap">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mr-1 flex items-center gap-1">
-            <Filter className="w-3.5 h-3.5" /> Brand:
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-xs font-bold uppercase tracking-wider text-slate-400 mr-1 flex items-center gap-1.5">
+            <Filter className="w-4 h-4" /> Brand:
           </span>
           {brandTabs.map(brand => (
             <button
               key={brand}
               type="button"
               onClick={() => setSelectedBrand(brand)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              className={`px-3.5 py-2 rounded-lg text-sm font-bold transition-all cursor-pointer ${
                 selectedBrand === brand
                   ? 'bg-[#3A3564] text-white shadow-xs'
                   : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200'
@@ -668,7 +668,7 @@ export default function DashboardClient({
           </div>
 
           {/* Date Filter Pills */}
-          <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg border border-slate-200">
+          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg border border-slate-200">
             {[
               { id: 'today', label: 'Today' },
               { id: 'week', label: 'This Week' },
@@ -679,7 +679,7 @@ export default function DashboardClient({
                 key={tab.id}
                 type="button"
                 onClick={() => setDateFilter(tab.id as DateFilter)}
-                className={`px-2.5 py-1 text-[11px] font-bold rounded-md transition-colors cursor-pointer ${
+                className={`px-3 py-1.5 text-xs font-bold rounded-md transition-colors cursor-pointer ${
                   dateFilter === tab.id
                     ? 'bg-white text-[#3A3564] shadow-2xs font-extrabold'
                     : 'text-slate-500 hover:text-slate-800'
@@ -696,7 +696,7 @@ export default function DashboardClient({
       {/* ========================================================= */}
       {/* 2. 6-STAGE FACTORY FLOOR LIFECYCLE KPI CARDS               */}
       {/* ========================================================= */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3.5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
         
         {/* STAGE 1: TOTAL STOCKS */}
         <div 
@@ -705,25 +705,25 @@ export default function DashboardClient({
         >
           <div>
             <div className="flex items-center justify-between">
-              <span className="text-[10.5px] font-bold uppercase tracking-wider text-slate-500">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
                 1. Total Stocks
               </span>
-              <div className="w-7 h-7 rounded-lg bg-[#FAF7F0] text-[#3A3564] flex items-center justify-center border border-black/10">
-                <Warehouse className="w-4 h-4" />
+              <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] flex items-center justify-center border border-black/10">
+                <Warehouse className="w-[18px] h-[18px]" />
               </div>
             </div>
-            <p className="text-[11px] text-slate-400 mt-0.5 font-medium">Order Pipeline Target</p>
+            <p className="text-xs text-slate-400 mt-1 font-medium">Order Pipeline Target</p>
           </div>
 
           <div className="mt-3">
-            <h3 className="text-[26px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none">
+            <h3 className="text-[30px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none">
               {metrics.totalStocks.toLocaleString()}
             </h3>
-            <div className="mt-2.5 flex items-center justify-between">
-              <span className="text-[9.5px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 tracking-wider">
+            <div className="mt-3 flex items-center justify-between">
+              <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 tracking-wider">
                 Total Pieces
               </span>
-              <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#3A3564] transition-colors" />
+              <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#3A3564] transition-colors" />
             </div>
           </div>
         </div>
@@ -735,25 +735,25 @@ export default function DashboardClient({
         >
           <div>
             <div className="flex items-center justify-between">
-              <span className="text-[10.5px] font-bold uppercase tracking-wider text-slate-500">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
                 2. Goods in Line
               </span>
-              <div className="w-7 h-7 rounded-lg bg-[#EEF2FF] text-[#4F46E5] flex items-center justify-center">
-                <Activity className="w-4 h-4" />
+              <div className="w-8 h-8 rounded-lg bg-[#EEF2FF] text-[#4F46E5] flex items-center justify-center">
+                <Activity className="w-[18px] h-[18px]" />
               </div>
             </div>
-            <p className="text-[11px] text-slate-400 mt-0.5 font-medium">Sewing Machines WIP</p>
+            <p className="text-xs text-slate-400 mt-1 font-medium">Sewing Machines WIP</p>
           </div>
 
           <div className="mt-3">
-            <h3 className="text-[26px] font-bold font-[family-name:var(--font-heading)] text-[#4F46E5] leading-none">
+            <h3 className="text-[30px] font-bold font-[family-name:var(--font-heading)] text-[#4F46E5] leading-none">
               {metrics.goodsInLine.toLocaleString()}
             </h3>
-            <div className="mt-2.5 flex items-center justify-between">
-              <span className="text-[9.5px] font-extrabold uppercase px-2 py-0.5 rounded bg-[#EEF2FF] text-[#4338CA] tracking-wider">
+            <div className="mt-3 flex items-center justify-between">
+              <span className="text-[10px] font-extrabold uppercase px-2.5 py-1 rounded bg-[#EEF2FF] text-[#4338CA] tracking-wider">
                 On Floor
               </span>
-              <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#4F46E5] transition-colors" />
+              <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#4F46E5] transition-colors" />
             </div>
           </div>
         </div>
@@ -765,32 +765,32 @@ export default function DashboardClient({
         >
           <div>
             <div className="flex items-center justify-between">
-              <span className="text-[10.5px] font-bold uppercase tracking-wider text-slate-500">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
                 3. Mending & Checking
               </span>
-              <div className="w-7 h-7 rounded-lg bg-[#FFFBEB] text-[#D97706] flex items-center justify-center">
-                <AlertTriangle className="w-4 h-4" />
+              <div className="w-8 h-8 rounded-lg bg-[#FFFBEB] text-[#D97706] flex items-center justify-center">
+                <AlertTriangle className="w-[18px] h-[18px]" />
               </div>
             </div>
-            <p className="text-[11px] text-slate-400 mt-0.5 font-medium">QC Inspection & Repairs</p>
+            <p className="text-xs text-slate-400 mt-1 font-medium">QC Inspection & Repairs</p>
           </div>
 
           <div className="mt-3">
             <div className="flex items-baseline justify-between">
-              <h3 className="text-[26px] font-bold font-[family-name:var(--font-heading)] text-[#B45309] leading-none">
+              <h3 className="text-[30px] font-bold font-[family-name:var(--font-heading)] text-[#B45309] leading-none">
                 {metrics.mendingChecking.toLocaleString()}
               </h3>
               {metrics.alterationRate > 0 && (
-                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-rose-50 text-rose-700 border border-rose-200">
+                <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-rose-50 text-rose-700 border border-rose-200">
                   {metrics.alterationRate.toFixed(1)}% Alter
                 </span>
               )}
             </div>
-            <div className="mt-2.5 flex items-center justify-between">
-              <span className="text-[9.5px] font-extrabold uppercase px-2 py-0.5 rounded bg-[#FFFBEB] text-[#92400E] tracking-wider">
+            <div className="mt-3 flex items-center justify-between">
+              <span className="text-[10px] font-extrabold uppercase px-2.5 py-1 rounded bg-[#FFFBEB] text-[#92400E] tracking-wider">
                 {metrics.mendingAlterationQty > 0 ? `${metrics.mendingAlterationQty} Defect/Alter` : 'Finishing Table'}
               </span>
-              <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#D97706] transition-colors" />
+              <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#D97706] transition-colors" />
             </div>
           </div>
         </div>
@@ -802,25 +802,25 @@ export default function DashboardClient({
         >
           <div>
             <div className="flex items-center justify-between">
-              <span className="text-[10.5px] font-bold uppercase tracking-wider text-slate-500">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
                 4. Ready Goods
               </span>
-              <div className="w-7 h-7 rounded-lg bg-[#ECFDF5] text-[#059669] flex items-center justify-center">
-                <PackageCheck className="w-4 h-4" />
+              <div className="w-8 h-8 rounded-lg bg-[#ECFDF5] text-[#059669] flex items-center justify-center">
+                <PackageCheck className="w-[18px] h-[18px]" />
               </div>
             </div>
-            <p className="text-[11px] text-slate-400 mt-0.5 font-medium">QC Passed & Packed</p>
+            <p className="text-xs text-slate-400 mt-1 font-medium">QC Passed & Packed</p>
           </div>
 
           <div className="mt-3">
-            <h3 className="text-[26px] font-bold font-[family-name:var(--font-heading)] text-[#059669] leading-none">
+            <h3 className="text-[30px] font-bold font-[family-name:var(--font-heading)] text-[#059669] leading-none">
               {metrics.readyGoods.toLocaleString()}
             </h3>
-            <div className="mt-2.5 flex items-center justify-between">
-              <span className="text-[9.5px] font-extrabold uppercase px-2 py-0.5 rounded bg-[#ECFDF5] text-[#065F46] tracking-wider">
+            <div className="mt-3 flex items-center justify-between">
+              <span className="text-[10px] font-extrabold uppercase px-2.5 py-1 rounded bg-[#ECFDF5] text-[#065F46] tracking-wider">
                 In Godown
               </span>
-              <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#059669] transition-colors" />
+              <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#059669] transition-colors" />
             </div>
           </div>
         </div>
@@ -832,25 +832,25 @@ export default function DashboardClient({
         >
           <div>
             <div className="flex items-center justify-between">
-              <span className="text-[10.5px] font-bold uppercase tracking-wider text-slate-500">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
                 5. RTO & Rejection
               </span>
-              <div className="w-7 h-7 rounded-lg bg-[#FEF2F2] text-[#DC2626] flex items-center justify-center">
-                <RotateCcw className="w-4 h-4" />
+              <div className="w-8 h-8 rounded-lg bg-[#FEF2F2] text-[#DC2626] flex items-center justify-center">
+                <RotateCcw className="w-[18px] h-[18px]" />
               </div>
             </div>
-            <p className="text-[11px] text-slate-400 mt-0.5 font-medium">Return to Origin</p>
+            <p className="text-xs text-slate-400 mt-1 font-medium">Return to Origin</p>
           </div>
 
           <div className="mt-3">
-            <h3 className="text-[26px] font-bold font-[family-name:var(--font-heading)] text-[#DC2626] leading-none">
+            <h3 className="text-[30px] font-bold font-[family-name:var(--font-heading)] text-[#DC2626] leading-none">
               {metrics.rto.toLocaleString()}
             </h3>
-            <div className="mt-2.5 flex items-center justify-between">
-              <span className="text-[9.5px] font-extrabold uppercase px-2 py-0.5 rounded bg-[#FEF2F2] text-[#991B1B] tracking-wider">
+            <div className="mt-3 flex items-center justify-between">
+              <span className="text-[10px] font-extrabold uppercase px-2.5 py-1 rounded bg-[#FEF2F2] text-[#991B1B] tracking-wider">
                 Defect / Reject
               </span>
-              <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#DC2626] transition-colors" />
+              <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#DC2626] transition-colors" />
             </div>
           </div>
         </div>
@@ -862,25 +862,25 @@ export default function DashboardClient({
         >
           <div>
             <div className="flex items-center justify-between">
-              <span className="text-[10.5px] font-bold uppercase tracking-wider text-slate-500">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
                 6. Ready for Delivery
               </span>
-              <div className="w-7 h-7 rounded-lg bg-[#F5F3FF] text-[#7C3AED] flex items-center justify-center">
-                <Truck className="w-4 h-4" />
+              <div className="w-8 h-8 rounded-lg bg-[#F5F3FF] text-[#7C3AED] flex items-center justify-center">
+                <Truck className="w-[18px] h-[18px]" />
               </div>
             </div>
-            <p className="text-[11px] text-slate-400 mt-0.5 font-medium">Gate Pass & Dispatched</p>
+            <p className="text-xs text-slate-400 mt-1 font-medium">Gate Pass & Dispatched</p>
           </div>
 
           <div className="mt-3">
-            <h3 className="text-[26px] font-bold font-[family-name:var(--font-heading)] text-[#7C3AED] leading-none">
+            <h3 className="text-[30px] font-bold font-[family-name:var(--font-heading)] text-[#7C3AED] leading-none">
               {metrics.readyDelivery.toLocaleString()}
             </h3>
-            <div className="mt-2.5 flex items-center justify-between">
-              <span className="text-[9.5px] font-extrabold uppercase px-2 py-0.5 rounded bg-[#F5F3FF] text-[#5B21B6] tracking-wider">
+            <div className="mt-3 flex items-center justify-between">
+              <span className="text-[10px] font-extrabold uppercase px-2.5 py-1 rounded bg-[#F5F3FF] text-[#5B21B6] tracking-wider">
                 Dispatched Pcs
               </span>
-              <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#7C3AED] transition-colors" />
+              <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#7C3AED] transition-colors" />
             </div>
           </div>
         </div>
@@ -890,15 +890,15 @@ export default function DashboardClient({
       {/* ========================================================= */}
       {/* 3. LIVE VISUAL FLOW PIPELINE STEPPER BAR                   */}
       {/* ========================================================= */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs">
+      <div className="bg-white p-5 sm:p-7 rounded-2xl border border-black/10 shadow-2xs">
         <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-          <div className="flex items-center gap-2">
-            <TrendingUp className="w-4 h-4 text-[#3A3564]" />
-            <h3 className="text-sm font-bold text-slate-800">
+          <div className="flex items-center gap-2.5">
+            <TrendingUp className="w-5 h-5 text-[#3A3564]" />
+            <h3 className="text-base font-bold text-slate-800">
               Live Factory Conversion Flow (Order to Gate)
             </h3>
           </div>
-          <span className="text-xs font-semibold text-slate-500">
+          <span className="text-sm font-semibold text-slate-500">
             Total Target: <strong className="text-slate-900">{metrics.totalStocks.toLocaleString()} pcs</strong>
           </span>
         </div>
@@ -974,28 +974,28 @@ export default function DashboardClient({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
         {/* Active Floor Allotments Table (2 Cols) */}
-        <div className="lg:col-span-2 bg-white rounded-2xl border border-black/10 shadow-2xs p-5 sm:p-6">
+        <div className="lg:col-span-2 bg-white rounded-2xl border border-black/10 shadow-2xs p-5 sm:p-7">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <div>
-              <h3 className="text-sm font-bold text-slate-800">
+              <h3 className="text-base font-bold text-slate-800">
                 Active Production Orders & Floor Allotments
               </h3>
-              <p className="text-xs text-slate-400 mt-0.5">
+              <p className="text-sm text-slate-400 mt-0.5">
                 Live status of multi-article challans and assigned linemen
               </p>
             </div>
             <Link 
               href="/production-orders"
-              className="text-xs font-bold text-[#3A3564] hover:underline inline-flex items-center gap-1"
+              className="text-sm font-bold text-[#3A3564] hover:underline inline-flex items-center gap-1.5"
             >
-              View All Orders <ChevronRight className="w-3.5 h-3.5" />
+              View All Orders <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
 
           <div className="mt-4 overflow-x-auto">
-            <table className="w-full text-left text-xs">
+            <table className="w-full text-left text-sm">
               <thead>
-                <tr className="border-b border-slate-100 text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0]">
+                <tr className="border-b border-slate-100 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0]">
                   <th className="py-2.5 px-3">Article Style</th>
                   <th className="py-2.5 px-3">Challan / Order</th>
                   <th className="py-2.5 px-3">Lineman</th>
@@ -1059,36 +1059,36 @@ export default function DashboardClient({
         <div className="bg-white rounded-2xl border border-black/10 shadow-2xs p-5 sm:p-6 flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <h3 className="text-sm font-bold text-slate-800">
+              <h3 className="text-base font-bold text-slate-800">
                 Floor Activity Stream
               </h3>
-              <Clock className="w-4 h-4 text-slate-400" />
+              <Clock className="w-[18px] h-[18px] text-slate-400" />
             </div>
 
             <div className="mt-4 space-y-3">
               {recentActivities.map(act => (
-                <div key={act.id} className="flex items-start gap-3 p-2.5 rounded-lg bg-slate-50 border border-slate-100">
-                  <div className={`w-7 h-7 rounded-md flex items-center justify-center shrink-0 ${
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-slate-50 border border-slate-100">
+                  <div className={`w-8 h-8 rounded-md flex items-center justify-center shrink-0 ${
                     act.type === 'QC_PASS' ? 'bg-emerald-100 text-emerald-700' :
                     act.type === 'QC_REJECT' ? 'bg-rose-100 text-rose-700' :
                     act.type === 'STORE_INWARD' ? 'bg-blue-100 text-blue-700' :
                     'bg-purple-100 text-purple-700'
                   }`}>
-                    {act.type === 'QC_PASS' && <CheckCircle2 className="w-3.5 h-3.5" />}
-                    {act.type === 'QC_REJECT' && <AlertTriangle className="w-3.5 h-3.5" />}
-                    {act.type === 'STORE_INWARD' && <Boxes className="w-3.5 h-3.5" />}
-                    {act.type === 'DISPATCH' && <Truck className="w-3.5 h-3.5" />}
+                    {act.type === 'QC_PASS' && <CheckCircle2 className="w-4 h-4" />}
+                    {act.type === 'QC_REJECT' && <AlertTriangle className="w-4 h-4" />}
+                    {act.type === 'STORE_INWARD' && <Boxes className="w-4 h-4" />}
+                    {act.type === 'DISPATCH' && <Truck className="w-4 h-4" />}
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between">
-                      <p className="text-xs font-bold text-slate-800 truncate">
+                      <p className="text-sm font-bold text-slate-800 truncate">
                         {act.title}
                       </p>
-                      <span className="text-[10px] text-slate-400 shrink-0">
+                      <span className="text-[11px] text-slate-400 shrink-0">
                         {act.relativeTime}
                       </span>
                     </div>
-                    <p className="text-[11px] text-slate-500 truncate mt-0.5">
+                    <p className="text-xs text-slate-500 truncate mt-0.5">
                       {act.details}
                     </p>
                   </div>
@@ -1105,9 +1105,9 @@ export default function DashboardClient({
           <div className="pt-4 border-t border-slate-100 mt-4">
             <Link 
               href="/reports"
-              className="text-xs font-bold text-slate-700 hover:text-slate-900 inline-flex items-center justify-center gap-1.5 w-full py-2.5 bg-white hover:bg-slate-50 rounded-xl border border-black/15 shadow-2xs transition-all cursor-pointer"
+              className="text-sm font-bold text-slate-700 hover:text-slate-900 inline-flex items-center justify-center gap-2 w-full py-3 bg-white hover:bg-slate-50 rounded-xl border border-black/15 shadow-2xs transition-all cursor-pointer"
             >
-              <FileCheck2 className="w-3.5 h-3.5" /> Full Factory Audit Reports
+              <FileCheck2 className="w-4 h-4" /> Full Factory Audit Reports
             </Link>
           </div>
         </div>

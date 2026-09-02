@@ -17,17 +17,21 @@ export default async function ArticlesPage() {
     redirect('/login')
   }
 
-  // 1. Fetch all articles (both active and archived)
-  const { data: articles } = await supabase
-    .from('articles')
-    .select('*')
-    .order('created_at', { ascending: false })
+  // Parallel concurrent data fetching
+  const [
+    { data: articles },
+    { data: rateHistory }
+  ] = await Promise.all([
+    supabase
+      .from('articles')
+      .select('*')
+      .order('created_at', { ascending: false }),
 
-  // 2. Fetch rate history for all articles
-  const { data: rateHistory } = await supabase
-    .from('rate_history')
-    .select('*')
-    .order('created_at', { ascending: false })
+    supabase
+      .from('rate_history')
+      .select('*')
+      .order('created_at', { ascending: false })
+  ])
 
   return (
     <AdminShell userEmail={user.email}>
