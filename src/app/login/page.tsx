@@ -2,8 +2,9 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { login, sendPasswordResetOtp, verifyRecoveryOtp, setNewPassword } from './actions'
-import { ArrowRight, X, KeyRound, CheckCircle2, AlertCircle, ShieldCheck, Lock } from 'lucide-react'
+import { ArrowRight, ArrowLeft, X, KeyRound, CheckCircle2, AlertCircle, ShieldCheck, Lock } from 'lucide-react'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -119,83 +120,52 @@ export default function LoginPage() {
   }
 
   return (
-    <div 
-      className="min-h-screen w-full flex flex-col justify-center items-center relative overflow-x-hidden p-4 font-[family-name:var(--font-public-sans)]"
-      style={{
-        backgroundColor: 'var(--bg, #EEF1F5)',
-        backgroundImage: [
-          'radial-gradient(circle at 1px 1px, var(--bg-line, #E2E7EE) 1px, transparent 1px)',
-          'repeating-linear-gradient(0deg, rgba(43, 76, 126, 0.05) 0px, rgba(43, 76, 126, 0.05) 1px, transparent 1px, transparent 120px)',
-          'repeating-linear-gradient(90deg, rgba(43, 76, 126, 0.05) 0px, rgba(43, 76, 126, 0.05) 1px, transparent 1px, transparent 120px)'
-        ].join(','),
-        backgroundSize: '28px 28px, 120px 120px, 120px 120px',
-      }}
-    >
-      {/* Centered Content Container */}
-      <div className="z-10 w-full max-w-[380px] flex flex-col items-center">
-        
-        {/* 1. Official Zigza Logo */}
-        <div className="mb-4">
-          <div 
-            className="h-14 px-4 rounded-[14px] bg-black flex items-center justify-center border border-slate-800 shadow-md transition-transform duration-200 hover:scale-[1.02]"
-          >
-            <img 
-              src="/z_i_g_z_a.png" 
-              alt="zigza." 
-              className="h-8 w-auto object-contain"
-            />
-          </div>
+    <div className="min-h-screen w-full flex flex-col justify-between items-center bg-[#FAFAF8] text-[#14140F] relative overflow-x-hidden p-4 sm:p-6 font-sans">
+      
+      {/* Top Header / Back Navigation */}
+      <header className="w-full max-w-5xl flex items-center justify-between py-2 z-10">
+        <Link 
+          href="/" 
+          className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-[#57564E] hover:text-[#14140F] transition-colors py-1.5 px-2.5 rounded-lg hover:bg-slate-200/50 cursor-pointer"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Back to zigza.in</span>
+        </Link>
+        <div className="flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-emerald-500" />
+          <span className="text-xs text-[#57564E] font-medium hidden sm:inline">Secure Staff Access</span>
         </div>
+      </header>
 
-        {/* 2. Brand Block */}
+      {/* Centered Login Card Container */}
+      <main className="z-10 w-full max-w-[420px] my-auto py-6 flex flex-col items-center">
+        
+        {/* Brand Logo & Presentation */}
         <div className="text-center mb-6 flex flex-col items-center">
-          <div className="flex items-center gap-2">
-            <span className="text-[11px] font-extrabold uppercase px-2 py-0.5 rounded bg-[var(--green-mist,#E6F6EE)] text-[var(--green,#1F9D63)] border border-[var(--green,#1F9D63)]/20">
-              MES Control Center
-            </span>
-            <span className="text-[11px] font-bold text-[var(--ink-soft,#5B6B7C)]">
-              by Nubira
-            </span>
-          </div>
-
-          <div 
-            className="w-[120px] h-[2px] my-2"
-            style={{
-              backgroundImage: 'repeating-linear-gradient(90deg, var(--stitch, #C8802B) 0px, var(--stitch, #C8802B) 6px, transparent 6px, transparent 11px)',
-            }}
-          />
-
-          <p 
-            className="text-[11px] font-semibold tracking-[3px] uppercase"
-            style={{ color: 'var(--ink-soft, #5B6B7C)' }}
-          >
-            WEB ADMIN PORTAL
+          <Link href="/" className="inline-block mb-3 group">
+            <img 
+              src="/new_logo.png" 
+              alt="zigza." 
+              className="h-10 sm:h-11 w-auto object-contain rounded-lg overflow-hidden shadow-xs transition-transform group-hover:scale-[1.02]"
+            />
+          </Link>
+          <h1 className="text-xl sm:text-2xl font-bold text-[#14140F] tracking-tight">
+            Staff Portal Sign In
+          </h1>
+          <p className="text-xs sm:text-sm text-[#57564E] mt-1">
+            Manufacturing Execution System for modern apparel plants
           </p>
         </div>
 
-        {/* 3. Login Card */}
-        <div 
-          className="w-full relative bg-white border rounded-[12px] p-6 sm:p-[34px_34px_30px]"
-          style={{
-            borderColor: 'var(--border, #E2E8F0)',
-            boxShadow: '0 24px 48px -20px rgba(31, 58, 99, 0.18), 0 2px 6px rgba(31, 58, 99, 0.05)',
-          }}
-        >
-          {/* Stitched top edge decoration */}
-          <div 
-            className="absolute top-0 left-5 right-5 h-[1px] opacity-50"
-            style={{
-              backgroundImage: 'repeating-linear-gradient(90deg, var(--steel, #2B4C7E) 0px, var(--steel, #2B4C7E) 5px, transparent 5px, transparent 9px)',
-            }}
-          />
-
+        {/* Login Form Card */}
+        <div className="w-full bg-white rounded-2xl border border-slate-200/90 shadow-xl p-6 sm:p-8">
           <form action={clientAction} className="space-y-4">
+            
             {/* Email Field */}
-            <div className="space-y-1.5">
+            <div>
               <label 
                 htmlFor="email" 
-                className="block text-[11px] font-semibold uppercase tracking-[1.5px]"
-                style={{ color: 'var(--ink-soft, #5B6B7C)' }}
+                className="block text-xs font-semibold text-slate-700 mb-1.5"
               >
                 Email Address
               </label>
@@ -205,29 +175,15 @@ export default function LoginPage() {
                 type="email"
                 required
                 placeholder="admin@nubira.local"
-                className="w-full py-[11px] px-[13px] text-[13.5px] rounded-[7px] border transition-colors outline-none"
-                style={{
-                  backgroundColor: '#FBFCFD',
-                  borderColor: 'var(--border, #E2E8F0)',
-                  color: 'var(--ink, #1C2733)',
-                }}
-                onFocus={(e) => {
-                  e.currentTarget.style.borderColor = 'var(--steel, #2B4C7E)'
-                  e.currentTarget.style.boxShadow = '0 0 0 3px var(--steel-mist, #EEF3FA)'
-                }}
-                onBlur={(e) => {
-                  e.currentTarget.style.borderColor = 'var(--border, #E2E8F0)'
-                  e.currentTarget.style.boxShadow = 'none'
-                }}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm text-[#14140F] placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all bg-white"
               />
             </div>
 
             {/* Password Field */}
-            <div className="space-y-1.5">
+            <div>
               <label 
                 htmlFor="password" 
-                className="block text-[11px] font-semibold uppercase tracking-[1.5px]"
-                style={{ color: 'var(--ink-soft, #5B6B7C)' }}
+                className="block text-xs font-semibold text-slate-700 mb-1.5"
               >
                 Password
               </label>
@@ -237,20 +193,7 @@ export default function LoginPage() {
                 type="password"
                 required
                 placeholder="••••••••"
-                className="w-full py-[11px] px-[13px] text-[13.5px] rounded-[7px] border transition-colors outline-none"
-                style={{
-                  backgroundColor: '#FBFCFD',
-                  borderColor: 'var(--border, #E2E8F0)',
-                  color: 'var(--ink, #1C2733)',
-                }}
-                onFocus={(e) => {
-                  e.currentTarget.style.borderColor = 'var(--steel, #2B4C7E)'
-                  e.currentTarget.style.boxShadow = '0 0 0 3px var(--steel-mist, #EEF3FA)'
-                }}
-                onBlur={(e) => {
-                  e.currentTarget.style.borderColor = 'var(--border, #E2E8F0)'
-                  e.currentTarget.style.boxShadow = 'none'
-                }}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm text-[#14140F] placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all bg-white"
               />
             </div>
 
@@ -262,13 +205,9 @@ export default function LoginPage() {
                   id="remember"
                   name="remember"
                   defaultChecked
-                  className="w-3.5 h-3.5 rounded cursor-pointer transition-colors"
-                  style={{ accentColor: 'var(--steel, #2B4C7E)' }}
+                  className="w-4 h-4 rounded text-[#3A3564] accent-[#3A3564] cursor-pointer"
                 />
-                <span 
-                  className="text-[12.5px]"
-                  style={{ color: 'var(--ink-soft, #5B6B7C)' }}
-                >
+                <span className="text-xs text-slate-600 font-medium">
                   Keep me signed in
                 </span>
               </label>
@@ -281,87 +220,63 @@ export default function LoginPage() {
                   setForgotStep(1)
                   setShowForgotModal(true)
                 }}
-                className="text-[12.5px] font-semibold hover:underline transition-colors bg-transparent border-none p-0 cursor-pointer"
-                style={{ color: 'var(--steel, #2B4C7E)' }}
+                className="text-xs font-semibold text-[#3A3564] hover:underline transition-colors bg-transparent border-none p-0 cursor-pointer"
               >
                 Forgot password?
               </button>
             </div>
 
-            {/* Error Message */}
+            {/* Error Banner */}
             {error && (
-              <div 
-                className="p-3 rounded-[7px] text-[13px] font-medium border flex items-start"
-                style={{
-                  backgroundColor: '#FEF2F2',
-                  borderColor: '#FECACA',
-                  color: '#DC2626',
-                }}
-              >
+              <div className="p-3 rounded-xl text-xs font-medium bg-rose-50 border border-rose-200 text-rose-600 flex items-start gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                 <span>{error}</span>
               </div>
             )}
 
-            {/* Sign In Button */}
+            {/* Submit Button */}
             <button
               type="submit"
               disabled={isPending}
-              className="w-full py-[12px] px-4 rounded-[7px] text-[14.5px] font-semibold text-white flex items-center justify-center gap-[8px] transition-colors duration-150 disabled:opacity-60 disabled:cursor-not-allowed mt-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2"
-              style={{
-                backgroundColor: 'var(--steel, #2B4C7E)',
-              }}
-              onMouseEnter={(e) => {
-                if (!isPending) e.currentTarget.style.backgroundColor = 'var(--steel-dark, #1F3A63)'
-              }}
-              onMouseLeave={(e) => {
-                if (!isPending) e.currentTarget.style.backgroundColor = 'var(--steel, #2B4C7E)'
-              }}
+              className="w-full py-3 px-4 rounded-xl text-sm font-semibold text-white bg-[#3A3564] hover:bg-[#2F2B52] flex items-center justify-center gap-2 transition-all shadow-sm disabled:opacity-60 disabled:cursor-not-allowed mt-2 cursor-pointer"
             >
               {isPending ? (
                 <span>Signing in...</span>
               ) : (
                 <>
-                  Sign In
-                  <ArrowRight className="w-[15px] h-[15px]" />
+                  <span>Sign In to Dashboard</span>
+                  <ArrowRight className="w-4 h-4" />
                 </>
               )}
             </button>
+
           </form>
         </div>
-      </div>
 
-      {/* ======================================================== */}
-      {/* 3-STEP OTP & PASSWORD RESET MODAL                        */}
-      {/* ======================================================== */}
+      </main>
+
+      {/* 3-Step OTP & Password Reset Modal */}
       {showForgotModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-200">
-          <div 
-            className="w-full max-w-[400px] bg-white border rounded-[14px] p-6 sm:p-7 shadow-2xl relative"
-            style={{ borderColor: 'var(--border, #E2E8F0)' }}
-          >
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1C1A2E]/60 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="w-full max-w-[420px] bg-white rounded-2xl p-6 sm:p-7 shadow-2xl border border-slate-100 relative">
+            
             {/* Close Button */}
             <button 
               onClick={resetModalState}
-              className="absolute top-4 right-4 p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+              className="absolute top-4 right-4 p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
 
-            {/* Header */}
-            <div className="flex items-center gap-3 mb-4">
-              <div 
-                className="w-10 h-10 rounded-[10px] flex items-center justify-center"
-                style={{ backgroundColor: 'var(--steel-mist, #EEF3FA)', color: 'var(--steel, #2B4C7E)' }}
-              >
+            {/* Modal Header */}
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-10 h-10 rounded-xl bg-indigo-50 text-[#3A3564] flex items-center justify-center shrink-0">
                 {forgotStep === 1 && <KeyRound className="w-5 h-5" />}
                 {forgotStep === 2 && <ShieldCheck className="w-5 h-5" />}
                 {forgotStep === 3 && <Lock className="w-5 h-5" />}
               </div>
               <div>
-                <h3 
-                  className="text-lg font-bold font-[family-name:var(--font-heading)] leading-tight"
-                  style={{ color: 'var(--ink, #1C2733)' }}
-                >
+                <h3 className="text-lg font-bold text-slate-900 leading-tight">
                   {forgotStep === 1 && 'Reset Password'}
                   {forgotStep === 2 && 'Enter 6-Digit OTP'}
                   {forgotStep === 3 && 'Create New Password'}
@@ -386,19 +301,16 @@ export default function LoginPage() {
                 </p>
               </div>
             ) : forgotStep === 1 ? (
-              /* ======================================================== */
-              /* STEP 1: ENTER EMAIL                                      */
-              /* ======================================================== */
+              /* STEP 1: ENTER EMAIL */
               <form onSubmit={handleSendOtp} className="space-y-4">
                 <p className="text-xs text-slate-600 leading-relaxed">
                   Enter your registered email address. We will send you a 6-digit OTP code to verify your identity.
                 </p>
 
-                <div className="space-y-1.5">
+                <div>
                   <label 
                     htmlFor="forgot-email" 
-                    className="block text-[11px] font-semibold uppercase tracking-[1.5px]"
-                    style={{ color: 'var(--ink-soft, #5B6B7C)' }}
+                    className="block text-xs font-semibold text-slate-700 mb-1.5"
                   >
                     Registered Email Address
                   </label>
@@ -409,54 +321,38 @@ export default function LoginPage() {
                     value={forgotEmail}
                     onChange={(e) => setForgotEmail(e.target.value)}
                     placeholder="e.g. team.anga9@gmail.com"
-                    className="w-full py-[11px] px-[13px] text-[13.5px] rounded-[7px] border transition-colors outline-none"
-                    style={{
-                      backgroundColor: '#FBFCFD',
-                      borderColor: 'var(--border, #E2E8F0)',
-                      color: 'var(--ink, #1C2733)',
-                    }}
-                    onFocus={(e) => {
-                      e.currentTarget.style.borderColor = 'var(--steel, #2B4C7E)'
-                      e.currentTarget.style.boxShadow = '0 0 0 3px var(--steel-mist, #EEF3FA)'
-                    }}
-                    onBlur={(e) => {
-                      e.currentTarget.style.borderColor = 'var(--border, #E2E8F0)'
-                      e.currentTarget.style.boxShadow = 'none'
-                    }}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm text-[#14140F] placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent bg-white"
                   />
                 </div>
 
                 {forgotError && (
-                  <div className="p-3 rounded-[7px] text-xs font-medium bg-rose-50 border border-rose-200 text-rose-600 flex items-center gap-2">
+                  <div className="p-3 rounded-xl text-xs font-medium bg-rose-50 border border-rose-200 text-rose-600 flex items-center gap-2">
                     <AlertCircle className="w-4 h-4 shrink-0" />
                     <span>{forgotError}</span>
                   </div>
                 )}
 
-                <div className="flex items-center gap-2 pt-2">
+                <div className="flex items-center gap-2.5 pt-2">
                   <button
                     type="button"
                     onClick={resetModalState}
-                    className="flex-1 py-2.5 px-3 rounded-[7px] text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors"
+                    className="flex-1 py-2.5 px-3 rounded-xl text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors cursor-pointer"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={isForgotPending}
-                    className="flex-2 py-2.5 px-4 rounded-[7px] text-xs font-bold text-white transition-colors disabled:opacity-60"
-                    style={{ backgroundColor: 'var(--steel, #2B4C7E)' }}
+                    className="flex-2 py-2.5 px-4 rounded-xl text-xs font-semibold text-white bg-[#3A3564] hover:bg-[#2F2B52] transition-colors disabled:opacity-60 cursor-pointer shadow-sm"
                   >
                     {isForgotPending ? 'Sending OTP...' : 'Send 6-Digit OTP'}
                   </button>
                 </div>
               </form>
             ) : forgotStep === 2 ? (
-              /* ======================================================== */
-              /* STEP 2: ENTER OTP ONLY                                   */
-              /* ======================================================== */
+              /* STEP 2: ENTER OTP ONLY */
               <form onSubmit={handleVerifyOtp} className="space-y-4">
-                <div className="p-3 rounded-[9px] bg-blue-50 border border-blue-100 text-xs text-blue-900 flex items-start justify-between gap-2">
+                <div className="p-3 rounded-xl bg-blue-50 border border-blue-100 text-xs text-blue-900 flex items-start justify-between gap-2">
                   <div>
                     <span className="font-semibold block">OTP Sent to:</span>
                     <span className="font-bold text-blue-700">{forgotEmail}</span>
@@ -464,17 +360,16 @@ export default function LoginPage() {
                   <button
                     type="button"
                     onClick={() => setForgotStep(1)}
-                    className="text-[11px] font-bold text-blue-600 hover:underline shrink-0"
+                    className="text-[11px] font-bold text-blue-600 hover:underline shrink-0 cursor-pointer"
                   >
                     Change Email
                   </button>
                 </div>
 
-                <div className="space-y-1.5">
+                <div>
                   <label 
                     htmlFor="otp-token" 
-                    className="block text-[11px] font-semibold uppercase tracking-[1.5px]"
-                    style={{ color: 'var(--ink-soft, #5B6B7C)' }}
+                    className="block text-xs font-semibold text-slate-700 mb-1.5"
                   >
                     Enter 6-Digit OTP Code
                   </label>
@@ -486,63 +381,46 @@ export default function LoginPage() {
                     value={otpToken}
                     onChange={(e) => setOtpToken(e.target.value)}
                     placeholder="• • • • • •"
-                    className="w-full py-[12px] px-[13px] text-center tracking-[6px] font-mono text-lg font-bold rounded-[7px] border transition-colors outline-none"
-                    style={{
-                      backgroundColor: '#FBFCFD',
-                      borderColor: 'var(--border, #E2E8F0)',
-                      color: 'var(--steel, #2B4C7E)',
-                    }}
-                    onFocus={(e) => {
-                      e.currentTarget.style.borderColor = 'var(--steel, #2B4C7E)'
-                      e.currentTarget.style.boxShadow = '0 0 0 3px var(--steel-mist, #EEF3FA)'
-                    }}
-                    onBlur={(e) => {
-                      e.currentTarget.style.borderColor = 'var(--border, #E2E8F0)'
-                      e.currentTarget.style.boxShadow = 'none'
-                    }}
+                    className="w-full py-2.5 px-3.5 text-center tracking-[6px] font-mono text-lg font-bold rounded-xl border border-slate-200 text-[#3A3564] focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent bg-white"
                   />
                 </div>
 
                 {forgotError && (
-                  <div className="p-3 rounded-[7px] text-xs font-medium bg-rose-50 border border-rose-200 text-rose-600 flex items-center gap-2">
+                  <div className="p-3 rounded-xl text-xs font-medium bg-rose-50 border border-rose-200 text-rose-600 flex items-center gap-2">
                     <AlertCircle className="w-4 h-4 shrink-0" />
                     <span>{forgotError}</span>
                   </div>
                 )}
 
-                <div className="flex items-center gap-2 pt-2">
+                <div className="flex items-center gap-2.5 pt-2">
                   <button
                     type="button"
                     onClick={() => setForgotStep(1)}
-                    className="flex-1 py-2.5 px-3 rounded-[7px] text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors"
+                    className="flex-1 py-2.5 px-3 rounded-xl text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors cursor-pointer"
                   >
                     Back
                   </button>
                   <button
                     type="submit"
                     disabled={isForgotPending}
-                    className="flex-2 py-2.5 px-4 rounded-[7px] text-xs font-bold text-white transition-colors disabled:opacity-60"
-                    style={{ backgroundColor: 'var(--steel, #2B4C7E)' }}
+                    className="flex-2 py-2.5 px-4 rounded-xl text-xs font-semibold text-white bg-[#3A3564] hover:bg-[#2F2B52] transition-colors disabled:opacity-60 cursor-pointer shadow-sm"
                   >
                     {isForgotPending ? 'Verifying OTP...' : 'Verify OTP Code'}
                   </button>
                 </div>
               </form>
             ) : (
-              /* ======================================================== */
-              /* STEP 3: SET NEW PASSWORD                                 */
-              /* ======================================================== */
+              /* STEP 3: SET NEW PASSWORD */
               <form onSubmit={handleSetNewPassword} className="space-y-3.5">
-                <div className="p-2.5 rounded-[9px] bg-emerald-50 border border-emerald-100 text-xs text-emerald-800 flex items-center gap-2">
+                <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-100 text-xs text-emerald-800 flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                   <span className="font-semibold">OTP Verified! Create your new password.</span>
                 </div>
 
-                <div className="space-y-1">
+                <div>
                   <label 
                     htmlFor="new-password" 
-                    className="block text-[11px] font-semibold uppercase tracking-[1.5px]"
-                    style={{ color: 'var(--ink-soft, #5B6B7C)' }}
+                    className="block text-xs font-semibold text-slate-700 mb-1.5"
                   >
                     New Password
                   </label>
@@ -553,28 +431,14 @@ export default function LoginPage() {
                     value={newPassword}
                     onChange={(e) => setNewPasswordVal(e.target.value)}
                     placeholder="At least 6 characters"
-                    className="w-full py-[10px] px-[13px] text-[13.5px] rounded-[7px] border transition-colors outline-none"
-                    style={{
-                      backgroundColor: '#FBFCFD',
-                      borderColor: 'var(--border, #E2E8F0)',
-                      color: 'var(--ink, #1C2733)',
-                    }}
-                    onFocus={(e) => {
-                      e.currentTarget.style.borderColor = 'var(--steel, #2B4C7E)'
-                      e.currentTarget.style.boxShadow = '0 0 0 3px var(--steel-mist, #EEF3FA)'
-                    }}
-                    onBlur={(e) => {
-                      e.currentTarget.style.borderColor = 'var(--border, #E2E8F0)'
-                      e.currentTarget.style.boxShadow = 'none'
-                    }}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm text-[#14140F] placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent bg-white"
                   />
                 </div>
 
-                <div className="space-y-1">
+                <div>
                   <label 
                     htmlFor="confirm-password" 
-                    className="block text-[11px] font-semibold uppercase tracking-[1.5px]"
-                    style={{ color: 'var(--ink-soft, #5B6B7C)' }}
+                    className="block text-xs font-semibold text-slate-700 mb-1.5"
                   >
                     Confirm New Password
                   </label>
@@ -585,25 +449,12 @@ export default function LoginPage() {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="Re-enter your new password"
-                    className="w-full py-[10px] px-[13px] text-[13.5px] rounded-[7px] border transition-colors outline-none"
-                    style={{
-                      backgroundColor: '#FBFCFD',
-                      borderColor: 'var(--border, #E2E8F0)',
-                      color: 'var(--ink, #1C2733)',
-                    }}
-                    onFocus={(e) => {
-                      e.currentTarget.style.borderColor = 'var(--steel, #2B4C7E)'
-                      e.currentTarget.style.boxShadow = '0 0 0 3px var(--steel-mist, #EEF3FA)'
-                    }}
-                    onBlur={(e) => {
-                      e.currentTarget.style.borderColor = 'var(--border, #E2E8F0)'
-                      e.currentTarget.style.boxShadow = 'none'
-                    }}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm text-[#14140F] placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent bg-white"
                   />
                 </div>
 
                 {forgotError && (
-                  <div className="p-3 rounded-[7px] text-xs font-medium bg-rose-50 border border-rose-200 text-rose-600 flex items-center gap-2">
+                  <div className="p-3 rounded-xl text-xs font-medium bg-rose-50 border border-rose-200 text-rose-600 flex items-center gap-2">
                     <AlertCircle className="w-4 h-4 shrink-0" />
                     <span>{forgotError}</span>
                   </div>
@@ -613,8 +464,7 @@ export default function LoginPage() {
                   <button
                     type="submit"
                     disabled={isForgotPending}
-                    className="w-full py-2.5 px-4 rounded-[7px] text-xs font-bold text-white transition-colors disabled:opacity-60 shadow-sm"
-                    style={{ backgroundColor: 'var(--steel, #2B4C7E)' }}
+                    className="w-full py-2.5 px-4 rounded-xl text-xs font-semibold text-white bg-[#3A3564] hover:bg-[#2F2B52] transition-colors disabled:opacity-60 shadow-sm cursor-pointer"
                   >
                     {isForgotPending ? 'Updating Password...' : 'Save Password & Sign In'}
                   </button>
@@ -625,28 +475,20 @@ export default function LoginPage() {
         </div>
       )}
 
-      {/* 4. Fixed Viewport Footer */}
-      <footer className="w-full fixed bottom-0 left-0 right-0 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 pointer-events-none z-10">
-        <div 
-          className="text-[11px] font-[family-name:var(--font-jetbrains-mono)] opacity-70 pointer-events-auto"
-          style={{ color: 'var(--ink-soft, #5B6B7C)' }}
-        >
-          ZIGZA GARMENT ERP · v2.4.1
+      {/* Footer Bar */}
+      <footer className="w-full max-w-5xl py-3 flex flex-col sm:flex-row items-center justify-between gap-2 z-10 pl-16 sm:pl-0">
+        <div className="text-xs font-mono text-[#57564E]/80">
+          ZIGZA GARMENT MES · v2.4.1
         </div>
 
-        <div className="flex items-center gap-2 pointer-events-auto">
-          <span 
-            className="w-1.5 h-1.5 rounded-full inline-block animate-pulse"
-            style={{ backgroundColor: '#2E9E5B' }}
-          />
-          <span 
-            className="text-[12px] font-medium"
-            style={{ color: 'var(--ink-soft, #5B6B7C)' }}
-          >
+        <div className="flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          <span className="text-xs font-medium text-[#57564E]">
             All systems operational
           </span>
         </div>
       </footer>
+
     </div>
   )
 }

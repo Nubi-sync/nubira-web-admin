@@ -324,7 +324,7 @@ export function ZigzaLandingPageClient({
 
         {/* Live MES Interactive Visual Dashboard Mockup */}
         <div className="mt-8 sm:mt-12 max-w-5xl mx-auto">
-          <div className="bg-white border-2 border-[var(--border,#E2E8F0)] rounded-xl sm:rounded-2xl shadow-xl overflow-hidden">
+          <div className="bg-white border border-black rounded-xl sm:rounded-2xl overflow-hidden">
             
             {/* Mockup Header Bar */}
             <div className="bg-[var(--steel-dark,#1F3A63)] px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between text-white border-b border-slate-700">
