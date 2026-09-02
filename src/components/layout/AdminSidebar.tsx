@@ -35,7 +35,7 @@ const navSections: NavSection[] = [
     section: 'Overview',
     items: [
       { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-      { label: 'Zigza AI', href: '/zigza-ai', icon: Sparkles, badge: 'AI' },
+      { label: 'Zigza AI', href: '/zigza-ai', icon: Sparkles },
     ],
   },
   {

@@ -19,7 +19,8 @@ import {
   Tag, 
   Truck, 
   ArrowRight,
-  Loader2
+  Loader2,
+  X
 } from 'lucide-react'
 import { TvViewButton } from '@/components/ui/TvViewButton'
 
@@ -81,16 +82,22 @@ const PREWRITTEN_QUERIES = [
 export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?: string }) {
   const [sessions, setSessions] = useState<ChatSession[]>([])
   const [currentSessionId, setCurrentSessionId] = useState<string>('')
-  const [isHistoryOpen, setIsHistoryOpen] = useState(true)
+  // On mobile screens, history drawer should be closed by default
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false)
   const [inputPrompt, setInputPrompt] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [copiedMsgId, setCopiedMsgId] = useState<string | null>(null)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
 
   // Load chat sessions from localStorage on mount
   useEffect(() => {
+    // Open history drawer by default only on desktop
+    if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
+      setIsHistoryOpen(true)
+    }
+
     try {
       const saved = localStorage.getItem('zigza_ai_chat_sessions')
       if (saved) {
@@ -135,7 +142,10 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
     }
     setSessions(prev => [newSession, ...prev])
     setCurrentSessionId(newSession.id)
-    setTimeout(() => textareaRef.current?.focus(), 50)
+    if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+      setIsHistoryOpen(false) // auto-close drawer on mobile
+    }
+    setTimeout(() => inputRef.current?.focus(), 50)
   }
 
   function deleteSession(e: React.MouseEvent, id: string) {
@@ -167,6 +177,9 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
     }
     setSessions([fresh])
     setCurrentSessionId(fresh.id)
+    if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+      setIsHistoryOpen(false)
+    }
   }
 
   async function handleSendMessage(promptText?: string) {
@@ -186,7 +199,7 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
         const isFirst = s.messages.length === 0
         return {
           ...s,
-          title: isFirst ? (query.length > 32 ? query.slice(0, 32) + '...' : query) : s.title,
+          title: isFirst ? (query.length > 28 ? query.slice(0, 28) + '...' : query) : s.title,
           messages: [...s.messages, userMessage],
           updatedAt: Date.now()
         }
@@ -295,10 +308,10 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
     function flushList() {
       if (currentList.length > 0) {
         blocks.push(
-          <ul key={'ul_' + blocks.length} className="my-3 space-y-2.5 pl-1">
+          <ul key={'ul_' + blocks.length} className="my-2.5 space-y-2 pl-0.5 sm:pl-1">
             {currentList.map((item, iIdx) => (
-              <li key={iIdx} className="flex items-start gap-3 text-sm sm:text-[15px] leading-relaxed text-slate-800">
-                <span className="w-2 h-2 rounded-full bg-[#3A3564] shrink-0 mt-2 shadow-2xs" />
+              <li key={iIdx} className="flex items-start gap-2.5 text-xs sm:text-sm md:text-[15px] leading-relaxed text-slate-800">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#3A3564] shrink-0 mt-2 shadow-2xs" />
                 <span className="flex-1" dangerouslySetInnerHTML={{ __html: formatInline(item) }} />
               </li>
             ))}
@@ -334,12 +347,12 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
           const headers = rows[0]
           const bodyRows = rows.slice(1)
           blocks.push(
-            <div key={'tbl_' + idx} className="my-4 overflow-x-auto rounded-xl border border-slate-200 shadow-2xs">
+            <div key={'tbl_' + idx} className="my-3 overflow-x-auto rounded-xl border border-slate-200 shadow-2xs">
               <table className="w-full text-left text-xs sm:text-sm">
                 <thead className="bg-[#FAF7F0] text-[#3A3564] font-bold border-b border-slate-200">
                   <tr>
                     {headers.map((h, hIdx) => (
-                      <th key={hIdx} className="px-3.5 py-2.5 font-bold" dangerouslySetInnerHTML={{ __html: formatInline(h) }} />
+                      <th key={hIdx} className="px-3 py-2 font-bold whitespace-nowrap" dangerouslySetInnerHTML={{ __html: formatInline(h) }} />
                     ))}
                   </tr>
                 </thead>
@@ -347,7 +360,7 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
                   {bodyRows.map((r, rIdx) => (
                     <tr key={rIdx} className={rIdx % 2 === 1 ? 'bg-slate-50/60' : ''}>
                       {r.map((c, cIdx) => (
-                        <td key={cIdx} className="px-3.5 py-2 font-medium text-slate-800" dangerouslySetInnerHTML={{ __html: formatInline(c) }} />
+                        <td key={cIdx} className="px-3 py-1.5 font-medium text-slate-800 whitespace-nowrap" dangerouslySetInnerHTML={{ __html: formatInline(c) }} />
                       ))}
                     </tr>
                   ))}
@@ -363,7 +376,7 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
       if (trimmed.startsWith('### ')) {
         flushList()
         blocks.push(
-          <h4 key={idx} className="text-xs sm:text-sm font-bold uppercase tracking-wider text-[#3A3564] font-mono mt-4 mb-2 pb-1 border-b border-slate-100">
+          <h4 key={idx} className="text-xs sm:text-sm font-bold uppercase tracking-wider text-[#3A3564] font-mono mt-3 mb-1.5 pb-1 border-b border-slate-100">
             {trimmed.replace('### ', '')}
           </h4>
         )
@@ -372,7 +385,7 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
       if (trimmed.startsWith('## ') || trimmed.startsWith('# ')) {
         flushList()
         blocks.push(
-          <h3 key={idx} className="text-base sm:text-lg font-extrabold text-slate-950 mt-5 mb-2 pb-1 border-b border-slate-200">
+          <h3 key={idx} className="text-sm sm:text-base font-extrabold text-slate-950 mt-4 mb-2 pb-1 border-b border-slate-200">
             {trimmed.replace(/^#+ /, '')}
           </h3>
         )
@@ -391,7 +404,7 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
       blocks.push(
         <p 
           key={idx} 
-          className="text-sm sm:text-[15px] leading-relaxed text-slate-800 my-2"
+          className="text-xs sm:text-sm md:text-[15px] leading-relaxed text-slate-800 my-1.5"
           dangerouslySetInnerHTML={{ __html: formatInline(trimmed) }} 
         />
       )
@@ -402,14 +415,25 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
   }
 
   return (
-    <div className="flex h-[calc(100vh-64px)] w-full overflow-hidden bg-[#FAFAF8]">
+    <div className="flex h-[calc(100dvh-57px)] lg:h-screen w-full overflow-hidden bg-[#FAFAF8] relative">
       
       {/* ======================================================== */}
-      {/* 1. LEFT HISTORY SIDEBAR                                  */}
+      {/* 1. HISTORY SIDEBAR — Desktop Fixed / Mobile Slide Drawer */}
       {/* ======================================================== */}
+      
+      {/* Mobile Backdrop overlay */}
+      {isHistoryOpen && (
+        <div 
+          className="lg:hidden fixed inset-0 z-40 bg-black/40 backdrop-blur-xs transition-opacity"
+          onClick={() => setIsHistoryOpen(false)}
+        />
+      )}
+
       <aside 
-        className={`bg-white border-r border-slate-200 flex flex-col justify-between shrink-0 transition-all duration-200 z-20 ${
-          isHistoryOpen ? 'w-[280px]' : 'w-0 -translate-x-full overflow-hidden border-none'
+        className={`bg-white border-r border-slate-200 flex flex-col justify-between shrink-0 transition-all duration-300 z-50 fixed lg:relative inset-y-0 left-0 ${
+          isHistoryOpen 
+            ? 'w-[280px] max-w-[85vw] translate-x-0 shadow-2xl lg:shadow-none' 
+            : '-translate-x-full lg:w-0 lg:overflow-hidden lg:border-none'
         }`}
       >
         {/* Top: New Chat & Header */}
@@ -425,9 +449,10 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
               type="button"
               onClick={() => setIsHistoryOpen(false)}
               className="w-7 h-7 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
-              title="Collapse history"
+              title="Close history"
             >
-              <PanelLeftClose className="w-4 h-4" />
+              <X className="w-4 h-4 lg:hidden" />
+              <PanelLeftClose className="w-4 h-4 hidden lg:block" />
             </button>
           </div>
 
@@ -453,7 +478,12 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
             return (
               <div
                 key={s.id}
-                onClick={() => setCurrentSessionId(s.id)}
+                onClick={() => {
+                  setCurrentSessionId(s.id)
+                  if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+                    setIsHistoryOpen(false) // Auto-close drawer on mobile
+                  }
+                }}
                 className={`group flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-all cursor-pointer select-none ${
                   isActive
                     ? 'bg-[#3A3564] text-white font-bold shadow-xs'
@@ -469,8 +499,8 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
                   type="button"
                   onClick={(e) => deleteSession(e, s.id)}
                   title="Delete chat"
-                  className={`opacity-0 group-hover:opacity-100 p-1 rounded-md transition-opacity hover:bg-black/15 ${
-                    isActive ? 'text-white' : 'text-slate-400 hover:text-rose-600'
+                  className={`p-1 rounded-md transition-opacity hover:bg-black/15 ${
+                    isActive ? 'text-white opacity-80 hover:opacity-100' : 'text-slate-400 opacity-0 group-hover:opacity-100 hover:text-rose-600'
                   }`}
                 >
                   <Trash2 className="w-3.5 h-3.5" />
@@ -488,7 +518,7 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
             className="text-[11px] font-mono font-semibold text-slate-500 hover:text-rose-600 flex items-center gap-1.5 transition-colors cursor-pointer"
           >
             <Trash2 className="w-3.5 h-3.5" />
-            <span>Clear All History</span>
+            <span>Clear All</span>
           </button>
           <span className="text-[10px] font-mono text-slate-400">
             {sessions.length} {sessions.length === 1 ? 'chat' : 'chats'}
@@ -501,46 +531,48 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
       {/* ======================================================== */}
       <main className="flex-1 flex flex-col min-w-0 h-full relative overflow-hidden bg-[#FAFAF8]">
         
-        {/* Top App Bar */}
-        <header className="px-4 sm:px-6 py-3 border-b border-slate-200/80 bg-white/80 backdrop-blur-md flex items-center justify-between z-10 shrink-0">
-          <div className="flex items-center gap-3">
-            {!isHistoryOpen && (
-              <button
-                type="button"
-                onClick={() => setIsHistoryOpen(true)}
-                className="w-9 h-9 rounded-xl border border-slate-200 flex items-center justify-center text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors cursor-pointer shadow-2xs"
-                title="Open chat history"
-              >
-                <PanelLeft className="w-4 h-4" />
-              </button>
-            )}
+        {/* Top App Bar (Mobile optimized single-row layout) */}
+        <header className="px-3 sm:px-6 py-2 sm:py-3 border-b border-slate-200/80 bg-white/95 backdrop-blur-md flex items-center justify-between z-10 shrink-0 shadow-2xs">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <button
+              type="button"
+              onClick={() => setIsHistoryOpen(prev => !prev)}
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl border border-slate-200 flex items-center justify-center text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors cursor-pointer shadow-2xs shrink-0"
+              title="Toggle chat history"
+            >
+              <PanelLeft className="w-4 h-4" />
+            </button>
 
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-[#3A3564] text-[#FAF7F0] flex items-center justify-center shadow-xs">
-                <Sparkles className="w-4 h-4" />
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-[#3A3564] text-[#FAF7F0] flex items-center justify-center shadow-xs shrink-0">
+                <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h1 className="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight font-[family-name:var(--font-heading)]">
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <h1 className="text-sm sm:text-base font-extrabold text-slate-900 tracking-tight font-[family-name:var(--font-heading)] whitespace-nowrap">
                     Zigza AI
                   </h1>
-                  <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs">
+                  <span className="hidden sm:inline-block text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs">
                     LIVE MES
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-500 hidden sm:block">
+                <p className="text-[10px] sm:text-[11px] text-slate-500 truncate hidden sm:block">
                   Direct database queries connected to live plant operations
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <TvViewButton size="sm" />
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            {/* TV View button hidden on small screens */}
+            <div className="hidden sm:block">
+              <TvViewButton size="sm" />
+            </div>
+
             <button
               type="button"
               onClick={createNewSession}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-black/15 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-50 shadow-2xs transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 sm:px-3 sm:py-1.5 bg-white border border-black/15 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-50 shadow-2xs transition-colors cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">New Chat</span>
@@ -549,19 +581,19 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
         </header>
 
         {/* Message Stream Area */}
-        <div className="flex-1 overflow-y-auto px-4 sm:px-8 py-6 space-y-6 max-w-4xl w-full mx-auto">
+        <div className="flex-1 overflow-y-auto px-3 sm:px-6 md:px-8 py-3 sm:py-6 space-y-4 sm:space-y-6 max-w-4xl w-full mx-auto">
           
           {/* EMPTY STATE: Welcome & Prewritten Query Cards */}
           {(!currentSession || currentSession.messages.length === 0) && (
-            <div className="py-6 sm:py-10 space-y-8 animate-in fade-in duration-300">
+            <div className="py-4 sm:py-8 space-y-6 sm:space-y-8 animate-in fade-in duration-300">
               
               {/* Hero Greeting */}
-              <div className="space-y-2 text-center max-w-xl mx-auto">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 text-xs font-mono font-bold shadow-2xs">
-                  <Sparkles className="w-3.5 h-3.5" />
+              <div className="space-y-1.5 sm:space-y-2 text-center max-w-xl mx-auto px-2">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 text-[10px] sm:text-xs font-mono font-bold shadow-2xs">
+                  <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                   <span>PLANT MANUFACTURING INTELLIGENCE</span>
                 </div>
-                <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+                <h2 className="text-xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
                   What factory data would you like to check?
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-600">
@@ -570,7 +602,7 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
               </div>
 
               {/* Pre-written Prompt Cards Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5 pt-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 sm:gap-3.5">
                 {PREWRITTEN_QUERIES.map((card, idx) => {
                   const Icon = card.icon
                   return (
@@ -578,20 +610,20 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
                       key={idx}
                       type="button"
                       onClick={() => handleSendMessage(card.prompt)}
-                      className="text-left p-4 rounded-2xl bg-white border border-black/10 hover:border-[#3A3564]/40 hover:shadow-md transition-all group flex flex-col justify-between space-y-3 cursor-pointer select-none bg-gradient-to-b from-white to-[#FAFAF8]"
+                      className="text-left p-3.5 sm:p-4 rounded-2xl bg-white border border-black/10 hover:border-[#3A3564]/40 hover:shadow-md transition-all group flex flex-col justify-between space-y-2 sm:space-y-3 cursor-pointer select-none bg-gradient-to-b from-white to-[#FAFAF8]"
                     >
                       <div className="flex items-center justify-between w-full">
-                        <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs group-hover:bg-[#3A3564] group-hover:text-white transition-colors">
+                        <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs group-hover:bg-[#3A3564] group-hover:text-white transition-colors">
                           <Icon className="w-4 h-4" />
                         </div>
                         <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-[#3A3564] group-hover:translate-x-0.5 transition-all" />
                       </div>
 
-                      <div className="space-y-1">
+                      <div className="space-y-0.5 sm:space-y-1">
                         <h4 className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-[#3A3564] transition-colors">
                           {card.title}
                         </h4>
-                        <p className="text-[11px] text-slate-500 leading-relaxed">
+                        <p className="text-[11px] text-slate-500 leading-relaxed line-clamp-2">
                           {card.description}
                         </p>
                       </div>
@@ -607,39 +639,39 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
           {currentSession && currentSession.messages.map((msg) => (
             <div
               key={msg.id}
-              className={`flex gap-3.5 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+              className={`flex gap-2 sm:gap-3.5 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               {msg.role === 'model' && (
-                <div className="w-8 h-8 rounded-xl bg-[#3A3564] text-[#FAF7F0] flex items-center justify-center shrink-0 mt-1 shadow-2xs">
-                  <Sparkles className="w-4 h-4" />
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-[#3A3564] text-[#FAF7F0] flex items-center justify-center shrink-0 mt-1 shadow-2xs">
+                  <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 </div>
               )}
 
-              <div className={`space-y-1.5 max-w-[85%] sm:max-w-[80%] ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
+              <div className={`space-y-1 max-w-[92%] sm:max-w-[85%] ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
                 
                 {/* Tool Called Pill */}
                 {msg.toolCalled && (
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 text-[10px] font-mono font-bold shadow-2xs mb-1">
-                    <Database className="w-3.5 h-3.5 text-[#3A3564]" />
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 text-[9px] sm:text-[10px] font-mono font-bold shadow-2xs mb-1">
+                    <Database className="w-3 h-3 text-[#3A3564]" />
                     <span>Queried Database: {msg.toolCalled.replace(/_/g, ' ')}</span>
                   </div>
                 )}
 
                 {/* Bubble Container: User (High-Contrast White on Deep Indigo) vs Model (Spacious Card) */}
                 {msg.role === 'user' ? (
-                  <div className="px-5 py-3.5 rounded-2xl rounded-tr-xs bg-[#3A3564] text-white shadow-md select-text">
-                    <p className="text-white text-sm sm:text-base font-semibold whitespace-pre-wrap leading-relaxed">
+                  <div className="px-4 py-2.5 sm:px-5 sm:py-3.5 rounded-2xl rounded-tr-xs bg-[#3A3564] text-white shadow-md select-text">
+                    <p className="text-white text-xs sm:text-sm md:text-base font-semibold whitespace-pre-wrap leading-relaxed">
                       {msg.content}
                     </p>
                   </div>
                 ) : (
-                  <div className="p-5 sm:p-6 rounded-2xl rounded-tl-xs bg-white border border-slate-200/90 text-slate-900 shadow-xs leading-relaxed">
+                  <div className="p-4 sm:p-5 md:p-6 rounded-2xl rounded-tl-xs bg-white border border-slate-200/90 text-slate-900 shadow-xs leading-relaxed">
                     {renderAiContent(msg.content)}
                   </div>
                 )}
 
                 {/* Footer action row */}
-                <div className="flex items-center gap-3 px-1 text-[10px] font-mono text-slate-400">
+                <div className="flex items-center gap-3 px-1 text-[9px] sm:text-[10px] font-mono text-slate-400">
                   <span>{msg.timestamp}</span>
                   {msg.role === 'model' && (
                     <button
@@ -664,7 +696,7 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
               </div>
 
               {msg.role === 'user' && (
-                <div className="w-8 h-8 rounded-xl bg-[#3A3564] text-white flex items-center justify-center shrink-0 mt-1 shadow-2xs font-extrabold text-xs">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-[#3A3564] text-white flex items-center justify-center shrink-0 mt-1 shadow-2xs font-extrabold text-[11px] sm:text-xs">
                   {userEmail.slice(0, 2).toUpperCase()}
                 </div>
               )}
@@ -673,14 +705,14 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
 
           {/* Loading Indicator */}
           {isLoading && (
-            <div className="flex gap-3.5 justify-start items-center">
-              <div className="w-8 h-8 rounded-xl bg-[#3A3564] text-[#FAF7F0] flex items-center justify-center shrink-0 shadow-2xs">
-                <Sparkles className="w-4 h-4 animate-pulse" />
+            <div className="flex gap-2 sm:gap-3.5 justify-start items-center">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-[#3A3564] text-[#FAF7F0] flex items-center justify-center shrink-0 shadow-2xs">
+                <Sparkles className="w-3.5 h-3.5 animate-pulse" />
               </div>
-              <div className="p-4 rounded-2xl bg-white border border-black/10 shadow-xs flex items-center gap-3">
-                <Loader2 className="w-4 h-4 text-[#3A3564] animate-spin" />
+              <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-black/10 shadow-xs flex items-center gap-2.5">
+                <Loader2 className="w-4 h-4 text-[#3A3564] animate-spin shrink-0" />
                 <span className="text-xs sm:text-sm font-semibold text-slate-600">
-                  Querying live factory database and formatting response...
+                  Querying live factory database...
                 </span>
               </div>
             </div>
@@ -690,10 +722,10 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
         </div>
 
         {/* ======================================================== */}
-        {/* 3. BOTTOM PROMPT BAR                                     */}
+        {/* 3. MOBILE-PERFECTED BOTTOM PROMPT BAR                    */}
         {/* ======================================================== */}
-        <div className="p-3 sm:p-5 border-t border-slate-200/80 bg-white/90 backdrop-blur-md shrink-0">
-          <div className="max-w-4xl mx-auto space-y-2">
+        <div className="p-2.5 sm:p-4 border-t border-slate-200/80 bg-white/95 backdrop-blur-md shrink-0">
+          <div className="max-w-4xl mx-auto space-y-1.5">
             
             {/* Input Container */}
             <form
@@ -701,35 +733,29 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
                 e.preventDefault()
                 handleSendMessage()
               }}
-              className="relative flex items-center rounded-2xl border border-black/15 bg-white shadow-sm focus-within:border-[#3A3564] focus-within:ring-2 focus-within:ring-[#3A3564]/10 transition-all px-4 py-2.5"
+              className="relative flex items-center rounded-2xl border border-black/15 bg-white shadow-xs focus-within:border-[#3A3564] focus-within:ring-2 focus-within:ring-[#3A3564]/10 transition-all px-3 py-1.5 sm:px-4 sm:py-2.5"
             >
-              <textarea
-                ref={textareaRef}
+              <input
+                ref={inputRef}
+                type="text"
                 value={inputPrompt}
                 onChange={(e) => setInputPrompt(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault()
-                    handleSendMessage()
-                  }
-                }}
-                rows={1}
-                placeholder="Ask Zigza AI anything about orders, godown stock, linemen, QC, articles..."
+                placeholder="Ask about orders, godown stock, linemen, QC..."
                 disabled={isLoading}
-                className="flex-1 bg-transparent text-xs sm:text-sm text-slate-900 placeholder-slate-400 outline-none resize-none max-h-32 py-1 font-medium"
+                className="flex-1 bg-transparent text-xs sm:text-sm text-slate-900 placeholder-slate-400 outline-none font-medium min-w-0"
               />
 
               <button
                 type="submit"
                 disabled={!inputPrompt.trim() || isLoading}
-                className="w-9 h-9 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white disabled:opacity-35 transition-all cursor-pointer shadow-2xs flex items-center justify-center shrink-0 ml-2"
+                className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white disabled:opacity-35 transition-all cursor-pointer shadow-2xs flex items-center justify-center shrink-0 ml-1.5"
                 aria-label="Send query"
               >
-                {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                {isLoading ? <Loader2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-spin" /> : <Send className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
               </button>
             </form>
 
-            <p className="text-[10px] text-center font-mono text-slate-400">
+            <p className="text-[10px] text-center font-mono text-slate-400 hidden sm:block">
               Zigza AI is directly synchronized with your live factory database.
             </p>
           </div>

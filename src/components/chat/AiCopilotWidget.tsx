@@ -29,16 +29,11 @@ export function AiCopilotWidget() {
           </span>
         </div>
         <div className="flex flex-col text-left">
-          <div className="flex items-center gap-1.5">
-            <span className="text-sm sm:text-base font-extrabold tracking-wide font-[family-name:var(--font-heading)]">
-              Zigza AI
-            </span>
-            <span className="text-[10px] font-mono font-bold uppercase px-1.5 py-0.5 rounded bg-white/20 text-[#FAF7F0]">
-              COPILOT
-            </span>
-          </div>
+          <span className="text-sm sm:text-base font-extrabold tracking-wide font-[family-name:var(--font-heading)]">
+            Zigza AI
+          </span>
           <span className="text-[11px] text-[#FAF7F0]/80 font-medium hidden sm:inline-block">
-            Factory Data Intelligence
+            Factory Intelligence
           </span>
         </div>
       </button>
