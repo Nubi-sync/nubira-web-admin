@@ -5,21 +5,15 @@ export const dynamic = 'force-dynamic'
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+const ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
 const BUCKET_NAME = 'ai_chat_history'
-
-function getHeaders() {
-  return {
-    apikey: SERVICE_KEY,
-    Authorization: `Bearer ${SERVICE_KEY}`
-  }
-}
 
 function getEmailStorageKey(email: string): string {
   const sanitized = email.toLowerCase().trim().replace(/[^a-z0-9@._-]/g, '_')
   return `${sanitized}.json`
 }
 
-// GET: Retrieve saved chat history based on EMAIL (from auth session or query param)
+// GET: Retrieve saved chat history based on EMAIL
 export async function GET(req: NextRequest) {
   try {
     const supabase = await createClient()
@@ -34,8 +28,32 @@ export async function GET(req: NextRequest) {
 
     const filePath = getEmailStorageKey(email)
 
+    // 1. First attempt: Direct public storage fetch (Bucket is public, zero auth failure risk)
+    try {
+      const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/${BUCKET_NAME}/${filePath}`
+      const publicRes = await fetch(publicUrl, { cache: 'no-store' })
+      if (publicRes.ok) {
+        const publicSessions = await publicRes.json()
+        if (Array.isArray(publicSessions)) {
+          return NextResponse.json({ 
+            sessions: publicSessions,
+            email,
+            syncedKey: filePath,
+            source: 'public_bucket'
+          })
+        }
+      }
+    } catch (publicErr) {
+      console.warn('Public bucket fetch error, falling back to authenticated storage fetch:', publicErr)
+    }
+
+    // 2. Fallback: Authenticated fetch using Service Role Key
+    const keyToUse = SERVICE_KEY || ANON_KEY
     const res = await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET_NAME}/${filePath}`, {
-      headers: getHeaders(),
+      headers: {
+        apikey: keyToUse,
+        Authorization: `Bearer ${keyToUse}`
+      },
       cache: 'no-store'
     })
 
@@ -77,10 +95,13 @@ export async function POST(req: NextRequest) {
     const filePath = getEmailStorageKey(email)
     const sanitizedSessions = sessions.slice(0, 50)
 
+    const keyToUse = SERVICE_KEY || ANON_KEY
+
     const res = await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET_NAME}/${filePath}`, {
       method: 'POST',
       headers: {
-        ...getHeaders(),
+        apikey: keyToUse,
+        Authorization: `Bearer ${keyToUse}`,
         'Content-Type': 'application/json',
         'x-upsert': 'true'
       },

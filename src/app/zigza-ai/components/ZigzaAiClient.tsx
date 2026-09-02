@@ -104,9 +104,10 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
 
   // 2. Load & Sync Chat Sessions across account devices by Email
   useEffect(() => {
-    // Step A: Load from localStorage for zero-delay instant render
+    // Step A: Load from email-keyed localStorage for zero-delay instant render
     try {
-      const local = localStorage.getItem('zigza_ai_chat_sessions')
+      const storageKey = userEmail ? `zigza_ai_chat_sessions_${userEmail}` : 'zigza_ai_chat_sessions'
+      const local = localStorage.getItem(storageKey) || localStorage.getItem('zigza_ai_chat_sessions')
       if (local) {
         const parsed: ChatSession[] = JSON.parse(local)
         if (parsed.length > 0) {
@@ -127,12 +128,12 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
           const data = await res.json()
           if (Array.isArray(data.sessions) && data.sessions.length > 0) {
             setSessions(data.sessions)
-            setCurrentSessionId(prev => {
-              const stillExists = data.sessions.some((s: ChatSession) => s.id === prev)
-              return stillExists ? prev : data.sessions[0].id
-            })
-            // Update local storage with cloud copy
-            localStorage.setItem('zigza_ai_chat_sessions', JSON.stringify(data.sessions))
+            setCurrentSessionId(data.sessions[0].id)
+            try {
+              const storageKey = userEmail ? `zigza_ai_chat_sessions_${userEmail}` : 'zigza_ai_chat_sessions'
+              localStorage.setItem(storageKey, JSON.stringify(data.sessions))
+              localStorage.setItem('zigza_ai_chat_sessions', JSON.stringify(data.sessions))
+            } catch {}
             return
           }
         }
@@ -163,6 +164,8 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
   function persistSessions(newSessions: ChatSession[]) {
     setSessions(newSessions)
     try {
+      const storageKey = userEmail ? `zigza_ai_chat_sessions_${userEmail}` : 'zigza_ai_chat_sessions'
+      localStorage.setItem(storageKey, JSON.stringify(newSessions))
       localStorage.setItem('zigza_ai_chat_sessions', JSON.stringify(newSessions))
     } catch (e) {
       console.error('Error saving to localStorage', e)
@@ -254,26 +257,37 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     }
 
-    const targetSessionId = currentSession?.id || currentSessionId
-    const updatedWithUser = sessions.map(s => {
-      if (s.id === targetSessionId) {
-        const isFirst = s.messages.length === 0
-        return {
-          ...s,
-          title: isFirst ? (query.length > 28 ? query.slice(0, 28) + '...' : query) : s.title,
-          messages: [...s.messages, userMessage],
-          updatedAt: Date.now()
-        }
-      }
-      return s
-    })
+    let activeId = currentSessionId
+    let updatedSessions = [...sessions]
 
-    persistSessions(updatedWithUser)
+    const existingIndex = updatedSessions.findIndex(s => s.id === activeId)
+    if (existingIndex >= 0) {
+      const isFirst = updatedSessions[existingIndex].messages.length === 0
+      updatedSessions[existingIndex] = {
+        ...updatedSessions[existingIndex],
+        title: isFirst ? (query.length > 28 ? query.slice(0, 28) + '...' : query) : updatedSessions[existingIndex].title,
+        messages: [...updatedSessions[existingIndex].messages, userMessage],
+        updatedAt: Date.now()
+      }
+    } else {
+      const freshSession: ChatSession = {
+        id: activeId || ('session_' + Date.now()),
+        title: query.length > 28 ? query.slice(0, 28) + '...' : query,
+        messages: [userMessage],
+        updatedAt: Date.now()
+      }
+      activeId = freshSession.id
+      setCurrentSessionId(activeId)
+      updatedSessions = [freshSession, ...updatedSessions]
+    }
+
+    persistSessions(updatedSessions)
     setInputPrompt('')
     setIsLoading(true)
 
     try {
-      const history = (currentSession?.messages || []).map(m => ({
+      const targetSession = updatedSessions.find(s => s.id === activeId)
+      const history = (targetSession?.messages.slice(0, -1) || []).map(m => ({
         role: m.role,
         content: m.content
       }))
@@ -306,18 +320,20 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       }
 
-      const updatedWithBot = sessions.map(s => {
-        if (s.id === targetSessionId) {
-          return {
-            ...s,
-            messages: [...s.messages, botMessage],
-            updatedAt: Date.now()
+      setSessions(prev => {
+        const next = prev.map(s => {
+          if (s.id === activeId) {
+            return {
+              ...s,
+              messages: [...s.messages, botMessage],
+              updatedAt: Date.now()
+            }
           }
-        }
-        return s
+          return s
+        })
+        persistSessions(next)
+        return next
       })
-
-      persistSessions(updatedWithBot)
     } catch (err: any) {
       const errorMessage: Message = {
         id: 'err_' + Date.now(),
@@ -326,18 +342,20 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       }
 
-      const updatedWithError = sessions.map(s => {
-        if (s.id === targetSessionId) {
-          return {
-            ...s,
-            messages: [...s.messages, errorMessage],
-            updatedAt: Date.now()
+      setSessions(prev => {
+        const next = prev.map(s => {
+          if (s.id === activeId) {
+            return {
+              ...s,
+              messages: [...s.messages, errorMessage],
+              updatedAt: Date.now()
+            }
           }
-        }
-        return s
+          return s
+        })
+        persistSessions(next)
+        return next
       })
-
-      persistSessions(updatedWithError)
     } finally {
       setIsLoading(false)
     }

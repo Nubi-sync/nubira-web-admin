@@ -13,15 +13,23 @@ function getGeminiApiKey(): string {
   ).trim()
 }
 
-const SYSTEM_INSTRUCTION = `You are Zigza AI, the dedicated manufacturing intelligence system for Zigza ERP & MES garment plant.
+const SYSTEM_INSTRUCTION = `You are Zigza AI, the intelligent operations assistant for Zigza ERP & MES garment manufacturing system.
 Your primary role is to accurately answer operational questions by fetching real-time data from the factory database using the provided tools.
 
-CRITICAL BRANDING RULES:
-1. Your name is strictly "Zigza AI". NEVER use the words "copilot", "co-pilot", "Gemini", or mention underlying AI models.
-2. Grounded & Exact: Always use tools to fetch exact article rates, order pieces, lineman assignments, inventory counts, and QC passes/rejections. NEVER guess or invent numbers.
-3. Clean Formatting: Present piece counts, rates, and numbers in bold (e.g. **1,450 pcs**). Use clear bullet points or clean markdown tables for structured data.
-4. Factory Terminology: Respect apparel manufacturing terms (Challan, Lineman, WIP / Goods in Line, Mending, Cutting, Godown, Delivery Challan).
-5. No Data Cases: If a query yields 0 records, clearly state that no matching logs or records were found in the database.
+CRITICAL OPERATIONAL RULES:
+1. Branding: Your name is strictly "Zigza AI". NEVER use "copilot", "co-pilot", "Gemini", or mention underlying LLM models.
+2. Typos & Spelling Mistakes: Be very forgiving with typos, shorthand, and spelling mistakes (e.g. "stck in godon" -> check godown inventory; "lnemn" -> lineman allotments; "challn" -> delivery challans; "arti" -> articles catalog). Infer the user's intent and invoke the proper tool.
+3. Capabilities & Scope:
+   - When asked what you can do or how you can help, clearly list what you can check:
+     • Production Orders: Order status, lot matrices, total pieces, and buyer details.
+     • Floor & Linemen: Bundle allotments, lineman throughput, and piece-rate earnings.
+     • Daily Sewing Logs: Pieces stitched today and production throughput.
+     • Warehouse & Godown: Finished goods inventory ready in warehouse stock.
+     • QC Inspections: Passed vs rejected pieces and defect breakdown.
+     • Articles Catalog: Garment styles, descriptions, and piece rates.
+   - If asked about topics outside factory manufacturing (e.g. cooking, jokes, weather), politely clarify that you are focused on Zigza factory floor execution and offer to check factory data.
+4. Grounded Numbers: When reporting database results, present piece counts and rates in bold (e.g. **1,450 pcs**, **₹4.50/pc**). Use clean bullet points or markdown tables.
+5. Always Respond: When tool data is provided, ALWAYS synthesize a helpful, friendly natural language response. NEVER leave the response blank.
 `
 
 export async function POST(req: NextRequest) {
@@ -34,7 +42,7 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${apiKey}`
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`
 
     const { message, history = [] } = await req.json()
 
@@ -149,14 +157,43 @@ export async function POST(req: NextRequest) {
       if (!secondRes.ok) {
         // Fallback: return raw tool result formatted
         return NextResponse.json({
-          response: `Retrieved data from **${name}**:\n\n\`\`\`json\n${JSON.stringify(toolResult, null, 2)}\n\`\`\``,
+          response: `Retrieved data for **${name.replace(/_/g, ' ')}**:\n\n\`\`\`json\n${JSON.stringify(toolResult, null, 2)}\n\`\`\``,
           toolCalled: name,
           toolArgs: args
         })
       }
 
       const secondData = await secondRes.json()
-      const answerText = secondData.candidates?.[0]?.content?.parts?.[0]?.text || 'No response generated.'
+      
+      // Collect all text parts from Gemini candidate
+      let answerText = ''
+      const parts = secondData.candidates?.[0]?.content?.parts
+      if (Array.isArray(parts)) {
+        answerText = parts
+          .filter((p: any) => p && typeof p.text === 'string')
+          .map((p: any) => p.text)
+          .join('\n')
+          .trim()
+      }
+
+      // Robust fallback if Gemini generated an empty text string
+      if (!answerText) {
+        const rawObj = toolResult as any
+        if (rawObj && typeof rawObj === 'object') {
+          if (rawObj.message) {
+            answerText = rawObj.message
+          } else if (Array.isArray(rawObj) && rawObj.length === 0) {
+            answerText = `No matching records were found in the database for **${name.replace(/_/g, ' ')}**.`
+          } else {
+            answerText = `Here is the current operational data from **${name.replace(/_/g, ' ')}**:\n\n` +
+              Object.entries(rawObj)
+                .map(([k, v]) => `• **${k.replace(/_/g, ' ')}**: ${typeof v === 'object' ? JSON.stringify(v) : v}`)
+                .join('\n')
+          }
+        } else {
+          answerText = `I retrieved the data for **${name.replace(/_/g, ' ')}**, but no specific records were found.`
+        }
+      }
 
       return NextResponse.json({
         response: answerText,
@@ -167,7 +204,19 @@ export async function POST(req: NextRequest) {
     }
 
     // If no function call, return direct response
-    const directText = firstCandidate?.text || 'I can look up live orders, inventory, lineman allotments, QC inspections, and articles for you. What would you like to check?'
+    let directText = ''
+    const parts = firstData.candidates?.[0]?.content?.parts
+    if (Array.isArray(parts)) {
+      directText = parts
+        .filter((p: any) => p && typeof p.text === 'string')
+        .map((p: any) => p.text)
+        .join('\n')
+        .trim()
+    }
+
+    if (!directText) {
+      directText = "I am Zigza AI, your factory floor operations assistant. You can ask me to check production orders, lineman allotments, daily sewing logs, godown inventory, QC rejections, or the articles catalog. What would you like to look up?"
+    }
 
     return NextResponse.json({
       response: directText
