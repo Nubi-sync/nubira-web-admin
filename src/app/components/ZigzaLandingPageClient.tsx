@@ -36,6 +36,34 @@ import {
   Mail
 } from 'lucide-react'
 
+function IndiaFlag({ className = "w-5 h-3.5" }: { className?: string }) {
+  return (
+    <svg 
+      viewBox="0 0 225 150" 
+      className={`${className} inline-block rounded-xs shadow-xs shrink-0 align-middle`}
+      aria-label="Flag of India"
+    >
+      <rect width="225" height="50" fill="#FF9933" />
+      <rect y="50" width="225" height="50" fill="#FFFFFF" />
+      <rect y="100" width="225" height="50" fill="#138808" />
+      <circle cx="112.5" cy="75" r="20" fill="none" stroke="#000080" strokeWidth="2.5" />
+      <circle cx="112.5" cy="75" r="3.5" fill="#000080" />
+      {Array.from({ length: 24 }).map((_, i) => (
+        <line
+          key={i}
+          x1="112.5"
+          y1="75"
+          x2="112.5"
+          y2="55"
+          stroke="#000080"
+          strokeWidth="1.2"
+          transform={`rotate(${i * 15} 112.5 75)`}
+        />
+      ))}
+    </svg>
+  )
+}
+
 interface ZigzaLandingPageClientProps {
   isAuthenticated?: boolean
   userEmail?: string
@@ -1509,7 +1537,7 @@ ${demoForm.ownerName}`
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
             
             {/* Left Text */}
-            <div className="lg:col-span-7 space-y-4 text-center lg:text-left">
+            <div className="lg:col-span-6 space-y-4 text-center lg:text-left">
               <span className="inline-flex items-center gap-1.5 text-[11px] font-mono font-bold uppercase tracking-wider text-[#3A3564] bg-white border border-black/15 px-3 py-1 rounded-md">
                 Fast Onboarding · 24-48 Hour Go-Live
               </span>
@@ -1522,7 +1550,7 @@ ${demoForm.ownerName}`
               </p>
 
               {/* Trust Points */}
-              <div className="space-y-2.5 pt-1 text-xs sm:text-sm font-semibold text-slate-800 text-left">
+              <div className="space-y-3 pt-2 text-xs sm:text-sm font-semibold text-slate-800 text-left">
                 <div className="flex items-center gap-2.5">
                   <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0" />
                   <span>Zero commitment — test with your live buyer Excel sheet</span>
@@ -1537,12 +1565,12 @@ ${demoForm.ownerName}`
                 </div>
               </div>
 
-              <div className="pt-3 flex items-center justify-center lg:justify-start gap-3">
+              <div className="pt-4 flex items-center justify-center lg:justify-start gap-3">
                 <a
                   href="https://wa.me/?text=Hi,%20I%20would%20like%20to%20request%20a%20live%20demo%20of%20Zigza%20MES%20for%20our%20garment%20factory."
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-5 py-3.5 rounded-xl bg-[#1F9D63] hover:bg-emerald-700 text-white text-sm font-bold transition-all shadow-xs cursor-pointer"
+                  className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-[#1F9D63] hover:bg-emerald-700 text-white text-sm font-bold transition-all shadow-xs cursor-pointer"
                 >
                   <Phone className="w-4 h-4" />
                   <span>Instant WhatsApp Consultation</span>
@@ -1550,12 +1578,12 @@ ${demoForm.ownerName}`
               </div>
             </div>
 
-            {/* Right Consultation Form Card: Slim Black Outline */}
-            <div className="lg:col-span-5 bg-white text-slate-900 p-6 sm:p-7 rounded-2xl border border-black shadow-sm">
+            {/* Right Consultation Form Card: Generous Spacing & Clean Stacked Inputs */}
+            <div className="lg:col-span-6 bg-white text-slate-900 p-7 sm:p-9 rounded-2xl border border-black shadow-sm">
               <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-1">
                 Request a Live Demonstration
               </h3>
-              <p className="text-xs sm:text-sm text-slate-500 mb-4">
+              <p className="text-xs sm:text-sm text-slate-500 mb-6">
                 Enter your factory details for a customized walkthrough.
               </p>
 
@@ -1564,11 +1592,11 @@ ${demoForm.ownerName}`
                   <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto">
                     <Check className="w-5 h-5 stroke-[2.5]" />
                   </div>
-                  <h4 className="text-base font-bold text-slate-900">Demo Request Dispatched!</h4>
-                  <p className="text-xs text-slate-600 leading-relaxed">
-                    Your mail client has been opened with your request addressed to <strong>shawsumit6286@gmail.com</strong>.
+                  <h4 className="text-base font-bold text-slate-900">Demo Request Prepared!</h4>
+                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-sm mx-auto">
+                    Your email application has been opened with your pre-filled request.
                   </p>
-                  <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-2">
+                  <div className="pt-3 flex flex-col sm:flex-row items-center justify-center gap-2.5">
                     <a
                       href={`https://mail.google.com/mail/?view=cm&fs=1&to=shawsumit6286@gmail.com&su=${encodeURIComponent(`Live Demo Request - ${demoForm.companyName || 'Apparel Factory'}`)}&body=${encodeURIComponent(`Hi Sumit,\n\nI would like to request a live demo of Zigza MES for our garment manufacturing unit.\n\nDetails:\n• Company: ${demoForm.companyName}\n• Owner / Plant Head: ${demoForm.ownerName}\n• Phone / WhatsApp: ${demoForm.phone}\n• Business Email: ${demoForm.email}\n\nPlease contact us to schedule the walkthrough.\n\nBest regards,\n${demoForm.ownerName}`)}`}
                       target="_blank"
@@ -1581,16 +1609,16 @@ ${demoForm.ownerName}`
                     <button
                       type="button"
                       onClick={() => setIsSubmitted(false)}
-                      className="px-3.5 py-2 bg-white border border-black/15 text-slate-700 rounded-xl text-xs font-semibold cursor-pointer"
+                      className="px-3.5 py-2 bg-white border border-black/15 text-slate-700 rounded-xl text-xs font-semibold cursor-pointer hover:text-black"
                     >
                       Reset Form
                     </button>
                   </div>
                 </div>
               ) : (
-                <form onSubmit={handleDemoSubmit} className="space-y-3.5">
+                <form onSubmit={handleDemoSubmit} className="space-y-4">
                   <div>
-                    <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1">
+                    <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1.5">
                       Company / Factory Name *
                     </label>
                     <input
@@ -1599,12 +1627,12 @@ ${demoForm.ownerName}`
                       placeholder="e.g. Shree Garments / Ollypop Unit"
                       value={demoForm.companyName}
                       onChange={e => setDemoForm({ ...demoForm, companyName: e.target.value })}
-                      className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent"
+                      className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1">
+                    <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1.5">
                       Owner / Plant Head Name *
                     </label>
                     <input
@@ -1613,46 +1641,44 @@ ${demoForm.ownerName}`
                       placeholder="e.g. Rajesh Sharma / Anil Gupta"
                       value={demoForm.ownerName}
                       onChange={e => setDemoForm({ ...demoForm, ownerName: e.target.value })}
-                      className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent"
+                      className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
                     />
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1">
-                        Phone Number *
-                      </label>
-                      <input
-                        type="tel"
-                        required
-                        placeholder="+91 98765 43210"
-                        value={demoForm.phone}
-                        onChange={e => setDemoForm({ ...demoForm, phone: e.target.value })}
-                        className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent"
-                      />
-                    </div>
+                  <div>
+                    <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1.5">
+                      Phone Number *
+                    </label>
+                    <input
+                      type="tel"
+                      required
+                      placeholder="+91 98765 43210"
+                      value={demoForm.phone}
+                      onChange={e => setDemoForm({ ...demoForm, phone: e.target.value })}
+                      className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
+                    />
+                  </div>
 
-                    <div>
-                      <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1">
-                        Business Email ID *
-                      </label>
-                      <input
-                        type="email"
-                        required
-                        placeholder="owner@factory.com"
-                        value={demoForm.email}
-                        onChange={e => setDemoForm({ ...demoForm, email: e.target.value })}
-                        className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent"
-                      />
-                    </div>
+                  <div>
+                    <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1.5">
+                      Business Email ID *
+                    </label>
+                    <input
+                      type="email"
+                      required
+                      placeholder="owner@factory.com"
+                      value={demoForm.email}
+                      onChange={e => setDemoForm({ ...demoForm, email: e.target.value })}
+                      className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
+                    />
                   </div>
 
                   <button
                     type="submit"
-                    className="w-full py-3.5 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-sm font-bold transition-all shadow-sm hover:shadow-md cursor-pointer flex items-center justify-center gap-2 mt-2"
+                    className="w-full py-3.5 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-sm font-bold transition-all shadow-sm hover:shadow-md cursor-pointer flex items-center justify-center gap-2 mt-5"
                   >
-                    <Mail className="w-4 h-4" />
-                    <span>Send Demo Request (to shawsumit6286@gmail.com)</span>
+                    <Mail className="w-4 h-4 shrink-0" />
+                    <span>Send Demo Request</span>
                   </button>
                 </form>
               )}
@@ -1842,9 +1868,11 @@ ${demoForm.ownerName}`
           {/* Bottom Divider & Proudly Made in India Bar */}
           <div className="pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
             <div className="flex flex-col items-center sm:items-start gap-1 text-center sm:text-left">
-              <div className="flex items-center gap-1.5">
-                <span className="text-proudly-india">Proudly Made in India</span>
-                <span className="text-base select-none">🇮🇳</span>
+              <div className="flex items-center gap-2">
+                <IndiaFlag className="w-5 h-3.5 rounded-xs" />
+                <span className="text-proudly-india-black">
+                  Proudly Made in India
+                </span>
               </div>
               <p className="text-xs text-slate-500">© {new Date().getFullYear()} Zigza. All rights reserved.</p>
             </div>
@@ -1863,12 +1891,12 @@ ${demoForm.ownerName}`
       {/* =================================================================== */}
       {isDemoModalOpen && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-[#1C1A2E]/60 backdrop-blur-xs overflow-y-auto animate-in fade-in duration-150">
-          <div className="bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl max-w-lg w-full p-5 sm:p-6 border border-slate-100 sm:my-auto relative max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl max-w-lg w-full p-6 sm:p-8 border border-slate-100 sm:my-auto relative max-h-[90vh] overflow-y-auto">
             
             <button
               type="button"
               onClick={() => setIsDemoModalOpen(false)}
-              className="absolute top-4 right-4 p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+              className="absolute top-5 right-5 p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -1879,11 +1907,11 @@ ${demoForm.ownerName}`
                 alt="zigza." 
                 className="h-7 w-auto object-contain rounded-md overflow-hidden"
               />
-              <h3 className="text-xl font-bold text-slate-900">
+              <h3 className="text-xl sm:text-2xl font-bold text-slate-900">
                 Request a Live Demo
               </h3>
             </div>
-            <p className="text-xs sm:text-sm text-slate-500 mb-4">
+            <p className="text-xs sm:text-sm text-slate-500 mb-6">
               Schedule a personalized walkthrough of the apparel MES platform.
             </p>
 
@@ -1892,9 +1920,9 @@ ${demoForm.ownerName}`
                 <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto">
                   <Check className="w-6 h-6 stroke-[2.5]" />
                 </div>
-                <h4 className="text-base font-bold text-slate-900">Demo Request Generated!</h4>
+                <h4 className="text-base font-bold text-slate-900">Demo Request Prepared!</h4>
                 <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-sm mx-auto">
-                  Your mail client has been opened with your request addressed to <strong>shawsumit6286@gmail.com</strong>.
+                  Your email application has been opened with your pre-filled request.
                 </p>
                 <div className="p-3 bg-white border border-black/10 rounded-xl text-left text-xs space-y-1 font-mono">
                   <div className="text-slate-500 font-sans">Details being sent:</div>
@@ -1903,12 +1931,12 @@ ${demoForm.ownerName}`
                   <div className="text-slate-800"><strong>Phone:</strong> {demoForm.phone}</div>
                   <div className="text-slate-800"><strong>Email:</strong> {demoForm.email}</div>
                 </div>
-                <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-2.5">
+                <div className="pt-3 flex flex-col sm:flex-row items-center justify-center gap-2.5">
                   <a
                     href={`https://mail.google.com/mail/?view=cm&fs=1&to=shawsumit6286@gmail.com&su=${encodeURIComponent(`Live Demo Request - ${demoForm.companyName || 'Apparel Factory'}`)}&body=${encodeURIComponent(`Hi Sumit,\n\nI would like to request a live demo of Zigza MES for our garment manufacturing unit.\n\nDetails:\n• Company Name: ${demoForm.companyName}\n• Owner / Contact Name: ${demoForm.ownerName}\n• Phone / WhatsApp: ${demoForm.phone}\n• Business Email: ${demoForm.email}\n\nPlease contact us to schedule the live walkthrough.\n\nBest regards,\n${demoForm.ownerName}`)}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-4 py-2.5 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs font-bold transition-colors inline-flex items-center gap-2 cursor-pointer shadow-xs"
+                    className="px-4 py-2 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs font-bold transition-colors inline-flex items-center gap-2 cursor-pointer shadow-xs"
                   >
                     <Mail className="w-4 h-4" />
                     <span>Open in Gmail Web</span>
@@ -1919,7 +1947,7 @@ ${demoForm.ownerName}`
                       setIsSubmitted(false)
                       setIsDemoModalOpen(false)
                     }}
-                    className="px-4 py-2.5 bg-white border border-black/15 text-slate-700 hover:text-black rounded-xl text-xs font-semibold transition-colors cursor-pointer"
+                    className="px-4 py-2 bg-white border border-black/15 text-slate-700 hover:text-black rounded-xl text-xs font-semibold transition-colors cursor-pointer"
                   >
                     Done / Close
                   </button>
@@ -1937,7 +1965,7 @@ ${demoForm.ownerName}`
                     placeholder="e.g. Shree Garments / Ollypop Unit"
                     value={demoForm.companyName}
                     onChange={e => setDemoForm({ ...demoForm, companyName: e.target.value })}
-                    className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent"
+                    className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
                   />
                 </div>
 
@@ -1951,46 +1979,44 @@ ${demoForm.ownerName}`
                     placeholder="e.g. Rajesh Sharma / Anil Gupta"
                     value={demoForm.ownerName}
                     onChange={e => setDemoForm({ ...demoForm, ownerName: e.target.value })}
-                    className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent"
+                    className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
                   />
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                  <div>
-                    <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1.5">
-                      Phone Number *
-                    </label>
-                    <input
-                      type="tel"
-                      required
-                      placeholder="+91 98765 43210"
-                      value={demoForm.phone}
-                      onChange={e => setDemoForm({ ...demoForm, phone: e.target.value })}
-                      className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent"
-                    />
-                  </div>
+                <div>
+                  <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1.5">
+                    Phone Number *
+                  </label>
+                  <input
+                    type="tel"
+                    required
+                    placeholder="+91 98765 43210"
+                    value={demoForm.phone}
+                    onChange={e => setDemoForm({ ...demoForm, phone: e.target.value })}
+                    className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
+                  />
+                </div>
 
-                  <div>
-                    <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1.5">
-                      Business Email ID *
-                    </label>
-                    <input
-                      type="email"
-                      required
-                      placeholder="owner@company.com"
-                      value={demoForm.email}
-                      onChange={e => setDemoForm({ ...demoForm, email: e.target.value })}
-                      className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent"
-                    />
-                  </div>
+                <div>
+                  <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1.5">
+                    Business Email ID *
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    placeholder="owner@factory.com"
+                    value={demoForm.email}
+                    onChange={e => setDemoForm({ ...demoForm, email: e.target.value })}
+                    className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
+                  />
                 </div>
 
                 <button
                   type="submit"
-                  className="w-full py-3.5 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-sm font-bold transition-all shadow-sm hover:shadow-md cursor-pointer flex items-center justify-center gap-2 mt-4"
+                  className="w-full py-3.5 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-sm font-bold transition-all shadow-sm hover:shadow-md cursor-pointer flex items-center justify-center gap-2 mt-5"
                 >
-                  <Mail className="w-4 h-4" />
-                  <span>Send Demo Request (to shawsumit6286@gmail.com)</span>
+                  <Mail className="w-4 h-4 shrink-0" />
+                  <span>Send Demo Request</span>
                 </button>
               </form>
             )}

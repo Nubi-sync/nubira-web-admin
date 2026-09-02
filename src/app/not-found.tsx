@@ -1,6 +1,34 @@
 import Link from 'next/link'
 import { ArrowLeft, Home, FileQuestion } from 'lucide-react'
 
+function IndiaFlag({ className = "w-5 h-3.5" }: { className?: string }) {
+  return (
+    <svg 
+      viewBox="0 0 225 150" 
+      className={`${className} inline-block rounded-xs shadow-xs shrink-0 align-middle`}
+      aria-label="Flag of India"
+    >
+      <rect width="225" height="50" fill="#FF9933" />
+      <rect y="50" width="225" height="50" fill="#FFFFFF" />
+      <rect y="100" width="225" height="50" fill="#138808" />
+      <circle cx="112.5" cy="75" r="20" fill="none" stroke="#000080" strokeWidth="2.5" />
+      <circle cx="112.5" cy="75" r="3.5" fill="#000080" />
+      {Array.from({ length: 24 }).map((_, i) => (
+        <line
+          key={i}
+          x1="112.5"
+          y1="75"
+          x2="112.5"
+          y2="55"
+          stroke="#000080"
+          strokeWidth="1.2"
+          transform={`rotate(${i * 15} 112.5 75)`}
+        />
+      ))}
+    </svg>
+  )
+}
+
 export default function NotFound() {
   return (
     <div className="min-h-screen bg-[#FDFBF7] text-slate-900 flex flex-col justify-between selection:bg-[#3A3564] selection:text-white">
@@ -68,9 +96,11 @@ export default function NotFound() {
       {/* Minimal Footer */}
       <footer className="py-6 px-6 text-center border-t border-slate-200/80 bg-white/50">
         <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-6 text-xs text-slate-500">
-          <div className="flex items-center gap-1.5">
-            <span className="text-proudly-india">Proudly Made in India</span>
-            <span className="text-base select-none">🇮🇳</span>
+          <div className="flex items-center gap-2">
+            <IndiaFlag className="w-5 h-3.5 rounded-xs" />
+            <span className="text-proudly-india-black">
+              Proudly Made in India
+            </span>
           </div>
           <span className="hidden sm:inline text-slate-300">•</span>
           <p>© {new Date().getFullYear()} Zigza. All rights reserved.</p>

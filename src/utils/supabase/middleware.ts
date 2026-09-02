@@ -34,10 +34,21 @@ export async function updateSession(request: NextRequest) {
   // Redirect logic
   const pathname = request.nextUrl.pathname
   const isLoginPage = pathname.startsWith('/login')
-  const isLandingPage = pathname === '/'
-  const isPublicRoute = isLoginPage || isLandingPage || pathname.startsWith('/auth') || pathname === '/404' || pathname === '/not-found'
   
-  if (!user && !isPublicRoute) {
+  // Explicit protected dashboard pages that require login
+  const PROTECTED_DASHBOARD_ROUTES = [
+    '/allotments',
+    '/articles',
+    '/dispatch',
+    '/employees',
+    '/inventory',
+    '/production-orders',
+    '/reports',
+    '/reset-password',
+  ]
+  const isProtectedRoute = PROTECTED_DASHBOARD_ROUTES.some(route => pathname.startsWith(route))
+
+  if (!user && isProtectedRoute) {
     // If not logged in and accessing protected internal pages, redirect to login
     const url = request.nextUrl.clone()
     url.pathname = '/login'
