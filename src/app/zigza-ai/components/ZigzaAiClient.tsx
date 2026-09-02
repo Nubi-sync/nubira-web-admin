@@ -10,8 +10,9 @@ import {
   Database, 
   Copy, 
   Check, 
+  PanelLeft,
+  PanelLeftClose,
   PanelRight, 
-  PanelRightClose, 
   BarChart3, 
   Warehouse, 
   Layers, 
@@ -84,7 +85,8 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
   const [isMounted, setIsMounted] = useState(false)
   const [sessions, setSessions] = useState<ChatSession[]>([])
   const [currentSessionId, setCurrentSessionId] = useState<string>('')
-  // Right-side history drawer
+  
+  // History panel: left on desktop (default open), right drawer on mobile (default closed)
   const [isHistoryOpen, setIsHistoryOpen] = useState(false)
   const [inputPrompt, setInputPrompt] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -98,7 +100,7 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
   useEffect(() => {
     setIsMounted(true)
     if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
-      setIsHistoryOpen(true)
+      setIsHistoryOpen(true) // Desktop: Open on the left by default
     }
   }, [])
 
@@ -171,7 +173,7 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
       console.error('Error saving to localStorage', e)
     }
 
-    // Debounce cloud sync to avoid spamming the backend
+    // Debounce cloud sync to avoid spamming backend
     if (syncTimeoutRef.current) clearTimeout(syncTimeoutRef.current)
     syncTimeoutRef.current = setTimeout(async () => {
       try {
@@ -320,9 +322,15 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       }
 
+      // Pure state update with deduplication - DO NOT call persistSessions inside setState!
+      let nextState: ChatSession[] = []
       setSessions(prev => {
-        const next = prev.map(s => {
+        nextState = prev.map(s => {
           if (s.id === activeId) {
+            // Guard against duplicate message keys
+            if (s.messages.some(m => m.id === botMessage.id)) {
+              return s
+            }
             return {
               ...s,
               messages: [...s.messages, botMessage],
@@ -331,9 +339,23 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
           }
           return s
         })
-        persistSessions(next)
-        return next
+        return nextState
       })
+
+      // Persist to storage & cloud cleanly outside the setState updater
+      const latestPersist = updatedSessions.map(s => {
+        if (s.id === activeId) {
+          if (s.messages.some(m => m.id === botMessage.id)) return s
+          return {
+            ...s,
+            messages: [...s.messages, botMessage],
+            updatedAt: Date.now()
+          }
+        }
+        return s
+      })
+      persistSessions(latestPersist)
+
     } catch (err: any) {
       const errorMessage: Message = {
         id: 'err_' + Date.now(),
@@ -342,9 +364,13 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       }
 
+      let nextErrState: ChatSession[] = []
       setSessions(prev => {
-        const next = prev.map(s => {
+        nextErrState = prev.map(s => {
           if (s.id === activeId) {
+            if (s.messages.some(m => m.id === errorMessage.id)) {
+              return s
+            }
             return {
               ...s,
               messages: [...s.messages, errorMessage],
@@ -353,9 +379,21 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
           }
           return s
         })
-        persistSessions(next)
-        return next
+        return nextErrState
       })
+
+      const latestPersist = updatedSessions.map(s => {
+        if (s.id === activeId) {
+          if (s.messages.some(m => m.id === errorMessage.id)) return s
+          return {
+            ...s,
+            messages: [...s.messages, errorMessage],
+            updatedAt: Date.now()
+          }
+        }
+        return s
+      })
+      persistSessions(latestPersist)
     } finally {
       setIsLoading(false)
     }
@@ -509,15 +547,132 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
     )
   }
 
+  // Shared History Panel Content used by both Desktop (Left) and Mobile (Right)
+  function renderHistoryContent(isMobileDrawer: boolean) {
+    return (
+      <>
+        {/* Top: New Chat & Header */}
+        <div className="p-3.5 space-y-3">
+          <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+            <div className="flex items-center gap-2">
+              <Bot className="w-4 h-4 text-[#3A3564]" />
+              <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-600">
+                Chat History
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsHistoryOpen(false)}
+              className="w-7 h-7 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
+              title="Close history"
+            >
+              {isMobileDrawer ? (
+                <X className="w-4 h-4" />
+              ) : (
+                <PanelLeftClose className="w-4 h-4" />
+              )}
+            </button>
+          </div>
+
+          {/* New Chat Button */}
+          <button
+            type="button"
+            onClick={createNewSession}
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[#FAF7F0] hover:bg-[#3A3564] text-[#3A3564] hover:text-white rounded-xl border border-black/15 text-xs font-bold transition-all shadow-2xs group cursor-pointer"
+          >
+            <Plus className="w-4 h-4 transition-transform group-hover:rotate-90" />
+            <span>New Conversation</span>
+          </button>
+        </div>
+
+        {/* Sessions List */}
+        <div className="flex-1 overflow-y-auto px-3 py-1 space-y-1">
+          <div className="px-2 text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 mb-1">
+            Recent Chats ({userEmail})
+          </div>
+
+          {sessions.map(s => {
+            const isActive = s.id === currentSessionId
+            return (
+              <div
+                key={s.id}
+                onClick={() => {
+                  setCurrentSessionId(s.id)
+                  if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+                    setIsHistoryOpen(false) // Auto-close drawer on mobile
+                  }
+                }}
+                className={`group flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-all cursor-pointer select-none ${
+                  isActive
+                    ? 'bg-[#3A3564] text-white font-bold shadow-xs'
+                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                }`}
+              >
+                <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                  <MessageSquare className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-[#FAF7F0]' : 'text-slate-400'}`} />
+                  <span className="truncate">{s.title || 'New Conversation'}</span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={(e) => deleteSession(e, s.id)}
+                  title="Delete chat"
+                  className={`p-1 rounded-md transition-opacity hover:bg-black/15 ${
+                    isActive ? 'text-white opacity-80 hover:opacity-100' : 'text-slate-400 opacity-0 group-hover:opacity-100 hover:text-rose-600'
+                  }`}
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )
+          })}
+        </div>
+
+        {/* Bottom Bar: Clear All */}
+        <div className="p-3 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between">
+          <button
+            type="button"
+            onClick={clearAllSessions}
+            className="text-[11px] font-mono font-semibold text-slate-500 hover:text-rose-600 flex items-center gap-1.5 transition-colors cursor-pointer"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+            <span>Clear All</span>
+          </button>
+          <span className="text-[10px] font-mono text-slate-400">
+            {sessions.length} {sessions.length === 1 ? 'chat' : 'chats'}
+          </span>
+        </div>
+      </>
+    )
+  }
+
+  // Ensure unique messages for rendering (prevents duplicate key errors)
+  const displayMessages = (currentSession?.messages || []).filter((msg, idx, arr) => 
+    arr.findIndex(m => m.id === msg.id) === idx
+  )
+
   return (
     <div className="flex h-full w-full overflow-hidden bg-[#FAFAF8] relative">
       
       {/* ======================================================== */}
-      {/* 1. MAIN CONVERSATION CANVAS (Left on Desktop & Mobile)   */}
+      {/* 1. DESKTOP LEFT CHAT HISTORY SIDEBAR (lg and up)         */}
+      {/* ======================================================== */}
+      <aside 
+        className={`hidden lg:flex bg-white border-r border-slate-200 flex-col justify-between shrink-0 transition-all duration-300 z-20 ${
+          isHistoryOpen 
+            ? 'w-[280px]' 
+            : 'w-0 overflow-hidden border-none'
+        }`}
+      >
+        {renderHistoryContent(false)}
+      </aside>
+
+      {/* ======================================================== */}
+      {/* 2. MAIN CONVERSATION CANVAS                              */}
       {/* ======================================================== */}
       <main className="flex-1 flex flex-col min-w-0 h-full relative overflow-hidden bg-[#FAFAF8]">
         
-        {/* Top App Bar: Single clean bar on mobile with hamburger, Zigza AI, New Chat, and History */}
+        {/* Top App Bar with Navigation, Title, and Action Buttons */}
         <header className="px-3 sm:px-6 py-2 sm:py-3 border-b border-slate-200/80 bg-white/95 backdrop-blur-md flex items-center justify-between z-10 shrink-0 shadow-2xs">
           <div className="flex items-center gap-1.5 sm:gap-3 min-w-0">
             {/* Mobile Hamburger Menu Button to open AdminSidebar */}
@@ -569,7 +724,7 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
               <span className="text-[11px] sm:text-xs font-bold whitespace-nowrap">New Chat</span>
             </button>
 
-            {/* History Toggle Button — Positioned on RIGHT with visible label */}
+            {/* History Toggle Button: PanelLeft for desktop (left panel), PanelRight for mobile (right drawer) */}
             <button
               type="button"
               onClick={() => setIsHistoryOpen(prev => !prev)}
@@ -580,7 +735,8 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
               }`}
               title="Toggle chat history"
             >
-              <PanelRight className="w-3.5 h-3.5" />
+              <PanelLeft className="w-3.5 h-3.5 hidden lg:block" />
+              <PanelRight className="w-3.5 h-3.5 lg:hidden" />
               <span className="text-[11px] sm:text-xs font-bold whitespace-nowrap">History</span>
             </button>
           </div>
@@ -590,13 +746,13 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
         <div className="flex-1 overflow-y-auto px-3 sm:px-6 md:px-8 py-3 sm:py-6 space-y-4 sm:space-y-6 max-w-4xl w-full mx-auto">
           
           {/* EMPTY STATE: Welcome & Prewritten Query Cards */}
-          {(!currentSession || currentSession.messages.length === 0) && (
+          {(!currentSession || displayMessages.length === 0) && (
             <div className="py-4 sm:py-8 space-y-6 sm:space-y-8 animate-in fade-in duration-300">
               
               {/* Hero Greeting */}
               <div className="space-y-1.5 sm:space-y-2 text-center max-w-xl mx-auto px-2">
                 <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 text-[10px] sm:text-xs font-mono font-bold shadow-2xs">
-                  <Bot className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                  <Bot className="w-3.5 h-3.5" />
                   <span>PLANT MANUFACTURING INTELLIGENCE</span>
                 </div>
                 <h2 className="text-xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
@@ -641,8 +797,8 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
             </div>
           )}
 
-          {/* ACTIVE CHAT: Message Stream */}
-          {currentSession && currentSession.messages.map((msg) => (
+          {/* ACTIVE CHAT: Message Stream (Deduplicated) */}
+          {currentSession && displayMessages.map((msg) => (
             <div
               key={msg.id}
               className={`flex gap-2 sm:gap-3.5 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
@@ -769,10 +925,8 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
       </main>
 
       {/* ======================================================== */}
-      {/* 2. RIGHT-SIDE HISTORY SIDEBAR — Desktop Fixed / Mobile Slide Drawer */}
+      {/* 3. MOBILE RIGHT CHAT HISTORY DRAWER (below lg only)      */}
       {/* ======================================================== */}
-      
-      {/* Mobile Backdrop overlay (when opened on mobile) */}
       {isHistoryOpen && (
         <div 
           className="lg:hidden fixed inset-0 z-40 bg-black/40 backdrop-blur-xs transition-opacity"
@@ -781,100 +935,11 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
       )}
 
       <aside 
-        className={`bg-white border-l border-slate-200 flex flex-col justify-between shrink-0 transition-all duration-300 z-50 fixed lg:relative inset-y-0 right-0 ${
-          isHistoryOpen 
-            ? 'w-[280px] max-w-[85vw] translate-x-0 shadow-2xl lg:shadow-none' 
-            : 'translate-x-full lg:w-0 lg:overflow-hidden lg:border-none'
+        className={`lg:hidden fixed inset-y-0 right-0 z-50 w-[280px] max-w-[85vw] bg-white flex flex-col justify-between shadow-2xl transition-transform duration-300 ease-out ${
+          isHistoryOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
-        {/* Top: New Chat & Header */}
-        <div className="p-3.5 space-y-3">
-          <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-            <div className="flex items-center gap-2">
-              <Bot className="w-4 h-4 text-[#3A3564]" />
-              <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-600">
-                Chat History
-              </span>
-            </div>
-            <button
-              type="button"
-              onClick={() => setIsHistoryOpen(false)}
-              className="w-7 h-7 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
-              title="Close history"
-            >
-              <X className="w-4 h-4 lg:hidden" />
-              <PanelRightClose className="w-4 h-4 hidden lg:block" />
-            </button>
-          </div>
-
-          {/* New Chat Button */}
-          <button
-            type="button"
-            onClick={createNewSession}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[#FAF7F0] hover:bg-[#3A3564] text-[#3A3564] hover:text-white rounded-xl border border-black/15 text-xs font-bold transition-all shadow-2xs group cursor-pointer"
-          >
-            <Plus className="w-4 h-4 transition-transform group-hover:rotate-90" />
-            <span>New Conversation</span>
-          </button>
-        </div>
-
-        {/* Sessions List */}
-        <div className="flex-1 overflow-y-auto px-3 py-1 space-y-1">
-          <div className="px-2 text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 mb-1">
-            Recent Chats ({userEmail})
-          </div>
-
-          {sessions.map(s => {
-            const isActive = s.id === currentSessionId
-            return (
-              <div
-                key={s.id}
-                onClick={() => {
-                  setCurrentSessionId(s.id)
-                  if (typeof window !== 'undefined' && window.innerWidth < 1024) {
-                    setIsHistoryOpen(false) // Auto-close drawer on mobile
-                  }
-                }}
-                className={`group flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-all cursor-pointer select-none ${
-                  isActive
-                    ? 'bg-[#3A3564] text-white font-bold shadow-xs'
-                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-                }`}
-              >
-                <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                  <MessageSquare className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-[#FAF7F0]' : 'text-slate-400'}`} />
-                  <span className="truncate">{s.title || 'New Conversation'}</span>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={(e) => deleteSession(e, s.id)}
-                  title="Delete chat"
-                  className={`p-1 rounded-md transition-opacity hover:bg-black/15 ${
-                    isActive ? 'text-white opacity-80 hover:opacity-100' : 'text-slate-400 opacity-0 group-hover:opacity-100 hover:text-rose-600'
-                  }`}
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            )
-          })}
-        </div>
-
-        {/* Bottom Bar: Clear All */}
-        <div className="p-3 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between">
-          <button
-            type="button"
-            onClick={clearAllSessions}
-            className="text-[11px] font-mono font-semibold text-slate-500 hover:text-rose-600 flex items-center gap-1.5 transition-colors cursor-pointer"
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-            <span>Clear All</span>
-          </button>
-          <span className="text-[10px] font-mono text-slate-400">
-            {sessions.length} {sessions.length === 1 ? 'chat' : 'chats'}
-          </span>
-        </div>
+        {renderHistoryContent(true)}
       </aside>
 
     </div>
