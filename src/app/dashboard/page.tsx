@@ -3,7 +3,7 @@ import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { redirect } from 'next/navigation'
 import { AdminShell } from '../../components/layout/AdminShell'
 import DashboardClient from '../DashboardClient'
-import { LogOut, Globe } from 'lucide-react'
+import { LogOut } from 'lucide-react'
 import Link from 'next/link'
 import { TvViewButton } from '../../components/ui/TvViewButton'
 
@@ -243,15 +243,6 @@ export default async function DashboardPage() {
 
           <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
             <TvViewButton size="md" />
-
-            <Link
-              href="/?showcase=true"
-              className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2 sm:py-2.5 bg-white border border-black/15 rounded-xl text-xs sm:text-sm font-bold text-slate-900 hover:bg-slate-50 transition-all shadow-2xs cursor-pointer"
-            >
-              <Globe className="w-4 h-4 sm:w-[18px] sm:h-[18px] text-[#3A3564]" />
-              <span className="hidden sm:inline">Public Website</span>
-              <span className="sm:hidden">Website</span>
-            </Link>
 
             {/* Sign Out Button */}
             <form action={async () => {

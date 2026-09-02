@@ -21,11 +21,7 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      Cookies.remove('token');
-      useAuthStore.getState().logout();
-      if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
-        window.location.href = '/login';
-      }
+      console.warn('Backend 401 response on:', error.config?.url);
     }
     return Promise.reject(error);
   }

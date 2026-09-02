@@ -254,7 +254,7 @@ export default function LoginPage() {
                     name="email"
                     type="email"
                     required
-                    placeholder="admin@nubira.local"
+                    placeholder="Enter your email ID"
                     className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all bg-white"
                   />
                 </div>
@@ -277,7 +277,7 @@ export default function LoginPage() {
                     name="password"
                     type={showPassword ? 'text' : 'password'}
                     required
-                    placeholder="••••••••"
+                    placeholder="Enter your password"
                     className="w-full pl-10 pr-11 py-3 rounded-xl border border-slate-300 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all bg-white"
                   />
                   <button
