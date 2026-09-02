@@ -5,6 +5,7 @@ import { AdminShell } from '../../components/layout/AdminShell'
 import DashboardClient from '../DashboardClient'
 import { LogOut, Globe } from 'lucide-react'
 import Link from 'next/link'
+import { TvViewButton } from '../../components/ui/TvViewButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -241,6 +242,8 @@ export default async function DashboardPage() {
           </div>
 
           <div className="flex items-center gap-3">
+            <TvViewButton size="lg" />
+
             <Link
               href="/?showcase=true"
               className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-black/15 rounded-xl text-sm font-bold text-slate-900 hover:bg-slate-50 transition-all shadow-2xs cursor-pointer"

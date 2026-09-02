@@ -22,6 +22,7 @@ import {
   UploadCloud,
   FileUp
 } from 'lucide-react'
+import { TvViewButton } from '@/components/ui/TvViewButton'
 import {
   ChallanArticleLine,
   ChallanBomItem,
@@ -794,6 +795,8 @@ export function ProductionOrdersClient({
             <Printer className="w-4 h-4 text-slate-500" />
             <span>Print Chart</span>
           </button>
+
+          <TvViewButton />
 
           <button
             type="button"

@@ -32,6 +32,7 @@ import {
   X,
   ChevronRight
 } from 'lucide-react'
+import { TvViewButton } from '@/components/ui/TvViewButton'
 
 
 function expandGarmentSizeTier(sizeTier?: string): string[] {
@@ -933,29 +934,33 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
           </div>
         </div>
 
-        {/* Grand Target Metric & Progress Bar */}
-        <div className="w-full sm:w-auto flex flex-col sm:items-end bg-slate-50/70 sm:bg-transparent p-3 sm:p-0 rounded-xl border sm:border-0 border-slate-200">
-          <div className="flex items-baseline gap-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
-              Grand Target:
-            </span>
-            <span 
-              className="text-[28px] sm:text-[30px] font-bold font-[family-name:var(--font-heading)] leading-none text-[#3A3564]"
-            >
-              {totalPieces.toLocaleString()} <span className="text-sm font-normal text-slate-500">pcs</span>
-            </span>
-          </div>
+        {/* Grand Target Metric & Actions */}
+        <div className="flex items-center gap-4 flex-wrap self-end sm:self-auto">
+          <TvViewButton />
 
-          {/* 6px Thin Progress Track */}
-          <div 
-            className="w-full sm:w-44 h-1.5 rounded-full mt-2.5 overflow-hidden bg-slate-100 border border-black/5"
-          >
+          <div className="w-full sm:w-auto flex flex-col sm:items-end bg-slate-50/70 sm:bg-transparent p-3 sm:p-0 rounded-xl border sm:border-0 border-slate-200">
+            <div className="flex items-baseline gap-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                Grand Target:
+              </span>
+              <span 
+                className="text-[28px] sm:text-[30px] font-bold font-[family-name:var(--font-heading)] leading-none text-[#3A3564]"
+              >
+                {totalPieces.toLocaleString()} <span className="text-sm font-normal text-slate-500">pcs</span>
+              </span>
+            </div>
+
+            {/* 6px Thin Progress Track */}
             <div 
-              className="h-full rounded-full transition-all duration-300 bg-[#3A3564]"
-              style={{ 
-                width: totalPieces > 0 ? '100%' : '0%'
-              }}
-            />
+              className="w-full sm:w-44 h-1.5 rounded-full mt-2.5 overflow-hidden bg-slate-100 border border-black/5"
+            >
+              <div 
+                className="h-full rounded-full transition-all duration-300 bg-[#3A3564]"
+                style={{ 
+                  width: totalPieces > 0 ? '100%' : '0%'
+                }}
+              />
+            </div>
           </div>
         </div>
       </div>

@@ -25,6 +25,7 @@ import {
   Check,
   ExternalLink
 } from 'lucide-react'
+import { TvViewButton } from '@/components/ui/TvViewButton'
 import { addStoreTransaction, addAccessoryTransaction } from '../actions'
 
 type Article = {
@@ -680,6 +681,8 @@ export function InventoryClient({
             <Download className="w-4 h-4 text-slate-500" />
             <span>Export CSV</span>
           </button>
+
+          <TvViewButton />
         </div>
       </div>
 

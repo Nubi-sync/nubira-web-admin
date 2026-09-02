@@ -32,6 +32,7 @@ import {
   User,
   Tag
 } from 'lucide-react'
+import { TvViewButton } from '@/components/ui/TvViewButton'
 
 type RawProd = {
   id?: string
@@ -668,26 +669,30 @@ export default function DashboardClient({
           </div>
 
           {/* Date Filter Pills */}
-          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg border border-slate-200">
-            {[
-              { id: 'today', label: 'Today' },
-              { id: 'week', label: 'This Week' },
-              { id: 'month', label: 'This Month' },
-              { id: 'all', label: 'All Time' }
-            ].map(tab => (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => setDateFilter(tab.id as DateFilter)}
-                className={`px-3 py-1.5 text-xs font-bold rounded-md transition-colors cursor-pointer ${
-                  dateFilter === tab.id
-                    ? 'bg-white text-[#3A3564] shadow-2xs font-extrabold'
-                    : 'text-slate-500 hover:text-slate-800'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg border border-slate-200">
+              {[
+                { id: 'today', label: 'Today' },
+                { id: 'week', label: 'This Week' },
+                { id: 'month', label: 'This Month' },
+                { id: 'all', label: 'All Time' }
+              ].map(tab => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setDateFilter(tab.id as DateFilter)}
+                  className={`px-3 py-1.5 text-xs font-bold rounded-md transition-colors cursor-pointer ${
+                    dateFilter === tab.id
+                      ? 'bg-white text-[#3A3564] shadow-2xs font-extrabold'
+                      : 'text-slate-500 hover:text-slate-800'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            <TvViewButton size="sm" />
           </div>
 
         </div>
