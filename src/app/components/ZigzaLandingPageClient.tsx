@@ -1704,7 +1704,7 @@ ${demoForm.ownerName}`
                     <input
                       type="text"
                       required
-                      placeholder="e.g. Shree Garments / Ollypop Unit"
+                      placeholder="Enter your organisation"
                       value={demoForm.companyName}
                       onChange={e => setDemoForm({ ...demoForm, companyName: e.target.value })}
                       className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
@@ -1718,7 +1718,7 @@ ${demoForm.ownerName}`
                     <input
                       type="text"
                       required
-                      placeholder="e.g. Rajesh Sharma / Anil Gupta"
+                      placeholder="Enter full name"
                       value={demoForm.ownerName}
                       onChange={e => setDemoForm({ ...demoForm, ownerName: e.target.value })}
                       className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
@@ -2042,7 +2042,7 @@ ${demoForm.ownerName}`
                   <input
                     type="text"
                     required
-                    placeholder="e.g. Shree Garments / Ollypop Unit"
+                    placeholder="Enter your organisation"
                     value={demoForm.companyName}
                     onChange={e => setDemoForm({ ...demoForm, companyName: e.target.value })}
                     className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
@@ -2056,7 +2056,7 @@ ${demoForm.ownerName}`
                   <input
                     type="text"
                     required
-                    placeholder="e.g. Rajesh Sharma / Anil Gupta"
+                    placeholder="Enter full name"
                     value={demoForm.ownerName}
                     onChange={e => setDemoForm({ ...demoForm, ownerName: e.target.value })}
                     className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
