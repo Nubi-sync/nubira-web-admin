@@ -106,15 +106,20 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
 
   // 2. Load & Sync Chat Sessions across account devices by Email
   useEffect(() => {
+    let initialLocalSessions: ChatSession[] = []
+
     // Step A: Load from email-keyed localStorage for zero-delay instant render
     try {
       const storageKey = userEmail ? `zigza_ai_chat_sessions_${userEmail}` : 'zigza_ai_chat_sessions'
       const local = localStorage.getItem(storageKey) || localStorage.getItem('zigza_ai_chat_sessions')
       if (local) {
         const parsed: ChatSession[] = JSON.parse(local)
-        if (parsed.length > 0) {
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          initialLocalSessions = parsed
           setSessions(parsed)
-          setCurrentSessionId(parsed[0].id)
+          // Find first session that has actual messages
+          const active = parsed.find(s => s.messages && s.messages.length > 0) || parsed[0]
+          setCurrentSessionId(active.id)
         }
       }
     } catch (e) {
@@ -128,14 +133,62 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
         const res = await fetch(`/api/chat/history${emailQuery}`, { cache: 'no-store' })
         if (res.ok) {
           const data = await res.json()
-          if (Array.isArray(data.sessions) && data.sessions.length > 0) {
-            setSessions(data.sessions)
-            setCurrentSessionId(data.sessions[0].id)
-            try {
-              const storageKey = userEmail ? `zigza_ai_chat_sessions_${userEmail}` : 'zigza_ai_chat_sessions'
-              localStorage.setItem(storageKey, JSON.stringify(data.sessions))
-              localStorage.setItem('zigza_ai_chat_sessions', JSON.stringify(data.sessions))
-            } catch {}
+          if (Array.isArray(data.sessions)) {
+            setSessions(prev => {
+              const baseList = prev.length > 0 ? prev : initialLocalSessions
+              const map = new Map<string, ChatSession>()
+
+              // 1. Add all local/base sessions first
+              for (const s of baseList) {
+                map.set(s.id, s)
+              }
+
+              // 2. Merge cloud sessions without overwriting conversations that have messages
+              for (const cs of data.sessions) {
+                const existing = map.get(cs.id)
+                if (!existing) {
+                  map.set(cs.id, cs)
+                } else {
+                  const cloudMsgCount = cs.messages?.length || 0
+                  const localMsgCount = existing.messages?.length || 0
+                  if (cloudMsgCount >= localMsgCount || (cs.updatedAt || 0) > (existing.updatedAt || 0)) {
+                    map.set(cs.id, cs)
+                  }
+                }
+              }
+
+              const merged = Array.from(map.values())
+              // Keep sessions that have messages, or keep all if none have messages yet
+              const meaningful = merged.filter(s => s.messages && s.messages.length > 0)
+              const finalList = meaningful.length > 0 ? meaningful : merged
+
+              if (finalList.length > 0) {
+                // Ensure current session selection doesn't drop to a blank new chat
+                setCurrentSessionId(currentId => {
+                  const stillActiveWithMsg = finalList.find(s => s.id === currentId && (s.messages?.length || 0) > 0)
+                  if (stillActiveWithMsg) return currentId
+                  const firstWithMsg = finalList.find(s => s.messages && s.messages.length > 0)
+                  return firstWithMsg ? firstWithMsg.id : finalList[0].id
+                })
+
+                try {
+                  const storageKey = userEmail ? `zigza_ai_chat_sessions_${userEmail}` : 'zigza_ai_chat_sessions'
+                  localStorage.setItem(storageKey, JSON.stringify(finalList))
+                  localStorage.setItem('zigza_ai_chat_sessions', JSON.stringify(finalList))
+                } catch {}
+
+                return finalList
+              }
+
+              const fresh: ChatSession = {
+                id: 'session_' + Date.now(),
+                title: 'New Conversation',
+                messages: [],
+                updatedAt: Date.now()
+              }
+              setCurrentSessionId(fresh.id)
+              return [fresh]
+            })
             return
           }
         }
@@ -143,7 +196,7 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
         console.error('Account history sync fetch error:', err)
       }
 
-      // If no cloud history and no local sessions, create first session
+      // If no cloud response and no local sessions, create first session
       setSessions(prev => {
         if (prev.length === 0) {
           const fresh: ChatSession = {
@@ -171,6 +224,12 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
       localStorage.setItem('zigza_ai_chat_sessions', JSON.stringify(newSessions))
     } catch (e) {
       console.error('Error saving to localStorage', e)
+    }
+
+    // Only send to cloud if there is at least one session with actual messages
+    const hasMeaningfulMessages = newSessions.some(s => s.messages && s.messages.length > 0)
+    if (!hasMeaningfulMessages && newSessions.length > 0) {
+      return // Avoid wiping cloud storage with a blank empty conversation
     }
 
     // Debounce cloud sync to avoid spamming backend
@@ -698,7 +757,7 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
                   Zigza AI
                 </h1>
                 <span className="hidden sm:inline-block text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs">
-                  LIVE MES
+                  LIVE AI
                 </span>
               </div>
               <p className="text-[10px] sm:text-[11px] text-slate-500 truncate hidden sm:block">
@@ -743,28 +802,28 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
         </header>
 
         {/* Message Stream Area */}
-        <div className="flex-1 overflow-y-auto px-3 sm:px-6 md:px-8 py-3 sm:py-6 space-y-4 sm:space-y-6 max-w-4xl w-full mx-auto">
+        <div className="flex-1 overflow-y-auto px-3 sm:px-6 md:px-8 py-3 sm:py-6 space-y-4 sm:space-y-6 max-w-4xl w-full mx-auto flex flex-col">
           
           {/* EMPTY STATE: Welcome & Prewritten Query Cards */}
           {(!currentSession || displayMessages.length === 0) && (
-            <div className="py-4 sm:py-8 space-y-6 sm:space-y-8 animate-in fade-in duration-300">
+            <div className="my-auto py-4 sm:py-8 space-y-5 sm:space-y-7 animate-in fade-in duration-300">
               
-              {/* Hero Greeting */}
-              <div className="space-y-1.5 sm:space-y-2 text-center max-w-xl mx-auto px-2">
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 text-[10px] sm:text-xs font-mono font-bold shadow-2xs">
+              {/* Hero Greeting - Spacious & Beautiful */}
+              <div className="space-y-2 sm:space-y-3 text-center max-w-xl mx-auto px-2">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 text-[10px] sm:text-xs font-mono font-bold shadow-2xs">
                   <Bot className="w-3.5 h-3.5" />
-                  <span>PLANT MANUFACTURING INTELLIGENCE</span>
+                  <span>PLANT INTELLIGENCE</span>
                 </div>
-                <h2 className="text-xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
+                <h2 className="text-xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight leading-snug">
                   What factory data would you like to check?
                 </h2>
-                <p className="text-xs sm:text-sm text-slate-600">
-                  Ask in plain English. Zigza AI fetches verified numbers directly from cutting orders, sewing lines, godown stock, and dispatch challans.
+                <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
+                  Ask in plain English. Verified numbers directly from cutting orders, sewing lines, godown stock, and dispatches.
                 </p>
               </div>
 
-              {/* Pre-written Prompt Cards Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 sm:gap-3.5">
+              {/* Pre-written Prompt Cards: Spacious, breathable 2-column cards on mobile, 3-col on desktop */}
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-2.5 sm:gap-4">
                 {PREWRITTEN_QUERIES.map((card, idx) => {
                   const Icon = card.icon
                   return (
@@ -772,20 +831,20 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
                       key={idx}
                       type="button"
                       onClick={() => handleSendMessage(card.prompt)}
-                      className="text-left p-3.5 sm:p-4 rounded-2xl bg-white border border-black/10 hover:border-[#3A3564]/40 hover:shadow-md transition-all group flex flex-col justify-between space-y-2 sm:space-y-3 cursor-pointer select-none bg-gradient-to-b from-white to-[#FAFAF8]"
+                      className="text-left p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-white border border-black/10 hover:border-[#3A3564]/40 hover:shadow-md transition-all group flex flex-col justify-between cursor-pointer select-none bg-gradient-to-b from-white to-[#FAFAF8] active:scale-[0.98] shadow-2xs min-h-[90px] sm:min-h-[110px]"
                     >
-                      <div className="flex items-center justify-between w-full">
-                        <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs group-hover:bg-[#3A3564] group-hover:text-white transition-colors">
-                          <Icon className="w-4 h-4" />
+                      <div className="flex items-center justify-between w-full mb-1.5 sm:mb-2">
+                        <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs group-hover:bg-[#3A3564] group-hover:text-white transition-colors shrink-0">
+                          <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                         </div>
-                        <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-[#3A3564] group-hover:translate-x-0.5 transition-all" />
+                        <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-300 group-hover:text-[#3A3564] group-hover:translate-x-0.5 transition-all" />
                       </div>
 
                       <div className="space-y-0.5 sm:space-y-1">
-                        <h4 className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-[#3A3564] transition-colors">
+                        <h4 className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-[#3A3564] transition-colors leading-snug line-clamp-1 sm:line-clamp-none">
                           {card.title}
                         </h4>
-                        <p className="text-[11px] text-slate-500 leading-relaxed line-clamp-2">
+                        <p className="text-[10px] sm:text-[11px] text-slate-500 leading-relaxed line-clamp-1 sm:line-clamp-2">
                           {card.description}
                         </p>
                       </div>
@@ -884,16 +943,16 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
         </div>
 
         {/* ======================================================== */}
-        {/* MOBILE FLUSH BOTTOM PROMPT BAR                           */}
+        {/* MOBILE STICKY BOTTOM PROMPT BAR                          */}
         {/* ======================================================== */}
-        <div className="p-2 sm:p-3 border-t border-slate-200/90 bg-white shadow-xs shrink-0">
+        <div className="sticky bottom-0 z-30 p-2.5 sm:p-3.5 bg-white/95 backdrop-blur-md border-t border-slate-200/90 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] shrink-0">
           <div className="max-w-4xl mx-auto">
             <form
               onSubmit={(e) => {
                 e.preventDefault()
                 handleSendMessage()
               }}
-              className="relative flex items-center rounded-2xl border border-black/15 bg-white shadow-2xs focus-within:border-[#3A3564] focus-within:ring-2 focus-within:ring-[#3A3564]/10 transition-all px-3 py-1.5 sm:px-4 sm:py-2.5"
+              className="relative flex items-center rounded-2xl border-2 border-[#3A3564]/30 bg-slate-50/80 focus-within:bg-white focus-within:border-[#3A3564] focus-within:ring-2 focus-within:ring-[#3A3564]/15 transition-all px-3.5 py-2 sm:px-4 sm:py-2.5 shadow-xs"
             >
               <input
                 ref={inputRef}
@@ -907,16 +966,16 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
                 }}
                 placeholder="Ask about orders, godown stock, linemen, QC..."
                 disabled={isLoading}
-                className="flex-1 bg-transparent text-xs sm:text-sm text-slate-900 placeholder-slate-400 outline-none font-medium min-w-0 py-1"
+                className="flex-1 bg-transparent text-xs sm:text-sm text-slate-900 placeholder:text-slate-500 outline-none font-medium min-w-0 py-1"
               />
 
               <button
                 type="submit"
                 disabled={!inputPrompt.trim() || isLoading}
-                className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white disabled:opacity-35 transition-all cursor-pointer shadow-2xs flex items-center justify-center shrink-0 ml-1.5"
+                className="w-9 h-9 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white disabled:opacity-35 transition-all cursor-pointer shadow-xs flex items-center justify-center shrink-0 ml-2"
                 aria-label="Send query"
               >
-                {isLoading ? <Loader2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-spin" /> : <Send className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
+                {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
               </button>
             </form>
           </div>

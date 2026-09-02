@@ -101,7 +101,7 @@ function AdminShellContent({
           <MobileTopBar onMenuToggle={() => setIsMobileMenuOpen(prev => !prev)} />
         )}
 
-        <div className={`flex-1 min-h-0 ${isTvMode ? 'w-full max-w-none' : ''}`}>
+        <div className={`flex-1 min-h-0 flex flex-col h-full ${isTvMode ? 'w-full max-w-none' : ''}`}>
           {children}
         </div>
 

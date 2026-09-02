@@ -93,8 +93,14 @@ export async function POST(req: NextRequest) {
     }
 
     const filePath = getEmailStorageKey(email)
-    const sanitizedSessions = sessions.slice(0, 50)
 
+    // Safeguard: Never overwrite cloud storage with completely empty sessions (0 messages)
+    const hasAnyMessages = sessions.some((s: any) => Array.isArray(s.messages) && s.messages.length > 0)
+    if (!hasAnyMessages && sessions.length > 0) {
+      return NextResponse.json({ success: true, email, skipped: true, message: 'Skipped blank sessions' })
+    }
+
+    const sanitizedSessions = sessions.slice(0, 50)
     const keyToUse = SERVICE_KEY || ANON_KEY
 
     const res = await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET_NAME}/${filePath}`, {
