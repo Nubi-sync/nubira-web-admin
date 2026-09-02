@@ -66,6 +66,12 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
+        url: "/icon.png",
+        width: 512,
+        height: 512,
+        alt: "Zigza MES Icon",
+      },
+      {
         url: "/new_logo.png",
         width: 1200,
         height: 630,
@@ -77,7 +83,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Zigza MES | Modern Apparel Manufacturing",
     description: "Streamline cutting tables, bundle allotments, 3-stage QC, and lineman wages with zero leakage.",
-    images: ["/new_logo.png"],
+    images: ["/icon.png"],
   },
   robots: {
     index: true,
@@ -92,11 +98,13 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: '/icon.svg', type: 'image/svg+xml' },
-      { url: '/favicon.ico', sizes: 'any' }
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/icon.png', sizes: '512x512', type: 'image/png' },
     ],
     shortcut: '/favicon.ico',
-    apple: '/icon.svg'
+    apple: [
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
   }
 };
 
