@@ -36,100 +36,104 @@ export default async function DashboardPage() {
     redirect('/login')
   }
 
-  // 0. Fetch Articles
-  const { data: articlesData } = await supabaseAdmin
-    .from('articles')
-    .select('id, art_no, description, stitching_rate, size_rates')
-    .eq('is_active', true)
-    .order('art_no')
+  // Fetch all 9 factory datasets concurrently in parallel
+  const [
+    { data: articlesData },
+    { data: allotmentsData },
+    { data: challansData },
+    { data: variantsData },
+    { data: prodData },
+    { data: qcData },
+    { data: storeData },
+    { data: dispatchData },
+    { data: materialsData },
+  ] = await Promise.all([
+    supabaseAdmin
+      .from('articles')
+      .select('id, art_no, description, stitching_rate, size_rates')
+      .eq('is_active', true)
+      .order('art_no'),
 
-  // 1. Fetch Allotments with Challan & Lineman Metadata (Full Factory Pipeline)
-  const { data: allotmentsData } = await supabaseAdmin
-    .from('allotments')
-    .select(`
-      id,
-      challan_id,
-      lineman_id,
-      article_id,
-      target_qty,
-      status,
-      allotment_date,
-      created_at,
-      profiles:lineman_id ( id, username ),
-      articles ( id, art_no, description, size_rates, stitching_rate ),
-      challans ( id, challan_no, brand, fabric_type )
-    `)
-    .order('created_at', { ascending: false })
+    supabaseAdmin
+      .from('allotments')
+      .select(`
+        id,
+        challan_id,
+        lineman_id,
+        article_id,
+        target_qty,
+        status,
+        allotment_date,
+        created_at,
+        profiles:lineman_id ( id, username ),
+        articles ( id, art_no, description, size_rates, stitching_rate ),
+        challans ( id, challan_no, brand, fabric_type )
+      `)
+      .order('created_at', { ascending: false }),
 
-  // 2. Fetch Active Production Orders (Challans)
-  const { data: challansData } = await supabaseAdmin
-    .from('challans')
-    .select('*')
-    .order('created_at', { ascending: false })
+    supabaseAdmin
+      .from('challans')
+      .select('*')
+      .order('created_at', { ascending: false }),
 
-  // 3. Fetch Article Variants
-  const { data: variantsData } = await supabaseAdmin
-    .from('article_variants')
-    .select('*')
+    supabaseAdmin
+      .from('article_variants')
+      .select('*'),
 
-  // 4. Fetch Raw Production Logs (Sewing Output)
-  const { data: prodData } = await supabaseAdmin
-    .from('production')
-    .select(`
-      id,
-      quantity,
-      entry_date,
-      created_at,
-      article_id,
-      lineman_id,
-      article:article_id ( id, art_no, description )
-    `)
-    .order('created_at', { ascending: false })
+    supabaseAdmin
+      .from('production')
+      .select(`
+        id,
+        quantity,
+        entry_date,
+        created_at,
+        article_id,
+        lineman_id,
+        article:article_id ( id, art_no, description )
+      `)
+      .order('created_at', { ascending: false }),
 
-  // 5. Fetch Raw QC Inspection Logs
-  const { data: qcData } = await supabaseAdmin
-    .from('qc_inspections')
-    .select(`
-      id,
-      qty_passed,
-      qty_rejected,
-      stage,
-      defect_type,
-      entry_date,
-      created_at,
-      article_id,
-      article:article_id ( id, art_no, description )
-    `)
-    .order('created_at', { ascending: false })
+    supabaseAdmin
+      .from('qc_inspections')
+      .select(`
+        id,
+        qty_passed,
+        qty_rejected,
+        stage,
+        defect_type,
+        entry_date,
+        created_at,
+        article_id,
+        article:article_id ( id, art_no, description )
+      `)
+      .order('created_at', { ascending: false }),
 
-  // 6. Fetch Raw Godown/Store Inventory Entries
-  const { data: storeData } = await supabaseAdmin
-    .from('store_entries')
-    .select(`
-      id,
-      type,
-      quantity,
-      color,
-      size,
-      party_name,
-      challan_no,
-      entry_date,
-      created_at,
-      article:article_id ( art_no, description )
-    `)
-    .order('created_at', { ascending: false })
+    supabaseAdmin
+      .from('store_entries')
+      .select(`
+        id,
+        type,
+        quantity,
+        color,
+        size,
+        party_name,
+        challan_no,
+        entry_date,
+        created_at,
+        article:article_id ( art_no, description )
+      `)
+      .order('created_at', { ascending: false }),
 
-  // 7. Fetch Dispatch & Delivery Challans
-  const { data: dispatchData } = await supabaseAdmin
-    .from('dispatch_challans')
-    .select('*')
-    .order('created_at', { ascending: false })
+    supabaseAdmin
+      .from('dispatch_challans')
+      .select('*')
+      .order('created_at', { ascending: false }),
 
-  // 8. Fetch Raw Materials Inventory (Fabric & Trims)
-  const { data: materialsData } = await supabaseAdmin
-    .from('inventory_materials')
-    .select('*')
-    .order('created_at', { ascending: false })
+    supabaseAdmin
+      .from('inventory_materials')
+      .select('*')
+      .order('created_at', { ascending: false })
+  ])
 
   // 9. Synthesize Multi-Stage Activity Stream
   const activities: Array<{

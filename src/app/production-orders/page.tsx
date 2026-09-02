@@ -18,22 +18,24 @@ export default async function ProductionOrdersPage() {
     redirect('/login')
   }
 
-  // 1. Fetch all articles for auto-fill & lookup
-  const { data: articles } = await supabase
-    .from('articles')
-    .select('id, art_no, description, size_rates, stitching_rate')
-    .eq('is_active', true)
-    .order('art_no')
-
-  // 2. Fetch active linemen list for assignment dropdowns
-  const { data: linemen } = await supabase
-    .from('profiles')
-    .select('id, username, role')
-    .eq('role', 'LINEMAN')
-    .order('username')
-
-  // 3. Fetch all live grouped challans & production orders
-  const orders = await getProductionOrders()
+  // Parallel concurrent data fetching
+  const [
+    { data: articles },
+    { data: linemen },
+    orders
+  ] = await Promise.all([
+    supabase
+      .from('articles')
+      .select('id, art_no, description, size_rates, stitching_rate')
+      .eq('is_active', true)
+      .order('art_no'),
+    supabase
+      .from('profiles')
+      .select('id, username, role')
+      .eq('role', 'LINEMAN')
+      .order('username'),
+    getProductionOrders()
+  ])
 
   return (
     <AdminShell userEmail={user.email}>

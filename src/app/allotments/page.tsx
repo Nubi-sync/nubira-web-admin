@@ -20,48 +20,52 @@ export default async function AllotmentsPage() {
     redirect('/login')
   }
 
-  // 1. Fetch active linemen using supabaseAdmin
-  const { data: linemen } = await supabaseAdmin
-    .from('profiles')
-    .select('id, username')
-    .eq('role', 'LINEMAN')
-    .eq('is_active', true)
-    .order('username')
+  // Concurrent parallel data fetching
+  const [
+    { data: linemen },
+    { data: managers },
+    { data: articles },
+    productionOrders,
+    { data: allotmentsRaw }
+  ] = await Promise.all([
+    supabaseAdmin
+      .from('profiles')
+      .select('id, username')
+      .eq('role', 'LINEMAN')
+      .eq('is_active', true)
+      .order('username'),
 
-  // 1.1 Fetch active production managers & admins
-  const { data: managers } = await supabaseAdmin
-    .from('profiles')
-    .select('id, username, role')
-    .in('role', ['PRODUCTION_MANAGER', 'ADMIN'])
-    .eq('is_active', true)
-    .order('username')
+    supabaseAdmin
+      .from('profiles')
+      .select('id, username, role')
+      .in('role', ['PRODUCTION_MANAGER', 'ADMIN'])
+      .eq('is_active', true)
+      .order('username'),
 
-  // 2. Fetch active articles with stitching rate
-  const { data: articles } = await supabaseAdmin
-    .from('articles')
-    .select('id, art_no, description, stitching_rate, size_rates')
-    .eq('is_active', true)
-    .order('art_no')
+    supabaseAdmin
+      .from('articles')
+      .select('id, art_no, description, stitching_rate, size_rates')
+      .eq('is_active', true)
+      .order('art_no'),
 
-  // 2.5 Fetch Production Orders for auto-sync
-  const productionOrders = await getProductionOrders()
+    getProductionOrders(),
 
-  // 3. Fetch Allotments
-  const { data: allotmentsRaw } = await supabaseAdmin
-    .from('allotments')
-    .select(`
-      id,
-      lineman_id,
-      article_id,
-      target_qty,
-      allotment_date,
-      status,
-      created_at,
-      profiles ( id, username ),
-      articles ( id, art_no, description, stitching_rate, size_rates )
-    `)
-    .order('created_at', { ascending: false })
-    .limit(100)
+    supabaseAdmin
+      .from('allotments')
+      .select(`
+        id,
+        lineman_id,
+        article_id,
+        target_qty,
+        allotment_date,
+        status,
+        created_at,
+        profiles ( id, username ),
+        articles ( id, art_no, description, stitching_rate, size_rates )
+      `)
+      .order('created_at', { ascending: false })
+      .limit(100)
+  ])
 
   const allotmentIds = allotmentsRaw?.map(a => a.id) || []
 

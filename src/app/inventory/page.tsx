@@ -17,47 +17,51 @@ export default async function InventoryPage() {
     redirect('/login')
   }
 
-  // 1. Fetch Articles
-  const { data: articles } = await supabase
-    .from('articles')
-    .select('id, art_no, description')
-    .eq('is_active', true)
-    .order('art_no')
+  // Parallel concurrent data fetching
+  const [
+    { data: articles },
+    { data: storeTransactions },
+    { data: accessories }
+  ] = await Promise.all([
+    supabase
+      .from('articles')
+      .select('id, art_no, description')
+      .eq('is_active', true)
+      .order('art_no'),
 
-  // 2. Fetch Store Transactions
-  const { data: storeTransactions } = await supabase
-    .from('store_transactions')
-    .select(`
-      id,
-      entry_date,
-      created_at,
-      type,
-      quantity,
-      color,
-      size,
-      party_name,
-      challan_no,
-      transport_no,
-      notes,
-      article:articles(id, art_no, description)
-    `)
-    .order('created_at', { ascending: false })
+    supabase
+      .from('store_transactions')
+      .select(`
+        id,
+        entry_date,
+        created_at,
+        type,
+        quantity,
+        color,
+        size,
+        party_name,
+        challan_no,
+        transport_no,
+        notes,
+        article:articles(id, art_no, description)
+      `)
+      .order('created_at', { ascending: false }),
 
-  // 3. Fetch Accessories (Raw Materials & Trims)
-  const { data: accessories } = await supabase
-    .from('accessories')
-    .select(`
-      id,
-      entry_date,
-      created_at,
-      item_name,
-      action,
-      quantity,
-      unit,
-      party_name,
-      notes
-    `)
-    .order('created_at', { ascending: false })
+    supabase
+      .from('accessories')
+      .select(`
+        id,
+        entry_date,
+        created_at,
+        item_name,
+        action,
+        quantity,
+        unit,
+        party_name,
+        notes
+      `)
+      .order('created_at', { ascending: false })
+  ])
 
   // 4. Fetch Truck & Accessory Challan Inwards (GRN)
   let truckInwards: any[] = []
