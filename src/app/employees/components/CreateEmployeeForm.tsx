@@ -45,25 +45,22 @@ export function CreateEmployeeForm() {
 
   return (
     <div 
-      className="bg-white rounded-[11px] border shadow-xs p-5 sm:p-6 space-y-5"
-      style={{ borderColor: 'var(--border, #E2E8F0)' }}
+      className="bg-white rounded-2xl border border-black/10 shadow-2xs p-5 sm:p-6 space-y-5"
     >
       {/* Card Header */}
       <div className="flex items-center gap-3">
         <div 
-          className="w-[32px] h-[32px] rounded-[8px] flex items-center justify-center shrink-0"
-          style={{ backgroundColor: 'var(--steel-mist, #EEF3FA)', color: 'var(--steel, #2B4C7E)' }}
+          className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs"
         >
-          <UserPlus className="w-4 h-4" />
+          <UserPlus className="w-5 h-5" />
         </div>
         <div>
           <h2 
-            className="text-base font-bold font-[family-name:var(--font-heading)]"
-            style={{ color: 'var(--ink, #1C2733)' }}
+            className="text-base sm:text-lg font-bold font-[family-name:var(--font-heading)] text-slate-900"
           >
             Add New Employee
           </h2>
-          <p className="text-[12px]" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+          <p className="text-xs text-slate-500 mt-0.5">
             Create floor staff login credentials
           </p>
         </div>
@@ -78,8 +75,7 @@ export function CreateEmployeeForm() {
         {/* Username */}
         <div>
           <label 
-            className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1.5"
-            style={{ color: 'var(--ink-soft, #5B6B7C)' }}
+            className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5"
           >
             Username
           </label>
@@ -91,18 +87,14 @@ export function CreateEmployeeForm() {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             placeholder="e.g. ramesh_stitch"
-            className="w-full bg-slate-50 border rounded-[8px] px-3.5 py-2.5 text-xs text-[var(--ink,#1C2733)] placeholder-slate-400 outline-none transition-all focus:bg-white"
-            style={{ borderColor: 'var(--border, #E2E8F0)' }}
-            onFocus={(e) => e.currentTarget.style.borderColor = 'var(--steel, #2B4C7E)'}
-            onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border, #E2E8F0)'}
+            className="w-full bg-slate-50/70 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-900 placeholder-slate-400 outline-none transition-all focus:bg-white focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 shadow-2xs"
           />
         </div>
 
         {/* Password */}
         <div>
           <label 
-            className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1.5"
-            style={{ color: 'var(--ink-soft, #5B6B7C)' }}
+            className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5"
           >
             Password
           </label>
@@ -114,18 +106,14 @@ export function CreateEmployeeForm() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••"
-            className="w-full bg-slate-50 border rounded-[8px] px-3.5 py-2.5 text-xs text-[var(--ink,#1C2733)] placeholder-slate-400 outline-none transition-all focus:bg-white"
-            style={{ borderColor: 'var(--border, #E2E8F0)' }}
-            onFocus={(e) => e.currentTarget.style.borderColor = 'var(--steel, #2B4C7E)'}
-            onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border, #E2E8F0)'}
+            className="w-full bg-slate-50/70 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-900 placeholder-slate-400 outline-none transition-all focus:bg-white focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 shadow-2xs"
           />
         </div>
 
         {/* Role Select with Validation States */}
         <div>
           <label 
-            className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1.5"
-            style={{ color: 'var(--ink-soft, #5B6B7C)' }}
+            className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5"
           >
             Role Assignment
           </label>
@@ -139,17 +127,11 @@ export function CreateEmployeeForm() {
                 setTouchedRole(true)
               }}
               onBlur={() => setTouchedRole(true)}
-              className="w-full bg-slate-50 border rounded-[8px] px-3.5 py-2.5 text-xs font-semibold outline-none transition-all cursor-pointer focus:bg-white"
-              style={{
-                borderColor: touchedRole && !isRoleValid 
-                  ? 'var(--red, #C0392B)' 
-                  : touchedRole && isRoleValid 
-                    ? 'var(--green, #1F9D63)' 
-                    : 'var(--border, #E2E8F0)',
-                backgroundColor: touchedRole && !isRoleValid 
-                  ? 'var(--red-mist, #FBEAE8)' 
-                  : '#F8FAFC'
-              }}
+              className={`w-full border rounded-xl px-3.5 py-2.5 text-sm font-medium outline-none transition-all cursor-pointer shadow-2xs ${
+                touchedRole && !isRoleValid
+                  ? 'border-rose-400 bg-rose-50/50 text-slate-900'
+                  : 'bg-slate-50/70 border-slate-200 hover:bg-white focus:bg-white focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 text-slate-900'
+              }`}
             >
               <option value="PRODUCTION_MANAGER">Production Manager (PPC & Floor Deadlines)</option>
               <option value="LINEMAN">Lineman (Stitching & Floor Allotment)</option>
@@ -160,8 +142,8 @@ export function CreateEmployeeForm() {
             </select>
           </div>
           {touchedRole && !isRoleValid && (
-            <p className="text-[11px] mt-1 font-medium flex items-center gap-1" style={{ color: 'var(--red, #C0392B)' }}>
-              <AlertCircle className="w-3 h-3" /> Please select an operational role.
+            <p className="text-xs mt-1.5 font-medium flex items-center gap-1 text-rose-600">
+              <AlertCircle className="w-3.5 h-3.5" /> Please select an operational role.
             </p>
           )}
         </div>
@@ -169,8 +151,7 @@ export function CreateEmployeeForm() {
         {/* Error Alert */}
         {error && (
           <div 
-            className="p-3 rounded-[8px] text-xs font-medium flex items-center gap-2"
-            style={{ backgroundColor: 'var(--red-mist, #FBEAE8)', color: 'var(--red, #C0392B)' }}
+            className="p-3 rounded-xl text-xs font-medium flex items-center gap-2 bg-rose-50 border border-rose-200 text-rose-700"
           >
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span>{error}</span>
@@ -180,24 +161,22 @@ export function CreateEmployeeForm() {
         {/* Success Alert */}
         {success && (
           <div 
-            className="p-3 rounded-[8px] text-xs font-medium flex items-center gap-2"
-            style={{ backgroundColor: 'var(--green-mist, #E6F6EE)', color: 'var(--green, #1F9D63)' }}
+            className="p-3 rounded-xl text-xs font-medium flex items-center gap-2 bg-emerald-50 border border-emerald-200 text-emerald-800"
           >
-            <CheckCircle2 className="w-4 h-4 shrink-0" />
+            <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
             <span>Employee account created successfully!</span>
           </div>
         )}
 
-        {/* Submit Button (Solid Steel, 8px radius, full width) */}
+        {/* Submit Button */}
         <button
           type="submit"
           disabled={isPending}
-          className="w-full py-2.5 rounded-[8px] text-xs font-semibold text-white transition-colors flex items-center justify-center gap-2 shadow-xs cursor-pointer disabled:opacity-50 mt-2"
-          style={{ backgroundColor: 'var(--steel, #2B4C7E)' }}
+          className="w-full py-3 rounded-xl text-sm font-bold text-white transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer disabled:opacity-50 mt-2 bg-[#3A3564] hover:bg-[#2A2649]"
         >
           {isPending ? (
             <>
-              <Loader2 className="w-3.5 h-3.5 animate-spin" /> Creating Account...
+              <Loader2 className="w-4 h-4 animate-spin" /> Creating Account...
             </>
           ) : (
             'Create Employee'

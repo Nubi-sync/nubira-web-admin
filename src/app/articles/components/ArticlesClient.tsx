@@ -445,29 +445,26 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       
-      {/* 1. Sticky Page Header Card */}
+      {/* 1. Page Header Card */}
       <div 
-        className="sticky top-[14px] z-20 bg-white p-4 sm:p-5 rounded-[11px] border shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all"
-        style={{ borderColor: 'var(--border, #E2E8F0)' }}
+        className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all"
       >
-        {/* Left Side: 40x40 Badge + Title + Subtitle */}
+        {/* Left Side: Badge + Title + Subtitle */}
         <div className="flex items-center gap-3.5">
           <div 
-            className="w-[40px] h-[40px] rounded-[10px] flex items-center justify-center shrink-0 shadow-xs"
-            style={{ backgroundColor: 'var(--steel, #2B4C7E)', color: '#FFFFFF' }}
+            className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10"
           >
             <Tag className="w-5 h-5" />
           </div>
           <div>
             <h1 
-              className="text-[18px] sm:text-[19px] font-bold font-[family-name:var(--font-heading)] leading-tight"
-              style={{ color: 'var(--ink, #1C2733)' }}
+              className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900"
             >
               Articles & Rates
             </h1>
-            <p className="text-[11.5px] mt-0.5" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+            <p className="text-sm sm:text-base text-slate-600 mt-1">
               Manage Art No. and Stitching Rates
             </p>
           </div>
@@ -475,8 +472,6 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
 
         {/* Right Side: Add Article Button */}
         <div className="flex items-center gap-2 self-end sm:self-auto">
-          
-
           <button
             type="button"
             onClick={() => {
@@ -484,31 +479,25 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
               setAddTouched(false)
               setShowAddModal(true)
             }}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-[8px] text-xs font-semibold text-white transition-colors shadow-xs cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-1"
-            style={{ backgroundColor: 'var(--steel, #2B4C7E)' }}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] transition-all shadow-xs cursor-pointer"
           >
-            <Plus className="w-3.5 h-3.5" />
-            <span>Add Article</span>
+            <Plus className="w-4 h-4" />
+            <span>+ Add Article</span>
           </button>
         </div>
       </div>
 
       {/* 2. Table Toolbar & Bulk Action Bar */}
       <div 
-        className="bg-white rounded-[11px] border shadow-xs overflow-hidden"
-        style={{ borderColor: 'var(--border, #E2E8F0)' }}
+        className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden"
       >
         
         {/* Bulk Action Bar (Visible when >= 1 row selected) */}
         {selectedIds.length > 0 && (
           <div 
-            className="p-3 px-4 border-b flex flex-wrap items-center justify-between gap-3 animate-in fade-in duration-150"
-            style={{ 
-              backgroundColor: 'var(--steel-mist, #EEF3FA)', 
-              borderColor: 'var(--steel-tint, #DBE6F5)' 
-            }}
+            className="p-3 px-4 border-b flex flex-wrap items-center justify-between gap-3 animate-in fade-in duration-150 bg-[#FAF7F0] border-black/10"
           >
-            <div className="text-xs font-semibold" style={{ color: 'var(--steel-dark, #1F3A63)' }}>
+            <div className="text-xs font-bold text-[#3A3564]">
               {selectedIds.length} {selectedIds.length === 1 ? 'article' : 'articles'} selected
             </div>
 
@@ -516,10 +505,9 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
               <button
                 type="button"
                 onClick={handleBulkExportCSV}
-                className="flex items-center gap-1 px-3 py-1 rounded-[6px] text-xs font-semibold border bg-white hover:bg-slate-50 transition-colors shadow-2xs cursor-pointer"
-                style={{ borderColor: 'var(--steel, #2B4C7E)', color: 'var(--steel, #2B4C7E)' }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border border-black/15 bg-white hover:bg-slate-50 transition-colors shadow-2xs cursor-pointer text-slate-700"
               >
-                <Download className="w-3.5 h-3.5" />
+                <Download className="w-3.5 h-3.5 text-slate-500" />
                 <span>Export Selected</span>
               </button>
 
@@ -528,7 +516,7 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                   type="button"
                   onClick={handleBulkRestore}
                   disabled={isPending}
-                  className="flex items-center gap-1 px-3 py-1 rounded-[6px] text-xs font-semibold border bg-white hover:bg-emerald-50 transition-colors shadow-2xs cursor-pointer text-emerald-700 border-emerald-300"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border bg-white hover:bg-emerald-50 transition-colors shadow-2xs cursor-pointer text-emerald-700 border-emerald-300"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
                   <span>Restore Selected</span>
@@ -538,7 +526,7 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                   type="button"
                   onClick={handleBulkArchive}
                   disabled={isPending}
-                  className="flex items-center gap-1 px-3 py-1 rounded-[6px] text-xs font-semibold border bg-white hover:bg-rose-50 transition-colors shadow-2xs cursor-pointer text-rose-700 border-rose-300"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border bg-white hover:bg-rose-50 transition-colors shadow-2xs cursor-pointer text-rose-700 border-rose-300"
                 >
                   <Archive className="w-3.5 h-3.5" />
                   <span>Archive Selected</span>
@@ -550,8 +538,7 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
 
         {/* Toolbar Header Row */}
         <div 
-          className="p-3.5 border-b flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-slate-50/50"
-          style={{ borderColor: 'var(--border, #E2E8F0)' }}
+          className="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-slate-50/50"
         >
           {/* Status Filter Chips */}
           <div className="flex items-center gap-1.5">
@@ -577,10 +564,10 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                     setCurrentPage(1)
                     setSelectedIds([])
                   }}
-                  className={`px-3 py-1 rounded-[6px] text-xs font-semibold border transition-colors outline-none cursor-pointer ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all outline-none cursor-pointer ${
                     isSelected
-                      ? 'bg-[var(--steel-mist,#EEF3FA)] border-[var(--steel,#2B4C7E)] text-[var(--steel-dark,#1F3A63)]'
-                      : 'bg-white border-[var(--border,#E2E8F0)] text-[var(--ink-soft,#5B6B7C)] hover:text-[var(--ink,#1C2733)]'
+                      ? 'bg-[#3A3564] text-white border-transparent shadow-xs'
+                      : 'bg-white border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                   }`}
                 >
                   {labelMap[tab]} ({count})
@@ -590,8 +577,8 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
           </div>
 
           {/* Search Box */}
-          <div className="relative w-full sm:w-72">
-            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <div className="relative w-full sm:w-80">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               placeholder="Search by Art No or description..."
@@ -600,10 +587,7 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                 setSearchTerm(e.target.value)
                 setCurrentPage(1)
               }}
-              className="w-full pl-8 pr-3 py-1.5 bg-white border rounded-[7px] text-xs outline-none transition-colors"
-              style={{ borderColor: 'var(--border, #E2E8F0)' }}
-              onFocus={(e) => e.currentTarget.style.borderColor = 'var(--steel, #2B4C7E)'}
-              onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border, #E2E8F0)'}
+              className="w-full pl-10 pr-4 py-2 bg-slate-50/70 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 placeholder-slate-400 outline-none focus:bg-white focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 transition-all shadow-2xs"
             />
           </div>
         </div>
@@ -612,7 +596,7 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
-              <tr className="bg-slate-50 border-b text-[11px] uppercase tracking-wider font-bold" style={{ borderColor: 'var(--border, #E2E8F0)', color: 'var(--ink-soft, #5B6B7C)' }}>
+              <tr className="bg-[#FAF7F0] border-b border-slate-100 text-[11px] font-mono uppercase tracking-wider font-bold text-slate-500">
                 
                 {/* Select All Checkbox */}
                 <th className="w-10 px-4 py-3.5 text-center">
@@ -856,36 +840,32 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
           }}
         >
           <div 
-            className="w-full max-w-[540px] my-6 bg-white rounded-[13px] p-[24px] shadow-2xl border relative space-y-4 animate-in fade-in zoom-in-95 duration-150"
-            style={{ borderColor: 'var(--border, #E2E8F0)' }}
+            className="w-full max-w-[540px] my-6 bg-white rounded-2xl p-6 shadow-2xl border border-black/10 relative space-y-5 animate-in fade-in zoom-in-95 duration-150"
           >
             {/* Header */}
-            <div className="flex items-center justify-between pb-3 border-b" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+            <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
               <div className="flex items-center gap-3">
                 <div 
-                  className="w-[32px] h-[32px] rounded-[8px] flex items-center justify-center shrink-0"
-                  style={{ backgroundColor: 'var(--steel-mist, #EEF3FA)', color: 'var(--steel, #2B4C7E)' }}
+                  className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs"
                 >
-                  <Plus className="w-4 h-4" />
+                  <Plus className="w-5 h-5" />
                 </div>
                 <div>
                   <h3 
-                    className="text-[17px] font-bold font-[family-name:var(--font-heading)] leading-tight"
-                    style={{ color: 'var(--ink, #1C2733)' }}
+                    className="text-base sm:text-lg font-bold font-[family-name:var(--font-heading)] leading-tight text-slate-900"
                   >
                     Add New Article
                   </h3>
-                  <p className="text-[11px] text-slate-400">Register new style & size-wise stitching rates</p>
+                  <p className="text-xs text-slate-400 mt-0.5">Register new style & size-wise stitching rates</p>
                 </div>
               </div>
 
               <button
                 type="button"
                 onClick={() => setShowAddModal(false)}
-                className="w-[28px] h-[28px] rounded-[6px] border flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
-                style={{ borderColor: 'var(--border, #E2E8F0)' }}
+                className="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
               >
-                <X className="w-3.5 h-3.5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
@@ -1111,16 +1091,14 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="w-full py-2.5 px-4 rounded-[8px] text-xs font-semibold border bg-white hover:bg-slate-50 text-slate-700 transition-colors cursor-pointer"
-                  style={{ borderColor: 'var(--border, #E2E8F0)' }}
+                  className="w-full py-2.5 px-4 rounded-xl text-xs font-bold border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="w-full py-2.5 px-4 rounded-[8px] text-xs font-semibold text-white transition-colors flex items-center justify-center gap-1.5 shadow-xs cursor-pointer disabled:opacity-50"
-                  style={{ backgroundColor: 'var(--steel, #2B4C7E)' }}
+                  className="w-full py-2.5 px-4 rounded-xl text-xs font-bold text-white transition-all flex items-center justify-center gap-1.5 shadow-xs cursor-pointer disabled:opacity-50 bg-[#3A3564] hover:bg-[#2A2649]"
                 >
                   <Check className="w-3.5 h-3.5" />
                   <span>{isPending ? 'Saving...' : 'Save Article'}</span>
@@ -1143,25 +1121,23 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
           }}
         >
           <div 
-            className="w-full max-w-[500px] my-6 bg-white rounded-[13px] p-[24px] shadow-2xl border relative space-y-4 animate-in fade-in zoom-in-95 duration-150"
-            style={{ borderColor: 'var(--border, #E2E8F0)' }}
+            className="w-full max-w-[500px] my-6 bg-white rounded-2xl p-6 shadow-2xl border border-black/10 relative space-y-5 animate-in fade-in zoom-in-95 duration-150"
           >
-            <div className="flex items-center justify-between pb-3 border-b" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+            <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
               <div>
-                <h3 className="text-base font-bold font-[family-name:var(--font-heading)]" style={{ color: 'var(--ink, #1C2733)' }}>
+                <h3 className="text-base sm:text-lg font-bold font-[family-name:var(--font-heading)] text-slate-900">
                   Update Stitching Rate
                 </h3>
-                <p className="text-xs text-slate-500 font-mono font-bold text-[var(--steel,#2B4C7E)]">
+                <p className="text-xs font-mono font-bold text-[#3A3564] mt-0.5">
                   {selectedArticleForRate.art_no} ({selectedArticleForRate.description || 'Standard'})
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setShowUpdateRateModal(false)}
-                className="w-7 h-7 rounded-[6px] border flex items-center justify-center text-slate-400 hover:text-slate-700"
-                style={{ borderColor: 'var(--border, #E2E8F0)' }}
+                className="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
               >
-                <X className="w-3.5 h-3.5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
@@ -1326,16 +1302,14 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                 <button
                   type="button"
                   onClick={() => setShowUpdateRateModal(false)}
-                  className="w-full py-2 px-3 rounded-[8px] text-xs font-semibold border bg-white hover:bg-slate-50 text-slate-700"
-                  style={{ borderColor: 'var(--border, #E2E8F0)' }}
+                  className="w-full py-2.5 px-4 rounded-xl text-xs font-bold border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="w-full py-2 px-3 rounded-[8px] text-xs font-semibold text-white transition-colors cursor-pointer shadow-xs"
-                  style={{ backgroundColor: 'var(--steel, #2B4C7E)' }}
+                  className="w-full py-2.5 px-4 rounded-xl text-xs font-bold text-white transition-all cursor-pointer shadow-xs bg-[#3A3564] hover:bg-[#2A2649] disabled:opacity-50"
                 >
                   {isPending ? 'Updating...' : 'Update & Log'}
                 </button>
@@ -1357,13 +1331,12 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
           }}
         >
           <div 
-            className="w-full max-w-[440px] bg-white rounded-[13px] p-[24px] shadow-2xl border relative space-y-4 animate-in fade-in zoom-in-95 duration-150"
-            style={{ borderColor: 'var(--border, #E2E8F0)' }}
+            className="w-full max-w-[440px] bg-white rounded-2xl p-6 shadow-2xl border border-black/10 relative space-y-4 animate-in fade-in zoom-in-95 duration-150"
           >
-            <div className="flex items-center justify-between pb-3 border-b" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+            <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
               <div className="flex items-center gap-2.5">
                 <div 
-                  className="w-8 h-8 rounded-[8px] flex items-center justify-center shrink-0"
+                  className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs"
                   style={{ backgroundColor: 'var(--steel-mist, #EEF3FA)', color: 'var(--steel, #2B4C7E)' }}
                 >
                   <History className="w-4 h-4" />
