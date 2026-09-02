@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useId } from 'react'
+import { useState, useEffect, useId } from 'react'
 import Link from 'next/link'
 import {
   Layers,
@@ -43,9 +43,20 @@ export function ZigzaLandingPageClient({
   userEmail = ''
 }: ZigzaLandingPageClientProps) {
   // Navigation & Interactive States
+  const [isScrolled, setIsScrolled] = useState(false)
   const [isDemoModalOpen, setIsDemoModalOpen] = useState(false)
   const [activeRoleTab, setActiveRoleTab] = useState<'MD' | 'CUTTING' | 'STORE' | 'LINEMAN' | 'QC'>('MD')
   const [expandedFaq, setExpandedFaq] = useState<number | null>(0)
+
+  // Scroll listener for logo morph transition
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 25)
+    }
+    handleScroll()
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   // ROI Calculator State
   const [monthlyPieces, setMonthlyPieces] = useState<number>(35000)
@@ -90,78 +101,107 @@ export function ZigzaLandingPageClient({
       {/* =================================================================== */}
       {/* 1. STICKY ENTERPRISE HEADER                                         */}
       {/* =================================================================== */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-[var(--border,#E2E8F0)] shadow-2xs">
+      <header className="sticky top-0 z-40 bg-white/85 backdrop-blur-md border-b border-slate-200/70 shadow-2xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
           
-          {/* Brand Logo & Product Name */}
-          <Link href="/" className="flex items-center gap-3 group cursor-pointer">
-            <div className="h-9 px-2.5 rounded-xl bg-black text-white flex items-center justify-center shadow-xs border border-slate-800 hover:border-slate-600 transition-colors">
-              <img 
-                src="/z_i_g_z_a.png" 
-                alt="zigza." 
-                className="h-5 w-auto object-contain"
-              />
-            </div>
-            <div>
-              <div className="flex items-center gap-1.5">
-                <span className="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-[var(--green-mist,#E6F6EE)] text-[var(--green,#1F9D63)] border border-[var(--green,#1F9D63)]/20">
-                  MES
-                </span>
-                <span className="text-[10px] font-bold text-[var(--ink-soft,#5B6B7C)]">
-                  by Nubira
-                </span>
+          {/* Brand Logo with Smooth Scroll Transition */}
+          <Link href="/" className="group relative flex items-center cursor-pointer select-none py-1">
+            {/* 1. Initial State (At Top): Refined rounded black badge */}
+            <div 
+              className={`flex items-center transition-all duration-300 ease-in-out ${
+                isScrolled 
+                  ? 'opacity-0 scale-95 pointer-events-none' 
+                  : 'opacity-100 scale-100'
+              }`}
+            >
+              <div className="h-9 px-3.5 bg-black rounded-xl flex items-center justify-center shadow-xs border border-slate-900/10 hover:bg-slate-900 transition-colors">
+                <img 
+                  src="/zigza_white.png" 
+                  alt="zigza." 
+                  className="h-5 w-auto object-contain"
+                />
               </div>
-              <p className="text-[10px] font-semibold text-[var(--ink-soft,#5B6B7C)] -mt-0.5 hidden sm:block">
-                Apparel Manufacturing OS
-              </p>
+            </div>
+
+            {/* 2. Scrolled State: Clean dark wordmark at the EXACT same size and position */}
+            <div 
+              className={`absolute left-0 flex items-center transition-all duration-300 ease-in-out ${
+                isScrolled 
+                  ? 'opacity-100 scale-100' 
+                  : 'opacity-0 scale-95 pointer-events-none'
+              }`}
+            >
+              <div className="h-9 px-3.5 flex items-center justify-center">
+                <img 
+                  src="/zigza_dark.png" 
+                  alt="zigza." 
+                  className="h-5 w-auto object-contain transition-transform group-hover:scale-[1.02]"
+                />
+              </div>
             </div>
           </Link>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden md:flex items-center gap-7 text-xs font-bold text-[var(--ink-soft,#5B6B7C)]">
-            <a href="#modules" className="hover:text-[var(--steel,#2B4C7E)] transition-colors">
+          <nav className="hidden md:flex items-center gap-1 text-[13.5px] font-medium text-slate-600">
+            <a 
+              href="#modules" 
+              className="px-3 py-1.5 rounded-lg hover:text-slate-900 hover:bg-slate-100/80 transition-all duration-150"
+            >
               Modules
             </a>
-            <a href="#workflow" className="hover:text-[var(--steel,#2B4C7E)] transition-colors">
+            <a 
+              href="#workflow" 
+              className="px-3 py-1.5 rounded-lg hover:text-slate-900 hover:bg-slate-100/80 transition-all duration-150"
+            >
               Floor Workflow
             </a>
-            <a href="#roles" className="hover:text-[var(--steel,#2B4C7E)] transition-colors">
-              Role Solutions
+            <a 
+              href="#roles" 
+              className="px-3 py-1.5 rounded-lg hover:text-slate-900 hover:bg-slate-100/80 transition-all duration-150"
+            >
+              Solutions
             </a>
-            <a href="#roi" className="hover:text-[var(--steel,#2B4C7E)] transition-colors">
-              ROI Calculator
+            <a 
+              href="#roi" 
+              className="px-3 py-1.5 rounded-lg hover:text-slate-900 hover:bg-slate-100/80 transition-all duration-150"
+            >
+              ROI Estimator
             </a>
-            <a href="#faq" className="hover:text-[var(--steel,#2B4C7E)] transition-colors">
+            <a 
+              href="#faq" 
+              className="px-3 py-1.5 rounded-lg hover:text-slate-900 hover:bg-slate-100/80 transition-all duration-150"
+            >
               FAQ
             </a>
           </nav>
 
-          {/* Top Right Action Buttons */}
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => setIsDemoModalOpen(true)}
-              className="px-3.5 py-2 rounded-xl text-xs font-bold border border-[var(--green,#1F9D63)] bg-[var(--green-mist,#E6F6EE)] text-[var(--green,#1F9D63)] hover:bg-[var(--green,#1F9D63)] hover:text-white transition-all shadow-2xs cursor-pointer"
-            >
-              Request a Demo
-            </button>
-
+          {/* Top Right Action Buttons (Clear Visual Hierarchy) */}
+          <div className="flex items-center gap-2 sm:gap-3">
             {isAuthenticated ? (
               <Link
                 href="/production-orders"
-                className="px-4 py-2 rounded-xl text-xs font-bold bg-[var(--steel,#2B4C7E)] text-white hover:bg-[var(--steel-dark,#1F3A63)] shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
+                className="px-4 py-2 rounded-xl text-[13.5px] font-medium bg-slate-900 text-white hover:bg-slate-800 shadow-xs hover:shadow transition-all flex items-center gap-1.5 cursor-pointer"
               >
                 <span>Control Center</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             ) : (
-              <Link
-                href="/login"
-                className="px-4 py-2 rounded-xl text-xs font-bold bg-[var(--steel,#2B4C7E)] text-white hover:bg-[var(--steel-dark,#1F3A63)] shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
-              >
-                <span>Login to Portal</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
+              <>
+                <Link
+                  href="/login"
+                  className="px-3 py-2 rounded-xl text-[13.5px] font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition-all duration-150 cursor-pointer"
+                >
+                  Sign In
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => setIsDemoModalOpen(true)}
+                  className="px-4 py-2 rounded-xl text-[13.5px] font-medium bg-slate-900 text-white hover:bg-slate-800 shadow-xs hover:shadow hover:-translate-y-0.5 transition-all duration-150 cursor-pointer flex items-center gap-1.5"
+                >
+                  <span>Request a Demo</span>
+                  <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
+                </button>
+              </>
             )}
           </div>
 
@@ -173,22 +213,15 @@ export function ZigzaLandingPageClient({
       {/* =================================================================== */}
       <section className="relative pt-12 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto overflow-hidden">
         <div className="text-center max-w-4xl mx-auto space-y-5">
-          
-          {/* Industrial Tag Badge */}
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--steel-mist,#EEF3FA)] border border-[var(--steel-tint,#DBE6F5)] text-[11px] font-extrabold tracking-wider text-[var(--steel,#2B4C7E)] uppercase shadow-2xs">
-            <Cpu className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" />
-            <span>Industrial Apparel MES • Zero Mismatch • 100% Floor Traceability</span>
-          </div>
-
           {/* Main Hero Headline */}
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-[var(--ink,#1C2733)] leading-[1.15]">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-slate-900 leading-[1.15]">
             The Manufacturing OS for Modern <span className="text-[var(--steel,#2B4C7E)] underline decoration-[var(--amber,#C8802B)] decoration-4 underline-offset-8">Garment Factories</span>
           </h1>
 
           {/* Subtitle */}
-          <p className="text-sm sm:text-lg text-[var(--ink-soft,#5B6B7C)] max-w-3xl mx-auto leading-relaxed font-normal">
-            From fabric roll truck inward to multi-article cutting matrices, smart lineman bundle allotments, 
-            3-stage live mobile QC, and buyer dispatch challans. Eliminate manual paper registers with Zigza.
+          <p className="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed font-normal">
+            Connect fabric roll inward, automated cutting matrices, smart lineman piece-rate allotments, 
+            live 3-stage QC, and buyer dispatch challans into one synchronized floor.
           </p>
 
           {/* Hero Action Buttons */}
@@ -196,34 +229,34 @@ export function ZigzaLandingPageClient({
             <button
               type="button"
               onClick={() => setIsDemoModalOpen(true)}
-              className="px-6 py-3 rounded-xl text-sm font-bold bg-[var(--steel,#2B4C7E)] text-white hover:bg-[var(--steel-dark,#1F3A63)] shadow-md hover:shadow-lg transition-all flex items-center gap-2 cursor-pointer"
+              className="group px-6 py-3 rounded-xl text-sm font-semibold bg-slate-900 text-white hover:bg-slate-800 shadow-sm hover:shadow hover:-translate-y-0.5 transition-all duration-200 flex items-center gap-2 cursor-pointer"
             >
-              <Sparkles className="w-4 h-4 text-amber-300" />
               <span>Request a Live Demo</span>
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
             </button>
 
             <Link
               href="/login"
-              className="px-6 py-3 rounded-xl text-sm font-bold border border-[var(--border,#E2E8F0)] bg-white text-[var(--ink,#1C2733)] hover:border-[var(--steel,#2B4C7E)] hover:text-[var(--steel,#2B4C7E)] shadow-2xs transition-all flex items-center gap-2 cursor-pointer"
+              className="px-6 py-3 rounded-xl text-sm font-semibold border border-slate-200 bg-white text-slate-800 hover:border-slate-300 hover:bg-slate-50/80 shadow-2xs hover:-translate-y-0.5 transition-all duration-200 flex items-center gap-2 cursor-pointer"
             >
-              <Lock className="w-4 h-4 text-[var(--ink-soft,#5B6B7C)]" />
+              <Lock className="w-4 h-4 text-slate-500" />
               <span>Staff Login to Portal</span>
             </Link>
           </div>
 
           {/* Key Metric Pills */}
-          <div className="pt-4 flex flex-wrap items-center justify-center gap-4 text-xs font-semibold text-[var(--ink-soft,#5B6B7C)]">
-            <div className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-[var(--green,#1F9D63)]" />
+          <div className="pt-4 flex flex-wrap items-center justify-center gap-6 text-xs font-medium text-slate-500">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
               <span>1-Click Excel Challan Ingestion</span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-[var(--green,#1F9D63)]" />
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
               <span>Android Mobile Floor Companion</span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-[var(--green,#1F9D63)]" />
-              <span>Instant Lineman Piece-Rate Ledger</span>
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <span>Automated Piece-Rate Wage Ledger</span>
             </div>
           </div>
         </div>
@@ -433,148 +466,106 @@ export function ZigzaLandingPageClient({
       </section>
 
       {/* =================================================================== */}
-      {/* 4. 6 CORE MODULAR ENGINES (DETAILED SHOWCASE WITH VECTOR GRAPHICS)   */}
+      {/* 4. 6 CORE MODULAR ENGINES                                           */}
       {/* =================================================================== */}
-      <section id="modules" className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <div className="text-center max-w-3xl mx-auto mb-14">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--steel-mist,#EEF3FA)] text-[var(--steel,#2B4C7E)] text-[10.5px] font-extrabold uppercase tracking-wider mb-2">
-            <Layers className="w-3.5 h-3.5" />
-            <span>End-to-End Modular Suite</span>
+      <section id="modules" className="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div className="text-center max-w-3xl mx-auto mb-16">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-700 text-xs font-semibold mb-3">
+            <Layers className="w-3.5 h-3.5 text-slate-600" />
+            <span>End-to-End Modular Architecture</span>
           </div>
-          <h2 className="text-2xl sm:text-4xl font-black text-[var(--ink,#1C2733)] tracking-tight">
-            6 Specialized Engines Engineered for Garment Floor Precision
+          <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
+            Specialized Engines Engineered for Floor Precision
           </h2>
-          <p className="text-xs sm:text-sm text-[var(--ink-soft,#5B6B7C)] mt-2">
+          <p className="text-sm sm:text-base text-slate-600 mt-3 leading-relaxed">
             Every department in your factory gets dedicated tools connected to a single live database.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
           
           {/* Module 1: Store GRN */}
-          <div className="p-6 bg-white border border-[var(--border,#E2E8F0)] rounded-2xl shadow-2xs hover:border-[var(--steel,#2B4C7E)] transition-all group">
-            <div className="w-12 h-12 rounded-xl bg-[var(--steel-mist,#EEF3FA)] text-[var(--steel,#2B4C7E)] flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
+          <div className="p-7 sm:p-8 bg-white border border-slate-200/80 rounded-2xl shadow-2xs hover:border-slate-300 hover:shadow-md hover:-translate-y-1 transition-all duration-200 ease-out group">
+            <div className="w-12 h-12 rounded-xl bg-slate-100 text-slate-800 flex items-center justify-center mb-5 group-hover:bg-slate-900 group-hover:text-white transition-all duration-200">
               <Truck className="w-6 h-6" />
             </div>
-            <span className="text-[10px] font-extrabold uppercase tracking-wider text-[var(--steel,#2B4C7E)] bg-[var(--steel-mist,#EEF3FA)] px-2 py-0.5 rounded">
-              Module 1
-            </span>
-            <h3 className="text-base font-bold text-[var(--ink,#1C2733)] mt-2 mb-1.5">
+            <h3 className="text-lg font-bold text-slate-900 mb-2">
               Truck Inward & Store GRN
             </h3>
-            <p className="text-xs text-[var(--ink-soft,#5B6B7C)] leading-relaxed mb-4">
-              Capture delivery challan slips via mobile camera. Log fabric rolls (Sinker, Rib), lot barcodes (`T-03`), 
-              buttons, and track supplier due accessories.
+            <p className="text-sm text-slate-600 leading-relaxed font-normal">
+              Capture delivery challan slips via mobile camera. Log fabric rolls (Sinker, Rib), lot barcodes, 
+              trims, and track supplier pending accessories.
             </p>
-            <div className="border-t border-slate-100 pt-3 text-[11px] font-bold text-[var(--steel,#2B4C7E)] flex items-center justify-between">
-              <span>Zero Lost Slips</span>
-              <CheckCircle2 className="w-3.5 h-3.5 text-[var(--green,#1F9D63)]" />
-            </div>
           </div>
 
           {/* Module 2: Excel Challan Matrix */}
-          <div className="p-6 bg-white border border-[var(--border,#E2E8F0)] rounded-2xl shadow-2xs hover:border-[var(--steel,#2B4C7E)] transition-all group">
-            <div className="w-12 h-12 rounded-xl bg-[var(--green-mist,#E6F6EE)] text-[var(--green,#1F9D63)] flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
+          <div className="p-7 sm:p-8 bg-white border border-slate-200/80 rounded-2xl shadow-2xs hover:border-slate-300 hover:shadow-md hover:-translate-y-1 transition-all duration-200 ease-out group">
+            <div className="w-12 h-12 rounded-xl bg-slate-100 text-slate-800 flex items-center justify-center mb-5 group-hover:bg-slate-900 group-hover:text-white transition-all duration-200">
               <FileSpreadsheet className="w-6 h-6" />
             </div>
-            <span className="text-[10px] font-extrabold uppercase tracking-wider text-[var(--green,#1F9D63)] bg-[var(--green-mist,#E6F6EE)] px-2 py-0.5 rounded">
-              Module 2
-            </span>
-            <h3 className="text-base font-bold text-[var(--ink,#1C2733)] mt-2 mb-1.5">
+            <h3 className="text-lg font-bold text-slate-900 mb-2">
               1-Click Excel Challan Ingestion
             </h3>
-            <p className="text-xs text-[var(--ink-soft,#5B6B7C)] leading-relaxed mb-4">
-              Upload buyer spreadsheets to instantly generate multi-article size matrices (`L/XXL`, `22x26`), 
+            <p className="text-sm text-slate-600 leading-relaxed font-normal">
+              Upload buyer spreadsheets to instantly generate multi-article size matrices, 
               sets, and piece ratios without manual data entry.
             </p>
-            <div className="border-t border-slate-100 pt-3 text-[11px] font-bold text-[var(--steel,#2B4C7E)] flex items-center justify-between">
-              <span>100% Sizing Matrix Accuracy</span>
-              <CheckCircle2 className="w-3.5 h-3.5 text-[var(--green,#1F9D63)]" />
-            </div>
           </div>
 
           {/* Module 3: Piece-Rate Wages */}
-          <div className="p-6 bg-white border border-[var(--border,#E2E8F0)] rounded-2xl shadow-2xs hover:border-[var(--steel,#2B4C7E)] transition-all group">
-            <div className="w-12 h-12 rounded-xl bg-[var(--amber-mist,#FBF0E1)] text-[var(--amber,#C8802B)] flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
+          <div className="p-7 sm:p-8 bg-white border border-slate-200/80 rounded-2xl shadow-2xs hover:border-slate-300 hover:shadow-md hover:-translate-y-1 transition-all duration-200 ease-out group">
+            <div className="w-12 h-12 rounded-xl bg-slate-100 text-slate-800 flex items-center justify-center mb-5 group-hover:bg-slate-900 group-hover:text-white transition-all duration-200">
               <Scissors className="w-6 h-6" />
             </div>
-            <span className="text-[10px] font-extrabold uppercase tracking-wider text-[var(--amber,#C8802B)] bg-[var(--amber-mist,#FBF0E1)] px-2 py-0.5 rounded">
-              Module 3
-            </span>
-            <h3 className="text-base font-bold text-[var(--ink,#1C2733)] mt-2 mb-1.5">
+            <h3 className="text-lg font-bold text-slate-900 mb-2">
               Smart Allotment & Piece-Rate Wages
             </h3>
-            <p className="text-xs text-[var(--ink-soft,#5B6B7C)] leading-relaxed mb-4">
+            <p className="text-sm text-slate-600 leading-relaxed font-normal">
               Allot cutting lots entirely or split by color combinations across linemen. Automated wage 
               calculation with zero discrepancy.
             </p>
-            <div className="border-t border-slate-100 pt-3 text-[11px] font-bold text-[var(--steel,#2B4C7E)] flex items-center justify-between">
-              <span>Dispute-Free Wage Ledger</span>
-              <CheckCircle2 className="w-3.5 h-3.5 text-[var(--green,#1F9D63)]" />
-            </div>
           </div>
 
           {/* Module 4: Floor Mobile App */}
-          <div className="p-6 bg-white border border-[var(--border,#E2E8F0)] rounded-2xl shadow-2xs hover:border-[var(--steel,#2B4C7E)] transition-all group">
-            <div className="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-700 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
+          <div className="p-7 sm:p-8 bg-white border border-slate-200/80 rounded-2xl shadow-2xs hover:border-slate-300 hover:shadow-md hover:-translate-y-1 transition-all duration-200 ease-out group">
+            <div className="w-12 h-12 rounded-xl bg-slate-100 text-slate-800 flex items-center justify-center mb-5 group-hover:bg-slate-900 group-hover:text-white transition-all duration-200">
               <Smartphone className="w-6 h-6" />
             </div>
-            <span className="text-[10px] font-extrabold uppercase tracking-wider text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded">
-              Module 4
-            </span>
-            <h3 className="text-base font-bold text-[var(--ink,#1C2733)] mt-2 mb-1.5">
+            <h3 className="text-lg font-bold text-slate-900 mb-2">
               Mobile Floor Supervisor App
             </h3>
-            <p className="text-xs text-[var(--ink-soft,#5B6B7C)] leading-relaxed mb-4">
+            <p className="text-sm text-slate-600 leading-relaxed font-normal">
               Android companion app with offline support. Supervisors record daily production, scan bundle QR 
               barcodes, and view active line targets.
             </p>
-            <div className="border-t border-slate-100 pt-3 text-[11px] font-bold text-[var(--steel,#2B4C7E)] flex items-center justify-between">
-              <span>Real-Time Floor Sync</span>
-              <CheckCircle2 className="w-3.5 h-3.5 text-[var(--green,#1F9D63)]" />
-            </div>
           </div>
 
           {/* Module 5: 3-Stage QC Gate */}
-          <div className="p-6 bg-white border border-[var(--border,#E2E8F0)] rounded-2xl shadow-2xs hover:border-[var(--steel,#2B4C7E)] transition-all group">
-            <div className="w-12 h-12 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
+          <div className="p-7 sm:p-8 bg-white border border-slate-200/80 rounded-2xl shadow-2xs hover:border-slate-300 hover:shadow-md hover:-translate-y-1 transition-all duration-200 ease-out group">
+            <div className="w-12 h-12 rounded-xl bg-slate-100 text-slate-800 flex items-center justify-center mb-5 group-hover:bg-slate-900 group-hover:text-white transition-all duration-200">
               <ClipboardCheck className="w-6 h-6" />
             </div>
-            <span className="text-[10px] font-extrabold uppercase tracking-wider text-teal-700 bg-teal-50 px-2 py-0.5 rounded">
-              Module 5
-            </span>
-            <h3 className="text-base font-bold text-[var(--ink,#1C2733)] mt-2 mb-1.5">
+            <h3 className="text-lg font-bold text-slate-900 mb-2">
               3-Stage Quality Control Gate
             </h3>
-            <p className="text-xs text-[var(--ink-soft,#5B6B7C)] leading-relaxed mb-4">
+            <p className="text-sm text-slate-600 leading-relaxed font-normal">
               Lightbox garment audit with passing vs defect classification (stain, stitch open, mending). 
               Instant floor alteration re-routing.
             </p>
-            <div className="border-t border-slate-100 pt-3 text-[11px] font-bold text-[var(--steel,#2B4C7E)] flex items-center justify-between">
-              <span>Zero Defect Shipments</span>
-              <CheckCircle2 className="w-3.5 h-3.5 text-[var(--green,#1F9D63)]" />
-            </div>
           </div>
 
           {/* Module 6: Dispatch Bay */}
-          <div className="p-6 bg-white border border-[var(--border,#E2E8F0)] rounded-2xl shadow-2xs hover:border-[var(--steel,#2B4C7E)] transition-all group">
-            <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
+          <div className="p-7 sm:p-8 bg-white border border-slate-200/80 rounded-2xl shadow-2xs hover:border-slate-300 hover:shadow-md hover:-translate-y-1 transition-all duration-200 ease-out group">
+            <div className="w-12 h-12 rounded-xl bg-slate-100 text-slate-800 flex items-center justify-center mb-5 group-hover:bg-slate-900 group-hover:text-white transition-all duration-200">
               <PackageCheck className="w-6 h-6" />
             </div>
-            <span className="text-[10px] font-extrabold uppercase tracking-wider text-blue-700 bg-blue-50 px-2 py-0.5 rounded">
-              Module 6
-            </span>
-            <h3 className="text-base font-bold text-[var(--ink,#1C2733)] mt-2 mb-1.5">
+            <h3 className="text-lg font-bold text-slate-900 mb-2">
               Dispatch Bay & Carton Reconciliation
             </h3>
-            <p className="text-xs text-[var(--ink-soft,#5B6B7C)] leading-relaxed mb-4">
+            <p className="text-sm text-slate-600 leading-relaxed font-normal">
               Carton packing lists, buyer delivery challan generation with transport metadata, and automated 
               finished goods inventory deductions.
             </p>
-            <div className="border-t border-slate-100 pt-3 text-[11px] font-bold text-[var(--steel,#2B4C7E)] flex items-center justify-between">
-              <span>E-Waybill & Challan Ready</span>
-              <CheckCircle2 className="w-3.5 h-3.5 text-[var(--green,#1F9D63)]" />
-            </div>
           </div>
 
         </div>
@@ -1007,10 +998,6 @@ export function ZigzaLandingPageClient({
           
           {/* Left Text */}
           <div className="space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-900/60 border border-blue-400/30 text-xs font-bold text-blue-200">
-              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-              <span>Ready for Modern Apparel Execution?</span>
-            </div>
             <h2 className="text-2xl sm:text-4xl font-black tracking-tight leading-tight">
               Transform Your Garment Factory with Zigza Today
             </h2>
@@ -1129,92 +1116,153 @@ export function ZigzaLandingPageClient({
           </div>
 
         </div>
-      </section>
-
-      {/* =================================================================== */}
+      </section>      {/* =================================================================== */}
       {/* 10. ENTERPRISE FOOTER                                              */}
       {/* =================================================================== */}
-      <footer className="bg-slate-900 text-slate-400 py-12 px-4 sm:px-6 lg:px-8 border-t border-slate-800">
-        <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 mb-8 text-xs">
+      <footer className="bg-slate-950 text-slate-400 pt-20 pb-12 sm:pt-24 sm:pb-16 px-6 lg:px-8 border-t border-slate-900">
+        <div className="max-w-7xl mx-auto">
           
-          {/* Brand Info */}
-          <div className="col-span-2 md:col-span-1 space-y-3">
-            <div className="flex items-center gap-2">
-              <div className="h-8 px-2 rounded-lg bg-black text-white flex items-center justify-center border border-slate-700">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-10 lg:gap-12 mb-16">
+            
+            {/* Brand Column */}
+            <div className="col-span-2 space-y-4">
+              <Link href="/" className="inline-block group">
                 <img 
-                  src="/z_i_g_z_a.png" 
+                  src="/zigza_white.png" 
                   alt="zigza." 
-                  className="h-4.5 w-auto object-contain"
+                  className="h-7 w-auto object-contain group-hover:opacity-80 transition-opacity duration-150"
                 />
-              </div>
-              <span className="text-xs font-bold text-slate-300">MES Cloud</span>
+              </Link>
+              <p className="text-sm text-slate-400 leading-relaxed max-w-sm font-normal">
+                Manufacturing Execution System engineered for modern apparel factories. Replacing manual paper logs with real-time floor synchronization.
+              </p>
             </div>
-            <p className="text-[11px] text-slate-400 leading-relaxed">
-              Industrial Manufacturing Execution System by Nubira Creation. Powering modern apparel factories with 
-              zero-mismatch floor tracking.
-            </p>
+
+            {/* Platform Column */}
+            <div className="space-y-3.5">
+              <h5 className="text-xs font-semibold uppercase tracking-wider text-slate-200">
+                Platform
+              </h5>
+              <ul className="space-y-2.5 text-sm">
+                <li>
+                  <a href="#modules" className="text-slate-400 hover:text-white transition-all duration-150 hover:translate-x-0.5 inline-block">
+                    Store & Fabric GRN
+                  </a>
+                </li>
+                <li>
+                  <a href="#modules" className="text-slate-400 hover:text-white transition-all duration-150 hover:translate-x-0.5 inline-block">
+                    Cutting Lot Matrix
+                  </a>
+                </li>
+                <li>
+                  <a href="#modules" className="text-slate-400 hover:text-white transition-all duration-150 hover:translate-x-0.5 inline-block">
+                    Bundle Allotments
+                  </a>
+                </li>
+                <li>
+                  <a href="#modules" className="text-slate-400 hover:text-white transition-all duration-150 hover:translate-x-0.5 inline-block">
+                    3-Stage QC Audit
+                  </a>
+                </li>
+                <li>
+                  <a href="#modules" className="text-slate-400 hover:text-white transition-all duration-150 hover:translate-x-0.5 inline-block">
+                    Dispatch Bay
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            {/* Solutions Column */}
+            <div className="space-y-3.5">
+              <h5 className="text-xs font-semibold uppercase tracking-wider text-slate-200">
+                Roles
+              </h5>
+              <ul className="space-y-2.5 text-sm">
+                <li>
+                  <a href="#roles" className="text-slate-400 hover:text-white transition-all duration-150 hover:translate-x-0.5 inline-block">
+                    Factory Heads & MDs
+                  </a>
+                </li>
+                <li>
+                  <a href="#roles" className="text-slate-400 hover:text-white transition-all duration-150 hover:translate-x-0.5 inline-block">
+                    Cutting Masters
+                  </a>
+                </li>
+                <li>
+                  <a href="#roles" className="text-slate-400 hover:text-white transition-all duration-150 hover:translate-x-0.5 inline-block">
+                    Store Managers
+                  </a>
+                </li>
+                <li>
+                  <a href="#roles" className="text-slate-400 hover:text-white transition-all duration-150 hover:translate-x-0.5 inline-block">
+                    Linemen & Tailors
+                  </a>
+                </li>
+                <li>
+                  <a href="#roles" className="text-slate-400 hover:text-white transition-all duration-150 hover:translate-x-0.5 inline-block">
+                    QC Inspectors
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            {/* Access & Gateway Column */}
+            <div className="space-y-3.5">
+              <h5 className="text-xs font-semibold uppercase tracking-wider text-slate-200">
+                Access
+              </h5>
+              <ul className="space-y-2.5 text-sm">
+                <li>
+                  <Link 
+                    href="/login" 
+                    className="text-slate-300 hover:text-white transition-all duration-150 hover:translate-x-0.5 inline-flex items-center gap-1.5 font-medium"
+                  >
+                    <span>Staff Portal Sign In</span>
+                    <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
+                  </Link>
+                </li>
+                <li>
+                  <button
+                    type="button"
+                    onClick={() => setIsDemoModalOpen(true)}
+                    className="text-slate-400 hover:text-white transition-all duration-150 hover:translate-x-0.5 inline-block cursor-pointer"
+                  >
+                    Schedule Live Demo
+                  </button>
+                </li>
+                <li>
+                  <a 
+                    href="#roi" 
+                    className="text-slate-400 hover:text-white transition-all duration-150 hover:translate-x-0.5 inline-block"
+                  >
+                    ROI Estimator
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    href="https://wa.me/?text=Hi,%20I%20would%20like%20to%20request%20a%20live%20demo%20of%20Zigza%20MES." 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="text-emerald-400 hover:text-emerald-300 transition-all duration-150 hover:translate-x-0.5 inline-block font-medium"
+                  >
+                    WhatsApp Consultation
+                  </a>
+                </li>
+              </ul>
+            </div>
+
           </div>
 
-          {/* Core Modules */}
-          <div>
-            <h5 className="font-bold text-white mb-2.5 uppercase tracking-wider text-[11px]">Factory Modules</h5>
-            <ul className="space-y-1.5 text-[11px]">
-              <li><a href="#modules" className="hover:text-white transition-colors">Store GRN & Rolls</a></li>
-              <li><a href="#modules" className="hover:text-white transition-colors">Excel Challan Matrix</a></li>
-              <li><a href="#modules" className="hover:text-white transition-colors">Piece-Rate Wages</a></li>
-              <li><a href="#modules" className="hover:text-white transition-colors">3-Stage QC Audit</a></li>
-              <li><a href="#modules" className="hover:text-white transition-colors">Dispatch & Packing</a></li>
-            </ul>
+          {/* Bottom Divider & Minimal Legal Bar */}
+          <div className="pt-8 border-t border-slate-900 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+            <p>© {new Date().getFullYear()} Zigza MES. Built for modern apparel manufacturing.</p>
+            <div className="flex items-center gap-6">
+              <span className="hover:text-slate-400 transition-colors cursor-pointer">Privacy</span>
+              <span className="hover:text-slate-400 transition-colors cursor-pointer">Terms</span>
+              <span className="hover:text-slate-400 transition-colors cursor-pointer">Security</span>
+            </div>
           </div>
 
-          {/* Plant Roles */}
-          <div>
-            <h5 className="font-bold text-white mb-2.5 uppercase tracking-wider text-[11px]">Role Solutions</h5>
-            <ul className="space-y-1.5 text-[11px]">
-              <li><a href="#roles" className="hover:text-white transition-colors">Factory MDs</a></li>
-              <li><a href="#roles" className="hover:text-white transition-colors">Cutting Masters</a></li>
-              <li><a href="#roles" className="hover:text-white transition-colors">Store Keepers</a></li>
-              <li><a href="#roles" className="hover:text-white transition-colors">Linemen & Tailors</a></li>
-              <li><a href="#roles" className="hover:text-white transition-colors">QC Inspectors</a></li>
-            </ul>
-          </div>
-
-          {/* Portal Access */}
-          <div>
-            <h5 className="font-bold text-white mb-2.5 uppercase tracking-wider text-[11px]">System Gateway</h5>
-            <ul className="space-y-2 text-[11px]">
-              <li>
-                <Link
-                  href="/login"
-                  className="inline-flex items-center gap-1.5 text-[var(--green,#1F9D63)] hover:text-emerald-400 font-bold"
-                >
-                  <Lock className="w-3.5 h-3.5" />
-                  <span>Staff Portal Login</span>
-                </Link>
-              </li>
-              <li>
-                <button
-                  type="button"
-                  onClick={() => setIsDemoModalOpen(true)}
-                  className="text-slate-400 hover:text-white transition-colors cursor-pointer"
-                >
-                  Schedule Demo
-                </button>
-              </li>
-              <li>
-                <span className="text-slate-500">Cloud Sync & Mobile Active</span>
-              </li>
-            </ul>
-          </div>
-
-        </div>
-
-        <div className="max-w-7xl mx-auto pt-6 border-t border-slate-800 text-[11px] flex flex-col sm:flex-row items-center justify-between gap-3 text-slate-500">
-          <p>© {new Date().getFullYear()} Zigza MES • Nubira Creation. All rights reserved.</p>
-          <p className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />
-            <span>Industrial Security • TLS 1.3 Encryption</span>
-          </p>
         </div>
       </footer>
 
@@ -1233,16 +1281,14 @@ export function ZigzaLandingPageClient({
               <X className="w-5 h-5" />
             </button>
 
-            <div className="flex items-center gap-2.5 mb-1">
-              <div className="h-7 px-2 rounded-lg bg-black text-white flex items-center justify-center border border-slate-700">
-                <img 
-                  src="/z_i_g_z_a.png" 
-                  alt="zigza." 
-                  className="h-4 w-auto object-contain"
-                />
-              </div>
+            <div className="flex items-center gap-3 mb-2">
+              <img 
+                src="/zigza_dark.png" 
+                alt="zigza." 
+                className="h-7 w-auto object-contain"
+              />
               <h3 className="text-base font-bold text-[var(--ink,#1C2733)]">
-                Request a Live Zigza Demo
+                Request a Live Demo
               </h3>
             </div>
             <p className="text-xs text-[var(--ink-soft,#5B6B7C)] mb-4">
