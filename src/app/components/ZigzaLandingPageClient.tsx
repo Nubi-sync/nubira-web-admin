@@ -1450,6 +1450,67 @@ ${demoForm.ownerName}`
       {/* 8. FREQUENTLY ASKED QUESTIONS (ACCORDION FAQ)                       */}
       {/* =================================================================== */}
       <section id="faq" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
+        {/* Google FAQPage Structured Data Schema */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "FAQPage",
+              "mainEntity": [
+                {
+                  "@type": "Question",
+                  "name": "Can we import our existing buyer Excel challans directly into Zigza?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Yes! Zigza includes a 1-Click Excel Template and Bulk Ingestion module. You can download our standard template or upload your existing spreadsheets (.xlsx, .xls, .csv). Zigza automatically maps article numbers, size tiers (L/XXL, 22x26, 28x32), and piece ratios."
+                  }
+                },
+                {
+                  "@type": "Question",
+                  "name": "Does Zigza require expensive hardware on the factory floor?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "No. Zigza is designed to run on standard Android smartphones and budget tablets for supervisors and QC stations. The admin control center runs in any standard web browser on PCs and laptops."
+                  }
+                },
+                {
+                  "@type": "Question",
+                  "name": "How does Zigza handle lineman piece-rate wage calculation?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "You can allot cutting lots to linemen either as full challans or split across color combinations. As garments are completed and inspected, the system automatically credits each lineman at their defined piece rate, producing a clear, transparent wage ledger with zero arguments."
+                  }
+                },
+                {
+                  "@type": "Question",
+                  "name": "What happens if internet connectivity drops on the floor?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "The Zigza Android mobile companion app has offline-resilient local caching. Supervisors and inspectors can continue logging production and bundle scans without disruption. Data synchronizes automatically as soon as internet connection is restored."
+                  }
+                },
+                {
+                  "@type": "Question",
+                  "name": "Is data isolated for different brands and job-work buyers?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Yes. Zigza enforces multi-brand partitioning. You can track separate production lines and dispatch challans for Ollypop, First Smile, Lazy Bones, or your own in-house brands with complete data isolation."
+                  }
+                },
+                {
+                  "@type": "Question",
+                  "name": "How fast can a garment factory go live with Zigza?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Most factories complete master setup (articles, rates, lineman profiles) and go live on their first cutting lot within 24 to 48 hours of onboarding."
+                  }
+                }
+              ]
+            })
+          }}
+        />
+
         <div className="text-center mb-12 sm:mb-16">
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">
             Frequently Asked Questions
@@ -1877,9 +1938,9 @@ ${demoForm.ownerName}`
               <p className="text-xs text-slate-500">© {new Date().getFullYear()} Zigza. All rights reserved.</p>
             </div>
             <div className="flex items-center gap-6 text-xs text-slate-500">
-              <span className="hover:text-slate-900 transition-colors cursor-pointer">Privacy Policy</span>
-              <span className="hover:text-slate-900 transition-colors cursor-pointer">Terms of Service</span>
-              <span className="hover:text-slate-900 transition-colors cursor-pointer">Security Standards</span>
+              <Link href="/privacy" className="hover:text-slate-900 transition-colors">Privacy Policy</Link>
+              <Link href="/terms" className="hover:text-slate-900 transition-colors">Terms of Service</Link>
+              <Link href="/security" className="hover:text-slate-900 transition-colors">Security Standards</Link>
             </div>
           </div>
 

@@ -95,12 +95,18 @@ export default function NotFound() {
 
       {/* Minimal Footer */}
       <footer className="py-6 px-6 text-center border-t border-slate-200/80 bg-white/50">
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-6 text-xs text-slate-500">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 text-xs text-slate-500">
           <div className="flex items-center gap-2">
             <IndiaFlag className="w-5 h-3.5 rounded-xs" />
             <span className="text-proudly-india-black">
               Proudly Made in India
             </span>
+          </div>
+          <span className="hidden sm:inline text-slate-300">•</span>
+          <div className="flex items-center gap-4">
+            <Link href="/privacy" className="hover:text-slate-900 transition-colors">Privacy</Link>
+            <Link href="/terms" className="hover:text-slate-900 transition-colors">Terms</Link>
+            <Link href="/security" className="hover:text-slate-900 transition-colors">Security</Link>
           </div>
           <span className="hidden sm:inline text-slate-300">•</span>
           <p>© {new Date().getFullYear()} Zigza. All rights reserved.</p>
