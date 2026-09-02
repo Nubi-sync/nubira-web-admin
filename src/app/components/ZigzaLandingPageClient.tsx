@@ -30,7 +30,8 @@ import {
   TrendingUp,
   Database,
   Lock,
-  MessageSquareCheck
+  MessageSquareCheck,
+  Menu
 } from 'lucide-react'
 
 interface ZigzaLandingPageClientProps {
@@ -44,6 +45,7 @@ export function ZigzaLandingPageClient({
 }: ZigzaLandingPageClientProps) {
   // Navigation & Interactive States
   const [isScrolled, setIsScrolled] = useState(false)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isDemoModalOpen, setIsDemoModalOpen] = useState(false)
   const [activeRoleTab, setActiveRoleTab] = useState<'MD' | 'CUTTING' | 'STORE' | 'LINEMAN' | 'QC'>('MD')
   const [expandedFaq, setExpandedFaq] = useState<number | null>(0)
@@ -117,11 +119,11 @@ export function ZigzaLandingPageClient({
       {/* 1. STICKY ENTERPRISE HEADER                                         */}
       {/* =================================================================== */}
       <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200/80 shadow-2xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 sm:h-[84px] flex items-center justify-between gap-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[64px] sm:h-[84px] flex items-center justify-between gap-3">
           
           {/* Brand Logo with Smooth Scroll Transition */}
-          <Link href="/" className="group relative flex items-center cursor-pointer select-none py-1">
-            {/* 1. Initial State (At Top): Prominent rounded black badge */}
+          <Link href="/" className="group relative flex items-center cursor-pointer select-none shrink-0">
+            {/* Initial State (At Top): Rounded black badge */}
             <div 
               className={`flex items-center transition-all duration-300 ease-in-out ${
                 isScrolled 
@@ -129,16 +131,16 @@ export function ZigzaLandingPageClient({
                   : 'opacity-100 scale-100'
               }`}
             >
-              <div className="h-12 sm:h-13 px-5 sm:px-5.5 bg-black rounded-2xl flex items-center justify-center shadow-xs border border-slate-900/15 hover:bg-slate-900 transition-colors">
+              <div className="h-[40px] sm:h-[48px] px-3 sm:px-5 bg-black rounded-xl sm:rounded-2xl flex items-center justify-center shadow-xs border border-slate-900/15 hover:bg-slate-900 transition-colors">
                 <img 
                   src="/zigza_white.png" 
                   alt="zigza." 
-                  className="h-7 sm:h-7.5 w-auto object-contain"
+                  className="h-[22px] sm:h-[30px] w-auto object-contain"
                 />
               </div>
             </div>
 
-            {/* 2. Scrolled State: Clean dark wordmark at the EXACT same size and position */}
+            {/* Scrolled State: Clean dark wordmark */}
             <div 
               className={`absolute left-0 flex items-center transition-all duration-300 ease-in-out ${
                 isScrolled 
@@ -146,22 +148,22 @@ export function ZigzaLandingPageClient({
                   : 'opacity-0 scale-95 pointer-events-none'
               }`}
             >
-              <div className="h-12 sm:h-13 px-5 sm:px-5.5 flex items-center justify-center">
+              <div className="h-[40px] sm:h-[48px] px-3 sm:px-5 flex items-center justify-center">
                 <img 
                   src="/zigza_dark.png" 
                   alt="zigza." 
-                  className="h-7 sm:h-7.5 w-auto object-contain transition-transform group-hover:scale-[1.02]"
+                  className="h-[22px] sm:h-[30px] w-auto object-contain transition-transform group-hover:scale-[1.02]"
                 />
               </div>
             </div>
           </Link>
 
-          {/* Desktop Navigation Links */}
-          <nav className="hidden md:flex items-center gap-1.5 text-[15px] font-semibold text-slate-600">
+          {/* Desktop Navigation Links — hidden below 768px */}
+          <nav className="hidden md:flex items-center gap-1 lg:gap-1.5 text-sm lg:text-[15px] font-semibold text-slate-600">
             <a 
               href="#modules"
               onClick={(e) => scrollToSection(e, 'modules')}
-              className="group relative px-3 py-2 text-slate-600 hover:text-slate-900 transition-colors duration-200 cursor-pointer"
+              className="group relative px-2.5 lg:px-3 py-2 text-slate-600 hover:text-slate-900 transition-colors duration-200 cursor-pointer"
             >
               <span>Modules</span>
               <span className="absolute bottom-0 left-3 right-3 h-[2.5px] bg-slate-900 rounded-full scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out origin-left" />
@@ -169,7 +171,7 @@ export function ZigzaLandingPageClient({
             <a 
               href="#workflow"
               onClick={(e) => scrollToSection(e, 'workflow')}
-              className="group relative px-3 py-2 text-slate-600 hover:text-slate-900 transition-colors duration-200 cursor-pointer"
+              className="group relative px-2.5 lg:px-3 py-2 text-slate-600 hover:text-slate-900 transition-colors duration-200 cursor-pointer"
             >
               <span>Floor Workflow</span>
               <span className="absolute bottom-0 left-3 right-3 h-[2.5px] bg-slate-900 rounded-full scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out origin-left" />
@@ -177,7 +179,7 @@ export function ZigzaLandingPageClient({
             <a 
               href="#roles"
               onClick={(e) => scrollToSection(e, 'roles')}
-              className="group relative px-3 py-2 text-slate-600 hover:text-slate-900 transition-colors duration-200 cursor-pointer"
+              className="group relative px-2.5 lg:px-3 py-2 text-slate-600 hover:text-slate-900 transition-colors duration-200 cursor-pointer"
             >
               <span>Solutions</span>
               <span className="absolute bottom-0 left-3 right-3 h-[2.5px] bg-slate-900 rounded-full scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out origin-left" />
@@ -185,7 +187,7 @@ export function ZigzaLandingPageClient({
             <a 
               href="#roi"
               onClick={(e) => scrollToSection(e, 'roi')}
-              className="group relative px-3 py-2 text-slate-600 hover:text-slate-900 transition-colors duration-200 cursor-pointer"
+              className="group relative px-2.5 lg:px-3 py-2 text-slate-600 hover:text-slate-900 transition-colors duration-200 cursor-pointer"
             >
               <span>ROI Estimator</span>
               <span className="absolute bottom-0 left-3 right-3 h-[2.5px] bg-slate-900 rounded-full scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out origin-left" />
@@ -193,19 +195,19 @@ export function ZigzaLandingPageClient({
             <a 
               href="#faq"
               onClick={(e) => scrollToSection(e, 'faq')}
-              className="group relative px-3 py-2 text-slate-600 hover:text-slate-900 transition-colors duration-200 cursor-pointer"
+              className="group relative px-2.5 lg:px-3 py-2 text-slate-600 hover:text-slate-900 transition-colors duration-200 cursor-pointer"
             >
               <span>FAQ</span>
               <span className="absolute bottom-0 left-3 right-3 h-[2.5px] bg-slate-900 rounded-full scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out origin-left" />
             </a>
           </nav>
 
-          {/* Top Right Action Buttons */}
-          <div className="flex items-center gap-3">
+          {/* Desktop Action Buttons — hidden below 768px */}
+          <div className="hidden md:flex items-center gap-3 shrink-0">
             {isAuthenticated ? (
               <Link
                 href="/production-orders"
-                className="px-5 py-2.5 rounded-xl text-[15px] font-semibold bg-slate-900 text-white hover:bg-slate-800 shadow-xs hover:shadow transition-all flex items-center gap-2 cursor-pointer"
+                className="px-5 py-2.5 rounded-xl text-sm lg:text-[15px] font-semibold bg-slate-900 text-white hover:bg-slate-800 shadow-xs hover:shadow transition-all flex items-center gap-2 cursor-pointer"
               >
                 <span>Control Center</span>
                 <ArrowRight className="w-4 h-4" />
@@ -214,14 +216,14 @@ export function ZigzaLandingPageClient({
               <>
                 <Link
                   href="/login"
-                  className="px-4 py-2.5 rounded-xl text-[15px] font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition-all duration-150 cursor-pointer"
+                  className="px-4 py-2.5 rounded-xl text-sm lg:text-[15px] font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition-all duration-150 cursor-pointer"
                 >
                   Sign In
                 </Link>
                 <button
                   type="button"
                   onClick={() => setIsDemoModalOpen(true)}
-                  className="px-5 py-2.5 rounded-xl text-[15px] font-semibold bg-slate-900 text-white hover:bg-slate-800 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-150 cursor-pointer flex items-center gap-2"
+                  className="px-5 py-2.5 rounded-xl text-sm lg:text-[15px] font-semibold bg-slate-900 text-white hover:bg-slate-800 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-150 cursor-pointer flex items-center gap-2"
                 >
                   <span>Request a Demo</span>
                   <ArrowRight className="w-4 h-4 text-slate-400" />
@@ -230,31 +232,92 @@ export function ZigzaLandingPageClient({
             )}
           </div>
 
+          {/* Mobile Hamburger Toggle — visible only below 768px */}
+          <div className="flex md:hidden items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label="Toggle navigation menu"
+              className="p-2 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-100 transition-colors"
+            >
+              {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+          </div>
+
         </div>
+
+        {/* Mobile Navigation Drawer — slides down below header */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden bg-white border-b border-slate-200 px-5 pt-3 pb-6 space-y-4 shadow-xl">
+            <nav className="flex flex-col space-y-1">
+              {[
+                { id: 'modules', label: 'Modules' },
+                { id: 'workflow', label: 'Floor Workflow' },
+                { id: 'roles', label: 'Role Solutions' },
+                { id: 'roi', label: 'ROI Estimator' },
+                { id: 'faq', label: 'FAQ' },
+              ].map(item => (
+                <a
+                  key={item.id}
+                  href={`#${item.id}`}
+                  onClick={(e) => {
+                    scrollToSection(e, item.id)
+                    setIsMobileMenuOpen(false)
+                  }}
+                  className="px-4 py-3 rounded-xl text-[15px] font-semibold text-slate-700 hover:bg-slate-50 active:bg-slate-100 transition-colors"
+                >
+                  {item.label}
+                </a>
+              ))}
+            </nav>
+
+            <div className="pt-3 border-t border-slate-100 flex flex-col gap-2.5">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsDemoModalOpen(true)
+                  setIsMobileMenuOpen(false)
+                }}
+                className="w-full py-3 rounded-xl text-sm font-semibold bg-slate-900 text-white hover:bg-slate-800 transition-all flex items-center justify-center gap-2 shadow-sm"
+              >
+                <span>Request a Live Demo</span>
+                <ArrowRight className="w-4 h-4 text-slate-400" />
+              </button>
+              <Link
+                href="/login"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="w-full py-2.5 rounded-xl text-sm font-semibold text-slate-700 border border-slate-200 bg-white hover:bg-slate-50 transition-all flex items-center justify-center gap-2"
+              >
+                <Lock className="w-4 h-4 text-slate-500" />
+                <span>Staff Portal Sign In</span>
+              </Link>
+            </div>
+          </div>
+        )}
       </header>
 
       {/* =================================================================== */}
       {/* 2. HERO SECTION WITH LIVE MES DASHBOARD PREVIEW                     */}
       {/* =================================================================== */}
-      <section className="relative pt-12 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto overflow-hidden">
-        <div className="text-center max-w-4xl mx-auto space-y-5">
+      <section className="relative pt-8 sm:pt-12 pb-14 sm:pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto overflow-hidden">
+        <div className="text-center max-w-4xl mx-auto space-y-4 sm:space-y-5">
           {/* Main Hero Headline */}
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-slate-900 leading-[1.15]">
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-slate-900 leading-[1.15]">
             The Manufacturing OS for Modern <span className="text-[var(--steel,#2B4C7E)] underline decoration-[var(--amber,#C8802B)] decoration-4 underline-offset-8">Garment Factories</span>
           </h1>
 
           {/* Subtitle */}
-          <p className="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed font-normal">
+          <p className="text-sm sm:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed font-normal px-2 sm:px-0">
             Connect fabric roll inward, automated cutting matrices, smart lineman piece-rate allotments, 
             live 3-stage QC, and buyer dispatch challans into one synchronized floor.
           </p>
 
           {/* Hero Action Buttons */}
-          <div className="pt-3 flex flex-wrap items-center justify-center gap-3.5">
+          <div className="pt-2 sm:pt-3 flex flex-col sm:flex-row items-center justify-center gap-3 px-4 sm:px-0">
             <button
               type="button"
               onClick={() => setIsDemoModalOpen(true)}
-              className="group px-6 py-3 rounded-xl text-sm font-semibold bg-slate-900 text-white hover:bg-slate-800 shadow-sm hover:shadow hover:-translate-y-0.5 transition-all duration-200 flex items-center gap-2 cursor-pointer"
+              className="w-full sm:w-auto group px-6 py-3 sm:py-3.5 rounded-xl text-sm font-semibold bg-slate-900 text-white hover:bg-slate-800 shadow-sm hover:shadow hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer"
             >
               <span>Request a Live Demo</span>
               <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
@@ -262,7 +325,7 @@ export function ZigzaLandingPageClient({
 
             <Link
               href="/login"
-              className="px-6 py-3 rounded-xl text-sm font-semibold border border-slate-200 bg-white text-slate-800 hover:border-slate-300 hover:bg-slate-50/80 shadow-2xs hover:-translate-y-0.5 transition-all duration-200 flex items-center gap-2 cursor-pointer"
+              className="w-full sm:w-auto px-6 py-3 sm:py-3.5 rounded-xl text-sm font-semibold border border-slate-200 bg-white text-slate-800 hover:border-slate-300 hover:bg-slate-50/80 shadow-2xs hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer"
             >
               <Lock className="w-4 h-4 text-slate-500" />
               <span>Staff Login to Portal</span>
@@ -270,98 +333,99 @@ export function ZigzaLandingPageClient({
           </div>
 
           {/* Key Metric Pills */}
-          <div className="pt-4 flex flex-wrap items-center justify-center gap-6 text-xs font-medium text-slate-500">
+          <div className="pt-3 sm:pt-4 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-6 text-xs font-medium text-slate-500">
             <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
               <span>1-Click Excel Challan Ingestion</span>
             </div>
             <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
               <span>Android Mobile Floor Companion</span>
             </div>
             <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
               <span>Automated Piece-Rate Wage Ledger</span>
             </div>
           </div>
         </div>
 
         {/* Live MES Interactive Visual Dashboard Mockup */}
-        <div className="mt-12 max-w-5xl mx-auto">
-          <div className="bg-white border-2 border-[var(--border,#E2E8F0)] rounded-2xl shadow-xl overflow-hidden">
+        <div className="mt-8 sm:mt-12 max-w-5xl mx-auto">
+          <div className="bg-white border-2 border-[var(--border,#E2E8F0)] rounded-xl sm:rounded-2xl shadow-xl overflow-hidden">
             
             {/* Mockup Header Bar */}
-            <div className="bg-[var(--steel-dark,#1F3A63)] px-4 py-3 flex items-center justify-between text-white border-b border-slate-700">
-              <div className="flex items-center gap-2">
-                <div className="flex gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block" />
-                  <span className="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block" />
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block" />
+            <div className="bg-[var(--steel-dark,#1F3A63)] px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between text-white border-b border-slate-700">
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="flex gap-1.5 shrink-0">
+                  <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-rose-500 inline-block" />
+                  <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-amber-500 inline-block" />
+                  <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-emerald-500 inline-block" />
                 </div>
-                <span className="text-xs font-bold tracking-tight text-slate-300 ml-2">
+                <span className="text-[10px] sm:text-xs font-bold tracking-tight text-slate-300 ml-1 sm:ml-2 truncate">
                   Zigza MES • Live Plant Operations Control Center
                 </span>
               </div>
-              <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider bg-emerald-900/60 border border-emerald-500/40 text-emerald-300 px-2.5 py-0.5 rounded-full">
+              <div className="flex items-center gap-1.5 text-[8px] sm:text-[10px] font-bold uppercase tracking-wider bg-emerald-900/60 border border-emerald-500/40 text-emerald-300 px-2 sm:px-2.5 py-0.5 rounded-full shrink-0">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                <span>Floor Active</span>
+                <span className="hidden sm:inline">Floor Active</span>
+                <span className="sm:hidden">Active</span>
               </div>
             </div>
 
             {/* Mockup Body Content */}
-            <div className="p-5 sm:p-6 bg-[var(--bg,#EEF1F5)] space-y-5">
+            <div className="p-3 sm:p-6 bg-[var(--bg,#EEF1F5)] space-y-3 sm:space-y-5">
               
               {/* Top Stats Strip */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
-                <div className="p-3.5 bg-white border border-[var(--border,#E2E8F0)] rounded-xl shadow-2xs">
-                  <span className="text-[10px] font-extrabold uppercase text-[var(--ink-soft,#5B6B7C)]">Active Job Work</span>
-                  <p className="text-xl font-black text-[var(--ink,#1C2733)] mt-1">JOB-457</p>
-                  <span className="text-[10px] font-bold text-[var(--steel,#2B4C7E)]">OLLYPOP Kids 2-Pc</span>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3.5">
+                <div className="p-2.5 sm:p-3.5 bg-white border border-[var(--border,#E2E8F0)] rounded-lg sm:rounded-xl shadow-2xs">
+                  <span className="text-[9px] sm:text-[10px] font-extrabold uppercase text-[var(--ink-soft,#5B6B7C)]">Active Job Work</span>
+                  <p className="text-base sm:text-xl font-black text-[var(--ink,#1C2733)] mt-0.5 sm:mt-1">JOB-457</p>
+                  <span className="text-[9px] sm:text-[10px] font-bold text-[var(--steel,#2B4C7E)]">OLLYPOP Kids 2-Pc</span>
                 </div>
 
-                <div className="p-3.5 bg-white border border-[var(--border,#E2E8F0)] rounded-xl shadow-2xs">
-                  <span className="text-[10px] font-extrabold uppercase text-[var(--ink-soft,#5B6B7C)]">Cutting Sets</span>
-                  <p className="text-xl font-black text-[var(--steel,#2B4C7E)] mt-1">1,650 Sets</p>
-                  <span className="text-[10px] font-bold text-[var(--ink-soft,#5B6B7C)]">14,850 Pieces</span>
+                <div className="p-2.5 sm:p-3.5 bg-white border border-[var(--border,#E2E8F0)] rounded-lg sm:rounded-xl shadow-2xs">
+                  <span className="text-[9px] sm:text-[10px] font-extrabold uppercase text-[var(--ink-soft,#5B6B7C)]">Cutting Sets</span>
+                  <p className="text-base sm:text-xl font-black text-[var(--steel,#2B4C7E)] mt-0.5 sm:mt-1">1,650 Sets</p>
+                  <span className="text-[9px] sm:text-[10px] font-bold text-[var(--ink-soft,#5B6B7C)]">14,850 Pieces</span>
                 </div>
 
-                <div className="p-3.5 bg-white border border-[var(--border,#E2E8F0)] rounded-xl shadow-2xs">
-                  <span className="text-[10px] font-extrabold uppercase text-[var(--ink-soft,#5B6B7C)]">QC Pass Rate</span>
-                  <p className="text-xl font-black text-[var(--green,#1F9D63)] mt-1">98.4%</p>
-                  <span className="text-[10px] font-bold text-[var(--green,#1F9D63)]">14,612 Passed</span>
+                <div className="p-2.5 sm:p-3.5 bg-white border border-[var(--border,#E2E8F0)] rounded-lg sm:rounded-xl shadow-2xs">
+                  <span className="text-[9px] sm:text-[10px] font-extrabold uppercase text-[var(--ink-soft,#5B6B7C)]">QC Pass Rate</span>
+                  <p className="text-base sm:text-xl font-black text-[var(--green,#1F9D63)] mt-0.5 sm:mt-1">98.4%</p>
+                  <span className="text-[9px] sm:text-[10px] font-bold text-[var(--green,#1F9D63)]">14,612 Passed</span>
                 </div>
 
-                <div className="p-3.5 bg-white border border-[var(--border,#E2E8F0)] rounded-xl shadow-2xs">
-                  <span className="text-[10px] font-extrabold uppercase text-[var(--ink-soft,#5B6B7C)]">Linemen Active</span>
-                  <p className="text-xl font-black text-[var(--amber,#C8802B)] mt-1">24 Stations</p>
-                  <span className="text-[10px] font-bold text-[var(--amber,#C8802B)]">Piece Rate Synced</span>
+                <div className="p-2.5 sm:p-3.5 bg-white border border-[var(--border,#E2E8F0)] rounded-lg sm:rounded-xl shadow-2xs">
+                  <span className="text-[9px] sm:text-[10px] font-extrabold uppercase text-[var(--ink-soft,#5B6B7C)]">Linemen Active</span>
+                  <p className="text-base sm:text-xl font-black text-[var(--amber,#C8802B)] mt-0.5 sm:mt-1">24 Stations</p>
+                  <span className="text-[9px] sm:text-[10px] font-bold text-[var(--amber,#C8802B)]">Piece Rate Synced</span>
                 </div>
               </div>
 
-              {/* Multi-Article Size Grid Simulation */}
-              <div className="bg-white border border-[var(--border,#E2E8F0)] rounded-xl p-4 shadow-2xs">
-                <div className="flex items-center justify-between mb-2.5">
-                  <div className="flex items-center gap-2">
-                    <FileSpreadsheet className="w-4 h-4 text-[var(--steel,#2B4C7E)]" />
-                    <span className="text-xs font-black text-[var(--ink,#1C2733)] uppercase tracking-wider">
-                      Cutting Lot Size Breakdown Matrix (Excel Auto-Populated)
+              {/* Multi-Article Size Grid Simulation — hidden on very small screens, horizontal scroll on medium */}
+              <div className="bg-white border border-[var(--border,#E2E8F0)] rounded-lg sm:rounded-xl p-3 sm:p-4 shadow-2xs">
+                <div className="flex items-center justify-between mb-2 sm:mb-2.5 gap-2">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <FileSpreadsheet className="w-4 h-4 text-[var(--steel,#2B4C7E)] shrink-0" />
+                    <span className="text-[10px] sm:text-xs font-black text-[var(--ink,#1C2733)] uppercase tracking-wider truncate">
+                      Cutting Lot Size Breakdown Matrix
                     </span>
                   </div>
-                  <span className="text-[10px] font-bold bg-[var(--steel-mist,#EEF3FA)] text-[var(--steel,#2B4C7E)] px-2 py-0.5 rounded">
+                  <span className="hidden sm:inline text-[10px] font-bold bg-[var(--steel-mist,#EEF3FA)] text-[var(--steel,#2B4C7E)] px-2 py-0.5 rounded shrink-0">
                     Ratio 1:9 Auto-Calculated
                   </span>
                 </div>
 
-                <div className="overflow-x-auto">
-                  <table className="w-full text-[11px] text-left">
+                <div className="overflow-x-auto -mx-1">
+                  <table className="w-full text-[10px] sm:text-[11px] text-left min-w-[480px]">
                     <thead>
                       <tr className="border-b border-[var(--border,#E2E8F0)] text-[var(--ink-soft,#5B6B7C)]">
                         <th className="py-1.5 px-2 font-bold">Art No</th>
                         <th className="py-1.5 px-2 font-bold">Sub</th>
-                        <th className="py-1.5 px-2 font-bold">Color / Combination</th>
-                        <th className="py-1.5 px-2 font-bold">Size Tier</th>
+                        <th className="py-1.5 px-2 font-bold">Color</th>
+                        <th className="py-1.5 px-2 font-bold">Size</th>
                         <th className="py-1.5 px-2 font-bold text-right">Sets</th>
-                        <th className="py-1.5 px-2 font-bold text-right">Total Pcs</th>
+                        <th className="py-1.5 px-2 font-bold text-right">Pcs</th>
                         <th className="py-1.5 px-2 font-bold text-center">Status</th>
                       </tr>
                     </thead>
@@ -374,7 +438,7 @@ export function ZigzaLandingPageClient({
                         <td className="py-2 px-2 text-right font-mono">550</td>
                         <td className="py-2 px-2 text-right font-bold text-[var(--green,#1F9D63)]">4,950</td>
                         <td className="py-2 px-2 text-center">
-                          <span className="px-2 py-0.5 rounded-full text-[9.5px] font-extrabold bg-[var(--green-mist,#E6F6EE)] text-[var(--green,#1F9D63)]">
+                          <span className="px-2 py-0.5 rounded-full text-[9px] sm:text-[9.5px] font-extrabold bg-[var(--green-mist,#E6F6EE)] text-[var(--green,#1F9D63)]">
                             STITCHING
                           </span>
                         </td>
@@ -387,7 +451,7 @@ export function ZigzaLandingPageClient({
                         <td className="py-2 px-2 text-right font-mono">600</td>
                         <td className="py-2 px-2 text-right font-bold text-[var(--green,#1F9D63)]">5,400</td>
                         <td className="py-2 px-2 text-center">
-                          <span className="px-2 py-0.5 rounded-full text-[9.5px] font-extrabold bg-blue-50 text-blue-700">
+                          <span className="px-2 py-0.5 rounded-full text-[9px] sm:text-[9.5px] font-extrabold bg-blue-50 text-blue-700">
                             QC READY
                           </span>
                         </td>
@@ -400,7 +464,7 @@ export function ZigzaLandingPageClient({
                         <td className="py-2 px-2 text-right font-mono">500</td>
                         <td className="py-2 px-2 text-right font-bold text-[var(--green,#1F9D63)]">4,500</td>
                         <td className="py-2 px-2 text-center">
-                          <span className="px-2 py-0.5 rounded-full text-[9.5px] font-extrabold bg-amber-50 text-amber-700">
+                          <span className="px-2 py-0.5 rounded-full text-[9px] sm:text-[9.5px] font-extrabold bg-amber-50 text-amber-700">
                             DISPATCH BAY
                           </span>
                         </td>
@@ -419,7 +483,7 @@ export function ZigzaLandingPageClient({
       {/* =================================================================== */}
       {/* 3. PROBLEM VS. SOLUTION SECTION (TRADITIONAL VS. ZIGZA)            */}
       {/* =================================================================== */}
-      <section className="py-16 bg-white border-y border-[var(--border,#E2E8F0)]">
+      <section className="py-10 sm:py-16 bg-white border-y border-[var(--border,#E2E8F0)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           <div className="text-center max-w-3xl mx-auto mb-12">
@@ -493,7 +557,7 @@ export function ZigzaLandingPageClient({
       {/* =================================================================== */}
       {/* 4. 6 CORE MODULAR ENGINES                                           */}
       {/* =================================================================== */}
-      <section id="modules" className="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      <section id="modules" className="py-14 sm:py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-700 text-xs font-semibold mb-3">
             <Layers className="w-3.5 h-3.5 text-slate-600" />
@@ -507,10 +571,10 @@ export function ZigzaLandingPageClient({
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 lg:gap-8">
           
           {/* Module 1: Store GRN */}
-          <div className="p-7 sm:p-8 bg-white border border-slate-200/80 rounded-2xl shadow-2xs hover:border-slate-300 hover:shadow-md hover:-translate-y-1 transition-all duration-200 ease-out group">
+          <div className="p-5 sm:p-7 lg:p-8 bg-white border border-slate-200/80 rounded-2xl shadow-2xs hover:border-slate-300 hover:shadow-md hover:-translate-y-1 transition-all duration-200 ease-out group">
             <div className="w-12 h-12 rounded-xl bg-slate-100 text-slate-800 flex items-center justify-center mb-5 group-hover:bg-slate-900 group-hover:text-white transition-all duration-200">
               <Truck className="w-6 h-6" />
             </div>
@@ -524,7 +588,7 @@ export function ZigzaLandingPageClient({
           </div>
 
           {/* Module 2: Excel Challan Matrix */}
-          <div className="p-7 sm:p-8 bg-white border border-slate-200/80 rounded-2xl shadow-2xs hover:border-slate-300 hover:shadow-md hover:-translate-y-1 transition-all duration-200 ease-out group">
+          <div className="p-5 sm:p-7 lg:p-8 bg-white border border-slate-200/80 rounded-2xl shadow-2xs hover:border-slate-300 hover:shadow-md hover:-translate-y-1 transition-all duration-200 ease-out group">
             <div className="w-12 h-12 rounded-xl bg-slate-100 text-slate-800 flex items-center justify-center mb-5 group-hover:bg-slate-900 group-hover:text-white transition-all duration-200">
               <FileSpreadsheet className="w-6 h-6" />
             </div>
@@ -538,7 +602,7 @@ export function ZigzaLandingPageClient({
           </div>
 
           {/* Module 3: Piece-Rate Wages */}
-          <div className="p-7 sm:p-8 bg-white border border-slate-200/80 rounded-2xl shadow-2xs hover:border-slate-300 hover:shadow-md hover:-translate-y-1 transition-all duration-200 ease-out group">
+          <div className="p-5 sm:p-7 lg:p-8 bg-white border border-slate-200/80 rounded-2xl shadow-2xs hover:border-slate-300 hover:shadow-md hover:-translate-y-1 transition-all duration-200 ease-out group">
             <div className="w-12 h-12 rounded-xl bg-slate-100 text-slate-800 flex items-center justify-center mb-5 group-hover:bg-slate-900 group-hover:text-white transition-all duration-200">
               <Scissors className="w-6 h-6" />
             </div>
@@ -552,7 +616,7 @@ export function ZigzaLandingPageClient({
           </div>
 
           {/* Module 4: Floor Mobile App */}
-          <div className="p-7 sm:p-8 bg-white border border-slate-200/80 rounded-2xl shadow-2xs hover:border-slate-300 hover:shadow-md hover:-translate-y-1 transition-all duration-200 ease-out group">
+          <div className="p-5 sm:p-7 lg:p-8 bg-white border border-slate-200/80 rounded-2xl shadow-2xs hover:border-slate-300 hover:shadow-md hover:-translate-y-1 transition-all duration-200 ease-out group">
             <div className="w-12 h-12 rounded-xl bg-slate-100 text-slate-800 flex items-center justify-center mb-5 group-hover:bg-slate-900 group-hover:text-white transition-all duration-200">
               <Smartphone className="w-6 h-6" />
             </div>
@@ -566,7 +630,7 @@ export function ZigzaLandingPageClient({
           </div>
 
           {/* Module 5: 3-Stage QC Gate */}
-          <div className="p-7 sm:p-8 bg-white border border-slate-200/80 rounded-2xl shadow-2xs hover:border-slate-300 hover:shadow-md hover:-translate-y-1 transition-all duration-200 ease-out group">
+          <div className="p-5 sm:p-7 lg:p-8 bg-white border border-slate-200/80 rounded-2xl shadow-2xs hover:border-slate-300 hover:shadow-md hover:-translate-y-1 transition-all duration-200 ease-out group">
             <div className="w-12 h-12 rounded-xl bg-slate-100 text-slate-800 flex items-center justify-center mb-5 group-hover:bg-slate-900 group-hover:text-white transition-all duration-200">
               <ClipboardCheck className="w-6 h-6" />
             </div>
@@ -580,7 +644,7 @@ export function ZigzaLandingPageClient({
           </div>
 
           {/* Module 6: Dispatch Bay */}
-          <div className="p-7 sm:p-8 bg-white border border-slate-200/80 rounded-2xl shadow-2xs hover:border-slate-300 hover:shadow-md hover:-translate-y-1 transition-all duration-200 ease-out group">
+          <div className="p-5 sm:p-7 lg:p-8 bg-white border border-slate-200/80 rounded-2xl shadow-2xs hover:border-slate-300 hover:shadow-md hover:-translate-y-1 transition-all duration-200 ease-out group">
             <div className="w-12 h-12 rounded-xl bg-slate-100 text-slate-800 flex items-center justify-center mb-5 group-hover:bg-slate-900 group-hover:text-white transition-all duration-200">
               <PackageCheck className="w-6 h-6" />
             </div>
@@ -599,7 +663,7 @@ export function ZigzaLandingPageClient({
       {/* =================================================================== */}
       {/* 5. 5-STEP FACTORY FLOW PIPELINE (ROADMAP)                          */}
       {/* =================================================================== */}
-      <section id="workflow" className="py-16 bg-white border-y border-[var(--border,#E2E8F0)]">
+      <section id="workflow" className="py-10 sm:py-16 bg-white border-y border-[var(--border,#E2E8F0)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           <div className="text-center max-w-3xl mx-auto mb-12">
@@ -676,8 +740,8 @@ export function ZigzaLandingPageClient({
       {/* =================================================================== */}
       {/* 6. SOLUTIONS TAILORED FOR FACTORY ROLES (INTERACTIVE TABS)          */}
       {/* =================================================================== */}
-      <section id="roles" className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <div className="text-center max-w-3xl mx-auto mb-12">
+      <section id="roles" className="py-12 sm:py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-12">
           <h2 className="text-2xl sm:text-3xl font-black text-[var(--ink,#1C2733)] tracking-tight">
             Built for Every Stakeholder on the Factory Floor
           </h2>
@@ -685,30 +749,32 @@ export function ZigzaLandingPageClient({
             Tailored interfaces engineered for the specific daily goals of each factory role.
           </p>
 
-          {/* Role Switcher Tabs */}
-          <div className="flex flex-wrap items-center justify-center gap-2 mt-6">
-            {(
-              [
-                { key: 'MD', label: 'Factory Owners / MDs' },
-                { key: 'CUTTING', label: 'Cutting Masters' },
-                { key: 'STORE', label: 'Store Managers' },
-                { key: 'LINEMAN', label: 'Linemen & Tailors' },
-                { key: 'QC', label: 'QC Inspectors' }
-              ] as const
-            ).map(tab => (
-              <button
-                key={tab.key}
-                type="button"
-                onClick={() => setActiveRoleTab(tab.key)}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  activeRoleTab === tab.key
-                    ? 'bg-[var(--steel,#2B4C7E)] text-white shadow-xs'
-                    : 'bg-white border border-[var(--border,#E2E8F0)] text-[var(--ink-soft,#5B6B7C)] hover:bg-slate-50'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
+          {/* Role Switcher Tabs — horizontal scroll on mobile */}
+          <div className="mt-5 sm:mt-6 -mx-4 sm:mx-0 px-4 sm:px-0 overflow-x-auto">
+            <div className="flex items-center justify-start sm:justify-center gap-2 min-w-max sm:min-w-0 sm:flex-wrap">
+              {(
+                [
+                  { key: 'MD', label: 'Factory Owners' },
+                  { key: 'CUTTING', label: 'Cutting Masters' },
+                  { key: 'STORE', label: 'Store Managers' },
+                  { key: 'LINEMAN', label: 'Linemen' },
+                  { key: 'QC', label: 'QC Inspectors' }
+                ] as const
+              ).map(tab => (
+                <button
+                  key={tab.key}
+                  type="button"
+                  onClick={() => setActiveRoleTab(tab.key)}
+                  className={`px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+                    activeRoleTab === tab.key
+                      ? 'bg-[var(--steel,#2B4C7E)] text-white shadow-xs'
+                      : 'bg-white border border-[var(--border,#E2E8F0)] text-[var(--ink-soft,#5B6B7C)] hover:bg-slate-50'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -835,7 +901,7 @@ export function ZigzaLandingPageClient({
       {/* =================================================================== */}
       {/* 7. INTERACTIVE ROI & COST SAVINGS CALCULATOR                        */}
       {/* =================================================================== */}
-      <section id="roi" className="py-16 bg-white border-y border-[var(--border,#E2E8F0)]">
+      <section id="roi" className="py-10 sm:py-16 bg-white border-y border-[var(--border,#E2E8F0)]">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           
           <div className="text-center mb-10">
@@ -948,7 +1014,7 @@ export function ZigzaLandingPageClient({
       {/* =================================================================== */}
       {/* 8. FREQUENTLY ASKED QUESTIONS (ACCORDION FAQ)                       */}
       {/* =================================================================== */}
-      <section id="faq" className="py-20 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
+      <section id="faq" className="py-12 sm:py-20 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
         <div className="text-center mb-12">
           <h2 className="text-2xl sm:text-3xl font-black text-[var(--ink,#1C2733)] tracking-tight">
             Frequently Asked Questions
@@ -1018,11 +1084,11 @@ export function ZigzaLandingPageClient({
       {/* =================================================================== */}
       {/* 9. BOTTOM CALL TO ACTION BANNER & REQUEST DEMO FORM                 */}
       {/* =================================================================== */}
-      <section className="bg-[var(--steel-dark,#1F3A63)] text-white py-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-        <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+      <section className="bg-[var(--steel-dark,#1F3A63)] text-white py-10 sm:py-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+        <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 items-center">
           
           {/* Left Text */}
-          <div className="space-y-4">
+          <div className="space-y-4 text-center lg:text-left">
             <h2 className="text-2xl sm:text-4xl font-black tracking-tight leading-tight">
               Transform Your Garment Factory with Zigza Today
             </h2>
@@ -1030,7 +1096,7 @@ export function ZigzaLandingPageClient({
               Book a personalized 20-minute live demonstration tailored to your plant capacity, 
               cutting tables, and floor workflow.
             </p>
-            <div className="pt-2 flex items-center gap-3">
+            <div className="pt-2 flex items-center justify-center lg:justify-start gap-3">
               <a
                 href="https://wa.me/?text=Hi,%20I%20would%20like%20to%20request%20a%20live%20demo%20of%20Zigza%20MES%20for%20our%20garment%20factory."
                 target="_blank"
@@ -1144,10 +1210,10 @@ export function ZigzaLandingPageClient({
       </section>      {/* =================================================================== */}
       {/* 10. ENTERPRISE FOOTER                                              */}
       {/* =================================================================== */}
-      <footer className="bg-slate-950 text-slate-400 pt-20 pb-12 sm:pt-24 sm:pb-16 px-6 lg:px-8 border-t border-slate-900">
+      <footer className="bg-slate-950 text-slate-400 pt-12 pb-8 sm:pt-20 sm:pb-12 lg:pt-24 lg:pb-16 px-4 sm:px-6 lg:px-8 border-t border-slate-900">
         <div className="max-w-7xl mx-auto">
           
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-10 lg:gap-12 mb-16">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-8 sm:gap-10 lg:gap-12 mb-10 sm:mb-16">
             
             {/* Brand Column */}
             <div className="col-span-2 space-y-4">
@@ -1335,8 +1401,8 @@ export function ZigzaLandingPageClient({
       {/* 11. INTERACTIVE REQUEST DEMO MODAL                                  */}
       {/* =================================================================== */}
       {isDemoModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs overflow-y-auto animate-in fade-in duration-150">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 border border-[var(--border,#E2E8F0)] my-auto relative">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-slate-900/60 backdrop-blur-xs overflow-y-auto animate-in fade-in duration-150">
+          <div className="bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl max-w-lg w-full p-5 sm:p-6 border border-[var(--border,#E2E8F0)] sm:my-auto relative max-h-[90vh] overflow-y-auto">
             
             <button
               type="button"
@@ -1397,7 +1463,7 @@ export function ZigzaLandingPageClient({
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-[11px] font-bold text-[var(--ink,#1C2733)] mb-1">
                       Contact Name *
