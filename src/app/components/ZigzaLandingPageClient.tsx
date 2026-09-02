@@ -227,7 +227,7 @@ ${demoForm.ownerName}`
           <div className="hidden md:flex items-center gap-4 shrink-0">
             {isAuthenticated ? (
               <Link
-                href="/production-orders"
+                href="/dashboard"
                 className="px-5 py-2.5 rounded-md text-[15px] font-medium bg-[#3A3564] text-white hover:bg-[#2F2B52] transition-colors flex items-center gap-2 cursor-pointer shadow-xs"
               >
                 <span>Continue to Dashboard</span>
@@ -301,7 +301,7 @@ ${demoForm.ownerName}`
             <div className="pt-3 border-t border-[#57564E]/15 flex flex-col gap-2.5">
               {isAuthenticated ? (
                 <Link
-                  href="/production-orders"
+                  href="/dashboard"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="w-full py-3 rounded-md text-[15px] font-medium bg-[#3A3564] text-white hover:bg-[#2F2B52] transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs"
                 >

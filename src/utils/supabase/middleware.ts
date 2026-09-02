@@ -37,6 +37,7 @@ export async function updateSession(request: NextRequest) {
   
   // Explicit protected dashboard pages that require login
   const PROTECTED_DASHBOARD_ROUTES = [
+    '/dashboard',
     '/allotments',
     '/articles',
     '/dispatch',
@@ -56,9 +57,9 @@ export async function updateSession(request: NextRequest) {
   }
 
   if (user && isLoginPage) {
-    // If logged in and on login page, redirect to root
+    // If already logged in and visiting /login, redirect to /dashboard
     const url = request.nextUrl.clone()
-    url.pathname = '/'
+    url.pathname = '/dashboard'
     return NextResponse.redirect(url)
   }
 

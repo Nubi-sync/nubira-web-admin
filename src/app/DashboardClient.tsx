@@ -104,7 +104,7 @@ type AllotmentItem = {
 
 type ActivityItem = {
   id: string
-  type: 'QC_PASS' | 'QC_REJECT' | 'STORE_INWARD' | 'DISPATCH' | 'ALLOTMENT'
+  type: 'QC_PASS' | 'QC_REJECT' | 'STORE_INWARD' | 'DISPATCH' | 'ALLOTMENT' | 'PRODUCTION' | 'QC' | 'STORE'
   title: string
   details: string
   location: string
@@ -524,7 +524,7 @@ export default function DashboardClient({
       {/* ========================================================= */}
       {/* 1. FILTER CONTROLS & BRAND TABS                           */}
       {/* ========================================================= */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white p-4 sm:p-5 rounded-2xl border border-black/10 shadow-2xs">
         
         {/* Brand Selector Tabs */}
         <div className="flex items-center gap-1.5 flex-wrap">
@@ -538,7 +538,7 @@ export default function DashboardClient({
               onClick={() => setSelectedBrand(brand)}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                 selectedBrand === brand
-                  ? 'bg-[var(--steel,#2B4C7E)] text-white shadow-xs'
+                  ? 'bg-[#3A3564] text-white shadow-xs'
                   : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200'
               }`}
             >
@@ -681,7 +681,7 @@ export default function DashboardClient({
                 onClick={() => setDateFilter(tab.id as DateFilter)}
                 className={`px-2.5 py-1 text-[11px] font-bold rounded-md transition-colors cursor-pointer ${
                   dateFilter === tab.id
-                    ? 'bg-white text-[var(--steel,#2B4C7E)] shadow-2xs font-extrabold'
+                    ? 'bg-white text-[#3A3564] shadow-2xs font-extrabold'
                     : 'text-slate-500 hover:text-slate-800'
                 }`}
               >
@@ -701,14 +701,14 @@ export default function DashboardClient({
         {/* STAGE 1: TOTAL STOCKS */}
         <div 
           onClick={() => setActiveDrilldownStage('TOTAL_STOCKS')}
-          className="bg-white rounded-xl p-4 border border-slate-200 shadow-xs hover:shadow-md hover:border-slate-400 transition-all cursor-pointer flex flex-col justify-between group relative"
+          className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-black/25 transition-all cursor-pointer flex flex-col justify-between group relative shadow-2xs"
         >
           <div>
             <div className="flex items-center justify-between">
               <span className="text-[10.5px] font-bold uppercase tracking-wider text-slate-500">
                 1. Total Stocks
               </span>
-              <div className="w-7 h-7 rounded-lg bg-[#EEF3FA] text-[#2B4C7E] flex items-center justify-center">
+              <div className="w-7 h-7 rounded-lg bg-[#FAF7F0] text-[#3A3564] flex items-center justify-center border border-black/10">
                 <Warehouse className="w-4 h-4" />
               </div>
             </div>
@@ -716,14 +716,14 @@ export default function DashboardClient({
           </div>
 
           <div className="mt-3">
-            <h3 className="text-[26px] font-bold font-[family-name:var(--font-heading)] text-[#1C2733] leading-none">
+            <h3 className="text-[26px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none">
               {metrics.totalStocks.toLocaleString()}
             </h3>
             <div className="mt-2.5 flex items-center justify-between">
-              <span className="text-[9.5px] font-extrabold uppercase px-2 py-0.5 rounded bg-[#EEF3FA] text-[#2B4C7E] tracking-wider">
+              <span className="text-[9.5px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 tracking-wider">
                 Total Pieces
               </span>
-              <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#2B4C7E] transition-colors" />
+              <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#3A3564] transition-colors" />
             </div>
           </div>
         </div>
@@ -731,7 +731,7 @@ export default function DashboardClient({
         {/* STAGE 2: GOODS IN LINE (SEWING WIP) */}
         <div 
           onClick={() => setActiveDrilldownStage('GOODS_IN_LINE')}
-          className="bg-white rounded-xl p-4 border border-slate-200 shadow-xs hover:shadow-md hover:border-indigo-400 transition-all cursor-pointer flex flex-col justify-between group relative"
+          className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-black/25 transition-all cursor-pointer flex flex-col justify-between group relative shadow-2xs"
         >
           <div>
             <div className="flex items-center justify-between">
@@ -761,7 +761,7 @@ export default function DashboardClient({
         {/* STAGE 3: MENDING & CHECKING (WITH SMART ALTERATION ALERT) */}
         <div 
           onClick={() => setActiveDrilldownStage('MENDING_CHECKING')}
-          className="bg-white rounded-xl p-4 border border-slate-200 shadow-xs hover:shadow-md hover:border-amber-400 transition-all cursor-pointer flex flex-col justify-between group relative"
+          className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-black/25 transition-all cursor-pointer flex flex-col justify-between group relative shadow-2xs"
         >
           <div>
             <div className="flex items-center justify-between">
@@ -798,7 +798,7 @@ export default function DashboardClient({
         {/* STAGE 4: READY GOODS (FINISHED STOCK) */}
         <div 
           onClick={() => setActiveDrilldownStage('READY_GOODS')}
-          className="bg-white rounded-xl p-4 border border-slate-200 shadow-xs hover:shadow-md hover:border-emerald-400 transition-all cursor-pointer flex flex-col justify-between group relative"
+          className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-black/25 transition-all cursor-pointer flex flex-col justify-between group relative shadow-2xs"
         >
           <div>
             <div className="flex items-center justify-between">
@@ -828,7 +828,7 @@ export default function DashboardClient({
         {/* STAGE 5: RTO (RETURN TO ORIGIN / REJECTIONS) */}
         <div 
           onClick={() => setActiveDrilldownStage('RTO')}
-          className="bg-white rounded-xl p-4 border border-slate-200 shadow-xs hover:shadow-md hover:border-rose-400 transition-all cursor-pointer flex flex-col justify-between group relative"
+          className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-black/25 transition-all cursor-pointer flex flex-col justify-between group relative shadow-2xs"
         >
           <div>
             <div className="flex items-center justify-between">
@@ -858,7 +858,7 @@ export default function DashboardClient({
         {/* STAGE 6: READY FOR DELIVERY / DISPATCH */}
         <div 
           onClick={() => setActiveDrilldownStage('READY_DELIVERY')}
-          className="bg-white rounded-xl p-4 border border-slate-200 shadow-xs hover:shadow-md hover:border-purple-400 transition-all cursor-pointer flex flex-col justify-between group relative"
+          className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-black/25 transition-all cursor-pointer flex flex-col justify-between group relative shadow-2xs"
         >
           <div>
             <div className="flex items-center justify-between">
@@ -890,10 +890,10 @@ export default function DashboardClient({
       {/* ========================================================= */}
       {/* 3. LIVE VISUAL FLOW PIPELINE STEPPER BAR                   */}
       {/* ========================================================= */}
-      <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
+      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs">
         <div className="flex items-center justify-between pb-3 border-b border-slate-100">
           <div className="flex items-center gap-2">
-            <TrendingUp className="w-4 h-4 text-[#2B4C7E]" />
+            <TrendingUp className="w-4 h-4 text-[#3A3564]" />
             <h3 className="text-sm font-bold text-slate-800">
               Live Factory Conversion Flow (Order to Gate)
             </h3>
@@ -974,7 +974,7 @@ export default function DashboardClient({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
         {/* Active Floor Allotments Table (2 Cols) */}
-        <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 shadow-xs p-5">
+        <div className="lg:col-span-2 bg-white rounded-2xl border border-black/10 shadow-2xs p-5 sm:p-6">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <div>
               <h3 className="text-sm font-bold text-slate-800">
@@ -986,7 +986,7 @@ export default function DashboardClient({
             </div>
             <Link 
               href="/production-orders"
-              className="text-xs font-bold text-[var(--steel,#2B4C7E)] hover:underline inline-flex items-center gap-1"
+              className="text-xs font-bold text-[#3A3564] hover:underline inline-flex items-center gap-1"
             >
               View All Orders <ChevronRight className="w-3.5 h-3.5" />
             </Link>
@@ -995,7 +995,7 @@ export default function DashboardClient({
           <div className="mt-4 overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="border-b border-slate-100 text-[10px] font-bold uppercase tracking-wider text-slate-400 bg-slate-50">
+                <tr className="border-b border-slate-100 text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0]">
                   <th className="py-2.5 px-3">Article Style</th>
                   <th className="py-2.5 px-3">Challan / Order</th>
                   <th className="py-2.5 px-3">Lineman</th>
@@ -1056,7 +1056,7 @@ export default function DashboardClient({
         </div>
 
         {/* Live Recent Activity Feed (1 Col) */}
-        <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-5 flex flex-col justify-between">
+        <div className="bg-white rounded-2xl border border-black/10 shadow-2xs p-5 sm:p-6 flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <h3 className="text-sm font-bold text-slate-800">
@@ -1105,7 +1105,7 @@ export default function DashboardClient({
           <div className="pt-4 border-t border-slate-100 mt-4">
             <Link 
               href="/reports"
-              className="text-xs font-bold text-slate-600 hover:text-slate-900 inline-flex items-center justify-center gap-1.5 w-full py-2 bg-slate-50 rounded-lg border border-slate-200"
+              className="text-xs font-bold text-slate-700 hover:text-slate-900 inline-flex items-center justify-center gap-1.5 w-full py-2.5 bg-white hover:bg-slate-50 rounded-xl border border-black/15 shadow-2xs transition-all cursor-pointer"
             >
               <FileCheck2 className="w-3.5 h-3.5" /> Full Factory Audit Reports
             </Link>

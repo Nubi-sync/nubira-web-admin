@@ -28,7 +28,7 @@ const navSections: NavSection[] = [
   {
     section: 'Overview',
     items: [
-      { label: 'Dashboard', href: '/', icon: LayoutDashboard },
+      { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     ],
   },
   {
@@ -60,21 +60,20 @@ export function AdminSidebar({ userEmail = 'admin@nubira.local' }: { userEmail?:
 
   return (
     <aside 
-      className="w-[250px] shrink-0 min-h-screen h-screen sticky top-0 bg-white border-r flex flex-col justify-between z-30 transition-all duration-200"
-      style={{ borderColor: 'var(--border, #E2E8F0)' }}
+      className="w-[250px] shrink-0 min-h-screen h-screen sticky top-0 bg-white border-r border-slate-200 flex flex-col justify-between z-30 transition-all duration-200"
     >
       {/* Top Header / Brand Block */}
       <div>
-        <div className="p-4 pb-3.5 border-b flex items-center justify-between" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
-          <div className="h-9 px-3 rounded-lg bg-black text-white flex items-center justify-center shadow-xs border border-slate-800">
+        <div className="p-4 pb-3.5 border-b border-slate-200 flex items-center justify-between">
+          <Link href="/dashboard" className="flex items-center gap-2.5 group">
             <img 
-              src="/z_i_g_z_a.png" 
+              src="/z i g z a (1).png" 
               alt="zigza." 
-              className="h-5 w-auto object-contain"
+              className="h-7 w-auto object-contain rounded-md transition-opacity group-hover:opacity-85"
             />
-          </div>
+          </Link>
           <span 
-            className="text-[9px] font-extrabold tracking-[2px] uppercase px-1.5 py-0.5 rounded bg-[var(--steel-mist,#EEF3FA)] text-[var(--steel,#2B4C7E)] border border-[var(--steel-tint,#DBE6F5)]"
+            className="text-[10px] font-mono font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15"
           >
             ERP MES
           </span>
@@ -85,8 +84,7 @@ export function AdminSidebar({ userEmail = 'admin@nubira.local' }: { userEmail?:
           {navSections.map((group) => (
             <div key={group.section} className="space-y-1">
               <div 
-                className="px-3 text-[10px] font-bold uppercase tracking-[1.5px] mb-1.5"
-                style={{ color: 'var(--ink-faint, #8B9AAB)' }}
+                className="px-3 text-[10px] font-bold uppercase tracking-[1.5px] mb-1.5 text-slate-400 font-mono"
               >
                 {group.section}
               </div>
@@ -94,29 +92,28 @@ export function AdminSidebar({ userEmail = 'admin@nubira.local' }: { userEmail?:
               <div className="space-y-0.5">
                 {group.items.map((item) => {
                   const Icon = item.icon
-                  const isActive = item.href === '/' 
-                    ? pathname === '/' 
+                  const isActive = item.href === '/dashboard'
+                    ? pathname === '/dashboard' || pathname === '/'
                     : pathname.startsWith(item.href)
 
                   return (
                     <Link
                       key={item.href}
                       href={item.href}
-                      className={`relative flex items-center gap-2.5 px-3 py-2 rounded-[8px] text-[13.5px] transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[var(--steel,#2B4C7E)] ${
+                      className={`relative flex items-center gap-2.5 px-3 py-2 rounded-xl text-[13.5px] transition-all outline-none focus-visible:ring-2 focus-visible:ring-[#3A3564] ${
                         isActive
-                          ? 'font-semibold text-[var(--steel-dark,#1F3A63)] bg-[var(--steel-mist,#EEF3FA)]'
-                          : 'font-medium text-[var(--ink-soft,#5B6B7C)] hover:text-[var(--ink,#1C2733)] hover:bg-slate-50'
+                          ? 'font-bold text-[#3A3564] bg-[#FAF7F0] border border-black/10 shadow-2xs'
+                          : 'font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                       }`}
                     >
                       {/* Left 3px active accent bar */}
                       {isActive && (
                         <div 
-                          className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full"
-                          style={{ backgroundColor: 'var(--steel, #2B4C7E)' }}
+                          className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-[#3A3564]"
                         />
                       )}
 
-                      <Icon className={`w-[17px] h-[17px] shrink-0 ${isActive ? 'text-[var(--steel,#2B4C7E)]' : 'text-[var(--ink-soft,#5B6B7C)]'}`} />
+                      <Icon className={`w-[17px] h-[17px] shrink-0 ${isActive ? 'text-[#3A3564]' : 'text-slate-500'}`} />
                       <span className="truncate">{item.label}</span>
                     </Link>
                   )
@@ -129,27 +126,23 @@ export function AdminSidebar({ userEmail = 'admin@nubira.local' }: { userEmail?:
 
       {/* Bottom User Profile Block */}
       <div 
-        className="p-3.5 border-t bg-white flex items-center gap-3 shrink-0"
-        style={{ borderColor: 'var(--border, #E2E8F0)' }}
+        className="p-3.5 border-t border-slate-200 bg-[#FAFAF8] flex items-center gap-3 shrink-0"
       >
         <div 
-          className="w-8 h-8 rounded-full flex items-center justify-center text-white text-[12px] font-bold shrink-0 shadow-xs"
-          style={{ backgroundColor: 'var(--steel-dark, #1F3A63)' }}
+          className="w-8 h-8 rounded-full flex items-center justify-center text-white text-[12px] font-bold shrink-0 shadow-xs bg-[#3A3564]"
         >
           {initials}
         </div>
         
         <div className="flex flex-col min-w-0 flex-1">
           <span 
-            className="text-[12px] font-semibold truncate leading-tight"
-            style={{ color: 'var(--ink, #1C2733)' }}
+            className="text-[12px] font-bold text-slate-900 truncate leading-tight"
             title={userEmail}
           >
             {userEmail}
           </span>
           <span 
-            className="text-[10.5px] font-medium"
-            style={{ color: 'var(--ink-faint, #8B9AAB)' }}
+            className="text-[10.5px] font-mono text-slate-500"
           >
             Super Admin
           </span>
