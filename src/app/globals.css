@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
@@ -254,4 +255,63 @@ html {
   }
 }
 
+/* ============================================ */
+/* Animated Factory Outline Icons for Landing   */
+/* ============================================ */
+
+@keyframes heroScrewSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes heroGearSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-gear-fast {
+  animation: heroGearSpin 3s linear infinite;
+}
+
+/* Question & Exclamation Mark Header Animations */
+@keyframes questionTilt {
+  0%, 100% {
+    transform: rotate(-6deg) translateY(0px);
+  }
+  50% {
+    transform: rotate(4deg) translateY(-5px);
+  }
+}
+
+@keyframes exclamationPulse {
+  0%, 100% {
+    transform: scale(1) translateY(0px);
+  }
+  50% {
+    transform: scale(1.08) translateY(-4px);
+  }
+}
+
+.animate-question-tilt {
+  animation: questionTilt 3.2s ease-in-out infinite;
+  transform-origin: bottom center;
+}
+
+.animate-exclamation-pulse {
+  animation: exclamationPulse 2.6s ease-in-out infinite;
+  transform-origin: center center;
+}
+
+/* Handwritten Pencil Note Font */
+.font-pencil {
+  font-family: 'Caveat', cursive, sans-serif;
+}
 

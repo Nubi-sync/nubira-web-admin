@@ -33,7 +33,8 @@ import {
   MessageSquareCheck,
   Menu,
   Check,
-  Mail
+  Mail,
+  Settings
 } from 'lucide-react'
 
 function IndiaFlag({ className = "w-5 h-3.5" }: { className?: string }) {
@@ -346,11 +347,14 @@ ${demoForm.ownerName}`
             The Manufacturing OS for Modern <span className="text-[#3A3564] underline decoration-[#C8802B] decoration-4 underline-offset-8">Garment Factories</span>
           </h1>
 
-          {/* Subtitle: Body Large, Slate, capped line length */}
-          <p className="text-base sm:text-lg text-[#57564E] max-w-2xl mx-auto leading-relaxed font-normal">
-            Connect fabric roll inward, automated cutting matrices, smart lineman piece-rate allotments, 
-            live 3-stage QC, and buyer dispatch challans into one synchronized floor.
-          </p>
+          {/* Subtitle */}
+          <div className="relative max-w-2xl mx-auto">
+            {/* Subtitle: Body Large, Slate, capped line length */}
+            <p className="text-base sm:text-lg text-[#57564E] leading-relaxed font-normal">
+              Connect fabric roll inward, automated cutting matrices, smart lineman piece-rate allotments, 
+              live 3-stage QC, and buyer dispatch challans into one synchronized floor.
+            </p>
+          </div>
 
           {/* Hero Action Buttons: Deep Indigo primary + quiet Slate outline secondary */}
           <div className="pt-2 sm:pt-3 flex flex-col sm:flex-row items-center justify-center gap-3 px-4 sm:px-0">
@@ -523,7 +527,7 @@ ${demoForm.ownerName}`
       {/* =================================================================== */}
       {/* 3. PROBLEM VS. SOLUTION SECTION (TRADITIONAL VS. ZIGZA)            */}
       {/* =================================================================== */}
-      <section className="py-14 sm:py-20 bg-white border-y border-slate-200/80">
+      <section className="py-14 sm:py-20 bg-white border-y border-slate-200/80 relative overflow-hidden xl:overflow-visible">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
@@ -535,7 +539,73 @@ ${demoForm.ownerName}`
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 max-w-5xl mx-auto">
+          {/* Difference Table with Handwritten Pencil Notes & Curly Connecting Lines */}
+          <div className="relative max-w-5xl mx-auto">
+            {/* Red Handwritten Pencil Note & Curly Line on the Left (Desktop Only, Larger Readable Font + Sad Face Icon) */}
+            <div 
+              className="hidden xl:flex absolute -left-56 2xl:-left-64 top-6 flex-col items-end pointer-events-none select-none"
+              aria-hidden="true"
+            >
+              <div className="w-52 text-right font-pencil text-[28px] 2xl:text-[34px] font-bold text-rose-600 leading-tight -rotate-3 drop-shadow-2xs">
+                <span>Paper chaos & lost slips!</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8 text-rose-600 shrink-0 inline-block align-middle ml-1.5">
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M16 16s-1.5-2-4-2-4 2-4 2" />
+                  <line x1="9" y1="9" x2="9.01" y2="9" strokeWidth="3" />
+                  <line x1="15" y1="9" x2="15.01" y2="9" strokeWidth="3" />
+                </svg>
+              </div>
+              <svg width="120" height="65" viewBox="0 0 120 65" fill="none" className="mt-1 text-rose-500 overflow-visible">
+                <path 
+                  d="M 12 8 C 40 4, 55 30, 75 20 C 95 10, 85 50, 115 46" 
+                  stroke="currentColor" 
+                  strokeWidth="2.5" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                />
+                <path 
+                  d="M 105 40 L 117 46 L 110 56" 
+                  stroke="currentColor" 
+                  strokeWidth="2.5" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                />
+              </svg>
+            </div>
+
+            {/* Green Handwritten Pencil Note & Curly Line on the Right (Desktop Only, Larger Readable Font + Happy Face Icon) */}
+            <div 
+              className="hidden xl:flex absolute -right-56 2xl:-right-64 top-6 flex-col items-start pointer-events-none select-none"
+              aria-hidden="true"
+            >
+              <div className="w-52 text-left font-pencil text-[28px] 2xl:text-[34px] font-bold text-emerald-600 leading-tight rotate-2 drop-shadow-2xs">
+                <span>Zero chaos, total sync!</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8 text-emerald-600 shrink-0 inline-block align-middle ml-1.5">
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M8 14s1.5 2 4 2 4-2 4-2" />
+                  <line x1="9" y1="9" x2="9.01" y2="9" strokeWidth="3" />
+                  <line x1="15" y1="9" x2="15.01" y2="9" strokeWidth="3" />
+                </svg>
+              </div>
+              <svg width="120" height="65" viewBox="0 0 120 65" fill="none" className="mt-1 text-emerald-500 overflow-visible">
+                <path 
+                  d="M 108 8 C 80 4, 65 30, 45 20 C 25 10, 35 50, 5 46" 
+                  stroke="currentColor" 
+                  strokeWidth="2.5" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                />
+                <path 
+                  d="M 15 40 L 3 46 L 10 56" 
+                  stroke="currentColor" 
+                  strokeWidth="2.5" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                />
+              </svg>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
             
             {/* Traditional Challenges Card: Darker Rose Outline with Generous Spacing */}
             <div className="bg-white rounded-2xl border-2 border-rose-400 p-6 sm:p-8">
@@ -640,7 +710,7 @@ ${demoForm.ownerName}`
                 </div>
               </div>
             </div>
-
+            </div>
           </div>
 
         </div>
