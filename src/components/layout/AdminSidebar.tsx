@@ -96,15 +96,14 @@ export function AdminSidebar({
       : pathname.startsWith(href)
 
     if (isCurrentActive) {
+      e.preventDefault()
       onMobileClose?.()
       return
     }
 
-    e.preventDefault()
+    // Immediate visual state and drawer close; Next.js Link handles native instant prefetch & transition
     setNavigatingTo(href)
-    startTransition(() => {
-      router.push(href)
-    })
+    onMobileClose?.()
   }
 
   // Render navigation item
@@ -113,12 +112,13 @@ export function AdminSidebar({
     const isActive = item.href === '/dashboard'
       ? pathname === '/dashboard' || pathname === '/'
       : pathname.startsWith(item.href)
-    const isLoading = (navigatingTo === item.href) && isPending
+    const isLoading = navigatingTo === item.href
 
     return (
       <Link
         key={item.href}
         href={item.href}
+        prefetch={true}
         onClick={(e) => handleNavClick(e, item.href)}
         title={!isExpanded ? item.label : undefined}
         className={`relative flex items-center rounded-xl text-sm transition-all outline-none focus-visible:ring-2 focus-visible:ring-[#3A3564] cursor-pointer ${

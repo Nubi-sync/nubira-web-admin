@@ -77,36 +77,42 @@ export async function getProductionOrders(): Promise<ChallanGroupedOrder[]> {
   const supabase = supabaseAdmin
 
   try {
-    // 1. Fetch all challans
-    const { data: challansList, error: chErr } = await supabase
-      .from('challans')
-      .select('*')
-      .order('created_at', { ascending: false })
+    // 1. Fetch all challans, allotments, materials & variants concurrently in parallel
+    const [
+      { data: challansList, error: chErr },
+      { data: allotments, error: alErr },
+      { data: materials },
+      { data: variants }
+    ] = await Promise.all([
+      supabase
+        .from('challans')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(100),
 
-    // 2. Fetch all allotments with joined data
-    const { data: allotments, error: alErr } = await supabase
-      .from('allotments')
-      .select(`
-        id,
-        challan_id,
-        target_qty,
-        allotment_date,
-        status,
-        created_at,
-        lineman_id,
-        profiles:lineman_id ( id, username ),
-        articles ( id, art_no, description, size_rates, stitching_rate )
-      `)
-      .order('created_at', { ascending: true })
+      supabase
+        .from('allotments')
+        .select(`
+          id,
+          challan_id,
+          target_qty,
+          allotment_date,
+          status,
+          created_at,
+          lineman_id,
+          profiles:lineman_id ( id, username ),
+          articles ( id, art_no, description, size_rates, stitching_rate )
+        `)
+        .order('created_at', { ascending: true }),
 
-    // 3. Fetch materials & variants for metadata extraction
-    const { data: materials } = await supabase
-      .from('allotment_materials')
-      .select('allotment_id, notes, item_name, required_qty')
+      supabase
+        .from('allotment_materials')
+        .select('allotment_id, notes, item_name, required_qty'),
 
-    const { data: variants } = await supabase
-      .from('allotment_variants')
-      .select('allotment_id, color, size, quantity, completed_qty')
+      supabase
+        .from('allotment_variants')
+        .select('allotment_id, color, size, quantity, completed_qty')
+    ])
 
     const challanGroups: ChallanGroupedOrder[] = []
 

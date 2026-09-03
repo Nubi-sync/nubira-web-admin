@@ -68,44 +68,48 @@ export default async function AllotmentsPage() {
   ])
 
   const allotmentIds = allotmentsRaw?.map(a => a.id) || []
-
-  // 4. Fetch variants for these allotments
-  let variants: any[] = []
-  if (allotmentIds.length > 0) {
-    const { data: vData } = await supabaseAdmin
-      .from('allotment_variants')
-      .select('id, allotment_id, color, size, quantity, completed_qty')
-      .in('allotment_id', allotmentIds)
-    variants = vData || []
-  }
-
-  // 5. Fetch materials for these allotments
-  let materials: any[] = []
-  if (allotmentIds.length > 0) {
-    const { data: mData } = await supabaseAdmin
-      .from('allotment_materials')
-      .select('id, allotment_id, item_name, required_qty, admin_issued, lineman_received, lineman_received_at, notes')
-      .in('allotment_id', allotmentIds)
-    materials = mData || []
-  }
-
-  // 5.1 Fetch live worker assignments for these allotments
-  let assignments: any[] = []
-  if (allotmentIds.length > 0) {
-    const { data: aData } = await supabaseAdmin
-      .from('worker_assignments')
-      .select('id, allotment_id, worker_name, assigned_qty, completed_qty, color, size, status, notes, assigned_at, completed_at')
-      .in('allotment_id', allotmentIds)
-      .order('assigned_at', { ascending: false })
-    assignments = aData || []
-  }
-
-  // 6. Calculate achieved_qty for each allotment based on daily_product
   const allotmentDates = [...new Set(allotmentsRaw?.map(a => a.allotment_date) || [])]
-  const { data: dailyProducts } = await supabaseAdmin
-    .from('daily_product')
-    .select('lineman_id, article_id, quantity, entry_date')
-    .in('entry_date', allotmentDates.length > 0 ? allotmentDates : [''])
+
+  // 4. Concurrently fetch variants, materials, worker assignments & production in parallel
+  const [
+    { data: vData },
+    { data: mData },
+    { data: aData },
+    { data: dailyProducts }
+  ] = await Promise.all([
+    allotmentIds.length > 0
+      ? supabaseAdmin
+          .from('allotment_variants')
+          .select('id, allotment_id, color, size, quantity, completed_qty')
+          .in('allotment_id', allotmentIds)
+      : Promise.resolve({ data: [] }),
+
+    allotmentIds.length > 0
+      ? supabaseAdmin
+          .from('allotment_materials')
+          .select('id, allotment_id, item_name, required_qty, admin_issued, lineman_received, lineman_received_at, notes')
+          .in('allotment_id', allotmentIds)
+      : Promise.resolve({ data: [] }),
+
+    allotmentIds.length > 0
+      ? supabaseAdmin
+          .from('worker_assignments')
+          .select('id, allotment_id, worker_name, assigned_qty, completed_qty, color, size, status, notes, assigned_at, completed_at')
+          .in('allotment_id', allotmentIds)
+          .order('assigned_at', { ascending: false })
+      : Promise.resolve({ data: [] }),
+
+    allotmentDates.length > 0
+      ? supabaseAdmin
+          .from('daily_product')
+          .select('lineman_id, article_id, quantity, entry_date')
+          .in('entry_date', allotmentDates)
+      : Promise.resolve({ data: [] })
+  ])
+
+  const variants = vData || []
+  const materials = mData || []
+  const assignments = aData || []
 
   const allotments = (allotmentsRaw || []).map(al => {
     const achieved = dailyProducts

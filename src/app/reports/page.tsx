@@ -39,7 +39,8 @@ export default async function ReportsPage() {
         article:articles(art_no, description)
       `)
       .order('entry_date', { ascending: false })
-      .order('created_at', { ascending: false }),
+      .order('created_at', { ascending: false })
+      .limit(400),
 
     supabase
       .from('qc_logs')
@@ -65,7 +66,8 @@ export default async function ReportsPage() {
         article:articles(art_no, description)
       `)
       .order('entry_date', { ascending: false })
-      .order('created_at', { ascending: false }),
+      .order('created_at', { ascending: false })
+      .limit(400),
 
     supabase
       .from('store_transactions')
@@ -78,7 +80,8 @@ export default async function ReportsPage() {
         party_name,
         article:articles(art_no, description)
       `)
-      .order('created_at', { ascending: false }),
+      .order('created_at', { ascending: false })
+      .limit(400),
 
     supabase
       .from('worker_assignments')
@@ -99,6 +102,7 @@ export default async function ReportsPage() {
       `)
       .order('entry_date', { ascending: false })
       .order('assigned_at', { ascending: false })
+      .limit(400)
   ])
 
   return (

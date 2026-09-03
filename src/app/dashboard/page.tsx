@@ -70,16 +70,19 @@ export default async function DashboardPage() {
         articles ( id, art_no, description, size_rates, stitching_rate ),
         challans ( id, challan_no, brand, fabric_type )
       `)
-      .order('created_at', { ascending: false }),
+      .order('created_at', { ascending: false })
+      .limit(200),
 
     supabaseAdmin
       .from('challans')
       .select('*')
-      .order('created_at', { ascending: false }),
+      .order('created_at', { ascending: false })
+      .limit(100),
 
     supabaseAdmin
       .from('article_variants')
-      .select('*'),
+      .select('*')
+      .limit(500),
 
     supabaseAdmin
       .from('production')
@@ -92,7 +95,8 @@ export default async function DashboardPage() {
         lineman_id,
         article:article_id ( id, art_no, description )
       `)
-      .order('created_at', { ascending: false }),
+      .order('created_at', { ascending: false })
+      .limit(200),
 
     supabaseAdmin
       .from('qc_inspections')
@@ -107,7 +111,8 @@ export default async function DashboardPage() {
         article_id,
         article:article_id ( id, art_no, description )
       `)
-      .order('created_at', { ascending: false }),
+      .order('created_at', { ascending: false })
+      .limit(200),
 
     supabaseAdmin
       .from('store_entries')
@@ -123,17 +128,20 @@ export default async function DashboardPage() {
         created_at,
         article:article_id ( art_no, description )
       `)
-      .order('created_at', { ascending: false }),
+      .order('created_at', { ascending: false })
+      .limit(200),
 
     supabaseAdmin
       .from('dispatch_challans')
       .select('*')
-      .order('created_at', { ascending: false }),
+      .order('created_at', { ascending: false })
+      .limit(100),
 
     supabaseAdmin
       .from('inventory_materials')
       .select('*')
       .order('created_at', { ascending: false })
+      .limit(200)
   ])
 
   // 9. Synthesize Multi-Stage Activity Stream

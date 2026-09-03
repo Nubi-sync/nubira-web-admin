@@ -17,11 +17,12 @@ export default async function InventoryPage() {
     redirect('/login')
   }
 
-  // Parallel concurrent data fetching
+  // Parallel concurrent data fetching for all 4 inventory datasets
   const [
     { data: articles },
     { data: storeTransactions },
-    { data: accessories }
+    { data: accessories },
+    { data: truckInwardsData }
   ] = await Promise.all([
     supabase
       .from('articles')
@@ -45,7 +46,8 @@ export default async function InventoryPage() {
         notes,
         article:articles(id, art_no, description)
       `)
-      .order('created_at', { ascending: false }),
+      .order('created_at', { ascending: false })
+      .limit(300),
 
     supabase
       .from('accessories')
@@ -61,12 +63,9 @@ export default async function InventoryPage() {
         notes
       `)
       .order('created_at', { ascending: false })
-  ])
+      .limit(300),
 
-  // 4. Fetch Truck & Accessory Challan Inwards (GRN)
-  let truckInwards: any[] = []
-  try {
-    const { data: tiData } = await supabase
+    supabase
       .from('truck_inwards')
       .select(`
         id,
@@ -96,10 +95,10 @@ export default async function InventoryPage() {
         )
       `)
       .order('created_at', { ascending: false })
-    if (tiData) truckInwards = tiData
-  } catch (err) {
-    console.error('truck_inwards fetch warning:', err)
-  }
+      .limit(100)
+  ])
+
+  const truckInwards = truckInwardsData || []
 
   return (
     <AdminShell userEmail={user.email}>

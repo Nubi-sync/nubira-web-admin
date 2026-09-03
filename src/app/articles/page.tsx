@@ -25,12 +25,14 @@ export default async function ArticlesPage() {
     supabase
       .from('articles')
       .select('*')
-      .order('created_at', { ascending: false }),
+      .order('created_at', { ascending: false })
+      .limit(300),
 
     supabase
       .from('rate_history')
       .select('*')
       .order('created_at', { ascending: false })
+      .limit(300)
   ])
 
   return (

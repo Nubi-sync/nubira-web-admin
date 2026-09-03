@@ -25,6 +25,7 @@ export default async function EmployeesPage() {
     .from('profiles')
     .select('*')
     .order('created_at', { ascending: false })
+    .limit(200)
 
   return (
     <AdminShell userEmail={user.email}>

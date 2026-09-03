@@ -54,7 +54,8 @@ export default async function DispatchPage() {
           article:articles(art_no, description)
         )
       `)
-      .order('created_at', { ascending: false }),
+      .order('created_at', { ascending: false })
+      .limit(200),
 
     supabase
       .from('counting_reports')
@@ -70,7 +71,8 @@ export default async function DispatchPage() {
         created_at,
         article:articles(art_no, description)
       `)
-      .order('created_at', { ascending: false }),
+      .order('created_at', { ascending: false })
+      .limit(200),
 
     supabase
       .from('allotments')
@@ -82,6 +84,7 @@ export default async function DispatchPage() {
         article:articles(art_no, description)
       `)
       .order('created_at', { ascending: false })
+      .limit(200)
   ])
 
   return (
