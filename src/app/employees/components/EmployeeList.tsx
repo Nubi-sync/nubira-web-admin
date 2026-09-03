@@ -238,14 +238,14 @@ export function EmployeeList({ employees }: { employees: Profile[] }) {
 
       {/* Table */}
       <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse text-xs sm:text-[13px]">
+        <table className="w-full text-left border-collapse text-xs sm:text-[13px] min-w-[660px]">
           <thead>
             <tr className="bg-[#FAF7F0] border-b border-black/10 text-xs font-mono uppercase tracking-wider font-bold text-slate-700">
               
               {/* Sortable Username */}
               <th 
                 onClick={toggleSort}
-                className="px-5 py-3.5 cursor-pointer hover:bg-slate-100 transition-colors select-none font-bold"
+                className="px-5 py-3.5 cursor-pointer hover:bg-slate-100 transition-colors select-none font-bold whitespace-nowrap min-w-[150px]"
               >
                 <div className="flex items-center gap-1.5">
                   <span>Username</span>
@@ -257,9 +257,9 @@ export function EmployeeList({ employees }: { employees: Profile[] }) {
                 </div>
               </th>
 
-              <th className="px-4 py-3.5 font-bold">Role Assignment</th>
-              <th className="px-4 py-3.5 font-bold">Status</th>
-              <th className="px-5 py-3.5 font-bold text-right">Actions</th>
+              <th className="px-4 py-3.5 font-bold whitespace-nowrap min-w-[190px]">Role Assignment</th>
+              <th className="px-4 py-3.5 font-bold whitespace-nowrap min-w-[100px]">Status</th>
+              <th className="px-5 py-3.5 font-bold text-right whitespace-nowrap min-w-[220px]">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
@@ -286,7 +286,7 @@ export function EmployeeList({ employees }: { employees: Profile[] }) {
                   <tr key={emp.id} className="hover:bg-slate-50/50 transition-colors">
                     
                     {/* Username */}
-                    <td className="px-5 py-3.5">
+                    <td className="px-5 py-3.5 whitespace-nowrap">
                       <div className="font-bold text-slate-900 text-sm flex items-center gap-2">
                         <span>{emp.username}</span>
                         {isAdminAccount && (
@@ -297,16 +297,16 @@ export function EmployeeList({ employees }: { employees: Profile[] }) {
                           </span>
                         )}
                       </div>
-                      <div className="text-xs text-slate-500 font-mono mt-0.5">
+                      <div className="text-xs text-slate-500 font-mono mt-0.5 whitespace-nowrap">
                         Created {emp.created_at?.split('T')[0]}
                       </div>
                     </td>
 
                     {/* Role Dropdown / Badge */}
-                    <td className="px-4 py-3.5">
+                    <td className="px-4 py-3.5 whitespace-nowrap">
                       {isAdminAccount ? (
                         <span 
-                          className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-bold shadow-2xs"
+                          className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-bold shadow-2xs"
                           style={{ backgroundColor: roleBadge.bg, color: roleBadge.text }}
                         >
                           {roleBadge.label}
@@ -330,72 +330,74 @@ export function EmployeeList({ employees }: { employees: Profile[] }) {
                     </td>
 
                     {/* Status Badge */}
-                    <td className="px-4 py-3.5">
+                    <td className="px-4 py-3.5 whitespace-nowrap">
                       <span 
-                        className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold border ${
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border ${
                           emp.is_active 
                             ? 'bg-emerald-50 text-emerald-800 border-emerald-200' 
                             : 'bg-slate-100 text-slate-600 border-slate-200'
                         }`}
                       >
-                        {emp.is_active ? 'Active' : 'Inactive'}
+                        <span className={`w-1.5 h-1.5 rounded-full ${emp.is_active ? 'bg-emerald-500' : 'bg-slate-400'}`} />
+                        <span>{emp.is_active ? 'Active' : 'Inactive'}</span>
                       </span>
                     </td>
 
                     {/* Actions */}
-                    <td className="px-5 py-3.5 text-right space-x-2">
-                      {/* Reset Password */}
-                      {isAdminAccount ? (
-                        <span 
-                          className="text-xs font-semibold px-3 py-1.5 rounded-lg text-slate-400 bg-slate-100 opacity-60 inline-flex items-center gap-1.5 cursor-not-allowed"
-                          title="Primary Admin credentials are protected"
-                        >
-                          <KeyRound className="w-3.5 h-3.5 text-slate-400" />
-                          <span>Protected</span>
-                        </span>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setSelectedEmp(emp)
-                            setNewPassword('')
-                            setResetError(null)
-                            setResetSuccess(false)
-                          }}
-                          className="text-xs font-bold px-3 py-1.5 rounded-lg border border-black/10 bg-[#FAF7F0] hover:bg-slate-100 text-[#3A3564] transition-all inline-flex items-center gap-1.5 cursor-pointer shadow-2xs"
-                        >
-                          <KeyRound className="w-3.5 h-3.5 text-[#3A3564]" />
-                          <span>Reset Password</span>
-                        </button>
-                      )}
-
-                      {/* Deactivate / Activate Button */}
-                      {!isAdminAccount && (
-                        <>
-                          <button
-                            type="button"
-                            onClick={() => setToggleDialog({ isOpen: true, employee: emp })}
-                            disabled={loadingId === emp.id}
-                            className={`text-xs font-bold px-3 py-1.5 rounded-lg border transition-all cursor-pointer disabled:opacity-50 shadow-2xs ${
-                              emp.is_active
-                                ? 'text-amber-900 bg-amber-50 border-amber-300 hover:bg-amber-100'
-                                : 'text-emerald-800 bg-emerald-50 border-emerald-300 hover:bg-emerald-100'
-                            }`}
+                    <td className="px-5 py-3.5 text-right whitespace-nowrap">
+                      <div className="flex items-center justify-end gap-1.5 whitespace-nowrap">
+                        {/* Reset Password */}
+                        {isAdminAccount ? (
+                          <span 
+                            className="text-xs font-semibold px-3 py-1.5 rounded-lg text-slate-400 bg-slate-50 border border-slate-200/60 inline-flex items-center gap-1.5 cursor-not-allowed select-none"
+                            title="Primary Admin credentials are protected"
                           >
-                            {emp.is_active ? 'Deactivate' : 'Activate'}
-                          </button>
+                            <KeyRound className="w-3.5 h-3.5 text-slate-400" />
+                            <span>Protected</span>
+                          </span>
+                        ) : (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSelectedEmp(emp)
+                                setNewPassword('')
+                                setResetError(null)
+                                setResetSuccess(false)
+                              }}
+                              className="text-xs font-bold px-2.5 py-1.5 rounded-lg border border-black/10 bg-[#FAF7F0] hover:bg-slate-100 text-[#3A3564] transition-all inline-flex items-center gap-1.5 cursor-pointer shadow-2xs shrink-0"
+                            >
+                              <KeyRound className="w-3.5 h-3.5 text-[#3A3564]" />
+                              <span>Reset Password</span>
+                            </button>
 
-                          <button
-                            type="button"
-                            onClick={() => setDeleteDialog({ isOpen: true, employee: emp })}
-                            disabled={loadingId === emp.id}
-                            className="p-2 rounded-lg border border-rose-200 text-rose-600 bg-rose-50 hover:bg-rose-100 transition-all cursor-pointer disabled:opacity-50 shadow-2xs"
-                            title="Permanently delete user"
-                          >
-                            <Trash2 className="w-3.5 h-3.5 inline" />
-                          </button>
-                        </>
-                      )}
+                            {/* Deactivate / Activate Button */}
+                            <button
+                              type="button"
+                              onClick={() => setToggleDialog({ isOpen: true, employee: emp })}
+                              disabled={loadingId === emp.id}
+                              className={`text-xs font-bold px-2.5 py-1.5 rounded-lg border transition-all cursor-pointer disabled:opacity-50 shadow-2xs shrink-0 ${
+                                emp.is_active
+                                  ? 'text-amber-900 bg-amber-50 border-amber-300 hover:bg-amber-100'
+                                  : 'text-emerald-800 bg-emerald-50 border-emerald-300 hover:bg-emerald-100'
+                              }`}
+                            >
+                              {emp.is_active ? 'Deactivate' : 'Activate'}
+                            </button>
+
+                            {/* Delete Button */}
+                            <button
+                              type="button"
+                              onClick={() => setDeleteDialog({ isOpen: true, employee: emp })}
+                              disabled={loadingId === emp.id}
+                              className="p-1.5 rounded-lg border border-rose-200 text-rose-600 bg-rose-50 hover:bg-rose-100 transition-all cursor-pointer disabled:opacity-50 shadow-2xs shrink-0"
+                              title="Permanently delete user"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </>
+                        )}
+                      </div>
                     </td>
 
                   </tr>

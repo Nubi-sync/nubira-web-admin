@@ -14,11 +14,11 @@ export function AiCopilotWidget() {
   }
 
   return (
-    <div className="fixed bottom-6 right-6 sm:bottom-7 sm:right-7 z-40 animate-in fade-in duration-200">
+    <div className="fixed bottom-9 right-9 sm:bottom-10 sm:right-10 z-40 animate-in fade-in duration-200">
       <button
         type="button"
         onClick={() => router.push('/zigza-ai')}
-        className="inline-flex items-center gap-2.5 px-3.5 py-2.5 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl shadow-lg shadow-[#3A3564]/25 hover:shadow-xl hover:shadow-[#3A3564]/35 transition-all cursor-pointer border border-white/20 group hover:scale-[1.03] active:scale-[0.97] select-none ring-2 ring-[#3A3564]/15 shrink-0"
+        className="inline-flex items-center gap-3 px-4 py-3 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-2xl shadow-xl shadow-[#3A3564]/30 hover:shadow-2xl hover:shadow-[#3A3564]/40 transition-all cursor-pointer border border-white/20 group hover:scale-[1.03] active:scale-[0.97] select-none ring-2 ring-[#3A3564]/15 shrink-0"
         aria-label="Open Zigza AI"
       >
         <div className="relative flex items-center justify-center shrink-0">
@@ -28,7 +28,7 @@ export function AiCopilotWidget() {
             <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
           </span>
         </div>
-        <span className="text-[13.5px] font-bold tracking-tight font-[family-name:var(--font-heading)] text-white whitespace-nowrap leading-none">
+        <span className="text-[14.5px] sm:text-[15px] font-bold tracking-tight font-[family-name:var(--font-heading)] text-white whitespace-nowrap leading-none">
           Zigza AI
         </span>
       </button>
