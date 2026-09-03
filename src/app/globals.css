@@ -242,7 +242,7 @@ html {
 /* Print: hide sidebar, mobile nav, TV bar */
 @media print {
   aside,
-  .lg\\:hidden,
+  .lg\:hidden,
   header.sticky {
     display: none !important;
   }
