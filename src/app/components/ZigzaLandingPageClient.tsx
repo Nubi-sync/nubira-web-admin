@@ -1322,7 +1322,10 @@ ${demoForm.ownerName}`
                   <label className="text-sm sm:text-base font-bold text-slate-900">
                     Monthly Garment Output
                   </label>
-                  <span className="px-3 py-1 rounded-lg bg-[#FAF7F0] border border-black/15 text-slate-900 font-mono font-bold text-sm sm:text-base tabular-nums">
+                  <span
+                    key={monthlyPieces}
+                    className="px-3 py-1 rounded-lg bg-[#FAF7F0] border border-black/15 text-slate-900 font-mono font-bold text-sm sm:text-base tabular-nums animate-digit-pop"
+                  >
                     {monthlyPieces.toLocaleString()} pcs
                   </span>
                 </div>
@@ -1334,7 +1337,7 @@ ${demoForm.ownerName}`
                   step="5000"
                   value={monthlyPieces}
                   onChange={e => setMonthlyPieces(Number(e.target.value))}
-                  className="w-full h-2.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-[#3A3564] border border-black/10"
+                  className="w-full h-2.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-[#3A3564] border border-black/10 md:hover:accent-[#2A2649] transition-all"
                 />
                 
                 <div className="flex justify-between text-[11px] text-slate-500 font-mono tabular-nums mt-1.5">
@@ -1370,7 +1373,10 @@ ${demoForm.ownerName}`
                   <label className="text-sm sm:text-base font-bold text-slate-900">
                     Active Stitching Linemen
                   </label>
-                  <span className="px-3 py-1 rounded-lg bg-[#FAF7F0] border border-black/15 text-slate-900 font-mono font-bold text-sm sm:text-base tabular-nums">
+                  <span
+                    key={linemenCount}
+                    className="px-3 py-1 rounded-lg bg-[#FAF7F0] border border-black/15 text-slate-900 font-mono font-bold text-sm sm:text-base tabular-nums animate-digit-pop"
+                  >
                     {linemenCount} operators
                   </span>
                 </div>
@@ -1382,7 +1388,7 @@ ${demoForm.ownerName}`
                   step="1"
                   value={linemenCount}
                   onChange={e => setLinemenCount(Number(e.target.value))}
-                  className="w-full h-2.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-[#3A3564] border border-black/10"
+                  className="w-full h-2.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-[#3A3564] border border-black/10 md:hover:accent-[#2A2649] transition-all"
                 />
                 
                 <div className="flex justify-between text-[11px] text-slate-500 font-mono tabular-nums mt-1.5">
@@ -1430,7 +1436,10 @@ ${demoForm.ownerName}`
                   {/* Metric 1 */}
                   <div className="bg-white p-3.5 rounded-xl border border-black/10">
                     <span className="text-[11px] font-medium text-slate-500 block">Floor Hours Saved</span>
-                    <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 font-mono tabular-nums mt-1">
+                    <p
+                      key={estimatedHoursSaved}
+                      className="text-2xl sm:text-3xl font-extrabold text-slate-900 font-mono tabular-nums mt-1 animate-digit-pop"
+                    >
                       ~{estimatedHoursSaved}h
                     </p>
                     <span className="text-[10px] text-slate-400 mt-1 block">per month</span>
@@ -1447,9 +1456,9 @@ ${demoForm.ownerName}`
                 </div>
 
                 {/* Zero Mismatch Guarantee Note */}
-                <div className="bg-white p-3.5 rounded-xl border border-black/10">
+                <div className="group bg-white p-3.5 rounded-xl border border-black/10 cursor-default">
                   <span className="font-bold text-slate-900 text-xs flex items-center gap-1.5 mb-1">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-[#3A3564]" />
+                    <CheckCircle2 className="w-3.5 h-3.5 text-[#3A3564] md:group-hover:text-emerald-600 md:group-hover:scale-115 transition-all" />
                     Zero Ghost Piece Guarantee
                   </span>
                   <p className="text-[11.5px] leading-relaxed text-slate-600">
@@ -1461,10 +1470,10 @@ ${demoForm.ownerName}`
               <button
                 type="button"
                 onClick={() => setIsDemoModalOpen(true)}
-                className="w-full py-3.5 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-sm font-bold transition-all shadow-sm hover:shadow-md cursor-pointer flex items-center justify-center gap-2"
+                className="group w-full py-3.5 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-sm font-bold transition-all shadow-sm hover:shadow-md cursor-pointer flex items-center justify-center gap-2"
               >
                 <span>Schedule Free Factory Audit</span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-4 h-4 transition-transform duration-200 md:group-hover:translate-x-1" />
               </button>
             </div>
 
