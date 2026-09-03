@@ -315,11 +315,11 @@ html {
   font-family: 'Caveat', cursive, sans-serif;
 }
 
-/* Subtle, Professional Desktop Tab Sliding Pop-In Transition (240ms ease-out) */
+/* Role Tab Sliding Pop-In Transition (Calm & Composed, 480ms, Desktop Only) */
 @keyframes roleTabSlidePop {
   0% {
-    opacity: 0.2;
-    transform: translateX(14px) scale(0.995);
+    opacity: 0;
+    transform: translateX(24px) scale(0.992);
   }
   100% {
     opacity: 1;
@@ -327,9 +327,12 @@ html {
   }
 }
 
-.animate-tab-slide-pop {
-  animation: roleTabSlidePop 240ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  will-change: transform, opacity;
+@media (min-width: 768px) {
+  .role-tab-animated-pane {
+    animation: roleTabSlidePop 480ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    will-change: transform, opacity;
+  }
 }
+
 
 

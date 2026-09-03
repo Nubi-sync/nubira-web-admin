@@ -1040,7 +1040,7 @@ ${demoForm.ownerName}`
 
         {/* Role Showcase Card: Slim black outline, 2-column layout with real floor UI mockup */}
         <div className="max-w-5xl mx-auto bg-white border border-black rounded-2xl p-6 sm:p-8 lg:p-10 shadow-sm transition-all overflow-hidden">
-          <div key={activeRoleTab} className="md:animate-tab-slide-pop">
+          <div key={activeRoleTab} className="role-tab-animated-pane">
             {activeRoleTab === 'MD' && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
               <div className="lg:col-span-7 space-y-4">
