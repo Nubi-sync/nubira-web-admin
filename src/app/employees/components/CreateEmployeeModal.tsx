@@ -101,6 +101,8 @@ export function CreateEmployeeModal({ isOpen, onClose, onSuccess }: CreateEmploy
               value={formData.role}
               onChange={(e) => setFormData({ ...formData, role: e.target.value })}
             >
+              <option value="PRODUCTION_MANAGER">Production Manager (Live Floor & Pipeline)</option>
+              <option value="MENDING">Mending (Matrix Counting & Trimming)</option>
               <option value="LINEMAN">Lineman</option>
               <option value="PRODUCTION">QC Inspector (Production)</option>
               <option value="STORE">Store Manager</option>
