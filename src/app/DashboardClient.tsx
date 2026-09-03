@@ -127,6 +127,8 @@ type ChallanItem = {
   challan_no: string
   brand?: string
   fabric_type?: string
+  total_pcs?: number
+  total_sets?: number
   created_at: string
 }
 
@@ -444,8 +446,15 @@ export default function DashboardClient({
 
   // 3. Compute the 6 Core Factory Lifecycle Numbers
   const metrics = useMemo(() => {
-    // 1. Total Stocks (Total Target Pieces in Pipeline)
-    const totalStocks = filteredData.allotments.reduce((sum, al) => sum + (al.target_qty || 0), 0)
+    // 1. Total Stocks (Total Target Pieces in Pipeline from Challans + Standalone Direct Allotments)
+    const challanTotalPcs = challans.reduce((sum, c) => sum + (Number(c.total_pcs) || 0), 0)
+    const directAllotmentPcs = filteredData.allotments
+      .filter(al => !al.challan_id)
+      .reduce((sum, al) => sum + (al.target_qty || 0), 0)
+
+    const totalStocks = challanTotalPcs > 0
+      ? (challanTotalPcs + directAllotmentPcs)
+      : filteredData.allotments.reduce((sum, al) => sum + (al.target_qty || 0), 0)
 
     // 2. Production / Sewing Counts
     const totalProduced = filteredData.production.reduce((sum, p) => sum + (p.quantity || 0), 0)
