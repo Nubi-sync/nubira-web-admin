@@ -732,26 +732,35 @@ ${demoForm.ownerName}`
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 items-stretch">
           
           {/* Module 1: Store GRN */}
-          <div className="bg-white rounded-2xl border border-slate-200 hover:border-black p-6 sm:p-7 transition-colors flex flex-col justify-between h-full">
+          <div className="group relative bg-white rounded-2xl border border-slate-200 hover:border-black/60 p-6 sm:p-7 transition-all duration-300 hover:shadow-md hover:-translate-y-1 active:scale-[0.99] flex flex-col justify-between h-full overflow-hidden cursor-default">
             <div>
-              <div className="flex items-center justify-between gap-3 pb-3 mb-5 border-b-2 border-[#3A3564]">
-                <h3 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
-                  Truck Inward & Store GRN
-                </h3>
-                <Truck className="w-5 h-5 text-[#3A3564] shrink-0" />
+              <div className="relative pb-3 mb-5 border-b-2 border-[#3A3564]/20 overflow-hidden">
+                <div className="flex items-center justify-between gap-3">
+                  <h3 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
+                    Truck Inward & Store GRN
+                  </h3>
+                  <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] border border-black/10 flex items-center justify-center shrink-0 group-hover:border-[#3A3564]/30 group-hover:bg-[#3A3564]/5 transition-all duration-300">
+                    <Truck className="w-4.5 h-4.5 text-[#3A3564] shrink-0 transition-transform duration-300 group-hover:translate-x-1 group-active:translate-x-1" />
+                  </div>
+                </div>
+
+                {/* Optical Barcode / Seam Laser Scanner Beam */}
+                <div className="absolute bottom-0 left-0 w-full h-[2px] overflow-hidden pointer-events-none">
+                  <div className="laser-scan-line h-full w-24 bg-gradient-to-r from-transparent via-[#C8802B] to-[#3A3564]" />
+                </div>
               </div>
 
               <ul className="space-y-3 text-sm text-slate-600">
                 <li className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5 stroke-[2.5]" />
+                  <Check className="w-4 h-4 text-[#3A3564] group-hover:text-emerald-700 transition-colors duration-200 shrink-0 mt-0.5 stroke-[2.5]" />
                   <span>Photo capture for supplier delivery challans</span>
                 </li>
                 <li className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5 stroke-[2.5]" />
+                  <Check className="w-4 h-4 text-[#3A3564] group-hover:text-emerald-700 transition-colors duration-200 shrink-0 mt-0.5 stroke-[2.5]" />
                   <span>Fabric roll barcode tracking (Sinker, Rib, Lycra)</span>
                 </li>
                 <li className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5 stroke-[2.5]" />
+                  <Check className="w-4 h-4 text-[#3A3564] group-hover:text-emerald-700 transition-colors duration-200 shrink-0 mt-0.5 stroke-[2.5]" />
                   <span>Live trims & accessories balance reconciliation</span>
                 </li>
               </ul>
@@ -759,26 +768,35 @@ ${demoForm.ownerName}`
           </div>
 
           {/* Module 2: Excel Ingestion */}
-          <div className="bg-white rounded-2xl border border-slate-200 hover:border-black p-6 sm:p-7 transition-colors flex flex-col justify-between h-full">
+          <div className="group relative bg-white rounded-2xl border border-slate-200 hover:border-black/60 p-6 sm:p-7 transition-all duration-300 hover:shadow-md hover:-translate-y-1 active:scale-[0.99] flex flex-col justify-between h-full overflow-hidden cursor-default">
             <div>
-              <div className="flex items-center justify-between gap-3 pb-3 mb-5 border-b-2 border-[#3A3564]">
-                <h3 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
-                  1-Click Excel Ingestion
-                </h3>
-                <FileSpreadsheet className="w-5 h-5 text-[#3A3564] shrink-0" />
+              <div className="relative pb-3 mb-5 border-b-2 border-[#3A3564]/20 overflow-hidden">
+                <div className="flex items-center justify-between gap-3">
+                  <h3 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
+                    1-Click Excel Ingestion
+                  </h3>
+                  <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] border border-black/10 flex items-center justify-center shrink-0 group-hover:border-[#3A3564]/30 group-hover:bg-[#3A3564]/5 transition-all duration-300">
+                    <FileSpreadsheet className="w-4.5 h-4.5 text-[#3A3564] shrink-0 transition-transform duration-300 group-hover:-translate-y-1 group-active:-translate-y-1" />
+                  </div>
+                </div>
+
+                {/* Optical Barcode / Seam Laser Scanner Beam */}
+                <div className="absolute bottom-0 left-0 w-full h-[2px] overflow-hidden pointer-events-none">
+                  <div className="laser-scan-line h-full w-24 bg-gradient-to-r from-transparent via-[#C8802B] to-[#3A3564]" />
+                </div>
               </div>
 
               <ul className="space-y-3 text-sm text-slate-600">
                 <li className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5 stroke-[2.5]" />
+                  <Check className="w-4 h-4 text-[#3A3564] group-hover:text-emerald-700 transition-colors duration-200 shrink-0 mt-0.5 stroke-[2.5]" />
                   <span>Direct import of buyer purchase spreadsheets</span>
                 </li>
                 <li className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5 stroke-[2.5]" />
+                  <Check className="w-4 h-4 text-[#3A3564] group-hover:text-emerald-700 transition-colors duration-200 shrink-0 mt-0.5 stroke-[2.5]" />
                   <span>Auto-calculated size & color breakdown matrix</span>
                 </li>
                 <li className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5 stroke-[2.5]" />
+                  <Check className="w-4 h-4 text-[#3A3564] group-hover:text-emerald-700 transition-colors duration-200 shrink-0 mt-0.5 stroke-[2.5]" />
                   <span>Zero manual entry errors or ratio mismatches</span>
                 </li>
               </ul>
@@ -786,26 +804,35 @@ ${demoForm.ownerName}`
           </div>
 
           {/* Module 3: Smart Allotment & Wages */}
-          <div className="bg-white rounded-2xl border border-slate-200 hover:border-black p-6 sm:p-7 transition-colors flex flex-col justify-between h-full">
+          <div className="group relative bg-white rounded-2xl border border-slate-200 hover:border-black/60 p-6 sm:p-7 transition-all duration-300 hover:shadow-md hover:-translate-y-1 active:scale-[0.99] flex flex-col justify-between h-full overflow-hidden cursor-default">
             <div>
-              <div className="flex items-center justify-between gap-3 pb-3 mb-5 border-b-2 border-[#3A3564]">
-                <h3 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
-                  Smart Allotment & Wages
-                </h3>
-                <Scissors className="w-5 h-5 text-[#3A3564] shrink-0" />
+              <div className="relative pb-3 mb-5 border-b-2 border-[#3A3564]/20 overflow-hidden">
+                <div className="flex items-center justify-between gap-3">
+                  <h3 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
+                    Smart Allotment & Wages
+                  </h3>
+                  <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] border border-black/10 flex items-center justify-center shrink-0 group-hover:border-[#3A3564]/30 group-hover:bg-[#3A3564]/5 transition-all duration-300">
+                    <Scissors className="w-4.5 h-4.5 text-[#3A3564] shrink-0 transition-transform duration-300 group-hover:-rotate-12 group-active:-rotate-12" />
+                  </div>
+                </div>
+
+                {/* Optical Barcode / Seam Laser Scanner Beam */}
+                <div className="absolute bottom-0 left-0 w-full h-[2px] overflow-hidden pointer-events-none">
+                  <div className="laser-scan-line h-full w-24 bg-gradient-to-r from-transparent via-[#C8802B] to-[#3A3564]" />
+                </div>
               </div>
 
               <ul className="space-y-3 text-sm text-slate-600">
                 <li className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5 stroke-[2.5]" />
+                  <Check className="w-4 h-4 text-[#3A3564] group-hover:text-emerald-700 transition-colors duration-200 shrink-0 mt-0.5 stroke-[2.5]" />
                   <span>Lot allotment across linemen by color & size</span>
                 </li>
                 <li className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5 stroke-[2.5]" />
+                  <Check className="w-4 h-4 text-[#3A3564] group-hover:text-emerald-700 transition-colors duration-200 shrink-0 mt-0.5 stroke-[2.5]" />
                   <span>Real-time QR barcode scan per stitched unit</span>
                 </li>
                 <li className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5 stroke-[2.5]" />
+                  <Check className="w-4 h-4 text-[#3A3564] group-hover:text-emerald-700 transition-colors duration-200 shrink-0 mt-0.5 stroke-[2.5]" />
                   <span>Automated, dispute-free piece-rate wage ledger</span>
                 </li>
               </ul>
@@ -813,26 +840,35 @@ ${demoForm.ownerName}`
           </div>
 
           {/* Module 4: Mobile Floor Supervisor */}
-          <div className="bg-white rounded-2xl border border-slate-200 hover:border-black p-6 sm:p-7 transition-colors flex flex-col justify-between h-full">
+          <div className="group relative bg-white rounded-2xl border border-slate-200 hover:border-black/60 p-6 sm:p-7 transition-all duration-300 hover:shadow-md hover:-translate-y-1 active:scale-[0.99] flex flex-col justify-between h-full overflow-hidden cursor-default">
             <div>
-              <div className="flex items-center justify-between gap-3 pb-3 mb-5 border-b-2 border-[#3A3564]">
-                <h3 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
-                  Mobile Floor Supervisor
-                </h3>
-                <Smartphone className="w-5 h-5 text-[#3A3564] shrink-0" />
+              <div className="relative pb-3 mb-5 border-b-2 border-[#3A3564]/20 overflow-hidden">
+                <div className="flex items-center justify-between gap-3">
+                  <h3 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
+                    Mobile Floor Supervisor
+                  </h3>
+                  <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] border border-black/10 flex items-center justify-center shrink-0 group-hover:border-[#3A3564]/30 group-hover:bg-[#3A3564]/5 transition-all duration-300">
+                    <Smartphone className="w-4.5 h-4.5 text-[#3A3564] shrink-0 transition-transform duration-300 group-hover:rotate-6 group-active:rotate-6" />
+                  </div>
+                </div>
+
+                {/* Optical Barcode / Seam Laser Scanner Beam */}
+                <div className="absolute bottom-0 left-0 w-full h-[2px] overflow-hidden pointer-events-none">
+                  <div className="laser-scan-line h-full w-24 bg-gradient-to-r from-transparent via-[#C8802B] to-[#3A3564]" />
+                </div>
               </div>
 
               <ul className="space-y-3 text-sm text-slate-600">
                 <li className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5 stroke-[2.5]" />
+                  <Check className="w-4 h-4 text-[#3A3564] group-hover:text-emerald-700 transition-colors duration-200 shrink-0 mt-0.5 stroke-[2.5]" />
                   <span>Fast scanner companion for Android smartphones</span>
                 </li>
                 <li className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5 stroke-[2.5]" />
+                  <Check className="w-4 h-4 text-[#3A3564] group-hover:text-emerald-700 transition-colors duration-200 shrink-0 mt-0.5 stroke-[2.5]" />
                   <span>Continuous offline logging during WiFi dropouts</span>
                 </li>
                 <li className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5 stroke-[2.5]" />
+                  <Check className="w-4 h-4 text-[#3A3564] group-hover:text-emerald-700 transition-colors duration-200 shrink-0 mt-0.5 stroke-[2.5]" />
                   <span>Live line output pace & bottleneck alerts</span>
                 </li>
               </ul>
@@ -840,26 +876,35 @@ ${demoForm.ownerName}`
           </div>
 
           {/* Module 5: 3-Stage Quality Control */}
-          <div className="bg-white rounded-2xl border border-slate-200 hover:border-black p-6 sm:p-7 transition-colors flex flex-col justify-between h-full">
+          <div className="group relative bg-white rounded-2xl border border-slate-200 hover:border-black/60 p-6 sm:p-7 transition-all duration-300 hover:shadow-md hover:-translate-y-1 active:scale-[0.99] flex flex-col justify-between h-full overflow-hidden cursor-default">
             <div>
-              <div className="flex items-center justify-between gap-3 pb-3 mb-5 border-b-2 border-[#3A3564]">
-                <h3 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
-                  3-Stage Quality Control
-                </h3>
-                <ClipboardCheck className="w-5 h-5 text-[#3A3564] shrink-0" />
+              <div className="relative pb-3 mb-5 border-b-2 border-[#3A3564]/20 overflow-hidden">
+                <div className="flex items-center justify-between gap-3">
+                  <h3 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
+                    3-Stage Quality Control
+                  </h3>
+                  <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] border border-black/10 flex items-center justify-center shrink-0 group-hover:border-[#3A3564]/30 group-hover:bg-[#3A3564]/5 transition-all duration-300">
+                    <ClipboardCheck className="w-4.5 h-4.5 text-[#3A3564] shrink-0 transition-transform duration-300 group-hover:scale-110 group-active:scale-110" />
+                  </div>
+                </div>
+
+                {/* Optical Barcode / Seam Laser Scanner Beam */}
+                <div className="absolute bottom-0 left-0 w-full h-[2px] overflow-hidden pointer-events-none">
+                  <div className="laser-scan-line h-full w-24 bg-gradient-to-r from-transparent via-[#C8802B] to-[#3A3564]" />
+                </div>
               </div>
 
               <ul className="space-y-3 text-sm text-slate-600">
                 <li className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5 stroke-[2.5]" />
+                  <Check className="w-4 h-4 text-[#3A3564] group-hover:text-emerald-700 transition-colors duration-200 shrink-0 mt-0.5 stroke-[2.5]" />
                   <span>1-Tap defect tagging at lightbox checkpoints</span>
                 </li>
                 <li className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5 stroke-[2.5]" />
+                  <Check className="w-4 h-4 text-[#3A3564] group-hover:text-emerald-700 transition-colors duration-200 shrink-0 mt-0.5 stroke-[2.5]" />
                   <span>Instant alteration routing directly back to tailors</span>
                 </li>
                 <li className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5 stroke-[2.5]" />
+                  <Check className="w-4 h-4 text-[#3A3564] group-hover:text-emerald-700 transition-colors duration-200 shrink-0 mt-0.5 stroke-[2.5]" />
                   <span>Operator defect tracking & pass-rate analytics</span>
                 </li>
               </ul>
@@ -867,26 +912,35 @@ ${demoForm.ownerName}`
           </div>
 
           {/* Module 6: Carton Packing & Dispatch */}
-          <div className="bg-white rounded-2xl border border-slate-200 hover:border-black p-6 sm:p-7 transition-colors flex flex-col justify-between h-full">
+          <div className="group relative bg-white rounded-2xl border border-slate-200 hover:border-black/60 p-6 sm:p-7 transition-all duration-300 hover:shadow-md hover:-translate-y-1 active:scale-[0.99] flex flex-col justify-between h-full overflow-hidden cursor-default">
             <div>
-              <div className="flex items-center justify-between gap-3 pb-3 mb-5 border-b-2 border-[#3A3564]">
-                <h3 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
-                  Carton Packing & Dispatch
-                </h3>
-                <PackageCheck className="w-5 h-5 text-[#3A3564] shrink-0" />
+              <div className="relative pb-3 mb-5 border-b-2 border-[#3A3564]/20 overflow-hidden">
+                <div className="flex items-center justify-between gap-3">
+                  <h3 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
+                    Carton Packing & Dispatch
+                  </h3>
+                  <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] border border-black/10 flex items-center justify-center shrink-0 group-hover:border-[#3A3564]/30 group-hover:bg-[#3A3564]/5 transition-all duration-300">
+                    <PackageCheck className="w-4.5 h-4.5 text-[#3A3564] shrink-0 transition-transform duration-300 group-hover:translate-y-0.5 group-hover:scale-105 group-active:translate-y-0.5" />
+                  </div>
+                </div>
+
+                {/* Optical Barcode / Seam Laser Scanner Beam */}
+                <div className="absolute bottom-0 left-0 w-full h-[2px] overflow-hidden pointer-events-none">
+                  <div className="laser-scan-line h-full w-24 bg-gradient-to-r from-transparent via-[#C8802B] to-[#3A3564]" />
+                </div>
               </div>
 
               <ul className="space-y-3 text-sm text-slate-600">
                 <li className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5 stroke-[2.5]" />
+                  <Check className="w-4 h-4 text-[#3A3564] group-hover:text-emerald-700 transition-colors duration-200 shrink-0 mt-0.5 stroke-[2.5]" />
                   <span>Auto-generated carton packing lists & piece counts</span>
                 </li>
                 <li className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5 stroke-[2.5]" />
+                  <Check className="w-4 h-4 text-[#3A3564] group-hover:text-emerald-700 transition-colors duration-200 shrink-0 mt-0.5 stroke-[2.5]" />
                   <span>Buyer delivery challans with transport metadata</span>
                 </li>
                 <li className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5 stroke-[2.5]" />
+                  <Check className="w-4 h-4 text-[#3A3564] group-hover:text-emerald-700 transition-colors duration-200 shrink-0 mt-0.5 stroke-[2.5]" />
                   <span>Finished goods inventory deducted at gate exit</span>
                 </li>
               </ul>
