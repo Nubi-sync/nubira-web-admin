@@ -165,7 +165,15 @@ export async function getProductionOrders(): Promise<ChallanGroupedOrder[]> {
           created_at: al.created_at
         }
 
-        const chId = al.challan_id || 'LEGACY_UNASSIGNED'
+        let chId = al.challan_id
+        if (!chId && challansList) {
+          const clientChNo = al.client_challan_no || meta.client_challan_no || al.production_order_no
+          if (clientChNo) {
+            const matchedCh = challansList.find(c => (c.challan_no || '').trim().toUpperCase() === String(clientChNo).trim().toUpperCase())
+            if (matchedCh) chId = matchedCh.id
+          }
+        }
+        if (!chId) chId = 'LEGACY_UNASSIGNED'
         if (!challanArticlesMap[chId]) challanArticlesMap[chId] = []
         challanArticlesMap[chId].push(articleItem)
       }
@@ -174,41 +182,46 @@ export async function getProductionOrders(): Promise<ChallanGroupedOrder[]> {
     // 4. Construct Challan Group records
     if (challansList && challansList.length > 0) {
       for (const ch of challansList) {
-        let articles = challanArticlesMap[ch.id] || []
+        let articles = challanArticlesMap[ch.id] ? [...challanArticlesMap[ch.id]] : []
+        const allottedArtCodes = new Set(articles.map(a => (a.art_no || '').trim().toUpperCase()))
 
-        // If no floor allotments created yet from Target Allotments, load planned article lines from challan notes
-        if (articles.length === 0 && ch.notes) {
+        // Merge planned article lines from challan notes that are not yet allotted
+        if (ch.notes) {
           try {
             const parsedNotes = JSON.parse(ch.notes)
             const rawLines = parsedNotes.article_lines || parsedNotes
             if (Array.isArray(rawLines)) {
-              articles = rawLines.map((line: any, idx: number) => {
-                const linePcs = Number(line.total_pcs) || ((Number(line.sets) || 1) * (Number(line.pcs_per_set) || 9))
-                const lineSets = Number(line.sets) || Math.round(linePcs / (Number(line.pcs_per_set) || 9))
-                const lineRatio = Number(line.pcs_per_set) || 9
+              rawLines.forEach((line: any, idx: number) => {
                 const cleanArtNo = (line.art_no || '9433').trim().toUpperCase()
                 const cleanSubArt = (line.sub_art_no || '').trim().toUpperCase()
                 const fullArtCode = line.full_art_code || (cleanSubArt ? `${cleanArtNo}${cleanSubArt}` : cleanArtNo)
 
-                return {
-                  id: `${ch.id}-line-${idx}`,
-                  allotment_id: '',
-                  art_no: fullArtCode,
-                  sub_art_no: cleanSubArt,
-                  pattern_no: line.pattern_no || '',
-                  description: line.description || `${fullArtCode} - ${line.color_pattern || ''} (${line.size_range || ''})`,
-                  color_pattern: line.color_pattern || 'Standard',
-                  size_range: line.size_range || 'Free Size',
-                  sets: lineSets,
-                  pcs_per_set: lineRatio,
-                  total_pcs: linePcs,
-                  completed_qty: 0,
-                  assigned_lineman_id: '',
-                  assigned_lineman_name: 'Unassigned (Floor Order)',
-                  picture_url: line.picture_url || '',
-                  stitching_rate: line.stitching_rate || 20,
-                  status: 'PLANNED',
-                  created_at: ch.created_at
+                // Only add if this article code is not already in floor allotments
+                if (!allottedArtCodes.has(fullArtCode)) {
+                  const linePcs = Number(line.total_pcs) || ((Number(line.sets) || 1) * (Number(line.pcs_per_set) || 9))
+                  const lineSets = Number(line.sets) || Math.round(linePcs / (Number(line.pcs_per_set) || 9))
+                  const lineRatio = Number(line.pcs_per_set) || 9
+
+                  articles.push({
+                    id: `${ch.id}-planned-${idx}`,
+                    allotment_id: '',
+                    art_no: fullArtCode,
+                    sub_art_no: cleanSubArt,
+                    pattern_no: line.pattern_no || '',
+                    description: line.description || `${fullArtCode} - ${line.color_pattern || ''} (${line.size_range || ''})`,
+                    color_pattern: line.color_pattern || 'Standard',
+                    size_range: line.size_range || 'Free Size',
+                    sets: lineSets,
+                    pcs_per_set: lineRatio,
+                    total_pcs: linePcs,
+                    completed_qty: 0,
+                    assigned_lineman_id: '',
+                    assigned_lineman_name: 'Unassigned (Floor Order)',
+                    picture_url: line.picture_url || '',
+                    stitching_rate: line.stitching_rate || 20,
+                    status: 'PLANNED',
+                    created_at: ch.created_at
+                  })
                 }
               })
             }
@@ -242,6 +255,30 @@ export async function getProductionOrders(): Promise<ChallanGroupedOrder[]> {
           created_at: ch.created_at
         })
       }
+    }
+
+    // 5. If there are legacy direct allotments without a challan, show them in a Direct Allotments card
+    if (challanArticlesMap['LEGACY_UNASSIGNED'] && challanArticlesMap['LEGACY_UNASSIGNED'].length > 0) {
+      const legacyArticles = challanArticlesMap['LEGACY_UNASSIGNED']
+      const totalSets = legacyArticles.reduce((sum, a) => sum + (Number(a.sets) || 0), 0)
+      const totalPcs = legacyArticles.reduce((sum, a) => sum + (Number(a.total_pcs) || 0), 0)
+
+      challanGroups.push({
+        id: 'legacy-unassigned',
+        challan_no: 'DIRECT-ALLOTMENTS',
+        challan_date: new Date().toISOString().split('T')[0],
+        brand: 'FLOOR DIRECT',
+        delivery_date: '',
+        fabric_type: 'FACTORY LOT',
+        sample_given: false,
+        notes: 'Direct Floor Allotments created outside formal delivery challan',
+        total_sets: totalSets,
+        total_pcs: totalPcs,
+        status: 'IN_PROGRESS',
+        bom_details: [],
+        articles: legacyArticles,
+        created_at: new Date().toISOString()
+      })
     }
 
     return challanGroups
