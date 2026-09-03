@@ -1621,7 +1621,7 @@ ${demoForm.ownerName}`
       {/* 9. BOTTOM CALL TO ACTION BANNER & REQUEST DEMO FORM                 */}
       {/* =================================================================== */}
       <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-white border-t border-slate-200/80">
-        <div className="max-w-5xl mx-auto bg-[#FAF7F0] border border-black rounded-3xl p-6 sm:p-10 lg:p-12 shadow-sm">
+        <div className="relative max-w-5xl mx-auto bg-[#FAF7F0] border border-black md:hover:border-[#3A3564]/60 rounded-3xl p-6 sm:p-10 lg:p-12 shadow-sm md:hover:shadow-md transition-all duration-300 overflow-hidden">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
             
             {/* Left Text */}
@@ -1629,6 +1629,7 @@ ${demoForm.ownerName}`
               <span className="inline-flex items-center gap-1.5 text-[11px] font-mono font-bold uppercase tracking-wider text-[#3A3564] bg-white border border-black/15 px-3 py-1 rounded-md">
                 Fast Onboarding · 24-48 Hour Go-Live
               </span>
+
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
                 Transform Your Garment Factory Today
               </h2>
@@ -1709,61 +1710,89 @@ ${demoForm.ownerName}`
                     <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1.5">
                       Company / Factory Name *
                     </label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="Enter your organisation"
-                      value={demoForm.companyName}
-                      onChange={e => setDemoForm({ ...demoForm, companyName: e.target.value })}
-                      className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
-                    />
+                    <div className="relative">
+                      <input
+                        type="text"
+                        required
+                        placeholder="Enter your organisation"
+                        value={demoForm.companyName}
+                        onChange={e => setDemoForm({ ...demoForm, companyName: e.target.value })}
+                        className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
+                      />
+                      {demoForm.companyName.trim().length > 0 && (
+                        <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-emerald-600">
+                          <Check className="w-4 h-4 stroke-[2.5]" />
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   <div>
                     <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1.5">
                       Owner / Plant Head Name *
                     </label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="Enter full name"
-                      value={demoForm.ownerName}
-                      onChange={e => setDemoForm({ ...demoForm, ownerName: e.target.value })}
-                      className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
-                    />
+                    <div className="relative">
+                      <input
+                        type="text"
+                        required
+                        placeholder="Enter full name"
+                        value={demoForm.ownerName}
+                        onChange={e => setDemoForm({ ...demoForm, ownerName: e.target.value })}
+                        className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
+                      />
+                      {demoForm.ownerName.trim().length > 0 && (
+                        <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-emerald-600">
+                          <Check className="w-4 h-4 stroke-[2.5]" />
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   <div>
                     <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1.5">
                       Phone Number *
                     </label>
-                    <input
-                      type="tel"
-                      required
-                      placeholder="+91 98765 43210"
-                      value={demoForm.phone}
-                      onChange={e => setDemoForm({ ...demoForm, phone: e.target.value })}
-                      className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
-                    />
+                    <div className="relative">
+                      <input
+                        type="tel"
+                        required
+                        placeholder="+91 98765 43210"
+                        value={demoForm.phone}
+                        onChange={e => setDemoForm({ ...demoForm, phone: e.target.value })}
+                        className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
+                      />
+                      {demoForm.phone.trim().length > 0 && (
+                        <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-emerald-600">
+                          <Check className="w-4 h-4 stroke-[2.5]" />
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   <div>
                     <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1.5">
                       Business Email ID *
                     </label>
-                    <input
-                      type="email"
-                      required
-                      placeholder="owner@factory.com"
-                      value={demoForm.email}
-                      onChange={e => setDemoForm({ ...demoForm, email: e.target.value })}
-                      className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
-                    />
+                    <div className="relative">
+                      <input
+                        type="email"
+                        required
+                        placeholder="owner@factory.com"
+                        value={demoForm.email}
+                        onChange={e => setDemoForm({ ...demoForm, email: e.target.value })}
+                        className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
+                      />
+                      {demoForm.email.trim().length > 0 && (
+                        <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-emerald-600">
+                          <Check className="w-4 h-4 stroke-[2.5]" />
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   <button
                     type="submit"
-                    className="w-full py-3.5 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-sm font-bold transition-all shadow-sm hover:shadow-md cursor-pointer flex items-center justify-center gap-2 mt-5"
+                    className="w-full py-3.5 bg-[#3A3564] hover:bg-[#2A2649] md:hover:-translate-y-0.5 text-white rounded-xl text-sm font-bold transition-all shadow-sm hover:shadow-md cursor-pointer flex items-center justify-center gap-2 mt-5"
                   >
                     <Mail className="w-4 h-4 shrink-0" />
                     <span>Send Demo Request</span>
