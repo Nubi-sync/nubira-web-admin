@@ -282,6 +282,21 @@ export async function createChallan(payload: CreateChallanPayload) {
   const grandTotalPcs = article_lines.reduce((acc, row) => acc + (Number(row.total_pcs) || 0), 0)
 
   try {
+    const cleanChallanNo = challan_no.trim().toUpperCase()
+
+    // Enforce Industry Standard: Unique Challan Number check
+    const { data: existingChallan } = await supabase
+      .from('challans')
+      .select('id, challan_no')
+      .ilike('challan_no', cleanChallanNo)
+      .limit(1)
+
+    if (existingChallan && existingChallan.length > 0) {
+      return {
+        error: `Challan #${cleanChallanNo} already exists in the system! Each delivery job challan must have a unique Challan Number. Please enter a new Challan Number.`
+      }
+    }
+
     // 1. Process and save Article Styles into master catalog
     const processedLines = []
     for (let idx = 0; idx < article_lines.length; idx++) {
@@ -342,7 +357,7 @@ export async function createChallan(payload: CreateChallanPayload) {
     const { data: newChallan, error: challanInsertErr } = await supabase
       .from('challans')
       .insert({
-        challan_no: challan_no.trim().toUpperCase(),
+        challan_no: cleanChallanNo,
         challan_date: challan_date || new Date().toISOString().split('T')[0],
         brand: brand.trim().toUpperCase(),
         delivery_date: delivery_date || null,

@@ -384,8 +384,15 @@ export function ProductionOrdersClient({
       return
     }
 
+    const cleanChallan = formChallanNo.trim().toUpperCase()
+    const isDuplicate = orders.some(o => o.challan_no?.trim().toUpperCase() === cleanChallan)
+    if (isDuplicate) {
+      alert(`Challan #${cleanChallan} already exists in the system! Each delivery job challan must have a unique Challan Number. Please enter a new Challan Number.`)
+      return
+    }
+
     const payload: CreateChallanPayload = {
-      challan_no: formChallanNo.trim().toUpperCase(),
+      challan_no: cleanChallan,
       challan_date: formChallanDate,
       brand: (formBrand || 'OLLYPOP').trim().toUpperCase(),
       delivery_date: formDeliveryDate || undefined,
@@ -1502,14 +1509,33 @@ export function ProductionOrdersClient({
                     <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">
                       JOB / CHALLAN NO. *
                     </label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. JOB-457"
-                      value={formChallanNo}
-                      onChange={e => setFormChallanNo(e.target.value)}
-                      className="w-full px-3.5 py-2.5 bg-white border border-black/10 rounded-xl text-xs sm:text-sm font-bold text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
-                    />
+                    {(() => {
+                      const isDup = Boolean(
+                        formChallanNo.trim() &&
+                        orders.some(o => o.challan_no?.trim().toUpperCase() === formChallanNo.trim().toUpperCase())
+                      )
+                      return (
+                        <>
+                          <input
+                            type="text"
+                            required
+                            placeholder="e.g. JOB-457"
+                            value={formChallanNo}
+                            onChange={e => setFormChallanNo(e.target.value)}
+                            className={`w-full px-3.5 py-2.5 bg-white border rounded-xl text-xs sm:text-sm font-bold text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 ${
+                              isDup
+                                ? 'border-rose-500 focus:ring-rose-500 text-rose-900 bg-rose-50/50'
+                                : 'border-black/10 focus:ring-[#3A3564]'
+                            }`}
+                          />
+                          {isDup && (
+                            <p className="text-[11px] font-bold text-rose-600 mt-1 flex items-center gap-1">
+                              <span>⚠️ Challan #{formChallanNo.trim().toUpperCase()} already exists! Enter a new Challan No.</span>
+                            </p>
+                          )}
+                        </>
+                      )
+                    })()}
                   </div>
 
                   <div>
