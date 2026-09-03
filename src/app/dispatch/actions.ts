@@ -119,3 +119,35 @@ export async function recordCountingAudit(formData: FormData) {
   revalidatePath('/dispatch')
   revalidatePath('/reports')
 }
+
+export async function approveDeliveryChallan(challanId: string) {
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  const { error } = await supabase
+    .from('delivery_challans')
+    .update({
+      status: 'APPROVED_FOR_DISPATCH',
+      approved_by: user?.id,
+      approved_at: new Date().toISOString(),
+    })
+    .eq('id', challanId)
+
+  if (error) {
+    throw new Error(error.message)
+  }
+
+  // Update linked allotment if any
+  await supabase
+    .from('allotments')
+    .update({
+      qc_status: 'DISPATCHED',
+    })
+    .eq('delivery_challan_id', challanId)
+
+  revalidatePath('/dispatch')
+  revalidatePath('/')
+}
