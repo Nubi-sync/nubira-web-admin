@@ -446,15 +446,27 @@ export default function DashboardClient({
 
   // 3. Compute the 6 Core Factory Lifecycle Numbers
   const metrics = useMemo(() => {
-    // 1. Total Stocks (Total Target Pieces in Pipeline from Challans + Standalone Direct Allotments)
-    const challanTotalPcs = challans.reduce((sum, c) => sum + (Number(c.total_pcs) || 0), 0)
-    const directAllotmentPcs = filteredData.allotments
-      .filter(al => !al.challan_id)
-      .reduce((sum, al) => sum + (al.target_qty || 0), 0)
+    // 1. Total Stocks (Total Target Pieces in Pipeline)
+    let totalStocks = 0
 
-    const totalStocks = challanTotalPcs > 0
-      ? (challanTotalPcs + directAllotmentPcs)
-      : filteredData.allotments.reduce((sum, al) => sum + (al.target_qty || 0), 0)
+    if (selectedArticleId !== 'ALL') {
+      totalStocks = filteredData.allotments.reduce((sum, al) => sum + (al.target_qty || 0), 0)
+    } else {
+      const filteredChallans = challans.filter(c => selectedBrand === 'ALL' || c.brand?.toUpperCase() === selectedBrand.toUpperCase())
+      const challanTotalPcs = filteredChallans.reduce((sum, c) => sum + (Number(c.total_pcs) || 0), 0)
+
+      // Only count standalone allotments whose article is NOT already in a formal challan
+      const challanArtIds = new Set(
+        filteredData.allotments.filter(al => al.challan_id).map(al => al.article_id)
+      )
+      const standaloneAllotmentPcs = filteredData.allotments
+        .filter(al => !al.challan_id && !challanArtIds.has(al.article_id))
+        .reduce((sum, al) => sum + (al.target_qty || 0), 0)
+
+      totalStocks = challanTotalPcs > 0
+        ? (challanTotalPcs + standaloneAllotmentPcs)
+        : filteredData.allotments.reduce((sum, al) => sum + (al.target_qty || 0), 0)
+    }
 
     // 2. Production / Sewing Counts
     const totalProduced = filteredData.production.reduce((sum, p) => sum + (p.quantity || 0), 0)
