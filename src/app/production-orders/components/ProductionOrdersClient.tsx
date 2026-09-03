@@ -316,10 +316,10 @@ export function ProductionOrdersClient({
     setExpandedChallans(prev => ({ ...prev, [challanId]: !prev[challanId] }))
   }
 
-  // Summary Metrics Across All Orders
+  // Summary Metrics Across All Orders (Master Articles vs Variant Rows)
   const summary = useMemo(() => {
-    let totalChallans = orders.length
-    let totalArticles = 0
+    const uniqueMasterArticles = new Set<string>()
+    let totalArticleLines = 0
     let totalSets = 0
     let totalPcs = 0
     let inProdPcs = 0
@@ -327,11 +327,15 @@ export function ProductionOrdersClient({
     let dispatchedPcs = 0
 
     orders.forEach(ch => {
-      totalArticles += ch.articles?.length || 0
       totalSets += ch.total_sets || 0
       totalPcs += ch.total_pcs || 0
+      totalArticleLines += ch.articles?.length || 0
 
       ch.articles?.forEach(art => {
+        const rawArt = (art.art_no || '').trim().toUpperCase()
+        const baseArt = rawArt.replace(/[^0-9].*$/, '').trim() || rawArt
+        if (baseArt) uniqueMasterArticles.add(baseArt)
+
         if (art.status === 'QC_PASSED') readyQcPcs += art.total_pcs || 0
         else if (art.status === 'DISPATCHED') dispatchedPcs += art.total_pcs || 0
         else inProdPcs += art.total_pcs || 0
@@ -339,8 +343,9 @@ export function ProductionOrdersClient({
     })
 
     return {
-      totalChallans,
-      totalArticles,
+      totalChallans: orders.length,
+      totalArticles: uniqueMasterArticles.size || orders.length,
+      totalArticleLines,
       totalSets,
       totalPcs,
       inProdPcs,
@@ -746,18 +751,18 @@ export function ProductionOrdersClient({
           <span className="text-xs sm:text-[13px] text-slate-500 font-medium mt-1">Buyer Job Sheets</span>
         </div>
 
-        {/* Article Lines */}
+        {/* Article Styles (Master Articles) */}
         <div className="bg-white p-4.5 sm:p-5 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500">
-              Article Lines
+              Article Styles
             </span>
             <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
               <Tag className="w-4 h-4" />
             </div>
           </div>
           <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-mono mt-2">{summary.totalArticles}</p>
-          <span className="text-xs sm:text-[13px] text-slate-500 font-medium mt-1">Variants on Floor</span>
+          <span className="text-xs sm:text-[13px] text-slate-500 font-medium mt-1">Master Articles ({summary.totalArticleLines} Variants)</span>
         </div>
 
         {/* Total Sets */}
@@ -939,7 +944,13 @@ export function ProductionOrdersClient({
                         {challan.delivery_date && (
                           <span>• Delivery: <strong className="text-slate-900 font-mono font-bold">{challan.delivery_date}</strong></span>
                         )}
-                        <span>• <strong className="text-slate-900 font-semibold">{articleCount} Article Styles</strong></span>
+                        {(() => {
+                          const masterStyles = new Set((challan.articles || []).map(a => (a.art_no || '').replace(/[^0-9].*$/, '').trim() || a.art_no)).size
+                          const lineCount = challan.articles?.length || 0
+                          return (
+                            <span>• <strong className="text-slate-900 font-semibold">{masterStyles} Master Style{masterStyles > 1 ? 's' : ''} ({lineCount} Variant{lineCount > 1 ? 's' : ''})</strong></span>
+                          )
+                        })()}
                       </div>
                     </div>
                   </div>
