@@ -311,9 +311,9 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
 
       {/* Table Area */}
       <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse text-xs">
+        <table className="w-full text-left border-collapse text-xs sm:text-[13px]">
           <thead>
-            <tr className="bg-[#FAF7F0] border-b border-slate-100 text-[11px] font-mono uppercase tracking-wider font-bold text-slate-500">
+            <tr className="bg-[#FAF7F0] border-b border-black/10 text-xs font-mono uppercase tracking-wider font-bold text-slate-700">
               
               {/* Sortable Date & Lineman */}
               <th 
@@ -323,7 +323,7 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                 <div className="flex items-center gap-1.5">
                   <span>Date & Lineman</span>
                   {sortField === 'date' ? (
-                    sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" /> : <ArrowDown className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" />
+                    sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#3A3564]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#3A3564]" />
                   ) : (
                     <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
                   )}
@@ -342,7 +342,7 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                 <div className="flex items-center gap-1.5">
                   <span>Progress</span>
                   {sortField === 'progress' ? (
-                    sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" /> : <ArrowDown className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" />
+                    sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#3A3564]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#3A3564]" />
                   ) : (
                     <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
                   )}
@@ -356,7 +356,7 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
           <tbody className="divide-y divide-slate-100">
             {paginatedAllotments.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-6 py-12 text-center text-slate-400 text-xs">
+                <td colSpan={7} className="px-6 py-12 text-center text-slate-400 text-xs sm:text-[13px]">
                   No allotment records match your search or filter.
                 </td>
               </tr>
@@ -374,8 +374,8 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                       
                       {/* Date & Lineman */}
                       <td className="px-5 py-3.5">
-                        <div className="font-semibold text-slate-900">{al.profiles?.username || 'Lineman'}</div>
-                        <div className="text-[11px] font-mono text-slate-400 mt-0.5">{al.allotment_date}</div>
+                        <div className="font-bold text-sm text-slate-900">{al.profiles?.username || 'Lineman'}</div>
+                        <div className="text-xs font-mono text-slate-500 mt-0.5">{al.allotment_date}</div>
                       </td>
 
                       {/* Article Style & Assigned Color Line */}
@@ -391,15 +391,15 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
 
                         return (
                           <td className="px-4 py-3.5">
-                            <div className="font-bold text-[var(--steel,#2B4C7E)] flex items-center gap-1.5 flex-wrap">
+                            <div className="font-bold text-sm text-[#3A3564] flex items-center gap-1.5 flex-wrap">
                               <span>{al.articles?.art_no}</span>
                               {distinctColors.length === 1 && (
-                                <span className="text-[10px] font-black px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200">
+                                <span className="text-xs font-bold px-2 py-0.5 rounded bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs">
                                   {distinctColors[0]}
                                 </span>
                               )}
                             </div>
-                            <div className="text-[11px] text-slate-600 font-semibold truncate max-w-[170px] mt-0.5" title={colorLabel}>
+                            <div className="text-xs text-slate-600 font-medium truncate max-w-[170px] mt-0.5" title={colorLabel}>
                               {colorLabel}
                             </div>
                           </td>
@@ -412,14 +412,14 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                           <button
                             type="button"
                             onClick={() => toggleExpand(al.id)}
-                            className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-[6px] bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer"
+                            className="inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-[#FAF7F0] text-[#3A3564] border border-black/10 transition-colors cursor-pointer shadow-2xs"
                           >
-                            <Layers className="w-3.5 h-3.5 text-slate-500" />
+                            <Layers className="w-3.5 h-3.5 text-[#3A3564]" />
                             <span>{variants.length} Variants</span>
-                            {isExpanded ? <ChevronUp className="w-3 h-3 text-slate-600" /> : <ChevronDown className="w-3 h-3 text-slate-600" />}
+                            {isExpanded ? <ChevronUp className="w-3 h-3 text-[#3A3564]" /> : <ChevronDown className="w-3 h-3 text-[#3A3564]" />}
                           </button>
                         ) : (
-                          <span className="text-[11px] text-slate-400">Bulk ({al.target_qty} pcs)</span>
+                          <span className="text-xs font-mono text-slate-500">Bulk ({al.target_qty} pcs)</span>
                         )}
                       </td>
 
@@ -436,11 +436,10 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                           if (shortages.length > 0) {
                             return (
                               <span 
-                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-[6px] text-[11px] font-bold border animate-pulse"
-                                style={{ backgroundColor: '#FEF2F2', borderColor: '#FECACA', color: '#DC2626' }}
+                                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold border border-rose-200 bg-rose-50 text-rose-700 animate-pulse"
                                 title="Store reported material shortage or defective items"
                               >
-                                <AlertTriangle className="w-3 h-3 text-red-600" />
+                                <AlertTriangle className="w-3.5 h-3.5 text-rose-600" />
                                 <span>Shortage ({shortages.length})</span>
                               </span>
                             )
@@ -449,10 +448,9 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                           if (allMaterialsReceived) {
                             return (
                               <span 
-                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-[6px] text-[11px] font-bold border"
-                                style={{ backgroundColor: 'var(--green-mist, #E6F6EE)', borderColor: 'var(--green, #1F9D63)', color: 'var(--green, #1F9D63)' }}
+                                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold border border-emerald-200 bg-emerald-50 text-emerald-800"
                               >
-                                <CheckCircle2 className="w-3 h-3" />
+                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                                 <span>100% Handover Complete</span>
                               </span>
                             )
@@ -461,10 +459,9 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                           if (isStoreVerified) {
                             return (
                               <span 
-                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-[6px] text-[11px] font-bold border"
-                                style={{ backgroundColor: '#EFF6FF', borderColor: '#BFDBFE', color: '#2563EB' }}
+                                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold border border-black/10 bg-[#FAF7F0] text-[#3A3564] shadow-2xs"
                               >
-                                <PackageCheck className="w-3 h-3" />
+                                <PackageCheck className="w-3.5 h-3.5 text-[#3A3564]" />
                                 <span>Store Issued (Ready)</span>
                               </span>
                             )
@@ -472,33 +469,31 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
 
                           return (
                             <span 
-                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-[6px] text-[11px] font-semibold border"
-                              style={{ backgroundColor: 'var(--amber-mist, #FBF0E1)', borderColor: '#FDE68A', color: 'var(--amber, #C8802B)' }}
+                              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border border-amber-200 bg-amber-50 text-amber-800"
                             >
-                              <Clock className="w-3 h-3" />
+                              <Clock className="w-3.5 h-3.5 text-amber-600" />
                               <span>Pending Store Inspection</span>
                             </span>
                           )
                         })() : (
-                          <span className="text-[11px] text-slate-400">No BOM Issued</span>
+                          <span className="text-xs text-slate-400">No BOM Issued</span>
                         )}
                       </td>
 
                       {/* Progress Column with horizontal bar */}
                       <td className="px-4 py-3.5">
                         <div className="flex items-baseline justify-between gap-2 text-xs font-bold font-mono">
-                          <span style={{ color: 'var(--steel, #2B4C7E)' }}>{al.achieved_qty || 0}</span>
-                          <span className="text-slate-400 font-normal">/ {al.target_qty} pcs</span>
+                          <span className="text-[#3A3564] font-extrabold">{al.achieved_qty || 0}</span>
+                          <span className="text-slate-500 font-normal">/ {al.target_qty} pcs</span>
                         </div>
                         <div 
-                          className="w-24 h-1.5 rounded-full mt-1.5 overflow-hidden"
-                          style={{ backgroundColor: 'var(--steel-mist, #EEF3FA)' }}
+                          className="w-24 h-2 rounded-full mt-1.5 overflow-hidden bg-slate-100 border border-black/5"
                         >
                           <div 
                             className="h-full rounded-full transition-all"
                             style={{
                               width: `${percent}%`,
-                              backgroundColor: percent >= 100 ? 'var(--green, #1F9D63)' : 'var(--steel, #2B4C7E)'
+                              backgroundColor: percent >= 100 ? '#059669' : '#3A3564'
                             }}
                           />
                         </div>
@@ -508,24 +503,21 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                       <td className="px-4 py-3.5">
                         {al.status === 'IN_PROGRESS' && (
                           <span 
-                            className="px-2.5 py-1 rounded-full text-[10.5px] font-semibold"
-                            style={{ backgroundColor: 'var(--steel-tint, #DBE6F5)', color: 'var(--steel-dark, #1F3A63)' }}
+                            className="px-2.5 py-1 rounded-full text-xs font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs"
                           >
                             IN PROGRESS
                           </span>
                         )}
                         {al.status === 'COMPLETED' && (
                           <span 
-                            className="px-2.5 py-1 rounded-full text-[10.5px] font-semibold"
-                            style={{ backgroundColor: 'var(--green-mist, #E6F6EE)', color: 'var(--green, #1F9D63)' }}
+                            className="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200"
                           >
                             COMPLETED
                           </span>
                         )}
                         {al.status === 'CANCELLED' && (
                           <span 
-                            className="px-2.5 py-1 rounded-full text-[10.5px] font-semibold"
-                            style={{ backgroundColor: 'var(--red-mist, #FBEAE8)', color: 'var(--red, #C0392B)' }}
+                            className="px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200"
                           >
                             CANCELLED
                           </span>
@@ -540,24 +532,14 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                               <button
                                 type="button"
                                 onClick={() => setStatusDialog({ isOpen: true, allotment: al, newStatus: 'COMPLETED' })}
-                                className="px-2.5 py-1 rounded-[6px] text-xs font-semibold transition-colors border cursor-pointer hover:opacity-80"
-                                style={{
-                                  backgroundColor: 'var(--green-mist, #E6F6EE)',
-                                  borderColor: 'var(--green, #1F9D63)',
-                                  color: 'var(--green, #1F9D63)'
-                                }}
+                                className="px-2.5 py-1 rounded-lg text-xs font-bold transition-all border border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 cursor-pointer"
                               >
                                 Done
                               </button>
                               <button
                                 type="button"
                                 onClick={() => setStatusDialog({ isOpen: true, allotment: al, newStatus: 'CANCELLED' })}
-                                className="px-2.5 py-1 rounded-[6px] text-xs font-semibold transition-colors border cursor-pointer hover:opacity-80"
-                                style={{
-                                  backgroundColor: 'var(--amber-mist, #FBF0E1)',
-                                  borderColor: 'var(--amber, #C8802B)',
-                                  color: 'var(--amber, #C8802B)'
-                                }}
+                                className="px-2.5 py-1 rounded-lg text-xs font-bold transition-all border border-slate-200 bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer"
                               >
                                 Cancel
                               </button>
@@ -566,12 +548,7 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                           <button
                             type="button"
                             onClick={() => setDeletingAllotment(al)}
-                            className="px-2.5 py-1 rounded-[6px] text-xs font-semibold transition-colors border cursor-pointer hover:bg-red-100 hover:text-red-700"
-                            style={{
-                              backgroundColor: 'var(--red-mist, #FBEAE8)',
-                              borderColor: 'var(--red, #C0392B)',
-                              color: 'var(--red, #C0392B)'
-                            }}
+                            className="px-2.5 py-1 rounded-lg text-xs font-bold transition-all border border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100 cursor-pointer"
                             title="Permanently delete allotment"
                           >
                             Delete
@@ -583,31 +560,31 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                     {/* EXPANDED VARIANT RATIO & MATERIAL DRAWER */}
                     {isExpanded && (
                       <tr className="bg-slate-50/90 border-y border-slate-200 animate-in fade-in duration-200">
-                        <td colSpan={7} className="px-6 py-4">
+                        <td colSpan={7} className="px-6 py-5">
                           <div className="space-y-4">
                             
                             {/* Buyer Golden Sample Reference Photos Gallery */}
                             {al.sample_photos && al.sample_photos.length > 0 && (
-                              <div className="p-3.5 bg-white rounded-lg border border-slate-200 shadow-2xs space-y-2">
+                              <div className="p-4 bg-white rounded-xl border border-black/10 shadow-2xs space-y-2.5">
                                 <div className="flex items-center justify-between">
                                   <div className="flex items-center gap-2">
-                                    <FileText className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" />
-                                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-700">
+                                    <FileText className="w-4 h-4 text-[#3A3564]" />
+                                    <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
                                       Buyer Golden Sample Reference Photos ({al.sample_photos.length} photos)
                                     </span>
                                   </div>
                                   {al.client_challan_no && (
-                                    <span className="text-[11px] font-mono font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+                                    <span className="text-xs font-mono font-bold text-slate-700 bg-slate-100 px-2.5 py-0.5 rounded-lg border border-slate-200">
                                       Challan #: {al.client_challan_no}
                                     </span>
                                   )}
                                 </div>
 
-                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
                                   {al.sample_photos.map((photo, idx) => (
                                     <div 
                                       key={idx} 
-                                      className="relative group rounded-lg overflow-hidden border border-slate-200 aspect-square bg-slate-50 shadow-2xs"
+                                      className="relative group rounded-xl overflow-hidden border border-slate-200 aspect-square bg-slate-50 shadow-2xs"
                                     >
                                       <img 
                                         src={photo} 
@@ -615,7 +592,7 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                                         className="w-full h-full object-cover group-hover:scale-105 transition-transform cursor-pointer"
                                         onClick={() => window.open(photo, '_blank')}
                                       />
-                                      <span className="absolute bottom-1 left-1 px-1.5 py-0.5 bg-black/75 text-[10px] text-white rounded font-mono font-semibold">
+                                      <span className="absolute bottom-1.5 left-1.5 px-2 py-0.5 bg-black/75 text-xs text-white rounded font-mono font-semibold">
                                         {idx === 0 ? 'Front' : idx === 1 ? 'Back' : idx === 2 ? 'Label' : 'Detail'}
                                       </span>
                                     </div>
@@ -627,9 +604,9 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                             {/* Size & Color Matrix Section */}
                             {variants.length > 0 && (
                               <div>
-                                <div className="flex items-center gap-2 mb-2">
-                                  <Layers className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" />
-                                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-700">
+                                <div className="flex items-center gap-2 mb-2.5">
+                                  <Layers className="w-4 h-4 text-[#3A3564]" />
+                                  <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
                                     Color & Size Ratio Breakdown ({variants.reduce((s, v) => s + (v.quantity || 0), 0)} pcs total)
                                   </span>
                                 </div>
@@ -646,27 +623,27 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                                     const totalColorQty = vList.reduce((s, item) => s + (item.quantity || 0), 0)
                                     return (
                                       <div 
-                                        key={colorName}
-                                        className="p-3 bg-white rounded-lg border border-slate-200 shadow-sm"
+                                        key={colorName} 
+                                        className="p-3.5 bg-white rounded-xl border border-black/10 shadow-2xs space-y-2"
                                       >
-                                        <div className="flex items-center justify-between border-b border-slate-100 pb-1.5 mb-2">
-                                          <div className="flex items-center gap-1.5">
-                                            <span className="w-2.5 h-2.5 rounded-full bg-[var(--steel,#2B4C7E)] inline-block" />
-                                            <span className="font-bold text-xs text-slate-900 capitalize">{colorName}</span>
+                                        <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                                          <div className="flex items-center gap-2">
+                                            <span className="w-3 h-3 rounded-full bg-[#3A3564] inline-block shadow-2xs ring-1 ring-white" />
+                                            <span className="font-extrabold text-xs sm:text-[13px] text-slate-900 capitalize">{colorName}</span>
                                           </div>
-                                          <span className="font-mono text-xs font-bold text-[var(--steel,#2B4C7E)]">
+                                          <span className="font-mono text-xs sm:text-[13px] font-extrabold text-[#3A3564] px-2 py-0.5 bg-[#FAF7F0] rounded-md border border-black/10">
                                             {totalColorQty} pcs
                                           </span>
                                         </div>
 
-                                        <div className="flex flex-wrap gap-1.5">
+                                        <div className="flex flex-wrap gap-1.5 pt-0.5">
                                           {vList.map((item) => (
                                             <span
                                               key={item.id || item.size}
-                                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-50 border border-slate-200 text-[11px] font-mono text-slate-700"
+                                              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-50 border border-slate-200 text-xs font-mono text-slate-700"
                                             >
                                               <span className="font-bold text-slate-900">{item.size}:</span>
-                                              <span>{item.quantity} pcs</span>
+                                              <span className="font-bold text-[#3A3564]">{item.quantity} pcs</span>
                                             </span>
                                           ))}
                                         </div>
@@ -679,11 +656,11 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
 
                             {/* Live Sewing Floor Tailor Allocations (Machine Stations & Borrowed Workers) */}
                             {al.assignments && al.assignments.length > 0 && (
-                              <div className="pt-3 border-t border-slate-200/60 space-y-2">
+                              <div className="pt-3 border-t border-slate-200/60 space-y-2.5">
                                 <div className="flex items-center justify-between">
                                   <div className="flex items-center gap-2">
-                                    <Users className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" />
-                                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-700">
+                                    <Users className="w-4 h-4 text-[#3A3564]" />
+                                    <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
                                       Live Floor Tailor Allocations ({al.assignments.length} batches assigned)
                                     </span>
                                   </div>
@@ -710,31 +687,31 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                                     return (
                                       <div 
                                         key={ass.id}
-                                        className="p-2.5 bg-white rounded-lg border border-slate-200 text-xs space-y-1.5 shadow-2xs"
+                                        className="p-3 bg-white rounded-xl border border-black/10 text-xs space-y-2 shadow-2xs"
                                       >
                                         <div className="flex items-center justify-between">
-                                          <span className="font-bold text-slate-900">{ass.worker_name}</span>
-                                          <span className="font-mono font-bold text-indigo-900 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100 text-[11px]">
+                                          <span className="font-bold text-sm text-slate-900">{ass.worker_name}</span>
+                                          <span className="font-mono font-bold text-[#3A3564] bg-[#FAF7F0] px-2.5 py-0.5 rounded-lg border border-black/10 text-xs shadow-2xs">
                                             {ass.assigned_qty} pcs
                                           </span>
                                         </div>
 
-                                        <div className="flex flex-wrap items-center gap-1.5 text-[10.5px]">
+                                        <div className="flex flex-wrap items-center gap-1.5 text-xs">
                                           {/* Machine Operation Badge */}
-                                          <span className="px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 font-semibold border border-blue-200">
+                                          <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-800 font-semibold border border-slate-200">
                                             {station}
                                           </span>
 
                                           {/* Color & Size Variant */}
                                           {(ass.color || ass.size) && (
-                                            <span className="px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 font-mono">
+                                            <span className="px-2 py-0.5 rounded-md bg-slate-50 text-slate-700 font-mono border border-slate-200">
                                               {ass.color || ''} {ass.size ? `(${ass.size})` : ''}
                                             </span>
                                           )}
 
                                           {/* Borrowed Worker Badge */}
                                           {isBorrowed && (
-                                            <span className="px-1.5 py-0.5 rounded bg-amber-50 text-amber-800 font-bold border border-amber-300">
+                                            <span className="px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 font-bold border border-amber-300">
                                               ⇄ Borrowed from {borrowedFrom || 'Other Line'}
                                             </span>
                                           )}
@@ -748,11 +725,11 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
 
                             {/* Raw Materials 3-Way Handshake Inspection Section */}
                             {materials.length > 0 && (
-                              <div className="pt-3 border-t border-slate-200/60 space-y-2">
+                              <div className="pt-3 border-t border-slate-200/60 space-y-2.5">
                                 <div className="flex items-center justify-between gap-2">
                                   <div className="flex items-center gap-2">
-                                    <PackageCheck className="w-4 h-4 text-[var(--steel,#2B4C7E)]" />
-                                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-700">
+                                    <PackageCheck className="w-4 h-4 text-[#3A3564]" />
+                                    <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
                                       3-Way Material Handshake & Inspection Details
                                     </span>
                                   </div>
@@ -760,8 +737,8 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                                     const firstChallan = materials.map(m => parseInspection(m.notes)?.supplier_challan_no).find(c => Boolean(c))
                                     if (firstChallan) {
                                       return (
-                                        <span className="inline-flex items-center gap-1 text-[11px] font-mono font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
-                                          <FileText className="w-3 h-3 text-slate-500" />
+                                        <span className="inline-flex items-center gap-1.5 text-xs font-mono font-bold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 border border-slate-200">
+                                          <FileText className="w-3.5 h-3.5 text-slate-500" />
                                           <span>Challan: {firstChallan}</span>
                                         </span>
                                       )
@@ -770,7 +747,7 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                                   })()}
                                 </div>
 
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
                                   {materials.map((mat) => {
                                     const ins = parseInspection(mat.notes)
                                     const isShortage = ins?.status === 'SHORTAGE' || ins?.status === 'DEFECTIVE'
@@ -779,26 +756,26 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                                     return (
                                       <div
                                         key={mat.id}
-                                        className={`p-2.5 rounded-lg border text-xs shadow-xs space-y-1.5 ${
+                                        className={`p-3 rounded-xl border text-xs shadow-2xs space-y-2 ${
                                           isShortage 
-                                            ? 'bg-red-50/70 border-red-200' 
+                                            ? 'bg-rose-50/70 border-rose-200' 
                                             : mat.lineman_received 
                                               ? 'bg-emerald-50/50 border-emerald-200' 
-                                              : 'bg-white border-slate-200'
+                                              : 'bg-white border-black/10'
                                         }`}
                                       >
                                         <div className="flex items-center justify-between gap-1.5">
-                                          <span className="font-bold text-slate-900 truncate">
+                                          <span className="font-bold text-sm text-slate-900 truncate">
                                             {mat.item_name}
                                           </span>
-                                          <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                                          <span className={`text-xs font-bold px-2 py-0.5 rounded-md border ${
                                             isShortage 
-                                              ? 'bg-red-100 text-red-700'
+                                              ? 'bg-rose-100 text-rose-800 border-rose-200'
                                               : mat.lineman_received 
-                                                ? 'bg-emerald-100 text-emerald-800'
+                                                ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
                                                 : isStoreDone 
-                                                  ? 'bg-blue-100 text-blue-800'
-                                                  : 'bg-amber-100 text-amber-800'
+                                                  ? 'bg-[#FAF7F0] text-[#3A3564] border border-black/10'
+                                                  : 'bg-amber-50 text-amber-800 border-amber-200'
                                           }`}>
                                             {isShortage 
                                               ? 'Shortage Flagged' 
@@ -810,23 +787,23 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                                           </span>
                                         </div>
 
-                                        <div className="flex items-center justify-between text-[11px] text-slate-500 font-mono">
-                                          <span>Required: <strong className="text-slate-800">{mat.required_qty}</strong></span>
+                                        <div className="flex items-center justify-between text-xs text-slate-600 font-mono">
+                                          <span>Required: <strong className="text-slate-900 font-bold">{mat.required_qty}</strong></span>
                                           {ins?.received_qty && (
-                                            <span>Received: <strong className={isShortage ? 'text-red-700 font-bold' : 'text-slate-800'}>{ins.received_qty}</strong></span>
+                                            <span>Received: <strong className={isShortage ? 'text-rose-700 font-bold' : 'text-slate-900 font-bold'}>{ins.received_qty}</strong></span>
                                           )}
                                         </div>
 
                                         {/* Shortage details or store remarks */}
                                         {isShortage && ins?.shortage_qty && (
-                                          <div className="text-[10.5px] font-bold text-red-600 flex items-center gap-1 bg-red-100/60 px-2 py-0.5 rounded">
-                                            <AlertTriangle className="w-3 h-3 shrink-0" />
+                                          <div className="text-xs font-bold text-rose-700 flex items-center gap-1.5 bg-rose-100/70 px-2.5 py-1 rounded-lg border border-rose-200">
+                                            <AlertTriangle className="w-3.5 h-3.5 shrink-0 text-rose-600" />
                                             <span>Shortage: {ins.shortage_qty}</span>
                                           </div>
                                         )}
 
                                         {ins?.store_remarks && (
-                                          <p className="text-[10.5px] text-slate-600 italic bg-white/80 px-2 py-1 rounded border border-slate-200/60">
+                                          <p className="text-xs text-slate-700 italic bg-white/80 px-2.5 py-1.5 rounded-lg border border-slate-200/70">
                                             "{ins.store_remarks}"
                                           </p>
                                         )}
@@ -850,19 +827,18 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
       </div>
 
       {/* Pagination Controls Footer */}
-      <div className="p-4 border-t bg-slate-50/60 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
-        <div style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
-          Showing <span className="font-semibold">{totalItems > 0 ? (currentPage - 1) * pageSize + 1 : 0}</span>–<span className="font-semibold">{Math.min(currentPage * pageSize, totalItems)}</span> of <span className="font-semibold">{totalItems}</span> allotments
+      <div className="p-4 sm:p-5 border-t border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs sm:text-[13px]">
+        <div className="text-slate-600 font-medium">
+          Showing <span className="font-bold text-slate-900">{totalItems > 0 ? (currentPage - 1) * pageSize + 1 : 0}</span>–<span className="font-bold text-slate-900">{Math.min(currentPage * pageSize, totalItems)}</span> of <span className="font-bold text-slate-900">{totalItems}</span> allotments
         </div>
 
         {/* Page Buttons */}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1.5">
           <button
             type="button"
             disabled={currentPage === 1}
             onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-            className="p-1.5 rounded-[6px] border bg-white text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors"
-            style={{ borderColor: 'var(--border, #E2E8F0)' }}
+            className="p-2 rounded-lg border border-slate-200 bg-white text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors shadow-2xs cursor-pointer"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
@@ -874,14 +850,11 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                 key={pg}
                 type="button"
                 onClick={() => setCurrentPage(pg)}
-                className={`w-7 h-7 rounded-[6px] text-xs font-semibold border transition-colors ${
+                className={`w-8 h-8 rounded-lg text-xs font-bold border transition-all cursor-pointer ${
                   isActive
-                    ? 'text-white border-transparent'
-                    : 'bg-white text-slate-700 hover:bg-slate-50 border-[var(--border,#E2E8F0)]'
+                    ? 'bg-[#3A3564] text-white border-transparent shadow-xs'
+                    : 'bg-white text-slate-700 hover:bg-slate-100 border-slate-200'
                 }`}
-                style={{
-                  backgroundColor: isActive ? 'var(--steel, #2B4C7E)' : '#FFFFFF'
-                }}
               >
                 {pg}
               </button>
@@ -892,8 +865,7 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
             type="button"
             disabled={currentPage === totalPages}
             onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-            className="p-1.5 rounded-[6px] border bg-white text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors"
-            style={{ borderColor: 'var(--border, #E2E8F0)' }}
+            className="p-2 rounded-lg border border-slate-200 bg-white text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors shadow-2xs cursor-pointer"
           >
             <ChevronRight className="w-4 h-4" />
           </button>
@@ -970,10 +942,10 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-slate-500 font-medium">Allotment Status:</span>
-                  <span className={`font-bold px-2 py-0.5 rounded text-[10.5px] ${
-                    deletingAllotment.status === 'COMPLETED' ? 'bg-green-100 text-green-700' :
-                    deletingAllotment.status === 'CANCELLED' ? 'bg-red-100 text-red-700' :
-                    'bg-blue-100 text-blue-700'
+                  <span className={`font-bold px-2.5 py-1 rounded-full text-xs ${
+                    deletingAllotment.status === 'COMPLETED' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' :
+                    deletingAllotment.status === 'CANCELLED' ? 'bg-slate-100 text-slate-700 border border-slate-200' :
+                    'bg-[#FAF7F0] text-[#3A3564] border border-black/10'
                   }`}>
                     {deletingAllotment.status}
                   </span>
