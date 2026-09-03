@@ -20,7 +20,14 @@ import {
   Copy,
   FileSpreadsheet,
   UploadCloud,
-  FileUp
+  FileUp,
+  FileText,
+  Check,
+  User,
+  Palette,
+  Zap,
+  UserCheck,
+  Sparkles
 } from 'lucide-react'
 import {
   ChallanArticleLine,
@@ -34,12 +41,6 @@ import {
   allotEntireChallan,
   allotChallanByColor
 } from '../actions'
-import {
-  Palette,
-  Zap,
-  UserCheck,
-  Sparkles
-} from 'lucide-react'
 import {
   downloadCleanChallanTemplate,
   parseChallanExcelFile
@@ -798,87 +799,87 @@ export function ProductionOrdersClient({
       {/* ========================================================= */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5 sm:gap-4">
         {/* Total Challans */}
-        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+        <div className="bg-white p-4.5 sm:p-5 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">
+            <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500">
               Challans
             </span>
-            <div className="w-7 h-7 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0">
-              <FileSpreadsheet className="w-3.5 h-3.5" />
+            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+              <FileSpreadsheet className="w-4 h-4" />
             </div>
           </div>
-          <p className="text-2xl font-extrabold text-slate-900 tracking-tight font-mono mt-2">{summary.totalChallans}</p>
-          <span className="text-xs text-slate-500 font-medium mt-1">Buyer Job Sheets</span>
+          <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-mono mt-2">{summary.totalChallans}</p>
+          <span className="text-xs sm:text-[13px] text-slate-500 font-medium mt-1">Buyer Job Sheets</span>
         </div>
 
         {/* Article Lines */}
-        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+        <div className="bg-white p-4.5 sm:p-5 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">
+            <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500">
               Article Lines
             </span>
-            <div className="w-7 h-7 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0">
-              <Tag className="w-3.5 h-3.5" />
+            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+              <Tag className="w-4 h-4" />
             </div>
           </div>
-          <p className="text-2xl font-extrabold text-slate-900 tracking-tight font-mono mt-2">{summary.totalArticles}</p>
-          <span className="text-xs text-slate-500 font-medium mt-1">Variants on Floor</span>
+          <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-mono mt-2">{summary.totalArticles}</p>
+          <span className="text-xs sm:text-[13px] text-slate-500 font-medium mt-1">Variants on Floor</span>
         </div>
 
         {/* Total Sets */}
-        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+        <div className="bg-white p-4.5 sm:p-5 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">
+            <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500">
               Total Sets
             </span>
-            <div className="w-7 h-7 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0">
-              <Layers className="w-3.5 h-3.5" />
+            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+              <Layers className="w-4 h-4" />
             </div>
           </div>
-          <p className="text-2xl font-extrabold text-slate-900 tracking-tight font-mono mt-2">{summary.totalSets.toLocaleString()}</p>
-          <span className="text-xs text-slate-500 font-medium mt-1">Bundle Units</span>
+          <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-mono mt-2">{summary.totalSets.toLocaleString()}</p>
+          <span className="text-xs sm:text-[13px] text-slate-500 font-medium mt-1">Bundle Units</span>
         </div>
 
         {/* Total Pieces */}
-        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+        <div className="bg-white p-4.5 sm:p-5 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">
+            <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500">
               Total Pieces
             </span>
-            <div className="w-7 h-7 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0">
-              <CheckCircle2 className="w-3.5 h-3.5" />
+            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+              <CheckCircle2 className="w-4 h-4" />
             </div>
           </div>
-          <p className="text-2xl font-extrabold text-slate-900 tracking-tight font-mono mt-2">{summary.totalPcs.toLocaleString()}</p>
-          <span className="text-xs text-slate-500 font-medium mt-1">Garment Pieces</span>
+          <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-mono mt-2">{summary.totalPcs.toLocaleString()}</p>
+          <span className="text-xs sm:text-[13px] text-slate-500 font-medium mt-1">Garment Pieces</span>
         </div>
 
         {/* In Production */}
-        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+        <div className="bg-white p-4.5 sm:p-5 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">
+            <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500">
               In Production
             </span>
-            <div className="w-7 h-7 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0">
-              <Clock className="w-3.5 h-3.5" />
+            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+              <Clock className="w-4 h-4" />
             </div>
           </div>
-          <p className="text-2xl font-extrabold text-slate-900 tracking-tight font-mono mt-2">{summary.inProdPcs.toLocaleString()}</p>
-          <span className="text-xs text-slate-500 font-medium mt-1">Active Sewing (pcs)</span>
+          <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-mono mt-2">{summary.inProdPcs.toLocaleString()}</p>
+          <span className="text-xs sm:text-[13px] text-slate-500 font-medium mt-1">Active Sewing (pcs)</span>
         </div>
 
         {/* Ready / Dispatched */}
-        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+        <div className="bg-white p-4.5 sm:p-5 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">
+            <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500">
               Ready / Out
             </span>
-            <div className="w-7 h-7 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0">
-              <Truck className="w-3.5 h-3.5" />
+            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+              <Truck className="w-4 h-4" />
             </div>
           </div>
-          <p className="text-2xl font-extrabold text-slate-900 tracking-tight font-mono mt-2">{(summary.readyQcPcs + summary.dispatchedPcs).toLocaleString()}</p>
-          <span className="text-xs text-slate-500 font-medium mt-1">QC Passed / Gate Out</span>
+          <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-mono mt-2">{(summary.readyQcPcs + summary.dispatchedPcs).toLocaleString()}</p>
+          <span className="text-xs sm:text-[13px] text-slate-500 font-medium mt-1">QC Passed / Gate Out</span>
         </div>
       </div>
 
@@ -960,20 +961,20 @@ export function ProductionOrdersClient({
             return (
               <div
                 key={challan.id}
-                className="bg-white border border-slate-200/90 rounded-2xl shadow-xs overflow-hidden transition-all"
+                className="bg-white border border-black/10 rounded-2xl shadow-2xs overflow-hidden transition-all"
               >
                 {/* Challan Card Header */}
                 <div
                   onClick={() => toggleChallan(challan.id)}
-                  className="p-4.5 bg-gradient-to-r from-slate-50 via-white to-slate-50/50 hover:from-slate-100/70 hover:to-white cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 select-none transition-colors"
+                  className="p-4 sm:p-5 bg-white hover:bg-slate-50/80 cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-black/10 select-none transition-colors"
                 >
                   <div className="flex items-center gap-3.5">
                     <button
                       type="button"
-                      className="p-1.5 rounded-xl bg-white border border-slate-200 shadow-2xs hover:bg-slate-100 text-slate-700 transition-transform"
+                      className="w-8 h-8 rounded-xl bg-[#FAF7F0] border border-black/10 shadow-2xs hover:bg-[#F2ECE0] text-[#3A3564] flex items-center justify-center shrink-0 transition-transform"
                     >
                       {isExpanded ? (
-                        <ChevronDown className="w-4 h-4 text-indigo-600" />
+                        <ChevronDown className="w-4 h-4 text-[#3A3564]" />
                       ) : (
                         <ChevronRight className="w-4 h-4 text-slate-500" />
                       )}
@@ -981,50 +982,46 @@ export function ProductionOrdersClient({
 
                     <div>
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-black text-sm px-2.5 py-0.5 rounded-lg bg-slate-900 text-white tracking-tight flex items-center gap-1.5 shadow-2xs">
-                          📋 {challan.challan_no}
+                        <span className="font-extrabold text-sm px-3 py-1 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 tracking-tight flex items-center gap-1.5 shadow-2xs font-mono">
+                          <FileText className="w-3.5 h-3.5 text-[#3A3564]" />
+                          <span>{challan.challan_no}</span>
                         </span>
-                        <span className="px-2.5 py-0.5 rounded-lg text-xs font-black bg-indigo-50 text-indigo-700 border border-indigo-200/80">
+                        <span className="px-2.5 py-1 rounded-xl text-xs font-bold bg-slate-100 text-slate-800 border border-slate-200">
                           {challan.brand}
                         </span>
-                        <span className="px-2.5 py-0.5 rounded-lg text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200/80">
+                        <span className="px-2.5 py-1 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">
                           {challan.fabric_type}
                         </span>
                         {challan.sample_given && (
-                          <span className="px-2.5 py-0.5 rounded-lg text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/80 flex items-center gap-1">
-                            ✓ Sample Attached
+                          <span className="px-2.5 py-1 rounded-xl text-xs font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center gap-1.5 shadow-2xs">
+                            <Check className="w-3.5 h-3.5 text-emerald-600" />
+                            <span>Sample Attached</span>
                           </span>
                         )}
                       </div>
 
-                      <div className="flex items-center gap-3 text-xs text-slate-500 mt-1.5 flex-wrap">
-                        <span>Challan Date: <strong className="text-slate-800 font-mono">{challan.challan_date}</strong></span>
+                      <div className="flex items-center gap-3 text-xs sm:text-[13px] text-slate-600 mt-2 flex-wrap">
+                        <span>Challan Date: <strong className="text-slate-900 font-mono font-bold">{challan.challan_date}</strong></span>
                         {challan.delivery_date && (
-                          <span>• Delivery: <strong className="text-slate-800 font-mono">{challan.delivery_date}</strong></span>
+                          <span>• Delivery: <strong className="text-slate-900 font-mono font-bold">{challan.delivery_date}</strong></span>
                         )}
-                        <span>• <strong className="text-slate-800">{articleCount} Article Styles</strong></span>
+                        <span>• <strong className="text-slate-900 font-semibold">{articleCount} Article Styles</strong></span>
                       </div>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-3.5 flex-wrap self-end md:self-center" onClick={e => e.stopPropagation()}>
-                    <div className="text-right px-3.5 py-1.5 bg-slate-50 border border-slate-200/80 rounded-xl shadow-2xs">
-                      <div className="text-xs font-bold text-slate-800 font-mono">
-                        <span className="font-extrabold text-indigo-700">{challan.total_sets.toLocaleString()}</span> Sets <span className="text-slate-300">|</span> <span className="text-emerald-700 font-black">{challan.total_pcs.toLocaleString()} Pcs</span>
+                    <div className="text-right px-4 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl shadow-2xs">
+                      <div className="text-xs sm:text-sm font-bold text-slate-900 font-mono">
+                        <span className="font-extrabold text-[#3A3564]">{challan.total_sets.toLocaleString()}</span> Sets <span className="text-slate-300">|</span> <span className="text-slate-900 font-extrabold">{challan.total_pcs.toLocaleString()} Pcs</span>
                       </div>
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Grand Batch Total</span>
+                      <span className="text-[10.5px] font-bold text-slate-500 uppercase tracking-wider block mt-0.5">Grand Batch Total</span>
                     </div>
 
                     <select
                       value={challan.status}
                       onChange={e => handleUpdateStatus(challan.id, e.target.value, true)}
-                      className={`text-xs font-extrabold px-3 py-1.5 rounded-xl border cursor-pointer focus:outline-none shadow-2xs transition-all ${
-                        challan.status === 'QC_PASSED'
-                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                          : challan.status === 'DISPATCHED'
-                          ? 'bg-purple-50 text-purple-700 border-purple-200'
-                          : 'bg-amber-50 text-amber-700 border-amber-200'
-                      }`}
+                      className="text-xs sm:text-sm font-bold px-3.5 py-2 rounded-xl border border-black/10 bg-white text-slate-800 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#3A3564] shadow-2xs transition-all"
                     >
                       <option value="IN_PROGRESS">In Progress</option>
                       <option value="QC_PASSED">Ready (QC Passed)</option>
@@ -1035,7 +1032,7 @@ export function ProductionOrdersClient({
                       type="button"
                       onClick={() => handleDelete(challan.id, true)}
                       title="Delete Challan"
-                      className="p-2 text-slate-400 hover:text-red-600 rounded-xl hover:bg-red-50 border border-transparent hover:border-red-100 transition-all cursor-pointer"
+                      className="p-2 text-slate-400 hover:text-red-600 rounded-xl hover:bg-red-50 border border-black/5 hover:border-red-200 transition-all cursor-pointer"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -1044,33 +1041,36 @@ export function ProductionOrdersClient({
 
                 {/* Expanded Article Lines Table & Smart Allotment Hub */}
                 {isExpanded && (
-                  <div className="bg-slate-50/40">
+                  <div className="bg-white">
                     {/* Success notification if allotted */}
                     {allotSuccessMsg[challan.id] && (
-                      <div className="p-3.5 bg-emerald-500 text-white text-xs font-bold flex items-center justify-between shadow-xs animate-in fade-in duration-300">
+                      <div className="p-3.5 bg-emerald-600 text-white text-xs sm:text-sm font-bold flex items-center justify-between shadow-xs animate-in fade-in duration-300">
                         <div className="flex items-center gap-2">
                           <CheckCircle2 className="w-4 h-4 text-white shrink-0" />
                           <span>{allotSuccessMsg[challan.id]}</span>
                         </div>
-                        <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded font-mono">LIVE SYNCED</span>
+                        <span className="text-[11px] bg-white/20 px-2.5 py-0.5 rounded font-mono font-bold">LIVE SYNCED</span>
                       </div>
                     )}
 
                     {/* BOM & Lots Summary Bar if present */}
                     {challan.bom_details && challan.bom_details.length > 0 && (
-                      <div className="px-5 py-3 bg-white border-b border-slate-100 flex items-center gap-2.5 flex-wrap text-xs">
-                        <span className="text-[10.5px] font-extrabold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                          <Tag className="w-3.5 h-3.5 text-indigo-500" /> BOM LOTS:
+                      <div className="px-5 py-3.5 bg-slate-50/60 border-b border-black/5 flex items-center gap-2.5 flex-wrap text-xs sm:text-[13px]">
+                        <div className="w-6 h-6 rounded-md bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+                          <Tag className="w-3.5 h-3.5" />
+                        </div>
+                        <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
+                          BOM LOTS:
                         </span>
                         {challan.bom_details.map((bom, bIdx) => (
                           <div
                             key={bIdx}
-                            className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-50 border border-slate-200/90 rounded-lg text-xs text-slate-700 shadow-2xs"
+                            className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-black/10 rounded-lg text-xs sm:text-[13px] text-slate-800 shadow-2xs"
                           >
-                            <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#3A3564]" />
                             <strong className="text-slate-900 font-semibold">{bom.item_name}</strong>
                             {bom.lot_no && (
-                              <span className="text-[10px] px-1.5 py-0.2 rounded bg-indigo-50 text-indigo-700 font-bold font-mono">
+                              <span className="text-[11px] px-2 py-0.5 rounded bg-[#FAF7F0] text-[#3A3564] font-bold font-mono border border-black/10">
                                 Lot #{bom.lot_no}
                               </span>
                             )}
@@ -1080,55 +1080,57 @@ export function ProductionOrdersClient({
                     )}
 
                     {/* ========================================================= */}
-                    {/* SMART LINE ALLOTMENT HUB (Sir's Exact Factory Rules)      */}
+                    {/* SMART LINE ALLOTMENT HUB (Continuous Sewing Rules)       */}
                     {/* ========================================================= */}
-                    <div className="p-5 border-b border-slate-200/80 bg-gradient-to-b from-slate-50/80 to-slate-100/30">
+                    <div className="p-5 sm:p-6 border-b border-black/10 bg-slate-50/50">
                       <div className="flex items-center justify-between gap-3 flex-wrap mb-4">
-                        <div className="flex items-center gap-2.5">
-                          <div className="w-7 h-7 rounded-lg bg-indigo-600 flex items-center justify-center text-white shadow-xs">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
                             <Sparkles className="w-4 h-4" />
                           </div>
                           <div>
-                            <h4 className="text-xs font-black uppercase tracking-wider text-slate-900 flex items-center gap-2">
-                              SMART LINE ALLOTMENT HUB
-                              <span className="px-2 py-0.5 rounded-md text-[9.5px] font-bold bg-indigo-100 text-indigo-800 border border-indigo-200">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <h4 className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-slate-900">
+                                Smart Line Allotment Hub
+                              </h4>
+                              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10">
                                 Continuous Sewing Optimizer
                               </span>
-                            </h4>
-                            <p className="text-[11px] text-slate-500">
+                            </div>
+                            <p className="text-xs sm:text-[13px] text-slate-500 mt-0.5">
                               Dispatch full batch to 1 Lineman or split by continuous color lines for maximum line output
                             </p>
                           </div>
                         </div>
                       </div>
 
-                      {/* 1. Full Challan 1-Click Allotment Bar */}
-                      <div className="p-3.5 bg-slate-900 border border-slate-800 rounded-xl shadow-xs mb-4 flex flex-col md:flex-row md:items-center justify-between gap-3.5 text-white">
-                        <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-xl bg-amber-400/20 border border-amber-400/30 flex items-center justify-center text-amber-300 shrink-0">
-                            <Zap className="w-5 h-5 fill-amber-300" />
+                      {/* 1. Full Challan 1-Click Allotment Card */}
+                      <div className="p-4 sm:p-4.5 bg-white border border-black/10 rounded-2xl shadow-2xs mb-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div className="flex items-center gap-3.5">
+                          <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+                            <Zap className="w-5 h-5" />
                           </div>
                           <div>
-                            <div className="text-xs font-bold text-white flex items-center gap-2">
-                              Assign Entire Challan ({challan.total_pcs.toLocaleString()} Pcs) to 1 Lineman
-                              <span className="text-[10px] font-normal text-slate-400">({challan.articles?.length || 8} Articles Total)</span>
+                            <div className="text-xs sm:text-sm font-bold text-slate-900 flex items-center gap-2 flex-wrap">
+                              <span>Assign Entire Challan ({challan.total_pcs.toLocaleString()} Pcs) to 1 Lineman</span>
+                              <span className="text-xs font-normal text-slate-500">({challan.articles?.length || 0} Articles Total)</span>
                             </div>
-                            <div className="text-[11px] text-slate-300">
-                              1-Click creates/updates all article allotments in this challan to a single production line
-                            </div>
+                            <p className="text-xs sm:text-[13px] text-slate-500 mt-0.5">
+                              1-Click creates or updates all article allotments in this challan to a single production line
+                            </p>
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-2.5 shrink-0">
+                        <div className="flex items-center gap-3 shrink-0 flex-wrap">
                           <select
                             value={selectedFullLineman[challan.id] || ''}
                             onChange={e => setSelectedFullLineman(prev => ({ ...prev, [challan.id]: e.target.value }))}
-                            className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs font-semibold text-white cursor-pointer focus:outline-none focus:ring-1 focus:ring-amber-400"
+                            className="bg-slate-50 border border-black/10 rounded-xl px-3.5 py-2 text-xs sm:text-sm font-bold text-slate-800 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                           >
                             <option value="" className="text-slate-400">Select Lineman...</option>
                             {linemenList.map(lm => (
-                              <option key={lm.id} value={lm.id} className="text-slate-900 bg-white">
-                                👤 {lm.username}
+                              <option key={lm.id} value={lm.id} className="text-slate-900">
+                                {lm.username}
                               </option>
                             ))}
                           </select>
@@ -1137,64 +1139,61 @@ export function ProductionOrdersClient({
                             type="button"
                             disabled={isPending}
                             onClick={() => handleAllotEntireChallan(challan.id)}
-                            className="px-4 py-2 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-950 rounded-lg text-xs font-black shadow-xs transition-all disabled:opacity-50 cursor-pointer flex items-center gap-1.5 shrink-0"
+                            className="px-4 py-2.5 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs sm:text-sm font-bold shadow-xs transition-all disabled:opacity-50 cursor-pointer flex items-center gap-2 shrink-0"
                           >
-                            <Zap className="w-3.5 h-3.5 fill-slate-950" />
+                            <Zap className="w-4 h-4" />
                             <span>Allot Full Challan</span>
                           </button>
                         </div>
                       </div>
 
-                      {/* 2. Color-Wise Line Distribution Matrix (Sir's Exact Formula Cards) */}
+                      {/* 2. Color-Wise Line Distribution Matrix */}
                       {(() => {
                         const colorCards = computeColorBreakdown(challan)
                         if (colorCards.length === 0) return null
 
                         return (
                           <div>
-                            <div className="flex items-center justify-between mb-2.5">
-                              <div className="flex items-center gap-2 text-xs font-extrabold text-slate-800 uppercase tracking-wide">
-                                <Palette className="w-4 h-4 text-indigo-600" />
-                                <span>COLOR-WISE LINE DISTRIBUTION (SIR'S CONTINUOUS SEWING MATRIX)</span>
+                            <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+                              <div className="flex items-center gap-2.5">
+                                <div className="w-7 h-7 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+                                  <Palette className="w-3.5 h-3.5" />
+                                </div>
+                                <span className="text-xs sm:text-sm font-extrabold text-slate-900 uppercase tracking-wide">
+                                  Color-Wise Line Distribution (Continuous Sewing Matrix)
+                                </span>
                               </div>
-                              <span className="text-[11px] font-semibold text-slate-400">
+                              <span className="text-xs font-mono font-bold text-slate-500">
                                 {colorCards.length} Active Color Lines
                               </span>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                               {colorCards.map((cg, cIdx) => (
                                 <div
                                   key={cIdx}
-                                  className="bg-white border-2 rounded-xl p-4 flex flex-col justify-between shadow-2xs hover:shadow-xs transition-all"
-                                  style={{ borderColor: cg.borderTheme }}
+                                  className="bg-white border border-black/10 rounded-2xl p-4 sm:p-5 flex flex-col justify-between shadow-2xs hover:shadow-xs transition-all"
                                 >
                                   <div>
                                     {/* Color Header Banner */}
-                                    <div className="flex items-center justify-between gap-2 pb-3 mb-3 border-b border-slate-100">
+                                    <div className="flex items-center justify-between gap-3 pb-3 mb-3 border-b border-black/5">
                                       <div className="flex items-center gap-2.5">
                                         <span
-                                          className="w-4 h-4 rounded-full shadow-2xs shrink-0 ring-2 ring-white"
+                                          className="w-3.5 h-3.5 rounded-full shadow-2xs shrink-0 ring-2 ring-white border border-black/15"
                                           style={{ backgroundColor: cg.themeColor }}
                                         />
                                         <div>
-                                          <span className="font-black text-xs text-slate-900 tracking-tight block">
+                                          <span className="font-extrabold text-xs sm:text-sm text-slate-900 tracking-tight block">
                                             {cg.colorName} LINE
                                           </span>
-                                          <span className="text-[10px] font-medium text-slate-400">
+                                          <span className="text-[11px] font-medium text-slate-500">
                                             Continuous Floor Thread
                                           </span>
                                         </div>
                                       </div>
 
-                                      <div
-                                        className="text-right px-2.5 py-1 rounded-lg border font-mono"
-                                        style={{ backgroundColor: cg.bgLight, borderColor: cg.borderTheme }}
-                                      >
-                                        <span
-                                          style={{ color: cg.themeColor }}
-                                          className="text-xs font-black block"
-                                        >
+                                      <div className="px-3 py-1 rounded-xl border border-black/10 bg-[#FAF7F0] text-[#3A3564] font-mono shadow-2xs">
+                                        <span className="text-xs sm:text-sm font-extrabold block">
                                           {cg.totalPcs.toLocaleString()} PCS
                                         </span>
                                       </div>
@@ -1202,17 +1201,17 @@ export function ProductionOrdersClient({
 
                                     {/* Size Groups Grid */}
                                     <div className="mb-4">
-                                      <div className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                                      <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center justify-between">
                                         <span>Size Tier Breakdown</span>
                                         <span>Quantity</span>
                                       </div>
-                                      <div className="space-y-1 bg-slate-50/80 rounded-lg p-2 border border-slate-100">
+                                      <div className="space-y-1.5 bg-slate-50/80 rounded-xl p-2.5 border border-black/5">
                                         {Object.entries(cg.sizeBreakdown).map(([sz, count], sIdx) => (
                                           <div
                                             key={sIdx}
-                                            className="flex items-center justify-between text-xs py-0.5 px-1 rounded hover:bg-white transition-colors"
+                                            className="flex items-center justify-between text-xs sm:text-[13px] py-1 px-1.5 rounded-lg hover:bg-white transition-colors"
                                           >
-                                            <div className="flex items-center gap-1.5">
+                                            <div className="flex items-center gap-2">
                                               <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
                                               <span className="font-semibold text-slate-700">Tier {sz}</span>
                                             </div>
@@ -1226,7 +1225,7 @@ export function ProductionOrdersClient({
                                   </div>
 
                                   {/* Allotment Footer */}
-                                  <div className="space-y-2 pt-2 border-t border-slate-100">
+                                  <div className="space-y-2.5 pt-3 border-t border-black/5">
                                     <select
                                       value={selectedColorLineman[challan.id]?.[cg.colorName] || cg.assignedLinemanId || ''}
                                       onChange={e => {
@@ -1239,12 +1238,12 @@ export function ProductionOrdersClient({
                                           }
                                         }))
                                       }}
-                                      className="w-full bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-800 cursor-pointer focus:outline-none focus:ring-1 focus:ring-slate-800 transition-all"
+                                      className="w-full bg-slate-50 hover:bg-slate-100/80 border border-black/10 rounded-xl px-3 py-2 text-xs sm:text-sm font-bold text-slate-800 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#3A3564] transition-all"
                                     >
                                       <option value="">Assign {cg.colorName} to Lineman...</option>
                                       {linemenList.map(lm => (
                                         <option key={lm.id} value={lm.id}>
-                                          👤 {lm.username}
+                                          {lm.username}
                                         </option>
                                       ))}
                                     </select>
@@ -1253,11 +1252,10 @@ export function ProductionOrdersClient({
                                       type="button"
                                       disabled={isPending}
                                       onClick={() => handleAllotColorLine(challan.id, cg.colorName)}
-                                      style={{ backgroundColor: cg.themeColor }}
-                                      className="w-full py-2 text-white rounded-lg text-xs font-bold shadow-xs hover:opacity-95 active:scale-[0.99] transition-all disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1.5"
+                                      className="w-full py-2.5 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs sm:text-sm font-bold shadow-xs hover:shadow-sm active:scale-[0.99] transition-all disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
                                     >
                                       <UserCheck className="w-4 h-4" />
-                                      <span>Allot {cg.colorName} ({cg.totalPcs} pcs)</span>
+                                      <span>Allot {cg.colorName} ({cg.totalPcs.toLocaleString()} pcs)</span>
                                     </button>
                                   </div>
                                 </div>
@@ -1269,49 +1267,52 @@ export function ProductionOrdersClient({
                     </div>
 
                     {/* Article Lines Reference Grid (Professional ERP Table) */}
-                    <div className="p-5">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-2">
-                          <h5 className="text-xs font-extrabold uppercase tracking-wider text-slate-800">
+                    <div className="p-5 sm:p-6">
+                      <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-7 h-7 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+                            <FileSpreadsheet className="w-3.5 h-3.5" />
+                          </div>
+                          <h5 className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-slate-900">
                             Challan Article Reference Sheet
                           </h5>
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-200 text-slate-700">
+                          <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
                             {challan.articles?.length || 0} Lines
                           </span>
                         </div>
-                        <span className="text-[11px] text-slate-400">
+                        <span className="text-xs font-medium text-slate-500">
                           Auto-synced with smart line distribution
                         </span>
                       </div>
 
-                      <div className="overflow-x-auto border border-slate-200 rounded-xl bg-white shadow-2xs">
-                        <table className="w-full text-left border-collapse text-xs">
+                      <div className="overflow-x-auto border border-black/10 rounded-2xl bg-white shadow-2xs">
+                        <table className="w-full text-left border-collapse text-xs sm:text-[13.5px]">
                           <thead>
-                            <tr className="bg-slate-50 border-b border-slate-200 text-[10.5px] font-extrabold uppercase tracking-wider text-slate-500">
-                              <th className="py-3 px-3.5 w-12 text-center">#</th>
-                              <th className="py-3 px-3.5 w-32">Art No.</th>
-                              <th className="py-3 px-3.5 w-28">Pattern</th>
-                              <th className="py-3 px-3.5 min-w-[160px]">Color / Combination</th>
-                              <th className="py-3 px-3.5 w-24">Size Tier</th>
-                              <th className="py-3 px-3.5 w-20 text-right">Sets</th>
-                              <th className="py-3 px-3.5 w-20 text-right">Pcs/Set</th>
-                              <th className="py-3 px-3.5 w-24 text-right">Total Pcs</th>
-                              <th className="py-3 px-3.5 w-44">Assigned Line</th>
-                              <th className="py-3 px-3.5 w-32">Line Status</th>
-                              <th className="py-3 px-2 w-12 text-center">Action</th>
+                            <tr className="bg-[#FAF7F0]/60 border-b border-black/10 text-xs font-extrabold uppercase tracking-wider text-slate-600">
+                              <th className="py-3.5 px-4 w-12 text-center">#</th>
+                              <th className="py-3.5 px-4 w-36">Art No.</th>
+                              <th className="py-3.5 px-4 w-32">Pattern</th>
+                              <th className="py-3.5 px-4 min-w-[170px]">Color / Combination</th>
+                              <th className="py-3.5 px-4 w-28">Size Tier</th>
+                              <th className="py-3.5 px-4 w-24 text-right">Sets</th>
+                              <th className="py-3.5 px-4 w-24 text-right">Pcs/Set</th>
+                              <th className="py-3.5 px-4 w-28 text-right">Total Pcs</th>
+                              <th className="py-3.5 px-4 w-48">Assigned Line</th>
+                              <th className="py-3.5 px-4 w-36">Line Status</th>
+                              <th className="py-3.5 px-3 w-14 text-center">Action</th>
                             </tr>
                           </thead>
-                          <tbody className="divide-y divide-slate-100">
+                          <tbody className="divide-y divide-black/5">
                             {challan.articles?.map((line, lIdx) => (
-                              <tr key={line.allotment_id || lIdx} className="hover:bg-slate-50/90 transition-colors">
-                                <td className="py-3 px-3.5 text-center text-slate-400 font-semibold">{lIdx + 1}</td>
+                              <tr key={line.allotment_id || lIdx} className="hover:bg-slate-50/80 transition-colors">
+                                <td className="py-3.5 px-4 text-center text-slate-500 font-mono font-bold">{lIdx + 1}</td>
                                 
                                 {/* Art No + Sub Art */}
-                                <td className="py-3 px-3.5 font-bold text-slate-900">
-                                  <div className="flex items-center gap-1.5">
-                                    <span className="font-mono">{line.art_no}</span>
+                                <td className="py-3.5 px-4 font-bold text-slate-900">
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-mono text-sm">{line.art_no}</span>
                                     {line.sub_art_no && (
-                                      <span className="px-1.5 py-0.2 rounded text-[9.5px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                                      <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10 font-mono shadow-2xs">
                                         {line.sub_art_no}
                                       </span>
                                     )}
@@ -1319,65 +1320,61 @@ export function ProductionOrdersClient({
                                 </td>
 
                                 {/* Pattern Master */}
-                                <td className="py-3 px-3.5 text-slate-600 font-medium">
+                                <td className="py-3.5 px-4 text-slate-700 font-medium">
                                   {line.pattern_no || 'Standard'}
                                 </td>
 
                                 {/* Color Combination */}
-                                <td className="py-3 px-3.5 font-semibold text-slate-800">
+                                <td className="py-3.5 px-4 font-semibold text-slate-800">
                                   <div className="flex items-center gap-2">
-                                    <span className="w-2 h-2 rounded-full bg-indigo-500 shrink-0" />
+                                    <span className="w-2 h-2 rounded-full bg-[#3A3564] shrink-0" />
                                     <span>{line.color_pattern}</span>
                                   </div>
                                 </td>
 
                                 {/* Size Tier */}
-                                <td className="py-3 px-3.5 font-bold text-slate-700">
-                                  <span className="px-2 py-0.5 rounded-md bg-slate-100 border border-slate-200 text-[11px]">
+                                <td className="py-3.5 px-4 font-bold text-slate-800">
+                                  <span className="px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200 text-xs font-bold">
                                     {line.size_range}
                                   </span>
                                 </td>
 
                                 {/* Sets */}
-                                <td className="py-3 px-3.5 text-right font-medium text-slate-700 font-mono">
+                                <td className="py-3.5 px-4 text-right font-bold text-slate-900 font-mono text-sm">
                                   {line.sets}
                                 </td>
 
                                 {/* Ratio */}
-                                <td className="py-3 px-3.5 text-right text-slate-500 font-mono">
+                                <td className="py-3.5 px-4 text-right text-slate-600 font-mono text-xs">
                                   {line.pcs_per_set} pcs/set
                                 </td>
 
                                 {/* Total Pcs */}
-                                <td className="py-3 px-3.5 text-right font-black text-emerald-700 font-mono">
+                                <td className="py-3.5 px-4 text-right font-extrabold text-slate-900 font-mono text-sm">
                                   {line.total_pcs.toLocaleString()} pcs
                                 </td>
 
                                 {/* Assigned Line (Clean Auto-Badge) */}
-                                <td className="py-3 px-3.5">
+                                <td className="py-3.5 px-4">
                                   {line.assigned_lineman_name && line.assigned_lineman_name !== 'Unassigned' && line.assigned_lineman_name !== 'Unassigned (Floor Order)' ? (
-                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 shadow-2xs">
-                                      👤 {line.assigned_lineman_name}
+                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs">
+                                      <User className="w-3.5 h-3.5 text-[#3A3564]" />
+                                      <span>{line.assigned_lineman_name}</span>
                                     </span>
                                   ) : (
-                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10.5px] font-medium bg-slate-100 text-slate-500">
-                                      ⏳ Pending Allotment
+                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-semibold bg-slate-100 text-slate-600 border border-slate-200">
+                                      <Clock className="w-3.5 h-3.5 text-slate-400" />
+                                      <span>Pending Allotment</span>
                                     </span>
                                   )}
                                 </td>
 
                                 {/* Line Status */}
-                                <td className="py-3 px-3.5">
+                                <td className="py-3.5 px-4">
                                   <select
                                     value={line.status || 'IN_PROGRESS'}
                                     onChange={e => handleUpdateStatus(line.allotment_id, e.target.value, false)}
-                                    className={`text-[10.5px] font-bold px-2 py-1 rounded-lg border cursor-pointer focus:outline-none ${
-                                      line.status === 'QC_PASSED'
-                                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                                        : line.status === 'DISPATCHED'
-                                        ? 'bg-purple-50 text-purple-700 border-purple-200'
-                                        : 'bg-white text-slate-700 border-slate-200'
-                                    }`}
+                                    className="text-xs font-bold px-3 py-1.5 rounded-xl border border-black/10 bg-white text-slate-800 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#3A3564] shadow-2xs"
                                   >
                                     <option value="IN_PROGRESS">In Progress</option>
                                     <option value="QC_PASSED">QC Passed</option>
@@ -1386,12 +1383,12 @@ export function ProductionOrdersClient({
                                 </td>
 
                                 {/* Action */}
-                                <td className="py-3 px-2 text-center">
+                                <td className="py-3.5 px-3 text-center">
                                   <button
                                     type="button"
                                     onClick={() => handleDelete(line.allotment_id, false)}
                                     title="Delete Article Line"
-                                    className="p-1.5 text-slate-300 hover:text-red-500 rounded-lg hover:bg-red-50 transition-colors cursor-pointer"
+                                    className="p-2 text-slate-400 hover:text-red-600 rounded-xl hover:bg-red-50 border border-transparent hover:border-red-100 transition-colors cursor-pointer"
                                   >
                                     <Trash2 className="w-3.5 h-3.5" />
                                   </button>
@@ -1415,25 +1412,29 @@ export function ProductionOrdersClient({
       {/* ========================================================= */}
       {showNewChallanModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-900/60 backdrop-blur-xs overflow-y-auto">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-6xl max-h-[94vh] flex flex-col overflow-hidden border border-slate-200 my-auto animate-in fade-in zoom-in-95 duration-150">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-6xl max-h-[94vh] flex flex-col overflow-hidden border border-black/10 my-auto animate-in fade-in zoom-in-95 duration-150">
             
             {/* Modal Header */}
-            <div className="p-4 sm:p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50/90 flex-wrap gap-3">
-              <div>
-                <h2 className="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2">
-                  <FileSpreadsheet className="w-5 h-5 text-slate-700" />
-                  <span>New Job Work Delivery Challan Entry</span>
-                </h2>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  Enter multi-article cutting lots, sizes, and BOM materials directly or import via Excel
-                </p>
+            <div className="p-4 sm:p-5 border-b border-black/10 flex items-center justify-between bg-[#FAF7F0] flex-wrap gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-white text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+                  <FileSpreadsheet className="w-4 h-4" />
+                </div>
+                <div>
+                  <h2 className="text-base sm:text-lg font-extrabold text-slate-900">
+                    New Job Work Delivery Challan Entry
+                  </h2>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Enter multi-article cutting lots, sizes, and BOM materials directly or import via Excel
+                  </p>
+                </div>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2.5">
                 <button
                   type="button"
                   onClick={downloadCleanChallanTemplate}
-                  className="px-3 py-1.5 rounded-lg text-xs font-semibold border bg-white hover:bg-slate-50 text-slate-700 flex items-center gap-1.5 border-slate-200 shadow-2xs transition-colors cursor-pointer"
+                  className="px-3.5 py-2 rounded-xl text-xs font-bold border border-black/10 bg-white hover:bg-slate-50 text-slate-700 flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
                   title="Download clean Excel template"
                 >
                   <Download className="w-3.5 h-3.5 text-slate-500" />
@@ -1444,17 +1445,17 @@ export function ProductionOrdersClient({
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={isImporting}
-                  className="px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
+                  className="px-3.5 py-2 rounded-xl text-xs font-bold bg-[#3A3564] hover:bg-[#2A2649] text-white flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
                   title="Import from Excel or CSV"
                 >
-                  <UploadCloud className="w-3.5 h-3.5 text-blue-600" />
+                  <UploadCloud className="w-3.5 h-3.5 text-white" />
                   <span>{isImporting ? 'Importing...' : 'Import Excel'}</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setShowNewChallanModal(false)}
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition-colors cursor-pointer ml-1"
+                  className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors cursor-pointer ml-1"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -1463,7 +1464,7 @@ export function ProductionOrdersClient({
 
             {/* Import Status Alert Banner */}
             {importStatus && (
-              <div className={`mx-4 sm:mx-6 mt-4 p-3 rounded-xl border flex items-center justify-between gap-3 text-xs animate-in fade-in duration-150 ${
+              <div className={`mx-4 sm:mx-6 mt-4 p-3.5 rounded-xl border flex items-center justify-between gap-3 text-xs sm:text-sm animate-in fade-in duration-150 ${
                 importStatus.type === 'success'
                   ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
                   : 'bg-rose-50 border-rose-200 text-rose-800'
@@ -1490,14 +1491,15 @@ export function ProductionOrdersClient({
             <form onSubmit={handleSaveChallan} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
               
               {/* SECTION A: CHALLAN HEADER */}
-              <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3.5">
-                <div className="text-xs font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
+              <div className="p-4 sm:p-5 bg-slate-50/70 border border-black/10 rounded-2xl space-y-4">
+                <div className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-[#3A3564]" />
                   <span>1. Challan Header</span>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3.5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                    <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">
                       JOB / CHALLAN NO. *
                     </label>
                     <input
@@ -1506,12 +1508,12 @@ export function ProductionOrdersClient({
                       placeholder="e.g. JOB-457"
                       value={formChallanNo}
                       onChange={e => setFormChallanNo(e.target.value)}
-                      className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-900"
+                      className="w-full px-3.5 py-2.5 bg-white border border-black/10 rounded-xl text-xs sm:text-sm font-bold text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                    <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">
                       CHALLAN DATE *
                     </label>
                     <input
@@ -1519,12 +1521,12 @@ export function ProductionOrdersClient({
                       required
                       value={formChallanDate}
                       onChange={e => setFormChallanDate(e.target.value)}
-                      className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 focus:outline-none"
+                      className="w-full px-3.5 py-2.5 bg-white border border-black/10 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                    <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">
                       BRAND / PARTY *
                     </label>
                     <input
@@ -1533,12 +1535,12 @@ export function ProductionOrdersClient({
                       placeholder="e.g. OLLYPOP"
                       value={formBrand}
                       onChange={e => setFormBrand(e.target.value)}
-                      className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-900"
+                      className="w-full px-3.5 py-2.5 bg-white border border-black/10 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                    <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">
                       FABRIC TYPE
                     </label>
                     <input
@@ -1546,21 +1548,21 @@ export function ProductionOrdersClient({
                       placeholder="e.g. PRINTED SINKER"
                       value={formFabric}
                       onChange={e => setFormFabric(e.target.value)}
-                      className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-900"
+                      className="w-full px-3.5 py-2.5 bg-white border border-black/10 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5 pt-1">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pt-1">
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                    <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">
                       EXPECTED DELIVERY DATE
                     </label>
                     <input
                       type="date"
                       value={formDeliveryDate}
                       onChange={e => setFormDeliveryDate(e.target.value)}
-                      className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 focus:outline-none"
+                      className="w-full px-3.5 py-2.5 bg-white border border-black/10 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                     />
                   </div>
 
@@ -1570,15 +1572,15 @@ export function ProductionOrdersClient({
                       id="sample_given_cb"
                       checked={formSampleGiven}
                       onChange={e => setFormSampleGiven(e.target.checked)}
-                      className="w-4 h-4 text-slate-900 rounded border-slate-300 focus:ring-slate-900 cursor-pointer"
+                      className="w-4 h-4 text-[#3A3564] rounded border-slate-300 focus:ring-[#3A3564] cursor-pointer"
                     />
-                    <label htmlFor="sample_given_cb" className="text-xs font-bold text-slate-800 cursor-pointer select-none">
+                    <label htmlFor="sample_given_cb" className="text-xs sm:text-sm font-bold text-slate-800 cursor-pointer select-none">
                       Ready Sample Given (Approved by Buyer)
                     </label>
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                    <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">
                       SPECIAL NOTES / REMARKS
                     </label>
                     <input
@@ -1586,21 +1588,22 @@ export function ProductionOrdersClient({
                       placeholder="e.g. Body+Rib N.P, Ext=3=27, 2=18, 1=9..."
                       value={formNotes}
                       onChange={e => setFormNotes(e.target.value)}
-                      className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-800 placeholder-slate-400 focus:outline-none"
+                      className="w-full px-3.5 py-2.5 bg-white border border-black/10 rounded-xl text-xs sm:text-sm font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                     />
                   </div>
                 </div>
               </div>
 
               {/* SECTION B: ARTICLE LINES GRID (EXPANDED WIDTHS, NO SQUISHING) */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between flex-wrap gap-2">
+              <div className="space-y-3.5">
+                <div className="flex items-center justify-between flex-wrap gap-3">
                   <div className="flex items-center gap-3 flex-wrap">
-                    <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                      2. Article Lines Matrix ({articleLines.length} Lines)
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-[#3A3564]" />
+                      <span>2. Article Lines Matrix ({articleLines.length} Lines)</span>
                     </span>
                     <div className="flex items-center gap-1.5 flex-wrap">
-                      <span className="text-[10.5px] font-semibold text-slate-400">Quick Sizes:</span>
+                      <span className="text-xs font-semibold text-slate-400">Quick Sizes:</span>
                       {COMMON_SIZES.map(sz => (
                         <button
                           key={sz}
@@ -1617,7 +1620,7 @@ export function ProductionOrdersClient({
                               return copy
                             })
                           }}
-                          className="px-2 py-0.5 rounded text-[10.5px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer border border-slate-200"
+                          className="px-2.5 py-1 rounded-lg text-xs font-bold bg-white hover:bg-slate-50 text-slate-700 transition-colors cursor-pointer border border-black/10 shadow-2xs"
                         >
                           + {sz}
                         </button>
@@ -1628,45 +1631,45 @@ export function ProductionOrdersClient({
                   <button
                     type="button"
                     onClick={handleAddArticleLine}
-                    className="px-3.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                    className="px-3.5 py-2 bg-[#FAF7F0] hover:bg-[#F2ECE0] text-[#3A3564] border border-black/10 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
                   >
                     <Plus className="w-3.5 h-3.5" />
-                    <span>+ Add Article Line</span>
+                    <span>Add Article Line</span>
                   </button>
                 </div>
 
-                <div className="border border-slate-200 rounded-xl overflow-hidden shadow-2xs bg-white">
+                <div className="border border-black/10 rounded-2xl overflow-hidden shadow-2xs bg-white">
                   <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse text-xs min-w-[960px]">
+                    <table className="w-full text-left border-collapse text-xs sm:text-[13px] min-w-[960px]">
                       <thead>
-                        <tr className="bg-slate-100 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-600">
-                          <th className="py-3 px-2 w-8 text-center">#</th>
-                          <th className="py-3 px-2 min-w-[120px]">Art No *</th>
-                          <th className="py-3 px-2 min-w-[65px]">Sub</th>
-                          <th className="py-3 px-2 min-w-[90px]">Pattern</th>
-                          <th className="py-3 px-2 min-w-[170px]">Color / Combination *</th>
-                          <th className="py-3 px-2 min-w-[110px]">Size Tier *</th>
-                          <th className="py-3 px-2 min-w-[75px] text-right">Sets *</th>
-                          <th className="py-3 px-2 min-w-[70px] text-right">Pcs/Set</th>
-                          <th className="py-3 px-2 min-w-[95px] text-right">Total Pcs</th>
-                          <th className="py-3 px-2 min-w-[145px]">Assign Lineman</th>
+                        <tr className="bg-[#FAF7F0]/60 border-b border-black/10 text-xs font-extrabold uppercase tracking-wider text-slate-600">
+                          <th className="py-3 px-3 w-10 text-center">#</th>
+                          <th className="py-3 px-3 min-w-[130px]">Art No *</th>
+                          <th className="py-3 px-2 min-w-[70px]">Sub</th>
+                          <th className="py-3 px-3 min-w-[100px]">Pattern</th>
+                          <th className="py-3 px-3 min-w-[180px]">Color / Combination *</th>
+                          <th className="py-3 px-3 min-w-[110px]">Size Tier *</th>
+                          <th className="py-3 px-3 min-w-[80px] text-right">Sets *</th>
+                          <th className="py-3 px-3 min-w-[75px] text-right">Pcs/Set</th>
+                          <th className="py-3 px-3 min-w-[100px] text-right">Total Pcs</th>
+                          <th className="py-3 px-3 min-w-[160px]">Assign Lineman</th>
                           <th className="py-3 px-2 w-16 text-center">Actions</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-100">
+                      <tbody className="divide-y divide-black/5">
                         {articleLines.map((line, idx) => (
-                          <tr key={idx} className="hover:bg-slate-50/60 transition-colors">
-                            <td className="py-2.5 px-2 text-center text-slate-400 font-bold">{idx + 1}</td>
+                          <tr key={idx} className="hover:bg-slate-50/80 transition-colors">
+                            <td className="py-2.5 px-3 text-center text-slate-400 font-mono font-bold">{idx + 1}</td>
 
                             {/* Art No */}
-                            <td className="py-2.5 px-2">
+                            <td className="py-2.5 px-3">
                               <input
                                 type="text"
                                 required
                                 placeholder="e.g. 9433"
                                 value={line.art_no}
                                 onChange={e => handleLineChange(idx, 'art_no', e.target.value)}
-                                className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-900 placeholder-slate-300 focus:outline-none focus:border-slate-800"
+                                className="w-full px-3 py-1.5 bg-white border border-black/10 rounded-xl text-xs sm:text-sm font-bold text-slate-900 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                               />
                             </td>
 
@@ -1677,46 +1680,46 @@ export function ProductionOrdersClient({
                                 placeholder="A, /1"
                                 value={line.sub_art_no || ''}
                                 onChange={e => handleLineChange(idx, 'sub_art_no', e.target.value)}
-                                className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-amber-700 placeholder-slate-300 focus:outline-none"
+                                className="w-full px-2.5 py-1.5 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-bold text-[#3A3564] placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                               />
                             </td>
 
                             {/* Pattern Master */}
-                            <td className="py-2.5 px-2">
+                            <td className="py-2.5 px-3">
                               <input
                                 type="text"
                                 placeholder="e.g. G-342"
                                 value={line.pattern_no || ''}
                                 onChange={e => handleLineChange(idx, 'pattern_no', e.target.value)}
-                                className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs text-slate-700 placeholder-slate-300 focus:outline-none"
+                                className="w-full px-3 py-1.5 bg-white border border-black/10 rounded-xl text-xs text-slate-700 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                               />
                             </td>
 
                             {/* Color Pattern */}
-                            <td className="py-2.5 px-2">
+                            <td className="py-2.5 px-3">
                               <input
                                 type="text"
                                 required
                                 placeholder="e.g. 3 Colour, Dutch Blue"
                                 value={line.color_pattern}
                                 onChange={e => handleLineChange(idx, 'color_pattern', e.target.value)}
-                                className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 placeholder-slate-300 focus:outline-none"
+                                className="w-full px-3 py-1.5 bg-white border border-black/10 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                               />
                             </td>
 
                             {/* Size Range */}
-                            <td className="py-2.5 px-2">
+                            <td className="py-2.5 px-3">
                               <input
                                 type="text"
                                 placeholder="e.g. L/XXL"
                                 value={line.size_range}
                                 onChange={e => handleLineChange(idx, 'size_range', e.target.value)}
-                                className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-800 placeholder-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-900"
+                                className="w-full px-3 py-1.5 bg-white border border-black/10 rounded-xl text-xs sm:text-sm font-bold text-slate-800 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                               />
                             </td>
 
                             {/* Sets */}
-                            <td className="py-2.5 px-2 text-right">
+                            <td className="py-2.5 px-3 text-right">
                               <input
                                 type="number"
                                 min={1}
@@ -1724,44 +1727,44 @@ export function ProductionOrdersClient({
                                 placeholder="0"
                                 value={line.sets || ''}
                                 onChange={e => handleLineChange(idx, 'sets', e.target.value)}
-                                className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-right text-slate-900 placeholder-slate-300 focus:outline-none"
+                                className="w-full px-3 py-1.5 bg-white border border-black/10 rounded-xl text-xs sm:text-sm font-bold text-right text-slate-900 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-[#3A3564] font-mono"
                               />
                             </td>
 
                             {/* Ratio / Pcs per Set */}
-                            <td className="py-2.5 px-2 text-right">
+                            <td className="py-2.5 px-3 text-right">
                               <input
                                 type="number"
                                 min={1}
                                 value={line.pcs_per_set}
                                 onChange={e => handleLineChange(idx, 'pcs_per_set', e.target.value)}
-                                className="w-full px-1.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs text-right text-slate-600 focus:outline-none"
+                                className="w-full px-2 py-1.5 bg-white border border-black/10 rounded-xl text-xs text-right text-slate-600 focus:outline-none focus:ring-2 focus:ring-[#3A3564] font-mono"
                               />
                             </td>
 
                             {/* Total Pcs (Calculated) */}
-                            <td className="py-2.5 px-2 text-right">
+                            <td className="py-2.5 px-3 text-right">
                               <input
                                 type="number"
                                 min={1}
                                 placeholder="0"
                                 value={line.total_pcs || ''}
                                 onChange={e => handleLineChange(idx, 'total_pcs', e.target.value)}
-                                className="w-full px-2.5 py-1.5 bg-emerald-50 border border-emerald-200 rounded-lg text-xs font-extrabold text-right text-emerald-800 placeholder-slate-300 focus:outline-none"
+                                className="w-full px-3 py-1.5 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs sm:text-sm font-extrabold text-right text-slate-900 placeholder-slate-300 focus:outline-none font-mono"
                               />
                             </td>
 
                             {/* Lineman Assignment */}
-                            <td className="py-2.5 px-2">
+                            <td className="py-2.5 px-3">
                               <select
                                 value={line.assigned_lineman_id || ''}
                                 onChange={e => handleLineChange(idx, 'assigned_lineman_id', e.target.value)}
-                                className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-[11px] font-semibold text-slate-700 focus:outline-none cursor-pointer"
+                                className="w-full bg-slate-50 border border-black/10 rounded-xl px-2.5 py-1.5 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#3A3564] cursor-pointer"
                               >
                                 <option value="">Assign later...</option>
                                 {linemenList.map(lm => (
                                   <option key={lm.id} value={lm.id}>
-                                    👤 {lm.username}
+                                    {lm.username}
                                   </option>
                                 ))}
                               </select>
@@ -1774,7 +1777,7 @@ export function ProductionOrdersClient({
                                   type="button"
                                   onClick={() => handleDuplicateLine(idx)}
                                   title="Duplicate Row"
-                                  className="p-1.5 text-slate-400 hover:text-blue-600 rounded hover:bg-blue-50 transition-colors"
+                                  className="p-1.5 text-slate-400 hover:text-[#3A3564] rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
                                 >
                                   <Copy className="w-3.5 h-3.5" />
                                 </button>
@@ -1782,7 +1785,7 @@ export function ProductionOrdersClient({
                                   type="button"
                                   onClick={() => handleRemoveArticleLine(idx)}
                                   title="Delete Line"
-                                  className="p-1.5 text-slate-400 hover:text-red-600 rounded hover:bg-red-50 transition-colors"
+                                  className="p-1.5 text-slate-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition-colors cursor-pointer"
                                 >
                                   <Trash2 className="w-3.5 h-3.5" />
                                 </button>
@@ -1797,52 +1800,53 @@ export function ProductionOrdersClient({
               </div>
 
               {/* SECTION C: BOM / RAW MATERIALS & LOTS */}
-              <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
+              <div className="p-4 sm:p-5 bg-slate-50/70 border border-black/10 rounded-2xl space-y-3.5">
                 <div className="flex items-center justify-between">
-                  <div className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                  <div className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-[#3A3564]" />
                     <span>3. BOM / Raw Materials & Lots (Optional)</span>
                   </div>
 
                   <button
                     type="button"
                     onClick={handleAddBomItem}
-                    className="px-3 py-1 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg text-xs font-bold flex items-center gap-1 cursor-pointer transition-colors"
+                    className="px-3.5 py-1.5 bg-white hover:bg-slate-50 text-slate-700 border border-black/10 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-colors shadow-2xs"
                   >
                     <Plus className="w-3.5 h-3.5" />
-                    <span>+ Add Material Lot</span>
+                    <span>Add Material Lot</span>
                   </button>
                 </div>
 
                 {bomItems.length === 0 ? (
-                  <div className="p-4 bg-white border border-dashed border-slate-200 rounded-lg text-center">
-                    <p className="text-xs text-slate-400">
+                  <div className="p-5 bg-white border border-dashed border-black/15 rounded-xl text-center">
+                    <p className="text-xs sm:text-[13px] text-slate-500">
                       No BOM material lots added yet. Click <strong>"+ Add Material Lot"</strong> to specify fabric roll lots (e.g. Mushroom T-03) or brand labels.
                     </p>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                     {bomItems.map((bom, bIdx) => (
-                      <div key={bIdx} className="p-3 bg-white border border-slate-200 rounded-lg flex items-center justify-between gap-2 shadow-2xs">
+                      <div key={bIdx} className="p-3.5 bg-white border border-black/10 rounded-xl flex items-center justify-between gap-2.5 shadow-2xs">
                         <div className="flex-1 min-w-0">
                           <input
                             type="text"
                             value={bom.item_name}
                             onChange={e => handleBomChange(bIdx, 'item_name', e.target.value)}
                             placeholder="Material Name (e.g. Body Fabric)"
-                            className="w-full text-xs font-bold text-slate-800 bg-transparent border-none p-0 focus:outline-none placeholder-slate-300"
+                            className="w-full text-xs sm:text-sm font-bold text-slate-900 bg-transparent border-none p-0 focus:outline-none placeholder-slate-300"
                           />
-                          <div className="flex items-center gap-2 mt-1.5">
+                          <div className="flex items-center gap-2 mt-2">
                             <input
                               type="text"
                               value={bom.lot_no || ''}
                               onChange={e => handleBomChange(bIdx, 'lot_no', e.target.value)}
                               placeholder="Lot # (e.g. T-03)"
-                              className="text-[11px] font-semibold text-slate-600 bg-slate-50 px-2 py-0.5 rounded border border-slate-200 w-24 focus:outline-none placeholder-slate-300"
+                              className="text-xs font-semibold text-slate-700 bg-slate-50 px-2.5 py-1 rounded-lg border border-black/10 w-24 focus:outline-none placeholder-slate-300 font-mono"
                             />
                             <select
                               value={bom.status || 'PENDING'}
                               onChange={e => handleBomChange(bIdx, 'status', e.target.value)}
-                              className="text-[10.5px] font-bold px-2 py-0.5 rounded border bg-slate-50 border-slate-200 cursor-pointer"
+                              className="text-xs font-bold px-2.5 py-1 rounded-lg border bg-slate-50 border-black/10 cursor-pointer text-slate-800"
                             >
                               <option value="RECEIVED">Received</option>
                               <option value="PENDING">Pending</option>
@@ -1853,7 +1857,7 @@ export function ProductionOrdersClient({
                         <button
                           type="button"
                           onClick={() => handleRemoveBomItem(bIdx)}
-                          className="p-1 text-slate-300 hover:text-red-500 rounded"
+                          className="p-1.5 text-slate-300 hover:text-red-500 rounded-lg hover:bg-red-50 transition-colors cursor-pointer"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -1864,19 +1868,19 @@ export function ProductionOrdersClient({
               </div>
 
               {/* MODAL FOOTER & GRAND TOTALS */}
-              <div className="pt-4 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div className="flex items-center gap-5 text-xs">
+              <div className="pt-4 border-t border-black/10 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-6 text-xs sm:text-sm">
                   <div>
-                    <span className="text-slate-400 font-medium">Total Lines:</span>{' '}
-                    <strong className="text-slate-900 font-bold">{articleLines.filter(l => l.art_no).length}</strong>
+                    <span className="text-slate-500 font-medium">Total Lines:</span>{' '}
+                    <strong className="text-slate-900 font-bold font-mono">{articleLines.filter(l => l.art_no).length}</strong>
                   </div>
                   <div>
-                    <span className="text-slate-400 font-medium">Total Sets:</span>{' '}
-                    <strong className="text-blue-700 font-bold">{formGrandSets.toLocaleString()}</strong>
+                    <span className="text-slate-500 font-medium">Total Sets:</span>{' '}
+                    <strong className="text-[#3A3564] font-extrabold font-mono text-sm">{formGrandSets.toLocaleString()}</strong>
                   </div>
                   <div>
-                    <span className="text-slate-400 font-medium">Total Pieces:</span>{' '}
-                    <strong className="text-emerald-700 font-extrabold text-sm">{formGrandPcs.toLocaleString()} Pcs</strong>
+                    <span className="text-slate-500 font-medium">Total Pieces:</span>{' '}
+                    <strong className="text-slate-900 font-extrabold font-mono text-base">{formGrandPcs.toLocaleString()} Pcs</strong>
                   </div>
                 </div>
 
@@ -1884,7 +1888,7 @@ export function ProductionOrdersClient({
                   <button
                     type="button"
                     onClick={() => setShowNewChallanModal(false)}
-                    className="w-1/2 sm:w-auto px-5 py-2.5 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-50 cursor-pointer transition-colors"
+                    className="w-1/2 sm:w-auto px-5 py-2.5 border border-black/10 rounded-xl text-xs sm:text-sm font-bold text-slate-700 hover:bg-slate-50 cursor-pointer transition-colors shadow-2xs"
                   >
                     Cancel
                   </button>
@@ -1892,7 +1896,7 @@ export function ProductionOrdersClient({
                   <button
                     type="submit"
                     disabled={isPending}
-                    className="w-1/2 sm:w-auto px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all disabled:opacity-50"
+                    className="w-1/2 sm:w-auto px-6 py-2.5 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs sm:text-sm font-bold shadow-xs flex items-center justify-center gap-2 cursor-pointer transition-all disabled:opacity-50"
                   >
                     {isPending ? (
                       <span>Saving Challan...</span>
