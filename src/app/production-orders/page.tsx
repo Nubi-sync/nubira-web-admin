@@ -41,14 +41,16 @@ export default async function ProductionOrdersPage() {
     <AdminShell userEmail={user.email}>
       <div className="flex-1 p-6 md:p-8 max-w-7xl w-full mx-auto space-y-5">
         
-        {/* Breadcrumb */}
-        <div className="flex items-center gap-1.5 text-[12px] font-medium" style={{ color: 'var(--ink-faint, #8B9AAB)' }}>
-          <Link href="/dashboard" className="hover:underline hover:text-[var(--ink,#1C2733)]">
-            Production
+        {/* 1. Breadcrumb */}
+        <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
+          <Link href="/dashboard" className="hover:text-[#3A3564] transition-colors">
+            Dashboard
           </Link>
           <span>/</span>
-          <span className="font-semibold" style={{ color: 'var(--steel-dark, #1F3A63)' }}>
-            Digital Production & Challan Chart
+          <span>Production</span>
+          <span>/</span>
+          <span className="font-bold text-slate-900">
+            Production & Job Work Challans
           </span>
         </div>
 

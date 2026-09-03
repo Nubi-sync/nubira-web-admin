@@ -42,7 +42,8 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`
+    const model = process.env.GEMINI_MODEL || 'gemini-2.5-flash'
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`
 
     const { message, history = [] } = await req.json()
 
@@ -53,14 +54,17 @@ export async function POST(req: NextRequest) {
     // Build Gemini contents array from history + new message
     const contents: any[] = []
 
-    // Add recent history (up to last 6 messages)
-    const recentHistory = history.slice(-6)
+    // Add recent history (last 4 messages, trimmed to 400 chars to avoid token inflation)
+    const recentHistory = history.slice(-4)
     for (const h of recentHistory) {
       if (h.role === 'user' || h.role === 'model') {
-        contents.push({
-          role: h.role === 'user' ? 'user' : 'model',
-          parts: [{ text: h.content }]
-        })
+        const text = typeof h.content === 'string' ? h.content.slice(0, 400) : ''
+        if (text) {
+          contents.push({
+            role: h.role === 'user' ? 'user' : 'model',
+            parts: [{ text }]
+          })
+        }
       }
     }
 
@@ -83,7 +87,7 @@ export async function POST(req: NextRequest) {
       ],
       generationConfig: {
         temperature: 0.2,
-        maxOutputTokens: 1024
+        maxOutputTokens: 800
       }
     }
 
@@ -114,6 +118,7 @@ export async function POST(req: NextRequest) {
       const modelContent = firstData.candidates?.[0]?.content
 
       // 2. Feed tool result back to Gemini for natural language synthesis
+      // NOTE: Do NOT re-declare tools here - saves ~3,000 tokens per response
       const secondContents = [
         ...contents,
         modelContent,
@@ -137,14 +142,9 @@ export async function POST(req: NextRequest) {
           parts: [{ text: SYSTEM_INSTRUCTION }]
         },
         contents: secondContents,
-        tools: [
-          {
-            functionDeclarations: GEMINI_TOOLS_DECLARATIONS
-          }
-        ],
         generationConfig: {
           temperature: 0.2,
-          maxOutputTokens: 1024
+          maxOutputTokens: 800
         }
       }
 
