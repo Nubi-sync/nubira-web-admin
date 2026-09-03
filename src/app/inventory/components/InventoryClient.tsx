@@ -28,7 +28,7 @@ import {
   ShieldCheck
 } from 'lucide-react'
 import { TvViewButton } from '@/components/ui/TvViewButton'
-import { addStoreTransaction, addAccessoryTransaction, approveQcForStoreInward } from '../actions'
+import { approveQcForStoreInward } from '../actions'
 
 type Article = {
   id: string
@@ -165,9 +165,6 @@ export function InventoryClient({
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc')
 
   // Modal States
-  const [showInwardModal, setShowInwardModal] = useState(false)
-  const [showOutwardModal, setShowOutwardModal] = useState(false)
-  const [showAccessoryModal, setShowAccessoryModal] = useState(false)
   const [activePhoto, setActivePhoto] = useState<{ url: string; title: string } | null>(null)
   const [expandedGrnId, setExpandedGrnId] = useState<string | null>(null)
 
@@ -677,33 +674,6 @@ export function InventoryClient({
         <div className="flex flex-wrap items-center gap-2.5">
           <button 
             type="button"
-            onClick={() => setShowInwardModal(true)}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] transition-all shadow-xs cursor-pointer active:scale-[0.98]"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Receive Inward</span>
-          </button>
-          
-          <button 
-            type="button"
-            onClick={() => setShowOutwardModal(true)}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold border border-black/10 bg-[#FAF7F0] hover:bg-slate-100 text-[#3A3564] transition-all shadow-2xs cursor-pointer active:scale-[0.98]"
-          >
-            <Upload className="w-4 h-4" />
-            <span>Dispatch Outward</span>
-          </button>
-
-          <button 
-            type="button"
-            onClick={() => setShowAccessoryModal(true)}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold border border-black/10 bg-white hover:bg-slate-50 text-slate-800 transition-all shadow-2xs cursor-pointer active:scale-[0.98]"
-          >
-            <Boxes className="w-4 h-4 text-[#3A3564]" />
-            <span>Raw Material Trim</span>
-          </button>
-
-          <button 
-            type="button"
             onClick={handleExportCSV}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold border border-black/10 bg-white hover:bg-slate-50 text-slate-700 transition-all shadow-2xs cursor-pointer"
           >
@@ -970,16 +940,8 @@ export function InventoryClient({
                   No finished stock recorded yet
                 </h3>
                 <p className="text-sm text-slate-500 max-w-md">
-                  Receive finished garments from the QC Finishing Floor to initialize your godown stock ledger.
+                  Finished garments passed by QC and accepted by Store Manager will appear here in real time.
                 </p>
-                <button
-                  type="button"
-                  onClick={() => setShowInwardModal(true)}
-                  className="px-5 py-2.5 bg-[#3A3564] hover:bg-[#2A2649] text-white text-sm font-bold rounded-xl shadow-xs transition-all cursor-pointer inline-flex items-center gap-2 mt-2"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>Receive Inward</span>
-                </button>
               </div>
             ) : (
               <div className="overflow-x-auto">
@@ -1301,16 +1263,8 @@ export function InventoryClient({
                   No trims added yet
                 </h3>
                 <p className="text-sm text-slate-500 max-w-md">
-                  Trims and raw accessories (buttons, threads, zippers) you receive from suppliers will show up here.
+                  Trims and raw accessories (buttons, threads, zippers) recorded by Store Manager from supplier deliveries will appear here.
                 </p>
-                <button
-                  type="button"
-                  onClick={() => setShowAccessoryModal(true)}
-                  className="px-5 py-2.5 bg-[#3A3564] hover:bg-[#2A2649] text-white text-sm font-bold rounded-xl shadow-xs transition-all cursor-pointer inline-flex items-center gap-2 mt-2 active:scale-[0.98]"
-                >
-                  <Boxes className="w-4 h-4" />
-                  <span>Raw Material Trim</span>
-                </button>
               </div>
             ) : (
               <div className="overflow-x-auto">
@@ -1443,16 +1397,8 @@ export function InventoryClient({
                   No dispatches yet
                 </h3>
                 <p className="text-sm text-slate-500 max-w-md">
-                  Buyer orders and delivery gate passes you dispatch will show up here.
+                  Buyer orders and delivery gate passes dispatched by Store Manager will show up here.
                 </p>
-                <button
-                  type="button"
-                  onClick={() => setShowOutwardModal(true)}
-                  className="px-5 py-2.5 bg-[#3A3564] hover:bg-[#2A2649] text-white text-sm font-bold rounded-xl shadow-xs transition-all cursor-pointer inline-flex items-center gap-2 mt-2 active:scale-[0.98]"
-                >
-                  <Upload className="w-4 h-4" />
-                  <span>Dispatch Outward</span>
-                </button>
               </div>
             ) : (
               <div className="overflow-x-auto">
@@ -1674,16 +1620,8 @@ export function InventoryClient({
                   No inward receipts logged yet
                 </h3>
                 <p className="text-sm text-slate-500 max-w-md">
-                  Finished garments received from finishing floor will be listed here.
+                  Finished garments received from QC finishing floor by Store Manager will be listed here.
                 </p>
-                <button
-                  type="button"
-                  onClick={() => setShowInwardModal(true)}
-                  className="px-5 py-2.5 bg-[#3A3564] hover:bg-[#2A2649] text-white text-sm font-bold rounded-xl shadow-xs transition-all cursor-pointer inline-flex items-center gap-2 mt-2 active:scale-[0.98]"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>Receive Inward</span>
-                </button>
               </div>
             ) : (
               <div className="overflow-x-auto">
@@ -1845,413 +1783,7 @@ export function InventoryClient({
       </div>
 
       {/* ======================================================== */}
-      {/* MODAL 1: RECEIVE FINISHED GOODS INWARD                     */}
-      {/* ======================================================== */}
-      {showInwardModal && (
-        <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-5 sm:p-6 space-y-4 sm:space-y-5 shadow-2xl border border-black/10 max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-200">
-            
-            {/* Modal Header */}
-            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs shrink-0">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-                </div>
-                <div>
-                  <h3 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight font-[family-name:var(--font-heading)]">
-                    Receive Inward (Finished Goods)
-                  </h3>
-                  <p className="text-xs sm:text-[13px] text-slate-500 mt-0.5">
-                    Log finished garments received into godown stock
-                  </p>
-                </div>
-              </div>
-              <button 
-                type="button"
-                onClick={() => setShowInwardModal(false)} 
-                className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <form action={async (formData) => {
-              formData.set('type', 'INWARD')
-              startTransition(async () => {
-                await addStoreTransaction(formData)
-                setShowInwardModal(false)
-              })
-            }} className="space-y-3.5">
-              <div>
-                <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
-                  Article Style
-                </label>
-                <select 
-                  name="article_id" 
-                  required 
-                  className="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-slate-900 shadow-2xs outline-none transition-all cursor-pointer"
-                >
-                  {articles.map(art => (
-                    <option key={art.id} value={art.id}>{art.art_no} ({art.description})</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
-                    Color
-                  </label>
-                  <input 
-                    type="text" 
-                    name="color" 
-                    defaultValue="Navy Blue" 
-                    className="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-900 shadow-2xs outline-none transition-all" 
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
-                    Size
-                  </label>
-                  <input 
-                    type="text" 
-                    name="size" 
-                    defaultValue="L" 
-                    className="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-900 shadow-2xs outline-none transition-all" 
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
-                  Quantity (Pieces)
-                </label>
-                <input 
-                  type="number" 
-                  name="quantity" 
-                  required 
-                  placeholder="e.g. 150" 
-                  className="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl px-3.5 py-2.5 text-sm font-bold font-mono text-slate-900 shadow-2xs outline-none transition-all" 
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
-                  Received From
-                </label>
-                <input 
-                  type="text" 
-                  name="party_name" 
-                  defaultValue="QC Finishing Floor" 
-                  className="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-900 shadow-2xs outline-none transition-all" 
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
-                  Notes / Carton Ref
-                </label>
-                <input 
-                  type="text" 
-                  name="notes" 
-                  placeholder="e.g. Master Carton #3" 
-                  className="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-900 shadow-2xs outline-none transition-all" 
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={isPending}
-                className="w-full py-3 text-white rounded-xl font-bold text-sm bg-[#3A3564] hover:bg-[#2A2649] disabled:opacity-50 transition-all shadow-xs cursor-pointer flex items-center justify-center gap-2 active:scale-[0.99] mt-2"
-              >
-                <CheckCircle2 className="w-4 h-4 text-emerald-300" />
-                <span>{isPending ? 'Saving to Stock...' : 'Save Inward to Stock'}</span>
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* ======================================================== */}
-      {/* MODAL 2: DISPATCH OUTWARD                                  */}
-      {/* ======================================================== */}
-      {showOutwardModal && (
-        <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-5 sm:p-6 space-y-4 sm:space-y-5 shadow-2xl border border-black/10 max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-200">
-            
-            {/* Modal Header */}
-            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs shrink-0">
-                  <Truck className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight font-[family-name:var(--font-heading)]">
-                    Dispatch Outward (Delivery)
-                  </h3>
-                  <p className="text-xs sm:text-[13px] text-slate-500 mt-0.5">
-                    Record delivery gate pass and deduct from finished goods stock
-                  </p>
-                </div>
-              </div>
-              <button 
-                type="button"
-                onClick={() => setShowOutwardModal(false)} 
-                className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <form action={async (formData) => {
-              formData.set('type', 'OUTWARD')
-              startTransition(async () => {
-                await addStoreTransaction(formData)
-                setShowOutwardModal(false)
-              })
-            }} className="space-y-3.5">
-              <div>
-                <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
-                  Article Style
-                </label>
-                <select 
-                  name="article_id" 
-                  required 
-                  className="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-slate-900 shadow-2xs outline-none transition-all cursor-pointer"
-                >
-                  {articles.map(art => (
-                    <option key={art.id} value={art.id}>{art.art_no} ({art.description})</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
-                    Color
-                  </label>
-                  <input 
-                    type="text" 
-                    name="color" 
-                    defaultValue="Navy Blue" 
-                    className="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-900 shadow-2xs outline-none transition-all" 
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
-                    Size
-                  </label>
-                  <input 
-                    type="text" 
-                    name="size" 
-                    defaultValue="L" 
-                    className="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-900 shadow-2xs outline-none transition-all" 
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
-                  Dispatch Quantity (Pieces)
-                </label>
-                <input 
-                  type="number" 
-                  name="quantity" 
-                  required 
-                  placeholder="e.g. 100" 
-                  className="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl px-3.5 py-2.5 text-sm font-bold font-mono text-slate-900 shadow-2xs outline-none transition-all" 
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
-                  Buyer Name / Customer / PO #
-                </label>
-                <input 
-                  type="text" 
-                  name="party_name" 
-                  required 
-                  placeholder="e.g. Reliance Retail / PO-882" 
-                  className="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-900 shadow-2xs outline-none transition-all" 
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
-                    Challan No
-                  </label>
-                  <input 
-                    type="text" 
-                    name="challan_no" 
-                    placeholder="DC-104" 
-                    className="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-900 shadow-2xs outline-none transition-all" 
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
-                    Vehicle / Transport
-                  </label>
-                  <input 
-                    type="text" 
-                    name="transport_no" 
-                    placeholder="MH-04-1234" 
-                    className="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-900 shadow-2xs outline-none transition-all" 
-                  />
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                disabled={isPending}
-                className="w-full py-3 text-white rounded-xl font-bold text-sm bg-[#3A3564] hover:bg-[#2A2649] disabled:opacity-50 transition-all shadow-xs cursor-pointer flex items-center justify-center gap-2 active:scale-[0.99] mt-2"
-              >
-                <Truck className="w-4 h-4" />
-                <span>{isPending ? 'Processing Dispatch...' : 'Confirm Dispatch & Deduct Stock'}</span>
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* ======================================================== */}
-      {/* MODAL 3: ACCESSORIES (RAW MATERIALS & TRIMS)               */}
-      {/* ======================================================== */}
-      {showAccessoryModal && (
-        <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-5 sm:p-6 space-y-4 sm:space-y-5 shadow-2xl border border-black/10 max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-200">
-            
-            {/* Modal Header */}
-            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs shrink-0">
-                  <Boxes className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight font-[family-name:var(--font-heading)]">
-                    Raw Materials & Trims Movement
-                  </h3>
-                  <p className="text-xs sm:text-[13px] text-slate-500 mt-0.5">
-                    Record accessories received from suppliers or issued to sewing lines
-                  </p>
-                </div>
-              </div>
-              <button 
-                type="button"
-                onClick={() => setShowAccessoryModal(false)} 
-                className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <form action={async (formData) => {
-              startTransition(async () => {
-                await addAccessoryTransaction(formData)
-                setShowAccessoryModal(false)
-              })
-            }} className="space-y-3.5">
-              <div>
-                <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
-                  Movement Type
-                </label>
-                <div className="grid grid-cols-2 gap-2.5">
-                  <label className="flex items-center justify-center gap-2 p-3 border border-slate-200 hover:border-[#3A3564] rounded-xl cursor-pointer bg-slate-50/70 hover:bg-[#FAF7F0] font-bold text-xs sm:text-sm text-slate-800 transition-all shadow-2xs has-checked:border-[#3A3564] has-checked:bg-[#FAF7F0] has-checked:text-[#3A3564]">
-                    <input type="radio" name="action" value="IN" defaultChecked className="accent-[#3A3564]" />
-                    <span>IN (Stock Received)</span>
-                  </label>
-                  <label className="flex items-center justify-center gap-2 p-3 border border-slate-200 hover:border-[#3A3564] rounded-xl cursor-pointer bg-slate-50/70 hover:bg-[#FAF7F0] font-bold text-xs sm:text-sm text-slate-800 transition-all shadow-2xs has-checked:border-[#3A3564] has-checked:bg-[#FAF7F0] has-checked:text-[#3A3564]">
-                    <input type="radio" name="action" value="OUT" className="accent-[#3A3564]" />
-                    <span>OUT (Issued to Line)</span>
-                  </label>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
-                  Item Name / Trim
-                </label>
-                <input 
-                  type="text" 
-                  name="item_name" 
-                  required 
-                  defaultValue="Sewing Thread (Navy Blue)" 
-                  placeholder="e.g. Buttons 18L, Thread, Zipper" 
-                  className="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-slate-900 shadow-2xs outline-none transition-all" 
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
-                    Quantity
-                  </label>
-                  <input 
-                    type="number" 
-                    name="quantity" 
-                    required 
-                    placeholder="e.g. 24" 
-                    className="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl px-3.5 py-2.5 text-sm font-bold font-mono text-slate-900 shadow-2xs outline-none transition-all" 
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
-                    Unit
-                  </label>
-                  <select 
-                    name="unit" 
-                    defaultValue="cones" 
-                    className="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-slate-900 shadow-2xs outline-none transition-all cursor-pointer"
-                  >
-                    <option value="cones">Cones</option>
-                    <option value="pcs">Pcs</option>
-                    <option value="gross">Gross</option>
-                    <option value="meters">Meters</option>
-                    <option value="packets">Packets</option>
-                    <option value="rolls">Rolls</option>
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
-                  Supplier / Issued Line Ref
-                </label>
-                <input 
-                  type="text" 
-                  name="party_name" 
-                  defaultValue="Supplier: Vardhman Threads" 
-                  className="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-900 shadow-2xs outline-none transition-all" 
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
-                  Notes (Optional)
-                </label>
-                <input 
-                  type="text" 
-                  name="notes" 
-                  placeholder="e.g. Batch #PO-882" 
-                  className="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-900 shadow-2xs outline-none transition-all" 
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={isPending}
-                className="w-full py-3 text-white rounded-xl font-bold text-sm bg-[#3A3564] hover:bg-[#2A2649] disabled:opacity-50 transition-all shadow-xs cursor-pointer flex items-center justify-center gap-2 active:scale-[0.99] mt-2"
-              >
-                <Boxes className="w-4 h-4" />
-                <span>{isPending ? 'Saving Trim Movement...' : 'Save Trim Transaction'}</span>
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* ======================================================== */}
-      {/* MODAL 4: CHALLAN SLIP PHOTO VIEWER                       */}
+      {/* MODAL: CHALLAN SLIP PHOTO VIEWER                         */}
       {/* ======================================================== */}
       {activePhoto && (
         <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
