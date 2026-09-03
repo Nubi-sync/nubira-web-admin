@@ -768,7 +768,7 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
               <Menu className="w-5 h-5 text-[#3A3564]" />
             </button>
 
-            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-[#3A3564] text-[#FAF7F0] flex items-center justify-center shadow-xs shrink-0">
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs shrink-0">
               <Bot className="w-5 h-5 sm:w-5.5 sm:h-5.5" />
             </div>
             <div className="min-w-0 hidden sm:block">

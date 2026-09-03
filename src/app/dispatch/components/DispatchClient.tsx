@@ -452,7 +452,7 @@ export function DispatchClient({
               {totalCountedPieces.toLocaleString()} <span className="text-xs font-normal text-slate-400">pcs</span>
             </span>
           </div>
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-[#ECFDF5] text-[#059669] shadow-2xs">
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs">
             <ClipboardCheck className="w-4 h-4" />
           </div>
         </div>
@@ -478,7 +478,13 @@ export function DispatchClient({
               {totalDiscrepancies} <span className="text-xs font-normal text-slate-400">mismatches</span>
             </span>
           </div>
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-2xs" style={{ backgroundColor: totalDiscrepancies > 0 ? '#FEE2E2' : '#FAF7F0', color: totalDiscrepancies > 0 ? '#DC2626' : '#3A3564' }}>
+          <div 
+            className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-2xs border ${
+              totalDiscrepancies > 0 
+                ? 'bg-rose-100 text-rose-600 border-rose-200' 
+                : 'bg-[#FAF7F0] text-[#3A3564] border-black/10'
+            }`}
+          >
             <AlertTriangle className="w-4 h-4" />
           </div>
         </div>

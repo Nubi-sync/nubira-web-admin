@@ -743,7 +743,7 @@ export default function DashboardClient({
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
                 2. Goods in Line
               </span>
-              <div className="w-8 h-8 rounded-lg bg-[#EEF2FF] text-[#4F46E5] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs flex items-center justify-center shrink-0">
                 <Activity className="w-[18px] h-[18px]" />
               </div>
             </div>
@@ -751,14 +751,14 @@ export default function DashboardClient({
           </div>
 
           <div className="mt-3">
-            <h3 className="text-[30px] font-bold font-[family-name:var(--font-heading)] text-[#4F46E5] leading-none">
+            <h3 className="text-[30px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none">
               {metrics.goodsInLine.toLocaleString()}
             </h3>
             <div className="mt-3 flex items-center justify-between">
-              <span className="text-[10px] font-extrabold uppercase px-2.5 py-1 rounded bg-[#EEF2FF] text-[#4338CA] tracking-wider">
+              <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 tracking-wider shadow-2xs">
                 On Floor
               </span>
-              <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#4F46E5] transition-colors" />
+              <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#3A3564] transition-colors" />
             </div>
           </div>
         </div>
@@ -773,7 +773,7 @@ export default function DashboardClient({
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
                 3. Mending & Checking
               </span>
-              <div className="w-8 h-8 rounded-lg bg-[#FFFBEB] text-[#D97706] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs flex items-center justify-center shrink-0">
                 <AlertTriangle className="w-[18px] h-[18px]" />
               </div>
             </div>
@@ -782,20 +782,20 @@ export default function DashboardClient({
 
           <div className="mt-3">
             <div className="flex items-baseline justify-between">
-              <h3 className="text-[30px] font-bold font-[family-name:var(--font-heading)] text-[#B45309] leading-none">
+              <h3 className="text-[30px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none">
                 {metrics.mendingChecking.toLocaleString()}
               </h3>
               {metrics.alterationRate > 0 && (
-                <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-rose-50 text-rose-700 border border-rose-200">
+                <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
                   {metrics.alterationRate.toFixed(1)}% Alter
                 </span>
               )}
             </div>
             <div className="mt-3 flex items-center justify-between">
-              <span className="text-[10px] font-extrabold uppercase px-2.5 py-1 rounded bg-[#FFFBEB] text-[#92400E] tracking-wider">
+              <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 tracking-wider shadow-2xs">
                 {metrics.mendingAlterationQty > 0 ? `${metrics.mendingAlterationQty} Defect/Alter` : 'Finishing Table'}
               </span>
-              <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#D97706] transition-colors" />
+              <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#3A3564] transition-colors" />
             </div>
           </div>
         </div>
@@ -810,7 +810,7 @@ export default function DashboardClient({
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
                 4. Ready Goods
               </span>
-              <div className="w-8 h-8 rounded-lg bg-[#ECFDF5] text-[#059669] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs flex items-center justify-center shrink-0">
                 <PackageCheck className="w-[18px] h-[18px]" />
               </div>
             </div>
@@ -818,14 +818,14 @@ export default function DashboardClient({
           </div>
 
           <div className="mt-3">
-            <h3 className="text-[30px] font-bold font-[family-name:var(--font-heading)] text-[#059669] leading-none">
+            <h3 className="text-[30px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none">
               {metrics.readyGoods.toLocaleString()}
             </h3>
             <div className="mt-3 flex items-center justify-between">
-              <span className="text-[10px] font-extrabold uppercase px-2.5 py-1 rounded bg-[#ECFDF5] text-[#065F46] tracking-wider">
+              <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 tracking-wider shadow-2xs">
                 In Godown
               </span>
-              <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#059669] transition-colors" />
+              <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#3A3564] transition-colors" />
             </div>
           </div>
         </div>
@@ -840,7 +840,7 @@ export default function DashboardClient({
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
                 5. RTO & Rejection
               </span>
-              <div className="w-8 h-8 rounded-lg bg-[#FEF2F2] text-[#DC2626] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs flex items-center justify-center shrink-0">
                 <RotateCcw className="w-[18px] h-[18px]" />
               </div>
             </div>
@@ -848,14 +848,14 @@ export default function DashboardClient({
           </div>
 
           <div className="mt-3">
-            <h3 className="text-[30px] font-bold font-[family-name:var(--font-heading)] text-[#DC2626] leading-none">
+            <h3 className="text-[30px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none">
               {metrics.rto.toLocaleString()}
             </h3>
             <div className="mt-3 flex items-center justify-between">
-              <span className="text-[10px] font-extrabold uppercase px-2.5 py-1 rounded bg-[#FEF2F2] text-[#991B1B] tracking-wider">
+              <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 tracking-wider shadow-2xs">
                 Defect / Reject
               </span>
-              <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#DC2626] transition-colors" />
+              <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#3A3564] transition-colors" />
             </div>
           </div>
         </div>
@@ -870,7 +870,7 @@ export default function DashboardClient({
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
                 6. Ready for Delivery
               </span>
-              <div className="w-8 h-8 rounded-lg bg-[#F5F3FF] text-[#7C3AED] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs flex items-center justify-center shrink-0">
                 <Truck className="w-[18px] h-[18px]" />
               </div>
             </div>
@@ -878,14 +878,14 @@ export default function DashboardClient({
           </div>
 
           <div className="mt-3">
-            <h3 className="text-[30px] font-bold font-[family-name:var(--font-heading)] text-[#7C3AED] leading-none">
+            <h3 className="text-[30px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none">
               {metrics.readyDelivery.toLocaleString()}
             </h3>
             <div className="mt-3 flex items-center justify-between">
-              <span className="text-[10px] font-extrabold uppercase px-2.5 py-1 rounded bg-[#F5F3FF] text-[#5B21B6] tracking-wider">
+              <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 tracking-wider shadow-2xs">
                 Dispatched Pcs
               </span>
-              <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#7C3AED] transition-colors" />
+              <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#3A3564] transition-colors" />
             </div>
           </div>
         </div>

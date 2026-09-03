@@ -3,7 +3,7 @@ import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { redirect } from 'next/navigation'
 import { AdminShell } from '../../components/layout/AdminShell'
 import DashboardClient from '../DashboardClient'
-import { LogOut } from 'lucide-react'
+import { LogOut, LayoutDashboard } from 'lucide-react'
 import Link from 'next/link'
 import { TvViewButton } from '../../components/ui/TvViewButton'
 
@@ -233,23 +233,28 @@ export default async function DashboardPage() {
     <AdminShell userEmail={user.email}>
       <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto">
         
-        {/* Top Bar inside content area */}
-        <header className="flex flex-col gap-3 sm:gap-4 pb-3 border-b border-slate-200">
-          <div>
-            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-              <h1 className="text-xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
-                Plant Operations Control Center
-              </h1>
-              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2 sm:px-3 py-0.5 sm:py-1 rounded-full bg-[#3A3564] text-white tracking-wider shadow-2xs">
-                MES Live
-              </span>
+        {/* 1. Page Header Card (Standard Admin Card) */}
+        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
+          <div className="flex items-center gap-3.5">
+            <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+              <LayoutDashboard className="w-5 h-5" />
             </div>
-            <p className="text-xs sm:text-sm md:text-base text-slate-600 mt-1 sm:mt-1.5">
-              Real-time 6-stage garment manufacturing floor throughput and inventory lifecycle
-            </p>
+            <div>
+              <div className="flex items-center gap-2.5 flex-wrap">
+                <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
+                  Plant Operations Control Center
+                </h1>
+                <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
+                  MES Live
+                </span>
+              </div>
+              <p className="text-sm sm:text-base text-slate-600 mt-1">
+                Real-time 6-stage garment manufacturing floor throughput and inventory lifecycle
+              </p>
+            </div>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+          <div className="flex items-center gap-2.5 flex-wrap">
             <TvViewButton size="md" />
 
             {/* Sign Out Button */}
@@ -261,15 +266,14 @@ export default async function DashboardPage() {
             }}>
               <button 
                 type="submit"
-                className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2 sm:py-2.5 bg-white border border-black/15 rounded-xl text-xs sm:text-sm font-bold text-slate-700 hover:bg-rose-50 hover:text-rose-600 transition-all shadow-2xs cursor-pointer"
+                className="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-black/15 rounded-xl text-xs sm:text-sm font-bold text-slate-700 hover:bg-rose-50 hover:text-rose-600 transition-all shadow-2xs cursor-pointer"
               >
-                <LogOut className="w-4 h-4 sm:w-[18px] sm:h-[18px]" />
-                <span className="hidden sm:inline">Sign Out</span>
-                <span className="sm:hidden">Logout</span>
+                <LogOut className="w-4 h-4" />
+                <span>Sign Out</span>
               </button>
             </form>
           </div>
-        </header>
+        </div>
 
         {/* Enhanced 6-Stage Dashboard Client Component */}
         <DashboardClient

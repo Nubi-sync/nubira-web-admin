@@ -726,7 +726,7 @@ export function InventoryClient({
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500 block" style={{ color: stockVelocity.trimsCardAlert ? '#B45309' : undefined }}>
               Accessories Trims
             </span>
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-[#FFFBEB] text-[#D97706] shadow-2xs">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs">
               <Boxes className="w-4 h-4" />
             </div>
           </div>
@@ -752,12 +752,12 @@ export function InventoryClient({
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500 block">
               Total Inward (QC)
             </span>
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-[#ECFDF5] text-[#059669] shadow-2xs">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs">
               <CheckCircle2 className="w-4 h-4" />
             </div>
           </div>
           <div className="mt-3">
-            <span className="text-[28px] sm:text-[30px] font-bold font-[family-name:var(--font-heading)] leading-none text-[#059669] block">
+            <span className="text-[28px] sm:text-[30px] font-bold font-[family-name:var(--font-heading)] leading-none text-slate-900 block">
               +{totalInwardQty.toLocaleString()} <span className="text-xs font-normal text-slate-400">pcs</span>
             </span>
             <span 
@@ -777,7 +777,7 @@ export function InventoryClient({
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500 block">
               Dispatched Outward
             </span>
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-[#F5F3FF] text-[#7C3AED] shadow-2xs">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs">
               <Truck className="w-4 h-4" />
             </div>
           </div>

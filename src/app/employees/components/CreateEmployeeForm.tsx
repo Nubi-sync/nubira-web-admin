@@ -45,25 +45,22 @@ export function CreateEmployeeForm() {
 
   return (
     <div 
-      className="bg-white rounded-[11px] border shadow-xs p-5 sm:p-6 space-y-5"
-      style={{ borderColor: 'var(--border, #E2E8F0)' }}
+      className="bg-white rounded-2xl border border-black/10 shadow-2xs p-5 sm:p-6 space-y-5"
     >
       {/* Card Header */}
       <div className="flex items-center gap-3">
         <div 
-          className="w-[32px] h-[32px] rounded-[8px] flex items-center justify-center shrink-0"
-          style={{ backgroundColor: 'var(--steel-mist, #EEF3FA)', color: 'var(--steel, #2B4C7E)' }}
+          className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10"
         >
           <UserPlus className="w-4 h-4" />
         </div>
         <div>
           <h2 
-            className="text-base font-bold font-[family-name:var(--font-heading)]"
-            style={{ color: 'var(--ink, #1C2733)' }}
+            className="text-base font-extrabold text-slate-900 font-[family-name:var(--font-heading)]"
           >
             Add New Employee
           </h2>
-          <p className="text-[12px]" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+          <p className="text-xs text-slate-500 mt-0.5">
             Create floor staff login credentials
           </p>
         </div>
@@ -189,16 +186,15 @@ export function CreateEmployeeForm() {
           </div>
         )}
 
-        {/* Submit Button (Solid Steel, 8px radius, full width) */}
+        {/* Submit Button (Midnight Violet, rounded-xl, full width) */}
         <button
           type="submit"
           disabled={isPending}
-          className="w-full py-2.5 rounded-[8px] text-xs font-semibold text-white transition-colors flex items-center justify-center gap-2 shadow-xs cursor-pointer disabled:opacity-50 mt-2"
-          style={{ backgroundColor: 'var(--steel, #2B4C7E)' }}
+          className="w-full py-2.5 rounded-xl text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer disabled:opacity-50 mt-2"
         >
           {isPending ? (
             <>
-              <Loader2 className="w-3.5 h-3.5 animate-spin" /> Creating Account...
+              <Loader2 className="w-4 h-4 animate-spin" /> Creating Account...
             </>
           ) : (
             'Create Employee'

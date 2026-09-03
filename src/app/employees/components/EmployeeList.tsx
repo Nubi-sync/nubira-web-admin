@@ -208,19 +208,17 @@ export function EmployeeList({ employees }: { employees: Profile[] }) {
 
   return (
     <div 
-      className="bg-white rounded-[11px] border shadow-xs overflow-hidden"
-      style={{ borderColor: 'var(--border, #E2E8F0)' }}
+      className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden"
     >
       {/* Search Toolbar */}
       <div 
-        className="p-4 border-b flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-slate-50/50"
-        style={{ borderColor: 'var(--border, #E2E8F0)' }}
+        className="p-4 sm:p-5 border-b border-black/10 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-slate-50/50"
       >
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-bold text-[var(--ink,#1C2733)]">
+        <div className="flex items-center gap-2.5">
+          <span className="text-sm font-bold text-slate-900">
             Staff Directory
           </span>
-          <span className="text-[11px] px-2 py-0.5 rounded-full bg-slate-200/70 font-semibold text-slate-700">
+          <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs">
             {filteredEmployees.length} {filteredEmployees.length === 1 ? 'user' : 'users'}
           </span>
         </div>
@@ -233,10 +231,7 @@ export function EmployeeList({ employees }: { employees: Profile[] }) {
             placeholder="Search by username..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-8 pr-3 py-1.5 bg-white border rounded-[7px] text-xs outline-none transition-colors"
-            style={{ borderColor: 'var(--border, #E2E8F0)' }}
-            onFocus={(e) => e.currentTarget.style.borderColor = 'var(--steel, #2B4C7E)'}
-            onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border, #E2E8F0)'}
+            className="w-full pl-8 pr-3 py-1.5 bg-white border border-black/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
           />
         </div>
       </div>
