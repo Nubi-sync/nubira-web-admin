@@ -179,10 +179,10 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen w-full flex flex-col justify-between items-center bg-[#FAFAF8] text-[#14140F] relative overflow-x-hidden p-4 sm:p-6 lg:p-8 font-sans selection:bg-[#3A3564] selection:text-white">
       
-      {/* Background Layer: Indian Factory Floor Line-Art Sketch (High Visibility) */}
+      {/* Background Layer: Indian Factory Floor Line-Art Sketch with subtle watercolor tints (Web Login exclusive) */}
       <div 
-        className="fixed inset-0 pointer-events-none z-0 opacity-55 mix-blend-multiply bg-center bg-cover"
-        style={{ backgroundImage: "url('/factory_bg_sketch.jpg')" }}
+        className="fixed inset-0 pointer-events-none z-0 opacity-60 mix-blend-multiply bg-center bg-cover"
+        style={{ backgroundImage: "url('/factory_bg_tinted_sketch.jpg')" }}
       />
 
       {/* Top Header / Back Navigation Bar */}
