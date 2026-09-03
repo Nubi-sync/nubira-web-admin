@@ -649,34 +649,34 @@ export function InventoryClient({
           <button 
             type="button"
             onClick={() => setShowInwardModal(true)}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] transition-all shadow-xs cursor-pointer"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] transition-all shadow-xs cursor-pointer active:scale-[0.98]"
           >
             <Plus className="w-4 h-4" />
-            <span>+ Receive Inward</span>
+            <span>Receive Inward</span>
           </button>
           
           <button 
             type="button"
             onClick={() => setShowOutwardModal(true)}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold border border-black/15 bg-white hover:bg-slate-50 text-slate-700 transition-all shadow-2xs cursor-pointer"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold border border-black/10 bg-[#FAF7F0] hover:bg-slate-100 text-[#3A3564] transition-all shadow-2xs cursor-pointer active:scale-[0.98]"
           >
             <Upload className="w-4 h-4" />
-            <span>+ Dispatch Outward</span>
+            <span>Dispatch Outward</span>
           </button>
 
           <button 
             type="button"
             onClick={() => setShowAccessoryModal(true)}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold border border-black/15 bg-white hover:bg-slate-50 text-slate-700 transition-all shadow-2xs cursor-pointer"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold border border-black/10 bg-white hover:bg-slate-50 text-slate-800 transition-all shadow-2xs cursor-pointer active:scale-[0.98]"
           >
-            <Boxes className="w-4 h-4" />
-            <span>+ Raw Material Trim</span>
+            <Boxes className="w-4 h-4 text-[#3A3564]" />
+            <span>Raw Material Trim</span>
           </button>
 
           <button 
             type="button"
             onClick={handleExportCSV}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold border border-black/15 bg-white hover:bg-slate-50 text-slate-700 transition-all shadow-2xs cursor-pointer"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold border border-black/10 bg-white hover:bg-slate-50 text-slate-700 transition-all shadow-2xs cursor-pointer"
           >
             <Download className="w-4 h-4 text-slate-500" />
             <span>Export CSV</span>
@@ -944,14 +944,14 @@ export function InventoryClient({
                   className="px-5 py-2.5 bg-[#3A3564] hover:bg-[#2A2649] text-white text-sm font-bold rounded-xl shadow-xs transition-all cursor-pointer inline-flex items-center gap-2 mt-2"
                 >
                   <Plus className="w-4 h-4" />
-                  <span>+ Receive Inward</span>
+                  <span>Receive Inward</span>
                 </button>
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse text-xs">
+                <table className="w-full text-left border-collapse text-xs sm:text-[13px]">
                   <thead>
-                    <tr className="bg-slate-50 border-b text-[11px] uppercase tracking-wider font-bold" style={{ borderColor: 'var(--border, #E2E8F0)', color: 'var(--ink-soft, #5B6B7C)' }}>
+                    <tr className="bg-[#FAF7F0] border-b border-black/10 text-xs font-mono uppercase tracking-wider font-bold text-slate-700">
                       
                       {/* Sortable Article No */}
                       <th 
@@ -961,7 +961,7 @@ export function InventoryClient({
                         <div className="flex items-center gap-1.5">
                           <span>Article No</span>
                           {sortCol === 'art_no' ? (
-                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" /> : <ArrowDown className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" />
+                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#3A3564]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#3A3564]" />
                           ) : (
                             <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
                           )}
@@ -973,19 +973,19 @@ export function InventoryClient({
                       {/* Sortable Total Inward */}
                       <th 
                         onClick={() => handleSort('inward')}
-                        className="px-4 py-3.5 text-right cursor-pointer hover:bg-slate-100 transition-colors select-none font-bold text-[var(--green,#1F9D63)]"
+                        className="px-4 py-3.5 text-right cursor-pointer hover:bg-slate-100 transition-colors select-none font-bold text-emerald-700"
                       >
                         <div className="flex items-center justify-end gap-1.5">
                           <span>Total Inward (QC)</span>
                           {sortCol === 'inward' ? (
-                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[var(--green,#1F9D63)]" /> : <ArrowDown className="w-3.5 h-3.5 text-[var(--green,#1F9D63)]" />
+                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-emerald-700" /> : <ArrowDown className="w-3.5 h-3.5 text-emerald-700" />
                           ) : (
                             <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
                           )}
                         </div>
                       </th>
 
-                      <th className="px-4 py-3.5 font-bold text-right text-[var(--steel,#2B4C7E)]">Total Outward (Dispatch)</th>
+                      <th className="px-4 py-3.5 font-bold text-right text-[#3A3564]">Total Outward (Dispatch)</th>
                       
                       {/* Sortable Balance */}
                       <th 
@@ -995,7 +995,7 @@ export function InventoryClient({
                         <div className="flex items-center justify-end gap-1.5">
                           <span>Godown Balance</span>
                           {sortCol === 'balance' ? (
-                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" /> : <ArrowDown className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" />
+                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#3A3564]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#3A3564]" />
                           ) : (
                             <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
                           )}
@@ -1008,36 +1008,38 @@ export function InventoryClient({
                   <tbody className="divide-y divide-slate-100">
                     {paginatedFinished.map((row) => (
                       <tr key={row.art_no} className="hover:bg-slate-50/50 transition-colors">
-                        <td className="px-5 py-3.5 font-bold" style={{ color: 'var(--steel, #2B4C7E)' }}>
+                        <td className="px-5 py-3.5 font-bold text-sm text-[#3A3564]">
                           {row.art_no}
                         </td>
-                        <td className="px-4 py-3.5 text-slate-500">
+                        <td className="px-4 py-3.5 text-xs sm:text-[13px] text-slate-600 font-medium">
                           {row.description}
                         </td>
-                        <td className="px-4 py-3.5 text-right font-mono font-bold" style={{ color: 'var(--green, #1F9D63)' }}>
+                        <td className="px-4 py-3.5 text-right font-mono font-bold text-emerald-600 text-xs sm:text-[13px]">
                           +{row.totalInward.toLocaleString()}
                         </td>
-                        <td className="px-4 py-3.5 text-right font-mono font-bold" style={{ color: 'var(--steel, #2B4C7E)' }}>
+                        <td className="px-4 py-3.5 text-right font-mono font-bold text-[#3A3564] text-xs sm:text-[13px]">
                           -{row.totalOutward.toLocaleString()}
                         </td>
                         <td className="px-4 py-3.5 text-right">
                           <span 
-                            className="inline-flex items-center px-2.5 py-0.5 rounded-[5px] text-xs font-bold font-mono"
-                            style={{
-                              backgroundColor: row.balance > 0 ? 'var(--steel-tint, #DBE6F5)' : 'var(--red-mist, #FBEAE8)',
-                              color: row.balance > 0 ? 'var(--steel-dark, #1F3A63)' : 'var(--red, #C0392B)'
-                            }}
+                            className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold font-mono shadow-2xs border ${
+                              row.balance > 0 
+                                ? 'bg-[#FAF7F0] text-[#3A3564] border-black/10' 
+                                : 'bg-rose-50 text-rose-700 border-rose-200'
+                            }`}
                           >
                             {row.balance.toLocaleString()} pcs
                           </span>
                         </td>
                         <td className="px-4 py-3.5 text-center">
                           <span 
-                            className="inline-flex items-center px-2 py-0.5 rounded-full text-[10.5px] font-semibold"
-                            style={{
-                              backgroundColor: row.balance > 50 ? 'var(--green-mist, #E6F6EE)' : row.balance > 0 ? 'var(--amber-mist, #FBF0E1)' : 'var(--red-mist, #FBEAE8)',
-                              color: row.balance > 50 ? 'var(--green, #1F9D63)' : row.balance > 0 ? 'var(--amber, #C8802B)' : 'var(--red, #C0392B)'
-                            }}
+                            className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold border ${
+                              row.balance > 50 
+                                ? 'bg-emerald-50 text-emerald-800 border-emerald-200' 
+                                : row.balance > 0 
+                                  ? 'bg-amber-50 text-amber-800 border-amber-200' 
+                                  : 'bg-rose-50 text-rose-700 border-rose-200'
+                            }`}
                           >
                             {row.balance > 50 ? 'In Stock' : row.balance > 0 ? 'Low Stock' : 'Zero Stock'}
                           </span>
@@ -1074,14 +1076,14 @@ export function InventoryClient({
             )}
 
             {filteredChallans.length === 0 ? (
-              <div className="p-12 text-center flex flex-col items-center justify-center space-y-3">
-                <div className="w-12 h-12 rounded-full flex items-center justify-center bg-slate-100 text-slate-400">
-                  <FileText className="w-6 h-6" />
+              <div className="p-12 sm:p-16 text-center flex flex-col items-center justify-center space-y-3.5">
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs">
+                  <FileText className="w-7 h-7" />
                 </div>
-                <h3 className="text-base font-bold font-[family-name:var(--font-heading)]" style={{ color: 'var(--ink, #1C2733)' }}>
+                <h3 className="text-base sm:text-lg font-bold font-[family-name:var(--font-heading)] text-slate-900">
                   No supplier challans or truck inwards logged yet
                 </h3>
-                <p className="text-xs max-w-sm" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                <p className="text-sm text-slate-500 max-w-md">
                   Delivery challans recorded by Store Managers at factory gate will appear here with line items and paper slip photo proofs.
                 </p>
               </div>
@@ -1237,23 +1239,23 @@ export function InventoryClient({
         {activeTab === 'accessories' && (
           <div>
             {accessoryStockMatrix.length === 0 ? (
-              <div className="p-12 text-center flex flex-col items-center justify-center space-y-3">
-                <div className="w-12 h-12 rounded-full flex items-center justify-center bg-slate-100 text-slate-400">
-                  <Boxes className="w-6 h-6" />
+              <div className="p-12 sm:p-16 text-center flex flex-col items-center justify-center space-y-3.5">
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs">
+                  <Boxes className="w-7 h-7" />
                 </div>
-                <h3 className="text-base font-bold font-[family-name:var(--font-heading)]" style={{ color: 'var(--ink, #1C2733)' }}>
+                <h3 className="text-base sm:text-lg font-bold font-[family-name:var(--font-heading)] text-slate-900">
                   No trims added yet
                 </h3>
-                <p className="text-xs max-w-sm" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                <p className="text-sm text-slate-500 max-w-md">
                   Trims and raw accessories (buttons, threads, zippers) you receive from suppliers will show up here.
                 </p>
                 <button
                   type="button"
                   onClick={() => setShowAccessoryModal(true)}
-                  className="mt-2 px-4 py-2 rounded-[7px] text-xs font-semibold text-white shadow-xs transition-colors"
-                  style={{ backgroundColor: 'var(--steel, #2B4C7E)' }}
+                  className="px-5 py-2.5 bg-[#3A3564] hover:bg-[#2A2649] text-white text-sm font-bold rounded-xl shadow-xs transition-all cursor-pointer inline-flex items-center gap-2 mt-2 active:scale-[0.98]"
                 >
-                  + Raw Material Trim
+                  <Boxes className="w-4 h-4" />
+                  <span>Raw Material Trim</span>
                 </button>
               </div>
             ) : (
@@ -1377,23 +1379,23 @@ export function InventoryClient({
         {activeTab === 'dispatch' && (
           <div>
             {filteredDispatch.length === 0 ? (
-              <div className="p-12 text-center flex flex-col items-center justify-center space-y-3">
-                <div className="w-12 h-12 rounded-full flex items-center justify-center bg-slate-100 text-slate-400">
-                  <Truck className="w-6 h-6" />
+              <div className="p-12 sm:p-16 text-center flex flex-col items-center justify-center space-y-3.5">
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs">
+                  <Truck className="w-7 h-7" />
                 </div>
-                <h3 className="text-base font-bold font-[family-name:var(--font-heading)]" style={{ color: 'var(--ink, #1C2733)' }}>
+                <h3 className="text-base sm:text-lg font-bold font-[family-name:var(--font-heading)] text-slate-900">
                   No dispatches yet
                 </h3>
-                <p className="text-xs max-w-sm" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                <p className="text-sm text-slate-500 max-w-md">
                   Buyer orders and delivery gate passes you dispatch will show up here.
                 </p>
                 <button
                   type="button"
                   onClick={() => setShowOutwardModal(true)}
-                  className="mt-2 px-4 py-2 rounded-[7px] text-xs font-semibold text-white shadow-xs transition-colors"
-                  style={{ backgroundColor: 'var(--steel, #2B4C7E)' }}
+                  className="px-5 py-2.5 bg-[#3A3564] hover:bg-[#2A2649] text-white text-sm font-bold rounded-xl shadow-xs transition-all cursor-pointer inline-flex items-center gap-2 mt-2 active:scale-[0.98]"
                 >
-                  + Dispatch Outward
+                  <Upload className="w-4 h-4" />
+                  <span>Dispatch Outward</span>
                 </button>
               </div>
             ) : (
@@ -1485,23 +1487,23 @@ export function InventoryClient({
         {activeTab === 'inward' && (
           <div>
             {filteredInward.length === 0 ? (
-              <div className="p-12 text-center flex flex-col items-center justify-center space-y-3">
-                <div className="w-12 h-12 rounded-full flex items-center justify-center bg-slate-100 text-slate-400">
-                  <CheckCircle2 className="w-6 h-6" />
+              <div className="p-12 sm:p-16 text-center flex flex-col items-center justify-center space-y-3.5">
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs">
+                  <CheckCircle2 className="w-7 h-7" />
                 </div>
-                <h3 className="text-base font-bold font-[family-name:var(--font-heading)]" style={{ color: 'var(--ink, #1C2733)' }}>
+                <h3 className="text-base sm:text-lg font-bold font-[family-name:var(--font-heading)] text-slate-900">
                   No inward receipts logged yet
                 </h3>
-                <p className="text-xs max-w-sm" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                <p className="text-sm text-slate-500 max-w-md">
                   Finished garments received from finishing floor will be listed here.
                 </p>
                 <button
                   type="button"
                   onClick={() => setShowInwardModal(true)}
-                  className="mt-2 px-4 py-2 rounded-[7px] text-xs font-semibold text-white shadow-xs transition-colors"
-                  style={{ backgroundColor: 'var(--steel, #2B4C7E)' }}
+                  className="px-5 py-2.5 bg-[#3A3564] hover:bg-[#2A2649] text-white text-sm font-bold rounded-xl shadow-xs transition-all cursor-pointer inline-flex items-center gap-2 mt-2 active:scale-[0.98]"
                 >
-                  + Receive Inward
+                  <Plus className="w-4 h-4" />
+                  <span>Receive Inward</span>
                 </button>
               </div>
             ) : (
@@ -1642,14 +1644,29 @@ export function InventoryClient({
       {/* MODAL 1: RECEIVE FINISHED GOODS INWARD                     */}
       {/* ======================================================== */}
       {showInwardModal && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-[11px] max-w-md w-full p-6 space-y-4 shadow-xl border" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
-            <div className="flex items-center justify-between pb-3 border-b" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
-              <h3 className="text-base font-bold font-[family-name:var(--font-heading)] flex items-center gap-2" style={{ color: 'var(--ink, #1C2733)' }}>
-                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                Receive Inward (Finished Goods)
-              </h3>
-              <button onClick={() => setShowInwardModal(false)} className="text-slate-400 hover:text-slate-700 cursor-pointer">
+        <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-5 sm:p-6 space-y-4 sm:space-y-5 shadow-2xl border border-black/10 max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-200">
+            
+            {/* Modal Header */}
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs shrink-0">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight font-[family-name:var(--font-heading)]">
+                    Receive Inward (Finished Goods)
+                  </h3>
+                  <p className="text-xs sm:text-[13px] text-slate-500 mt-0.5">
+                    Log finished garments received into godown stock
+                  </p>
+                </div>
+              </div>
+              <button 
+                type="button"
+                onClick={() => setShowInwardModal(false)} 
+                className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -1660,61 +1677,91 @@ export function InventoryClient({
                 await addStoreTransaction(formData)
                 setShowInwardModal(false)
               })
-            }} className="space-y-3">
+            }} className="space-y-3.5">
               <div>
-                <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
                   Article Style
                 </label>
-                <select name="article_id" required className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs font-semibold outline-none" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+                <select 
+                  name="article_id" 
+                  required 
+                  className="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-slate-900 shadow-2xs outline-none transition-all cursor-pointer"
+                >
                   {articles.map(art => (
                     <option key={art.id} value={art.id}>{art.art_no} ({art.description})</option>
                   ))}
                 </select>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                  <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
                     Color
                   </label>
-                  <input type="text" name="color" defaultValue="Navy Blue" className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs outline-none" style={{ borderColor: 'var(--border, #E2E8F0)' }} />
+                  <input 
+                    type="text" 
+                    name="color" 
+                    defaultValue="Navy Blue" 
+                    className="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-900 shadow-2xs outline-none transition-all" 
+                  />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                  <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
                     Size
                   </label>
-                  <input type="text" name="size" defaultValue="L" className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs outline-none" style={{ borderColor: 'var(--border, #E2E8F0)' }} />
+                  <input 
+                    type="text" 
+                    name="size" 
+                    defaultValue="L" 
+                    className="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-900 shadow-2xs outline-none transition-all" 
+                  />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
                   Quantity (Pieces)
                 </label>
-                <input type="number" name="quantity" required placeholder="e.g. 150" className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs font-bold font-mono outline-none" style={{ borderColor: 'var(--border, #E2E8F0)' }} />
+                <input 
+                  type="number" 
+                  name="quantity" 
+                  required 
+                  placeholder="e.g. 150" 
+                  className="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl px-3.5 py-2.5 text-sm font-bold font-mono text-slate-900 shadow-2xs outline-none transition-all" 
+                />
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
                   Received From
                 </label>
-                <input type="text" name="party_name" defaultValue="QC Finishing Floor" className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs outline-none" style={{ borderColor: 'var(--border, #E2E8F0)' }} />
+                <input 
+                  type="text" 
+                  name="party_name" 
+                  defaultValue="QC Finishing Floor" 
+                  className="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-900 shadow-2xs outline-none transition-all" 
+                />
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
                   Notes / Carton Ref
                 </label>
-                <input type="text" name="notes" placeholder="e.g. Master Carton #3" className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs outline-none" style={{ borderColor: 'var(--border, #E2E8F0)' }} />
+                <input 
+                  type="text" 
+                  name="notes" 
+                  placeholder="e.g. Master Carton #3" 
+                  className="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-900 shadow-2xs outline-none transition-all" 
+                />
               </div>
 
               <button
                 type="submit"
                 disabled={isPending}
-                className="w-full py-2.5 text-white rounded-[8px] font-semibold text-xs transition-colors shadow-xs cursor-pointer"
-                style={{ backgroundColor: 'var(--green, #1F9D63)' }}
+                className="w-full py-3 text-white rounded-xl font-bold text-sm bg-[#3A3564] hover:bg-[#2A2649] disabled:opacity-50 transition-all shadow-xs cursor-pointer flex items-center justify-center gap-2 active:scale-[0.99] mt-2"
               >
-                {isPending ? 'Saving...' : 'Save Inward to Stock'}
+                <CheckCircle2 className="w-4 h-4 text-emerald-300" />
+                <span>{isPending ? 'Saving to Stock...' : 'Save Inward to Stock'}</span>
               </button>
             </form>
           </div>
@@ -1725,14 +1772,29 @@ export function InventoryClient({
       {/* MODAL 2: DISPATCH OUTWARD                                  */}
       {/* ======================================================== */}
       {showOutwardModal && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-[11px] max-w-md w-full p-6 space-y-4 shadow-xl border" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
-            <div className="flex items-center justify-between pb-3 border-b" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
-              <h3 className="text-base font-bold font-[family-name:var(--font-heading)] flex items-center gap-2" style={{ color: 'var(--ink, #1C2733)' }}>
-                <Truck className="w-4 h-4 text-[var(--steel,#2B4C7E)]" />
-                Dispatch Outward (Delivery)
-              </h3>
-              <button onClick={() => setShowOutwardModal(false)} className="text-slate-400 hover:text-slate-700 cursor-pointer">
+        <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-5 sm:p-6 space-y-4 sm:space-y-5 shadow-2xl border border-black/10 max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-200">
+            
+            {/* Modal Header */}
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs shrink-0">
+                  <Truck className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight font-[family-name:var(--font-heading)]">
+                    Dispatch Outward (Delivery)
+                  </h3>
+                  <p className="text-xs sm:text-[13px] text-slate-500 mt-0.5">
+                    Record delivery gate pass and deduct from finished goods stock
+                  </p>
+                </div>
+              </div>
+              <button 
+                type="button"
+                onClick={() => setShowOutwardModal(false)} 
+                className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -1743,69 +1805,105 @@ export function InventoryClient({
                 await addStoreTransaction(formData)
                 setShowOutwardModal(false)
               })
-            }} className="space-y-3">
+            }} className="space-y-3.5">
               <div>
-                <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
                   Article Style
                 </label>
-                <select name="article_id" required className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs font-semibold outline-none" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+                <select 
+                  name="article_id" 
+                  required 
+                  className="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-slate-900 shadow-2xs outline-none transition-all cursor-pointer"
+                >
                   {articles.map(art => (
                     <option key={art.id} value={art.id}>{art.art_no} ({art.description})</option>
                   ))}
                 </select>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                  <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
                     Color
                   </label>
-                  <input type="text" name="color" defaultValue="Navy Blue" className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs outline-none" style={{ borderColor: 'var(--border, #E2E8F0)' }} />
+                  <input 
+                    type="text" 
+                    name="color" 
+                    defaultValue="Navy Blue" 
+                    className="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-900 shadow-2xs outline-none transition-all" 
+                  />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                  <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
                     Size
                   </label>
-                  <input type="text" name="size" defaultValue="L" className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs outline-none" style={{ borderColor: 'var(--border, #E2E8F0)' }} />
+                  <input 
+                    type="text" 
+                    name="size" 
+                    defaultValue="L" 
+                    className="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-900 shadow-2xs outline-none transition-all" 
+                  />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
                   Dispatch Quantity (Pieces)
                 </label>
-                <input type="number" name="quantity" required placeholder="e.g. 100" className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs font-bold font-mono outline-none" style={{ borderColor: 'var(--border, #E2E8F0)' }} />
+                <input 
+                  type="number" 
+                  name="quantity" 
+                  required 
+                  placeholder="e.g. 100" 
+                  className="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl px-3.5 py-2.5 text-sm font-bold font-mono text-slate-900 shadow-2xs outline-none transition-all" 
+                />
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
                   Buyer Name / Customer / PO #
                 </label>
-                <input type="text" name="party_name" required placeholder="e.g. Reliance Retail / PO-882" className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs outline-none" style={{ borderColor: 'var(--border, #E2E8F0)' }} />
+                <input 
+                  type="text" 
+                  name="party_name" 
+                  required 
+                  placeholder="e.g. Reliance Retail / PO-882" 
+                  className="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-900 shadow-2xs outline-none transition-all" 
+                />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                  <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
                     Challan No
                   </label>
-                  <input type="text" name="challan_no" placeholder="DC-104" className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs outline-none" style={{ borderColor: 'var(--border, #E2E8F0)' }} />
+                  <input 
+                    type="text" 
+                    name="challan_no" 
+                    placeholder="DC-104" 
+                    className="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-900 shadow-2xs outline-none transition-all" 
+                  />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                  <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
                     Vehicle / Transport
                   </label>
-                  <input type="text" name="transport_no" placeholder="MH-04-1234" className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs outline-none" style={{ borderColor: 'var(--border, #E2E8F0)' }} />
+                  <input 
+                    type="text" 
+                    name="transport_no" 
+                    placeholder="MH-04-1234" 
+                    className="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-900 shadow-2xs outline-none transition-all" 
+                  />
                 </div>
               </div>
 
               <button
                 type="submit"
                 disabled={isPending}
-                className="w-full py-2.5 text-white rounded-[8px] font-semibold text-xs transition-colors shadow-xs cursor-pointer"
-                style={{ backgroundColor: 'var(--steel, #2B4C7E)' }}
+                className="w-full py-3 text-white rounded-xl font-bold text-sm bg-[#3A3564] hover:bg-[#2A2649] disabled:opacity-50 transition-all shadow-xs cursor-pointer flex items-center justify-center gap-2 active:scale-[0.99] mt-2"
               >
-                {isPending ? 'Dispatching...' : 'Confirm Dispatch & Deduct Stock'}
+                <Truck className="w-4 h-4" />
+                <span>{isPending ? 'Processing Dispatch...' : 'Confirm Dispatch & Deduct Stock'}</span>
               </button>
             </form>
           </div>
@@ -1816,14 +1914,29 @@ export function InventoryClient({
       {/* MODAL 3: ACCESSORIES (RAW MATERIALS & TRIMS)               */}
       {/* ======================================================== */}
       {showAccessoryModal && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-[11px] max-w-md w-full p-6 space-y-4 shadow-xl border" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
-            <div className="flex items-center justify-between pb-3 border-b" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
-              <h3 className="text-base font-bold font-[family-name:var(--font-heading)] flex items-center gap-2" style={{ color: 'var(--ink, #1C2733)' }}>
-                <Boxes className="w-4 h-4 text-[var(--steel,#2B4C7E)]" />
-                Raw Materials & Trims Movement
-              </h3>
-              <button onClick={() => setShowAccessoryModal(false)} className="text-slate-400 hover:text-slate-700 cursor-pointer">
+        <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-5 sm:p-6 space-y-4 sm:space-y-5 shadow-2xl border border-black/10 max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-200">
+            
+            {/* Modal Header */}
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs shrink-0">
+                  <Boxes className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight font-[family-name:var(--font-heading)]">
+                    Raw Materials & Trims Movement
+                  </h3>
+                  <p className="text-xs sm:text-[13px] text-slate-500 mt-0.5">
+                    Record accessories received from suppliers or issued to sewing lines
+                  </p>
+                </div>
+              </div>
+              <button 
+                type="button"
+                onClick={() => setShowAccessoryModal(false)} 
+                className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -1833,42 +1946,59 @@ export function InventoryClient({
                 await addAccessoryTransaction(formData)
                 setShowAccessoryModal(false)
               })
-            }} className="space-y-3">
+            }} className="space-y-3.5">
               <div>
-                <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
                   Movement Type
                 </label>
-                <div className="grid grid-cols-2 gap-2">
-                  <label className="flex items-center justify-center gap-2 p-2 border rounded-[7px] cursor-pointer hover:bg-slate-50 font-bold text-xs" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
-                    <input type="radio" name="action" value="IN" defaultChecked />
+                <div className="grid grid-cols-2 gap-2.5">
+                  <label className="flex items-center justify-center gap-2 p-3 border border-slate-200 hover:border-[#3A3564] rounded-xl cursor-pointer bg-slate-50/70 hover:bg-[#FAF7F0] font-bold text-xs sm:text-sm text-slate-800 transition-all shadow-2xs has-checked:border-[#3A3564] has-checked:bg-[#FAF7F0] has-checked:text-[#3A3564]">
+                    <input type="radio" name="action" value="IN" defaultChecked className="accent-[#3A3564]" />
                     <span>IN (Stock Received)</span>
                   </label>
-                  <label className="flex items-center justify-center gap-2 p-2 border rounded-[7px] cursor-pointer hover:bg-slate-50 font-bold text-xs" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
-                    <input type="radio" name="action" value="OUT" />
+                  <label className="flex items-center justify-center gap-2 p-3 border border-slate-200 hover:border-[#3A3564] rounded-xl cursor-pointer bg-slate-50/70 hover:bg-[#FAF7F0] font-bold text-xs sm:text-sm text-slate-800 transition-all shadow-2xs has-checked:border-[#3A3564] has-checked:bg-[#FAF7F0] has-checked:text-[#3A3564]">
+                    <input type="radio" name="action" value="OUT" className="accent-[#3A3564]" />
                     <span>OUT (Issued to Line)</span>
                   </label>
                 </div>
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
                   Item Name / Trim
                 </label>
-                <input type="text" name="item_name" required defaultValue="Sewing Thread (Navy Blue)" placeholder="e.g. Buttons 18L, Thread, Zipper" className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs font-semibold outline-none" style={{ borderColor: 'var(--border, #E2E8F0)' }} />
+                <input 
+                  type="text" 
+                  name="item_name" 
+                  required 
+                  defaultValue="Sewing Thread (Navy Blue)" 
+                  placeholder="e.g. Buttons 18L, Thread, Zipper" 
+                  className="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-slate-900 shadow-2xs outline-none transition-all" 
+                />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                  <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
                     Quantity
                   </label>
-                  <input type="number" name="quantity" required placeholder="e.g. 24" className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs font-bold font-mono outline-none" style={{ borderColor: 'var(--border, #E2E8F0)' }} />
+                  <input 
+                    type="number" 
+                    name="quantity" 
+                    required 
+                    placeholder="e.g. 24" 
+                    className="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl px-3.5 py-2.5 text-sm font-bold font-mono text-slate-900 shadow-2xs outline-none transition-all" 
+                  />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                  <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
                     Unit
                   </label>
-                  <select name="unit" defaultValue="cones" className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs font-semibold outline-none" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+                  <select 
+                    name="unit" 
+                    defaultValue="cones" 
+                    className="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-slate-900 shadow-2xs outline-none transition-all cursor-pointer"
+                  >
                     <option value="cones">Cones</option>
                     <option value="pcs">Pcs</option>
                     <option value="gross">Gross</option>
@@ -1880,26 +2010,36 @@ export function InventoryClient({
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
                   Supplier / Issued Line Ref
                 </label>
-                <input type="text" name="party_name" defaultValue="Supplier: Vardhman Threads" className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs outline-none" style={{ borderColor: 'var(--border, #E2E8F0)' }} />
+                <input 
+                  type="text" 
+                  name="party_name" 
+                  defaultValue="Supplier: Vardhman Threads" 
+                  className="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-900 shadow-2xs outline-none transition-all" 
+                />
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
                   Notes (Optional)
                 </label>
-                <input type="text" name="notes" placeholder="e.g. Batch #PO-882" className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs outline-none" style={{ borderColor: 'var(--border, #E2E8F0)' }} />
+                <input 
+                  type="text" 
+                  name="notes" 
+                  placeholder="e.g. Batch #PO-882" 
+                  className="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-900 shadow-2xs outline-none transition-all" 
+                />
               </div>
 
               <button
                 type="submit"
                 disabled={isPending}
-                className="w-full py-2.5 text-white rounded-[8px] font-semibold text-xs transition-colors shadow-xs cursor-pointer"
-                style={{ backgroundColor: 'var(--steel, #2B4C7E)' }}
+                className="w-full py-3 text-white rounded-xl font-bold text-sm bg-[#3A3564] hover:bg-[#2A2649] disabled:opacity-50 transition-all shadow-xs cursor-pointer flex items-center justify-center gap-2 active:scale-[0.99] mt-2"
               >
-                {isPending ? 'Saving...' : 'Save Trim Transaction'}
+                <Boxes className="w-4 h-4" />
+                <span>{isPending ? 'Saving Trim Movement...' : 'Save Trim Transaction'}</span>
               </button>
             </form>
           </div>
