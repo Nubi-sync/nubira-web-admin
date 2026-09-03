@@ -30,7 +30,8 @@ import {
   Check,
   ExternalLink,
   User,
-  Tag
+  Tag,
+  Plus
 } from 'lucide-react'
 import { TvViewButton } from '@/components/ui/TvViewButton'
 
@@ -670,7 +671,7 @@ export default function DashboardClient({
 
           {/* Date Filter Pills */}
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg border border-slate-200">
+            <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
               {[
                 { id: 'today', label: 'Today' },
                 { id: 'week', label: 'This Week' },
@@ -681,7 +682,7 @@ export default function DashboardClient({
                   key={tab.id}
                   type="button"
                   onClick={() => setDateFilter(tab.id as DateFilter)}
-                  className={`px-3 py-1.5 text-xs font-bold rounded-md transition-colors cursor-pointer ${
+                  className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer ${
                     dateFilter === tab.id
                       ? 'bg-white text-[#3A3564] shadow-2xs font-extrabold'
                       : 'text-slate-500 hover:text-slate-800'
@@ -691,8 +692,6 @@ export default function DashboardClient({
                 </button>
               ))}
             </div>
-
-            <TvViewButton size="sm" />
           </div>
 
         </div>
@@ -701,34 +700,47 @@ export default function DashboardClient({
       {/* ========================================================= */}
       {/* 2. 6-STAGE FACTORY FLOOR LIFECYCLE KPI CARDS               */}
       {/* ========================================================= */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3.5 sm:gap-4">
         
         {/* STAGE 1: TOTAL STOCKS */}
         <div 
           onClick={() => setActiveDrilldownStage('TOTAL_STOCKS')}
-          className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-black/25 transition-all cursor-pointer flex flex-col justify-between group relative shadow-2xs"
+          className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-[#3A3564]/40 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group relative shadow-2xs select-none hover:-translate-y-0.5"
         >
           <div>
+            {/* Top Action Row: Icon on left, Stage indicator on right */}
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                1. Total Stocks
-              </span>
-              <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] flex items-center justify-center border border-black/10">
-                <Warehouse className="w-[18px] h-[18px]" />
+              <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-[#3A3564] group-hover:text-white group-hover:border-[#3A3564] transition-colors">
+                <Warehouse className="w-5 h-5" />
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 group-hover:text-[#3A3564] transition-colors">
+                  STAGE 01
+                </span>
+                <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#3A3564] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
               </div>
             </div>
-            <p className="text-xs text-slate-400 mt-1 font-medium">Order Pipeline Target</p>
+
+            {/* Stage Title and Subtitle - Has full card width without colliding! */}
+            <div className="mt-3.5">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
+                1. Total Stocks
+              </span>
+              <p className="text-[11px] text-slate-400 font-medium truncate mt-0.5">
+                Order Pipeline Target
+              </p>
+            </div>
           </div>
 
-          <div className="mt-3">
-            <h3 className="text-[30px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none">
+          {/* Metric Number and Bottom Pill */}
+          <div className="mt-4 pt-3 border-t border-slate-100/80">
+            <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none">
               {metrics.totalStocks.toLocaleString()}
             </h3>
-            <div className="mt-3 flex items-center justify-between">
-              <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 tracking-wider">
+            <div className="mt-2.5 flex items-center justify-between">
+              <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 tracking-wider shadow-2xs">
                 Total Pieces
               </span>
-              <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#3A3564] transition-colors" />
             </div>
           </div>
         </div>
@@ -736,29 +748,39 @@ export default function DashboardClient({
         {/* STAGE 2: GOODS IN LINE (SEWING WIP) */}
         <div 
           onClick={() => setActiveDrilldownStage('GOODS_IN_LINE')}
-          className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-black/25 transition-all cursor-pointer flex flex-col justify-between group relative shadow-2xs"
+          className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-[#3A3564]/40 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group relative shadow-2xs select-none hover:-translate-y-0.5"
         >
           <div>
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                2. Goods in Line
-              </span>
-              <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs flex items-center justify-center shrink-0">
-                <Activity className="w-[18px] h-[18px]" />
+              <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-[#3A3564] group-hover:text-white group-hover:border-[#3A3564] transition-colors">
+                <Activity className="w-5 h-5" />
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 group-hover:text-[#3A3564] transition-colors">
+                  STAGE 02
+                </span>
+                <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#3A3564] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
               </div>
             </div>
-            <p className="text-xs text-slate-400 mt-1 font-medium">Sewing Machines WIP</p>
+
+            <div className="mt-3.5">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
+                2. Goods in Line
+              </span>
+              <p className="text-[11px] text-slate-400 font-medium truncate mt-0.5">
+                Sewing Machines WIP
+              </p>
+            </div>
           </div>
 
-          <div className="mt-3">
-            <h3 className="text-[30px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none">
+          <div className="mt-4 pt-3 border-t border-slate-100/80">
+            <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none">
               {metrics.goodsInLine.toLocaleString()}
             </h3>
-            <div className="mt-3 flex items-center justify-between">
+            <div className="mt-2.5 flex items-center justify-between">
               <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 tracking-wider shadow-2xs">
                 On Floor
               </span>
-              <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#3A3564] transition-colors" />
             </div>
           </div>
         </div>
@@ -766,36 +788,46 @@ export default function DashboardClient({
         {/* STAGE 3: MENDING & CHECKING (WITH SMART ALTERATION ALERT) */}
         <div 
           onClick={() => setActiveDrilldownStage('MENDING_CHECKING')}
-          className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-black/25 transition-all cursor-pointer flex flex-col justify-between group relative shadow-2xs"
+          className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-[#3A3564]/40 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group relative shadow-2xs select-none hover:-translate-y-0.5"
         >
           <div>
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                3. Mending & Checking
-              </span>
-              <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs flex items-center justify-center shrink-0">
-                <AlertTriangle className="w-[18px] h-[18px]" />
+              <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-[#3A3564] group-hover:text-white group-hover:border-[#3A3564] transition-colors">
+                <AlertTriangle className="w-5 h-5" />
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 group-hover:text-[#3A3564] transition-colors">
+                  STAGE 03
+                </span>
+                <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#3A3564] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
               </div>
             </div>
-            <p className="text-xs text-slate-400 mt-1 font-medium">QC Inspection & Repairs</p>
+
+            <div className="mt-3.5">
+              <div className="flex items-center justify-between gap-1">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
+                  3. Mending & Checking
+                </span>
+                {metrics.alterationRate > 0 && (
+                  <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-rose-50 text-rose-700 border border-rose-200 shrink-0">
+                    {metrics.alterationRate.toFixed(1)}%
+                  </span>
+                )}
+              </div>
+              <p className="text-[11px] text-slate-400 font-medium truncate mt-0.5">
+                QC Inspection & Repairs
+              </p>
+            </div>
           </div>
 
-          <div className="mt-3">
-            <div className="flex items-baseline justify-between">
-              <h3 className="text-[30px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none">
-                {metrics.mendingChecking.toLocaleString()}
-              </h3>
-              {metrics.alterationRate > 0 && (
-                <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
-                  {metrics.alterationRate.toFixed(1)}% Alter
-                </span>
-              )}
-            </div>
-            <div className="mt-3 flex items-center justify-between">
+          <div className="mt-4 pt-3 border-t border-slate-100/80">
+            <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none">
+              {metrics.mendingChecking.toLocaleString()}
+            </h3>
+            <div className="mt-2.5 flex items-center justify-between">
               <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 tracking-wider shadow-2xs">
-                {metrics.mendingAlterationQty > 0 ? `${metrics.mendingAlterationQty} Defect/Alter` : 'Finishing Table'}
+                {metrics.mendingAlterationQty > 0 ? `${metrics.mendingAlterationQty} Alter` : 'Finishing Table'}
               </span>
-              <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#3A3564] transition-colors" />
             </div>
           </div>
         </div>
@@ -803,29 +835,39 @@ export default function DashboardClient({
         {/* STAGE 4: READY GOODS (FINISHED STOCK) */}
         <div 
           onClick={() => setActiveDrilldownStage('READY_GOODS')}
-          className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-black/25 transition-all cursor-pointer flex flex-col justify-between group relative shadow-2xs"
+          className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-[#3A3564]/40 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group relative shadow-2xs select-none hover:-translate-y-0.5"
         >
           <div>
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                4. Ready Goods
-              </span>
-              <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs flex items-center justify-center shrink-0">
-                <PackageCheck className="w-[18px] h-[18px]" />
+              <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-[#3A3564] group-hover:text-white group-hover:border-[#3A3564] transition-colors">
+                <PackageCheck className="w-5 h-5" />
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 group-hover:text-[#3A3564] transition-colors">
+                  STAGE 04
+                </span>
+                <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#3A3564] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
               </div>
             </div>
-            <p className="text-xs text-slate-400 mt-1 font-medium">QC Passed & Packed</p>
+
+            <div className="mt-3.5">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
+                4. Ready Goods
+              </span>
+              <p className="text-[11px] text-slate-400 font-medium truncate mt-0.5">
+                QC Passed & Packed
+              </p>
+            </div>
           </div>
 
-          <div className="mt-3">
-            <h3 className="text-[30px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none">
+          <div className="mt-4 pt-3 border-t border-slate-100/80">
+            <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none">
               {metrics.readyGoods.toLocaleString()}
             </h3>
-            <div className="mt-3 flex items-center justify-between">
+            <div className="mt-2.5 flex items-center justify-between">
               <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 tracking-wider shadow-2xs">
                 In Godown
               </span>
-              <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#3A3564] transition-colors" />
             </div>
           </div>
         </div>
@@ -833,29 +875,39 @@ export default function DashboardClient({
         {/* STAGE 5: RTO (RETURN TO ORIGIN / REJECTIONS) */}
         <div 
           onClick={() => setActiveDrilldownStage('RTO')}
-          className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-black/25 transition-all cursor-pointer flex flex-col justify-between group relative shadow-2xs"
+          className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-[#3A3564]/40 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group relative shadow-2xs select-none hover:-translate-y-0.5"
         >
           <div>
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                5. RTO & Rejection
-              </span>
-              <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs flex items-center justify-center shrink-0">
-                <RotateCcw className="w-[18px] h-[18px]" />
+              <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-[#3A3564] group-hover:text-white group-hover:border-[#3A3564] transition-colors">
+                <RotateCcw className="w-5 h-5" />
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 group-hover:text-[#3A3564] transition-colors">
+                  STAGE 05
+                </span>
+                <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#3A3564] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
               </div>
             </div>
-            <p className="text-xs text-slate-400 mt-1 font-medium">Return to Origin</p>
+
+            <div className="mt-3.5">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
+                5. RTO & Rejection
+              </span>
+              <p className="text-[11px] text-slate-400 font-medium truncate mt-0.5">
+                Return to Origin
+              </p>
+            </div>
           </div>
 
-          <div className="mt-3">
-            <h3 className="text-[30px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none">
+          <div className="mt-4 pt-3 border-t border-slate-100/80">
+            <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none">
               {metrics.rto.toLocaleString()}
             </h3>
-            <div className="mt-3 flex items-center justify-between">
+            <div className="mt-2.5 flex items-center justify-between">
               <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 tracking-wider shadow-2xs">
                 Defect / Reject
               </span>
-              <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#3A3564] transition-colors" />
             </div>
           </div>
         </div>
@@ -863,29 +915,39 @@ export default function DashboardClient({
         {/* STAGE 6: READY FOR DELIVERY / DISPATCH */}
         <div 
           onClick={() => setActiveDrilldownStage('READY_DELIVERY')}
-          className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-black/25 transition-all cursor-pointer flex flex-col justify-between group relative shadow-2xs"
+          className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-[#3A3564]/40 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group relative shadow-2xs select-none hover:-translate-y-0.5"
         >
           <div>
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                6. Ready for Delivery
-              </span>
-              <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs flex items-center justify-center shrink-0">
-                <Truck className="w-[18px] h-[18px]" />
+              <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-[#3A3564] group-hover:text-white group-hover:border-[#3A3564] transition-colors">
+                <Truck className="w-5 h-5" />
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 group-hover:text-[#3A3564] transition-colors">
+                  STAGE 06
+                </span>
+                <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#3A3564] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
               </div>
             </div>
-            <p className="text-xs text-slate-400 mt-1 font-medium">Gate Pass & Dispatched</p>
+
+            <div className="mt-3.5">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
+                6. Ready for Delivery
+              </span>
+              <p className="text-[11px] text-slate-400 font-medium truncate mt-0.5">
+                Gate Pass & Dispatched
+              </p>
+            </div>
           </div>
 
-          <div className="mt-3">
-            <h3 className="text-[30px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none">
+          <div className="mt-4 pt-3 border-t border-slate-100/80">
+            <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none">
               {metrics.readyDelivery.toLocaleString()}
             </h3>
-            <div className="mt-3 flex items-center justify-between">
+            <div className="mt-2.5 flex items-center justify-between">
               <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 tracking-wider shadow-2xs">
                 Dispatched Pcs
               </span>
-              <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#3A3564] transition-colors" />
             </div>
           </div>
         </div>
@@ -895,79 +957,122 @@ export default function DashboardClient({
       {/* ========================================================= */}
       {/* 3. LIVE VISUAL FLOW PIPELINE STEPPER BAR                   */}
       {/* ========================================================= */}
-      <div className="bg-white p-5 sm:p-7 rounded-2xl border border-black/10 shadow-2xs">
-        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-2">
           <div className="flex items-center gap-2.5">
-            <TrendingUp className="w-5 h-5 text-[#3A3564]" />
-            <h3 className="text-base font-bold text-slate-800">
-              Live Factory Conversion Flow (Order to Gate)
-            </h3>
+            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+              <TrendingUp className="w-4 h-4" />
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-slate-900 font-[family-name:var(--font-heading)]">
+                Live Factory Conversion Flow
+              </h3>
+              <p className="text-xs text-slate-500">Order to gate delivery progression</p>
+            </div>
           </div>
-          <span className="text-sm font-semibold text-slate-500">
-            Total Target: <strong className="text-slate-900">{metrics.totalStocks.toLocaleString()} pcs</strong>
+          <span className="text-xs sm:text-sm font-semibold text-slate-500">
+            Total Target: <strong className="text-slate-900 font-mono">{metrics.totalStocks.toLocaleString()} pcs</strong>
           </span>
         </div>
 
-        <div className="mt-4 grid grid-cols-1 md:grid-cols-4 gap-3">
+        {/* Clean Outlined Conversion Cards - Zero Rainbow Color Noise */}
+        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
           
           {/* Flow 1: Sewing Machine Floor */}
-          <div className="p-3 rounded-lg bg-[#EEF2FF] border border-[#E0E7FF] flex items-center justify-between">
-            <div>
-              <span className="text-[10px] font-bold uppercase text-[#4338CA] tracking-wider block">
+          <div className="bg-white border border-black/10 border-l-4 border-l-indigo-500 rounded-xl p-3.5 shadow-2xs hover:border-black/25 transition-all flex flex-col justify-between">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 block">
                 1. Sewing In-Line
               </span>
-              <p className="text-lg font-bold text-[#3730A3] mt-0.5">
-                {metrics.goodsInLine.toLocaleString()} <span className="text-xs font-medium text-slate-500">pcs</span>
-              </p>
+              <span className="text-xs font-extrabold font-mono text-indigo-600 bg-indigo-50 border border-indigo-200/60 px-2 py-0.5 rounded-full">
+                {pipelineFlow.inLinePct}%
+              </span>
             </div>
-            <span className="text-xs font-extrabold text-[#4F46E5] bg-white px-2 py-1 rounded shadow-2xs">
-              {pipelineFlow.inLinePct}%
-            </span>
+            <div className="mt-2 flex items-baseline justify-between">
+              <p className="text-lg sm:text-xl font-bold font-[family-name:var(--font-heading)] text-slate-900">
+                {metrics.goodsInLine.toLocaleString()} <span className="text-xs font-normal text-slate-400">pcs</span>
+              </p>
+              <span className="text-[10px] font-medium text-slate-400">On Machines</span>
+            </div>
+            {/* 4px Subtle Progress Indicator */}
+            <div className="w-full bg-slate-100 h-1 rounded-full mt-2.5 overflow-hidden">
+              <div 
+                className="bg-indigo-500 h-full rounded-full transition-all duration-500" 
+                style={{ width: `${pipelineFlow.inLinePct}%` }}
+              />
+            </div>
           </div>
 
           {/* Flow 2: Mending & Inspection Table */}
-          <div className="p-3 rounded-lg bg-[#FFFBEB] border border-[#FEF3C7] flex items-center justify-between">
-            <div>
-              <span className="text-[10px] font-bold uppercase text-[#92400E] tracking-wider block">
+          <div className="bg-white border border-black/10 border-l-4 border-l-amber-500 rounded-xl p-3.5 shadow-2xs hover:border-black/25 transition-all flex flex-col justify-between">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 block">
                 2. Mending & Checking
               </span>
-              <p className="text-lg font-bold text-[#78350F] mt-0.5">
-                {metrics.mendingChecking.toLocaleString()} <span className="text-xs font-medium text-slate-500">pcs</span>
-              </p>
+              <span className="text-xs font-extrabold font-mono text-amber-700 bg-amber-50 border border-amber-200/60 px-2 py-0.5 rounded-full">
+                {pipelineFlow.mendingPct}%
+              </span>
             </div>
-            <span className="text-xs font-extrabold text-[#D97706] bg-white px-2 py-1 rounded shadow-2xs">
-              {pipelineFlow.mendingPct}%
-            </span>
+            <div className="mt-2 flex items-baseline justify-between">
+              <p className="text-lg sm:text-xl font-bold font-[family-name:var(--font-heading)] text-slate-900">
+                {metrics.mendingChecking.toLocaleString()} <span className="text-xs font-normal text-slate-400">pcs</span>
+              </p>
+              <span className="text-[10px] font-medium text-slate-400">QC Table</span>
+            </div>
+            <div className="w-full bg-slate-100 h-1 rounded-full mt-2.5 overflow-hidden">
+              <div 
+                className="bg-amber-500 h-full rounded-full transition-all duration-500" 
+                style={{ width: `${pipelineFlow.mendingPct}%` }}
+              />
+            </div>
           </div>
 
           {/* Flow 3: Finished Godown Inventory */}
-          <div className="p-3 rounded-lg bg-[#ECFDF5] border border-[#D1FAE5] flex items-center justify-between">
-            <div>
-              <span className="text-[10px] font-bold uppercase text-[#065F46] tracking-wider block">
+          <div className="bg-white border border-black/10 border-l-4 border-l-emerald-500 rounded-xl p-3.5 shadow-2xs hover:border-black/25 transition-all flex flex-col justify-between">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 block">
                 3. Ready in Godown
               </span>
-              <p className="text-lg font-bold text-[#064E3B] mt-0.5">
-                {metrics.readyGoods.toLocaleString()} <span className="text-xs font-medium text-slate-500">pcs</span>
-              </p>
+              <span className="text-xs font-extrabold font-mono text-emerald-700 bg-emerald-50 border border-emerald-200/60 px-2 py-0.5 rounded-full">
+                {pipelineFlow.readyPct}%
+              </span>
             </div>
-            <span className="text-xs font-extrabold text-[#059669] bg-white px-2 py-1 rounded shadow-2xs">
-              {pipelineFlow.readyPct}%
-            </span>
+            <div className="mt-2 flex items-baseline justify-between">
+              <p className="text-lg sm:text-xl font-bold font-[family-name:var(--font-heading)] text-slate-900">
+                {metrics.readyGoods.toLocaleString()} <span className="text-xs font-normal text-slate-400">pcs</span>
+              </p>
+              <span className="text-[10px] font-medium text-slate-400">100% Packed</span>
+            </div>
+            <div className="w-full bg-slate-100 h-1 rounded-full mt-2.5 overflow-hidden">
+              <div 
+                className="bg-emerald-500 h-full rounded-full transition-all duration-500" 
+                style={{ width: `${pipelineFlow.readyPct}%` }}
+              />
+            </div>
           </div>
 
           {/* Flow 4: Gate Pass & Dispatched */}
-          <div className="p-3 rounded-lg bg-[#F5F3FF] border border-[#EDE9FE] flex items-center justify-between">
-            <div>
-              <span className="text-[10px] font-bold uppercase text-[#5B21B6] tracking-wider block">
+          <div className="bg-white border border-black/10 border-l-4 border-l-[#3A3564] rounded-xl p-3.5 shadow-2xs hover:border-black/25 transition-all flex flex-col justify-between">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 block">
                 4. Dispatched Out
               </span>
-              <p className="text-lg font-bold text-[#4C1D95] mt-0.5">
-                {metrics.readyDelivery.toLocaleString()} <span className="text-xs font-medium text-slate-500">pcs</span>
-              </p>
+              <span className="text-xs font-extrabold font-mono text-[#3A3564] bg-[#FAF7F0] border border-black/10 px-2 py-0.5 rounded-full shadow-2xs">
+                {pipelineFlow.deliveryPct}%
+              </span>
             </div>
-            <span className="text-xs font-extrabold text-[#7C3AED] bg-white px-2 py-1 rounded shadow-2xs">
-              {pipelineFlow.deliveryPct}%
-            </span>
+            <div className="mt-2 flex items-baseline justify-between">
+              <p className="text-lg sm:text-xl font-bold font-[family-name:var(--font-heading)] text-slate-900">
+                {metrics.readyDelivery.toLocaleString()} <span className="text-xs font-normal text-slate-400">pcs</span>
+              </p>
+              <span className="text-[10px] font-medium text-slate-400">Gate Pass</span>
+            </div>
+            <div className="w-full bg-slate-100 h-1 rounded-full mt-2.5 overflow-hidden">
+              <div 
+                className="bg-[#3A3564] h-full rounded-full transition-all duration-500" 
+                style={{ width: `${pipelineFlow.deliveryPct}%` }}
+              />
+            </div>
           </div>
 
         </div>
@@ -1120,34 +1225,33 @@ export default function DashboardClient({
       </div>
 
       {/* ========================================================= */}
-      {/* 5. 1-CLICK DEEP DRILLDOWN SLIDE-OVER DRAWER               */}
+      {/* 5. 1-CLICK DEEP DRILLDOWN SLIDE-OVER / MOBILE SHEET DRAWER */}
       {/* ========================================================= */}
       {activeDrilldownStage && (
-        <div className="fixed inset-0 z-50 flex justify-end animate-in fade-in duration-150">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-stretch sm:justify-end">
           
           {/* Dimmed backdrop overlay - click outside to close */}
           <div 
-            className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs transition-opacity cursor-pointer"
+            className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity cursor-pointer animate-in fade-in duration-200"
             onClick={() => {
               setActiveDrilldownStage(null)
               setDrawerSearchQuery('')
             }}
           />
 
-          <div className="relative z-10 bg-white w-full max-w-2xl h-full shadow-2xl flex flex-col justify-between animate-in slide-in-from-right duration-200 border-l border-slate-200">
+          {/* Modal Container: Bottom Sheet on Mobile, Slide-over on Desktop */}
+          <div className="relative z-10 bg-white w-full max-h-[86vh] sm:max-h-full sm:h-full sm:w-[580px] sm:max-w-[90vw] rounded-t-3xl sm:rounded-none sm:rounded-l-3xl shadow-2xl flex flex-col justify-between border-t sm:border-t-0 sm:border-l border-black/10 animate-in slide-in-from-bottom sm:slide-in-from-right duration-300 overflow-hidden">
             
+            {/* Mobile Drag Handle Bar */}
+            <div className="pt-2.5 pb-1 sm:hidden flex justify-center shrink-0 bg-slate-50">
+              <div className="w-12 h-1.5 rounded-full bg-slate-300" />
+            </div>
+
             {/* Drawer Header */}
-            <div className="p-5 border-b border-slate-200 bg-slate-50">
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-xs ${
-                    activeDrilldownStage === 'TOTAL_STOCKS' ? 'bg-[#EEF3FA] text-[#2B4C7E]' :
-                    activeDrilldownStage === 'GOODS_IN_LINE' ? 'bg-[#EEF2FF] text-[#4F46E5]' :
-                    activeDrilldownStage === 'MENDING_CHECKING' ? 'bg-[#FFFBEB] text-[#D97706]' :
-                    activeDrilldownStage === 'READY_GOODS' ? 'bg-[#ECFDF5] text-[#059669]' :
-                    activeDrilldownStage === 'RTO' ? 'bg-[#FEF2F2] text-[#DC2626]' :
-                    'bg-[#F5F3FF] text-[#7C3AED]'
-                  }`}>
+            <div className="p-4 sm:p-5 border-b border-slate-200 bg-slate-50/90 shrink-0">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-11 h-11 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
                     {activeDrilldownStage === 'TOTAL_STOCKS' && <Warehouse className="w-5 h-5" />}
                     {activeDrilldownStage === 'GOODS_IN_LINE' && <Activity className="w-5 h-5" />}
                     {activeDrilldownStage === 'MENDING_CHECKING' && <AlertTriangle className="w-5 h-5" />}
@@ -1155,27 +1259,33 @@ export default function DashboardClient({
                     {activeDrilldownStage === 'RTO' && <RotateCcw className="w-5 h-5" />}
                     {activeDrilldownStage === 'READY_DELIVERY' && <Truck className="w-5 h-5" />}
                   </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-[var(--steel-tint,#DBE6F5)] text-[var(--steel-dark,#1F3A63)] tracking-wider">
-                        Stage Detail
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
+                        Stage {
+                          activeDrilldownStage === 'TOTAL_STOCKS' ? '01' :
+                          activeDrilldownStage === 'GOODS_IN_LINE' ? '02' :
+                          activeDrilldownStage === 'MENDING_CHECKING' ? '03' :
+                          activeDrilldownStage === 'READY_GOODS' ? '04' :
+                          activeDrilldownStage === 'RTO' ? '05' : '06'
+                        }
                       </span>
-                      <h3 className="text-base font-bold text-slate-900 font-[family-name:var(--font-heading)]">
-                        {activeDrilldownStage === 'TOTAL_STOCKS' && '1. Total Stocks (Order Pipeline)'}
-                        {activeDrilldownStage === 'GOODS_IN_LINE' && '2. Goods in Line (Sewing WIP)'}
-                        {activeDrilldownStage === 'MENDING_CHECKING' && '3. Mending & Checking (QC Table)'}
-                        {activeDrilldownStage === 'READY_GOODS' && '4. Ready Goods (Godown Stock)'}
-                        {activeDrilldownStage === 'RTO' && '5. RTO & Rejections'}
-                        {activeDrilldownStage === 'READY_DELIVERY' && '6. Ready for Delivery (Dispatch)'}
+                      <h3 className="text-base sm:text-lg font-bold text-slate-900 font-[family-name:var(--font-heading)] truncate">
+                        {activeDrilldownStage === 'TOTAL_STOCKS' && 'Total Stocks (Order Pipeline)'}
+                        {activeDrilldownStage === 'GOODS_IN_LINE' && 'Goods in Line (Sewing WIP)'}
+                        {activeDrilldownStage === 'MENDING_CHECKING' && 'Mending & Checking (QC Table)'}
+                        {activeDrilldownStage === 'READY_GOODS' && 'Ready Goods (Godown Stock)'}
+                        {activeDrilldownStage === 'RTO' && 'RTO & Supplier Rejections'}
+                        {activeDrilldownStage === 'READY_DELIVERY' && 'Ready for Delivery (Dispatch Bay)'}
                       </h3>
                     </div>
-                    <p className="text-xs text-slate-500 mt-0.5">
-                      {activeDrilldownStage === 'TOTAL_STOCKS' && 'Complete active buyer challans, cutting batches & floor allotments.'}
-                      {activeDrilldownStage === 'GOODS_IN_LINE' && 'Active cut-to-sew lots running on machines by Lineman.'}
-                      {activeDrilldownStage === 'MENDING_CHECKING' && 'Defect tagged pieces, alteration logs, and finishing checks.'}
-                      {activeDrilldownStage === 'READY_GOODS' && '100% verified finished garments packed and stored in godown.'}
-                      {activeDrilldownStage === 'RTO' && 'Defects returned to origin and supplier rejections.'}
-                      {activeDrilldownStage === 'READY_DELIVERY' && 'Outward delivery challans and gate pass consignments.'}
+                    <p className="text-xs text-slate-500 mt-1 truncate">
+                      {activeDrilldownStage === 'TOTAL_STOCKS' && 'Committed production orders, buyer challans & floor targets'}
+                      {activeDrilldownStage === 'GOODS_IN_LINE' && 'Active sewing machine batches being stitched by linemen'}
+                      {activeDrilldownStage === 'MENDING_CHECKING' && 'Defect tagged pieces, alteration logs, and finishing table'}
+                      {activeDrilldownStage === 'READY_GOODS' && '100% QC passed finished garments packed in godown storage'}
+                      {activeDrilldownStage === 'RTO' && 'Defects returned to origin and supplier rejections'}
+                      {activeDrilldownStage === 'READY_DELIVERY' && 'Dispatched consignments, delivery challans & gate passes'}
                     </p>
                   </div>
                 </div>
@@ -1187,19 +1297,19 @@ export default function DashboardClient({
                     setDrawerSearchQuery('')
                   }}
                   aria-label="Close detail drawer"
-                  className="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-200 transition-colors cursor-pointer"
+                  className="p-2 text-slate-400 hover:text-slate-700 rounded-xl hover:bg-slate-200/80 transition-colors cursor-pointer shrink-0"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
               {/* Summary KPI Ribbon */}
-              <div className="mt-4 grid grid-cols-3 gap-2 pt-3 border-t border-slate-200 text-center">
-                <div className="p-2 rounded-lg bg-white border border-slate-200 shadow-2xs">
-                  <span className="text-[10px] font-bold uppercase text-slate-400 block tracking-wider">
+              <div className="mt-4 grid grid-cols-3 gap-2.5 pt-3 border-t border-slate-200 text-center">
+                <div className="p-2.5 rounded-xl bg-white border border-black/10 shadow-2xs">
+                  <span className="text-[10px] font-mono font-bold uppercase text-slate-400 block tracking-wider">
                     Stage Volume
                   </span>
-                  <p className="text-sm font-extrabold text-slate-900 mt-0.5">
+                  <p className="text-sm sm:text-base font-extrabold text-slate-900 mt-0.5 font-[family-name:var(--font-heading)]">
                     {activeDrilldownStage === 'TOTAL_STOCKS' && `${metrics.totalStocks.toLocaleString()} pcs`}
                     {activeDrilldownStage === 'GOODS_IN_LINE' && `${metrics.goodsInLine.toLocaleString()} pcs`}
                     {activeDrilldownStage === 'MENDING_CHECKING' && `${metrics.mendingChecking.toLocaleString()} pcs`}
@@ -1209,24 +1319,25 @@ export default function DashboardClient({
                   </p>
                 </div>
 
-                <div className="p-2 rounded-lg bg-white border border-slate-200 shadow-2xs">
-                  <span className="text-[10px] font-bold uppercase text-slate-400 block tracking-wider">
-                    Active Brand
+                <div className="p-2.5 rounded-xl bg-white border border-black/10 shadow-2xs">
+                  <span className="text-[10px] font-mono font-bold uppercase text-slate-400 block tracking-wider">
+                    Filter Brand
                   </span>
-                  <p className="text-sm font-extrabold text-indigo-600 mt-0.5 truncate">
+                  <p className="text-sm sm:text-base font-extrabold text-[#3A3564] mt-0.5 truncate">
                     {selectedBrand === 'ALL' ? 'All Brands' : selectedBrand}
                   </p>
                 </div>
 
-                <div className="p-2 rounded-lg bg-white border border-slate-200 shadow-2xs">
-                  <span className="text-[10px] font-bold uppercase text-slate-400 block tracking-wider">
-                    Active Lots
+                <div className="p-2.5 rounded-xl bg-white border border-black/10 shadow-2xs">
+                  <span className="text-[10px] font-mono font-bold uppercase text-slate-400 block tracking-wider">
+                    Active Records
                   </span>
-                  <p className="text-sm font-extrabold text-slate-900 mt-0.5">
-                    {(activeDrilldownStage === 'TOTAL_STOCKS' || activeDrilldownStage === 'GOODS_IN_LINE') && `${filteredData.allotments.length} Allotments`}
+                  <p className="text-sm sm:text-base font-extrabold text-slate-900 mt-0.5">
+                    {activeDrilldownStage === 'TOTAL_STOCKS' && `${filteredData.allotments.length} Orders`}
+                    {activeDrilldownStage === 'GOODS_IN_LINE' && `${filteredData.allotments.length} Lots`}
                     {activeDrilldownStage === 'MENDING_CHECKING' && `${filteredData.qc.length} QC Logs`}
-                    {activeDrilldownStage === 'READY_GOODS' && `${filteredData.store.filter(s => s.type === 'INWARD').length} Godown Receipts`}
-                    {activeDrilldownStage === 'RTO' && `${filteredData.store.filter(s => s.type === 'RTO' || s.type === 'REJECT').length} Return Lots`}
+                    {activeDrilldownStage === 'READY_GOODS' && `${filteredData.store.filter(s => s.type === 'INWARD').length} Receipts`}
+                    {activeDrilldownStage === 'RTO' && `${filteredData.store.filter(s => s.type === 'RTO' || s.type === 'REJECT').length} Returns`}
                     {activeDrilldownStage === 'READY_DELIVERY' && `${filteredData.dispatch.length} Challans`}
                   </p>
                 </div>
@@ -1239,14 +1350,14 @@ export default function DashboardClient({
                   type="text"
                   value={drawerSearchQuery}
                   onChange={(e) => setDrawerSearchQuery(e.target.value)}
-                  placeholder="Filter lots by Art No, Lineman, Challan..."
-                  className="w-full text-xs pl-8 pr-7 py-2 bg-white border border-slate-200 rounded-lg outline-none focus:border-[var(--steel,#2B4C7E)] text-slate-800 placeholder:text-slate-400 font-medium"
+                  placeholder="Filter by Art No, Lineman, Challan, Batch..."
+                  className="w-full text-xs pl-8 pr-7 py-2.5 bg-white border border-slate-200 rounded-xl outline-none focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 text-slate-800 placeholder:text-slate-400 font-medium transition-all"
                 />
                 {drawerSearchQuery && (
                   <button
                     type="button"
                     onClick={() => setDrawerSearchQuery('')}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5"
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5"
                   >
                     <X className="w-3 h-3" />
                   </button>
@@ -1255,10 +1366,129 @@ export default function DashboardClient({
             </div>
 
             {/* Drawer Content Body */}
-            <div className="p-5 overflow-y-auto flex-1 space-y-3.5 bg-slate-50/50">
+            <div className="p-4 sm:p-5 overflow-y-auto flex-1 space-y-3.5 bg-slate-50/50">
               
-              {/* STAGES: TOTAL STOCKS & GOODS IN LINE */}
-              {(activeDrilldownStage === 'TOTAL_STOCKS' || activeDrilldownStage === 'GOODS_IN_LINE') && (() => {
+              {/* STAGE 1: TOTAL STOCKS (ORDER PIPELINE TARGETS) */}
+              {activeDrilldownStage === 'TOTAL_STOCKS' && (() => {
+                const filteredDrawerAllotments = filteredData.allotments.filter(al => {
+                  if (!drawerSearchQuery.trim()) return true
+                  const q = drawerSearchQuery.toLowerCase()
+                  const art = Array.isArray(al.articles) ? al.articles[0] : al.articles
+                  const ch = Array.isArray(al.challans) ? al.challans[0] : al.challans
+                  const lm = Array.isArray(al.profiles) ? al.profiles[0] : al.profiles
+                  return (
+                    (art?.art_no || '').toLowerCase().includes(q) ||
+                    (art?.description || '').toLowerCase().includes(q) ||
+                    (ch?.challan_no || '').toLowerCase().includes(q) ||
+                    (ch?.brand || '').toLowerCase().includes(q) ||
+                    (lm?.username || '').toLowerCase().includes(q)
+                  )
+                })
+
+                if (filteredDrawerAllotments.length === 0) {
+                  return (
+                    <div className="text-center py-12 px-6 bg-white rounded-2xl border border-black/10 shadow-2xs space-y-3">
+                      <div className="w-12 h-12 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 mx-auto flex items-center justify-center shadow-2xs">
+                        <Warehouse className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-bold text-slate-800">No Orders in Active Pipeline</h4>
+                        <p className="text-xs text-slate-400 mt-1 max-w-xs mx-auto">
+                          There are no production orders or buyer challans matching the current filters.
+                        </p>
+                      </div>
+                      <div className="pt-2">
+                        <Link
+                          href="/production-orders"
+                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] transition-all shadow-xs"
+                        >
+                          <Plus className="w-3.5 h-3.5" /> + New Production Order
+                        </Link>
+                      </div>
+                    </div>
+                  )
+                }
+
+                return (
+                  <div className="space-y-3">
+                    <div className="p-3.5 rounded-xl bg-white border border-black/10 shadow-2xs flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-slate-800">Pipeline Target Allotments</span>
+                        <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                          {filteredDrawerAllotments.length} Active Lots
+                        </span>
+                      </div>
+                      <Link 
+                        href="/allotments"
+                        className="text-xs font-bold text-[#3A3564] hover:underline inline-flex items-center gap-1"
+                      >
+                        Manage Allotments <ExternalLink className="w-3 h-3" />
+                      </Link>
+                    </div>
+
+                    {filteredDrawerAllotments.map((al) => {
+                      const art = Array.isArray(al.articles) ? al.articles[0] : al.articles
+                      const ch = Array.isArray(al.challans) ? al.challans[0] : al.challans
+                      const lm = Array.isArray(al.profiles) ? al.profiles[0] : al.profiles
+                      const lotVariants = (variants || []).filter(v => v.allotment_id === al.id)
+
+                      return (
+                        <div key={al.id} className="p-4 rounded-xl border border-black/10 bg-white shadow-2xs hover:border-black/25 transition-all">
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="font-extrabold text-sm text-slate-900 tracking-tight">
+                                  Art {art?.art_no || 'Style'}
+                                </span>
+                                {ch?.challan_no && (
+                                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
+                                    JOB-{ch.challan_no}
+                                  </span>
+                                )}
+                                {ch?.brand && (
+                                  <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                                    {ch.brand}
+                                  </span>
+                                )}
+                              </div>
+                              {cleanDescription(art?.description) && (
+                                <p className="text-xs text-slate-500 mt-1 font-medium truncate max-w-sm">
+                                  {cleanDescription(art?.description).replace(new RegExp(`^${art?.art_no}\\s*[-•:]*\\s*`, 'i'), '').trim()}
+                                </p>
+                              )}
+                            </div>
+
+                            <div className="text-right shrink-0">
+                              <p className="text-base font-black text-slate-900 font-[family-name:var(--font-heading)]">
+                                {al.target_qty?.toLocaleString()} <span className="text-xs font-normal text-slate-400">pcs</span>
+                              </p>
+                              <span className="inline-block mt-1 px-2 py-0.5 rounded text-[9.5px] font-mono font-bold uppercase bg-slate-100 text-slate-700 border border-slate-200">
+                                {al.status || 'SCHEDULED'}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-600 flex-wrap gap-2">
+                            <div className="flex items-center gap-1.5">
+                              <User className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                              <span>Lineman: <strong className="text-slate-800">{formatLinemanName(lm)}</strong></span>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                              <span>Date: <strong className="text-slate-800">{al.allotment_date || al.created_at?.split('T')[0]}</strong></span>
+                            </div>
+                          </div>
+
+                          <VariantMatrixTable variants={lotVariants} />
+                        </div>
+                      )
+                    })}
+                  </div>
+                )
+              })()}
+
+              {/* STAGE 2: GOODS IN LINE (SEWING WIP FLOOR ACCORDIONS) */}
+              {activeDrilldownStage === 'GOODS_IN_LINE' && (() => {
                 const filteredDrawerAllotments = filteredData.allotments.filter(al => {
                   if (!drawerSearchQuery.trim()) return true
                   const q = drawerSearchQuery.toLowerCase()
@@ -1319,10 +1549,24 @@ export default function DashboardClient({
 
                 if (linemanGroups.length === 0) {
                   return (
-                    <div className="text-center py-12 bg-white rounded-xl border border-slate-200 p-6">
-                      <Warehouse className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-                      <p className="text-xs font-bold text-slate-700">No active floor allotments found.</p>
-                      <p className="text-[11px] text-slate-400 mt-0.5">Try changing the brand or date filter above.</p>
+                    <div className="text-center py-12 px-6 bg-white rounded-2xl border border-black/10 shadow-2xs space-y-3">
+                      <div className="w-12 h-12 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 mx-auto flex items-center justify-center shadow-2xs">
+                        <Activity className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-bold text-slate-800">No Active Sewing Lots on Floor</h4>
+                        <p className="text-xs text-slate-400 mt-1 max-w-xs mx-auto">
+                          No linemen currently have active sewing allotments running on the factory floor.
+                        </p>
+                      </div>
+                      <div className="pt-2">
+                        <Link
+                          href="/allotments"
+                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] transition-all shadow-xs"
+                        >
+                          Assign Floor Allotments <ArrowRight className="w-3.5 h-3.5" />
+                        </Link>
+                      </div>
                     </div>
                   )
                 }
@@ -1332,8 +1576,8 @@ export default function DashboardClient({
                     {/* Linemen Toolbar */}
                     <div className="flex items-center justify-between px-1 text-xs">
                       <span className="font-extrabold text-slate-700 flex items-center gap-1.5">
-                        <Users className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" />
-                        <span>{linemanGroups.length} {linemanGroups.length === 1 ? 'Lineman Working' : 'Linemen Working'}</span>
+                        <Users className="w-3.5 h-3.5 text-[#3A3564]" />
+                        <span>{linemanGroups.length} {linemanGroups.length === 1 ? 'Lineman Active' : 'Linemen Active'}</span>
                       </span>
                       <div className="flex items-center gap-2 font-bold text-[11px]">
                         <button
@@ -1343,7 +1587,7 @@ export default function DashboardClient({
                             linemanGroups.forEach(g => { allExpanded[g.key] = true })
                             setExpandedLinemen(allExpanded)
                           }}
-                          className="text-[var(--steel,#2B4C7E)] hover:underline cursor-pointer"
+                          className="text-[#3A3564] hover:underline cursor-pointer"
                         >
                           Expand All
                         </button>
@@ -1360,31 +1604,30 @@ export default function DashboardClient({
 
                     {/* Lineman Accordion Cards */}
                     {linemanGroups.map((group) => {
-                      const isExpanded = expandedLinemen[group.key] ?? false // clean default collapsed as requested: "yah per bass jo lineman ka kaam chlrha h vo line man ka naam dikna chaiye and jaise hi vo lineman pe click kregey then uska pura content show hona chaiye"
+                      const isExpanded = expandedLinemen[group.key] ?? false
 
                       return (
-                        <div key={group.key} className="rounded-xl border border-slate-200/90 bg-white shadow-2xs overflow-hidden transition-all">
-                          {/* Lineman Header Row (Click to Toggle) */}
+                        <div key={group.key} className="rounded-xl border border-black/10 bg-white shadow-2xs overflow-hidden transition-all">
                           <button
                             type="button"
                             onClick={() => toggleLineman(group.key)}
-                            className="w-full text-left p-3.5 bg-white hover:bg-slate-50/90 flex items-center justify-between gap-3 transition-colors cursor-pointer border-b border-transparent data-[open=true]:border-slate-200"
+                            className="w-full text-left p-3.5 bg-white hover:bg-slate-50/90 flex items-center justify-between gap-3 transition-colors cursor-pointer border-b border-transparent data-[open=true]:border-slate-100"
                             data-open={isExpanded}
                           >
                             <div className="flex items-center gap-3 min-w-0">
-                              <div className="w-9 h-9 rounded-lg bg-[var(--steel,#2B4C7E)]/10 text-[var(--steel,#2B4C7E)] flex items-center justify-center font-black text-sm shrink-0 border border-[var(--steel,#2B4C7E)]/20">
-                                <User className="w-4 h-4 text-[var(--steel,#2B4C7E)]" />
+                              <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center font-black text-sm shrink-0 shadow-2xs">
+                                <User className="w-4 h-4" />
                               </div>
                               <div className="min-w-0">
                                 <div className="flex items-center gap-2 flex-wrap">
                                   <span className="font-extrabold text-sm text-slate-900 tracking-tight">
                                     Lineman: {group.name}
                                   </span>
-                                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-blue-50 text-[var(--steel,#2B4C7E)] border border-blue-200/70">
+                                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200/70">
                                     {group.allotments.length} {group.allotments.length === 1 ? 'Lot' : 'Lots'}
                                   </span>
                                   {group.articleNumbers.map(artNo => (
-                                    <span key={artNo} className="text-[10px] font-extrabold px-2 py-0.5 rounded bg-slate-100 text-slate-700">
+                                    <span key={artNo} className="text-[10px] font-mono font-extrabold px-2 py-0.5 rounded bg-slate-100 text-slate-700">
                                       Art {artNo}
                                     </span>
                                   ))}
@@ -1403,11 +1646,11 @@ export default function DashboardClient({
 
                             <div className="flex items-center gap-3 shrink-0">
                               <div className="text-right">
-                                <span className="text-sm font-black text-slate-900">
+                                <span className="text-sm font-black text-slate-900 font-[family-name:var(--font-heading)]">
                                   {group.totalPcs.toLocaleString()} <span className="text-[10.5px] font-normal text-slate-400">pcs</span>
                                 </span>
                                 <span className="block text-[9.5px] font-bold uppercase tracking-wider text-emerald-600">
-                                  In Production
+                                  In Sewing
                                 </span>
                               </div>
                               <div className={`p-1 rounded-md text-slate-400 transition-transform duration-200 ${isExpanded ? 'rotate-180 text-slate-700' : ''}`}>
@@ -1416,7 +1659,6 @@ export default function DashboardClient({
                             </div>
                           </button>
 
-                          {/* Lineman Expanded Lots */}
                           {isExpanded && (
                             <div className="p-3.5 bg-slate-50/70 border-t border-slate-100 space-y-3">
                               {group.allotments.map((al) => {
@@ -1425,8 +1667,7 @@ export default function DashboardClient({
                                 const lotVariants = (variants || []).filter(v => v.allotment_id === al.id)
 
                                 return (
-                                  <div key={al.id} className="p-4 rounded-xl border border-slate-200 bg-white shadow-xs hover:shadow-md transition-all">
-                                    {/* Card Header Row */}
+                                  <div key={al.id} className="p-4 rounded-xl border border-black/10 bg-white shadow-2xs hover:border-black/25 transition-all">
                                     <div className="flex items-start justify-between gap-3">
                                       <div>
                                         <div className="flex items-center gap-2 flex-wrap">
@@ -1434,34 +1675,33 @@ export default function DashboardClient({
                                             Art {art?.art_no || 'Style'}
                                           </span>
                                           {ch?.challan_no && (
-                                            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
+                                            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
                                               JOB-{ch.challan_no}
                                             </span>
                                           )}
                                           {ch?.brand && (
-                                            <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-indigo-50 text-indigo-700">
+                                            <span className="text-[10px] font-mono font-extrabold uppercase px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
                                               {ch.brand}
                                             </span>
                                           )}
                                         </div>
                                         {cleanDescription(art?.description) && (
-                                          <p className="text-xs text-slate-500 mt-1 font-medium">
+                                          <p className="text-xs text-slate-500 mt-1 font-medium truncate max-w-sm">
                                             {cleanDescription(art?.description).replace(new RegExp(`^${art?.art_no}\\s*[-•:]*\\s*`, 'i'), '').trim()}
                                           </p>
                                         )}
                                       </div>
 
                                       <div className="text-right shrink-0">
-                                        <p className="text-base font-black text-slate-900">
+                                        <p className="text-base font-black text-slate-900 font-[family-name:var(--font-heading)]">
                                           {al.target_qty?.toLocaleString()} <span className="text-xs font-normal text-slate-400">pcs</span>
                                         </p>
-                                        <span className="inline-block mt-1 px-2 py-0.5 rounded text-[9.5px] font-bold uppercase bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                        <span className="inline-block mt-1 px-2 py-0.5 rounded text-[9.5px] font-mono font-bold uppercase bg-emerald-50 text-emerald-700 border border-emerald-200">
                                           {al.status || 'IN SEWING'}
                                         </span>
                                       </div>
                                     </div>
 
-                                    {/* Metadata Chips */}
                                     <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-600 flex-wrap gap-2">
                                       <div className="flex items-center gap-1.5">
                                         <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
@@ -1475,14 +1715,12 @@ export default function DashboardClient({
                                       )}
                                     </div>
 
-                                    {/* Colour x Size Matrix Table */}
                                     <VariantMatrixTable variants={lotVariants} />
 
-                                    {/* Action Button */}
                                     <div className="mt-3 pt-2 border-t border-slate-100 flex justify-end">
                                       <Link 
                                         href="/allotments"
-                                        className="text-[11px] font-bold text-[var(--steel,#2B4C7E)] hover:underline inline-flex items-center gap-1"
+                                        className="text-[11px] font-bold text-[#3A3564] hover:underline inline-flex items-center gap-1"
                                       >
                                         Open in Floor Allotments <ExternalLink className="w-3 h-3" />
                                       </Link>
@@ -1499,21 +1737,23 @@ export default function DashboardClient({
                 )
               })()}
 
-              {/* STAGE: MENDING & CHECKING */}
+              {/* STAGE 3: MENDING & CHECKING (QC TABLE & DEFECTS) */}
               {activeDrilldownStage === 'MENDING_CHECKING' && (
                 <div className="space-y-3">
-                  <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-between shadow-2xs">
+                  <div className="p-4 rounded-xl bg-amber-50/70 border border-amber-200/80 flex items-center justify-between shadow-2xs">
                     <div className="flex items-center gap-2.5">
-                      <AlertTriangle className="w-5 h-5 text-amber-700 shrink-0" />
+                      <div className="w-9 h-9 rounded-xl bg-white border border-amber-200 flex items-center justify-center shrink-0 text-amber-700 shadow-2xs">
+                        <AlertTriangle className="w-4 h-4" />
+                      </div>
                       <div>
                         <p className="text-xs font-extrabold text-amber-950">QC Finishing & Alteration Line</p>
                         <p className="text-[11px] text-amber-800 mt-0.5">
-                          Total {metrics.mendingAlterationQty} defect pieces caught during inspection
+                          {metrics.mendingAlterationQty} defect pieces tagged for alteration
                         </p>
                       </div>
                     </div>
-                    <span className="text-sm font-extrabold text-amber-950 bg-white px-3 py-1 rounded-lg shadow-2xs border border-amber-200">
-                      {metrics.mendingAlterationQty} pcs Alteration
+                    <span className="text-xs font-mono font-bold text-amber-950 bg-white px-3 py-1 rounded-full shadow-2xs border border-amber-200">
+                      {metrics.alterationRate.toFixed(1)}% Alter Rate
                     </span>
                   </div>
 
@@ -1527,20 +1767,20 @@ export default function DashboardClient({
                       )
                     })
                     .map((q, idx) => (
-                      <div key={q.id || idx} className="p-4 rounded-xl border border-slate-200 bg-white shadow-xs">
+                      <div key={q.id || idx} className="p-4 rounded-xl border border-black/10 bg-white shadow-2xs hover:border-black/25 transition-all">
                         <div className="flex items-start justify-between gap-3">
                           <div>
                             <span className="font-bold text-sm text-slate-900">
                               Art {q.article?.art_no || 'Style'}
                             </span>
-                            <p className="text-xs font-semibold text-rose-700 mt-1 flex items-center gap-1">
+                            <p className="text-xs font-semibold text-rose-700 mt-1 flex items-center gap-1.5">
                               <ShieldAlert className="w-3.5 h-3.5 shrink-0" />
                               {q.defect_type || 'Alteration Required (Stitching/Fabric Defect)'}
                             </p>
                           </div>
 
                           <div className="text-right shrink-0">
-                            <span className="text-xs font-extrabold text-rose-700 bg-rose-50 px-2.5 py-1 rounded-lg border border-rose-200 block">
+                            <span className="text-xs font-mono font-extrabold text-rose-700 bg-rose-50 px-2.5 py-1 rounded-full border border-rose-200 block">
                               {q.qty_rejected} pcs Defect
                             </span>
                             <span className="text-[10.5px] text-emerald-700 font-bold mt-1 block">
@@ -1555,43 +1795,52 @@ export default function DashboardClient({
                         </div>
                       </div>
                     ))}
+                  
                   {filteredData.qc.length === 0 && (
-                    <div className="text-center py-12 bg-white rounded-xl border border-slate-200 p-6">
-                      <CheckCircle2 className="w-8 h-8 text-emerald-400 mx-auto mb-2" />
-                      <p className="text-xs font-bold text-slate-700">Zero Defects on the Checking Line!</p>
-                      <p className="text-[11px] text-slate-400 mt-0.5">All sewn lots have passed quality inspection smoothly.</p>
+                    <div className="text-center py-12 px-6 bg-white rounded-2xl border border-black/10 shadow-2xs space-y-3">
+                      <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 mx-auto flex items-center justify-center shadow-2xs">
+                        <CheckCircle2 className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-bold text-slate-800">Zero Defect Backlog!</h4>
+                        <p className="text-xs text-slate-400 mt-1 max-w-xs mx-auto">
+                          100% of checked garments passed inspection. The alteration table is completely clear.
+                        </p>
+                      </div>
                     </div>
                   )}
                 </div>
               )}
 
-              {/* STAGE: READY GOODS */}
+              {/* STAGE 4: READY GOODS (FINISHED GODOWN INVENTORY) */}
               {activeDrilldownStage === 'READY_GOODS' && (
                 <div className="space-y-3">
-                  <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-between shadow-2xs">
+                  <div className="p-4 rounded-xl bg-emerald-50/70 border border-emerald-200/80 flex items-center justify-between shadow-2xs">
                     <div className="flex items-center gap-2.5">
-                      <PackageCheck className="w-5 h-5 text-emerald-700 shrink-0" />
+                      <div className="w-9 h-9 rounded-xl bg-white border border-emerald-200 flex items-center justify-center shrink-0 text-emerald-700 shadow-2xs">
+                        <PackageCheck className="w-4 h-4" />
+                      </div>
                       <div>
                         <p className="text-xs font-extrabold text-emerald-950">Finished Goods Godown Stock</p>
                         <p className="text-[11px] text-emerald-800 mt-0.5">
-                          100% QC Passed, ironed, poly-bagged & packed in master cartons
+                          100% QC Passed, poly-bagged & carton packed
                         </p>
                       </div>
                     </div>
-                    <span className="text-sm font-extrabold text-emerald-950 bg-white px-3 py-1 rounded-lg shadow-2xs border border-emerald-200">
+                    <span className="text-xs font-mono font-bold text-emerald-950 bg-white px-3 py-1 rounded-full shadow-2xs border border-emerald-200">
                       {metrics.readyGoods.toLocaleString()} pcs Ready
                     </span>
                   </div>
 
                   {filteredData.store.filter(s => s.type === 'INWARD').map((s, idx) => (
-                    <div key={s.id || idx} className="p-4 rounded-xl border border-slate-200 bg-white shadow-xs flex items-center justify-between">
+                    <div key={s.id || idx} className="p-4 rounded-xl border border-black/10 bg-white shadow-2xs hover:border-black/25 transition-all flex items-center justify-between">
                       <div>
                         <div className="flex items-center gap-2">
                           <span className="font-bold text-sm text-slate-900">
                             {s.article?.art_no || 'Finished Garments'}
                           </span>
                           {s.color && (
-                            <span className="text-[10.5px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700">
+                            <span className="text-[10.5px] font-mono font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700">
                               {s.color} {s.size && `(${s.size})`}
                             </span>
                           )}
@@ -1600,41 +1849,58 @@ export default function DashboardClient({
                           Receipt: <strong className="text-slate-800">{s.party_name || 'Godown Store Inward'}</strong> • {s.entry_date || s.created_at?.split('T')[0]}
                         </p>
                       </div>
-                      <span className="text-base font-extrabold text-emerald-700 shrink-0">
+                      <span className="text-base font-extrabold text-emerald-700 shrink-0 font-[family-name:var(--font-heading)]">
                         +{s.quantity} pcs
                       </span>
                     </div>
                   ))}
+
                   {filteredData.store.filter(s => s.type === 'INWARD').length === 0 && (
-                    <div className="text-center py-12 bg-white rounded-xl border border-slate-200 p-6">
-                      <Boxes className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-                      <p className="text-xs font-bold text-slate-700">No Godown Store Inward records yet.</p>
-                      <p className="text-[11px] text-slate-400 mt-0.5">Pieces will appear here as QC checks and godown entries are completed.</p>
+                    <div className="text-center py-12 px-6 bg-white rounded-2xl border border-black/10 shadow-2xs space-y-3">
+                      <div className="w-12 h-12 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 mx-auto flex items-center justify-center shadow-2xs">
+                        <PackageCheck className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-bold text-slate-800">No Godown Receipts Logged</h4>
+                        <p className="text-xs text-slate-400 mt-1 max-w-xs mx-auto">
+                          Finished garments will appear here once QC checking inwards them to godown storage.
+                        </p>
+                      </div>
+                      <div className="pt-2">
+                        <Link
+                          href="/inventory"
+                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] transition-all shadow-xs"
+                        >
+                          Open Godown & Inventory <ArrowRight className="w-3.5 h-3.5" />
+                        </Link>
+                      </div>
                     </div>
                   )}
                 </div>
               )}
 
-              {/* STAGE: RTO */}
+              {/* STAGE 5: RTO (REJECTIONS & RETURN TO ORIGIN) */}
               {activeDrilldownStage === 'RTO' && (
                 <div className="space-y-3">
-                  <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 flex items-center justify-between shadow-2xs">
+                  <div className="p-4 rounded-xl bg-rose-50/70 border border-rose-200/80 flex items-center justify-between shadow-2xs">
                     <div className="flex items-center gap-2.5">
-                      <RotateCcw className="w-5 h-5 text-rose-700 shrink-0" />
+                      <div className="w-9 h-9 rounded-xl bg-white border border-rose-200 flex items-center justify-center shrink-0 text-rose-700 shadow-2xs">
+                        <RotateCcw className="w-4 h-4" />
+                      </div>
                       <div>
                         <p className="text-xs font-extrabold text-rose-950">Return to Origin (RTO & Rejections)</p>
                         <p className="text-[11px] text-rose-800 mt-0.5">
-                          Irreparable defects or returned fabric lots
+                          Irreparable defects or returned vendor lots
                         </p>
                       </div>
                     </div>
-                    <span className="text-sm font-extrabold text-rose-950 bg-white px-3 py-1 rounded-lg shadow-2xs border border-rose-200">
+                    <span className="text-xs font-mono font-bold text-rose-950 bg-white px-3 py-1 rounded-full shadow-2xs border border-rose-200">
                       {metrics.rto.toLocaleString()} pcs RTO
                     </span>
                   </div>
 
                   {filteredData.store.filter(s => s.type === 'RTO' || s.type === 'REJECT').map((s, idx) => (
-                    <div key={s.id || idx} className="p-4 rounded-xl border border-slate-200 bg-white shadow-xs flex items-center justify-between">
+                    <div key={s.id || idx} className="p-4 rounded-xl border border-black/10 bg-white shadow-2xs hover:border-black/25 transition-all flex items-center justify-between">
                       <div>
                         <p className="text-xs font-bold text-slate-900">
                           {s.article?.art_no || 'Defective Consignment'} {s.color && `• ${s.color}`}
@@ -1643,47 +1909,56 @@ export default function DashboardClient({
                           Party: {s.party_name || 'Supplier Origin'} • Date: {s.entry_date || s.created_at?.split('T')[0]}
                         </p>
                       </div>
-                      <span className="text-sm font-extrabold text-rose-700">
+                      <span className="text-sm font-extrabold text-rose-700 font-mono">
                         {s.quantity} pcs
                       </span>
                     </div>
                   ))}
+
                   {filteredData.store.filter(s => s.type === 'RTO' || s.type === 'REJECT').length === 0 && (
-                    <div className="text-center py-12 bg-white rounded-xl border border-slate-200 p-6">
-                      <CheckCircle2 className="w-8 h-8 text-emerald-400 mx-auto mb-2" />
-                      <p className="text-xs font-bold text-slate-700">0 RTO / Zero Supplier Rejections</p>
-                      <p className="text-[11px] text-slate-400 mt-0.5">No lots returned to origin.</p>
+                    <div className="text-center py-12 px-6 bg-white rounded-2xl border border-black/10 shadow-2xs space-y-3">
+                      <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 mx-auto flex items-center justify-center shadow-2xs">
+                        <CheckCircle2 className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-bold text-slate-800">Zero RTO Rejections!</h4>
+                        <p className="text-xs text-slate-400 mt-1 max-w-xs mx-auto">
+                          No lots have been returned to origin. All manufactured consignments accepted.
+                        </p>
+                      </div>
                     </div>
                   )}
                 </div>
               )}
 
-              {/* STAGE: READY FOR DELIVERY / DISPATCH */}
+              {/* STAGE 6: READY FOR DELIVERY / DISPATCH */}
               {activeDrilldownStage === 'READY_DELIVERY' && (
                 <div className="space-y-3">
-                  <div className="p-4 rounded-xl bg-purple-50 border border-purple-200 flex items-center justify-between shadow-2xs">
+                  <div className="p-4 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-between shadow-2xs">
                     <div className="flex items-center gap-2.5">
-                      <Truck className="w-5 h-5 text-purple-700 shrink-0" />
+                      <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center shrink-0 text-[#3A3564] shadow-2xs">
+                        <Truck className="w-4 h-4" />
+                      </div>
                       <div>
-                        <p className="text-xs font-extrabold text-purple-950">Outward Delivery Challans & Gate Passes</p>
-                        <p className="text-[11px] text-purple-800 mt-0.5">
+                        <p className="text-xs font-extrabold text-slate-900">Outward Delivery Challans & Gate Passes</p>
+                        <p className="text-[11px] text-slate-500 mt-0.5">
                           Consignments dispatched from factory to client buyer
                         </p>
                       </div>
                     </div>
-                    <span className="text-sm font-extrabold text-purple-950 bg-white px-3 py-1 rounded-lg shadow-2xs border border-purple-200">
+                    <span className="text-xs font-mono font-bold text-[#3A3564] bg-[#FAF7F0] px-3 py-1 rounded-full shadow-2xs border border-black/10">
                       {metrics.readyDelivery.toLocaleString()} pcs Dispatched
                     </span>
                   </div>
 
                   {filteredData.dispatch.map((d, idx) => (
-                    <div key={d.id || idx} className="p-4 rounded-xl border border-slate-200 bg-white shadow-xs flex items-center justify-between">
+                    <div key={d.id || idx} className="p-4 rounded-xl border border-black/10 bg-white shadow-2xs hover:border-black/25 transition-all flex items-center justify-between">
                       <div>
                         <div className="flex items-center gap-2">
                           <span className="font-bold text-sm text-slate-900">
                             Challan #{d.challan_no}
                           </span>
-                          <span className="text-[10.5px] font-bold px-2 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-200">
+                          <span className="text-[10.5px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
                             {d.buyer_name || 'Buyer'}
                           </span>
                         </div>
@@ -1691,16 +1966,31 @@ export default function DashboardClient({
                           Dispatched: {d.created_at?.split('T')[0]} • Status: <strong className="text-slate-800">{d.status || 'Delivered'}</strong>
                         </p>
                       </div>
-                      <span className="text-base font-extrabold text-purple-700 shrink-0">
+                      <span className="text-base font-extrabold text-[#3A3564] shrink-0 font-[family-name:var(--font-heading)]">
                         {d.total_pieces?.toLocaleString()} pcs
                       </span>
                     </div>
                   ))}
+
                   {filteredData.dispatch.length === 0 && (
-                    <div className="text-center py-12 bg-white rounded-xl border border-slate-200 p-6">
-                      <Truck className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-                      <p className="text-xs font-bold text-slate-700">No Delivery Gate Passes generated yet.</p>
-                      <p className="text-[11px] text-slate-400 mt-0.5">Generate delivery challans in the Dispatch section to track shipments.</p>
+                    <div className="text-center py-12 px-6 bg-white rounded-2xl border border-black/10 shadow-2xs space-y-3">
+                      <div className="w-12 h-12 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 mx-auto flex items-center justify-center shadow-2xs">
+                        <Truck className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-bold text-slate-800">No Dispatches Logged</h4>
+                        <p className="text-xs text-slate-400 mt-1 max-w-xs mx-auto">
+                          Gate pass delivery challans generated in Dispatch will appear here.
+                        </p>
+                      </div>
+                      <div className="pt-2">
+                        <Link
+                          href="/dispatch"
+                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] transition-all shadow-xs"
+                        >
+                          Go to Dispatch Bay <ArrowRight className="w-3.5 h-3.5" />
+                        </Link>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -1709,8 +1999,8 @@ export default function DashboardClient({
             </div>
 
             {/* Drawer Footer */}
-            <div className="p-4 border-t border-slate-200 bg-white flex items-center justify-between">
-              <span className="text-xs font-medium text-slate-500">
+            <div className="p-4 border-t border-slate-200 bg-white flex items-center justify-between shrink-0">
+              <span className="text-xs font-medium text-slate-500 truncate mr-2">
                 Stage breakdown synchronized with live MES database
               </span>
               <button
@@ -1719,7 +2009,7 @@ export default function DashboardClient({
                   setActiveDrilldownStage(null)
                   setDrawerSearchQuery('')
                 }}
-                className="px-4 py-2 text-xs font-bold bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
+                className="px-4 py-2 text-xs font-bold bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl transition-all shadow-xs cursor-pointer shrink-0"
               >
                 Close Drawer
               </button>
