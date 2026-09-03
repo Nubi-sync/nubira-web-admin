@@ -1124,9 +1124,9 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                       Search or choose Style Article / Job Challan...
                     </span>
                   </div>
-                  <div className="px-2.5 py-1 rounded-lg bg-white group-hover:bg-[#FAF7F0] border border-slate-200 group-hover:border-black/15 text-slate-700 group-hover:text-[#3A3564] text-xs font-bold transition-colors shrink-0 flex items-center gap-1">
+                  <div className="px-3 py-1.5 rounded-lg bg-[#FAF7F0] group-hover:bg-[#3A3564] border border-black/10 group-hover:border-[#3A3564] text-[#3A3564] group-hover:text-white text-xs sm:text-[13px] font-bold transition-all shrink-0 flex items-center gap-1.5 shadow-2xs">
                     <span>Browse</span>
-                    <ChevronRight className="w-3.5 h-3.5" />
+                    <ChevronRight className="w-4 h-4" />
                   </div>
                 </button>
               ) : (
@@ -1185,28 +1185,25 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
           </div>
 
           {/* ========================================================= */}
-          {/* GLASSMORPHIC FULL-SCREEN TARGET SELECTION MODAL           */}
+          {/* PREMIUM BRAND TARGET SELECTION MODAL                       */}
           {/* ========================================================= */}
           {isTargetModalOpen && (
-            <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200">
+            <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200">
               <div 
-                className="bg-white/95 backdrop-blur-xl border border-white/40 rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden text-slate-900 animate-in zoom-in-95 duration-200"
+                className="bg-white border border-black/10 rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden text-slate-900 animate-in zoom-in-95 duration-200"
                 onClick={e => e.stopPropagation()}
               >
                 {/* Modal Header */}
-                <div className="p-4 sm:p-5 bg-gradient-to-r from-slate-900 to-indigo-950 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0">
+                <div className="p-4 sm:p-5 bg-white border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center text-indigo-300 shadow-xs">
-                      <Sparkles className="w-5 h-5" />
+                    <div className="w-11 h-11 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs shrink-0">
+                      <Boxes className="w-5 h-5" />
                     </div>
                     <div>
-                      <h3 className="text-base sm:text-lg font-black tracking-tight flex items-center gap-2">
+                      <h3 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight font-[family-name:var(--font-heading)]">
                         Select Production Target / Color Line
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-indigo-500/30 text-indigo-200 border border-indigo-400/30">
-                          Visual Picker
-                        </span>
                       </h3>
-                      <p className="text-xs text-slate-300 mt-0.5">
+                      <p className="text-xs sm:text-[13px] text-slate-600 mt-0.5">
                         1-Click selects color sewing line or full batch and auto-populates exact size ratios
                       </p>
                     </div>
@@ -1215,7 +1212,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                   <button
                     type="button"
                     onClick={() => setIsTargetModalOpen(false)}
-                    className="self-end sm:self-center px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 text-white text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
+                    className="self-end sm:self-center px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-[#FAF7F0] border border-slate-200 hover:border-black/15 text-slate-700 hover:text-[#3A3564] text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs"
                   >
                     <X className="w-4 h-4" />
                     <span>Close (Esc)</span>
@@ -1223,7 +1220,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                 </div>
 
                 {/* Live Search Bar */}
-                <div className="p-4 bg-slate-50 border-b border-slate-200 shrink-0">
+                <div className="p-4 sm:p-5 bg-[#FAF7F0]/40 border-b border-slate-100 shrink-0">
                   <div className="relative">
                     <input
                       type="text"
@@ -1231,14 +1228,14 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                       value={targetSearchQuery}
                       onChange={e => setTargetSearchQuery(e.target.value)}
                       placeholder="Search by article number, brand, color, or challan (e.g. 9433, Ollypop, Mushroom, 457)..."
-                      className="w-full pl-10 pr-10 py-2.5 text-xs sm:text-sm font-medium bg-white border border-slate-300 rounded-xl shadow-2xs focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all placeholder:text-slate-400"
+                      className="w-full pl-11 pr-10 py-3 text-xs sm:text-sm font-medium bg-white border border-slate-200 rounded-xl shadow-2xs focus:outline-none focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 transition-all placeholder:text-slate-400 text-slate-900"
                     />
                     <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                     {targetSearchQuery && (
                       <button
                         type="button"
                         onClick={() => setTargetSearchQuery('')}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-700"
+                        className="absolute right-3.5 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-700 cursor-pointer"
                       >
                         <X className="w-3.5 h-3.5" />
                       </button>
@@ -1251,9 +1248,9 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                   {/* Active Job Work Challans */}
                   {filteredChallans && filteredChallans.length > 0 && (
                     <div className="space-y-4">
-                      <div className="flex items-center gap-2 pb-2 border-b border-slate-200">
-                        <Boxes className="w-4 h-4 text-indigo-600" />
-                        <h4 className="text-xs font-black uppercase tracking-wider text-slate-800">
+                      <div className="flex items-center gap-2 pb-2.5 border-b border-slate-100">
+                        <Boxes className="w-4 h-4 text-[#3A3564]" />
+                        <h4 className="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-800 font-mono">
                           Active Job Work Delivery Challans ({filteredChallans.length})
                         </h4>
                       </div>
@@ -1266,19 +1263,19 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                         return (
                           <div
                             key={ch.id}
-                            className="bg-white border-2 border-slate-200 rounded-2xl p-4 sm:p-5 shadow-xs hover:border-slate-300 transition-all space-y-3.5"
+                            className="bg-white border border-black/10 rounded-2xl p-4 sm:p-5 shadow-2xs hover:border-slate-300 transition-all space-y-4"
                           >
                             {/* Challan Card Top Header */}
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-3 border-b border-slate-100">
                               <div className="flex items-center gap-2 flex-wrap">
-                                <span className="font-bold text-xs sm:text-[13px] px-2.5 py-1 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 font-mono shadow-2xs flex items-center gap-1.5">
+                                <span className="font-bold text-xs sm:text-[13px] px-3 py-1 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 font-mono shadow-2xs flex items-center gap-1.5">
                                   <FileText className="w-3.5 h-3.5 text-[#3A3564]" />
                                   <span>JOB #{ch.challan_no}</span>
                                 </span>
-                                <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-white text-slate-800 border border-slate-200">
+                                <span className="px-3 py-1 rounded-lg text-xs sm:text-[13px] font-bold bg-slate-100 text-slate-800 border border-slate-200">
                                   {ch.brand}
                                 </span>
-                                <span className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-50 text-slate-700 border border-slate-200">
+                                <span className="px-3 py-1 rounded-lg text-xs sm:text-[13px] font-medium bg-slate-50 text-slate-700 border border-slate-200">
                                   {ch.fabric_type}
                                 </span>
                               </div>
@@ -1305,26 +1302,26 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                                 return (
                                   <div
                                     key={cIdx}
-                                    className="bg-white border border-black/10 rounded-xl p-3.5 flex flex-col justify-between shadow-2xs hover:shadow-md transition-all group"
+                                    className="bg-white border border-black/10 rounded-xl p-4 flex flex-col justify-between shadow-2xs hover:border-slate-300 transition-all group"
                                   >
                                     <div>
                                       <div className="flex items-center justify-between gap-1.5 pb-2 mb-2 border-b border-black/5">
                                         <div className="flex items-center gap-2">
                                           <span className="w-3.5 h-3.5 rounded-full shrink-0 shadow-2xs ring-2 ring-white" style={{ backgroundColor: themeColor }} />
-                                          <span className="font-extrabold text-xs sm:text-[12.5px] text-slate-900 uppercase tracking-tight">
+                                          <span className="font-extrabold text-xs sm:text-[13px] text-slate-900 uppercase tracking-tight">
                                             {colOpt.colorName}
                                           </span>
                                         </div>
-                                        <span className="text-xs font-extrabold font-mono px-2 py-0.5 bg-[#FAF7F0] text-[#3A3564] rounded-md border border-black/10 shadow-2xs">
+                                        <span className="text-xs font-bold font-mono px-2 py-0.5 bg-[#FAF7F0] text-[#3A3564] rounded-md border border-black/10 shadow-2xs">
                                           {colOpt.totalPcs.toLocaleString()} PCS
                                         </span>
                                       </div>
 
                                       {/* Size breakdown list */}
-                                      <div className="space-y-1 mb-3 bg-slate-50/80 rounded-lg p-2.5 border border-slate-200/70 text-xs">
+                                      <div className="space-y-1.5 mb-3.5 bg-slate-50 rounded-lg p-2.5 border border-slate-100 text-xs sm:text-[12.5px]">
                                         {Object.entries(colOpt.sizeBreakdown).map(([sz, count], sIdx) => (
                                           <div key={sIdx} className="flex items-center justify-between text-slate-700">
-                                            <span className="font-semibold">Tier {sz}:</span>
+                                            <span className="font-medium text-slate-600">Tier {sz}:</span>
                                             <span className="font-bold text-slate-900 font-mono">{count} pcs</span>
                                           </div>
                                         ))}
@@ -1334,7 +1331,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                                     <button
                                       type="button"
                                       onClick={() => applySmartTarget(colOpt)}
-                                      className="w-full py-2 bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold rounded-lg shadow-xs active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                                      className="w-full py-2.5 bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs sm:text-[13px] font-bold rounded-lg shadow-2xs active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-1.5"
                                     >
                                       <span>Select {colOpt.colorName}</span>
                                     </button>
@@ -1344,21 +1341,21 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
 
                               {/* Full Batch Card */}
                               {fullChallan && (
-                                <div className="bg-white border border-black/10 rounded-xl p-3.5 flex flex-col justify-between shadow-2xs hover:shadow-md transition-all">
+                                <div className="bg-white border border-black/10 rounded-xl p-4 flex flex-col justify-between shadow-2xs hover:border-slate-300 transition-all">
                                   <div>
                                     <div className="flex items-center justify-between gap-1.5 pb-2 mb-2 border-b border-slate-100">
                                       <div className="flex items-center gap-1.5">
                                         <Zap className="w-4 h-4 text-[#3A3564] shrink-0" />
-                                        <span className="font-extrabold text-xs sm:text-[12.5px] text-slate-900 uppercase tracking-tight">
+                                        <span className="font-extrabold text-xs sm:text-[13px] text-slate-900 uppercase tracking-tight">
                                           FULL BATCH
                                         </span>
                                       </div>
-                                      <span className="text-xs font-extrabold font-mono px-2 py-0.5 bg-[#FAF7F0] text-[#3A3564] rounded-md border border-black/10">
+                                      <span className="text-xs font-bold font-mono px-2 py-0.5 bg-[#FAF7F0] text-[#3A3564] rounded-md border border-black/10">
                                         {fullChallan.totalPcs.toLocaleString()} PCS
                                       </span>
                                     </div>
 
-                                    <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-200 mb-3 text-xs text-slate-600">
+                                    <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-100 mb-3.5 text-xs sm:text-[12.5px] text-slate-600">
                                       <span>All colors & sizes combined to 1 Lineman</span>
                                     </div>
                                   </div>
@@ -1366,7 +1363,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                                   <button
                                     type="button"
                                     onClick={() => applySmartTarget(fullChallan)}
-                                    className="w-full py-2 bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold rounded-lg shadow-xs active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                                    className="w-full py-2.5 bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs sm:text-[13px] font-bold rounded-lg shadow-2xs active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-1.5"
                                   >
                                     <Zap className="w-3.5 h-3.5" />
                                     <span>Select Entire Batch</span>
@@ -1383,9 +1380,9 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                   {/* Standalone Articles Section */}
                   {filteredStandaloneArticles && filteredStandaloneArticles.length > 0 && (
                     <div className="space-y-3 pt-2">
-                      <div className="flex items-center gap-2 pb-2 border-b border-slate-200">
-                        <Tag className="w-4 h-4 text-indigo-600" />
-                        <h4 className="text-xs font-black uppercase tracking-wider text-slate-800">
+                      <div className="flex items-center gap-2 pb-2.5 border-b border-slate-100">
+                        <Tag className="w-4 h-4 text-[#3A3564]" />
+                        <h4 className="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-800 font-mono">
                           Other In-House / Standalone Styles ({filteredStandaloneArticles.length})
                         </h4>
                       </div>
@@ -1407,20 +1404,20 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                           return (
                             <div
                               key={art.id}
-                              className="bg-white border border-slate-200 hover:border-indigo-300 rounded-xl p-3.5 flex flex-col justify-between shadow-2xs hover:shadow-xs transition-all"
+                              className="bg-white border border-black/10 hover:border-slate-300 rounded-xl p-4 flex flex-col justify-between shadow-2xs hover:shadow-xs transition-all"
                             >
                               <div>
                                 <div className="flex items-center justify-between gap-2 mb-1.5">
-                                  <span className="font-extrabold text-xs text-slate-900 font-mono">
+                                  <span className="font-extrabold text-xs sm:text-sm text-slate-900 font-mono">
                                     {art.art_no}
                                   </span>
                                   {rateTag && (
-                                    <span className="text-[10.5px] font-extrabold px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded-md border border-indigo-100 font-mono">
+                                    <span className="text-xs font-bold px-2 py-0.5 bg-[#FAF7F0] text-[#3A3564] rounded-md border border-black/10 font-mono shadow-2xs">
                                       {rateTag}
                                     </span>
                                   )}
                                 </div>
-                                <p className="text-xs text-slate-600 line-clamp-2 mb-3">
+                                <p className="text-xs sm:text-[13px] text-slate-600 line-clamp-2 mb-3 font-medium">
                                   {cleanArticleDesc(art.description) || 'Standard Article Style'}
                                 </p>
                               </div>
@@ -1428,7 +1425,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                               <button
                                 type="button"
                                 onClick={() => applyStandaloneArticle(art)}
-                                className="w-full py-1.5 bg-slate-100 hover:bg-indigo-600 hover:text-white text-slate-800 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1"
+                                className="w-full py-2 bg-slate-100 hover:bg-[#3A3564] hover:text-white text-slate-800 text-xs sm:text-[13px] font-bold rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1"
                               >
                                 <span>Select Style</span>
                               </button>
