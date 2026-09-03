@@ -28,7 +28,13 @@ import {
   Palette,
   Zap,
   UserCheck,
-  Sparkles
+  Sparkles,
+  History,
+  Eye,
+  Archive,
+  TrendingUp,
+  BarChart3,
+  ExternalLink
 } from 'lucide-react'
 import {
   ChallanArticleLine,
@@ -107,11 +113,14 @@ export function ProductionOrdersClient({
   // Filters
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedBrand, setSelectedBrand] = useState('ALL')
-  const [selectedStatus, setSelectedStatus] = useState('ALL')
+  const [selectedStatus, setSelectedStatus] = useState('ACTIVE')
   const [selectedDate, setSelectedDate] = useState('ALL')
 
   // Modals
   const [showNewChallanModal, setShowNewChallanModal] = useState(false)
+  const [showArticleHistoryModal, setShowArticleHistoryModal] = useState(false)
+  const [selectedArticleForHistory, setSelectedArticleForHistory] = useState<string>('')
+  const [articleHistorySearch, setArticleHistorySearch] = useState<string>('')
 
   // Excel Bulk Import States
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -336,9 +345,15 @@ export function ProductionOrdersClient({
         const baseArt = rawArt.replace(/[^0-9].*$/, '').trim() || rawArt
         if (baseArt) uniqueMasterArticles.add(baseArt)
 
-        if (art.status === 'QC_PASSED') readyQcPcs += art.total_pcs || 0
-        else if (art.status === 'DISPATCHED') dispatchedPcs += art.total_pcs || 0
-        else inProdPcs += art.total_pcs || 0
+        const isAllotted = !!art.assigned_lineman_id && art.assigned_lineman_id !== '' && art.status === 'IN_PROGRESS'
+
+        if (art.status === 'QC_PASSED' || art.status === 'COMPLETED') {
+          readyQcPcs += art.completed_qty || art.total_pcs || 0
+        } else if (art.status === 'DISPATCHED') {
+          dispatchedPcs += art.total_pcs || 0
+        } else if (isAllotted) {
+          inProdPcs += Math.max(0, (art.total_pcs || 0) - (art.completed_qty || 0))
+        }
       })
     })
 
@@ -354,7 +369,128 @@ export function ProductionOrdersClient({
     }
   }, [orders])
 
-  // Filtered Orders
+  // Master Articles Universe (Catalog + All Historical Challans / Allotments)
+  const masterArticlesUniverse = useMemo(() => {
+    const map = new Map<string, {
+      art_no: string
+      description: string
+      stitching_rate: number
+      brand: string
+      fabric: string
+      totalLifetimePcs: number
+      totalLifetimeChallans: number
+      totalLifetimeAllotments: number
+      qcPassedPcs: number
+      dispatchedPcs: number
+      history: Array<{
+        challanId: string
+        challanNo: string
+        challanDate: string
+        brand: string
+        fabricType: string
+        colorPattern: string
+        sizeRange: string
+        sets: number
+        pcsPerSet: number
+        totalPcs: number
+        completedQty: number
+        linemanName: string
+        status: string
+        createdAt: string
+      }>
+    }>()
+
+    // 1. Prepopulate from catalog articlesList
+    articlesList.forEach(art => {
+      const cleanArtNo = (art.art_no || '').trim().toUpperCase()
+      const baseArt = cleanArtNo.replace(/[^0-9].*$/, '').trim() || cleanArtNo
+      if (baseArt && !map.has(baseArt)) {
+        map.set(baseArt, {
+          art_no: baseArt,
+          description: art.description || 'Garment Style',
+          stitching_rate: Number(art.stitching_rate) || 20,
+          brand: art.size_rates?._meta?.party || 'OLLYPOP',
+          fabric: art.size_rates?._meta?.fabric || 'PRINTED SINKER',
+          totalLifetimePcs: 0,
+          totalLifetimeChallans: 0,
+          totalLifetimeAllotments: 0,
+          qcPassedPcs: 0,
+          dispatchedPcs: 0,
+          history: []
+        })
+      }
+    })
+
+    // 2. Populate from all orders (Past & Present Delivery Challans)
+    orders.forEach(ch => {
+      const recordedChallansPerArt = new Set<string>()
+
+      ch.articles?.forEach(art => {
+        const rawArt = (art.art_no || '').trim().toUpperCase()
+        const baseArt = rawArt.replace(/[^0-9].*$/, '').trim() || rawArt
+        if (!baseArt) return
+
+        if (!map.has(baseArt)) {
+          map.set(baseArt, {
+            art_no: baseArt,
+            description: art.description || 'Garment Style',
+            stitching_rate: Number(art.stitching_rate) || 20,
+            brand: ch.brand || 'OLLYPOP',
+            fabric: ch.fabric_type || 'PRINTED SINKER',
+            totalLifetimePcs: 0,
+            totalLifetimeChallans: 0,
+            totalLifetimeAllotments: 0,
+            qcPassedPcs: 0,
+            dispatchedPcs: 0,
+            history: []
+          })
+        }
+
+        const entry = map.get(baseArt)!
+        entry.totalLifetimePcs += (Number(art.total_pcs) || 0)
+        if (!recordedChallansPerArt.has(ch.id)) {
+          entry.totalLifetimeChallans += 1
+          recordedChallansPerArt.add(ch.id)
+        }
+        if (art.assigned_lineman_id) {
+          entry.totalLifetimeAllotments += 1
+        }
+        if (art.status === 'QC_PASSED') {
+          entry.qcPassedPcs += (Number(art.total_pcs) || 0)
+        } else if (art.status === 'DISPATCHED') {
+          entry.dispatchedPcs += (Number(art.total_pcs) || 0)
+        }
+
+        entry.history.push({
+          challanId: ch.id,
+          challanNo: ch.challan_no || 'CHALLAN',
+          challanDate: ch.challan_date || '',
+          brand: ch.brand || 'OLLYPOP',
+          fabricType: ch.fabric_type || 'PRINTED SINKER',
+          colorPattern: art.color_pattern || 'Standard',
+          sizeRange: art.size_range || 'Free Size',
+          sets: Number(art.sets) || 1,
+          pcsPerSet: Number(art.pcs_per_set) || 9,
+          totalPcs: Number(art.total_pcs) || 0,
+          completedQty: Number(art.completed_qty) || 0,
+          linemanName: art.assigned_lineman_name || 'Unassigned (Floor Order)',
+          status: art.status || 'PENDING',
+          createdAt: art.created_at || ch.created_at
+        })
+      })
+    })
+
+    return Array.from(map.values())
+  }, [articlesList, orders])
+
+  const selectedArticleHistory = useMemo(() => {
+    if (!selectedArticleForHistory && masterArticlesUniverse.length > 0) {
+      return masterArticlesUniverse[0]
+    }
+    return masterArticlesUniverse.find(a => a.art_no === selectedArticleForHistory) || masterArticlesUniverse[0]
+  }, [selectedArticleForHistory, masterArticlesUniverse])
+
+  // Filtered Orders (Auto-hides fully dispatched orders when selectedStatus === 'ACTIVE')
   const filteredOrders = useMemo(() => {
     return orders.filter(ch => {
       const matchSearch =
@@ -370,7 +506,14 @@ export function ProductionOrdersClient({
         )
 
       const matchBrand = selectedBrand === 'ALL' || ch.brand?.toUpperCase() === selectedBrand.toUpperCase()
-      const matchStatus = selectedStatus === 'ALL' || ch.status === selectedStatus
+
+      let matchStatus = true
+      if (selectedStatus === 'ACTIVE') {
+        matchStatus = ch.status !== 'DISPATCHED'
+      } else if (selectedStatus !== 'ALL') {
+        matchStatus = ch.status === selectedStatus
+      }
+
       const matchDate = selectedDate === 'ALL' || ch.challan_date === selectedDate
 
       return matchSearch && matchBrand && matchStatus && matchDate
@@ -751,13 +894,23 @@ export function ProductionOrdersClient({
           <span className="text-xs sm:text-[13px] text-slate-500 font-medium mt-1">Buyer Job Sheets</span>
         </div>
 
-        {/* Article Styles (Master Articles) */}
-        <div className="bg-white p-4.5 sm:p-5 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+        {/* Article Styles (Master Articles Explorer) */}
+        <div 
+          onClick={() => {
+            if (masterArticlesUniverse.length > 0) {
+              setSelectedArticleForHistory(masterArticlesUniverse[0].art_no)
+            }
+            setShowArticleHistoryModal(true)
+          }}
+          className="bg-white p-4.5 sm:p-5 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between cursor-pointer hover:border-[#3A3564]/50 hover:shadow-md transition-all group select-none relative overflow-hidden"
+          title="Click to explore full Article Style History Ledger (2+ years)"
+        >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500">
-              Article Styles
+            <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500 group-hover:text-[#3A3564] transition-colors flex items-center gap-1.5">
+              <span>Article Styles</span>
+              <span className="text-[10px] bg-[#FAF7F0] text-[#3A3564] px-1.5 py-0.5 rounded-md font-extrabold border border-black/10">Explorer ↗</span>
             </span>
-            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] group-hover:bg-[#3A3564] group-hover:text-white border border-black/10 flex items-center justify-center shrink-0 shadow-2xs transition-all">
               <Tag className="w-4 h-4" />
             </div>
           </div>
@@ -861,10 +1014,12 @@ export function ProductionOrdersClient({
               onChange={e => setSelectedStatus(e.target.value)}
               className="bg-slate-50 border border-black/10 rounded-xl px-3 py-1.5 text-xs sm:text-sm font-bold text-slate-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
             >
-              <option value="ALL">All Status</option>
-              <option value="IN_PROGRESS">In Progress</option>
-              <option value="QC_PASSED">Ready (QC Passed)</option>
-              <option value="DISPATCHED">Dispatched</option>
+              <option value="ACTIVE">⚡ Active Orders (Live Floor)</option>
+              <option value="ALL">📦 All Orders (Including Dispatched Archive)</option>
+              <option value="PENDING">⏳ Pending Allotment</option>
+              <option value="IN_PROGRESS">🧵 In Production</option>
+              <option value="QC_PASSED">✅ Ready (QC Passed)</option>
+              <option value="DISPATCHED">🚚 Dispatched / Delivered</option>
             </select>
           </div>
         </div>
@@ -963,15 +1118,30 @@ export function ProductionOrdersClient({
                       <span className="text-[10.5px] font-bold text-slate-500 uppercase tracking-wider block mt-0.5">Grand Batch Total</span>
                     </div>
 
-                    <select
-                      value={challan.status}
-                      onChange={e => handleUpdateStatus(challan.id, e.target.value, true)}
-                      className="text-xs sm:text-sm font-bold px-3.5 py-2 rounded-xl border border-black/10 bg-white text-slate-800 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#3A3564] shadow-2xs transition-all"
-                    >
-                      <option value="IN_PROGRESS">In Progress</option>
-                      <option value="QC_PASSED">Ready (QC Passed)</option>
-                      <option value="DISPATCHED">Dispatched</option>
-                    </select>
+                    {/* Dynamic Real-Time Live Status Badge (100% Automated) */}
+                    <div>
+                      {challan.status === 'QC_PASSED' ? (
+                        <span className="px-3.5 py-1.5 rounded-xl text-xs font-extrabold bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-center gap-1.5 shadow-2xs font-mono">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                          <span>Ready (QC Passed)</span>
+                        </span>
+                      ) : challan.status === 'DISPATCHED' ? (
+                        <span className="px-3.5 py-1.5 rounded-xl text-xs font-extrabold bg-slate-900 text-white border border-slate-800 flex items-center gap-1.5 shadow-2xs font-mono">
+                          <Truck className="w-4 h-4 text-white" />
+                          <span>Dispatched</span>
+                        </span>
+                      ) : challan.status === 'IN_PROGRESS' ? (
+                        <span className="px-3.5 py-1.5 rounded-xl text-xs font-extrabold bg-[#FAF7F0] text-[#3A3564] border border-black/15 flex items-center gap-1.5 shadow-2xs font-mono animate-pulse">
+                          <Zap className="w-4 h-4 text-[#3A3564]" />
+                          <span>In Production</span>
+                        </span>
+                      ) : (
+                        <span className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200 flex items-center gap-1.5 shadow-2xs font-mono">
+                          <Clock className="w-4 h-4 text-amber-600" />
+                          <span>Pending Allotment</span>
+                        </span>
+                      )}
+                    </div>
 
                     <button
                       type="button"
@@ -1314,17 +1484,29 @@ export function ProductionOrdersClient({
                                   )}
                                 </td>
 
-                                {/* Line Status */}
+                                {/* Dynamic Line Live Status */}
                                 <td className="py-3.5 px-4">
-                                  <select
-                                    value={line.status || 'IN_PROGRESS'}
-                                    onChange={e => handleUpdateStatus(line.allotment_id, e.target.value, false)}
-                                    className="text-xs font-bold px-3 py-1.5 rounded-xl border border-black/10 bg-white text-slate-800 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#3A3564] shadow-2xs"
-                                  >
-                                    <option value="IN_PROGRESS">In Progress</option>
-                                    <option value="QC_PASSED">QC Passed</option>
-                                    <option value="DISPATCHED">Dispatched</option>
-                                  </select>
+                                  {line.status === 'QC_PASSED' ? (
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-extrabold bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-2xs font-mono">
+                                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                                      <span>QC Passed</span>
+                                    </span>
+                                  ) : line.status === 'DISPATCHED' ? (
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-extrabold bg-slate-900 text-white border border-slate-800 shadow-2xs font-mono">
+                                      <Truck className="w-3.5 h-3.5 text-white" />
+                                      <span>Dispatched</span>
+                                    </span>
+                                  ) : line.status === 'IN_PROGRESS' || (line.assigned_lineman_name && line.assigned_lineman_name !== 'Unassigned' && line.assigned_lineman_name !== 'Unassigned (Floor Order)') ? (
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-bold bg-indigo-50 text-indigo-800 border border-indigo-200 shadow-2xs font-mono">
+                                      <Zap className="w-3.5 h-3.5 text-indigo-600" />
+                                      <span>In Progress</span>
+                                    </span>
+                                  ) : (
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-semibold bg-slate-100 text-slate-600 border border-slate-200 shadow-2xs">
+                                      <Clock className="w-3.5 h-3.5 text-slate-400" />
+                                      <span>Pending</span>
+                                    </span>
+                                  )}
                                 </td>
 
                                 {/* Action */}
@@ -1875,6 +2057,285 @@ export function ProductionOrdersClient({
               </div>
 
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================= */}
+      {/* 6. ARTICLE STYLE MASTER LEDGER & DEEP HISTORY MODAL (2+ YRS) */}
+      {/* ========================================================= */}
+      {showArticleHistoryModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-900/60 backdrop-blur-xs overflow-y-auto">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-6xl max-h-[94vh] flex flex-col overflow-hidden border border-black/10 my-auto animate-in fade-in zoom-in-95 duration-150">
+            
+            {/* Modal Header */}
+            <div className="p-4 sm:p-5 border-b border-black/10 flex items-center justify-between bg-[#FAF7F0] flex-wrap gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-white text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+                  <History className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h2 className="text-base sm:text-lg font-extrabold text-slate-900">
+                      Article Style Master Ledger & Production History
+                    </h2>
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs uppercase">
+                      2+ Year Archives
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Click any article style to view lifetime Delivery Challans, Linemen who stitched it, QC passed & dispatch logs
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowArticleHistoryModal(false)}
+                className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-4 sm:p-6 overflow-y-auto flex-1 space-y-5 bg-slate-50/50">
+              
+              {/* 1. Article Search & Selector Bar */}
+              <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs space-y-3">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+                  <div className="relative w-full sm:max-w-md">
+                    <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="text"
+                      placeholder="Search Article #, Brand, Color, Fabric..."
+                      value={articleHistorySearch}
+                      onChange={e => setArticleHistorySearch(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-black/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                    />
+                  </div>
+
+                  <span className="text-xs font-mono font-bold text-slate-500 self-end sm:self-center">
+                    {masterArticlesUniverse.length} Total Master Styles in Catalog & Archives
+                  </span>
+                </div>
+
+                {/* Article Chips List */}
+                <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-1 no-scrollbar flex-wrap">
+                  {masterArticlesUniverse
+                    .filter(a => {
+                      if (!articleHistorySearch.trim()) return true
+                      const q = articleHistorySearch.trim().toLowerCase()
+                      return (
+                        a.art_no.toLowerCase().includes(q) ||
+                        a.description.toLowerCase().includes(q) ||
+                        a.brand.toLowerCase().includes(q) ||
+                        a.fabric.toLowerCase().includes(q)
+                      )
+                    })
+                    .map(art => {
+                      const isSelected = (selectedArticleHistory?.art_no || '') === art.art_no
+                      return (
+                        <button
+                          key={art.art_no}
+                          type="button"
+                          onClick={() => setSelectedArticleForHistory(art.art_no)}
+                          className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 shadow-2xs shrink-0 ${
+                            isSelected
+                              ? 'bg-[#3A3564] text-white shadow-xs'
+                              : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border border-black/10'
+                          }`}
+                        >
+                          <Tag className={`w-3.5 h-3.5 ${isSelected ? 'text-white' : 'text-slate-500'}`} />
+                          <span>Art {art.art_no}</span>
+                          <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-mono ${isSelected ? 'bg-white/20 text-white' : 'bg-white text-slate-600 border border-black/5'}`}>
+                            {art.totalLifetimePcs.toLocaleString()} pcs
+                          </span>
+                        </button>
+                      )
+                    })}
+                </div>
+              </div>
+
+              {/* 2. Selected Article Overview Banner & Metrics */}
+              {selectedArticleHistory && (
+                <div className="space-y-4">
+                  
+                  {/* Article Master Header Card */}
+                  <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="flex items-center gap-3.5">
+                      <div className="w-12 h-12 rounded-2xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+                        <Tag className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2.5 flex-wrap">
+                          <h3 className="text-base sm:text-lg font-extrabold text-slate-900 font-mono">
+                            ARTICLE #{selectedArticleHistory.art_no}
+                          </h3>
+                          <span className="px-2.5 py-0.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-800 border border-slate-200">
+                            {selectedArticleHistory.brand}
+                          </span>
+                          <span className="px-2.5 py-0.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+                            {selectedArticleHistory.fabric}
+                          </span>
+                        </div>
+                        <p className="text-xs sm:text-sm text-slate-600 mt-1">
+                          {selectedArticleHistory.description || 'Master Garment Article Style'}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 self-end md:self-center">
+                      <div className="text-right px-4 py-2.5 bg-[#FAF7F0] border border-black/10 rounded-xl shadow-2xs">
+                        <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Stitching Rate</span>
+                        <span className="text-base font-extrabold text-[#3A3564] font-mono">₹{selectedArticleHistory.stitching_rate.toFixed(2)} <span className="text-xs font-medium text-slate-500">/ pc</span></span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 4 Lifetime KPI Cards */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
+                    <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs">
+                      <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 block">Total Lifetime Pieces</span>
+                      <p className="text-xl sm:text-2xl font-extrabold text-slate-900 font-mono mt-1">{selectedArticleHistory.totalLifetimePcs.toLocaleString()} <span className="text-xs font-medium text-slate-500">pcs</span></p>
+                    </div>
+
+                    <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs">
+                      <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 block">Delivery Challans</span>
+                      <p className="text-xl sm:text-2xl font-extrabold text-[#3A3564] font-mono mt-1">{selectedArticleHistory.totalLifetimeChallans} <span className="text-xs font-medium text-slate-500">Batches</span></p>
+                    </div>
+
+                    <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs">
+                      <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 block">Floor Allotments</span>
+                      <p className="text-xl sm:text-2xl font-extrabold text-slate-900 font-mono mt-1">{selectedArticleHistory.totalLifetimeAllotments} <span className="text-xs font-medium text-slate-500">Floor Lines</span></p>
+                    </div>
+
+                    <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs">
+                      <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 block">Dispatched & Delivered</span>
+                      <p className="text-xl sm:text-2xl font-extrabold text-emerald-700 font-mono mt-1">{selectedArticleHistory.dispatchedPcs.toLocaleString()} <span className="text-xs font-medium text-slate-500">pcs</span></p>
+                    </div>
+                  </div>
+
+                  {/* Complete Historical Production Ledger Table */}
+                  <div className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden">
+                    <div className="p-4 sm:p-5 border-b border-black/10 flex items-center justify-between bg-slate-50/80 flex-wrap gap-2">
+                      <div className="flex items-center gap-2.5">
+                        <FileText className="w-4 h-4 text-[#3A3564]" />
+                        <h4 className="text-xs sm:text-sm font-extrabold text-slate-900 uppercase tracking-wide">
+                          Complete Production & Delivery History for Art #{selectedArticleHistory.art_no}
+                        </h4>
+                      </div>
+                      <span className="text-xs font-mono font-bold text-slate-500">
+                        {selectedArticleHistory.history.length} Historical Records
+                      </span>
+                    </div>
+
+                    {selectedArticleHistory.history.length === 0 ? (
+                      <div className="p-10 text-center text-slate-400 text-sm font-medium">
+                        No delivery challans or floor allotments recorded yet for Article #{selectedArticleHistory.art_no}.
+                      </div>
+                    ) : (
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse min-w-[750px]">
+                          <thead>
+                            <tr className="border-b border-black/10 bg-slate-50/50 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">
+                              <th className="py-3 px-4">#</th>
+                              <th className="py-3 px-4">Challan # & Date</th>
+                              <th className="py-3 px-4">Buyer / Brand</th>
+                              <th className="py-3 px-4">Color & Size Breakdown</th>
+                              <th className="py-3 px-4 text-right">Sets & Ratio</th>
+                              <th className="py-3 px-4 text-right">Total Pcs</th>
+                              <th className="py-3 px-4">Floor Lineman</th>
+                              <th className="py-3 px-4">Live Status</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-black/5 text-xs sm:text-[13px]">
+                            {selectedArticleHistory.history.map((rec, rIdx) => (
+                              <tr key={rIdx} className="hover:bg-slate-50/80 transition-colors">
+                                <td className="py-3.5 px-4 font-mono text-slate-400">{rIdx + 1}</td>
+                                
+                                <td className="py-3.5 px-4">
+                                  <span className="font-extrabold text-slate-900 font-mono block">Challan #{rec.challanNo}</span>
+                                  <span className="text-[11px] text-slate-500 font-mono">{rec.challanDate || new Date(rec.createdAt).toISOString().split('T')[0]}</span>
+                                </td>
+
+                                <td className="py-3.5 px-4">
+                                  <span className="font-bold text-slate-800 block">{rec.brand}</span>
+                                  <span className="text-[11px] text-slate-500">{rec.fabricType}</span>
+                                </td>
+
+                                <td className="py-3.5 px-4">
+                                  <span className="font-semibold text-slate-900 block">{rec.colorPattern}</span>
+                                  <span className="text-[11px] text-slate-500 font-mono">Tier {rec.sizeRange}</span>
+                                </td>
+
+                                <td className="py-3.5 px-4 text-right font-mono">
+                                  <span className="font-bold text-slate-900 block">{rec.sets} sets</span>
+                                  <span className="text-[11px] text-slate-500">({rec.pcsPerSet} pcs/set)</span>
+                                </td>
+
+                                <td className="py-3.5 px-4 text-right font-extrabold text-slate-900 font-mono">
+                                  {rec.totalPcs.toLocaleString()} pcs
+                                </td>
+
+                                <td className="py-3.5 px-4">
+                                  {rec.linemanName && rec.linemanName !== 'Unassigned' && rec.linemanName !== 'Unassigned (Floor Order)' ? (
+                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs">
+                                      <User className="w-3.5 h-3.5 text-[#3A3564]" />
+                                      <span>{rec.linemanName}</span>
+                                    </span>
+                                  ) : (
+                                    <span className="text-slate-400 font-medium text-xs">Unassigned</span>
+                                  )}
+                                </td>
+
+                                <td className="py-3.5 px-4">
+                                  {rec.status === 'QC_PASSED' ? (
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-extrabold bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-2xs font-mono">
+                                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                                      <span>QC Passed</span>
+                                    </span>
+                                  ) : rec.status === 'DISPATCHED' ? (
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-extrabold bg-slate-900 text-white border border-slate-800 shadow-2xs font-mono">
+                                      <Truck className="w-3.5 h-3.5 text-white" />
+                                      <span>Dispatched</span>
+                                    </span>
+                                  ) : rec.status === 'IN_PROGRESS' || (rec.linemanName && rec.linemanName !== 'Unassigned' && rec.linemanName !== 'Unassigned (Floor Order)') ? (
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-bold bg-indigo-50 text-indigo-800 border border-indigo-200 shadow-2xs font-mono">
+                                      <Zap className="w-3.5 h-3.5 text-indigo-600" />
+                                      <span>In Progress</span>
+                                    </span>
+                                  ) : (
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-semibold bg-slate-100 text-slate-600 border border-slate-200 shadow-2xs">
+                                      <Clock className="w-3.5 h-3.5 text-slate-400" />
+                                      <span>Pending</span>
+                                    </span>
+                                  )}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+
+                </div>
+              )}
+
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-4 sm:p-5 border-t border-black/10 flex items-center justify-end bg-white">
+              <button
+                type="button"
+                onClick={() => setShowArticleHistoryModal(false)}
+                className="px-5 py-2.5 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs sm:text-sm font-bold shadow-xs transition-colors cursor-pointer"
+              >
+                Close Explorer
+              </button>
+            </div>
+
           </div>
         </div>
       )}

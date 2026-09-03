@@ -144,6 +144,18 @@ export async function getProductionOrders(): Promise<ChallanGroupedOrder[]> {
         const linemanObj = (Array.isArray(al.profiles) ? al.profiles[0] : al.profiles) || {}
         const linemanName = linemanObj?.full_name || linemanObj?.username || 'Unassigned'
 
+        // Real-time automatic line status determination
+        let autoLineStatus = 'PENDING'
+        if (al.status === 'DISPATCHED') {
+          autoLineStatus = 'DISPATCHED'
+        } else if (al.status === 'QC_PASSED' || (completedQty >= totalPcs && totalPcs > 0)) {
+          autoLineStatus = 'QC_PASSED'
+        } else if (al.lineman_id && al.lineman_id !== '') {
+          autoLineStatus = 'IN_PROGRESS'
+        } else {
+          autoLineStatus = 'PENDING'
+        }
+
         const articleItem = {
           id: al.id,
           allotment_id: al.id,
@@ -161,7 +173,7 @@ export async function getProductionOrders(): Promise<ChallanGroupedOrder[]> {
           assigned_lineman_name: linemanName,
           picture_url: meta.sample_photos?.[0] || artMeta.picture_url || '',
           stitching_rate: artObj?.stitching_rate || 20,
-          status: al.status || 'IN_PROGRESS',
+          status: autoLineStatus,
           created_at: al.created_at
         }
 
@@ -238,6 +250,23 @@ export async function getProductionOrders(): Promise<ChallanGroupedOrder[]> {
           } catch (_) {}
         }
 
+        // Determine dynamic Challan status based on active floor allotments
+        const totalLines = articles.length
+        const allottedLines = articles.filter(a => a.assigned_lineman_id && a.status !== 'PLANNED' && a.status !== 'PENDING').length
+        const completedLines = articles.filter(a => a.status === 'QC_PASSED' || a.status === 'COMPLETED').length
+        const dispatchedLines = articles.filter(a => a.status === 'DISPATCHED').length
+
+        let challanStatus = 'PENDING'
+        if (ch.status === 'DISPATCHED' || (dispatchedLines === totalLines && totalLines > 0)) {
+          challanStatus = 'DISPATCHED'
+        } else if (ch.status === 'QC_PASSED' || (completedLines === totalLines && totalLines > 0)) {
+          challanStatus = 'QC_PASSED'
+        } else if (allottedLines > 0) {
+          challanStatus = 'IN_PROGRESS'
+        } else {
+          challanStatus = 'PENDING'
+        }
+
         challanGroups.push({
           id: ch.id,
           challan_no: ch.challan_no || 'CHALLAN',
@@ -249,7 +278,7 @@ export async function getProductionOrders(): Promise<ChallanGroupedOrder[]> {
           notes: ch.notes || '',
           total_sets: totalSets,
           total_pcs: totalPcs,
-          status: ch.status || 'IN_PROGRESS',
+          status: challanStatus,
           bom_details: bomItems,
           articles: articles,
           created_at: ch.created_at
