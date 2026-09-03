@@ -1,7 +1,8 @@
 
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { createDetailedAllotment, VariantPayload, MaterialPayload } from '../actions'
 import { 
   ClipboardList,
@@ -276,7 +277,7 @@ export function CreateAllotmentForm({
     themeBg: string
   } | null>(null)
 
-  // Pre-calculate smart Challan & Color Line options from productionOrders
+  // Pre-calculate smart Challan & Color Line options from productionOrders dynamically
   const smartChallanOptions = useMemo(() => {
     const opts: Array<{
       key: string
@@ -289,6 +290,8 @@ export function CreateAllotmentForm({
       deliveryDate?: string
       totalPcs: number
       sizeBreakdown: Record<string, number>
+      fullChallanSizes?: string[]
+      fullChallanColorRows?: Array<{ id: string; color: string; quantities: Record<string, number> }>
       assignedLinemanId?: string
       bomDetails: any[]
       primaryArticleId?: string
@@ -300,6 +303,7 @@ export function CreateAllotmentForm({
       if (c.includes('MUSHROOM')) return 'MUSHROOM'
       if (c.includes('DUTCH')) return 'DUTCH BLUE'
       if (c.includes('SCUBA') || c.includes('SEUBA')) return 'SCUBA'
+      if (c.includes('ROBIN')) return 'ROBIN BLUE'
       return c
     }
 
@@ -310,48 +314,49 @@ export function CreateAllotmentForm({
       const firstArtCode = (chArticles[0]?.art_no || '').trim().toUpperCase()
       const matchedDbArt = articles.find(a => a.art_no?.trim().toUpperCase() === firstArtCode) || articles[0]
 
-      const colorMap: Record<string, { totalPcs: number; sizeBreakdown: Record<string, number>; assignedLinemanId?: string }> = {
-        'MUSHROOM': { totalPcs: 0, sizeBreakdown: {} },
-        'DUTCH BLUE': { totalPcs: 0, sizeBreakdown: {} },
-        'SCUBA': { totalPcs: 0, sizeBreakdown: {} }
-      }
+      const colorMap: Record<string, { totalPcs: number; sizeBreakdown: Record<string, number>; assignedLinemanId?: string }> = {}
+      const fullChallanColorQtys: Record<string, Record<string, number>> = {}
+      const fullChallanSizesSet = new Set<string>()
 
       chArticles.forEach((art: any) => {
-        const patternRaw = (art.color_pattern || art.description || '').toUpperCase()
-        const sizeTier = art.size_range || 'L/XXL'
+        const patternRaw = (art.color_pattern || art.description || 'Standard').trim()
+        const sizeTier = (art.size_range || 'Free Size').trim()
         const totalPcs = Number(art.total_pcs) || 0
+        const subSizes = expandGarmentSizeTier(sizeTier)
+        subSizes.forEach(s => fullChallanSizesSet.add(s))
 
-        const matchedSet = new Set<string>()
-        if (patternRaw.includes('3 COLOUR') || patternRaw.includes('3 COLOR') || patternRaw.includes('ALL')) {
-          matchedSet.add('MUSHROOM')
-          matchedSet.add('DUTCH BLUE')
-          matchedSet.add('SCUBA')
+        let matchedColors: string[] = []
+        const upperPat = patternRaw.toUpperCase()
+        if (upperPat.includes('3 COLOUR') || upperPat.includes('3 COLOR') || upperPat.includes('ALL')) {
+          matchedColors = ['MUSHROOM', 'DUTCH BLUE', 'SCUBA']
+        } else if (upperPat.includes('+') || upperPat.includes('&') || upperPat.includes(',')) {
+          matchedColors = patternRaw.split(/[+&,]/).map((s: string) => s.trim().toUpperCase()).filter(Boolean)
         } else {
-          if (patternRaw.includes('MUSHROOM')) matchedSet.add('MUSHROOM')
-          if (patternRaw.includes('DUTCH')) matchedSet.add('DUTCH BLUE')
-          if (patternRaw.includes('SCUBA') || patternRaw.includes('SEUBA')) matchedSet.add('SCUBA')
+          matchedColors = [normalizeColor(patternRaw)]
         }
 
-        const matchedColors = Array.from(matchedSet)
-        if (matchedColors.length > 0) {
-          const pcsPerColor = Math.round(totalPcs / matchedColors.length)
-          matchedColors.forEach(cName => {
-            if (!colorMap[cName]) {
-              colorMap[cName] = { totalPcs: 0, sizeBreakdown: {} }
-            }
-            colorMap[cName].totalPcs += pcsPerColor
-            colorMap[cName].sizeBreakdown[sizeTier] = (colorMap[cName].sizeBreakdown[sizeTier] || 0) + pcsPerColor
-            if (art.assigned_lineman_id) {
-              colorMap[cName].assignedLinemanId = art.assigned_lineman_id
-            }
+        const pcsPerColor = Math.round(totalPcs / (matchedColors.length || 1))
+        const perSizePerColor = Math.round(pcsPerColor / (subSizes.length || 1))
+
+        matchedColors.forEach(cName => {
+          if (!colorMap[cName]) {
+            colorMap[cName] = { totalPcs: 0, sizeBreakdown: {}, assignedLinemanId: art.assigned_lineman_id }
+          }
+          colorMap[cName].totalPcs += pcsPerColor
+          colorMap[cName].sizeBreakdown[sizeTier] = (colorMap[cName].sizeBreakdown[sizeTier] || 0) + pcsPerColor
+          if (art.assigned_lineman_id) colorMap[cName].assignedLinemanId = art.assigned_lineman_id
+
+          if (!fullChallanColorQtys[cName]) fullChallanColorQtys[cName] = {}
+          subSizes.forEach(s => {
+            fullChallanColorQtys[cName][s] = (fullChallanColorQtys[cName][s] || 0) + perSizePerColor
           })
-        }
+        })
       })
 
       // Add Color line options
       Object.entries(colorMap).forEach(([cName, data]) => {
         if (data.totalPcs > 0) {
-          const icon = cName === 'MUSHROOM' ? '🟤' : cName === 'DUTCH BLUE' ? '🔵' : '🟢'
+          const icon = cName.includes('MUSHROOM') ? '🟤' : (cName.includes('BLUE') ? '🔵' : (cName.includes('SCUBA') || cName.includes('GREEN') ? '🟢' : '🟣'))
           opts.push({
             key: `COLOR_${cName}_${ch.id}`,
             challanId: ch.id,
@@ -371,7 +376,15 @@ export function CreateAllotmentForm({
         }
       })
 
-      // Add Full Challan Option
+      // Add Full Challan Option dynamically
+      const distinctSizes = Array.from(fullChallanSizesSet)
+      const fullColorRows = Object.entries(fullChallanColorQtys).map(([cName, qMap], idx) => ({
+        id: String(idx + 1),
+        color: cName,
+        quantities: qMap
+      }))
+      const totalPcsCalculated = Object.values(colorMap).reduce((sum, d) => sum + d.totalPcs, 0) || ch.total_pcs || 0
+
       opts.push({
         key: `FULL_CHALLAN_${ch.id}`,
         challanId: ch.id,
@@ -380,11 +393,13 @@ export function CreateAllotmentForm({
         brand: ch.brand,
         fabricType: ch.fabric_type,
         deliveryDate: ch.delivery_date,
-        totalPcs: ch.total_pcs || 0,
+        totalPcs: totalPcsCalculated,
         sizeBreakdown: {},
+        fullChallanSizes: distinctSizes.length > 0 ? distinctSizes : ['Free Size'],
+        fullChallanColorRows: fullColorRows.length > 0 ? fullColorRows : [{ id: '1', color: 'Standard', quantities: { 'Free Size': totalPcsCalculated } }],
         bomDetails: ch.bom_details || [],
         primaryArticleId: matchedDbArt?.id || '',
-        label: `${ch.challan_no} (${ch.brand}) • ENTIRE CHALLAN — ${(ch.total_pcs || 0).toLocaleString()} Pcs`
+        label: `${ch.challan_no} (${ch.brand}) • ENTIRE CHALLAN — ${totalPcsCalculated.toLocaleString()} Pcs`
       })
     })
 
@@ -527,16 +542,16 @@ export function CreateAllotmentForm({
       ]
       setMaterials(newMaterials)
     } else if (smartOpt.type === 'FULL_CHALLAN') {
-      const allSizes = ['L', 'XL', 'XXL', '22', '24', '26', '28', '30', '32']
-      setSelectedSizes(allSizes)
-      setColorRows([
-        { id: '1', color: 'MUSHROOM', quantities: { 'L': 253, 'XL': 253, 'XXL': 253, '22': 162, '24': 162, '26': 162, '28': 79, '30': 79, '32': 79 } },
-        { id: '2', color: 'DUTCH BLUE', quantities: { 'L': 205, 'XL': 205, 'XXL': 205, '22': 138, '24': 138, '26': 138, '28': 79, '30': 79, '32': 79 } },
-        { id: '3', color: 'SCUBA', quantities: { 'L': 192, 'XL': 192, 'XXL': 192, '22': 124, '24': 124, '26': 124, '28': 64, '30': 64, '32': 64 } }
+      const sizesToUse = smartOpt.fullChallanSizes && smartOpt.fullChallanSizes.length > 0 ? smartOpt.fullChallanSizes : ['S', 'M', 'L', 'XL']
+      setSelectedSizes(sizesToUse)
+      setColorRows(smartOpt.fullChallanColorRows && smartOpt.fullChallanColorRows.length > 0 ? smartOpt.fullChallanColorRows : [
+        { id: '1', color: 'Standard', quantities: {} }
       ])
+
+      const colorNames = (smartOpt.fullChallanColorRows || []).map((r: any) => r.color).join(', ')
       setSelectedTargetSummary({
         title: `${smartOpt.challanNo} (${smartOpt.brand}) • ENTIRE CHALLAN BATCH`,
-        subtitle: `All Colors (Mushroom, Dutch Blue, Scuba) & 9 Sizes Combined`,
+        subtitle: `Colors (${colorNames || 'All Lines'}) & ${sizesToUse.length} Sizes Combined`,
         totalPcs: smartOpt.totalPcs,
         badgeColor: '#0F172A',
         themeBg: '#F8FAFC'
@@ -576,6 +591,50 @@ export function CreateAllotmentForm({
 
     setIsTargetModalOpen(false)
   }
+
+  // Auto-populate from URL query params (when routed from Production Orders Smart Hub)
+  const searchParams = useSearchParams()
+
+  useEffect(() => {
+    if (!searchParams) return
+    const targetKey = searchParams.get('target_key')
+    const challanId = searchParams.get('challan_id')
+    const artNo = searchParams.get('art_no')
+    const urlLinemanId = searchParams.get('lineman_id')
+
+    if (targetKey && smartChallanOptions.length > 0) {
+      const decodedKey = decodeURIComponent(targetKey)
+      const matchedOpt = smartChallanOptions.find(o => o.key === decodedKey || o.challanId === decodedKey)
+      if (matchedOpt) {
+        applySmartTarget(matchedOpt)
+        if (urlLinemanId) {
+          setLinemanId(urlLinemanId)
+          setTouchedLineman(true)
+        }
+      }
+    } else if (challanId && smartChallanOptions.length > 0) {
+      const matchedOpt = smartChallanOptions.find(o => o.challanId === challanId)
+      if (matchedOpt) {
+        applySmartTarget(matchedOpt)
+        if (urlLinemanId) {
+          setLinemanId(urlLinemanId)
+          setTouchedLineman(true)
+        }
+      }
+    } else if (artNo && articles.length > 0) {
+      const matchedArt = articles.find(a => a.art_no?.trim().toUpperCase() === artNo.trim().toUpperCase())
+      if (matchedArt) {
+        applyStandaloneArticle(matchedArt)
+        if (urlLinemanId) {
+          setLinemanId(urlLinemanId)
+          setTouchedLineman(true)
+        }
+      }
+    } else if (urlLinemanId) {
+      setLinemanId(urlLinemanId)
+      setTouchedLineman(true)
+    }
+  }, [searchParams, smartChallanOptions, articles])
 
   // Selected article details
   const selectedArticle = useMemo(() => {

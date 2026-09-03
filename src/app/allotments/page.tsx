@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import { AdminShell } from '@/components/layout/AdminShell'
 import { createClient } from '@/utils/supabase/server'
 import { supabaseAdmin } from '@/utils/supabase/admin'
@@ -60,17 +61,19 @@ export default async function AllotmentsPage() {
         allotment_date,
         status,
         created_at,
-        profiles ( id, username ),
-        articles ( id, art_no, description, stitching_rate, size_rates )
+        profiles:lineman_id ( id, username ),
+        articles:article_id ( id, art_no, description, stitching_rate, size_rates ),
+        challans:challan_id ( id, challan_no, brand, fabric_type )
       `)
       .order('created_at', { ascending: false })
-      .limit(100)
+      .limit(200)
   ])
 
-  const allotmentIds = allotmentsRaw?.map(a => a.id) || []
-  const allotmentDates = [...new Set(allotmentsRaw?.map(a => a.allotment_date) || [])]
+  // Extract unique allotment IDs and dates for parallel child queries
+  const rawList = allotmentsRaw || []
+  const allotmentIds = rawList.map(a => a.id)
+  const allotmentDates = Array.from(new Set(rawList.map(a => a.allotment_date).filter(Boolean)))
 
-  // 4. Concurrently fetch variants, materials, worker assignments & production in parallel
   const [
     { data: vData },
     { data: mData },
@@ -87,16 +90,15 @@ export default async function AllotmentsPage() {
     allotmentIds.length > 0
       ? supabaseAdmin
           .from('allotment_materials')
-          .select('id, allotment_id, item_name, required_qty, admin_issued, lineman_received, lineman_received_at, notes')
+          .select('id, allotment_id, item_name, required_qty, admin_issued, notes')
           .in('allotment_id', allotmentIds)
       : Promise.resolve({ data: [] }),
 
     allotmentIds.length > 0
       ? supabaseAdmin
           .from('worker_assignments')
-          .select('id, allotment_id, worker_name, assigned_qty, completed_qty, color, size, status, notes, assigned_at, completed_at')
+          .select('id, allotment_id, worker_name, assigned_qty, completed_qty, operation_name, status')
           .in('allotment_id', allotmentIds)
-          .order('assigned_at', { ascending: false })
       : Promise.resolve({ data: [] }),
 
     allotmentDates.length > 0
@@ -187,13 +189,15 @@ export default async function AllotmentsPage() {
           </span>
         </div>
 
-        {/* Section 1: Allotment & Handover Creation Form */}
-        <CreateAllotmentForm 
-          linemen={(linemen as any) || []} 
-          managers={(managers as any) || []}
-          articles={(articles as any) || []}
-          productionOrders={productionOrders || []} 
-        />
+        {/* Section 1: Allotment & Handover Creation Form with Suspense for useSearchParams */}
+        <Suspense fallback={<div className="p-8 text-center text-slate-400 font-bold">Loading allotment generator...</div>}>
+          <CreateAllotmentForm 
+            linemen={(linemen as any) || []} 
+            managers={(managers as any) || []}
+            articles={(articles as any) || []}
+            productionOrders={productionOrders || []} 
+          />
+        </Suspense>
 
         {/* Section 2: Allotments List & Live Handshake Status */}
         {/* @ts-ignore */}

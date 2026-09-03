@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo, useTransition, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import {
   Calendar,
   Layers,
@@ -94,6 +95,7 @@ export function ProductionOrdersClient({
   articlesList = [],
   linemenList = []
 }: ProductionOrdersClientProps) {
+  const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [orders, setOrders] = useState<ChallanGroupedOrder[]>(initialOrders || [])
   const [expandedChallans, setExpandedChallans] = useState<Record<string, boolean>>(() => {
@@ -571,93 +573,18 @@ export function ProductionOrdersClient({
     return Object.values(colorMap).filter(c => c.totalPcs > 0)
   }
 
-  // Handle Allot Entire Challan to 1 Lineman
+  // Handle Allot Entire Challan to 1 Lineman (Routes directly to Target Allotment screen with pre-filled batch)
   const handleAllotEntireChallan = (challanId: string) => {
-    const lmId = selectedFullLineman[challanId]
-    if (!lmId) {
-      alert('Please select a Lineman first.')
-      return
-    }
-
-    startTransition(async () => {
-      const res = await allotEntireChallan(challanId, lmId)
-      if (res?.error) {
-        alert(res.error)
-        return
-      }
-
-      const lmName = linemenList.find(l => l.id === lmId)?.username || 'Lineman'
-      setOrders(prev =>
-        prev.map(ch =>
-          ch.id === challanId
-            ? {
-                ...ch,
-                articles: ch.articles.map(a => ({
-                  ...a,
-                  assigned_lineman_id: lmId,
-                  assigned_lineman_name: lmName,
-                  status: 'IN_PROGRESS'
-                }))
-              }
-            : ch
-        )
-      )
-
-      setAllotSuccessMsg(prev => ({
-        ...prev,
-        [challanId]: `All ${orders.find(o => o.id === challanId)?.total_pcs.toLocaleString()} pieces allotted to ${lmName}!`
-      }))
-      setTimeout(() => {
-        setAllotSuccessMsg(prev => ({ ...prev, [challanId]: '' }))
-      }, 4000)
-    })
+    const lmId = selectedFullLineman[challanId] || ''
+    const targetUrl = `/allotments?target_key=FULL_CHALLAN_${challanId}${lmId ? `&lineman_id=${lmId}` : ''}`
+    router.push(targetUrl)
   }
 
-  // Handle Allot by Color Group
+  // Handle Allot by Color Group (Routes directly to Target Allotment screen with pre-filled color line)
   const handleAllotColorLine = (challanId: string, colorName: string) => {
-    const lmId = selectedColorLineman[challanId]?.[colorName]
-    if (!lmId) {
-      alert(`Please select a Lineman for ${colorName} line.`)
-      return
-    }
-
-    startTransition(async () => {
-      const res = await allotChallanByColor(challanId, colorName, lmId)
-      if (res?.error) {
-        alert(res.error)
-        return
-      }
-
-      const lmName = linemenList.find(l => l.id === lmId)?.username || 'Lineman'
-      setOrders(prev =>
-        prev.map(ch => {
-          if (ch.id !== challanId) return ch
-          return {
-            ...ch,
-            articles: ch.articles.map(a => {
-              const pUpper = (a.color_pattern || a.description || '').toUpperCase()
-              if (pUpper.includes(colorName.toUpperCase()) || pUpper.includes('3 COLOUR') || pUpper.includes('3 COLOR')) {
-                return {
-                  ...a,
-                  assigned_lineman_id: lmId,
-                  assigned_lineman_name: lmName,
-                  status: 'IN_PROGRESS'
-                }
-              }
-              return a
-            })
-          }
-        })
-      )
-
-      setAllotSuccessMsg(prev => ({
-        ...prev,
-        [challanId]: `${colorName} line successfully allotted to ${lmName}!`
-      }))
-      setTimeout(() => {
-        setAllotSuccessMsg(prev => ({ ...prev, [challanId]: '' }))
-      }, 4000)
-    })
+    const lmId = selectedColorLineman[challanId]?.[colorName] || ''
+    const targetUrl = `/allotments?target_key=COLOR_${encodeURIComponent(colorName)}_${challanId}${lmId ? `&lineman_id=${lmId}` : ''}`
+    router.push(targetUrl)
   }
 
   // Delete Action
