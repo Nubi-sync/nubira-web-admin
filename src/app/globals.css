@@ -334,39 +334,6 @@ html {
   }
 }
 
-/* Optical Barcode Scanner / Seam Laser Scan Animation */
-@keyframes laserSweep {
-  0% {
-    transform: translateX(-100%);
-    opacity: 0;
-  }
-  20% {
-    opacity: 1;
-  }
-  80% {
-    opacity: 1;
-  }
-  100% {
-    transform: translateX(420%);
-    opacity: 0;
-  }
-}
-
-.laser-scan-line {
-  will-change: transform, opacity;
-}
-
-@media (min-width: 768px) {
-  .group:hover .laser-scan-line {
-    animation: laserSweep 680ms cubic-bezier(0.25, 1, 0.5, 1) forwards;
-  }
-}
-
-@media (max-width: 767px) {
-  .laser-scan-line {
-    animation: laserSweep 4.2s cubic-bezier(0.25, 1, 0.5, 1) infinite;
-  }
-}
 
 
 
