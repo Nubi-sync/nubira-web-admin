@@ -23,10 +23,12 @@ import {
   Clock,
   Eye,
   Check,
-  ExternalLink
+  ExternalLink,
+  User,
+  ShieldCheck
 } from 'lucide-react'
 import { TvViewButton } from '@/components/ui/TvViewButton'
-import { addStoreTransaction, addAccessoryTransaction } from '../actions'
+import { addStoreTransaction, addAccessoryTransaction, approveQcForStoreInward } from '../actions'
 
 type Article = {
   id: string
@@ -46,6 +48,12 @@ type StoreTransaction = {
   challan_no?: string | null
   transport_no?: string | null
   notes?: string | null
+  lineman_name?: string | null
+  mending_name?: string | null
+  qc_supervisor_name?: string | null
+  receiver_name?: string | null
+  allotment_id?: string | null
+  challan_id?: string | null
   article?: Article | null
 }
 
@@ -87,8 +95,27 @@ export type TruckInward = {
   due_items_count: number
   shortage_items_count: number
   notes?: string | null
+  line_items?: any[] | null
   created_at: string
   items?: TruckInwardItem[]
+}
+
+export type PendingQcAllotment = {
+  id: string
+  target_qty: number
+  qc_total_passed?: number | null
+  qc_total_alter?: number | null
+  qc_status?: string | null
+  qc_supervisor_name?: string | null
+  qc_passed_at?: string | null
+  store_inward_status?: string | null
+  admin_approved_at?: string | null
+  admin_approved_by?: string | null
+  created_at: string
+  article?: Article | null
+  lineman?: { id: string; username: string } | null
+  challans?: { id: string; challan_no: string; brand: string; fabric_type: string } | null
+  allotment_variants?: Array<{ id: string; color: string; size: string; quantity: number }> | null
 }
 
 interface InventoryClientProps {
@@ -96,6 +123,7 @@ interface InventoryClientProps {
   storeTransactions: StoreTransaction[]
   accessories: Accessory[]
   truckInwards?: TruckInward[]
+  pendingQcAllotments?: PendingQcAllotment[]
 }
 
 type TabKey = 'finished' | 'challans' | 'accessories' | 'dispatch' | 'inward'
@@ -123,6 +151,7 @@ export function InventoryClient({
   storeTransactions,
   accessories,
   truckInwards = [],
+  pendingQcAllotments = [],
 }: InventoryClientProps) {
   const [activeTab, setActiveTab] = useState<TabKey>('finished')
   const [searchTerm, setSearchTerm] = useState('')
@@ -864,6 +893,11 @@ export function InventoryClient({
           >
             <CheckCircle2 className="w-4 h-4" />
             <span>Inward Receipts ({filteredInward.length})</span>
+            {pendingQcAllotments.filter(a => a.qc_status === 'PENDING_ADMIN_APPROVAL').length > 0 && (
+              <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-amber-500 text-white animate-pulse">
+                {pendingQcAllotments.filter(a => a.qc_status === 'PENDING_ADMIN_APPROVAL').length} QC Pending
+              </span>
+            )}
           </button>
         </div>
 
@@ -1133,9 +1167,10 @@ export function InventoryClient({
 
                           <td className="px-4 py-3.5">
                             <div className="font-bold text-sm text-slate-900">{row.party_name}</div>
-                            {row.receiver_name && (
-                              <div className="text-xs text-slate-500 mt-0.5">By: {row.receiver_name}</div>
-                            )}
+                            <div className="mt-1 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-[#FAF7F0] border border-black/10 text-[11px] font-bold text-[#3A3564] shadow-2xs">
+                              <User className="w-3 h-3 text-[#3A3564]" />
+                              <span>{row.receiver_name || 'Store Inward'}</span>
+                            </div>
                           </td>
 
                           <td className="px-4 py-3.5">
@@ -1157,29 +1192,48 @@ export function InventoryClient({
 
                           <td className="px-4 py-3.5">
                             <div className="space-y-1.5 max-w-md">
-                              {(row.items || []).slice(0, isExpanded ? (row.items || []).length : 3).map((it, i) => (
-                                <div key={i} className="flex items-center gap-1.5 text-xs text-slate-700">
-                                  <span className={`w-2 h-2 rounded-full shrink-0 ${it.status === 'DUE' ? 'bg-purple-500' : it.status === 'SHORTAGE' ? 'bg-amber-500' : 'bg-emerald-500'}`} />
-                                  <span className="font-semibold text-slate-900">{it.item_name}</span>
-                                  {it.size_label && <span className="text-slate-500 font-mono">({it.size_label})</span>}
-                                  <span className="text-slate-500 font-mono font-bold">: {it.quantity} {it.unit}</span>
-                                  {it.status === 'DUE' && (
-                                    <span className="px-1.5 py-0.5 rounded text-xs font-bold bg-purple-100 text-purple-700">DUE</span>
-                                  )}
-                                  {it.status === 'SHORTAGE' && (
-                                    <span className="px-1.5 py-0.5 rounded text-xs font-bold bg-amber-100 text-amber-700">SHORT</span>
-                                  )}
-                                </div>
-                              ))}
-                              {(row.items || []).length > 3 && (
-                                <button
-                                  type="button"
-                                  onClick={() => setExpandedGrnId(isExpanded ? null : row.id)}
-                                  className="text-xs font-bold text-[#3A3564] hover:underline pt-0.5 block cursor-pointer"
-                                >
-                                  {isExpanded ? 'Show less' : `+ ${(row.items || []).length - 3} more items`}
-                                </button>
-                              )}
+                              {(() => {
+                                const allItems: Array<{ item_name: string; size_label?: string | null; quantity: number; unit?: string | null; status: string }> = 
+                                  (row.items && row.items.length > 0)
+                                    ? row.items
+                                    : Array.isArray(row.line_items)
+                                      ? row.line_items.map((li: any) => ({
+                                          item_name: li.name || li.item_name || 'Item',
+                                          size_label: li.size || li.size_label || '',
+                                          quantity: Number(li.qty || li.quantity) || 0,
+                                          unit: li.unit || 'pcs',
+                                          status: li.status || 'RECEIVED'
+                                        }))
+                                      : []
+
+                                return (
+                                  <>
+                                    {allItems.slice(0, isExpanded ? allItems.length : 3).map((it, i) => (
+                                      <div key={i} className="flex items-center gap-1.5 text-xs text-slate-700">
+                                        <span className={`w-2 h-2 rounded-full shrink-0 ${it.status === 'DUE' ? 'bg-purple-500' : it.status === 'SHORTAGE' ? 'bg-amber-500' : 'bg-emerald-500'}`} />
+                                        <span className="font-semibold text-slate-900">{it.item_name}</span>
+                                        {it.size_label && <span className="text-slate-500 font-mono">({it.size_label})</span>}
+                                        <span className="text-slate-500 font-mono font-bold">: {it.quantity} {it.unit}</span>
+                                        {it.status === 'DUE' && (
+                                          <span className="px-1.5 py-0.5 rounded text-xs font-bold bg-purple-100 text-purple-700">DUE</span>
+                                        )}
+                                        {it.status === 'SHORTAGE' && (
+                                          <span className="px-1.5 py-0.5 rounded text-xs font-bold bg-amber-100 text-amber-700">SHORT</span>
+                                        )}
+                                      </div>
+                                    ))}
+                                    {allItems.length > 3 && (
+                                      <button
+                                        type="button"
+                                        onClick={() => setExpandedGrnId(isExpanded ? null : row.id)}
+                                        className="text-xs font-bold text-[#3A3564] hover:underline pt-0.5 block cursor-pointer"
+                                      >
+                                        {isExpanded ? 'Show less' : `+ ${allItems.length - 3} more items`}
+                                      </button>
+                                    )}
+                                  </>
+                                )
+                              })()}
                             </div>
                             {row.notes && (
                               <div className="text-xs text-slate-500 italic mt-1.5 bg-slate-50 px-2 py-1 rounded border border-slate-200/60">
@@ -1484,10 +1538,133 @@ export function InventoryClient({
         )}
 
         {/* ======================================================== */}
-        {/* TAB 4: INWARD RECEIPTS                                  */}
+        {/* TAB 4: INWARD RECEIPTS & QC HANDSHAKE AUTHORIZATIONS     */}
         {/* ======================================================== */}
         {activeTab === 'inward' && (
           <div>
+            {/* QC Handshake Approvals Section (Admin Gate) */}
+            {pendingQcAllotments.length > 0 && (
+              <div className="p-5 border-b border-slate-100 bg-[#FAF7F0]/60">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-9 h-9 rounded-xl bg-[#3A3564] text-white flex items-center justify-center shadow-xs">
+                      <ShieldCheck className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h4 className="text-base font-bold text-slate-900 font-[family-name:var(--font-heading)]">
+                        QC Floor Handshake Authorizations
+                      </h4>
+                      <p className="text-xs text-slate-500">
+                        Finished lots passed by QC Supervisors. Authorize to notify Store Manager for Godown Inward.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                      {pendingQcAllotments.filter(a => a.qc_status === 'PENDING_ADMIN_APPROVAL').length} Awaiting Authorization
+                    </span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                  {pendingQcAllotments.map((lot) => {
+                    const isPendingApprove = lot.qc_status === 'PENDING_ADMIN_APPROVAL'
+                    const passedQty = lot.qc_total_passed || lot.target_qty || 0
+                    const artNo = lot.article?.art_no || 'Garment'
+                    const challanNo = lot.challans?.challan_no || '-'
+                    const brand = lot.challans?.brand || 'OLLYPOP'
+                    const lineman = lot.lineman?.username || 'Lineman'
+                    const qcSupervisor = lot.qc_supervisor_name || 'QC Supervisor'
+                    const variants = lot.allotment_variants || []
+
+                    return (
+                      <div 
+                        key={lot.id} 
+                        className={`p-4 rounded-xl border transition-all ${
+                          isPendingApprove 
+                            ? 'bg-white border-amber-300 shadow-sm' 
+                            : 'bg-emerald-50/50 border-emerald-200'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-slate-100 text-slate-700">
+                                CH-{challanNo} · {brand}
+                              </span>
+                              <span className="text-sm font-black text-[#3A3564]">
+                                Art #{artNo}
+                              </span>
+                            </div>
+                            {lot.article?.description && (
+                              <p className="text-xs text-slate-500 mt-0.5">{lot.article.description}</p>
+                            )}
+                          </div>
+                          <span className={`px-2.5 py-1 rounded-full text-xs font-black font-mono ${
+                            isPendingApprove ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'
+                          }`}>
+                            {passedQty.toLocaleString()} pcs
+                          </span>
+                        </div>
+
+                        {/* Variant breakdowns */}
+                        {variants.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 mt-2.5">
+                            {variants.map((v) => (
+                              <span key={v.id} className="px-2 py-0.5 rounded text-[11px] font-mono bg-slate-100 text-slate-700 border border-slate-200">
+                                {v.color ? `${v.color} ` : ''}{v.size}: <strong>{v.quantity}</strong> pcs
+                              </span>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Chain of Custody line */}
+                        <div className="flex flex-wrap items-center gap-2 mt-3 text-xs text-slate-600">
+                          <span className="font-semibold text-slate-700">🧵 Lineman: {lineman}</span>
+                          <span>•</span>
+                          <span className="font-semibold text-emerald-700">🔍 QC Passed: {qcSupervisor}</span>
+                        </div>
+
+                        {/* Approval Action */}
+                        <div className="mt-3.5 pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+                          {isPendingApprove ? (
+                            <>
+                              <div className="flex items-center gap-1 text-xs text-amber-700 font-medium">
+                                <Clock className="w-3.5 h-3.5 text-amber-600" />
+                                <span>Awaiting Admin Gate</span>
+                              </div>
+                              <button
+                                type="button"
+                                disabled={isPending}
+                                onClick={() => {
+                                  startTransition(async () => {
+                                    await approveQcForStoreInward(lot.id)
+                                  })
+                                }}
+                                className="px-3.5 py-1.5 rounded-lg bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold transition-all shadow-xs inline-flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                              >
+                                <Check className="w-3.5 h-3.5" />
+                                <span>Approve for Store Inward</span>
+                              </button>
+                            </>
+                          ) : (
+                            <div className="w-full flex items-center justify-between text-xs text-emerald-700 font-bold bg-emerald-100/60 px-3 py-1.5 rounded-lg">
+                              <span className="flex items-center gap-1.5">
+                                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                                <span>Approved by {lot.admin_approved_by || 'Admin'}</span>
+                              </span>
+                              <span className="text-[11px] text-emerald-800 font-normal">
+                                Store Manager notified to collect
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
             {filteredInward.length === 0 ? (
               <div className="p-12 sm:p-16 text-center flex flex-col items-center justify-center space-y-3.5">
                 <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs">
@@ -1529,7 +1706,7 @@ export function InventoryClient({
                         </div>
                       </th>
 
-                      <th className="px-4 py-3.5 font-bold">Article No</th>
+                      <th className="px-4 py-3.5 font-bold">Article & Challan</th>
                       <th className="px-4 py-3.5 font-bold">Color / Size</th>
                       
                       {/* Sortable Received Qty */}
@@ -1547,7 +1724,7 @@ export function InventoryClient({
                         </div>
                       </th>
 
-                      <th className="px-4 py-3.5 font-bold">Received From</th>
+                      <th className="px-4 py-3.5 font-bold">Chain of Custody (Lineman • Mending • QC • Store)</th>
                       <th className="px-4 py-3.5 font-bold">Notes</th>
                     </tr>
                   </thead>
@@ -1557,8 +1734,15 @@ export function InventoryClient({
                         <td className="px-5 py-3.5 font-mono text-slate-600 text-xs whitespace-nowrap">
                           {row.entry_date || row.created_at.split('T')[0]}
                         </td>
-                        <td className="px-4 py-3.5 font-bold text-sm text-[#3A3564]">
-                          {row.article?.art_no || '-'}
+                        <td className="px-4 py-3.5">
+                          <div className="font-bold text-sm text-[#3A3564]">
+                            {row.article?.art_no || '-'}
+                          </div>
+                          {row.challan_no && (
+                            <div className="text-[11px] font-mono font-semibold text-slate-500 mt-0.5">
+                              CH-{row.challan_no}
+                            </div>
+                          )}
                         </td>
                         <td className="px-4 py-3.5">
                           {(row.color || row.size) ? (
@@ -1572,8 +1756,31 @@ export function InventoryClient({
                         <td className="px-4 py-3.5 text-right font-mono font-bold text-emerald-600 text-xs sm:text-[13px]">
                           +{row.quantity.toLocaleString()} pcs
                         </td>
-                        <td className="px-4 py-3.5 font-bold text-slate-900 text-sm">
-                          {row.party_name || '-'}
+                        <td className="px-4 py-3.5">
+                          <div className="flex flex-wrap items-center gap-1.5 max-w-sm">
+                            {row.lineman_name && (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#FAF7F0] border border-black/10 text-[11px] font-semibold text-[#3A3564]">
+                                <span>🧵</span>
+                                <span>Lineman: <strong>{row.lineman_name}</strong></span>
+                              </span>
+                            )}
+                            {row.mending_name && (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-purple-50 border border-purple-200 text-[11px] font-semibold text-purple-800">
+                                <span>✂️</span>
+                                <span>Mending: <strong>{row.mending_name}</strong></span>
+                              </span>
+                            )}
+                            {row.qc_supervisor_name && (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 border border-emerald-200 text-[11px] font-semibold text-emerald-800">
+                                <span>🔍</span>
+                                <span>QC: <strong>{row.qc_supervisor_name}</strong></span>
+                              </span>
+                            )}
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-blue-50 border border-blue-200 text-[11px] font-semibold text-blue-800">
+                              <User className="w-3 h-3 text-blue-700" />
+                              <span>Store: <strong>{row.receiver_name || row.party_name || 'Store'}</strong></span>
+                            </span>
+                          </div>
                         </td>
                         <td className="px-4 py-3.5 text-slate-500 text-xs">
                           {row.notes || '-'}

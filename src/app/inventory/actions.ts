@@ -77,3 +77,27 @@ export async function addAccessoryTransaction(formData: FormData) {
   revalidatePath('/inventory')
   revalidatePath('/reports')
 }
+
+export async function approveQcForStoreInward(allotmentId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  const adminEmail = user?.email || 'Admin'
+
+  const { error } = await supabase
+    .from('allotments')
+    .update({
+      qc_status: 'APPROVED_FOR_STORE',
+      admin_approved_at: new Date().toISOString(),
+      admin_approved_by: adminEmail,
+    })
+    .eq('id', allotmentId)
+
+  if (error) {
+    throw new Error(error.message)
+  }
+
+  revalidatePath('/inventory')
+  revalidatePath('/dispatch')
+  revalidatePath('/production-orders')
+  revalidatePath('/')
+}

@@ -17,12 +17,13 @@ export default async function InventoryPage() {
     redirect('/login')
   }
 
-  // Parallel concurrent data fetching for all 4 inventory datasets
+  // Parallel concurrent data fetching for inventory datasets & QC Handshake Approvals
   const [
     { data: articles },
     { data: storeTransactions },
     { data: accessories },
-    { data: truckInwardsData }
+    { data: truckInwardsData },
+    { data: pendingQcAllotmentsData }
   ] = await Promise.all([
     supabase
       .from('articles')
@@ -44,6 +45,12 @@ export default async function InventoryPage() {
         challan_no,
         transport_no,
         notes,
+        lineman_name,
+        mending_name,
+        qc_supervisor_name,
+        receiver_name,
+        allotment_id,
+        challan_id,
         article:articles(id, art_no, description)
       `)
       .order('created_at', { ascending: false })
@@ -82,6 +89,7 @@ export default async function InventoryPage() {
         due_items_count,
         shortage_items_count,
         notes,
+        line_items,
         created_at,
         items:truck_inward_items(
           id,
@@ -95,10 +103,35 @@ export default async function InventoryPage() {
         )
       `)
       .order('created_at', { ascending: false })
-      .limit(100)
+      .limit(100),
+
+    supabase
+      .from('allotments')
+      .select(`
+        id,
+        target_qty,
+        qc_total_passed,
+        qc_total_alter,
+        qc_status,
+        qc_supervisor_name,
+        qc_passed_at,
+        store_inward_status,
+        admin_approved_at,
+        admin_approved_by,
+        created_at,
+        article:articles(id, art_no, description),
+        lineman:profiles!allotments_lineman_id_fkey(id, username),
+        challans(id, challan_no, brand, fabric_type),
+        allotment_variants(id, color, size, quantity)
+      `)
+      .or('qc_status.eq.PENDING_ADMIN_APPROVAL,qc_status.eq.APPROVED_FOR_STORE')
+      .neq('store_inward_status', 'INWARDED')
+      .order('created_at', { ascending: false })
+      .limit(60)
   ])
 
   const truckInwards = truckInwardsData || []
+  const pendingQcAllotments = pendingQcAllotmentsData || []
 
   return (
     <AdminShell userEmail={user.email}>
@@ -120,6 +153,7 @@ export default async function InventoryPage() {
           storeTransactions={(storeTransactions as any) || []}
           accessories={(accessories as any) || []}
           truckInwards={truckInwards}
+          pendingQcAllotments={pendingQcAllotments as any[]}
         />
 
       </div>
