@@ -92,15 +92,15 @@ function renderArticleRateBadge(item: Article) {
       return (
         <div className="flex flex-col items-start gap-1">
           <div className="flex items-center gap-1.5">
-            <span className="font-mono font-bold text-slate-800 text-[13px]">{label}</span>
-            <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
+            <span className="font-mono font-bold text-slate-900 text-sm">{label}</span>
+            <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10">
               Size-Wise
             </span>
           </div>
-          <div className="text-[11px] text-slate-500 flex flex-wrap gap-1 max-w-[220px]">
+          <div className="text-xs text-slate-600 flex flex-wrap gap-1 max-w-[260px] mt-0.5">
             {Object.entries(item.size_rates).filter(([sz, rt]) => sz !== '_meta' && typeof rt === 'number').map(([sz, rt]) => (
-              <span key={sz} className="font-mono text-[10.5px] bg-slate-100 px-1 py-0.2 rounded border border-slate-200">
-                {sz}:₹{rt}
+              <span key={sz} className="font-mono text-xs font-semibold bg-slate-100 text-slate-800 px-1.5 py-0.5 rounded-md border border-slate-200">
+                {sz}: ₹{rt}
               </span>
             ))}
           </div>
@@ -108,7 +108,7 @@ function renderArticleRateBadge(item: Article) {
       )
     }
   }
-  return <span className="font-mono font-bold text-slate-800 text-[13px]">₹{item.stitching_rate.toFixed(2)}</span>
+  return <span className="font-mono font-bold text-slate-900 text-sm">₹{item.stitching_rate.toFixed(2)}</span>
 }
 
 export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
@@ -482,10 +482,10 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
               setAddTouched(false)
               setShowAddModal(true)
             }}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] transition-all shadow-xs cursor-pointer"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] transition-all shadow-xs cursor-pointer active:scale-[0.98]"
           >
             <Plus className="w-4 h-4" />
-            <span>+ Add Article</span>
+            <span>Add Article</span>
           </button>
         </div>
       </div>
@@ -597,9 +597,9 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
 
         {/* 3. Full-Width Table */}
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse text-xs">
+          <table className="w-full text-left border-collapse text-xs sm:text-[13px]">
             <thead>
-              <tr className="bg-[#FAF7F0] border-b border-slate-100 text-[11px] font-mono uppercase tracking-wider font-bold text-slate-500">
+              <tr className="bg-[#FAF7F0] border-b border-black/10 text-xs font-mono uppercase tracking-wider font-bold text-slate-700">
                 
                 {/* Select All Checkbox */}
                 <th className="w-10 px-4 py-3.5 text-center">
@@ -607,7 +607,7 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                     type="checkbox"
                     checked={allCurrentPageSelected}
                     onChange={toggleSelectAll}
-                    className="w-3.5 h-3.5 rounded border-slate-300 text-[var(--steel,#2B4C7E)] cursor-pointer"
+                    className="w-4 h-4 rounded border-slate-300 text-[#3A3564] focus:ring-[#3A3564] cursor-pointer"
                   />
                 </th>
 
@@ -619,7 +619,7 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                   <div className="flex items-center gap-1.5">
                     <span>Art No</span>
                     {sortField === 'art_no' ? (
-                      sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" /> : <ArrowDown className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" />
+                      sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#3A3564]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#3A3564]" />
                     ) : (
                       <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
                     )}
@@ -636,7 +636,7 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                   <div className="flex items-center gap-1.5">
                     <span>Stitching Rate (₹)</span>
                     {sortField === 'stitching_rate' ? (
-                      sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" /> : <ArrowDown className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" />
+                      sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#3A3564]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#3A3564]" />
                     ) : (
                       <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
                     )}
@@ -653,11 +653,11 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                   <td colSpan={6} className="px-6 py-12 text-center text-slate-500">
                     <div className="flex flex-col items-center justify-center space-y-2">
                       <Tag className="w-8 h-8 text-slate-300" />
-                      <p className="text-xs font-semibold text-slate-600">
+                      <p className="text-sm font-semibold text-slate-700">
                         {searchTerm ? 'No articles found matching "' + searchTerm + '"' : 'No articles in this view.'}
                       </p>
-                      <p className="text-[11px] text-slate-400">
-                        Click "+ Add Article" in the top bar to register a new article style.
+                      <p className="text-xs text-slate-500">
+                        Click "Add Article" in the top bar to register a new article style.
                       </p>
                     </div>
                   </td>
@@ -673,8 +673,8 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                       key={article.id} 
                       className={`transition-colors ${
                         isArchived 
-                          ? 'bg-[var(--ink-gray-mist,#F1F4F8)] text-[var(--ink-faint,#8B9AAB)]' 
-                          : 'hover:bg-slate-50/50 text-[var(--ink,#1C2733)]'
+                          ? 'bg-slate-50/70 text-slate-400' 
+                          : 'hover:bg-slate-50/60 text-slate-900'
                       }`}
                     >
                       {/* Checkbox */}
@@ -683,18 +683,18 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                           type="checkbox"
                           checked={isChecked}
                           onChange={() => toggleSelectRow(article.id)}
-                          className="w-3.5 h-3.5 rounded border-slate-300 text-[var(--steel,#2B4C7E)] cursor-pointer"
+                          className="w-4 h-4 rounded border-slate-300 text-[#3A3564] focus:ring-[#3A3564] cursor-pointer"
                         />
                       </td>
 
                       {/* Art No */}
-                      <td className="px-4 py-3.5 font-bold" style={{ color: isArchived ? 'var(--ink-faint, #8B9AAB)' : 'var(--steel, #2B4C7E)' }}>
+                      <td className="px-4 py-3.5 font-bold font-mono text-sm" style={{ color: isArchived ? '#94A3B8' : '#3A3564' }}>
                         {article.art_no}
                       </td>
 
                       {/* Description */}
                       <td className="px-4 py-3.5">
-                        <span className={isArchived ? 'text-[var(--ink-faint,#8B9AAB)]' : 'text-slate-600 font-medium'}>
+                        <span className={isArchived ? 'text-slate-400' : 'text-slate-600 font-medium'}>
                           {article.description || '-'}
                         </span>
                       </td>
@@ -702,7 +702,7 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                       {/* Stitching Rate with Size-Wise Breakdown */}
                       <td className="px-4 py-3.5">
                         {renderArticleRateBadge(article)}
-                        <div className="text-[10.5px] font-[family-name:var(--font-jetbrains-mono)] mt-1" style={{ color: 'var(--ink-faint, #8B9AAB)' }}>
+                        <div className="text-xs font-mono text-slate-500 mt-1">
                           {latestHistory 
                             ? 'was ₹' + latestHistory.old_rate.toFixed(2) + ' · ' + formatRateDate(latestHistory.created_at)
                             : 'unchanged since creation'
@@ -713,11 +713,11 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                       {/* Status Badge */}
                       <td className="px-4 py-3.5 text-center">
                         <span 
-                          className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold"
-                          style={{
-                            backgroundColor: article.is_active ? 'var(--green-mist, #E6F6EE)' : 'var(--ink-gray-mist, #F1F4F8)',
-                            color: article.is_active ? 'var(--green, #1F9D63)' : 'var(--ink-faint, #8B9AAB)'
-                          }}
+                          className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold border ${
+                            article.is_active 
+                              ? 'bg-emerald-50 text-emerald-800 border-emerald-200' 
+                              : 'bg-slate-100 text-slate-600 border-slate-200'
+                          }`}
                         >
                           {article.is_active ? 'Active' : 'Archived'}
                         </span>
@@ -731,10 +731,7 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                           <button
                             type="button"
                             onClick={() => openRateHistoryModal(article)}
-                            className="p-1 rounded-[6px] transition-colors cursor-pointer"
-                            style={{ color: 'var(--ink-faint, #8B9AAB)' }}
-                            onMouseEnter={(e) => e.currentTarget.style.color = 'var(--steel, #2B4C7E)'}
-                            onMouseLeave={(e) => e.currentTarget.style.color = 'var(--ink-faint, #8B9AAB)'}
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-[#3A3564] hover:bg-slate-100 transition-colors cursor-pointer"
                             title="View Rate History"
                           >
                             <History className="w-4 h-4" />
@@ -745,8 +742,7 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                             <button
                               type="button"
                               onClick={() => openUpdateRateModal(article)}
-                              className="text-xs font-semibold px-2.5 py-1 rounded-[6px] border bg-white hover:bg-slate-50 transition-colors cursor-pointer shadow-2xs"
-                              style={{ borderColor: 'var(--border, #E2E8F0)', color: 'var(--steel, #2B4C7E)' }}
+                              className="text-xs font-bold px-3 py-1.5 rounded-lg border border-black/10 bg-[#FAF7F0] hover:bg-slate-100 text-[#3A3564] transition-all cursor-pointer shadow-2xs"
                             >
                               Update Rate
                             </button>
@@ -758,8 +754,7 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                                   await toggleArticleArchive(article.id, false)
                                 })
                               }}
-                              className="text-xs font-semibold px-2.5 py-1 rounded-[6px] border bg-white hover:bg-slate-50 transition-colors cursor-pointer shadow-2xs"
-                              style={{ borderColor: 'var(--border, #E2E8F0)', color: 'var(--ink-soft, #5B6B7C)' }}
+                              className="text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition-all cursor-pointer shadow-2xs"
                             >
                               Restore
                             </button>
@@ -776,21 +771,17 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
 
         {/* 4. Numbered Pagination Footer */}
         {totalItems > 0 && (
-          <div 
-            className="p-4 border-t bg-slate-50/60 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs" 
-            style={{ borderColor: 'var(--border, #E2E8F0)' }}
-          >
-            <div style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
-              Showing <span className="font-semibold">{(currentPage - 1) * pageSize + 1}</span>–<span className="font-semibold">{Math.min(currentPage * pageSize, totalItems)}</span> of <span className="font-semibold">{totalItems}</span> articles
+          <div className="p-4 sm:p-5 border-t border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs sm:text-[13px]">
+            <div className="text-slate-600 font-medium">
+              Showing <span className="font-bold text-slate-900">{(currentPage - 1) * pageSize + 1}</span>–<span className="font-bold text-slate-900">{Math.min(currentPage * pageSize, totalItems)}</span> of <span className="font-bold text-slate-900">{totalItems}</span> articles
             </div>
 
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1.5">
               <button
                 type="button"
                 disabled={currentPage === 1}
                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                className="p-1.5 rounded-[6px] border bg-white text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors cursor-pointer"
-                style={{ borderColor: 'var(--border, #E2E8F0)' }}
+                className="p-2 rounded-lg border border-slate-200 bg-white text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors shadow-2xs cursor-pointer"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
@@ -802,14 +793,11 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                     key={pg}
                     type="button"
                     onClick={() => setCurrentPage(pg)}
-                    className={`w-7 h-7 rounded-[6px] text-xs font-semibold border transition-colors cursor-pointer ${
+                    className={`w-8 h-8 rounded-lg text-xs font-bold border transition-all cursor-pointer ${
                       isActive
-                        ? 'text-white border-transparent'
-                        : 'bg-white text-slate-700 hover:bg-slate-50 border-[var(--border,#E2E8F0)]'
+                        ? 'bg-[#3A3564] text-white border-transparent shadow-xs'
+                        : 'bg-white text-slate-700 hover:bg-slate-100 border-slate-200'
                     }`}
-                    style={{
-                      backgroundColor: isActive ? 'var(--steel, #2B4C7E)' : '#FFFFFF'
-                    }}
                   >
                     {pg}
                   </button>
@@ -820,8 +808,7 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                 type="button"
                 disabled={currentPage === totalPages}
                 onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                className="p-1.5 rounded-[6px] border bg-white text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors cursor-pointer"
-                style={{ borderColor: 'var(--border, #E2E8F0)' }}
+                className="p-2 rounded-lg border border-slate-200 bg-white text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors shadow-2xs cursor-pointer"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
@@ -832,18 +819,17 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
       </div>
 
       {/* ======================================================== */}
-      {/* MODAL 1: ADD NEW ARTICLE (CENTERED 420px MODAL)          */}
+      {/* MODAL 1: ADD NEW ARTICLE                                  */}
       {/* ======================================================== */}
       {showAddModal && (
         <div 
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
-          style={{ backgroundColor: 'rgba(28,39,51,0.45)' }}
+          className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-in fade-in duration-200"
           onClick={(e) => {
             if (e.target === e.currentTarget) setShowAddModal(false)
           }}
         >
           <div 
-            className="w-full max-w-[540px] my-6 bg-white rounded-2xl p-6 shadow-2xl border border-black/10 relative space-y-5 animate-in fade-in zoom-in-95 duration-150"
+            className="w-full max-w-lg my-6 bg-white rounded-2xl p-5 sm:p-6 shadow-2xl border border-black/10 relative space-y-4 sm:space-y-5 animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto"
           >
             {/* Header */}
             <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
@@ -859,27 +845,27 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                   >
                     Add New Article
                   </h3>
-                  <p className="text-xs text-slate-400 mt-0.5">Register new style & size-wise stitching rates</p>
+                  <p className="text-xs sm:text-[13px] text-slate-500 mt-0.5">Register new style & size-wise stitching rates</p>
                 </div>
               </div>
 
               <button
                 type="button"
                 onClick={() => setShowAddModal(false)}
-                className="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
+                className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
               >
-                <X className="w-4 h-4" />
+                <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Form */}
-            <form onSubmit={handleCreateArticleSubmit} className="space-y-4 text-xs">
+            <form onSubmit={handleCreateArticleSubmit} className="space-y-4 text-xs sm:text-[13px]">
               
               {/* Art No & Description Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div>
-                  <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1.5" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
-                    Article Number (Art No) <span className="text-red-500">*</span>
+                  <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
+                    Article Number (Art No) <span className="text-rose-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -887,12 +873,11 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                     placeholder="E.G. A2045"
                     value={addArtNo}
                     onChange={(e) => setAddArtNo(e.target.value.toUpperCase())}
-                    className="w-full px-3 py-2 bg-slate-50 border rounded-[7px] text-xs font-mono font-bold uppercase outline-none focus:bg-white"
-                    style={{ borderColor: 'var(--border, #E2E8F0)' }}
+                    className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-mono font-bold uppercase text-[#3A3564] outline-none shadow-2xs transition-all"
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1.5" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                  <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
                     Description
                   </label>
                   <input
@@ -900,45 +885,44 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                     placeholder="e.g. Blue Denim Jacket"
                     value={addDescription}
                     onChange={(e) => setAddDescription(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-50 border rounded-[7px] text-xs outline-none focus:bg-white"
-                    style={{ borderColor: 'var(--border, #E2E8F0)' }}
+                    className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
                   />
                 </div>
               </div>
 
               {/* Rate Mode Toggle */}
-              <div className="pt-2 border-t" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+              <div className="pt-2 border-t border-slate-100">
                 <div className="flex items-center justify-between mb-2">
-                  <label className="block text-[11px] font-semibold uppercase tracking-[1.5px]" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
-                    Stitching Rate Structure <span className="text-red-500">*</span>
+                  <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono">
+                    Stitching Rate Structure <span className="text-rose-500">*</span>
                   </label>
-                  <span className="text-[10.5px] text-slate-400">Choose flat or size-wise rates</span>
+                  <span className="text-xs text-slate-500">Choose flat or size-wise</span>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-[9px] border border-slate-200">
+                <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-xl border border-slate-200">
                   <button
                     type="button"
                     onClick={() => setAddRateMode('FLAT')}
-                    className={`py-1.5 px-3 rounded-[7px] text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                    className={`py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                       addRateMode === 'FLAT'
-                        ? 'bg-white text-[var(--steel,#2B4C7E)] shadow-xs'
+                        ? 'bg-[#3A3564] text-white shadow-xs'
                         : 'text-slate-600 hover:text-slate-900'
                     }`}
                   >
                     <Tag className="w-3.5 h-3.5" />
-                    <span>Flat Rate (All Sizes Same)</span>
+                    <span>Flat Rate (All Sizes)</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => setAddRateMode('SIZE_WISE')}
-                    className={`py-1.5 px-3 rounded-[7px] text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                    className={`py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                       addRateMode === 'SIZE_WISE'
-                        ? 'bg-white text-indigo-700 shadow-xs'
+                        ? 'bg-[#3A3564] text-white shadow-xs'
                         : 'text-slate-600 hover:text-slate-900'
                     }`}
                   >
                     <Layers className="w-3.5 h-3.5" />
-                    <span>Size-Wise / Tiered Rates</span>
+                    <span>Size-Wise / Tiered</span>
                   </button>
                 </div>
               </div>
@@ -946,22 +930,21 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
               {/* Mode A: Flat Rate Input */}
               {addRateMode === 'FLAT' && (
                 <div className="space-y-1.5 pt-1">
-                  <label className="block text-[11px] font-semibold text-slate-700">
+                  <label className="block text-xs sm:text-[13px] font-bold text-slate-700">
                     Piece Rate for All Sizes (₹)
                   </label>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 font-mono font-bold text-slate-500">₹</span>
+                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-mono font-bold text-slate-400">₹</span>
                     <input
                       type="number"
                       step="0.01"
                       placeholder="e.g. 20.00"
                       value={addRate}
                       onChange={(e) => setAddRate(e.target.value)}
-                      className="w-full pl-7 pr-3 py-2 bg-slate-50 border rounded-[7px] text-xs font-mono font-bold outline-none focus:bg-white"
-                      style={{ borderColor: 'var(--border, #E2E8F0)' }}
+                      className="w-full pl-8 pr-3.5 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-mono font-bold text-slate-900 outline-none shadow-2xs transition-all"
                     />
                   </div>
-                  <p className="text-[11px] text-slate-400">Same rate applied to all sizes stitched by workers.</p>
+                  <p className="text-xs text-slate-500">Same rate applied to all sizes stitched by workers.</p>
                 </div>
               )}
 
@@ -970,7 +953,7 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                 <div className="space-y-3 pt-1">
                   {/* Quick Preset Buttons */}
                   <div>
-                    <span className="block text-[10.5px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+                    <span className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5 font-mono">
                       Quick Fill Presets:
                     </span>
                     <div className="flex flex-wrap gap-1.5">
@@ -986,7 +969,7 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                             }))
                             setAddSizeRateRows(newRows)
                           }}
-                          className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-[11px] font-semibold border border-slate-200 transition-colors"
+                          className="px-2.5 py-1 bg-white hover:bg-slate-100 text-slate-800 rounded-lg text-xs font-semibold border border-slate-200 shadow-2xs transition-colors cursor-pointer"
                         >
                           {preset.label}
                         </button>
@@ -995,16 +978,16 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                   </div>
 
                   {/* Size Rate Table / Rows */}
-                  <div className="border rounded-[8px] overflow-hidden" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
-                    <div className="bg-slate-50 px-3 py-2 border-b grid grid-cols-12 gap-2 text-[11px] font-bold text-slate-600 uppercase" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+                  <div className="border border-slate-200 rounded-xl overflow-hidden shadow-2xs">
+                    <div className="bg-[#FAF7F0] px-3.5 py-2 border-b border-black/10 grid grid-cols-12 gap-2 text-xs font-bold text-slate-700 uppercase font-mono">
                       <div className="col-span-5">Size Name (Editable)</div>
                       <div className="col-span-6">Stitching Rate (₹)</div>
                       <div className="col-span-1 text-center"></div>
                     </div>
 
-                    <div className="divide-y max-h-[190px] overflow-y-auto" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+                    <div className="divide-y divide-slate-100 max-h-[190px] overflow-y-auto">
                       {addSizeRateRows.map((row, idx) => (
-                        <div key={row.id} className="p-2 grid grid-cols-12 gap-2 items-center hover:bg-slate-50/50">
+                        <div key={row.id} className="p-2.5 grid grid-cols-12 gap-2 items-center hover:bg-slate-50/50">
                           {/* Size Name Input */}
                           <div className="col-span-5">
                             <input
@@ -1016,8 +999,7 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                                 setAddSizeRateRows(updated)
                               }}
                               placeholder="e.g. XXL / 34 / S-L"
-                              className="w-full px-2.5 py-1.5 bg-white border rounded text-xs font-mono font-bold outline-none"
-                              style={{ borderColor: 'var(--border, #E2E8F0)' }}
+                              className="w-full px-3 py-1.5 bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-1 focus:ring-[#3A3564] rounded-lg text-xs sm:text-sm font-mono font-bold text-slate-900 outline-none"
                             />
                           </div>
 
@@ -1034,8 +1016,7 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                                 setAddSizeRateRows(updated)
                               }}
                               placeholder="0.00"
-                              className="w-full pl-6 pr-2 py-1.5 bg-white border rounded text-xs font-mono font-bold outline-none text-indigo-900"
-                              style={{ borderColor: 'var(--border, #E2E8F0)' }}
+                              className="w-full pl-6 pr-2.5 py-1.5 bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-1 focus:ring-[#3A3564] rounded-lg text-xs sm:text-sm font-mono font-bold text-[#3A3564] outline-none"
                             />
                           </div>
 
@@ -1048,7 +1029,7 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                                   setAddSizeRateRows(addSizeRateRows.filter(r => r.id !== row.id))
                                 }
                               }}
-                              className="p-1 text-slate-400 hover:text-rose-600 rounded transition-colors"
+                              className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>
@@ -1058,19 +1039,19 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                     </div>
 
                     {/* Add Custom Row Button */}
-                    <div className="p-2 bg-slate-50/80 border-t flex justify-between items-center" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+                    <div className="p-2.5 bg-slate-50 border-t border-slate-200 flex justify-between items-center">
                       <button
                         type="button"
                         onClick={() => {
                           const nextId = Date.now().toString()
                           setAddSizeRateRows([...addSizeRateRows, { id: nextId, size: '', rate: '' }])
                         }}
-                        className="px-2.5 py-1 bg-white hover:bg-slate-100 text-indigo-700 rounded text-xs font-bold border border-indigo-200 flex items-center gap-1 shadow-2xs"
+                        className="px-3 py-1.5 bg-white hover:bg-slate-100 text-[#3A3564] rounded-lg text-xs font-bold border border-black/10 flex items-center gap-1.5 shadow-2xs cursor-pointer"
                       >
                         <Plus className="w-3.5 h-3.5" />
-                        Add Custom Size Rate
+                        <span>Add Custom Size Rate</span>
                       </button>
-                      <span className="text-[10.5px] text-slate-500 font-mono">
+                      <span className="text-xs text-slate-500 font-mono">
                         {addSizeRateRows.length} sizes configured
                       </span>
                     </div>
@@ -1081,10 +1062,9 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
               {/* Error Message */}
               {addError && (
                 <div 
-                  className="p-3 rounded-[7px] text-[11.5px] font-medium flex items-center gap-2"
-                  style={{ backgroundColor: 'var(--red-mist, #FBEAE8)', color: 'var(--red, #C0392B)' }}
+                  className="p-3 rounded-xl text-xs font-semibold flex items-center gap-2 bg-rose-50 text-rose-700 border border-rose-200"
                 >
-                  <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                  <AlertCircle className="w-4 h-4 shrink-0" />
                   <span>{addError}</span>
                 </div>
               )}
@@ -1094,16 +1074,16 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="w-full py-2.5 px-4 rounded-xl text-xs font-bold border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition-colors cursor-pointer"
+                  className="w-full py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition-colors cursor-pointer shadow-2xs"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="w-full py-2.5 px-4 rounded-xl text-xs font-bold text-white transition-all flex items-center justify-center gap-1.5 shadow-xs cursor-pointer disabled:opacity-50 bg-[#3A3564] hover:bg-[#2A2649]"
+                  className="w-full py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold text-white transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer disabled:opacity-50 bg-[#3A3564] hover:bg-[#2A2649] active:scale-[0.98]"
                 >
-                  <Check className="w-3.5 h-3.5" />
+                  <Check className="w-4 h-4" />
                   <span>{isPending ? 'Saving...' : 'Save Article'}</span>
                 </button>
               </div>
@@ -1113,47 +1093,46 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
       )}
 
       {/* ======================================================== */}
-      {/* MODAL 2: UPDATE RATE MODAL (WITH SIZE-WISE SUPPORT)      */}
+      {/* MODAL 2: UPDATE RATE MODAL                                */}
       {/* ======================================================== */}
       {showUpdateRateModal && selectedArticleForRate && (
         <div 
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
-          style={{ backgroundColor: 'rgba(28,39,51,0.45)' }}
+          className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-in fade-in duration-200"
           onClick={(e) => {
             if (e.target === e.currentTarget) setShowUpdateRateModal(false)
           }}
         >
           <div 
-            className="w-full max-w-[500px] my-6 bg-white rounded-2xl p-6 shadow-2xl border border-black/10 relative space-y-5 animate-in fade-in zoom-in-95 duration-150"
+            className="w-full max-w-lg my-6 bg-white rounded-2xl p-5 sm:p-6 shadow-2xl border border-black/10 relative space-y-4 sm:space-y-5 animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto"
           >
             <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
               <div>
                 <h3 className="text-base sm:text-lg font-bold font-[family-name:var(--font-heading)] text-slate-900">
                   Update Stitching Rate
                 </h3>
-                <p className="text-xs font-mono font-bold text-[#3A3564] mt-0.5">
+                <p className="text-xs sm:text-[13px] font-mono font-bold text-[#3A3564] mt-0.5">
                   {selectedArticleForRate.art_no} ({selectedArticleForRate.description || 'Standard'})
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setShowUpdateRateModal(false)}
-                className="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
+                className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
               >
-                <X className="w-4 h-4" />
+                <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleUpdateRateSubmit} className="space-y-4 text-xs">
+            <form onSubmit={handleUpdateRateSubmit} className="space-y-4 text-xs sm:text-[13px]">
               
               {/* Rate Mode Tabs */}
-              <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-[9px] border border-slate-200">
+              <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-xl border border-slate-200">
                 <button
                   type="button"
                   onClick={() => setUpdateRateMode('FLAT')}
-                  className={`py-1.5 px-3 rounded-[7px] text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                  className={`py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                     updateRateMode === 'FLAT'
-                      ? 'bg-white text-[var(--steel,#2B4C7E)] shadow-xs'
+                      ? 'bg-[#3A3564] text-white shadow-xs'
                       : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
@@ -1163,9 +1142,9 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                 <button
                   type="button"
                   onClick={() => setUpdateRateMode('SIZE_WISE')}
-                  className={`py-1.5 px-3 rounded-[7px] text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                  className={`py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                     updateRateMode === 'SIZE_WISE'
-                      ? 'bg-white text-indigo-700 shadow-xs'
+                      ? 'bg-[#3A3564] text-white shadow-xs'
                       : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
@@ -1177,18 +1156,17 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
               {/* Mode A: Flat Rate */}
               {updateRateMode === 'FLAT' && (
                 <div>
-                  <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+                  <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
                     New Stitching Rate (₹)
                   </label>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 font-mono font-bold text-slate-500">₹</span>
+                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-mono font-bold text-slate-400">₹</span>
                     <input
                       type="number"
                       step="0.01"
                       value={newRateValue}
                       onChange={(e) => setNewRateValue(e.target.value)}
-                      className="w-full pl-7 pr-3 py-2 bg-slate-50 border rounded-[7px] text-xs font-mono font-bold outline-none focus:bg-white"
-                      style={{ borderColor: 'var(--border, #E2E8F0)' }}
+                      className="w-full pl-8 pr-3.5 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-mono font-bold text-slate-900 outline-none shadow-2xs transition-all"
                       autoFocus
                     />
                   </div>
@@ -1200,7 +1178,7 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                 <div className="space-y-3">
                   {/* Quick Preset Buttons */}
                   <div>
-                    <span className="block text-[10.5px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+                    <span className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5 font-mono">
                       Quick Fill Presets:
                     </span>
                     <div className="flex flex-wrap gap-1.5">
@@ -1216,23 +1194,23 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                             }))
                             setUpdateSizeRateRows(newRows)
                           }}
-                          className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-[11px] font-semibold border border-slate-200 transition-colors"
+                          className="px-2.5 py-1 bg-white hover:bg-slate-100 text-slate-800 rounded-lg text-xs font-semibold border border-slate-200 shadow-2xs transition-colors cursor-pointer"
                         >
                           {preset.label}
                         </button>
                       ))}
                     </div>
                   </div>
-                  <div className="border rounded-[8px] overflow-hidden" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
-                    <div className="bg-slate-50 px-3 py-2 border-b grid grid-cols-12 gap-2 text-[11px] font-bold text-slate-600 uppercase" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+                  <div className="border border-slate-200 rounded-xl overflow-hidden shadow-2xs">
+                    <div className="bg-[#FAF7F0] px-3.5 py-2 border-b border-black/10 grid grid-cols-12 gap-2 text-xs font-bold text-slate-700 uppercase font-mono">
                       <div className="col-span-5">Size</div>
                       <div className="col-span-6">Rate (₹)</div>
                       <div className="col-span-1"></div>
                     </div>
 
-                    <div className="divide-y max-h-[180px] overflow-y-auto" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+                    <div className="divide-y divide-slate-100 max-h-[180px] overflow-y-auto">
                       {updateSizeRateRows.map((row, idx) => (
-                        <div key={row.id} className="p-2 grid grid-cols-12 gap-2 items-center">
+                        <div key={row.id} className="p-2.5 grid grid-cols-12 gap-2 items-center hover:bg-slate-50/50">
                           <div className="col-span-5">
                             <input
                               type="text"
@@ -1242,8 +1220,7 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                                 updated[idx].size = e.target.value
                                 setUpdateSizeRateRows(updated)
                               }}
-                              className="w-full px-2 py-1 bg-white border rounded text-xs font-mono font-bold outline-none"
-                              style={{ borderColor: 'var(--border, #E2E8F0)' }}
+                              className="w-full px-3 py-1.5 bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-1 focus:ring-[#3A3564] rounded-lg text-xs sm:text-sm font-mono font-bold text-slate-900 outline-none"
                             />
                           </div>
                           <div className="col-span-6 relative">
@@ -1257,8 +1234,7 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                                 updated[idx].rate = e.target.value
                                 setUpdateSizeRateRows(updated)
                               }}
-                              className="w-full pl-6 pr-2 py-1 bg-white border rounded text-xs font-mono font-bold outline-none text-indigo-900"
-                              style={{ borderColor: 'var(--border, #E2E8F0)' }}
+                              className="w-full pl-6 pr-2.5 py-1.5 bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-1 focus:ring-[#3A3564] rounded-lg text-xs sm:text-sm font-mono font-bold text-[#3A3564] outline-none"
                             />
                           </div>
                           <div className="col-span-1 text-center">
@@ -1269,7 +1245,7 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                                   setUpdateSizeRateRows(updateSizeRateRows.filter(r => r.id !== row.id))
                                 }
                               }}
-                              className="p-1 text-slate-400 hover:text-rose-600 rounded"
+                              className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>
@@ -1278,17 +1254,17 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                       ))}
                     </div>
 
-                    <div className="p-2 bg-slate-50 border-t flex justify-between items-center" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+                    <div className="p-2.5 bg-slate-50 border-t border-slate-200 flex justify-between items-center">
                       <button
                         type="button"
                         onClick={() => {
                           const nextId = Date.now().toString()
                           setUpdateSizeRateRows([...updateSizeRateRows, { id: nextId, size: '', rate: '' }])
                         }}
-                        className="px-2.5 py-1 bg-white hover:bg-slate-100 text-indigo-700 rounded text-xs font-bold border border-indigo-200 flex items-center gap-1"
+                        className="px-3 py-1.5 bg-white hover:bg-slate-100 text-[#3A3564] rounded-lg text-xs font-bold border border-black/10 flex items-center gap-1.5 shadow-2xs cursor-pointer"
                       >
                         <Plus className="w-3.5 h-3.5" />
-                        Add Size Rate
+                        <span>Add Size Rate</span>
                       </button>
                     </div>
                   </div>
@@ -1296,7 +1272,7 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
               )}
 
               {rateUpdateError && (
-                <div className="p-2.5 rounded-[7px] text-[11.5px] font-medium" style={{ backgroundColor: 'var(--red-mist, #FBEAE8)', color: 'var(--red, #C0392B)' }}>
+                <div className="p-3 rounded-xl text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200">
                   {rateUpdateError}
                 </div>
               )}
@@ -1305,14 +1281,14 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                 <button
                   type="button"
                   onClick={() => setShowUpdateRateModal(false)}
-                  className="w-full py-2.5 px-4 rounded-xl text-xs font-bold border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition-colors cursor-pointer"
+                  className="w-full py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition-colors cursor-pointer shadow-2xs"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="w-full py-2.5 px-4 rounded-xl text-xs font-bold text-white transition-all cursor-pointer shadow-xs bg-[#3A3564] hover:bg-[#2A2649] disabled:opacity-50"
+                  className="w-full py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold text-white transition-all cursor-pointer shadow-xs bg-[#3A3564] hover:bg-[#2A2649] disabled:opacity-50 active:scale-[0.98]"
                 >
                   {isPending ? 'Updating...' : 'Update & Log'}
                 </button>
@@ -1327,28 +1303,26 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
       {/* ======================================================== */}
       {showHistoryModal && historyArticle && (
         <div 
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ backgroundColor: 'rgba(28,39,51,0.45)' }}
+          className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-in fade-in duration-200"
           onClick={(e) => {
             if (e.target === e.currentTarget) setShowHistoryModal(false)
           }}
         >
           <div 
-            className="w-full max-w-[440px] bg-white rounded-2xl p-6 shadow-2xl border border-black/10 relative space-y-4 animate-in fade-in zoom-in-95 duration-150"
+            className="w-full max-w-md bg-white rounded-2xl p-5 sm:p-6 shadow-2xl border border-black/10 relative space-y-4 animate-in zoom-in-95 duration-200"
           >
             <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
-              <div className="flex items-center gap-2.5">
+              <div className="flex items-center gap-3">
                 <div 
-                  className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs"
-                  style={{ backgroundColor: 'var(--steel-mist, #EEF3FA)', color: 'var(--steel, #2B4C7E)' }}
+                  className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs"
                 >
-                  <History className="w-4 h-4" />
+                  <History className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold font-[family-name:var(--font-heading)]" style={{ color: 'var(--ink, #1C2733)' }}>
+                  <h3 className="text-base sm:text-lg font-bold font-[family-name:var(--font-heading)] text-slate-900">
                     Rate History
                   </h3>
-                  <p className="text-xs text-slate-500 font-mono font-bold">
+                  <p className="text-xs font-mono font-bold text-slate-500">
                     {historyArticle.art_no} • Current: ₹{historyArticle.stitching_rate.toFixed(2)}
                   </p>
                 </div>
@@ -1357,39 +1331,37 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
               <button
                 type="button"
                 onClick={() => setShowHistoryModal(false)}
-                className="w-7 h-7 rounded-[6px] border flex items-center justify-center text-slate-400 hover:text-slate-700"
-                style={{ borderColor: 'var(--border, #E2E8F0)' }}
+                className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
               >
-                <X className="w-3.5 h-3.5" />
+                <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* History Feed */}
-            <div className="max-h-72 overflow-y-auto space-y-2 text-xs">
+            <div className="max-h-72 overflow-y-auto space-y-2 text-xs sm:text-[13px]">
               {loadingHistory ? (
                 <div className="p-8 text-center text-slate-400">Loading history...</div>
               ) : specificHistoryList.length === 0 ? (
                 <div className="p-8 text-center text-slate-400 space-y-1">
                   <Clock className="w-6 h-6 mx-auto text-slate-300" />
                   <p className="font-semibold text-slate-600">No previous rate changes.</p>
-                  <p className="text-[11px]">This article has maintained its initial creation rate of ₹{historyArticle.stitching_rate.toFixed(2)}/pc.</p>
+                  <p className="text-xs text-slate-500">This article has maintained its initial creation rate of ₹{historyArticle.stitching_rate.toFixed(2)}/pc.</p>
                 </div>
               ) : (
                 specificHistoryList.map((item) => (
                   <div 
                     key={item.id}
-                    className="p-3 bg-slate-50 rounded-[8px] border flex items-center justify-between"
-                    style={{ borderColor: 'var(--border, #E2E8F0)' }}
+                    className="p-3 bg-slate-50 rounded-xl border border-slate-200/80 flex items-center justify-between"
                   >
                     <div>
                       <div className="font-medium text-slate-700 font-mono">
-                        ₹{item.old_rate.toFixed(2)} → <span className="font-bold text-[var(--steel,#2B4C7E)]">₹{item.new_rate.toFixed(2)}</span>
+                        ₹{item.old_rate.toFixed(2)} → <span className="font-bold text-[#3A3564]">₹{item.new_rate.toFixed(2)}</span>
                       </div>
-                      <div className="text-[10.5px] text-slate-400 mt-0.5 font-[family-name:var(--font-jetbrains-mono)]">
+                      <div className="text-xs text-slate-500 mt-0.5 font-mono">
                         Effective {formatRateDate(item.created_at)}
                       </div>
                     </div>
-                    <span className="text-[10.5px] px-2 py-0.5 rounded bg-white border border-slate-200 font-semibold text-slate-600">
+                    <span className="text-xs px-2.5 py-1 rounded-full bg-white border border-slate-200 font-bold text-slate-700 shadow-2xs">
                       Logged
                     </span>
                   </div>
@@ -1397,11 +1369,11 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
               )}
             </div>
 
-            <div className="pt-2 border-t flex justify-end" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+            <div className="pt-3 border-t border-slate-100 flex justify-end">
               <button
                 type="button"
                 onClick={() => setShowHistoryModal(false)}
-                className="px-4 py-2 rounded-[7px] text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors"
+                className="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer"
               >
                 Close
               </button>

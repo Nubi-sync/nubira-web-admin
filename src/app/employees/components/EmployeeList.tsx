@@ -26,10 +26,10 @@ type Profile = {
   created_at: string
 }
 
-// Role Badge Styling Lookup (Tiered Steel/Neutral Hierarchy - Zero Purple!)
+// Role Badge Styling Lookup
 const ROLE_BADGE_STYLES: Record<string, { bg: string; text: string; label: string }> = {
   ADMIN: {
-    bg: 'var(--steel-dark, #1F3A63)',
+    bg: '#3A3564',
     text: '#FFFFFF',
     label: 'ADMIN'
   },
@@ -44,23 +44,23 @@ const ROLE_BADGE_STYLES: Record<string, { bg: string; text: string; label: strin
     label: 'MENDING'
   },
   PRODUCTION: {
-    bg: 'var(--steel, #2B4C7E)',
+    bg: '#334155',
     text: '#FFFFFF',
     label: 'PRODUCTION'
   },
   DISPATCH: {
-    bg: 'var(--steel-tint, #DBE6F5)',
-    text: 'var(--steel-dark, #1F3A63)',
+    bg: '#FEF3C7',
+    text: '#92400E',
     label: 'DISPATCH'
   },
   STORE: {
-    bg: 'var(--ink-mist, #F1F3F5)',
-    text: 'var(--ink-soft, #5B6B7C)',
+    bg: '#F1F5F9',
+    text: '#334155',
     label: 'STORE'
   },
   LINEMAN: {
-    bg: 'var(--ink-mist, #F1F3F5)',
-    text: 'var(--ink-soft, #5B6B7C)',
+    bg: '#F1F5F9',
+    text: '#334155',
     label: 'LINEMAN'
   }
 }
@@ -218,7 +218,7 @@ export function EmployeeList({ employees }: { employees: Profile[] }) {
           <span className="text-sm font-bold text-slate-900">
             Staff Directory
           </span>
-          <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs">
+          <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs">
             {filteredEmployees.length} {filteredEmployees.length === 1 ? 'user' : 'users'}
           </span>
         </div>
@@ -238,9 +238,9 @@ export function EmployeeList({ employees }: { employees: Profile[] }) {
 
       {/* Table */}
       <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse text-xs">
+        <table className="w-full text-left border-collapse text-xs sm:text-[13px]">
           <thead>
-            <tr className="bg-slate-50 border-b text-[11px] uppercase tracking-wider font-bold" style={{ borderColor: 'var(--border, #E2E8F0)', color: 'var(--ink-soft, #5B6B7C)' }}>
+            <tr className="bg-[#FAF7F0] border-b border-black/10 text-xs font-mono uppercase tracking-wider font-bold text-slate-700">
               
               {/* Sortable Username */}
               <th 
@@ -250,9 +250,9 @@ export function EmployeeList({ employees }: { employees: Profile[] }) {
                 <div className="flex items-center gap-1.5">
                   <span>Username</span>
                   {sortOrder === 'asc' ? (
-                    <ArrowUp className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" />
+                    <ArrowUp className="w-3.5 h-3.5 text-[#3A3564]" />
                   ) : (
-                    <ArrowDown className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" />
+                    <ArrowDown className="w-3.5 h-3.5 text-[#3A3564]" />
                   )}
                 </div>
               </th>
@@ -268,8 +268,8 @@ export function EmployeeList({ employees }: { employees: Profile[] }) {
                 <td colSpan={4} className="px-6 py-12 text-center text-slate-500">
                   <div className="flex flex-col items-center justify-center space-y-2">
                     <Users className="w-8 h-8 text-slate-300" />
-                    <p className="text-xs font-semibold text-slate-600">No staff members found matching "{searchTerm}"</p>
-                    <p className="text-[11px] text-slate-400">Clear search or add a new employee from the left form.</p>
+                    <p className="text-sm font-semibold text-slate-700">No staff members found matching "{searchTerm}"</p>
+                    <p className="text-xs text-slate-500">Clear search or add a new employee from the left form.</p>
                   </div>
                 </td>
               </tr>
@@ -277,8 +277,8 @@ export function EmployeeList({ employees }: { employees: Profile[] }) {
               filteredEmployees.map((emp) => {
                 const isAdminAccount = emp.username === 'admin'
                 const roleBadge = ROLE_BADGE_STYLES[emp.role] || {
-                  bg: 'var(--ink-mist, #F1F3F5)',
-                  text: 'var(--ink-soft, #5B6B7C)',
+                  bg: '#F1F5F9',
+                  text: '#334155',
                   label: emp.role
                 }
 
@@ -287,18 +287,17 @@ export function EmployeeList({ employees }: { employees: Profile[] }) {
                     
                     {/* Username */}
                     <td className="px-5 py-3.5">
-                      <div className="font-semibold text-slate-900 flex items-center gap-2">
+                      <div className="font-bold text-slate-900 text-sm flex items-center gap-2">
                         <span>{emp.username}</span>
                         {isAdminAccount && (
                           <span 
-                            className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9.5px] font-bold"
-                            style={{ backgroundColor: 'var(--steel-mist, #EEF3FA)', color: 'var(--steel-dark, #1F3A63)' }}
+                            className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-md text-xs font-bold font-mono bg-[#FAF7F0] text-[#3A3564] border border-black/10"
                           >
                             Primary
                           </span>
                         )}
                       </div>
-                      <div className="text-[10.5px] text-slate-400 font-mono mt-0.5">
+                      <div className="text-xs text-slate-500 font-mono mt-0.5">
                         Created {emp.created_at?.split('T')[0]}
                       </div>
                     </td>
@@ -307,7 +306,7 @@ export function EmployeeList({ employees }: { employees: Profile[] }) {
                     <td className="px-4 py-3.5">
                       {isAdminAccount ? (
                         <span 
-                          className="inline-flex items-center px-2.5 py-1 rounded-full text-[10.5px] font-semibold shadow-2xs"
+                          className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-bold shadow-2xs"
                           style={{ backgroundColor: roleBadge.bg, color: roleBadge.text }}
                         >
                           {roleBadge.label}
@@ -317,12 +316,7 @@ export function EmployeeList({ employees }: { employees: Profile[] }) {
                           value={emp.role}
                           onChange={(e) => handleRoleChange(emp.id, e.target.value)}
                           disabled={loadingId === emp.id}
-                          className="inline-flex items-center px-2.5 py-1 rounded-[6px] text-xs font-semibold border outline-none cursor-pointer disabled:opacity-50 transition-colors"
-                          style={{
-                            borderColor: 'var(--border, #E2E8F0)',
-                            backgroundColor: roleBadge.bg,
-                            color: roleBadge.text
-                          }}
+                          className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 outline-none cursor-pointer disabled:opacity-50 transition-colors shadow-2xs"
                         >
                           <option value="PRODUCTION_MANAGER">PROD MANAGER (Floor & Pipeline)</option>
                           <option value="MENDING">MENDING (Matrix Counting)</option>
@@ -338,11 +332,11 @@ export function EmployeeList({ employees }: { employees: Profile[] }) {
                     {/* Status Badge */}
                     <td className="px-4 py-3.5">
                       <span 
-                        className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold"
-                        style={{
-                          backgroundColor: emp.is_active ? 'var(--green-mist, #E6F6EE)' : 'var(--red-mist, #FBEAE8)',
-                          color: emp.is_active ? 'var(--green, #1F9D63)' : 'var(--red, #C0392B)'
-                        }}
+                        className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold border ${
+                          emp.is_active 
+                            ? 'bg-emerald-50 text-emerald-800 border-emerald-200' 
+                            : 'bg-slate-100 text-slate-600 border-slate-200'
+                        }`}
                       >
                         {emp.is_active ? 'Active' : 'Inactive'}
                       </span>
@@ -353,11 +347,11 @@ export function EmployeeList({ employees }: { employees: Profile[] }) {
                       {/* Reset Password */}
                       {isAdminAccount ? (
                         <span 
-                          className="text-[11px] font-medium px-2.5 py-1 rounded-[6px] text-slate-400 bg-slate-100 opacity-60 inline-flex items-center gap-1 cursor-not-allowed"
+                          className="text-xs font-semibold px-3 py-1.5 rounded-lg text-slate-400 bg-slate-100 opacity-60 inline-flex items-center gap-1.5 cursor-not-allowed"
                           title="Primary Admin credentials are protected"
                         >
-                          <KeyRound className="w-3 h-3 text-slate-400" />
-                          Protected
+                          <KeyRound className="w-3.5 h-3.5 text-slate-400" />
+                          <span>Protected</span>
                         </span>
                       ) : (
                         <button
@@ -368,11 +362,10 @@ export function EmployeeList({ employees }: { employees: Profile[] }) {
                             setResetError(null)
                             setResetSuccess(false)
                           }}
-                          className="text-[11px] font-semibold px-2.5 py-1 rounded-[6px] border bg-white hover:bg-slate-50 text-slate-700 transition-colors inline-flex items-center gap-1 cursor-pointer shadow-2xs"
-                          style={{ borderColor: 'var(--border, #E2E8F0)' }}
+                          className="text-xs font-bold px-3 py-1.5 rounded-lg border border-black/10 bg-[#FAF7F0] hover:bg-slate-100 text-[#3A3564] transition-all inline-flex items-center gap-1.5 cursor-pointer shadow-2xs"
                         >
-                          <KeyRound className="w-3 h-3 text-slate-500" />
-                          Reset Password
+                          <KeyRound className="w-3.5 h-3.5 text-[#3A3564]" />
+                          <span>Reset Password</span>
                         </button>
                       )}
 
@@ -383,10 +376,10 @@ export function EmployeeList({ employees }: { employees: Profile[] }) {
                             type="button"
                             onClick={() => setToggleDialog({ isOpen: true, employee: emp })}
                             disabled={loadingId === emp.id}
-                            className={`text-[11px] font-semibold px-2.5 py-1 rounded-[6px] border transition-colors cursor-pointer disabled:opacity-50 ${
+                            className={`text-xs font-bold px-3 py-1.5 rounded-lg border transition-all cursor-pointer disabled:opacity-50 shadow-2xs ${
                               emp.is_active
-                                ? 'text-amber-700 bg-amber-50 border-amber-200 hover:bg-amber-100'
-                                : 'text-emerald-700 bg-emerald-50 border-emerald-200 hover:bg-emerald-100'
+                                ? 'text-amber-900 bg-amber-50 border-amber-300 hover:bg-amber-100'
+                                : 'text-emerald-800 bg-emerald-50 border-emerald-300 hover:bg-emerald-100'
                             }`}
                           >
                             {emp.is_active ? 'Deactivate' : 'Activate'}
@@ -396,7 +389,7 @@ export function EmployeeList({ employees }: { employees: Profile[] }) {
                             type="button"
                             onClick={() => setDeleteDialog({ isOpen: true, employee: emp })}
                             disabled={loadingId === emp.id}
-                            className="text-[11px] font-semibold px-2 py-1 rounded-[6px] border text-red-600 bg-red-50 border-red-200 hover:bg-red-100 transition-colors cursor-pointer disabled:opacity-50"
+                            className="p-2 rounded-lg border border-rose-200 text-rose-600 bg-rose-50 hover:bg-rose-100 transition-all cursor-pointer disabled:opacity-50 shadow-2xs"
                             title="Permanently delete user"
                           >
                             <Trash2 className="w-3.5 h-3.5 inline" />
@@ -415,35 +408,32 @@ export function EmployeeList({ employees }: { employees: Profile[] }) {
 
       {/* Admin Direct Password Reset Modal */}
       {selectedEmp && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-2xs animate-in fade-in duration-150">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/60 backdrop-blur-sm animate-in fade-in duration-200">
           <div 
-            className="w-full max-w-sm bg-white rounded-[11px] p-6 shadow-2xl border relative space-y-4"
-            style={{ borderColor: 'var(--border, #E2E8F0)' }}
+            className="w-full max-w-sm bg-white rounded-2xl p-5 sm:p-6 shadow-2xl border border-black/10 relative space-y-4 animate-in zoom-in-95 duration-200"
           >
             <button
               type="button"
               onClick={() => setSelectedEmp(null)}
-              className="absolute top-4 right-4 text-slate-400 hover:text-slate-700 cursor-pointer"
+              className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer absolute top-4 right-4"
             >
               <X className="w-5 h-5" />
             </button>
 
             <div className="flex items-center gap-3">
               <div 
-                className="w-9 h-9 rounded-[8px] flex items-center justify-center shrink-0"
-                style={{ backgroundColor: 'var(--steel-mist, #EEF3FA)', color: 'var(--steel, #2B4C7E)' }}
+                className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs"
               >
-                <KeyRound className="w-4 h-4" />
+                <KeyRound className="w-5 h-5" />
               </div>
               <div>
                 <h3 
-                  className="text-base font-bold font-[family-name:var(--font-heading)]"
-                  style={{ color: 'var(--ink, #1C2733)' }}
+                  className="text-base sm:text-lg font-bold font-[family-name:var(--font-heading)] text-slate-900"
                 >
                   Reset Staff Password
                 </h3>
-                <p className="text-xs text-slate-500">
-                  User: <span className="font-semibold text-slate-900">{selectedEmp.username}</span>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  User: <span className="font-bold text-slate-900">{selectedEmp.username}</span>
                 </p>
               </div>
             </div>
@@ -451,13 +441,13 @@ export function EmployeeList({ employees }: { employees: Profile[] }) {
             {resetSuccess ? (
               <div className="py-4 text-center space-y-2">
                 <CheckCircle2 className="w-8 h-8 text-emerald-600 mx-auto" />
-                <p className="text-sm font-bold text-slate-800">Password Updated Successfully!</p>
+                <p className="text-sm font-bold text-slate-900">Password Updated Successfully!</p>
                 <p className="text-xs text-slate-500">Staff member can now log in with the new password.</p>
               </div>
             ) : (
-              <form onSubmit={handleResetPassword} className="space-y-4 text-xs">
+              <form onSubmit={handleResetPassword} className="space-y-4 text-xs sm:text-[13px]">
                 <div>
-                  <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1.5 text-slate-700">
+                  <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
                     New Password
                   </label>
                   <input
@@ -466,32 +456,28 @@ export function EmployeeList({ employees }: { employees: Profile[] }) {
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     placeholder="Enter at least 6 characters"
-                    className="w-full px-3 py-2 border rounded-[8px] text-xs outline-none bg-slate-50 focus:bg-white"
-                    style={{ borderColor: 'var(--border, #E2E8F0)' }}
-                    onFocus={(e) => e.currentTarget.style.borderColor = 'var(--steel, #2B4C7E)'}
-                    onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border, #E2E8F0)'}
+                    className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold outline-none bg-slate-50/70 focus:bg-white focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 transition-all shadow-2xs"
                   />
                 </div>
 
                 {resetError && (
-                  <p className="text-[11px] font-medium" style={{ color: 'var(--red, #C0392B)' }}>
+                  <p className="text-xs font-semibold text-rose-600">
                     {resetError}
                   </p>
                 )}
 
-                <div className="flex items-center gap-2 pt-2">
+                <div className="flex items-center gap-3 pt-2">
                   <button
                     type="button"
                     onClick={() => setSelectedEmp(null)}
-                    className="flex-1 py-2 px-3 rounded-[7px] text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors"
+                    className="flex-1 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-2xs cursor-pointer"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={isResetting}
-                    className="flex-2 py-2 px-4 rounded-[7px] text-xs font-semibold text-white transition-colors cursor-pointer disabled:opacity-60 shadow-xs"
-                    style={{ backgroundColor: 'var(--steel, #2B4C7E)' }}
+                    className="flex-2 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold text-white transition-all cursor-pointer disabled:opacity-60 shadow-xs bg-[#3A3564] hover:bg-[#2A2649] active:scale-[0.98]"
                   >
                     {isResetting ? 'Saving...' : 'Set Password'}
                   </button>

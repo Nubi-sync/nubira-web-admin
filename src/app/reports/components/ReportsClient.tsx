@@ -778,10 +778,10 @@ export function ReportsClient({
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs">
+            <table className="w-full text-left border-collapse text-xs sm:text-[13px]">
               <thead>
                 <tr 
-                  className="bg-[#FAF7F0] border-b border-slate-100 text-[11px] font-mono uppercase tracking-wider font-bold text-slate-500" 
+                  className="bg-[#FAF7F0] border-b border-black/10 text-xs font-mono uppercase tracking-wider font-bold text-slate-700" 
                 >
                   {activeTab === 'production' && (
                     <>
@@ -837,25 +837,25 @@ export function ReportsClient({
                     {/* TAB 1: DAILY PRODUCTION */}
                     {activeTab === 'production' && (
                       <>
-                        <td className="px-5 py-3 font-medium text-slate-900 font-mono text-[11px]">
+                        <td className="px-5 py-3 font-medium text-slate-900 font-mono text-xs">
                           {row.entry_date}
                         </td>
-                        <td className="px-4 py-3 font-semibold text-[var(--steel,#2B4C7E)]">
+                        <td className="px-4 py-3 font-bold text-[#3A3564]">
                           {row.lineman?.username || '-'}
                         </td>
-                        <td className="px-4 py-3 font-bold text-slate-800 font-mono">
+                        <td className="px-4 py-3 font-bold text-slate-900 font-mono">
                           {row.article?.art_no || '-'}
                         </td>
-                        <td className="px-4 py-3 text-slate-600">
+                        <td className="px-4 py-3 text-slate-700">
                           {row.color || row.size ? `${row.color || '-'} / ${row.size || '-'}` : '-'}
                         </td>
-                        <td className="px-4 py-3 text-slate-500">
+                        <td className="px-4 py-3 text-slate-600">
                           {row.article?.description || '-'}
                         </td>
-                        <td className="px-4 py-3 font-bold font-mono text-slate-900">
+                        <td className="px-4 py-3 font-bold font-mono text-slate-900 text-sm">
                           {row.quantity} pcs
                         </td>
-                        <td className="px-5 py-3 text-slate-400 text-[11px]">
+                        <td className="px-5 py-3 text-slate-500 text-xs">
                           {row.notes || '-'}
                         </td>
                       </>
@@ -864,19 +864,19 @@ export function ReportsClient({
                     {/* TAB 2: WORKER ASSIGNMENTS */}
                     {activeTab === 'workers' && (
                       <>
-                        <td className="px-5 py-3 font-medium text-slate-900 font-mono text-[11px]">
+                        <td className="px-5 py-3 font-medium text-slate-900 font-mono text-xs">
                           {row.entry_date || (row.assigned_at ? row.assigned_at.split('T')[0] : '-')}
                         </td>
-                        <td className="px-4 py-3 font-bold text-slate-800">
+                        <td className="px-4 py-3 font-bold text-slate-900">
                           {row.worker_name || 'Floor Worker'}
                         </td>
-                        <td className="px-4 py-3 font-semibold text-[var(--steel,#2B4C7E)]">
+                        <td className="px-4 py-3 font-bold text-[#3A3564]">
                           {row.lineman?.username || '-'}
                         </td>
-                        <td className="px-4 py-3 font-bold font-mono text-slate-800">
+                        <td className="px-4 py-3 font-bold font-mono text-slate-900">
                           {row.article?.art_no || '-'}
                         </td>
-                        <td className="px-4 py-3 text-slate-600">
+                        <td className="px-4 py-3 text-slate-700">
                           {row.color || row.size ? `${row.color || '-'} / ${row.size || '-'}` : '-'}
                         </td>
                         <td className="px-4 py-3 font-bold font-mono">
@@ -886,10 +886,10 @@ export function ReportsClient({
                         </td>
                         <td className="px-5 py-3 text-center">
                           <span 
-                            className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                            className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold border ${
                               row.status === 'COMPLETED'
-                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                : 'bg-amber-50 text-amber-700 border border-amber-200'
+                                ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                                : 'bg-amber-50 text-amber-900 border-amber-300'
                             }`}
                           >
                             {row.status}
@@ -901,31 +901,31 @@ export function ReportsClient({
                     {/* TAB 3: QC & FINISHING */}
                     {activeTab === 'qc' && (
                       <>
-                        <td className="px-5 py-3 font-medium text-slate-900 font-mono text-[11px]">
+                        <td className="px-5 py-3 font-medium text-slate-900 font-mono text-xs">
                           {row.entry_date}
                         </td>
                         <td className="px-4 py-3">
-                          <span className="px-2 py-0.5 rounded bg-slate-100 font-semibold text-[10.5px] text-slate-700 border">
+                          <span className="px-2.5 py-1 rounded-lg bg-slate-100 font-bold text-xs text-slate-700 border border-slate-200 shadow-2xs">
                             {row.stage}
                           </span>
                         </td>
-                        <td className="px-4 py-3 font-semibold text-[var(--steel,#2B4C7E)]">
+                        <td className="px-4 py-3 font-bold text-[#3A3564]">
                           {row.lineman?.username || '-'}
                         </td>
-                        <td className="px-4 py-3 font-bold font-mono text-slate-800">
+                        <td className="px-4 py-3 font-bold font-mono text-slate-900">
                           {row.article?.art_no || '-'}
                         </td>
                         <td className="px-4 py-3 font-mono font-semibold">
-                          <span className="text-emerald-600 font-bold">{row.qty_passed} pass</span>
+                          <span className="text-emerald-700 font-bold">{row.qty_passed} pass</span>
                           <span className="text-slate-300"> • </span>
                           <span className={row.qty_rejected > 0 ? 'text-rose-600 font-bold' : 'text-slate-400'}>
                             {row.qty_rejected} rej
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-slate-600">
+                        <td className="px-4 py-3 text-slate-700">
                           {row.defect_type || '-'}
                         </td>
-                        <td className="px-5 py-3 text-slate-400 text-[11px]">
+                        <td className="px-5 py-3 text-slate-500 text-xs">
                           {row.remarks || '-'}
                         </td>
                       </>
@@ -934,27 +934,27 @@ export function ReportsClient({
                     {/* TAB 4: STORE INVENTORY */}
                     {activeTab === 'inventory' && (
                       <>
-                        <td className="px-5 py-3 font-medium text-slate-900 font-mono text-[11px]">
+                        <td className="px-5 py-3 font-medium text-slate-900 font-mono text-xs">
                           {(row.entry_date || row.created_at).split('T')[0]}
                         </td>
                         <td className="px-4 py-3">
                           <span 
-                            className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10.5px] font-bold ${
+                            className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold border ${
                               row.type === 'INWARD'
-                                ? 'bg-emerald-50 text-emerald-700'
-                                : 'bg-blue-50 text-blue-700'
+                                ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                                : 'bg-[#FAF7F0] text-[#3A3564] border-black/10'
                             }`}
                           >
                             {row.type}
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-slate-700 font-medium">
+                        <td className="px-4 py-3 text-slate-900 font-semibold">
                           {row.party_name || '-'}
                         </td>
-                        <td className="px-4 py-3 font-bold font-mono text-slate-800">
+                        <td className="px-4 py-3 font-bold font-mono text-slate-900">
                           {row.article?.art_no || '-'}
                         </td>
-                        <td className="px-5 py-3 font-bold font-mono text-slate-900">
+                        <td className="px-5 py-3 font-bold font-mono text-slate-900 text-sm">
                           {row.quantity} units
                         </td>
                       </>
@@ -970,20 +970,18 @@ export function ReportsClient({
         {/* 6. Pagination Footer */}
         {totalItems > 0 && (
           <div 
-            className="p-4 border-t bg-slate-50/60 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs" 
-            style={{ borderColor: 'var(--border, #E2E8F0)' }}
+            className="p-4 border-t border-slate-100 bg-slate-50/60 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs sm:text-[13px]" 
           >
-            <div style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
-              Showing <span className="font-semibold">{(currentPage - 1) * pageSize + 1}</span>–<span className="font-semibold">{Math.min(currentPage * pageSize, totalItems)}</span> of <span className="font-semibold">{totalItems}</span> entries
+            <div className="text-slate-600 font-medium">
+              Showing <span className="font-bold text-slate-900">{(currentPage - 1) * pageSize + 1}</span>–<span className="font-bold text-slate-900">{Math.min(currentPage * pageSize, totalItems)}</span> of <span className="font-bold text-slate-900">{totalItems}</span> entries
             </div>
 
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1.5">
               <button
                 type="button"
                 disabled={currentPage === 1}
                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                className="p-1.5 rounded-[6px] border bg-white text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors cursor-pointer"
-                style={{ borderColor: 'var(--border, #E2E8F0)' }}
+                className="p-2 rounded-xl border border-slate-200 bg-white text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors cursor-pointer shadow-2xs"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
@@ -995,14 +993,11 @@ export function ReportsClient({
                     key={pg}
                     type="button"
                     onClick={() => setCurrentPage(pg)}
-                    className={`w-7 h-7 rounded-[6px] text-xs font-semibold border transition-colors cursor-pointer ${
+                    className={`w-8 h-8 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shadow-2xs ${
                       isActive
-                        ? 'text-white border-transparent'
-                        : 'bg-white text-slate-700 hover:bg-slate-50 border-[var(--border,#E2E8F0)]'
+                        ? 'bg-[#3A3564] text-white shadow-xs'
+                        : 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-200'
                     }`}
-                    style={{
-                      backgroundColor: isActive ? 'var(--steel, #2B4C7E)' : '#FFFFFF'
-                    }}
                   >
                     {pg}
                   </button>
@@ -1013,8 +1008,7 @@ export function ReportsClient({
                 type="button"
                 disabled={currentPage === totalPages}
                 onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                className="p-1.5 rounded-[6px] border bg-white text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors cursor-pointer"
-                style={{ borderColor: 'var(--border, #E2E8F0)' }}
+                className="p-2 rounded-xl border border-slate-200 bg-white text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors cursor-pointer shadow-2xs"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
@@ -1029,59 +1023,59 @@ export function ReportsClient({
       {/* ======================================================== */}
       {showCustomModal && (
         <div 
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/45 backdrop-blur-2xs"
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/60 backdrop-blur-sm animate-in fade-in duration-200"
           onClick={(e) => {
             if (e.target === e.currentTarget) setShowCustomModal(false)
           }}
         >
           <div 
-            className="w-full max-w-sm bg-white rounded-2xl p-6 shadow-2xl border border-black/10 space-y-4 animate-in fade-in zoom-in-95 duration-150"
+            className="w-full max-w-sm bg-white rounded-2xl p-5 sm:p-6 shadow-2xl border border-black/10 space-y-4 animate-in zoom-in-95 duration-200"
           >
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+                <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
                   <Calendar className="w-4 h-4" />
                 </div>
-                <h3 className="text-sm font-bold font-[family-name:var(--font-heading)] text-slate-900">
-                  Select Custom Date Range
+                <h3 className="text-base font-bold font-[family-name:var(--font-heading)] text-slate-900">
+                  Custom Date Range
                 </h3>
               </div>
               <button
                 type="button"
                 onClick={() => setShowCustomModal(false)}
-                className="w-7 h-7 rounded-lg border border-slate-200 flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
+                className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
               >
-                <X className="w-3.5 h-3.5" />
+                <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="space-y-3 text-xs">
+            <div className="space-y-3.5 text-xs sm:text-[13px]">
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Start Date</label>
+                <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">Start Date</label>
                 <input
                   type="date"
                   value={customStartDate}
                   onChange={(e) => setCustomStartDate(e.target.value)}
-                  className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl bg-slate-50/70 text-sm font-medium outline-none focus:bg-white focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 transition-all shadow-2xs"
+                  className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl bg-slate-50/70 text-sm font-semibold outline-none focus:bg-white focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 transition-all shadow-2xs"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">End Date</label>
+                <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">End Date</label>
                 <input
                   type="date"
                   value={customEndDate}
                   onChange={(e) => setCustomEndDate(e.target.value)}
-                  className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl bg-slate-50/70 text-sm font-medium outline-none focus:bg-white focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 transition-all shadow-2xs"
+                  className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl bg-slate-50/70 text-sm font-semibold outline-none focus:bg-white focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 transition-all shadow-2xs"
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-2.5 pt-2 border-t border-slate-100">
+            <div className="grid grid-cols-2 gap-3 pt-2 border-t border-slate-100">
               <button
                 type="button"
                 onClick={() => setShowCustomModal(false)}
-                className="py-2.5 rounded-xl text-xs font-bold border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 cursor-pointer transition-colors"
+                className="py-2.5 rounded-xl text-xs sm:text-sm font-semibold border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 cursor-pointer transition-colors shadow-2xs"
               >
                 Cancel
               </button>
@@ -1095,7 +1089,7 @@ export function ReportsClient({
                   }
                 }}
                 disabled={!customStartDate || !customEndDate}
-                className="py-2.5 rounded-xl text-xs font-bold text-white transition-all disabled:opacity-50 cursor-pointer shadow-xs bg-[#3A3564] hover:bg-[#2A2649]"
+                className="py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white transition-all disabled:opacity-50 cursor-pointer shadow-xs bg-[#3A3564] hover:bg-[#2A2649] active:scale-[0.98]"
               >
                 Apply Range
               </button>

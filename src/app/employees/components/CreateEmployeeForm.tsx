@@ -66,7 +66,7 @@ export function CreateEmployeeForm() {
         </div>
       </div>
 
-      <form action={handleSubmit} autoComplete="off" className="space-y-4 text-xs">
+      <form action={handleSubmit} autoComplete="off" className="space-y-4 text-xs sm:text-[13px]">
         
         {/* Hidden dummy fields to absorb aggressive browser autofill */}
         <input type="text" name="prevent_autofill_user" tabIndex={-1} className="hidden" autoComplete="off" />
@@ -75,8 +75,7 @@ export function CreateEmployeeForm() {
         {/* Username */}
         <div>
           <label 
-            className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1.5"
-            style={{ color: 'var(--ink-soft, #5B6B7C)' }}
+            className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5"
           >
             Username
           </label>
@@ -88,18 +87,14 @@ export function CreateEmployeeForm() {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             placeholder="e.g. ramesh_stitch"
-            className="w-full bg-slate-50 border rounded-[8px] px-3.5 py-2.5 text-xs text-[var(--ink,#1C2733)] placeholder-slate-400 outline-none transition-all focus:bg-white"
-            style={{ borderColor: 'var(--border, #E2E8F0)' }}
-            onFocus={(e) => e.currentTarget.style.borderColor = 'var(--steel, #2B4C7E)'}
-            onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border, #E2E8F0)'}
+            className="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-slate-900 placeholder-slate-400 shadow-2xs outline-none transition-all"
           />
         </div>
 
         {/* Password */}
         <div>
           <label 
-            className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1.5"
-            style={{ color: 'var(--ink-soft, #5B6B7C)' }}
+            className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5"
           >
             Password
           </label>
@@ -111,18 +106,14 @@ export function CreateEmployeeForm() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••"
-            className="w-full bg-slate-50 border rounded-[8px] px-3.5 py-2.5 text-xs text-[var(--ink,#1C2733)] placeholder-slate-400 outline-none transition-all focus:bg-white"
-            style={{ borderColor: 'var(--border, #E2E8F0)' }}
-            onFocus={(e) => e.currentTarget.style.borderColor = 'var(--steel, #2B4C7E)'}
-            onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border, #E2E8F0)'}
+            className="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-slate-900 placeholder-slate-400 shadow-2xs outline-none transition-all"
           />
         </div>
 
         {/* Role Select with Validation States */}
         <div>
           <label 
-            className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1.5"
-            style={{ color: 'var(--ink-soft, #5B6B7C)' }}
+            className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5"
           >
             Role Assignment
           </label>
@@ -136,17 +127,11 @@ export function CreateEmployeeForm() {
                 setTouchedRole(true)
               }}
               onBlur={() => setTouchedRole(true)}
-              className="w-full bg-slate-50 border rounded-[8px] px-3.5 py-2.5 text-xs font-semibold outline-none transition-all cursor-pointer focus:bg-white"
-              style={{
-                borderColor: touchedRole && !isRoleValid 
-                  ? 'var(--red, #C0392B)' 
-                  : touchedRole && isRoleValid 
-                    ? 'var(--green, #1F9D63)' 
-                    : 'var(--border, #E2E8F0)',
-                backgroundColor: touchedRole && !isRoleValid 
-                  ? 'var(--red-mist, #FBEAE8)' 
-                  : '#F8FAFC'
-              }}
+              className={`w-full bg-slate-50/70 hover:bg-white focus:bg-white border focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-slate-900 shadow-2xs outline-none transition-all cursor-pointer ${
+                touchedRole && !isRoleValid
+                  ? 'border-rose-300 bg-rose-50/50 text-rose-900'
+                  : 'border-slate-200'
+              }`}
             >
               <option value="PRODUCTION_MANAGER">Production Manager (Live Floor & Pipeline Dashboard)</option>
               <option value="MENDING">Mending (Piece Counting & Matrix Reconciliation)</option>
@@ -158,8 +143,8 @@ export function CreateEmployeeForm() {
             </select>
           </div>
           {touchedRole && !isRoleValid && (
-            <p className="text-[11px] mt-1 font-medium flex items-center gap-1" style={{ color: 'var(--red, #C0392B)' }}>
-              <AlertCircle className="w-3 h-3" /> Please select an operational role.
+            <p className="text-xs mt-1.5 font-semibold flex items-center gap-1 text-rose-600">
+              <AlertCircle className="w-3.5 h-3.5" /> Please select an operational role.
             </p>
           )}
         </div>
@@ -167,8 +152,7 @@ export function CreateEmployeeForm() {
         {/* Error Alert */}
         {error && (
           <div 
-            className="p-3 rounded-[8px] text-xs font-medium flex items-center gap-2"
-            style={{ backgroundColor: 'var(--red-mist, #FBEAE8)', color: 'var(--red, #C0392B)' }}
+            className="p-3 rounded-xl text-xs font-semibold flex items-center gap-2 bg-rose-50 text-rose-700 border border-rose-200"
           >
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span>{error}</span>
@@ -178,26 +162,26 @@ export function CreateEmployeeForm() {
         {/* Success Alert */}
         {success && (
           <div 
-            className="p-3 rounded-[8px] text-xs font-medium flex items-center gap-2"
-            style={{ backgroundColor: 'var(--green-mist, #E6F6EE)', color: 'var(--green, #1F9D63)' }}
+            className="p-3 rounded-xl text-xs font-semibold flex items-center gap-2 bg-emerald-50 text-emerald-800 border border-emerald-200"
           >
             <CheckCircle2 className="w-4 h-4 shrink-0" />
             <span>Employee account created successfully!</span>
           </div>
         )}
 
-        {/* Submit Button (Midnight Violet, rounded-xl, full width) */}
+        {/* Submit Button */}
         <button
           type="submit"
           disabled={isPending}
-          className="w-full py-2.5 rounded-xl text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer disabled:opacity-50 mt-2"
+          className="w-full py-3 rounded-xl text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer disabled:opacity-50 mt-2"
         >
           {isPending ? (
             <>
-              <Loader2 className="w-4 h-4 animate-spin" /> Creating Account...
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span>Creating Account...</span>
             </>
           ) : (
-            'Create Employee'
+            <span>Create Employee</span>
           )}
         </button>
       </form>
