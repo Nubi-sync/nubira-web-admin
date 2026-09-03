@@ -493,11 +493,17 @@ export default function DashboardClient({
     const totalDispatched = filteredData.dispatch.reduce((sum, d) => sum + (d.total_pieces || 0), 0)
 
     // 6-Stage Specific Allocations
-    // Stage 1: Total Stocks (Pipeline Commitment)
+    // Stage 1: Total Stocks (Total Inward Production Challan Order Target)
     const stage1_totalStocks = Math.max(totalStocks, totalProduced + totalDispatched)
 
-    // Stage 2: Goods In Line (Active Sewing WIP on Karigar Floor)
-    const stage2_goodsInLine = Math.max(0, stage1_totalStocks - totalQCPassed - totalDispatched - totalQCRejected)
+    // Stage 2: Goods In Line (Only pieces actively allotted to Linemen & Karigars on sewing machines)
+    const activeLinemanAllotmentPcs = filteredData.allotments
+      .filter(al => al.lineman_id && al.status !== 'CANCELLED')
+      .reduce((sum, al) => sum + (Number(al.target_qty) || 0), 0)
+
+    const stage2_goodsInLine = activeLinemanAllotmentPcs > 0
+      ? Math.max(0, activeLinemanAllotmentPcs - totalQCPassed - totalDispatched - totalQCRejected)
+      : 0
 
     // Stage 3: Goods in Mending & Checking (Finishing QC Table + Defect Alteration)
     const stage3_mendingChecking = totalQCRejected + Math.max(0, totalProduced - totalQCPassed - totalDispatched)
