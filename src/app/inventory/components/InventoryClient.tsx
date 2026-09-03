@@ -1089,9 +1089,9 @@ export function InventoryClient({
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse text-xs">
+                <table className="w-full text-left border-collapse text-xs sm:text-[13px]">
                   <thead>
-                    <tr className="bg-slate-50 border-b text-[11px] uppercase tracking-wider font-bold" style={{ borderColor: 'var(--border, #E2E8F0)', color: 'var(--ink-soft, #5B6B7C)' }}>
+                    <tr className="bg-[#FAF7F0] border-b border-black/10 text-xs font-mono uppercase tracking-wider font-bold text-slate-700">
                       <th 
                         onClick={() => handleSort('date')}
                         className="px-5 py-3.5 cursor-pointer hover:bg-slate-100 transition-colors select-none font-bold"
@@ -1099,7 +1099,7 @@ export function InventoryClient({
                         <div className="flex items-center gap-1.5">
                           <span>GRN # & Date</span>
                           {sortCol === 'date' ? (
-                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" /> : <ArrowDown className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" />
+                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#3A3564]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#3A3564]" />
                           ) : (
                             <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
                           )}
@@ -1123,24 +1123,24 @@ export function InventoryClient({
                       return (
                         <tr key={row.id} className="hover:bg-slate-50/50 transition-colors align-top">
                           <td className="px-5 py-3.5 whitespace-nowrap">
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-[5px] text-[11px] font-mono font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                            <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs">
                               {row.grn_no}
                             </span>
-                            <div className="text-[11px] text-slate-500 mt-1 font-mono">
+                            <div className="text-xs text-slate-500 mt-1 font-mono">
                               {row.inward_date || row.created_at.split('T')[0]}
                             </div>
                           </td>
 
                           <td className="px-4 py-3.5">
-                            <div className="font-bold text-slate-900">{row.party_name}</div>
+                            <div className="font-bold text-sm text-slate-900">{row.party_name}</div>
                             {row.receiver_name && (
-                              <div className="text-[11px] text-slate-500 mt-0.5">By: {row.receiver_name}</div>
+                              <div className="text-xs text-slate-500 mt-0.5">By: {row.receiver_name}</div>
                             )}
                           </td>
 
                           <td className="px-4 py-3.5">
                             {row.article_no ? (
-                              <span className="inline-flex items-center px-2 py-0.5 rounded-[5px] text-[11px] font-bold bg-slate-100 text-slate-800">
+                              <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-100 text-slate-800 border border-slate-200">
                                 Art {row.article_no}
                               </span>
                             ) : (
@@ -1148,26 +1148,26 @@ export function InventoryClient({
                             )}
                           </td>
 
-                          <td className="px-4 py-3.5 text-slate-600 text-[11px]">
-                            <div>{row.challan_no ? 'Challan #' + row.challan_no : 'Direct Delivery'}</div>
+                          <td className="px-4 py-3.5 text-slate-600 text-xs sm:text-[13px]">
+                            <div className="font-medium text-slate-800">{row.challan_no ? 'Challan #' + row.challan_no : 'Direct Delivery'}</div>
                             {row.truck_no && (
-                              <div className="text-slate-400 mt-0.5">{row.truck_no}</div>
+                              <div className="text-slate-500 mt-0.5 font-mono">{row.truck_no}</div>
                             )}
                           </td>
 
                           <td className="px-4 py-3.5">
-                            <div className="space-y-1 max-w-md">
+                            <div className="space-y-1.5 max-w-md">
                               {(row.items || []).slice(0, isExpanded ? (row.items || []).length : 3).map((it, i) => (
-                                <div key={i} className="flex items-center gap-1.5 text-[11.5px] text-slate-700">
-                                  <span className={`w-1.5 h-1.5 rounded-full ${it.status === 'DUE' ? 'bg-purple-500' : it.status === 'SHORTAGE' ? 'bg-amber-500' : 'bg-emerald-500'}`} />
-                                  <span className="font-medium">{it.item_name}</span>
-                                  {it.size_label && <span className="text-slate-400 text-[10.5px]">({it.size_label})</span>}
-                                  <span className="text-slate-400 font-mono">: {it.quantity} {it.unit}</span>
+                                <div key={i} className="flex items-center gap-1.5 text-xs text-slate-700">
+                                  <span className={`w-2 h-2 rounded-full shrink-0 ${it.status === 'DUE' ? 'bg-purple-500' : it.status === 'SHORTAGE' ? 'bg-amber-500' : 'bg-emerald-500'}`} />
+                                  <span className="font-semibold text-slate-900">{it.item_name}</span>
+                                  {it.size_label && <span className="text-slate-500 font-mono">({it.size_label})</span>}
+                                  <span className="text-slate-500 font-mono font-bold">: {it.quantity} {it.unit}</span>
                                   {it.status === 'DUE' && (
-                                    <span className="px-1.5 py-0.2 rounded text-[10px] font-bold bg-purple-100 text-purple-700">DUE</span>
+                                    <span className="px-1.5 py-0.5 rounded text-xs font-bold bg-purple-100 text-purple-700">DUE</span>
                                   )}
                                   {it.status === 'SHORTAGE' && (
-                                    <span className="px-1.5 py-0.2 rounded text-[10px] font-bold bg-amber-100 text-amber-700">SHORT</span>
+                                    <span className="px-1.5 py-0.5 rounded text-xs font-bold bg-amber-100 text-amber-700">SHORT</span>
                                   )}
                                 </div>
                               ))}
@@ -1175,14 +1175,14 @@ export function InventoryClient({
                                 <button
                                   type="button"
                                   onClick={() => setExpandedGrnId(isExpanded ? null : row.id)}
-                                  className="text-[11px] font-bold text-blue-600 hover:underline pt-0.5 block"
+                                  className="text-xs font-bold text-[#3A3564] hover:underline pt-0.5 block cursor-pointer"
                                 >
                                   {isExpanded ? 'Show less' : `+ ${(row.items || []).length - 3} more items`}
                                 </button>
                               )}
                             </div>
                             {row.notes && (
-                              <div className="text-[11px] text-slate-400 italic mt-1">
+                              <div className="text-xs text-slate-500 italic mt-1.5 bg-slate-50 px-2 py-1 rounded border border-slate-200/60">
                                 Note: {row.notes}
                               </div>
                             )}
@@ -1190,20 +1190,20 @@ export function InventoryClient({
 
                           <td className="px-4 py-3.5 text-center">
                             {isVerified && (
-                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-[6px] text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                <Check className="w-3 h-3" />
+                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                                <Check className="w-3.5 h-3.5 text-emerald-600" />
                                 Verified
                               </span>
                             )}
                             {isShortage && (
-                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-[6px] text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
-                                <AlertTriangle className="w-3 h-3" />
+                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200">
+                                <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
                                 Shortage ({row.shortage_items_count})
                               </span>
                             )}
                             {isDue && (
-                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-[6px] text-[11px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
-                                <Clock className="w-3 h-3" />
+                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-purple-50 text-purple-800 border border-purple-200">
+                                <Clock className="w-3.5 h-3.5 text-purple-600" />
                                 Due ({row.due_items_count})
                               </span>
                             )}
@@ -1214,13 +1214,13 @@ export function InventoryClient({
                               <button
                                 type="button"
                                 onClick={() => setActivePhoto({ url: row.challan_photo_url!, title: `${row.party_name} • ${row.grn_no}` })}
-                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-[6px] text-[11px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 transition-colors cursor-pointer"
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-[#FAF7F0] hover:bg-slate-100 text-[#3A3564] border border-black/10 transition-colors cursor-pointer shadow-2xs"
                               >
-                                <ImageIcon className="w-3.5 h-3.5 text-blue-600" />
-                                View Slip
+                                <ImageIcon className="w-3.5 h-3.5 text-[#3A3564]" />
+                                <span>View Slip</span>
                               </button>
                             ) : (
-                              <span className="text-slate-300 text-[11px] italic">No photo</span>
+                              <span className="text-slate-400 text-xs italic">No photo</span>
                             )}
                           </td>
                         </tr>
@@ -1260,9 +1260,9 @@ export function InventoryClient({
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse text-xs">
+                <table className="w-full text-left border-collapse text-xs sm:text-[13px]">
                   <thead>
-                    <tr className="bg-slate-50 border-b text-[11px] uppercase tracking-wider font-bold" style={{ borderColor: 'var(--border, #E2E8F0)', color: 'var(--ink-soft, #5B6B7C)' }}>
+                    <tr className="bg-[#FAF7F0] border-b border-black/10 text-xs font-mono uppercase tracking-wider font-bold text-slate-700">
                       
                       {/* Sortable Item Name */}
                       <th 
@@ -1272,7 +1272,7 @@ export function InventoryClient({
                         <div className="flex items-center gap-1.5">
                           <span>Item Name / Trim</span>
                           {sortCol === 'item_name' ? (
-                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" /> : <ArrowDown className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" />
+                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#3A3564]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#3A3564]" />
                           ) : (
                             <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
                           )}
@@ -1284,19 +1284,19 @@ export function InventoryClient({
                       {/* Sortable Total Received */}
                       <th 
                         onClick={() => handleSort('total_in')}
-                        className="px-4 py-3.5 text-right cursor-pointer hover:bg-slate-100 transition-colors select-none font-bold text-[var(--green,#1F9D63)]"
+                        className="px-4 py-3.5 text-right cursor-pointer hover:bg-slate-100 transition-colors select-none font-bold text-emerald-700"
                       >
                         <div className="flex items-center justify-end gap-1.5">
                           <span>Total Received (IN)</span>
                           {sortCol === 'total_in' ? (
-                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[var(--green,#1F9D63)]" /> : <ArrowDown className="w-3.5 h-3.5 text-[var(--green,#1F9D63)]" />
+                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-emerald-700" /> : <ArrowDown className="w-3.5 h-3.5 text-emerald-700" />
                           ) : (
                             <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
                           )}
                         </div>
                       </th>
 
-                      <th className="px-4 py-3.5 font-bold text-right text-[var(--amber,#C8802B)]">Total Issued (OUT)</th>
+                      <th className="px-4 py-3.5 font-bold text-right text-amber-700">Total Issued (OUT)</th>
                       
                       {/* Sortable Balance */}
                       <th 
@@ -1306,7 +1306,7 @@ export function InventoryClient({
                         <div className="flex items-center justify-end gap-1.5">
                           <span>Current Balance</span>
                           {sortCol === 'balance' ? (
-                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" /> : <ArrowDown className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" />
+                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#3A3564]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#3A3564]" />
                           ) : (
                             <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
                           )}
@@ -1325,36 +1325,38 @@ export function InventoryClient({
 
                       return (
                         <tr key={row.item_name} className="hover:bg-slate-50/50 transition-colors">
-                          <td className="px-5 py-3.5 font-bold text-slate-900">
+                          <td className="px-5 py-3.5 font-bold text-sm text-slate-900">
                             {row.item_name}
                           </td>
-                          <td className="px-4 py-3.5 text-slate-500 font-medium">
+                          <td className="px-4 py-3.5 text-slate-600 font-medium text-xs sm:text-[13px]">
                             {row.unit}
                           </td>
-                          <td className="px-4 py-3.5 text-right font-mono font-bold" style={{ color: 'var(--green, #1F9D63)' }}>
+                          <td className="px-4 py-3.5 text-right font-mono font-bold text-emerald-600 text-xs sm:text-[13px]">
                             +{row.totalIn.toLocaleString()}
                           </td>
-                          <td className="px-4 py-3.5 text-right font-mono font-bold" style={{ color: 'var(--amber, #C8802B)' }}>
+                          <td className="px-4 py-3.5 text-right font-mono font-bold text-amber-700 text-xs sm:text-[13px]">
                             -{row.totalOut.toLocaleString()}
                           </td>
                           <td className="px-4 py-3.5 text-right">
                             <span 
-                              className="inline-flex items-center px-2.5 py-0.5 rounded-[5px] text-xs font-bold font-mono"
-                              style={{
-                                backgroundColor: isOut ? 'var(--red-mist, #FBEAE8)' : 'var(--steel-tint, #DBE6F5)',
-                                color: isOut ? 'var(--red, #C0392B)' : 'var(--steel-dark, #1F3A63)'
-                              }}
+                              className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold font-mono shadow-2xs border ${
+                                isOut 
+                                  ? 'bg-rose-50 text-rose-700 border-rose-200' 
+                                  : 'bg-[#FAF7F0] text-[#3A3564] border-black/10'
+                              }`}
                             >
                               {row.balance.toLocaleString()} {row.unit}
                             </span>
                           </td>
                           <td className="px-4 py-3.5 text-center">
                             <span 
-                              className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold"
-                              style={{
-                                backgroundColor: isOut ? 'var(--red-mist, #FBEAE8)' : isLow ? 'var(--amber-mist, #FBF0E1)' : 'var(--green-mist, #E6F6EE)',
-                                color: isOut ? 'var(--red, #C0392B)' : isLow ? 'var(--amber, #C8802B)' : 'var(--green, #1F9D63)'
-                              }}
+                              className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold border ${
+                                isOut 
+                                  ? 'bg-rose-50 text-rose-700 border-rose-200' 
+                                  : isLow 
+                                    ? 'bg-amber-50 text-amber-800 border-amber-200' 
+                                    : 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                              }`}
                             >
                               {isOut 
                                 ? 'Out of Stock' 
@@ -1400,9 +1402,9 @@ export function InventoryClient({
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse text-xs">
+                <table className="w-full text-left border-collapse text-xs sm:text-[13px]">
                   <thead>
-                    <tr className="bg-slate-50 border-b text-[11px] uppercase tracking-wider font-bold" style={{ borderColor: 'var(--border, #E2E8F0)', color: 'var(--ink-soft, #5B6B7C)' }}>
+                    <tr className="bg-[#FAF7F0] border-b border-black/10 text-xs font-mono uppercase tracking-wider font-bold text-slate-700">
                       
                       {/* Sortable Date */}
                       <th 
@@ -1412,7 +1414,7 @@ export function InventoryClient({
                         <div className="flex items-center gap-1.5">
                           <span>Date</span>
                           {sortCol === 'date' ? (
-                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" /> : <ArrowDown className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" />
+                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#3A3564]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#3A3564]" />
                           ) : (
                             <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
                           )}
@@ -1425,12 +1427,12 @@ export function InventoryClient({
                       {/* Sortable Dispatched Qty */}
                       <th 
                         onClick={() => handleSort('quantity')}
-                        className="px-4 py-3.5 text-right cursor-pointer hover:bg-slate-100 transition-colors select-none font-bold text-[var(--steel,#2B4C7E)]"
+                        className="px-4 py-3.5 text-right cursor-pointer hover:bg-slate-100 transition-colors select-none font-bold text-[#3A3564]"
                       >
                         <div className="flex items-center justify-end gap-1.5">
                           <span>Dispatched Qty</span>
                           {sortCol === 'quantity' ? (
-                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" /> : <ArrowDown className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" />
+                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#3A3564]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#3A3564]" />
                           ) : (
                             <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
                           )}
@@ -1445,31 +1447,31 @@ export function InventoryClient({
                   <tbody className="divide-y divide-slate-100">
                     {paginatedDispatch.map((row) => (
                       <tr key={row.id} className="hover:bg-slate-50/50 transition-colors">
-                        <td className="px-5 py-3.5 font-mono text-slate-600 whitespace-nowrap">
+                        <td className="px-5 py-3.5 font-mono text-slate-600 text-xs whitespace-nowrap">
                           {row.entry_date || row.created_at.split('T')[0]}
                         </td>
-                        <td className="px-4 py-3.5 font-bold" style={{ color: 'var(--steel, #2B4C7E)' }}>
+                        <td className="px-4 py-3.5 font-bold text-sm text-[#3A3564]">
                           {row.article?.art_no || '-'}
                         </td>
                         <td className="px-4 py-3.5">
                           {(row.color || row.size) ? (
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-[5px] text-[11px] font-medium bg-slate-100 text-slate-800">
+                            <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 text-slate-800 border border-slate-200">
                               {row.color} {row.size ? '(' + row.size + ')' : ''}
                             </span>
                           ) : (
                             <span className="text-slate-400">-</span>
                           )}
                         </td>
-                        <td className="px-4 py-3.5 text-right font-mono font-bold" style={{ color: 'var(--steel, #2B4C7E)' }}>
+                        <td className="px-4 py-3.5 text-right font-mono font-bold text-[#3A3564] text-xs sm:text-[13px]">
                           {row.quantity.toLocaleString()} pcs
                         </td>
-                        <td className="px-4 py-3.5 font-semibold text-slate-900">
+                        <td className="px-4 py-3.5 font-bold text-slate-900 text-sm">
                           {row.party_name || '-'}
                         </td>
-                        <td className="px-4 py-3.5 text-slate-600 text-[11px]">
+                        <td className="px-4 py-3.5 text-slate-700 text-xs sm:text-[13px]">
                           {row.challan_no ? 'Challan: ' + row.challan_no : ''} {row.transport_no ? '• ' + row.transport_no : ''}
                         </td>
-                        <td className="px-4 py-3.5 text-slate-500 text-[11px]">
+                        <td className="px-4 py-3.5 text-slate-500 text-xs">
                           {row.notes || '-'}
                         </td>
                       </tr>
@@ -1508,9 +1510,9 @@ export function InventoryClient({
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse text-xs">
+                <table className="w-full text-left border-collapse text-xs sm:text-[13px]">
                   <thead>
-                    <tr className="bg-slate-50 border-b text-[11px] uppercase tracking-wider font-bold" style={{ borderColor: 'var(--border, #E2E8F0)', color: 'var(--ink-soft, #5B6B7C)' }}>
+                    <tr className="bg-[#FAF7F0] border-b border-black/10 text-xs font-mono uppercase tracking-wider font-bold text-slate-700">
                       
                       {/* Sortable Date */}
                       <th 
@@ -1520,7 +1522,7 @@ export function InventoryClient({
                         <div className="flex items-center gap-1.5">
                           <span>Date</span>
                           {sortCol === 'date' ? (
-                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" /> : <ArrowDown className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" />
+                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#3A3564]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#3A3564]" />
                           ) : (
                             <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
                           )}
@@ -1533,12 +1535,12 @@ export function InventoryClient({
                       {/* Sortable Received Qty */}
                       <th 
                         onClick={() => handleSort('quantity')}
-                        className="px-4 py-3.5 text-right cursor-pointer hover:bg-slate-100 transition-colors select-none font-bold text-[var(--green,#1F9D63)]"
+                        className="px-4 py-3.5 text-right cursor-pointer hover:bg-slate-100 transition-colors select-none font-bold text-emerald-700"
                       >
                         <div className="flex items-center justify-end gap-1.5">
                           <span>Received Qty</span>
                           {sortCol === 'quantity' ? (
-                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[var(--green,#1F9D63)]" /> : <ArrowDown className="w-3.5 h-3.5 text-[var(--green,#1F9D63)]" />
+                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-emerald-700" /> : <ArrowDown className="w-3.5 h-3.5 text-emerald-700" />
                           ) : (
                             <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
                           )}
@@ -1552,28 +1554,28 @@ export function InventoryClient({
                   <tbody className="divide-y divide-slate-100">
                     {paginatedInward.map((row) => (
                       <tr key={row.id} className="hover:bg-slate-50/50 transition-colors">
-                        <td className="px-5 py-3.5 font-mono text-slate-600 whitespace-nowrap">
+                        <td className="px-5 py-3.5 font-mono text-slate-600 text-xs whitespace-nowrap">
                           {row.entry_date || row.created_at.split('T')[0]}
                         </td>
-                        <td className="px-4 py-3.5 font-bold" style={{ color: 'var(--steel, #2B4C7E)' }}>
+                        <td className="px-4 py-3.5 font-bold text-sm text-[#3A3564]">
                           {row.article?.art_no || '-'}
                         </td>
                         <td className="px-4 py-3.5">
                           {(row.color || row.size) ? (
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-[5px] text-[11px] font-medium bg-slate-100 text-slate-800">
+                            <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 text-slate-800 border border-slate-200">
                               {row.color} {row.size ? '(' + row.size + ')' : ''}
                             </span>
                           ) : (
                             <span className="text-slate-400">-</span>
                           )}
                         </td>
-                        <td className="px-4 py-3.5 text-right font-mono font-bold" style={{ color: 'var(--green, #1F9D63)' }}>
+                        <td className="px-4 py-3.5 text-right font-mono font-bold text-emerald-600 text-xs sm:text-[13px]">
                           +{row.quantity.toLocaleString()} pcs
                         </td>
-                        <td className="px-4 py-3.5 font-semibold text-slate-900">
+                        <td className="px-4 py-3.5 font-bold text-slate-900 text-sm">
                           {row.party_name || '-'}
                         </td>
-                        <td className="px-4 py-3.5 text-slate-500 text-[11px]">
+                        <td className="px-4 py-3.5 text-slate-500 text-xs">
                           {row.notes || '-'}
                         </td>
                       </tr>
@@ -1587,19 +1589,18 @@ export function InventoryClient({
 
         {/* 5. Pagination Controls Footer */}
         {currentListCount > 0 && (
-          <div className="p-4 border-t bg-slate-50/60 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
-            <div style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
-              Showing <span className="font-semibold">{(currentPage - 1) * pageSize + 1}</span>–<span className="font-semibold">{Math.min(currentPage * pageSize, currentListCount)}</span> of <span className="font-semibold">{currentListCount}</span> {activeTab === 'finished' ? 'articles' : activeTab === 'accessories' ? 'items' : activeTab === 'dispatch' ? 'dispatches' : 'receipts'}
+          <div className="p-4 sm:p-5 border-t border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs sm:text-[13px]">
+            <div className="text-slate-600 font-medium">
+              Showing <span className="font-bold text-slate-900">{(currentPage - 1) * pageSize + 1}</span>–<span className="font-bold text-slate-900">{Math.min(currentPage * pageSize, currentListCount)}</span> of <span className="font-bold text-slate-900">{currentListCount}</span> {activeTab === 'finished' ? 'articles' : activeTab === 'accessories' ? 'items' : activeTab === 'dispatch' ? 'dispatches' : 'receipts'}
             </div>
 
             {/* Page Buttons */}
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1.5">
               <button
                 type="button"
                 disabled={currentPage === 1}
                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                className="p-1.5 rounded-[6px] border bg-white text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors cursor-pointer"
-                style={{ borderColor: 'var(--border, #E2E8F0)' }}
+                className="p-2 rounded-lg border border-slate-200 bg-white text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors shadow-2xs cursor-pointer"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
@@ -1611,14 +1612,11 @@ export function InventoryClient({
                     key={pg}
                     type="button"
                     onClick={() => setCurrentPage(pg)}
-                    className={`w-7 h-7 rounded-[6px] text-xs font-semibold border transition-colors cursor-pointer ${
+                    className={`w-8 h-8 rounded-lg text-xs font-bold border transition-all cursor-pointer ${
                       isActive
-                        ? 'text-white border-transparent'
-                        : 'bg-white text-slate-700 hover:bg-slate-50 border-[var(--border,#E2E8F0)]'
+                        ? 'bg-[#3A3564] text-white border-transparent shadow-xs'
+                        : 'bg-white text-slate-700 hover:bg-slate-100 border-slate-200'
                     }`}
-                    style={{
-                      backgroundColor: isActive ? 'var(--steel, #2B4C7E)' : '#FFFFFF'
-                    }}
                   >
                     {pg}
                   </button>
@@ -1629,8 +1627,7 @@ export function InventoryClient({
                 type="button"
                 disabled={currentPage === totalPages}
                 onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                className="p-1.5 rounded-[6px] border bg-white text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors cursor-pointer"
-                style={{ borderColor: 'var(--border, #E2E8F0)' }}
+                className="p-2 rounded-lg border border-slate-200 bg-white text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors shadow-2xs cursor-pointer"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
