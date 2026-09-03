@@ -22,7 +22,7 @@ export async function updateSession(request: NextRequest) {
           cookiesToSet.forEach(({ name, value, options }) =>
             supabaseResponse.cookies.set(name, value, {
               ...options,
-              maxAge: options?.maxAge || 60 * 60 * 24, // 1 day (24 hours) rolling session
+              maxAge: typeof options?.maxAge === 'number' ? options.maxAge : 60 * 60 * 24, // preserve 0 on deletion, fallback to 24h
               sameSite: 'lax',
               path: '/',
             })

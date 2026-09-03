@@ -14,7 +14,8 @@ import {
   FileText,
   Loader2,
   X,
-  Bot
+  Bot,
+  LogOut
 } from 'lucide-react'
 
 type NavItem = {
@@ -285,20 +286,33 @@ export function AdminSidebar({
             {initials}
           </div>
           
-          <div className={`flex flex-col min-w-0 transition-all ${
+          <div className={`flex items-center min-w-0 transition-all ${
             isHovered 
               ? 'ml-3 max-w-[180px] opacity-100 flex-1 duration-200 ease-out' 
               : 'ml-0 max-w-0 opacity-0 duration-500 ease-in-out'
           }`}>
-            <span 
-              className="text-[13px] font-bold text-slate-900 truncate leading-tight"
-              title={userEmail}
-            >
-              {userEmail}
-            </span>
-            <span className="text-[11px] font-mono text-slate-500">
-              Super Admin
-            </span>
+            <div className="flex flex-col min-w-0 flex-1">
+              <span 
+                className="text-[13px] font-bold text-slate-900 truncate leading-tight"
+                title={userEmail}
+              >
+                {userEmail}
+              </span>
+              <span className="text-[11px] font-mono text-slate-500">
+                Super Admin
+              </span>
+            </div>
+
+            {/* Quick Sign Out on Hover */}
+            <form action="/auth/signout" method="POST" className="shrink-0 ml-1.5">
+              <button 
+                type="submit" 
+                title="Sign Out" 
+                className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
+            </form>
           </div>
         </div>
       </aside>
@@ -363,19 +377,31 @@ export function AdminSidebar({
           </nav>
         </div>
 
-        {/* Bottom User */}
-        <div className="p-4 border-t border-slate-200 bg-[#FAFAF8] flex items-center gap-3 shrink-0">
-          <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-[13px] font-bold shrink-0 shadow-xs bg-[#3A3564]">
-            {initials}
+        {/* Bottom User with Sign Out */}
+        <div className="p-4 border-t border-slate-200 bg-[#FAFAF8] flex items-center justify-between gap-3 shrink-0">
+          <div className="flex items-center gap-3 min-w-0 flex-1">
+            <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-[13px] font-bold shrink-0 shadow-xs bg-[#3A3564]">
+              {initials}
+            </div>
+            <div className="flex flex-col min-w-0 flex-1">
+              <span className="text-[13px] font-bold text-slate-900 truncate leading-tight">
+                {userEmail}
+              </span>
+              <span className="text-[11px] font-mono text-slate-500">
+                Super Admin
+              </span>
+            </div>
           </div>
-          <div className="flex flex-col min-w-0 flex-1">
-            <span className="text-[13px] font-bold text-slate-900 truncate leading-tight">
-              {userEmail}
-            </span>
-            <span className="text-[11px] font-mono text-slate-500">
-              Super Admin
-            </span>
-          </div>
+
+          <form action="/auth/signout" method="POST" className="shrink-0">
+            <button 
+              type="submit" 
+              title="Sign Out" 
+              className="p-2 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
+          </form>
         </div>
       </aside>
     </>

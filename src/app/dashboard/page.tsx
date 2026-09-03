@@ -257,13 +257,8 @@ export default async function DashboardPage() {
           <div className="flex items-center gap-2.5 flex-wrap">
             <TvViewButton size="md" />
 
-            {/* Sign Out Button */}
-            <form action={async () => {
-              'use server'
-              const sb = await createClient()
-              await sb.auth.signOut()
-              redirect('/login')
-            }}>
+            {/* Sign Out Button: Posts to dedicated /auth/signout to guarantee clean session wipe & prevent Vercel 404s */}
+            <form action="/auth/signout" method="POST">
               <button 
                 type="submit"
                 className="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-black/15 rounded-xl text-xs sm:text-sm font-bold text-slate-700 hover:bg-rose-50 hover:text-rose-600 transition-all shadow-2xs cursor-pointer"

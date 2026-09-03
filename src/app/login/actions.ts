@@ -97,3 +97,11 @@ export async function setNewPassword(formData: FormData) {
 export async function updatePassword(formData: FormData) {
   return setNewPassword(formData)
 }
+
+export async function signOut() {
+  const supabase = await createClient()
+  await supabase.auth.signOut()
+  revalidatePath('/', 'layout')
+  redirect('/login')
+}
+
