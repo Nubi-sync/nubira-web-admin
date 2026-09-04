@@ -12,6 +12,7 @@ import {
   Users, 
   Tag, 
   FileText,
+  Building2,
   Loader2,
   X,
   Bot,
@@ -50,6 +51,7 @@ const navSections: NavSection[] = [
   {
     section: 'Manage',
     items: [
+      { label: 'Company Profile', href: '/profile', icon: Building2 },
       { label: 'Employees', href: '/employees', icon: Users },
       { label: 'Articles', href: '/articles', icon: Tag },
       { label: 'Reports & Analytics', href: '/reports', icon: FileText },
@@ -282,29 +284,37 @@ export function AdminSidebar({
 
         {/* Bottom User Profile Block */}
         <div className="p-3.5 border-t border-slate-200 bg-[#FAFAF8] flex items-center overflow-hidden h-[65px]">
-          <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-[13px] font-bold shrink-0 shadow-xs bg-[#3A3564] mx-auto">
-            {initials}
-          </div>
-          
-          <div className={`flex items-center min-w-0 transition-all ${
-            isHovered 
-              ? 'ml-3 max-w-[180px] opacity-100 flex-1 duration-200 ease-out' 
-              : 'ml-0 max-w-0 opacity-0 duration-500 ease-in-out'
-          }`}>
-            <div className="flex flex-col min-w-0 flex-1">
-              <span 
-                className="text-[13px] font-bold text-slate-900 truncate leading-tight"
-                title={userEmail}
-              >
-                {userEmail}
-              </span>
-              <span className="text-[11px] font-mono text-slate-500">
-                Super Admin
-              </span>
+          <Link
+            href="/profile"
+            className="flex items-center min-w-0 flex-1 group"
+            title="View Company & Admin Profile"
+          >
+            <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-[13px] font-bold shrink-0 shadow-xs bg-[#3A3564] mx-auto group-hover:ring-2 group-hover:ring-[#3A3564]/30 transition-all">
+              {initials}
             </div>
+            
+            <div className={`flex items-center min-w-0 transition-all ${
+              isHovered 
+                ? 'ml-3 max-w-[155px] opacity-100 flex-1 duration-200 ease-out' 
+                : 'ml-0 max-w-0 opacity-0 duration-500 ease-in-out'
+            }`}>
+              <div className="flex flex-col min-w-0 flex-1">
+                <span 
+                  className="text-[13px] font-bold text-slate-900 truncate leading-tight group-hover:text-[#3A3564] transition-colors"
+                  title={userEmail}
+                >
+                  {userEmail}
+                </span>
+                <span className="text-[11px] font-mono text-slate-500">
+                  Super Admin
+                </span>
+              </div>
+            </div>
+          </Link>
 
-            {/* Quick Sign Out on Hover */}
-            <form action="/auth/signout" method="POST" className="shrink-0 ml-1.5">
+          {/* Quick Sign Out on Hover */}
+          {isHovered && (
+            <form action="/auth/signout" method="POST" className="shrink-0 ml-1.5 animate-in fade-in duration-200">
               <button 
                 type="submit" 
                 title="Sign Out" 
@@ -313,7 +323,7 @@ export function AdminSidebar({
                 <LogOut className="w-4 h-4" />
               </button>
             </form>
-          </div>
+          )}
         </div>
       </aside>
 
@@ -379,19 +389,23 @@ export function AdminSidebar({
 
         {/* Bottom User with Sign Out */}
         <div className="p-4 border-t border-slate-200 bg-[#FAFAF8] flex items-center justify-between gap-3 shrink-0">
-          <div className="flex items-center gap-3 min-w-0 flex-1">
-            <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-[13px] font-bold shrink-0 shadow-xs bg-[#3A3564]">
+          <Link
+            href="/profile"
+            onClick={onMobileClose}
+            className="flex items-center gap-3 min-w-0 flex-1 group"
+          >
+            <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-[13px] font-bold shrink-0 shadow-xs bg-[#3A3564] group-hover:ring-2 group-hover:ring-[#3A3564]/30 transition-all">
               {initials}
             </div>
             <div className="flex flex-col min-w-0 flex-1">
-              <span className="text-[13px] font-bold text-slate-900 truncate leading-tight">
+              <span className="text-[13px] font-bold text-slate-900 truncate leading-tight group-hover:text-[#3A3564] transition-colors">
                 {userEmail}
               </span>
               <span className="text-[11px] font-mono text-slate-500">
                 Super Admin
               </span>
             </div>
-          </div>
+          </Link>
 
           <form action="/auth/signout" method="POST" className="shrink-0">
             <button 
