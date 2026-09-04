@@ -84,13 +84,17 @@ const createEmptyArticleLine = (): ChallanArticleLine => ({
   art_no: '',
   sub_art_no: '',
   pattern_no: '',
+  category: '',
+  product: '',
   description: '',
   color_pattern: '',
   size_range: '',
+  order_qty: '' as any,
   sets: '' as any,
   pcs_per_set: '' as any,
   total_pcs: '' as any,
-  assigned_lineman_id: ''
+  assigned_lineman_id: '',
+  status: 'RUNNING'
 })
 
 interface ProductionOrdersClientProps {
@@ -267,14 +271,18 @@ export function ProductionOrdersClient({
       {
         art_no: last?.art_no || '',
         sub_art_no: '',
-        pattern_no: last?.pattern_no || '',
+        pattern_no: last?.pattern_no || last?.product || '',
+        category: last?.category || '',
+        product: last?.product || '',
         description: last?.description || '',
         color_pattern: last?.color_pattern || '',
         size_range: '',
+        order_qty: '' as any,
         sets: '' as any,
-        pcs_per_set: (last?.pcs_per_set !== undefined && (last?.pcs_per_set as any) !== '') ? last.pcs_per_set : ('' as any),
+        pcs_per_set: '' as any,
         total_pcs: '' as any,
-        assigned_lineman_id: ''
+        assigned_lineman_id: '',
+        status: 'RUNNING'
       }
     ])
   }
@@ -304,7 +312,9 @@ export function ProductionOrdersClient({
       const copy = [...prev]
       const current = { ...copy[index] }
 
-      if (field === 'sets' || field === 'pcs_per_set') {
+      if (field === 'total_pcs' || field === 'order_qty') {
+        current[field] = value === '' ? ('' as any) : (parseInt(value, 10) || 0)
+      } else if (field === 'sets' || field === 'pcs_per_set') {
         const rawSets = field === 'sets' ? value : current.sets
         const rawRatio = field === 'pcs_per_set' ? value : current.pcs_per_set
         
@@ -313,14 +323,8 @@ export function ProductionOrdersClient({
         
         current.sets = setsVal
         current.pcs_per_set = ratioVal
-        current.total_pcs = (setsVal === '' || ratioVal === '') ? ('' as any) : (Number(setsVal) * Number(ratioVal))
-      } else if (field === 'total_pcs') {
-        const pcsVal = value === '' ? ('' as any) : (parseInt(value, 10) || 0)
-        current.total_pcs = pcsVal
-        if (pcsVal !== '' && current.pcs_per_set && Number(current.pcs_per_set) > 0) {
-          current.sets = Math.round(Number(pcsVal) / Number(current.pcs_per_set)) || ('' as any)
-        } else if (pcsVal === '') {
-          current.sets = '' as any
+        if (setsVal !== '' && ratioVal !== '') {
+          current.total_pcs = Number(setsVal) * Number(ratioVal)
         }
       } else {
         (current as any)[field] = value
@@ -331,7 +335,9 @@ export function ProductionOrdersClient({
         const matched = articlesList.find(a => a.art_no?.toUpperCase() === String(value).trim().toUpperCase())
         if (matched) {
           if (matched.description && !current.description) current.description = matched.description
+          if (matched.size_rates?._meta?.pattern && !current.product) current.product = matched.size_rates._meta.pattern
           if (matched.size_rates?._meta?.pattern && !current.pattern_no) current.pattern_no = matched.size_rates._meta.pattern
+          if (matched.size_rates?._meta?.category && !current.category) current.category = matched.size_rates._meta.category
           if (matched.size_rates?._meta?.party && !formBrand) setFormBrand(matched.size_rates._meta.party)
           if (matched.size_rates?._meta?.fabric && !formFabric) setFormFabric(matched.size_rates._meta.fabric)
         }
@@ -363,6 +369,10 @@ export function ProductionOrdersClient({
   }
 
   // Grand totals of the modal form
+  const formGrandOrderQty = useMemo(() => {
+    return articleLines.reduce((acc, row) => acc + (Number(row.order_qty) || 0), 0)
+  }, [articleLines])
+
   const formGrandSets = useMemo(() => {
     return articleLines.reduce((acc, row) => acc + (Number(row.sets) || 0), 0)
   }, [articleLines])
@@ -397,13 +407,15 @@ export function ProductionOrdersClient({
         if (baseArt) uniqueMasterArticles.add(baseArt)
 
         const isAllotted = !!art.assigned_lineman_id && art.assigned_lineman_id !== '' && art.status === 'IN_PROGRESS'
+        const lineTotalPcs = Number(art.total_pcs) || 0
+        const lineCompletedQty = Number(art.completed_qty) || 0
 
         if (art.status === 'QC_PASSED' || art.status === 'COMPLETED') {
-          readyQcPcs += art.completed_qty || art.total_pcs || 0
+          readyQcPcs += lineCompletedQty || lineTotalPcs || 0
         } else if (art.status === 'DISPATCHED') {
-          dispatchedPcs += art.total_pcs || 0
+          dispatchedPcs += lineTotalPcs || 0
         } else if (isAllotted) {
-          inProdPcs += Math.max(0, (art.total_pcs || 0) - (art.completed_qty || 0))
+          inProdPcs += Math.max(0, lineTotalPcs - lineCompletedQty)
         }
       })
     })
@@ -678,7 +690,7 @@ export function ProductionOrdersClient({
     })
   }
 
-  // Helper: Compute Color & Size Matrix for any Challan (Sir's Exact Formula)
+  // Helper: Compute Color & Size Matrix for any Challan (Universal Dynamic Grouping)
   const computeColorBreakdown = (challan: ChallanGroupedOrder) => {
     const colorMap: Record<string, {
       colorName: string
@@ -691,91 +703,70 @@ export function ProductionOrdersClient({
       assignedLinemanName?: string
     }> = {}
 
-    const normalizeColor = (raw: string): string => {
-      const c = raw.trim().toUpperCase().replace(/\s+/g, ' ')
-      if (c.includes('MUSHROOM')) return 'MUSHROOM'
-      if (c.includes('DUTCH')) return 'DUTCH BLUE'
-      if (c.includes('SCUBA') || c.includes('SEUBA')) return 'SCUBA'
-      return c
-    }
-
     const getTheme = (cName: string) => {
       const c = cName.toUpperCase()
-      if (c.includes('MUSHROOM')) return { themeColor: '#854D0E', bgLight: '#FEFCE8', borderTheme: '#FEF08A' }
-      if (c.includes('DUTCH') || c.includes('BLUE')) return { themeColor: '#1D4ED8', bgLight: '#EFF6FF', borderTheme: '#BFDBFE' }
-      if (c.includes('SCUBA') || c.includes('GREEN') || c.includes('SEUBA')) return { themeColor: '#047857', bgLight: '#ECFDF5', borderTheme: '#A7F3D0' }
-      if (c.includes('RED') || c.includes('PINK') || c.includes('CHERRY')) return { themeColor: '#BE123C', bgLight: '#FFF1F2', borderTheme: '#FECDD3' }
-      if (c.includes('BLACK') || c.includes('CHARCOAL')) return { themeColor: '#334155', bgLight: '#F8FAFC', borderTheme: '#E2E8F0' }
-      return { themeColor: '#4F46E5', bgLight: '#EEF2FF', borderTheme: '#C7D2FE' }
-    }
-
-    // Determine primary color groups from Challan
-    const canonicalColors = new Set<string>(['MUSHROOM', 'DUTCH BLUE', 'SCUBA'])
-    if (challan.bom_details && Array.isArray(challan.bom_details)) {
-      challan.bom_details.forEach(b => {
-        const n = normalizeColor(b.item_name || '')
-        if (n && !n.includes('BODY') && !n.includes('RIB') && !n.includes('LABEL') && !n.includes('POLYBAG') && !n.includes('THREAD') && !n.includes('SINKER') && !n.includes('FABRIC')) {
-          canonicalColors.add(n)
-        }
-      })
-    }
-
-    canonicalColors.forEach(cName => {
-      const th = getTheme(cName)
-      colorMap[cName] = {
-        colorName: cName,
-        themeColor: th.themeColor,
-        bgLight: th.bgLight,
-        borderTheme: th.borderTheme,
-        totalPcs: 0,
-        sizeBreakdown: {}
+      if (c.includes('MUSHROOM') || c.includes('BEIGE') || c.includes('ORANGE') || c.includes('BROWN')) {
+        return { themeColor: '#C2410C', bgLight: '#FFF7ED', borderTheme: '#FED7AA' }
       }
-    })
+      if (c.includes('DUTCH') || c.includes('BLUE') || c.includes('DUSK') || c.includes('ROBIN') || c.includes('NAVY')) {
+        return { themeColor: '#1D4ED8', bgLight: '#EFF6FF', borderTheme: '#BFDBFE' }
+      }
+      if (c.includes('SCUBA') || c.includes('GREEN') || c.includes('OLIVE') || c.includes('MINT') || c.includes('SEUBA')) {
+        return { themeColor: '#047857', bgLight: '#ECFDF5', borderTheme: '#A7F3D0' }
+      }
+      if (c.includes('RED') || c.includes('PINK') || c.includes('CHERRY') || c.includes('MAROON') || c.includes('ROSE')) {
+        return { themeColor: '#BE123C', bgLight: '#FFF1F2', borderTheme: '#FECDD3' }
+      }
+      if (c.includes('BLACK') || c.includes('CHARCOAL') || c.includes('GREY') || c.includes('GRAY')) {
+        return { themeColor: '#334155', bgLight: '#F8FAFC', borderTheme: '#E2E8F0' }
+      }
+      if (c.includes('YELLOW') || c.includes('MUSTARD') || c.includes('GOLD')) {
+        return { themeColor: '#B45309', bgLight: '#FFFBEB', borderTheme: '#FDE68A' }
+      }
+      if (c.includes('PURPLE') || c.includes('VIOLET') || c.includes('LAVENDER')) {
+        return { themeColor: '#7E22CE', bgLight: '#FAF5FF', borderTheme: '#E9D5FF' }
+      }
+      return { themeColor: '#3A3564', bgLight: '#FAF7F0', borderTheme: '#E5E0D8' }
+    }
+
+    if (!challan.articles || challan.articles.length === 0) return []
 
     challan.articles.forEach(art => {
-      const patternRaw = (art.color_pattern || art.description || '').toUpperCase()
+      const rawColor = (art.color_pattern || art.description || 'STANDARD').trim().toUpperCase()
       const sizeTier = art.size_range || 'Free Size'
       const totalPcs = Number(art.total_pcs) || 0
 
-      // Match canonical colors precisely (No double-counting of DUTCHBLUE vs DUTCH BLUE or SEUBA vs SCUBA)
-      const matchedSet = new Set<string>()
-      if (patternRaw.includes('3 COLOUR') || patternRaw.includes('3 COLOR') || patternRaw.includes('ALL')) {
-        matchedSet.add('MUSHROOM')
-        matchedSet.add('DUTCH BLUE')
-        matchedSet.add('SCUBA')
+      // If multi-color like '3 COLOUR' or comma separated, split if needed
+      let colorList: string[] = []
+      if (rawColor === '3 COLOUR' || rawColor === '3 COLOR' || rawColor === 'ALL') {
+        colorList = ['MUSHROOM', 'DUTCH BLUE', 'SCUBA']
+      } else if (rawColor.includes(',')) {
+        colorList = rawColor.split(',').map(s => s.trim()).filter(Boolean)
       } else {
-        if (patternRaw.includes('MUSHROOM')) matchedSet.add('MUSHROOM')
-        if (patternRaw.includes('DUTCH')) matchedSet.add('DUTCH BLUE')
-        if (patternRaw.includes('SCUBA') || patternRaw.includes('SEUBA')) matchedSet.add('SCUBA')
-
-        canonicalColors.forEach(cName => {
-          if (patternRaw.includes(cName)) matchedSet.add(cName)
-        })
+        colorList = [rawColor]
       }
 
-      const matchedColors = Array.from(matchedSet)
-      if (matchedColors.length > 0) {
-        const pcsPerColor = Math.round(totalPcs / matchedColors.length)
-        matchedColors.forEach(cName => {
-          if (!colorMap[cName]) {
-            const th = getTheme(cName)
-            colorMap[cName] = {
-              colorName: cName,
-              themeColor: th.themeColor,
-              bgLight: th.bgLight,
-              borderTheme: th.borderTheme,
-              totalPcs: 0,
-              sizeBreakdown: {}
-            }
+      const pcsPerColor = colorList.length > 0 ? Math.round(totalPcs / colorList.length) : totalPcs
+
+      colorList.forEach(cName => {
+        if (!colorMap[cName]) {
+          const th = getTheme(cName)
+          colorMap[cName] = {
+            colorName: cName,
+            themeColor: th.themeColor,
+            bgLight: th.bgLight,
+            borderTheme: th.borderTheme,
+            totalPcs: 0,
+            sizeBreakdown: {}
           }
-          colorMap[cName].totalPcs += pcsPerColor
-          colorMap[cName].sizeBreakdown[sizeTier] = (colorMap[cName].sizeBreakdown[sizeTier] || 0) + pcsPerColor
-          if (art.assigned_lineman_id) {
-            colorMap[cName].assignedLinemanId = art.assigned_lineman_id
-            colorMap[cName].assignedLinemanName = art.assigned_lineman_name
-          }
-        })
-      }
+        }
+        colorMap[cName].totalPcs += pcsPerColor
+        colorMap[cName].sizeBreakdown[sizeTier] = (colorMap[cName].sizeBreakdown[sizeTier] || 0) + pcsPerColor
+        if (art.assigned_lineman_id && art.assigned_lineman_id !== '') {
+          colorMap[cName].assignedLinemanId = art.assigned_lineman_id
+          colorMap[cName].assignedLinemanName = art.assigned_lineman_name
+        }
+      })
     })
 
     return Object.values(colorMap).filter(c => c.totalPcs > 0)
@@ -1878,19 +1869,18 @@ export function ProductionOrdersClient({
 
                 <div className="border border-black/10 rounded-2xl overflow-hidden shadow-2xs bg-white">
                   <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse text-xs sm:text-[13px] min-w-[960px]">
+                    <table className="w-full text-left border-collapse text-xs sm:text-[13px] min-w-[1020px]">
                       <thead>
-                        <tr className="bg-[#FAF7F0]/60 border-b border-black/10 text-xs font-extrabold uppercase tracking-wider text-slate-600">
+                        <tr className="bg-[#FAF7F0]/80 border-b border-black/10 text-xs font-extrabold uppercase tracking-wider text-slate-700">
                           <th className="py-3 px-3 w-10 text-center">#</th>
-                          <th className="py-3 px-3 min-w-[130px]">Art No *</th>
-                          <th className="py-3 px-2 min-w-[70px]">Sub</th>
-                          <th className="py-3 px-3 min-w-[100px]">Pattern</th>
-                          <th className="py-3 px-3 min-w-[180px]">Color / Combination *</th>
-                          <th className="py-3 px-3 min-w-[110px]">Size Tier *</th>
-                          <th className="py-3 px-3 min-w-[80px] text-right">Sets *</th>
-                          <th className="py-3 px-3 min-w-[75px] text-right">Pcs/Set</th>
-                          <th className="py-3 px-3 min-w-[100px] text-right">Total Pcs</th>
-                          <th className="py-3 px-3 min-w-[160px]">Assign Lineman</th>
+                          <th className="py-3 px-3 min-w-[125px]">Art No *</th>
+                          <th className="py-3 px-3 min-w-[160px]">Colour *</th>
+                          <th className="py-3 px-2 min-w-[110px]">Category</th>
+                          <th className="py-3 px-3 min-w-[110px]">Product</th>
+                          <th className="py-3 px-3 min-w-[95px]">Size *</th>
+                          <th className="py-3 px-3 min-w-[95px] text-right">Order Qty</th>
+                          <th className="py-3 px-3 min-w-[130px] text-right">Challan Qty (Pcs) *</th>
+                          <th className="py-3 px-3 min-w-[165px]">Assign Lineman</th>
                           <th className="py-3 px-2 w-16 text-center">Actions</th>
                         </tr>
                       </thead>
@@ -1899,100 +1889,93 @@ export function ProductionOrdersClient({
                           <tr key={idx} className="hover:bg-slate-50/80 transition-colors">
                             <td className="py-2.5 px-3 text-center text-slate-400 font-mono font-bold">{idx + 1}</td>
 
-                            {/* Art No */}
+                            {/* 1. Art No */}
                             <td className="py-2.5 px-3">
                               <input
                                 type="text"
                                 required
-                                placeholder="e.g. 9433"
+                                placeholder="e.g. 9437"
                                 value={line.art_no}
                                 onChange={e => handleLineChange(idx, 'art_no', e.target.value)}
                                 className="w-full px-3 py-1.5 bg-white border border-black/10 rounded-xl text-xs sm:text-sm font-bold text-slate-900 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                               />
                             </td>
 
-                            {/* Sub Art */}
-                            <td className="py-2.5 px-2">
-                              <input
-                                type="text"
-                                placeholder="A, /1"
-                                value={line.sub_art_no || ''}
-                                onChange={e => handleLineChange(idx, 'sub_art_no', e.target.value)}
-                                className="w-full px-2.5 py-1.5 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-bold text-[#3A3564] placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
-                              />
-                            </td>
-
-                            {/* Pattern Master */}
-                            <td className="py-2.5 px-3">
-                              <input
-                                type="text"
-                                placeholder="e.g. G-342"
-                                value={line.pattern_no || ''}
-                                onChange={e => handleLineChange(idx, 'pattern_no', e.target.value)}
-                                className="w-full px-3 py-1.5 bg-white border border-black/10 rounded-xl text-xs text-slate-700 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
-                              />
-                            </td>
-
-                            {/* Color Pattern */}
+                            {/* 2. Colour */}
                             <td className="py-2.5 px-3">
                               <input
                                 type="text"
                                 required
-                                placeholder="e.g. 3 Colour, Dutch Blue"
+                                placeholder="e.g. ROBIN BLUE"
                                 value={line.color_pattern}
                                 onChange={e => handleLineChange(idx, 'color_pattern', e.target.value)}
                                 className="w-full px-3 py-1.5 bg-white border border-black/10 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                               />
                             </td>
 
-                            {/* Size Range */}
-                            <td className="py-2.5 px-3">
+                            {/* 3. Category */}
+                            <td className="py-2.5 px-2">
                               <input
                                 type="text"
-                                placeholder="e.g. L/XXL"
-                                value={line.size_range}
-                                onChange={e => handleLineChange(idx, 'size_range', e.target.value)}
-                                className="w-full px-3 py-1.5 bg-white border border-black/10 rounded-xl text-xs sm:text-sm font-bold text-slate-800 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                                placeholder="e.g. SUIT"
+                                value={line.category || ''}
+                                onChange={e => handleLineChange(idx, 'category', e.target.value)}
+                                className="w-full px-2.5 py-1.5 bg-white border border-black/10 rounded-xl text-xs font-semibold text-slate-700 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                               />
                             </td>
 
-                            {/* Sets */}
+                            {/* 4. Product */}
+                            <td className="py-2.5 px-3">
+                              <input
+                                type="text"
+                                placeholder="e.g. PANT"
+                                value={line.product || line.pattern_no || ''}
+                                onChange={e => {
+                                  handleLineChange(idx, 'product', e.target.value)
+                                  handleLineChange(idx, 'pattern_no', e.target.value)
+                                }}
+                                className="w-full px-3 py-1.5 bg-white border border-black/10 rounded-xl text-xs font-semibold text-slate-700 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                              />
+                            </td>
+
+                            {/* 5. Size */}
+                            <td className="py-2.5 px-3">
+                              <input
+                                type="text"
+                                required
+                                placeholder="e.g. L, XL, 22"
+                                value={line.size_range}
+                                onChange={e => handleLineChange(idx, 'size_range', e.target.value)}
+                                className="w-full px-3 py-1.5 bg-white border border-black/10 rounded-xl text-xs sm:text-sm font-bold text-slate-900 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                              />
+                            </td>
+
+                            {/* 6. Order Qty */}
+                            <td className="py-2.5 px-3 text-right">
+                              <input
+                                type="number"
+                                min={0}
+                                placeholder="384"
+                                value={line.order_qty !== undefined && line.order_qty !== '' ? line.order_qty : ''}
+                                onChange={e => handleLineChange(idx, 'order_qty', e.target.value)}
+                                className="w-full px-3 py-1.5 bg-slate-50 border border-black/10 rounded-xl text-xs sm:text-sm font-semibold text-right text-slate-700 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-[#3A3564] font-mono"
+                              />
+                            </td>
+
+                            {/* 7. Challan Qty (Pcs) */}
                             <td className="py-2.5 px-3 text-right">
                               <input
                                 type="number"
                                 min={1}
                                 required
-                                placeholder="0"
-                                value={line.sets || ''}
-                                onChange={e => handleLineChange(idx, 'sets', e.target.value)}
-                                className="w-full px-3 py-1.5 bg-white border border-black/10 rounded-xl text-xs sm:text-sm font-bold text-right text-slate-900 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-[#3A3564] font-mono"
-                              />
-                            </td>
-
-                            {/* Ratio / Pcs per Set */}
-                            <td className="py-2.5 px-3 text-right">
-                              <input
-                                type="number"
-                                min={1}
-                                value={line.pcs_per_set}
-                                onChange={e => handleLineChange(idx, 'pcs_per_set', e.target.value)}
-                                className="w-full px-2 py-1.5 bg-white border border-black/10 rounded-xl text-xs text-right text-slate-600 focus:outline-none focus:ring-2 focus:ring-[#3A3564] font-mono"
-                              />
-                            </td>
-
-                            {/* Total Pcs (Calculated) */}
-                            <td className="py-2.5 px-3 text-right">
-                              <input
-                                type="number"
-                                min={1}
-                                placeholder="0"
+                                placeholder="392"
                                 value={line.total_pcs || ''}
                                 onChange={e => handleLineChange(idx, 'total_pcs', e.target.value)}
-                                className="w-full px-3 py-1.5 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs sm:text-sm font-extrabold text-right text-slate-900 placeholder-slate-300 focus:outline-none font-mono"
+                                className="w-full px-3 py-1.5 bg-[#FAF7F0] border border-black/15 rounded-xl text-xs sm:text-sm font-extrabold text-right text-slate-900 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-[#3A3564] font-mono"
                               />
                             </td>
 
-                            {/* Lineman Assignment */}
+                            {/* 8. Lineman Assignment */}
                             <td className="py-2.5 px-3">
                               <select
                                 value={line.assigned_lineman_id || ''}
@@ -2008,7 +1991,7 @@ export function ProductionOrdersClient({
                               </select>
                             </td>
 
-                            {/* Actions */}
+                            {/* 9. Actions */}
                             <td className="py-2.5 px-2 text-center">
                               <div className="flex items-center justify-center gap-1">
                                 <button
@@ -2107,18 +2090,20 @@ export function ProductionOrdersClient({
 
               {/* MODAL FOOTER & GRAND TOTALS */}
               <div className="pt-4 border-t border-black/10 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div className="flex items-center gap-6 text-xs sm:text-sm">
+                <div className="flex items-center gap-6 text-xs sm:text-sm flex-wrap">
                   <div>
                     <span className="text-slate-500 font-medium">Total Lines:</span>{' '}
                     <strong className="text-slate-900 font-bold font-mono">{articleLines.filter(l => l.art_no).length}</strong>
                   </div>
+                  {formGrandOrderQty > 0 && (
+                    <div>
+                      <span className="text-slate-500 font-medium">Order Qty:</span>{' '}
+                      <strong className="text-slate-700 font-extrabold font-mono text-sm">{formGrandOrderQty.toLocaleString()} Pcs</strong>
+                    </div>
+                  )}
                   <div>
-                    <span className="text-slate-500 font-medium">Total Sets:</span>{' '}
-                    <strong className="text-[#3A3564] font-extrabold font-mono text-sm">{formGrandSets.toLocaleString()}</strong>
-                  </div>
-                  <div>
-                    <span className="text-slate-500 font-medium">Total Pieces:</span>{' '}
-                    <strong className="text-slate-900 font-extrabold font-mono text-base">{formGrandPcs.toLocaleString()} Pcs</strong>
+                    <span className="text-slate-500 font-medium">Challan Qty:</span>{' '}
+                    <strong className="text-[#3A3564] font-extrabold font-mono text-base">{formGrandPcs.toLocaleString()} Pcs</strong>
                   </div>
                 </div>
 

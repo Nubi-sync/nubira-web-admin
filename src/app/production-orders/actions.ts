@@ -9,12 +9,15 @@ export type ChallanArticleLine = {
   art_no: string
   sub_art_no?: string
   pattern_no?: string
+  category?: string
+  product?: string
   description?: string
   color_pattern: string
   size_range: string
-  sets: number
-  pcs_per_set: number
-  total_pcs: number
+  order_qty?: number | string
+  sets?: number | string
+  pcs_per_set?: number | string
+  total_pcs: number | string
   assigned_lineman_id?: string
   assigned_lineman_name?: string
   picture_url?: string
