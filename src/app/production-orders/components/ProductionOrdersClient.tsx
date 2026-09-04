@@ -34,7 +34,8 @@ import {
   Archive,
   TrendingUp,
   BarChart3,
-  ExternalLink
+  ExternalLink,
+  ArrowUpRight
 } from 'lucide-react'
 import {
   ChallanArticleLine,
@@ -53,6 +54,8 @@ import {
   parseChallanExcelFile
 } from '@/lib/excelChallanParser'
 import { TvViewButton } from '@/components/ui/TvViewButton'
+import { CustomSelect, CustomSelectOption } from '@/components/ui/CustomSelect'
+import { SubtleDialog } from '@/components/ui/SubtleDialog'
 
 const DEFAULT_FABRICS = [
   'PRINTED SINKER',
@@ -132,6 +135,54 @@ export function ProductionOrdersClient({
   const [selectedColorLineman, setSelectedColorLineman] = useState<Record<string, Record<string, string>>>({})
   const [activeActionTab, setActiveActionTab] = useState<Record<string, 'COLOR_SPLIT' | 'FULL_CHALLAN' | 'TABLE'>>({})
   const [allotSuccessMsg, setAllotSuccessMsg] = useState<Record<string, string>>({})
+
+  // Custom Subtle Dialog State (Replaces system-generated alert/confirm)
+  const [dialogState, setDialogState] = useState<{
+    isOpen: boolean
+    title: string
+    description?: string
+    variant?: 'error' | 'warning' | 'info' | 'success' | 'confirm'
+    confirmText?: string
+    cancelText?: string
+    onConfirm?: () => void
+  }>({
+    isOpen: false,
+    title: '',
+    variant: 'error'
+  })
+
+  const showErrorDialog = (title: string, description?: string) => {
+    setDialogState({
+      isOpen: true,
+      title,
+      description,
+      variant: 'error',
+      confirmText: 'Understood'
+    })
+  }
+
+  // Filter Dropdown Options (Zero emojis, international typography standards with colored indicator dots)
+  const statusFilterOptions: CustomSelectOption[] = [
+    { value: 'ACTIVE', label: 'Active Orders (Live Floor)', dotColor: '#10B981' },
+    { value: 'ALL', label: 'All Orders (Including Archive)', dotColor: '#64748B' },
+    { value: 'PENDING', label: 'Pending Allotment', dotColor: '#F59E0B' },
+    { value: 'IN_PROGRESS', label: 'In Production', dotColor: '#6366F1' },
+    { value: 'QC_PASSED', label: 'Ready (QC Passed)', dotColor: '#10B981' },
+    { value: 'DISPATCHED', label: 'Dispatched / Delivered', dotColor: '#1E293B' },
+  ]
+
+  const brandFilterOptions: CustomSelectOption[] = [
+    { value: 'ALL', label: 'All Brands' },
+    ...DEFAULT_BRANDS.map(b => ({ value: b, label: b }))
+  ]
+
+  const linemanOptions: CustomSelectOption[] = [
+    { value: '', label: 'Select Lineman...' },
+    ...linemenList.map(lm => ({
+      value: lm.id,
+      label: lm.username
+    }))
+  ]
 
   // ----------------------------------------------------------------------
   // NEW CHALLAN FORM STATE (Clean / Fresh / Zero Hardcoded Defaults)
@@ -524,20 +575,29 @@ export function ProductionOrdersClient({
   const handleSaveChallan = (e: React.FormEvent) => {
     e.preventDefault()
     if (!formChallanNo.trim()) {
-      alert('Please enter a Challan / Job Number (e.g. JOB-457).')
+      showErrorDialog(
+        'Missing Challan Number',
+        'Please enter a valid Job or Challan number (e.g. JOB-457) before saving.'
+      )
       return
     }
 
     const validLines = articleLines.filter(l => l.art_no && l.art_no.trim())
     if (validLines.length === 0) {
-      alert('Please enter at least one article with an Article Number.')
+      showErrorDialog(
+        'Missing Article Entries',
+        'Please enter at least one cutting article line with an Article Number.'
+      )
       return
     }
 
     const cleanChallan = formChallanNo.trim().toUpperCase()
     const isDuplicate = orders.some(o => o.challan_no?.trim().toUpperCase() === cleanChallan)
     if (isDuplicate) {
-      alert(`Challan #${cleanChallan} already exists in the system! Each delivery job challan must have a unique Challan Number. Please enter a new Challan Number.`)
+      showErrorDialog(
+        'Duplicate Challan Number',
+        `Challan #${cleanChallan} already exists in the system! Each delivery job challan must have a unique Challan Number. Please enter a different number.`
+      )
       return
     }
 
@@ -562,7 +622,7 @@ export function ProductionOrdersClient({
     startTransition(async () => {
       const res = await createChallan(payload)
       if (res?.error) {
-        alert(res.error)
+        showErrorDialog('Unable to Create Challan', res.error)
       } else {
         setShowNewChallanModal(false)
         // Refresh local optimistic state
@@ -724,35 +784,57 @@ export function ProductionOrdersClient({
   // Handle Allot Entire Challan to 1 Lineman (Routes directly to Target Allotment screen with pre-filled batch)
   const handleAllotEntireChallan = (challanId: string) => {
     const lmId = selectedFullLineman[challanId] || ''
-    const targetUrl = `/allotments?target_key=FULL_CHALLAN_${challanId}${lmId ? `&lineman_id=${lmId}` : ''}`
+    if (!lmId) {
+      showErrorDialog(
+        'Select a Lineman First',
+        'Please select a production lineman from the dropdown before allotting this entire delivery challan.'
+      )
+      return
+    }
+    const targetUrl = `/allotments?target_key=FULL_CHALLAN_${challanId}&lineman_id=${lmId}`
     router.push(targetUrl)
   }
 
   // Handle Allot by Color Group (Routes directly to Target Allotment screen with pre-filled color line)
   const handleAllotColorLine = (challanId: string, colorName: string) => {
     const lmId = selectedColorLineman[challanId]?.[colorName] || ''
-    const targetUrl = `/allotments?target_key=COLOR_${encodeURIComponent(colorName)}_${challanId}${lmId ? `&lineman_id=${lmId}` : ''}`
+    if (!lmId) {
+      showErrorDialog(
+        'Select a Lineman First',
+        `Please select a production lineman for the ${colorName} color line before allotting.`
+      )
+      return
+    }
+    const targetUrl = `/allotments?target_key=COLOR_${encodeURIComponent(colorName)}_${challanId}&lineman_id=${lmId}`
     router.push(targetUrl)
   }
 
-  // Delete Action
+  // Delete Action (Uses subtle custom confirmation dialogue instead of browser confirm)
   const handleDelete = (id: string, isChallan: boolean) => {
-    const msg = isChallan
-      ? 'Are you sure you want to delete this entire Challan and all its articles?'
-      : 'Delete this article line from the floor?'
-    if (!confirm(msg)) return
-
-    startTransition(async () => {
-      await deleteProductionOrder(id, isChallan)
-      if (isChallan) {
-        setOrders(prev => prev.filter(ch => ch.id !== id))
-      } else {
-        setOrders(prev =>
-          prev.map(ch => ({
-            ...ch,
-            articles: ch.articles.filter(a => a.allotment_id !== id)
-          }))
-        )
+    setDialogState({
+      isOpen: true,
+      title: isChallan ? 'Delete Delivery Challan' : 'Delete Article Line',
+      description: isChallan
+        ? 'Are you sure you want to permanently delete this entire Delivery Challan and all its associated articles from the production ledger?'
+        : 'Are you sure you want to remove this article line from the production floor?',
+      variant: 'confirm',
+      confirmText: 'Delete Permanently',
+      cancelText: 'Cancel',
+      onConfirm: () => {
+        setDialogState(prev => ({ ...prev, isOpen: false }))
+        startTransition(async () => {
+          await deleteProductionOrder(id, isChallan)
+          if (isChallan) {
+            setOrders(prev => prev.filter(ch => ch.id !== id))
+          } else {
+            setOrders(prev =>
+              prev.map(ch => ({
+                ...ch,
+                articles: ch.articles.filter(a => a.allotment_id !== id)
+              }))
+            )
+          }
+        })
       }
     })
   }
@@ -894,28 +976,52 @@ export function ProductionOrdersClient({
           <span className="text-xs sm:text-[13px] text-slate-500 font-medium mt-1">Buyer Job Sheets</span>
         </div>
 
-        {/* Article Styles (Master Articles Explorer) */}
+        {/* Article Styles (Master Articles Explorer - Interactive Action Card) */}
         <div 
+          role="button"
+          tabIndex={0}
           onClick={() => {
             if (masterArticlesUniverse.length > 0) {
               setSelectedArticleForHistory(masterArticlesUniverse[0].art_no)
             }
             setShowArticleHistoryModal(true)
           }}
-          className="bg-white p-4.5 sm:p-5 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between cursor-pointer hover:border-[#3A3564]/50 hover:shadow-md transition-all group select-none relative overflow-hidden"
-          title="Click to explore full Article Style History Ledger (2+ years)"
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              if (masterArticlesUniverse.length > 0) {
+                setSelectedArticleForHistory(masterArticlesUniverse[0].art_no)
+              }
+              setShowArticleHistoryModal(true)
+            }
+          }}
+          className="p-4.5 sm:p-5 rounded-2xl border border-[#3A3564]/30 bg-gradient-to-b from-white to-[#FAF7F0]/60 hover:to-[#FAF7F0] hover:border-[#3A3564] hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group select-none relative overflow-hidden flex flex-col justify-between ring-1 ring-transparent hover:ring-[#3A3564]/15"
+          title="Click to open Article Style Master Ledger & Production History"
         >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500 group-hover:text-[#3A3564] transition-colors flex items-center gap-1.5">
-              <span>Article Styles</span>
-              <span className="text-[10px] bg-[#FAF7F0] text-[#3A3564] px-1.5 py-0.5 rounded-md font-extrabold border border-black/10">Explorer ↗</span>
-            </span>
-            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] group-hover:bg-[#3A3564] group-hover:text-white border border-black/10 flex items-center justify-center shrink-0 shadow-2xs transition-all">
+          {/* Subtle Top Accent Ribbon Indicator */}
+          <div className="absolute top-0 left-0 right-0 h-[2.5px] bg-gradient-to-r from-transparent via-[#3A3564]/40 to-transparent group-hover:via-[#3A3564] transition-all" />
+
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+              <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-600 group-hover:text-[#3A3564] transition-colors">
+                Article Styles
+              </span>
+              <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold uppercase tracking-wider text-[#3A3564] bg-[#FAF7F0] group-hover:bg-[#3A3564] group-hover:text-white border border-[#3A3564]/20 px-2 py-0.5 rounded-md transition-all shadow-2xs">
+                Explorer <ArrowUpRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              </span>
+            </div>
+            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] group-hover:bg-[#3A3564] group-hover:text-white border border-[#3A3564]/20 flex items-center justify-center shrink-0 shadow-2xs transition-all">
               <Tag className="w-4 h-4" />
             </div>
           </div>
-          <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-mono mt-2">{summary.totalArticles}</p>
-          <span className="text-xs sm:text-[13px] text-slate-500 font-medium mt-1">Master Articles ({summary.totalArticleLines} Variants)</span>
+          <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-mono mt-2">
+            {summary.totalArticles}
+          </p>
+          <div className="flex items-center justify-between text-xs sm:text-[13px] text-slate-500 font-medium mt-1">
+            <span className="truncate">Master Articles ({summary.totalArticleLines} Variants)</span>
+            <span className="text-[11px] font-mono font-bold text-[#3A3564] group-hover:translate-x-0.5 transition-all shrink-0 ml-1">
+              View Ledger →
+            </span>
+          </div>
         </div>
 
         {/* Total Sets */}
@@ -992,35 +1098,27 @@ export function ProductionOrdersClient({
 
         <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end flex-wrap">
           {/* Brand Filter */}
-          <div className="flex items-center gap-1.5 text-xs sm:text-sm">
-            <span className="text-slate-500 font-medium">Brand:</span>
-            <select
+          <div className="flex items-center gap-2 text-xs sm:text-sm">
+            <span className="text-slate-500 font-semibold">Brand:</span>
+            <CustomSelect
               value={selectedBrand}
-              onChange={e => setSelectedBrand(e.target.value)}
-              className="bg-slate-50 border border-black/10 rounded-xl px-3 py-1.5 text-xs sm:text-sm font-bold text-slate-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
-            >
-              <option value="ALL">All Brands</option>
-              {DEFAULT_BRANDS.map(b => (
-                <option key={b} value={b}>{b}</option>
-              ))}
-            </select>
+              onChange={setSelectedBrand}
+              options={brandFilterOptions}
+              align="right"
+              buttonClassName="min-w-[130px]"
+            />
           </div>
 
-          {/* Status Filter */}
-          <div className="flex items-center gap-1.5 text-xs sm:text-sm">
-            <span className="text-slate-500 font-medium">Status:</span>
-            <select
+          {/* Status Filter (Zero Emojis, Clean International Typography & Colored Dots) */}
+          <div className="flex items-center gap-2 text-xs sm:text-sm">
+            <span className="text-slate-500 font-semibold">Status:</span>
+            <CustomSelect
               value={selectedStatus}
-              onChange={e => setSelectedStatus(e.target.value)}
-              className="bg-slate-50 border border-black/10 rounded-xl px-3 py-1.5 text-xs sm:text-sm font-bold text-slate-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
-            >
-              <option value="ACTIVE">⚡ Active Orders (Live Floor)</option>
-              <option value="ALL">📦 All Orders (Including Dispatched Archive)</option>
-              <option value="PENDING">⏳ Pending Allotment</option>
-              <option value="IN_PROGRESS">🧵 In Production</option>
-              <option value="QC_PASSED">✅ Ready (QC Passed)</option>
-              <option value="DISPATCHED">🚚 Dispatched / Delivered</option>
-            </select>
+              onChange={setSelectedStatus}
+              options={statusFilterOptions}
+              align="right"
+              buttonClassName="min-w-[190px]"
+            />
           </div>
         </div>
       </div>
@@ -1237,18 +1335,13 @@ export function ProductionOrdersClient({
                         </div>
 
                         <div className="flex items-center gap-3 shrink-0 flex-wrap">
-                          <select
+                          <CustomSelect
                             value={selectedFullLineman[challan.id] || ''}
-                            onChange={e => setSelectedFullLineman(prev => ({ ...prev, [challan.id]: e.target.value }))}
-                            className="bg-slate-50 border border-black/10 rounded-xl px-3.5 py-2 text-xs sm:text-sm font-bold text-slate-800 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
-                          >
-                            <option value="" className="text-slate-400">Select Lineman...</option>
-                            {linemenList.map(lm => (
-                              <option key={lm.id} value={lm.id} className="text-slate-900">
-                                {lm.username}
-                              </option>
-                            ))}
-                          </select>
+                            onChange={val => setSelectedFullLineman(prev => ({ ...prev, [challan.id]: val }))}
+                            options={linemanOptions}
+                            placeholder="Select Lineman..."
+                            buttonClassName="min-w-[190px] py-2"
+                          />
 
                           <button
                             type="button"
@@ -1318,13 +1411,14 @@ export function ProductionOrdersClient({
                                     <div className="mb-4">
                                       <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center justify-between">
                                         <span>Size Tier Breakdown</span>
-                                        <span>Quantity</span>
+                                        <span className="font-mono">Ratio / Pcs</span>
                                       </div>
-                                      <div className="space-y-1.5 bg-slate-50/80 rounded-xl p-2.5 border border-black/5">
-                                        {Object.entries(cg.sizeBreakdown).map(([sz, count], sIdx) => (
+
+                                      <div className="space-y-1.5">
+                                        {Object.entries(cg.sizeBreakdown).map(([sz, count]) => (
                                           <div
-                                            key={sIdx}
-                                            className="flex items-center justify-between text-xs sm:text-[13px] py-1 px-1.5 rounded-lg hover:bg-white transition-colors"
+                                            key={sz}
+                                            className="flex items-center justify-between text-xs sm:text-[13px] px-3 py-1.5 rounded-xl bg-slate-50 border border-black/5"
                                           >
                                             <div className="flex items-center gap-2">
                                               <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
@@ -1341,10 +1435,9 @@ export function ProductionOrdersClient({
 
                                   {/* Allotment Footer */}
                                   <div className="space-y-2.5 pt-3 border-t border-black/5">
-                                    <select
+                                    <CustomSelect
                                       value={selectedColorLineman[challan.id]?.[cg.colorName] || cg.assignedLinemanId || ''}
-                                      onChange={e => {
-                                        const val = e.target.value
+                                      onChange={val => {
                                         setSelectedColorLineman(prev => ({
                                           ...prev,
                                           [challan.id]: {
@@ -1353,15 +1446,13 @@ export function ProductionOrdersClient({
                                           }
                                         }))
                                       }}
-                                      className="w-full bg-slate-50 hover:bg-slate-100/80 border border-black/10 rounded-xl px-3 py-2 text-xs sm:text-sm font-bold text-slate-800 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#3A3564] transition-all"
-                                    >
-                                      <option value="">Assign {cg.colorName} to Lineman...</option>
-                                      {linemenList.map(lm => (
-                                        <option key={lm.id} value={lm.id}>
-                                          {lm.username}
-                                        </option>
-                                      ))}
-                                    </select>
+                                      options={[
+                                        { value: '', label: `Assign ${cg.colorName} to Lineman...` },
+                                        ...linemenList.map(lm => ({ value: lm.id, label: lm.username }))
+                                      ]}
+                                      className="w-full"
+                                      buttonClassName="w-full py-2"
+                                    />
 
                                     <button
                                       type="button"
@@ -1649,8 +1740,9 @@ export function ProductionOrdersClient({
                             }`}
                           />
                           {isDup && (
-                            <p className="text-[11px] font-bold text-rose-600 mt-1 flex items-center gap-1">
-                              <span>⚠️ Challan #{formChallanNo.trim().toUpperCase()} already exists! Enter a new Challan No.</span>
+                            <p className="text-[11px] font-bold text-rose-600 mt-1.5 flex items-center gap-1.5">
+                              <AlertCircle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+                              <span>Challan #{formChallanNo.trim().toUpperCase()} already exists! Enter a new unique Challan No.</span>
                             </p>
                           )}
                         </>
@@ -2340,6 +2432,19 @@ export function ProductionOrdersClient({
         </div>
       )}
 
+      {/* Global Subtle Error & Confirmation Dialogue */}
+      <SubtleDialog
+        isOpen={dialogState.isOpen}
+        onClose={() => setDialogState(prev => ({ ...prev, isOpen: false }))}
+        title={dialogState.title}
+        description={dialogState.description}
+        variant={dialogState.variant}
+        confirmText={dialogState.confirmText}
+        cancelText={dialogState.cancelText}
+        onConfirm={dialogState.onConfirm}
+      />
+
     </div>
   )
 }
+
