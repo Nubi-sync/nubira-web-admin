@@ -155,38 +155,67 @@ function formatExcelDate(dateVal: any): string {
   if (!dateVal) return ''
 
   // If number (Excel serial date number)
-  if (typeof dateVal === 'number' || (!isNaN(Number(dateVal)) && !String(dateVal).includes('-') && !String(dateVal).includes('/'))) {
-    const num = Number(dateVal)
-    if (num > 30000 && num < 60000) {
+  const num = typeof dateVal === 'number' ? dateVal : Number(dateVal)
+  if (!isNaN(num) && (typeof dateVal === 'number' || (!String(dateVal).includes('-') && !String(dateVal).includes('/')))) {
+    if (num > 20000 && num < 70000) {
       const date = new Date(Math.round((num - 25569) * 86400 * 1000))
-      return date.toISOString().split('T')[0]
+      if (!isNaN(date.getTime())) {
+        const y = date.getFullYear()
+        const m = String(date.getMonth() + 1).padStart(2, '0')
+        const d = String(date.getDate()).padStart(2, '0')
+        if (y >= 1990 && y <= 2099) {
+          return `${y}-${m}-${d}`
+        }
+      }
     }
   }
 
   const str = String(dateVal).trim()
+  if (!str) return ''
 
   // If already YYYY-MM-DD
-  if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
-    return str
+  const isoMatch = str.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})$/)
+  if (isoMatch) {
+    const y = parseInt(isoMatch[1], 10)
+    const m = isoMatch[2].padStart(2, '0')
+    const d = isoMatch[3].padStart(2, '0')
+    if (y >= 1990 && y <= 2099) {
+      return `${y}-${m}-${d}`
+    }
   }
 
   // If DD-MM-YYYY or DD/MM/YYYY
   const parts = str.split(/[-/.]/)
   if (parts.length === 3) {
     if (parts[0].length === 2 && parts[1].length === 2 && parts[2].length === 4) {
-      return `${parts[2]}-${parts[1]}-${parts[0]}`
+      const d = parts[0]
+      const m = parts[1]
+      const y = parseInt(parts[2], 10)
+      if (y >= 1990 && y <= 2099) {
+        return `${y}-${m}-${d}`
+      }
     }
     if (parts[0].length === 4 && parts[1].length === 2 && parts[2].length === 2) {
-      return `${parts[0]}-${parts[1]}-${parts[2]}`
+      const y = parseInt(parts[0], 10)
+      const m = parts[1]
+      const d = parts[2]
+      if (y >= 1990 && y <= 2099) {
+        return `${y}-${m}-${d}`
+      }
     }
   }
 
   const parsed = new Date(str)
   if (!isNaN(parsed.getTime())) {
-    return parsed.toISOString().split('T')[0]
+    const y = parsed.getFullYear()
+    const m = String(parsed.getMonth() + 1).padStart(2, '0')
+    const d = String(parsed.getDate()).padStart(2, '0')
+    if (y >= 1990 && y <= 2099) {
+      return `${y}-${m}-${d}`
+    }
   }
 
-  return str
+  return ''
 }
 
 /**
@@ -309,10 +338,16 @@ export async function parseMultiChallanExcelFile(file: File): Promise<ParsedMult
       if (!notes) notes = getVal('Special Remarks', 'Remarks', 'Notes', 'Special Notes', 'Status')
       
       const rawDate = getVal('Date', 'Challan Date (YYYY-MM-DD)', 'Challan Date')
-      if (rawDate) challanDate = formatExcelDate(rawDate)
+      if (rawDate) {
+        const parsedChDate = formatExcelDate(rawDate)
+        if (parsedChDate) challanDate = parsedChDate
+      }
 
       const rawDeliveryDate = getVal('Expected Delivery Date (YYYY-MM-DD)', 'Expected Delivery Date', 'Delivery Date')
-      if (rawDeliveryDate) deliveryDate = formatExcelDate(rawDeliveryDate)
+      if (rawDeliveryDate) {
+        const parsedDelDate = formatExcelDate(rawDeliveryDate)
+        if (parsedDelDate) deliveryDate = parsedDelDate
+      }
 
       const rawSampleGiven = getVal('Ready Sample Given (YES/NO)', 'Ready Sample Given', 'Sample Given')
       if (rawSampleGiven) {

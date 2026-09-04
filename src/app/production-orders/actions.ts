@@ -4,6 +4,24 @@ import { revalidatePath } from 'next/cache'
 import { createClient } from '@/utils/supabase/server'
 import { supabaseAdmin } from '@/utils/supabase/admin'
 
+/**
+ * Strictly sanitizes a date string to ensure it is a valid PostgreSQL DATE (YYYY-MM-DD) between years 1990 and 2099.
+ * Returns null if invalid or absent.
+ */
+function sanitizeDate(dateStr?: string | null): string | null {
+  if (!dateStr || typeof dateStr !== 'string') return null
+  const trimmed = dateStr.trim()
+  const match = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})$/)
+  if (!match) return null
+  const y = parseInt(match[1], 10)
+  const m = parseInt(match[2], 10)
+  const d = parseInt(match[3], 10)
+  if (y >= 1990 && y <= 2099 && m >= 1 && m <= 12 && d >= 1 && d <= 31) {
+    return `${match[1]}-${match[2]}-${match[3]}`
+  }
+  return null
+}
+
 export type ChallanArticleLine = {
   id?: string
   art_no: string
@@ -398,14 +416,18 @@ export async function createChallan(payload: CreateChallanPayload) {
       article_lines: processedLines
     })
 
+    const todayDate = new Date().toISOString().split('T')[0]
+    const safeChallanDate = sanitizeDate(challan_date) || todayDate
+    const safeDeliveryDate = sanitizeDate(delivery_date)
+
     // 3. Insert into `challans` table
     const { data: newChallan, error: challanInsertErr } = await supabase
       .from('challans')
       .insert({
         challan_no: cleanChallanNo,
-        challan_date: challan_date || new Date().toISOString().split('T')[0],
+        challan_date: safeChallanDate,
         brand: brand.trim().toUpperCase(),
-        delivery_date: delivery_date || null,
+        delivery_date: safeDeliveryDate,
         fabric_type: fabric_type.trim(),
         sample_given: !!sample_given,
         notes: challanNotesJson,
@@ -1002,11 +1024,15 @@ export async function createBulkChallans(payloads: CreateChallanPayload[]): Prom
         totalPcs: grandTotalPcs
       })
 
+      const todayDate = new Date().toISOString().split('T')[0]
+      const safeChallanDate = sanitizeDate(payload.challan_date) || todayDate
+      const safeDeliveryDate = sanitizeDate(payload.delivery_date)
+
       challansToInsert.push({
         challan_no: cleanChallanNo,
-        challan_date: payload.challan_date || new Date().toISOString().split('T')[0],
+        challan_date: safeChallanDate,
         brand: (payload.brand || '').trim().toUpperCase(),
-        delivery_date: payload.delivery_date || null,
+        delivery_date: safeDeliveryDate,
         fabric_type: (payload.fabric_type || '').trim(),
         sample_given: !!payload.sample_given,
         notes: challanNotesJson,
@@ -1029,6 +1055,7 @@ export async function createBulkChallans(payloads: CreateChallanPayload[]): Prom
 
     // 5. Build optimistic ChallanGroupedOrder results
     const createdChallans: ChallanGroupedOrder[] = []
+    const fallbackToday = new Date().toISOString().split('T')[0]
     for (const inserted of insertedChallans) {
       const cNo = (inserted.challan_no || '').trim().toUpperCase()
       const meta = challanMetadataMap.get(cNo)
@@ -1036,9 +1063,9 @@ export async function createBulkChallans(payloads: CreateChallanPayload[]): Prom
         createdChallans.push({
           id: inserted.id,
           challan_no: cNo,
-          challan_date: meta.payload.challan_date || new Date().toISOString().split('T')[0],
+          challan_date: sanitizeDate(meta.payload.challan_date) || fallbackToday,
           brand: (meta.payload.brand || '').trim().toUpperCase(),
-          delivery_date: meta.payload.delivery_date || '',
+          delivery_date: sanitizeDate(meta.payload.delivery_date) || '',
           fabric_type: (meta.payload.fabric_type || '').trim(),
           sample_given: !!meta.payload.sample_given,
           notes: JSON.stringify({

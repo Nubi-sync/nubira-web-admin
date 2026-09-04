@@ -38,15 +38,20 @@ const ROLE_BADGE_STYLES: Record<string, { bg: string; text: string; label: strin
     text: '#FFFFFF',
     label: 'PROD MANAGER'
   },
+  QC: {
+    bg: '#7C3AED',
+    text: '#FFFFFF',
+    label: 'QC'
+  },
   MENDING: {
     bg: '#0369A1',
     text: '#FFFFFF',
     label: 'MENDING'
   },
   PRODUCTION: {
-    bg: '#334155',
+    bg: '#7C3AED',
     text: '#FFFFFF',
-    label: 'PRODUCTION'
+    label: 'QC'
   },
   DISPATCH: {
     bg: '#FEF3C7',
@@ -319,9 +324,9 @@ export function EmployeeList({ employees }: { employees: Profile[] }) {
                           className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 outline-none cursor-pointer disabled:opacity-50 transition-colors shadow-2xs"
                         >
                           <option value="PRODUCTION_MANAGER">PROD MANAGER (Floor & Pipeline)</option>
+                          <option value="QC">QC (Inspection & Packing)</option>
                           <option value="MENDING">MENDING (Matrix Counting)</option>
                           <option value="LINEMAN">LINEMAN (Stitching)</option>
-                          <option value="PRODUCTION">PRODUCTION (QC)</option>
                           <option value="STORE">STORE (Inventory)</option>
                           <option value="DISPATCH">DISPATCH (Packing)</option>
                           <option value="ADMIN">ADMIN</option>
