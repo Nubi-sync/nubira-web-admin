@@ -11,19 +11,20 @@ import {
   AlertTriangle, 
   FileText, 
   ClipboardCheck,
-  Building2, 
   Calendar, 
   X, 
   Trash2, 
-  Eye,
   Clock,
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Package,
+  ShieldCheck
 } from 'lucide-react'
 import { createDeliveryChallan, recordCountingAudit, approveDeliveryChallan } from '../actions'
+import { SubtleDialog, SubtleDialogProps } from '@/components/ui/SubtleDialog'
 
 type Article = {
   id: string
@@ -116,6 +117,25 @@ export function DispatchClient({
   const pageSize = 10
   const [isPending, startTransition] = useTransition()
 
+  // Subtle Dialog State (replaces browser window.alert)
+  const [dialogState, setDialogState] = useState<Omit<SubtleDialogProps, 'onClose'>>({
+    isOpen: false,
+    title: '',
+    description: '',
+    variant: 'error',
+    confirmText: 'Understood'
+  })
+
+  const showDialog = (title: string, description: string, variant: 'error' | 'warning' | 'info' | 'success' = 'error') => {
+    setDialogState({
+      isOpen: true,
+      title,
+      description,
+      variant,
+      confirmText: 'Understood'
+    })
+  }
+
   // Sorting state
   const [sortCol, setSortCol] = useState<string>('default')
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc')
@@ -130,8 +150,9 @@ export function DispatchClient({
     setApprovingId(challanId)
     try {
       await approveDeliveryChallan(challanId)
+      showDialog('Dispatch Approved', 'Delivery challan has been authorized for dispatch and factory gate out.', 'success')
     } catch (err: any) {
-      alert(err.message || 'Failed to approve delivery challan')
+      showDialog('Approval Failed', err.message || 'Failed to approve delivery challan.', 'error')
     } finally {
       setApprovingId(null)
     }
@@ -364,43 +385,33 @@ export function DispatchClient({
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       
-      {/* 1. Sticky Page Header */}
-      <div 
-        className="sticky top-[14px] z-20 bg-white p-5 sm:p-6 rounded-[11px] border shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all"
-        style={{ borderColor: 'var(--border, #E2E8F0)' }}
-      >
+      {/* 1. Page Header (Zigza Executive Aesthetic) */}
+      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
         <div className="flex items-center gap-3.5">
-          <div 
-            className="w-[38px] h-[38px] rounded-[10px] flex items-center justify-center shrink-0 shadow-xs"
-            style={{ backgroundColor: 'var(--steel, #2B4C7E)', color: '#FFFFFF' }}
-          >
-            <Truck className="w-5 h-5" />
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+            <Truck className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
           <div>
-            <h1 
-              className="text-[20px] sm:text-[22px] font-bold font-[family-name:var(--font-heading)] leading-tight"
-              style={{ color: 'var(--ink, #1C2733)' }}
-            >
+            <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
               Dispatch & Logistics Hub
             </h1>
-            <p className="text-[13px] mt-0.5" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
-              Pre-loading physical counting, delivery challans, and truck transport management
+            <p className="text-xs sm:text-sm text-slate-600 mt-1">
+              Pre-loading physical counting, delivery challans, and transport tracking
             </p>
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
           <button 
             type="button"
             onClick={() => setShowCountingModal(true)}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-[7px] text-xs font-semibold border transition-colors bg-white hover:bg-slate-50 cursor-pointer focus:outline-none focus:ring-2"
-            style={{ borderColor: 'var(--steel, #2B4C7E)', color: 'var(--steel, #2B4C7E)' }}
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-[#FAF7F0] hover:bg-[#F2ECE1] text-[#3A3564] border border-black/10 shadow-2xs transition-all cursor-pointer"
           >
-            <ClipboardCheck className="w-3.5 h-3.5" />
-            <span>+ Record Counting</span>
+            <ClipboardCheck className="w-4 h-4" />
+            <span>Record Counting</span>
           </button>
           
           <button 
@@ -414,83 +425,73 @@ export function DispatchClient({
               }])
               setShowCreateChallanModal(true)
             }}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-[7px] text-xs font-semibold text-white transition-colors shadow-xs cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-1"
-            style={{ backgroundColor: 'var(--green, #1F9D63)' }}
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] shadow-xs transition-all cursor-pointer"
           >
-            <Plus className="w-3.5 h-3.5" />
-            <span>+ New Delivery Challan</span>
+            <Plus className="w-4 h-4" />
+            <span>New Delivery Challan</span>
           </button>
 
           <button 
             type="button"
             onClick={handleExportCSV}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-[7px] text-xs font-semibold border bg-white hover:bg-slate-50 transition-colors cursor-pointer focus:outline-none focus:ring-2"
-            style={{ borderColor: 'var(--border, #E2E8F0)', color: 'var(--ink, #1C2733)' }}
+            className="inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 shadow-2xs transition-all cursor-pointer"
+            title="Export current tab records as CSV"
           >
-            <Download className="w-3.5 h-3.5" />
+            <Download className="w-4 h-4" />
             <span>Export CSV</span>
           </button>
         </div>
       </div>
 
-      {/* 2. KPI Overview Banner (Neutral and Semantic Alert Styling) */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* 2. KPI Overview Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
         
         {/* Total Dispatched */}
-        <div 
-          className="bg-white p-5 rounded-[11px] border shadow-xs flex items-center justify-between"
-          style={{ borderColor: 'var(--border, #E2E8F0)' }}
-        >
+        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-black/10 shadow-2xs flex items-center justify-between">
           <div>
-            <span className="text-[11px] font-semibold uppercase tracking-[1.5px] block" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+            <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 block">
               Total Dispatched
             </span>
-            <span className="text-[24px] font-bold font-[family-name:var(--font-heading)] leading-tight block mt-1" style={{ color: 'var(--ink, #1C2733)' }}>
-              {totalDeliveredPieces.toLocaleString()} <span className="text-xs font-normal text-slate-500">pcs</span>
+            <span className="text-xl sm:text-2xl font-black font-mono text-slate-900 mt-1 block">
+              {totalDeliveredPieces.toLocaleString()} <span className="text-xs font-medium text-slate-500">pcs</span>
             </span>
           </div>
-          <div className="w-[32px] h-[32px] rounded-[8px] flex items-center justify-center shrink-0" style={{ backgroundColor: 'var(--steel-mist, #EEF3FA)', color: 'var(--steel, #2B4C7E)' }}>
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs">
             <Truck className="w-4 h-4" />
           </div>
         </div>
 
         {/* Delivery Challans */}
-        <div 
-          className="bg-white p-5 rounded-[11px] border shadow-xs flex items-center justify-between"
-          style={{ borderColor: 'var(--border, #E2E8F0)' }}
-        >
+        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-black/10 shadow-2xs flex items-center justify-between">
           <div>
-            <span className="text-[11px] font-semibold uppercase tracking-[1.5px] block" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+            <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 block">
               Delivery Challans
             </span>
-            <span className="text-[24px] font-bold font-[family-name:var(--font-heading)] leading-tight block mt-1" style={{ color: 'var(--ink, #1C2733)' }}>
-              {totalChallansCount} <span className="text-xs font-normal text-slate-500">issued</span>
+            <span className="text-xl sm:text-2xl font-black font-mono text-slate-900 mt-1 block">
+              {totalChallansCount} <span className="text-xs font-medium text-slate-500">issued</span>
             </span>
           </div>
-          <div className="w-[32px] h-[32px] rounded-[8px] flex items-center justify-center shrink-0" style={{ backgroundColor: 'var(--steel-mist, #EEF3FA)', color: 'var(--steel, #2B4C7E)' }}>
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs">
             <FileText className="w-4 h-4" />
           </div>
         </div>
 
         {/* Counted Audits */}
-        <div 
-          className="bg-white p-5 rounded-[11px] border shadow-xs flex items-center justify-between"
-          style={{ borderColor: 'var(--border, #E2E8F0)' }}
-        >
+        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-black/10 shadow-2xs flex items-center justify-between">
           <div>
-            <span className="text-[11px] font-semibold uppercase tracking-[1.5px] block" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
+            <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 block">
               Counted Audits
             </span>
-            <span className="text-[24px] font-bold font-[family-name:var(--font-heading)] leading-tight block mt-1" style={{ color: 'var(--ink, #1C2733)' }}>
-              {totalCountedPieces.toLocaleString()} <span className="text-xs font-normal text-slate-500">pcs</span>
+            <span className="text-xl sm:text-2xl font-black font-mono text-slate-900 mt-1 block">
+              {totalCountedPieces.toLocaleString()} <span className="text-xs font-medium text-slate-500">pcs</span>
             </span>
           </div>
-          <div className="w-[32px] h-[32px] rounded-[8px] flex items-center justify-center shrink-0" style={{ backgroundColor: 'var(--steel-mist, #EEF3FA)', color: 'var(--steel, #2B4C7E)' }}>
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs">
             <ClipboardCheck className="w-4 h-4" />
           </div>
         </div>
 
-        {/* Discrepancies (Semantic Alert State) */}
+        {/* Discrepancies */}
         <div 
           onClick={() => {
             if (totalDiscrepancies > 0) {
@@ -499,68 +500,68 @@ export function DispatchClient({
               setCurrentPage(1)
             }
           }}
-          className={`bg-white p-5 rounded-[11px] border shadow-xs flex items-center justify-between transition-all ${
-            totalDiscrepancies > 0 ? 'cursor-pointer hover:shadow-sm' : ''
+          className={`p-4 sm:p-5 rounded-2xl border shadow-2xs flex items-center justify-between transition-all ${
+            totalDiscrepancies > 0 
+              ? 'bg-rose-50/40 border-rose-200/80 cursor-pointer hover:border-rose-300' 
+              : 'bg-white border-black/10'
           }`}
-          style={{ 
-            borderColor: totalDiscrepancies > 0 ? 'var(--red, #C0392B)' : 'var(--border, #E2E8F0)',
-            backgroundColor: totalDiscrepancies > 0 ? 'var(--red-mist, #FBEAE8)' : '#FFFFFF'
-          }}
         >
           <div>
-            <span className="text-[11px] font-semibold uppercase tracking-[1.5px] block" style={{ color: totalDiscrepancies > 0 ? 'var(--red, #C0392B)' : 'var(--ink-soft, #5B6B7C)' }}>
+            <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 block">
               Discrepancies
             </span>
-            <span className="text-[24px] font-bold font-[family-name:var(--font-heading)] leading-tight block mt-1" style={{ color: totalDiscrepancies > 0 ? 'var(--red, #C0392B)' : 'var(--ink, #1C2733)' }}>
-              {totalDiscrepancies} <span className="text-xs font-normal text-slate-500">mismatches</span>
+            <span className={`text-xl sm:text-2xl font-black font-mono mt-1 block ${
+              totalDiscrepancies > 0 ? 'text-rose-700' : 'text-slate-900'
+            }`}>
+              {totalDiscrepancies} <span className="text-xs font-medium text-slate-500">mismatches</span>
             </span>
           </div>
-          <div className="w-[32px] h-[32px] rounded-[8px] flex items-center justify-center shrink-0" style={{ backgroundColor: 'var(--red-mist, #FBEAE8)', color: 'var(--red, #C0392B)' }}>
+          <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-2xs ${
+            totalDiscrepancies > 0
+              ? 'bg-rose-100 text-rose-700 border border-rose-200'
+              : 'bg-[#FAF7F0] text-[#3A3564] border border-black/10'
+          }`}>
             <AlertTriangle className="w-4 h-4" />
           </div>
         </div>
       </div>
 
       {/* 3. Navigation Tabs, Status Filter Chips & Search Toolbar */}
-      <div 
-        className="space-y-3 bg-white p-3.5 rounded-[11px] border shadow-xs"
-        style={{ borderColor: 'var(--border, #E2E8F0)' }}
-      >
+      <div className="bg-white p-4 sm:p-5 rounded-2xl border border-black/10 shadow-2xs space-y-4">
         {/* Top Row: Navigation Tabs */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar border-b border-slate-100">
           <button
             type="button"
             onClick={() => handleTabChange('challans')}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-[6px] text-xs font-semibold whitespace-nowrap transition-all outline-none ${
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all cursor-pointer ${
               activeTab === 'challans'
-                ? 'bg-[var(--steel,#2B4C7E)] text-white shadow-xs'
-                : 'text-[var(--ink-soft,#5B6B7C)] hover:text-[var(--ink,#1C2733)] bg-transparent'
+                ? 'bg-[#3A3564] text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
-            <FileText className="w-3.5 h-3.5" />
+            <FileText className="w-4 h-4" />
             <span>Delivery Challans Master ({filteredChallans.length})</span>
           </button>
 
           <button
             type="button"
             onClick={() => handleTabChange('counting')}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-[6px] text-xs font-semibold whitespace-nowrap transition-all outline-none ${
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all cursor-pointer ${
               activeTab === 'counting'
-                ? 'bg-[var(--steel,#2B4C7E)] text-white shadow-xs'
-                : 'text-[var(--ink-soft,#5B6B7C)] hover:text-[var(--ink,#1C2733)] bg-transparent'
+                ? 'bg-[#3A3564] text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
-            <ClipboardCheck className="w-3.5 h-3.5" />
+            <ClipboardCheck className="w-4 h-4" />
             <span>Pre-Loading Counting Audits ({filteredCounting.length})</span>
           </button>
         </div>
 
-        {/* Bottom Row: Status Filter Chips + Search Input */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2 border-t" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
-          
+        {/* Bottom Row: Filter Chips + Search Input */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           {/* Status Filter Chips (For Challans Tab) */}
           {activeTab === 'challans' ? (
-            <div className="flex flex-wrap items-center gap-1.5">
+            <div className="flex flex-wrap items-center gap-2">
               {(['ALL', 'MATCHED', 'DISCREPANCY', 'PENDING'] as ReconciliationStatus[]).map((st) => {
                 const isSelected = statusFilter === st
                 const labelMap: Record<ReconciliationStatus, string> = {
@@ -577,10 +578,10 @@ export function DispatchClient({
                       setStatusFilter(st)
                       setCurrentPage(1)
                     }}
-                    className={`px-3 py-1 rounded-[6px] text-xs font-semibold border transition-colors outline-none ${
+                    className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-2xs ${
                       isSelected
-                        ? 'bg-[var(--steel-mist,#EEF3FA)] border-[var(--steel,#2B4C7E)] text-[var(--steel-dark,#1F3A63)]'
-                        : 'bg-white border-[var(--border,#E2E8F0)] text-[var(--ink-soft,#5B6B7C)] hover:text-[var(--ink,#1C2733)]'
+                        ? 'bg-[#3A3564] text-white shadow-xs'
+                        : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200/60'
                     }`}
                   >
                     {labelMap[st]}
@@ -589,14 +590,14 @@ export function DispatchClient({
               })}
             </div>
           ) : (
-            <div className="text-xs font-medium" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
-              Physical piece count audits conducted before loading
+            <div className="text-xs font-medium text-slate-500">
+              Physical carton and piece count audits conducted before gate dispatch
             </div>
           )}
 
           {/* Search Box */}
-          <div className="relative w-full sm:w-72">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <div className="relative w-full sm:max-w-xs">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input 
               type="text"
               placeholder="Search challan, buyer, vehicle..."
@@ -605,39 +606,30 @@ export function DispatchClient({
                 setSearchTerm(e.target.value)
                 setCurrentPage(1)
               }}
-              className="w-full pl-9 pr-3 py-1.5 bg-slate-50 border rounded-[7px] text-xs outline-none transition-colors"
-              style={{ borderColor: 'var(--border, #E2E8F0)' }}
-              onFocus={(e) => e.currentTarget.style.borderColor = 'var(--steel, #2B4C7E)'}
-              onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border, #E2E8F0)'}
+              className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] transition-all"
             />
           </div>
         </div>
       </div>
 
       {/* 4. Main Table / Empty State Area */}
-      <div 
-        className="bg-white rounded-[11px] border shadow-xs overflow-hidden"
-        style={{ borderColor: 'var(--border, #E2E8F0)' }}
-      >
+      <div className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden">
         
         {/* ======================================================== */}
-        {/* TAB 1: DELIVERY CHALLANS MASTER (WITH RECONCILIATION)    */}
+        {/* TAB 1: DELIVERY CHALLANS MASTER                          */}
         {/* ======================================================== */}
         {activeTab === 'challans' && (
           <div>
             {filteredChallans.length === 0 ? (
               <div className="p-12 text-center flex flex-col items-center justify-center space-y-3">
-                <div 
-                  className="w-11 h-11 rounded-full flex items-center justify-center"
-                  style={{ backgroundColor: 'var(--steel-mist, #EEF3FA)', color: 'var(--steel, #2B4C7E)' }}
-                >
-                  <FileText className="w-5 h-5" />
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs">
+                  <FileText className="w-6 h-6" />
                 </div>
-                <h3 className="text-base font-bold font-[family-name:var(--font-heading)]" style={{ color: 'var(--ink, #1C2733)' }}>
-                  No delivery challans yet
+                <h3 className="text-base sm:text-lg font-extrabold text-slate-900">
+                  No delivery challans found
                 </h3>
-                <p className="text-xs max-w-sm" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
-                  Challans you create will show up here, with automatic reconciliation against cut and counted quantities.
+                <p className="text-xs sm:text-sm text-slate-500 max-w-sm">
+                  Created delivery challans will show up here, with automatic reconciliation against cutting and counted quantities.
                 </p>
                 <button
                   type="button"
@@ -650,27 +642,27 @@ export function DispatchClient({
                     }])
                     setShowCreateChallanModal(true)
                   }}
-                  className="mt-2 px-4 py-2 rounded-[7px] text-xs font-semibold text-white shadow-xs transition-colors"
-                  style={{ backgroundColor: 'var(--green, #1F9D63)' }}
+                  className="mt-2 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] shadow-xs transition-colors cursor-pointer"
                 >
-                  + New Delivery Challan
+                  <Plus className="w-4 h-4" />
+                  <span>Create First Challan</span>
                 </button>
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse text-xs">
+                <table className="w-full text-left border-collapse min-w-[720px]">
                   <thead>
-                    <tr className="bg-slate-50 border-b text-[11px] uppercase tracking-wider font-bold" style={{ borderColor: 'var(--border, #E2E8F0)', color: 'var(--ink-soft, #5B6B7C)' }}>
+                    <tr className="bg-[#FAF7F0] border-b border-black/10 text-slate-600 font-mono font-bold uppercase tracking-wider text-xs">
                       
                       {/* Sortable Challan No */}
                       <th 
                         onClick={() => handleSort('challan_no')}
-                        className="px-5 py-3.5 cursor-pointer hover:bg-slate-100 transition-colors select-none font-bold"
+                        className="py-3.5 px-4 cursor-pointer hover:bg-[#F2ECE1] transition-colors select-none"
                       >
                         <div className="flex items-center gap-1.5">
                           <span>Challan No</span>
                           {sortCol === 'challan_no' ? (
-                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" /> : <ArrowDown className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" />
+                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#3A3564]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#3A3564]" />
                           ) : (
                             <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
                           )}
@@ -680,127 +672,118 @@ export function DispatchClient({
                       {/* Sortable Date */}
                       <th 
                         onClick={() => handleSort('date')}
-                        className="px-4 py-3.5 cursor-pointer hover:bg-slate-100 transition-colors select-none font-bold"
+                        className="py-3.5 px-4 cursor-pointer hover:bg-[#F2ECE1] transition-colors select-none"
                       >
                         <div className="flex items-center gap-1.5">
                           <span>Date</span>
                           {sortCol === 'date' ? (
-                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" /> : <ArrowDown className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" />
+                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#3A3564]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#3A3564]" />
                           ) : (
                             <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
                           )}
                         </div>
                       </th>
 
-                      <th className="px-4 py-3.5 font-bold">Buyer / Consignee</th>
-                      <th className="px-4 py-3.5 font-bold">Vehicle / Transporter</th>
+                      <th className="py-3.5 px-4">Buyer / Consignee</th>
+                      <th className="py-3.5 px-4">Vehicle / Transporter</th>
                       
                       {/* Reconciliation Quantities */}
-                      <th className="px-3 py-3.5 text-right font-bold text-slate-500">Cut Qty</th>
-                      <th className="px-3 py-3.5 text-right font-bold text-slate-500">Counted Qty</th>
+                      <th className="py-3.5 px-3 text-right text-slate-500">Cut Qty</th>
+                      <th className="py-3.5 px-3 text-right text-slate-500">Counted Qty</th>
                       
                       {/* Sortable Dispatched Qty */}
                       <th 
                         onClick={() => handleSort('dispatched')}
-                        className="px-4 py-3.5 text-right cursor-pointer hover:bg-slate-100 transition-colors select-none font-bold text-[var(--steel,#2B4C7E)]"
+                        className="py-3.5 px-4 text-right cursor-pointer hover:bg-[#F2ECE1] transition-colors select-none text-[#3A3564]"
                       >
                         <div className="flex items-center justify-end gap-1.5">
                           <span>Dispatched Qty</span>
                           {sortCol === 'dispatched' ? (
-                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" /> : <ArrowDown className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" />
+                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#3A3564]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#3A3564]" />
                           ) : (
                             <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
                           )}
                         </div>
                       </th>
 
-                      {/* Sortable Reconciliation Badge */}
+                      {/* Reconciliation Status */}
                       <th 
                         onClick={() => handleSort('reconciliation')}
-                        className="px-4 py-3.5 text-center cursor-pointer hover:bg-slate-100 transition-colors select-none font-bold"
+                        className="py-3.5 px-4 text-center cursor-pointer hover:bg-[#F2ECE1] transition-colors select-none"
                       >
                         <div className="flex items-center justify-center gap-1.5">
                           <span>Reconciliation</span>
                           {sortCol === 'reconciliation' ? (
-                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" /> : <ArrowDown className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" />
+                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#3A3564]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#3A3564]" />
                           ) : (
                             <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
                           )}
                         </div>
                       </th>
 
-                      <th className="px-4 py-3.5 font-bold text-center">Action</th>
+                      <th className="py-3.5 px-4 text-center">Action</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100">
+                  <tbody className="divide-y divide-slate-100 text-xs sm:text-sm">
                     {paginatedChallans.map((row) => (
-                      <tr key={row.id} className="hover:bg-slate-50/50 transition-colors">
-                        <td className="px-5 py-3.5 font-bold" style={{ color: 'var(--steel, #2B4C7E)' }}>
+                      <tr key={row.id} className="hover:bg-slate-50/80 transition-colors">
+                        <td className="py-3.5 px-4 font-mono font-extrabold text-[#3A3564]">
                           {row.challan_no}
                         </td>
-                        <td className="px-4 py-3.5 font-mono text-slate-600 whitespace-nowrap">
+                        <td className="py-3.5 px-4 font-mono text-slate-600 whitespace-nowrap">
                           {row.delivery_date || row.created_at.split('T')[0]}
                         </td>
-                        <td className="px-4 py-3.5 font-semibold text-slate-900">
-                          <div>{row.buyer_name}</div>
-                          {row.destination && <div className="text-[11px] text-slate-400 font-normal">{row.destination}</div>}
+                        <td className="py-3.5 px-4">
+                          <div className="font-extrabold text-slate-900">{row.buyer_name}</div>
+                          {row.destination && <div className="text-[11px] text-slate-500 font-normal">{row.destination}</div>}
                         </td>
-                        <td className="px-4 py-3.5 text-slate-600">
-                          <div>{row.vehicle_no || '-'}</div>
+                        <td className="py-3.5 px-4 text-slate-600">
+                          <div className="font-mono font-medium text-slate-800">{row.vehicle_no || '-'}</div>
                           {row.driver_name && <div className="text-[11px] text-slate-400">{row.driver_name} {row.driver_phone ? '(' + row.driver_phone + ')' : ''}</div>}
                         </td>
-                        <td className="px-3 py-3.5 text-right font-mono text-slate-500 font-medium">
+                        <td className="py-3.5 px-3 text-right font-mono text-slate-500 font-medium">
                           {row.cutQty.toLocaleString()} pcs
                         </td>
-                        <td className="px-3 py-3.5 text-right font-mono text-slate-600 font-medium">
+                        <td className="py-3.5 px-3 text-right font-mono text-slate-600 font-medium">
                           {row.countedQty.toLocaleString()} pcs
                         </td>
-                        <td className="px-4 py-3.5 text-right font-mono font-bold" style={{ color: 'var(--steel, #2B4C7E)' }}>
+                        <td className="py-3.5 px-4 text-right font-mono font-extrabold text-slate-900">
                           {row.total_pieces.toLocaleString()} pcs
                         </td>
-                        <td className="px-4 py-3.5 text-center">
+                        <td className="py-3.5 px-4 text-center">
                           {row.reconciliationStatus === 'MATCHED' && (
-                            <span 
-                              className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold"
-                              style={{ backgroundColor: 'var(--green-mist, #E6F6EE)', color: 'var(--green, #1F9D63)' }}
-                            >
-                              <CheckCircle2 className="w-3 h-3" />
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 font-mono">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                               <span>{row.reconciliationLabel}</span>
                             </span>
                           )}
                           {row.reconciliationStatus === 'DISCREPANCY' && (
-                            <span 
-                              className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold"
-                              style={{ backgroundColor: 'var(--red-mist, #FBEAE8)', color: 'var(--red, #C0392B)' }}
-                            >
-                              <AlertTriangle className="w-3 h-3" />
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-50 text-rose-800 border border-rose-200 font-mono">
+                              <AlertTriangle className="w-3.5 h-3.5 text-rose-600" />
                               <span>{row.reconciliationLabel}</span>
                             </span>
                           )}
                           {row.reconciliationStatus === 'PENDING' && (
-                            <span 
-                              className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold"
-                              style={{ backgroundColor: 'var(--amber-mist, #FBF0E1)', color: 'var(--amber, #C8802B)' }}
-                            >
-                              <Clock className="w-3 h-3" />
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200 font-mono">
+                              <Clock className="w-3.5 h-3.5 text-amber-600" />
                               <span>{row.reconciliationLabel}</span>
                             </span>
                           )}
                         </td>
-                        <td className="px-4 py-3.5 text-center">
+                        <td className="py-3.5 px-4 text-center">
                           <div className="flex items-center justify-center gap-2">
                             {row.status === 'PENDING_ADMIN_APPROVAL' ? (
                               <button
                                 type="button"
                                 disabled={approvingId === row.id}
                                 onClick={() => handleApproveChallan(row.id)}
-                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-[6px] bg-[#10B981] hover:bg-[#059669] text-white text-[11px] font-bold shadow-xs transition-colors cursor-pointer disabled:opacity-50"
+                                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold shadow-xs transition-colors cursor-pointer disabled:opacity-50"
                               >
                                 <CheckCircle2 className="w-3.5 h-3.5" />
                                 <span>{approvingId === row.id ? 'Approving...' : 'Approve Dispatch'}</span>
                               </button>
                             ) : (
-                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 font-mono shadow-2xs">
                                 <CheckCircle2 className="w-3 h-3 text-emerald-600" />
                                 Approved
                               </span>
@@ -808,10 +791,9 @@ export function DispatchClient({
                             <button
                               type="button"
                               onClick={() => setSelectedChallanForPrint(row)}
-                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-[6px] border bg-white hover:bg-slate-50 text-[11px] font-semibold text-slate-700 transition-colors shadow-2xs"
-                              style={{ borderColor: 'var(--border, #E2E8F0)' }}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-xs font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
                             >
-                              <Printer className="w-3 h-3 text-slate-500" />
+                              <Printer className="w-3.5 h-3.5" />
                               <span>Print / View</span>
                             </button>
                           </div>
@@ -832,112 +814,111 @@ export function DispatchClient({
           <div>
             {filteredCounting.length === 0 ? (
               <div className="p-12 text-center flex flex-col items-center justify-center space-y-3">
-                <div 
-                  className="w-11 h-11 rounded-full flex items-center justify-center"
-                  style={{ backgroundColor: 'var(--steel-mist, #EEF3FA)', color: 'var(--steel, #2B4C7E)' }}
-                >
-                  <ClipboardCheck className="w-5 h-5" />
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs">
+                  <ClipboardCheck className="w-6 h-6" />
                 </div>
-                <h3 className="text-base font-bold font-[family-name:var(--font-heading)]" style={{ color: 'var(--ink, #1C2733)' }}>
-                  No counting audits yet
+                <h3 className="text-base sm:text-lg font-extrabold text-slate-900">
+                  No counting audits recorded yet
                 </h3>
-                <p className="text-xs max-w-sm" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
-                  Physical piece counting reports before truck loading will appear here.
+                <p className="text-xs sm:text-sm text-slate-500 max-w-sm">
+                  Physical piece counting reports logged before truck gate-out will appear here.
                 </p>
                 <button
                   type="button"
                   onClick={() => setShowCountingModal(true)}
-                  className="mt-2 px-4 py-2 rounded-[7px] text-xs font-semibold text-white shadow-xs transition-colors"
-                  style={{ backgroundColor: 'var(--steel, #2B4C7E)' }}
+                  className="mt-2 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] shadow-xs transition-colors cursor-pointer"
                 >
-                  + Record Counting
+                  <Plus className="w-4 h-4" />
+                  <span>Record First Counting</span>
                 </button>
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse text-xs">
+                <table className="w-full text-left border-collapse min-w-[700px]">
                   <thead>
-                    <tr className="bg-slate-50 border-b text-[11px] uppercase tracking-wider font-bold" style={{ borderColor: 'var(--border, #E2E8F0)', color: 'var(--ink-soft, #5B6B7C)' }}>
+                    <tr className="bg-[#FAF7F0] border-b border-black/10 text-slate-600 font-mono font-bold uppercase tracking-wider text-xs">
                       
                       {/* Sortable Date */}
                       <th 
                         onClick={() => handleSort('date')}
-                        className="px-5 py-3.5 cursor-pointer hover:bg-slate-100 transition-colors select-none font-bold"
+                        className="py-3.5 px-4 cursor-pointer hover:bg-[#F2ECE1] transition-colors select-none"
                       >
                         <div className="flex items-center gap-1.5">
                           <span>Date</span>
                           {sortCol === 'date' ? (
-                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" /> : <ArrowDown className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" />
+                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#3A3564]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#3A3564]" />
                           ) : (
                             <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
                           )}
                         </div>
                       </th>
 
-                      <th className="px-4 py-3.5 font-bold">Article No</th>
-                      <th className="px-4 py-3.5 font-bold">Color / Size</th>
+                      <th className="py-3.5 px-4">Article No</th>
+                      <th className="py-3.5 px-4">Color / Size</th>
                       
                       {/* Sortable Counted Qty */}
                       <th 
                         onClick={() => handleSort('counted')}
-                        className="px-4 py-3.5 text-right cursor-pointer hover:bg-slate-100 transition-colors select-none font-bold text-[var(--steel,#2B4C7E)]"
+                        className="py-3.5 px-4 text-right cursor-pointer hover:bg-[#F2ECE1] transition-colors select-none text-[#3A3564]"
                       >
                         <div className="flex items-center justify-end gap-1.5">
                           <span>Counted Qty</span>
                           {sortCol === 'counted' ? (
-                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" /> : <ArrowDown className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" />
+                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#3A3564]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#3A3564]" />
                           ) : (
                             <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
                           )}
                         </div>
                       </th>
 
-                      <th className="px-4 py-3.5 text-right font-bold text-slate-500">Expected Qty</th>
-                      <th className="px-4 py-3.5 text-center font-bold">Difference</th>
-                      <th className="px-4 py-3.5 font-bold">Remarks</th>
+                      <th className="py-3.5 px-4 text-right text-slate-500">Expected Qty</th>
+                      <th className="py-3.5 px-4 text-center">Difference</th>
+                      <th className="py-3.5 px-4">Remarks</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100">
+                  <tbody className="divide-y divide-slate-100 text-xs sm:text-sm">
                     {paginatedCounting.map((row) => {
                       const diff = row.counted_qty - row.expected_qty
                       const isMatch = diff === 0
                       const isShort = diff < 0
 
                       return (
-                        <tr key={row.id} className="hover:bg-slate-50/50 transition-colors">
-                          <td className="px-5 py-3.5 font-mono text-slate-600 whitespace-nowrap">
+                        <tr key={row.id} className="hover:bg-slate-50/80 transition-colors">
+                          <td className="py-3.5 px-4 font-mono text-slate-600 whitespace-nowrap">
                             {row.entry_date || row.created_at.split('T')[0]}
                           </td>
-                          <td className="px-4 py-3.5 font-bold" style={{ color: 'var(--steel, #2B4C7E)' }}>
+                          <td className="py-3.5 px-4 font-extrabold text-[#3A3564] font-mono">
                             {row.article?.art_no || '-'}
                           </td>
-                          <td className="px-4 py-3.5">
+                          <td className="py-3.5 px-4">
                             {(row.color || row.size) ? (
-                              <span className="inline-flex items-center px-2 py-0.5 rounded-[5px] text-[11px] font-medium bg-slate-100 text-slate-800">
+                              <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 text-slate-800 border border-slate-200">
                                 {row.color} {row.size ? '(' + row.size + ')' : ''}
                               </span>
                             ) : (
                               <span className="text-slate-400">-</span>
                             )}
                           </td>
-                          <td className="px-4 py-3.5 text-right font-mono font-bold" style={{ color: 'var(--steel, #2B4C7E)' }}>
+                          <td className="py-3.5 px-4 text-right font-mono font-extrabold text-slate-900">
                             {row.counted_qty.toLocaleString()} pcs
                           </td>
-                          <td className="px-4 py-3.5 text-right font-mono text-slate-500">
+                          <td className="py-3.5 px-4 text-right font-mono text-slate-500 font-medium">
                             {row.expected_qty.toLocaleString()} pcs
                           </td>
-                          <td className="px-4 py-3.5 text-center">
+                          <td className="py-3.5 px-4 text-center">
                             <span 
-                              className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold font-mono"
-                              style={{
-                                backgroundColor: isMatch ? 'var(--green-mist, #E6F6EE)' : isShort ? 'var(--red-mist, #FBEAE8)' : 'var(--amber-mist, #FBF0E1)',
-                                color: isMatch ? 'var(--green, #1F9D63)' : isShort ? 'var(--red, #C0392B)' : 'var(--amber, #C8802B)'
-                              }}
+                              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold font-mono border ${
+                                isMatch 
+                                  ? 'bg-emerald-50 text-emerald-800 border-emerald-200' 
+                                  : isShort 
+                                    ? 'bg-rose-50 text-rose-800 border-rose-200' 
+                                    : 'bg-amber-50 text-amber-800 border-amber-200'
+                              }`}
                             >
                               {diff > 0 ? '+' + diff : diff} pcs
                             </span>
                           </td>
-                          <td className="px-4 py-3.5 text-slate-500 text-[11px]">
+                          <td className="py-3.5 px-4 text-slate-500 text-xs">
                             {row.remarks || '-'}
                           </td>
                         </tr>
@@ -952,19 +933,18 @@ export function DispatchClient({
 
         {/* 5. Pagination Controls Footer */}
         {currentListCount > 0 && (
-          <div className="p-4 border-t bg-slate-50/60 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
-            <div style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
-              Showing <span className="font-semibold">{(currentPage - 1) * pageSize + 1}</span>–<span className="font-semibold">{Math.min(currentPage * pageSize, currentListCount)}</span> of <span className="font-semibold">{currentListCount}</span> {activeTab === 'challans' ? 'challans' : 'audits'}
+          <div className="p-4 border-t border-slate-100 bg-slate-50/60 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs sm:text-sm">
+            <div className="text-slate-500 font-medium">
+              Showing <span className="font-bold text-slate-800">{(currentPage - 1) * pageSize + 1}</span>–<span className="font-bold text-slate-800">{Math.min(currentPage * pageSize, currentListCount)}</span> of <span className="font-bold text-slate-800">{currentListCount}</span> {activeTab === 'challans' ? 'challans' : 'audits'}
             </div>
 
             {/* Page Buttons */}
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1.5">
               <button
                 type="button"
                 disabled={currentPage === 1}
                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                className="p-1.5 rounded-[6px] border bg-white text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors cursor-pointer"
-                style={{ borderColor: 'var(--border, #E2E8F0)' }}
+                className="p-2 rounded-xl border border-slate-200 bg-white text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors cursor-pointer"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
@@ -976,14 +956,11 @@ export function DispatchClient({
                     key={pg}
                     type="button"
                     onClick={() => setCurrentPage(pg)}
-                    className={`w-7 h-7 rounded-[6px] text-xs font-semibold border transition-colors cursor-pointer ${
+                    className={`w-8 h-8 rounded-xl text-xs font-bold border transition-colors cursor-pointer ${
                       isActive
-                        ? 'text-white border-transparent'
-                        : 'bg-white text-slate-700 hover:bg-slate-50 border-[var(--border,#E2E8F0)]'
+                        ? 'bg-[#3A3564] text-white border-[#3A3564] shadow-xs'
+                        : 'bg-white text-slate-700 hover:bg-slate-50 border-slate-200'
                     }`}
-                    style={{
-                      backgroundColor: isActive ? 'var(--steel, #2B4C7E)' : '#FFFFFF'
-                    }}
                   >
                     {pg}
                   </button>
@@ -994,8 +971,7 @@ export function DispatchClient({
                 type="button"
                 disabled={currentPage === totalPages}
                 onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                className="p-1.5 rounded-[6px] border bg-white text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors cursor-pointer"
-                style={{ borderColor: 'var(--border, #E2E8F0)' }}
+                className="p-2 rounded-xl border border-slate-200 bg-white text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors cursor-pointer"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
@@ -1009,14 +985,29 @@ export function DispatchClient({
       {/* MODAL 1: CREATE NEW DELIVERY CHALLAN (MULTI-ITEM)         */}
       {/* ======================================================== */}
       {showCreateChallanModal && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-[11px] max-w-xl w-full p-6 space-y-4 shadow-xl border overflow-y-auto max-h-[90vh]" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
-            <div className="flex items-center justify-between pb-3 border-b" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
-              <h3 className="text-base font-bold font-[family-name:var(--font-heading)] flex items-center gap-2" style={{ color: 'var(--ink, #1C2733)' }}>
-                <Truck className="w-4 h-4 text-[var(--steel,#2B4C7E)]" />
-                Generate Delivery Challan
-              </h3>
-              <button onClick={() => setShowCreateChallanModal(false)} className="text-slate-400 hover:text-slate-700 cursor-pointer">
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 overflow-y-auto overflow-x-hidden p-3 sm:p-6 flex justify-center items-start sm:items-center">
+          <div className="bg-white rounded-2xl max-w-2xl w-full shadow-2xl border border-black/10 overflow-hidden my-auto animate-in zoom-in-95 duration-200 flex flex-col">
+            
+            {/* Modal Header */}
+            <div className="p-4 sm:p-5 border-b border-black/10 bg-[#FAF7F0] flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-white text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+                  <Truck className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-extrabold text-slate-900 leading-tight">
+                    Generate Delivery Challan
+                  </h3>
+                  <p className="text-xs text-slate-600 mt-0.5">
+                    Create official goods delivery pass for buyer gate-out
+                  </p>
+                </div>
+              </div>
+              <button 
+                type="button"
+                onClick={() => setShowCreateChallanModal(false)} 
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors cursor-pointer"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -1024,161 +1015,231 @@ export function DispatchClient({
             <form action={async (formData) => {
               formData.set('items_json', JSON.stringify(challanRows))
               startTransition(async () => {
-                await createDeliveryChallan(formData)
-                setShowCreateChallanModal(false)
+                try {
+                  await createDeliveryChallan(formData)
+                  setShowCreateChallanModal(false)
+                  showDialog('Challan Issued', 'Delivery challan has been generated and logged into the master register.', 'success')
+                } catch (err: any) {
+                  showDialog('Generation Error', err.message || 'Failed to create delivery challan', 'error')
+                }
               })
-            }} className="space-y-4">
+            }} className="flex flex-col flex-1">
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
-                    Challan Number
-                  </label>
-                  <input 
-                    type="text" 
-                    name="challan_no" 
-                    defaultValue={'CH-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random() * 9000)} 
-                    className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs font-mono font-bold outline-none" 
-                    style={{ borderColor: 'var(--border, #E2E8F0)' }} 
-                  />
+              {/* Form Scrollable Body */}
+              <div className="p-4 sm:p-6 space-y-5 overflow-y-auto overflow-x-hidden max-h-[calc(88vh-140px)]">
+                
+                {/* Section 1: Basic Identifiers */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                      Challan Number *
+                    </label>
+                    <input 
+                      type="text" 
+                      name="challan_no" 
+                      defaultValue={'CH-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random() * 9000)} 
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] transition-all" 
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                      Buyer / Consignee Name *
+                    </label>
+                    <input 
+                      type="text" 
+                      name="buyer_name" 
+                      required 
+                      placeholder="e.g. Zara Mumbai Hub" 
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] transition-all" 
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
-                    Buyer / Consignee Name
-                  </label>
-                  <input 
-                    type="text" 
-                    name="buyer_name" 
-                    required 
-                    placeholder="e.g. Zara Mumbai Hub" 
-                    className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs font-semibold outline-none" 
-                    style={{ borderColor: 'var(--border, #E2E8F0)' }} 
-                  />
+
+                {/* Section 2: Logistics Parameters */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                  <div>
+                    <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                      Destination City
+                    </label>
+                    <input 
+                      type="text" 
+                      name="destination" 
+                      placeholder="Bhiwandi Godown" 
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] transition-all" 
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                      Vehicle / Truck No
+                    </label>
+                    <input 
+                      type="text" 
+                      name="vehicle_no" 
+                      placeholder="WB-04-AB-1234" 
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-mono font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] transition-all" 
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                      Driver Phone
+                    </label>
+                    <input 
+                      type="text" 
+                      name="driver_phone" 
+                      placeholder="9876543210" 
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-mono font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] transition-all" 
+                    />
+                  </div>
                 </div>
+
+                {/* Section 3: Multi-Item Garment Lines Cards */}
+                <div className="pt-3 border-t border-slate-100 space-y-3">
+                  <div className="flex items-center justify-between flex-wrap gap-2">
+                    <div>
+                      <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-900 block">
+                        Challan Garment Lines
+                      </span>
+                      <span className="text-[11px] text-slate-500">
+                        Total: <strong className="text-slate-900 font-mono font-bold">{challanRows.reduce((sum, r) => sum + (r.quantity || 0), 0)} pcs</strong> across {challanRows.length} {challanRows.length === 1 ? 'line' : 'lines'}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setChallanRows([...challanRows, {
+                          article_id: articles.length > 0 ? articles[0].id : '',
+                          color: 'Standard',
+                          size: 'L',
+                          quantity: 100,
+                        }])
+                      }}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-[#3A3564] bg-[#FAF7F0] hover:bg-[#F2ECE1] border border-black/10 shadow-2xs transition-all cursor-pointer"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>Add Article Line</span>
+                    </button>
+                  </div>
+
+                  <div className="space-y-3">
+                    {challanRows.map((row, idx) => (
+                      <div key={idx} className="p-3.5 bg-slate-50/80 rounded-xl border border-slate-200/80 space-y-2.5 shadow-2xs">
+                        {/* Line Header: Article Selector + Remove Button */}
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1 min-w-0">
+                            <label className="block text-[11px] font-mono font-bold uppercase tracking-wider text-slate-600 mb-1">
+                              Article Master Style *
+                            </label>
+                            <select 
+                              value={row.article_id}
+                              onChange={(e) => {
+                                const updated = [...challanRows]
+                                updated[idx].article_id = e.target.value
+                                setChallanRows(updated)
+                              }}
+                              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 truncate"
+                            >
+                              {articles.map(art => (
+                                <option key={art.id} value={art.id}>Art #{art.art_no} {art.description ? `• ${art.description}` : ''}</option>
+                              ))}
+                            </select>
+                          </div>
+
+                          {challanRows.length > 1 && (
+                            <button 
+                              type="button"
+                              onClick={() => setChallanRows(challanRows.filter((_, i) => i !== idx))}
+                              className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer self-end mb-0.5"
+                              title="Remove article line"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
+
+                        {/* Line Details: Color, Size, Quantity in 3 Columns */}
+                        <div className="grid grid-cols-3 gap-2.5">
+                          <div>
+                            <label className="block text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 mb-1">
+                              Color / Pattern
+                            </label>
+                            <input 
+                              type="text" 
+                              placeholder="e.g. Navy Blue"
+                              value={row.color}
+                              onChange={(e) => {
+                                const updated = [...challanRows]
+                                updated[idx].color = e.target.value
+                                setChallanRows(updated)
+                              }}
+                              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 mb-1 text-center">
+                              Size
+                            </label>
+                            <input 
+                              type="text" 
+                              placeholder="L / 32"
+                              value={row.size}
+                              onChange={(e) => {
+                                const updated = [...challanRows]
+                                updated[idx].size = e.target.value
+                                setChallanRows(updated)
+                              }}
+                              className="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-2 text-xs sm:text-sm font-mono font-bold text-slate-900 text-center focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 mb-1 text-right">
+                              Quantity (pcs) *
+                            </label>
+                            <input 
+                              type="number" 
+                              placeholder="200"
+                              value={row.quantity}
+                              onChange={(e) => {
+                                const updated = [...challanRows]
+                                updated[idx].quantity = parseInt(e.target.value) || 0
+                                setChallanRows(updated)
+                              }}
+                              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm font-mono font-black text-slate-900 text-right focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div>
-                  <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
-                    Destination City
-                  </label>
-                  <input type="text" name="destination" placeholder="Bhiwandi Godown" className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs outline-none" style={{ borderColor: 'var(--border, #E2E8F0)' }} />
+              {/* Modal Footer */}
+              <div className="p-4 sm:p-5 border-t border-black/10 bg-slate-50/60 flex items-center justify-between flex-wrap gap-3">
+                <div className="text-xs text-slate-500 font-mono hidden sm:block">
+                  Ready for Dispatch Registration
                 </div>
-                <div>
-                  <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
-                    Vehicle / Truck No
-                  </label>
-                  <input type="text" name="vehicle_no" placeholder="MH-04-AB-1234" className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs outline-none" style={{ borderColor: 'var(--border, #E2E8F0)' }} />
-                </div>
-                <div>
-                  <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
-                    Driver Phone
-                  </label>
-                  <input type="text" name="driver_phone" placeholder="9876543210" className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs outline-none" style={{ borderColor: 'var(--border, #E2E8F0)' }} />
-                </div>
-              </div>
-
-              {/* Multi-Item Table Section */}
-              <div className="pt-2">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-[11px] font-bold uppercase tracking-[1.5px]" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
-                    Challan Items ({challanRows.reduce((sum, r) => sum + (r.quantity || 0), 0)} pcs)
-                  </span>
+                <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
                   <button
                     type="button"
-                    onClick={() => {
-                      setChallanRows([...challanRows, {
-                        article_id: articles.length > 0 ? articles[0].id : '',
-                        color: 'Standard',
-                        size: 'L',
-                        quantity: 100,
-                      }])
-                    }}
-                    className="text-xs font-semibold text-[var(--steel,#2B4C7E)] hover:underline flex items-center gap-1"
+                    onClick={() => setShowCreateChallanModal(false)}
+                    disabled={isPending}
+                    className="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-600 hover:bg-slate-200/60 border border-slate-200 transition-colors cursor-pointer"
                   >
-                    <Plus className="w-3.5 h-3.5" /> + Add Article Row
+                    Cancel
                   </button>
-                </div>
-
-                <div className="space-y-2">
-                  {challanRows.map((row, idx) => (
-                    <div key={idx} className="flex items-center gap-2 p-2 bg-slate-50 rounded-[8px] border" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
-                      <select 
-                        value={row.article_id}
-                        onChange={(e) => {
-                          const updated = [...challanRows]
-                          updated[idx].article_id = e.target.value
-                          setChallanRows(updated)
-                        }}
-                        className="flex-1 bg-white border rounded-[6px] px-2 py-1.5 text-xs font-semibold"
-                        style={{ borderColor: 'var(--border, #E2E8F0)' }}
-                      >
-                        {articles.map(art => (
-                          <option key={art.id} value={art.id}>{art.art_no} ({art.description})</option>
-                        ))}
-                      </select>
-
-                      <input 
-                        type="text" 
-                        placeholder="Color"
-                        value={row.color}
-                        onChange={(e) => {
-                          const updated = [...challanRows]
-                          updated[idx].color = e.target.value
-                          setChallanRows(updated)
-                        }}
-                        className="w-20 bg-white border rounded-[6px] px-2 py-1.5 text-xs"
-                        style={{ borderColor: 'var(--border, #E2E8F0)' }}
-                      />
-
-                      <input 
-                        type="text" 
-                        placeholder="Size"
-                        value={row.size}
-                        onChange={(e) => {
-                          const updated = [...challanRows]
-                          updated[idx].size = e.target.value
-                          setChallanRows(updated)
-                        }}
-                        className="w-14 bg-white border rounded-[6px] px-2 py-1.5 text-xs"
-                        style={{ borderColor: 'var(--border, #E2E8F0)' }}
-                      />
-
-                      <input 
-                        type="number" 
-                        placeholder="Qty"
-                        value={row.quantity}
-                        onChange={(e) => {
-                          const updated = [...challanRows]
-                          updated[idx].quantity = parseInt(e.target.value) || 0
-                          setChallanRows(updated)
-                        }}
-                        className="w-20 bg-white border rounded-[6px] px-2 py-1.5 text-xs font-mono font-bold text-right"
-                        style={{ borderColor: 'var(--border, #E2E8F0)' }}
-                      />
-
-                      {challanRows.length > 1 && (
-                        <button 
-                          type="button"
-                          onClick={() => setChallanRows(challanRows.filter((_, i) => i !== idx))}
-                          className="p-1.5 text-slate-400 hover:text-red-600 transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      )}
-                    </div>
-                  ))}
+                  <button
+                    type="submit"
+                    disabled={isPending}
+                    className="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] shadow-xs transition-all flex items-center gap-2 cursor-pointer disabled:opacity-60"
+                  >
+                    {isPending ? 'Generating Challan...' : 'Generate & Issue Delivery Challan'}
+                  </button>
                 </div>
               </div>
 
-              <button
-                type="submit"
-                disabled={isPending}
-                className="w-full py-2.5 text-white rounded-[8px] font-semibold text-xs transition-colors shadow-xs cursor-pointer mt-2"
-                style={{ backgroundColor: 'var(--green, #1F9D63)' }}
-              >
-                {isPending ? 'Generating Challan...' : 'Generate & Issue Delivery Challan'}
-              </button>
             </form>
           </div>
         </div>
@@ -1188,80 +1249,138 @@ export function DispatchClient({
       {/* MODAL 2: RECORD PRE-LOADING COUNTING AUDIT                */}
       {/* ======================================================== */}
       {showCountingModal && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-[11px] max-w-md w-full p-6 space-y-4 shadow-xl border" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
-            <div className="flex items-center justify-between pb-3 border-b" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
-              <h3 className="text-base font-bold font-[family-name:var(--font-heading)] flex items-center gap-2" style={{ color: 'var(--ink, #1C2733)' }}>
-                <ClipboardCheck className="w-4 h-4 text-[var(--steel,#2B4C7E)]" />
-                Record Pre-Loading Counting Audit
-              </h3>
-              <button onClick={() => setShowCountingModal(false)} className="text-slate-400 hover:text-slate-700 cursor-pointer">
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 overflow-y-auto overflow-x-hidden p-3 sm:p-6 flex justify-center items-start sm:items-center">
+          <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-black/10 overflow-hidden my-auto animate-in zoom-in-95 duration-200 flex flex-col">
+            <div className="p-4 sm:p-5 border-b border-black/10 bg-[#FAF7F0] flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-white text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+                  <ClipboardCheck className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-extrabold text-slate-900 leading-tight">
+                    Record Pre-Loading Count
+                  </h3>
+                  <p className="text-xs text-slate-600 mt-0.5">Physical piece verification before gate-out</p>
+                </div>
+              </div>
+              <button 
+                type="button"
+                onClick={() => setShowCountingModal(false)} 
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors cursor-pointer"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <form action={async (formData) => {
               startTransition(async () => {
-                await recordCountingAudit(formData)
-                setShowCountingModal(false)
+                try {
+                  await recordCountingAudit(formData)
+                  setShowCountingModal(false)
+                  showDialog('Audit Saved', 'Pre-loading counting report has been verified and saved.', 'success')
+                } catch (err: any) {
+                  showDialog('Error', err.message || 'Failed to record audit', 'error')
+                }
               })
-            }} className="space-y-3">
-              <div>
-                <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
-                  Article Style
-                </label>
-                <select name="article_id" required className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs font-semibold outline-none" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
-                  {articles.map(art => (
-                    <option key={art.id} value={art.id}>{art.art_no} ({art.description})</option>
-                  ))}
-                </select>
+            }} className="flex flex-col flex-1">
+              <div className="p-4 sm:p-6 space-y-4 overflow-y-auto max-h-[calc(88vh-140px)]">
+                <div>
+                  <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                    Article Style *
+                  </label>
+                  <select 
+                    name="article_id" 
+                    required 
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20"
+                  >
+                    {articles.map(art => (
+                      <option key={art.id} value={art.id}>Art #{art.art_no} {art.description ? `• ${art.description}` : ''}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3.5">
+                  <div>
+                    <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                      Color
+                    </label>
+                    <input 
+                      type="text" 
+                      name="color" 
+                      defaultValue="Navy Blue" 
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20" 
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                      Size
+                    </label>
+                    <input 
+                      type="text" 
+                      name="size" 
+                      defaultValue="L" 
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 text-center" 
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3.5">
+                  <div>
+                    <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                      Physical Count (pcs) *
+                    </label>
+                    <input 
+                      type="number" 
+                      name="counted_qty" 
+                      required 
+                      placeholder="e.g. 500" 
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-mono font-black text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 text-right" 
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                      Expected Qty (pcs)
+                    </label>
+                    <input 
+                      type="number" 
+                      name="expected_qty" 
+                      required 
+                      placeholder="e.g. 500" 
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-mono font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 text-right" 
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                    Auditor Remarks / Notes
+                  </label>
+                  <input 
+                    type="text" 
+                    name="remarks" 
+                    placeholder="Verified carton tags & pack count" 
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20" 
+                  />
+                </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
-                    Color
-                  </label>
-                  <input type="text" name="color" defaultValue="Navy Blue" className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs outline-none" style={{ borderColor: 'var(--border, #E2E8F0)' }} />
-                </div>
-                <div>
-                  <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
-                    Size
-                  </label>
-                  <input type="text" name="size" defaultValue="L" className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs outline-none" style={{ borderColor: 'var(--border, #E2E8F0)' }} />
-                </div>
+              <div className="p-4 sm:p-5 border-t border-black/10 bg-slate-50/60 flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowCountingModal(false)}
+                  disabled={isPending}
+                  className="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-600 hover:bg-slate-200/60 border border-slate-200 transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isPending}
+                  className="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] shadow-xs transition-all cursor-pointer disabled:opacity-60"
+                >
+                  {isPending ? 'Saving...' : 'Save Counting Record'}
+                </button>
               </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
-                    Physical Count (pcs)
-                  </label>
-                  <input type="number" name="counted_qty" required placeholder="e.g. 500" className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs font-mono font-bold outline-none" style={{ borderColor: 'var(--border, #E2E8F0)' }} />
-                </div>
-                <div>
-                  <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
-                    Expected Qty (pcs)
-                  </label>
-                  <input type="number" name="expected_qty" required placeholder="e.g. 500" className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs font-mono outline-none" style={{ borderColor: 'var(--border, #E2E8F0)' }} />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-semibold uppercase tracking-[1.5px] mb-1" style={{ color: 'var(--ink-soft, #5B6B7C)' }}>
-                  Auditor Remarks / Notes
-                </label>
-                <input type="text" name="remarks" placeholder="Verified carton tags & pack count" className="w-full bg-white border rounded-[8px] px-3 py-2 text-xs outline-none" style={{ borderColor: 'var(--border, #E2E8F0)' }} />
-              </div>
-
-              <button
-                type="submit"
-                disabled={isPending}
-                className="w-full py-2.5 text-white rounded-[8px] font-semibold text-xs transition-colors shadow-xs cursor-pointer mt-2"
-                style={{ backgroundColor: 'var(--steel, #2B4C7E)' }}
-              >
-                {isPending ? 'Saving...' : 'Save Counting Audit Record'}
-              </button>
             </form>
           </div>
         </div>
@@ -1271,102 +1390,102 @@ export function DispatchClient({
       {/* MODAL 3: PRINTABLE DELIVERY CHALLAN GATE PASS INVOICE    */}
       {/* ======================================================== */}
       {selectedChallanForPrint && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-[11px] max-w-2xl w-full p-8 space-y-6 shadow-2xl border overflow-y-auto max-h-[95vh] print:p-0 print:border-none print:shadow-none" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 overflow-y-auto overflow-x-hidden p-3 sm:p-6 flex justify-center items-start sm:items-center print:p-0 print:bg-white">
+          <div className="bg-white rounded-2xl max-w-2xl w-full p-6 sm:p-8 space-y-6 shadow-2xl border border-black/10 overflow-y-auto max-h-[94vh] my-auto print:p-0 print:border-none print:shadow-none animate-in zoom-in-95 duration-200">
             
             {/* Header / Invoice Branding */}
-            <div className="flex items-start justify-between pb-4 border-b" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+            <div className="flex items-start justify-between pb-4 border-b border-black/10">
               <div>
-                <h2 className="text-xl font-bold font-[family-name:var(--font-heading)]" style={{ color: 'var(--ink, #1C2733)' }}>
+                <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
                   NUBIRA CREATION
                 </h2>
-                <p className="text-xs text-slate-500">Garment Manufacturing & Export Division</p>
-                <p className="text-[11px] text-slate-400 mt-0.5">Plot #14, Industrial Area, Surat, Gujarat</p>
+                <p className="text-xs text-slate-600 font-semibold mt-0.5">Garment Manufacturing & Apparel Unit</p>
+                <p className="text-xs text-slate-400 font-mono mt-0.5">Rafi Ahmed Kidwai Road, Kolkata 700055, West Bengal</p>
               </div>
               <div className="text-right">
-                <span className="inline-block px-2.5 py-1 rounded-[5px] bg-slate-100 font-mono font-bold text-xs text-slate-800">
+                <span className="inline-block px-3 py-1 rounded-lg bg-[#FAF7F0] border border-black/10 font-mono font-extrabold text-xs text-[#3A3564] shadow-2xs">
                   {selectedChallanForPrint.challan_no}
                 </span>
-                <p className="text-[11px] text-slate-500 mt-1">Date: {selectedChallanForPrint.delivery_date}</p>
+                <p className="text-xs text-slate-500 font-mono mt-1">Date: {selectedChallanForPrint.delivery_date}</p>
               </div>
             </div>
 
             {/* Consignee & Transport Details */}
-            <div className="grid grid-cols-2 gap-4 p-4 bg-slate-50 rounded-[8px] text-xs">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-slate-50 rounded-xl border border-slate-200 text-xs">
               <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 block mb-1">
                   {selectedChallanForPrint.billed_to_name ? 'Billed To' : 'Buyer / Consignee'}
                 </span>
-                <p className="font-bold text-slate-900 text-sm">
+                <p className="font-extrabold text-slate-900 text-sm">
                   {selectedChallanForPrint.billed_to_name || selectedChallanForPrint.buyer_name}
                 </p>
                 <p className="text-slate-600 mt-0.5">
                   {selectedChallanForPrint.billed_to_address || selectedChallanForPrint.destination || 'Direct Factory Delivery'}
                 </p>
                 {selectedChallanForPrint.billed_to_gstin && (
-                  <p className="font-mono text-[10.5px] font-semibold text-slate-700 mt-1">
+                  <p className="font-mono text-xs font-bold text-slate-800 mt-1">
                     GSTIN: {selectedChallanForPrint.billed_to_gstin}
                   </p>
                 )}
               </div>
               <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 block mb-1">
                   {selectedChallanForPrint.shipping_to_name ? 'Shipping To / Delivery' : 'Transport & Dispatch'}
                 </span>
-                <p className="font-semibold text-slate-800">
+                <p className="font-bold text-slate-800">
                   {selectedChallanForPrint.shipping_to_name || `Vehicle: ${selectedChallanForPrint.vehicle_no || 'Standard Freight'}`}
                 </p>
                 <p className="text-slate-600 mt-0.5">
                   {selectedChallanForPrint.shipping_to_address || `Driver: ${selectedChallanForPrint.driver_name || 'N/A'}`}
                 </p>
-                <p className="font-semibold text-slate-800 mt-1">
+                <p className="font-mono font-bold text-slate-900 mt-1">
                   Vehicle: {selectedChallanForPrint.vehicle_no || '-'}
                 </p>
               </div>
             </div>
 
-            {/* Items Table (8-Column or Standard) */}
-            <div>
+            {/* Items Table */}
+            <div className="border border-slate-200 rounded-xl overflow-hidden shadow-2xs">
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
-                  <tr className="border-b bg-slate-100 text-[10.5px] font-bold uppercase tracking-wider text-slate-600">
-                    <th className="py-2 px-3">#</th>
-                    <th className="py-2 px-3">Art No</th>
-                    <th className="py-2 px-3">Color</th>
-                    <th className="py-2 px-3">Size</th>
-                    <th className="py-2 px-3 text-right">Order Qty</th>
-                    <th className="py-2 px-3 text-right">Delivery</th>
-                    <th className="py-2 px-3 text-right">Balance</th>
+                  <tr className="bg-[#FAF7F0] border-b border-black/10 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-600">
+                    <th className="py-2.5 px-3">#</th>
+                    <th className="py-2.5 px-3">Art No</th>
+                    <th className="py-2.5 px-3">Color</th>
+                    <th className="py-2.5 px-3">Size</th>
+                    <th className="py-2.5 px-3 text-right">Order Qty</th>
+                    <th className="py-2.5 px-3 text-right">Delivery</th>
+                    <th className="py-2.5 px-3 text-right">Balance</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {(selectedChallanForPrint.challan_items || []).map((item, idx) => (
-                    <tr key={item.id || idx}>
-                      <td className="py-2.5 px-3 text-slate-400">{idx + 1}</td>
-                      <td className="py-2.5 px-3 font-bold text-slate-900">{item.article?.art_no || '5223'}</td>
-                      <td className="py-2.5 px-3 text-slate-600">{item.color || '-'}</td>
+                    <tr key={item.id || idx} className="hover:bg-slate-50/50">
+                      <td className="py-2.5 px-3 text-slate-400 font-mono">{idx + 1}</td>
+                      <td className="py-2.5 px-3 font-extrabold text-slate-900 font-mono">{item.article?.art_no || '5223'}</td>
+                      <td className="py-2.5 px-3 text-slate-700 font-medium">{item.color || '-'}</td>
                       <td className="py-2.5 px-3 font-mono font-bold text-slate-800">{item.size || '-'}</td>
                       <td className="py-2.5 px-3 text-right font-mono text-slate-500">
                         {(item.order_qty ?? item.quantity).toLocaleString()}
                       </td>
-                      <td className="py-2.5 px-3 text-right font-mono font-bold text-slate-900">
+                      <td className="py-2.5 px-3 text-right font-mono font-extrabold text-slate-900">
                         {(item.delivery_qty ?? item.quantity).toLocaleString()}
                       </td>
-                      <td className="py-2.5 px-3 text-right font-mono font-semibold text-slate-600">
+                      <td className="py-2.5 px-3 text-right font-mono font-bold text-slate-700">
                         {(item.balance_qty ?? 0) === 0 ? '0' : (item.balance_qty! > 0 ? `+${item.balance_qty}` : item.balance_qty)}
                       </td>
                     </tr>
                   ))}
                 </tbody>
                 <tfoot>
-                  <tr className="border-t-2 font-bold text-sm bg-slate-50" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
-                    <td colSpan={4} className="py-2.5 px-3 text-right">
+                  <tr className="border-t border-black/10 font-bold text-xs bg-slate-50">
+                    <td colSpan={4} className="py-2.5 px-3 text-right font-mono">
                       {selectedChallanForPrint.total_bags ? `Total Bags: ${selectedChallanForPrint.total_bags} | Total Dispatched:` : 'Total Dispatched Pieces:'}
                     </td>
                     <td className="py-2.5 px-3 text-right font-mono text-slate-500">
                       {(selectedChallanForPrint.total_order_qty || selectedChallanForPrint.total_pieces).toLocaleString()}
                     </td>
-                    <td className="py-2.5 px-3 text-right font-mono" style={{ color: 'var(--steel, #2B4C7E)' }}>
+                    <td className="py-2.5 px-3 text-right font-mono text-[#3A3564] font-black">
                       {(selectedChallanForPrint.total_delivery_qty || selectedChallanForPrint.total_pieces).toLocaleString()} pcs
                     </td>
                     <td className="py-2.5 px-3 text-right font-mono text-slate-700">
@@ -1379,43 +1498,42 @@ export function DispatchClient({
 
             {/* Spot / Notes Box */}
             {selectedChallanForPrint.spot_notes && (
-              <div className="p-3 bg-amber-50/70 border border-amber-200/80 rounded-[8px] text-xs">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800 block mb-0.5">
+              <div className="p-3.5 bg-amber-50/70 border border-amber-200/80 rounded-xl text-xs">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-amber-800 block mb-0.5">
                   Spot / Floor Remarks & Notes
                 </span>
-                <p className="text-amber-900 whitespace-pre-line font-medium text-[11.5px]">
+                <p className="text-amber-950 whitespace-pre-line font-medium leading-relaxed">
                   {selectedChallanForPrint.spot_notes}
                 </p>
               </div>
             )}
 
             {/* Signatures */}
-            <div className="grid grid-cols-3 gap-6 pt-10 text-center text-xs text-slate-500">
-              <div className="border-t pt-2 font-medium">Prepared By (QC / Dispatch)</div>
-              <div className="border-t pt-2 font-medium">Driver / Transporter</div>
-              <div className="border-t pt-2 font-bold text-slate-800">
+            <div className="grid grid-cols-3 gap-6 pt-8 text-center text-xs text-slate-500">
+              <div className="border-t border-slate-200 pt-2 font-medium">Prepared By (QC / Dispatch)</div>
+              <div className="border-t border-slate-200 pt-2 font-medium">Driver / Transporter</div>
+              <div className="border-t border-slate-200 pt-2 font-bold text-slate-900">
                 Authorised Signatory
-                <div className="text-[10px] text-emerald-600 font-semibold mt-0.5">
-                  {selectedChallanForPrint.status === 'APPROVED_FOR_DISPATCH' ? '✓ Digitally Approved by Admin' : 'Pending Admin Signoff'}
+                <div className="text-[10px] font-mono text-emerald-700 font-bold mt-0.5 flex items-center justify-center gap-1">
+                  <ShieldCheck className="w-3 h-3" />
+                  <span>{selectedChallanForPrint.status === 'APPROVED_FOR_DISPATCH' ? 'Digitally Approved by Admin' : 'Pending Admin Signoff'}</span>
                 </div>
               </div>
             </div>
 
             {/* Actions */}
-            <div className="flex items-center justify-end gap-3 pt-4 border-t print:hidden" style={{ borderColor: 'var(--border, #E2E8F0)' }}>
+            <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 print:hidden">
               <button 
                 type="button" 
                 onClick={() => setSelectedChallanForPrint(null)}
-                className="px-4 py-2 rounded-[7px] border bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700"
-                style={{ borderColor: 'var(--border, #E2E8F0)' }}
+                className="px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 transition-colors cursor-pointer"
               >
                 Close
               </button>
               <button 
                 type="button" 
                 onClick={() => window.print()}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-[7px] text-white text-xs font-semibold shadow-xs cursor-pointer"
-                style={{ backgroundColor: 'var(--steel, #2B4C7E)' }}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-white text-xs font-bold bg-[#3A3564] hover:bg-[#2A2649] shadow-xs cursor-pointer transition-colors"
               >
                 <Printer className="w-4 h-4" />
                 <span>Print Official Challan</span>
@@ -1425,6 +1543,16 @@ export function DispatchClient({
           </div>
         </div>
       )}
+
+      {/* Subtle Error / Confirmation Dialog */}
+      <SubtleDialog
+        isOpen={dialogState.isOpen}
+        onClose={() => setDialogState(prev => ({ ...prev, isOpen: false }))}
+        title={dialogState.title}
+        description={dialogState.description}
+        variant={dialogState.variant}
+        confirmText={dialogState.confirmText}
+      />
 
     </div>
   )
