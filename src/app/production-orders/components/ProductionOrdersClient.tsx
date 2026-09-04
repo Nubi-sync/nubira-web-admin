@@ -641,17 +641,16 @@ export function ProductionOrdersClient({
   // Filtered Orders (Auto-hides fully dispatched orders when selectedStatus === 'ACTIVE')
   const filteredOrders = useMemo(() => {
     return orders.filter(ch => {
+      const q = searchQuery.trim().toLowerCase()
       const matchSearch =
-        searchQuery === '' ||
-        ch.challan_no?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        ch.brand?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        ch.fabric_type?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        ch.articles?.some(a =>
-          a.art_no?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          a.color_pattern?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          a.size_range?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          a.assigned_lineman_name?.toLowerCase().includes(searchQuery.toLowerCase())
-        )
+        q === '' ||
+        ch.articles?.some(a => {
+          const art = (a.art_no || '').toLowerCase()
+          const sub = (a.sub_art_no || '').toLowerCase()
+          const full = sub ? `${art}${sub}` : art
+          const desc = (a.description || '').toLowerCase()
+          return art.includes(q) || sub.includes(q) || full.includes(q) || desc.includes(q)
+        })
 
       const matchBrand = selectedBrand === 'ALL' || ch.brand?.toUpperCase() === selectedBrand.toUpperCase()
 
@@ -1166,7 +1165,7 @@ export function ProductionOrdersClient({
           <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
-            placeholder="Search Challan #, Art No, Brand, Lineman..."
+            placeholder="Search by Article No (e.g. 9433, 9437)..."
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-black/10 rounded-xl text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
