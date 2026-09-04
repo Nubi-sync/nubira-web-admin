@@ -96,10 +96,13 @@ export default function NotFound() {
       {/* Minimal Footer */}
       <footer className="py-6 px-6 text-center border-t border-slate-200/80 bg-white/50">
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 text-xs text-slate-500">
-          <div className="flex items-center gap-2">
-            <IndiaFlag className="w-5 h-3.5 rounded-xs" />
+          <div className="flex items-center gap-1.5">
             <span className="text-proudly-india-black">
-              Proudly Made in India
+              Proudly Made in
+            </span>
+            <IndiaFlag className="w-5 h-3.5 rounded-xs shrink-0" />
+            <span className="text-proudly-india-black">
+              India
             </span>
           </div>
           <span className="hidden sm:inline text-slate-300">•</span>

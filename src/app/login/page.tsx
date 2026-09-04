@@ -522,10 +522,13 @@ export default function LoginPage() {
       {/* Minimal Footer Signature Bar */}
       <footer className="w-full max-w-5xl py-4 border-t border-slate-200/80 z-10">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
-          <div className="flex items-center gap-2">
-            <IndiaFlag className="w-5 h-3.5 rounded-xs" />
+          <div className="flex items-center gap-1.5">
             <span className="text-proudly-india-black">
-              Proudly Made in India
+              Proudly Made in
+            </span>
+            <IndiaFlag className="w-5 h-3.5 rounded-xs shrink-0" />
+            <span className="text-proudly-india-black">
+              India
             </span>
           </div>
 
