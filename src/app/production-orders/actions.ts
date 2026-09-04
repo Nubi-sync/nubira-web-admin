@@ -556,6 +556,8 @@ export async function allotEntireChallan(challanId: string, linemanId: string) {
                   article_id: artObj.id,
                   target_qty: targetQty,
                   status: 'IN_PROGRESS',
+                  qc_status: 'PENDING_STITCHING',
+                  mending_status: 'PENDING_STITCHING',
                   allotment_date: new Date().toISOString().split('T')[0]
                 })
                 .select('id')
@@ -701,6 +703,8 @@ export async function allotChallanByColor(challanId: string, colorName: string, 
                       article_id: artObj.id,
                       target_qty: targetQty,
                       status: 'IN_PROGRESS',
+                      qc_status: 'PENDING_STITCHING',
+                      mending_status: 'PENDING_STITCHING',
                       allotment_date: new Date().toISOString().split('T')[0]
                     })
                     .select('id')

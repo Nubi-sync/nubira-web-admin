@@ -65,6 +65,8 @@ export async function createDetailedAllotment(payload: {
     article_id,
     target_qty,
     status: 'IN_PROGRESS',
+    qc_status: 'PENDING_STITCHING',
+    mending_status: 'PENDING_STITCHING',
     allotment_date: new Date().toISOString().split('T')[0]
   }
   if (production_order_no) allotPayload.production_order_no = production_order_no
@@ -88,6 +90,8 @@ export async function createDetailedAllotment(payload: {
       article_id,
       target_qty,
       status: 'IN_PROGRESS',
+      qc_status: 'PENDING_STITCHING',
+      mending_status: 'PENDING_STITCHING',
       allotment_date: new Date().toISOString().split('T')[0]
     }
     const res = await supabase.from('allotments').insert(fallbackPayload).select('id').single()
