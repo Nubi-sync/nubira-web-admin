@@ -818,7 +818,7 @@ export async function deleteProductionOrder(challanOrAllotmentId: string, isChal
 }
 
 // ----------------------------------------------------------------------
-// BULK CREATE MULTI-CHALLANS (OPTION A: 1-Click Master Import)
+// BULK CREATE MULTI-CHALLANS (OPTION A: High-Performance Batch Import)
 // ----------------------------------------------------------------------
 export async function createBulkChallans(payloads: CreateChallanPayload[]): Promise<{
   success: boolean
@@ -841,28 +841,133 @@ export async function createBulkChallans(payloads: CreateChallanPayload[]): Prom
     }
   }
 
-  const createdChallans: ChallanGroupedOrder[] = []
-  const skippedChallanNos: string[] = []
-
   try {
-    for (const payload of payloads) {
-      const cleanChallanNo = (payload.challan_no || '').trim().toUpperCase()
-      if (!cleanChallanNo) continue
+    // 1. Bulk check duplicates in 1 single query
+    const allChallanNos = Array.from(
+      new Set(payloads.map(p => (p.challan_no || '').trim().toUpperCase()).filter(Boolean))
+    )
 
-      // 1. Check duplicate
-      const { data: existing } = await supabase
-        .from('challans')
-        .select('id')
-        .ilike('challan_no', cleanChallanNo)
-        .limit(1)
+    const { data: existingChallansList } = await supabase
+      .from('challans')
+      .select('challan_no')
+      .in('challan_no', allChallanNos)
 
-      if (existing && existing.length > 0) {
-        skippedChallanNos.push(cleanChallanNo)
-        continue
+    const existingChallanSet = new Set(
+      (existingChallansList || []).map((c: any) => (c.challan_no || '').trim().toUpperCase())
+    )
+
+    const validPayloads: CreateChallanPayload[] = []
+    const skippedChallanNos: string[] = []
+
+    for (const p of payloads) {
+      const cNo = (p.challan_no || '').trim().toUpperCase()
+      if (!cNo) continue
+      if (existingChallanSet.has(cNo)) {
+        skippedChallanNos.push(cNo)
+      } else {
+        validPayloads.push(p)
+      }
+    }
+
+    if (validPayloads.length === 0) {
+      return {
+        success: true,
+        createdCount: 0,
+        skippedCount: skippedChallanNos.length,
+        createdChallans: [],
+        skippedChallanNos
+      }
+    }
+
+    // 2. Collect and Batch Insert all unique article styles in 1 query
+    const styleMetaMap = new Map<string, {
+      art_no: string
+      base_art: string
+      sub_art: string
+      description: string
+      stitching_rate: number
+      pattern: string
+      fabric: string
+      party: string
+      size: string
+    }>()
+
+    for (const payload of validPayloads) {
+      for (const line of payload.article_lines || []) {
+        const cleanArtNo = (line.art_no || '').trim().toUpperCase()
+        if (!cleanArtNo) continue
+
+        const cleanSubArt = (line.sub_art_no || '').trim().toUpperCase()
+        const fullArtCode = cleanSubArt ? `${cleanArtNo}${cleanSubArt}` : cleanArtNo
+
+        if (!styleMetaMap.has(fullArtCode)) {
+          styleMetaMap.set(fullArtCode, {
+            art_no: fullArtCode,
+            base_art: cleanArtNo,
+            sub_art: cleanSubArt,
+            description: line.description || `${fullArtCode} - ${line.color_pattern || ''} (${line.size_range || ''})`.trim(),
+            stitching_rate: line.stitching_rate || 20,
+            pattern: line.pattern_no || '',
+            fabric: payload.fabric_type || '',
+            party: payload.brand || '',
+            size: line.size_range || ''
+          })
+        }
+      }
+    }
+
+    const allArtCodes = Array.from(styleMetaMap.keys())
+    if (allArtCodes.length > 0) {
+      const { data: existingArticlesList } = await supabase
+        .from('articles')
+        .select('art_no')
+        .in('art_no', allArtCodes)
+
+      const existingArtSet = new Set(
+        (existingArticlesList || []).map((a: any) => (a.art_no || '').trim().toUpperCase())
+      )
+
+      const newArticlesToInsert = []
+      for (const [code, meta] of styleMetaMap.entries()) {
+        if (!existingArtSet.has(code)) {
+          newArticlesToInsert.push({
+            art_no: code,
+            description: meta.description,
+            stitching_rate: meta.stitching_rate,
+            is_active: true,
+            size_rates: {
+              _meta: {
+                base_art: meta.base_art,
+                sub_art: meta.sub_art,
+                pattern: meta.pattern,
+                fabric: meta.fabric,
+                party: meta.party,
+                size: meta.size,
+                picture_url: ''
+              }
+            }
+          })
+        }
       }
 
-      // 2. Process article styles
+      if (newArticlesToInsert.length > 0) {
+        await supabase.from('articles').insert(newArticlesToInsert)
+      }
+    }
+
+    // 3. Prepare Batch Insert for Challans
+    const challansToInsert: any[] = []
+    const challanMetadataMap = new Map<string, {
+      payload: CreateChallanPayload
+      processedLines: any[]
+      totalSets: number
+      totalPcs: number
+    }>()
+
+    for (const payload of validPayloads) {
+      const cleanChallanNo = (payload.challan_no || '').trim().toUpperCase()
       const processedLines = []
+
       for (const line of payload.article_lines || []) {
         const cleanArtNo = (line.art_no || '').trim().toUpperCase()
         if (!cleanArtNo) continue
@@ -872,36 +977,6 @@ export async function createBulkChallans(payloads: CreateChallanPayload[]): Prom
         const linePcs = Number(line.total_pcs) || ((Number(line.sets) || 1) * (Number(line.pcs_per_set) || 9))
         const lineSets = Number(line.sets) || Math.round(linePcs / (Number(line.pcs_per_set) || 9))
         const lineRatio = Number(line.pcs_per_set) || 9
-
-        // Ensure in articles catalog
-        const { data: existingArt } = await supabase
-          .from('articles')
-          .select('id')
-          .eq('art_no', fullArtCode)
-          .limit(1)
-          .single()
-
-        if (!existingArt) {
-          await supabase
-            .from('articles')
-            .insert({
-              art_no: fullArtCode,
-              description: line.description || `${fullArtCode} - ${line.color_pattern || ''} (${line.size_range || ''})`.trim(),
-              stitching_rate: line.stitching_rate || 20,
-              is_active: true,
-              size_rates: {
-                _meta: {
-                  base_art: cleanArtNo,
-                  sub_art: cleanSubArt,
-                  pattern: line.pattern_no || '',
-                  fabric: payload.fabric_type || '',
-                  party: payload.brand || '',
-                  size: line.size_range,
-                  picture_url: line.picture_url || ''
-                }
-              }
-            })
-        }
 
         processedLines.push({
           ...line,
@@ -920,46 +995,67 @@ export async function createBulkChallans(payloads: CreateChallanPayload[]): Prom
         article_lines: processedLines
       })
 
-      // 3. Insert into challans
-      const { data: newChallan, error: insErr } = await supabase
-        .from('challans')
-        .insert({
-          challan_no: cleanChallanNo,
-          challan_date: payload.challan_date || new Date().toISOString().split('T')[0],
-          brand: (payload.brand || '').trim().toUpperCase(),
-          delivery_date: payload.delivery_date || null,
-          fabric_type: (payload.fabric_type || '').trim(),
-          sample_given: !!payload.sample_given,
-          notes: challanNotesJson,
-          total_sets: grandTotalSets,
-          total_pcs: grandTotalPcs,
-          status: 'IN_PROGRESS',
-          bom_details: payload.bom_items || []
-        })
-        .select('id, created_at')
-        .single()
+      challanMetadataMap.set(cleanChallanNo, {
+        payload,
+        processedLines,
+        totalSets: grandTotalSets,
+        totalPcs: grandTotalPcs
+      })
 
-      if (!insErr && newChallan) {
+      challansToInsert.push({
+        challan_no: cleanChallanNo,
+        challan_date: payload.challan_date || new Date().toISOString().split('T')[0],
+        brand: (payload.brand || '').trim().toUpperCase(),
+        delivery_date: payload.delivery_date || null,
+        fabric_type: (payload.fabric_type || '').trim(),
+        sample_given: !!payload.sample_given,
+        notes: challanNotesJson,
+        total_sets: grandTotalSets,
+        total_pcs: grandTotalPcs,
+        status: 'IN_PROGRESS',
+        bom_details: payload.bom_items || []
+      })
+    }
+
+    // 4. Single Batch Insert into database
+    const { data: insertedChallans, error: bulkInsertErr } = await supabase
+      .from('challans')
+      .insert(challansToInsert)
+      .select('id, challan_no, created_at')
+
+    if (bulkInsertErr || !insertedChallans) {
+      throw new Error(bulkInsertErr?.message || 'Failed to bulk insert delivery challans.')
+    }
+
+    // 5. Build optimistic ChallanGroupedOrder results
+    const createdChallans: ChallanGroupedOrder[] = []
+    for (const inserted of insertedChallans) {
+      const cNo = (inserted.challan_no || '').trim().toUpperCase()
+      const meta = challanMetadataMap.get(cNo)
+      if (meta) {
         createdChallans.push({
-          id: newChallan.id,
-          challan_no: cleanChallanNo,
-          challan_date: payload.challan_date || new Date().toISOString().split('T')[0],
-          brand: (payload.brand || '').trim().toUpperCase(),
-          delivery_date: payload.delivery_date || '',
-          fabric_type: (payload.fabric_type || '').trim(),
-          sample_given: !!payload.sample_given,
-          notes: challanNotesJson,
-          total_sets: grandTotalSets,
-          total_pcs: grandTotalPcs,
+          id: inserted.id,
+          challan_no: cNo,
+          challan_date: meta.payload.challan_date || new Date().toISOString().split('T')[0],
+          brand: (meta.payload.brand || '').trim().toUpperCase(),
+          delivery_date: meta.payload.delivery_date || '',
+          fabric_type: (meta.payload.fabric_type || '').trim(),
+          sample_given: !!meta.payload.sample_given,
+          notes: JSON.stringify({
+            user_notes: (meta.payload.notes || '').trim(),
+            article_lines: meta.processedLines
+          }),
+          total_sets: meta.totalSets,
+          total_pcs: meta.totalPcs,
           status: 'PENDING',
-          bom_details: payload.bom_items || [],
-          articles: processedLines.map((line, idx) => ({
+          bom_details: meta.payload.bom_items || [],
+          articles: meta.processedLines.map((line, idx) => ({
             ...line,
             allotment_id: '',
             status: 'PLANNED',
             assigned_lineman_name: 'Unassigned (Floor Order)'
           })),
-          created_at: newChallan.created_at || new Date().toISOString()
+          created_at: inserted.created_at || new Date().toISOString()
         })
       }
     }
@@ -979,10 +1075,10 @@ export async function createBulkChallans(payloads: CreateChallanPayload[]): Prom
     console.error('Error in createBulkChallans:', err)
     return {
       success: false,
-      createdCount: createdChallans.length,
-      skippedCount: skippedChallanNos.length,
-      createdChallans,
-      skippedChallanNos,
+      createdCount: 0,
+      skippedCount: 0,
+      createdChallans: [],
+      skippedChallanNos: [],
       error: err?.message || 'Server error during bulk challans creation.'
     }
   }

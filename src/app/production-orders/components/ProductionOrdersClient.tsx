@@ -283,15 +283,15 @@ export function ProductionOrdersClient({
   }
 
   // Handle Confirm Bulk Multi-Challans Import (Option A Execution)
-  const handleConfirmBulkImport = () => {
+  const handleConfirmBulkImport = async () => {
     if (!multiChallanImportData || multiChallanImportData.challans.length === 0) return
 
     const payloads: CreateChallanPayload[] = multiChallanImportData.challans.map(ch => ({
       challan_no: ch.challan_no.trim().toUpperCase(),
       challan_date: ch.challan_date,
-      brand: (ch.brand || 'OLLYPOP').trim().toUpperCase(),
+      brand: (ch.brand || '').trim().toUpperCase(),
       delivery_date: ch.delivery_date || undefined,
-      fabric_type: ch.fabric_type.trim() || 'PRINTED SINKER',
+      fabric_type: ch.fabric_type.trim(),
       sample_given: ch.sample_given,
       notes: ch.notes.trim(),
       article_lines: ch.articleLines.map(l => ({
@@ -311,43 +311,41 @@ export function ProductionOrdersClient({
     }))
 
     setIsBulkSaving(true)
-    startTransition(async () => {
-      try {
-        const res = await createBulkChallans(payloads)
-        if (res.error && res.createdCount === 0) {
-          showErrorDialog('Bulk Import Failed', res.error)
-        } else {
-          setShowBulkPreviewModal(false)
-          setOrders(prev => [...res.createdChallans, ...prev])
+    try {
+      const res = await createBulkChallans(payloads)
+      if (res.error && res.createdCount === 0) {
+        showErrorDialog('Bulk Import Failed', res.error)
+      } else {
+        setShowBulkPreviewModal(false)
+        setOrders(prev => [...res.createdChallans, ...prev])
 
-          // Expand all newly created challans so user immediately sees their smart color breakdown
-          const newExp: Record<string, boolean> = {}
-          res.createdChallans.forEach(c => {
-            newExp[c.id] = true
-          })
-          setExpandedChallans(prev => ({ ...prev, ...newExp }))
+        // Expand all newly created challans so user immediately sees their smart color breakdown
+        const newExp: Record<string, boolean> = {}
+        res.createdChallans.forEach(c => {
+          newExp[c.id] = true
+        })
+        setExpandedChallans(prev => ({ ...prev, ...newExp }))
 
-          let msg = `Successfully imported ${res.createdCount} Delivery Challans (${multiChallanImportData.grandTotalPcs.toLocaleString()} Pieces Total)!`
-          if (res.skippedCount > 0) {
-            msg += ` (Skipped ${res.skippedCount} existing Challan Nos: ${res.skippedChallanNos.join(', ')})`
-          }
-
-          setDialogState({
-            isOpen: true,
-            title: 'Bulk Import Successful',
-            description: msg,
-            variant: 'success',
-            confirmText: 'Great, View Challans',
-            onConfirm: () => setDialogState(prev => ({ ...prev, isOpen: false }))
-          })
+        let msg = `Successfully imported ${res.createdCount} Delivery Challans (${multiChallanImportData.grandTotalPcs.toLocaleString()} Pieces Total)!`
+        if (res.skippedCount > 0) {
+          msg += ` (Skipped ${res.skippedCount} existing Challan Nos: ${res.skippedChallanNos.join(', ')})`
         }
-      } catch (err: any) {
-        showErrorDialog('Bulk Import Error', err.message || 'An error occurred during bulk import.')
-      } finally {
-        setIsBulkSaving(false)
-        setMultiChallanImportData(null)
+
+        setDialogState({
+          isOpen: true,
+          title: 'Bulk Import Successful',
+          description: msg,
+          variant: 'success',
+          confirmText: 'Great, View Challans',
+          onConfirm: () => setDialogState(prev => ({ ...prev, isOpen: false }))
+        })
       }
-    })
+    } catch (err: any) {
+      showErrorDialog('Bulk Import Error', err.message || 'An error occurred during bulk import.')
+    } finally {
+      setIsBulkSaving(false)
+      setMultiChallanImportData(null)
+    }
   }
 
   // Handlers for Article Lines
