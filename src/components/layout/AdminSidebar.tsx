@@ -16,7 +16,8 @@ import {
   Loader2,
   X,
   Bot,
-  LogOut
+  LogOut,
+  User
 } from 'lucide-react'
 
 type NavItem = {
@@ -51,7 +52,7 @@ const navSections: NavSection[] = [
   {
     section: 'Manage',
     items: [
-      { label: 'Company & Admin Profile', href: '/profile', icon: Building2 },
+      { label: 'Profile', href: '/profile', icon: User },
       { label: 'Employees', href: '/employees', icon: Users },
       { label: 'Articles', href: '/articles', icon: Tag },
       { label: 'Reports & Analytics', href: '/reports', icon: FileText },
@@ -315,11 +316,11 @@ export function AdminSidebar({
                 >
                   {userEmail}
                 </span>
-                <span className="text-[11px] font-mono text-slate-500 flex items-center gap-1">
+                <span className="text-[11px] font-mono text-slate-500 flex items-center justify-between gap-1.5 mt-0.5">
                   <span>Super Admin</span>
-                  {pathname === '/profile' && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#3A3564]" />
-                  )}
+                  <span className="text-[#3A3564] font-bold group-hover:underline text-[10px] tracking-tight shrink-0">
+                    Profile ↗
+                  </span>
                 </span>
               </div>
             </div>
@@ -424,11 +425,11 @@ export function AdminSidebar({
               }`}>
                 {userEmail}
               </span>
-              <span className="text-[11px] font-mono text-slate-500 flex items-center gap-1">
+              <span className="text-[11px] font-mono text-slate-500 flex items-center justify-between gap-1.5 mt-0.5">
                 <span>Super Admin</span>
-                {pathname === '/profile' && (
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#3A3564]" />
-                )}
+                <span className="text-[#3A3564] font-bold text-[10px] tracking-tight shrink-0">
+                  Profile ↗
+                </span>
               </span>
             </div>
           </Link>
