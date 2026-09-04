@@ -191,14 +191,11 @@ export default function TermsPage() {
       {/* Footer */}
       <footer className="py-8 px-6 text-center border-t border-slate-200 bg-white/60 mt-12">
         <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2">
             <span className="text-proudly-india-black">
-              Proudly Made in
+              Proudly Made in India
             </span>
             <IndiaFlag className="w-5 h-3.5 rounded-xs shrink-0" />
-            <span className="text-proudly-india-black">
-              India
-            </span>
           </div>
           <div className="flex items-center gap-6">
             <Link href="/privacy" className="hover:text-slate-900 transition-colors">Privacy Policy</Link>

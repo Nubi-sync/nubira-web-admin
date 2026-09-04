@@ -1994,14 +1994,11 @@ ${demoForm.ownerName}`
           {/* Bottom Divider & Proudly Made in India Bar */}
           <div className="pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
             <div className="flex flex-col items-center sm:items-start gap-1 text-center sm:text-left">
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-2">
                 <span className="text-proudly-india-black">
-                  Proudly Made in
+                  Proudly Made in India
                 </span>
                 <IndiaFlag className="w-5 h-3.5 rounded-xs shrink-0" />
-                <span className="text-proudly-india-black">
-                  India
-                </span>
               </div>
               <p className="text-xs text-slate-500">© {new Date().getFullYear()} Zigza. All rights reserved.</p>
             </div>
