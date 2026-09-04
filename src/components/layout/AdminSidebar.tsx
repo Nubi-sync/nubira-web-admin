@@ -51,7 +51,7 @@ const navSections: NavSection[] = [
   {
     section: 'Manage',
     items: [
-      { label: 'Company Profile', href: '/profile', icon: Building2 },
+      { label: 'Company & Admin Profile', href: '/profile', icon: Building2 },
       { label: 'Employees', href: '/employees', icon: Users },
       { label: 'Articles', href: '/articles', icon: Tag },
       { label: 'Reports & Analytics', href: '/reports', icon: FileText },
@@ -283,13 +283,21 @@ export function AdminSidebar({
         </nav>
 
         {/* Bottom User Profile Block */}
-        <div className="p-3.5 border-t border-slate-200 bg-[#FAFAF8] flex items-center overflow-hidden h-[65px]">
+        <div className={`p-3.5 border-t transition-colors flex items-center overflow-hidden h-[65px] ${
+          pathname === '/profile'
+            ? 'bg-[#FAF7F0] border-[#3A3564]/30 shadow-2xs'
+            : 'border-slate-200 bg-[#FAFAF8] hover:bg-slate-50'
+        }`}>
           <Link
             href="/profile"
             className="flex items-center min-w-0 flex-1 group"
-            title="View Company & Admin Profile"
+            title="Open Company & Admin Profile"
           >
-            <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-[13px] font-bold shrink-0 shadow-xs bg-[#3A3564] mx-auto group-hover:ring-2 group-hover:ring-[#3A3564]/30 transition-all">
+            <div className={`w-9 h-9 rounded-full flex items-center justify-center text-white text-[13px] font-bold shrink-0 shadow-xs bg-[#3A3564] mx-auto transition-all ${
+              pathname === '/profile'
+                ? 'ring-2 ring-[#3A3564] ring-offset-2 ring-offset-[#FAF7F0]'
+                : 'group-hover:ring-2 group-hover:ring-[#3A3564]/30'
+            }`}>
               {initials}
             </div>
             
@@ -300,13 +308,18 @@ export function AdminSidebar({
             }`}>
               <div className="flex flex-col min-w-0 flex-1">
                 <span 
-                  className="text-[13px] font-bold text-slate-900 truncate leading-tight group-hover:text-[#3A3564] transition-colors"
+                  className={`text-[13px] font-bold truncate leading-tight transition-colors ${
+                    pathname === '/profile' ? 'text-[#3A3564]' : 'text-slate-900 group-hover:text-[#3A3564]'
+                  }`}
                   title={userEmail}
                 >
                   {userEmail}
                 </span>
-                <span className="text-[11px] font-mono text-slate-500">
-                  Super Admin
+                <span className="text-[11px] font-mono text-slate-500 flex items-center gap-1">
+                  <span>Super Admin</span>
+                  {pathname === '/profile' && (
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#3A3564]" />
+                  )}
                 </span>
               </div>
             </div>
@@ -388,21 +401,34 @@ export function AdminSidebar({
         </div>
 
         {/* Bottom User with Sign Out */}
-        <div className="p-4 border-t border-slate-200 bg-[#FAFAF8] flex items-center justify-between gap-3 shrink-0">
+        <div className={`p-4 border-t transition-colors flex items-center justify-between gap-3 shrink-0 ${
+          pathname === '/profile'
+            ? 'bg-[#FAF7F0] border-[#3A3564]/30'
+            : 'border-slate-200 bg-[#FAFAF8]'
+        }`}>
           <Link
             href="/profile"
             onClick={onMobileClose}
             className="flex items-center gap-3 min-w-0 flex-1 group"
           >
-            <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-[13px] font-bold shrink-0 shadow-xs bg-[#3A3564] group-hover:ring-2 group-hover:ring-[#3A3564]/30 transition-all">
+            <div className={`w-9 h-9 rounded-full flex items-center justify-center text-white text-[13px] font-bold shrink-0 shadow-xs bg-[#3A3564] transition-all ${
+              pathname === '/profile'
+                ? 'ring-2 ring-[#3A3564] ring-offset-2 ring-offset-[#FAF7F0]'
+                : 'group-hover:ring-2 group-hover:ring-[#3A3564]/30'
+            }`}>
               {initials}
             </div>
             <div className="flex flex-col min-w-0 flex-1">
-              <span className="text-[13px] font-bold text-slate-900 truncate leading-tight group-hover:text-[#3A3564] transition-colors">
+              <span className={`text-[13px] font-bold truncate leading-tight transition-colors ${
+                pathname === '/profile' ? 'text-[#3A3564]' : 'text-slate-900 group-hover:text-[#3A3564]'
+              }`}>
                 {userEmail}
               </span>
-              <span className="text-[11px] font-mono text-slate-500">
-                Super Admin
+              <span className="text-[11px] font-mono text-slate-500 flex items-center gap-1">
+                <span>Super Admin</span>
+                {pathname === '/profile' && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#3A3564]" />
+                )}
               </span>
             </div>
           </Link>
