@@ -35,7 +35,8 @@ import {
   TrendingUp,
   BarChart3,
   ExternalLink,
-  ArrowUpRight
+  ArrowUpRight,
+  Loader2
 } from 'lucide-react'
 import {
   ChallanArticleLine,
@@ -43,6 +44,7 @@ import {
   CreateChallanPayload,
   ChallanGroupedOrder,
   createChallan,
+  createBulkChallans,
   updateOrderStatus,
   deleteProductionOrder,
   assignLinemanToArticle,
@@ -51,7 +53,10 @@ import {
 } from '../actions'
 import {
   downloadCleanChallanTemplate,
-  parseChallanExcelFile
+  parseChallanExcelFile,
+  parseMultiChallanExcelFile,
+  ParsedMultiChallanResult,
+  ParsedMultiChallanGroup
 } from '@/lib/excelChallanParser'
 import { TvViewButton } from '@/components/ui/TvViewButton'
 import { CustomSelect, CustomSelectOption } from '@/components/ui/CustomSelect'
@@ -133,6 +138,9 @@ export function ProductionOrdersClient({
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [isImporting, setIsImporting] = useState(false)
   const [importStatus, setImportStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
+  const [multiChallanImportData, setMultiChallanImportData] = useState<ParsedMultiChallanResult | null>(null)
+  const [showBulkPreviewModal, setShowBulkPreviewModal] = useState(false)
+  const [isBulkSaving, setIsBulkSaving] = useState(false)
 
   // Smart Allotment States
   const [selectedFullLineman, setSelectedFullLineman] = useState<Record<string, string>>({})
@@ -155,13 +163,15 @@ export function ProductionOrdersClient({
     variant: 'error'
   })
 
-  const showErrorDialog = (title: string, description?: string) => {
+  // Helper: Open simple error dialog with clean UI
+  const showErrorDialog = (title: string, description: string) => {
     setDialogState({
       isOpen: true,
       title,
       description,
       variant: 'error',
-      confirmText: 'Understood'
+      confirmText: 'Understood',
+      onConfirm: () => setDialogState(prev => ({ ...prev, isOpen: false }))
     })
   }
 
@@ -180,20 +190,20 @@ export function ProductionOrdersClient({
     ...DEFAULT_BRANDS.map(b => ({ value: b, label: b }))
   ]
 
-  const linemanOptions: CustomSelectOption[] = [
-    { value: '', label: 'Select Lineman...' },
-    ...linemenList.map(lm => ({
-      value: lm.id,
-      label: lm.username
-    }))
-  ]
+  // Active Linemen list for Dropdowns
+  const linemanOptions: CustomSelectOption[] = useMemo(() => {
+    return [
+      { value: '', label: 'Select Lineman...' },
+      ...linemenList.map(lm => ({
+        value: lm.id,
+        label: `${lm.username} (Line Supervisor)`
+      }))
+    ]
+  }, [linemenList])
 
-  // ----------------------------------------------------------------------
-  // NEW CHALLAN FORM STATE (Clean / Fresh / Zero Hardcoded Defaults)
-  // ----------------------------------------------------------------------
-  const todayStr = new Date().toISOString().split('T')[0]
+  // Delivery Challan Form Fields State
   const [formChallanNo, setFormChallanNo] = useState('')
-  const [formChallanDate, setFormChallanDate] = useState(todayStr)
+  const [formChallanDate, setFormChallanDate] = useState(new Date().toISOString().split('T')[0])
   const [formBrand, setFormBrand] = useState('')
   const [formDeliveryDate, setFormDeliveryDate] = useState('')
   const [formFabric, setFormFabric] = useState('')
@@ -221,7 +231,7 @@ export function ProductionOrdersClient({
     setShowNewChallanModal(true)
   }
 
-  // Handle Excel File Upload & Auto-fill
+  // Handle Excel File Upload & Auto-fill (Supports both Single & Multi-Challan Bulk Import)
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
@@ -229,28 +239,37 @@ export function ProductionOrdersClient({
     try {
       setIsImporting(true)
       setImportStatus(null)
-      const data = await parseChallanExcelFile(file)
+      const multiData = await parseMultiChallanExcelFile(file)
 
-      if (data.header.challan_no) setFormChallanNo(data.header.challan_no)
-      if (data.header.brand) setFormBrand(data.header.brand)
-      if (data.header.challan_date) setFormChallanDate(data.header.challan_date)
-      if (data.header.fabric_type) setFormFabric(data.header.fabric_type)
-      if (data.header.delivery_date) setFormDeliveryDate(data.header.delivery_date)
-      if (data.header.sample_given !== undefined) setFormSampleGiven(data.header.sample_given)
-      if (data.header.notes) setFormNotes(data.header.notes)
+      if (multiData.totalChallans > 1) {
+        // Multi-Challan Bulk Import Mode (Option A)
+        setMultiChallanImportData(multiData)
+        setShowBulkPreviewModal(true)
+        setShowNewChallanModal(false)
+      } else if (multiData.totalChallans === 1) {
+        // Single Challan Form Mode
+        const data = multiData.challans[0]
+        if (data.challan_no) setFormChallanNo(data.challan_no)
+        if (data.brand) setFormBrand(data.brand)
+        if (data.challan_date) setFormChallanDate(data.challan_date)
+        if (data.fabric_type) setFormFabric(data.fabric_type)
+        if (data.delivery_date) setFormDeliveryDate(data.delivery_date)
+        if (data.sample_given !== undefined) setFormSampleGiven(data.sample_given)
+        if (data.notes) setFormNotes(data.notes)
 
-      if (data.articleLines && data.articleLines.length > 0) {
-        setArticleLines(data.articleLines as any)
+        if (data.articleLines && data.articleLines.length > 0) {
+          setArticleLines(data.articleLines as any)
+        }
+        if (data.bomItems && data.bomItems.length > 0) {
+          setBomItems(data.bomItems as any)
+        }
+
+        setImportStatus({
+          type: 'success',
+          message: `Imported ${data.articleLines.length} article lines from "${file.name}" (Total ${data.total_pcs.toLocaleString()} Pieces).`
+        })
+        setShowNewChallanModal(true)
       }
-      if (data.bomItems && data.bomItems.length > 0) {
-        setBomItems(data.bomItems as any)
-      }
-
-      setImportStatus({
-        type: 'success',
-        message: `Imported ${data.summary.lineCount} article lines from "${file.name}" (Total ${data.summary.totalPcs.toLocaleString()} Pieces).`
-      })
-      setShowNewChallanModal(true)
     } catch (err: any) {
       setImportStatus({
         type: 'error',
@@ -261,6 +280,74 @@ export function ProductionOrdersClient({
       setIsImporting(false)
       if (fileInputRef.current) fileInputRef.current.value = ''
     }
+  }
+
+  // Handle Confirm Bulk Multi-Challans Import (Option A Execution)
+  const handleConfirmBulkImport = () => {
+    if (!multiChallanImportData || multiChallanImportData.challans.length === 0) return
+
+    const payloads: CreateChallanPayload[] = multiChallanImportData.challans.map(ch => ({
+      challan_no: ch.challan_no.trim().toUpperCase(),
+      challan_date: ch.challan_date,
+      brand: (ch.brand || 'OLLYPOP').trim().toUpperCase(),
+      delivery_date: ch.delivery_date || undefined,
+      fabric_type: ch.fabric_type.trim() || 'PRINTED SINKER',
+      sample_given: ch.sample_given,
+      notes: ch.notes.trim(),
+      article_lines: ch.articleLines.map(l => ({
+        ...l,
+        sets: Number(l.sets) || 1,
+        pcs_per_set: Number(l.pcs_per_set) || 9,
+        total_pcs: Number(l.total_pcs) || ((Number(l.sets) || 1) * (Number(l.pcs_per_set) || 9))
+      })),
+      bom_items: ch.bomItems.filter(b => b.item_name && b.item_name.trim()).map(b => ({
+        material_type: b.material_type || 'FABRIC',
+        item_name: b.item_name,
+        lot_no: b.lot_no || undefined,
+        required_qty: String(b.required_qty || ''),
+        status: (b.status === 'RECEIVED' || b.status === 'VERIFIED') ? b.status : 'PENDING'
+      })),
+      status: 'IN_PRODUCTION'
+    }))
+
+    setIsBulkSaving(true)
+    startTransition(async () => {
+      try {
+        const res = await createBulkChallans(payloads)
+        if (res.error && res.createdCount === 0) {
+          showErrorDialog('Bulk Import Failed', res.error)
+        } else {
+          setShowBulkPreviewModal(false)
+          setOrders(prev => [...res.createdChallans, ...prev])
+
+          // Expand all newly created challans so user immediately sees their smart color breakdown
+          const newExp: Record<string, boolean> = {}
+          res.createdChallans.forEach(c => {
+            newExp[c.id] = true
+          })
+          setExpandedChallans(prev => ({ ...prev, ...newExp }))
+
+          let msg = `Successfully imported ${res.createdCount} Delivery Challans (${multiChallanImportData.grandTotalPcs.toLocaleString()} Pieces Total)!`
+          if (res.skippedCount > 0) {
+            msg += ` (Skipped ${res.skippedCount} existing Challan Nos: ${res.skippedChallanNos.join(', ')})`
+          }
+
+          setDialogState({
+            isOpen: true,
+            title: 'Bulk Import Successful',
+            description: msg,
+            variant: 'success',
+            confirmText: 'Great, View Challans',
+            onConfirm: () => setDialogState(prev => ({ ...prev, isOpen: false }))
+          })
+        }
+      } catch (err: any) {
+        showErrorDialog('Bulk Import Error', err.message || 'An error occurred during bulk import.')
+      } finally {
+        setIsBulkSaving(false)
+        setMultiChallanImportData(null)
+      }
+    })
   }
 
   // Handlers for Article Lines
@@ -873,6 +960,7 @@ export function ProductionOrdersClient({
       })
     })
 
+    const todayStr = new Date().toISOString().split('T')[0]
     const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n')
     const encodedUri = encodeURI(csvContent)
     const link = document.createElement('a')
@@ -1613,6 +1701,178 @@ export function ProductionOrdersClient({
               </div>
             )
           })}
+        </div>
+      )}
+
+      {/* ========================================================= */}
+      {/* 4.5. BULK MULTI-CHALLAN IMPORT PREVIEW MODAL (OPTION A)    */}
+      {/* ========================================================= */}
+      {showBulkPreviewModal && multiChallanImportData && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-900/60 backdrop-blur-xs overflow-y-auto">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[92vh] flex flex-col overflow-hidden border border-black/10 my-auto animate-in fade-in zoom-in-95 duration-150">
+            
+            {/* Modal Header */}
+            <div className="p-4 sm:p-5 border-b border-black/10 flex items-center justify-between bg-[#FAF7F0] flex-wrap gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-[#3A3564] text-white flex items-center justify-center shrink-0 shadow-2xs">
+                  <FileSpreadsheet className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h2 className="text-base sm:text-lg font-extrabold text-slate-900">
+                      Bulk Delivery Challan Import Detected
+                    </h2>
+                    <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-[#3A3564] text-white">
+                      {multiChallanImportData.totalChallans} Challans Found
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Found {multiChallanImportData.totalChallans} distinct Delivery Challans with total {multiChallanImportData.grandTotalPcs.toLocaleString()} Pieces across {multiChallanImportData.grandTotalLines} article lines.
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowBulkPreviewModal(false)}
+                className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Body: Cards of detected Challans */}
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 bg-slate-50/50">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {multiChallanImportData.challans.map((ch, idx) => {
+                  const isExisting = orders.some(o => o.challan_no?.trim().toUpperCase() === ch.challan_no.trim().toUpperCase())
+                  return (
+                    <div
+                      key={idx}
+                      className={`p-4 sm:p-5 rounded-2xl border transition-all shadow-2xs flex flex-col justify-between ${
+                        isExisting ? 'bg-amber-50/40 border-amber-300' : 'bg-white border-black/10'
+                      }`}
+                    >
+                      <div>
+                        {/* Header Row */}
+                        <div className="flex items-center justify-between gap-2 pb-3 mb-3 border-b border-black/5 flex-wrap">
+                          <div className="flex items-center gap-2">
+                            <span className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] font-extrabold text-xs flex items-center justify-center border border-black/10">
+                              #{idx + 1}
+                            </span>
+                            <div>
+                              <span className="font-extrabold text-sm sm:text-base text-slate-900">
+                                Challan #{ch.challan_no}
+                              </span>
+                              <span className="text-xs text-slate-500 block">
+                                Date: {ch.challan_date}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-1.5">
+                            <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-100 text-slate-800 border border-black/5">
+                              {ch.brand}
+                            </span>
+                            {isExisting && (
+                              <span className="px-2 py-0.5 rounded-lg text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1">
+                                <AlertCircle className="w-3 h-3" />
+                                <span>Already Exists</span>
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Article & Fabric Info */}
+                        <div className="space-y-2 mb-3">
+                          <div className="text-xs text-slate-600 flex items-center gap-1.5">
+                            <strong className="text-slate-800">Fabric:</strong>
+                            <span>{ch.fabric_type}</span>
+                          </div>
+
+                          <div className="flex items-center gap-1.5 flex-wrap text-xs">
+                            <strong className="text-slate-800">Styles:</strong>
+                            {ch.articles_summary.map((art, aIdx) => (
+                              <span
+                                key={aIdx}
+                                className="px-2 py-0.5 rounded-md font-mono font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10"
+                              >
+                                Art {art}
+                              </span>
+                            ))}
+                          </div>
+
+                          <div className="flex items-center gap-1.5 flex-wrap text-xs">
+                            <strong className="text-slate-800">Colors:</strong>
+                            {ch.colors_summary.map((c, cIdx) => (
+                              <span
+                                key={cIdx}
+                                className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-slate-100 text-slate-700 border border-black/5"
+                              >
+                                {c}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Footer Totals */}
+                      <div className="pt-3 border-t border-black/5 flex items-center justify-between text-xs sm:text-sm font-mono font-bold bg-slate-50/80 -mx-4 -mb-4 sm:-mx-5 sm:-mb-5 p-3 sm:px-4 rounded-b-2xl">
+                        <span className="text-slate-500">{ch.articleLines.length} Lines Matrix</span>
+                        <span className="text-[#3A3564] font-extrabold text-sm">{ch.total_pcs.toLocaleString()} PCS</span>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* Modal Footer Bar */}
+            <div className="p-4 sm:p-5 border-t border-black/10 bg-white flex items-center justify-between flex-wrap gap-3">
+              <div className="flex items-center gap-3">
+                <div className="text-xs sm:text-sm font-bold text-slate-700">
+                  <span>Grand Total: </span>
+                  <strong className="text-slate-900 font-mono text-base font-extrabold">
+                    {multiChallanImportData.grandTotalPcs.toLocaleString()} Pieces
+                  </strong>
+                  <span className="text-xs text-slate-500 font-normal ml-1.5">
+                    ({multiChallanImportData.totalChallans} Challans)
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  disabled={isBulkSaving}
+                  onClick={() => setShowBulkPreviewModal(false)}
+                  className="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-700 border border-black/10 hover:bg-slate-100 transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="button"
+                  disabled={isBulkSaving}
+                  onClick={handleConfirmBulkImport}
+                  className="px-5 py-2.5 rounded-xl text-xs font-extrabold bg-[#3A3564] hover:bg-[#2A2649] text-white flex items-center gap-2 shadow-sm transition-all cursor-pointer disabled:opacity-50"
+                >
+                  {isBulkSaving ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin text-white" />
+                      <span>Creating {multiChallanImportData.totalChallans} Challans...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-4 h-4 text-white" />
+                      <span>Import & Create All {multiChallanImportData.totalChallans} Challans</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+
+          </div>
         </div>
       )}
 

@@ -816,3 +816,175 @@ export async function deleteProductionOrder(challanOrAllotmentId: string, isChal
     return { error: err?.message || 'Server error while deleting record' }
   }
 }
+
+// ----------------------------------------------------------------------
+// BULK CREATE MULTI-CHALLANS (OPTION A: 1-Click Master Import)
+// ----------------------------------------------------------------------
+export async function createBulkChallans(payloads: CreateChallanPayload[]): Promise<{
+  success: boolean
+  createdCount: number
+  skippedCount: number
+  createdChallans: ChallanGroupedOrder[]
+  skippedChallanNos: string[]
+  error?: string
+}> {
+  const supabase = supabaseAdmin
+
+  if (!payloads || payloads.length === 0) {
+    return {
+      success: false,
+      createdCount: 0,
+      skippedCount: 0,
+      createdChallans: [],
+      skippedChallanNos: [],
+      error: 'No challans provided for bulk import.'
+    }
+  }
+
+  const createdChallans: ChallanGroupedOrder[] = []
+  const skippedChallanNos: string[] = []
+
+  try {
+    for (const payload of payloads) {
+      const cleanChallanNo = (payload.challan_no || '').trim().toUpperCase()
+      if (!cleanChallanNo) continue
+
+      // 1. Check duplicate
+      const { data: existing } = await supabase
+        .from('challans')
+        .select('id')
+        .ilike('challan_no', cleanChallanNo)
+        .limit(1)
+
+      if (existing && existing.length > 0) {
+        skippedChallanNos.push(cleanChallanNo)
+        continue
+      }
+
+      // 2. Process article styles
+      const processedLines = []
+      for (const line of payload.article_lines || []) {
+        const cleanArtNo = (line.art_no || '').trim().toUpperCase()
+        if (!cleanArtNo) continue
+
+        const cleanSubArt = (line.sub_art_no || '').trim().toUpperCase()
+        const fullArtCode = cleanSubArt ? `${cleanArtNo}${cleanSubArt}` : cleanArtNo
+        const linePcs = Number(line.total_pcs) || ((Number(line.sets) || 1) * (Number(line.pcs_per_set) || 9))
+        const lineSets = Number(line.sets) || Math.round(linePcs / (Number(line.pcs_per_set) || 9))
+        const lineRatio = Number(line.pcs_per_set) || 9
+
+        // Ensure in articles catalog
+        const { data: existingArt } = await supabase
+          .from('articles')
+          .select('id')
+          .eq('art_no', fullArtCode)
+          .limit(1)
+          .single()
+
+        if (!existingArt) {
+          await supabase
+            .from('articles')
+            .insert({
+              art_no: fullArtCode,
+              description: line.description || `${fullArtCode} - ${line.color_pattern || ''} (${line.size_range || ''})`.trim(),
+              stitching_rate: line.stitching_rate || 20,
+              is_active: true,
+              size_rates: {
+                _meta: {
+                  base_art: cleanArtNo,
+                  sub_art: cleanSubArt,
+                  pattern: line.pattern_no || '',
+                  fabric: payload.fabric_type || '',
+                  party: payload.brand || '',
+                  size: line.size_range,
+                  picture_url: line.picture_url || ''
+                }
+              }
+            })
+        }
+
+        processedLines.push({
+          ...line,
+          full_art_code: fullArtCode,
+          sets: lineSets,
+          pcs_per_set: lineRatio,
+          total_pcs: linePcs
+        })
+      }
+
+      const grandTotalSets = processedLines.reduce((acc, row) => acc + (Number(row.sets) || 0), 0)
+      const grandTotalPcs = processedLines.reduce((acc, row) => acc + (Number(row.total_pcs) || 0), 0)
+
+      const challanNotesJson = JSON.stringify({
+        user_notes: (payload.notes || '').trim(),
+        article_lines: processedLines
+      })
+
+      // 3. Insert into challans
+      const { data: newChallan, error: insErr } = await supabase
+        .from('challans')
+        .insert({
+          challan_no: cleanChallanNo,
+          challan_date: payload.challan_date || new Date().toISOString().split('T')[0],
+          brand: (payload.brand || '').trim().toUpperCase(),
+          delivery_date: payload.delivery_date || null,
+          fabric_type: (payload.fabric_type || '').trim(),
+          sample_given: !!payload.sample_given,
+          notes: challanNotesJson,
+          total_sets: grandTotalSets,
+          total_pcs: grandTotalPcs,
+          status: 'IN_PROGRESS',
+          bom_details: payload.bom_items || []
+        })
+        .select('id, created_at')
+        .single()
+
+      if (!insErr && newChallan) {
+        createdChallans.push({
+          id: newChallan.id,
+          challan_no: cleanChallanNo,
+          challan_date: payload.challan_date || new Date().toISOString().split('T')[0],
+          brand: (payload.brand || '').trim().toUpperCase(),
+          delivery_date: payload.delivery_date || '',
+          fabric_type: (payload.fabric_type || '').trim(),
+          sample_given: !!payload.sample_given,
+          notes: challanNotesJson,
+          total_sets: grandTotalSets,
+          total_pcs: grandTotalPcs,
+          status: 'PENDING',
+          bom_details: payload.bom_items || [],
+          articles: processedLines.map((line, idx) => ({
+            ...line,
+            allotment_id: '',
+            status: 'PLANNED',
+            assigned_lineman_name: 'Unassigned (Floor Order)'
+          })),
+          created_at: newChallan.created_at || new Date().toISOString()
+        })
+      }
+    }
+
+    revalidatePath('/production-orders')
+    revalidatePath('/allotments')
+    revalidatePath('/')
+
+    return {
+      success: true,
+      createdCount: createdChallans.length,
+      skippedCount: skippedChallanNos.length,
+      createdChallans,
+      skippedChallanNos
+    }
+  } catch (err: any) {
+    console.error('Error in createBulkChallans:', err)
+    return {
+      success: false,
+      createdCount: createdChallans.length,
+      skippedCount: skippedChallanNos.length,
+      createdChallans,
+      skippedChallanNos,
+      error: err?.message || 'Server error during bulk challans creation.'
+    }
+  }
+}
+
