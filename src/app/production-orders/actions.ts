@@ -763,39 +763,56 @@ export async function allotChallanByColor(challanId: string, colorName: string, 
 }
 
 // ----------------------------------------------------------------------
-// DELETE CHALLAN & ALL ASSOCIATED ALLOTMENTS
+// DELETE CHALLAN & ALL ASSOCIATED ALLOTMENTS (CASCADE SAFE)
 // ----------------------------------------------------------------------
 export async function deleteProductionOrder(challanOrAllotmentId: string, isChallanLevel: boolean = false) {
   const supabase = supabaseAdmin
 
-  if (isChallanLevel) {
-    // Find all child allotments
-    const { data: childAllots } = await supabase
-      .from('allotments')
-      .select('id')
-      .eq('challan_id', challanOrAllotmentId)
+  try {
+    if (isChallanLevel) {
+      // Find all child allotments
+      const { data: childAllots } = await supabase
+        .from('allotments')
+        .select('id')
+        .eq('challan_id', challanOrAllotmentId)
 
-    if (childAllots && childAllots.length > 0) {
-      const ids = childAllots.map((a: any) => a.id)
-      await supabase.from('allotment_variants').delete().in('allotment_id', ids)
-      await supabase.from('allotment_materials').delete().in('allotment_id', ids)
-      await supabase.from('worker_assignments').delete().in('allotment_id', ids)
-      await supabase.from('floor_alerts').delete().in('allotment_id', ids)
-      await supabase.from('allotments').delete().in('id', ids)
+      if (childAllots && childAllots.length > 0) {
+        const ids = childAllots.map((a: any) => a.id)
+        await supabase.from('qc_logs').delete().in('allotment_id', ids)
+        await supabase.from('daily_product').delete().in('allotment_id', ids)
+        await supabase.from('mending_assignments').delete().in('allotment_id', ids)
+        await supabase.from('qc_assignments').delete().in('allotment_id', ids)
+        await supabase.from('counting_reports').delete().in('allotment_id', ids)
+        await supabase.from('store_transactions').delete().in('allotment_id', ids)
+        await supabase.from('allotment_variants').delete().in('allotment_id', ids)
+        await supabase.from('allotment_materials').delete().in('allotment_id', ids)
+        await supabase.from('worker_assignments').delete().in('allotment_id', ids)
+        await supabase.from('floor_alerts').delete().in('allotment_id', ids)
+        await supabase.from('allotments').delete().in('id', ids)
+      }
+
+      await supabase.from('challans').delete().eq('id', challanOrAllotmentId)
+    } else {
+      // Delete single allotment with cascade
+      await supabase.from('qc_logs').delete().eq('allotment_id', challanOrAllotmentId)
+      await supabase.from('daily_product').delete().eq('allotment_id', challanOrAllotmentId)
+      await supabase.from('mending_assignments').delete().eq('allotment_id', challanOrAllotmentId)
+      await supabase.from('qc_assignments').delete().eq('allotment_id', challanOrAllotmentId)
+      await supabase.from('counting_reports').delete().eq('allotment_id', challanOrAllotmentId)
+      await supabase.from('store_transactions').delete().eq('allotment_id', challanOrAllotmentId)
+      await supabase.from('allotment_variants').delete().eq('allotment_id', challanOrAllotmentId)
+      await supabase.from('allotment_materials').delete().eq('allotment_id', challanOrAllotmentId)
+      await supabase.from('worker_assignments').delete().eq('allotment_id', challanOrAllotmentId)
+      await supabase.from('floor_alerts').delete().eq('allotment_id', challanOrAllotmentId)
+      await supabase.from('allotments').delete().eq('id', challanOrAllotmentId)
     }
 
-    await supabase.from('challans').delete().eq('id', challanOrAllotmentId)
-  } else {
-    // Delete single allotment
-    await supabase.from('allotment_variants').delete().eq('allotment_id', challanOrAllotmentId)
-    await supabase.from('allotment_materials').delete().eq('allotment_id', challanOrAllotmentId)
-    await supabase.from('worker_assignments').delete().eq('allotment_id', challanOrAllotmentId)
-    await supabase.from('floor_alerts').delete().eq('allotment_id', challanOrAllotmentId)
-    await supabase.from('allotments').delete().eq('id', challanOrAllotmentId)
+    revalidatePath('/production-orders')
+    revalidatePath('/allotments')
+    revalidatePath('/')
+    return { success: true }
+  } catch (err: any) {
+    console.error('Error in deleteProductionOrder:', err)
+    return { error: err?.message || 'Server error while deleting record' }
   }
-
-  revalidatePath('/production-orders')
-  revalidatePath('/allotments')
-  revalidatePath('/')
-  return { success: true }
 }
