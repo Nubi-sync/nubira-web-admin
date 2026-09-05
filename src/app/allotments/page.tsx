@@ -90,7 +90,7 @@ export default async function AllotmentsPage() {
     allotmentIds.length > 0
       ? supabaseAdmin
           .from('allotment_materials')
-          .select('id, allotment_id, item_name, required_qty, admin_issued, notes')
+          .select('id, allotment_id, item_name, required_qty, admin_issued, lineman_received, lineman_received_at, notes')
           .in('allotment_id', allotmentIds)
       : Promise.resolve({ data: [] }),
 
