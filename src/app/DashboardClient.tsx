@@ -129,6 +129,7 @@ type ChallanItem = {
   fabric_type?: string
   total_pcs?: number
   total_sets?: number
+  notes?: string
   created_at: string
 }
 
@@ -450,21 +451,40 @@ export default function DashboardClient({
     let totalStocks = 0
 
     if (selectedArticleId !== 'ALL') {
-      totalStocks = filteredData.allotments.reduce((sum, al) => sum + (al.target_qty || 0), 0)
+      const artObj = articles.find(a => a.id === selectedArticleId)
+      const targetArtNo = (artObj?.art_no || '').trim().toUpperCase()
+
+      // Calculate planned pieces for this article across matching challans
+      let challanArtPcs = 0
+      const filteredChallans = challans.filter(c => selectedBrand === 'ALL' || c.brand?.toUpperCase() === selectedBrand.toUpperCase())
+
+      filteredChallans.forEach(c => {
+        if (c.notes) {
+          try {
+            const parsed = JSON.parse(c.notes)
+            const lines = parsed.article_lines || (Array.isArray(parsed) ? parsed : [])
+            if (Array.isArray(lines)) {
+              lines.forEach((l: any) => {
+                const lineArt = (l.art_no || '').trim().toUpperCase()
+                const lineSub = (l.sub_art_no || '').trim().toUpperCase()
+                const fullLine = (l.full_art_code || `${lineArt}${lineSub}`).trim().toUpperCase()
+                if (lineArt === targetArtNo || fullLine === targetArtNo || targetArtNo.startsWith(lineArt)) {
+                  challanArtPcs += Number(l.total_pcs) || ((Number(l.sets) || 1) * (Number(l.pcs_per_set) || 9))
+                }
+              })
+            }
+          } catch (_) {}
+        }
+      })
+
+      const allotmentArtPcs = filteredData.allotments.reduce((sum, al) => sum + (al.target_qty || 0), 0)
+      totalStocks = challanArtPcs > 0 ? challanArtPcs : allotmentArtPcs
     } else {
       const filteredChallans = challans.filter(c => selectedBrand === 'ALL' || c.brand?.toUpperCase() === selectedBrand.toUpperCase())
       const challanTotalPcs = filteredChallans.reduce((sum, c) => sum + (Number(c.total_pcs) || 0), 0)
 
-      // Only count standalone allotments whose article is NOT already in a formal challan
-      const challanArtIds = new Set(
-        filteredData.allotments.filter(al => al.challan_id).map(al => al.article_id)
-      )
-      const standaloneAllotmentPcs = filteredData.allotments
-        .filter(al => !al.challan_id && !challanArtIds.has(al.article_id))
-        .reduce((sum, al) => sum + (al.target_qty || 0), 0)
-
       totalStocks = challanTotalPcs > 0
-        ? (challanTotalPcs + standaloneAllotmentPcs)
+        ? challanTotalPcs
         : filteredData.allotments.reduce((sum, al) => sum + (al.target_qty || 0), 0)
     }
 
@@ -534,7 +554,7 @@ export default function DashboardClient({
       totalQCPassed,
       totalDispatched
     }
-  }, [filteredData])
+  }, [filteredData, challans, articles, selectedBrand, selectedArticleId])
 
   // Pipeline Stepper Percentages (Conversion from Total Target)
   const pipelineFlow = useMemo(() => {
