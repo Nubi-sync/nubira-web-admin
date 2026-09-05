@@ -60,6 +60,19 @@ export default async function AllotmentsPage() {
         target_qty,
         allotment_date,
         status,
+        mending_status,
+        mending_total_counted,
+        mending_supervisor_name,
+        mending_supervisor_id,
+        handed_to_mending_by,
+        handed_to_mending_at,
+        mending_handover_notes,
+        qc_status,
+        qc_total_passed,
+        qc_total_alter,
+        qc_supervisor_name,
+        handed_to_qc_by,
+        handed_to_qc_at,
         created_at,
         profiles:lineman_id ( id, username ),
         articles:article_id ( id, art_no, description, stitching_rate, size_rates ),
@@ -97,7 +110,7 @@ export default async function AllotmentsPage() {
     allotmentIds.length > 0
       ? supabaseAdmin
           .from('worker_assignments')
-          .select('id, allotment_id, worker_name, assigned_qty, completed_qty, operation_name, status')
+          .select('id, allotment_id, lineman_id, article_id, worker_name, assigned_qty, completed_qty, color, size, status, notes, assigned_at, completed_at, entry_date')
           .in('allotment_id', allotmentIds)
       : Promise.resolve({ data: [] }),
 
@@ -114,7 +127,14 @@ export default async function AllotmentsPage() {
   const assignments = aData || []
 
   const allotments = (allotmentsRaw || []).map(al => {
-    const achieved = dailyProducts
+    const alVariants = variants.filter(v => v.allotment_id === al.id)
+    const alMaterials = materials.filter(m => m.allotment_id === al.id)
+    const alAssignments = assignments.filter(a => a.allotment_id === al.id || (!a.allotment_id && a.article_id === al.article_id))
+
+    // Real-time piece counting: sum from worker assignments, variants, status, or daily logs
+    const assignmentCompleted = alAssignments.reduce((sum, a) => sum + (Number(a.completed_qty) || 0), 0)
+    const variantCompleted = alVariants.reduce((sum, v) => sum + (Number(v.completed_qty) || 0), 0)
+    const dailyProductSum = dailyProducts
       ?.filter(dp => 
         dp.lineman_id === al.lineman_id && 
         dp.article_id === al.article_id && 
@@ -122,9 +142,12 @@ export default async function AllotmentsPage() {
       )
       .reduce((sum, dp) => sum + (dp.quantity || 0), 0) || 0;
 
-    const alVariants = variants.filter(v => v.allotment_id === al.id)
-    const alMaterials = materials.filter(m => m.allotment_id === al.id)
-    const alAssignments = assignments.filter(a => a.allotment_id === al.id)
+    const achieved = Math.max(
+      assignmentCompleted,
+      variantCompleted,
+      al.status === 'COMPLETED' ? (Number(al.target_qty) || 0) : 0,
+      dailyProductSum
+    )
 
     // Extract extended metadata from materials notes if available
     let managerName = (al as any).manager_name || ''

@@ -1,7 +1,9 @@
 'use client'
 
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
-import React, { useState, useMemo, Fragment } from 'react'
+import React, { useState, useMemo, useEffect, Fragment } from 'react'
+import { useRouter } from 'next/navigation'
+import { createClient } from '@/utils/supabase/client'
 import { updateAllotmentStatus, deleteAllotment } from '../actions'
 import { 
   Trash2,
@@ -27,8 +29,11 @@ import {
   Layers,
   AlertTriangle,
   FileText,
-  Users
+  Users,
+  RotateCcw,
+  Sparkles
 } from 'lucide-react'
+import { WorkerAssignmentsTable, type WorkerAssignmentItem } from '@/app/components/WorkerAssignmentsTable'
 
 export type VariantItem = {
   id: string
@@ -37,6 +42,28 @@ export type VariantItem = {
   size: string
   quantity: number
   completed_qty?: number
+}
+
+const SIZE_ORDER_MAP: Record<string, number> = {
+  '3XS': 1, '2XS': 2, 'XXS': 3, 'XS': 4, 'S': 5, 'M': 6, 'L': 7,
+  'XL': 8, 'XXL': 9, '2XL': 9, '3XL': 10, 'XXXL': 10, '4XL': 11, '5XL': 12, '6XL': 13,
+  'FREE': 99, 'FS': 99, 'STANDARD': 99
+}
+
+function sortSizesNaturally(sizes: string[]): string[] {
+  return [...sizes].sort((a, b) => {
+    const aClean = a.trim().toUpperCase()
+    const bClean = b.trim().toUpperCase()
+    const aOrder = SIZE_ORDER_MAP[aClean]
+    const bOrder = SIZE_ORDER_MAP[bClean]
+    if (aOrder !== undefined && bOrder !== undefined) return aOrder - bOrder
+    if (aOrder !== undefined) return -1
+    if (bOrder !== undefined) return 1
+    const aNum = parseInt(aClean, 10)
+    const bNum = parseInt(bClean, 10)
+    if (!isNaN(aNum) && !isNaN(bNum)) return aNum - bNum
+    return aClean.localeCompare(bClean, undefined, { numeric: true, sensitivity: 'base' })
+  })
 }
 
 export type MaterialItem = {
@@ -58,6 +85,19 @@ export type Allotment = {
   achieved_qty?: number
   allotment_date: string
   status: string
+  mending_status?: string | null
+  mending_total_counted?: number | null
+  mending_supervisor_name?: string | null
+  mending_supervisor_id?: string | null
+  handed_to_mending_by?: string | null
+  handed_to_mending_at?: string | null
+  mending_handover_notes?: string | null
+  qc_status?: string | null
+  qc_total_passed?: number | null
+  qc_total_alter?: number | null
+  qc_supervisor_name?: string | null
+  handed_to_qc_by?: string | null
+  handed_to_qc_at?: string | null
   production_order_no?: string
   manager_name?: string
   due_date?: string
@@ -66,20 +106,10 @@ export type Allotment = {
   client_challan_no?: string
   sample_photos?: string[]
   profiles: { username: string }
-  articles: { art_no: string; description?: string }
+  articles: { art_no: string; description?: string; stitching_rate?: number | string }
   variants?: VariantItem[]
   materials?: MaterialItem[]
-  assignments?: Array<{
-    id: string
-    worker_name: string
-    assigned_qty: number
-    completed_qty?: number
-    color?: string
-    size?: string
-    status: string
-    notes?: string
-    assigned_at?: string
-  }>
+  assignments?: WorkerAssignmentItem[]
 }
 
 type StatusFilter = 'ALL' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED'
@@ -118,6 +148,53 @@ function cleanDescription(desc?: string) {
 
 
 export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) {
+  const router = useRouter()
+  const [isSyncing, setIsSyncing] = useState(false)
+
+  // Real-time live synchronization with mobile floor apps
+  useEffect(() => {
+    const supabase = createClient()
+    const channel = supabase
+      .channel('realtime-allotments-page')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'allotments' }, () => {
+        router.refresh()
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'worker_assignments' }, () => {
+        router.refresh()
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'allotment_variants' }, () => {
+        router.refresh()
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'allotment_materials' }, () => {
+        router.refresh()
+      })
+      .subscribe()
+
+    // 15-second background auto-poll fallback
+    const interval = setInterval(() => {
+      router.refresh()
+    }, 15000)
+
+    // Window focus refresh
+    const onFocus = () => {
+      router.refresh()
+    }
+    window.addEventListener('focus', onFocus)
+
+    return () => {
+      supabase.removeChannel(channel)
+      clearInterval(interval)
+      window.removeEventListener('focus', onFocus)
+    }
+  }, [router])
+
+  const handleManualSync = () => {
+    setIsSyncing(true)
+    router.refresh()
+    setTimeout(() => {
+      setIsSyncing(false)
+    }, 800)
+  }
 
   // Active Floor SOS Alerts Radar
   const [activeAlerts, setActiveAlerts] = useState<Array<{
@@ -131,6 +208,8 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
   }>>([])
 
   const [expandedId, setExpandedId] = useState<string | null>(null)
+  type DrawerTab = 'matrix' | 'workers' | 'materials' | 'all'
+  const [drawerTabs, setDrawerTabs] = useState<Record<string, DrawerTab>>({})
   const [deletingAllotment, setDeletingAllotment] = useState<Allotment | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
   const [statusDialog, setStatusDialog] = useState<{ isOpen: boolean; allotment: Allotment | null; newStatus: string }>({ isOpen: false, allotment: null, newStatus: '' })
@@ -257,11 +336,28 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
           </p>
         </div>
 
-        {/* Dynamic Allotments Count Pill */}
-        <div 
-          className="text-xs font-bold px-3 py-1 rounded-full border border-black/10 bg-[#FAF7F0] text-[#3A3564] max-w-max shadow-2xs"
-        >
-          {filteredAllotments.length} {filteredAllotments.length === 1 ? 'Allotment' : 'Allotments'}
+        {/* Dynamic Allotments Count Pill & Live Sync Indicator */}
+        <div className="flex items-center gap-2">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-emerald-200 bg-emerald-50 text-emerald-800 text-xs font-bold shadow-2xs">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping shrink-0" />
+            <span className="hidden sm:inline">Live Sync</span>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleManualSync}
+            disabled={isSyncing}
+            className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900 transition-all cursor-pointer shadow-2xs"
+            title="Refresh latest factory data"
+          >
+            <RotateCcw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin text-[#3A3564]' : ''}`} />
+          </button>
+
+          <div 
+            className="text-xs font-bold px-3 py-1 rounded-full border border-black/10 bg-[#FAF7F0] text-[#3A3564] max-w-max shadow-2xs"
+          >
+            {filteredAllotments.length} {filteredAllotments.length === 1 ? 'Allotment' : 'Allotments'}
+          </div>
         </div>
       </div>
 
@@ -353,84 +449,69 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
               <th className="px-5 py-3.5 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
-            {paginatedAllotments.length === 0 ? (
-              <tr>
-                <td colSpan={7} className="px-6 py-12 text-center text-slate-400 text-xs sm:text-[13px]">
-                  No allotment records match your search or filter.
-                </td>
-              </tr>
-            ) : (
+          <tbody className="divide-y divide-slate-100 text-slate-700">
+            {paginatedAllotments.length > 0 ? (
               paginatedAllotments.map((al) => {
                 const isExpanded = expandedId === al.id
                 const variants = al.variants || []
                 const materials = al.materials || []
-                const allMaterialsReceived = materials.length > 0 && materials.every(m => m.lineman_received)
-                const percent = Math.min(Math.round(((al.achieved_qty || 0) / (al.target_qty || 1)) * 100), 100)
+                const percent = Math.min(100, Math.round(((al.achieved_qty || 0) / (al.target_qty || 1)) * 100))
 
                 return (
                   <Fragment key={al.id}>
-                    <tr className="hover:bg-slate-50/50 transition-colors group">
-                      
+                    <tr 
+                      className={`hover:bg-slate-50/80 transition-colors ${
+                        isExpanded ? 'bg-slate-50/80 border-b-0' : ''
+                      }`}
+                    >
                       {/* Date & Lineman */}
                       <td className="px-5 py-3.5">
-                        <div className="font-bold text-sm text-slate-900">{al.profiles?.username || 'Lineman'}</div>
-                        <div className="text-xs font-mono text-slate-500 mt-0.5">{al.allotment_date}</div>
+                        <span className="font-bold text-slate-900 block">
+                          {al.profiles?.username || 'Lineman'}
+                        </span>
+                        <span className="text-[11px] text-slate-400 font-mono">
+                          {al.allotment_date || 'N/A'}
+                        </span>
                       </td>
 
-                      {/* Article Style & Assigned Color Line */}
-                      {(() => {
-                        const distinctColors = Array.from(new Set((variants || []).map(v => v.color?.trim()).filter(Boolean)))
-                        const colorLabel = distinctColors.length === 1 
-                          ? `${distinctColors[0]} LINE`
-                          : distinctColors.length > 1
-                          ? `${distinctColors.join(', ')}`
-                          : al.production_order_no
-                          ? al.production_order_no
-                          : cleanDescription(al.articles?.description)
+                      {/* Article & Description */}
+                      <td className="px-4 py-3.5">
+                        <div className="font-extrabold text-slate-900 font-mono">
+                          {al.articles?.art_no || 'N/A'}
+                        </div>
+                        <div className="text-[11px] text-slate-500 font-medium truncate max-w-[180px]">
+                          {cleanDescription(al.articles?.description)}
+                        </div>
+                      </td>
 
-                        return (
-                          <td className="px-4 py-3.5">
-                            <div className="font-bold text-sm text-[#3A3564] flex items-center gap-1.5 flex-wrap">
-                              <span>{al.articles?.art_no}</span>
-                              {distinctColors.length === 1 && (
-                                <span className="text-xs font-bold px-2 py-0.5 rounded bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs">
-                                  {distinctColors[0]}
-                                </span>
-                              )}
-                            </div>
-                            <div className="text-xs text-slate-600 font-medium truncate max-w-[170px] mt-0.5" title={colorLabel}>
-                              {colorLabel}
-                            </div>
-                          </td>
-                        )
-                      })()}
-
-                      {/* Size & Color Ratio Summary */}
+                      {/* Size & Color Ratio with Toggle Drawer Button */}
                       <td className="px-4 py-3.5">
                         {variants.length > 0 ? (
                           <button
                             type="button"
                             onClick={() => toggleExpand(al.id)}
-                            className="inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-[#FAF7F0] text-[#3A3564] border border-black/10 transition-colors cursor-pointer shadow-2xs"
+                            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold transition-all border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 cursor-pointer shadow-2xs"
                           >
                             <Layers className="w-3.5 h-3.5 text-[#3A3564]" />
-                            <span>{variants.length} Variants</span>
-                            {isExpanded ? <ChevronUp className="w-3 h-3 text-[#3A3564]" /> : <ChevronDown className="w-3 h-3 text-[#3A3564]" />}
+                            <span>{variants.length} {variants.length === 1 ? 'Variant' : 'Variants'}</span>
+                            {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                           </button>
                         ) : (
-                          <span className="text-xs font-mono text-slate-500">Bulk ({al.target_qty} pcs)</span>
+                          <span className="text-xs text-slate-400">Single Variant</span>
                         )}
                       </td>
 
-                      {/* 3-WAY MATERIAL HANDSHAKE BADGE */}
+                      {/* Material Handover Badge */}
                       <td className="px-4 py-3.5">
                         {materials.length > 0 ? (() => {
-                          const inspections = materials.map(m => parseInspection(m.notes))
-                          const shortages = inspections.filter(ins => ins?.status === 'SHORTAGE' || ins?.status === 'DEFECTIVE')
-                          const isStoreVerified = materials.every(m => {
-                            const ins = parseInspection(m.notes)
-                            return ins?.store_verified || m.admin_issued
+                          const allMaterialsReceived = materials.every(m => m.lineman_received)
+                          const shortages = materials.filter(m => {
+                            const insp = parseInspection(m.notes)
+                            return insp?.status === 'SHORTAGE' || insp?.status === 'DEFECTIVE'
+                          })
+                          const isStoreVerified = materials.some(m => {
+                            const insp = parseInspection(m.notes)
+                            return insp?.store_verified || m.admin_issued
                           })
 
                           if (shortages.length > 0) {
@@ -509,11 +590,37 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                           </span>
                         )}
                         {al.status === 'COMPLETED' && (
-                          <span 
-                            className="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200"
-                          >
-                            COMPLETED
-                          </span>
+                          <div className="space-y-1">
+                            {al.mending_status === 'PENDING_MENDING' || al.mending_status === 'IN_MENDING' ? (
+                              <>
+                                <span 
+                                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-extrabold bg-indigo-50 text-indigo-800 border border-indigo-200 shadow-2xs"
+                                  title={`Handed over to ${al.mending_supervisor_name || 'Mending'} by ${al.handed_to_mending_by || 'Lineman'}`}
+                                >
+                                  <Sparkles className="w-3 h-3 text-indigo-600" />
+                                  <span>AT MENDING</span>
+                                </span>
+                                {al.mending_supervisor_name && (
+                                  <span className="block text-[10px] text-slate-500 font-medium truncate max-w-[130px]">
+                                    To: <strong className="text-slate-700">{al.mending_supervisor_name}</strong>
+                                  </span>
+                                )}
+                              </>
+                            ) : al.qc_status === 'PENDING_QC' || al.qc_status === 'PASSED' ? (
+                              <span 
+                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-extrabold bg-emerald-50 text-emerald-800 border border-emerald-200"
+                              >
+                                <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                                <span>AT QC TABLE</span>
+                              </span>
+                            ) : (
+                              <span 
+                                className="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200"
+                              >
+                                COMPLETED
+                              </span>
+                            )}
+                          </div>
                         )}
                         {al.status === 'CANCELLED' && (
                           <span 
@@ -601,218 +708,362 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                               </div>
                             )}
 
-                            {/* Size & Color Matrix Section */}
-                            {variants.length > 0 && (
-                              <div>
-                                <div className="flex items-center gap-2 mb-2.5">
-                                  <Layers className="w-4 h-4 text-[#3A3564]" />
-                                  <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                                    Color & Size Ratio Breakdown ({variants.reduce((s, v) => s + (v.quantity || 0), 0)} pcs total)
-                                  </span>
-                                </div>
+                            {/* Drawer Section Filter Switcher */}
+                            {(() => {
+                              const currentTab = drawerTabs[al.id] || 'matrix'
+                              const isShowMatrix = currentTab === 'matrix' || currentTab === 'all'
+                              const isShowWorkers = currentTab === 'workers' || currentTab === 'all'
+                              const isShowMaterials = currentTab === 'materials' || currentTab === 'all'
 
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                                  {Object.entries(
-                                    variants.reduce<Record<string, VariantItem[]>>((acc, v) => {
-                                      const color = v.color || 'Default'
-                                      if (!acc[color]) acc[color] = []
-                                      acc[color].push(v)
-                                      return acc
-                                    }, {})
-                                  ).map(([colorName, vList]) => {
-                                    const totalColorQty = vList.reduce((s, item) => s + (item.quantity || 0), 0)
-                                    return (
-                                      <div 
-                                        key={colorName} 
-                                        className="p-3.5 bg-white rounded-xl border border-black/10 shadow-2xs space-y-2"
-                                      >
-                                        <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                                          <div className="flex items-center gap-2">
-                                            <span className="w-3 h-3 rounded-full bg-[#3A3564] inline-block shadow-2xs ring-1 ring-white" />
-                                            <span className="font-extrabold text-xs sm:text-[13px] text-slate-900 capitalize">{colorName}</span>
-                                          </div>
-                                          <span className="font-mono text-xs sm:text-[13px] font-extrabold text-[#3A3564] px-2 py-0.5 bg-[#FAF7F0] rounded-md border border-black/10">
-                                            {totalColorQty} pcs
-                                          </span>
-                                        </div>
-
-                                        <div className="flex flex-wrap gap-1.5 pt-0.5">
-                                          {vList.map((item) => (
-                                            <span
-                                              key={item.id || item.size}
-                                              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-50 border border-slate-200 text-xs font-mono text-slate-700"
-                                            >
-                                              <span className="font-bold text-slate-900">{item.size}:</span>
-                                              <span className="font-bold text-[#3A3564]">{item.quantity} pcs</span>
-                                            </span>
-                                          ))}
-                                        </div>
-                                      </div>
-                                    )
-                                  })}
-                                </div>
-                              </div>
-                            )}
-
-                            {/* Live Sewing Floor Tailor Allocations (Machine Stations & Borrowed Workers) */}
-                            {al.assignments && al.assignments.length > 0 && (
-                              <div className="pt-3 border-t border-slate-200/60 space-y-2.5">
-                                <div className="flex items-center justify-between">
-                                  <div className="flex items-center gap-2">
-                                    <Users className="w-4 h-4 text-[#3A3564]" />
-                                    <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                                      Live Floor Tailor Allocations ({al.assignments.length} batches assigned)
-                                    </span>
-                                  </div>
-                                </div>
-
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
-                                  {al.assignments.map((ass) => {
-                                    const notesStr = ass.notes || ''
-                                    let station = 'STITCHING'
-                                    let isBorrowed = false
-                                    let borrowedFrom = ''
-
-                                    if (notesStr.includes('[OVERLOCK]')) station = 'OVERLOCK'
-                                    if (notesStr.includes('[FIVE_THREAD]')) station = '5-THREAD SAFETY'
-                                    if (notesStr.includes('[FLATLOCK]')) station = 'FLATLOCK / RIB'
-                                    if (notesStr.includes('[LOCKING]')) station = 'LOCKING / SINGLE'
-
-                                    if (notesStr.includes('[BORROWED:')) {
-                                      isBorrowed = true
-                                      const match = notesStr.match(/\[BORROWED:\s*(.*?)\]/)
-                                      if (match && match[1]) borrowedFrom = match[1]
-                                    }
-
-                                    return (
-                                      <div 
-                                        key={ass.id}
-                                        className="p-3 bg-white rounded-xl border border-black/10 text-xs space-y-2 shadow-2xs"
-                                      >
-                                        <div className="flex items-center justify-between">
-                                          <span className="font-bold text-sm text-slate-900">{ass.worker_name}</span>
-                                          <span className="font-mono font-bold text-[#3A3564] bg-[#FAF7F0] px-2.5 py-0.5 rounded-lg border border-black/10 text-xs shadow-2xs">
-                                            {ass.assigned_qty} pcs
-                                          </span>
-                                        </div>
-
-                                        <div className="flex flex-wrap items-center gap-1.5 text-xs">
-                                          {/* Machine Operation Badge */}
-                                          <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-800 font-semibold border border-slate-200">
-                                            {station}
-                                          </span>
-
-                                          {/* Color & Size Variant */}
-                                          {(ass.color || ass.size) && (
-                                            <span className="px-2 py-0.5 rounded-md bg-slate-50 text-slate-700 font-mono border border-slate-200">
-                                              {ass.color || ''} {ass.size ? `(${ass.size})` : ''}
-                                            </span>
-                                          )}
-
-                                          {/* Borrowed Worker Badge */}
-                                          {isBorrowed && (
-                                            <span className="px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 font-bold border border-amber-300">
-                                              ⇄ Borrowed from {borrowedFrom || 'Other Line'}
-                                            </span>
-                                          )}
-                                        </div>
-                                      </div>
-                                    )
-                                  })}
-                                </div>
-                              </div>
-                            )}
-
-                            {/* Raw Materials 3-Way Handshake Inspection Section */}
-                            {materials.length > 0 && (
-                              <div className="pt-3 border-t border-slate-200/60 space-y-2.5">
-                                <div className="flex items-center justify-between gap-2">
-                                  <div className="flex items-center gap-2">
-                                    <PackageCheck className="w-4 h-4 text-[#3A3564]" />
-                                    <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                                      3-Way Material Handshake & Inspection Details
-                                    </span>
-                                  </div>
-                                  {(() => {
-                                    const firstChallan = materials.map(m => parseInspection(m.notes)?.supplier_challan_no).find(c => Boolean(c))
-                                    if (firstChallan) {
-                                      return (
-                                        <span className="inline-flex items-center gap-1.5 text-xs font-mono font-bold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 border border-slate-200">
-                                          <FileText className="w-3.5 h-3.5 text-slate-500" />
-                                          <span>Challan: {firstChallan}</span>
-                                        </span>
-                                      )
-                                    }
-                                    return null
-                                  })()}
-                                </div>
-
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
-                                  {materials.map((mat) => {
-                                    const ins = parseInspection(mat.notes)
-                                    const isShortage = ins?.status === 'SHORTAGE' || ins?.status === 'DEFECTIVE'
-                                    const isStoreDone = ins?.store_verified || mat.admin_issued
-
-                                    return (
-                                      <div
-                                        key={mat.id}
-                                        className={`p-3 rounded-xl border text-xs shadow-2xs space-y-2 ${
-                                          isShortage 
-                                            ? 'bg-rose-50/70 border-rose-200' 
-                                            : mat.lineman_received 
-                                              ? 'bg-emerald-50/50 border-emerald-200' 
-                                              : 'bg-white border-black/10'
+                              return (
+                                <div className="space-y-4">
+                                  {/* Filter Buttons Toolbar */}
+                                  <div className="flex items-center justify-between gap-2.5 flex-wrap bg-white p-2.5 rounded-xl border border-black/10 shadow-2xs">
+                                    <div className="inline-flex items-center p-1 bg-slate-100/90 rounded-lg border border-slate-200/80 gap-1 flex-wrap">
+                                      {/* Tab 1: Color x Size Matrix */}
+                                      <button
+                                        type="button"
+                                        onClick={() => setDrawerTabs(prev => ({ ...prev, [al.id]: 'matrix' }))}
+                                        className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                                          currentTab === 'matrix'
+                                            ? 'bg-white text-slate-900 shadow-2xs border border-black/10 font-extrabold'
+                                            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
                                         }`}
                                       >
-                                        <div className="flex items-center justify-between gap-1.5">
-                                          <span className="font-bold text-sm text-slate-900 truncate">
-                                            {mat.item_name}
+                                        <Layers className="w-3.5 h-3.5 text-[#3A3564]" />
+                                        <span>Color × Size Matrix</span>
+                                        {variants.length > 0 && (
+                                          <span className="text-[10px] font-mono font-extrabold px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
+                                            {variants.length}
                                           </span>
-                                          <span className={`text-xs font-bold px-2 py-0.5 rounded-md border ${
-                                            isShortage 
-                                              ? 'bg-rose-100 text-rose-800 border-rose-200'
-                                              : mat.lineman_received 
-                                                ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
-                                                : isStoreDone 
-                                                  ? 'bg-[#FAF7F0] text-[#3A3564] border border-black/10'
-                                                  : 'bg-amber-50 text-amber-800 border-amber-200'
-                                          }`}>
-                                            {isShortage 
-                                              ? 'Shortage Flagged' 
-                                              : mat.lineman_received 
-                                                ? 'Lineman Received' 
-                                                : isStoreDone 
-                                                  ? 'Store Issued' 
-                                                  : 'Pending Store'}
+                                        )}
+                                      </button>
+
+                                      {/* Tab 2: Tailor & Worker Operations */}
+                                      <button
+                                        type="button"
+                                        onClick={() => setDrawerTabs(prev => ({ ...prev, [al.id]: 'workers' }))}
+                                        className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                                          currentTab === 'workers'
+                                            ? 'bg-[#3A3564] text-white shadow-2xs font-extrabold'
+                                            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                                        }`}
+                                      >
+                                        <Users className="w-3.5 h-3.5" />
+                                        <span>Tailor & Worker Operations</span>
+                                        <span className={`text-[10px] font-mono font-extrabold px-1.5 py-0.5 rounded ${
+                                          currentTab === 'workers' 
+                                            ? 'bg-white/20 text-white border border-white/20' 
+                                            : 'bg-slate-200 text-slate-700'
+                                        }`}>
+                                          {al.assignments?.length || 0}
+                                        </span>
+                                      </button>
+
+                                      {/* Tab 3: Raw Materials & Inspection */}
+                                      <button
+                                        type="button"
+                                        onClick={() => setDrawerTabs(prev => ({ ...prev, [al.id]: 'materials' }))}
+                                        className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                                          currentTab === 'materials'
+                                            ? 'bg-white text-slate-900 shadow-2xs border border-black/10 font-extrabold'
+                                            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                                        }`}
+                                      >
+                                        <PackageCheck className="w-3.5 h-3.5 text-emerald-600" />
+                                        <span>Materials & Handshake</span>
+                                        {materials.length > 0 && (
+                                          <span className="text-[10px] font-mono font-extrabold px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
+                                            {materials.length}
                                           </span>
-                                        </div>
+                                        )}
+                                      </button>
 
-                                        <div className="flex items-center justify-between text-xs text-slate-600 font-mono">
-                                          <span>Required: <strong className="text-slate-900 font-bold">{mat.required_qty}</strong></span>
-                                          {ins?.received_qty && (
-                                            <span>Received: <strong className={isShortage ? 'text-rose-700 font-bold' : 'text-slate-900 font-bold'}>{ins.received_qty}</strong></span>
-                                          )}
-                                        </div>
+                                      {/* Tab 4: Show All */}
+                                      <button
+                                        type="button"
+                                        onClick={() => setDrawerTabs(prev => ({ ...prev, [al.id]: 'all' }))}
+                                        className={`px-2.5 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-1 cursor-pointer ${
+                                          currentTab === 'all'
+                                            ? 'bg-slate-800 text-white shadow-2xs font-extrabold'
+                                            : 'text-slate-500 hover:text-slate-800 hover:bg-slate-200/60'
+                                        }`}
+                                        title="View all 3 breakdown sections together"
+                                      >
+                                        <span>Show All</span>
+                                      </button>
+                                    </div>
 
-                                        {/* Shortage details or store remarks */}
-                                        {isShortage && ins?.shortage_qty && (
-                                          <div className="text-xs font-bold text-rose-700 flex items-center gap-1.5 bg-rose-100/70 px-2.5 py-1 rounded-lg border border-rose-200">
-                                            <AlertTriangle className="w-3.5 h-3.5 shrink-0 text-rose-600" />
-                                            <span>Shortage: {ins.shortage_qty}</span>
+                                    {/* Section Context Info on Right */}
+                                    <div className="flex items-center gap-2 text-xs font-medium px-1">
+                                      {currentTab === 'matrix' && (
+                                        <span className="text-slate-500">
+                                          Total Order: <strong className="text-slate-900 font-mono">{al.target_qty} pcs</strong>
+                                        </span>
+                                      )}
+                                      {currentTab === 'workers' && (
+                                        <span className="text-slate-500">
+                                          Total Batches: <strong className="text-slate-900 font-mono">{al.assignments?.length || 0}</strong>
+                                        </span>
+                                      )}
+                                      {currentTab === 'materials' && (
+                                        <span className="text-slate-500">
+                                          Total BOM Items: <strong className="text-slate-900 font-mono">{materials.length}</strong>
+                                        </span>
+                                      )}
+                                      {currentTab === 'all' && (
+                                        <span className="text-slate-500">
+                                          Full 3-Section Breakdown
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+
+                                  {/* 1. Size & Color Matrix Table Section */}
+                                  {isShowMatrix && variants.length > 0 && (() => {
+                                    const distinctSizes = sortSizesNaturally(
+                                      Array.from(new Set(variants.map(v => (v.size || '').trim()).filter(Boolean)))
+                                    )
+
+                                    // Group by Color: { [colorName]: { [size]: quantity } }
+                                    const colorMatrixMap: Record<string, { total: number; sizes: Record<string, number> }> = {}
+                                    
+                                    variants.forEach(v => {
+                                      const color = (v.color?.trim() || 'Default').toUpperCase()
+                                      const size = (v.size?.trim() || 'Free Size')
+                                      const qty = v.quantity || 0
+
+                                      if (!colorMatrixMap[color]) {
+                                        colorMatrixMap[color] = { total: 0, sizes: {} }
+                                      }
+                                      colorMatrixMap[color].sizes[size] = (colorMatrixMap[color].sizes[size] || 0) + qty
+                                      colorMatrixMap[color].total += qty
+                                    })
+
+                                    const totalAllotmentPcs = variants.reduce((s, v) => s + (v.quantity || 0), 0)
+                                    const colorList = Object.entries(colorMatrixMap)
+
+                                    return (
+                                      <div className="space-y-2.5">
+                                        <div className="flex items-center justify-between flex-wrap gap-2">
+                                          <div className="flex items-center gap-2">
+                                            <Layers className="w-4 h-4 text-[#3A3564]" />
+                                            <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                                              Color × Size Production Matrix Table
+                                            </span>
                                           </div>
-                                        )}
+                                          <div className="flex items-center gap-2">
+                                            <span className="text-xs font-mono font-bold text-[#3A3564] bg-[#FAF7F0] px-2.5 py-0.5 rounded-md border border-black/10 shadow-2xs">
+                                              {colorList.length} {colorList.length === 1 ? 'Color' : 'Colors'} • {distinctSizes.length} Sizes
+                                            </span>
+                                            <span className="text-xs font-mono font-bold text-slate-700 bg-slate-100 px-2.5 py-0.5 rounded-md border border-slate-200 shadow-2xs">
+                                              Total: {totalAllotmentPcs.toLocaleString()} pcs
+                                            </span>
+                                          </div>
+                                        </div>
 
-                                        {ins?.store_remarks && (
-                                          <p className="text-xs text-slate-700 italic bg-white/80 px-2.5 py-1.5 rounded-lg border border-slate-200/70">
-                                            "{ins.store_remarks}"
-                                          </p>
-                                        )}
+                                        <div className="overflow-x-auto rounded-xl border border-black/10 bg-white shadow-2xs">
+                                          <table className="w-full text-left border-collapse text-xs">
+                                            <thead>
+                                              <tr className="bg-[#FAF7F0] border-b border-black/10 text-[#3A3564]">
+                                                <th className="py-2.5 px-4 font-extrabold uppercase tracking-wider text-slate-700 sticky left-0 bg-[#FAF7F0] z-10 min-w-[160px] border-r border-slate-200/80">
+                                                  Color / Variant
+                                                </th>
+                                                {distinctSizes.map(size => (
+                                                  <th 
+                                                    key={size} 
+                                                    className="py-2.5 px-3 text-center font-extrabold uppercase tracking-wider text-[#3A3564] min-w-[68px] border-r border-slate-200/50"
+                                                  >
+                                                    {size}
+                                                  </th>
+                                                ))}
+                                                <th className="py-2.5 px-4 text-right font-extrabold uppercase tracking-wider text-[#3A3564] min-w-[100px] border-r border-slate-200/80">
+                                                  Total Pcs
+                                                </th>
+                                                <th className="py-2.5 px-3 text-center font-extrabold uppercase tracking-wider text-slate-500 min-w-[65px]">
+                                                  Share
+                                                </th>
+                                              </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-slate-100">
+                                              {colorList.map(([colorName, colorData]) => {
+                                                const ratioPercent = totalAllotmentPcs > 0 
+                                                  ? ((colorData.total / totalAllotmentPcs) * 100).toFixed(1) 
+                                                  : '0'
+
+                                                return (
+                                                  <tr key={colorName} className="hover:bg-slate-50/80 transition-colors group">
+                                                    <td className="py-2.5 px-4 font-bold text-slate-900 sticky left-0 bg-white group-hover:bg-slate-50/80 z-10 border-r border-slate-200/80">
+                                                      <div className="flex items-center gap-2">
+                                                        <span className="w-2.5 h-2.5 rounded-full bg-[#3A3564] inline-block shadow-2xs ring-1 ring-white shrink-0" />
+                                                        <span className="capitalize font-extrabold text-[#3A3564]">{colorName.toLowerCase()}</span>
+                                                      </div>
+                                                    </td>
+                                                    {distinctSizes.map(size => {
+                                                      const qty = colorData.sizes[size]
+                                                      return (
+                                                        <td 
+                                                          key={size} 
+                                                          className="py-2.5 px-3 text-center font-mono text-xs border-r border-slate-100"
+                                                        >
+                                                          {qty !== undefined && qty > 0 ? (
+                                                            <span className="font-bold text-slate-900 bg-slate-100/90 px-2 py-0.5 rounded-md border border-slate-200 inline-block min-w-[44px]">
+                                                              {qty.toLocaleString()}
+                                                            </span>
+                                                          ) : (
+                                                            <span className="text-slate-300 font-semibold">-</span>
+                                                          )}
+                                                        </td>
+                                                      )
+                                                    })}
+                                                    <td className="py-2.5 px-4 text-right font-mono font-extrabold text-[#3A3564] border-r border-slate-200/80">
+                                                      {colorData.total.toLocaleString()} pcs
+                                                    </td>
+                                                    <td className="py-2.5 px-3 text-center font-mono font-bold text-slate-500 text-[11px]">
+                                                      {ratioPercent}%
+                                                    </td>
+                                                  </tr>
+                                                )
+                                              })}
+                                            </tbody>
+                                            <tfoot>
+                                              <tr className="bg-slate-50/90 border-t-2 border-slate-200 font-extrabold text-slate-900">
+                                                <td className="py-2.5 px-4 sticky left-0 bg-slate-50/90 z-10 text-slate-800 uppercase tracking-wider text-[11px] border-r border-slate-200">
+                                                  Summary Total
+                                                </td>
+                                                {distinctSizes.map(size => {
+                                                  const sizeTotal = colorList.reduce((s, [, d]) => s + (d.sizes[size] || 0), 0)
+                                                  return (
+                                                    <td 
+                                                      key={size} 
+                                                      className="py-2.5 px-3 text-center font-mono font-bold text-[#3A3564] border-r border-slate-200/50"
+                                                    >
+                                                      {sizeTotal > 0 ? (
+                                                        <span className="font-black text-slate-900">{sizeTotal.toLocaleString()}</span>
+                                                      ) : (
+                                                        '-'
+                                                      )}
+                                                    </td>
+                                                  )
+                                                })}
+                                                <td className="py-2.5 px-4 text-right font-mono font-black text-[#3A3564] text-xs sm:text-[13px] border-r border-slate-200">
+                                                  {totalAllotmentPcs.toLocaleString()} pcs
+                                                </td>
+                                                <td className="py-2.5 px-3 text-center font-mono font-bold text-emerald-700 text-[11px]">
+                                                  100%
+                                                </td>
+                                              </tr>
+                                            </tfoot>
+                                          </table>
+                                        </div>
                                       </div>
                                     )
-                                  })}
+                                  })()}
+
+                                  {/* 2. Live Sewing Floor Tailor Operations & Machine Station Breakdown */}
+                                  {isShowWorkers && (
+                                    <div className="space-y-2.5">
+                                      <WorkerAssignmentsTable 
+                                        assignments={al.assignments || []} 
+                                        stitchingRate={al.articles?.stitching_rate} 
+                                        targetQty={al.target_qty} 
+                                      />
+                                    </div>
+                                  )}
+
+                                  {/* 3. Raw Materials 3-Way Handshake Inspection Section */}
+                                  {isShowMaterials && materials.length > 0 && (
+                                    <div className="space-y-2.5">
+                                      <div className="flex items-center justify-between gap-2">
+                                        <div className="flex items-center gap-2">
+                                          <PackageCheck className="w-4 h-4 text-[#3A3564]" />
+                                          <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                                            3-Way Material Handshake & Inspection Details
+                                          </span>
+                                        </div>
+                                        {(() => {
+                                          const firstChallan = materials.map(m => parseInspection(m.notes)?.supplier_challan_no).find(c => Boolean(c))
+                                          if (firstChallan) {
+                                            return (
+                                              <span className="inline-flex items-center gap-1.5 text-xs font-mono font-bold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 border border-slate-200">
+                                                <FileText className="w-3.5 h-3.5 text-slate-500" />
+                                                <span>Challan: {firstChallan}</span>
+                                              </span>
+                                            )
+                                          }
+                                          return null
+                                        })()}
+                                      </div>
+
+                                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                                        {materials.map((mat) => {
+                                          const ins = parseInspection(mat.notes)
+                                          const isShortage = ins?.status === 'SHORTAGE' || ins?.status === 'DEFECTIVE'
+                                          const isStoreDone = ins?.store_verified || mat.admin_issued
+
+                                          return (
+                                            <div
+                                              key={mat.id}
+                                              className={`p-3 rounded-xl border text-xs shadow-2xs space-y-2 ${
+                                                isShortage 
+                                                  ? 'bg-rose-50/70 border-rose-200' 
+                                                  : mat.lineman_received 
+                                                    ? 'bg-emerald-50/50 border-emerald-200' 
+                                                    : 'bg-white border-black/10'
+                                              }`}
+                                            >
+                                              <div className="flex items-center justify-between gap-1.5">
+                                                <span className="font-bold text-sm text-slate-900 truncate">
+                                                  {mat.item_name}
+                                                </span>
+                                                <span className={`text-xs font-bold px-2 py-0.5 rounded-md border ${
+                                                  isShortage 
+                                                    ? 'bg-rose-100 text-rose-800 border-rose-200'
+                                                    : mat.lineman_received 
+                                                      ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
+                                                      : isStoreDone 
+                                                        ? 'bg-[#FAF7F0] text-[#3A3564] border border-black/10'
+                                                        : 'bg-amber-50 text-amber-800 border-amber-200'
+                                                }`}>
+                                                  {isShortage 
+                                                    ? 'Shortage Flagged' 
+                                                    : mat.lineman_received 
+                                                      ? 'Lineman Received' 
+                                                      : isStoreDone 
+                                                        ? 'Store Issued' 
+                                                        : 'Pending Store'}
+                                                </span>
+                                              </div>
+
+                                              <div className="flex items-center justify-between text-xs text-slate-600 font-mono">
+                                                <span>Required: <strong className="text-slate-900 font-bold">{mat.required_qty}</strong></span>
+                                                {ins?.received_qty && (
+                                                  <span>Received: <strong className={isShortage ? 'text-rose-700 font-bold' : 'text-slate-900 font-bold'}>{ins.received_qty}</strong></span>
+                                                )}
+                                              </div>
+
+                                              {/* Shortage details or store remarks */}
+                                              {isShortage && ins?.shortage_qty && (
+                                                <div className="text-xs font-bold text-rose-700 flex items-center gap-1.5 bg-rose-100/70 px-2.5 py-1 rounded-lg border border-rose-200">
+                                                  <AlertTriangle className="w-3.5 h-3.5 shrink-0 text-rose-600" />
+                                                  <span>Shortage: {ins.shortage_qty}</span>
+                                                </div>
+                                              )}
+
+                                              {ins?.store_remarks && (
+                                                <p className="text-xs text-slate-700 italic bg-white/80 px-2.5 py-1.5 rounded-lg border border-slate-200/70">
+                                                  "{ins.store_remarks}"
+                                                </p>
+                                              )}
+                                            </div>
+                                          )
+                                        })}
+                                      </div>
+                                    </div>
+                                  )}
                                 </div>
-                              </div>
-                            )}
+                              )
+                            })()}
 
                           </div>
                         </td>
@@ -821,6 +1072,12 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                   </Fragment>
                 )
               })
+            ) : (
+              <tr>
+                <td colSpan={7} className="px-6 py-12 text-center text-slate-400 text-xs sm:text-[13px]">
+                  No allotment records match your search or filter.
+                </td>
+              </tr>
             )}
           </tbody>
         </table>

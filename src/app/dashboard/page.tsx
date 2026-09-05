@@ -48,6 +48,7 @@ export default async function DashboardPage() {
     { data: storeData },
     { data: dispatchData },
     { data: materialsData },
+    { data: workerAssignmentsData },
   ] = await Promise.all([
     supabaseAdmin
       .from('articles')
@@ -68,7 +69,10 @@ export default async function DashboardPage() {
         mending_status,
         mending_total_counted,
         mending_supervisor_name,
+        mending_supervisor_id,
         handed_to_mending_by,
+        handed_to_mending_at,
+        mending_handover_notes,
         qc_status,
         qc_total_passed,
         qc_total_alter,
@@ -147,7 +151,28 @@ export default async function DashboardPage() {
       .from('allotment_materials')
       .select('*')
       .order('created_at', { ascending: false })
-      .limit(200)
+      .limit(200),
+
+    supabaseAdmin
+      .from('worker_assignments')
+      .select(`
+        id,
+        allotment_id,
+        lineman_id,
+        article_id,
+        worker_name,
+        assigned_qty,
+        completed_qty,
+        color,
+        size,
+        status,
+        notes,
+        assigned_at,
+        completed_at,
+        entry_date
+      `)
+      .order('assigned_at', { ascending: false })
+      .limit(500)
   ])
 
   // 9. Synthesize Multi-Stage Activity Stream
@@ -202,19 +227,33 @@ export default async function DashboardPage() {
     })
   })
 
-  // Allotments
+  // Allotments & Floor Handovers
   ;(allotmentsData || []).forEach(al => {
     const art = Array.isArray(al.articles) ? al.articles[0] : al.articles
     const lm = Array.isArray(al.profiles) ? al.profiles[0] : al.profiles
-    activities.push({
-      id: 'allot-' + al.id,
-      type: 'ALLOTMENT',
-      title: 'Target Allotted',
-      details: al.target_qty + ' pcs of ' + (art?.art_no || 'Article') + ' to ' + (lm?.username || 'Lineman'),
-      location: 'Floor Line',
-      timestamp: al.created_at,
-      relativeTime: formatRelativeTime(al.created_at)
-    })
+
+    // Mending Handover Event (Lineman -> Mending In-Charge)
+    if (al.handed_to_mending_at || al.mending_status === 'PENDING_MENDING' || al.mending_status === 'IN_MENDING') {
+      activities.push({
+        id: 'mending-' + al.id,
+        type: 'ALLOTMENT',
+        title: 'Handover to Mending Floor',
+        details: `${al.target_qty} pcs • Art ${art?.art_no || 'Article'} (${al.handed_to_mending_by || 'Lineman'} → ${al.mending_supervisor_name || 'Mending Floor'})`,
+        location: 'Mending Dept',
+        timestamp: al.handed_to_mending_at || al.created_at,
+        relativeTime: formatRelativeTime(al.handed_to_mending_at || al.created_at)
+      })
+    } else {
+      activities.push({
+        id: 'allot-' + al.id,
+        type: 'ALLOTMENT',
+        title: 'Target Allotted',
+        details: al.target_qty + ' pcs of ' + (art?.art_no || 'Article') + ' to ' + (lm?.username || 'Lineman'),
+        location: 'Floor Line',
+        timestamp: al.created_at,
+        relativeTime: formatRelativeTime(al.created_at)
+      })
+    }
   })
 
   // Dispatches
@@ -282,6 +321,7 @@ export default async function DashboardPage() {
           allotments={(allotmentsData as any) || []}
           variants={(variantsData as any) || []}
           materials={(materialsData as any) || []}
+          workerAssignments={(workerAssignmentsData as any) || []}
           challans={(challansData as any) || []}
           rawProduction={(prodData as any) || []}
           rawQC={(qcData as any) || []}

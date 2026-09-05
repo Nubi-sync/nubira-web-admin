@@ -1,6 +1,8 @@
 'use client'
 
 import { useState, useMemo, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { createClient } from '@/utils/supabase/client'
 import Link from 'next/link'
 import { 
   Warehouse, 
@@ -34,6 +36,7 @@ import {
   Plus
 } from 'lucide-react'
 import { TvViewButton } from '@/components/ui/TvViewButton'
+import { WorkerAssignmentsTable, type WorkerAssignmentItem } from '@/app/components/WorkerAssignmentsTable'
 
 type RawProd = {
   id?: string
@@ -98,6 +101,19 @@ type AllotmentItem = {
   target_qty: number
   status?: string
   allotment_date?: string
+  mending_status?: string | null
+  mending_total_counted?: number | null
+  mending_supervisor_name?: string | null
+  mending_supervisor_id?: string | null
+  handed_to_mending_by?: string | null
+  handed_to_mending_at?: string | null
+  mending_handover_notes?: string | null
+  qc_status?: string | null
+  qc_total_passed?: number | null
+  qc_total_alter?: number | null
+  qc_supervisor_name?: string | null
+  handed_to_qc_by?: string | null
+  handed_to_qc_at?: string | null
   created_at: string
   profiles?: { id?: string; username?: string } | { id?: string; username?: string }[]
   articles?: { id?: string; art_no?: string; description?: string; size_rates?: any; stitching_rate?: number } | any
@@ -138,6 +154,7 @@ type DashboardProps = {
   allotments: AllotmentItem[]
   variants?: any[]
   materials?: any[]
+  workerAssignments?: WorkerAssignmentItem[]
   challans?: ChallanItem[]
   rawProduction: RawProd[]
   rawQC: RawQC[]
@@ -289,6 +306,7 @@ export default function DashboardClient({
   allotments = [],
   variants = [],
   materials = [],
+  workerAssignments = [],
   challans = [],
   rawProduction = [],
   rawQC = [],
@@ -297,6 +315,8 @@ export default function DashboardClient({
   recentActivities = [],
 }: DashboardProps) {
   const todayStr = new Date().toISOString().split('T')[0]
+  const router = useRouter()
+  const [isSyncing, setIsSyncing] = useState(false)
   const [dateFilter, setDateFilter] = useState<DateFilter>('all')
   const [customFromDate, setCustomFromDate] = useState<string>(todayStr)
   const [customToDate, setCustomToDate] = useState<string>(todayStr)
@@ -309,6 +329,55 @@ export default function DashboardClient({
   const [activeDrilldownStage, setActiveDrilldownStage] = useState<StageType | null>(null)
   const [drawerSearchQuery, setDrawerSearchQuery] = useState('')
   const [expandedLinemen, setExpandedLinemen] = useState<Record<string, boolean>>({})
+  const [articleCardTabs, setArticleCardTabs] = useState<Record<string, 'matrix' | 'workers'>>({})
+
+  // Real-time live synchronization with mobile floor apps
+  useEffect(() => {
+    const supabase = createClient()
+    const channel = supabase
+      .channel('realtime-dashboard-client')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'allotments' }, () => {
+        router.refresh()
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'worker_assignments' }, () => {
+        router.refresh()
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'qc_logs' }, () => {
+        router.refresh()
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'store_transactions' }, () => {
+        router.refresh()
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'delivery_challans' }, () => {
+        router.refresh()
+      })
+      .subscribe()
+
+    // 15-second background auto-poll fallback
+    const interval = setInterval(() => {
+      router.refresh()
+    }, 15000)
+
+    // Window focus refresh
+    const onFocus = () => {
+      router.refresh()
+    }
+    window.addEventListener('focus', onFocus)
+
+    return () => {
+      supabase.removeChannel(channel)
+      clearInterval(interval)
+      window.removeEventListener('focus', onFocus)
+    }
+  }, [router])
+
+  const handleManualSync = () => {
+    setIsSyncing(true)
+    router.refresh()
+    setTimeout(() => {
+      setIsSyncing(false)
+    }, 800)
+  }
 
   // Toggle Lineman accordion
   const toggleLineman = (key: string) => {
@@ -367,126 +436,77 @@ export default function DashboardClient({
       const ch = Array.isArray(al.challans) ? al.challans[0] : al.challans
       if (ch?.brand && ch.brand.trim()) brandsSet.add(ch.brand.trim().toUpperCase())
     })
-    return ['ALL', ...Array.from(brandsSet)]
+    return ['ALL', ...Array.from(brandsSet), 'DIRECT']
   }, [challans, allotments])
 
   // 2. Filter allotments, production, QC, store, and dispatch based on Brand, Article & Date
   const filteredData = useMemo(() => {
-    const now = new Date()
-    let startStr = ''
-    let endStr = new Date().toISOString().split('T')[0]
-
-    if (dateFilter === 'today') {
-      startStr = endStr
-    } else if (dateFilter === 'week') {
-      const day = now.getDay()
-      const diff = now.getDate() - day + (day === 0 ? -6 : 1)
-      const weekStart = new Date(now.setDate(diff))
-      startStr = weekStart.toISOString().split('T')[0]
-    } else if (dateFilter === 'month') {
-      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
-      startStr = monthStart.toISOString().split('T')[0]
-    } else if (dateFilter === 'custom') {
-      startStr = customFromDate || endStr
-      endStr = customToDate || customFromDate || endStr
-    } else {
-      startStr = '2020-01-01'
+    const matchesArticle = (artId?: string) => {
+      if (selectedArticleId === 'ALL') return true
+      return artId === selectedArticleId
     }
 
-    const isDateMatch = (dateVal?: string) => {
-      if (!dateVal || dateFilter === 'all') return true
-      const d = dateVal.split('T')[0]
-      return d >= startStr && d <= endStr
+    const matchesBrand = (chId?: string, chBrand?: string) => {
+      if (selectedBrand === 'ALL') return true
+      if (selectedBrand === 'DIRECT') return !chId && !chBrand
+      const ch = challans.find(c => c.id === chId)
+      const brand = ch?.brand?.trim().toUpperCase() || chBrand?.trim().toUpperCase()
+      return brand === selectedBrand
     }
 
-    // Filter Allotments
-    const matchedAllotments = allotments.filter(al => {
-      const art = Array.isArray(al.articles) ? al.articles[0] : al.articles
-      const ch = Array.isArray(al.challans) ? al.challans[0] : al.challans
-      const artId = al.article_id || art?.id
+    const matchesDate = (dateStr?: string) => {
+      if (!dateStr || dateFilter === 'all') return true
+      const d = new Date(dateStr)
+      if (isNaN(d.getTime())) return true
 
-      if (selectedArticleId !== 'ALL' && artId !== selectedArticleId) return false
-      if (selectedBrand !== 'ALL') {
-        const brandUpper = (ch?.brand || '').trim().toUpperCase()
-        if (selectedBrand === 'DIRECT' && al.challan_id) return false
-        if (selectedBrand !== 'DIRECT' && brandUpper !== selectedBrand) return false
+      const now = new Date()
+      const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+
+      if (dateFilter === 'today') {
+        return d >= startOfToday
       }
-      return isDateMatch(al.allotment_date || al.created_at)
-    })
-
-    // Filter Production Logs
-    const matchedProd = rawProduction.filter(p => {
-      if (selectedArticleId !== 'ALL' && (p.article_id || p.article?.id) !== selectedArticleId) return false
-      return isDateMatch(p.entry_date || p.created_at)
-    })
-
-    // Filter QC Logs
-    const matchedQC = rawQC.filter(q => {
-      if (selectedArticleId !== 'ALL' && (q.article_id || q.article?.id) !== selectedArticleId) return false
-      return isDateMatch(q.entry_date || q.created_at)
-    })
-
-    // Filter Store Logs
-    const matchedStore = rawStore.filter(s => {
-      return isDateMatch(s.entry_date || s.created_at)
-    })
-
-    // Filter Dispatch
-    const matchedDispatch = rawDispatch.filter(d => {
-      return isDateMatch(d.created_at)
-    })
+      if (dateFilter === 'week') {
+        const startOfWeek = new Date(startOfToday)
+        startOfWeek.setDate(startOfToday.getDate() - 7)
+        return d >= startOfWeek
+      }
+      if (dateFilter === 'month') {
+        const startOfMonth = new Date(startOfToday)
+        startOfMonth.setDate(startOfToday.getDate() - 30)
+        return d >= startOfMonth
+      }
+      if (dateFilter === 'custom') {
+        const from = new Date(customFromDate + 'T00:00:00')
+        const to = new Date(customToDate + 'T23:59:59')
+        return d >= from && d <= to
+      }
+      return true
+    }
 
     return {
-      allotments: matchedAllotments,
-      production: matchedProd,
-      qc: matchedQC,
-      store: matchedStore,
-      dispatch: matchedDispatch
+      allotments: allotments.filter(a => matchesArticle(a.article_id) && matchesBrand(a.challan_id, a.challans?.brand) && matchesDate(a.allotment_date || a.created_at)),
+      production: rawProduction.filter(p => matchesArticle(p.article_id) && matchesDate(p.entry_date || p.created_at)),
+      qc: rawQC.filter(q => matchesArticle(q.article_id) && matchesDate(q.entry_date || q.created_at)),
+      store: rawStore.filter(s => matchesDate(s.entry_date || s.created_at)),
+      dispatch: rawDispatch.filter(d => matchesDate(d.created_at)),
+      activities: recentActivities.filter(ac => matchesDate(ac.timestamp))
     }
-  }, [allotments, rawProduction, rawQC, rawStore, rawDispatch, dateFilter, customFromDate, customToDate, selectedBrand, selectedArticleId])
+  }, [allotments, rawProduction, rawQC, rawStore, rawDispatch, recentActivities, selectedArticleId, selectedBrand, dateFilter, customFromDate, customToDate, challans])
 
   // 3. Compute the 6 Core Factory Lifecycle Numbers
   const metrics = useMemo(() => {
     // 1. Total Stocks (Total Target Pieces in Pipeline)
-    let totalStocks = 0
-
-    if (selectedArticleId !== 'ALL') {
-      const artObj = articles.find(a => a.id === selectedArticleId)
-      const targetArtNo = (artObj?.art_no || '').trim().toUpperCase()
-
-      // Calculate planned pieces for this article across matching challans
-      let challanArtPcs = 0
-      const filteredChallans = challans.filter(c => selectedBrand === 'ALL' || c.brand?.toUpperCase() === selectedBrand.toUpperCase())
-
-      filteredChallans.forEach(c => {
-        if (c.notes) {
-          try {
-            const parsed = JSON.parse(c.notes)
-            const lines = parsed.article_lines || (Array.isArray(parsed) ? parsed : [])
-            if (Array.isArray(lines)) {
-              lines.forEach((l: any) => {
-                const lineArt = (l.art_no || '').trim().toUpperCase()
-                const lineSub = (l.sub_art_no || '').trim().toUpperCase()
-                const fullLine = (l.full_art_code || `${lineArt}${lineSub}`).trim().toUpperCase()
-                if (lineArt === targetArtNo || fullLine === targetArtNo || targetArtNo.startsWith(lineArt)) {
-                  challanArtPcs += Number(l.total_pcs) || ((Number(l.sets) || 1) * (Number(l.pcs_per_set) || 9))
-                }
-              })
-            }
-          } catch (_) {}
-        }
-      })
-
-      const allotmentArtPcs = filteredData.allotments.reduce((sum, al) => sum + (al.target_qty || 0), 0)
-      totalStocks = challanArtPcs > 0 ? challanArtPcs : allotmentArtPcs
-    } else {
-      const filteredChallans = challans.filter(c => selectedBrand === 'ALL' || c.brand?.toUpperCase() === selectedBrand.toUpperCase())
-      const challanTotalPcs = filteredChallans.reduce((sum, c) => sum + (Number(c.total_pcs) || 0), 0)
-
-      totalStocks = challanTotalPcs > 0
-        ? challanTotalPcs
-        : filteredData.allotments.reduce((sum, al) => sum + (al.target_qty || 0), 0)
-    }
+    const relevantChallans = challans.filter(c => {
+      if (selectedBrand === 'ALL') return true
+      if (selectedBrand === 'DIRECT') return false
+      return c.brand?.trim().toUpperCase() === selectedBrand
+    })
+    const challanTotalPcs = relevantChallans.reduce((sum, c) => sum + (c.total_pcs || 0), 0)
+    const totalAllotmentPcs = filteredData.allotments
+      .filter(al => al.status !== 'CANCELLED')
+      .reduce((sum, al) => sum + (Number(al.target_qty) || 0), 0)
+    
+    const totalStocks = Math.max(challanTotalPcs, totalAllotmentPcs)
 
     // 2. Production / Sewing Counts
     const totalProduced = filteredData.production.reduce((sum, p) => sum + (p.quantity || 0), 0)
@@ -513,28 +533,37 @@ export default function DashboardClient({
     const totalDispatched = filteredData.dispatch.reduce((sum, d) => sum + (d.total_pieces || 0), 0)
 
     // 6-Stage Specific Allocations
-    // Stage 1: Total Stocks (Total Inward Production Challan Order Target)
     const stage1_totalStocks = Math.max(totalStocks, totalProduced + totalDispatched)
 
-    // Stage 2: Goods In Line (Only pieces actively allotted to Linemen & Karigars on sewing machines)
-    const activeLinemanAllotmentPcs = filteredData.allotments
-      .filter(al => al.lineman_id && al.status !== 'CANCELLED')
-      .reduce((sum, al) => sum + (Number(al.target_qty) || 0), 0)
+    // Stage 2: Goods In Line
+    const floorSewingAllotments = filteredData.allotments.filter(al =>
+      al.status !== 'CANCELLED' &&
+      (!al.mending_status || al.mending_status === 'PENDING_STITCHING') &&
+      al.status !== 'COMPLETED'
+    )
+    const activeLinemanAllotmentPcs = floorSewingAllotments.reduce((sum, al) => sum + (Number(al.target_qty) || 0), 0)
 
     const stage2_goodsInLine = activeLinemanAllotmentPcs > 0
       ? Math.max(0, activeLinemanAllotmentPcs - totalQCPassed - totalDispatched - totalQCRejected)
       : 0
 
-    // Stage 3: Goods in Mending & Checking (Finishing QC Table + Defect Alteration)
-    const stage3_mendingChecking = totalQCRejected + Math.max(0, totalProduced - totalQCPassed - totalDispatched)
+    // Stage 3: Goods in Mending & Checking
+    const mendingFloorAllotments = filteredData.allotments.filter(al =>
+      al.status !== 'CANCELLED' &&
+      (al.mending_status === 'PENDING_MENDING' || al.mending_status === 'IN_MENDING' ||
+       (al.status === 'COMPLETED' && (!al.qc_status || al.qc_status === 'PENDING_STITCHING')))
+    )
+    const mendingFloorPcs = mendingFloorAllotments.reduce((sum, al) => sum + (Number(al.target_qty) || 0), 0)
 
-    // Stage 4: Ready Goods (100% Passed & Packed in Godown Inventory)
+    const stage3_mendingChecking = mendingFloorPcs + totalQCRejected + Math.max(0, totalProduced - totalQCPassed - totalDispatched)
+
+    // Stage 4: Ready Goods
     const stage4_readyGoods = Math.max(0, totalQCPassed - totalDispatched) + storeInward
 
-    // Stage 5: RTO & Rejections (Return to Origin / Supplier Rejects)
+    // Stage 5: RTO
     const stage5_rto = storeRTO
 
-    // Stage 6: Ready for Delivery (Staged at Gate / Dispatched)
+    // Stage 6: Ready Delivery
     const stage6_readyDelivery = totalDispatched
 
     // Smart Alteration Rate for Mending & Checking
@@ -545,6 +574,8 @@ export default function DashboardClient({
       totalStocks: stage1_totalStocks,
       goodsInLine: stage2_goodsInLine,
       mendingChecking: stage3_mendingChecking,
+      mendingFloorPcs,
+      mendingFloorCount: mendingFloorAllotments.length,
       mendingAlterationQty: totalQCRejected,
       alterationRate,
       readyGoods: stage4_readyGoods,
@@ -716,8 +747,8 @@ export default function DashboardClient({
             )}
           </div>
 
-          {/* Date Filter Pills */}
-          <div className="flex items-center gap-2">
+          {/* Date Filter Pills & Real-time Live Sync Indicator */}
+          <div className="flex items-center gap-2 flex-wrap">
             <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
               {[
                 { id: 'today', label: 'Today' },
@@ -738,6 +769,24 @@ export default function DashboardClient({
                   {tab.label}
                 </button>
               ))}
+            </div>
+
+            {/* Live Sync Pulse */}
+            <div className="flex items-center gap-1.5 pl-1">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-800 text-xs font-bold shadow-2xs">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping shrink-0" />
+                <span className="hidden sm:inline">Live Floor Sync</span>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleManualSync}
+                disabled={isSyncing}
+                className="p-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 transition-all cursor-pointer shadow-2xs"
+                title="Sync latest live updates from factory floor"
+              >
+                <RotateCcw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin text-[#3A3564]' : ''}`} />
+              </button>
             </div>
           </div>
 
@@ -1712,6 +1761,10 @@ export default function DashboardClient({
                                 const art = Array.isArray(al.articles) ? al.articles[0] : al.articles
                                 const ch = Array.isArray(al.challans) ? al.challans[0] : al.challans
                                 const lotVariants = (variants || []).filter(v => v.allotment_id === al.id)
+                                const lotAssignments = (workerAssignments || []).filter(w => 
+                                  w.allotment_id === al.id || (!w.allotment_id && w.article_id === al.article_id && w.lineman_id === al.lineman_id)
+                                )
+                                const currentTab = articleCardTabs[al.id] || 'matrix'
 
                                 return (
                                   <div key={al.id} className="p-4 rounded-xl border border-black/10 bg-white shadow-2xs hover:border-black/25 transition-all">
@@ -1743,9 +1796,15 @@ export default function DashboardClient({
                                         <p className="text-base font-black text-slate-900 font-[family-name:var(--font-heading)]">
                                           {al.target_qty?.toLocaleString()} <span className="text-xs font-normal text-slate-400">pcs</span>
                                         </p>
-                                        <span className="inline-block mt-1 px-2 py-0.5 rounded text-[9.5px] font-mono font-bold uppercase bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                          {al.status || 'IN SEWING'}
-                                        </span>
+                                        {al.mending_status === 'PENDING_MENDING' || al.mending_status === 'IN_MENDING' ? (
+                                           <span className="inline-block mt-1 px-2 py-0.5 rounded text-[9.5px] font-mono font-bold uppercase bg-indigo-50 text-indigo-700 border border-indigo-200" title={`Handed to ${al.mending_supervisor_name || 'Mending'}`}>
+                                             AT MENDING ({al.mending_supervisor_name || 'In-Charge'})
+                                           </span>
+                                         ) : (
+                                           <span className="inline-block mt-1 px-2 py-0.5 rounded text-[9.5px] font-mono font-bold uppercase bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                             {al.status || 'IN SEWING'}
+                                           </span>
+                                         )}
                                       </div>
                                     </div>
 
@@ -1762,7 +1821,70 @@ export default function DashboardClient({
                                       )}
                                     </div>
 
-                                    <VariantMatrixTable variants={lotVariants} />
+                                    {/* View Switcher: Matrix vs Tailor Operations */}
+                                    <div className="mt-3 pt-3 border-t border-slate-100 space-y-2">
+                                      <div className="flex items-center justify-between gap-2 flex-wrap">
+                                        <div className="inline-flex items-center p-1 bg-slate-100/90 rounded-xl border border-slate-200/80 shadow-2xs">
+                                          <button
+                                            type="button"
+                                            onClick={() => setArticleCardTabs(prev => ({ ...prev, [al.id]: 'matrix' }))}
+                                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                                              currentTab === 'matrix'
+                                                ? 'bg-white text-slate-900 shadow-2xs border border-black/10'
+                                                : 'text-slate-500 hover:text-slate-900'
+                                            }`}
+                                          >
+                                            <Layers className="w-3.5 h-3.5 text-[#3A3564]" />
+                                            <span>Color × Size Matrix</span>
+                                            {lotVariants.length > 0 && (
+                                              <span className="text-[10px] font-mono font-extrabold px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
+                                                {lotVariants.length}
+                                              </span>
+                                            )}
+                                          </button>
+                                          <button
+                                            type="button"
+                                            onClick={() => setArticleCardTabs(prev => ({ ...prev, [al.id]: 'workers' }))}
+                                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                                              currentTab === 'workers'
+                                                ? 'bg-[#3A3564] text-white shadow-2xs'
+                                                : 'text-slate-500 hover:text-slate-900'
+                                            }`}
+                                          >
+                                            <Users className="w-3.5 h-3.5" />
+                                            <span>Tailor & Worker Operations</span>
+                                            <span className={`text-[10px] font-mono font-extrabold px-1.5 py-0.5 rounded ${
+                                              currentTab === 'workers' 
+                                                ? 'bg-white/20 text-white border border-white/20' 
+                                                : 'bg-slate-200 text-slate-700'
+                                            }`}>
+                                              {lotAssignments.length}
+                                            </span>
+                                          </button>
+                                        </div>
+
+                                        {lotAssignments.length > 0 && (
+                                          <div className="flex items-center gap-1.5 text-[11px] font-mono font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200 shadow-2xs">
+                                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                                            <span>
+                                              {lotAssignments.filter(a => a.status === 'DONE').length}/{lotAssignments.length} Operations Done
+                                            </span>
+                                          </div>
+                                        )}
+                                      </div>
+
+                                      {currentTab === 'matrix' ? (
+                                        <VariantMatrixTable variants={lotVariants} />
+                                      ) : (
+                                        <div className="pt-1">
+                                          <WorkerAssignmentsTable 
+                                            assignments={lotAssignments}
+                                            stitchingRate={art?.stitching_rate}
+                                            targetQty={al.target_qty}
+                                          />
+                                        </div>
+                                      )}
+                                    </div>
 
                                     <div className="mt-3 pt-2 border-t border-slate-100 flex justify-end">
                                       <Link 
@@ -1784,80 +1906,223 @@ export default function DashboardClient({
                 )
               })()}
 
-              {/* STAGE 3: MENDING & CHECKING (QC TABLE & DEFECTS) */}
-              {activeDrilldownStage === 'MENDING_CHECKING' && (
-                <div className="space-y-3">
-                  <div className="p-4 rounded-xl bg-amber-50/70 border border-amber-200/80 flex items-center justify-between shadow-2xs">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-9 h-9 rounded-xl bg-white border border-amber-200 flex items-center justify-center shrink-0 text-amber-700 shadow-2xs">
-                        <AlertTriangle className="w-4 h-4" />
+              {/* STAGE 3: MENDING & CHECKING (MENDING FLOOR RECONCILIATION & QC ALTERATION) */}
+              {activeDrilldownStage === 'MENDING_CHECKING' && (() => {
+                const mendingFloorLots = filteredData.allotments.filter(al =>
+                  al.status !== 'CANCELLED' &&
+                  (al.mending_status === 'PENDING_MENDING' || al.mending_status === 'IN_MENDING' ||
+                   (al.status === 'COMPLETED' && (!al.qc_status || al.qc_status === 'PENDING_STITCHING')))
+                ).filter(al => {
+                  if (!drawerSearchQuery.trim()) return true
+                  const s = drawerSearchQuery.toLowerCase()
+                  const art = Array.isArray(al.articles) ? al.articles[0] : al.articles
+                  const lm = Array.isArray(al.profiles) ? al.profiles[0] : al.profiles
+                  return (
+                    (art?.art_no || '').toLowerCase().includes(s) ||
+                    (lm?.username || '').toLowerCase().includes(s) ||
+                    (al.mending_supervisor_name || '').toLowerCase().includes(s) ||
+                    (al.handed_to_mending_by || '').toLowerCase().includes(s)
+                  )
+                })
+
+                const qcDefects = filteredData.qc.filter(q => {
+                  if (!drawerSearchQuery.trim()) return true
+                  const s = drawerSearchQuery.toLowerCase()
+                  return (
+                    (q.article?.art_no || '').toLowerCase().includes(s) ||
+                    (q.defect_type || '').toLowerCase().includes(s)
+                  )
+                })
+
+                return (
+                  <div className="space-y-4">
+                    {/* Stage Summary Banner */}
+                    <div className="p-4 rounded-xl bg-indigo-50/70 border border-indigo-200/80 flex items-center justify-between shadow-2xs flex-wrap gap-2">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-9 h-9 rounded-xl bg-white border border-indigo-200 flex items-center justify-center shrink-0 text-indigo-700 shadow-2xs">
+                          <Sparkles className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <p className="text-xs font-extrabold text-indigo-950">Mending & Quality Inspection Department</p>
+                          <p className="text-[11px] text-indigo-800 mt-0.5">
+                            {metrics.mendingFloorCount} active lot{metrics.mendingFloorCount === 1 ? '' : 's'} in mending ({metrics.mendingFloorPcs.toLocaleString()} pcs) • {metrics.mendingAlterationQty} defect alter pieces
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-xs font-extrabold text-amber-950">QC Finishing & Alteration Line</p>
-                        <p className="text-[11px] text-amber-800 mt-0.5">
-                          {metrics.mendingAlterationQty} defect pieces tagged for alteration
-                        </p>
-                      </div>
+                      <span className="text-xs font-mono font-bold text-indigo-950 bg-white px-3 py-1 rounded-full shadow-2xs border border-indigo-200">
+                        {metrics.mendingChecking.toLocaleString()} pcs in Stage
+                      </span>
                     </div>
-                    <span className="text-xs font-mono font-bold text-amber-950 bg-white px-3 py-1 rounded-full shadow-2xs border border-amber-200">
-                      {metrics.alterationRate.toFixed(1)}% Alter Rate
-                    </span>
+
+                    {/* Section 1: Active Mending Floor Lots */}
+                    <div className="space-y-2.5">
+                      <div className="flex items-center justify-between px-1">
+                        <span className="text-xs font-extrabold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                          <Boxes className="w-3.5 h-3.5 text-[#3A3564]" />
+                          <span>Mending Department Floor Lots ({mendingFloorLots.length})</span>
+                        </span>
+                        <span className="text-[11px] text-slate-500 font-medium">
+                          Piece Counting & 100% Handover
+                        </span>
+                      </div>
+
+                      {mendingFloorLots.map((al) => {
+                        const art = Array.isArray(al.articles) ? al.articles[0] : al.articles
+                        const ch = Array.isArray(al.challans) ? al.challans[0] : al.challans
+                        const lm = Array.isArray(al.profiles) ? al.profiles[0] : al.profiles
+                        const lotVariants = (variants || []).filter(v => v.allotment_id === al.id)
+                        const lotAssignments = (workerAssignments || []).filter(w =>
+                          w.allotment_id === al.id || (!w.allotment_id && w.article_id === al.article_id && w.lineman_id === al.lineman_id)
+                        )
+                        const currentTab = articleCardTabs[al.id] || 'matrix'
+
+                        return (
+                          <div key={al.id} className="p-4 rounded-xl border border-black/10 bg-white shadow-2xs hover:border-black/25 transition-all space-y-3">
+                            <div className="flex items-start justify-between gap-3 flex-wrap">
+                              <div>
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="font-extrabold text-sm text-slate-900 tracking-tight">
+                                    Art {art?.art_no || 'Style'}
+                                  </span>
+                                  {ch?.brand && (
+                                    <span className="text-[10px] font-mono font-extrabold uppercase px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                                      {ch.brand}
+                                    </span>
+                                  )}
+                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-indigo-50 text-indigo-800 border border-indigo-200">
+                                    <Sparkles className="w-2.5 h-2.5 text-indigo-600" />
+                                    <span>AT MENDING FLOOR</span>
+                                  </span>
+                                </div>
+                                {cleanDescription(art?.description) && (
+                                  <p className="text-xs text-slate-500 mt-1 font-medium truncate max-w-sm">
+                                    {cleanDescription(art?.description).replace(new RegExp(`^${art?.art_no}\\s*[-•:]*\\s*`, 'i'), '').trim()}
+                                  </p>
+                                )}
+                              </div>
+
+                              <div className="text-right shrink-0">
+                                <p className="text-base font-black text-slate-900 font-[family-name:var(--font-heading)]">
+                                  {al.target_qty?.toLocaleString()} <span className="text-xs font-normal text-slate-400">pcs</span>
+                                </p>
+                                <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 block mt-1">
+                                  100% Stitching Complete
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Chain of Custody & Handover Details */}
+                            <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200/80 text-xs flex items-center justify-between gap-2 flex-wrap">
+                              <div className="flex items-center gap-2">
+                                <span className="text-slate-500">From: <strong className="text-slate-900">{al.handed_to_mending_by || lm?.username || 'Lineman'}</strong></span>
+                                <span className="text-slate-300">➔</span>
+                                <span className="text-slate-500">To: <strong className="text-indigo-900">{al.mending_supervisor_name || 'Mending In-Charge'}</strong></span>
+                              </div>
+                              {al.handed_to_mending_at && (
+                                <span className="text-[11px] text-slate-400 font-mono">
+                                  {al.handed_to_mending_at.split('T')[0]} {al.handed_to_mending_at.split('T')[1]?.slice(0, 5)}
+                                </span>
+                              )}
+                            </div>
+
+                            {/* View Switcher: Matrix vs Tailor Operations */}
+                            <div className="pt-2 border-t border-slate-100 space-y-2">
+                              <div className="flex items-center justify-between gap-2 flex-wrap">
+                                <div className="inline-flex items-center p-1 bg-slate-100/90 rounded-xl border border-slate-200/80 shadow-2xs">
+                                  <button
+                                    type="button"
+                                    onClick={() => setArticleCardTabs(prev => ({ ...prev, [al.id]: 'matrix' }))}
+                                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                                      currentTab === 'matrix'
+                                        ? 'bg-white text-slate-900 shadow-2xs border border-black/10 font-extrabold'
+                                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                                    }`}
+                                  >
+                                    <Layers className="w-3.5 h-3.5 text-[#3A3564]" />
+                                    <span>Matrix ({lotVariants.length})</span>
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => setArticleCardTabs(prev => ({ ...prev, [al.id]: 'workers' }))}
+                                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                                      currentTab === 'workers'
+                                        ? 'bg-[#3A3564] text-white shadow-2xs font-extrabold'
+                                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                                    }`}
+                                  >
+                                    <Users className="w-3.5 h-3.5" />
+                                    <span>Tailor Piece Hisab ({lotAssignments.length})</span>
+                                  </button>
+                                </div>
+                              </div>
+
+                              {currentTab === 'matrix' ? (
+                                <VariantMatrixTable variants={lotVariants} />
+                              ) : (
+                                <div className="pt-1">
+                                  <WorkerAssignmentsTable 
+                                    assignments={lotAssignments}
+                                    stitchingRate={art?.stitching_rate}
+                                    targetQty={al.target_qty}
+                                  />
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )
+                      })}
+
+                      {mendingFloorLots.length === 0 && (
+                        <div className="text-center py-6 px-4 bg-slate-50/60 rounded-xl border border-slate-200/80 text-xs text-slate-400 font-medium">
+                          No floor lots currently awaiting piece counting at Mending department.
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Section 2: QC Alteration & Defect Logs */}
+                    {qcDefects.length > 0 && (
+                      <div className="space-y-2.5 pt-2">
+                        <div className="flex items-center justify-between px-1">
+                          <span className="text-xs font-extrabold uppercase tracking-wider text-rose-800 flex items-center gap-1.5">
+                            <ShieldAlert className="w-3.5 h-3.5 text-rose-600" />
+                            <span>QC Alteration & Defect Table ({qcDefects.length})</span>
+                          </span>
+                        </div>
+
+                        {qcDefects.map((q, idx) => (
+                          <div key={q.id || idx} className="p-4 rounded-xl border border-black/10 bg-white shadow-2xs hover:border-black/25 transition-all">
+                            <div className="flex items-start justify-between gap-3">
+                              <div>
+                                <span className="font-bold text-sm text-slate-900">
+                                  Art {q.article?.art_no || 'Style'}
+                                </span>
+                                <p className="text-xs font-semibold text-rose-700 mt-1 flex items-center gap-1.5">
+                                  <ShieldAlert className="w-3.5 h-3.5 shrink-0" />
+                                  {q.defect_type || 'Alteration Required (Stitching/Fabric Defect)'}
+                                </p>
+                              </div>
+
+                              <div className="text-right shrink-0">
+                                <span className="text-xs font-mono font-extrabold text-rose-700 bg-rose-50 px-2.5 py-1 rounded-full border border-rose-200 block">
+                                  {q.qty_rejected} pcs Defect
+                                </span>
+                                <span className="text-[10.5px] text-emerald-700 font-bold mt-1 block">
+                                  {q.qty_passed} pcs Passed
+                                </span>
+                              </div>
+                            </div>
+
+                            <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400">
+                              <span>Inspection Date: {q.entry_date || q.created_at?.split('T')[0]}</span>
+                              <span className="font-semibold text-slate-600">Stage: {q.stage || 'CHECKING'}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
-
-                  {filteredData.qc
-                    .filter(q => {
-                      if (!drawerSearchQuery.trim()) return true
-                      const s = drawerSearchQuery.toLowerCase()
-                      return (
-                        (q.article?.art_no || '').toLowerCase().includes(s) ||
-                        (q.defect_type || '').toLowerCase().includes(s)
-                      )
-                    })
-                    .map((q, idx) => (
-                      <div key={q.id || idx} className="p-4 rounded-xl border border-black/10 bg-white shadow-2xs hover:border-black/25 transition-all">
-                        <div className="flex items-start justify-between gap-3">
-                          <div>
-                            <span className="font-bold text-sm text-slate-900">
-                              Art {q.article?.art_no || 'Style'}
-                            </span>
-                            <p className="text-xs font-semibold text-rose-700 mt-1 flex items-center gap-1.5">
-                              <ShieldAlert className="w-3.5 h-3.5 shrink-0" />
-                              {q.defect_type || 'Alteration Required (Stitching/Fabric Defect)'}
-                            </p>
-                          </div>
-
-                          <div className="text-right shrink-0">
-                            <span className="text-xs font-mono font-extrabold text-rose-700 bg-rose-50 px-2.5 py-1 rounded-full border border-rose-200 block">
-                              {q.qty_rejected} pcs Defect
-                            </span>
-                            <span className="text-[10.5px] text-emerald-700 font-bold mt-1 block">
-                              {q.qty_passed} pcs Passed
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400">
-                          <span>Inspection Date: {q.entry_date || q.created_at?.split('T')[0]}</span>
-                          <span className="font-semibold text-slate-600">Stage: {q.stage || 'CHECKING'}</span>
-                        </div>
-                      </div>
-                    ))}
-                  
-                  {filteredData.qc.length === 0 && (
-                    <div className="text-center py-12 px-6 bg-white rounded-2xl border border-black/10 shadow-2xs space-y-3">
-                      <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 mx-auto flex items-center justify-center shadow-2xs">
-                        <CheckCircle2 className="w-6 h-6" />
-                      </div>
-                      <div>
-                        <h4 className="text-sm font-bold text-slate-800">Zero Defect Backlog!</h4>
-                        <p className="text-xs text-slate-400 mt-1 max-w-xs mx-auto">
-                          100% of checked garments passed inspection. The alteration table is completely clear.
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
+                )
+              })()}
 
               {/* STAGE 4: READY GOODS (FINISHED GODOWN INVENTORY) */}
               {activeDrilldownStage === 'READY_GOODS' && (
