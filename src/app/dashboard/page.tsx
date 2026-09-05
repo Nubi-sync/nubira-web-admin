@@ -65,10 +65,20 @@ export default async function DashboardPage() {
         target_qty,
         status,
         allotment_date,
+        mending_status,
+        mending_total_counted,
+        mending_supervisor_name,
+        handed_to_mending_by,
+        qc_status,
+        qc_total_passed,
+        qc_total_alter,
+        qc_supervisor_name,
+        handed_to_qc_by,
+        handed_to_qc_at,
         created_at,
         profiles:lineman_id ( id, username ),
-        articles ( id, art_no, description, size_rates, stitching_rate ),
-        challans ( id, challan_no, brand, fabric_type )
+        articles:article_id ( id, art_no, description, size_rates, stitching_rate ),
+        challans:challan_id ( id, challan_no, brand, fabric_type )
       `)
       .order('created_at', { ascending: false })
       .limit(200),
@@ -80,12 +90,12 @@ export default async function DashboardPage() {
       .limit(100),
 
     supabaseAdmin
-      .from('article_variants')
+      .from('allotment_variants')
       .select('*')
       .limit(500),
 
     supabaseAdmin
-      .from('production')
+      .from('daily_product')
       .select(`
         id,
         quantity,
@@ -99,7 +109,7 @@ export default async function DashboardPage() {
       .limit(200),
 
     supabaseAdmin
-      .from('qc_inspections')
+      .from('qc_logs')
       .select(`
         id,
         qty_passed,
@@ -115,16 +125,12 @@ export default async function DashboardPage() {
       .limit(200),
 
     supabaseAdmin
-      .from('store_entries')
+      .from('store_transactions')
       .select(`
         id,
         type,
         quantity,
-        color,
-        size,
         party_name,
-        challan_no,
-        entry_date,
         created_at,
         article:article_id ( art_no, description )
       `)
@@ -132,13 +138,13 @@ export default async function DashboardPage() {
       .limit(200),
 
     supabaseAdmin
-      .from('dispatch_challans')
+      .from('delivery_challans')
       .select('*')
       .order('created_at', { ascending: false })
       .limit(100),
 
     supabaseAdmin
-      .from('inventory_materials')
+      .from('allotment_materials')
       .select('*')
       .order('created_at', { ascending: false })
       .limit(200)
@@ -188,9 +194,9 @@ export default async function DashboardPage() {
     activities.push({
       id: 'store-' + s.id,
       type: 'STORE',
-      title: (s.type === 'INWARD' ? 'Fabric Stock Received' : 'Fabric Inward'),
-      details: s.quantity + ' units' + (s.challan_no ? ' • Challan ' + s.challan_no : ''),
-      location: 'Raw Material Godown',
+      title: (s.type === 'INWARD' ? 'Godown Stock Received' : 'Store Outward'),
+      details: s.quantity + ' pcs' + (s.party_name ? ' • ' + s.party_name : ''),
+      location: 'Godown Store',
       timestamp: s.created_at,
       relativeTime: formatRelativeTime(s.created_at)
     })

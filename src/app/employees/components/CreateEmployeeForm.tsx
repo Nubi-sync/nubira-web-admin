@@ -134,9 +134,9 @@ export function CreateEmployeeForm() {
               }`}
             >
               <option value="PRODUCTION_MANAGER">Production Manager (Live Floor & Pipeline Dashboard)</option>
+              <option value="QC">QC Inspector / Supervisor (Quality Inspection & Packing)</option>
               <option value="MENDING">Mending (Piece Counting & Matrix Reconciliation)</option>
               <option value="LINEMAN">Lineman (Stitching & Floor Allotment)</option>
-              <option value="PRODUCTION">Production (QC Inspection & Finishing)</option>
               <option value="STORE">Store (Godown & Raw Trims)</option>
               <option value="DISPATCH">Dispatch (Packing & Delivery Challans)</option>
               <option value="ADMIN">Admin (Executive Full Access)</option>

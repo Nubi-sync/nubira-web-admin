@@ -245,7 +245,13 @@ export async function deleteAllotment(allotmentId: string) {
   try {
     const supabase = supabaseAdmin
 
-    // 1. Delete associated child records first to ensure clean cascade
+    // 1. Delete associated child records across all dependent tables to ensure clean cascade
+    await supabase.from('qc_logs').delete().eq('allotment_id', allotmentId)
+    await supabase.from('daily_product').delete().eq('allotment_id', allotmentId)
+    await supabase.from('mending_assignments').delete().eq('allotment_id', allotmentId)
+    await supabase.from('qc_assignments').delete().eq('allotment_id', allotmentId)
+    await supabase.from('counting_reports').delete().eq('allotment_id', allotmentId)
+    await supabase.from('store_transactions').delete().eq('allotment_id', allotmentId)
     await supabase.from('allotment_variants').delete().eq('allotment_id', allotmentId)
     await supabase.from('allotment_materials').delete().eq('allotment_id', allotmentId)
     await supabase.from('worker_assignments').delete().eq('allotment_id', allotmentId)
@@ -263,6 +269,9 @@ export async function deleteAllotment(allotmentId: string) {
     }
 
     revalidatePath('/allotments')
+    revalidatePath('/production-orders')
+    revalidatePath('/articles')
+    revalidatePath('/')
     return { success: true }
   } catch (err: any) {
     console.error('Error in deleteAllotment:', err)

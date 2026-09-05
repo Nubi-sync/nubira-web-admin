@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/utils/supabase/server'
+import { supabaseAdmin } from '@/utils/supabase/admin'
 import { revalidatePath } from 'next/cache'
 
 export async function addStoreTransaction(formData: FormData) {
@@ -100,4 +101,81 @@ export async function approveQcForStoreInward(allotmentId: string) {
   revalidatePath('/dispatch')
   revalidatePath('/production-orders')
   revalidatePath('/')
+}
+
+export async function deleteTruckInward(truckInwardId: string) {
+  try {
+    const supabase = supabaseAdmin
+    await supabase.from('truck_inward_items').delete().eq('truck_inward_id', truckInwardId)
+    const { error } = await supabase.from('truck_inwards').delete().eq('id', truckInwardId)
+    if (error) {
+      console.error('Failed to delete truck inward:', error)
+      return { error: error.message }
+    }
+    revalidatePath('/inventory')
+    revalidatePath('/dashboard')
+    revalidatePath('/reports')
+    revalidatePath('/')
+    return { success: true }
+  } catch (err: any) {
+    console.error('Error in deleteTruckInward:', err)
+    return { error: err?.message || 'Failed to delete GRN record' }
+  }
+}
+
+export async function deleteStoreTransaction(transactionId: string) {
+  try {
+    const supabase = supabaseAdmin
+    const { error } = await supabase.from('store_transactions').delete().eq('id', transactionId)
+    if (error) {
+      console.error('Failed to delete store transaction:', error)
+      return { error: error.message }
+    }
+    revalidatePath('/inventory')
+    revalidatePath('/dashboard')
+    revalidatePath('/reports')
+    revalidatePath('/')
+    return { success: true }
+  } catch (err: any) {
+    console.error('Error in deleteStoreTransaction:', err)
+    return { error: err?.message || 'Failed to delete store transaction' }
+  }
+}
+
+export async function deleteAccessory(accessoryId: string) {
+  try {
+    const supabase = supabaseAdmin
+    const { error } = await supabase.from('accessories').delete().eq('id', accessoryId)
+    if (error) {
+      console.error('Failed to delete accessory entry:', error)
+      return { error: error.message }
+    }
+    revalidatePath('/inventory')
+    revalidatePath('/dashboard')
+    revalidatePath('/reports')
+    revalidatePath('/')
+    return { success: true }
+  } catch (err: any) {
+    console.error('Error in deleteAccessory:', err)
+    return { error: err?.message || 'Failed to delete accessory entry' }
+  }
+}
+
+export async function deleteAccessoryByName(itemName: string) {
+  try {
+    const supabase = supabaseAdmin
+    const { error } = await supabase.from('accessories').delete().eq('item_name', itemName)
+    if (error) {
+      console.error('Failed to delete accessory trim:', error)
+      return { error: error.message }
+    }
+    revalidatePath('/inventory')
+    revalidatePath('/dashboard')
+    revalidatePath('/reports')
+    revalidatePath('/')
+    return { success: true }
+  } catch (err: any) {
+    console.error('Error in deleteAccessoryByName:', err)
+    return { error: err?.message || 'Failed to delete accessory trim' }
+  }
 }

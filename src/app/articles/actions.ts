@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/utils/supabase/server'
+import { supabaseAdmin } from '@/utils/supabase/admin'
 
 export async function createArticle(formData: FormData) {
   const supabase = await createClient()
@@ -174,3 +175,123 @@ export async function getRateHistory(articleId: string) {
 
   return { data }
 }
+
+export async function deleteArticle(articleId: string) {
+  try {
+    const supabase = supabaseAdmin
+
+    // 1. Find and delete all allotments tied to this article with full cascade
+    const { data: allotments } = await supabase
+      .from('allotments')
+      .select('id')
+      .eq('article_id', articleId)
+
+    if (allotments && allotments.length > 0) {
+      const allotmentIds = allotments.map((a: any) => a.id)
+      await supabase.from('qc_logs').delete().in('allotment_id', allotmentIds)
+      await supabase.from('daily_product').delete().in('allotment_id', allotmentIds)
+      await supabase.from('mending_assignments').delete().in('allotment_id', allotmentIds)
+      await supabase.from('qc_assignments').delete().in('allotment_id', allotmentIds)
+      await supabase.from('counting_reports').delete().in('allotment_id', allotmentIds)
+      await supabase.from('store_transactions').delete().in('allotment_id', allotmentIds)
+      await supabase.from('allotment_variants').delete().in('allotment_id', allotmentIds)
+      await supabase.from('allotment_materials').delete().in('allotment_id', allotmentIds)
+      await supabase.from('worker_assignments').delete().in('allotment_id', allotmentIds)
+      await supabase.from('floor_alerts').delete().in('allotment_id', allotmentIds)
+      await supabase.from('allotments').delete().in('id', allotmentIds)
+    }
+
+    // 2. Direct child records referencing article_id
+    await supabase.from('rate_history').delete().eq('article_id', articleId)
+    await supabase.from('challan_items').delete().eq('article_id', articleId)
+    await supabase.from('qc_logs').delete().eq('article_id', articleId)
+    await supabase.from('daily_product').delete().eq('article_id', articleId)
+    await supabase.from('mending_assignments').delete().eq('article_id', articleId)
+    await supabase.from('qc_assignments').delete().eq('article_id', articleId)
+    await supabase.from('counting_reports').delete().eq('article_id', articleId)
+    await supabase.from('store_transactions').delete().eq('article_id', articleId)
+    await supabase.from('worker_assignments').delete().eq('article_id', articleId)
+
+    // 3. Delete from articles table
+    const { error } = await supabase
+      .from('articles')
+      .delete()
+      .eq('id', articleId)
+
+    if (error) {
+      console.error('Failed to delete article:', error)
+      return { error: error.message }
+    }
+
+    revalidatePath('/articles')
+    revalidatePath('/allotments')
+    revalidatePath('/production-orders')
+    revalidatePath('/inventory')
+    revalidatePath('/')
+    return { success: true }
+  } catch (err: any) {
+    console.error('Error in deleteArticle:', err)
+    return { error: err?.message || 'Failed to delete article' }
+  }
+}
+
+export async function bulkDeleteArticles(articleIds: string[]) {
+  try {
+    if (!articleIds || articleIds.length === 0) return { success: true }
+    const supabase = supabaseAdmin
+
+    // 1. Find and delete all allotments tied to these articles with full cascade
+    const { data: allotments } = await supabase
+      .from('allotments')
+      .select('id')
+      .in('article_id', articleIds)
+
+    if (allotments && allotments.length > 0) {
+      const allotmentIds = allotments.map((a: any) => a.id)
+      await supabase.from('qc_logs').delete().in('allotment_id', allotmentIds)
+      await supabase.from('daily_product').delete().in('allotment_id', allotmentIds)
+      await supabase.from('mending_assignments').delete().in('allotment_id', allotmentIds)
+      await supabase.from('qc_assignments').delete().in('allotment_id', allotmentIds)
+      await supabase.from('counting_reports').delete().in('allotment_id', allotmentIds)
+      await supabase.from('store_transactions').delete().in('allotment_id', allotmentIds)
+      await supabase.from('allotment_variants').delete().in('allotment_id', allotmentIds)
+      await supabase.from('allotment_materials').delete().in('allotment_id', allotmentIds)
+      await supabase.from('worker_assignments').delete().in('allotment_id', allotmentIds)
+      await supabase.from('floor_alerts').delete().in('allotment_id', allotmentIds)
+      await supabase.from('allotments').delete().in('id', allotmentIds)
+    }
+
+    // 2. Direct child records referencing article_id
+    await supabase.from('rate_history').delete().in('article_id', articleIds)
+    await supabase.from('challan_items').delete().in('article_id', articleIds)
+    await supabase.from('qc_logs').delete().in('article_id', articleIds)
+    await supabase.from('daily_product').delete().in('article_id', articleIds)
+    await supabase.from('mending_assignments').delete().in('article_id', articleIds)
+    await supabase.from('qc_assignments').delete().in('article_id', articleIds)
+    await supabase.from('counting_reports').delete().in('article_id', articleIds)
+    await supabase.from('store_transactions').delete().in('article_id', articleIds)
+    await supabase.from('worker_assignments').delete().in('article_id', articleIds)
+
+    // 3. Delete from articles
+    const { error } = await supabase
+      .from('articles')
+      .delete()
+      .in('id', articleIds)
+
+    if (error) {
+      console.error('Failed to bulk delete articles:', error)
+      return { error: error.message }
+    }
+
+    revalidatePath('/articles')
+    revalidatePath('/allotments')
+    revalidatePath('/production-orders')
+    revalidatePath('/inventory')
+    revalidatePath('/')
+    return { success: true }
+  } catch (err: any) {
+    console.error('Error in bulkDeleteArticles:', err)
+    return { error: err?.message || 'Failed to bulk delete articles' }
+  }
+}
+

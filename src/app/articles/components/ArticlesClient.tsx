@@ -21,6 +21,7 @@ import {
   ChevronLeft, 
   ChevronRight,
   AlertCircle,
+  AlertTriangle,
   Clock
 } from 'lucide-react'
 import { TvViewButton } from '@/components/ui/TvViewButton'
@@ -30,6 +31,8 @@ import {
   toggleArticleArchive, 
   bulkArchiveArticles, 
   bulkRestoreArticles,
+  deleteArticle,
+  bulkDeleteArticles,
   getRateHistory 
 } from '../actions'
 
@@ -160,6 +163,12 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
   const [addError, setAddError] = useState<string | null>(null)
   const [addTouched, setAddTouched] = useState(false)
 
+  // Delete Modal States
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [articleToDelete, setArticleToDelete] = useState<Article | null>(null)
+  const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
+
   // Close modals on Escape key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -167,6 +176,8 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
         setShowAddModal(false)
         setShowUpdateRateModal(false)
         setShowHistoryModal(false)
+        setShowDeleteModal(false)
+        setShowBulkDeleteModal(false)
       }
     }
     window.addEventListener('keydown', handleKeyDown)
@@ -301,6 +312,35 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
     startTransition(async () => {
       await bulkRestoreArticles(selectedIds)
       setSelectedIds([])
+    })
+  }
+
+  const handleDeleteArticleConfirm = () => {
+    if (!articleToDelete) return
+    setDeleteError(null)
+    startTransition(async () => {
+      const res = await deleteArticle(articleToDelete.id)
+      if (res?.error) {
+        setDeleteError(res.error)
+      } else {
+        setShowDeleteModal(false)
+        setSelectedIds(prev => prev.filter(id => id !== articleToDelete.id))
+        setArticleToDelete(null)
+      }
+    })
+  }
+
+  const handleBulkDeleteConfirm = () => {
+    if (selectedIds.length === 0) return
+    setDeleteError(null)
+    startTransition(async () => {
+      const res = await bulkDeleteArticles(selectedIds)
+      if (res?.error) {
+        setDeleteError(res.error)
+      } else {
+        setShowBulkDeleteModal(false)
+        setSelectedIds([])
+      }
     })
   }
 
@@ -529,12 +569,25 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                   type="button"
                   onClick={handleBulkArchive}
                   disabled={isPending}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border bg-white hover:bg-rose-50 transition-colors shadow-2xs cursor-pointer text-rose-700 border-rose-300"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border bg-white hover:bg-amber-50 transition-colors shadow-2xs cursor-pointer text-amber-700 border-amber-300"
                 >
                   <Archive className="w-3.5 h-3.5" />
                   <span>Archive Selected</span>
                 </button>
               )}
+
+              <button
+                type="button"
+                onClick={() => {
+                  setDeleteError(null)
+                  setShowBulkDeleteModal(true)
+                }}
+                disabled={isPending}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border bg-white hover:bg-rose-50 transition-colors shadow-2xs cursor-pointer text-rose-700 border-rose-300"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Delete Selected</span>
+              </button>
             </div>
           </div>
         )}
@@ -759,6 +812,20 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                               Restore
                             </button>
                           )}
+
+                          {/* Delete Article Trash Button */}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setArticleToDelete(article)
+                              setDeleteError(null)
+                              setShowDeleteModal(true)
+                            }}
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                            title="Delete Article"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
                         </div>
                       </td>
                     </tr>
@@ -1382,6 +1449,184 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
         </div>
       )}
 
+      {/* ======================================================== */}
+      {/* MODAL 4: CONFIRM SINGLE ARTICLE DELETE                    */}
+      {/* ======================================================== */}
+      {showDeleteModal && articleToDelete && (
+        <div 
+          className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-in fade-in duration-200"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowDeleteModal(false)
+              setArticleToDelete(null)
+            }
+          }}
+        >
+          <div 
+            className="w-full max-w-md bg-white rounded-2xl p-5 sm:p-6 shadow-2xl border border-rose-200/80 relative space-y-4 animate-in zoom-in-95 duration-200"
+          >
+            {/* Header with Danger Badge */}
+            <div className="flex items-start gap-3.5 pb-3.5 border-b border-slate-100">
+              <div 
+                className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 bg-rose-50 text-rose-600 border border-rose-200 shadow-2xs"
+              >
+                <Trash2 className="w-5 h-5" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-base sm:text-lg font-bold font-[family-name:var(--font-heading)] text-slate-900">
+                  Delete Article
+                </h3>
+                <p className="text-xs text-rose-600 font-semibold mt-0.5">Permanent action • Cannot be undone</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowDeleteModal(false)
+                  setArticleToDelete(null)
+                }}
+                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Content Details */}
+            <div className="space-y-3 text-xs sm:text-[13px]">
+              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1.5">
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-500 font-medium">Article Number:</span>
+                  <span className="font-mono font-bold text-sm text-[#3A3564]">{articleToDelete.art_no}</span>
+                </div>
+                {articleToDelete.description && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-500 font-medium">Description:</span>
+                    <span className="font-medium text-slate-800 text-right max-w-[200px] truncate">{articleToDelete.description}</span>
+                  </div>
+                )}
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-500 font-medium">Stitching Rate:</span>
+                  <span className="font-mono font-bold text-slate-900">₹{articleToDelete.stitching_rate.toFixed(2)}</span>
+                </div>
+              </div>
+
+              <p className="text-slate-600 text-xs leading-relaxed">
+                Are you sure you want to permanently delete this article? All associated rate history, worker assignments, and linked production records will be removed.
+              </p>
+
+              {deleteError && (
+                <div className="p-3 rounded-xl text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200 flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <span>{deleteError}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Actions */}
+            <div className="grid grid-cols-2 gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowDeleteModal(false)
+                  setArticleToDelete(null)
+                }}
+                disabled={isPending}
+                className="w-full py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition-colors cursor-pointer shadow-2xs"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteArticleConfirm}
+                disabled={isPending}
+                className="w-full py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold text-white transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer bg-rose-600 hover:bg-rose-700 active:scale-[0.98] disabled:opacity-50"
+              >
+                <Trash2 className="w-4 h-4" />
+                <span>{isPending ? 'Deleting...' : 'Delete Article'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* MODAL 5: CONFIRM BULK DELETE ARTICLES                     */}
+      {/* ======================================================== */}
+      {showBulkDeleteModal && selectedIds.length > 0 && (
+        <div 
+          className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-in fade-in duration-200"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowBulkDeleteModal(false)
+          }}
+        >
+          <div 
+            className="w-full max-w-md bg-white rounded-2xl p-5 sm:p-6 shadow-2xl border border-rose-200/80 relative space-y-4 animate-in zoom-in-95 duration-200"
+          >
+            {/* Header */}
+            <div className="flex items-start gap-3.5 pb-3.5 border-b border-slate-100">
+              <div 
+                className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 bg-rose-50 text-rose-600 border border-rose-200 shadow-2xs"
+              >
+                <Trash2 className="w-5 h-5" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-base sm:text-lg font-bold font-[family-name:var(--font-heading)] text-slate-900">
+                  Delete {selectedIds.length} {selectedIds.length === 1 ? 'Article' : 'Articles'}
+                </h3>
+                <p className="text-xs text-rose-600 font-semibold mt-0.5">Permanent bulk delete • Cannot be undone</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowBulkDeleteModal(false)}
+                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Content Details */}
+            <div className="space-y-3 text-xs sm:text-[13px]">
+              <div className="p-3.5 rounded-xl bg-rose-50/50 border border-rose-200/60 space-y-1">
+                <p className="font-bold text-rose-950">
+                  You have selected {selectedIds.length} {selectedIds.length === 1 ? 'article' : 'articles'} to delete.
+                </p>
+                <p className="text-xs text-rose-700">
+                  All corresponding rate history, allotments, and worker assignments for these articles will be permanently deleted from the system.
+                </p>
+              </div>
+
+              {deleteError && (
+                <div className="p-3 rounded-xl text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200 flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <span>{deleteError}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Actions */}
+            <div className="grid grid-cols-2 gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowBulkDeleteModal(false)}
+                disabled={isPending}
+                className="w-full py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition-colors cursor-pointer shadow-2xs"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleBulkDeleteConfirm}
+                disabled={isPending}
+                className="w-full py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold text-white transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer bg-rose-600 hover:bg-rose-700 active:scale-[0.98] disabled:opacity-50"
+              >
+                <Trash2 className="w-4 h-4" />
+                <span>{isPending ? 'Deleting...' : `Delete All (${selectedIds.length})`}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   )
 }
+

@@ -25,10 +25,12 @@ import {
   Check,
   ExternalLink,
   User,
-  ShieldCheck
+  ShieldCheck,
+  Trash2,
+  AlertCircle
 } from 'lucide-react'
 import { TvViewButton } from '@/components/ui/TvViewButton'
-import { approveQcForStoreInward } from '../actions'
+import { approveQcForStoreInward, deleteTruckInward, deleteStoreTransaction, deleteAccessory, deleteAccessoryByName } from '../actions'
 
 type Article = {
   id: string
@@ -167,6 +169,36 @@ export function InventoryClient({
   // Modal States
   const [activePhoto, setActivePhoto] = useState<{ url: string; title: string } | null>(null)
   const [expandedGrnId, setExpandedGrnId] = useState<string | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<{
+    type: 'TRUCK_INWARD' | 'STORE_TRANSACTION' | 'ACCESSORY' | 'ACCESSORY_BY_NAME'
+    id: string
+    title: string
+    subtitle?: string
+  } | null>(null)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
+
+  const handleDeleteConfirm = () => {
+    if (!deleteTarget) return
+    setDeleteError(null)
+    startTransition(async () => {
+      let res: any
+      if (deleteTarget.type === 'TRUCK_INWARD') {
+        res = await deleteTruckInward(deleteTarget.id)
+      } else if (deleteTarget.type === 'STORE_TRANSACTION') {
+        res = await deleteStoreTransaction(deleteTarget.id)
+      } else if (deleteTarget.type === 'ACCESSORY') {
+        res = await deleteAccessory(deleteTarget.id)
+      } else if (deleteTarget.type === 'ACCESSORY_BY_NAME') {
+        res = await deleteAccessoryByName(deleteTarget.id)
+      }
+
+      if (res?.error) {
+        setDeleteError(res.error)
+      } else {
+        setDeleteTarget(null)
+      }
+    })
+  }
 
   // Switch tabs & reset pagination/filters cleanly
   const handleTabChange = (tab: TabKey) => {
@@ -1107,6 +1139,7 @@ export function InventoryClient({
                       <th className="px-4 py-3.5 font-bold">Items Breakdown</th>
                       <th className="px-4 py-3.5 font-bold text-center">Status</th>
                       <th className="px-4 py-3.5 font-bold text-center">Slip Proof</th>
+                      <th className="px-5 py-3.5 font-bold text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
@@ -1239,6 +1272,25 @@ export function InventoryClient({
                               <span className="text-slate-400 text-xs italic">No photo</span>
                             )}
                           </td>
+
+                          <td className="px-5 py-3.5 text-right whitespace-nowrap">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setDeleteError(null)
+                                setDeleteTarget({
+                                  type: 'TRUCK_INWARD',
+                                  id: row.id,
+                                  title: `GRN Receipt ${row.grn_no}`,
+                                  subtitle: `Supplier: ${row.party_name} • Challan: ${row.challan_no || '-'}`
+                                })
+                              }}
+                              className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                              title="Delete GRN Receipt"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </td>
                         </tr>
                       )
                     })}
@@ -1322,6 +1374,7 @@ export function InventoryClient({
                       </th>
 
                       <th className="px-4 py-3.5 font-bold text-center">Status</th>
+                      <th className="px-5 py-3.5 font-bold text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
@@ -1372,6 +1425,25 @@ export function InventoryClient({
                                   ? (daysLeft != null ? 'Low Stock · ~' + daysLeft + 'd' : 'Low Stock') 
                                   : (daysLeft != null ? 'Available · ~' + daysLeft + 'd' : 'Available')}
                             </span>
+                          </td>
+
+                          <td className="px-5 py-3.5 text-right whitespace-nowrap">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setDeleteError(null)
+                                setDeleteTarget({
+                                  type: 'ACCESSORY_BY_NAME',
+                                  id: row.item_name,
+                                  title: `Trim / Raw Material: ${row.item_name}`,
+                                  subtitle: `Current Balance: ${row.balance} ${row.unit} • Total Received: +${row.totalIn}`
+                                })
+                              }}
+                              className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                              title={`Delete ${row.item_name}`}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
                           </td>
                         </tr>
                       )
@@ -1442,6 +1514,7 @@ export function InventoryClient({
                       <th className="px-4 py-3.5 font-bold">Buyer / Customer</th>
                       <th className="px-4 py-3.5 font-bold">Challan / Vehicle No</th>
                       <th className="px-4 py-3.5 font-bold">Notes</th>
+                      <th className="px-5 py-3.5 font-bold text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
@@ -1473,6 +1546,24 @@ export function InventoryClient({
                         </td>
                         <td className="px-4 py-3.5 text-slate-500 text-xs">
                           {row.notes || '-'}
+                        </td>
+                        <td className="px-5 py-3.5 text-right whitespace-nowrap">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setDeleteError(null)
+                              setDeleteTarget({
+                                type: 'STORE_TRANSACTION',
+                                id: row.id,
+                                title: `Dispatch Entry (${row.quantity} pcs)`,
+                                subtitle: `Buyer: ${row.party_name || '-'} • Challan: ${row.challan_no || '-'}`
+                              })
+                            }}
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                            title="Delete Dispatch Entry"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
                         </td>
                       </tr>
                     ))}
@@ -1664,6 +1755,7 @@ export function InventoryClient({
 
                       <th className="px-4 py-3.5 font-bold">Chain of Custody (Lineman • Mending • QC • Store)</th>
                       <th className="px-4 py-3.5 font-bold">Notes</th>
+                      <th className="px-5 py-3.5 font-bold text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
@@ -1722,6 +1814,24 @@ export function InventoryClient({
                         </td>
                         <td className="px-4 py-3.5 text-slate-500 text-xs">
                           {row.notes || '-'}
+                        </td>
+                        <td className="px-5 py-3.5 text-right whitespace-nowrap">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setDeleteError(null)
+                              setDeleteTarget({
+                                type: 'STORE_TRANSACTION',
+                                id: row.id,
+                                title: `Inward Receipt (${row.quantity} pcs)`,
+                                subtitle: `Art #${row.article?.art_no || '-'} • Challan: ${row.challan_no || '-'}`
+                              })
+                            }}
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                            title="Delete Inward Receipt"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
                         </td>
                       </tr>
                     ))}
@@ -1807,6 +1917,86 @@ export function InventoryClient({
                 alt="Challan Slip"
                 className="max-h-[70vh] w-auto object-contain rounded-md shadow-md"
               />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* MODAL: CONFIRM RECORD DELETION                           */}
+      {/* ======================================================== */}
+      {deleteTarget && (
+        <div 
+          className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-in fade-in duration-200"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setDeleteTarget(null)
+          }}
+        >
+          <div 
+            className="w-full max-w-md bg-white rounded-2xl p-5 sm:p-6 shadow-2xl border border-rose-200/80 relative space-y-4 animate-in zoom-in-95 duration-200"
+          >
+            {/* Header with Danger Badge */}
+            <div className="flex items-start gap-3.5 pb-3.5 border-b border-slate-100">
+              <div 
+                className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 bg-rose-50 text-rose-600 border border-rose-200 shadow-2xs"
+              >
+                <Trash2 className="w-5 h-5" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-base sm:text-lg font-bold font-[family-name:var(--font-heading)] text-slate-900">
+                  Delete Inventory Record
+                </h3>
+                <p className="text-xs text-rose-600 font-semibold mt-0.5">Permanent action • Cannot be undone</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setDeleteTarget(null)}
+                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Content Details */}
+            <div className="space-y-3 text-xs sm:text-[13px]">
+              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
+                <div className="font-mono font-bold text-sm text-[#3A3564]">{deleteTarget.title}</div>
+                {deleteTarget.subtitle && (
+                  <div className="text-xs text-slate-600 font-medium">{deleteTarget.subtitle}</div>
+                )}
+              </div>
+
+              <p className="text-slate-600 text-xs leading-relaxed">
+                Are you sure you want to permanently delete this record from the inventory ledger?
+              </p>
+
+              {deleteError && (
+                <div className="p-3 rounded-xl text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200 flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <span>{deleteError}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Actions */}
+            <div className="grid grid-cols-2 gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setDeleteTarget(null)}
+                disabled={isPending}
+                className="w-full py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition-colors cursor-pointer shadow-2xs"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteConfirm}
+                disabled={isPending}
+                className="w-full py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold text-white transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer bg-rose-600 hover:bg-rose-700 active:scale-[0.98] disabled:opacity-50"
+              >
+                <Trash2 className="w-4 h-4" />
+                <span>{isPending ? 'Deleting...' : 'Delete Record'}</span>
+              </button>
             </div>
           </div>
         </div>

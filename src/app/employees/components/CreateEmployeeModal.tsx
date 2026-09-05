@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { X, Loader2 } from 'lucide-react';
-import { api } from '@/lib/axios';
+import { createEmployee } from '../actions';
 
 interface CreateEmployeeModalProps {
   isOpen: boolean;
@@ -28,11 +28,20 @@ export function CreateEmployeeModal({ isOpen, onClose, onSuccess }: CreateEmploy
     setError('');
 
     try {
-      await api.post('/users', formData);
-      onSuccess();
-      onClose();
+      const fData = new FormData();
+      fData.append('username', formData.username);
+      fData.append('password', formData.password);
+      fData.append('role', formData.role);
+
+      const res = await createEmployee(fData);
+      if (res.error) {
+        setError(res.error);
+      } else {
+        onSuccess();
+        onClose();
+      }
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to create employee');
+      setError(err?.message || 'Failed to create employee');
     } finally {
       setLoading(false);
     }
@@ -101,13 +110,13 @@ export function CreateEmployeeModal({ isOpen, onClose, onSuccess }: CreateEmploy
               value={formData.role}
               onChange={(e) => setFormData({ ...formData, role: e.target.value })}
             >
-              <option value="PRODUCTION_MANAGER">Production Manager (Live Floor & Pipeline)</option>
-              <option value="MENDING">Mending (Matrix Counting & Trimming)</option>
-              <option value="LINEMAN">Lineman</option>
-              <option value="PRODUCTION">QC Inspector (Production)</option>
-              <option value="STORE">Store Manager</option>
-              <option value="DISPATCH">Dispatch Manager</option>
-              <option value="ADMIN">Administrator</option>
+              <option value="PRODUCTION_MANAGER">Production Manager (Live Floor & Pipeline Dashboard)</option>
+              <option value="QC">QC Inspector / Supervisor (Quality Inspection & Packing)</option>
+              <option value="MENDING">Mending (Piece Counting & Matrix Reconciliation)</option>
+              <option value="LINEMAN">Lineman (Stitching & Floor Allotment)</option>
+              <option value="STORE">Store Manager (Godown & Raw Trims)</option>
+              <option value="DISPATCH">Dispatch Manager (Packing & Delivery Challans)</option>
+              <option value="ADMIN">Admin (Executive Full Access)</option>
             </select>
           </div>
 

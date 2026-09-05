@@ -4,17 +4,38 @@ import { revalidatePath } from 'next/cache'
 import { createClient } from '@/utils/supabase/server'
 import { supabaseAdmin } from '@/utils/supabase/admin'
 
+/**
+ * Strictly sanitizes a date string to ensure it is a valid PostgreSQL DATE (YYYY-MM-DD) between years 1990 and 2099.
+ * Returns null if invalid or absent.
+ */
+function sanitizeDate(dateStr?: string | null): string | null {
+  if (!dateStr || typeof dateStr !== 'string') return null
+  const trimmed = dateStr.trim()
+  const match = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})$/)
+  if (!match) return null
+  const y = parseInt(match[1], 10)
+  const m = parseInt(match[2], 10)
+  const d = parseInt(match[3], 10)
+  if (y >= 1990 && y <= 2099 && m >= 1 && m <= 12 && d >= 1 && d <= 31) {
+    return `${match[1]}-${match[2]}-${match[3]}`
+  }
+  return null
+}
+
 export type ChallanArticleLine = {
   id?: string
   art_no: string
   sub_art_no?: string
   pattern_no?: string
+  category?: string
+  product?: string
   description?: string
   color_pattern: string
   size_range: string
-  sets: number
-  pcs_per_set: number
-  total_pcs: number
+  order_qty?: number | string
+  sets?: number | string
+  pcs_per_set?: number | string
+  total_pcs: number | string
   assigned_lineman_id?: string
   assigned_lineman_name?: string
   picture_url?: string
@@ -395,14 +416,18 @@ export async function createChallan(payload: CreateChallanPayload) {
       article_lines: processedLines
     })
 
+    const todayDate = new Date().toISOString().split('T')[0]
+    const safeChallanDate = sanitizeDate(challan_date) || todayDate
+    const safeDeliveryDate = sanitizeDate(delivery_date)
+
     // 3. Insert into `challans` table
     const { data: newChallan, error: challanInsertErr } = await supabase
       .from('challans')
       .insert({
         challan_no: cleanChallanNo,
-        challan_date: challan_date || new Date().toISOString().split('T')[0],
+        challan_date: safeChallanDate,
         brand: brand.trim().toUpperCase(),
-        delivery_date: delivery_date || null,
+        delivery_date: safeDeliveryDate,
         fabric_type: fabric_type.trim(),
         sample_given: !!sample_given,
         notes: challanNotesJson,
@@ -760,39 +785,329 @@ export async function allotChallanByColor(challanId: string, colorName: string, 
 }
 
 // ----------------------------------------------------------------------
-// DELETE CHALLAN & ALL ASSOCIATED ALLOTMENTS
+// DELETE CHALLAN & ALL ASSOCIATED ALLOTMENTS (CASCADE SAFE)
 // ----------------------------------------------------------------------
 export async function deleteProductionOrder(challanOrAllotmentId: string, isChallanLevel: boolean = false) {
   const supabase = supabaseAdmin
 
-  if (isChallanLevel) {
-    // Find all child allotments
-    const { data: childAllots } = await supabase
-      .from('allotments')
-      .select('id')
-      .eq('challan_id', challanOrAllotmentId)
+  try {
+    if (isChallanLevel) {
+      // Find all child allotments
+      const { data: childAllots } = await supabase
+        .from('allotments')
+        .select('id')
+        .eq('challan_id', challanOrAllotmentId)
 
-    if (childAllots && childAllots.length > 0) {
-      const ids = childAllots.map((a: any) => a.id)
-      await supabase.from('allotment_variants').delete().in('allotment_id', ids)
-      await supabase.from('allotment_materials').delete().in('allotment_id', ids)
-      await supabase.from('worker_assignments').delete().in('allotment_id', ids)
-      await supabase.from('floor_alerts').delete().in('allotment_id', ids)
-      await supabase.from('allotments').delete().in('id', ids)
+      if (childAllots && childAllots.length > 0) {
+        const ids = childAllots.map((a: any) => a.id)
+        await supabase.from('qc_logs').delete().in('allotment_id', ids)
+        await supabase.from('daily_product').delete().in('allotment_id', ids)
+        await supabase.from('mending_assignments').delete().in('allotment_id', ids)
+        await supabase.from('qc_assignments').delete().in('allotment_id', ids)
+        await supabase.from('counting_reports').delete().in('allotment_id', ids)
+        await supabase.from('store_transactions').delete().in('allotment_id', ids)
+        await supabase.from('allotment_variants').delete().in('allotment_id', ids)
+        await supabase.from('allotment_materials').delete().in('allotment_id', ids)
+        await supabase.from('worker_assignments').delete().in('allotment_id', ids)
+        await supabase.from('floor_alerts').delete().in('allotment_id', ids)
+        await supabase.from('allotments').delete().in('id', ids)
+      }
+
+      await supabase.from('challans').delete().eq('id', challanOrAllotmentId)
+    } else {
+      // Delete single allotment with cascade
+      await supabase.from('qc_logs').delete().eq('allotment_id', challanOrAllotmentId)
+      await supabase.from('daily_product').delete().eq('allotment_id', challanOrAllotmentId)
+      await supabase.from('mending_assignments').delete().eq('allotment_id', challanOrAllotmentId)
+      await supabase.from('qc_assignments').delete().eq('allotment_id', challanOrAllotmentId)
+      await supabase.from('counting_reports').delete().eq('allotment_id', challanOrAllotmentId)
+      await supabase.from('store_transactions').delete().eq('allotment_id', challanOrAllotmentId)
+      await supabase.from('allotment_variants').delete().eq('allotment_id', challanOrAllotmentId)
+      await supabase.from('allotment_materials').delete().eq('allotment_id', challanOrAllotmentId)
+      await supabase.from('worker_assignments').delete().eq('allotment_id', challanOrAllotmentId)
+      await supabase.from('floor_alerts').delete().eq('allotment_id', challanOrAllotmentId)
+      await supabase.from('allotments').delete().eq('id', challanOrAllotmentId)
     }
 
-    await supabase.from('challans').delete().eq('id', challanOrAllotmentId)
-  } else {
-    // Delete single allotment
-    await supabase.from('allotment_variants').delete().eq('allotment_id', challanOrAllotmentId)
-    await supabase.from('allotment_materials').delete().eq('allotment_id', challanOrAllotmentId)
-    await supabase.from('worker_assignments').delete().eq('allotment_id', challanOrAllotmentId)
-    await supabase.from('floor_alerts').delete().eq('allotment_id', challanOrAllotmentId)
-    await supabase.from('allotments').delete().eq('id', challanOrAllotmentId)
+    revalidatePath('/production-orders')
+    revalidatePath('/allotments')
+    revalidatePath('/')
+    return { success: true }
+  } catch (err: any) {
+    console.error('Error in deleteProductionOrder:', err)
+    return { error: err?.message || 'Server error while deleting record' }
+  }
+}
+
+// ----------------------------------------------------------------------
+// BULK CREATE MULTI-CHALLANS (OPTION A: High-Performance Batch Import)
+// ----------------------------------------------------------------------
+export async function createBulkChallans(payloads: CreateChallanPayload[]): Promise<{
+  success: boolean
+  createdCount: number
+  skippedCount: number
+  createdChallans: ChallanGroupedOrder[]
+  skippedChallanNos: string[]
+  error?: string
+}> {
+  const supabase = supabaseAdmin
+
+  if (!payloads || payloads.length === 0) {
+    return {
+      success: false,
+      createdCount: 0,
+      skippedCount: 0,
+      createdChallans: [],
+      skippedChallanNos: [],
+      error: 'No challans provided for bulk import.'
+    }
   }
 
-  revalidatePath('/production-orders')
-  revalidatePath('/allotments')
-  revalidatePath('/')
-  return { success: true }
+  try {
+    // 1. Bulk check duplicates in 1 single query
+    const allChallanNos = Array.from(
+      new Set(payloads.map(p => (p.challan_no || '').trim().toUpperCase()).filter(Boolean))
+    )
+
+    const { data: existingChallansList } = await supabase
+      .from('challans')
+      .select('challan_no')
+      .in('challan_no', allChallanNos)
+
+    const existingChallanSet = new Set(
+      (existingChallansList || []).map((c: any) => (c.challan_no || '').trim().toUpperCase())
+    )
+
+    const validPayloads: CreateChallanPayload[] = []
+    const skippedChallanNos: string[] = []
+
+    for (const p of payloads) {
+      const cNo = (p.challan_no || '').trim().toUpperCase()
+      if (!cNo) continue
+      if (existingChallanSet.has(cNo)) {
+        skippedChallanNos.push(cNo)
+      } else {
+        validPayloads.push(p)
+      }
+    }
+
+    if (validPayloads.length === 0) {
+      return {
+        success: true,
+        createdCount: 0,
+        skippedCount: skippedChallanNos.length,
+        createdChallans: [],
+        skippedChallanNos
+      }
+    }
+
+    // 2. Collect and Batch Insert all unique article styles in 1 query
+    const styleMetaMap = new Map<string, {
+      art_no: string
+      base_art: string
+      sub_art: string
+      description: string
+      stitching_rate: number
+      pattern: string
+      fabric: string
+      party: string
+      size: string
+    }>()
+
+    for (const payload of validPayloads) {
+      for (const line of payload.article_lines || []) {
+        const cleanArtNo = (line.art_no || '').trim().toUpperCase()
+        if (!cleanArtNo) continue
+
+        const cleanSubArt = (line.sub_art_no || '').trim().toUpperCase()
+        const fullArtCode = cleanSubArt ? `${cleanArtNo}${cleanSubArt}` : cleanArtNo
+
+        if (!styleMetaMap.has(fullArtCode)) {
+          styleMetaMap.set(fullArtCode, {
+            art_no: fullArtCode,
+            base_art: cleanArtNo,
+            sub_art: cleanSubArt,
+            description: line.description || `${fullArtCode} - ${line.color_pattern || ''} (${line.size_range || ''})`.trim(),
+            stitching_rate: line.stitching_rate || 20,
+            pattern: line.pattern_no || '',
+            fabric: payload.fabric_type || '',
+            party: payload.brand || '',
+            size: line.size_range || ''
+          })
+        }
+      }
+    }
+
+    const allArtCodes = Array.from(styleMetaMap.keys())
+    if (allArtCodes.length > 0) {
+      const { data: existingArticlesList } = await supabase
+        .from('articles')
+        .select('art_no')
+        .in('art_no', allArtCodes)
+
+      const existingArtSet = new Set(
+        (existingArticlesList || []).map((a: any) => (a.art_no || '').trim().toUpperCase())
+      )
+
+      const newArticlesToInsert = []
+      for (const [code, meta] of styleMetaMap.entries()) {
+        if (!existingArtSet.has(code)) {
+          newArticlesToInsert.push({
+            art_no: code,
+            description: meta.description,
+            stitching_rate: meta.stitching_rate,
+            is_active: true,
+            size_rates: {
+              _meta: {
+                base_art: meta.base_art,
+                sub_art: meta.sub_art,
+                pattern: meta.pattern,
+                fabric: meta.fabric,
+                party: meta.party,
+                size: meta.size,
+                picture_url: ''
+              }
+            }
+          })
+        }
+      }
+
+      if (newArticlesToInsert.length > 0) {
+        await supabase.from('articles').insert(newArticlesToInsert)
+      }
+    }
+
+    // 3. Prepare Batch Insert for Challans
+    const challansToInsert: any[] = []
+    const challanMetadataMap = new Map<string, {
+      payload: CreateChallanPayload
+      processedLines: any[]
+      totalSets: number
+      totalPcs: number
+    }>()
+
+    for (const payload of validPayloads) {
+      const cleanChallanNo = (payload.challan_no || '').trim().toUpperCase()
+      const processedLines = []
+
+      for (const line of payload.article_lines || []) {
+        const cleanArtNo = (line.art_no || '').trim().toUpperCase()
+        if (!cleanArtNo) continue
+
+        const cleanSubArt = (line.sub_art_no || '').trim().toUpperCase()
+        const fullArtCode = cleanSubArt ? `${cleanArtNo}${cleanSubArt}` : cleanArtNo
+        const linePcs = Number(line.total_pcs) || ((Number(line.sets) || 1) * (Number(line.pcs_per_set) || 9))
+        const lineSets = Number(line.sets) || Math.round(linePcs / (Number(line.pcs_per_set) || 9))
+        const lineRatio = Number(line.pcs_per_set) || 9
+
+        processedLines.push({
+          ...line,
+          full_art_code: fullArtCode,
+          sets: lineSets,
+          pcs_per_set: lineRatio,
+          total_pcs: linePcs
+        })
+      }
+
+      const grandTotalSets = processedLines.reduce((acc, row) => acc + (Number(row.sets) || 0), 0)
+      const grandTotalPcs = processedLines.reduce((acc, row) => acc + (Number(row.total_pcs) || 0), 0)
+
+      const challanNotesJson = JSON.stringify({
+        user_notes: (payload.notes || '').trim(),
+        article_lines: processedLines
+      })
+
+      challanMetadataMap.set(cleanChallanNo, {
+        payload,
+        processedLines,
+        totalSets: grandTotalSets,
+        totalPcs: grandTotalPcs
+      })
+
+      const todayDate = new Date().toISOString().split('T')[0]
+      const safeChallanDate = sanitizeDate(payload.challan_date) || todayDate
+      const safeDeliveryDate = sanitizeDate(payload.delivery_date)
+
+      challansToInsert.push({
+        challan_no: cleanChallanNo,
+        challan_date: safeChallanDate,
+        brand: (payload.brand || '').trim().toUpperCase(),
+        delivery_date: safeDeliveryDate,
+        fabric_type: (payload.fabric_type || '').trim(),
+        sample_given: !!payload.sample_given,
+        notes: challanNotesJson,
+        total_sets: grandTotalSets,
+        total_pcs: grandTotalPcs,
+        status: 'IN_PROGRESS',
+        bom_details: payload.bom_items || []
+      })
+    }
+
+    // 4. Single Batch Insert into database
+    const { data: insertedChallans, error: bulkInsertErr } = await supabase
+      .from('challans')
+      .insert(challansToInsert)
+      .select('id, challan_no, created_at')
+
+    if (bulkInsertErr || !insertedChallans) {
+      throw new Error(bulkInsertErr?.message || 'Failed to bulk insert delivery challans.')
+    }
+
+    // 5. Build optimistic ChallanGroupedOrder results
+    const createdChallans: ChallanGroupedOrder[] = []
+    const fallbackToday = new Date().toISOString().split('T')[0]
+    for (const inserted of insertedChallans) {
+      const cNo = (inserted.challan_no || '').trim().toUpperCase()
+      const meta = challanMetadataMap.get(cNo)
+      if (meta) {
+        createdChallans.push({
+          id: inserted.id,
+          challan_no: cNo,
+          challan_date: sanitizeDate(meta.payload.challan_date) || fallbackToday,
+          brand: (meta.payload.brand || '').trim().toUpperCase(),
+          delivery_date: sanitizeDate(meta.payload.delivery_date) || '',
+          fabric_type: (meta.payload.fabric_type || '').trim(),
+          sample_given: !!meta.payload.sample_given,
+          notes: JSON.stringify({
+            user_notes: (meta.payload.notes || '').trim(),
+            article_lines: meta.processedLines
+          }),
+          total_sets: meta.totalSets,
+          total_pcs: meta.totalPcs,
+          status: 'PENDING',
+          bom_details: meta.payload.bom_items || [],
+          articles: meta.processedLines.map((line, idx) => ({
+            ...line,
+            allotment_id: '',
+            status: 'PLANNED',
+            assigned_lineman_name: 'Unassigned (Floor Order)'
+          })),
+          created_at: inserted.created_at || new Date().toISOString()
+        })
+      }
+    }
+
+    revalidatePath('/production-orders')
+    revalidatePath('/allotments')
+    revalidatePath('/')
+
+    return {
+      success: true,
+      createdCount: createdChallans.length,
+      skippedCount: skippedChallanNos.length,
+      createdChallans,
+      skippedChallanNos
+    }
+  } catch (err: any) {
+    console.error('Error in createBulkChallans:', err)
+    return {
+      success: false,
+      createdCount: 0,
+      skippedCount: 0,
+      createdChallans: [],
+      skippedChallanNos: [],
+      error: err?.message || 'Server error during bulk challans creation.'
+    }
+  }
 }
+

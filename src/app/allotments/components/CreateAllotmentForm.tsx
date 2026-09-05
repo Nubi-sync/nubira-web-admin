@@ -1064,11 +1064,11 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                   {managers && managers.length > 0 ? (
                     managers.map((m) => (
                       <option key={m.id} value={m.username}>
-                        {m.username} ({m.role === 'ADMIN' ? 'Plant Admin' : 'Production Manager'})
+                        {m.username}
                       </option>
                     ))
                   ) : (
-                    <option value="admin">admin (Plant Admin)</option>
+                    <option value="admin">admin</option>
                   )}
                 </select>
                 <UserCheck className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
