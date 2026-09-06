@@ -282,8 +282,10 @@ export async function getProductionOrders(): Promise<ChallanGroupedOrder[]> {
           challanStatus = 'DISPATCHED'
         } else if (ch.status === 'QC_PASSED' || (completedLines === totalLines && totalLines > 0)) {
           challanStatus = 'QC_PASSED'
-        } else if (allottedLines > 0) {
+        } else if (allottedLines === totalLines && totalLines > 0) {
           challanStatus = 'IN_PROGRESS'
+        } else if (allottedLines > 0) {
+          challanStatus = 'PARTIALLY_ALLOTTED'
         } else {
           challanStatus = 'PENDING'
         }
@@ -1110,4 +1112,383 @@ export async function createBulkChallans(payloads: CreateChallanPayload[]): Prom
     }
   }
 }
+
+// ----------------------------------------------------------------------
+// 1-CLICK INSTANT FULL CHALLAN ALLOTMENT (Direct from Challan Hub)
+// ----------------------------------------------------------------------
+export async function allotFullChallanDirectly(challanId: string, linemanId: string) {
+  const supabase = supabaseAdmin
+  try {
+    if (!challanId || !linemanId) {
+      return { error: 'Please select a valid Challan and Lineman.' }
+    }
+
+    // 1. Fetch Lineman details
+    const { data: lineman, error: lmErr } = await supabase
+      .from('profiles')
+      .select('id, username, full_name')
+      .eq('id', linemanId)
+      .single()
+
+    if (lmErr || !lineman) {
+      return { error: 'Lineman not found in database.' }
+    }
+    const linemanName = lineman.full_name || lineman.username || 'Lineman'
+
+    // 2. Fetch Challan details
+    const { data: ch, error: chErr } = await supabase
+      .from('challans')
+      .select('*')
+      .eq('id', challanId)
+      .single()
+
+    if (chErr || !ch) {
+      return { error: 'Challan not found.' }
+    }
+
+    let parsedLines: any[] = []
+    if (ch.notes) {
+      try {
+        const p = JSON.parse(ch.notes)
+        parsedLines = p.article_lines || p
+      } catch (_) {}
+    }
+
+    // 3. Check existing allotments for this challan
+    const { data: existingAllotments } = await supabase
+      .from('allotments')
+      .select('id, article_id, articles(art_no)')
+      .eq('challan_id', challanId)
+
+    const existingArtIdMap = new Map<string, string>()
+    if (existingAllotments) {
+      existingAllotments.forEach((al: any) => {
+        const artNo = (al.articles?.art_no || '').trim().toUpperCase()
+        if (artNo) existingArtIdMap.set(artNo, al.id)
+      })
+    }
+
+    const todayDate = new Date().toISOString().split('T')[0]
+
+    // If existing allotments exist, update their lineman_id
+    if (existingAllotments && existingAllotments.length > 0) {
+      const allIds = existingAllotments.map((a: any) => a.id)
+      await supabase
+        .from('allotments')
+        .update({
+          lineman_id: linemanId,
+          status: 'IN_PROGRESS',
+          qc_status: 'PENDING_STITCHING',
+          mending_status: 'PENDING_STITCHING'
+        })
+        .in('id', allIds)
+    }
+
+    // For any article lines in challan.notes that don't have an allotment yet, create them!
+    if (Array.isArray(parsedLines) && parsedLines.length > 0) {
+      for (const line of parsedLines) {
+        const cleanArtNo = (line.art_no || '').trim().toUpperCase()
+        const cleanSubArt = (line.sub_art_no || '').trim().toUpperCase()
+        const fullArtCode = line.full_art_code || (cleanSubArt ? `${cleanArtNo}${cleanSubArt}` : cleanArtNo)
+        
+        if (!fullArtCode) continue
+        if (existingArtIdMap.has(fullArtCode)) continue // already updated above
+
+        // Ensure article exists in `articles` table
+        let { data: artRec } = await supabase
+          .from('articles')
+          .select('id, stitching_rate')
+          .eq('art_no', fullArtCode)
+          .limit(1)
+          .maybeSingle()
+
+        if (!artRec) {
+          const { data: createdArt } = await supabase
+            .from('articles')
+            .insert({
+              art_no: fullArtCode,
+              description: line.description || `${fullArtCode} - ${line.color_pattern || ''} (${line.size_range || ''})`,
+              stitching_rate: line.stitching_rate || 20,
+              is_active: true,
+              size_rates: {
+                _meta: {
+                  base_art: cleanArtNo,
+                  sub_art: cleanSubArt,
+                  pattern: line.pattern_no || '',
+                  fabric: ch.fabric_type || 'PRINTED SINKER',
+                  party: ch.brand || 'OLLYPOP',
+                  size: line.size_range,
+                  picture_url: line.picture_url || ''
+                }
+              }
+            })
+            .select('id, stitching_rate')
+            .single()
+
+          artRec = createdArt
+        }
+
+        const linePcs = Number(line.total_pcs) || ((Number(line.sets) || 1) * (Number(line.pcs_per_set) || 9))
+        const lineSets = Number(line.sets) || Math.round(linePcs / (Number(line.pcs_per_set) || 9))
+        const lineRatio = Number(line.pcs_per_set) || 9
+
+        if (artRec) {
+          // Insert allotment
+          const { data: newAllotment } = await supabase
+            .from('allotments')
+            .insert({
+              challan_id: challanId,
+              article_id: artRec.id,
+              lineman_id: linemanId,
+              target_qty: linePcs,
+              status: 'IN_PROGRESS',
+              qc_status: 'PENDING_STITCHING',
+              mending_status: 'PENDING_STITCHING',
+              allotment_date: todayDate,
+              production_order_no: ch.challan_no,
+              client_challan_no: ch.challan_no
+            })
+            .select('id')
+            .single()
+
+          if (newAllotment) {
+            existingArtIdMap.set(fullArtCode, newAllotment.id)
+
+            // Insert variant
+            await supabase.from('allotment_variants').insert({
+              allotment_id: newAllotment.id,
+              color: line.color_pattern || 'Standard',
+              size: line.size_range || 'Free Size',
+              quantity: linePcs,
+              completed_qty: 0
+            })
+
+            // Insert material note
+            await supabase.from('allotment_materials').insert({
+              allotment_id: newAllotment.id,
+              item_name: `${ch.fabric_type || 'Fabric'} - ${line.color_pattern || 'Standard'}`,
+              required_qty: `${linePcs} pcs`,
+              admin_issued: true,
+              notes: JSON.stringify({
+                sets: lineSets,
+                pcs_per_set: lineRatio,
+                color_pattern: line.color_pattern,
+                size_range: line.size_range,
+                sub_art_no: line.sub_art_no,
+                pattern_no: line.pattern_no,
+                article_description: line.description,
+                client_challan_no: ch.challan_no
+              })
+            })
+          }
+        }
+      }
+    }
+
+    // 4. Update Challan status to IN_PROGRESS
+    await supabase
+      .from('challans')
+      .update({ status: 'IN_PROGRESS' })
+      .eq('id', challanId)
+
+    revalidatePath('/production-orders')
+    revalidatePath('/allotments')
+    revalidatePath('/dashboard')
+    revalidatePath('/')
+
+    return {
+      success: true,
+      challanId,
+      linemanId,
+      linemanName
+    }
+  } catch (err: any) {
+    console.error('Error in allotFullChallanDirectly:', err)
+    return { error: err?.message || 'Failed to allot challan.' }
+  }
+}
+
+// ----------------------------------------------------------------------
+// 1-CLICK INSTANT COLOR GROUP ALLOTMENT (Direct from Challan Hub)
+// ----------------------------------------------------------------------
+export async function allotColorGroupDirectly(challanId: string, colorName: string, linemanId: string) {
+  const supabase = supabaseAdmin
+  try {
+    if (!challanId || !colorName || !linemanId) {
+      return { error: 'Please select a valid Challan, Color line, and Lineman.' }
+    }
+
+    const { data: lineman } = await supabase
+      .from('profiles')
+      .select('id, username, full_name')
+      .eq('id', linemanId)
+      .single()
+
+    const linemanName = lineman?.full_name || lineman?.username || 'Lineman'
+
+    const { data: ch } = await supabase
+      .from('challans')
+      .select('*')
+      .eq('id', challanId)
+      .single()
+
+    if (!ch) return { error: 'Challan not found.' }
+
+    let parsedLines: any[] = []
+    if (ch.notes) {
+      try {
+        const p = JSON.parse(ch.notes)
+        parsedLines = p.article_lines || p
+      } catch (_) {}
+    }
+
+    // Match lines for this color
+    const targetLines = parsedLines.filter(line => {
+      const c = (line.color_pattern || line.description || '').trim().toUpperCase()
+      return c === colorName.trim().toUpperCase() || c.includes(colorName.trim().toUpperCase())
+    })
+
+    const todayDate = new Date().toISOString().split('T')[0]
+
+    for (const line of (targetLines.length > 0 ? targetLines : parsedLines)) {
+      const cleanArtNo = (line.art_no || '').trim().toUpperCase()
+      const cleanSubArt = (line.sub_art_no || '').trim().toUpperCase()
+      const fullArtCode = line.full_art_code || (cleanSubArt ? `${cleanArtNo}${cleanSubArt}` : cleanArtNo)
+
+      let { data: artRec } = await supabase
+        .from('articles')
+        .select('id')
+        .eq('art_no', fullArtCode)
+        .limit(1)
+        .maybeSingle()
+
+      if (!artRec) {
+        const { data: createdArt } = await supabase
+          .from('articles')
+          .insert({
+            art_no: fullArtCode,
+            description: line.description || `${fullArtCode} - ${line.color_pattern || colorName}`,
+            stitching_rate: line.stitching_rate || 20,
+            is_active: true,
+            size_rates: {
+              _meta: {
+                base_art: cleanArtNo,
+                sub_art: cleanSubArt,
+                pattern: line.pattern_no || '',
+                fabric: ch.fabric_type || 'PRINTED SINKER',
+                party: ch.brand || 'OLLYPOP',
+                size: line.size_range,
+                picture_url: line.picture_url || ''
+              }
+            }
+          })
+          .select('id')
+          .single()
+        artRec = createdArt
+      }
+
+      const linePcs = Number(line.total_pcs) || ((Number(line.sets) || 1) * (Number(line.pcs_per_set) || 9))
+      const lineSets = Number(line.sets) || Math.round(linePcs / (Number(line.pcs_per_set) || 9))
+      const lineRatio = Number(line.pcs_per_set) || 9
+
+      if (artRec) {
+        const { data: newAllotment } = await supabase
+          .from('allotments')
+          .insert({
+            challan_id: challanId,
+            article_id: artRec.id,
+            lineman_id: linemanId,
+            target_qty: linePcs,
+            status: 'IN_PROGRESS',
+            qc_status: 'PENDING_STITCHING',
+            mending_status: 'PENDING_STITCHING',
+            allotment_date: todayDate,
+            production_order_no: ch.challan_no,
+            client_challan_no: ch.challan_no
+          })
+          .select('id')
+          .single()
+
+        if (newAllotment) {
+          await supabase.from('allotment_variants').insert({
+            allotment_id: newAllotment.id,
+            color: colorName,
+            size: line.size_range || 'Free Size',
+            quantity: linePcs,
+            completed_qty: 0
+          })
+
+          await supabase.from('allotment_materials').insert({
+            allotment_id: newAllotment.id,
+            item_name: `${ch.fabric_type || 'Fabric'} - ${colorName}`,
+            required_qty: `${linePcs} pcs`,
+            admin_issued: true,
+            notes: JSON.stringify({
+              sets: lineSets,
+              pcs_per_set: lineRatio,
+              color_pattern: colorName,
+              size_range: line.size_range,
+              sub_art_no: line.sub_art_no,
+              pattern_no: line.pattern_no,
+              client_challan_no: ch.challan_no
+            })
+          })
+        }
+      }
+    }
+
+    await supabase
+      .from('challans')
+      .update({ status: 'IN_PROGRESS' })
+      .eq('id', challanId)
+
+    revalidatePath('/production-orders')
+    revalidatePath('/allotments')
+    revalidatePath('/dashboard')
+    revalidatePath('/')
+
+    return {
+      success: true,
+      challanId,
+      colorName,
+      linemanId,
+      linemanName
+    }
+  } catch (err: any) {
+    console.error('Error in allotColorGroupDirectly:', err)
+    return { error: err?.message || 'Failed to allot color line.' }
+  }
+}
+
+// ----------------------------------------------------------------------
+// 1-CLICK UNALLOT CHALLAN (Moves back to Pending Allotment)
+// ----------------------------------------------------------------------
+export async function unallotChallanDirectly(challanId: string) {
+  const supabase = supabaseAdmin
+  try {
+    if (!challanId) return { error: 'Invalid Challan ID.' }
+
+    // Delete floor allotments associated with this challan
+    await supabase
+      .from('allotments')
+      .delete()
+      .eq('challan_id', challanId)
+
+    await supabase
+      .from('challans')
+      .update({ status: 'PENDING' })
+      .eq('id', challanId)
+
+    revalidatePath('/production-orders')
+    revalidatePath('/allotments')
+    revalidatePath('/dashboard')
+    revalidatePath('/')
+
+    return { success: true, challanId }
+  } catch (err: any) {
+    console.error('Error in unallotChallanDirectly:', err)
+    return { error: err?.message || 'Failed to unallot challan.' }
+  }
+}
+
 

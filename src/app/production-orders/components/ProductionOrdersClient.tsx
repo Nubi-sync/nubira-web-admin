@@ -36,7 +36,9 @@ import {
   BarChart3,
   ExternalLink,
   ArrowUpRight,
-  Loader2
+  Loader2,
+  RotateCcw,
+  Undo2
 } from 'lucide-react'
 import {
   ChallanArticleLine,
@@ -49,7 +51,10 @@ import {
   deleteProductionOrder,
   assignLinemanToArticle,
   allotEntireChallan,
-  allotChallanByColor
+  allotChallanByColor,
+  allotFullChallanDirectly,
+  allotColorGroupDirectly,
+  unallotChallanDirectly
 } from '../actions'
 import {
   downloadCleanChallanTemplate,
@@ -125,7 +130,7 @@ export function ProductionOrdersClient({
   // Filters
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedBrand, setSelectedBrand] = useState('ALL')
-  const [selectedStatus, setSelectedStatus] = useState('ACTIVE')
+  const [selectedStatus, setSelectedStatus] = useState<string>('PENDING')
   const [selectedDate, setSelectedDate] = useState('ALL')
 
   // Modals
@@ -175,15 +180,38 @@ export function ProductionOrdersClient({
     })
   }
 
+  // Real-time Counts for Quick Filter Tabs & Status Select
+  const statusCounts = useMemo(() => {
+    let pending = 0
+    let inProgress = 0
+    let qcPassed = 0
+    let dispatched = 0
+
+    orders.forEach(ch => {
+      if (ch.status === 'DISPATCHED') dispatched++
+      else if (ch.status === 'QC_PASSED') qcPassed++
+      else if (ch.status === 'IN_PROGRESS') inProgress++
+      else if (ch.status === 'PARTIALLY_ALLOTTED') {
+        pending++ // Still has pending lines to allot!
+        inProgress++ // Also has lines running in production!
+      } else pending++
+    })
+
+    return {
+      pending,
+      inProgress,
+      qcPassed,
+      dispatched,
+      total: orders.length
+    }
+  }, [orders])
+
   // Filter Dropdown Options (Zero emojis, international typography standards with colored indicator dots)
-  const statusFilterOptions: CustomSelectOption[] = [
-    { value: 'ACTIVE', label: 'Active Orders (Live Floor)', dotColor: '#10B981' },
-    { value: 'ALL', label: 'All Orders (Including Archive)', dotColor: '#64748B' },
-    { value: 'PENDING', label: 'Pending Allotment', dotColor: '#F59E0B' },
-    { value: 'IN_PROGRESS', label: 'In Production', dotColor: '#6366F1' },
-    { value: 'QC_PASSED', label: 'Ready (QC Passed)', dotColor: '#10B981' },
-    { value: 'DISPATCHED', label: 'Dispatched / Delivered', dotColor: '#1E293B' },
-  ]
+  const statusFilterOptions: CustomSelectOption[] = useMemo(() => [
+    { value: 'PENDING', label: `Pending Allotment (${statusCounts.pending})`, dotColor: '#F59E0B' },
+    { value: 'IN_PROGRESS', label: `Allotted / In Production (${statusCounts.inProgress})`, dotColor: '#6366F1' },
+    { value: 'ALL', label: `All Orders (${statusCounts.total})`, dotColor: '#64748B' },
+  ], [statusCounts])
 
   const brandFilterOptions: CustomSelectOption[] = [
     { value: 'ALL', label: 'All Brands' },
@@ -638,24 +666,32 @@ export function ProductionOrdersClient({
     return masterArticlesUniverse.find(a => a.art_no === selectedArticleForHistory) || masterArticlesUniverse[0]
   }, [selectedArticleForHistory, masterArticlesUniverse])
 
-  // Filtered Orders (Auto-hides fully dispatched orders when selectedStatus === 'ACTIVE')
+  // Filtered Orders (Dynamically filters based on selected tab / status)
   const filteredOrders = useMemo(() => {
     return orders.filter(ch => {
       const q = searchQuery.trim().toLowerCase()
       const matchSearch =
         q === '' ||
+        ch.challan_no?.toLowerCase().includes(q) ||
+        ch.brand?.toLowerCase().includes(q) ||
+        ch.fabric_type?.toLowerCase().includes(q) ||
         ch.articles?.some(a => {
           const art = (a.art_no || '').toLowerCase()
           const sub = (a.sub_art_no || '').toLowerCase()
           const full = sub ? `${art}${sub}` : art
           const desc = (a.description || '').toLowerCase()
-          return art.includes(q) || sub.includes(q) || full.includes(q) || desc.includes(q)
+          const col = (a.color_pattern || '').toLowerCase()
+          return art.includes(q) || sub.includes(q) || full.includes(q) || desc.includes(q) || col.includes(q)
         })
 
       const matchBrand = selectedBrand === 'ALL' || ch.brand?.toUpperCase() === selectedBrand.toUpperCase()
 
       let matchStatus = true
-      if (selectedStatus === 'ACTIVE') {
+      if (selectedStatus === 'PENDING') {
+        matchStatus = ch.status === 'PENDING' || ch.status === 'PARTIALLY_ALLOTTED'
+      } else if (selectedStatus === 'IN_PROGRESS') {
+        matchStatus = ch.status === 'IN_PROGRESS' || ch.status === 'PARTIALLY_ALLOTTED'
+      } else if (selectedStatus === 'ACTIVE') {
         matchStatus = ch.status !== 'DISPATCHED'
       } else if (selectedStatus !== 'ALL') {
         matchStatus = ch.status === selectedStatus
@@ -856,7 +892,7 @@ export function ProductionOrdersClient({
     return Object.values(colorMap).filter(c => c.totalPcs > 0)
   }
 
-  // Handle Allot Entire Challan to 1 Lineman (Routes directly to Target Allotment screen with pre-filled batch)
+  // Handle Allot Entire Challan to 1 Lineman (Routes to Target Allotment screen with auto-fetched data)
   const handleAllotEntireChallan = (challanId: string) => {
     const lmId = selectedFullLineman[challanId] || ''
     if (!lmId) {
@@ -870,7 +906,7 @@ export function ProductionOrdersClient({
     router.push(targetUrl)
   }
 
-  // Handle Allot by Color Group (Routes directly to Target Allotment screen with pre-filled color line)
+  // Handle Allot by Color Group (Routes to Target Allotment screen with pre-filled color line)
   const handleAllotColorLine = (challanId: string, colorName: string) => {
     const lmId = selectedColorLineman[challanId]?.[colorName] || ''
     if (!lmId) {
@@ -882,6 +918,52 @@ export function ProductionOrdersClient({
     }
     const targetUrl = `/allotments?target_key=COLOR_${encodeURIComponent(colorName)}_${challanId}&lineman_id=${lmId}`
     router.push(targetUrl)
+  }
+
+  // Handle Unallot / Recall Challan back to Pending
+  const handleUnallotChallan = (challanId: string, challanNo: string) => {
+    setDialogState({
+      isOpen: true,
+      title: `Recall Challan #${challanNo}?`,
+      description: `Do you want to unallot this challan and return it to "Pending Allotment"? (Linemen floor allotments will be reset)`,
+      variant: 'warning',
+      confirmText: 'Yes, Return to Pending',
+      cancelText: 'Cancel',
+      onConfirm: () => {
+        setDialogState(prev => ({ ...prev, isOpen: false }))
+        startTransition(async () => {
+          const res = await unallotChallanDirectly(challanId)
+          if (res?.error) {
+            showErrorDialog('Failed to Unallot', res.error)
+          } else {
+            setOrders(prev => prev.map(ch => {
+              if (ch.id === challanId) {
+                return {
+                  ...ch,
+                  status: 'PENDING',
+                  articles: (ch.articles || []).map(a => ({
+                    ...a,
+                    assigned_lineman_id: '',
+                    assigned_lineman_name: 'Unassigned (Floor Order)',
+                    status: 'PENDING'
+                  }))
+                }
+              }
+              return ch
+            }))
+
+            setDialogState({
+              isOpen: true,
+              title: 'Returned to Pending Allotment',
+              description: `Challan #${challanNo} is now back in Pending Allotment tab.`,
+              variant: 'info',
+              confirmText: 'Great',
+              onConfirm: () => setDialogState(prev => ({ ...prev, isOpen: false }))
+            })
+          }
+        })
+      }
+    })
   }
 
   // Delete Action (Uses subtle custom confirmation dialogue instead of browser confirm)
@@ -1158,6 +1240,47 @@ export function ProductionOrdersClient({
       </div>
 
       {/* ========================================================= */}
+      {/* 2.5 STATUS TABS (Pending Allotment vs Allotted to Linemen) */}
+      {/* ========================================================= */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar select-none">
+        <button
+          type="button"
+          onClick={() => setSelectedStatus('PENDING')}
+          className={`px-4.5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-2.5 transition-all cursor-pointer border shrink-0 ${
+            selectedStatus === 'PENDING'
+              ? 'bg-[#3A3564] text-white border-[#3A3564] shadow-xs'
+              : 'bg-white text-slate-700 hover:bg-slate-50 border-black/10'
+          }`}
+        >
+          <Clock className={`w-4 h-4 ${selectedStatus === 'PENDING' ? 'text-amber-300' : 'text-amber-600'}`} />
+          <span>Pending Allotment</span>
+          <span className={`px-2 py-0.5 rounded-full text-[11px] font-mono font-extrabold ${
+            selectedStatus === 'PENDING' ? 'bg-white/20 text-white' : 'bg-amber-100 text-amber-900'
+          }`}>
+            {statusCounts.pending}
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setSelectedStatus('IN_PROGRESS')}
+          className={`px-4.5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-2.5 transition-all cursor-pointer border shrink-0 ${
+            selectedStatus === 'IN_PROGRESS'
+              ? 'bg-[#3A3564] text-white border-[#3A3564] shadow-xs'
+              : 'bg-white text-slate-700 hover:bg-slate-50 border-black/10'
+          }`}
+        >
+          <Zap className={`w-4 h-4 ${selectedStatus === 'IN_PROGRESS' ? 'text-indigo-300' : 'text-[#3A3564]'}`} />
+          <span>Allotted Challans (In Production)</span>
+          <span className={`px-2 py-0.5 rounded-full text-[11px] font-mono font-extrabold ${
+            selectedStatus === 'IN_PROGRESS' ? 'bg-white/20 text-white' : 'bg-[#FAF7F0] text-[#3A3564] border border-black/10'
+          }`}>
+            {statusCounts.inProgress}
+          </span>
+        </button>
+      </div>
+
+      {/* ========================================================= */}
       {/* 3. FILTERS BAR (Standard Rounded-2xl Card)                 */}
       {/* ========================================================= */}
       <div className="bg-white p-4 sm:p-5 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -1165,7 +1288,7 @@ export function ProductionOrdersClient({
           <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
-            placeholder="Search by Article No (e.g. 9433, 9437)..."
+            placeholder="Search by Article No, Challan No (e.g. 42, 9433)..."
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-black/10 rounded-xl text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
@@ -1205,20 +1328,62 @@ export function ProductionOrdersClient({
       {filteredOrders.length === 0 ? (
         <div className="p-12 bg-white border border-black/10 rounded-2xl text-center shadow-2xs">
           <div className="w-14 h-14 rounded-2xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 mx-auto flex items-center justify-center mb-4 shadow-2xs">
-            <FileSpreadsheet className="w-7 h-7" />
+            {selectedStatus === 'PENDING' ? (
+              <Clock className="w-7 h-7 text-amber-600" />
+            ) : selectedStatus === 'IN_PROGRESS' ? (
+              <Zap className="w-7 h-7 text-[#3A3564]" />
+            ) : (
+              <FileSpreadsheet className="w-7 h-7 text-[#3A3564]" />
+            )}
           </div>
-          <h3 className="text-base font-extrabold text-slate-900">No Job Work Challans Recorded Yet</h3>
-          <p className="text-sm text-slate-500 mt-1 mb-5 max-w-sm mx-auto">
-            Click "+ New Delivery Challan" to create or import your first multi-article cutting and stitching job sheet.
+          <h3 className="text-base font-extrabold text-slate-900">
+            {selectedStatus === 'PENDING'
+              ? 'No Pending Challans'
+              : selectedStatus === 'IN_PROGRESS'
+              ? 'No Allotted Challans in Production'
+              : selectedStatus === 'QC_PASSED'
+              ? 'No Ready (QC Passed) Challans'
+              : selectedStatus === 'DISPATCHED'
+              ? 'No Dispatched Challans'
+              : 'No Job Work Challans Found'}
+          </h3>
+          <p className="text-sm text-slate-500 mt-1 mb-5 max-w-md mx-auto">
+            {selectedStatus === 'PENDING'
+              ? 'All cutting challans have been allotted to Linemen! Switch to the "Allotted Challans" tab above to view live sewing production.'
+              : selectedStatus === 'IN_PROGRESS'
+              ? 'No challans are currently active on the sewing floor. Switch to "Pending Allotment" to assign cutting challans to Linemen.'
+              : 'Click "+ New Delivery Challan" to create or import cutting and stitching job sheets.'}
           </p>
-          <button
-            type="button"
-            onClick={handleOpenNewChallan}
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#3A3564] hover:bg-[#2A2649] text-white text-sm font-bold rounded-xl shadow-xs transition-all cursor-pointer"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Create New Delivery Challan</span>
-          </button>
+          <div className="flex items-center justify-center gap-3 flex-wrap">
+            {selectedStatus === 'PENDING' && statusCounts.inProgress > 0 && (
+              <button
+                type="button"
+                onClick={() => setSelectedStatus('IN_PROGRESS')}
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#3A3564] hover:bg-[#2A2649] text-white text-sm font-bold rounded-xl shadow-xs transition-all cursor-pointer"
+              >
+                <Zap className="w-4 h-4" />
+                <span>View Allotted Challans ({statusCounts.inProgress})</span>
+              </button>
+            )}
+            {selectedStatus === 'IN_PROGRESS' && statusCounts.pending > 0 && (
+              <button
+                type="button"
+                onClick={() => setSelectedStatus('PENDING')}
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#3A3564] hover:bg-[#2A2649] text-white text-sm font-bold rounded-xl shadow-xs transition-all cursor-pointer"
+              >
+                <Clock className="w-4 h-4" />
+                <span>View Pending Allotments ({statusCounts.pending})</span>
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={handleOpenNewChallan}
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-900 text-sm font-bold rounded-xl shadow-xs transition-all cursor-pointer border border-black/10"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Create New Delivery Challan</span>
+            </button>
+          </div>
         </div>
       ) : (
         <div className="space-y-4">
@@ -1292,6 +1457,18 @@ export function ProductionOrdersClient({
                       <span className="text-[10.5px] font-bold text-slate-500 uppercase tracking-wider block mt-0.5">Grand Batch Total</span>
                     </div>
 
+                    {/* Assigned Lineman Badge (if allotted) */}
+                    {(() => {
+                      const firstAssigned = challan.articles?.find(a => a.assigned_lineman_name && a.assigned_lineman_name !== 'Unassigned (Floor Order)')?.assigned_lineman_name
+                      if (!firstAssigned || challan.status !== 'IN_PROGRESS') return null
+                      return (
+                        <div className="px-3 py-1.5 bg-white border border-[#3A3564]/30 rounded-xl text-xs font-bold text-[#3A3564] flex items-center gap-1.5 shadow-2xs font-mono">
+                          <UserCheck className="w-3.5 h-3.5 text-[#3A3564]" />
+                          <span>Lineman: <strong className="text-slate-900 font-extrabold">{firstAssigned}</strong></span>
+                        </div>
+                      )
+                    })()}
+
                     {/* Dynamic Real-Time Live Status Badge (100% Automated) */}
                     <div>
                       {challan.status === 'QC_PASSED' ? (
@@ -1309,6 +1486,11 @@ export function ProductionOrdersClient({
                           <Zap className="w-4 h-4 text-[#3A3564]" />
                           <span>In Production</span>
                         </span>
+                      ) : challan.status === 'PARTIALLY_ALLOTTED' ? (
+                        <span className="px-3.5 py-1.5 rounded-xl text-xs font-extrabold bg-amber-50 text-amber-900 border border-amber-300 flex items-center gap-1.5 shadow-2xs font-mono">
+                          <Clock className="w-4 h-4 text-amber-600" />
+                          <span>Partially Allotted (Lines Pending)</span>
+                        </span>
                       ) : (
                         <span className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200 flex items-center gap-1.5 shadow-2xs font-mono">
                           <Clock className="w-4 h-4 text-amber-600" />
@@ -1316,6 +1498,20 @@ export function ProductionOrdersClient({
                         </span>
                       )}
                     </div>
+
+                    {/* Unallot / Recall Button if in production or partially allotted */}
+                    {(challan.status === 'IN_PROGRESS' || challan.status === 'PARTIALLY_ALLOTTED') && (
+                      <button
+                        type="button"
+                        disabled={isPending}
+                        onClick={() => handleUnallotChallan(challan.id, challan.challan_no)}
+                        title="Recall from floor and return to Pending Allotment"
+                        className="px-2.5 py-1.5 text-slate-500 hover:text-amber-700 rounded-xl hover:bg-amber-50 border border-black/10 hover:border-amber-300 transition-all cursor-pointer flex items-center gap-1.5 text-xs font-bold disabled:opacity-50"
+                      >
+                        <RotateCcw className="w-3.5 h-3.5 text-amber-600" />
+                        <span className="hidden sm:inline">Recall</span>
+                      </button>
+                    )}
 
                     <button
                       type="button"
@@ -1511,6 +1707,21 @@ export function ProductionOrdersClient({
 
                                   {/* Allotment Footer */}
                                   <div className="space-y-2.5 pt-3 border-t border-black/5">
+                                    {cg.assignedLinemanName ? (
+                                      <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-900 flex items-center justify-between">
+                                        <div className="flex items-center gap-1.5">
+                                          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                                          <span>Allotted: <strong className="font-extrabold">{cg.assignedLinemanName}</strong></span>
+                                        </div>
+                                        <span className="text-[10px] bg-emerald-200/60 text-emerald-800 px-1.5 py-0.5 rounded font-mono font-bold">SEWING FLOOR</span>
+                                      </div>
+                                    ) : (
+                                      <div className="p-2 rounded-xl bg-amber-50 border border-amber-200 text-[11px] font-bold text-amber-800 flex items-center gap-1.5">
+                                        <Clock className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                                        <span>Not Assigned — Needs Lineman</span>
+                                      </div>
+                                    )}
+
                                     <CustomSelect
                                       value={selectedColorLineman[challan.id]?.[cg.colorName] || cg.assignedLinemanId || ''}
                                       onChange={val => {
@@ -1534,10 +1745,18 @@ export function ProductionOrdersClient({
                                       type="button"
                                       disabled={isPending}
                                       onClick={() => handleAllotColorLine(challan.id, cg.colorName)}
-                                      className="w-full py-2.5 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs sm:text-sm font-bold shadow-xs hover:shadow-sm active:scale-[0.99] transition-all disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
+                                      className={`w-full py-2.5 rounded-xl text-xs sm:text-sm font-bold shadow-xs hover:shadow-sm active:scale-[0.99] transition-all disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2 ${
+                                        cg.assignedLinemanName
+                                          ? 'bg-slate-100 hover:bg-slate-200 text-slate-800 border border-black/10'
+                                          : 'bg-[#3A3564] hover:bg-[#2A2649] text-white'
+                                      }`}
                                     >
                                       <UserCheck className="w-4 h-4" />
-                                      <span>Allot {cg.colorName} ({cg.totalPcs.toLocaleString()} pcs)</span>
+                                      <span>
+                                        {cg.assignedLinemanName
+                                          ? `Re-assign ${cg.colorName} Line`
+                                          : `Allot ${cg.colorName} (${cg.totalPcs.toLocaleString()} pcs)`}
+                                      </span>
                                     </button>
                                   </div>
                                 </div>
