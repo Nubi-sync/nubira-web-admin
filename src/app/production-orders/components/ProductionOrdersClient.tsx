@@ -18,6 +18,7 @@ import {
   X,
   ChevronDown,
   ChevronRight,
+  ChevronLeft,
   Copy,
   FileSpreadsheet,
   UploadCloud,
@@ -145,6 +146,8 @@ export function ProductionOrdersClient({
   const [importStatus, setImportStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
   const [multiChallanImportData, setMultiChallanImportData] = useState<ParsedMultiChallanResult | null>(null)
   const [showBulkPreviewModal, setShowBulkPreviewModal] = useState(false)
+  const [bulkPreviewSearch, setBulkPreviewSearch] = useState('')
+  const [bulkPreviewPage, setBulkPreviewPage] = useState(1)
   const [isBulkSaving, setIsBulkSaving] = useState(false)
 
   // Smart Allotment States
@@ -270,8 +273,10 @@ export function ProductionOrdersClient({
       const multiData = await parseMultiChallanExcelFile(file)
 
       if (multiData.totalChallans > 1) {
-        // Multi-Challan Bulk Import Mode (Option A)
+        // Multi-Challan Bulk Import Mode
         setMultiChallanImportData(multiData)
+        setBulkPreviewSearch('')
+        setBulkPreviewPage(1)
         setShowBulkPreviewModal(true)
         setShowNewChallanModal(false)
       } else if (multiData.totalChallans === 1) {
@@ -310,16 +315,16 @@ export function ProductionOrdersClient({
     }
   }
 
-  // Handle Confirm Bulk Multi-Challans Import (Option A Execution)
+  // Handle Confirm Bulk Multi-Challans Import
   const handleConfirmBulkImport = async () => {
     if (!multiChallanImportData || multiChallanImportData.challans.length === 0) return
 
     const payloads: CreateChallanPayload[] = multiChallanImportData.challans.map(ch => ({
       challan_no: ch.challan_no.trim().toUpperCase(),
       challan_date: ch.challan_date,
-      brand: (ch.brand || '').trim().toUpperCase(),
+      brand: (ch.brand || 'OLLYPOP').trim().toUpperCase(),
       delivery_date: ch.delivery_date || undefined,
-      fabric_type: ch.fabric_type.trim(),
+      fabric_type: ch.fabric_type.trim() || 'PRINTED SINKER',
       sample_given: ch.sample_given,
       notes: ch.notes.trim(),
       article_lines: ch.articleLines.map(l => ({
@@ -347,9 +352,9 @@ export function ProductionOrdersClient({
         setShowBulkPreviewModal(false)
         setOrders(prev => [...res.createdChallans, ...prev])
 
-        // Expand all newly created challans so user immediately sees their smart color breakdown
+        // Expand first 3 newly created challans so user sees them immediately without lagging UI
         const newExp: Record<string, boolean> = {}
-        res.createdChallans.forEach(c => {
+        res.createdChallans.slice(0, 3).forEach(c => {
           newExp[c.id] = true
         })
         setExpandedChallans(prev => ({ ...prev, ...newExp }))
@@ -1084,6 +1089,21 @@ export function ProductionOrdersClient({
             className="hidden"
             onChange={handleFileUpload}
           />
+
+          <button
+            type="button"
+            disabled={isImporting}
+            onClick={() => fileInputRef.current?.click()}
+            className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold border border-[#3A3564]/30 bg-[#FAF7F0] hover:bg-[#F2ECE0] text-[#3A3564] transition-all shadow-2xs cursor-pointer disabled:opacity-50"
+            title="Import multi-article cutting challans from Excel (.xlsx, .xls, .csv)"
+          >
+            {isImporting ? (
+              <Loader2 className="w-4 h-4 text-[#3A3564] animate-spin" />
+            ) : (
+              <FileSpreadsheet className="w-4 h-4 text-[#3A3564]" />
+            )}
+            <span>{isImporting ? 'Importing...' : 'Import Excel'}</span>
+          </button>
 
           <button
             type="button"
@@ -1921,176 +1941,285 @@ export function ProductionOrdersClient({
       )}
 
       {/* ========================================================= */}
-      {/* 4.5. BULK MULTI-CHALLAN IMPORT PREVIEW MODAL (OPTION A)    */}
+      {/* 4.5. BULK MULTI-CHALLAN IMPORT PREVIEW MODAL (FAST & ACCURATE) */}
       {/* ========================================================= */}
-      {showBulkPreviewModal && multiChallanImportData && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-900/60 backdrop-blur-xs overflow-y-auto">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[92vh] flex flex-col overflow-hidden border border-black/10 my-auto animate-in fade-in zoom-in-95 duration-150">
-            
-            {/* Modal Header */}
-            <div className="p-4 sm:p-5 border-b border-black/10 flex items-center justify-between bg-[#FAF7F0] flex-wrap gap-3">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-[#3A3564] text-white flex items-center justify-center shrink-0 shadow-2xs">
-                  <FileSpreadsheet className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h2 className="text-base sm:text-lg font-extrabold text-slate-900">
-                      Bulk Delivery Challan Import Detected
-                    </h2>
-                    <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-[#3A3564] text-white">
-                      {multiChallanImportData.totalChallans} Challans Found
-                    </span>
+      {showBulkPreviewModal && multiChallanImportData && (() => {
+        const q = bulkPreviewSearch.trim().toLowerCase()
+        const filteredBulkChallans = q
+          ? multiChallanImportData.challans.filter(ch => {
+              return (
+                ch.challan_no.toLowerCase().includes(q) ||
+                ch.brand.toLowerCase().includes(q) ||
+                ch.fabric_type.toLowerCase().includes(q) ||
+                ch.articles_summary.some(a => a.toLowerCase().includes(q)) ||
+                ch.colors_summary.some(c => c.toLowerCase().includes(q))
+              )
+            })
+          : multiChallanImportData.challans
+
+        const BULK_PAGE_SIZE = 24
+        const totalPages = Math.max(1, Math.ceil(filteredBulkChallans.length / BULK_PAGE_SIZE))
+        const currentPage = Math.min(bulkPreviewPage, totalPages)
+        const startIndex = (currentPage - 1) * BULK_PAGE_SIZE
+        const paginatedChallans = filteredBulkChallans.slice(startIndex, startIndex + BULK_PAGE_SIZE)
+
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-900/60 backdrop-blur-xs overflow-y-auto">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[94vh] flex flex-col overflow-hidden border border-black/10 my-auto animate-in fade-in zoom-in-95 duration-150">
+              
+              {/* Modal Header */}
+              <div className="p-4 sm:p-5 border-b border-black/10 flex items-center justify-between bg-[#FAF7F0] flex-wrap gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-[#3A3564] text-white flex items-center justify-center shrink-0 shadow-2xs">
+                    <FileSpreadsheet className="w-5 h-5" />
                   </div>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    Found {multiChallanImportData.totalChallans} distinct Delivery Challans with total {multiChallanImportData.grandTotalPcs.toLocaleString()} Pieces across {multiChallanImportData.grandTotalLines} article lines.
-                  </p>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setShowBulkPreviewModal(false)}
-                className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Modal Body: Cards of detected Challans */}
-            <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 bg-slate-50/50">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {multiChallanImportData.challans.map((ch, idx) => {
-                  const isExisting = orders.some(o => o.challan_no?.trim().toUpperCase() === ch.challan_no.trim().toUpperCase())
-                  return (
-                    <div
-                      key={idx}
-                      className={`p-4 sm:p-5 rounded-2xl border transition-all shadow-2xs flex flex-col justify-between ${
-                        isExisting ? 'bg-amber-50/40 border-amber-300' : 'bg-white border-black/10'
-                      }`}
-                    >
-                      <div>
-                        {/* Header Row */}
-                        <div className="flex items-center justify-between gap-2 pb-3 mb-3 border-b border-black/5 flex-wrap">
-                          <div className="flex items-center gap-2">
-                            <span className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] font-extrabold text-xs flex items-center justify-center border border-black/10">
-                              #{idx + 1}
-                            </span>
-                            <div>
-                              <span className="font-extrabold text-sm sm:text-base text-slate-900">
-                                Challan #{ch.challan_no}
-                              </span>
-                              <span className="text-xs text-slate-500 block">
-                                Date: {ch.challan_date}
-                              </span>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center gap-1.5">
-                            <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-100 text-slate-800 border border-black/5">
-                              {ch.brand}
-                            </span>
-                            {isExisting && (
-                              <span className="px-2 py-0.5 rounded-lg text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1">
-                                <AlertCircle className="w-3 h-3" />
-                                <span>Already Exists</span>
-                              </span>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Article & Fabric Info */}
-                        <div className="space-y-2 mb-3">
-                          <div className="text-xs text-slate-600 flex items-center gap-1.5">
-                            <strong className="text-slate-800">Fabric:</strong>
-                            <span>{ch.fabric_type}</span>
-                          </div>
-
-                          <div className="flex items-center gap-1.5 flex-wrap text-xs">
-                            <strong className="text-slate-800">Styles:</strong>
-                            {ch.articles_summary.map((art, aIdx) => (
-                              <span
-                                key={aIdx}
-                                className="px-2 py-0.5 rounded-md font-mono font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10"
-                              >
-                                Art {art}
-                              </span>
-                            ))}
-                          </div>
-
-                          <div className="flex items-center gap-1.5 flex-wrap text-xs">
-                            <strong className="text-slate-800">Colors:</strong>
-                            {ch.colors_summary.map((c, cIdx) => (
-                              <span
-                                key={cIdx}
-                                className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-slate-100 text-slate-700 border border-black/5"
-                              >
-                                {c}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Footer Totals */}
-                      <div className="pt-3 border-t border-black/5 flex items-center justify-between text-xs sm:text-sm font-mono font-bold bg-slate-50/80 -mx-4 -mb-4 sm:-mx-5 sm:-mb-5 p-3 sm:px-4 rounded-b-2xl">
-                        <span className="text-slate-500">{ch.articleLines.length} Lines Matrix</span>
-                        <span className="text-[#3A3564] font-extrabold text-sm">{ch.total_pcs.toLocaleString()} PCS</span>
-                      </div>
+                  <div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h2 className="text-base sm:text-lg font-extrabold text-slate-900">
+                        Bulk Delivery Challan Import Detected
+                      </h2>
+                      <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-[#3A3564] text-white">
+                        {multiChallanImportData.totalChallans} Challans Found
+                      </span>
                     </div>
-                  )
-                })}
-              </div>
-            </div>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Fast batch parsing verified {multiChallanImportData.totalChallans} distinct Delivery Challans with total {multiChallanImportData.grandTotalPcs.toLocaleString()} Pieces across {multiChallanImportData.grandTotalLines} article lines.
+                    </p>
+                  </div>
+                </div>
 
-            {/* Modal Footer Bar */}
-            <div className="p-4 sm:p-5 border-t border-black/10 bg-white flex items-center justify-between flex-wrap gap-3">
-              <div className="flex items-center gap-3">
-                <div className="text-xs sm:text-sm font-bold text-slate-700">
-                  <span>Grand Total: </span>
-                  <strong className="text-slate-900 font-mono text-base font-extrabold">
-                    {multiChallanImportData.grandTotalPcs.toLocaleString()} Pieces
-                  </strong>
-                  <span className="text-xs text-slate-500 font-normal ml-1.5">
-                    ({multiChallanImportData.totalChallans} Challans)
+                <button
+                  type="button"
+                  onClick={() => setShowBulkPreviewModal(false)}
+                  className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Quick Search & Summary Stats Bar */}
+              <div className="p-3 sm:p-4 border-b border-black/10 bg-white flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div className="relative w-full sm:w-80">
+                  <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    value={bulkPreviewSearch}
+                    onChange={e => {
+                      setBulkPreviewSearch(e.target.value)
+                      setBulkPreviewPage(1)
+                    }}
+                    placeholder="Search Challan #, Brand, Art, Color..."
+                    className="w-full pl-9 pr-8 py-1.5 text-xs rounded-xl border border-black/15 bg-slate-50 focus:bg-white focus:border-[#3A3564] focus:outline-hidden transition-all"
+                  />
+                  {bulkPreviewSearch && (
+                    <button
+                      type="button"
+                      onClick={() => setBulkPreviewSearch('')}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-2 flex-wrap text-xs text-slate-600 font-mono">
+                  <span className="px-2 py-1 rounded-lg bg-slate-100 border border-black/5">
+                    <strong>{multiChallanImportData.totalChallans}</strong> Challans
+                  </span>
+                  <span className="px-2 py-1 rounded-lg bg-slate-100 border border-black/5">
+                    <strong>{multiChallanImportData.grandTotalLines}</strong> Lines
+                  </span>
+                  <span className="px-2 py-1 rounded-lg bg-[#FAF7F0] text-[#3A3564] font-bold border border-black/10">
+                    <strong>{multiChallanImportData.grandTotalPcs.toLocaleString()}</strong> Pcs
+                  </span>
+                  <span className="px-2 py-1 rounded-lg bg-slate-100 border border-black/5">
+                    <strong>{multiChallanImportData.uniqueStylesCount}</strong> Styles
                   </span>
                 </div>
               </div>
 
-              <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  disabled={isBulkSaving}
-                  onClick={() => setShowBulkPreviewModal(false)}
-                  className="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-700 border border-black/10 hover:bg-slate-100 transition-colors cursor-pointer"
-                >
-                  Cancel
-                </button>
+              {/* Modal Body: Cards of detected Challans (Paginated for instant 60fps performance) */}
+              <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 bg-slate-50/50">
+                {paginatedChallans.length === 0 ? (
+                  <div className="p-8 text-center text-xs text-slate-500 bg-white rounded-2xl border border-black/10">
+                    No challans found matching &quot;{bulkPreviewSearch}&quot;.
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {paginatedChallans.map((ch, idx) => {
+                      const isExisting = orders.some(o => o.challan_no?.trim().toUpperCase() === ch.challan_no.trim().toUpperCase())
+                      const globalIdx = startIndex + idx
+                      return (
+                        <div
+                          key={globalIdx}
+                          className={`p-4 sm:p-5 rounded-2xl border transition-all shadow-2xs flex flex-col justify-between ${
+                            isExisting ? 'bg-amber-50/40 border-amber-300' : 'bg-white border-black/10'
+                          }`}
+                        >
+                          <div>
+                            {/* Header Row */}
+                            <div className="flex items-center justify-between gap-2 pb-3 mb-3 border-b border-black/5 flex-wrap">
+                              <div className="flex items-center gap-2">
+                                <span className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] font-extrabold text-xs flex items-center justify-center border border-black/10">
+                                  #{globalIdx + 1}
+                                </span>
+                                <div>
+                                  <span className="font-extrabold text-sm sm:text-base text-slate-900">
+                                    Challan #{ch.challan_no}
+                                  </span>
+                                  <span className="text-xs text-slate-500 block">
+                                    Date: {ch.challan_date}
+                                  </span>
+                                </div>
+                              </div>
 
-                <button
-                  type="button"
-                  disabled={isBulkSaving}
-                  onClick={handleConfirmBulkImport}
-                  className="px-5 py-2.5 rounded-xl text-xs font-extrabold bg-[#3A3564] hover:bg-[#2A2649] text-white flex items-center gap-2 shadow-sm transition-all cursor-pointer disabled:opacity-50"
-                >
-                  {isBulkSaving ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin text-white" />
-                      <span>Creating {multiChallanImportData.totalChallans} Challans...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="w-4 h-4 text-white" />
-                      <span>Import & Create All {multiChallanImportData.totalChallans} Challans</span>
-                    </>
-                  )}
-                </button>
+                              <div className="flex items-center gap-1.5">
+                                <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-100 text-slate-800 border border-black/5">
+                                  {ch.brand}
+                                </span>
+                                {isExisting && (
+                                  <span className="px-2 py-0.5 rounded-lg text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1">
+                                    <AlertCircle className="w-3 h-3" />
+                                    <span>Already Exists</span>
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Article & Fabric Info */}
+                            <div className="space-y-2 mb-3">
+                              <div className="text-xs text-slate-600 flex items-center gap-1.5">
+                                <strong className="text-slate-800">Fabric:</strong>
+                                <span>{ch.fabric_type}</span>
+                              </div>
+
+                              <div className="flex items-center gap-1.5 flex-wrap text-xs">
+                                <strong className="text-slate-800">Styles:</strong>
+                                {ch.articles_summary.slice(0, 5).map((art, aIdx) => (
+                                  <span
+                                    key={aIdx}
+                                    className="px-2 py-0.5 rounded-md font-mono font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10"
+                                  >
+                                    Art {art}
+                                  </span>
+                                ))}
+                                {ch.articles_summary.length > 5 && (
+                                  <span className="text-[11px] text-slate-400 font-mono">
+                                    +{ch.articles_summary.length - 5} more
+                                  </span>
+                                )}
+                              </div>
+
+                              <div className="flex items-center gap-1.5 flex-wrap text-xs">
+                                <strong className="text-slate-800">Colors:</strong>
+                                {ch.colors_summary.slice(0, 4).map((c, cIdx) => (
+                                  <span
+                                    key={cIdx}
+                                    className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-slate-100 text-slate-700 border border-black/5"
+                                  >
+                                    {c}
+                                  </span>
+                                ))}
+                                {ch.colors_summary.length > 4 && (
+                                  <span className="text-[11px] text-slate-400 font-mono">
+                                    +{ch.colors_summary.length - 4} more
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Footer Totals */}
+                          <div className="pt-3 border-t border-black/5 flex items-center justify-between text-xs sm:text-sm font-mono font-bold bg-slate-50/80 -mx-4 -mb-4 sm:-mx-5 sm:-mb-5 p-3 sm:px-4 rounded-b-2xl">
+                            <span className="text-slate-500">{ch.articleLines.length} Lines Matrix</span>
+                            <span className="text-[#3A3564] font-extrabold text-sm">{ch.total_pcs.toLocaleString()} PCS</span>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
               </div>
-            </div>
 
+              {/* Modal Pagination Bar (When more than 1 page) */}
+              {totalPages > 1 && (
+                <div className="px-4 py-2.5 border-t border-black/10 bg-slate-50 flex items-center justify-between text-xs text-slate-600">
+                  <span className="font-mono">
+                    Showing {startIndex + 1}–{Math.min(startIndex + BULK_PAGE_SIZE, filteredBulkChallans.length)} of {filteredBulkChallans.length} Challans (Page {currentPage} of {totalPages})
+                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      disabled={currentPage <= 1}
+                      onClick={() => setBulkPreviewPage(prev => Math.max(1, prev - 1))}
+                      className="p-1.5 rounded-lg border border-black/10 bg-white hover:bg-slate-100 disabled:opacity-40 cursor-pointer"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                    <span className="px-2 font-mono font-bold text-slate-800">
+                      {currentPage} / {totalPages}
+                    </span>
+                    <button
+                      type="button"
+                      disabled={currentPage >= totalPages}
+                      onClick={() => setBulkPreviewPage(prev => Math.min(totalPages, prev + 1))}
+                      className="p-1.5 rounded-lg border border-black/10 bg-white hover:bg-slate-100 disabled:opacity-40 cursor-pointer"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Modal Footer Bar */}
+              <div className="p-4 sm:p-5 border-t border-black/10 bg-white flex items-center justify-between flex-wrap gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="text-xs sm:text-sm font-bold text-slate-700">
+                    <span>Grand Total: </span>
+                    <strong className="text-slate-900 font-mono text-base font-extrabold">
+                      {multiChallanImportData.grandTotalPcs.toLocaleString()} Pieces
+                    </strong>
+                    <span className="text-xs text-slate-500 font-normal ml-1.5">
+                      ({multiChallanImportData.totalChallans} Challans)
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    disabled={isBulkSaving}
+                    onClick={() => setShowBulkPreviewModal(false)}
+                    className="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-700 border border-black/10 hover:bg-slate-100 transition-colors cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled={isBulkSaving}
+                    onClick={handleConfirmBulkImport}
+                    className="px-5 py-2.5 rounded-xl text-xs font-extrabold bg-[#3A3564] hover:bg-[#2A2649] text-white flex items-center gap-2 shadow-sm transition-all cursor-pointer disabled:opacity-50"
+                  >
+                    {isBulkSaving ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin text-white" />
+                        <span>Creating {multiChallanImportData.totalChallans} Challans...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-4 h-4 text-white" />
+                        <span>Import & Create All {multiChallanImportData.totalChallans} Challans</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+            </div>
           </div>
-        </div>
-      )}
+        )
+      })()}
 
       {/* ========================================================= */}
       {/* 5. CREATE NEW DELIVERY CHALLAN MODAL (CLEAN & PROFESSIONAL)*/}

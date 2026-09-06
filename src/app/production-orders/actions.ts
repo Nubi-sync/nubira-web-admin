@@ -841,8 +841,17 @@ export async function deleteProductionOrder(challanOrAllotmentId: string, isChal
   }
 }
 
+// Helper to safely chunk arrays for PostgREST query parameters and payload limits
+function chunkArray<T>(arr: T[], size: number): T[][] {
+  const chunks: T[][] = []
+  for (let i = 0; i < arr.length; i += size) {
+    chunks.push(arr.slice(i, i + size))
+  }
+  return chunks
+}
+
 // ----------------------------------------------------------------------
-// BULK CREATE MULTI-CHALLANS (OPTION A: High-Performance Batch Import)
+// BULK CREATE MULTI-CHALLANS (Ultra High-Performance Batched Import)
 // ----------------------------------------------------------------------
 export async function createBulkChallans(payloads: CreateChallanPayload[]): Promise<{
   success: boolean
@@ -866,18 +875,28 @@ export async function createBulkChallans(payloads: CreateChallanPayload[]): Prom
   }
 
   try {
-    // 1. Bulk check duplicates in 1 single query
+    // 1. Bulk check duplicates in safe chunks of 100 (prevents URL length overflow)
     const allChallanNos = Array.from(
       new Set(payloads.map(p => (p.challan_no || '').trim().toUpperCase()).filter(Boolean))
     )
 
-    const { data: existingChallansList } = await supabase
-      .from('challans')
-      .select('challan_no')
-      .in('challan_no', allChallanNos)
+    const existingChallanSet = new Set<string>()
+    const challanChunks = chunkArray(allChallanNos, 100)
 
-    const existingChallanSet = new Set(
-      (existingChallansList || []).map((c: any) => (c.challan_no || '').trim().toUpperCase())
+    await Promise.all(
+      challanChunks.map(async chunk => {
+        const { data } = await supabase
+          .from('challans')
+          .select('challan_no')
+          .in('challan_no', chunk)
+
+        if (data) {
+          data.forEach((c: any) => {
+            const num = (c.challan_no || '').trim().toUpperCase()
+            if (num) existingChallanSet.add(num)
+          })
+        }
+      })
     )
 
     const validPayloads: CreateChallanPayload[] = []
@@ -903,7 +922,7 @@ export async function createBulkChallans(payloads: CreateChallanPayload[]): Prom
       }
     }
 
-    // 2. Collect and Batch Insert all unique article styles in 1 query
+    // 2. Collect and Batch Insert all unique article styles in safe chunks
     const styleMetaMap = new Map<string, {
       art_no: string
       base_art: string
@@ -942,16 +961,26 @@ export async function createBulkChallans(payloads: CreateChallanPayload[]): Prom
 
     const allArtCodes = Array.from(styleMetaMap.keys())
     if (allArtCodes.length > 0) {
-      const { data: existingArticlesList } = await supabase
-        .from('articles')
-        .select('art_no')
-        .in('art_no', allArtCodes)
+      const existingArtSet = new Set<string>()
+      const artCodeChunks = chunkArray(allArtCodes, 100)
 
-      const existingArtSet = new Set(
-        (existingArticlesList || []).map((a: any) => (a.art_no || '').trim().toUpperCase())
+      await Promise.all(
+        artCodeChunks.map(async chunk => {
+          const { data } = await supabase
+            .from('articles')
+            .select('art_no')
+            .in('art_no', chunk)
+
+          if (data) {
+            data.forEach((a: any) => {
+              const code = (a.art_no || '').trim().toUpperCase()
+              if (code) existingArtSet.add(code)
+            })
+          }
+        })
       )
 
-      const newArticlesToInsert = []
+      const newArticlesToInsert: any[] = []
       for (const [code, meta] of styleMetaMap.entries()) {
         if (!existingArtSet.has(code)) {
           newArticlesToInsert.push({
@@ -975,7 +1004,10 @@ export async function createBulkChallans(payloads: CreateChallanPayload[]): Prom
       }
 
       if (newArticlesToInsert.length > 0) {
-        await supabase.from('articles').insert(newArticlesToInsert)
+        const articleInsertChunks = chunkArray(newArticlesToInsert, 100)
+        await Promise.all(
+          articleInsertChunks.map(chunk => supabase.from('articles').insert(chunk))
+        )
       }
     }
 
@@ -1045,20 +1077,31 @@ export async function createBulkChallans(payloads: CreateChallanPayload[]): Prom
       })
     }
 
-    // 4. Single Batch Insert into database
-    const { data: insertedChallans, error: bulkInsertErr } = await supabase
-      .from('challans')
-      .insert(challansToInsert)
-      .select('id, challan_no, created_at')
+    // 4. Safe Parallel Batch Insert into database (chunks of 50 rows)
+    const challanInsertChunks = chunkArray(challansToInsert, 50)
+    const insertedChallansList: Array<{ id: string; challan_no: string; created_at?: string }> = []
 
-    if (bulkInsertErr || !insertedChallans) {
-      throw new Error(bulkInsertErr?.message || 'Failed to bulk insert delivery challans.')
-    }
+    await Promise.all(
+      challanInsertChunks.map(async chunk => {
+        const { data, error: bulkInsertErr } = await supabase
+          .from('challans')
+          .insert(chunk)
+          .select('id, challan_no, created_at')
+
+        if (bulkInsertErr) {
+          throw new Error(bulkInsertErr.message || 'Failed to bulk insert delivery challans.')
+        }
+        if (data) {
+          insertedChallansList.push(...data)
+        }
+      })
+    )
 
     // 5. Build optimistic ChallanGroupedOrder results
     const createdChallans: ChallanGroupedOrder[] = []
     const fallbackToday = new Date().toISOString().split('T')[0]
-    for (const inserted of insertedChallans) {
+
+    for (const inserted of insertedChallansList) {
       const cNo = (inserted.challan_no || '').trim().toUpperCase()
       const meta = challanMetadataMap.get(cNo)
       if (meta) {
