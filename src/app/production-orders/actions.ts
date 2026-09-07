@@ -446,6 +446,86 @@ export async function createChallan(payload: CreateChallanPayload) {
       return { error: `Failed to create Challan: ${challanInsertErr?.message || 'Unknown database error'}` }
     }
 
+    // 4. Auto-create Allotments for any article lines with assigned Lineman
+    try {
+      const { data: allProfiles } = await supabase
+        .from('profiles')
+        .select('id, username')
+        .eq('is_active', true)
+
+      const profileMap = new Map<string, string>()
+      if (allProfiles) {
+        allProfiles.forEach(p => {
+          if (p.username) profileMap.set(p.username.trim().toLowerCase(), p.id)
+        })
+      }
+
+      for (const line of processedLines) {
+        const lmRaw = ((line as any).lineman_name || '').trim().toLowerCase()
+        const resolvedLinemanId = (line as any).assigned_lineman_id || (lmRaw ? profileMap.get(lmRaw) : null)
+
+        if (resolvedLinemanId) {
+          const { data: artObj } = await supabase
+            .from('articles')
+            .select('id, description')
+            .eq('art_no', line.full_art_code)
+            .limit(1)
+            .maybeSingle()
+
+          if (artObj) {
+            const { data: newAl } = await supabase
+              .from('allotments')
+              .insert({
+                challan_id: newChallan.id,
+                article_id: artObj.id,
+                lineman_id: resolvedLinemanId,
+                target_qty: line.total_pcs || 0,
+                status: 'IN_PROGRESS',
+                qc_status: 'PENDING_STITCHING',
+                mending_status: 'PENDING_STITCHING',
+                allotment_date: safeChallanDate
+              })
+              .select('id')
+              .single()
+
+            if (newAl) {
+              const sizeList = (line.size_range || 'Free Size').split('/').map((s: string) => s.trim()).filter(Boolean)
+              const perSizeQty = Math.round((line.total_pcs || 0) / (sizeList.length || 1))
+              const vars = sizeList.map((sz: string) => ({
+                allotment_id: newAl.id,
+                color: line.color_pattern || 'Standard',
+                size: sz,
+                quantity: perSizeQty,
+                completed_qty: 0
+              }))
+              await supabase.from('allotment_variants').insert(vars)
+
+              const matNote = JSON.stringify({
+                lineman_id: resolvedLinemanId,
+                article_id: artObj.id,
+                art_no: line.full_art_code,
+                article_description: artObj.description || '',
+                client_challan_no: cleanChallanNo,
+                brand: brand,
+                fabric: fabric_type,
+                total_pcs: line.total_pcs || 0,
+                status: 'PENDING'
+              })
+
+              await supabase.from('allotment_materials').insert([
+                { allotment_id: newAl.id, item_name: `Main Fabric (${fabric_type || 'Sinker'})`, required_qty: 'As per lot', admin_issued: false, notes: matNote },
+                { allotment_id: newAl.id, item_name: 'Matching Sewing Thread', required_qty: '5 Cones', admin_issued: false, notes: matNote },
+                { allotment_id: newAl.id, item_name: 'Main Brand Neck Tag', required_qty: `${line.total_pcs || 0} pcs`, admin_issued: false, notes: matNote },
+                { allotment_id: newAl.id, item_name: 'Master Polybags', required_qty: `${line.total_pcs || 0} pcs`, admin_issued: false, notes: matNote }
+              ])
+            }
+          }
+        }
+      }
+    } catch (allotErr) {
+      console.warn('Auto-allotment creation warning:', allotErr)
+    }
+
     revalidatePath('/production-orders')
     revalidatePath('/allotments')
     revalidatePath('/articles')
