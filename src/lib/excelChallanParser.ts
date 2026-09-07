@@ -271,7 +271,8 @@ const COLUMN_SYNONYMS = {
   challan_no: [
     'challanno', 'jobchallanno', 'jobno', 'challan', 'job', 'chno', 'ch',
     'challannumber', 'billno', 'lotno', 'lotnumber', 'orderno', 'deliverychallanno',
-    'dcno', 'cuttingno', 'batchno', 'batch'
+    'dcno', 'cuttingno', 'batchno', 'batch', 'invoiceno', 'invoice', 'po', 'pono',
+    'ponumber', 'orderid', 'challanid', 'jobid', 'deliveryno', 'challanref', 'docno'
   ],
   date: [
     'date', 'challandate', 'chdate', 'jobdate', 'cuttingdate', 'entrydate',
@@ -286,7 +287,10 @@ const COLUMN_SYNONYMS = {
   ],
   colour: [
     'colour', 'color', 'col', 'shade', 'colorpattern', 'colorcombination',
-    'combination', 'print', 'colorprint', 'fabriccolor', 'shadecolor', 'colorname'
+    'combination', 'print', 'colorprint', 'fabriccolor', 'shadecolor', 'colorname',
+    'colors', 'colours', 'clr', 'shadename', 'shadeno', 'fabriccolour', 'colourname',
+    'colourpattern', 'colourshade', 'itemcolor', 'itemcolour', 'colourcombo', 'colorcombo',
+    'shadecombination', 'colorways', 'colorway'
   ],
   category: [
     'category', 'cat', 'itemcategory', 'group', 'itemgroup', 'type', 'garmenttype'
@@ -331,7 +335,8 @@ const COLUMN_SYNONYMS = {
   ],
   lineman: [
     'lineman', 'supervisor', 'lineno', 'line', 'stitchingmaster', 'linesupervisor',
-    'operator', 'sewingsupervisor', 'lineman_name', 'linemanname', 'assignedlineman'
+    'operator', 'sewingsupervisor', 'lineman_name', 'linemanname', 'assignedlineman',
+    'worker', 'workername', 'tailor', 'artisan', 'assignedto', 'assignee', 'master'
   ],
   qc: [
     'qc', 'qcchecker', 'qcsupervisor', 'inspector', 'checkername', 'qcassigned',

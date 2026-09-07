@@ -292,7 +292,16 @@ export function ProductionOrdersClient({
         if (data.notes) setFormNotes(data.notes)
 
         if (data.articleLines && data.articleLines.length > 0) {
-          setArticleLines(data.articleLines as any)
+          const mappedLines = data.articleLines.map((l: any) => {
+            const rawLm = ((l.lineman_name || l.assigned_lineman_name || '') as string).trim().toLowerCase()
+            const matchedLm = rawLm ? linemenList.find(lm => lm.username.trim().toLowerCase() === rawLm) : null
+            return {
+              ...l,
+              assigned_lineman_id: matchedLm ? matchedLm.id : (l.assigned_lineman_id || ''),
+              assigned_lineman_name: matchedLm ? matchedLm.username : (l.lineman_name || 'Unassigned')
+            }
+          })
+          setArticleLines(mappedLines as any)
         }
         if (data.bomItems && data.bomItems.length > 0) {
           setBomItems(data.bomItems as any)
@@ -1826,7 +1835,7 @@ export function ProductionOrdersClient({
                           </thead>
                           <tbody className="divide-y divide-black/5">
                             {challan.articles?.map((line, lIdx) => (
-                              <tr key={line.allotment_id || lIdx} className="hover:bg-slate-50/80 transition-colors">
+                              <tr key={line.id || `${challan.id}-line-${lIdx}`} className="hover:bg-slate-50/80 transition-colors">
                                 <td className="py-3.5 px-4 text-center text-slate-500 font-mono font-bold">{lIdx + 1}</td>
                                 
                                 {/* Art No + Sub Art */}
