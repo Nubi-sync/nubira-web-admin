@@ -57,6 +57,9 @@ export function downloadCleanChallanTemplate() {
     'SIZE',
     'ORDER QNTY',
     'CHALLAN QNTY',
+    'LINEMAN',
+    'QC CHECKER',
+    'MENDING',
     'STATUS',
     'BRAND',
     'FABRIC TYPE',
@@ -64,12 +67,9 @@ export function downloadCleanChallanTemplate() {
     'SPECIAL REMARKS'
   ]
 
-  // Clean Template ready for immediate data entry
+  // Clean Template ready for immediate data entry with no dummy data
   const templateRows = [
-    headers,
-    ['2026-09-07', 'JOB-101', '9437', 'ROBIN BLUE', 'SUIT', 'PANT', 'L/XXL', '384', '392', 'RUNNING', 'OLLYPOP', 'PRINTED SINKER', '2026-09-15', 'Urgent floor lot'],
-    ['2026-09-07', 'JOB-101', '9437', 'MUSTARD', 'SUIT', 'PANT', '22X26', '200', '200', 'RUNNING', 'OLLYPOP', 'PRINTED SINKER', '2026-09-15', ''],
-    ['2026-09-07', 'JOB-102', '9438', 'PEACH', 'TSHIRT', 'ROUND NECK', 'M/L/XL', '500', '500', 'RUNNING', 'FIRST SMILE', 'LY SINKER', '2026-09-18', 'Sample given']
+    headers
   ]
 
   const ws = XLSX.utils.aoa_to_sheet(templateRows)
@@ -85,6 +85,9 @@ export function downloadCleanChallanTemplate() {
     { wch: 12 }, // SIZE
     { wch: 14 }, // ORDER QNTY
     { wch: 16 }, // CHALLAN QNTY
+    { wch: 18 }, // LINEMAN
+    { wch: 18 }, // QC CHECKER
+    { wch: 18 }, // MENDING
     { wch: 14 }, // STATUS
     { wch: 18 }, // BRAND
     { wch: 20 }, // FABRIC TYPE
@@ -112,6 +115,10 @@ export interface ParsedSingleArticleLine {
   pcs_per_set: number | string
   total_pcs: number | string
   assigned_lineman_id: string
+  lineman_name?: string
+  qc_name?: string
+  mending_name?: string
+  stage_status?: string
   status: string
 }
 
@@ -136,6 +143,9 @@ export interface ParsedMultiChallanGroup {
   total_pcs: number
   articles_summary: string[]
   colors_summary: string[]
+  linemen_summary?: string[]
+  qc_summary?: string[]
+  mending_summary?: string[]
   articleLines: ParsedSingleArticleLine[]
   bomItems: ParsedSingleBomItem[]
 }
@@ -319,9 +329,24 @@ const COLUMN_SYNONYMS = {
     'readysamplegiven', 'readysamplegivenyesno', 'samplegiven', 'sample',
     'sampleyesno', 'samplesent', 'approvedsample'
   ],
+  lineman: [
+    'lineman', 'supervisor', 'lineno', 'line', 'stitchingmaster', 'linesupervisor',
+    'operator', 'sewingsupervisor', 'lineman_name', 'linemanname', 'assignedlineman'
+  ],
+  qc: [
+    'qc', 'qcchecker', 'qcsupervisor', 'inspector', 'checkername', 'qcassigned',
+    'qcofficer', 'qc_name', 'qcname', 'inspection'
+  ],
+  mending: [
+    'mending', 'mender', 'mendingmaster', 'alteration', 'checker', 'mendingoperator',
+    'mending_name', 'mendingname', 'alter'
+  ],
+  stage: [
+    'stage', 'currentstage', 'stagestatus', 'status', 'linestatus', 'jobstatus', 'progress'
+  ],
   notes: [
-    'specialremarks', 'remarks', 'notes', 'specialnotes', 'status', 'linestatus',
-    'comment', 'comments', 'instruction', 'instructions'
+    'specialremarks', 'remarks', 'notes', 'specialnotes', 'comment', 'comments',
+    'instruction', 'instructions'
   ],
   bom_name: [
     'bommaterialname', 'bommaterial', 'materialname', 'bomitem', 'trims',
@@ -461,6 +486,9 @@ export async function parseMultiChallanExcelFile(file: File): Promise<ParsedMult
     const bomItems: ParsedSingleBomItem[] = []
     const uniqueArtNos = new Set<string>()
     const uniqueColors = new Set<string>()
+    const uniqueLinemen = new Set<string>()
+    const uniqueQc = new Set<string>()
+    const uniqueMending = new Set<string>()
 
     let chTotalPcs = 0
     let chTotalSets = 0
@@ -489,6 +517,12 @@ export async function parseMultiChallanExcelFile(file: File): Promise<ParsedMult
         }
       }
 
+      // Personnel fields
+      const linemanName = String(getNormalizedField(rowMap, COLUMN_SYNONYMS.lineman)).trim()
+      const qcName = String(getNormalizedField(rowMap, COLUMN_SYNONYMS.qc)).trim()
+      const mendingName = String(getNormalizedField(rowMap, COLUMN_SYNONYMS.mending)).trim()
+      const stageStatus = String(getNormalizedField(rowMap, COLUMN_SYNONYMS.stage)).trim().toUpperCase()
+
       // Article Line Fields
       const artNo = String(getNormalizedField(rowMap, COLUMN_SYNONYMS.art_no)).trim()
       const subArtNo = String(getNormalizedField(rowMap, COLUMN_SYNONYMS.sub_art_no)).trim()
@@ -500,7 +534,7 @@ export async function parseMultiChallanExcelFile(file: File): Promise<ParsedMult
       const challanQtyVal = parseNumeric(getNormalizedField(rowMap, COLUMN_SYNONYMS.challan_qty))
       const setsVal = parseNumeric(getNormalizedField(rowMap, COLUMN_SYNONYMS.sets))
       const pcsPerSetVal = parseNumeric(getNormalizedField(rowMap, COLUMN_SYNONYMS.pcs_per_set))
-      const rowStatus = String(getNormalizedField(rowMap, COLUMN_SYNONYMS.notes)).trim()
+      const rowStatus = stageStatus || String(getNormalizedField(rowMap, COLUMN_SYNONYMS.notes)).trim()
 
       if (artNo || colorPattern || sizeRange || orderQtyVal !== '' || challanQtyVal !== '') {
         let calcTotal: number | string = ''
@@ -524,21 +558,28 @@ export async function parseMultiChallanExcelFile(file: File): Promise<ParsedMult
           globalMasterStyles.add(upperArt)
         }
         if (colorPattern) uniqueColors.add(colorPattern.toUpperCase())
+        if (linemanName) uniqueLinemen.add(linemanName)
+        if (qcName) uniqueQc.add(qcName)
+        if (mendingName) uniqueMending.add(mendingName)
 
         articleLines.push({
-          art_no: artNo || '9437',
+          art_no: artNo || '',
           sub_art_no: subArtNo,
           pattern_no: product,
           category: category,
           product: product,
-          description: category && product ? `${category} - ${product}` : (category || product || `${artNo || 'Article'} Style`),
-          color_pattern: colorPattern || 'STANDARD',
-          size_range: sizeRange || 'L/XXL',
+          description: category && product ? `${category} - ${product}` : (category || product || (artNo ? `${artNo} Style` : '')),
+          color_pattern: colorPattern || '',
+          size_range: sizeRange || '',
           order_qty: orderQtyVal !== '' ? orderQtyVal : (calcTotal || ''),
           sets: numericSets,
           pcs_per_set: numericPcsPerSet,
           total_pcs: calcTotal !== '' ? calcTotal : 0,
           assigned_lineman_id: '',
+          lineman_name: linemanName || undefined,
+          qc_name: qcName || undefined,
+          mending_name: mendingName || undefined,
+          stage_status: stageStatus || undefined,
           status: rowStatus || 'RUNNING'
         })
       }
@@ -552,7 +593,7 @@ export async function parseMultiChallanExcelFile(file: File): Promise<ParsedMult
       if (bomMatName || bomLotNo || bomQtyVal !== '') {
         bomItems.push({
           material_type: 'FABRIC',
-          item_name: bomMatName || `${fabricType || 'Main'} Fabric Lot`,
+          item_name: bomMatName || (fabricType ? `${fabricType} Fabric Lot` : 'Fabric Lot'),
           lot_no: bomLotNo,
           required_qty: bomQtyVal !== '' ? bomQtyVal : '',
           unit: bomUnit || 'kg',
@@ -565,8 +606,8 @@ export async function parseMultiChallanExcelFile(file: File): Promise<ParsedMult
       resultChallans.push({
         challan_no: chNo,
         challan_date: challanDate || todayIso,
-        brand: brand || 'OLLYPOP',
-        fabric_type: fabricType || 'PRINTED SINKER',
+        brand: brand || '',
+        fabric_type: fabricType || '',
         delivery_date: deliveryDate,
         sample_given: sampleGiven,
         notes: notes,
@@ -574,6 +615,9 @@ export async function parseMultiChallanExcelFile(file: File): Promise<ParsedMult
         total_pcs: chTotalPcs,
         articles_summary: Array.from(uniqueArtNos),
         colors_summary: Array.from(uniqueColors),
+        linemen_summary: Array.from(uniqueLinemen),
+        qc_summary: Array.from(uniqueQc),
+        mending_summary: Array.from(uniqueMending),
         articleLines,
         bomItems
       })

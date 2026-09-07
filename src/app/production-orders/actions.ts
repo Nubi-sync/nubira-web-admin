@@ -225,7 +225,7 @@ export async function getProductionOrders(): Promise<ChallanGroupedOrder[]> {
             const rawLines = parsedNotes.article_lines || parsedNotes
             if (Array.isArray(rawLines)) {
               rawLines.forEach((line: any, idx: number) => {
-                const cleanArtNo = (line.art_no || '9433').trim().toUpperCase()
+                const cleanArtNo = (line.art_no || '').trim().toUpperCase()
                 const cleanSubArt = (line.sub_art_no || '').trim().toUpperCase()
                 const fullArtCode = line.full_art_code || (cleanSubArt ? `${cleanArtNo}${cleanSubArt}` : cleanArtNo)
 
@@ -294,9 +294,9 @@ export async function getProductionOrders(): Promise<ChallanGroupedOrder[]> {
           id: ch.id,
           challan_no: ch.challan_no || 'CHALLAN',
           challan_date: ch.challan_date || new Date(ch.created_at).toISOString().split('T')[0],
-          brand: ch.brand || 'OLLYPOP',
+          brand: ch.brand || '',
           delivery_date: ch.delivery_date || '',
-          fabric_type: ch.fabric_type || 'PRINTED SINKER',
+          fabric_type: ch.fabric_type || '',
           sample_given: !!ch.sample_given,
           notes: ch.notes || '',
           total_sets: totalSets,
@@ -328,7 +328,7 @@ export async function createChallan(payload: CreateChallanPayload) {
     challan_date,
     brand,
     delivery_date,
-    fabric_type = 'PRINTED SINKER',
+    fabric_type = '',
     sample_given = false,
     notes = '',
     article_lines = [],
@@ -560,7 +560,7 @@ export async function allotEntireChallan(challanId: string, linemanId: string) {
           const existingArtIds = new Set((existingAllots || []).map(a => a.article_id))
 
           for (const line of plannedLines) {
-            const cleanArtNo = (line.art_no || '9433').trim().toUpperCase()
+            const cleanArtNo = (line.art_no || '').trim().toUpperCase()
             const cleanSubArt = (line.sub_art_no || '').trim().toUpperCase()
             const fullArtCode = line.full_art_code || (cleanSubArt ? `${cleanArtNo}${cleanSubArt}` : cleanArtNo)
             const targetQty = Number(line.total_pcs) || ((Number(line.sets) || 1) * (Number(line.pcs_per_set) || 9))
@@ -697,7 +697,7 @@ export async function allotChallanByColor(challanId: string, colorName: string, 
           for (const line of plannedLines) {
             const lineCol = (line.color_pattern || line.description || '').toUpperCase()
             if (lineCol.includes(cleanColor) || lineCol.includes('3 COLOUR') || lineCol.includes('3 COLOR') || cleanColor === 'ALL') {
-              const cleanArtNo = (line.art_no || '9433').trim().toUpperCase()
+              const cleanArtNo = (line.art_no || '').trim().toUpperCase()
               const cleanSubArt = (line.sub_art_no || '').trim().toUpperCase()
               const fullArtCode = line.full_art_code || (cleanSubArt ? `${cleanArtNo}${cleanSubArt}` : cleanArtNo)
               const targetQty = Number(line.total_pcs) || ((Number(line.sets) || 1) * (Number(line.pcs_per_set) || 9))
@@ -1011,18 +1011,38 @@ export async function createBulkChallans(payloads: CreateChallanPayload[]): Prom
       }
     }
 
-    // 3. Prepare Batch Insert for Challans
+    // 3. Fetch registered profiles and articles for automated floor allotment
+    const [profilesRes, articlesRes] = await Promise.all([
+      supabase.from('profiles').select('id, username, full_name, role'),
+      supabase.from('articles').select('id, art_no, description').in('art_no', allArtCodes)
+    ])
+
+    const profileLookupMap = new Map<string, { id: string; username: string; role: string }>()
+    profilesRes.data?.forEach((p: any) => {
+      if (p.username) profileLookupMap.set(p.username.trim().toLowerCase(), p)
+      if (p.full_name) profileLookupMap.set(p.full_name.trim().toLowerCase(), p)
+    })
+
+    const articleCodeToIdMap = new Map<string, { id: string; art_no: string; description: string }>()
+    articlesRes.data?.forEach((a: any) => {
+      if (a.art_no) articleCodeToIdMap.set(a.art_no.trim().toUpperCase(), a)
+    })
+
+    // 4. Prepare Batch Insert for Challans with Floor Personnel Metadata
     const challansToInsert: any[] = []
     const challanMetadataMap = new Map<string, {
       payload: CreateChallanPayload
       processedLines: any[]
       totalSets: number
       totalPcs: number
+      hasAnyLinemanAllotted: boolean
+      allLinemenAllotted: boolean
     }>()
 
     for (const payload of validPayloads) {
       const cleanChallanNo = (payload.challan_no || '').trim().toUpperCase()
-      const processedLines = []
+      const processedLines: any[] = []
+      let allottedCount = 0
 
       for (const line of payload.article_lines || []) {
         const cleanArtNo = (line.art_no || '').trim().toUpperCase()
@@ -1031,20 +1051,48 @@ export async function createBulkChallans(payloads: CreateChallanPayload[]): Prom
         const cleanSubArt = (line.sub_art_no || '').trim().toUpperCase()
         const fullArtCode = cleanSubArt ? `${cleanArtNo}${cleanSubArt}` : cleanArtNo
         const linePcs = Number(line.total_pcs) || ((Number(line.sets) || 1) * (Number(line.pcs_per_set) || 9))
-        const lineSets = Number(line.sets) || Math.round(linePcs / (Number(line.pcs_per_set) || 9))
+        const lineSets = Number(line.sets) || Math.max(1, Math.round(linePcs / (Number(line.pcs_per_set) || 9)))
         const lineRatio = Number(line.pcs_per_set) || 9
+
+        // Auto-match personnel
+        const lmRaw = ((line as any).lineman_name || '').trim().toLowerCase()
+        const matchedLm = lmRaw ? profileLookupMap.get(lmRaw) : null
+        const resolvedLinemanId = line.assigned_lineman_id || matchedLm?.id || ''
+        const resolvedLinemanName = matchedLm?.username || (line as any).lineman_name || ''
+
+        const qcRaw = ((line as any).qc_name || '').trim().toLowerCase()
+        const matchedQc = qcRaw ? profileLookupMap.get(qcRaw) : null
+
+        const mendingRaw = ((line as any).mending_name || '').trim().toLowerCase()
+        const matchedMending = mendingRaw ? profileLookupMap.get(mendingRaw) : null
+
+        const rawStage = ((line as any).stage_status || line.status || '').toUpperCase()
+        const isQcPassed = rawStage === 'QC_PASSED' || rawStage === 'COMPLETED' || rawStage === 'DONE'
+
+        if (resolvedLinemanId) allottedCount++
 
         processedLines.push({
           ...line,
           full_art_code: fullArtCode,
           sets: lineSets,
           pcs_per_set: lineRatio,
-          total_pcs: linePcs
+          total_pcs: linePcs,
+          assigned_lineman_id: resolvedLinemanId,
+          assigned_lineman_name: resolvedLinemanName || 'Unassigned (Floor Order)',
+          lineman_name: resolvedLinemanName,
+          qc_name: matchedQc?.username || (line as any).qc_name || '',
+          qc_supervisor_id: matchedQc?.id || '',
+          mending_name: matchedMending?.username || (line as any).mending_name || '',
+          stage_status: rawStage,
+          is_qc_passed: isQcPassed
         })
       }
 
       const grandTotalSets = processedLines.reduce((acc, row) => acc + (Number(row.sets) || 0), 0)
       const grandTotalPcs = processedLines.reduce((acc, row) => acc + (Number(row.total_pcs) || 0), 0)
+
+      const hasAnyLineman = allottedCount > 0
+      const allAllotted = allottedCount === processedLines.length && processedLines.length > 0
 
       const challanNotesJson = JSON.stringify({
         user_notes: (payload.notes || '').trim(),
@@ -1055,12 +1103,16 @@ export async function createBulkChallans(payloads: CreateChallanPayload[]): Prom
         payload,
         processedLines,
         totalSets: grandTotalSets,
-        totalPcs: grandTotalPcs
+        totalPcs: grandTotalPcs,
+        hasAnyLinemanAllotted: hasAnyLineman,
+        allLinemenAllotted: allAllotted
       })
 
       const todayDate = new Date().toISOString().split('T')[0]
       const safeChallanDate = sanitizeDate(payload.challan_date) || todayDate
       const safeDeliveryDate = sanitizeDate(payload.delivery_date)
+
+      const initialStatus = allAllotted ? 'IN_PROGRESS' : (hasAnyLineman ? 'PARTIALLY_ALLOTTED' : 'PENDING')
 
       challansToInsert.push({
         challan_no: cleanChallanNo,
@@ -1072,12 +1124,12 @@ export async function createBulkChallans(payloads: CreateChallanPayload[]): Prom
         notes: challanNotesJson,
         total_sets: grandTotalSets,
         total_pcs: grandTotalPcs,
-        status: 'IN_PROGRESS',
+        status: initialStatus,
         bom_details: payload.bom_items || []
       })
     }
 
-    // 4. Safe Parallel Batch Insert into database (chunks of 50 rows)
+    // 5. Safe Parallel Batch Insert into database (chunks of 50 rows)
     const challanInsertChunks = chunkArray(challansToInsert, 50)
     const insertedChallansList: Array<{ id: string; challan_no: string; created_at?: string }> = []
 
@@ -1097,14 +1149,145 @@ export async function createBulkChallans(payloads: CreateChallanPayload[]): Prom
       })
     )
 
-    // 5. Build optimistic ChallanGroupedOrder results
-    const createdChallans: ChallanGroupedOrder[] = []
+    // 6. Automated Creation of Allotments, Variants, Materials, & QC for assigned Linemen
+    const allotmentsToInsert: any[] = []
     const fallbackToday = new Date().toISOString().split('T')[0]
 
     for (const inserted of insertedChallansList) {
       const cNo = (inserted.challan_no || '').trim().toUpperCase()
       const meta = challanMetadataMap.get(cNo)
+      if (!meta) continue
+
+      for (const line of meta.processedLines) {
+        if (!line.assigned_lineman_id) continue
+
+        const artObj = articleCodeToIdMap.get(line.full_art_code)
+        if (!artObj) continue
+
+        allotmentsToInsert.push({
+          challan_id: inserted.id,
+          article_id: artObj.id,
+          lineman_id: line.assigned_lineman_id,
+          target_qty: line.total_pcs || 0,
+          status: line.is_qc_passed ? 'COMPLETED' : 'IN_PROGRESS',
+          qc_status: line.is_qc_passed ? 'PASSED' : 'PENDING_STITCHING',
+          mending_status: line.is_qc_passed ? 'PASSED' : 'PENDING_STITCHING',
+          qc_total_passed: line.is_qc_passed ? (line.total_pcs || 0) : 0,
+          allotment_date: sanitizeDate(meta.payload.challan_date) || fallbackToday,
+          _meta: {
+            line,
+            challanNo: cNo,
+            brand: meta.payload.brand,
+            fabric: meta.payload.fabric_type,
+            artDescription: artObj.description || ''
+          }
+        })
+      }
+    }
+
+    if (allotmentsToInsert.length > 0) {
+      const cleanAllotmentPayloads = allotmentsToInsert.map(a => {
+        const { _meta, ...clean } = a
+        return clean
+      })
+
+      const allotChunks = chunkArray(cleanAllotmentPayloads, 50)
+      const insertedAllotments: Array<{ id: string; challan_id: string; article_id: string; lineman_id: string }> = []
+
+      await Promise.all(
+        allotChunks.map(async chunk => {
+          const { data } = await supabase
+            .from('allotments')
+            .insert(chunk)
+            .select('id, challan_id, article_id, lineman_id')
+
+          if (data) insertedAllotments.push(...data)
+        })
+      )
+
+      // Map inserted allotments to their line metadata
+      const variantsToInsert: any[] = []
+      const materialsToInsert: any[] = []
+      const qcAssignmentsToInsert: any[] = []
+
+      insertedAllotments.forEach((insertedAl, idx) => {
+        const original = allotmentsToInsert[idx]
+        if (!original) return
+
+        const line = original._meta.line
+        const targetQty = line.total_pcs || 0
+
+        // Variants
+        const sizeList = (line.size_range || 'L/XXL').split('/').map((s: string) => s.trim()).filter(Boolean)
+        const perSizeQty = Math.round(targetQty / (sizeList.length || 1))
+        sizeList.forEach((sz: string) => {
+          variantsToInsert.push({
+            allotment_id: insertedAl.id,
+            color: line.color_pattern || 'Standard',
+            size: sz,
+            quantity: perSizeQty,
+            completed_qty: line.is_qc_passed ? perSizeQty : 0
+          })
+        })
+
+        // Materials
+        const matNote = JSON.stringify({
+          lineman_id: insertedAl.lineman_id,
+          lineman_name: line.assigned_lineman_name,
+          article_id: insertedAl.article_id,
+          art_no: line.full_art_code,
+          article_description: original._meta.artDescription,
+          client_challan_no: original._meta.challanNo,
+          brand: original._meta.brand,
+          total_pcs: targetQty,
+          status: 'PENDING'
+        })
+
+        materialsToInsert.push(
+          { allotment_id: insertedAl.id, item_name: `Main Fabric (${original._meta.fabric || 'Sinker'})`, required_qty: 'As per lot', admin_issued: false, notes: matNote },
+          { allotment_id: insertedAl.id, item_name: 'Matching Sewing Thread', required_qty: '5 Cones', admin_issued: false, notes: matNote },
+          { allotment_id: insertedAl.id, item_name: 'Main Brand Neck Tag', required_qty: `${targetQty} pcs`, admin_issued: false, notes: matNote },
+          { allotment_id: insertedAl.id, item_name: 'Master Polybags', required_qty: `${targetQty} pcs`, admin_issued: false, notes: matNote }
+        )
+
+        // QC Assignment (if QC supervisor matched or assigned)
+        if (line.qc_name || line.qc_supervisor_id) {
+          qcAssignmentsToInsert.push({
+            allotment_id: insertedAl.id,
+            qc_supervisor_id: line.qc_supervisor_id || null,
+            worker_name: line.qc_name || 'QC Inspector',
+            article_id: insertedAl.article_id,
+            color: line.color_pattern || 'Standard',
+            size: line.size_range || 'Free Size',
+            assigned_qty: targetQty,
+            checked_qty: line.is_qc_passed ? targetQty : 0,
+            passed_qty: line.is_qc_passed ? targetQty : 0,
+            alter_qty: 0,
+            status: line.is_qc_passed ? 'DONE' : 'ASSIGNED'
+          })
+        }
+      })
+
+      // Insert variants, materials, and qc assignments in parallel chunks
+      const variantChunks = chunkArray(variantsToInsert, 100)
+      const materialChunks = chunkArray(materialsToInsert, 100)
+      const qcChunks = chunkArray(qcAssignmentsToInsert, 100)
+
+      await Promise.all([
+        ...variantChunks.map(chunk => supabase.from('allotment_variants').insert(chunk)),
+        ...materialChunks.map(chunk => supabase.from('allotment_materials').insert(chunk)),
+        ...qcChunks.map(chunk => supabase.from('qc_assignments').insert(chunk))
+      ])
+    }
+
+    // 7. Build optimistic ChallanGroupedOrder results
+    const createdChallans: ChallanGroupedOrder[] = []
+
+    for (const inserted of insertedChallansList) {
+      const cNo = (inserted.challan_no || '').trim().toUpperCase()
+      const meta = challanMetadataMap.get(cNo)
       if (meta) {
+        const initialStatus = meta.allLinemenAllotted ? 'IN_PROGRESS' : (meta.hasAnyLinemanAllotted ? 'PARTIALLY_ALLOTTED' : 'PENDING')
         createdChallans.push({
           id: inserted.id,
           challan_no: cNo,
@@ -1119,13 +1302,13 @@ export async function createBulkChallans(payloads: CreateChallanPayload[]): Prom
           }),
           total_sets: meta.totalSets,
           total_pcs: meta.totalPcs,
-          status: 'PENDING',
+          status: initialStatus as any,
           bom_details: meta.payload.bom_items || [],
           articles: meta.processedLines.map((line, idx) => ({
             ...line,
             allotment_id: '',
-            status: 'PLANNED',
-            assigned_lineman_name: 'Unassigned (Floor Order)'
+            status: line.assigned_lineman_id ? (line.is_qc_passed ? 'QC_PASSED' : 'IN_PROGRESS') : 'PLANNED',
+            assigned_lineman_name: line.assigned_lineman_name || 'Unassigned (Floor Order)'
           })),
           created_at: inserted.created_at || new Date().toISOString()
         })
@@ -1258,8 +1441,8 @@ export async function allotFullChallanDirectly(challanId: string, linemanId: str
                   base_art: cleanArtNo,
                   sub_art: cleanSubArt,
                   pattern: line.pattern_no || '',
-                  fabric: ch.fabric_type || 'PRINTED SINKER',
-                  party: ch.brand || 'OLLYPOP',
+                  fabric: ch.fabric_type || '',
+                  party: ch.brand || '',
                   size: line.size_range,
                   picture_url: line.picture_url || ''
                 }
@@ -1418,8 +1601,8 @@ export async function allotColorGroupDirectly(challanId: string, colorName: stri
                 base_art: cleanArtNo,
                 sub_art: cleanSubArt,
                 pattern: line.pattern_no || '',
-                fabric: ch.fabric_type || 'PRINTED SINKER',
-                party: ch.brand || 'OLLYPOP',
+                fabric: ch.fabric_type || '',
+                party: ch.brand || '',
                 size: line.size_range,
                 picture_url: line.picture_url || ''
               }

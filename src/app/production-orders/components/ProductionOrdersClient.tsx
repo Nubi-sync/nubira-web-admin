@@ -39,7 +39,8 @@ import {
   ArrowUpRight,
   Loader2,
   RotateCcw,
-  Undo2
+  Undo2,
+  ShieldCheck
 } from 'lucide-react'
 import {
   ChallanArticleLine,
@@ -322,9 +323,9 @@ export function ProductionOrdersClient({
     const payloads: CreateChallanPayload[] = multiChallanImportData.challans.map(ch => ({
       challan_no: ch.challan_no.trim().toUpperCase(),
       challan_date: ch.challan_date,
-      brand: (ch.brand || 'OLLYPOP').trim().toUpperCase(),
+      brand: (ch.brand || '').trim().toUpperCase(),
       delivery_date: ch.delivery_date || undefined,
-      fabric_type: ch.fabric_type.trim() || 'PRINTED SINKER',
+      fabric_type: ch.fabric_type.trim() || '',
       sample_given: ch.sample_given,
       notes: ch.notes.trim(),
       article_lines: ch.articleLines.map(l => ({
@@ -590,8 +591,8 @@ export function ProductionOrdersClient({
           art_no: baseArt,
           description: art.description || 'Garment Style',
           stitching_rate: Number(art.stitching_rate) || 20,
-          brand: art.size_rates?._meta?.party || 'OLLYPOP',
-          fabric: art.size_rates?._meta?.fabric || 'PRINTED SINKER',
+          brand: art.size_rates?._meta?.party || '',
+          fabric: art.size_rates?._meta?.fabric || '',
           totalLifetimePcs: 0,
           totalLifetimeChallans: 0,
           totalLifetimeAllotments: 0,
@@ -616,8 +617,8 @@ export function ProductionOrdersClient({
             art_no: baseArt,
             description: art.description || 'Garment Style',
             stitching_rate: Number(art.stitching_rate) || 20,
-            brand: ch.brand || 'OLLYPOP',
-            fabric: ch.fabric_type || 'PRINTED SINKER',
+            brand: ch.brand || '',
+            fabric: ch.fabric_type || '',
             totalLifetimePcs: 0,
             totalLifetimeChallans: 0,
             totalLifetimeAllotments: 0,
@@ -646,8 +647,8 @@ export function ProductionOrdersClient({
           challanId: ch.id,
           challanNo: ch.challan_no || 'CHALLAN',
           challanDate: ch.challan_date || '',
-          brand: ch.brand || 'OLLYPOP',
-          fabricType: ch.fabric_type || 'PRINTED SINKER',
+          brand: ch.brand || '',
+          fabricType: ch.fabric_type || '',
           colorPattern: art.color_pattern || 'Standard',
           sizeRange: art.size_range || 'Free Size',
           sets: Number(art.sets) || 1,
@@ -741,9 +742,9 @@ export function ProductionOrdersClient({
     const payload: CreateChallanPayload = {
       challan_no: cleanChallan,
       challan_date: formChallanDate,
-      brand: (formBrand || 'OLLYPOP').trim().toUpperCase(),
+      brand: (formBrand || '').trim().toUpperCase(),
       delivery_date: formDeliveryDate || undefined,
-      fabric_type: formFabric.trim() || 'PRINTED SINKER',
+      fabric_type: formFabric.trim() || '',
       sample_given: formSampleGiven,
       notes: formNotes.trim(),
       article_lines: validLines.map(l => ({
@@ -769,7 +770,7 @@ export function ProductionOrdersClient({
           challan_date: payload.challan_date,
           brand: payload.brand,
           delivery_date: payload.delivery_date || '',
-          fabric_type: payload.fabric_type || 'PRINTED SINKER',
+          fabric_type: payload.fabric_type || '',
           sample_given: !!payload.sample_given,
           notes: payload.notes || '',
           total_sets: formGrandSets,
@@ -2126,6 +2127,32 @@ export function ProductionOrdersClient({
                                   </span>
                                 )}
                               </div>
+
+                              {/* Auto-Allotted Supervisors & QC Matrix */}
+                              {((ch.linemen_summary && ch.linemen_summary.length > 0) ||
+                                (ch.qc_summary && ch.qc_summary.length > 0) ||
+                                (ch.mending_summary && ch.mending_summary.length > 0)) && (
+                                <div className="pt-2 border-t border-black/5 flex items-center gap-2 flex-wrap text-[11px]">
+                                  {ch.linemen_summary && ch.linemen_summary.length > 0 && (
+                                    <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#FAF7F0] text-[#3A3564] border border-black/10 font-bold font-mono">
+                                      <UserCheck className="w-3 h-3 text-[#3A3564]" />
+                                      <span>Lineman: {ch.linemen_summary.join(', ')}</span>
+                                    </div>
+                                  )}
+                                  {ch.qc_summary && ch.qc_summary.length > 0 && (
+                                    <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold font-mono">
+                                      <ShieldCheck className="w-3 h-3 text-emerald-600" />
+                                      <span>QC: {ch.qc_summary.join(', ')}</span>
+                                    </div>
+                                  )}
+                                  {ch.mending_summary && ch.mending_summary.length > 0 && (
+                                    <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-sky-50 text-sky-800 border border-sky-200 font-bold font-mono">
+                                      <CheckCircle2 className="w-3 h-3 text-sky-600" />
+                                      <span>Mending: {ch.mending_summary.join(', ')}</span>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
                             </div>
                           </div>
 
