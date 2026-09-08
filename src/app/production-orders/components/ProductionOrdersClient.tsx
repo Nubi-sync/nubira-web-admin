@@ -196,8 +196,7 @@ export function ProductionOrdersClient({
       else if (ch.status === 'QC_PASSED') qcPassed++
       else if (ch.status === 'IN_PROGRESS') inProgress++
       else if (ch.status === 'PARTIALLY_ALLOTTED') {
-        pending++ // Still has pending lines to allot!
-        inProgress++ // Also has lines running in production!
+        pending++ // Still has pending lines to allot! Moves to inProgress only when 100% allotted
       } else pending++
     })
 
@@ -705,7 +704,7 @@ export function ProductionOrdersClient({
       if (selectedStatus === 'PENDING') {
         matchStatus = ch.status === 'PENDING' || ch.status === 'PARTIALLY_ALLOTTED'
       } else if (selectedStatus === 'IN_PROGRESS') {
-        matchStatus = ch.status === 'IN_PROGRESS' || ch.status === 'PARTIALLY_ALLOTTED'
+        matchStatus = ch.status === 'IN_PROGRESS'
       } else if (selectedStatus === 'ACTIVE') {
         matchStatus = ch.status !== 'DISPATCHED'
       } else if (selectedStatus !== 'ALL') {
