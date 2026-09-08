@@ -7,6 +7,7 @@ import { CompanyProfileCard } from './components/CompanyProfileCard'
 import { AdminIdentityCard } from './components/AdminIdentityCard'
 import { SupervisorTeamOverview, ProfileUser } from './components/SupervisorTeamOverview'
 import { AccountDeletionDangerZone } from './components/AccountDeletionDangerZone'
+import { StaffProfileView } from './components/StaffProfileView'
 
 export const dynamic = 'force-dynamic'
 
@@ -21,7 +22,46 @@ export default async function ProfilePage() {
     redirect('/login')
   }
 
-  // Fetch company & admin settings if table exists, else fallback gracefully
+  // Fetch current user's profile role
+  let currentProfile: any = null
+  try {
+    const { data: prof } = await supabase
+      .from('profiles')
+      .select('id, username, role, is_active, created_at')
+      .eq('id', user.id)
+      .maybeSingle()
+    currentProfile = prof
+  } catch (err) {
+    console.warn('current user profile fetch fallback:', err)
+  }
+
+  const userRole =
+    currentProfile?.role ||
+    (user.email === 'admin@nubira.local' ? 'ADMIN' : (user.email?.toLowerCase().includes('store') ? 'STORE_SUPERVISOR' : 'STAFF'))
+
+  const isStoreUser =
+    userRole?.toUpperCase() === 'STORE' ||
+    userRole?.toUpperCase() === 'STORE_SUPERVISOR' ||
+    userRole?.toUpperCase() === 'GODOWN' ||
+    user.email?.toLowerCase().startsWith('store@') ||
+    user.email?.toLowerCase() === 'store'
+
+  const isStaffUser =
+    isStoreUser ||
+    (userRole?.toUpperCase() !== 'ADMIN' &&
+      userRole?.toUpperCase() !== 'SUPERADMIN' &&
+      user.email !== 'admin@nubira.local')
+
+  // If Store Supervisor or Floor Staff, show dedicated Staff Profile
+  if (isStaffUser) {
+    return (
+      <AdminShell userEmail={user.email} userRole={userRole}>
+        <StaffProfileView user={user} profile={currentProfile} />
+      </AdminShell>
+    )
+  }
+
+  // Master Admin Company Profile view
   let companyData: any = null
   try {
     const { data } = await supabase
@@ -60,7 +100,7 @@ export default async function ProfilePage() {
   const adminPhone = companyData?.admin_phone || '+91 98765 43210'
 
   return (
-    <AdminShell userEmail={user.email}>
+    <AdminShell userEmail={user.email} userRole={userRole}>
       <div className="flex-1 p-4 sm:p-6 md:p-8 max-w-7xl w-full mx-auto space-y-5 sm:space-y-6">
         {/* 1. Breadcrumb */}
         <div className="flex items-center gap-2 text-xs sm:text-sm font-medium text-slate-500">

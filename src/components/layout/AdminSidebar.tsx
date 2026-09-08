@@ -17,7 +17,9 @@ import {
   X,
   Bot,
   LogOut,
-  User
+  User,
+  Store,
+  Boxes
 } from 'lucide-react'
 
 type NavItem = {
@@ -37,6 +39,7 @@ const navSections: NavSection[] = [
     section: 'Overview',
     items: [
       { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+      { label: 'Store Dashboard', href: '/store', icon: Store },
       { label: 'Zigza AI', href: '/zigza-ai', icon: Bot },
     ],
   },
@@ -62,12 +65,14 @@ const navSections: NavSection[] = [
 
 interface AdminSidebarProps {
   userEmail?: string
+  userRole?: string
   isMobileOpen?: boolean
   onMobileClose?: () => void
 }
 
 export function AdminSidebar({ 
   userEmail = 'admin@nubira.local',
+  userRole,
   isMobileOpen = false,
   onMobileClose
 }: AdminSidebarProps) {
@@ -77,6 +82,31 @@ export function AdminSidebar({
   const [navigatingTo, setNavigatingTo] = useState<string | null>(null)
   const [isHovered, setIsHovered] = useState(false)
   const leaveTimerRef = useRef<NodeJS.Timeout | null>(null)
+
+  const isStoreUser = (
+    userRole?.toUpperCase() === 'STORE' ||
+    userRole?.toUpperCase() === 'STORE_SUPERVISOR' ||
+    userRole?.toUpperCase() === 'GODOWN' ||
+    userEmail?.toLowerCase().startsWith('store@') ||
+    userEmail?.toLowerCase() === 'store'
+  )
+
+  const activeNavSections: NavSection[] = isStoreUser
+    ? [
+        {
+          section: 'Godown Shift',
+          items: [
+            { label: 'Store Dashboard', href: '/store', icon: Store },
+          ],
+        },
+        {
+          section: 'Account',
+          items: [
+            { label: 'Profile', href: '/profile', icon: User },
+          ],
+        },
+      ]
+    : navSections
 
   // Fast, eager open when cursor moves towards side nav
   const handleMouseEnter = () => {
@@ -233,7 +263,7 @@ export function AdminSidebar({
       >
         {/* Top Header / Logo Block */}
         <div className="border-b border-slate-200 h-[65px] flex items-center px-4 overflow-hidden">
-          <Link href="/dashboard" className="flex items-center gap-2.5 min-w-0 w-full">
+          <Link href={isStoreUser ? '/store' : '/dashboard'} className="flex items-center gap-2.5 min-w-0 w-full">
             {/* Collapsed Favicon */}
             <div className={`shrink-0 flex items-center justify-center transition-all ${
               isHovered 
@@ -264,7 +294,7 @@ export function AdminSidebar({
 
         {/* Navigation Sections */}
         <nav className="p-2.5 py-4 space-y-4 flex-1 overflow-y-auto overflow-x-hidden">
-          {navSections.map((group) => (
+          {activeNavSections.map((group) => (
             <div key={group.section} className="space-y-1">
               <div className={`overflow-hidden transition-all ${
                 isHovered 
@@ -317,7 +347,7 @@ export function AdminSidebar({
                   {userEmail}
                 </span>
                 <span className="text-[11px] font-mono text-slate-500 flex items-center justify-between gap-1.5 mt-0.5">
-                  <span>Super Admin</span>
+                  <span>{isStoreUser ? 'Store Supervisor' : 'Super Admin'}</span>
                   <span className="text-[#3A3564] font-bold group-hover:underline text-[10px] tracking-tight shrink-0">
                     Profile ↗
                   </span>
@@ -361,7 +391,7 @@ export function AdminSidebar({
         <div>
           {/* Header */}
           <div className="p-4 pb-3.5 border-b border-slate-200 flex items-center justify-between">
-            <Link href="/dashboard" className="flex items-center gap-2.5">
+            <Link href={isStoreUser ? '/store' : '/dashboard'} className="flex items-center gap-2.5">
               <img 
                 src="/z i g z a (2).png" 
                 alt="zigza." 
@@ -371,7 +401,7 @@ export function AdminSidebar({
 
             <div className="flex items-center gap-2">
               <span className="text-[11px] font-mono font-bold tracking-wider uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15">
-                ERP MES
+                {isStoreUser ? 'STORE MES' : 'ERP MES'}
               </span>
               {onMobileClose && (
                 <button
@@ -388,7 +418,7 @@ export function AdminSidebar({
 
           {/* Navigation */}
           <nav className="p-3.5 space-y-5 overflow-y-auto max-h-[calc(100vh-140px)]">
-            {navSections.map((group) => (
+            {activeNavSections.map((group) => (
               <div key={group.section} className="space-y-1">
                 <div className="px-3 text-[11px] font-bold uppercase tracking-[1.5px] mb-2 text-slate-400 font-mono">
                   {group.section}

@@ -142,3 +142,35 @@ Please decommission and erase this tenant account per customer request.`
     return { success: false, error: error.message || 'Failed to submit deletion request' }
   }
 }
+
+export async function updateStaffPassword(newPassword: string) {
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { success: false, error: 'Unauthorized session' }
+  }
+
+  if (!newPassword || newPassword.length < 6) {
+    return { success: false, error: 'Password must be at least 6 characters long' }
+  }
+
+  try {
+    const { error } = await supabase.auth.updateUser({
+      password: newPassword,
+    })
+
+    if (error) {
+      return { success: false, error: error.message }
+    }
+
+    return { success: true }
+  } catch (err: any) {
+    console.error('Error updating staff password:', err)
+    return { success: false, error: err.message || 'Failed to update password' }
+  }
+}
+

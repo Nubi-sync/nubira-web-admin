@@ -237,13 +237,13 @@ export default function LoginPage() {
 
             <form onSubmit={handleSubmit} className="space-y-3.5 sm:space-y-4">
               
-              {/* Work Email Field */}
+              {/* Work Email or Username Field */}
               <div>
                 <label 
                   htmlFor="email" 
                   className="block text-xs font-bold text-slate-700 uppercase tracking-wider font-mono mb-1.5"
                 >
-                  Work Email Address
+                  Work Email / Username
                 </label>
                 <div className="relative group">
                   <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-[#3A3564] transition-colors">
@@ -252,9 +252,9 @@ export default function LoginPage() {
                   <input
                     id="email"
                     name="email"
-                    type="email"
+                    type="text"
                     required
-                    placeholder="Enter your email ID"
+                    placeholder="Enter work email or username (e.g. Store)"
                     className="w-full pl-10 pr-4 py-2.5 sm:py-3 rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-white focus:bg-white text-sm font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 shadow-2xs transition-all"
                   />
                 </div>

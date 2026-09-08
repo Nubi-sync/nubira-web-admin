@@ -18,9 +18,22 @@ export default async function HomePage({
   const resolvedParams = searchParams ? await searchParams : {}
   const isShowcase = resolvedParams?.showcase === 'true'
 
-  // If user is authenticated and didn't explicitly request the showcase view, take them to /dashboard
+  // If user is authenticated and didn't explicitly request the showcase view, route them based on role
   if (user && !isShowcase) {
-    redirect('/dashboard')
+    let targetRoute = '/dashboard'
+    try {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single()
+
+      const role = (profile?.role || '').toUpperCase()
+      if (role === 'STORE' || role === 'STORE_SUPERVISOR' || role === 'GODOWN') {
+        targetRoute = '/store'
+      }
+    } catch (_) {}
+    redirect(targetRoute)
   }
 
   // Otherwise, render the introductory landing page

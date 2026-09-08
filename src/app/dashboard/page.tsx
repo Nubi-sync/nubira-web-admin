@@ -37,6 +37,18 @@ export default async function DashboardPage() {
     redirect('/login')
   }
 
+  // Restrict Store Supervisors from admin dashboard
+  const { data: userProfile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  const userRole = (userProfile?.role || '').toUpperCase()
+  if (userRole === 'STORE' || userRole === 'STORE_SUPERVISOR' || userRole === 'GODOWN' || user.email?.startsWith('store@')) {
+    redirect('/store')
+  }
+
   // Fetch all 9 factory datasets concurrently in parallel
   const [
     { data: articlesData },

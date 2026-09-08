@@ -1,0 +1,2506 @@
+'use client'
+
+import { useState, useMemo, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
+import { 
+  Warehouse, 
+  Package, 
+  Truck, 
+  Boxes, 
+  CheckCircle2, 
+  AlertTriangle, 
+  Clock, 
+  RotateCw, 
+  LogOut, 
+  Search, 
+  Plus, 
+  Upload, 
+  FileText, 
+  Image as ImageIcon, 
+  X, 
+  ChevronDown, 
+  ChevronRight, 
+  Eye, 
+  Trash2, 
+  Check, 
+  Sparkles, 
+  User, 
+  Layers, 
+  ShieldCheck, 
+  ArrowUpRight, 
+  ArrowDownLeft, 
+  Tv, 
+  AlertCircle,
+  Tag,
+  Receipt,
+  Download,
+  Send
+} from 'lucide-react'
+import { TvViewButton } from '@/components/ui/TvViewButton'
+import { 
+  createTruckInwardGrn, 
+  issueBomMaterials, 
+  saveProductionInward, 
+  saveFinishedGoodsOutward,
+  deleteTruckInward, 
+  deleteStoreTransaction, 
+  deleteAccessory, 
+  deleteAccessoryByName,
+  TruckInwardItemInput,
+  BomMaterialItemState
+} from '../actions'
+
+// Types
+export type Article = {
+  id: string
+  art_no: string
+  description?: string | null
+  stitching_rate?: number | null
+}
+
+export type StoreTransaction = {
+  id: string
+  entry_date?: string | null
+  created_at: string
+  type: 'INWARD' | 'OUTWARD'
+  quantity: number
+  color?: string | null
+  size?: string | null
+  party_name?: string | null
+  challan_no?: string | null
+  transport_no?: string | null
+  notes?: string | null
+  lineman_name?: string | null
+  mending_name?: string | null
+  qc_supervisor_name?: string | null
+  receiver_name?: string | null
+  allotment_id?: string | null
+  challan_id?: string | null
+  article?: Article | null
+}
+
+export type Accessory = {
+  id: string
+  entry_date?: string | null
+  created_at: string
+  item_name: string
+  action: 'IN' | 'OUT'
+  quantity: number
+  unit?: string | null
+  party_name?: string | null
+  notes?: string | null
+}
+
+export type TruckInwardItem = {
+  id: string
+  item_name: string
+  size_label?: string | null
+  size_color?: string | null
+  quantity: number
+  challan_qty?: number | null
+  unit?: string | null
+  status: 'RECEIVED' | 'SHORTAGE' | 'DUE' | 'DEFECTIVE'
+  shortage_qty?: number | null
+  remarks?: string | null
+}
+
+export type TruckInward = {
+  id: string
+  grn_no: string
+  party_name: string
+  article_no?: string | null
+  challan_no?: string | null
+  inward_date: string
+  truck_no?: string | null
+  challan_photo_url?: string | null
+  receiver_name?: string | null
+  status: 'VERIFIED' | 'SHORTAGE' | 'DUE_PENDING'
+  total_items: number
+  due_items_count: number
+  shortage_items_count: number
+  notes?: string | null
+  line_items?: any[] | null
+  created_at: string
+  items?: TruckInwardItem[]
+}
+
+export type ActiveAllotment = {
+  id: string
+  target_qty: number
+  allotment_date?: string | null
+  status: string
+  created_at: string
+  article?: Article | null
+  lineman?: { id: string; username: string } | null
+  challans?: { id: string; challan_no: string; brand: string; fabric_type: string } | null
+  allotment_variants?: Array<{ id: string; color: string; size: string; quantity: number }> | null
+  allotment_materials?: Array<{
+    id: string
+    allotment_id: string
+    item_name: string
+    required_qty: string | number
+    admin_issued?: boolean | null
+    lineman_received?: boolean | null
+    notes?: string | null
+    created_at: string
+  }> | null
+}
+
+export type ReadyQcAllotment = {
+  id: string
+  target_qty: number
+  qc_total_passed?: number | null
+  qc_total_alter?: number | null
+  qc_status?: string | null
+  qc_supervisor_name?: string | null
+  qc_passed_at?: string | null
+  mending_supervisor_name?: string | null
+  store_inward_status?: string | null
+  admin_approved_at?: string | null
+  admin_approved_by?: string | null
+  created_at: string
+  article?: Article | null
+  lineman?: { id: string; username: string } | null
+  challans?: { id: string; challan_no: string; brand: string; fabric_type: string } | null
+  allotment_variants?: Array<{ id: string; color: string; size: string; quantity: number }> | null
+}
+
+interface StoreDashboardClientProps {
+  currentUserName: string
+  userEmail: string
+  articles: Article[]
+  storeTransactions: StoreTransaction[]
+  accessories: Accessory[]
+  truckInwards: TruckInward[]
+  activeAllotments: ActiveAllotment[]
+  readyQcAllotments: ReadyQcAllotment[]
+}
+
+export function StoreDashboardClient({
+  currentUserName,
+  userEmail,
+  articles,
+  storeTransactions,
+  accessories,
+  truckInwards,
+  activeAllotments,
+  readyQcAllotments,
+}: StoreDashboardClientProps) {
+  const router = useRouter()
+  const [isPending, startTransition] = useTransition()
+
+  // Feed Filter States
+  const [feedTimeFilter, setFeedTimeFilter] = useState<'24h' | '7d' | 'all'>('24h')
+  const [feedCategoryFilter, setFeedCategoryFilter] = useState<'ALL' | 'BOM' | 'TRIMS' | 'GARMENTS'>('ALL')
+  const [feedSearchQuery, setFeedSearchQuery] = useState('')
+  const [expandedBOMKeys, setExpandedBOMKeys] = useState<Set<string>>(new Set())
+  const [expandedGrnId, setExpandedGrnId] = useState<string | null>(null)
+
+  // Modal Triggers
+  const [isGrnModalOpen, setIsGrnModalOpen] = useState(false)
+  const [isBomModalOpen, setIsBomModalOpen] = useState(false)
+  const [isInwardModalOpen, setIsInwardModalOpen] = useState(false)
+  const [isOutwardModalOpen, setIsOutwardModalOpen] = useState(false)
+  const [activePhoto, setActivePhoto] = useState<{ url: string; title: string } | null>(null)
+  const [prefilledLotForInward, setPrefilledLotForInward] = useState<ReadyQcAllotment | null>(null)
+
+  // Delete Target State
+  const [deleteTarget, setDeleteTarget] = useState<{
+    type: 'TRUCK_INWARD' | 'STORE_TRANSACTION' | 'ACCESSORY' | 'ACCESSORY_BY_NAME'
+    id: string
+    title: string
+    subtitle?: string
+  } | null>(null)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
+
+  // Handle Refresh
+  const handleRefresh = () => {
+    startTransition(() => {
+      router.refresh()
+    })
+  }
+
+  // Helper to Clean Article Description
+  const getCleanDescription = (desc?: string | null) => {
+    if (!desc) return ''
+    return desc.replace(/\[.*?\]/g, '').trim()
+  }
+
+  // ----------------------------------------------------
+  // AGGREGATE CALCULATIONS & METRICS
+  // ----------------------------------------------------
+  const todayStr = useMemo(() => new Date().toISOString().split('T')[0], [])
+
+  const {
+    totalFinishedStock,
+    todayOutward,
+    todayTruckCount,
+    articleStockMap,
+    variantStockMap
+  } = useMemo(() => {
+    let totalIn = 0
+    let totalOut = 0
+    let tOutward = 0
+    const artStock: Record<string, number> = {}
+    const varStock: Record<string, number> = {}
+
+    storeTransactions.forEach(tx => {
+      const qty = Number(tx.quantity) || 0
+      const type = tx.type || 'INWARD'
+      const artId = tx.article?.id || 'UNKNOWN'
+      const color = (tx.color || '').toLowerCase().trim()
+      const size = (tx.size || '').toLowerCase().trim()
+      const varKey = `${artId}_${color}_${size}`
+      const entryDate = tx.entry_date || (tx.created_at ? tx.created_at.split('T')[0] : '')
+
+      if (type === 'INWARD') {
+        totalIn += qty
+        artStock[artId] = (artStock[artId] || 0) + qty
+        varStock[varKey] = (varStock[varKey] || 0) + qty
+      } else if (type === 'OUTWARD') {
+        totalOut += qty
+        artStock[artId] = (artStock[artId] || 0) - qty
+        varStock[varKey] = (varStock[varKey] || 0) - qty
+        if (entryDate === todayStr) {
+          tOutward += qty
+        }
+      }
+    })
+
+    const tTrucks = truckInwards.filter(t => (t.inward_date || '').split('T')[0] === todayStr).length
+
+    return {
+      totalFinishedStock: Math.max(0, totalIn - totalOut),
+      todayOutward: tOutward,
+      todayTruckCount: tTrucks,
+      articleStockMap: artStock,
+      variantStockMap: varStock
+    }
+  }, [storeTransactions, truckInwards, todayStr])
+
+  // Count pending allotments awaiting BOM material handover
+  const pendingBomAllotments = useMemo(() => {
+    return activeAllotments.filter(al => {
+      const mats = al.allotment_materials || []
+      if (mats.length === 0) return true
+      return mats.some(m => !m.admin_issued)
+    })
+  }, [activeAllotments])
+
+  const pendingHandoverCount = pendingBomAllotments.length
+
+  // Helper to extract variants for an article from active allotments
+  const getVariantsForArticle = (articleId?: string | null) => {
+    if (!articleId) return []
+    const variants: Array<{ id: string; color: string; size: string; allotment_qty: number }> = []
+    activeAllotments.forEach(al => {
+      if (al.article?.id === articleId && al.allotment_variants) {
+        al.allotment_variants.forEach(v => {
+          variants.push({
+            id: v.id,
+            color: v.color || 'Default',
+            size: v.size || 'Standard',
+            allotment_qty: v.quantity || 0,
+          })
+        })
+      }
+    })
+    return variants
+  }
+
+  // ----------------------------------------------------
+  // SMART BOM BATCH ACTIVITY FEED
+  // ----------------------------------------------------
+  const combinedStoreLogs = useMemo(() => {
+    const groupedBOMMap: Record<string, any> = {}
+    const combined: any[] = []
+
+    // 1. Process Accessories Logs (Group BOM Handover packages)
+    accessories.forEach(acc => {
+      const notes = acc.notes || ''
+      const isBOM = notes.includes('BOM Handover') || notes.includes('BOM Package')
+
+      if (isBOM) {
+        const uuidMatch = notes.match(/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/)
+        const allotmentId = uuidMatch ? uuidMatch[0] : (acc.party_name || '')
+
+        const chMatch = notes.match(/Challan #([^\s•]+)/)
+        const challanStr = chMatch ? chMatch[1] : ''
+
+        const createdAt = acc.created_at || ''
+        const timeMinute = createdAt.length >= 16 ? createdAt.substring(0, 16) : (acc.entry_date || '')
+        const partyName = acc.party_name || 'Issued to Lineman'
+        const groupKey = `BOM_${allotmentId}_${timeMinute}_${partyName}`
+
+        const itemName = acc.item_name || 'Material Item'
+        const qty = Number(acc.quantity) || 0
+        const unit = acc.unit || 'pcs'
+
+        if (!groupedBOMMap[groupKey]) {
+          groupedBOMMap[groupKey] = {
+            isGroupedBOM: true,
+            isAccessory: true,
+            id: groupKey,
+            groupKey,
+            created_at: acc.created_at,
+            entry_date: acc.entry_date,
+            party_name: partyName,
+            challan_no: challanStr,
+            allotment_id: allotmentId,
+            total_items_count: 0,
+            total_units_count: 0,
+            items: [],
+            notes,
+          }
+        }
+
+        groupedBOMMap[groupKey].total_items_count += 1
+        groupedBOMMap[groupKey].total_units_count += qty
+        groupedBOMMap[groupKey].items.push({
+          name: itemName,
+          qty,
+          unit,
+        })
+      } else {
+        combined.push({
+          isGroupedBOM: false,
+          isAccessory: true,
+          id: acc.id,
+          created_at: acc.created_at,
+          entry_date: acc.entry_date,
+          action: acc.action,
+          item_name: acc.item_name,
+          quantity: Number(acc.quantity) || 0,
+          unit: acc.unit || 'pcs',
+          party_name: acc.party_name,
+          notes: acc.notes,
+        })
+      }
+    })
+
+    // Add grouped BOM packages
+    Object.values(groupedBOMMap).forEach(grouped => {
+      combined.push(grouped)
+    })
+
+    // 2. Add Garment Inward/Outward Transactions
+    storeTransactions.forEach(tx => {
+      combined.push({
+        isGroupedBOM: false,
+        isAccessory: false,
+        id: tx.id,
+        created_at: tx.created_at,
+        entry_date: tx.entry_date,
+        type: tx.type,
+        quantity: Number(tx.quantity) || 0,
+        art_no: tx.article?.art_no || '-',
+        description: tx.article?.description || '',
+        color: tx.color,
+        size: tx.size,
+        party_name: tx.party_name,
+        challan_no: tx.challan_no,
+        notes: tx.notes,
+        lineman_name: tx.lineman_name,
+        mending_name: tx.mending_name,
+        qc_supervisor_name: tx.qc_supervisor_name,
+        receiver_name: tx.receiver_name,
+      })
+    })
+
+    // Sort descending by created_at
+    combined.sort((a, b) => {
+      const tA = a.created_at || a.entry_date || ''
+      const tB = b.created_at || b.entry_date || ''
+      return tB.localeCompare(tA)
+    })
+
+    return combined
+  }, [accessories, storeTransactions])
+
+  // Filtered store logs based on Time, Category, and Search
+  const filteredStoreLogs = useMemo(() => {
+    const now = Date.now()
+    const oneDayAgo = now - 24 * 60 * 60 * 1000
+    const sevenDaysAgo = now - 7 * 24 * 60 * 60 * 1000
+
+    return combinedStoreLogs.filter(log => {
+      // 1. Time Filter
+      if (feedTimeFilter === '24h') {
+        const logTime = log.created_at ? new Date(log.created_at).getTime() : 0
+        const isEntryToday = log.entry_date === todayStr
+        if (logTime < oneDayAgo && !isEntryToday) return false
+      } else if (feedTimeFilter === '7d') {
+        const logTime = log.created_at ? new Date(log.created_at).getTime() : 0
+        if (logTime < sevenDaysAgo) return false
+      }
+
+      // 2. Category Filter
+      if (feedCategoryFilter === 'BOM') {
+        if (!log.isGroupedBOM) return false
+      } else if (feedCategoryFilter === 'TRIMS') {
+        if (!log.isAccessory || log.isGroupedBOM) return false
+      } else if (feedCategoryFilter === 'GARMENTS') {
+        if (log.isAccessory) return false
+      }
+
+      // 3. Search Query
+      if (feedSearchQuery) {
+        const q = feedSearchQuery.toLowerCase()
+        const matchItem = (log.item_name || log.art_no || '').toLowerCase().includes(q)
+        const matchParty = (log.party_name || '').toLowerCase().includes(q)
+        const matchChallan = (log.challan_no || '').toLowerCase().includes(q)
+        const matchNotes = (log.notes || '').toLowerCase().includes(q)
+        const matchItems = log.items ? log.items.some((it: any) => it.name.toLowerCase().includes(q)) : false
+        if (!matchItem && !matchParty && !matchChallan && !matchNotes && !matchItems) {
+          return false
+        }
+      }
+
+      return true
+    })
+  }, [combinedStoreLogs, feedTimeFilter, feedCategoryFilter, feedSearchQuery, todayStr])
+
+  const toggleBOMAccordion = (groupKey: string) => {
+    setExpandedBOMKeys(prev => {
+      const next = new Set(prev)
+      if (next.has(groupKey)) {
+        next.delete(groupKey)
+      } else {
+        next.add(groupKey)
+      }
+      return next
+    })
+  }
+
+  // Deletion confirm
+  const handleDeleteConfirm = () => {
+    if (!deleteTarget) return
+    setDeleteError(null)
+    startTransition(async () => {
+      let res: any
+      if (deleteTarget.type === 'TRUCK_INWARD') {
+        res = await deleteTruckInward(deleteTarget.id)
+      } else if (deleteTarget.type === 'STORE_TRANSACTION') {
+        res = await deleteStoreTransaction(deleteTarget.id)
+      } else if (deleteTarget.type === 'ACCESSORY') {
+        res = await deleteAccessory(deleteTarget.id)
+      } else if (deleteTarget.type === 'ACCESSORY_BY_NAME') {
+        res = await deleteAccessoryByName(deleteTarget.id)
+      }
+
+      if (res?.error) {
+        setDeleteError(res.error)
+      } else {
+        setDeleteTarget(null)
+      }
+    })
+  }
+
+  return (
+    <div className="space-y-6">
+
+      {/* ============================================================ */}
+      {/* 1. TOP HEADER & TELEMETRY TOOLBAR */}
+      {/* ============================================================ */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-[var(--border,#E2E8F0)] shadow-sm">
+        <div>
+          <div className="flex items-center gap-2.5">
+            <h1 className="text-xl md:text-2xl font-black text-[var(--ink,#1C2733)] tracking-tight">
+              Welcome, {currentUserName}
+            </h1>
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#E8EEF5] text-[#1F3A63] border border-[#CBD7E6]">
+              Store & Godown Shift
+            </span>
+          </div>
+          <p className="text-xs md:text-sm font-medium text-[var(--ink-soft,#64748B)] mt-0.5">
+            Factory raw materials inventory, trims handover & finished goods dispatch
+          </p>
+        </div>
+
+        {/* Live Sync, TV View & Actions */}
+        <div className="flex items-center gap-2 self-start md:self-auto">
+          <button
+            onClick={handleRefresh}
+            disabled={isPending}
+            className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-[#1F3A63] bg-[#E8EEF5] hover:bg-[#D5E1F0] rounded-xl border border-[#CBD7E6] transition-all"
+            title="Sync latest live movements"
+          >
+            <RotateCw className={`w-3.5 h-3.5 ${isPending ? 'animate-spin' : ''}`} />
+            <span>Sync</span>
+          </button>
+
+          <TvViewButton />
+
+          <button
+            onClick={() => router.push('/login')}
+            className="flex items-center justify-center w-9 h-9 text-[var(--ink-soft,#64748B)] hover:text-red-600 bg-slate-50 hover:bg-red-50 rounded-xl border border-[var(--border,#E2E8F0)] transition-all"
+            title="Logout / Switch Account"
+          >
+            <LogOut className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+
+      {/* ============================================================ */}
+      {/* 2. HERO KPI CARDS & 4-COLUMN TELEMETRY STRIP */}
+      {/* ============================================================ */}
+      <div className="space-y-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Card 1: Finished Stock */}
+          <div className="p-5 rounded-2xl bg-white border border-[var(--border,#E2E8F0)] shadow-sm hover:shadow-md transition-all flex items-start justify-between">
+            <div className="space-y-1">
+              <span className="text-xs font-bold uppercase tracking-wider text-[var(--ink-soft,#64748B)]">
+                Finished Garments Stock
+              </span>
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl md:text-4xl font-black text-[#1F3A63] font-mono">
+                  {totalFinishedStock.toLocaleString()}
+                </span>
+                <span className="text-xs font-bold text-[var(--ink-soft,#64748B)] font-mono">pcs</span>
+              </div>
+              <p className="text-xs text-emerald-600 font-semibold flex items-center gap-1 pt-1">
+                <CheckCircle2 className="w-3.5 h-3.5" /> Ready in Godown Warehouse
+              </p>
+            </div>
+            <div className="p-3 bg-[#E8EEF5] text-[#1F3A63] rounded-xl">
+              <Warehouse className="w-6 h-6" />
+            </div>
+          </div>
+
+          {/* Card 2: Floor Handover Lots */}
+          <div className="p-5 rounded-2xl bg-white border border-[var(--border,#E2E8F0)] shadow-sm hover:shadow-md transition-all flex items-start justify-between">
+            <div className="space-y-1">
+              <span className="text-xs font-bold uppercase tracking-wider text-[var(--ink-soft,#64748B)]">
+                Lineman BOM Handover
+              </span>
+              <div className="flex items-baseline gap-2">
+                <span className={`text-3xl md:text-4xl font-black font-mono ${pendingHandoverCount > 0 ? 'text-amber-600' : 'text-emerald-600'}`}>
+                  {pendingHandoverCount}
+                </span>
+                <span className="text-xs font-bold text-[var(--ink-soft,#64748B)] font-mono">active lots</span>
+              </div>
+              <p className={`text-xs font-semibold flex items-center gap-1 pt-1 ${pendingHandoverCount > 0 ? 'text-amber-600' : 'text-emerald-600'}`}>
+                {pendingHandoverCount > 0 ? (
+                  <>
+                    <Clock className="w-3.5 h-3.5" /> Awaiting store raw material issue
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 className="w-3.5 h-3.5" /> All active lots issued
+                  </>
+                )}
+              </p>
+            </div>
+            <div className={`p-3 rounded-xl ${pendingHandoverCount > 0 ? 'bg-amber-50 text-amber-600' : 'bg-emerald-50 text-emerald-600'}`}>
+              <Boxes className="w-6 h-6" />
+            </div>
+          </div>
+        </div>
+
+        {/* 4-Column Unified Telemetry Strip */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 bg-white p-3 rounded-xl border border-[var(--border,#E2E8F0)] shadow-xs divide-y sm:divide-y-0 sm:divide-x divide-[var(--border,#E2E8F0)]">
+          <div className="p-2.5 text-center">
+            <p className="text-[11px] font-bold text-[var(--ink-soft,#64748B)] uppercase tracking-wider">Godown Stock</p>
+            <p className="text-lg font-black text-[#1F3A63] font-mono mt-0.5">
+              {totalFinishedStock} <span className="text-xs font-semibold text-[var(--ink-soft,#64748B)]">pcs</span>
+            </p>
+          </div>
+          <div className="p-2.5 text-center">
+            <p className="text-[11px] font-bold text-[var(--ink-soft,#64748B)] uppercase tracking-wider">Pending Issue</p>
+            <p className={`text-lg font-black font-mono mt-0.5 ${pendingHandoverCount > 0 ? 'text-amber-600' : 'text-emerald-600'}`}>
+              {pendingHandoverCount} <span className="text-xs font-semibold text-[var(--ink-soft,#64748B)]">lots</span>
+            </p>
+          </div>
+          <div className="p-2.5 text-center">
+            <p className="text-[11px] font-bold text-[var(--ink-soft,#64748B)] uppercase tracking-wider">Truck Inward (Today)</p>
+            <p className="text-lg font-black text-emerald-600 font-mono mt-0.5">
+              +{todayTruckCount} <span className="text-xs font-semibold text-[var(--ink-soft,#64748B)]">slips</span>
+            </p>
+          </div>
+          <div className="p-2.5 text-center">
+            <p className="text-[11px] font-bold text-[var(--ink-soft,#64748B)] uppercase tracking-wider">Dispatched (Today)</p>
+            <p className="text-lg font-black text-rose-600 font-mono mt-0.5">
+              -{todayOutward} <span className="text-xs font-semibold text-[var(--ink-soft,#64748B)]">pcs</span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* ============================================================ */}
+      {/* 3. READY FROM QC TABLE QUEUE (HANDSHAKE WITH QC FLOOR) */}
+      {/* ============================================================ */}
+      {readyQcAllotments.length > 0 && (
+        <div className="bg-gradient-to-br from-emerald-50/50 via-white to-white p-5 rounded-2xl border border-emerald-200/70 shadow-sm space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 bg-emerald-100 text-emerald-700 rounded-lg">
+                <ShieldCheck className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-base font-black text-[var(--ink,#1C2733)] tracking-tight">
+                  Ready from QC Finishing Table
+                </h3>
+                <p className="text-xs text-[var(--ink-soft,#64748B)]">
+                  Garments inspected, passed & approved for Store Godown Inward
+                </p>
+              </div>
+            </div>
+            <span className="px-2.5 py-1 text-xs font-bold font-mono bg-emerald-100 text-emerald-800 rounded-full border border-emerald-300">
+              {readyQcAllotments.length} lots waiting
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+            {readyQcAllotments.map(lot => {
+              const artNo = lot.article?.art_no || 'Garment'
+              const passedQty = lot.qc_total_passed || lot.target_qty || 0
+              const linemanName = lot.lineman?.username || 'Lineman'
+              const qcSupervisor = lot.qc_supervisor_name || 'QC Supervisor'
+              const challanNo = lot.challans?.challan_no || '-'
+              const colors = lot.allotment_variants?.map(v => v.color).filter(Boolean) || []
+              const distinctColors = Array.from(new Set(colors)).join(', ') || 'Standard'
+
+              return (
+                <div 
+                  key={lot.id}
+                  className="bg-white p-4 rounded-xl border border-emerald-100 hover:border-emerald-300 shadow-xs hover:shadow-md transition-all space-y-3"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-sm font-black text-[#1F3A63]">
+                          Art #{artNo}
+                        </span>
+                        <span className="px-1.5 py-0.5 text-[10px] font-bold bg-slate-100 text-slate-700 rounded">
+                          Challan #{challanNo}
+                        </span>
+                      </div>
+                      <p className="text-xs text-[var(--ink-soft,#64748B)] font-medium mt-0.5">
+                        Color: <span className="font-bold text-[var(--ink,#1C2733)]">{distinctColors}</span>
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-base font-black font-mono text-emerald-600">
+                        {passedQty} pcs
+                      </span>
+                      <p className="text-[10px] text-[var(--ink-faint,#8B9AAB)]">QC Passed</p>
+                    </div>
+                  </div>
+
+                  {/* Custody Meta Chips */}
+                  <div className="flex flex-wrap gap-1.5 text-[10px] font-semibold text-[var(--ink-soft,#64748B)]">
+                    <span className="px-2 py-0.5 bg-slate-50 border border-slate-200 rounded-md flex items-center gap-1">
+                      <User className="w-3 h-3 text-[#1F3A63]" /> {linemanName}
+                    </span>
+                    <span className="px-2 py-0.5 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-md flex items-center gap-1">
+                      <Check className="w-3 h-3 text-emerald-600" /> {qcSupervisor}
+                    </span>
+                  </div>
+
+                  {/* 1-Click Receive Action */}
+                  <button
+                    onClick={() => {
+                      setPrefilledLotForInward(lot)
+                      setIsInwardModalOpen(true)
+                    }}
+                    className="w-full flex items-center justify-center gap-1.5 py-2 text-xs font-bold text-white bg-[#1F3A63] hover:bg-[#152844] rounded-lg shadow-xs transition-all"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>Receive into Godown ({passedQty} pcs)</span>
+                  </button>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================ */}
+      {/* 4. STORE QUICK ACTIONS (4-CARD GRID) */}
+      {/* ============================================================ */}
+      <div className="space-y-3">
+        <h2 className="text-base md:text-lg font-black text-[var(--ink,#1C2733)] tracking-tight">
+          Store Quick Actions
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+          {/* Action 1: Accessory Challan Inward (GRN) */}
+          <button
+            onClick={() => setIsGrnModalOpen(true)}
+            className="p-4 text-left bg-white hover:bg-slate-50 border border-[var(--border,#E2E8F0)] hover:border-[#1F3A63] rounded-2xl shadow-xs hover:shadow-md transition-all group flex flex-col justify-between"
+          >
+            <div className="flex items-center justify-between mb-3">
+              <div className="p-2.5 bg-[#E8EEF5] group-hover:bg-[#1F3A63] text-[#1F3A63] group-hover:text-white rounded-xl transition-colors">
+                <Receipt className="w-5 h-5" />
+              </div>
+              <ArrowUpRight className="w-4 h-4 text-[var(--ink-faint,#8B9AAB)] group-hover:text-[#1F3A63] transition-colors" />
+            </div>
+            <div>
+              <h3 className="text-sm font-black text-[var(--ink,#1C2733)] group-hover:text-[#1F3A63] transition-colors">
+                Accessory Inward (GRN)
+              </h3>
+              <p className="text-xs text-[var(--ink-soft,#64748B)] mt-0.5 line-clamp-2">
+                Record supplier delivery slip, trims, fabrics & due items
+              </p>
+            </div>
+          </button>
+
+          {/* Action 2: Lineman BOM Handover */}
+          <button
+            onClick={() => setIsBomModalOpen(true)}
+            className="p-4 text-left bg-white hover:bg-slate-50 border border-[var(--border,#E2E8F0)] hover:border-[#1F3A63] rounded-2xl shadow-xs hover:shadow-md transition-all group flex flex-col justify-between"
+          >
+            <div className="flex items-center justify-between mb-3">
+              <div className="p-2.5 bg-[#E8EEF5] group-hover:bg-[#1F3A63] text-[#1F3A63] group-hover:text-white rounded-xl transition-colors">
+                <Boxes className="w-5 h-5" />
+              </div>
+              <ArrowUpRight className="w-4 h-4 text-[var(--ink-faint,#8B9AAB)] group-hover:text-[#1F3A63] transition-colors" />
+            </div>
+            <div>
+              <h3 className="text-sm font-black text-[var(--ink,#1C2733)] group-hover:text-[#1F3A63] transition-colors">
+                BOM Material Handover
+              </h3>
+              <p className="text-xs text-[var(--ink-soft,#64748B)] mt-0.5 line-clamp-2">
+                Inspect raw materials & issue BOM lots to Linemen
+              </p>
+            </div>
+          </button>
+
+          {/* Action 3: Production Inward */}
+          <button
+            onClick={() => {
+              setPrefilledLotForInward(null)
+              setIsInwardModalOpen(true)
+            }}
+            className="p-4 text-left bg-white hover:bg-slate-50 border border-[var(--border,#E2E8F0)] hover:border-[#1F3A63] rounded-2xl shadow-xs hover:shadow-md transition-all group flex flex-col justify-between"
+          >
+            <div className="flex items-center justify-between mb-3">
+              <div className="p-2.5 bg-[#E8EEF5] group-hover:bg-[#1F3A63] text-[#1F3A63] group-hover:text-white rounded-xl transition-colors">
+                <Download className="w-5 h-5" />
+              </div>
+              <ArrowUpRight className="w-4 h-4 text-[var(--ink-faint,#8B9AAB)] group-hover:text-[#1F3A63] transition-colors" />
+            </div>
+            <div>
+              <h3 className="text-sm font-black text-[var(--ink,#1C2733)] group-hover:text-[#1F3A63] transition-colors">
+                Production Inward
+              </h3>
+              <p className="text-xs text-[var(--ink-soft,#64748B)] mt-0.5 line-clamp-2">
+                Receive finished garments from QC / Stitching Floor
+              </p>
+            </div>
+          </button>
+
+          {/* Action 4: Finished Goods Outward */}
+          <button
+            onClick={() => setIsOutwardModalOpen(true)}
+            className="p-4 text-left bg-white hover:bg-slate-50 border border-[var(--border,#E2E8F0)] hover:border-[#1F3A63] rounded-2xl shadow-xs hover:shadow-md transition-all group flex flex-col justify-between"
+          >
+            <div className="flex items-center justify-between mb-3">
+              <div className="p-2.5 bg-[#E8EEF5] group-hover:bg-[#1F3A63] text-[#1F3A63] group-hover:text-white rounded-xl transition-colors">
+                <Send className="w-5 h-5" />
+              </div>
+              <ArrowUpRight className="w-4 h-4 text-[var(--ink-faint,#8B9AAB)] group-hover:text-[#1F3A63] transition-colors" />
+            </div>
+            <div>
+              <h3 className="text-sm font-black text-[var(--ink,#1C2733)] group-hover:text-[#1F3A63] transition-colors">
+                Finished Goods Outward
+              </h3>
+              <p className="text-xs text-[var(--ink-soft,#64748B)] mt-0.5 line-clamp-2">
+                Issue & dispatch garments from warehouse with challan
+              </p>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      {/* ============================================================ */}
+      {/* 5. RECENT SUPPLIER CHALLANS (GRN) FEED */}
+      {/* ============================================================ */}
+      {truckInwards.length > 0 && (
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-base md:text-lg font-black text-[var(--ink,#1C2733)] tracking-tight">
+              Recent Supplier Challans (GRN)
+            </h2>
+            <span className="px-2.5 py-1 text-xs font-bold font-mono bg-[#E8EEF5] text-[#1F3A63] rounded-full border border-[#CBD7E6]">
+              {truckInwards.length} slips recorded
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {truckInwards.slice(0, 6).map(grn => {
+              const isExpanded = expandedGrnId === grn.id
+              const items = grn.items || []
+              const isDue = grn.status === 'DUE_PENDING' || grn.due_items_count > 0
+              const isShortage = grn.status === 'SHORTAGE' || grn.shortage_items_count > 0
+
+              return (
+                <div 
+                  key={grn.id}
+                  className="bg-white p-4 rounded-2xl border border-[var(--border,#E2E8F0)] hover:border-slate-300 shadow-xs space-y-3"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-black font-mono text-[#1F3A63]">
+                          {grn.grn_no}
+                        </span>
+                        {isDue && (
+                          <span className="px-2 py-0.5 text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200 rounded-full">
+                            Due Pending
+                          </span>
+                        )}
+                        {isShortage && (
+                          <span className="px-2 py-0.5 text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200 rounded-full">
+                            Shortage Logged
+                          </span>
+                        )}
+                        {!isDue && !isShortage && (
+                          <span className="px-2 py-0.5 text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full">
+                            Verified
+                          </span>
+                        )}
+                      </div>
+                      <h4 className="text-sm font-black text-[var(--ink,#1C2733)] mt-0.5">
+                        {grn.party_name}
+                      </h4>
+                      <p className="text-xs text-[var(--ink-soft,#64748B)]">
+                        Challan #{grn.challan_no || '-'} • Vehicle: {grn.truck_no || 'Direct Inward'}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-1.5">
+                      {grn.challan_photo_url && (
+                        <button
+                          onClick={() => setActivePhoto({ url: grn.challan_photo_url!, title: `${grn.party_name} - ${grn.grn_no}` })}
+                          className="p-1.5 text-[#1F3A63] hover:bg-[#E8EEF5] rounded-lg border border-[#CBD7E6] transition-colors"
+                          title="View Paper Challan Slip"
+                        >
+                          <ImageIcon className="w-4 h-4" />
+                        </button>
+                      )}
+                      <button
+                        onClick={() => setDeleteTarget({
+                          type: 'TRUCK_INWARD',
+                          id: grn.id,
+                          title: `GRN Slip: ${grn.grn_no}`,
+                          subtitle: `Supplier: ${grn.party_name} (${grn.total_items} items)`
+                        })}
+                        className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        title="Delete GRN Entry"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Summary Bar */}
+                  <div className="flex items-center justify-between text-xs font-medium text-[var(--ink-soft,#64748B)] pt-2 border-t border-[var(--border,#E2E8F0)]">
+                    <span>Date: {grn.inward_date || 'Today'}</span>
+                    <button
+                      onClick={() => setExpandedGrnId(isExpanded ? null : grn.id)}
+                      className="text-[#1F3A63] font-bold hover:underline flex items-center gap-1"
+                    >
+                      <span>{items.length || grn.total_items} item(s)</span>
+                      {isExpanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                    </button>
+                  </div>
+
+                  {/* Accordion Line Items */}
+                  {isExpanded && items.length > 0 && (
+                    <div className="space-y-1.5 pt-2 border-t border-slate-100">
+                      {items.map((it, idx) => (
+                        <div key={idx} className="flex items-center justify-between p-2 rounded-lg bg-slate-50 text-xs">
+                          <div>
+                            <p className="font-bold text-[var(--ink,#1C2733)]">
+                              {it.item_name} {it.size_label ? `(${it.size_label})` : ''}
+                            </p>
+                            {it.remarks && <p className="text-[10px] text-slate-500">{it.remarks}</p>}
+                          </div>
+                          <div className="text-right font-mono">
+                            <span className="font-bold text-[#1F3A63]">{it.quantity} {it.unit || 'pcs'}</span>
+                            <span className={`block text-[10px] font-bold ${it.status === 'SHORTAGE' ? 'text-amber-600' : it.status === 'DUE' ? 'text-blue-600' : 'text-emerald-600'}`}>
+                              {it.status}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================ */}
+      {/* 6. STORE LEDGER & MOVEMENTS ACTIVITY FEED */}
+      {/* ============================================================ */}
+      <div className="bg-white p-5 rounded-2xl border border-[var(--border,#E2E8F0)] shadow-sm space-y-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div>
+            <h2 className="text-base md:text-lg font-black text-[var(--ink,#1C2733)] tracking-tight">
+              Store Ledger Activity Feed
+            </h2>
+            <p className="text-xs text-[var(--ink-soft,#64748B)]">
+              {feedTimeFilter === '24h' ? 'Showing last 24 hours live movements' : feedTimeFilter === '7d' ? 'Showing past 7 days activity' : 'Showing all historical logs'}
+            </p>
+          </div>
+          <span className="px-2.5 py-1 text-xs font-bold font-mono bg-[#E8EEF5] text-[#1F3A63] rounded-full border border-[#CBD7E6] self-start md:self-auto">
+            {filteredStoreLogs.length} entries found
+          </span>
+        </div>
+
+        {/* Time Segmented Pills & Search Bar */}
+        <div className="flex flex-col sm:flex-row items-center gap-3">
+          {/* Time Filter */}
+          <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200 self-stretch sm:self-auto">
+            {(['24h', '7d', 'all'] as const).map(tf => (
+              <button
+                key={tf}
+                onClick={() => setFeedTimeFilter(tf)}
+                className={`flex-1 sm:flex-initial px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
+                  feedTimeFilter === tf ? 'bg-white text-[#1F3A63] shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                {tf === '24h' ? 'Today (24h)' : tf === '7d' ? '7 Days' : 'All Time'}
+              </button>
+            ))}
+          </div>
+
+          {/* Search Bar */}
+          <div className="relative flex-1 w-full">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              placeholder="Search by article, item name, party or challan #..."
+              value={feedSearchQuery}
+              onChange={e => setFeedSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-8 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1F3A63]/20 focus:border-[#1F3A63]"
+            />
+            {feedSearchQuery && (
+              <button
+                onClick={() => setFeedSearchQuery('')}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Category Pills */}
+        <div className="flex flex-wrap gap-2 pt-1">
+          {[
+            { key: 'ALL', label: 'All Activities', icon: Layers },
+            { key: 'BOM', label: 'BOM Packages', icon: Boxes },
+            { key: 'TRIMS', label: 'Trims & Materials', icon: Tag },
+            { key: 'GARMENTS', label: 'Garments In/Out', icon: Warehouse },
+          ].map(cat => (
+            <button
+              key={cat.key}
+              onClick={() => setFeedCategoryFilter(cat.key as any)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl border transition-all ${
+                feedCategoryFilter === cat.key
+                  ? 'bg-[#1F3A63] text-white border-[#1F3A63] shadow-xs'
+                  : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+              }`}
+            >
+              <cat.icon className="w-3.5 h-3.5" />
+              <span>{cat.label}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Logs List */}
+        <div className="space-y-3 pt-2">
+          {filteredStoreLogs.length === 0 ? (
+            <div className="p-8 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+              <Clock className="w-8 h-8 text-slate-400 mx-auto mb-2" />
+              <p className="text-sm font-bold text-[var(--ink,#1C2733)]">
+                {feedTimeFilter === '24h' ? 'No store movements in the last 24 hours.' : 'No logs found matching your filters.'}
+              </p>
+              <p className="text-xs text-slate-500 mt-1">
+                {feedTimeFilter === '24h' && 'Tap "7 Days" or "All Time" above to view previous records.'}
+              </p>
+            </div>
+          ) : (
+            filteredStoreLogs.map(log => {
+              // 1. Grouped BOM Handover Package Card
+              if (log.isGroupedBOM) {
+                const isExpanded = expandedBOMKeys.has(log.groupKey)
+                return (
+                  <div
+                    key={log.id}
+                    className="p-4 rounded-2xl bg-gradient-to-br from-slate-50 to-white border border-[#CBD7E6] hover:border-[#1F3A63] shadow-xs space-y-3 transition-all"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-start gap-3">
+                        <div className="p-2.5 bg-[#E8EEF5] text-[#1F3A63] rounded-xl">
+                          <Boxes className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-black uppercase tracking-wider text-[#1F3A63]">
+                              BOM Material Issue
+                            </span>
+                            {log.challan_no && (
+                              <span className="px-2 py-0.5 text-[10px] font-bold bg-slate-200/70 text-slate-800 rounded">
+                                Challan #{log.challan_no}
+                              </span>
+                            )}
+                          </div>
+                          <h4 className="text-sm font-black text-[var(--ink,#1C2733)] mt-0.5">
+                            {log.party_name}
+                          </h4>
+                          <p className="text-xs text-[var(--ink-soft,#64748B)]">
+                            {log.total_items_count} distinct trims package • {log.total_units_count} total units issued
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="text-right font-mono">
+                        <span className="text-sm font-black text-rose-600">
+                          -{log.total_units_count} units
+                        </span>
+                        <p className="text-[10px] text-slate-400 font-sans">
+                          {log.entry_date || (log.created_at ? log.created_at.split('T')[0] : 'Today')}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Accordion Expand Button */}
+                    <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
+                      <span className="text-[11px] text-slate-500 font-medium">
+                        Chain of Custody: Store Godown ➔ Lineman
+                      </span>
+                      <button
+                        onClick={() => toggleBOMAccordion(log.groupKey)}
+                        className="text-[#1F3A63] font-bold hover:underline flex items-center gap-1"
+                      >
+                        <span>{isExpanded ? 'Hide Items' : `View ${log.total_items_count} Items`}</span>
+                        {isExpanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                      </button>
+                    </div>
+
+                    {/* Expanded Materials List */}
+                    {isExpanded && log.items && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 border-t border-slate-100">
+                        {log.items.map((it: any, i: number) => (
+                          <div key={i} className="flex items-center justify-between p-2 bg-white rounded-lg border border-slate-200 text-xs">
+                            <span className="font-bold text-[var(--ink,#1C2733)]">{it.name}</span>
+                            <span className="font-mono font-bold text-slate-700">{it.qty} {it.unit}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )
+              }
+
+              // 2. Garment Inward/Outward Log Card
+              if (!log.isAccessory) {
+                const isInward = log.type === 'INWARD'
+                return (
+                  <div
+                    key={log.id}
+                    className="p-4 rounded-2xl bg-white border border-[var(--border,#E2E8F0)] hover:border-slate-300 shadow-xs flex items-start justify-between gap-3 transition-all"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className={`p-2.5 rounded-xl ${isInward ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>
+                        {isInward ? <Download className="w-5 h-5" /> : <Send className="w-5 h-5" />}
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className={`text-xs font-black uppercase tracking-wider ${isInward ? 'text-emerald-700' : 'text-rose-700'}`}>
+                            {isInward ? 'Production Inward' : 'Finished Goods Outward'}
+                          </span>
+                          <span className="text-xs font-black text-[#1F3A63]">
+                            Art #{log.art_no}
+                          </span>
+                          {log.challan_no && (
+                            <span className="px-1.5 py-0.5 text-[10px] font-bold bg-slate-100 text-slate-700 rounded">
+                              Challan #{log.challan_no}
+                            </span>
+                          )}
+                        </div>
+                        <h4 className="text-sm font-bold text-[var(--ink,#1C2733)] mt-0.5">
+                          {log.party_name || (isInward ? 'QC Finishing Floor' : 'General Dispatch')}
+                        </h4>
+                        <p className="text-xs text-[var(--ink-soft,#64748B)]">
+                          Variant: <span className="font-semibold text-slate-800">{log.color || 'Standard'} / {log.size || 'Free'}</span>
+                          {log.notes && ` • ${log.notes}`}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-2">
+                      <div className="text-right font-mono">
+                        <span className={`text-base font-black ${isInward ? 'text-emerald-600' : 'text-rose-600'}`}>
+                          {isInward ? `+${log.quantity}` : `-${log.quantity}`} pcs
+                        </span>
+                        <p className="text-[10px] text-slate-400 font-sans">
+                          {log.entry_date || (log.created_at ? log.created_at.split('T')[0] : 'Today')}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => setDeleteTarget({
+                          type: 'STORE_TRANSACTION',
+                          id: log.id,
+                          title: `Garment ${log.type}: Art #${log.art_no}`,
+                          subtitle: `${log.quantity} pcs (${log.color || 'Std'} / ${log.size || 'Free'})`
+                        })}
+                        className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        title="Delete Transaction"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                )
+              }
+
+              // 3. Raw Accessory Entry Card
+              const isAccIn = log.action === 'IN'
+              return (
+                <div
+                  key={log.id}
+                  className="p-3.5 rounded-2xl bg-white border border-[var(--border,#E2E8F0)] hover:border-slate-300 shadow-xs flex items-start justify-between gap-3 transition-all"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className={`p-2 rounded-xl ${isAccIn ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>
+                      <Tag className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-black text-[var(--ink,#1C2733)]">
+                          {log.item_name}
+                        </span>
+                        <span className={`px-1.5 py-0.2 text-[10px] font-bold rounded ${isAccIn ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}`}>
+                          {isAccIn ? 'Inward' : 'Issue'}
+                        </span>
+                      </div>
+                      <p className="text-xs text-[var(--ink-soft,#64748B)] mt-0.5">
+                        {log.party_name || 'Store'} {log.notes && `• ${log.notes}`}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-2">
+                    <div className="text-right font-mono">
+                      <span className={`text-sm font-black ${isAccIn ? 'text-emerald-600' : 'text-rose-600'}`}>
+                        {isAccIn ? `+${log.quantity}` : `-${log.quantity}`} {log.unit || 'pcs'}
+                      </span>
+                      <p className="text-[10px] text-slate-400 font-sans">
+                        {log.entry_date || (log.created_at ? log.created_at.split('T')[0] : 'Today')}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setDeleteTarget({
+                        type: 'ACCESSORY',
+                        id: log.id,
+                        title: `Accessory: ${log.item_name}`,
+                        subtitle: `${log.quantity} ${log.unit || 'pcs'}`
+                      })}
+                      className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      title="Delete Entry"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              )
+            })
+          )}
+        </div>
+      </div>
+
+      {/* ============================================================ */}
+      {/* MODAL 1: ACCESSORY CHALLAN INWARD (TRUCK INWARD / GRN) */}
+      {/* ============================================================ */}
+      {isGrnModalOpen && (
+        <GrnInwardModal
+          onClose={() => setIsGrnModalOpen(false)}
+          articles={articles}
+          currentUserName={currentUserName}
+        />
+      )}
+
+      {/* ============================================================ */}
+      {/* MODAL 2: BOM MATERIAL HANDOVER (LINEMAN ISSUE) */}
+      {/* ============================================================ */}
+      {isBomModalOpen && (
+        <BomHandoverModal
+          onClose={() => setIsBomModalOpen(false)}
+          activeAllotments={activeAllotments}
+          currentUserName={currentUserName}
+        />
+      )}
+
+      {/* ============================================================ */}
+      {/* MODAL 3: PRODUCTION FINISHED GOODS INWARD */}
+      {/* ============================================================ */}
+      {isInwardModalOpen && (
+        <ProductionInwardModal
+          onClose={() => {
+            setIsInwardModalOpen(false)
+            setPrefilledLotForInward(null)
+          }}
+          articles={articles}
+          readyQcAllotments={readyQcAllotments}
+          prefilledLot={prefilledLotForInward}
+          currentUserName={currentUserName}
+          variantStockMap={variantStockMap}
+        />
+      )}
+
+      {/* ============================================================ */}
+      {/* MODAL 4: FINISHED GOODS OUTWARD (DISPATCH) */}
+      {/* ============================================================ */}
+      {isOutwardModalOpen && (
+        <FinishedGoodsOutwardModal
+          onClose={() => setIsOutwardModalOpen(false)}
+          articles={articles}
+          activeAllotments={activeAllotments}
+          currentUserName={currentUserName}
+          articleStockMap={articleStockMap}
+          variantStockMap={variantStockMap}
+        />
+      )}
+
+      {/* ============================================================ */}
+      {/* MODAL 5: PHOTO VIEWER MODAL */}
+      {/* ============================================================ */}
+      {activePhoto && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
+          <div className="relative max-w-2xl w-full bg-slate-900 rounded-2xl overflow-hidden shadow-2xl border border-slate-700">
+            <div className="flex items-center justify-between p-4 border-b border-slate-800 text-white">
+              <h4 className="text-sm font-bold truncate">{activePhoto.title}</h4>
+              <button onClick={() => setActivePhoto(null)} className="p-1 hover:bg-slate-800 rounded-lg">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-4 flex items-center justify-center max-h-[75vh] overflow-auto">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={activePhoto.url} alt="Challan" className="max-h-[70vh] object-contain rounded-lg" />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================ */}
+      {/* MODAL 6: DELETE CONFIRMATION DIALOG */}
+      {/* ============================================================ */}
+      {deleteTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in">
+          <div className="max-w-md w-full bg-white rounded-2xl p-6 shadow-xl border border-slate-200 space-y-4">
+            <div className="flex items-start gap-3">
+              <div className="p-3 bg-red-100 text-red-600 rounded-xl">
+                <AlertTriangle className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-base font-black text-[var(--ink,#1C2733)]">
+                  Delete Entry?
+                </h3>
+                <p className="text-xs text-slate-500 mt-1">
+                  Are you sure you want to permanently delete <strong className="text-slate-800">{deleteTarget.title}</strong>?
+                </p>
+                {deleteTarget.subtitle && (
+                  <p className="text-xs text-slate-400 mt-0.5">{deleteTarget.subtitle}</p>
+                )}
+              </div>
+            </div>
+
+            {deleteError && (
+              <div className="p-3 bg-red-50 text-red-700 text-xs rounded-xl border border-red-200">
+                {deleteError}
+              </div>
+            )}
+
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <button
+                onClick={() => setDeleteTarget(null)}
+                disabled={isPending}
+                className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteConfirm}
+                disabled={isPending}
+                className="px-4 py-2 text-xs font-bold text-white bg-red-600 hover:bg-red-700 rounded-xl shadow-xs transition-all flex items-center gap-1.5"
+              >
+                {isPending ? 'Deleting...' : 'Confirm Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+    </div>
+  )
+}
+
+// ====================================================================
+// SUBCOMPONENT: MODAL 1 - ACCESSORY CHALLAN INWARD (GRN)
+// ====================================================================
+function GrnInwardModal({
+  onClose,
+  articles,
+  currentUserName,
+}: {
+  onClose: () => void
+  articles: Article[]
+  currentUserName: string
+}) {
+  const [partyName, setPartyName] = useState('')
+  const [articleNo, setArticleNo] = useState(articles[0]?.art_no || '')
+  const [challanNo, setChallanNo] = useState('')
+  const [truckNo, setTruckNo] = useState('')
+  const [inwardDate, setInwardDate] = useState(new Date().toISOString().split('T')[0])
+  const [notes, setNotes] = useState('')
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null)
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const [items, setItems] = useState<TruckInwardItemInput[]>([
+    { item_name: 'Main Zipper', quantity: 500, unit: 'pcs', size_label: 'L / Navy', status: 'RECEIVED', shortage_qty: 0, remarks: '' },
+    { item_name: 'Care Label', quantity: 500, unit: 'pcs', size_label: 'Free', status: 'RECEIVED', shortage_qty: 0, remarks: '' },
+  ])
+
+  // Presets to quickly add items
+  const addPreset = (name: string, unit: string = 'pcs') => {
+    setItems(prev => [
+      ...prev,
+      { item_name: name, quantity: 100, unit, size_label: '', status: 'RECEIVED', shortage_qty: 0, remarks: '' }
+    ])
+  }
+
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setIsUploadingPhoto(true)
+    const reader = new FileReader()
+    reader.onload = () => {
+      setPhotoUrl(reader.result as string)
+      setIsUploadingPhoto(false)
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const handleSubmit = async () => {
+    if (!partyName.trim()) {
+      setError('Please enter Supplier / Brand Name.')
+      return
+    }
+    if (items.length === 0) {
+      setError('Please add at least 1 item from the challan.')
+      return
+    }
+
+    setIsSubmitting(true)
+    setError(null)
+
+    const res = await createTruckInwardGrn({
+      party_name: partyName,
+      article_no: articleNo,
+      challan_no: challanNo,
+      truck_no: truckNo,
+      inward_date: inwardDate,
+      challan_photo_url: photoUrl,
+      notes,
+      items,
+    })
+
+    setIsSubmitting(false)
+    if (res.error) {
+      setError(res.error)
+    } else {
+      onClose()
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
+      <div className="relative max-w-3xl w-full bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b border-slate-200 bg-[#F8FAFC]">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 bg-[#E8EEF5] text-[#1F3A63] rounded-xl">
+              <Receipt className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-base font-black text-[var(--ink,#1C2733)]">
+                Accessory Challan Inward (GRN)
+              </h3>
+              <p className="text-xs text-[var(--ink-soft,#64748B)]">
+                Record supplier delivery slip, trims, fabrics & due items
+              </p>
+            </div>
+          </div>
+          <button onClick={onClose} className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-200 rounded-lg transition-colors">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Scrollable Form Body */}
+        <div className="p-5 overflow-y-auto space-y-4 flex-1">
+          {error && (
+            <div className="p-3 bg-red-50 text-red-700 text-xs font-bold rounded-xl border border-red-200 flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
+
+          {/* Row 1: Supplier & Date */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-bold text-[var(--ink,#1C2733)] mb-1">
+                Supplier / Brand Name *
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. Vardhman Threads, YKK Zippers..."
+                value={partyName}
+                onChange={e => setPartyName(e.target.value)}
+                className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1F3A63]/20 focus:border-[#1F3A63]"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-[var(--ink,#1C2733)] mb-1">
+                Inward Date
+              </label>
+              <input
+                type="date"
+                value={inwardDate}
+                onChange={e => setInwardDate(e.target.value)}
+                className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1F3A63]/20 focus:border-[#1F3A63]"
+              />
+            </div>
+          </div>
+
+          {/* Row 2: Challan #, Truck #, Article Target */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label className="block text-xs font-bold text-[var(--ink,#1C2733)] mb-1">
+                Supplier Challan #
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. CH-9081"
+                value={challanNo}
+                onChange={e => setChallanNo(e.target.value)}
+                className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1F3A63]/20 focus:border-[#1F3A63]"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-[var(--ink,#1C2733)] mb-1">
+                Vehicle / Truck #
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. DL-01-AB-1234"
+                value={truckNo}
+                onChange={e => setTruckNo(e.target.value)}
+                className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1F3A63]/20 focus:border-[#1F3A63]"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-[var(--ink,#1C2733)] mb-1">
+                Target Article (Style #)
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. ART-550"
+                value={articleNo}
+                onChange={e => setArticleNo(e.target.value)}
+                className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1F3A63]/20 focus:border-[#1F3A63]"
+              />
+            </div>
+          </div>
+
+          {/* Item Presets Bar */}
+          <div className="flex flex-wrap items-center gap-1.5 pt-1">
+            <span className="text-[11px] font-bold text-[var(--ink-soft,#64748B)] mr-1">Add Preset:</span>
+            {['Zippers', 'Buttons', 'Care Labels', 'Sewing Threads', 'Fabric Rolls', 'Elastic Tape'].map(p => (
+              <button
+                key={p}
+                type="button"
+                onClick={() => addPreset(p, p.includes('Rolls') ? 'rolls' : p.includes('Threads') ? 'cones' : 'pcs')}
+                className="px-2.5 py-1 text-[11px] font-bold bg-slate-100 hover:bg-[#E8EEF5] hover:text-[#1F3A63] text-slate-700 rounded-lg border border-slate-200 transition-all flex items-center gap-1"
+              >
+                <Plus className="w-3 h-3" /> {p}
+              </button>
+            ))}
+          </div>
+
+          {/* Line Items Table / List */}
+          <div className="space-y-2.5 pt-1">
+            <label className="block text-xs font-bold text-[var(--ink,#1C2733)]">
+              Challan Line Items ({items.length})
+            </label>
+            {items.map((it, idx) => (
+              <div key={idx} className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2.5">
+                <div className="flex items-center justify-between gap-2">
+                  <input
+                    type="text"
+                    placeholder="Item description (e.g. Antique Brass Zipper)"
+                    value={it.item_name}
+                    onChange={e => {
+                      const copy = [...items]
+                      copy[idx].item_name = e.target.value
+                      setItems(copy)
+                    }}
+                    className="flex-1 px-2.5 py-1.5 text-xs font-bold text-[var(--ink,#1C2733)] bg-white border border-slate-200 rounded-lg"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setItems(items.filter((_, i) => i !== idx))}
+                    className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-500 mb-0.5">Quantity</label>
+                    <input
+                      type="number"
+                      value={it.quantity}
+                      onChange={e => {
+                        const copy = [...items]
+                        copy[idx].quantity = Number(e.target.value) || 0
+                        setItems(copy)
+                      }}
+                      className="w-full px-2.5 py-1.5 font-mono font-bold bg-white border border-slate-200 rounded-lg"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-500 mb-0.5">Unit</label>
+                    <select
+                      value={it.unit}
+                      onChange={e => {
+                        const copy = [...items]
+                        copy[idx].unit = e.target.value
+                        setItems(copy)
+                      }}
+                      className="w-full px-2 py-1.5 font-bold bg-white border border-slate-200 rounded-lg"
+                    >
+                      {['pcs', 'cones', 'kg', 'mt', 'rolls', 'gross'].map(u => (
+                        <option key={u} value={u}>{u}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-500 mb-0.5">Size / Color</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. M / Black"
+                      value={it.size_label || ''}
+                      onChange={e => {
+                        const copy = [...items]
+                        copy[idx].size_label = e.target.value
+                        setItems(copy)
+                      }}
+                      className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-500 mb-0.5">Status</label>
+                    <select
+                      value={it.status}
+                      onChange={e => {
+                        const copy = [...items]
+                        copy[idx].status = e.target.value as any
+                        setItems(copy)
+                      }}
+                      className="w-full px-2 py-1.5 font-bold bg-white border border-slate-200 rounded-lg text-emerald-700 font-sans"
+                    >
+                      <option value="RECEIVED">Received</option>
+                      <option value="SHORTAGE">Shortage</option>
+                      <option value="DUE">Due (Pending)</option>
+                      <option value="DEFECTIVE">Defective</option>
+                    </select>
+                  </div>
+                </div>
+
+                {it.status === 'SHORTAGE' && (
+                  <div>
+                    <input
+                      type="number"
+                      placeholder="Shortage missing quantity..."
+                      value={it.shortage_qty || ''}
+                      onChange={e => {
+                        const copy = [...items]
+                        copy[idx].shortage_qty = Number(e.target.value) || 0
+                        setItems(copy)
+                      }}
+                      className="w-full px-2.5 py-1.5 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg"
+                    />
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Photo Attachment */}
+          <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+            <label className="block text-xs font-bold text-[var(--ink,#1C2733)]">
+              Challan Paper Slip Photo (Optional)
+            </label>
+            {photoUrl ? (
+              <div className="flex items-center gap-3">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={photoUrl} alt="Slip Preview" className="w-16 h-16 object-cover rounded-lg border" />
+                <div>
+                  <p className="text-xs font-bold text-emerald-600">Photo attached & ready</p>
+                  <button
+                    type="button"
+                    onClick={() => setPhotoUrl(null)}
+                    className="text-xs text-red-600 hover:underline mt-1 font-semibold"
+                  >
+                    Remove Photo
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <label className="flex items-center justify-center gap-2 p-3 bg-white border-2 border-dashed border-slate-200 hover:border-[#1F3A63] rounded-xl cursor-pointer text-xs font-bold text-slate-600 hover:text-[#1F3A63] transition-all">
+                <Upload className="w-4 h-4" />
+                <span>Upload Paper Challan Image</span>
+                <input type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden" />
+              </label>
+            )}
+          </div>
+
+          {/* Remarks */}
+          <div>
+            <label className="block text-xs font-bold text-[var(--ink,#1C2733)] mb-1">
+              General Remarks / Delivery Notes
+            </label>
+            <input
+              type="text"
+              placeholder="e.g. 10 bags unloaded in Bay 2 • Driver Mohan"
+              value={notes}
+              onChange={e => setNotes(e.target.value)}
+              className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1F3A63]/20 focus:border-[#1F3A63]"
+            />
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="p-4 border-t border-slate-200 bg-[#F8FAFC] flex items-center justify-end gap-2">
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={isSubmitting}
+            className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-200 rounded-xl transition-all"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+            className="px-5 py-2 text-xs font-bold text-white bg-[#1F3A63] hover:bg-[#152844] rounded-xl shadow-xs transition-all flex items-center gap-1.5"
+          >
+            {isSubmitting ? 'Saving GRN...' : 'Confirm Inward'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ====================================================================
+// SUBCOMPONENT: MODAL 2 - BOM MATERIAL HANDOVER (LINEMAN ISSUE)
+// ====================================================================
+function BomHandoverModal({
+  onClose,
+  activeAllotments,
+  currentUserName,
+}: {
+  onClose: () => void
+  activeAllotments: ActiveAllotment[]
+  currentUserName: string
+}) {
+  const [selectedAllotmentId, setSelectedAllotmentId] = useState(activeAllotments[0]?.id || '')
+  const [supplierChallan, setSupplierChallan] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const selectedAllotment = activeAllotments.find(a => a.id === selectedAllotmentId) || activeAllotments[0]
+  const linemanName = selectedAllotment?.lineman?.username || 'Lineman'
+  const artNo = selectedAllotment?.article?.art_no || '-'
+  const materials = selectedAllotment?.allotment_materials || []
+
+  const [itemStates, setItemStates] = useState<Record<string, BomMaterialItemState>>({})
+
+  // Initialize state per material
+  useMemo(() => {
+    const states: Record<string, BomMaterialItemState> = {}
+    materials.forEach(m => {
+      states[m.id] = {
+        id: m.id,
+        item_name: m.item_name,
+        required_qty: m.required_qty,
+        received_qty: m.required_qty,
+        status: 'VERIFIED',
+        shortage_qty: 0,
+        remarks: ''
+      }
+    })
+    setItemStates(states)
+  }, [selectedAllotmentId, materials])
+
+  const handleSubmit = async () => {
+    if (!selectedAllotment) return
+    setIsSubmitting(true)
+    setError(null)
+
+    const res = await issueBomMaterials({
+      allotment_id: selectedAllotment.id,
+      lineman_name: linemanName,
+      supplier_challan_no: supplierChallan,
+      article_no: artNo,
+      items: Object.values(itemStates),
+    })
+
+    setIsSubmitting(false)
+    if (res.error) {
+      setError(res.error)
+    } else {
+      onClose()
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
+      <div className="relative max-w-2xl w-full bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b border-slate-200 bg-[#F8FAFC]">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 bg-[#E8EEF5] text-[#1F3A63] rounded-xl">
+              <Boxes className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-base font-black text-[var(--ink,#1C2733)]">
+                BOM Material Handover
+              </h3>
+              <p className="text-xs text-[var(--ink-soft,#64748B)]">
+                Inspect raw materials & issue BOM lot to Lineman
+              </p>
+            </div>
+          </div>
+          <button onClick={onClose} className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-200 rounded-lg transition-colors">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Form Body */}
+        <div className="p-5 overflow-y-auto space-y-4 flex-1">
+          {error && (
+            <div className="p-3 bg-red-50 text-red-700 text-xs font-bold rounded-xl border border-red-200 flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
+
+          {/* Select Target Allotment */}
+          <div>
+            <label className="block text-xs font-bold text-[var(--ink,#1C2733)] mb-1">
+              Select Active Target Allotment *
+            </label>
+            <select
+              value={selectedAllotmentId}
+              onChange={e => setSelectedAllotmentId(e.target.value)}
+              className="w-full px-3 py-2 text-xs font-bold text-[#1F3A63] bg-slate-50 border border-slate-200 rounded-xl"
+            >
+              {activeAllotments.map(al => (
+                <option key={al.id} value={al.id}>
+                  Art #{al.article?.art_no || '-'} ({al.target_qty} pcs) · Lineman: {al.lineman?.username || 'Lineman'} · Challan #{al.challans?.challan_no || '-'}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Lineman & Challan Info Strip */}
+          <div className="flex flex-wrap items-center justify-between gap-2 p-3 bg-[#E8EEF5] rounded-xl text-xs font-bold text-[#1F3A63]">
+            <div className="flex items-center gap-1.5">
+              <User className="w-4 h-4" />
+              <span>Lineman: {linemanName}</span>
+            </div>
+            <div>
+              <span>Target: {selectedAllotment?.target_qty || 0} pcs</span>
+            </div>
+          </div>
+
+          {/* Supplier Challan # */}
+          <div>
+            <label className="block text-xs font-bold text-[var(--ink,#1C2733)] mb-1">
+              Supplier Raw Material Challan # (Optional)
+            </label>
+            <input
+              type="text"
+              placeholder="e.g. RM-5542 / Lot #12"
+              value={supplierChallan}
+              onChange={e => setSupplierChallan(e.target.value)}
+              className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1F3A63]/20 focus:border-[#1F3A63]"
+            />
+          </div>
+
+          {/* Material Checklist */}
+          <div className="space-y-3 pt-1">
+            <label className="block text-xs font-bold text-[var(--ink,#1C2733)]">
+              Raw Materials Inspection Checklist ({materials.length} items)
+            </label>
+            {materials.length === 0 ? (
+              <p className="text-xs text-slate-500 italic p-3 bg-slate-50 rounded-xl">
+                No BOM materials defined for this allotment. You can still confirm handover.
+              </p>
+            ) : (
+              materials.map(mat => {
+                const st = itemStates[mat.id] || {
+                  id: mat.id,
+                  item_name: mat.item_name,
+                  required_qty: mat.required_qty,
+                  received_qty: mat.required_qty,
+                  status: 'VERIFIED',
+                  shortage_qty: 0,
+                  remarks: ''
+                }
+
+                return (
+                  <div key={mat.id} className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-black text-[var(--ink,#1C2733)]">{mat.item_name}</span>
+                      <span className="text-xs font-bold font-mono text-slate-600">Required: {mat.required_qty}</span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 mb-0.5">Physical Received Count</label>
+                        <input
+                          type="text"
+                          value={st.received_qty}
+                          onChange={e => {
+                            setItemStates({
+                              ...itemStates,
+                              [mat.id]: { ...st, received_qty: e.target.value }
+                            })
+                          }}
+                          className="w-full px-2.5 py-1.5 font-mono font-bold bg-white border border-slate-200 rounded-lg"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 mb-0.5">Verification Status</label>
+                        <select
+                          value={st.status}
+                          onChange={e => {
+                            setItemStates({
+                              ...itemStates,
+                              [mat.id]: { ...st, status: e.target.value as any }
+                            })
+                          }}
+                          className="w-full px-2 py-1.5 font-bold bg-white border border-slate-200 rounded-lg"
+                        >
+                          <option value="VERIFIED">Verified</option>
+                          <option value="SHORTAGE">Shortage</option>
+                          <option value="DEFECTIVE">Defective</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })
+            )}
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="p-4 border-t border-slate-200 bg-[#F8FAFC] flex items-center justify-end gap-2">
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={isSubmitting}
+            className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-200 rounded-xl transition-all"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+            className="px-5 py-2 text-xs font-bold text-white bg-[#1F3A63] hover:bg-[#152844] rounded-xl shadow-xs transition-all flex items-center gap-1.5"
+          >
+            {isSubmitting ? 'Issuing...' : `Handover to ${linemanName}`}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ====================================================================
+// SUBCOMPONENT: MODAL 3 - PRODUCTION INWARD (FINISHED GOODS)
+// ====================================================================
+function ProductionInwardModal({
+  onClose,
+  articles,
+  readyQcAllotments,
+  prefilledLot,
+  currentUserName,
+  variantStockMap,
+}: {
+  onClose: () => void
+  articles: Article[]
+  readyQcAllotments: ReadyQcAllotment[]
+  prefilledLot?: ReadyQcAllotment | null
+  currentUserName: string
+  variantStockMap: Record<string, number>
+}) {
+  const [selectedArticleId, setSelectedArticleId] = useState(
+    prefilledLot?.article?.id || articles[0]?.id || ''
+  )
+  const [selectedAllotmentId, setSelectedAllotmentId] = useState<string | null>(
+    prefilledLot?.id || null
+  )
+
+  const [fromParty, setFromParty] = useState(prefilledLot?.qc_supervisor_name ? `QC Passed (${prefilledLot.qc_supervisor_name})` : 'QC Finishing Floor')
+  const [linemanName, setLinemanName] = useState(prefilledLot?.lineman?.username || '')
+  const [mendingName, setMendingName] = useState(prefilledLot?.mending_supervisor_name || 'Mending Floor')
+  const [qcName, setQcName] = useState(prefilledLot?.qc_supervisor_name || 'QC Supervisor')
+  const [challanNo, setChallanNo] = useState(prefilledLot?.challans?.challan_no || '')
+  const [notes, setNotes] = useState(prefilledLot?.lineman?.username ? `Stitched by ${prefilledLot.lineman.username}` : '')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  // Matching ready lots from QC table for selected article
+  const matchingReadyLots = useMemo(() => {
+    return readyQcAllotments.filter(l => l.article?.id === selectedArticleId)
+  }, [readyQcAllotments, selectedArticleId])
+
+  // Extract variants from ready lots or fallback standard sizes
+  const [variantInputs, setVariantInputs] = useState<Array<{ color: string; size: string; quantity: number }>>([
+    { color: 'Standard', size: 'M', quantity: 0 },
+    { color: 'Standard', size: 'L', quantity: 0 },
+    { color: 'Standard', size: 'XL', quantity: 0 },
+  ])
+
+  // If prefilledLot changes or selectedAllotmentId selected, populate variants
+  useMemo(() => {
+    if (prefilledLot && prefilledLot.allotment_variants) {
+      setVariantInputs(prefilledLot.allotment_variants.map(v => ({
+        color: v.color || 'Standard',
+        size: v.size || 'Free',
+        quantity: v.quantity || 0,
+      })))
+    }
+  }, [prefilledLot])
+
+  const totalInwardPieces = variantInputs.reduce((a, b) => a + (Number(b.quantity) || 0), 0)
+
+  const handleSubmit = async () => {
+    if (totalInwardPieces <= 0) {
+      setError('Please enter at least 1 garment piece to inward.')
+      return
+    }
+
+    setIsSubmitting(true)
+    setError(null)
+
+    const res = await saveProductionInward({
+      article_id: selectedArticleId,
+      allotment_id: selectedAllotmentId,
+      from_party: fromParty,
+      lineman_name: linemanName,
+      mending_name: mendingName,
+      qc_supervisor_name: qcName,
+      challan_no: challanNo,
+      notes,
+      variants: variantInputs,
+    })
+
+    setIsSubmitting(false)
+    if (res.error) {
+      setError(res.error)
+    } else {
+      onClose()
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
+      <div className="relative max-w-2xl w-full bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b border-slate-200 bg-[#F8FAFC]">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 bg-[#E8EEF5] text-[#1F3A63] rounded-xl">
+              <Download className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-base font-black text-[var(--ink,#1C2733)]">
+                Production Inward (Finished Goods)
+              </h3>
+              <p className="text-xs text-[var(--ink-soft,#64748B)]">
+                Receive finished garments into Godown warehouse stock
+              </p>
+            </div>
+          </div>
+          <button onClick={onClose} className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-200 rounded-lg transition-colors">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Form Body */}
+        <div className="p-5 overflow-y-auto space-y-4 flex-1">
+          {error && (
+            <div className="p-3 bg-red-50 text-red-700 text-xs font-bold rounded-xl border border-red-200 flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
+
+          {/* Select Article */}
+          <div>
+            <label className="block text-xs font-bold text-[var(--ink,#1C2733)] mb-1">
+              Article (Style #) *
+            </label>
+            <select
+              value={selectedArticleId}
+              onChange={e => {
+                setSelectedArticleId(e.target.value)
+                setSelectedAllotmentId(null)
+              }}
+              className="w-full px-3 py-2 text-xs font-bold text-[#1F3A63] bg-slate-50 border border-slate-200 rounded-xl"
+            >
+              {articles.map(art => (
+                <option key={art.id} value={art.id}>
+                  Art #{art.art_no} ({art.description || '-'})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Ready Lots Chips from QC */}
+          {matchingReadyLots.length > 0 && (
+            <div className="space-y-1.5">
+              <label className="block text-xs font-bold text-[#1F3A63]">
+                Ready Lots from QC Table (Click to Autofill):
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {matchingReadyLots.map(lot => {
+                  const isSelected = selectedAllotmentId === lot.id
+                  const lineman = lot.lineman?.username || 'Lineman'
+                  const passed = lot.qc_total_passed || lot.target_qty || 0
+                  return (
+                    <button
+                      key={lot.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedAllotmentId(lot.id)
+                        setLinemanName(lot.lineman?.username || '')
+                        setMendingName(lot.mending_supervisor_name || 'Mending Floor')
+                        setQcName(lot.qc_supervisor_name || 'QC Supervisor')
+                        setChallanNo(lot.challans?.challan_no || '')
+                        setFromParty(`QC Passed (${lot.qc_supervisor_name || 'QC'})`)
+                        setNotes(`Stitched by ${lot.lineman?.username || 'Lineman'}`)
+
+                        if (lot.allotment_variants && lot.allotment_variants.length > 0) {
+                          setVariantInputs(lot.allotment_variants.map(v => ({
+                            color: v.color || 'Standard',
+                            size: v.size || 'Free',
+                            quantity: v.quantity || 0,
+                          })))
+                        }
+                      }}
+                      className={`px-3 py-1.5 text-xs font-bold rounded-xl border transition-all flex items-center gap-1.5 ${
+                        isSelected
+                          ? 'bg-emerald-50 text-emerald-800 border-emerald-400 ring-2 ring-emerald-300'
+                          : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                      }`}
+                    >
+                      <Check className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>{passed} pcs · {lineman}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Chain of Custody Box */}
+          <div className="p-3 bg-[#E8EEF5] rounded-xl border border-[#CBD7E6] space-y-2">
+            <span className="text-xs font-bold text-[#1F3A63]">Production Chain of Custody</span>
+            <div className="flex flex-wrap gap-2 text-xs font-semibold">
+              <span className="px-2 py-0.5 bg-white rounded-md text-slate-700 border border-slate-200">
+                Lineman: {linemanName || 'Floor'}
+              </span>
+              <span className="px-2 py-0.5 bg-white rounded-md text-slate-700 border border-slate-200">
+                Mending: {mendingName}
+              </span>
+              <span className="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded-md border border-emerald-300">
+                QC: {qcName}
+              </span>
+              <span className="px-2 py-0.5 bg-white rounded-md text-[#1F3A63] border border-[#CBD7E6]">
+                Store: {currentUserName}
+              </span>
+            </div>
+          </div>
+
+          {/* Live Total Quantity Banner */}
+          <div className="flex items-center justify-between p-3 bg-emerald-50 rounded-xl border border-emerald-200">
+            <span className="text-xs font-bold text-emerald-800">Total Inward Quantity:</span>
+            <span className="text-base font-black font-mono text-emerald-700">{totalInwardPieces} pcs</span>
+          </div>
+
+          {/* Variant Matrix Table */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="block text-xs font-bold text-[var(--ink,#1C2733)]">
+                Color & Size Breakdown
+              </label>
+              <button
+                type="button"
+                onClick={() => setVariantInputs(prev => [...prev, { color: 'Standard', size: 'XL', quantity: 0 }])}
+                className="text-xs font-bold text-[#1F3A63] hover:underline flex items-center gap-1"
+              >
+                <Plus className="w-3 h-3" /> Add Size Row
+              </button>
+            </div>
+
+            <div className="space-y-2">
+              {variantInputs.map((v, idx) => (
+                <div key={idx} className="flex items-center gap-2 p-2 bg-slate-50 rounded-xl border border-slate-200 text-xs">
+                  <input
+                    type="text"
+                    placeholder="Color"
+                    value={v.color}
+                    onChange={e => {
+                      const copy = [...variantInputs]
+                      copy[idx].color = e.target.value
+                      setVariantInputs(copy)
+                    }}
+                    className="w-1/3 px-2.5 py-1.5 bg-white font-bold border border-slate-200 rounded-lg"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Size"
+                    value={v.size}
+                    onChange={e => {
+                      const copy = [...variantInputs]
+                      copy[idx].size = e.target.value
+                      setVariantInputs(copy)
+                    }}
+                    className="w-1/4 px-2.5 py-1.5 bg-white font-bold border border-slate-200 rounded-lg"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Qty"
+                    value={v.quantity || ''}
+                    onChange={e => {
+                      const copy = [...variantInputs]
+                      copy[idx].quantity = Number(e.target.value) || 0
+                      setVariantInputs(copy)
+                    }}
+                    className="flex-1 px-2.5 py-1.5 bg-white font-mono font-bold text-[#1F3A63] border border-slate-200 rounded-lg text-right"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setVariantInputs(variantInputs.filter((_, i) => i !== idx))}
+                    className="p-1 text-slate-400 hover:text-red-600"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Notes */}
+          <div>
+            <label className="block text-xs font-bold text-[var(--ink,#1C2733)] mb-1">
+              Remarks (Optional)
+            </label>
+            <input
+              type="text"
+              placeholder="e.g. Lot #12 Final QC Inward"
+              value={notes}
+              onChange={e => setNotes(e.target.value)}
+              className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl"
+            />
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="p-4 border-t border-slate-200 bg-[#F8FAFC] flex items-center justify-end gap-2">
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={isSubmitting}
+            className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-200 rounded-xl transition-all"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={isSubmitting || totalInwardPieces <= 0}
+            className="px-5 py-2 text-xs font-bold text-white bg-[#1F3A63] hover:bg-[#152844] rounded-xl shadow-xs transition-all flex items-center gap-1.5 disabled:opacity-50"
+          >
+            {isSubmitting ? 'Saving...' : `Save Inward (${totalInwardPieces} pcs)`}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ====================================================================
+// SUBCOMPONENT: MODAL 4 - FINISHED GOODS OUTWARD (DISPATCH)
+// ====================================================================
+function FinishedGoodsOutwardModal({
+  onClose,
+  articles,
+  activeAllotments,
+  currentUserName,
+  articleStockMap,
+  variantStockMap,
+}: {
+  onClose: () => void
+  articles: Article[]
+  activeAllotments: ActiveAllotment[]
+  currentUserName: string
+  articleStockMap: Record<string, number>
+  variantStockMap: Record<string, number>
+}) {
+  const [selectedArticleId, setSelectedArticleId] = useState(articles[0]?.id || '')
+  const [partyName, setPartyName] = useState('')
+  const [challanNo, setChallanNo] = useState('')
+  const [transportNo, setTransportNo] = useState('')
+  const [notes, setNotes] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const availableStock = articleStockMap[selectedArticleId] || 0
+
+  const [variantInputs, setVariantInputs] = useState<Array<{ color: string; size: string; quantity: number }>>([
+    { color: 'Standard', size: 'M', quantity: 0 },
+    { color: 'Standard', size: 'L', quantity: 0 },
+    { color: 'Standard', size: 'XL', quantity: 0 },
+  ])
+
+  const totalDispatchPieces = variantInputs.reduce((a, b) => a + (Number(b.quantity) || 0), 0)
+
+  const handleSubmit = async () => {
+    if (totalDispatchPieces <= 0) {
+      setError('Please enter at least 1 piece to dispatch.')
+      return
+    }
+
+    setIsSubmitting(true)
+    setError(null)
+
+    const res = await saveFinishedGoodsOutward({
+      article_id: selectedArticleId,
+      party_name: partyName || 'General Dispatch',
+      challan_no: challanNo,
+      transport_no: transportNo,
+      notes,
+      variants: variantInputs,
+    })
+
+    setIsSubmitting(false)
+    if (res.error) {
+      setError(res.error)
+    } else {
+      onClose()
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
+      <div className="relative max-w-2xl w-full bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b border-slate-200 bg-[#F8FAFC]">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 bg-[#E8EEF5] text-[#1F3A63] rounded-xl">
+              <Send className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-base font-black text-[var(--ink,#1C2733)]">
+                Finished Goods Outward (Dispatch)
+              </h3>
+              <p className="text-xs text-[var(--ink-soft,#64748B)]">
+                Issue garments from Godown for delivery with delivery challan
+              </p>
+            </div>
+          </div>
+          <button onClick={onClose} className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-200 rounded-lg transition-colors">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Form Body */}
+        <div className="p-5 overflow-y-auto space-y-4 flex-1">
+          {error && (
+            <div className="p-3 bg-red-50 text-red-700 text-xs font-bold rounded-xl border border-red-200 flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
+
+          {/* Select Article & Stock Banner */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
+            <div>
+              <label className="block text-xs font-bold text-[var(--ink,#1C2733)] mb-1">
+                Article (Style #) *
+              </label>
+              <select
+                value={selectedArticleId}
+                onChange={e => setSelectedArticleId(e.target.value)}
+                className="w-full px-3 py-2 text-xs font-bold text-[#1F3A63] bg-slate-50 border border-slate-200 rounded-xl"
+              >
+                {articles.map(art => (
+                  <option key={art.id} value={art.id}>
+                    Art #{art.art_no} ({art.description || '-'})
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="p-2.5 bg-slate-100 rounded-xl text-xs font-bold text-slate-700 flex items-center justify-between">
+              <span>Godown Stock:</span>
+              <span className="font-mono text-emerald-700 text-sm">{availableStock} pcs</span>
+            </div>
+          </div>
+
+          {/* Buyer & Challan # */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-bold text-[var(--ink,#1C2733)] mb-1">
+                Buyer / Consignee Name
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. Reliance Trends / Myntra Warehouse"
+                value={partyName}
+                onChange={e => setPartyName(e.target.value)}
+                className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-[var(--ink,#1C2733)] mb-1">
+                Dispatch Challan #
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. DC-2024-88"
+                value={challanNo}
+                onChange={e => setChallanNo(e.target.value)}
+                className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl"
+              />
+            </div>
+          </div>
+
+          {/* Variant Matrix */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="block text-xs font-bold text-[var(--ink,#1C2733)]">
+                Dispatch Size Breakdown
+              </label>
+              <button
+                type="button"
+                onClick={() => setVariantInputs(prev => [...prev, { color: 'Standard', size: 'XL', quantity: 0 }])}
+                className="text-xs font-bold text-[#1F3A63] hover:underline flex items-center gap-1"
+              >
+                <Plus className="w-3 h-3" /> Add Size Row
+              </button>
+            </div>
+
+            <div className="space-y-2">
+              {variantInputs.map((v, idx) => (
+                <div key={idx} className="flex items-center gap-2 p-2 bg-slate-50 rounded-xl border border-slate-200 text-xs">
+                  <input
+                    type="text"
+                    placeholder="Color"
+                    value={v.color}
+                    onChange={e => {
+                      const copy = [...variantInputs]
+                      copy[idx].color = e.target.value
+                      setVariantInputs(copy)
+                    }}
+                    className="w-1/3 px-2.5 py-1.5 bg-white font-bold border border-slate-200 rounded-lg"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Size"
+                    value={v.size}
+                    onChange={e => {
+                      const copy = [...variantInputs]
+                      copy[idx].size = e.target.value
+                      setVariantInputs(copy)
+                    }}
+                    className="w-1/4 px-2.5 py-1.5 bg-white font-bold border border-slate-200 rounded-lg"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Qty"
+                    value={v.quantity || ''}
+                    onChange={e => {
+                      const copy = [...variantInputs]
+                      copy[idx].quantity = Number(e.target.value) || 0
+                      setVariantInputs(copy)
+                    }}
+                    className="flex-1 px-2.5 py-1.5 bg-white font-mono font-bold text-rose-600 border border-slate-200 rounded-lg text-right"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setVariantInputs(variantInputs.filter((_, i) => i !== idx))}
+                    className="p-1 text-slate-400 hover:text-red-600"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Transporter Notes */}
+          <div>
+            <label className="block text-xs font-bold text-[var(--ink,#1C2733)] mb-1">
+              Dispatch & Transporter Notes (Optional)
+            </label>
+            <input
+              type="text"
+              placeholder="e.g. VRL Logistics • 5 master cartons packed"
+              value={notes}
+              onChange={e => setNotes(e.target.value)}
+              className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl"
+            />
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="p-4 border-t border-slate-200 bg-[#F8FAFC] flex items-center justify-end gap-2">
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={isSubmitting}
+            className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-200 rounded-xl transition-all"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={isSubmitting || totalDispatchPieces <= 0}
+            className="px-5 py-2 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl shadow-xs transition-all flex items-center gap-1.5 disabled:opacity-50"
+          >
+            {isSubmitting ? 'Dispatching...' : `Confirm Dispatch (${totalDispatchPieces} pcs)`}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}

@@ -7,24 +7,61 @@ import { createClient } from '../../utils/supabase/server'
 export async function login(formData: FormData) {
   const supabase = await createClient()
 
-  const email = (formData.get('email') as string)?.trim()
+  const rawInput = (formData.get('email') as string)?.trim()
   const password = formData.get('password') as string
 
-  if (!email || !password) {
-    return { error: 'Email and password are required' }
+  if (!rawInput || !password) {
+    return { error: 'Username/email and password are required' }
   }
 
-  const { error } = await supabase.auth.signInWithPassword({
+  // Format email: If user enters "Store" or "lineman" (without @), convert to "store@nubira.local" (matching mobile app)
+  const cleanEmailKey = rawInput.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_.-]/g, '')
+  const email = rawInput.includes('@') ? rawInput : `${cleanEmailKey}@nubira.local`
+
+  let { data: authData, error } = await supabase.auth.signInWithPassword({
     email,
     password,
   })
+
+  // Fallback retry without spaces in case of legacy usernames
+  if (error && !rawInput.includes('@') && rawInput.includes(' ')) {
+    const noSpaceEmail = `${rawInput.toLowerCase().replace(/\s+/g, '')}@nubira.local`
+    const retry = await supabase.auth.signInWithPassword({
+      email: noSpaceEmail,
+      password,
+    })
+    if (!retry.error) {
+      authData = retry.data
+      error = null
+    }
+  }
 
   if (error) {
     return { error: error.message }
   }
 
+  // Check user role for dynamic destination routing
+  let targetRoute = '/dashboard'
+  try {
+    const userId = authData.user?.id
+    if (userId) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', userId)
+        .single()
+
+      const role = (profile?.role || '').toUpperCase()
+      if (role === 'STORE' || role === 'STORE_SUPERVISOR' || role === 'GODOWN') {
+        targetRoute = '/store'
+      }
+    }
+  } catch (err) {
+    console.error('Error fetching user profile role upon login:', err)
+  }
+
   revalidatePath('/', 'layout')
-  redirect('/dashboard')
+  redirect(targetRoute)
 }
 
 // Step 1: Send OTP

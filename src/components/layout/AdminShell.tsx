@@ -41,16 +41,25 @@ function MobileTopBar({ onMenuToggle }: { onMenuToggle: () => void }) {
 
 function AdminShellContent({ 
   children, 
-  userEmail 
+  userEmail,
+  userRole
 }: { 
   children: React.ReactNode
   userEmail?: string 
+  userRole?: string
 }) {
   const { isTvMode } = useTvMode()
   const pathname = usePathname()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   const isAiPage = pathname === '/zigza-ai' || pathname?.startsWith('/zigza-ai')
+  const isStoreUser = (
+    userRole?.toUpperCase() === 'STORE' ||
+    userRole?.toUpperCase() === 'STORE_SUPERVISOR' ||
+    userRole?.toUpperCase() === 'GODOWN' ||
+    userEmail?.toLowerCase().startsWith('store@') ||
+    userEmail?.toLowerCase() === 'store'
+  )
 
   // Close mobile menu on route change
   useEffect(() => {
@@ -82,6 +91,7 @@ function AdminShellContent({
       {!isTvMode && (
         <AdminSidebar 
           userEmail={userEmail} 
+          userRole={userRole}
           isMobileOpen={isMobileMenuOpen}
           onMobileClose={() => setIsMobileMenuOpen(false)}
         />
@@ -105,8 +115,8 @@ function AdminShellContent({
           {children}
         </div>
 
-        {/* AI Copilot Chatbot Widget */}
-        {!isTvMode && <AiCopilotWidget />}
+        {/* AI Copilot Chatbot Widget (Only for Admins) */}
+        {!isTvMode && !isStoreUser && <AiCopilotWidget />}
       </main>
     </div>
   )
@@ -114,14 +124,16 @@ function AdminShellContent({
 
 export function AdminShell({ 
   children, 
-  userEmail 
+  userEmail,
+  userRole
 }: { 
   children: React.ReactNode
   userEmail?: string 
+  userRole?: string
 }) {
   return (
     <TvModeProvider>
-      <AdminShellContent userEmail={userEmail}>
+      <AdminShellContent userEmail={userEmail} userRole={userRole}>
         {children}
       </AdminShellContent>
     </TvModeProvider>
