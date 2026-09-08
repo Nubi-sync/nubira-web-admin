@@ -85,6 +85,7 @@ export type Allotment = {
   achieved_qty?: number
   allotment_date: string
   status: string
+  created_at?: string
   mending_status?: string | null
   mending_total_counted?: number | null
   mending_supervisor_name?: string | null
@@ -294,12 +295,12 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
       list = list.filter(a => a.status === statusFilter)
     }
 
-    // 3. Sorting
+    // 3. Sorting (Latest created allotments always appear on top)
     list.sort((a, b) => {
       if (sortField === 'date') {
-        const dateA = new Date(a.allotment_date || 0).getTime()
-        const dateB = new Date(b.allotment_date || 0).getTime()
-        return sortOrder === 'asc' ? dateA - dateB : dateB - dateA
+        const timeA = a.created_at ? new Date(a.created_at).getTime() : new Date(a.allotment_date || 0).getTime()
+        const timeB = b.created_at ? new Date(b.created_at).getTime() : new Date(b.allotment_date || 0).getTime()
+        return sortOrder === 'asc' ? timeA - timeB : timeB - timeA
       } else if (sortField === 'progress') {
         const progA = ((a.achieved_qty || 0) / (a.target_qty || 1))
         const progB = ((b.achieved_qty || 0) / (b.target_qty || 1))

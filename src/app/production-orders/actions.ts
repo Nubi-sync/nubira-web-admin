@@ -1829,11 +1829,34 @@ export async function allotFullChallanDirectly(challanId: string, linemanId: str
       }
     }
 
-    // 4. Update Challan status to IN_PROGRESS
-    await supabase
-      .from('challans')
-      .update({ status: 'IN_PROGRESS' })
-      .eq('id', challanId)
+    // 4. Update Challan notes and status to IN_PROGRESS
+    if (ch.notes) {
+      try {
+        const parsed = JSON.parse(ch.notes)
+        const lines = parsed.article_lines || parsed
+        if (Array.isArray(lines)) {
+          for (const line of lines) {
+            line.assigned_lineman_id = linemanId
+            line.assigned_lineman_name = linemanName
+            line.lineman_name = linemanName
+            line.status = 'IN_PROGRESS'
+          }
+          await supabase
+            .from('challans')
+            .update({
+              notes: JSON.stringify(parsed),
+              status: 'IN_PROGRESS'
+            })
+            .eq('id', challanId)
+        } else {
+          await supabase.from('challans').update({ status: 'IN_PROGRESS' }).eq('id', challanId)
+        }
+      } catch (_) {
+        await supabase.from('challans').update({ status: 'IN_PROGRESS' }).eq('id', challanId)
+      }
+    } else {
+      await supabase.from('challans').update({ status: 'IN_PROGRESS' }).eq('id', challanId)
+    }
 
     revalidatePath('/production-orders')
     revalidatePath('/allotments')
@@ -1878,18 +1901,20 @@ export async function allotColorGroupDirectly(challanId: string, colorName: stri
 
     if (!ch) return { error: 'Challan not found.' }
 
+    let parsedNotesObj: any = null
     let parsedLines: any[] = []
     if (ch.notes) {
       try {
-        const p = JSON.parse(ch.notes)
-        parsedLines = p.article_lines || p
+        parsedNotesObj = JSON.parse(ch.notes)
+        parsedLines = parsedNotesObj.article_lines || (Array.isArray(parsedNotesObj) ? parsedNotesObj : [])
       } catch (_) {}
     }
 
     // Match lines for this color
     const targetLines = parsedLines.filter(line => {
       const c = (line.color_pattern || line.description || '').trim().toUpperCase()
-      return c === colorName.trim().toUpperCase() || c.includes(colorName.trim().toUpperCase())
+      const target = colorName.trim().toUpperCase()
+      return c === target || c.includes(target) || c.includes('3 COLOUR') || c.includes('3 COLOR') || target === 'ALL'
     })
 
     const todayDate = new Date().toISOString().split('T')[0]
@@ -1971,6 +1996,7 @@ export async function allotColorGroupDirectly(challanId: string, colorName: stri
               sets: lineSets,
               pcs_per_set: lineRatio,
               color_pattern: colorName,
+              color_focus: colorName,
               size_range: line.size_range,
               sub_art_no: line.sub_art_no,
               pattern_no: line.pattern_no,
@@ -1981,10 +2007,29 @@ export async function allotColorGroupDirectly(challanId: string, colorName: stri
       }
     }
 
-    await supabase
-      .from('challans')
-      .update({ status: 'IN_PROGRESS' })
-      .eq('id', challanId)
+    // Update notes JSON for matching color lines
+    if (parsedNotesObj && parsedLines.length > 0) {
+      const target = colorName.trim().toUpperCase()
+      for (const line of parsedLines) {
+        const c = (line.color_pattern || line.description || '').trim().toUpperCase()
+        if (c === target || c.includes(target) || c.includes('3 COLOUR') || c.includes('3 COLOR') || target === 'ALL') {
+          line.assigned_lineman_id = linemanId
+          line.assigned_lineman_name = linemanName
+          line.lineman_name = linemanName
+          line.status = 'IN_PROGRESS'
+        }
+      }
+      const allAllotted = parsedLines.every((l: any) => l.assigned_lineman_id && l.assigned_lineman_id.trim() !== '')
+      await supabase
+        .from('challans')
+        .update({
+          notes: JSON.stringify(parsedNotesObj),
+          status: allAllotted ? 'IN_PROGRESS' : 'PARTIALLY_ALLOTTED'
+        })
+        .eq('id', challanId)
+    } else {
+      await supabase.from('challans').update({ status: 'PARTIALLY_ALLOTTED' }).eq('id', challanId)
+    }
 
     revalidatePath('/production-orders')
     revalidatePath('/allotments')
