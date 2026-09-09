@@ -29,23 +29,12 @@ export default async function ArticlesPage() {
     redirect('/store')
   }
 
-  // Parallel concurrent data fetching
-  const [
-    { data: articles },
-    { data: rateHistory }
-  ] = await Promise.all([
-    supabase
-      .from('articles')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(300),
-
-    supabase
-      .from('rate_history')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(300)
-  ])
+  // Fetch all articles from master catalog (synced with production delivery challans)
+  const { data: articles } = await supabase
+    .from('articles')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(2000)
 
   return (
     <AdminShell userEmail={user.email}>
@@ -60,14 +49,13 @@ export default async function ArticlesPage() {
           <span>Manage</span>
           <span>/</span>
           <span className="font-bold text-slate-900">
-            Articles & Rates
+            Articles
           </span>
         </div>
 
         {/* 2. Unified Full-Width Client Component */}
         <ArticlesClient 
           articles={(articles as any) || []} 
-          rateHistory={(rateHistory as any) || []} 
         />
 
       </div>

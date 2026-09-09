@@ -4,14 +4,9 @@ import { useState, useMemo, useTransition, useEffect } from 'react'
 import { 
   Tag,
   Trash2,
-  Layers,
-  Sparkles, 
   Plus, 
   Search, 
-   
-  Check, 
   X, 
-  History, 
   Download, 
   Archive, 
   RotateCcw, 
@@ -20,101 +15,37 @@ import {
   ArrowDown, 
   ChevronLeft, 
   ChevronRight,
-  AlertCircle,
-  AlertTriangle,
-  Clock
+  AlertCircle
 } from 'lucide-react'
 import { TvViewButton } from '@/components/ui/TvViewButton'
 import { 
   createArticle, 
-  updateArticleRate, 
   toggleArticleArchive, 
   bulkArchiveArticles, 
   bulkRestoreArticles,
   deleteArticle,
-  bulkDeleteArticles,
-  getRateHistory 
+  bulkDeleteArticles
 } from '../actions'
 
 type Article = {
   id: string
   art_no: string
   description?: string | null
-  stitching_rate: number
-  size_rates?: Record<string, number> | null
+  stitching_rate?: number
+  size_rates?: Record<string, any> | null
   is_active: boolean
-  created_at: string
-}
-
-type RateHistoryItem = {
-  id: string
-  article_id: string
-  old_rate: number
-  new_rate: number
   created_at: string
 }
 
 interface ArticlesClientProps {
   articles: Article[]
-  rateHistory: RateHistoryItem[]
 }
 
 type FilterTab = 'ALL' | 'ACTIVE' | 'ARCHIVED'
-type SortField = 'art_no' | 'stitching_rate' | 'created_at'
+type SortField = 'art_no' | 'created_at'
 type SortOrder = 'asc' | 'desc'
 
-
-
-const SIZE_PRESETS: Record<string, { label: string; sizes: string[] }> = {
-  ALPHA: { label: 'Adult Alpha (S-XXL)', sizes: ['S', 'M', 'L', 'XL', 'XXL'] },
-  NUMERIC: { label: 'Numeric Jeans (28-38)', sizes: ['28', '30', '32', '34', '36', '38'] },
-  KIDS_AGE: { label: 'Kids Age (2-13Y)', sizes: ['2-3Y', '4-5Y', '6-7Y', '8-9Y', '10-11Y', '12-13Y'] },
-  KIDS_NUM: { label: 'Kids Num (20-32)', sizes: ['20', '22', '24', '26', '28', '30', '32'] },
-  UNIVERSAL: { label: 'Universal (Free Size)', sizes: ['Free Size'] },
-}
-
-function cleanArticleDesc(desc?: string | null) {
-  if (!desc) return ''
-  return desc.replace(/\s*\[.*?\]/g, '').trim()
-}
-
-function formatRateDate(dateStr?: string | null) {
-  if (!dateStr) return ''
-  const d = new Date(dateStr)
-  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
-}
-
-
-function renderArticleRateBadge(item: Article) {
-  if (item.size_rates && Object.keys(item.size_rates).length > 0) {
-    const validEntries = Object.entries(item.size_rates).filter(([k, v]) => k !== '_meta' && typeof v === 'number' && !isNaN(v) && v > 0); const rates = validEntries.map(([, v]) => v as number)
-    if (rates.length > 0) {
-      const min = Math.min(...rates)
-      const max = Math.max(...rates)
-      const label = min === max ? `₹${min.toFixed(2)}` : `₹${min.toFixed(2)} - ₹${max.toFixed(2)}`
-      return (
-        <div className="flex flex-col items-start gap-1">
-          <div className="flex items-center gap-1.5">
-            <span className="font-mono font-bold text-slate-900 text-sm">{label}</span>
-            <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-              Size-Wise
-            </span>
-          </div>
-          <div className="text-xs text-slate-600 flex flex-wrap gap-1 max-w-[260px] mt-0.5">
-            {Object.entries(item.size_rates).filter(([sz, rt]) => sz !== '_meta' && typeof rt === 'number').map(([sz, rt]) => (
-              <span key={sz} className="font-mono text-xs font-semibold bg-slate-100 text-slate-800 px-1.5 py-0.5 rounded-md border border-slate-200">
-                {sz}: ₹{rt}
-              </span>
-            ))}
-          </div>
-        </div>
-      )
-    }
-  }
-  return <span className="font-mono font-bold text-slate-900 text-sm">₹{item.stitching_rate.toFixed(2)}</span>
-}
-
-export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
+export function ArticlesClient({ articles }: ArticlesClientProps) {
   const [isPending, startTransition] = useTransition()
   
   // Toolbar State
@@ -132,36 +63,9 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
 
   // Modal States
   const [showAddModal, setShowAddModal] = useState(false)
-  const [showUpdateRateModal, setShowUpdateRateModal] = useState(false)
-  const [selectedArticleForRate, setSelectedArticleForRate] = useState<Article | null>(null)
-  const [newRateValue, setNewRateValue] = useState('')
-  const [rateUpdateError, setRateUpdateError] = useState<string | null>(null)
-
-  // Rate History Modal State
-  const [showHistoryModal, setShowHistoryModal] = useState(false)
-  const [historyArticle, setHistoryArticle] = useState<Article | null>(null)
-  const [specificHistoryList, setSpecificHistoryList] = useState<RateHistoryItem[]>([])
-  const [loadingHistory, setLoadingHistory] = useState(false)
-
-
-  // Rate Mode & Size-Wise State
-  const [addRateMode, setAddRateMode] = useState<'FLAT' | 'SIZE_WISE'>('FLAT')
-  const [addSizeRateRows, setAddSizeRateRows] = useState<Array<{ id: string; size: string; rate: string }>>([
-    { id: '1', size: 'S', rate: '' },
-    { id: '2', size: 'M', rate: '' },
-    { id: '3', size: 'L', rate: '' },
-    { id: '4', size: 'XL', rate: '' },
-    { id: '5', size: 'XXL', rate: '' },
-  ])
-  const [updateRateMode, setUpdateRateMode] = useState<'FLAT' | 'SIZE_WISE'>('FLAT')
-  const [updateSizeRateRows, setUpdateSizeRateRows] = useState<Array<{ id: string; size: string; rate: string }>>([])
-
-  // Add Article Form State
   const [addArtNo, setAddArtNo] = useState('')
   const [addDescription, setAddDescription] = useState('')
-  const [addRate, setAddRate] = useState('')
   const [addError, setAddError] = useState<string | null>(null)
-  const [addTouched, setAddTouched] = useState(false)
 
   // Delete Modal States
   const [showDeleteModal, setShowDeleteModal] = useState(false)
@@ -174,8 +78,6 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setShowAddModal(false)
-        setShowUpdateRateModal(false)
-        setShowHistoryModal(false)
         setShowDeleteModal(false)
         setShowBulkDeleteModal(false)
       }
@@ -183,17 +85,6 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [])
-
-  // Map latest rate history per article
-  const latestRateChangeMap = useMemo(() => {
-    const map: Record<string, RateHistoryItem> = {}
-    rateHistory.forEach(item => {
-      if (!map[item.article_id]) {
-        map[item.article_id] = item
-      }
-    })
-    return map
-  }, [rateHistory])
 
   // Filtered & Sorted Articles
   const filteredArticles = useMemo(() => {
@@ -220,10 +111,6 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
         return sortOrder === 'asc' 
           ? a.art_no.localeCompare(b.art_no)
           : b.art_no.localeCompare(a.art_no)
-      } else if (sortField === 'stitching_rate') {
-        return sortOrder === 'asc'
-          ? a.stitching_rate - b.stitching_rate
-          : b.stitching_rate - a.stitching_rate
       } else {
         const dA = new Date(a.created_at).getTime()
         const dB = new Date(b.created_at).getTime()
@@ -278,11 +165,10 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
   // Bulk Actions
   const handleBulkExportCSV = () => {
     const selectedArticles = articles.filter(a => selectedIds.includes(a.id))
-    const headers = ['Article No', 'Description', 'Stitching Rate (INR)', 'Status', 'Created At']
+    const headers = ['Article No', 'Description', 'Status', 'Created At']
     const rows = selectedArticles.map(a => [
       a.art_no,
       '"' + (a.description || '').replace(/"/g, '""') + '"',
-      a.stitching_rate.toFixed(2),
       a.is_active ? 'Active' : 'Archived',
       a.created_at
     ])
@@ -344,10 +230,9 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
     })
   }
 
-  // Add Article Submit (Supporting Flat and Size-Wise Tiered Rates)
+  // Add Article Submit
   const handleCreateArticleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setAddTouched(true)
     setAddError(null)
 
     if (!addArtNo.trim()) {
@@ -355,35 +240,10 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
       return
     }
 
-    let finalBaseRate = 0
-    let sizeRatesMap: Record<string, number> = {}
-
-    if (addRateMode === 'SIZE_WISE') {
-      const validRows = addSizeRateRows.filter(r => r.size.trim() && !isNaN(parseFloat(r.rate)) && parseFloat(r.rate) > 0)
-      if (validRows.length === 0) {
-        setAddError('Please enter at least 1 valid size name and a rate greater than ₹0.00')
-        return
-      }
-      validRows.forEach(r => {
-        sizeRatesMap[r.size.trim()] = parseFloat(r.rate)
-      })
-      const ratesList = Object.values(sizeRatesMap)
-      finalBaseRate = Math.min(...ratesList)
-    } else {
-      finalBaseRate = parseFloat(addRate)
-      if (isNaN(finalBaseRate) || finalBaseRate <= 0) {
-        setAddError('Please enter a valid stitching rate greater than ₹0.00')
-        return
-      }
-    }
-
     const formData = new FormData()
     formData.append('art_no', addArtNo.trim().toUpperCase())
     formData.append('description', addDescription.trim())
-    formData.append('stitching_rate', finalBaseRate.toString())
-    if (Object.keys(sizeRatesMap).length > 0) {
-      formData.append('size_rates', JSON.stringify(sizeRatesMap))
-    }
+    formData.append('stitching_rate', '0')
 
     startTransition(async () => {
       const res = await createArticle(formData)
@@ -393,96 +253,8 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
         setShowAddModal(false)
         setAddArtNo('')
         setAddDescription('')
-        setAddRate('')
-        setAddRateMode('FLAT')
-        setAddTouched(false)
       }
     })
-  }
-
-  // Update Rate Submit (Supporting Flat and Size-Wise Tiered Rates)
-  const handleUpdateRateSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!selectedArticleForRate) return
-    setRateUpdateError(null)
-
-    let finalRate = 0
-    let sizeRatesMap: Record<string, number> = {}
-
-    if (updateRateMode === 'SIZE_WISE') {
-      const validRows = updateSizeRateRows.filter(r => r.size.trim() && !isNaN(parseFloat(r.rate)) && parseFloat(r.rate) > 0)
-      if (validRows.length === 0) {
-        setRateUpdateError('Please enter at least 1 valid size and rate greater than ₹0.00')
-        return
-      }
-      validRows.forEach(r => {
-        sizeRatesMap[r.size.trim()] = parseFloat(r.rate)
-      })
-      finalRate = Math.min(...Object.values(sizeRatesMap))
-    } else {
-      finalRate = parseFloat(newRateValue)
-      if (isNaN(finalRate) || finalRate <= 0) {
-        setRateUpdateError('Please enter a valid stitching rate greater than ₹0.00')
-        return
-      }
-    }
-
-    startTransition(async () => {
-      const res = await updateArticleRate(
-        selectedArticleForRate.id, 
-        selectedArticleForRate.stitching_rate, 
-        finalRate,
-        Object.keys(sizeRatesMap).length > 0 ? sizeRatesMap : undefined
-      )
-      if (res?.error) {
-        setRateUpdateError(res.error)
-      } else {
-        setShowUpdateRateModal(false)
-        setSelectedArticleForRate(null)
-        setNewRateValue('')
-      }
-    })
-  }
-
-
-  // Open Update Rate Modal with Size-Wise Pre-fill
-  const openUpdateRateModal = (article: Article) => {
-    setSelectedArticleForRate(article)
-    setNewRateValue(article.stitching_rate.toString())
-    setRateUpdateError(null)
-    if (article.size_rates && Object.keys(article.size_rates).length > 0) {
-      setUpdateRateMode('SIZE_WISE')
-      const rows = Object.entries(article.size_rates).filter(([sz]) => sz !== '_meta').map(([sz, rt], idx) => ({
-        id: (idx + 1).toString(),
-        size: sz,
-        rate: rt.toString()
-      }))
-      setUpdateSizeRateRows(rows)
-    } else {
-      setUpdateRateMode('FLAT')
-      setUpdateSizeRateRows([
-        { id: '1', size: 'S', rate: article.stitching_rate.toString() },
-        { id: '2', size: 'M', rate: article.stitching_rate.toString() },
-        { id: '3', size: 'L', rate: article.stitching_rate.toString() },
-        { id: '4', size: 'XL', rate: (article.stitching_rate + 2).toString() },
-        { id: '5', size: 'XXL', rate: (article.stitching_rate + 4).toString() },
-      ])
-    }
-    setShowUpdateRateModal(true)
-  }
-
-  // View Rate History Modal
-  const openRateHistoryModal = async (art: Article) => {
-    setHistoryArticle(art)
-    setShowHistoryModal(true)
-    setLoadingHistory(true)
-    const { data } = await getRateHistory(art.id)
-    if (data) {
-      setSpecificHistoryList(data)
-    } else {
-      setSpecificHistoryList([])
-    }
-    setLoadingHistory(false)
   }
 
   return (
@@ -503,10 +275,10 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
             <h1 
               className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900"
             >
-              Articles & Rates
+              Articles
             </h1>
             <p className="text-sm sm:text-base text-slate-600 mt-1">
-              Manage Art No. and Stitching Rates
+              Manage Art No. and Production Articles Catalog
             </p>
           </div>
         </div>
@@ -519,7 +291,6 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
             type="button"
             onClick={() => {
               setAddError(null)
-              setAddTouched(false)
               setShowAddModal(true)
             }}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] transition-all shadow-xs cursor-pointer active:scale-[0.98]"
@@ -681,21 +452,6 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
 
                 <th className="px-4 py-3.5 font-bold">Description</th>
 
-                {/* Sortable Stitching Rate */}
-                <th 
-                  onClick={() => handleSort('stitching_rate')}
-                  className="px-4 py-3.5 cursor-pointer hover:bg-slate-100 transition-colors select-none font-bold"
-                >
-                  <div className="flex items-center gap-1.5">
-                    <span>Stitching Rate (₹)</span>
-                    {sortField === 'stitching_rate' ? (
-                      sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#3A3564]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#3A3564]" />
-                    ) : (
-                      <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
-                    )}
-                  </div>
-                </th>
-
                 <th className="px-4 py-3.5 font-bold text-center">Status</th>
                 <th className="px-5 py-3.5 font-bold text-right">Actions</th>
               </tr>
@@ -703,14 +459,14 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
             <tbody className="divide-y divide-slate-100">
               {paginatedArticles.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-slate-500">
+                  <td colSpan={5} className="px-6 py-12 text-center text-slate-500">
                     <div className="flex flex-col items-center justify-center space-y-2">
                       <Tag className="w-8 h-8 text-slate-300" />
                       <p className="text-sm font-semibold text-slate-700">
                         {searchTerm ? 'No articles found matching "' + searchTerm + '"' : 'No articles in this view.'}
                       </p>
                       <p className="text-xs text-slate-500">
-                        Click "Add Article" in the top bar to register a new article style.
+                        Click &quot;Add Article&quot; in the top bar to register a new article style.
                       </p>
                     </div>
                   </td>
@@ -719,7 +475,6 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                 paginatedArticles.map((article) => {
                   const isChecked = selectedIds.includes(article.id)
                   const isArchived = !article.is_active
-                  const latestHistory = latestRateChangeMap[article.id]
 
                   return (
                     <tr 
@@ -752,17 +507,6 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                         </span>
                       </td>
 
-                      {/* Stitching Rate with Size-Wise Breakdown */}
-                      <td className="px-4 py-3.5">
-                        {renderArticleRateBadge(article)}
-                        <div className="text-xs font-mono text-slate-500 mt-1">
-                          {latestHistory 
-                            ? 'was ₹' + latestHistory.old_rate.toFixed(2) + ' · ' + formatRateDate(latestHistory.created_at)
-                            : 'unchanged since creation'
-                          }
-                        </div>
-                      </td>
-
                       {/* Status Badge */}
                       <td className="px-4 py-3.5 text-center">
                         <span 
@@ -780,26 +524,8 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                       <td className="px-5 py-3.5 text-right">
                         <div className="flex items-center justify-end gap-2">
                           
-                          {/* Rate History Clock Button */}
-                          <button
-                            type="button"
-                            onClick={() => openRateHistoryModal(article)}
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-[#3A3564] hover:bg-slate-100 transition-colors cursor-pointer"
-                            title="View Rate History"
-                          >
-                            <History className="w-4 h-4" />
-                          </button>
-
-                          {/* Update Rate / Restore Link */}
-                          {article.is_active ? (
-                            <button
-                              type="button"
-                              onClick={() => openUpdateRateModal(article)}
-                              className="text-xs font-bold px-3 py-1.5 rounded-lg border border-black/10 bg-[#FAF7F0] hover:bg-slate-100 text-[#3A3564] transition-all cursor-pointer shadow-2xs"
-                            >
-                              Update Rate
-                            </button>
-                          ) : (
+                          {/* Restore Button (if archived) */}
+                          {!article.is_active && (
                             <button
                               type="button"
                               onClick={() => {
@@ -896,7 +622,7 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
           }}
         >
           <div 
-            className="w-full max-w-lg my-6 bg-white rounded-2xl p-5 sm:p-6 shadow-2xl border border-black/10 relative space-y-4 sm:space-y-5 animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto"
+            className="w-full max-w-md my-6 bg-white rounded-2xl p-5 sm:p-6 shadow-2xl border border-black/10 relative space-y-4 sm:space-y-5 animate-in zoom-in-95 duration-200"
           >
             {/* Header */}
             <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
@@ -912,7 +638,7 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                   >
                     Add New Article
                   </h3>
-                  <p className="text-xs sm:text-[13px] text-slate-500 mt-0.5">Register new style & size-wise stitching rates</p>
+                  <p className="text-xs sm:text-[13px] text-slate-500 mt-0.5">Register new style in master catalog</p>
                 </div>
               </div>
 
@@ -928,215 +654,41 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
             {/* Form */}
             <form onSubmit={handleCreateArticleSubmit} className="space-y-4 text-xs sm:text-[13px]">
               
-              {/* Art No & Description Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                <div>
-                  <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
-                    Article Number (Art No) <span className="text-rose-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="E.G. A2045"
-                    value={addArtNo}
-                    onChange={(e) => setAddArtNo(e.target.value.toUpperCase())}
-                    className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-mono font-bold uppercase text-[#3A3564] outline-none shadow-2xs transition-all"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
-                    Description
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Blue Denim Jacket"
-                    value={addDescription}
-                    onChange={(e) => setAddDescription(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
-                  />
-                </div>
+              <div>
+                <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
+                  Article Number (Art No) <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="E.G. A2045, 9437"
+                  value={addArtNo}
+                  onChange={(e) => setAddArtNo(e.target.value.toUpperCase())}
+                  className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-mono font-bold uppercase text-[#3A3564] outline-none shadow-2xs transition-all"
+                  autoFocus
+                />
               </div>
 
-              {/* Rate Mode Toggle */}
-              <div className="pt-2 border-t border-slate-100">
-                <div className="flex items-center justify-between mb-2">
-                  <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono">
-                    Stitching Rate Structure <span className="text-rose-500">*</span>
-                  </label>
-                  <span className="text-xs text-slate-500">Choose flat or size-wise</span>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-xl border border-slate-200">
-                  <button
-                    type="button"
-                    onClick={() => setAddRateMode('FLAT')}
-                    className={`py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                      addRateMode === 'FLAT'
-                        ? 'bg-[#3A3564] text-white shadow-xs'
-                        : 'text-slate-600 hover:text-slate-900'
-                    }`}
-                  >
-                    <Tag className="w-3.5 h-3.5" />
-                    <span>Flat Rate (All Sizes)</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setAddRateMode('SIZE_WISE')}
-                    className={`py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                      addRateMode === 'SIZE_WISE'
-                        ? 'bg-[#3A3564] text-white shadow-xs'
-                        : 'text-slate-600 hover:text-slate-900'
-                    }`}
-                  >
-                    <Layers className="w-3.5 h-3.5" />
-                    <span>Size-Wise / Tiered</span>
-                  </button>
-                </div>
+              <div>
+                <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
+                  Description
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Blue Denim Jacket, Night Suit, T-Shirt"
+                  value={addDescription}
+                  onChange={(e) => setAddDescription(e.target.value)}
+                  className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
+                />
               </div>
 
-              {/* Mode A: Flat Rate Input */}
-              {addRateMode === 'FLAT' && (
-                <div className="space-y-1.5 pt-1">
-                  <label className="block text-xs sm:text-[13px] font-bold text-slate-700">
-                    Piece Rate for All Sizes (₹)
-                  </label>
-                  <div className="relative">
-                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-mono font-bold text-slate-400">₹</span>
-                    <input
-                      type="number"
-                      step="0.01"
-                      placeholder="e.g. 20.00"
-                      value={addRate}
-                      onChange={(e) => setAddRate(e.target.value)}
-                      className="w-full pl-8 pr-3.5 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-mono font-bold text-slate-900 outline-none shadow-2xs transition-all"
-                    />
-                  </div>
-                  <p className="text-xs text-slate-500">Same rate applied to all sizes stitched by workers.</p>
-                </div>
-              )}
-
-              {/* Mode B: Dynamic Size-Wise Rate Editor */}
-              {addRateMode === 'SIZE_WISE' && (
-                <div className="space-y-3 pt-1">
-                  {/* Quick Preset Buttons */}
-                  <div>
-                    <span className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5 font-mono">
-                      Quick Fill Presets:
-                    </span>
-                    <div className="flex flex-wrap gap-1.5">
-                      {Object.entries(SIZE_PRESETS).map(([key, preset]) => (
-                        <button
-                          key={key}
-                          type="button"
-                          onClick={() => {
-                            const newRows = preset.sizes.map((sz, idx) => ({
-                              id: (idx + 1).toString(),
-                              size: sz,
-                              rate: addSizeRateRows.find(r => r.size === sz)?.rate || ''
-                            }))
-                            setAddSizeRateRows(newRows)
-                          }}
-                          className="px-2.5 py-1 bg-white hover:bg-slate-100 text-slate-800 rounded-lg text-xs font-semibold border border-slate-200 shadow-2xs transition-colors cursor-pointer"
-                        >
-                          {preset.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Size Rate Table / Rows */}
-                  <div className="border border-slate-200 rounded-xl overflow-hidden shadow-2xs">
-                    <div className="bg-[#FAF7F0] px-3.5 py-2 border-b border-black/10 grid grid-cols-12 gap-2 text-xs font-bold text-slate-700 uppercase font-mono">
-                      <div className="col-span-5">Size Name (Editable)</div>
-                      <div className="col-span-6">Stitching Rate (₹)</div>
-                      <div className="col-span-1 text-center"></div>
-                    </div>
-
-                    <div className="divide-y divide-slate-100 max-h-[190px] overflow-y-auto">
-                      {addSizeRateRows.map((row, idx) => (
-                        <div key={row.id} className="p-2.5 grid grid-cols-12 gap-2 items-center hover:bg-slate-50/50">
-                          {/* Size Name Input */}
-                          <div className="col-span-5">
-                            <input
-                              type="text"
-                              value={row.size}
-                              onChange={(e) => {
-                                const updated = [...addSizeRateRows]
-                                updated[idx].size = e.target.value
-                                setAddSizeRateRows(updated)
-                              }}
-                              placeholder="e.g. XXL / 34 / S-L"
-                              className="w-full px-3 py-1.5 bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-1 focus:ring-[#3A3564] rounded-lg text-xs sm:text-sm font-mono font-bold text-slate-900 outline-none"
-                            />
-                          </div>
-
-                          {/* Rate Input */}
-                          <div className="col-span-6 relative">
-                            <span className="absolute left-2.5 top-1/2 -translate-y-1/2 font-mono font-bold text-slate-400 text-xs">₹</span>
-                            <input
-                              type="number"
-                              step="0.01"
-                              value={row.rate}
-                              onChange={(e) => {
-                                const updated = [...addSizeRateRows]
-                                updated[idx].rate = e.target.value
-                                setAddSizeRateRows(updated)
-                              }}
-                              placeholder="0.00"
-                              className="w-full pl-6 pr-2.5 py-1.5 bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-1 focus:ring-[#3A3564] rounded-lg text-xs sm:text-sm font-mono font-bold text-[#3A3564] outline-none"
-                            />
-                          </div>
-
-                          {/* Delete Button */}
-                          <div className="col-span-1 text-center">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                if (addSizeRateRows.length > 1) {
-                                  setAddSizeRateRows(addSizeRateRows.filter(r => r.id !== row.id))
-                                }
-                              }}
-                              className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Add Custom Row Button */}
-                    <div className="p-2.5 bg-slate-50 border-t border-slate-200 flex justify-between items-center">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const nextId = Date.now().toString()
-                          setAddSizeRateRows([...addSizeRateRows, { id: nextId, size: '', rate: '' }])
-                        }}
-                        className="px-3 py-1.5 bg-white hover:bg-slate-100 text-[#3A3564] rounded-lg text-xs font-bold border border-black/10 flex items-center gap-1.5 shadow-2xs cursor-pointer"
-                      >
-                        <Plus className="w-3.5 h-3.5" />
-                        <span>Add Custom Size Rate</span>
-                      </button>
-                      <span className="text-xs text-slate-500 font-mono">
-                        {addSizeRateRows.length} sizes configured
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Error Message */}
               {addError && (
-                <div 
-                  className="p-3 rounded-xl text-xs font-semibold flex items-center gap-2 bg-rose-50 text-rose-700 border border-rose-200"
-                >
+                <div className="p-3 rounded-xl text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200 flex items-center gap-2">
                   <AlertCircle className="w-4 h-4 shrink-0" />
                   <span>{addError}</span>
                 </div>
               )}
 
-              {/* Buttons */}
               <div className="grid grid-cols-2 gap-3 pt-2">
                 <button
                   type="button"
@@ -1148,216 +700,9 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="w-full py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold text-white transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer disabled:opacity-50 bg-[#3A3564] hover:bg-[#2A2649] active:scale-[0.98]"
-                >
-                  <Check className="w-4 h-4" />
-                  <span>{isPending ? 'Saving...' : 'Save Article'}</span>
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* ======================================================== */}
-      {/* MODAL 2: UPDATE RATE MODAL                                */}
-      {/* ======================================================== */}
-      {showUpdateRateModal && selectedArticleForRate && (
-        <div 
-          className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-in fade-in duration-200"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setShowUpdateRateModal(false)
-          }}
-        >
-          <div 
-            className="w-full max-w-lg my-6 bg-white rounded-2xl p-5 sm:p-6 shadow-2xl border border-black/10 relative space-y-4 sm:space-y-5 animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto"
-          >
-            <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
-              <div>
-                <h3 className="text-base sm:text-lg font-bold font-[family-name:var(--font-heading)] text-slate-900">
-                  Update Stitching Rate
-                </h3>
-                <p className="text-xs sm:text-[13px] font-mono font-bold text-[#3A3564] mt-0.5">
-                  {selectedArticleForRate.art_no} ({selectedArticleForRate.description || 'Standard'})
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowUpdateRateModal(false)}
-                className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <form onSubmit={handleUpdateRateSubmit} className="space-y-4 text-xs sm:text-[13px]">
-              
-              {/* Rate Mode Tabs */}
-              <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-xl border border-slate-200">
-                <button
-                  type="button"
-                  onClick={() => setUpdateRateMode('FLAT')}
-                  className={`py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                    updateRateMode === 'FLAT'
-                      ? 'bg-[#3A3564] text-white shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  <Tag className="w-3.5 h-3.5" />
-                  <span>Flat Rate</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setUpdateRateMode('SIZE_WISE')}
-                  className={`py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                    updateRateMode === 'SIZE_WISE'
-                      ? 'bg-[#3A3564] text-white shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  <Layers className="w-3.5 h-3.5" />
-                  <span>Size-Wise Rates</span>
-                </button>
-              </div>
-
-              {/* Mode A: Flat Rate */}
-              {updateRateMode === 'FLAT' && (
-                <div>
-                  <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
-                    New Stitching Rate (₹)
-                  </label>
-                  <div className="relative">
-                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-mono font-bold text-slate-400">₹</span>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={newRateValue}
-                      onChange={(e) => setNewRateValue(e.target.value)}
-                      className="w-full pl-8 pr-3.5 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-mono font-bold text-slate-900 outline-none shadow-2xs transition-all"
-                      autoFocus
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* Mode B: Size-Wise Rates */}
-              {updateRateMode === 'SIZE_WISE' && (
-                <div className="space-y-3">
-                  {/* Quick Preset Buttons */}
-                  <div>
-                    <span className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5 font-mono">
-                      Quick Fill Presets:
-                    </span>
-                    <div className="flex flex-wrap gap-1.5">
-                      {Object.entries(SIZE_PRESETS).map(([key, preset]) => (
-                        <button
-                          key={key}
-                          type="button"
-                          onClick={() => {
-                            const newRows = preset.sizes.map((sz, idx) => ({
-                              id: (idx + 1).toString(),
-                              size: sz,
-                              rate: updateSizeRateRows.find(r => r.size === sz)?.rate || selectedArticleForRate.stitching_rate.toString()
-                            }))
-                            setUpdateSizeRateRows(newRows)
-                          }}
-                          className="px-2.5 py-1 bg-white hover:bg-slate-100 text-slate-800 rounded-lg text-xs font-semibold border border-slate-200 shadow-2xs transition-colors cursor-pointer"
-                        >
-                          {preset.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="border border-slate-200 rounded-xl overflow-hidden shadow-2xs">
-                    <div className="bg-[#FAF7F0] px-3.5 py-2 border-b border-black/10 grid grid-cols-12 gap-2 text-xs font-bold text-slate-700 uppercase font-mono">
-                      <div className="col-span-5">Size</div>
-                      <div className="col-span-6">Rate (₹)</div>
-                      <div className="col-span-1"></div>
-                    </div>
-
-                    <div className="divide-y divide-slate-100 max-h-[180px] overflow-y-auto">
-                      {updateSizeRateRows.map((row, idx) => (
-                        <div key={row.id} className="p-2.5 grid grid-cols-12 gap-2 items-center hover:bg-slate-50/50">
-                          <div className="col-span-5">
-                            <input
-                              type="text"
-                              value={row.size}
-                              onChange={(e) => {
-                                const updated = [...updateSizeRateRows]
-                                updated[idx].size = e.target.value
-                                setUpdateSizeRateRows(updated)
-                              }}
-                              className="w-full px-3 py-1.5 bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-1 focus:ring-[#3A3564] rounded-lg text-xs sm:text-sm font-mono font-bold text-slate-900 outline-none"
-                            />
-                          </div>
-                          <div className="col-span-6 relative">
-                            <span className="absolute left-2.5 top-1/2 -translate-y-1/2 font-mono font-bold text-slate-400 text-xs">₹</span>
-                            <input
-                              type="number"
-                              step="0.01"
-                              value={row.rate}
-                              onChange={(e) => {
-                                const updated = [...updateSizeRateRows]
-                                updated[idx].rate = e.target.value
-                                setUpdateSizeRateRows(updated)
-                              }}
-                              className="w-full pl-6 pr-2.5 py-1.5 bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-1 focus:ring-[#3A3564] rounded-lg text-xs sm:text-sm font-mono font-bold text-[#3A3564] outline-none"
-                            />
-                          </div>
-                          <div className="col-span-1 text-center">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                if (updateSizeRateRows.length > 1) {
-                                  setUpdateSizeRateRows(updateSizeRateRows.filter(r => r.id !== row.id))
-                                }
-                              }}
-                              className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="p-2.5 bg-slate-50 border-t border-slate-200 flex justify-between items-center">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const nextId = Date.now().toString()
-                          setUpdateSizeRateRows([...updateSizeRateRows, { id: nextId, size: '', rate: '' }])
-                        }}
-                        className="px-3 py-1.5 bg-white hover:bg-slate-100 text-[#3A3564] rounded-lg text-xs font-bold border border-black/10 flex items-center gap-1.5 shadow-2xs cursor-pointer"
-                      >
-                        <Plus className="w-3.5 h-3.5" />
-                        <span>Add Size Rate</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {rateUpdateError && (
-                <div className="p-3 rounded-xl text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200">
-                  {rateUpdateError}
-                </div>
-              )}
-
-              <div className="grid grid-cols-2 gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setShowUpdateRateModal(false)}
-                  className="w-full py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition-colors cursor-pointer shadow-2xs"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isPending}
                   className="w-full py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold text-white transition-all cursor-pointer shadow-xs bg-[#3A3564] hover:bg-[#2A2649] disabled:opacity-50 active:scale-[0.98]"
                 >
-                  {isPending ? 'Updating...' : 'Update & Log'}
+                  {isPending ? 'Saving...' : 'Save Article'}
                 </button>
               </div>
             </form>
@@ -1366,91 +711,7 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
       )}
 
       {/* ======================================================== */}
-      {/* MODAL 3: RATE CHANGE HISTORY MODAL                       */}
-      {/* ======================================================== */}
-      {showHistoryModal && historyArticle && (
-        <div 
-          className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-in fade-in duration-200"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setShowHistoryModal(false)
-          }}
-        >
-          <div 
-            className="w-full max-w-md bg-white rounded-2xl p-5 sm:p-6 shadow-2xl border border-black/10 relative space-y-4 animate-in zoom-in-95 duration-200"
-          >
-            <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
-              <div className="flex items-center gap-3">
-                <div 
-                  className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs"
-                >
-                  <History className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-base sm:text-lg font-bold font-[family-name:var(--font-heading)] text-slate-900">
-                    Rate History
-                  </h3>
-                  <p className="text-xs font-mono font-bold text-slate-500">
-                    {historyArticle.art_no} • Current: ₹{historyArticle.stitching_rate.toFixed(2)}
-                  </p>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setShowHistoryModal(false)}
-                className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* History Feed */}
-            <div className="max-h-72 overflow-y-auto space-y-2 text-xs sm:text-[13px]">
-              {loadingHistory ? (
-                <div className="p-8 text-center text-slate-400">Loading history...</div>
-              ) : specificHistoryList.length === 0 ? (
-                <div className="p-8 text-center text-slate-400 space-y-1">
-                  <Clock className="w-6 h-6 mx-auto text-slate-300" />
-                  <p className="font-semibold text-slate-600">No previous rate changes.</p>
-                  <p className="text-xs text-slate-500">This article has maintained its initial creation rate of ₹{historyArticle.stitching_rate.toFixed(2)}/pc.</p>
-                </div>
-              ) : (
-                specificHistoryList.map((item) => (
-                  <div 
-                    key={item.id}
-                    className="p-3 bg-slate-50 rounded-xl border border-slate-200/80 flex items-center justify-between"
-                  >
-                    <div>
-                      <div className="font-medium text-slate-700 font-mono">
-                        ₹{item.old_rate.toFixed(2)} → <span className="font-bold text-[#3A3564]">₹{item.new_rate.toFixed(2)}</span>
-                      </div>
-                      <div className="text-xs text-slate-500 mt-0.5 font-mono">
-                        Effective {formatRateDate(item.created_at)}
-                      </div>
-                    </div>
-                    <span className="text-xs px-2.5 py-1 rounded-full bg-white border border-slate-200 font-bold text-slate-700 shadow-2xs">
-                      Logged
-                    </span>
-                  </div>
-                ))
-              )}
-            </div>
-
-            <div className="pt-3 border-t border-slate-100 flex justify-end">
-              <button
-                type="button"
-                onClick={() => setShowHistoryModal(false)}
-                className="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ======================================================== */}
-      {/* MODAL 4: CONFIRM SINGLE ARTICLE DELETE                    */}
+      {/* MODAL 2: CONFIRM SINGLE ARTICLE DELETE                    */}
       {/* ======================================================== */}
       {showDeleteModal && articleToDelete && (
         <div 
@@ -1503,14 +764,10 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                     <span className="font-medium text-slate-800 text-right max-w-[200px] truncate">{articleToDelete.description}</span>
                   </div>
                 )}
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-500 font-medium">Stitching Rate:</span>
-                  <span className="font-mono font-bold text-slate-900">₹{articleToDelete.stitching_rate.toFixed(2)}</span>
-                </div>
               </div>
 
               <p className="text-slate-600 text-xs leading-relaxed">
-                Are you sure you want to permanently delete this article? All associated rate history, worker assignments, and linked production records will be removed.
+                Are you sure you want to permanently delete this article? All associated worker assignments and linked production records will be removed.
               </p>
 
               {deleteError && (
@@ -1549,7 +806,7 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
       )}
 
       {/* ======================================================== */}
-      {/* MODAL 5: CONFIRM BULK DELETE ARTICLES                     */}
+      {/* MODAL 3: CONFIRM BULK DELETE ARTICLES                     */}
       {/* ======================================================== */}
       {showBulkDeleteModal && selectedIds.length > 0 && (
         <div 
@@ -1590,7 +847,7 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
                   You have selected {selectedIds.length} {selectedIds.length === 1 ? 'article' : 'articles'} to delete.
                 </p>
                 <p className="text-xs text-rose-700">
-                  All corresponding rate history, allotments, and worker assignments for these articles will be permanently deleted from the system.
+                  All corresponding allotments and worker assignments for these articles will be permanently deleted from the system.
                 </p>
               </div>
 
@@ -1629,4 +886,3 @@ export function ArticlesClient({ articles, rateHistory }: ArticlesClientProps) {
     </div>
   )
 }
-

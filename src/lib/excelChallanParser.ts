@@ -25,6 +25,7 @@ export interface ParsedChallanData {
     total_pcs: number | string
     assigned_lineman_id: string
     status: string
+    stitching_rate?: number
   }>
   bomItems: Array<{
     material_type: string
@@ -55,6 +56,7 @@ export function downloadCleanChallanTemplate() {
     'CATEGORY',
     'PRODUCT',
     'SIZE',
+    'RATE',
     'ORDER QNTY',
     'CHALLAN QNTY',
     'LINEMAN',
@@ -83,6 +85,7 @@ export function downloadCleanChallanTemplate() {
     { wch: 16 }, // CATEGORY
     { wch: 16 }, // PRODUCT
     { wch: 12 }, // SIZE
+    { wch: 12 }, // RATE
     { wch: 14 }, // ORDER QNTY
     { wch: 16 }, // CHALLAN QNTY
     { wch: 18 }, // LINEMAN
@@ -120,6 +123,7 @@ export interface ParsedSingleArticleLine {
   mending_name?: string
   stage_status?: string
   status: string
+  stitching_rate?: number
 }
 
 export interface ParsedSingleBomItem {
@@ -301,6 +305,10 @@ const COLUMN_SYNONYMS = {
   ],
   size: [
     'size', 'sizes', 'sizerange', 'sizetier', 'ratio', 'sizeratio', 'sizebreakdown', 'scale'
+  ],
+  rate: [
+    'rate', 'stitchingrate', 'piecerate', 'stitchingcharge', 'rates', 'ratepc', 'ratepiece',
+    'rateperpc', 'rateperpiece', 'jobrate', 'workrate', 'tailorrate', 'stitchrate'
   ],
   order_qty: [
     'orderqnty', 'orderqty', 'orderedqty', 'ordqty', 'ordqnty', 'order', 'targetqty',
@@ -535,6 +543,7 @@ export async function parseMultiChallanExcelFile(file: File): Promise<ParsedMult
       const category = String(getNormalizedField(rowMap, COLUMN_SYNONYMS.category)).trim()
       const product = String(getNormalizedField(rowMap, COLUMN_SYNONYMS.product)).trim()
       const sizeRange = String(getNormalizedField(rowMap, COLUMN_SYNONYMS.size)).trim()
+      const rateVal = parseNumeric(getNormalizedField(rowMap, COLUMN_SYNONYMS.rate))
       const orderQtyVal = parseNumeric(getNormalizedField(rowMap, COLUMN_SYNONYMS.order_qty))
       const challanQtyVal = parseNumeric(getNormalizedField(rowMap, COLUMN_SYNONYMS.challan_qty))
       const setsVal = parseNumeric(getNormalizedField(rowMap, COLUMN_SYNONYMS.sets))
@@ -585,7 +594,8 @@ export async function parseMultiChallanExcelFile(file: File): Promise<ParsedMult
           qc_name: qcName || undefined,
           mending_name: mendingName || undefined,
           stage_status: stageStatus || undefined,
-          status: rowStatus || 'RUNNING'
+          status: rowStatus || 'RUNNING',
+          stitching_rate: typeof rateVal === 'number' && rateVal > 0 ? rateVal : undefined
         })
       }
 

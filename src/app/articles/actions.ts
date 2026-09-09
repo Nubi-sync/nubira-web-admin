@@ -12,7 +12,8 @@ export async function createArticle(formData: FormData) {
   const stitching_rate_str = formData.get('stitching_rate') as string
   const size_rates_str = formData.get('size_rates') as string
   
-  const stitching_rate = parseFloat(stitching_rate_str)
+  const parsedRate = parseFloat(stitching_rate_str)
+  const stitching_rate = !isNaN(parsedRate) && parsedRate >= 0 ? parsedRate : 0
   let size_rates: Record<string, number> = {}
   if (size_rates_str) {
     try {
@@ -20,8 +21,8 @@ export async function createArticle(formData: FormData) {
     } catch (_) {}
   }
 
-  if (!art_no || isNaN(stitching_rate) || stitching_rate <= 0) {
-    return { error: 'Please enter a valid Article Number and Stitching Rate greater than 0.' }
+  if (!art_no) {
+    return { error: 'Please enter a valid Article Number (Art No).' }
   }
 
   const insertPayload: any = {

@@ -207,7 +207,7 @@ export async function getProductionOrders(): Promise<ChallanGroupedOrder[]> {
           assigned_lineman_id: al.lineman_id || '',
           assigned_lineman_name: linemanName,
           picture_url: meta.sample_photos?.[0] || artMeta.picture_url || '',
-          stitching_rate: artObj?.stitching_rate || 20,
+          stitching_rate: artObj?.stitching_rate && Number(artObj.stitching_rate) > 0 ? Number(artObj.stitching_rate) : undefined,
           status: autoLineStatus,
           created_at: al.created_at
         }
@@ -319,7 +319,7 @@ export async function getProductionOrders(): Promise<ChallanGroupedOrder[]> {
                   assigned_lineman_id: linemanId,
                   assigned_lineman_name: linemanName,
                   picture_url: line.picture_url || '',
-                  stitching_rate: line.stitching_rate || 20,
+                  stitching_rate: line.stitching_rate && Number(line.stitching_rate) > 0 ? Number(line.stitching_rate) : undefined,
                   status: lineStatus,
                   created_at: ch.created_at
                 })
@@ -445,13 +445,16 @@ export async function createChallan(payload: CreateChallanPayload) {
       const lineSets = Number(line.sets) || Math.round(linePcs / (Number(line.pcs_per_set) || 9))
       const lineRatio = Number(line.pcs_per_set) || 9
 
+      const lineRate = line.stitching_rate && Number(line.stitching_rate) > 0 ? Number(line.stitching_rate) : null
+      const sizeKey = (line.size_range || '').trim() || 'Standard'
+
       // Ensure style exists in `articles` master catalog
       const { data: existingArt } = await supabase
         .from('articles')
-        .select('id')
+        .select('id, size_rates')
         .eq('art_no', fullArtCode)
         .limit(1)
-        .single()
+        .maybeSingle()
 
       if (!existingArt) {
         await supabase
@@ -459,9 +462,10 @@ export async function createChallan(payload: CreateChallanPayload) {
           .insert({
             art_no: fullArtCode,
             description: line.description || `${fullArtCode} - ${line.color_pattern || ''} (${line.size_range || ''})`.trim(),
-            stitching_rate: line.stitching_rate || 20,
+            stitching_rate: lineRate || 0,
             is_active: true,
             size_rates: {
+              ...(lineRate && sizeKey ? { [sizeKey]: lineRate } : {}),
               _meta: {
                 base_art: cleanArtNo,
                 sub_art: cleanSubArt,
@@ -473,6 +477,16 @@ export async function createChallan(payload: CreateChallanPayload) {
               }
             }
           })
+      } else if (lineRate) {
+        const existingRates = existingArt.size_rates || {}
+        if (sizeKey && existingRates[sizeKey] !== lineRate) {
+          await supabase
+            .from('articles')
+            .update({
+              size_rates: { ...existingRates, [sizeKey]: lineRate }
+            })
+            .eq('id', existingArt.id)
+        }
       }
 
       processedLines.push({
@@ -480,7 +494,8 @@ export async function createChallan(payload: CreateChallanPayload) {
         full_art_code: fullArtCode,
         sets: lineSets,
         pcs_per_set: lineRatio,
-        total_pcs: linePcs
+        total_pcs: linePcs,
+        stitching_rate: lineRate || undefined
       })
     }
 
@@ -1198,7 +1213,7 @@ export async function createBulkChallans(payloads: CreateChallanPayload[]): Prom
             base_art: baseArtNo,
             sub_art: '',
             description: line.description || `${baseArtNo} - ${line.color_pattern || ''} (${line.size_range || ''})`.trim(),
-            stitching_rate: line.stitching_rate || 20,
+            stitching_rate: (line.stitching_rate && Number(line.stitching_rate) > 0) ? Number(line.stitching_rate) : 0,
             pattern: line.pattern_no || '',
             fabric: payload.fabric_type || '',
             party: payload.brand || '',
@@ -1212,7 +1227,7 @@ export async function createBulkChallans(payloads: CreateChallanPayload[]): Prom
             base_art: baseArtNo,
             sub_art: cleanSubArt,
             description: line.description || `${fullArtCode} - ${line.color_pattern || ''} (${line.size_range || ''})`.trim(),
-            stitching_rate: line.stitching_rate || 20,
+            stitching_rate: (line.stitching_rate && Number(line.stitching_rate) > 0) ? Number(line.stitching_rate) : 0,
             pattern: line.pattern_no || '',
             fabric: payload.fabric_type || '',
             party: payload.brand || '',
@@ -1635,6 +1650,7 @@ export async function createBulkChallans(payloads: CreateChallanPayload[]): Prom
 
     revalidatePath('/production-orders')
     revalidatePath('/allotments')
+    revalidatePath('/articles')
     revalidatePath('/')
 
     return {
@@ -2077,6 +2093,107 @@ export async function unallotChallanDirectly(challanId: string) {
   } catch (err: any) {
     console.error('Error in unallotChallanDirectly:', err)
     return { error: err?.message || 'Failed to unallot challan.' }
+  }
+}
+
+// ----------------------------------------------------------------------
+// UPDATE CHALLAN ARTICLE LINE RATE (Admin Rate Management)
+// ----------------------------------------------------------------------
+export async function updateChallanLineRate(params: {
+  challanId: string
+  lineIndex?: number
+  artNo: string
+  sizeRange: string
+  newRate: number
+  updateMasterCatalog?: boolean
+}) {
+  const supabase = supabaseAdmin
+  const { challanId, lineIndex, artNo, sizeRange, newRate, updateMasterCatalog = true } = params
+
+  try {
+    if (!challanId) return { error: 'Challan ID is required.' }
+    if (isNaN(newRate) || newRate < 0) return { error: 'Please enter a valid rate greater than or equal to 0.' }
+
+    // 1. Fetch current Challan notes
+    const { data: challan, error: fetchErr } = await supabase
+      .from('challans')
+      .select('id, notes')
+      .eq('id', challanId)
+      .single()
+
+    if (fetchErr || !challan) {
+      return { error: 'Failed to find Challan.' }
+    }
+
+    let parsedNotes: any = {}
+    try {
+      parsedNotes = JSON.parse(challan.notes || '{}')
+    } catch (_) {
+      parsedNotes = { user_notes: challan.notes || '', article_lines: [] }
+    }
+
+    const lines: any[] = parsedNotes.article_lines || []
+    let updatedCount = 0
+
+    // Match by lineIndex first if available, otherwise by (art_no + size_range)
+    if (typeof lineIndex === 'number' && lines[lineIndex]) {
+      lines[lineIndex].stitching_rate = newRate
+      updatedCount++
+    } else {
+      for (const row of lines) {
+        const rowArt = (row.art_no || '').trim().toUpperCase()
+        const rowSize = (row.size_range || '').trim().toUpperCase()
+        if (rowArt === artNo.trim().toUpperCase() && rowSize === sizeRange.trim().toUpperCase()) {
+          row.stitching_rate = newRate
+          updatedCount++
+        }
+      }
+    }
+
+    if (updatedCount > 0) {
+      parsedNotes.article_lines = lines
+      const { error: updateErr } = await supabase
+        .from('challans')
+        .update({ notes: JSON.stringify(parsedNotes) })
+        .eq('id', challanId)
+
+      if (updateErr) {
+        return { error: updateErr.message }
+      }
+    }
+
+    // 2. Optionally update Master Catalog article size_rates
+    if (updateMasterCatalog && artNo) {
+      const cleanArt = artNo.trim().toUpperCase()
+      const cleanSize = (sizeRange || '').trim()
+
+      const { data: artObj } = await supabase
+        .from('articles')
+        .select('id, size_rates, stitching_rate')
+        .eq('art_no', cleanArt)
+        .limit(1)
+        .maybeSingle()
+
+      if (artObj) {
+        const existingRates = artObj.size_rates || {}
+        const newSizeRates = cleanSize ? { ...existingRates, [cleanSize]: newRate } : existingRates
+        await supabase
+          .from('articles')
+          .update({
+            stitching_rate: newRate,
+            size_rates: newSizeRates
+          })
+          .eq('id', artObj.id)
+      }
+    }
+
+    revalidatePath('/production-orders')
+    revalidatePath('/articles')
+    revalidatePath('/allotments')
+    return { success: true, updatedCount }
+  } catch (err: any) {
+    console.error('Error in updateChallanLineRate:', err)
+    return { error: err?.message || 'Failed to update rate.' }
   }
 }
 
