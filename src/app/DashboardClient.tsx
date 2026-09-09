@@ -604,22 +604,22 @@ export default function DashboardClient({
       {/* ========================================================= */}
       {/* 1. FILTER CONTROLS & BRAND TABS                           */}
       {/* ========================================================= */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs">
+      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3.5 bg-white p-4 sm:p-5 rounded-2xl border border-black/10 shadow-2xs">
         
         {/* Brand Selector Tabs */}
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-xs font-bold uppercase tracking-wider text-slate-400 mr-1 flex items-center gap-1.5">
-            <Filter className="w-4 h-4" /> Brand:
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5 min-w-0">
+          <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500 mr-1 flex items-center gap-1.5 shrink-0">
+            <Filter className="w-3.5 h-3.5" /> Brand:
           </span>
           {brandTabs.map(brand => (
             <button
               key={brand}
               type="button"
               onClick={() => setSelectedBrand(brand)}
-              className={`px-3.5 py-2 rounded-lg text-sm font-bold transition-all cursor-pointer ${
+              className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap shadow-2xs ${
                 selectedBrand === brand
                   ? 'bg-[#3A3564] text-white shadow-xs'
-                  : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200'
+                  : 'bg-[#FAF7F0] text-slate-700 hover:bg-[#F2ECE1] border border-black/10'
               }`}
             >
               {brand === 'ALL' ? 'All Orders' : brand === 'DIRECT' ? 'Direct Floor Lots' : brand}
@@ -628,20 +628,20 @@ export default function DashboardClient({
         </div>
 
         {/* Article Dropdown & Date Range Selector */}
-        <div className="flex items-center gap-3 flex-wrap">
+        <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap shrink-0">
           
           {/* Searchable Article Filter Combobox */}
-          <div className="relative min-w-[240px]">
+          <div className="relative w-full sm:w-64">
             <button
               type="button"
               onClick={() => setIsArticleMenuOpen(!isArticleMenuOpen)}
-              className="w-full text-xs font-semibold bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg px-3 py-1.5 text-slate-800 focus:outline-none focus:ring-1 focus:ring-[var(--steel,#2B4C7E)] cursor-pointer flex items-center justify-between gap-2 shadow-2xs transition-colors"
+              className="w-full text-xs font-bold bg-[#FAF7F0] hover:bg-[#F2ECE1] border border-black/10 rounded-xl px-3.5 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 cursor-pointer flex items-center justify-between gap-2 shadow-2xs transition-all"
             >
               <div className="flex items-center gap-2 truncate">
-                <Search className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                <Search className="w-3.5 h-3.5 text-[#3A3564] shrink-0" />
                 <span className="truncate">{selectedArticleDisplayText}</span>
               </div>
-              <ChevronDown className={`w-3.5 h-3.5 text-slate-400 shrink-0 transition-transform ${isArticleMenuOpen ? 'rotate-180' : ''}`} />
+              <ChevronDown className={`w-3.5 h-3.5 text-slate-500 shrink-0 transition-transform ${isArticleMenuOpen ? 'rotate-180' : ''}`} />
             </button>
 
             {/* Dropdown Popover */}
@@ -653,32 +653,32 @@ export default function DashboardClient({
                   onClick={() => setIsArticleMenuOpen(false)}
                 />
 
-                <div className="absolute right-0 top-full mt-1 w-80 max-w-[90vw] bg-white border border-slate-200 rounded-xl shadow-xl z-50 p-2 animate-in fade-in zoom-in-95 duration-100">
+                <div className="absolute right-0 top-full mt-1.5 w-80 max-w-[90vw] bg-white border border-black/10 rounded-2xl shadow-xl z-50 p-2.5 animate-in fade-in zoom-in-95 duration-100">
                   
                   {/* Search Input Box */}
                   <div className="relative mb-2">
-                    <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                    <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                     <input
                       type="text"
                       autoFocus
                       value={articleSearchQuery}
                       onChange={(e) => setArticleSearchQuery(e.target.value)}
                       placeholder="Search Art No, Color, Style..."
-                      className="w-full text-xs pl-8 pr-7 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:bg-white focus:border-[var(--steel,#2B4C7E)] text-slate-900 placeholder:text-slate-400 font-medium"
+                      className="w-full text-xs pl-8 pr-7 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 text-slate-900 placeholder:text-slate-400 font-semibold"
                     />
                     {articleSearchQuery && (
                       <button
                         type="button"
                         onClick={() => setArticleSearchQuery('')}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5"
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5"
                       >
-                        <X className="w-3 h-3" />
+                        <X className="w-3.5 h-3.5" />
                       </button>
                     )}
                   </div>
 
                   {/* Options List */}
-                  <div className="max-h-60 overflow-y-auto space-y-0.5 pr-1">
+                  <div className="max-h-60 overflow-y-auto space-y-1 pr-1">
                     
                     {/* Option: All Articles */}
                     <button
@@ -688,14 +688,14 @@ export default function DashboardClient({
                         setIsArticleMenuOpen(false)
                         setArticleSearchQuery('')
                       }}
-                      className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-between transition-colors cursor-pointer ${
+                      className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between transition-colors cursor-pointer ${
                         selectedArticleId === 'ALL'
-                          ? 'bg-[var(--steel-tint,#DBE6F5)] text-[var(--steel-dark,#1F3A63)] font-bold'
+                          ? 'bg-[#FAF7F0] text-[#3A3564] font-extrabold border border-black/10'
                           : 'hover:bg-slate-50 text-slate-700'
                       }`}
                     >
                       <span>All Article Styles ({articles.length} styles)</span>
-                      {selectedArticleId === 'ALL' && <Check className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)]" />}
+                      {selectedArticleId === 'ALL' && <Check className="w-4 h-4 text-[#3A3564] stroke-[2.5]" />}
                     </button>
 
                     {/* Filtered Articles */}
@@ -713,23 +713,23 @@ export default function DashboardClient({
                             setIsArticleMenuOpen(false)
                             setArticleSearchQuery('')
                           }}
-                          className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-colors cursor-pointer flex items-start justify-between gap-2 ${
+                          className={`w-full text-left px-3 py-2 rounded-xl text-xs transition-colors cursor-pointer flex items-start justify-between gap-2 ${
                             isSelected
-                              ? 'bg-[var(--steel-tint,#DBE6F5)] text-[var(--steel-dark,#1F3A63)] font-bold'
-                              : 'hover:bg-slate-50 text-slate-700'
+                              ? 'bg-[#FAF7F0] text-[#3A3564] font-extrabold border border-black/10'
+                              : 'hover:bg-slate-50 text-slate-700 font-semibold'
                           }`}
                         >
                           <div className="min-w-0 flex-1">
-                            <span className="font-bold text-slate-900 block truncate">
+                            <span className="font-extrabold text-slate-900 block truncate">
                               {art.art_no}
                             </span>
                             {subDesc && (
-                              <span className="text-[10.5px] text-slate-500 block truncate">
+                              <span className="text-[11px] text-slate-500 block truncate font-medium">
                                 {subDesc}
                               </span>
                             )}
                           </div>
-                          {isSelected && <Check className="w-3.5 h-3.5 text-[var(--steel,#2B4C7E)] shrink-0 mt-0.5" />}
+                          {isSelected && <Check className="w-4 h-4 text-[#3A3564] stroke-[2.5] shrink-0 mt-0.5" />}
                         </button>
                       )
                     })}
@@ -747,9 +747,9 @@ export default function DashboardClient({
             )}
           </div>
 
-          {/* Date Filter Pills & Real-time Live Sync Indicator */}
-          <div className="flex items-center gap-2 flex-wrap">
-            <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
+          {/* Date Filter Pills & Sync Button */}
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 bg-[#FAF7F0] p-1 rounded-xl border border-black/10 shadow-2xs">
               {[
                 { id: 'today', label: 'Today' },
                 { id: 'week', label: 'This Week' },
@@ -760,10 +760,10 @@ export default function DashboardClient({
                   key={tab.id}
                   type="button"
                   onClick={() => setDateFilter(tab.id as DateFilter)}
-                  className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer ${
+                  className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
                     dateFilter === tab.id
                       ? 'bg-white text-[#3A3564] shadow-2xs font-extrabold'
-                      : 'text-slate-500 hover:text-slate-800'
+                      : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
                   {tab.label}
@@ -771,23 +771,15 @@ export default function DashboardClient({
               ))}
             </div>
 
-            {/* Live Sync Pulse */}
-            <div className="flex items-center gap-1.5 pl-1">
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-800 text-xs font-bold shadow-2xs">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping shrink-0" />
-                <span className="hidden sm:inline">Live Floor Sync</span>
-              </div>
-
-              <button
-                type="button"
-                onClick={handleManualSync}
-                disabled={isSyncing}
-                className="p-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 transition-all cursor-pointer shadow-2xs"
-                title="Sync latest live updates from factory floor"
-              >
-                <RotateCcw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin text-[#3A3564]' : ''}`} />
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={handleManualSync}
+              disabled={isSyncing}
+              className="p-2.5 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-[#3A3564] transition-all cursor-pointer shadow-2xs flex items-center justify-center shrink-0"
+              title="Sync latest live updates from factory floor"
+            >
+              <RotateCcw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
+            </button>
           </div>
 
         </div>
@@ -1264,37 +1256,39 @@ export default function DashboardClient({
         {/* Live Recent Activity Feed (1 Col) */}
         <div className="bg-white rounded-2xl border border-black/10 shadow-2xs p-5 sm:p-6 flex flex-col justify-between">
           <div>
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <h3 className="text-base font-bold text-slate-800">
+            <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
+              <h3 className="text-base font-extrabold text-slate-900">
                 Floor Activity Stream
               </h3>
               <Clock className="w-[18px] h-[18px] text-slate-400" />
             </div>
 
-            <div className="mt-4 space-y-3">
+            <div className="mt-4 space-y-2.5">
               {recentActivities.map(act => (
-                <div key={act.id} className="flex items-start gap-3 p-3 rounded-lg bg-slate-50 border border-slate-100">
-                  <div className={`w-8 h-8 rounded-md flex items-center justify-center shrink-0 ${
-                    act.type === 'QC_PASS' ? 'bg-emerald-100 text-emerald-700' :
-                    act.type === 'QC_REJECT' ? 'bg-rose-100 text-rose-700' :
-                    act.type === 'STORE_INWARD' ? 'bg-blue-100 text-blue-700' :
-                    'bg-purple-100 text-purple-700'
-                  }`}>
-                    {act.type === 'QC_PASS' && <CheckCircle2 className="w-4 h-4" />}
-                    {act.type === 'QC_REJECT' && <AlertTriangle className="w-4 h-4" />}
-                    {act.type === 'STORE_INWARD' && <Boxes className="w-4 h-4" />}
-                    {act.type === 'DISPATCH' && <Truck className="w-4 h-4" />}
+                <div key={act.id} className="flex items-start gap-3 p-3 rounded-xl bg-slate-50/70 border border-slate-200/80 hover:bg-[#FAF7F0]/60 transition-all">
+                  <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+                    {act.type === 'QC' || act.type === 'QC_PASS' ? (
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 stroke-[2.5]" />
+                    ) : act.type === 'QC_REJECT' ? (
+                      <AlertTriangle className="w-4 h-4 text-amber-600 stroke-[2.5]" />
+                    ) : act.type === 'STORE' || act.type === 'STORE_INWARD' ? (
+                      <Boxes className="w-4 h-4 text-[#3A3564]" />
+                    ) : act.type === 'DISPATCH' ? (
+                      <Truck className="w-4 h-4 text-[#3A3564]" />
+                    ) : (
+                      <Check className="w-4 h-4 text-[#3A3564] stroke-[2.5]" />
+                    )}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm font-bold text-slate-800 truncate">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-xs sm:text-sm font-bold text-slate-900 truncate">
                         {act.title}
                       </p>
-                      <span className="text-[11px] text-slate-400 shrink-0">
+                      <span className="text-[11px] font-mono text-slate-400 shrink-0 font-medium">
                         {act.relativeTime}
                       </span>
                     </div>
-                    <p className="text-xs text-slate-500 truncate mt-0.5">
+                    <p className="text-xs text-slate-600 truncate mt-0.5 font-medium">
                       {act.details}
                     </p>
                   </div>
@@ -1311,7 +1305,7 @@ export default function DashboardClient({
           <div className="pt-4 border-t border-slate-100 mt-4">
             <Link 
               href="/reports"
-              className="text-sm font-bold text-slate-700 hover:text-slate-900 inline-flex items-center justify-center gap-2 w-full py-3 bg-white hover:bg-slate-50 rounded-xl border border-black/15 shadow-2xs transition-all cursor-pointer"
+              className="text-xs sm:text-sm font-bold text-[#3A3564] hover:text-[#2A2649] inline-flex items-center justify-center gap-2 w-full py-2.5 sm:py-3 bg-[#FAF7F0] hover:bg-[#F2ECE1] rounded-xl border border-black/10 shadow-2xs transition-all cursor-pointer"
             >
               <FileCheck2 className="w-4 h-4" /> Full Factory Audit Reports
             </Link>

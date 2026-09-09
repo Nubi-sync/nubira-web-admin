@@ -1,4 +1,10 @@
 import type { NextConfig } from "next";
+import { EventEmitter } from "events";
+
+// Increase max listeners for dev server streaming/compression to prevent MaxListenersExceededWarning
+if (typeof process !== 'undefined') {
+  EventEmitter.defaultMaxListeners = 30;
+}
 
 const securityHeaders = [
   {
@@ -28,6 +34,7 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  compress: process.env.NODE_ENV === 'production',
   experimental: {
     serverActions: {
       bodySizeLimit: '10mb',
