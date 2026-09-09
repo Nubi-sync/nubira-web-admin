@@ -500,40 +500,47 @@ export function StoreDashboardClient({
     <div className="space-y-6">
 
       {/* ============================================================ */}
-      {/* 1. TOP HEADER & TELEMETRY TOOLBAR */}
+      {/* 1. TOP HEADER & TELEMETRY TOOLBAR                            */}
       {/* ============================================================ */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-[var(--border,#E2E8F0)] shadow-sm">
-        <div>
-          <div className="flex items-center gap-2.5">
-            <h1 className="text-xl md:text-2xl font-black text-[var(--ink,#1C2733)] tracking-tight">
-              Welcome, {currentUserName}
-            </h1>
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#E8EEF5] text-[#1F3A63] border border-[#CBD7E6]">
-              Store & Godown Shift
-            </span>
+      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
+        <div className="flex items-center gap-3.5">
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+            <Warehouse className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
-          <p className="text-xs md:text-sm font-medium text-[var(--ink-soft,#64748B)] mt-0.5">
-            Factory raw materials inventory, trims handover & finished goods dispatch
-          </p>
+          <div>
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
+                Welcome, {currentUserName}
+              </h1>
+              <span className="inline-flex items-center px-3 py-1 rounded-xl text-xs font-mono font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs">
+                Store & Godown Shift
+              </span>
+            </div>
+            <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium">
+              Factory raw materials inventory, trims handover & finished goods dispatch
+            </p>
+          </div>
         </div>
 
         {/* Live Sync, TV View & Actions */}
-        <div className="flex items-center gap-2 self-start md:self-auto">
+        <div className="flex items-center gap-2.5 self-stretch sm:self-auto w-full sm:w-auto justify-end">
           <button
+            type="button"
             onClick={handleRefresh}
             disabled={isPending}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-[#1F3A63] bg-[#E8EEF5] hover:bg-[#D5E1F0] rounded-xl border border-[#CBD7E6] transition-all"
+            className="inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-[#FAF7F0] hover:bg-[#F2ECE1] text-[#3A3564] border border-black/10 shadow-2xs transition-all cursor-pointer disabled:opacity-60"
             title="Sync latest live movements"
           >
-            <RotateCw className={`w-3.5 h-3.5 ${isPending ? 'animate-spin' : ''}`} />
+            <RotateCw className={`w-4 h-4 ${isPending ? 'animate-spin' : ''}`} />
             <span>Sync</span>
           </button>
 
           <TvViewButton />
 
           <button
+            type="button"
             onClick={() => router.push('/login')}
-            className="flex items-center justify-center w-9 h-9 text-[var(--ink-soft,#64748B)] hover:text-red-600 bg-slate-50 hover:bg-red-50 rounded-xl border border-[var(--border,#E2E8F0)] transition-all"
+            className="inline-flex items-center justify-center w-10 h-10 text-slate-500 hover:text-rose-600 bg-white hover:bg-rose-50 rounded-xl border border-slate-200 shadow-2xs transition-all cursor-pointer"
             title="Logout / Switch Account"
           >
             <LogOut className="w-4 h-4" />
@@ -542,110 +549,116 @@ export function StoreDashboardClient({
       </div>
 
       {/* ============================================================ */}
-      {/* 2. HERO KPI CARDS & 4-COLUMN TELEMETRY STRIP */}
+      {/* 2. HERO KPI CARDS & 4-COLUMN TELEMETRY STRIP                 */}
       {/* ============================================================ */}
       <div className="space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          
           {/* Card 1: Finished Stock */}
-          <div className="p-5 rounded-2xl bg-white border border-[var(--border,#E2E8F0)] shadow-sm hover:shadow-md transition-all flex items-start justify-between">
+          <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs hover:shadow-md transition-all flex items-start justify-between">
             <div className="space-y-1">
-              <span className="text-xs font-bold uppercase tracking-wider text-[var(--ink-soft,#64748B)]">
+              <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500 block">
                 Finished Garments Stock
               </span>
               <div className="flex items-baseline gap-2">
-                <span className="text-3xl md:text-4xl font-black text-[#1F3A63] font-mono">
+                <span className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 font-mono">
                   {totalFinishedStock.toLocaleString()}
                 </span>
-                <span className="text-xs font-bold text-[var(--ink-soft,#64748B)] font-mono">pcs</span>
+                <span className="text-xs font-bold text-slate-500 font-mono">pcs</span>
               </div>
-              <p className="text-xs text-emerald-600 font-semibold flex items-center gap-1 pt-1">
-                <CheckCircle2 className="w-3.5 h-3.5" /> Ready in Godown Warehouse
+              <p className="text-xs text-emerald-700 font-semibold flex items-center gap-1.5 pt-1.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                <span>Ready in Godown Warehouse</span>
               </p>
             </div>
-            <div className="p-3 bg-[#E8EEF5] text-[#1F3A63] rounded-xl">
-              <Warehouse className="w-6 h-6" />
+            <div className="w-11 h-11 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+              <Warehouse className="w-5 h-5" />
             </div>
           </div>
 
           {/* Card 2: Floor Handover Lots */}
-          <div className="p-5 rounded-2xl bg-white border border-[var(--border,#E2E8F0)] shadow-sm hover:shadow-md transition-all flex items-start justify-between">
+          <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs hover:shadow-md transition-all flex items-start justify-between">
             <div className="space-y-1">
-              <span className="text-xs font-bold uppercase tracking-wider text-[var(--ink-soft,#64748B)]">
+              <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500 block">
                 Lineman BOM Handover
               </span>
               <div className="flex items-baseline gap-2">
-                <span className={`text-3xl md:text-4xl font-black font-mono ${pendingHandoverCount > 0 ? 'text-amber-600' : 'text-emerald-600'}`}>
+                <span className="text-2xl sm:text-3xl md:text-4xl font-black font-mono text-slate-900">
                   {pendingHandoverCount}
                 </span>
-                <span className="text-xs font-bold text-[var(--ink-soft,#64748B)] font-mono">active lots</span>
+                <span className="text-xs font-bold text-slate-500 font-mono">active lots</span>
               </div>
-              <p className={`text-xs font-semibold flex items-center gap-1 pt-1 ${pendingHandoverCount > 0 ? 'text-amber-600' : 'text-emerald-600'}`}>
+              <p className={`text-xs font-semibold flex items-center gap-1.5 pt-1.5 ${pendingHandoverCount > 0 ? 'text-amber-700' : 'text-emerald-700'}`}>
                 {pendingHandoverCount > 0 ? (
                   <>
-                    <Clock className="w-3.5 h-3.5" /> Awaiting store raw material issue
+                    <Clock className="w-4 h-4 text-amber-600" />
+                    <span>Awaiting store raw material issue</span>
                   </>
                 ) : (
                   <>
-                    <CheckCircle2 className="w-3.5 h-3.5" /> All active lots issued
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                    <span>All active lots issued</span>
                   </>
                 )}
               </p>
             </div>
-            <div className={`p-3 rounded-xl ${pendingHandoverCount > 0 ? 'bg-amber-50 text-amber-600' : 'bg-emerald-50 text-emerald-600'}`}>
-              <Boxes className="w-6 h-6" />
+            <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs border border-black/10 ${
+              pendingHandoverCount > 0 ? 'bg-amber-50 text-amber-700' : 'bg-[#FAF7F0] text-[#3A3564]'
+            }`}>
+              <Boxes className="w-5 h-5" />
             </div>
           </div>
         </div>
 
         {/* 4-Column Unified Telemetry Strip */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 bg-white p-3 rounded-xl border border-[var(--border,#E2E8F0)] shadow-xs divide-y sm:divide-y-0 sm:divide-x divide-[var(--border,#E2E8F0)]">
+        <div className="grid grid-cols-2 sm:grid-cols-4 bg-white p-3.5 sm:p-4 rounded-2xl border border-black/10 shadow-2xs divide-y sm:divide-y-0 sm:divide-x divide-slate-100">
           <div className="p-2.5 text-center">
-            <p className="text-[11px] font-bold text-[var(--ink-soft,#64748B)] uppercase tracking-wider">Godown Stock</p>
-            <p className="text-lg font-black text-[#1F3A63] font-mono mt-0.5">
-              {totalFinishedStock} <span className="text-xs font-semibold text-[var(--ink-soft,#64748B)]">pcs</span>
+            <p className="text-[11px] font-mono font-bold text-slate-500 uppercase tracking-wider">Godown Stock</p>
+            <p className="text-lg sm:text-xl font-black text-slate-900 font-mono mt-1">
+              {totalFinishedStock.toLocaleString()} <span className="text-xs font-medium text-slate-500">pcs</span>
             </p>
           </div>
           <div className="p-2.5 text-center">
-            <p className="text-[11px] font-bold text-[var(--ink-soft,#64748B)] uppercase tracking-wider">Pending Issue</p>
-            <p className={`text-lg font-black font-mono mt-0.5 ${pendingHandoverCount > 0 ? 'text-amber-600' : 'text-emerald-600'}`}>
-              {pendingHandoverCount} <span className="text-xs font-semibold text-[var(--ink-soft,#64748B)]">lots</span>
+            <p className="text-[11px] font-mono font-bold text-slate-500 uppercase tracking-wider">Pending Issue</p>
+            <p className={`text-lg sm:text-xl font-black font-mono mt-1 ${pendingHandoverCount > 0 ? 'text-amber-700' : 'text-slate-900'}`}>
+              {pendingHandoverCount} <span className="text-xs font-medium text-slate-500">lots</span>
             </p>
           </div>
           <div className="p-2.5 text-center">
-            <p className="text-[11px] font-bold text-[var(--ink-soft,#64748B)] uppercase tracking-wider">Truck Inward (Today)</p>
-            <p className="text-lg font-black text-emerald-600 font-mono mt-0.5">
-              +{todayTruckCount} <span className="text-xs font-semibold text-[var(--ink-soft,#64748B)]">slips</span>
+            <p className="text-[11px] font-mono font-bold text-slate-500 uppercase tracking-wider">Truck Inward (Today)</p>
+            <p className="text-lg sm:text-xl font-black text-emerald-700 font-mono mt-1">
+              +{todayTruckCount} <span className="text-xs font-medium text-slate-500">slips</span>
             </p>
           </div>
           <div className="p-2.5 text-center">
-            <p className="text-[11px] font-bold text-[var(--ink-soft,#64748B)] uppercase tracking-wider">Dispatched (Today)</p>
-            <p className="text-lg font-black text-rose-600 font-mono mt-0.5">
-              -{todayOutward} <span className="text-xs font-semibold text-[var(--ink-soft,#64748B)]">pcs</span>
+            <p className="text-[11px] font-mono font-bold text-slate-500 uppercase tracking-wider">Dispatched (Today)</p>
+            <p className="text-lg sm:text-xl font-black text-rose-700 font-mono mt-1">
+              -{todayOutward} <span className="text-xs font-medium text-slate-500">pcs</span>
             </p>
           </div>
         </div>
       </div>
 
       {/* ============================================================ */}
-      {/* 3. READY FROM QC TABLE QUEUE (HANDSHAKE WITH QC FLOOR) */}
+      {/* 3. READY FROM QC TABLE QUEUE (HANDSHAKE WITH QC FLOOR)       */}
       {/* ============================================================ */}
       {readyQcAllotments.length > 0 && (
-        <div className="bg-gradient-to-br from-emerald-50/50 via-white to-white p-5 rounded-2xl border border-emerald-200/70 shadow-sm space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="p-1.5 bg-emerald-100 text-emerald-700 rounded-lg">
+        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-emerald-200/80 shadow-2xs space-y-4">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-xl flex items-center justify-center shrink-0 shadow-2xs">
                 <ShieldCheck className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="text-base font-black text-[var(--ink,#1C2733)] tracking-tight">
+                <h3 className="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight">
                   Ready from QC Finishing Table
                 </h3>
-                <p className="text-xs text-[var(--ink-soft,#64748B)]">
+                <p className="text-xs text-slate-600">
                   Garments inspected, passed & approved for Store Godown Inward
                 </p>
               </div>
             </div>
-            <span className="px-2.5 py-1 text-xs font-bold font-mono bg-emerald-100 text-emerald-800 rounded-full border border-emerald-300">
+            <span className="px-3 py-1 text-xs font-bold font-mono bg-emerald-50 text-emerald-800 rounded-xl border border-emerald-200 shadow-2xs">
               {readyQcAllotments.length} lots waiting
             </span>
           </div>
@@ -663,49 +676,52 @@ export function StoreDashboardClient({
               return (
                 <div 
                   key={lot.id}
-                  className="bg-white p-4 rounded-xl border border-emerald-100 hover:border-emerald-300 shadow-xs hover:shadow-md transition-all space-y-3"
+                  className="bg-slate-50/70 p-4 sm:p-5 rounded-2xl border border-slate-200/80 hover:border-emerald-300 shadow-2xs hover:shadow-md transition-all space-y-3"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div>
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-sm font-black text-[#1F3A63]">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="text-sm font-black text-slate-900">
                           Art #{artNo}
                         </span>
-                        <span className="px-1.5 py-0.5 text-[10px] font-bold bg-slate-100 text-slate-700 rounded">
+                        <span className="px-2 py-0.5 text-[10px] font-mono font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10 rounded-lg">
                           Challan #{challanNo}
                         </span>
                       </div>
-                      <p className="text-xs text-[var(--ink-soft,#64748B)] font-medium mt-0.5">
-                        Color: <span className="font-bold text-[var(--ink,#1C2733)]">{distinctColors}</span>
+                      <p className="text-xs text-slate-600 font-medium mt-1">
+                        Color: <span className="font-bold text-slate-900">{distinctColors}</span>
                       </p>
                     </div>
                     <div className="text-right">
-                      <span className="text-base font-black font-mono text-emerald-600">
+                      <span className="text-base font-black font-mono text-emerald-700">
                         {passedQty} pcs
                       </span>
-                      <p className="text-[10px] text-[var(--ink-faint,#8B9AAB)]">QC Passed</p>
+                      <p className="text-[10px] font-mono text-slate-500">QC Passed</p>
                     </div>
                   </div>
 
                   {/* Custody Meta Chips */}
-                  <div className="flex flex-wrap gap-1.5 text-[10px] font-semibold text-[var(--ink-soft,#64748B)]">
-                    <span className="px-2 py-0.5 bg-slate-50 border border-slate-200 rounded-md flex items-center gap-1">
-                      <User className="w-3 h-3 text-[#1F3A63]" /> {linemanName}
+                  <div className="flex flex-wrap gap-1.5 text-xs font-semibold text-slate-600">
+                    <span className="px-2.5 py-1 bg-white border border-slate-200 rounded-lg flex items-center gap-1.5 shadow-2xs">
+                      <User className="w-3.5 h-3.5 text-[#3A3564]" />
+                      <span>{linemanName}</span>
                     </span>
-                    <span className="px-2 py-0.5 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-md flex items-center gap-1">
-                      <Check className="w-3 h-3 text-emerald-600" /> {qcSupervisor}
+                    <span className="px-2.5 py-1 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-lg flex items-center gap-1.5 shadow-2xs">
+                      <Check className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>{qcSupervisor}</span>
                     </span>
                   </div>
 
                   {/* 1-Click Receive Action */}
                   <button
+                    type="button"
                     onClick={() => {
                       setPrefilledLotForInward(lot)
                       setIsInwardModalOpen(true)
                     }}
-                    className="w-full flex items-center justify-center gap-1.5 py-2 text-xs font-bold text-white bg-[#1F3A63] hover:bg-[#152844] rounded-lg shadow-xs transition-all"
+                    className="w-full flex items-center justify-center gap-2 py-2.5 text-xs sm:text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] rounded-xl shadow-xs transition-all cursor-pointer"
                   >
-                    <Download className="w-3.5 h-3.5" />
+                    <Download className="w-4 h-4" />
                     <span>Receive into Godown ({passedQty} pcs)</span>
                   </button>
                 </div>
@@ -716,29 +732,31 @@ export function StoreDashboardClient({
       )}
 
       {/* ============================================================ */}
-      {/* 4. STORE QUICK ACTIONS (4-CARD GRID) */}
+      {/* 4. STORE QUICK ACTIONS (4-CARD GRID)                         */}
       {/* ============================================================ */}
       <div className="space-y-3">
-        <h2 className="text-base md:text-lg font-black text-[var(--ink,#1C2733)] tracking-tight">
+        <h2 className="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight">
           Store Quick Actions
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+          
           {/* Action 1: Accessory Challan Inward (GRN) */}
           <button
+            type="button"
             onClick={() => setIsGrnModalOpen(true)}
-            className="p-4 text-left bg-white hover:bg-slate-50 border border-[var(--border,#E2E8F0)] hover:border-[#1F3A63] rounded-2xl shadow-xs hover:shadow-md transition-all group flex flex-col justify-between"
+            className="p-5 text-left bg-white hover:bg-[#FAF7F0]/60 border border-black/10 hover:border-[#3A3564]/40 rounded-2xl shadow-2xs hover:shadow-md transition-all group flex flex-col justify-between cursor-pointer"
           >
             <div className="flex items-center justify-between mb-3">
-              <div className="p-2.5 bg-[#E8EEF5] group-hover:bg-[#1F3A63] text-[#1F3A63] group-hover:text-white rounded-xl transition-colors">
+              <div className="w-11 h-11 rounded-xl bg-[#FAF7F0] group-hover:bg-[#3A3564] text-[#3A3564] group-hover:text-[#FAF7F0] border border-black/10 flex items-center justify-center transition-colors shadow-2xs">
                 <Receipt className="w-5 h-5" />
               </div>
-              <ArrowUpRight className="w-4 h-4 text-[var(--ink-faint,#8B9AAB)] group-hover:text-[#1F3A63] transition-colors" />
+              <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-[#3A3564] transition-colors" />
             </div>
             <div>
-              <h3 className="text-sm font-black text-[var(--ink,#1C2733)] group-hover:text-[#1F3A63] transition-colors">
+              <h3 className="text-sm sm:text-base font-extrabold text-slate-900 group-hover:text-[#3A3564] transition-colors">
                 Accessory Inward (GRN)
               </h3>
-              <p className="text-xs text-[var(--ink-soft,#64748B)] mt-0.5 line-clamp-2">
+              <p className="text-xs text-slate-500 mt-1 leading-relaxed line-clamp-2">
                 Record supplier delivery slip, trims, fabrics & due items
               </p>
             </div>
@@ -746,20 +764,21 @@ export function StoreDashboardClient({
 
           {/* Action 2: Lineman BOM Handover */}
           <button
+            type="button"
             onClick={() => setIsBomModalOpen(true)}
-            className="p-4 text-left bg-white hover:bg-slate-50 border border-[var(--border,#E2E8F0)] hover:border-[#1F3A63] rounded-2xl shadow-xs hover:shadow-md transition-all group flex flex-col justify-between"
+            className="p-5 text-left bg-white hover:bg-[#FAF7F0]/60 border border-black/10 hover:border-[#3A3564]/40 rounded-2xl shadow-2xs hover:shadow-md transition-all group flex flex-col justify-between cursor-pointer"
           >
             <div className="flex items-center justify-between mb-3">
-              <div className="p-2.5 bg-[#E8EEF5] group-hover:bg-[#1F3A63] text-[#1F3A63] group-hover:text-white rounded-xl transition-colors">
+              <div className="w-11 h-11 rounded-xl bg-[#FAF7F0] group-hover:bg-[#3A3564] text-[#3A3564] group-hover:text-[#FAF7F0] border border-black/10 flex items-center justify-center transition-colors shadow-2xs">
                 <Boxes className="w-5 h-5" />
               </div>
-              <ArrowUpRight className="w-4 h-4 text-[var(--ink-faint,#8B9AAB)] group-hover:text-[#1F3A63] transition-colors" />
+              <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-[#3A3564] transition-colors" />
             </div>
             <div>
-              <h3 className="text-sm font-black text-[var(--ink,#1C2733)] group-hover:text-[#1F3A63] transition-colors">
+              <h3 className="text-sm sm:text-base font-extrabold text-slate-900 group-hover:text-[#3A3564] transition-colors">
                 BOM Material Handover
               </h3>
-              <p className="text-xs text-[var(--ink-soft,#64748B)] mt-0.5 line-clamp-2">
+              <p className="text-xs text-slate-500 mt-1 leading-relaxed line-clamp-2">
                 Inspect raw materials & issue BOM lots to Linemen
               </p>
             </div>
@@ -767,23 +786,24 @@ export function StoreDashboardClient({
 
           {/* Action 3: Production Inward */}
           <button
+            type="button"
             onClick={() => {
               setPrefilledLotForInward(null)
               setIsInwardModalOpen(true)
             }}
-            className="p-4 text-left bg-white hover:bg-slate-50 border border-[var(--border,#E2E8F0)] hover:border-[#1F3A63] rounded-2xl shadow-xs hover:shadow-md transition-all group flex flex-col justify-between"
+            className="p-5 text-left bg-white hover:bg-[#FAF7F0]/60 border border-black/10 hover:border-[#3A3564]/40 rounded-2xl shadow-2xs hover:shadow-md transition-all group flex flex-col justify-between cursor-pointer"
           >
             <div className="flex items-center justify-between mb-3">
-              <div className="p-2.5 bg-[#E8EEF5] group-hover:bg-[#1F3A63] text-[#1F3A63] group-hover:text-white rounded-xl transition-colors">
+              <div className="w-11 h-11 rounded-xl bg-[#FAF7F0] group-hover:bg-[#3A3564] text-[#3A3564] group-hover:text-[#FAF7F0] border border-black/10 flex items-center justify-center transition-colors shadow-2xs">
                 <Download className="w-5 h-5" />
               </div>
-              <ArrowUpRight className="w-4 h-4 text-[var(--ink-faint,#8B9AAB)] group-hover:text-[#1F3A63] transition-colors" />
+              <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-[#3A3564] transition-colors" />
             </div>
             <div>
-              <h3 className="text-sm font-black text-[var(--ink,#1C2733)] group-hover:text-[#1F3A63] transition-colors">
+              <h3 className="text-sm sm:text-base font-extrabold text-slate-900 group-hover:text-[#3A3564] transition-colors">
                 Production Inward
               </h3>
-              <p className="text-xs text-[var(--ink-soft,#64748B)] mt-0.5 line-clamp-2">
+              <p className="text-xs text-slate-500 mt-1 leading-relaxed line-clamp-2">
                 Receive finished garments from QC / Stitching Floor
               </p>
             </div>
@@ -791,20 +811,21 @@ export function StoreDashboardClient({
 
           {/* Action 4: Finished Goods Outward */}
           <button
+            type="button"
             onClick={() => setIsOutwardModalOpen(true)}
-            className="p-4 text-left bg-white hover:bg-slate-50 border border-[var(--border,#E2E8F0)] hover:border-[#1F3A63] rounded-2xl shadow-xs hover:shadow-md transition-all group flex flex-col justify-between"
+            className="p-5 text-left bg-white hover:bg-[#FAF7F0]/60 border border-black/10 hover:border-[#3A3564]/40 rounded-2xl shadow-2xs hover:shadow-md transition-all group flex flex-col justify-between cursor-pointer"
           >
             <div className="flex items-center justify-between mb-3">
-              <div className="p-2.5 bg-[#E8EEF5] group-hover:bg-[#1F3A63] text-[#1F3A63] group-hover:text-white rounded-xl transition-colors">
+              <div className="w-11 h-11 rounded-xl bg-[#FAF7F0] group-hover:bg-[#3A3564] text-[#3A3564] group-hover:text-[#FAF7F0] border border-black/10 flex items-center justify-center transition-colors shadow-2xs">
                 <Send className="w-5 h-5" />
               </div>
-              <ArrowUpRight className="w-4 h-4 text-[var(--ink-faint,#8B9AAB)] group-hover:text-[#1F3A63] transition-colors" />
+              <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-[#3A3564] transition-colors" />
             </div>
             <div>
-              <h3 className="text-sm font-black text-[var(--ink,#1C2733)] group-hover:text-[#1F3A63] transition-colors">
+              <h3 className="text-sm sm:text-base font-extrabold text-slate-900 group-hover:text-[#3A3564] transition-colors">
                 Finished Goods Outward
               </h3>
-              <p className="text-xs text-[var(--ink-soft,#64748B)] mt-0.5 line-clamp-2">
+              <p className="text-xs text-slate-500 mt-1 leading-relaxed line-clamp-2">
                 Issue & dispatch garments from warehouse with challan
               </p>
             </div>
@@ -813,15 +834,15 @@ export function StoreDashboardClient({
       </div>
 
       {/* ============================================================ */}
-      {/* 5. RECENT SUPPLIER CHALLANS (GRN) FEED */}
+      {/* 5. RECENT SUPPLIER CHALLANS (GRN) FEED                       */}
       {/* ============================================================ */}
       {truckInwards.length > 0 && (
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h2 className="text-base md:text-lg font-black text-[var(--ink,#1C2733)] tracking-tight">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <h2 className="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight">
               Recent Supplier Challans (GRN)
             </h2>
-            <span className="px-2.5 py-1 text-xs font-bold font-mono bg-[#E8EEF5] text-[#1F3A63] rounded-full border border-[#CBD7E6]">
+            <span className="px-3 py-1 text-xs font-bold font-mono bg-[#FAF7F0] text-[#3A3564] rounded-xl border border-black/10 shadow-2xs">
               {truckInwards.length} slips recorded
             </span>
           </div>
@@ -836,34 +857,34 @@ export function StoreDashboardClient({
               return (
                 <div 
                   key={grn.id}
-                  className="bg-white p-4 rounded-2xl border border-[var(--border,#E2E8F0)] hover:border-slate-300 shadow-xs space-y-3"
+                  className="bg-white p-5 rounded-2xl border border-black/10 hover:border-slate-300 shadow-2xs space-y-3 transition-all"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-black font-mono text-[#1F3A63]">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-sm font-black font-mono text-[#3A3564]">
                           {grn.grn_no}
                         </span>
                         {isDue && (
-                          <span className="px-2 py-0.5 text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200 rounded-full">
+                          <span className="px-2 py-0.5 text-[10px] font-bold bg-blue-50 text-blue-800 border border-blue-200 rounded-lg">
                             Due Pending
                           </span>
                         )}
                         {isShortage && (
-                          <span className="px-2 py-0.5 text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200 rounded-full">
+                          <span className="px-2 py-0.5 text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200 rounded-lg">
                             Shortage Logged
                           </span>
                         )}
                         {!isDue && !isShortage && (
-                          <span className="px-2 py-0.5 text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full">
+                          <span className="px-2 py-0.5 text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-lg">
                             Verified
                           </span>
                         )}
                       </div>
-                      <h4 className="text-sm font-black text-[var(--ink,#1C2733)] mt-0.5">
+                      <h4 className="text-sm font-extrabold text-slate-900 mt-1">
                         {grn.party_name}
                       </h4>
-                      <p className="text-xs text-[var(--ink-soft,#64748B)]">
+                      <p className="text-xs text-slate-500 font-medium">
                         Challan #{grn.challan_no || '-'} • Vehicle: {grn.truck_no || 'Direct Inward'}
                       </p>
                     </div>
@@ -871,21 +892,23 @@ export function StoreDashboardClient({
                     <div className="flex items-center gap-1.5">
                       {grn.challan_photo_url && (
                         <button
+                          type="button"
                           onClick={() => setActivePhoto({ url: grn.challan_photo_url!, title: `${grn.party_name} - ${grn.grn_no}` })}
-                          className="p-1.5 text-[#1F3A63] hover:bg-[#E8EEF5] rounded-lg border border-[#CBD7E6] transition-colors"
+                          className="p-2 text-[#3A3564] hover:bg-[#FAF7F0] rounded-xl border border-black/10 shadow-2xs transition-colors cursor-pointer"
                           title="View Paper Challan Slip"
                         >
                           <ImageIcon className="w-4 h-4" />
                         </button>
                       )}
                       <button
+                        type="button"
                         onClick={() => setDeleteTarget({
                           type: 'TRUCK_INWARD',
                           id: grn.id,
                           title: `GRN Slip: ${grn.grn_no}`,
                           subtitle: `Supplier: ${grn.party_name} (${grn.total_items} items)`
                         })}
-                        className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer"
                         title="Delete GRN Entry"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -894,11 +917,12 @@ export function StoreDashboardClient({
                   </div>
 
                   {/* Summary Bar */}
-                  <div className="flex items-center justify-between text-xs font-medium text-[var(--ink-soft,#64748B)] pt-2 border-t border-[var(--border,#E2E8F0)]">
+                  <div className="flex items-center justify-between text-xs font-semibold text-slate-600 pt-2.5 border-t border-slate-100">
                     <span>Date: {grn.inward_date || 'Today'}</span>
                     <button
+                      type="button"
                       onClick={() => setExpandedGrnId(isExpanded ? null : grn.id)}
-                      className="text-[#1F3A63] font-bold hover:underline flex items-center gap-1"
+                      className="text-[#3A3564] font-bold hover:underline flex items-center gap-1 cursor-pointer"
                     >
                       <span>{items.length || grn.total_items} item(s)</span>
                       {isExpanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
@@ -909,16 +933,18 @@ export function StoreDashboardClient({
                   {isExpanded && items.length > 0 && (
                     <div className="space-y-1.5 pt-2 border-t border-slate-100">
                       {items.map((it, idx) => (
-                        <div key={idx} className="flex items-center justify-between p-2 rounded-lg bg-slate-50 text-xs">
+                        <div key={idx} className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 text-xs">
                           <div>
-                            <p className="font-bold text-[var(--ink,#1C2733)]">
+                            <p className="font-bold text-slate-900">
                               {it.item_name} {it.size_label ? `(${it.size_label})` : ''}
                             </p>
-                            {it.remarks && <p className="text-[10px] text-slate-500">{it.remarks}</p>}
+                            {it.remarks && <p className="text-[11px] text-slate-500 mt-0.5">{it.remarks}</p>}
                           </div>
                           <div className="text-right font-mono">
-                            <span className="font-bold text-[#1F3A63]">{it.quantity} {it.unit || 'pcs'}</span>
-                            <span className={`block text-[10px] font-bold ${it.status === 'SHORTAGE' ? 'text-amber-600' : it.status === 'DUE' ? 'text-blue-600' : 'text-emerald-600'}`}>
+                            <span className="font-bold text-slate-900">{it.quantity} {it.unit || 'pcs'}</span>
+                            <span className={`block text-[10px] font-bold ${
+                              it.status === 'SHORTAGE' ? 'text-amber-700' : it.status === 'DUE' ? 'text-blue-700' : 'text-emerald-700'
+                            }`}>
                               {it.status}
                             </span>
                           </div>
@@ -934,33 +960,34 @@ export function StoreDashboardClient({
       )}
 
       {/* ============================================================ */}
-      {/* 6. STORE LEDGER & MOVEMENTS ACTIVITY FEED */}
+      {/* 6. STORE LEDGER & MOVEMENTS ACTIVITY FEED                   */}
       {/* ============================================================ */}
-      <div className="bg-white p-5 rounded-2xl border border-[var(--border,#E2E8F0)] shadow-sm space-y-4">
+      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs space-y-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
           <div>
-            <h2 className="text-base md:text-lg font-black text-[var(--ink,#1C2733)] tracking-tight">
+            <h2 className="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight">
               Store Ledger Activity Feed
             </h2>
-            <p className="text-xs text-[var(--ink-soft,#64748B)]">
+            <p className="text-xs text-slate-500 mt-0.5">
               {feedTimeFilter === '24h' ? 'Showing last 24 hours live movements' : feedTimeFilter === '7d' ? 'Showing past 7 days activity' : 'Showing all historical logs'}
             </p>
           </div>
-          <span className="px-2.5 py-1 text-xs font-bold font-mono bg-[#E8EEF5] text-[#1F3A63] rounded-full border border-[#CBD7E6] self-start md:self-auto">
+          <span className="px-3 py-1 text-xs font-bold font-mono bg-[#FAF7F0] text-[#3A3564] rounded-xl border border-black/10 shadow-2xs self-start md:self-auto">
             {filteredStoreLogs.length} entries found
           </span>
         </div>
 
         {/* Time Segmented Pills & Search Bar */}
-        <div className="flex flex-col sm:flex-row items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           {/* Time Filter */}
-          <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200 self-stretch sm:self-auto">
+          <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200/80 self-stretch sm:self-auto shadow-2xs">
             {(['24h', '7d', 'all'] as const).map(tf => (
               <button
                 key={tf}
+                type="button"
                 onClick={() => setFeedTimeFilter(tf)}
-                className={`flex-1 sm:flex-initial px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
-                  feedTimeFilter === tf ? 'bg-white text-[#1F3A63] shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                className={`flex-1 sm:flex-initial px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                  feedTimeFilter === tf ? 'bg-white text-[#3A3564] shadow-xs' : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
                 {tf === '24h' ? 'Today (24h)' : tf === '7d' ? '7 Days' : 'All Time'}
@@ -970,18 +997,19 @@ export function StoreDashboardClient({
 
           {/* Search Bar */}
           <div className="relative flex-1 w-full">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               placeholder="Search by article, item name, party or challan #..."
               value={feedSearchQuery}
               onChange={e => setFeedSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-8 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1F3A63]/20 focus:border-[#1F3A63]"
+              className="w-full pl-9 pr-8 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] transition-all"
             />
             {feedSearchQuery && (
               <button
+                type="button"
                 onClick={() => setFeedSearchQuery('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -996,20 +1024,24 @@ export function StoreDashboardClient({
             { key: 'BOM', label: 'BOM Packages', icon: Boxes },
             { key: 'TRIMS', label: 'Trims & Materials', icon: Tag },
             { key: 'GARMENTS', label: 'Garments In/Out', icon: Warehouse },
-          ].map(cat => (
-            <button
-              key={cat.key}
-              onClick={() => setFeedCategoryFilter(cat.key as any)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl border transition-all ${
-                feedCategoryFilter === cat.key
-                  ? 'bg-[#1F3A63] text-white border-[#1F3A63] shadow-xs'
-                  : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
-              }`}
-            >
-              <cat.icon className="w-3.5 h-3.5" />
-              <span>{cat.label}</span>
-            </button>
-          ))}
+          ].map(cat => {
+            const isSelected = feedCategoryFilter === cat.key
+            return (
+              <button
+                key={cat.key}
+                type="button"
+                onClick={() => setFeedCategoryFilter(cat.key as any)}
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded-xl transition-all cursor-pointer shadow-2xs ${
+                  isSelected
+                    ? 'bg-[#3A3564] text-white shadow-xs'
+                    : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200/60'
+                }`}
+              >
+                <cat.icon className="w-3.5 h-3.5" />
+                <span>{cat.label}</span>
+              </button>
+            )
+          })}
         </div>
 
         {/* Logs List */}
@@ -1017,7 +1049,7 @@ export function StoreDashboardClient({
           {filteredStoreLogs.length === 0 ? (
             <div className="p-8 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
               <Clock className="w-8 h-8 text-slate-400 mx-auto mb-2" />
-              <p className="text-sm font-bold text-[var(--ink,#1C2733)]">
+              <p className="text-sm font-bold text-slate-900">
                 {feedTimeFilter === '24h' ? 'No store movements in the last 24 hours.' : 'No logs found matching your filters.'}
               </p>
               <p className="text-xs text-slate-500 mt-1">
@@ -1032,51 +1064,52 @@ export function StoreDashboardClient({
                 return (
                   <div
                     key={log.id}
-                    className="p-4 rounded-2xl bg-gradient-to-br from-slate-50 to-white border border-[#CBD7E6] hover:border-[#1F3A63] shadow-xs space-y-3 transition-all"
+                    className="p-4 sm:p-5 rounded-2xl bg-slate-50/70 border border-slate-200/80 hover:border-[#3A3564]/30 shadow-2xs space-y-3 transition-all"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-start gap-3">
-                        <div className="p-2.5 bg-[#E8EEF5] text-[#1F3A63] rounded-xl">
+                        <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
                           <Boxes className="w-5 h-5" />
                         </div>
                         <div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs font-black uppercase tracking-wider text-[#1F3A63]">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#3A3564]">
                               BOM Material Issue
                             </span>
                             {log.challan_no && (
-                              <span className="px-2 py-0.5 text-[10px] font-bold bg-slate-200/70 text-slate-800 rounded">
+                              <span className="px-2 py-0.5 text-[10px] font-mono font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10 rounded">
                                 Challan #{log.challan_no}
                               </span>
                             )}
                           </div>
-                          <h4 className="text-sm font-black text-[var(--ink,#1C2733)] mt-0.5">
+                          <h4 className="text-sm font-extrabold text-slate-900 mt-1">
                             {log.party_name}
                           </h4>
-                          <p className="text-xs text-[var(--ink-soft,#64748B)]">
+                          <p className="text-xs text-slate-500 font-medium">
                             {log.total_items_count} distinct trims package • {log.total_units_count} total units issued
                           </p>
                         </div>
                       </div>
 
                       <div className="text-right font-mono">
-                        <span className="text-sm font-black text-rose-600">
+                        <span className="text-sm sm:text-base font-black text-rose-700">
                           -{log.total_units_count} units
                         </span>
-                        <p className="text-[10px] text-slate-400 font-sans">
+                        <p className="text-[10px] text-slate-500 font-mono mt-0.5">
                           {log.entry_date || (log.created_at ? log.created_at.split('T')[0] : 'Today')}
                         </p>
                       </div>
                     </div>
 
                     {/* Accordion Expand Button */}
-                    <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
-                      <span className="text-[11px] text-slate-500 font-medium">
+                    <div className="flex items-center justify-between pt-2.5 border-t border-slate-200/60 text-xs">
+                      <span className="text-[11px] font-mono font-bold text-slate-500">
                         Chain of Custody: Store Godown ➔ Lineman
                       </span>
                       <button
+                        type="button"
                         onClick={() => toggleBOMAccordion(log.groupKey)}
-                        className="text-[#1F3A63] font-bold hover:underline flex items-center gap-1"
+                        className="text-[#3A3564] font-bold hover:underline flex items-center gap-1 cursor-pointer"
                       >
                         <span>{isExpanded ? 'Hide Items' : `View ${log.total_items_count} Items`}</span>
                         {isExpanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
@@ -1085,10 +1118,10 @@ export function StoreDashboardClient({
 
                     {/* Expanded Materials List */}
                     {isExpanded && log.items && (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 border-t border-slate-100">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 border-t border-slate-200/60">
                         {log.items.map((it: any, i: number) => (
-                          <div key={i} className="flex items-center justify-between p-2 bg-white rounded-lg border border-slate-200 text-xs">
-                            <span className="font-bold text-[var(--ink,#1C2733)]">{it.name}</span>
+                          <div key={i} className="flex items-center justify-between p-2.5 bg-white rounded-xl border border-slate-200 text-xs shadow-2xs">
+                            <span className="font-bold text-slate-900">{it.name}</span>
                             <span className="font-mono font-bold text-slate-700">{it.qty} {it.unit}</span>
                           </div>
                         ))}
@@ -1104,31 +1137,33 @@ export function StoreDashboardClient({
                 return (
                   <div
                     key={log.id}
-                    className="p-4 rounded-2xl bg-white border border-[var(--border,#E2E8F0)] hover:border-slate-300 shadow-xs flex items-start justify-between gap-3 transition-all"
+                    className="p-4 sm:p-5 rounded-2xl bg-white border border-black/10 hover:border-slate-300 shadow-2xs flex items-start justify-between gap-3 transition-all"
                   >
                     <div className="flex items-start gap-3">
-                      <div className={`p-2.5 rounded-xl ${isInward ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-2xs border ${
+                        isInward ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-rose-50 text-rose-700 border-rose-200'
+                      }`}>
                         {isInward ? <Download className="w-5 h-5" /> : <Send className="w-5 h-5" />}
                       </div>
                       <div>
-                        <div className="flex items-center gap-2">
-                          <span className={`text-xs font-black uppercase tracking-wider ${isInward ? 'text-emerald-700' : 'text-rose-700'}`}>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className={`text-xs font-mono font-bold uppercase tracking-wider ${isInward ? 'text-emerald-800' : 'text-rose-800'}`}>
                             {isInward ? 'Production Inward' : 'Finished Goods Outward'}
                           </span>
-                          <span className="text-xs font-black text-[#1F3A63]">
+                          <span className="text-xs font-mono font-bold bg-[#FAF7F0] text-[#3A3564] px-2 py-0.5 rounded border border-black/10">
                             Art #{log.art_no}
                           </span>
                           {log.challan_no && (
-                            <span className="px-1.5 py-0.5 text-[10px] font-bold bg-slate-100 text-slate-700 rounded">
+                            <span className="px-1.5 py-0.5 text-[10px] font-mono font-bold bg-slate-100 text-slate-700 rounded">
                               Challan #{log.challan_no}
                             </span>
                           )}
                         </div>
-                        <h4 className="text-sm font-bold text-[var(--ink,#1C2733)] mt-0.5">
+                        <h4 className="text-sm font-extrabold text-slate-900 mt-1">
                           {log.party_name || (isInward ? 'QC Finishing Floor' : 'General Dispatch')}
                         </h4>
-                        <p className="text-xs text-[var(--ink-soft,#64748B)]">
-                          Variant: <span className="font-semibold text-slate-800">{log.color || 'Standard'} / {log.size || 'Free'}</span>
+                        <p className="text-xs text-slate-500 font-medium mt-0.5">
+                          Variant: <span className="font-bold text-slate-900">{log.color || 'Standard'} / {log.size || 'Free'}</span>
                           {log.notes && ` • ${log.notes}`}
                         </p>
                       </div>
@@ -1136,21 +1171,22 @@ export function StoreDashboardClient({
 
                     <div className="flex items-start gap-2">
                       <div className="text-right font-mono">
-                        <span className={`text-base font-black ${isInward ? 'text-emerald-600' : 'text-rose-600'}`}>
+                        <span className={`text-base font-black ${isInward ? 'text-emerald-700' : 'text-rose-700'}`}>
                           {isInward ? `+${log.quantity}` : `-${log.quantity}`} pcs
                         </span>
-                        <p className="text-[10px] text-slate-400 font-sans">
+                        <p className="text-[10px] text-slate-500 font-mono mt-0.5">
                           {log.entry_date || (log.created_at ? log.created_at.split('T')[0] : 'Today')}
                         </p>
                       </div>
                       <button
+                        type="button"
                         onClick={() => setDeleteTarget({
                           type: 'STORE_TRANSACTION',
                           id: log.id,
                           title: `Garment ${log.type}: Art #${log.art_no}`,
                           subtitle: `${log.quantity} pcs (${log.color || 'Std'} / ${log.size || 'Free'})`
                         })}
-                        className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
                         title="Delete Transaction"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -1165,22 +1201,26 @@ export function StoreDashboardClient({
               return (
                 <div
                   key={log.id}
-                  className="p-3.5 rounded-2xl bg-white border border-[var(--border,#E2E8F0)] hover:border-slate-300 shadow-xs flex items-start justify-between gap-3 transition-all"
+                  className="p-4 rounded-2xl bg-white border border-black/10 hover:border-slate-300 shadow-2xs flex items-start justify-between gap-3 transition-all"
                 >
                   <div className="flex items-start gap-3">
-                    <div className={`p-2 rounded-xl ${isAccIn ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-2xs border ${
+                      isAccIn ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-rose-50 text-rose-700 border-rose-200'
+                    }`}>
                       <Tag className="w-4 h-4" />
                     </div>
                     <div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-black text-[var(--ink,#1C2733)]">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-xs font-mono font-bold text-slate-900">
                           {log.item_name}
                         </span>
-                        <span className={`px-1.5 py-0.2 text-[10px] font-bold rounded ${isAccIn ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}`}>
+                        <span className={`px-2 py-0.5 text-[10px] font-mono font-bold rounded ${
+                          isAccIn ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
+                        }`}>
                           {isAccIn ? 'Inward' : 'Issue'}
                         </span>
                       </div>
-                      <p className="text-xs text-[var(--ink-soft,#64748B)] mt-0.5">
+                      <p className="text-xs text-slate-500 font-medium mt-1">
                         {log.party_name || 'Store'} {log.notes && `• ${log.notes}`}
                       </p>
                     </div>
@@ -1188,21 +1228,22 @@ export function StoreDashboardClient({
 
                   <div className="flex items-start gap-2">
                     <div className="text-right font-mono">
-                      <span className={`text-sm font-black ${isAccIn ? 'text-emerald-600' : 'text-rose-600'}`}>
+                      <span className={`text-sm sm:text-base font-black ${isAccIn ? 'text-emerald-700' : 'text-rose-700'}`}>
                         {isAccIn ? `+${log.quantity}` : `-${log.quantity}`} {log.unit || 'pcs'}
                       </span>
-                      <p className="text-[10px] text-slate-400 font-sans">
+                      <p className="text-[10px] text-slate-500 font-mono mt-0.5">
                         {log.entry_date || (log.created_at ? log.created_at.split('T')[0] : 'Today')}
                       </p>
                     </div>
                     <button
+                      type="button"
                       onClick={() => setDeleteTarget({
                         type: 'ACCESSORY',
                         id: log.id,
                         title: `Accessory: ${log.item_name}`,
                         subtitle: `${log.quantity} ${log.unit || 'pcs'}`
                       })}
-                      className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
                       title="Delete Entry"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -1292,43 +1333,44 @@ export function StoreDashboardClient({
       {/* MODAL 6: DELETE CONFIRMATION DIALOG */}
       {/* ============================================================ */}
       {deleteTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in">
-          <div className="max-w-md w-full bg-white rounded-2xl p-6 shadow-xl border border-slate-200 space-y-4">
-            <div className="flex items-start gap-3">
-              <div className="p-3 bg-red-100 text-red-600 rounded-xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in">
+          <div className="max-w-md w-full bg-white rounded-2xl p-6 shadow-2xl border border-black/10 space-y-4">
+            <div className="flex items-start gap-3.5">
+              <div className="w-12 h-12 rounded-xl bg-rose-50 border border-rose-100 text-rose-600 flex items-center justify-center shrink-0">
                 <AlertTriangle className="w-6 h-6" />
               </div>
-              <div>
-                <h3 className="text-base font-black text-[var(--ink,#1C2733)]">
+              <div className="flex-1 min-w-0">
+                <h3 className="text-base font-extrabold text-slate-900">
                   Delete Entry?
                 </h3>
-                <p className="text-xs text-slate-500 mt-1">
-                  Are you sure you want to permanently delete <strong className="text-slate-800">{deleteTarget.title}</strong>?
+                <p className="text-xs font-semibold text-slate-600 mt-1">
+                  Are you sure you want to permanently delete <strong className="text-slate-900 font-extrabold">{deleteTarget.title}</strong>?
                 </p>
                 {deleteTarget.subtitle && (
-                  <p className="text-xs text-slate-400 mt-0.5">{deleteTarget.subtitle}</p>
+                  <p className="text-xs font-mono text-slate-500 mt-0.5">{deleteTarget.subtitle}</p>
                 )}
               </div>
             </div>
 
             {deleteError && (
-              <div className="p-3 bg-red-50 text-red-700 text-xs rounded-xl border border-red-200">
-                {deleteError}
+              <div className="p-3 bg-rose-50 text-rose-700 text-xs font-bold rounded-xl border border-rose-200 flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{deleteError}</span>
               </div>
             )}
 
-            <div className="flex items-center justify-end gap-2 pt-2">
+            <div className="flex items-center justify-end gap-2.5 pt-2">
               <button
                 onClick={() => setDeleteTarget(null)}
                 disabled={isPending}
-                className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition-all"
+                className="px-4 py-2.5 text-xs font-bold text-slate-700 bg-[#FAF7F0] hover:bg-[#F2ECE1] border border-black/10 rounded-xl transition-all shadow-2xs"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDeleteConfirm}
                 disabled={isPending}
-                className="px-4 py-2 text-xs font-bold text-white bg-red-600 hover:bg-red-700 rounded-xl shadow-xs transition-all flex items-center gap-1.5"
+                className="px-5 py-2.5 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl shadow-xs transition-all flex items-center gap-1.5"
               >
                 {isPending ? 'Deleting...' : 'Confirm Delete'}
               </button>
@@ -1422,41 +1464,41 @@ function GrnInwardModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
-      <div className="relative max-w-3xl w-full bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-900/60 backdrop-blur-xs animate-in fade-in">
+      <div className="relative max-w-3xl w-full bg-white rounded-2xl shadow-2xl border border-black/10 overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-slate-200 bg-[#F8FAFC]">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 bg-[#E8EEF5] text-[#1F3A63] rounded-xl">
+        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-black/10 bg-[#FAF7F0]">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-white text-[#3A3564] border border-black/10 shadow-2xs flex items-center justify-center shrink-0">
               <Receipt className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-black text-[var(--ink,#1C2733)]">
+              <h3 className="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight">
                 Accessory Challan Inward (GRN)
               </h3>
-              <p className="text-xs text-[var(--ink-soft,#64748B)]">
+              <p className="text-xs font-medium text-slate-500">
                 Record supplier delivery slip, trims, fabrics & due items
               </p>
             </div>
           </div>
-          <button onClick={onClose} className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-200 rounded-lg transition-colors">
+          <button onClick={onClose} className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 rounded-xl transition-all">
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Scrollable Form Body */}
-        <div className="p-5 overflow-y-auto space-y-4 flex-1">
+        <div className="p-4 sm:p-6 overflow-y-auto space-y-5 flex-1">
           {error && (
-            <div className="p-3 bg-red-50 text-red-700 text-xs font-bold rounded-xl border border-red-200 flex items-center gap-2">
+            <div className="p-3.5 bg-rose-50 text-rose-700 text-xs font-bold rounded-xl border border-rose-200 flex items-center gap-2">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{error}</span>
             </div>
           )}
 
           {/* Row 1: Supplier & Date */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-[var(--ink,#1C2733)] mb-1">
+              <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
                 Supplier / Brand Name *
               </label>
               <input
@@ -1464,26 +1506,26 @@ function GrnInwardModal({
                 placeholder="e.g. Vardhman Threads, YKK Zippers..."
                 value={partyName}
                 onChange={e => setPartyName(e.target.value)}
-                className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1F3A63]/20 focus:border-[#1F3A63]"
+                className="w-full px-3.5 py-2.5 text-xs sm:text-sm font-semibold bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] transition-all"
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-[var(--ink,#1C2733)] mb-1">
+              <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
                 Inward Date
               </label>
               <input
                 type="date"
                 value={inwardDate}
                 onChange={e => setInwardDate(e.target.value)}
-                className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1F3A63]/20 focus:border-[#1F3A63]"
+                className="w-full px-3.5 py-2.5 text-xs sm:text-sm font-semibold bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] transition-all"
               />
             </div>
           </div>
 
           {/* Row 2: Challan #, Truck #, Article Target */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
-              <label className="block text-xs font-bold text-[var(--ink,#1C2733)] mb-1">
+              <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
                 Supplier Challan #
               </label>
               <input
@@ -1491,11 +1533,11 @@ function GrnInwardModal({
                 placeholder="e.g. CH-9081"
                 value={challanNo}
                 onChange={e => setChallanNo(e.target.value)}
-                className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1F3A63]/20 focus:border-[#1F3A63]"
+                className="w-full px-3.5 py-2.5 text-xs sm:text-sm font-semibold bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] transition-all"
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-[var(--ink,#1C2733)] mb-1">
+              <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
                 Vehicle / Truck #
               </label>
               <input
@@ -1503,11 +1545,11 @@ function GrnInwardModal({
                 placeholder="e.g. DL-01-AB-1234"
                 value={truckNo}
                 onChange={e => setTruckNo(e.target.value)}
-                className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1F3A63]/20 focus:border-[#1F3A63]"
+                className="w-full px-3.5 py-2.5 text-xs sm:text-sm font-semibold bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] transition-all"
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-[var(--ink,#1C2733)] mb-1">
+              <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
                 Target Article (Style #)
               </label>
               <input
@@ -1515,34 +1557,36 @@ function GrnInwardModal({
                 placeholder="e.g. ART-550"
                 value={articleNo}
                 onChange={e => setArticleNo(e.target.value)}
-                className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1F3A63]/20 focus:border-[#1F3A63]"
+                className="w-full px-3.5 py-2.5 text-xs sm:text-sm font-semibold bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] transition-all"
               />
             </div>
           </div>
 
           {/* Item Presets Bar */}
-          <div className="flex flex-wrap items-center gap-1.5 pt-1">
-            <span className="text-[11px] font-bold text-[var(--ink-soft,#64748B)] mr-1">Add Preset:</span>
+          <div className="flex flex-wrap items-center gap-2 pt-1">
+            <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500 mr-1">Add Preset:</span>
             {['Zippers', 'Buttons', 'Care Labels', 'Sewing Threads', 'Fabric Rolls', 'Elastic Tape'].map(p => (
               <button
                 key={p}
                 type="button"
                 onClick={() => addPreset(p, p.includes('Rolls') ? 'rolls' : p.includes('Threads') ? 'cones' : 'pcs')}
-                className="px-2.5 py-1 text-[11px] font-bold bg-slate-100 hover:bg-[#E8EEF5] hover:text-[#1F3A63] text-slate-700 rounded-lg border border-slate-200 transition-all flex items-center gap-1"
+                className="px-3 py-1.5 text-xs font-bold bg-[#FAF7F0] hover:bg-[#F2ECE1] text-[#3A3564] rounded-xl border border-black/10 transition-all flex items-center gap-1.5 shadow-2xs"
               >
-                <Plus className="w-3 h-3" /> {p}
+                <Plus className="w-3.5 h-3.5" /> {p}
               </button>
             ))}
           </div>
 
           {/* Line Items Table / List */}
-          <div className="space-y-2.5 pt-1">
-            <label className="block text-xs font-bold text-[var(--ink,#1C2733)]">
-              Challan Line Items ({items.length})
-            </label>
+          <div className="space-y-3 pt-1">
+            <div className="flex items-center justify-between">
+              <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700">
+                Challan Line Items ({items.length})
+              </label>
+            </div>
             {items.map((it, idx) => (
-              <div key={idx} className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2.5">
-                <div className="flex items-center justify-between gap-2">
+              <div key={idx} className="p-3.5 bg-slate-50/70 rounded-xl border border-slate-200/80 space-y-3">
+                <div className="flex items-center justify-between gap-2.5">
                   <input
                     type="text"
                     placeholder="Item description (e.g. Antique Brass Zipper)"
@@ -1552,20 +1596,20 @@ function GrnInwardModal({
                       copy[idx].item_name = e.target.value
                       setItems(copy)
                     }}
-                    className="flex-1 px-2.5 py-1.5 text-xs font-bold text-[var(--ink,#1C2733)] bg-white border border-slate-200 rounded-lg"
+                    className="flex-1 px-3 py-2 text-xs sm:text-sm font-bold text-slate-900 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564]"
                   />
                   <button
                     type="button"
                     onClick={() => setItems(items.filter((_, i) => i !== idx))}
-                    className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg"
+                    className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
                   <div>
-                    <label className="block text-[10px] font-bold text-slate-500 mb-0.5">Quantity</label>
+                    <label className="block text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 mb-1">Quantity</label>
                     <input
                       type="number"
                       value={it.quantity}
@@ -1574,11 +1618,11 @@ function GrnInwardModal({
                         copy[idx].quantity = Number(e.target.value) || 0
                         setItems(copy)
                       }}
-                      className="w-full px-2.5 py-1.5 font-mono font-bold bg-white border border-slate-200 rounded-lg"
+                      className="w-full px-3 py-2 font-mono font-bold text-slate-900 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564]"
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-bold text-slate-500 mb-0.5">Unit</label>
+                    <label className="block text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 mb-1">Unit</label>
                     <select
                       value={it.unit}
                       onChange={e => {
@@ -1586,7 +1630,7 @@ function GrnInwardModal({
                         copy[idx].unit = e.target.value
                         setItems(copy)
                       }}
-                      className="w-full px-2 py-1.5 font-bold bg-white border border-slate-200 rounded-lg"
+                      className="w-full px-3 py-2 font-bold text-slate-900 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564]"
                     >
                       {['pcs', 'cones', 'kg', 'mt', 'rolls', 'gross'].map(u => (
                         <option key={u} value={u}>{u}</option>
@@ -1594,7 +1638,7 @@ function GrnInwardModal({
                     </select>
                   </div>
                   <div>
-                    <label className="block text-[10px] font-bold text-slate-500 mb-0.5">Size / Color</label>
+                    <label className="block text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 mb-1">Size / Color</label>
                     <input
                       type="text"
                       placeholder="e.g. M / Black"
@@ -1604,11 +1648,11 @@ function GrnInwardModal({
                         copy[idx].size_label = e.target.value
                         setItems(copy)
                       }}
-                      className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg"
+                      className="w-full px-3 py-2 font-semibold text-slate-900 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564]"
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-bold text-slate-500 mb-0.5">Status</label>
+                    <label className="block text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 mb-1">Status</label>
                     <select
                       value={it.status}
                       onChange={e => {
@@ -1616,7 +1660,7 @@ function GrnInwardModal({
                         copy[idx].status = e.target.value as any
                         setItems(copy)
                       }}
-                      className="w-full px-2 py-1.5 font-bold bg-white border border-slate-200 rounded-lg text-emerald-700 font-sans"
+                      className="w-full px-3 py-2 font-bold bg-white border border-slate-200 rounded-xl text-emerald-700 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564]"
                     >
                       <option value="RECEIVED">Received</option>
                       <option value="SHORTAGE">Shortage</option>
@@ -1637,7 +1681,7 @@ function GrnInwardModal({
                         copy[idx].shortage_qty = Number(e.target.value) || 0
                         setItems(copy)
                       }}
-                      className="w-full px-2.5 py-1.5 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg"
+                      className="w-full px-3 py-2 text-xs font-mono font-bold text-amber-700 bg-amber-50 border border-amber-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                     />
                   </div>
                 )}
@@ -1646,27 +1690,27 @@ function GrnInwardModal({
           </div>
 
           {/* Photo Attachment */}
-          <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
-            <label className="block text-xs font-bold text-[var(--ink,#1C2733)]">
+          <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2.5">
+            <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700">
               Challan Paper Slip Photo (Optional)
             </label>
             {photoUrl ? (
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3.5">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={photoUrl} alt="Slip Preview" className="w-16 h-16 object-cover rounded-lg border" />
+                <img src={photoUrl} alt="Slip Preview" className="w-16 h-16 object-cover rounded-xl border border-black/10 shadow-2xs" />
                 <div>
-                  <p className="text-xs font-bold text-emerald-600">Photo attached & ready</p>
+                  <p className="text-xs font-bold text-emerald-700">Photo attached & ready</p>
                   <button
                     type="button"
                     onClick={() => setPhotoUrl(null)}
-                    className="text-xs text-red-600 hover:underline mt-1 font-semibold"
+                    className="text-xs text-rose-600 hover:underline mt-1 font-bold"
                   >
                     Remove Photo
                   </button>
                 </div>
               </div>
             ) : (
-              <label className="flex items-center justify-center gap-2 p-3 bg-white border-2 border-dashed border-slate-200 hover:border-[#1F3A63] rounded-xl cursor-pointer text-xs font-bold text-slate-600 hover:text-[#1F3A63] transition-all">
+              <label className="flex items-center justify-center gap-2 p-4 bg-white border-2 border-dashed border-slate-200 hover:border-[#3A3564] rounded-xl cursor-pointer text-xs font-bold text-slate-600 hover:text-[#3A3564] transition-all">
                 <Upload className="w-4 h-4" />
                 <span>Upload Paper Challan Image</span>
                 <input type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden" />
@@ -1676,7 +1720,7 @@ function GrnInwardModal({
 
           {/* Remarks */}
           <div>
-            <label className="block text-xs font-bold text-[var(--ink,#1C2733)] mb-1">
+            <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
               General Remarks / Delivery Notes
             </label>
             <input
@@ -1684,18 +1728,18 @@ function GrnInwardModal({
               placeholder="e.g. 10 bags unloaded in Bay 2 • Driver Mohan"
               value={notes}
               onChange={e => setNotes(e.target.value)}
-              className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1F3A63]/20 focus:border-[#1F3A63]"
+              className="w-full px-3.5 py-2.5 text-xs sm:text-sm font-semibold bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] transition-all"
             />
           </div>
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-slate-200 bg-[#F8FAFC] flex items-center justify-end gap-2">
+        <div className="p-4 sm:p-5 border-t border-black/10 bg-[#FAF7F0] flex items-center justify-end gap-2.5">
           <button
             type="button"
             onClick={onClose}
             disabled={isSubmitting}
-            className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-200 rounded-xl transition-all"
+            className="px-4 py-2.5 text-xs font-bold text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl transition-all shadow-2xs"
           >
             Cancel
           </button>
@@ -1703,7 +1747,7 @@ function GrnInwardModal({
             type="button"
             onClick={handleSubmit}
             disabled={isSubmitting}
-            className="px-5 py-2 text-xs font-bold text-white bg-[#1F3A63] hover:bg-[#152844] rounded-xl shadow-xs transition-all flex items-center gap-1.5"
+            className="px-5 py-2.5 text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] rounded-xl shadow-xs transition-all flex items-center gap-2"
           >
             {isSubmitting ? 'Saving GRN...' : 'Confirm Inward'}
           </button>
@@ -1776,32 +1820,32 @@ function BomHandoverModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
-      <div className="relative max-w-2xl w-full bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-900/60 backdrop-blur-xs animate-in fade-in">
+      <div className="relative max-w-2xl w-full bg-white rounded-2xl shadow-2xl border border-black/10 overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-slate-200 bg-[#F8FAFC]">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 bg-[#E8EEF5] text-[#1F3A63] rounded-xl">
+        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-black/10 bg-[#FAF7F0]">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-white text-[#3A3564] border border-black/10 shadow-2xs flex items-center justify-center shrink-0">
               <Boxes className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-black text-[var(--ink,#1C2733)]">
+              <h3 className="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight">
                 BOM Material Handover
               </h3>
-              <p className="text-xs text-[var(--ink-soft,#64748B)]">
+              <p className="text-xs font-medium text-slate-500">
                 Inspect raw materials & issue BOM lot to Lineman
               </p>
             </div>
           </div>
-          <button onClick={onClose} className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-200 rounded-lg transition-colors">
+          <button onClick={onClose} className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 rounded-xl transition-all">
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Form Body */}
-        <div className="p-5 overflow-y-auto space-y-4 flex-1">
+        <div className="p-4 sm:p-6 overflow-y-auto space-y-4 flex-1">
           {error && (
-            <div className="p-3 bg-red-50 text-red-700 text-xs font-bold rounded-xl border border-red-200 flex items-center gap-2">
+            <div className="p-3.5 bg-rose-50 text-rose-700 text-xs font-bold rounded-xl border border-rose-200 flex items-center gap-2">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{error}</span>
             </div>
@@ -1809,13 +1853,13 @@ function BomHandoverModal({
 
           {/* Select Target Allotment */}
           <div>
-            <label className="block text-xs font-bold text-[var(--ink,#1C2733)] mb-1">
+            <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
               Select Active Target Allotment *
             </label>
             <select
               value={selectedAllotmentId}
               onChange={e => setSelectedAllotmentId(e.target.value)}
-              className="w-full px-3 py-2 text-xs font-bold text-[#1F3A63] bg-slate-50 border border-slate-200 rounded-xl"
+              className="w-full px-3.5 py-2.5 text-xs sm:text-sm font-bold text-slate-900 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564]"
             >
               {activeAllotments.map(al => (
                 <option key={al.id} value={al.id}>
@@ -1826,19 +1870,19 @@ function BomHandoverModal({
           </div>
 
           {/* Lineman & Challan Info Strip */}
-          <div className="flex flex-wrap items-center justify-between gap-2 p-3 bg-[#E8EEF5] rounded-xl text-xs font-bold text-[#1F3A63]">
-            <div className="flex items-center gap-1.5">
+          <div className="flex flex-wrap items-center justify-between gap-2 p-3.5 bg-[#FAF7F0] rounded-xl border border-black/10 text-xs font-bold text-[#3A3564]">
+            <div className="flex items-center gap-2">
               <User className="w-4 h-4" />
               <span>Lineman: {linemanName}</span>
             </div>
-            <div>
+            <div className="font-mono">
               <span>Target: {selectedAllotment?.target_qty || 0} pcs</span>
             </div>
           </div>
 
           {/* Supplier Challan # */}
           <div>
-            <label className="block text-xs font-bold text-[var(--ink,#1C2733)] mb-1">
+            <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
               Supplier Raw Material Challan # (Optional)
             </label>
             <input
@@ -1846,17 +1890,17 @@ function BomHandoverModal({
               placeholder="e.g. RM-5542 / Lot #12"
               value={supplierChallan}
               onChange={e => setSupplierChallan(e.target.value)}
-              className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1F3A63]/20 focus:border-[#1F3A63]"
+              className="w-full px-3.5 py-2.5 text-xs sm:text-sm font-semibold bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] transition-all"
             />
           </div>
 
           {/* Material Checklist */}
           <div className="space-y-3 pt-1">
-            <label className="block text-xs font-bold text-[var(--ink,#1C2733)]">
+            <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700">
               Raw Materials Inspection Checklist ({materials.length} items)
             </label>
             {materials.length === 0 ? (
-              <p className="text-xs text-slate-500 italic p-3 bg-slate-50 rounded-xl">
+              <p className="text-xs text-slate-500 italic p-3.5 bg-slate-50 rounded-xl border border-slate-200">
                 No BOM materials defined for this allotment. You can still confirm handover.
               </p>
             ) : (
@@ -1872,15 +1916,15 @@ function BomHandoverModal({
                 }
 
                 return (
-                  <div key={mat.id} className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                  <div key={mat.id} className="p-3.5 bg-slate-50/70 rounded-xl border border-slate-200/80 space-y-2.5">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-black text-[var(--ink,#1C2733)]">{mat.item_name}</span>
-                      <span className="text-xs font-bold font-mono text-slate-600">Required: {mat.required_qty}</span>
+                      <span className="text-xs font-extrabold text-slate-900">{mat.item_name}</span>
+                      <span className="text-xs font-mono font-bold text-slate-600">Required: {mat.required_qty}</span>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="grid grid-cols-2 gap-2.5 text-xs">
                       <div>
-                        <label className="block text-[10px] font-bold text-slate-500 mb-0.5">Physical Received Count</label>
+                        <label className="block text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 mb-1">Physical Received Count</label>
                         <input
                           type="text"
                           value={st.received_qty}
@@ -1890,11 +1934,11 @@ function BomHandoverModal({
                               [mat.id]: { ...st, received_qty: e.target.value }
                             })
                           }}
-                          className="w-full px-2.5 py-1.5 font-mono font-bold bg-white border border-slate-200 rounded-lg"
+                          className="w-full px-3 py-2 font-mono font-bold text-slate-900 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564]"
                         />
                       </div>
                       <div>
-                        <label className="block text-[10px] font-bold text-slate-500 mb-0.5">Verification Status</label>
+                        <label className="block text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 mb-1">Verification Status</label>
                         <select
                           value={st.status}
                           onChange={e => {
@@ -1903,7 +1947,7 @@ function BomHandoverModal({
                               [mat.id]: { ...st, status: e.target.value as any }
                             })
                           }}
-                          className="w-full px-2 py-1.5 font-bold bg-white border border-slate-200 rounded-lg"
+                          className="w-full px-3 py-2 font-bold text-slate-900 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564]"
                         >
                           <option value="VERIFIED">Verified</option>
                           <option value="SHORTAGE">Shortage</option>
@@ -1919,12 +1963,12 @@ function BomHandoverModal({
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-slate-200 bg-[#F8FAFC] flex items-center justify-end gap-2">
+        <div className="p-4 sm:p-5 border-t border-black/10 bg-[#FAF7F0] flex items-center justify-end gap-2.5">
           <button
             type="button"
             onClick={onClose}
             disabled={isSubmitting}
-            className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-200 rounded-xl transition-all"
+            className="px-4 py-2.5 text-xs font-bold text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl transition-all shadow-2xs"
           >
             Cancel
           </button>
@@ -1932,7 +1976,7 @@ function BomHandoverModal({
             type="button"
             onClick={handleSubmit}
             disabled={isSubmitting}
-            className="px-5 py-2 text-xs font-bold text-white bg-[#1F3A63] hover:bg-[#152844] rounded-xl shadow-xs transition-all flex items-center gap-1.5"
+            className="px-5 py-2.5 text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] rounded-xl shadow-xs transition-all flex items-center gap-2"
           >
             {isSubmitting ? 'Issuing...' : `Handover to ${linemanName}`}
           </button>
@@ -2031,32 +2075,32 @@ function ProductionInwardModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
-      <div className="relative max-w-2xl w-full bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-900/60 backdrop-blur-xs animate-in fade-in">
+      <div className="relative max-w-2xl w-full bg-white rounded-2xl shadow-2xl border border-black/10 overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-slate-200 bg-[#F8FAFC]">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 bg-[#E8EEF5] text-[#1F3A63] rounded-xl">
+        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-black/10 bg-[#FAF7F0]">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-white text-[#3A3564] border border-black/10 shadow-2xs flex items-center justify-center shrink-0">
               <Download className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-black text-[var(--ink,#1C2733)]">
+              <h3 className="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight">
                 Production Inward (Finished Goods)
               </h3>
-              <p className="text-xs text-[var(--ink-soft,#64748B)]">
+              <p className="text-xs font-medium text-slate-500">
                 Receive finished garments into Godown warehouse stock
               </p>
             </div>
           </div>
-          <button onClick={onClose} className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-200 rounded-lg transition-colors">
+          <button onClick={onClose} className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 rounded-xl transition-all">
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Form Body */}
-        <div className="p-5 overflow-y-auto space-y-4 flex-1">
+        <div className="p-4 sm:p-6 overflow-y-auto space-y-4 flex-1">
           {error && (
-            <div className="p-3 bg-red-50 text-red-700 text-xs font-bold rounded-xl border border-red-200 flex items-center gap-2">
+            <div className="p-3.5 bg-rose-50 text-rose-700 text-xs font-bold rounded-xl border border-rose-200 flex items-center gap-2">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{error}</span>
             </div>
@@ -2064,7 +2108,7 @@ function ProductionInwardModal({
 
           {/* Select Article */}
           <div>
-            <label className="block text-xs font-bold text-[var(--ink,#1C2733)] mb-1">
+            <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
               Article (Style #) *
             </label>
             <select
@@ -2073,7 +2117,7 @@ function ProductionInwardModal({
                 setSelectedArticleId(e.target.value)
                 setSelectedAllotmentId(null)
               }}
-              className="w-full px-3 py-2 text-xs font-bold text-[#1F3A63] bg-slate-50 border border-slate-200 rounded-xl"
+              className="w-full px-3.5 py-2.5 text-xs sm:text-sm font-bold text-slate-900 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564]"
             >
               {articles.map(art => (
                 <option key={art.id} value={art.id}>
@@ -2085,8 +2129,8 @@ function ProductionInwardModal({
 
           {/* Ready Lots Chips from QC */}
           {matchingReadyLots.length > 0 && (
-            <div className="space-y-1.5">
-              <label className="block text-xs font-bold text-[#1F3A63]">
+            <div className="space-y-2">
+              <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700">
                 Ready Lots from QC Table (Click to Autofill):
               </label>
               <div className="flex flex-wrap gap-2">
@@ -2115,7 +2159,7 @@ function ProductionInwardModal({
                           })))
                         }
                       }}
-                      className={`px-3 py-1.5 text-xs font-bold rounded-xl border transition-all flex items-center gap-1.5 ${
+                      className={`px-3 py-1.5 text-xs font-bold rounded-xl border transition-all flex items-center gap-1.5 shadow-2xs ${
                         isSelected
                           ? 'bg-emerald-50 text-emerald-800 border-emerald-400 ring-2 ring-emerald-300'
                           : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
@@ -2131,48 +2175,48 @@ function ProductionInwardModal({
           )}
 
           {/* Chain of Custody Box */}
-          <div className="p-3 bg-[#E8EEF5] rounded-xl border border-[#CBD7E6] space-y-2">
-            <span className="text-xs font-bold text-[#1F3A63]">Production Chain of Custody</span>
+          <div className="p-3.5 bg-[#FAF7F0] rounded-xl border border-black/10 space-y-2">
+            <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#3A3564]">Production Chain of Custody</span>
             <div className="flex flex-wrap gap-2 text-xs font-semibold">
-              <span className="px-2 py-0.5 bg-white rounded-md text-slate-700 border border-slate-200">
+              <span className="px-2.5 py-1 bg-white rounded-lg text-slate-700 border border-black/10 font-bold shadow-2xs">
                 Lineman: {linemanName || 'Floor'}
               </span>
-              <span className="px-2 py-0.5 bg-white rounded-md text-slate-700 border border-slate-200">
+              <span className="px-2.5 py-1 bg-white rounded-lg text-slate-700 border border-black/10 font-bold shadow-2xs">
                 Mending: {mendingName}
               </span>
-              <span className="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded-md border border-emerald-300">
+              <span className="px-2.5 py-1 bg-emerald-50 text-emerald-800 rounded-lg border border-emerald-300 font-bold shadow-2xs">
                 QC: {qcName}
               </span>
-              <span className="px-2 py-0.5 bg-white rounded-md text-[#1F3A63] border border-[#CBD7E6]">
+              <span className="px-2.5 py-1 bg-white rounded-lg text-[#3A3564] border border-black/10 font-bold shadow-2xs">
                 Store: {currentUserName}
               </span>
             </div>
           </div>
 
           {/* Live Total Quantity Banner */}
-          <div className="flex items-center justify-between p-3 bg-emerald-50 rounded-xl border border-emerald-200">
-            <span className="text-xs font-bold text-emerald-800">Total Inward Quantity:</span>
-            <span className="text-base font-black font-mono text-emerald-700">{totalInwardPieces} pcs</span>
+          <div className="flex items-center justify-between p-3.5 bg-emerald-50 rounded-xl border border-emerald-200">
+            <span className="text-xs font-mono font-bold uppercase tracking-wider text-emerald-800">Total Inward Quantity:</span>
+            <span className="text-base font-extrabold font-mono text-emerald-700">{totalInwardPieces} pcs</span>
           </div>
 
           {/* Variant Matrix Table */}
-          <div className="space-y-2">
+          <div className="space-y-2.5">
             <div className="flex items-center justify-between">
-              <label className="block text-xs font-bold text-[var(--ink,#1C2733)]">
+              <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700">
                 Color & Size Breakdown
               </label>
               <button
                 type="button"
                 onClick={() => setVariantInputs(prev => [...prev, { color: 'Standard', size: 'XL', quantity: 0 }])}
-                className="text-xs font-bold text-[#1F3A63] hover:underline flex items-center gap-1"
+                className="text-xs font-mono font-bold uppercase tracking-wider text-[#3A3564] hover:underline flex items-center gap-1"
               >
-                <Plus className="w-3 h-3" /> Add Size Row
+                <Plus className="w-3.5 h-3.5" /> Add Size Row
               </button>
             </div>
 
             <div className="space-y-2">
               {variantInputs.map((v, idx) => (
-                <div key={idx} className="flex items-center gap-2 p-2 bg-slate-50 rounded-xl border border-slate-200 text-xs">
+                <div key={idx} className="flex items-center gap-2 p-2.5 bg-slate-50/70 rounded-xl border border-slate-200/80 text-xs">
                   <input
                     type="text"
                     placeholder="Color"
@@ -2182,7 +2226,7 @@ function ProductionInwardModal({
                       copy[idx].color = e.target.value
                       setVariantInputs(copy)
                     }}
-                    className="w-1/3 px-2.5 py-1.5 bg-white font-bold border border-slate-200 rounded-lg"
+                    className="w-1/3 px-3 py-1.5 bg-white font-bold border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564]"
                   />
                   <input
                     type="text"
@@ -2193,7 +2237,7 @@ function ProductionInwardModal({
                       copy[idx].size = e.target.value
                       setVariantInputs(copy)
                     }}
-                    className="w-1/4 px-2.5 py-1.5 bg-white font-bold border border-slate-200 rounded-lg"
+                    className="w-1/4 px-3 py-1.5 bg-white font-bold border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564]"
                   />
                   <input
                     type="number"
@@ -2204,12 +2248,12 @@ function ProductionInwardModal({
                       copy[idx].quantity = Number(e.target.value) || 0
                       setVariantInputs(copy)
                     }}
-                    className="flex-1 px-2.5 py-1.5 bg-white font-mono font-bold text-[#1F3A63] border border-slate-200 rounded-lg text-right"
+                    className="flex-1 px-3 py-1.5 bg-white font-mono font-bold text-slate-900 border border-slate-200 rounded-xl text-right focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564]"
                   />
                   <button
                     type="button"
                     onClick={() => setVariantInputs(variantInputs.filter((_, i) => i !== idx))}
-                    className="p-1 text-slate-400 hover:text-red-600"
+                    className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -2220,7 +2264,7 @@ function ProductionInwardModal({
 
           {/* Notes */}
           <div>
-            <label className="block text-xs font-bold text-[var(--ink,#1C2733)] mb-1">
+            <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
               Remarks (Optional)
             </label>
             <input
@@ -2228,18 +2272,18 @@ function ProductionInwardModal({
               placeholder="e.g. Lot #12 Final QC Inward"
               value={notes}
               onChange={e => setNotes(e.target.value)}
-              className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl"
+              className="w-full px-3.5 py-2.5 text-xs sm:text-sm font-semibold bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] transition-all"
             />
           </div>
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-slate-200 bg-[#F8FAFC] flex items-center justify-end gap-2">
+        <div className="p-4 sm:p-5 border-t border-black/10 bg-[#FAF7F0] flex items-center justify-end gap-2.5">
           <button
             type="button"
             onClick={onClose}
             disabled={isSubmitting}
-            className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-200 rounded-xl transition-all"
+            className="px-4 py-2.5 text-xs font-bold text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl transition-all shadow-2xs"
           >
             Cancel
           </button>
@@ -2247,7 +2291,7 @@ function ProductionInwardModal({
             type="button"
             onClick={handleSubmit}
             disabled={isSubmitting || totalInwardPieces <= 0}
-            className="px-5 py-2 text-xs font-bold text-white bg-[#1F3A63] hover:bg-[#152844] rounded-xl shadow-xs transition-all flex items-center gap-1.5 disabled:opacity-50"
+            className="px-5 py-2.5 text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] rounded-xl shadow-xs transition-all flex items-center gap-2 disabled:opacity-50"
           >
             {isSubmitting ? 'Saving...' : `Save Inward (${totalInwardPieces} pcs)`}
           </button>
@@ -2320,47 +2364,47 @@ function FinishedGoodsOutwardModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
-      <div className="relative max-w-2xl w-full bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-900/60 backdrop-blur-xs animate-in fade-in">
+      <div className="relative max-w-2xl w-full bg-white rounded-2xl shadow-2xl border border-black/10 overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-slate-200 bg-[#F8FAFC]">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 bg-[#E8EEF5] text-[#1F3A63] rounded-xl">
+        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-black/10 bg-[#FAF7F0]">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-white text-[#3A3564] border border-black/10 shadow-2xs flex items-center justify-center shrink-0">
               <Send className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-black text-[var(--ink,#1C2733)]">
+              <h3 className="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight">
                 Finished Goods Outward (Dispatch)
               </h3>
-              <p className="text-xs text-[var(--ink-soft,#64748B)]">
+              <p className="text-xs font-medium text-slate-500">
                 Issue garments from Godown for delivery with delivery challan
               </p>
             </div>
           </div>
-          <button onClick={onClose} className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-200 rounded-lg transition-colors">
+          <button onClick={onClose} className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 rounded-xl transition-all">
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Form Body */}
-        <div className="p-5 overflow-y-auto space-y-4 flex-1">
+        <div className="p-4 sm:p-6 overflow-y-auto space-y-4 flex-1">
           {error && (
-            <div className="p-3 bg-red-50 text-red-700 text-xs font-bold rounded-xl border border-red-200 flex items-center gap-2">
+            <div className="p-3.5 bg-rose-50 text-rose-700 text-xs font-bold rounded-xl border border-rose-200 flex items-center gap-2">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{error}</span>
             </div>
           )}
 
           {/* Select Article & Stock Banner */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 items-end">
             <div>
-              <label className="block text-xs font-bold text-[var(--ink,#1C2733)] mb-1">
+              <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
                 Article (Style #) *
               </label>
               <select
                 value={selectedArticleId}
                 onChange={e => setSelectedArticleId(e.target.value)}
-                className="w-full px-3 py-2 text-xs font-bold text-[#1F3A63] bg-slate-50 border border-slate-200 rounded-xl"
+                className="w-full px-3.5 py-2.5 text-xs sm:text-sm font-bold text-slate-900 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564]"
               >
                 {articles.map(art => (
                   <option key={art.id} value={art.id}>
@@ -2369,16 +2413,16 @@ function FinishedGoodsOutwardModal({
                 ))}
               </select>
             </div>
-            <div className="p-2.5 bg-slate-100 rounded-xl text-xs font-bold text-slate-700 flex items-center justify-between">
-              <span>Godown Stock:</span>
-              <span className="font-mono text-emerald-700 text-sm">{availableStock} pcs</span>
+            <div className="p-2.5 bg-[#FAF7F0] rounded-xl border border-black/10 text-xs font-bold text-slate-700 flex items-center justify-between">
+              <span className="font-mono uppercase tracking-wider text-slate-600">Godown Stock:</span>
+              <span className="font-mono text-emerald-700 text-sm font-extrabold">{availableStock} pcs</span>
             </div>
           </div>
 
           {/* Buyer & Challan # */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div>
-              <label className="block text-xs font-bold text-[var(--ink,#1C2733)] mb-1">
+              <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
                 Buyer / Consignee Name
               </label>
               <input
@@ -2386,11 +2430,11 @@ function FinishedGoodsOutwardModal({
                 placeholder="e.g. Reliance Trends / Myntra Warehouse"
                 value={partyName}
                 onChange={e => setPartyName(e.target.value)}
-                className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl"
+                className="w-full px-3.5 py-2.5 text-xs sm:text-sm font-semibold bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] transition-all"
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-[var(--ink,#1C2733)] mb-1">
+              <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
                 Dispatch Challan #
               </label>
               <input
@@ -2398,29 +2442,29 @@ function FinishedGoodsOutwardModal({
                 placeholder="e.g. DC-2024-88"
                 value={challanNo}
                 onChange={e => setChallanNo(e.target.value)}
-                className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl"
+                className="w-full px-3.5 py-2.5 text-xs sm:text-sm font-semibold bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] transition-all"
               />
             </div>
           </div>
 
           {/* Variant Matrix */}
-          <div className="space-y-2">
+          <div className="space-y-2.5">
             <div className="flex items-center justify-between">
-              <label className="block text-xs font-bold text-[var(--ink,#1C2733)]">
+              <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700">
                 Dispatch Size Breakdown
               </label>
               <button
                 type="button"
                 onClick={() => setVariantInputs(prev => [...prev, { color: 'Standard', size: 'XL', quantity: 0 }])}
-                className="text-xs font-bold text-[#1F3A63] hover:underline flex items-center gap-1"
+                className="text-xs font-mono font-bold uppercase tracking-wider text-[#3A3564] hover:underline flex items-center gap-1"
               >
-                <Plus className="w-3 h-3" /> Add Size Row
+                <Plus className="w-3.5 h-3.5" /> Add Size Row
               </button>
             </div>
 
             <div className="space-y-2">
               {variantInputs.map((v, idx) => (
-                <div key={idx} className="flex items-center gap-2 p-2 bg-slate-50 rounded-xl border border-slate-200 text-xs">
+                <div key={idx} className="flex items-center gap-2 p-2.5 bg-slate-50/70 rounded-xl border border-slate-200/80 text-xs">
                   <input
                     type="text"
                     placeholder="Color"
@@ -2430,7 +2474,7 @@ function FinishedGoodsOutwardModal({
                       copy[idx].color = e.target.value
                       setVariantInputs(copy)
                     }}
-                    className="w-1/3 px-2.5 py-1.5 bg-white font-bold border border-slate-200 rounded-lg"
+                    className="w-1/3 px-3 py-1.5 bg-white font-bold border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564]"
                   />
                   <input
                     type="text"
@@ -2441,7 +2485,7 @@ function FinishedGoodsOutwardModal({
                       copy[idx].size = e.target.value
                       setVariantInputs(copy)
                     }}
-                    className="w-1/4 px-2.5 py-1.5 bg-white font-bold border border-slate-200 rounded-lg"
+                    className="w-1/4 px-3 py-1.5 bg-white font-bold border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564]"
                   />
                   <input
                     type="number"
@@ -2452,12 +2496,12 @@ function FinishedGoodsOutwardModal({
                       copy[idx].quantity = Number(e.target.value) || 0
                       setVariantInputs(copy)
                     }}
-                    className="flex-1 px-2.5 py-1.5 bg-white font-mono font-bold text-rose-600 border border-slate-200 rounded-lg text-right"
+                    className="flex-1 px-3 py-1.5 bg-white font-mono font-bold text-rose-600 border border-slate-200 rounded-xl text-right focus:outline-none focus:ring-2 focus:ring-rose-500/20"
                   />
                   <button
                     type="button"
                     onClick={() => setVariantInputs(variantInputs.filter((_, i) => i !== idx))}
-                    className="p-1 text-slate-400 hover:text-red-600"
+                    className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -2468,7 +2512,7 @@ function FinishedGoodsOutwardModal({
 
           {/* Transporter Notes */}
           <div>
-            <label className="block text-xs font-bold text-[var(--ink,#1C2733)] mb-1">
+            <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
               Dispatch & Transporter Notes (Optional)
             </label>
             <input
@@ -2476,18 +2520,18 @@ function FinishedGoodsOutwardModal({
               placeholder="e.g. VRL Logistics • 5 master cartons packed"
               value={notes}
               onChange={e => setNotes(e.target.value)}
-              className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl"
+              className="w-full px-3.5 py-2.5 text-xs sm:text-sm font-semibold bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] transition-all"
             />
           </div>
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-slate-200 bg-[#F8FAFC] flex items-center justify-end gap-2">
+        <div className="p-4 sm:p-5 border-t border-black/10 bg-[#FAF7F0] flex items-center justify-end gap-2.5">
           <button
             type="button"
             onClick={onClose}
             disabled={isSubmitting}
-            className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-200 rounded-xl transition-all"
+            className="px-4 py-2.5 text-xs font-bold text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl transition-all shadow-2xs"
           >
             Cancel
           </button>
@@ -2495,7 +2539,7 @@ function FinishedGoodsOutwardModal({
             type="button"
             onClick={handleSubmit}
             disabled={isSubmitting || totalDispatchPieces <= 0}
-            className="px-5 py-2 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl shadow-xs transition-all flex items-center gap-1.5 disabled:opacity-50"
+            className="px-5 py-2.5 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl shadow-xs transition-all flex items-center gap-2 disabled:opacity-50"
           >
             {isSubmitting ? 'Dispatching...' : `Confirm Dispatch (${totalDispatchPieces} pcs)`}
           </button>

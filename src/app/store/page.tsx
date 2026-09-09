@@ -197,12 +197,12 @@ export default async function StoreDashboardPage() {
       <div className="flex-1 p-4 md:p-8 max-w-7xl w-full mx-auto space-y-6">
         
         {/* Breadcrumb Bar */}
-        <div className="flex items-center gap-1.5 text-[12px] font-medium" style={{ color: 'var(--ink-faint, #8B9AAB)' }}>
-          <Link href={profile?.role?.toUpperCase() === 'STORE' ? '/store' : '/dashboard'} className="hover:underline hover:text-[var(--ink,#1C2733)]">
+        <div className="flex items-center gap-2 text-xs font-medium text-slate-500">
+          <Link href={profile?.role?.toUpperCase() === 'STORE' ? '/store' : '/dashboard'} className="hover:underline hover:text-slate-900 transition-colors">
             Overview
           </Link>
-          <span>/</span>
-          <span className="font-semibold" style={{ color: 'var(--steel-dark, #1F3A63)' }}>
+          <span className="text-slate-300">/</span>
+          <span className="font-extrabold text-[#3A3564]">
             Store & Godown
           </span>
         </div>
