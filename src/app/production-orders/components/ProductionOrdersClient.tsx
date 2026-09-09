@@ -1010,59 +1010,6 @@ export function ProductionOrdersClient({
     })
   }
 
-  // Export CSV
-  const handleExportCSV = () => {
-    const headers = [
-      'Challan No',
-      'Challan Date',
-      'Brand',
-      'Delivery Date',
-      'Fabric',
-      'Art No',
-      'Sub Art',
-      'Pattern',
-      'Color Assortment',
-      'Size Tier',
-      'Sets',
-      'Ratio',
-      'Total Pcs',
-      'Lineman',
-      'Status'
-    ]
-
-    const rows: string[][] = []
-    filteredOrders.forEach(ch => {
-      ch.articles?.forEach(a => {
-        rows.push([
-          ch.challan_no,
-          ch.challan_date,
-          ch.brand,
-          ch.delivery_date || '-',
-          ch.fabric_type,
-          a.art_no,
-          a.sub_art_no || '-',
-          a.pattern_no || '-',
-          `"${a.color_pattern || ''}"`,
-          a.size_range,
-          String(a.sets),
-          String(a.pcs_per_set),
-          String(a.total_pcs),
-          a.assigned_lineman_name || 'Unassigned',
-          a.status || ch.status
-        ])
-      })
-    })
-
-    const todayStr = new Date().toISOString().split('T')[0]
-    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n')
-    const encodedUri = encodeURI(csvContent)
-    const link = document.createElement('a')
-    link.setAttribute('href', encodedUri)
-    link.setAttribute('download', `Zigza_Delivery_Challans_${todayStr}.csv`)
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-  }
 
   return (
     <div className="space-y-6">
@@ -1114,14 +1061,6 @@ export function ProductionOrdersClient({
             <span>{isImporting ? 'Importing...' : 'Import Excel'}</span>
           </button>
 
-          <button
-            type="button"
-            onClick={handleExportCSV}
-            className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold border border-black/15 bg-white hover:bg-slate-50 text-slate-700 transition-all shadow-2xs cursor-pointer"
-          >
-            <Download className="w-4 h-4 text-slate-500" />
-            <span>Export CSV</span>
-          </button>
 
           <button
             type="button"
