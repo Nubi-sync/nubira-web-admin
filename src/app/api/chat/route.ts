@@ -13,23 +13,45 @@ function getGeminiApiKey(): string {
   ).trim()
 }
 
-const SYSTEM_INSTRUCTION = `You are Zigza AI, the intelligent operations assistant for Zigza ERP & MES garment manufacturing system.
-Your primary role is to accurately answer operational questions by fetching real-time data from the factory database using the provided tools.
+const SYSTEM_INSTRUCTION = `You are Zigza AI, the dedicated digital production assistant for the garment factory owner and management team.
 
-CRITICAL OPERATIONAL RULES:
-1. Branding: Your name is strictly "Zigza AI". NEVER use "copilot", "co-pilot", "Gemini", or mention underlying LLM models.
-2. Typos & Spelling Mistakes: Be very forgiving with typos, shorthand, and spelling mistakes (e.g. "stck in godon" -> check godown inventory; "lnemn" -> lineman allotments; "challn" -> delivery challans; "arti" -> articles catalog). Infer the user's intent and invoke the proper tool.
-3. Capabilities & Scope:
-   - When asked what you can do or how you can help, clearly list what you can check:
-     • Production Orders: Order status, lot matrices, total pieces, and buyer details.
-     • Floor & Linemen: Bundle allotments, lineman throughput, and piece-rate earnings.
-     • Daily Sewing Logs: Pieces stitched today and production throughput.
-     • Warehouse & Godown: Finished goods inventory ready in warehouse stock.
-     • QC Inspections: Passed vs rejected pieces and defect breakdown.
-     • Articles Catalog: Garment styles, descriptions, and piece rates.
-   - If asked about topics outside factory manufacturing (e.g. cooking, jokes, weather), politely clarify that you are focused on Zigza factory floor execution and offer to check factory data.
-4. Grounded Numbers: When reporting database results, present piece counts and rates in bold (e.g. **1,450 pcs**, **₹4.50/pc**). Use clean bullet points or markdown tables.
-5. Always Respond: When tool data is provided, ALWAYS synthesize a helpful, friendly natural language response. NEVER leave the response blank.
+TARGET AUDIENCE:
+You are speaking directly to garment factory owners, business merchants, senior directors, and workshop managers. Many are experienced businessmen who prefer simple, practical, everyday spoken English. They do NOT know software jargon, database terms, or code variables.
+
+COMMUNICATION RULES:
+1. Pure Plain English: Speak naturally, politely, and directly.
+   - NEVER use developer or database jargon (e.g. NEVER say "KPI", "API", "JSON", "schema", "table", "public.qc_inspections", "activeArticlesCount", "totalOrderTargetPieces", or any camelCase text).
+   - Translate all data into everyday garment factory terms:
+     • "Garment Styles / Designs" (not articles or SKUs)
+     • "Running Orders / Cutting Orders" (not production orders or challans)
+     • "Target Pieces to Make" (not order target qty)
+     • "Tailors / Stitching Workers" (not linemen or floor profiles)
+     • "Daily Stitched Pieces" (not daily_product logs)
+     • "Finished Goods in Godown" (not store inventory)
+     • "Dispatches & Gate Passes" (not delivery challans)
+     • "Quality Checking & Alterations" (not qc inspections)
+
+2. Clear & Executive Formatting:
+   - Always put quantities and numbers in bold with their units (e.g. **97,674 pieces**, **34 styles**, **21 active orders**, **₹5.50 per piece**).
+   - Use clean, simple bullet points.
+   - Keep answers clear and to the point—no fluff or unnecessary paragraphs.
+
+3. Zero Code or Error Dumps:
+   - If there are no records in the database or if an action has 0 entries, explain it warmly in plain English (e.g. "There are no quality rejection records logged today—all production lines are running smoothly.").
+   - Never show technical error messages or raw database responses.
+
+4. Branding:
+   - Your name is strictly "Zigza AI". Never mention underlying LLM models, Google, or other AI brands.
+
+5. Direct Helpful Responses:
+   - When asked "what can you do?", explain simply:
+     "I can help you quickly check:
+     • Running orders and total pieces to make
+     • Active garment styles and stitching rates
+     • Daily pieces stitched by tailors
+     • Ready stock available in the godown
+     • Dispatched deliveries and buyer gate passes
+     • Quality checking and alteration reports"
 `
 
 export async function POST(req: NextRequest) {
@@ -37,7 +59,7 @@ export async function POST(req: NextRequest) {
     const apiKey = getGeminiApiKey()
     if (!apiKey) {
       return NextResponse.json(
-        { error: 'Gemini API key is not configured in server environment. Please add GEMINI_API_KEY to your Vercel/Render Environment Variables and redeploy.' },
+        { error: 'Gemini API key is not configured in server environment. Please add GEMINI_API_KEY to your environment variables.' },
         { status: 500 }
       )
     }
@@ -54,7 +76,7 @@ export async function POST(req: NextRequest) {
     // Build Gemini contents array from history + new message
     const contents: any[] = []
 
-    // Add recent history (last 4 messages, trimmed to 400 chars to avoid token inflation)
+    // Add recent history (last 4 messages, trimmed to avoid token explosion)
     const recentHistory = history.slice(-4)
     for (const h of recentHistory) {
       if (h.role === 'user' || h.role === 'model') {
@@ -110,15 +132,24 @@ export async function POST(req: NextRequest) {
 
     // Check if model called a tool
     if (firstCandidate?.functionCall) {
-      const { name, args } = firstCandidate.functionCall
+      const { name, args, id: callId } = firstCandidate.functionCall
       
       // Execute the database tool
       const toolResult = await executeAiTool(name, args || {})
 
       const modelContent = firstData.candidates?.[0]?.content
 
+      const functionResponseObj: any = {
+        name,
+        response: {
+          content: toolResult
+        }
+      }
+      if (callId) {
+        functionResponseObj.id = callId
+      }
+
       // 2. Feed tool result back to Gemini for natural language synthesis
-      // NOTE: Do NOT re-declare tools here - saves ~3,000 tokens per response
       const secondContents = [
         ...contents,
         modelContent,
@@ -126,12 +157,7 @@ export async function POST(req: NextRequest) {
           role: 'user',
           parts: [
             {
-              functionResponse: {
-                name,
-                response: {
-                  content: toolResult
-                }
-              }
+              functionResponse: functionResponseObj
             }
           ]
         }
@@ -155,17 +181,14 @@ export async function POST(req: NextRequest) {
       })
 
       if (!secondRes.ok) {
-        // Fallback: return raw tool result formatted
+        // Fallback: format into simple plain English sentences
         return NextResponse.json({
-          response: `Retrieved data for **${name.replace(/_/g, ' ')}**:\n\n\`\`\`json\n${JSON.stringify(toolResult, null, 2)}\n\`\`\``,
-          toolCalled: name,
-          toolArgs: args
+          response: formatFriendlyFallback(name, toolResult)
         })
       }
 
       const secondData = await secondRes.json()
       
-      // Collect all text parts from Gemini candidate
       let answerText = ''
       const parts = secondData.candidates?.[0]?.content?.parts
       if (Array.isArray(parts)) {
@@ -176,34 +199,16 @@ export async function POST(req: NextRequest) {
           .trim()
       }
 
-      // Robust fallback if Gemini generated an empty text string
       if (!answerText) {
-        const rawObj = toolResult as any
-        if (rawObj && typeof rawObj === 'object') {
-          if (rawObj.message) {
-            answerText = rawObj.message
-          } else if (Array.isArray(rawObj) && rawObj.length === 0) {
-            answerText = `No matching records were found in the database for **${name.replace(/_/g, ' ')}**.`
-          } else {
-            answerText = `Here is the current operational data from **${name.replace(/_/g, ' ')}**:\n\n` +
-              Object.entries(rawObj)
-                .map(([k, v]) => `• **${k.replace(/_/g, ' ')}**: ${typeof v === 'object' ? JSON.stringify(v) : v}`)
-                .join('\n')
-          }
-        } else {
-          answerText = `I retrieved the data for **${name.replace(/_/g, ' ')}**, but no specific records were found.`
-        }
+        answerText = formatFriendlyFallback(name, toolResult)
       }
 
       return NextResponse.json({
-        response: answerText,
-        toolCalled: name,
-        toolArgs: args,
-        rawToolData: toolResult
+        response: answerText
       })
     }
 
-    // If no function call, return direct response
+    // Direct response without function call
     let directText = ''
     const parts = firstData.candidates?.[0]?.content?.parts
     if (Array.isArray(parts)) {
@@ -215,7 +220,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (!directText) {
-      directText = "I am Zigza AI, your factory floor operations assistant. You can ask me to check production orders, lineman allotments, daily sewing logs, godown inventory, QC rejections, or the articles catalog. What would you like to look up?"
+      directText = "I am Zigza AI, your factory floor assistant. How can I help you with your orders, styles, or stock today?"
     }
 
     return NextResponse.json({
@@ -229,4 +234,25 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     )
   }
+}
+
+function formatFriendlyFallback(toolName: string, data: any): string {
+  if (!data || typeof data !== 'object') {
+    return 'Here is the current information from your factory records.'
+  }
+
+  if (toolName === 'get_factory_kpis') {
+    return `Here is the current status of your factory floor:
+• **Active Garment Styles**: **${data.activeGarmentStyles || 0} designs**
+• **Running Production Orders**: **${data.runningOrdersCount || 0} active orders**
+• **Total Pieces to Make**: **${(data.totalTargetPieces || 0).toLocaleString()} pieces**
+• **Ready Stock in Godown**: **${(data.readyStockInGodown || 0).toLocaleString()} pieces**
+• **Dispatched to Buyers**: **${(data.totalDispatchedPieces || 0).toLocaleString()} pieces**`
+  }
+
+  if (data.note) {
+    return data.note
+  }
+
+  return 'Here is the current summary from your factory records.'
 }
