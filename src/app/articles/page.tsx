@@ -29,12 +29,47 @@ export default async function ArticlesPage() {
     redirect('/store')
   }
 
-  // Fetch all articles from master catalog (synced with production delivery challans)
-  const { data: articles } = await supabase
-    .from('articles')
-    .select('*')
-    .order('created_at', { ascending: false })
-    .limit(2000)
+  // Parallel concurrent data fetching for Articles and Lineman Allotment History
+  const [
+    { data: articles },
+    { data: allotments },
+    { data: challans },
+    { data: profiles }
+  ] = await Promise.all([
+    supabase
+      .from('articles')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(2000),
+
+    supabase
+      .from('allotments')
+      .select(`
+        id,
+        challan_id,
+        article_id,
+        lineman_id,
+        target_qty,
+        status,
+        allotment_date,
+        created_at,
+        profiles:lineman_id ( id, username, full_name, role ),
+        articles:article_id ( id, art_no ),
+        challans:challan_id ( id, challan_no, brand, fabric_type )
+      `)
+      .order('created_at', { ascending: false }),
+
+    supabase
+      .from('challans')
+      .select('id, challan_no, brand, fabric_type, challan_date, notes, created_at')
+      .order('created_at', { ascending: false })
+      .limit(100),
+
+    supabase
+      .from('profiles')
+      .select('id, username, full_name, role')
+      .eq('is_active', true)
+  ])
 
   return (
     <AdminShell userEmail={user.email}>
@@ -49,13 +84,16 @@ export default async function ArticlesPage() {
           <span>Manage</span>
           <span>/</span>
           <span className="font-bold text-slate-900">
-            Articles
+            Articles & Lineman History
           </span>
         </div>
 
         {/* 2. Unified Full-Width Client Component */}
         <ArticlesClient 
-          articles={(articles as any) || []} 
+          articles={(articles as any) || []}
+          allotments={(allotments as any) || []}
+          challans={(challans as any) || []}
+          profiles={(profiles as any) || []}
         />
 
       </div>
