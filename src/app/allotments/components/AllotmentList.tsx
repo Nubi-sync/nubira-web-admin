@@ -152,7 +152,7 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
   const router = useRouter()
   const [isSyncing, setIsSyncing] = useState(false)
 
-  // Real-time live synchronization with mobile floor apps
+  // Real-time live synchronization with mobile floor apps via Supabase WebSockets
   useEffect(() => {
     const supabase = createClient()
     const channel = supabase
@@ -169,14 +169,15 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
       .on('postgres_changes', { event: '*', schema: 'public', table: 'allotment_materials' }, () => {
         router.refresh()
       })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'daily_product' }, () => {
+        router.refresh()
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'qc_logs' }, () => {
+        router.refresh()
+      })
       .subscribe()
 
-    // 15-second background auto-poll fallback
-    const interval = setInterval(() => {
-      router.refresh()
-    }, 15000)
-
-    // Window focus refresh
+    // Window focus refresh: automatically re-sync whenever admin tabs back into the window
     const onFocus = () => {
       router.refresh()
     }
@@ -184,7 +185,6 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
 
     return () => {
       supabase.removeChannel(channel)
-      clearInterval(interval)
       window.removeEventListener('focus', onFocus)
     }
   }, [router])
