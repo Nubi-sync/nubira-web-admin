@@ -31,7 +31,9 @@ export default async function StoreDashboardPage() {
     { data: accessoriesData },
     { data: truckInwardsData },
     { data: activeAllotmentsData },
-    { data: readyQcAllotmentsData }
+    { data: readyQcAllotmentsData },
+    { data: floorReissuesData },
+    { data: workerAssignmentsData }
   ] = await Promise.all([
     supabase
       .from('articles')
@@ -83,22 +85,7 @@ export default async function StoreDashboardPage() {
     supabase
       .from('truck_inwards')
       .select(`
-        id,
-        grn_no,
-        party_name,
-        article_no,
-        challan_no,
-        inward_date,
-        truck_no,
-        challan_photo_url,
-        receiver_name,
-        status,
-        total_items,
-        due_items_count,
-        shortage_items_count,
-        notes,
-        line_items,
-        created_at,
+        *,
         items:truck_inward_items(
           id,
           item_name,
@@ -167,7 +154,38 @@ export default async function StoreDashboardPage() {
       .or('qc_status.eq.APPROVED_FOR_STORE,qc_status.eq.READY_FOR_STORE')
       .neq('store_inward_status', 'INWARDED')
       .order('created_at', { ascending: false })
-      .limit(60)
+      .limit(60),
+
+    // Floor Accessory Re-issues (Worker Loss & Machine Damage)
+    supabase
+      .from('floor_accessory_reissues')
+      .select(`
+        id,
+        allotment_id,
+        article_id,
+        article_no,
+        challan_no,
+        worker_name,
+        lineman_name,
+        item_name,
+        quantity,
+        unit,
+        reason,
+        channel,
+        issued_by,
+        notes,
+        entry_date,
+        created_at
+      `)
+      .order('created_at', { ascending: false })
+      .limit(150),
+
+    // Recent floor worker assignments for quick worker suggestions
+    supabase
+      .from('worker_assignments')
+      .select('id, allotment_id, worker_name, article_id')
+      .order('assigned_at', { ascending: false })
+      .limit(200)
   ])
 
   const articles = (articlesData as any) || []
@@ -176,19 +194,59 @@ export default async function StoreDashboardPage() {
     article: Array.isArray(tx.article) ? tx.article[0] : tx.article,
   }))
   const accessories = (accessoriesData as any) || []
-  const truckInwards = (truckInwardsData as any) || []
-  const activeAllotments = ((activeAllotmentsData as any) || []).map((al: any) => ({
-    ...al,
-    article: Array.isArray(al.article) ? al.article[0] : al.article,
-    lineman: Array.isArray(al.lineman) ? al.lineman[0] : al.lineman,
-    challans: Array.isArray(al.challans) ? al.challans[0] : al.challans,
-  }))
+  const truckInwards = ((truckInwardsData as any) || []).map((t: any) => {
+    let garmentType = t.garment_type
+    if (!garmentType && t.notes) {
+      const match = t.notes.match(/\[Garment:\s*([^\]]+)\]/i)
+      if (match) garmentType = match[1].trim()
+    }
+    return {
+      ...t,
+      garment_type: garmentType || null,
+    }
+  })
+  const activeAllotments = ((activeAllotmentsData as any) || []).map((al: any) => {
+    let prio = al.priority || 'NORMAL'
+    if (prio === 'NORMAL' && al.allotment_materials) {
+      for (const m of al.allotment_materials) {
+        if (m.notes) {
+          try {
+            const parsed = JSON.parse(m.notes)
+            if (parsed.priority) {
+              prio = parsed.priority
+              break
+            }
+          } catch (_) {}
+        }
+      }
+    }
+    return {
+      ...al,
+      priority: prio,
+      article: Array.isArray(al.article) ? al.article[0] : al.article,
+      lineman: Array.isArray(al.lineman) ? al.lineman[0] : al.lineman,
+      challans: Array.isArray(al.challans) ? al.challans[0] : al.challans,
+    }
+  }).sort((a: any, b: any) => {
+    const rank = (p?: string) => (p === 'CRITICAL' ? 0 : p === 'RUSH' ? 1 : 2)
+    const diff = rank(a.priority) - rank(b.priority)
+    if (diff !== 0) return diff
+    return new Date(b.created_at || '').getTime() - new Date(a.created_at || '').getTime()
+  })
+
   const readyQcAllotments = ((readyQcAllotmentsData as any) || []).map((al: any) => ({
     ...al,
     article: Array.isArray(al.article) ? al.article[0] : al.article,
     lineman: Array.isArray(al.lineman) ? al.lineman[0] : al.lineman,
     challans: Array.isArray(al.challans) ? al.challans[0] : al.challans,
-  }))
+  })).sort((a: any, b: any) => {
+    const rank = (p?: string) => (p === 'CRITICAL' ? 0 : p === 'RUSH' ? 1 : 2)
+    const diff = rank(a.priority) - rank(b.priority)
+    if (diff !== 0) return diff
+    return new Date(b.created_at || '').getTime() - new Date(a.created_at || '').getTime()
+  })
+  const floorReissues = (floorReissuesData as any) || []
+  const workerAssignments = (workerAssignmentsData as any) || []
 
   const currentUserName = profile?.username || user.user_metadata?.full_name || user.email?.split('@')[0] || 'Store Supervisor'
 
@@ -217,6 +275,8 @@ export default async function StoreDashboardPage() {
           truckInwards={truckInwards}
           activeAllotments={activeAllotments}
           readyQcAllotments={readyQcAllotments}
+          floorReissues={floorReissues}
+          workerAssignments={workerAssignments}
         />
 
       </div>

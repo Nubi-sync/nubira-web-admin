@@ -20,12 +20,13 @@ export type TruckInwardItemInput = {
 
 export type CreateTruckInwardPayload = {
   party_name: string
-  article_no?: string
-  challan_no?: string
-  truck_no?: string
+  article_no?: string | null
+  garment_type?: string | null
+  challan_no?: string | null
+  truck_no?: string | null
   inward_date: string
   challan_photo_url?: string | null
-  notes?: string
+  notes?: string | null
   items: TruckInwardItemInput[]
 }
 
@@ -64,32 +65,52 @@ export async function createTruckInwardGrn(payload: CreateTruckInwardPayload) {
       }
     })
 
-    // 1. Insert into truck_inwards
-    const { data: insertedInward, error: inwardError } = await supabase
+    // 1. Insert into truck_inwards with fallback resilience for garment_type
+    const insertPayload: any = {
+      grn_no: grnNo,
+      party_name: payload.party_name.trim(),
+      article_no: payload.article_no?.trim() || null,
+      garment_type: payload.garment_type?.trim() || null,
+      challan_no: payload.challan_no?.trim() || null,
+      truck_no: payload.truck_no?.trim() || null,
+      inward_date: payload.inward_date || new Date().toISOString().split('T')[0],
+      total_items: payload.items.length,
+      due_items_count: dueCount,
+      shortage_items_count: shortageCount,
+      status: overallStatus,
+      challan_photo_url: payload.challan_photo_url || null,
+      line_items: lineItemsJson,
+      notes: payload.notes?.trim() || null,
+      receiver_name: currentUserName,
+      received_by: currentUserId,
+    }
+
+    let { data: insertedInward, error: inwardError } = await supabase
       .from('truck_inwards')
-      .insert({
-        grn_no: grnNo,
-        party_name: payload.party_name.trim(),
-        article_no: payload.article_no?.trim() || null,
-        challan_no: payload.challan_no?.trim() || null,
-        truck_no: payload.truck_no?.trim() || null,
-        inward_date: payload.inward_date || new Date().toISOString().split('T')[0],
-        total_items: payload.items.length,
-        due_items_count: dueCount,
-        shortage_items_count: shortageCount,
-        status: overallStatus,
-        challan_photo_url: payload.challan_photo_url || null,
-        line_items: lineItemsJson,
-        notes: payload.notes?.trim() || null,
-        receiver_name: currentUserName,
-        received_by: currentUserId,
-      })
+      .insert(insertPayload)
       .select('id, grn_no')
       .single()
 
-    if (inwardError) {
+    // Graceful fallback if garment_type column does not exist yet in Supabase
+    if (inwardError && inwardError.message?.toLowerCase().includes('garment_type')) {
+      delete insertPayload.garment_type
+      if (payload.garment_type?.trim()) {
+        insertPayload.notes = insertPayload.notes
+          ? `${insertPayload.notes} [Garment: ${payload.garment_type.trim()}]`
+          : `[Garment: ${payload.garment_type.trim()}]`
+      }
+      const retry = await supabase
+        .from('truck_inwards')
+        .insert(insertPayload)
+        .select('id, grn_no')
+        .single()
+      insertedInward = retry.data
+      inwardError = retry.error
+    }
+
+    if (inwardError || !insertedInward) {
       console.error('Error inserting truck inward:', inwardError)
-      return { error: inwardError.message }
+      return { error: inwardError?.message || 'Failed to record GRN slip' }
     }
 
     const truckInwardId = insertedInward.id
@@ -473,5 +494,124 @@ export async function deleteAccessoryByName(itemName: string) {
     return { success: true }
   } catch (err: any) {
     return { error: err?.message || 'Failed to delete accessory items' }
+  }
+}
+
+// ----------------------------------------------------
+// 6. FLOOR ACCESSORY RE-ISSUE & LOSS ENTRY
+// ----------------------------------------------------
+export type FloorAccessoryReissuePayload = {
+  allotment_id?: string | null
+  article_id?: string | null
+  article_no: string
+  challan_no?: string | null
+  worker_name: string
+  lineman_name?: string | null
+  item_name: string
+  quantity: number
+  unit?: string
+  reason: 'LOST' | 'MACHINE_DAMAGE' | 'DEFECTIVE_PIECE' | 'SHORT_IN_LOT'
+  channel?: 'DIRECT_COUNTER' | 'VIA_LINEMAN'
+  notes?: string | null
+}
+
+export async function reissueFloorAccessory(payload: FloorAccessoryReissuePayload) {
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    const currentUserName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Store Supervisor'
+    const todayStr = new Date().toISOString().split('T')[0]
+
+    if (!payload.worker_name?.trim()) {
+      return { error: 'Please specify the Worker / Tailor name.' }
+    }
+    if (!payload.article_no?.trim()) {
+      return { error: 'Please specify the Target Article.' }
+    }
+    if (!payload.item_name?.trim()) {
+      return { error: 'Please select or enter the Accessory Item.' }
+    }
+    if (!payload.quantity || payload.quantity <= 0) {
+      return { error: 'Please enter a valid quantity greater than 0.' }
+    }
+
+    const reasonLabelMap: Record<string, string> = {
+      LOST: 'Worker Lost (खोगी)',
+      MACHINE_DAMAGE: 'Machine Damage (मशीन में टूटी/कटी)',
+      DEFECTIVE_PIECE: 'Defective (खराब निकली)',
+      SHORT_IN_LOT: 'Lot Shortage (कम निकली)',
+    }
+    const reasonText = reasonLabelMap[payload.reason] || payload.reason
+
+    // 1. Insert into floor_accessory_reissues
+    const { error: reissueError } = await supabase
+      .from('floor_accessory_reissues')
+      .insert({
+        allotment_id: payload.allotment_id || null,
+        article_id: payload.article_id || null,
+        article_no: payload.article_no.trim(),
+        challan_no: payload.challan_no?.trim() || null,
+        worker_name: payload.worker_name.trim(),
+        lineman_name: payload.lineman_name?.trim() || null,
+        item_name: payload.item_name.trim(),
+        quantity: payload.quantity,
+        unit: payload.unit || 'pcs',
+        reason: payload.reason,
+        channel: payload.channel || 'DIRECT_COUNTER',
+        issued_by: currentUserName,
+        notes: payload.notes?.trim() || null,
+        entry_date: todayStr,
+      })
+
+    if (reissueError) {
+      console.warn('Warning inserting floor_accessory_reissues (table may be pending migration):', reissueError.message)
+    }
+
+    // 2. Insert into accessories table with action: 'OUT' so Godown Stock is deducted in real-time
+    const partyLabel = `Floor Re-Issue: ${payload.worker_name.trim()}${payload.lineman_name ? ` (Line: ${payload.lineman_name})` : ''}`
+    const noteText = `Art #${payload.article_no.trim()}${payload.challan_no ? ` • Challan #${payload.challan_no.trim()}` : ''} • Reason: ${reasonText} • Via: ${payload.channel === 'VIA_LINEMAN' ? 'Lineman Auth' : 'Direct Counter'}${payload.notes ? ` • ${payload.notes.trim()}` : ''}`
+
+    const { error: accError } = await supabase
+      .from('accessories')
+      .insert({
+        item_name: payload.item_name.trim(),
+        action: 'OUT',
+        quantity: payload.quantity,
+        unit: payload.unit || 'pcs',
+        party_name: partyLabel,
+        entry_date: todayStr,
+        notes: noteText,
+      })
+
+    if (accError) {
+      console.error('Error deducting accessory from godown stock:', accError)
+      return { error: accError.message }
+    }
+
+    revalidatePath('/store')
+    revalidatePath('/inventory')
+    revalidatePath('/dashboard')
+    revalidatePath('/reports')
+    revalidatePath('/allotments')
+    return { success: true }
+  } catch (err: any) {
+    console.error('Exception in reissueFloorAccessory:', err)
+    return { error: err?.message || 'Failed to record floor accessory re-issue' }
+  }
+}
+
+export async function deleteFloorAccessoryReissue(id: string) {
+  try {
+    const supabase = supabaseAdmin
+    const { error } = await supabase.from('floor_accessory_reissues').delete().eq('id', id)
+    if (error) return { error: error.message }
+
+    revalidatePath('/store')
+    revalidatePath('/inventory')
+    revalidatePath('/dashboard')
+    revalidatePath('/reports')
+    return { success: true }
+  } catch (err: any) {
+    return { error: err?.message || 'Failed to delete floor re-issue record' }
   }
 }

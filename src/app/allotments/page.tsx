@@ -235,8 +235,14 @@ export default async function AllotmentsPage() {
         </Suspense>
 
         {/* Section 2: Allotments List & Live Handshake Status */}
-        {/* @ts-ignore */}
-        <AllotmentList allotments={allotments || []} />
+        <AllotmentList 
+          allotments={([...allotments].sort((a, b) => {
+            const rank = (p?: string) => (p === 'CRITICAL' ? 0 : p === 'RUSH' ? 1 : 2)
+            const diff = rank(a.priority) - rank(b.priority)
+            if (diff !== 0) return diff
+            return new Date(b.created_at || '').getTime() - new Date(a.created_at || '').getTime()
+          })) as any} 
+        />
 
       </div>
     </AdminShell>

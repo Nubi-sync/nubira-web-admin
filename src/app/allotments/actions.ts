@@ -185,6 +185,52 @@ export async function createDetailedAllotment(payload: {
         console.error('Error inserting materials:', matError)
       }
     }
+  } else {
+    // If no specific materials were entered, ensure a standard metadata row is saved so priority & order details are preserved
+    let linemanName = 'Lineman'
+    try {
+      const { data: prof } = await supabase.from('profiles').select('username').eq('id', lineman_id).single()
+      if (prof?.username) linemanName = prof.username
+    } catch (_) {}
+
+    let artNo = ''
+    let artDesc = ''
+    try {
+      const { data: aData } = await supabase.from('articles').select('art_no, description').eq('id', article_id).single()
+      if (aData) {
+        artNo = aData.art_no || ''
+        artDesc = aData.description || ''
+      }
+    } catch (_) {}
+
+    try {
+      await supabase.from('allotment_materials').insert([{
+        allotment_id: allotmentId,
+        item_name: 'Standard Production BOM & Trims',
+        required_qty: 'As per Article Ratio',
+        admin_issued: false,
+        admin_issued_at: null,
+        lineman_received: false,
+        notes: JSON.stringify({ 
+          lineman_name: linemanName, 
+          article_id: article_id,
+          art_no: artNo,
+          article_description: artDesc, 
+          lineman_id: lineman_id, 
+          production_order_no: production_order_no || '',
+          manager_name: manager_name || 'Production Manager',
+          due_date: due_date || '',
+          target_hours: target_hours || 16,
+          priority: priority || 'NORMAL',
+          client_challan_no: client_challan_no || '',
+          source: 'FACTORY_STORE',
+          sample_photos: sample_photos || [],
+          status: 'PENDING' 
+        })
+      }])
+    } catch (e) {
+      console.warn('Fallback material note save warning:', e)
+    }
   }
 
   revalidatePath('/allotments')

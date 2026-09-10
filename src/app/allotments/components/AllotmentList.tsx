@@ -31,7 +31,8 @@ import {
   FileText,
   Users,
   RotateCcw,
-  Sparkles
+  Sparkles,
+  Zap
 } from 'lucide-react'
 import { WorkerAssignmentsTable, type WorkerAssignmentItem } from '@/app/components/WorkerAssignmentsTable'
 
@@ -470,8 +471,22 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
 
                       {/* Article & Description */}
                       <td className="px-4 py-3.5">
-                        <div className="font-extrabold text-slate-900 font-mono">
-                          {al.articles?.art_no || 'N/A'}
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="font-extrabold text-slate-900 font-mono">
+                            {al.articles?.art_no || 'N/A'}
+                          </span>
+                          {al.priority === 'CRITICAL' && (
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-extrabold bg-rose-50 text-rose-700 border border-rose-200 shadow-2xs">
+                              <Flame className="w-3 h-3 text-rose-600" />
+                              CRITICAL
+                            </span>
+                          )}
+                          {al.priority === 'RUSH' && (
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-extrabold bg-amber-50 text-amber-800 border border-amber-200 shadow-2xs">
+                              <Zap className="w-3 h-3 text-amber-600" />
+                              RUSH
+                            </span>
+                          )}
                         </div>
                         <div className="text-[11px] text-slate-500 font-medium truncate max-w-[180px]">
                           {cleanDescription(al.articles?.description)}

@@ -34,7 +34,14 @@ import {
   Tag,
   Receipt,
   Download,
-  Send
+  Send,
+  Scissors,
+  ShieldAlert,
+  PackageCheck,
+  Minus,
+  Store,
+  UserCheck,
+  Hash
 } from 'lucide-react'
 import { TvViewButton } from '@/components/ui/TvViewButton'
 import { 
@@ -46,8 +53,11 @@ import {
   deleteStoreTransaction, 
   deleteAccessory, 
   deleteAccessoryByName,
+  reissueFloorAccessory,
+  deleteFloorAccessoryReissue,
   TruckInwardItemInput,
-  BomMaterialItemState
+  BomMaterialItemState,
+  FloorAccessoryReissuePayload
 } from '../actions'
 
 // Types
@@ -109,6 +119,7 @@ export type TruckInward = {
   grn_no: string
   party_name: string
   article_no?: string | null
+  garment_type?: string | null
   challan_no?: string | null
   inward_date: string
   truck_no?: string | null
@@ -165,6 +176,25 @@ export type ReadyQcAllotment = {
   allotment_variants?: Array<{ id: string; color: string; size: string; quantity: number }> | null
 }
 
+export type FloorAccessoryReissue = {
+  id: string
+  allotment_id?: string | null
+  article_id?: string | null
+  article_no: string
+  challan_no?: string | null
+  worker_name: string
+  lineman_name?: string | null
+  item_name: string
+  quantity: number
+  unit?: string | null
+  reason: 'LOST' | 'MACHINE_DAMAGE' | 'DEFECTIVE_PIECE' | 'SHORT_IN_LOT'
+  channel?: 'DIRECT_COUNTER' | 'VIA_LINEMAN' | null
+  issued_by: string
+  notes?: string | null
+  entry_date: string
+  created_at: string
+}
+
 interface StoreDashboardClientProps {
   currentUserName: string
   userEmail: string
@@ -174,6 +204,8 @@ interface StoreDashboardClientProps {
   truckInwards: TruckInward[]
   activeAllotments: ActiveAllotment[]
   readyQcAllotments: ReadyQcAllotment[]
+  floorReissues?: FloorAccessoryReissue[]
+  workerAssignments?: Array<{ id: string; allotment_id?: string | null; worker_name?: string | null; article_id?: string | null }>
 }
 
 export function StoreDashboardClient({
@@ -185,13 +217,15 @@ export function StoreDashboardClient({
   truckInwards,
   activeAllotments,
   readyQcAllotments,
+  floorReissues = [],
+  workerAssignments = [],
 }: StoreDashboardClientProps) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
 
   // Feed Filter States
   const [feedTimeFilter, setFeedTimeFilter] = useState<'24h' | '7d' | 'all'>('24h')
-  const [feedCategoryFilter, setFeedCategoryFilter] = useState<'ALL' | 'BOM' | 'TRIMS' | 'GARMENTS'>('ALL')
+  const [feedCategoryFilter, setFeedCategoryFilter] = useState<'ALL' | 'BOM' | 'TRIMS' | 'GARMENTS' | 'REISSUES'>('ALL')
   const [feedSearchQuery, setFeedSearchQuery] = useState('')
   const [expandedBOMKeys, setExpandedBOMKeys] = useState<Set<string>>(new Set())
   const [expandedGrnId, setExpandedGrnId] = useState<string | null>(null)
@@ -199,6 +233,7 @@ export function StoreDashboardClient({
   // Modal Triggers
   const [isGrnModalOpen, setIsGrnModalOpen] = useState(false)
   const [isBomModalOpen, setIsBomModalOpen] = useState(false)
+  const [isReissueModalOpen, setIsReissueModalOpen] = useState(false)
   const [isInwardModalOpen, setIsInwardModalOpen] = useState(false)
   const [isOutwardModalOpen, setIsOutwardModalOpen] = useState(false)
   const [activePhoto, setActivePhoto] = useState<{ url: string; title: string } | null>(null)
@@ -206,7 +241,7 @@ export function StoreDashboardClient({
 
   // Delete Target State
   const [deleteTarget, setDeleteTarget] = useState<{
-    type: 'TRUCK_INWARD' | 'STORE_TRANSACTION' | 'ACCESSORY' | 'ACCESSORY_BY_NAME'
+    type: 'TRUCK_INWARD' | 'STORE_TRANSACTION' | 'ACCESSORY' | 'ACCESSORY_BY_NAME' | 'FLOOR_REISSUE'
     id: string
     title: string
     subtitle?: string
@@ -407,6 +442,29 @@ export function StoreDashboardClient({
       })
     })
 
+    // 3. Add Floor Accessory Re-issues (Worker Loss & Machine Damage)
+    floorReissues.forEach(re => {
+      combined.push({
+        isGroupedBOM: false,
+        isAccessory: false,
+        isFloorReissue: true,
+        id: re.id,
+        created_at: re.created_at,
+        entry_date: re.entry_date,
+        article_no: re.article_no,
+        challan_no: re.challan_no,
+        worker_name: re.worker_name,
+        lineman_name: re.lineman_name,
+        item_name: re.item_name,
+        quantity: Number(re.quantity) || 0,
+        unit: re.unit || 'pcs',
+        reason: re.reason,
+        channel: re.channel,
+        issued_by: re.issued_by,
+        notes: re.notes,
+      })
+    })
+
     // Sort descending by created_at
     combined.sort((a, b) => {
       const tA = a.created_at || a.entry_date || ''
@@ -415,7 +473,7 @@ export function StoreDashboardClient({
     })
 
     return combined
-  }, [accessories, storeTransactions])
+  }, [accessories, storeTransactions, floorReissues])
 
   // Filtered store logs based on Time, Category, and Search
   const filteredStoreLogs = useMemo(() => {
@@ -440,14 +498,16 @@ export function StoreDashboardClient({
       } else if (feedCategoryFilter === 'TRIMS') {
         if (!log.isAccessory || log.isGroupedBOM) return false
       } else if (feedCategoryFilter === 'GARMENTS') {
-        if (log.isAccessory) return false
+        if (log.isAccessory || log.isFloorReissue) return false
+      } else if (feedCategoryFilter === 'REISSUES') {
+        if (!log.isFloorReissue) return false
       }
 
       // 3. Search Query
       if (feedSearchQuery) {
         const q = feedSearchQuery.toLowerCase()
-        const matchItem = (log.item_name || log.art_no || '').toLowerCase().includes(q)
-        const matchParty = (log.party_name || '').toLowerCase().includes(q)
+        const matchItem = (log.item_name || log.art_no || log.article_no || '').toLowerCase().includes(q)
+        const matchParty = (log.party_name || log.worker_name || log.lineman_name || '').toLowerCase().includes(q)
         const matchChallan = (log.challan_no || '').toLowerCase().includes(q)
         const matchNotes = (log.notes || '').toLowerCase().includes(q)
         const matchItems = log.items ? log.items.some((it: any) => it.name.toLowerCase().includes(q)) : false
@@ -486,6 +546,8 @@ export function StoreDashboardClient({
         res = await deleteAccessory(deleteTarget.id)
       } else if (deleteTarget.type === 'ACCESSORY_BY_NAME') {
         res = await deleteAccessoryByName(deleteTarget.id)
+      } else if (deleteTarget.type === 'FLOOR_REISSUE') {
+        res = await deleteFloorAccessoryReissue(deleteTarget.id)
       }
 
       if (res?.error) {
@@ -732,13 +794,13 @@ export function StoreDashboardClient({
       )}
 
       {/* ============================================================ */}
-      {/* 4. STORE QUICK ACTIONS (4-CARD GRID)                         */}
+      {/* 4. STORE QUICK ACTIONS (5-CARD GRID)                         */}
       {/* ============================================================ */}
       <div className="space-y-3">
         <h2 className="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight">
           Store Quick Actions
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3.5">
           
           {/* Action 1: Accessory Challan Inward (GRN) */}
           <button
@@ -784,7 +846,29 @@ export function StoreDashboardClient({
             </div>
           </button>
 
-          {/* Action 3: Production Inward */}
+          {/* Action 3: Floor Re-Issue / Loss Entry */}
+          <button
+            type="button"
+            onClick={() => setIsReissueModalOpen(true)}
+            className="p-5 text-left bg-white hover:bg-amber-50/40 border border-black/10 hover:border-amber-400/60 rounded-2xl shadow-2xs hover:shadow-md transition-all group flex flex-col justify-between cursor-pointer"
+          >
+            <div className="flex items-center justify-between mb-3">
+              <div className="w-11 h-11 rounded-xl bg-amber-50 group-hover:bg-amber-600 text-amber-700 group-hover:text-white border border-amber-200/80 flex items-center justify-center transition-colors shadow-2xs">
+                <RotateCw className="w-5 h-5" />
+              </div>
+              <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-amber-700 transition-colors" />
+            </div>
+            <div>
+              <h3 className="text-sm sm:text-base font-extrabold text-slate-900 group-hover:text-amber-800 transition-colors">
+                Floor Loss / Re-Issue
+              </h3>
+              <p className="text-xs text-slate-500 mt-1 leading-relaxed line-clamp-2">
+                Log replacement accessories given to tailors for lost or damaged trims
+              </p>
+            </div>
+          </button>
+
+          {/* Action 4: Production Inward */}
           <button
             type="button"
             onClick={() => {
@@ -809,7 +893,7 @@ export function StoreDashboardClient({
             </div>
           </button>
 
-          {/* Action 4: Finished Goods Outward */}
+          {/* Action 5: Finished Goods Outward */}
           <button
             type="button"
             onClick={() => setIsOutwardModalOpen(true)}
@@ -901,8 +985,13 @@ export function StoreDashboardClient({
                       <h4 className="text-base font-extrabold text-slate-900 mt-1.5">
                         {grn.party_name}
                       </h4>
-                      <p className="text-xs text-slate-500 font-medium">
-                        Challan #{grn.challan_no || '-'} • Vehicle: {grn.truck_no || 'Direct Inward'} • Style: {grn.article_no || '-'}
+                      <p className="text-xs text-slate-500 font-medium flex items-center gap-1.5 flex-wrap mt-0.5">
+                        <span>Challan #{grn.challan_no || '-'} • Vehicle: {grn.truck_no || 'Direct Inward'} • Style: {grn.article_no || '-'}</span>
+                        {grn.garment_type && (
+                          <span className="px-2 py-0.5 text-[11px] font-bold font-mono bg-purple-50 text-purple-700 border border-purple-200 rounded-md">
+                            {grn.garment_type}
+                          </span>
+                        )}
                       </p>
                     </div>
 
@@ -1099,6 +1188,7 @@ export function StoreDashboardClient({
           {[
             { key: 'ALL', label: 'All Activities', icon: Layers },
             { key: 'BOM', label: 'BOM Packages', icon: Boxes },
+            { key: 'REISSUES', label: 'Floor Re-Issues (Loss/Damage)', icon: RotateCw },
             { key: 'TRIMS', label: 'Trims & Materials', icon: Tag },
             { key: 'GARMENTS', label: 'Garments In/Out', icon: Warehouse },
           ].map(cat => {
@@ -1181,7 +1271,7 @@ export function StoreDashboardClient({
                     {/* Accordion Expand Button */}
                     <div className="flex items-center justify-between pt-2.5 border-t border-slate-200/60 text-xs">
                       <span className="text-[11px] font-mono font-bold text-slate-500">
-                        Chain of Custody: Store Godown ➔ Lineman
+                        Chain of Custody: Store Godown -&gt; Lineman
                       </span>
                       <button
                         type="button"
@@ -1208,7 +1298,84 @@ export function StoreDashboardClient({
                 )
               }
 
-              // 2. Garment Inward/Outward Log Card
+              // 2. Floor Accessory Re-issue Log Card (Worker Loss & Machine Damage)
+              if (log.isFloorReissue) {
+                const reasonLabelMap: Record<string, { label: string; badgeClass: string }> = {
+                  LOST: { label: 'Worker Lost (खोगी)', badgeClass: 'bg-rose-50 text-rose-800 border-rose-200' },
+                  MACHINE_DAMAGE: { label: 'Machine Damage (मशीन में टूटी)', badgeClass: 'bg-amber-50 text-amber-800 border-amber-200' },
+                  DEFECTIVE_PIECE: { label: 'Defective (खराब निकली)', badgeClass: 'bg-indigo-50 text-indigo-800 border-indigo-200' },
+                  SHORT_IN_LOT: { label: 'Lot Shortage (कम निकली)', badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200' },
+                }
+                const reasonInfo = reasonLabelMap[log.reason] || { label: log.reason, badgeClass: 'bg-slate-100 text-slate-800 border-slate-200' }
+
+                return (
+                  <div
+                    key={log.id}
+                    className="p-4 sm:p-5 rounded-2xl bg-white border border-amber-200/80 hover:border-amber-400 shadow-2xs flex items-start justify-between gap-3 transition-all"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 border border-amber-200 flex items-center justify-center shrink-0 shadow-2xs">
+                        <RotateCw className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-xs font-mono font-bold uppercase tracking-wider text-amber-800">
+                            Floor Re-Issue
+                          </span>
+                          <span className="text-xs font-mono font-bold bg-[#FAF7F0] text-[#3A3564] px-2 py-0.5 rounded border border-black/10">
+                            Art #{log.article_no}
+                          </span>
+                          {log.challan_no && (
+                            <span className="px-1.5 py-0.5 text-[10px] font-mono font-bold bg-slate-100 text-slate-700 rounded">
+                              Challan #{log.challan_no}
+                            </span>
+                          )}
+                          <span className={`px-2 py-0.5 text-[10px] font-bold rounded-lg border ${reasonInfo.badgeClass}`}>
+                            {reasonInfo.label}
+                          </span>
+                          <span className="px-2 py-0.5 text-[10px] font-medium bg-slate-50 text-slate-600 rounded-lg border border-slate-200">
+                            {log.channel === 'VIA_LINEMAN' ? 'Via Lineman' : 'Direct Counter'}
+                          </span>
+                        </div>
+                        <h4 className="text-sm font-extrabold text-slate-900 mt-1">
+                          Tailor: <span className="text-[#3A3564] font-black">{log.worker_name}</span>
+                          {log.lineman_name && <span className="text-xs text-slate-500 font-medium ml-2">• Line: {log.lineman_name}</span>}
+                        </h4>
+                        <p className="text-xs text-slate-600 font-medium mt-0.5">
+                          Item: <strong className="text-slate-900">{log.item_name}</strong>
+                          {log.notes && <span className="text-slate-500 italic"> • {log.notes}</span>}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-2">
+                      <div className="text-right font-mono">
+                        <span className="text-sm sm:text-base font-black text-rose-700">
+                          -{log.quantity} {log.unit}
+                        </span>
+                        <p className="text-[10px] text-slate-500 font-mono mt-0.5">
+                          {log.entry_date || 'Today'}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setDeleteTarget({
+                          type: 'FLOOR_REISSUE',
+                          id: log.id,
+                          title: `Re-Issue: ${log.item_name} (${log.quantity} ${log.unit})`,
+                          subtitle: `Tailor: ${log.worker_name} • Art #${log.article_no}`
+                        })}
+                        className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                        title="Delete Re-issue entry"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                )
+              }
+
+              // 3. Garment Inward/Outward Log Card
               if (!log.isAccessory) {
                 const isInward = log.type === 'INWARD'
                 return (
@@ -1340,6 +1507,7 @@ export function StoreDashboardClient({
         <GrnInwardModal
           onClose={() => setIsGrnModalOpen(false)}
           articles={articles}
+          truckInwards={truckInwards}
           currentUserName={currentUserName}
         />
       )}
@@ -1351,6 +1519,19 @@ export function StoreDashboardClient({
         <BomHandoverModal
           onClose={() => setIsBomModalOpen(false)}
           activeAllotments={activeAllotments}
+          currentUserName={currentUserName}
+        />
+      )}
+
+      {/* ============================================================ */}
+      {/* MODAL 2B: FLOOR ACCESSORY RE-ISSUE & LOSS ENTRY */}
+      {/* ============================================================ */}
+      {isReissueModalOpen && (
+        <AccessoryReissueModal
+          onClose={() => setIsReissueModalOpen(false)}
+          activeAllotments={activeAllotments}
+          workerAssignments={workerAssignments}
+          accessories={accessories}
           currentUserName={currentUserName}
         />
       )}
@@ -1461,20 +1642,132 @@ export function StoreDashboardClient({
 }
 
 // ====================================================================
+// HELPER: HISTORICAL ACCESSORY / TRIM RESOLUTION BY GARMENT TYPE
+// ====================================================================
+function getHistoricalTrimsForGarment(
+  garmentType: string,
+  articleNo: string,
+  truckInwards: TruckInward[] = []
+): Array<{ item_name: string; unit: string }> {
+  const gClean = (garmentType || '').trim().toLowerCase()
+  const aClean = (articleNo || '').trim().toLowerCase()
+  const foundMap = new Map<string, { item_name: string; unit: string }>()
+
+  // 1. First priority: Exact article_no match from past inward transactions
+  if (aClean) {
+    const artMatches = truckInwards.filter(t => (t.article_no || '').trim().toLowerCase() === aClean)
+    for (const t of artMatches) {
+      const lineList = t.items && t.items.length > 0 ? t.items : (Array.isArray(t.line_items) ? t.line_items : [])
+      for (const item of lineList) {
+        const name = (item.item_name || '').trim()
+        if (name && !foundMap.has(name.toLowerCase())) {
+          foundMap.set(name.toLowerCase(), {
+            item_name: name,
+            unit: (item.unit || 'pcs').trim()
+          })
+        }
+      }
+    }
+  }
+
+  // 2. Second priority: Match past challans by garment_type
+  if (gClean) {
+    const gMatches = truckInwards.filter(t => {
+      const dbG = (t.garment_type || '').trim().toLowerCase()
+      if (dbG) {
+        return dbG === gClean || dbG.includes(gClean) || gClean.includes(dbG)
+      }
+      if (t.notes) {
+        const match = t.notes.match(/\[Garment:\s*([^\]]+)\]/i)
+        if (match) {
+          const noteG = match[1].trim().toLowerCase()
+          return noteG === gClean || noteG.includes(gClean) || gClean.includes(noteG)
+        }
+      }
+      return false
+    })
+
+    for (const t of gMatches) {
+      const lineList = t.items && t.items.length > 0 ? t.items : (Array.isArray(t.line_items) ? t.line_items : [])
+      for (const item of lineList) {
+        const name = (item.item_name || '').trim()
+        if (name && !foundMap.has(name.toLowerCase())) {
+          foundMap.set(name.toLowerCase(), {
+            item_name: name,
+            unit: (item.unit || 'pcs').trim()
+          })
+        }
+      }
+    }
+  }
+
+  if (foundMap.size > 0) {
+    return Array.from(foundMap.values())
+  }
+
+  // 3. Industrial Standard Garment Fallback BOM
+  if (gClean.includes('suit') || gClean.includes('kurti') || gClean.includes('set')) {
+    return [
+      { item_name: 'Main Zipper', unit: 'pcs' },
+      { item_name: 'Main Brand Neck Label', unit: 'pcs' },
+      { item_name: 'Wash Care Label', unit: 'pcs' },
+      { item_name: 'Matching Sewing Thread', unit: 'cones' },
+      { item_name: 'Waist Elastic Tape', unit: 'mt' },
+      { item_name: 'Drawcord / Dori', unit: 'mt' },
+    ]
+  }
+
+  if (gClean.includes('jacket') || gClean.includes('coat') || gClean.includes('blazer')) {
+    return [
+      { item_name: 'Front Open Zipper', unit: 'pcs' },
+      { item_name: 'Pocket Zippers', unit: 'pcs' },
+      { item_name: 'Main Brand Label', unit: 'pcs' },
+      { item_name: 'Rib Elastic Tape', unit: 'mt' },
+      { item_name: 'Sewing Thread', unit: 'cones' },
+      { item_name: 'Snap Buttons / Rivets', unit: 'pcs' },
+    ]
+  }
+
+  if (gClean.includes('pant') || gClean.includes('trouser') || gClean.includes('lower') || gClean.includes('pyjama') || gClean.includes('track')) {
+    return [
+      { item_name: 'Waistband Elastic Tape', unit: 'mt' },
+      { item_name: 'Drawcord', unit: 'mt' },
+      { item_name: 'Pocket Zipper', unit: 'pcs' },
+      { item_name: 'Brand Label', unit: 'pcs' },
+      { item_name: 'Sewing Thread', unit: 'cones' },
+    ]
+  }
+
+  if (gClean.includes('top') || gClean.includes('t-shirt') || gClean.includes('shirt') || gClean.includes('tshirt')) {
+    return [
+      { item_name: 'Neck Ribbing Tape', unit: 'mt' },
+      { item_name: 'Brand Neck Label', unit: 'pcs' },
+      { item_name: 'Wash Care Label', unit: 'pcs' },
+      { item_name: 'Sewing Thread', unit: 'cones' },
+    ]
+  }
+
+  return []
+}
+
+// ====================================================================
 // SUBCOMPONENT: MODAL 1 - ACCESSORY CHALLAN INWARD (GRN)
 // ====================================================================
 function GrnInwardModal({
   onClose,
   articles,
+  truckInwards = [],
   currentUserName,
 }: {
   onClose: () => void
   articles: Article[]
+  truckInwards?: TruckInward[]
   currentUserName: string
 }) {
   const router = useRouter()
   const [partyName, setPartyName] = useState('')
   const [articleNo, setArticleNo] = useState('')
+  const [garmentType, setGarmentType] = useState('')
   const [challanNo, setChallanNo] = useState('')
   const [truckNo, setTruckNo] = useState('')
   const [inwardDate, setInwardDate] = useState(new Date().toISOString().split('T')[0])
@@ -1485,12 +1778,93 @@ function GrnInwardModal({
   const [error, setError] = useState<string | null>(null)
 
   const [items, setItems] = useState<TruckInwardItemInput[]>([])
+  const [appliedGarmentProfile, setAppliedGarmentProfile] = useState<string | null>(null)
+  const [suggestedTrims, setSuggestedTrims] = useState<Array<{ item_name: string; unit: string }>>([])
+  const [showProfileBanner, setShowProfileBanner] = useState(false)
+
+  const triggerTrimsLookup = (gType: string, aNo: string, currentItems: TruckInwardItemInput[]) => {
+    const g = gType.trim()
+    const a = aNo.trim()
+    if (g.length < 2 && a.length < 2) {
+      setSuggestedTrims([])
+      setShowProfileBanner(false)
+      return
+    }
+
+    const matches = getHistoricalTrimsForGarment(g, a, truckInwards)
+    if (matches.length > 0) {
+      setSuggestedTrims(matches)
+      // If table is currently empty, auto-populate immediately!
+      if (currentItems.length === 0) {
+        setItems(matches.map(t => ({
+          item_name: t.item_name,
+          quantity: 0,
+          challan_qty: 0,
+          unit: t.unit || 'pcs',
+          size_label: '',
+          status: 'RECEIVED',
+          shortage_qty: 0,
+          remarks: ''
+        })))
+        setAppliedGarmentProfile(g || a)
+        setShowProfileBanner(false)
+      } else {
+        // If items already exist and this profile is not the currently applied one
+        if (appliedGarmentProfile?.toLowerCase() !== (g || a).toLowerCase()) {
+          setShowProfileBanner(true)
+        }
+      }
+    } else {
+      setSuggestedTrims([])
+      setShowProfileBanner(false)
+    }
+  }
+
+  const handleGarmentTypeChange = (val: string) => {
+    setGarmentType(val)
+    triggerTrimsLookup(val, articleNo, items)
+  }
+
+  const handleArticleNoChange = (val: string) => {
+    setArticleNo(val)
+    let targetGarment = garmentType
+    if (!garmentType.trim()) {
+      const found = articles.find(a => a.art_no?.toLowerCase() === val.trim().toLowerCase())
+      if (found && found.description) {
+        targetGarment = found.description
+        setGarmentType(found.description)
+      }
+    }
+    triggerTrimsLookup(targetGarment, val, items)
+  }
+
+  const handleApplyProfile = () => {
+    if (suggestedTrims.length === 0) return
+    setItems(suggestedTrims.map(t => ({
+      item_name: t.item_name,
+      quantity: 0,
+      challan_qty: 0,
+      unit: t.unit || 'pcs',
+      size_label: '',
+      status: 'RECEIVED',
+      shortage_qty: 0,
+      remarks: ''
+    })))
+    setAppliedGarmentProfile(garmentType.trim() || articleNo.trim())
+    setShowProfileBanner(false)
+  }
+
+  const handleClearAllItems = () => {
+    setItems([])
+    setAppliedGarmentProfile(null)
+    setShowProfileBanner(false)
+  }
 
   // Presets to quickly add items
   const addPreset = (name: string, unit: string = 'pcs') => {
     setItems(prev => [
       ...prev,
-      { item_name: name, quantity: 0, unit, size_label: '', status: 'RECEIVED', shortage_qty: 0, remarks: '' }
+      { item_name: name, quantity: 0, challan_qty: 0, unit, size_label: '', status: 'RECEIVED', shortage_qty: 0, remarks: '' }
     ])
   }
 
@@ -1522,6 +1896,7 @@ function GrnInwardModal({
     const res = await createTruckInwardGrn({
       party_name: partyName,
       article_no: articleNo,
+      garment_type: garmentType.trim() || null,
       challan_no: challanNo,
       truck_no: truckNo,
       inward_date: inwardDate,
@@ -1541,7 +1916,7 @@ function GrnInwardModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-900/60 backdrop-blur-xs animate-in fade-in">
-      <div className="relative max-w-3xl w-full bg-white rounded-2xl shadow-2xl border border-black/10 overflow-hidden flex flex-col max-h-[90vh]">
+      <div className="relative max-w-4xl w-full bg-white rounded-2xl shadow-2xl border border-black/10 overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header */}
         <div className="flex items-center justify-between p-4 sm:p-5 border-b border-black/10 bg-[#FAF7F0]">
           <div className="flex items-center gap-3">
@@ -1598,8 +1973,8 @@ function GrnInwardModal({
             </div>
           </div>
 
-          {/* Row 2: Challan #, Truck #, Article Target */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {/* Row 2: Challan #, Truck #, Article Target, Garment Type */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
             <div>
               <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
                 Supplier Challan #
@@ -1632,7 +2007,19 @@ function GrnInwardModal({
                 type="text"
                 placeholder="e.g. ART-550"
                 value={articleNo}
-                onChange={e => setArticleNo(e.target.value)}
+                onChange={e => handleArticleNoChange(e.target.value)}
+                className="w-full px-3.5 py-2.5 text-xs sm:text-sm font-semibold bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] transition-all"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                Garment Type / Style
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. Suit, Top, Pant, Jacket..."
+                value={garmentType}
+                onChange={e => handleGarmentTypeChange(e.target.value)}
                 className="w-full px-3.5 py-2.5 text-xs sm:text-sm font-semibold bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] transition-all"
               />
             </div>
@@ -1646,12 +2033,41 @@ function GrnInwardModal({
                 key={p}
                 type="button"
                 onClick={() => addPreset(p, p.includes('Rolls') ? 'rolls' : p.includes('Threads') ? 'cones' : 'pcs')}
-                className="px-3 py-1.5 text-xs font-bold bg-[#FAF7F0] hover:bg-[#F2ECE1] text-[#3A3564] rounded-xl border border-black/10 transition-all flex items-center gap-1.5 shadow-2xs"
+                className="px-3 py-1.5 text-xs font-bold bg-[#FAF7F0] hover:bg-[#F2ECE1] text-[#3A3564] rounded-xl border border-black/10 transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" /> {p}
               </button>
             ))}
           </div>
+
+          {/* Historical Profile Notification Banner */}
+          {showProfileBanner && suggestedTrims.length > 0 && (
+            <div className="p-3 bg-slate-50 border border-[#3A3564]/25 rounded-xl flex items-center justify-between gap-3 text-xs shadow-2xs animate-in fade-in">
+              <div className="flex items-center gap-2 text-slate-700 min-w-0">
+                <Sparkles className="w-4 h-4 text-[#3A3564] shrink-0" />
+                <span className="truncate">
+                  Historical Profile Found: <strong className="text-slate-900 font-bold">{suggestedTrims.length} standard trims</strong> recorded for <span className="font-bold text-[#3A3564]">{garmentType.trim() || articleNo.trim()}</span>.
+                </span>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  onClick={handleApplyProfile}
+                  className="px-3 py-1 bg-[#3A3564] text-white font-bold rounded-lg hover:bg-[#2c284e] transition-colors shadow-2xs cursor-pointer"
+                >
+                  Load Profile
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowProfileBanner(false)}
+                  className="p-1 text-slate-400 hover:text-slate-600 rounded-lg cursor-pointer"
+                  title="Dismiss"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Line Items Table / List */}
           <div className="space-y-3 pt-1">
@@ -1659,20 +2075,54 @@ function GrnInwardModal({
               <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700">
                 Challan Line Items ({items.length})
               </label>
+              {items.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setItems(prev => [
+                    ...prev,
+                    { item_name: '', quantity: 0, challan_qty: 0, unit: 'pcs', size_label: '', status: 'RECEIVED', shortage_qty: 0, remarks: '' }
+                  ])}
+                  className="inline-flex items-center gap-1 text-xs font-bold text-[#3A3564] hover:underline cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5" /> Add Line Item
+                </button>
+              )}
             </div>
+
+            {/* Active profile indicator */}
+            {appliedGarmentProfile && items.length > 0 && (
+              <div className="p-2.5 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between gap-2 text-xs">
+                <div className="flex items-center gap-2 text-slate-600 font-medium">
+                  <Layers className="w-3.5 h-3.5 text-[#3A3564] shrink-0" />
+                  <span>
+                    Auto-populated <strong className="text-slate-900">{items.length} trims</strong> for <span className="font-bold text-[#3A3564]">{appliedGarmentProfile}</span>. Enter received quantities below.
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleClearAllItems}
+                  className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-500 hover:text-rose-600 transition-colors cursor-pointer"
+                  title="Clear all line items"
+                >
+                  <RotateCw className="w-3 h-3" />
+                  Clear All
+                </button>
+              </div>
+            )}
+
             {items.length === 0 ? (
               <div className="p-6 text-center bg-slate-50/60 rounded-xl border border-dashed border-slate-200">
                 <p className="text-xs font-semibold text-slate-500 mb-2.5">
-                  No line items added yet. Click an "Add Preset" button above or add a custom item.
+                  No line items added yet. Type a Garment Type above to auto-load standard trims, or click an "Add Preset" button.
                 </p>
                 <button
                   type="button"
                   onClick={() => setItems([
-                    { item_name: '', quantity: 0, unit: 'pcs', size_label: '', status: 'RECEIVED', shortage_qty: 0, remarks: '' }
+                    { item_name: '', quantity: 0, challan_qty: 0, unit: 'pcs', size_label: '', status: 'RECEIVED', shortage_qty: 0, remarks: '' }
                   ])}
                   className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-[#3A3564] bg-white hover:bg-slate-100 rounded-xl border border-slate-200 transition-all cursor-pointer shadow-2xs"
                 >
-                  <Plus className="w-3.5 h-3.5" /> + Add Line Item
+                  <Plus className="w-3.5 h-3.5" /> Add Line Item
                 </button>
               </div>
             ) : (
@@ -1982,6 +2432,7 @@ function BomHandoverModal({
   activeAllotments: ActiveAllotment[]
   currentUserName: string
 }) {
+  const router = useRouter()
   const [selectedAllotmentId, setSelectedAllotmentId] = useState(activeAllotments[0]?.id || '')
   const [supplierChallan, setSupplierChallan] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -2028,6 +2479,7 @@ function BomHandoverModal({
     if (res.error) {
       setError(res.error)
     } else {
+      router.refresh()
       onClose()
     }
   }
@@ -2137,14 +2589,41 @@ function BomHandoverModal({
 
                     <div className="grid grid-cols-2 gap-2.5 text-xs">
                       <div>
-                        <label className="block text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 mb-1">Physical Received Count</label>
+                        <label className="block text-[11px] font-mono font-bold uppercase tracking-wider text-slate-700 mb-1 flex items-center justify-between">
+                          <span>Handover / Issue Qty *</span>
+                          <span className="text-[10px] text-emerald-600 font-normal">To Lineman</span>
+                        </label>
                         <input
                           type="text"
                           value={st.received_qty}
                           onChange={e => {
+                            const val = e.target.value
+                            const reqMatch = String(mat.required_qty || '').match(/^([\d.]+)\s*(.*)$/)
+                            const reqNum = reqMatch ? parseFloat(reqMatch[1]) : parseFloat(String(mat.required_qty))
+                            const unit = reqMatch ? reqMatch[2] : ''
+                            const recMatch = val.match(/^([\d.]+)/)
+                            const recNum = recMatch ? parseFloat(recMatch[1]) : 0
+
+                            let newStatus = st.status
+                            let newShortage = st.shortage_qty
+
+                            if (!isNaN(reqNum) && recNum > 0 && recNum < reqNum) {
+                              const diff = Math.max(0, reqNum - recNum)
+                              newStatus = 'SHORTAGE'
+                              newShortage = `${diff} ${unit}`.trim()
+                            } else if (!isNaN(reqNum) && recNum >= reqNum && st.status === 'SHORTAGE') {
+                              newStatus = 'VERIFIED'
+                              newShortage = 0
+                            }
+
                             setItemStates({
                               ...itemStates,
-                              [mat.id]: { ...st, received_qty: e.target.value }
+                              [mat.id]: { 
+                                ...st, 
+                                received_qty: val,
+                                status: newStatus,
+                                shortage_qty: newShortage
+                              }
                             })
                           }}
                           className="w-full px-3 py-2 font-mono font-bold text-slate-900 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564]"
@@ -2155,12 +2634,37 @@ function BomHandoverModal({
                         <select
                           value={st.status}
                           onChange={e => {
+                            const newStatus = e.target.value as any
+                            const reqMatch = String(mat.required_qty || '').match(/^([\d.]+)\s*(.*)$/)
+                            const reqNum = reqMatch ? parseFloat(reqMatch[1]) : parseFloat(String(mat.required_qty))
+                            const unit = reqMatch ? reqMatch[2] : ''
+                            const recMatch = String(st.received_qty).match(/^([\d.]+)/)
+                            const recNum = recMatch ? parseFloat(recMatch[1]) : 0
+
+                            let sQty = st.shortage_qty
+                            if (newStatus === 'VERIFIED') {
+                              sQty = 0
+                            } else if (!sQty || sQty === 0 || sQty === '0') {
+                              const diff = (!isNaN(reqNum) && recNum > 0 && reqNum > recNum) ? reqNum - recNum : 1
+                              sQty = `${diff} ${unit}`.trim()
+                            }
+
                             setItemStates({
                               ...itemStates,
-                              [mat.id]: { ...st, status: e.target.value as any }
+                              [mat.id]: { 
+                                ...st, 
+                                status: newStatus,
+                                shortage_qty: sQty
+                              }
                             })
                           }}
-                          className="w-full px-3 py-2 font-bold text-slate-900 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564]"
+                          className={`w-full px-3 py-2 font-bold bg-white border rounded-xl focus:outline-none focus:ring-2 ${
+                            st.status === 'VERIFIED'
+                              ? 'text-emerald-700 border-emerald-300'
+                              : st.status === 'SHORTAGE'
+                                ? 'text-amber-700 border-amber-300'
+                                : 'text-rose-700 border-rose-300'
+                          }`}
                         >
                           <option value="VERIFIED">Verified</option>
                           <option value="SHORTAGE">Shortage</option>
@@ -2168,6 +2672,59 @@ function BomHandoverModal({
                         </select>
                       </div>
                     </div>
+
+                    {(st.status !== 'VERIFIED' || Boolean(st.shortage_qty && Number(String(st.shortage_qty).replace(/[^0-9.]/g, '')) > 0)) && (
+                      <div className="p-2.5 bg-amber-50/70 border border-amber-200 rounded-xl space-y-2 text-xs">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md font-mono font-bold uppercase text-[10px] ${
+                              st.status === 'SHORTAGE' ? 'bg-amber-100 text-amber-900 border border-amber-300' :
+                              'bg-rose-100 text-rose-900 border border-rose-300'
+                            }`}>
+                              {st.status === 'SHORTAGE' ? (
+                                <><AlertTriangle className="w-3 h-3 text-amber-700" /> Shortage</>
+                              ) : (
+                                <><AlertCircle className="w-3 h-3 text-rose-700" /> Defective</>
+                              )}
+                            </span>
+                            <span className="font-semibold text-slate-700">
+                              Required: <strong className="text-slate-900 font-mono">{mat.required_qty}</strong> | 
+                              Issued: <strong className="text-emerald-700 font-mono">{st.received_qty}</strong> | 
+                              Issue: <strong className="text-rose-700 font-mono">{st.shortage_qty || 0}</strong>
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <label className="text-[11px] font-mono font-bold uppercase text-slate-600">
+                              {st.status === 'SHORTAGE' ? 'Short Qty:' : 'Defect Qty:'}
+                            </label>
+                            <input
+                              type="text"
+                              placeholder="0"
+                              value={st.shortage_qty || ''}
+                              onChange={e => {
+                                setItemStates({
+                                  ...itemStates,
+                                  [mat.id]: { ...st, shortage_qty: e.target.value }
+                                })
+                              }}
+                              className="w-24 px-2.5 py-1 text-xs font-mono font-bold bg-white border border-amber-300 rounded-lg text-right focus:outline-none focus:ring-2 focus:ring-amber-500/20"
+                            />
+                          </div>
+                        </div>
+                        <input
+                          type="text"
+                          placeholder="Remarks / Note (e.g. 250 meters short in godown, or stained roll)"
+                          value={st.remarks || ''}
+                          onChange={e => {
+                            setItemStates({
+                              ...itemStates,
+                              [mat.id]: { ...st, remarks: e.target.value }
+                            })
+                          }}
+                          className="w-full px-3 py-1.5 text-xs bg-white border border-slate-200 rounded-lg text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20"
+                        />
+                      </div>
+                    )}
                   </div>
                 )
               })
@@ -2750,6 +3307,644 @@ function FinishedGoodsOutwardModal({
           >
             {isSubmitting ? 'Dispatching...' : `Confirm Dispatch (${totalDispatchPieces} pcs)`}
           </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ====================================================================
+// SUBCOMPONENT: MODAL 2B - FLOOR ACCESSORY RE-ISSUE (WORKER LOSS & DAMAGE)
+// ====================================================================
+function AccessoryReissueModal({
+  onClose,
+  activeAllotments,
+  workerAssignments,
+  accessories,
+  currentUserName,
+}: {
+  onClose: () => void
+  activeAllotments: ActiveAllotment[]
+  workerAssignments: Array<{ id: string; allotment_id?: string | null; worker_name?: string | null; article_id?: string | null }>
+  accessories: Accessory[]
+  currentUserName: string
+}) {
+  const router = useRouter()
+  const [selectedAllotmentId, setSelectedAllotmentId] = useState<string>(activeAllotments[0]?.id || '')
+  const [articleNo, setArticleNo] = useState<string>(activeAllotments[0]?.article?.art_no || '')
+  const [challanNo, setChallanNo] = useState<string>(activeAllotments[0]?.challans?.challan_no || '')
+  const [linemanName, setLinemanName] = useState<string>(activeAllotments[0]?.lineman?.username || '')
+  const [workerName, setWorkerName] = useState<string>('')
+  const [itemName, setItemName] = useState<string>('')
+  const [quantity, setQuantity] = useState<number>(0)
+  const [unit, setUnit] = useState<string>('pcs')
+  const [reason, setReason] = useState<'LOST' | 'MACHINE_DAMAGE' | 'DEFECTIVE_PIECE' | 'SHORT_IN_LOT'>('MACHINE_DAMAGE')
+  const [channel, setChannel] = useState<'DIRECT_COUNTER' | 'VIA_LINEMAN'>('DIRECT_COUNTER')
+  const [notes, setNotes] = useState<string>('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  // Current active allotment object
+  const currentLot = useMemo(() => {
+    return activeAllotments.find(a => a.id === selectedAllotmentId)
+  }, [activeAllotments, selectedAllotmentId])
+
+  // Handle active allotment selection change
+  const handleAllotmentSelect = (allotId: string) => {
+    setSelectedAllotmentId(allotId)
+    const found = activeAllotments.find(a => a.id === allotId)
+    if (found) {
+      setArticleNo(found.article?.art_no || '')
+      setChallanNo(found.challans?.challan_no || '')
+      setLinemanName(found.lineman?.username || '')
+    }
+  }
+
+  // Tailors/workers assigned specifically to this allotment
+  const lotWorkers = useMemo(() => {
+    const list: string[] = []
+    workerAssignments.forEach(w => {
+      const name = w.worker_name?.trim()
+      if (name && w.allotment_id === selectedAllotmentId && !list.includes(name)) {
+        list.push(name)
+      }
+    })
+    return list
+  }, [workerAssignments, selectedAllotmentId])
+
+  // All distinct workers across factory for fallback suggestions
+  const factoryWorkers = useMemo(() => {
+    const list: string[] = []
+    workerAssignments.forEach(w => {
+      const name = w.worker_name?.trim()
+      if (name && !list.includes(name)) {
+        list.push(name)
+      }
+    })
+    return list
+  }, [workerAssignments])
+
+  // Worker chips to display: prefer lot-assigned workers, otherwise show top factory workers
+  const displayedWorkerChips = useMemo(() => {
+    if (lotWorkers.length > 0) return lotWorkers.slice(0, 8)
+    return factoryWorkers.slice(0, 8)
+  }, [lotWorkers, factoryWorkers])
+
+  // Trims from this lot's BOM
+  const lotBOMTrims = useMemo(() => {
+    return currentLot?.allotment_materials || []
+  }, [currentLot])
+
+  // Godown trims with CLEAN POSITIVE stock calculation (never negative!)
+  const stockAccessories = useMemo(() => {
+    const stockMap: Record<string, { inStock: number; unit: string }> = {}
+    accessories.forEach(acc => {
+      const name = acc.item_name?.trim()
+      if (!name) return
+      if (!stockMap[name]) stockMap[name] = { inStock: 0, unit: acc.unit || 'pcs' }
+      if (acc.action === 'IN') stockMap[name].inStock += Number(acc.quantity) || 0
+      if (acc.action === 'OUT') stockMap[name].inStock -= Number(acc.quantity) || 0
+    })
+    return Object.entries(stockMap).map(([name, data]) => ({
+      name,
+      inStock: data.inStock,
+      unit: data.unit,
+    }))
+  }, [accessories])
+
+  // Clean trims that are not already in BOM list
+  const extraGodownTrims = useMemo(() => {
+    const bomNames = lotBOMTrims.map(m => m.item_name.toLowerCase())
+    return stockAccessories.filter(acc => !bomNames.includes(acc.name.toLowerCase())).slice(0, 8)
+  }, [stockAccessories, lotBOMTrims])
+
+  const handleSubmit = async () => {
+    if (!articleNo.trim()) {
+      setError('Please select or specify the Target Article Number.')
+      return
+    }
+    if (!workerName.trim()) {
+      setError('Please enter or select the Tailor / Worker Name.')
+      return
+    }
+    if (!itemName.trim()) {
+      setError('Please select or enter the Accessory Item.')
+      return
+    }
+    if (quantity <= 0) {
+      setError('Please enter a valid quantity greater than 0.')
+      return
+    }
+
+    setIsSubmitting(true)
+    setError(null)
+
+    const res = await reissueFloorAccessory({
+      allotment_id: selectedAllotmentId || null,
+      article_no: articleNo.trim(),
+      challan_no: challanNo.trim() || null,
+      worker_name: workerName.trim(),
+      lineman_name: linemanName.trim() || null,
+      item_name: itemName.trim(),
+      quantity,
+      unit,
+      reason,
+      channel,
+      notes: notes.trim() || null,
+    })
+
+    setIsSubmitting(false)
+    if (res.error) {
+      setError(res.error)
+    } else {
+      router.refresh()
+      onClose()
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-900/60 backdrop-blur-xs animate-in fade-in">
+      <div className="relative max-w-4xl w-full bg-white rounded-2xl shadow-2xl border border-black/10 overflow-hidden flex flex-col max-h-[92vh]">
+        {/* Modal Header */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-black/10 bg-[#FAF7F0]">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-white text-[#3A3564] border border-black/10 shadow-2xs flex items-center justify-center shrink-0">
+              <RotateCw className="w-5 h-5 text-[#3A3564]" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight">
+                  Floor Re-Issue & Trim Replacement
+                </h3>
+                <span className="px-2 py-0.5 text-[10px] font-mono font-bold uppercase rounded bg-amber-100 text-amber-800 border border-amber-200">
+                  Floor Audit
+                </span>
+              </div>
+              <p className="text-xs font-medium text-slate-500">
+                Log replacement trims for needle cut, machine damaged, or misplaced garment accessories
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 rounded-xl transition-all cursor-pointer"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Modal Body: 2-Column Grid */}
+        <div className="p-5 overflow-y-auto flex-1">
+          {error && (
+            <div className="mb-4 p-3 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl text-xs font-bold flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+              <span>{error}</span>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            {/* ============================================================ */}
+            {/* LEFT COLUMN: Production Lot Context & Worker Requisition */}
+            {/* ============================================================ */}
+            <div className="lg:col-span-5 space-y-4">
+              {/* 1. Target Lot */}
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-mono font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                    <Layers className="w-3.5 h-3.5 text-slate-500" />
+                    Target Production Lot <span className="text-rose-600">*</span>
+                  </label>
+                  {currentLot && (
+                    <span className="text-[11px] font-mono font-bold text-slate-600">
+                      {currentLot.target_qty} pcs
+                    </span>
+                  )}
+                </div>
+
+                <select
+                  value={selectedAllotmentId}
+                  onChange={e => handleAllotmentSelect(e.target.value)}
+                  className="w-full px-3 py-2 text-xs sm:text-sm font-semibold bg-white border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] transition-all cursor-pointer shadow-2xs"
+                >
+                  {activeAllotments.map(al => {
+                    const art = al.article?.art_no || 'Art'
+                    const ch = al.challans?.challan_no ? ` • Ch #${al.challans.challan_no}` : ''
+                    const line = al.lineman?.username ? ` • Line: ${al.lineman.username}` : ''
+                    return (
+                      <option key={al.id} value={al.id}>
+                        Art #{art}{ch}{line} ({al.target_qty} pcs)
+                      </option>
+                    )
+                  })}
+                  <option value="">-- Manual Article Entry --</option>
+                </select>
+
+                {/* Selected Lot Metadata Pills */}
+                {selectedAllotmentId && currentLot ? (
+                  <div className="pt-2 border-t border-slate-200/60 flex items-center gap-2 flex-wrap text-xs">
+                    <span className="px-2 py-0.5 rounded-md font-mono font-bold bg-white text-[#3A3564] border border-black/10 shadow-2xs">
+                      Art #{articleNo}
+                    </span>
+                    {challanNo && (
+                      <span className="px-2 py-0.5 rounded-md font-mono font-bold bg-white text-slate-700 border border-slate-200 shadow-2xs">
+                        Challan #{challanNo}
+                      </span>
+                    )}
+                    {linemanName && (
+                      <span className="px-2 py-0.5 rounded-md font-medium bg-white text-slate-600 border border-slate-200 shadow-2xs flex items-center gap-1">
+                        <User className="w-3 h-3 text-slate-400" /> Line: {linemanName}
+                      </span>
+                    )}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-3 gap-2 pt-1">
+                    <div>
+                      <label className="block text-[10px] font-mono font-bold uppercase text-slate-500 mb-1">Art #</label>
+                      <input
+                        type="text"
+                        placeholder="501"
+                        value={articleNo}
+                        onChange={e => setArticleNo(e.target.value)}
+                        className="w-full px-2.5 py-1.5 text-xs font-bold bg-white border border-slate-200 rounded-lg text-slate-900"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-mono font-bold uppercase text-slate-500 mb-1">Challan</label>
+                      <input
+                        type="text"
+                        placeholder="101"
+                        value={challanNo}
+                        onChange={e => setChallanNo(e.target.value)}
+                        className="w-full px-2.5 py-1.5 text-xs font-bold bg-white border border-slate-200 rounded-lg text-slate-900"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-mono font-bold uppercase text-slate-500 mb-1">Lineman</label>
+                      <input
+                        type="text"
+                        placeholder="Vicky"
+                        value={linemanName}
+                        onChange={e => setLinemanName(e.target.value)}
+                        className="w-full px-2.5 py-1.5 text-xs font-bold bg-white border border-slate-200 rounded-lg text-slate-900"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* 2. Tailor / Worker Name */}
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-mono font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                    <User className="w-3.5 h-3.5 text-slate-500" />
+                    Tailor / Worker <span className="text-rose-600">*</span>
+                  </label>
+                  <span className="text-[11px] text-slate-500 font-medium">
+                    {lotWorkers.length > 0 ? `${lotWorkers.length} assigned on lot` : 'Active Tailors'}
+                  </span>
+                </div>
+
+                {/* Quick Avatar Chips */}
+                {displayedWorkerChips.length > 0 && (
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    {displayedWorkerChips.map(name => {
+                      const isSelected = workerName.trim().toLowerCase() === name.toLowerCase()
+                      const initials = name.slice(0, 2).toUpperCase()
+                      return (
+                        <button
+                          key={name}
+                          type="button"
+                          onClick={() => setWorkerName(name)}
+                          className={`px-2.5 py-1 text-xs font-bold rounded-lg border transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs ${
+                            isSelected
+                              ? 'bg-[#3A3564] text-white border-[#3A3564]'
+                              : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-200'
+                          }`}
+                        >
+                          <span className={`w-4 h-4 rounded-full text-[9px] flex items-center justify-center font-bold ${
+                            isSelected ? 'bg-white/25 text-white' : 'bg-slate-200 text-slate-700'
+                          }`}>
+                            {initials}
+                          </span>
+                          <span>{name}</span>
+                        </button>
+                      )
+                    })}
+                  </div>
+                )}
+
+                <input
+                  type="text"
+                  placeholder="Type or select tailor name (e.g. Ramesh, Suresh)..."
+                  value={workerName}
+                  onChange={e => setWorkerName(e.target.value)}
+                  className="w-full px-3.5 py-2 text-xs sm:text-sm font-semibold bg-white border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] transition-all shadow-2xs"
+                />
+              </div>
+
+              {/* 3. Requisition Channel */}
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2.5">
+                <label className="text-xs font-mono font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                  <Store className="w-3.5 h-3.5 text-slate-500" />
+                  Requisition Channel
+                </label>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setChannel('DIRECT_COUNTER')}
+                    className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex items-start gap-2.5 ${
+                      channel === 'DIRECT_COUNTER'
+                        ? 'bg-[#3A3564] text-white border-[#3A3564] shadow-xs'
+                        : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-200'
+                    }`}
+                  >
+                    <Store className={`w-4 h-4 shrink-0 mt-0.5 ${channel === 'DIRECT_COUNTER' ? 'text-white' : 'text-slate-400'}`} />
+                    <div>
+                      <p className="text-xs font-bold leading-snug">Store Counter</p>
+                      <p className={`text-[10px] mt-0.5 leading-tight ${channel === 'DIRECT_COUNTER' ? 'text-slate-200' : 'text-slate-500'}`}>
+                        Worker walk-in
+                      </p>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setChannel('VIA_LINEMAN')}
+                    className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex items-start gap-2.5 ${
+                      channel === 'VIA_LINEMAN'
+                        ? 'bg-[#3A3564] text-white border-[#3A3564] shadow-xs'
+                        : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-200'
+                    }`}
+                  >
+                    <UserCheck className={`w-4 h-4 shrink-0 mt-0.5 ${channel === 'VIA_LINEMAN' ? 'text-white' : 'text-slate-400'}`} />
+                    <div>
+                      <p className="text-xs font-bold leading-snug">Via Lineman</p>
+                      <p className={`text-[10px] mt-0.5 leading-tight ${channel === 'VIA_LINEMAN' ? 'text-slate-200' : 'text-slate-500'}`}>
+                        Authorized slip
+                      </p>
+                    </div>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* ============================================================ */}
+            {/* RIGHT COLUMN: Trim Item, Stepper, Reason & Remarks */}
+            {/* ============================================================ */}
+            <div className="lg:col-span-7 space-y-4">
+              {/* 4. Accessory / Trim Item */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-mono font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                    <Tag className="w-3.5 h-3.5 text-slate-500" />
+                    Accessory / Trim Item <span className="text-rose-600">*</span>
+                  </label>
+                  <span className="text-[11px] text-slate-500 font-medium">Click to select item</span>
+                </div>
+
+                {/* Quick Trim Chips (BOM first, then clean positive stock) */}
+                <div className="flex flex-wrap items-center gap-1.5 max-h-24 overflow-y-auto p-1.5 bg-slate-50 rounded-xl border border-slate-200">
+                  {lotBOMTrims.length === 0 && extraGodownTrims.length === 0 && (
+                    <span className="text-xs text-slate-400 px-2 py-1">No preset trims found for lot</span>
+                  )}
+                  {lotBOMTrims.map(m => {
+                    const isSelected = itemName.toLowerCase() === m.item_name.toLowerCase()
+                    return (
+                      <button
+                        key={m.id}
+                        type="button"
+                        onClick={() => setItemName(m.item_name)}
+                        className={`px-2.5 py-1 text-xs font-bold rounded-lg border transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs ${
+                          isSelected
+                            ? 'bg-[#3A3564] text-white border-[#3A3564]'
+                            : 'bg-white hover:bg-slate-100 text-slate-800 border-slate-200'
+                        }`}
+                      >
+                        <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-amber-300' : 'bg-indigo-600'}`} />
+                        <span>{m.item_name}</span>
+                        <span className={`text-[10px] font-mono px-1 rounded ${isSelected ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'}`}>
+                          BOM
+                        </span>
+                      </button>
+                    )
+                  })}
+
+                  {extraGodownTrims.map(acc => {
+                    const isSelected = itemName.toLowerCase() === acc.name.toLowerCase()
+                    return (
+                      <button
+                        key={acc.name}
+                        type="button"
+                        onClick={() => {
+                          setItemName(acc.name)
+                          setUnit(acc.unit || 'pcs')
+                        }}
+                        className={`px-2.5 py-1 text-xs font-semibold rounded-lg border transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs ${
+                          isSelected
+                            ? 'bg-[#3A3564] text-white border-[#3A3564]'
+                            : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-200'
+                        }`}
+                      >
+                        <span>{acc.name}</span>
+                        {acc.inStock > 0 && (
+                          <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded font-bold ${
+                            isSelected ? 'bg-white/20 text-white' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                          }`}>
+                            {acc.inStock} {acc.unit}
+                          </span>
+                        )}
+                      </button>
+                    )
+                  })}
+                </div>
+
+                <input
+                  type="text"
+                  placeholder="e.g. Main Zipper 12 inch, Brass Buttons, Sewing Thread..."
+                  value={itemName}
+                  onChange={e => setItemName(e.target.value)}
+                  className="w-full px-3.5 py-2 text-xs sm:text-sm font-semibold bg-white border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] transition-all shadow-2xs"
+                />
+              </div>
+
+              {/* 5. Quantity & Stepper */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-mono font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                    <Hash className="w-3.5 h-3.5 text-slate-500" />
+                    Quantity Issued <span className="text-rose-600">*</span>
+                  </label>
+                  <div className="flex items-center gap-1">
+                    <span className="text-[11px] font-semibold text-slate-500 mr-1">Quick:</span>
+                    {[1, 2, 5, 10].map(n => (
+                      <button
+                        key={n}
+                        type="button"
+                        onClick={() => setQuantity(prev => prev + n)}
+                        className="px-2 py-0.5 text-xs font-mono font-bold bg-slate-100 hover:bg-[#3A3564] hover:text-white rounded-md border border-slate-200 transition-colors cursor-pointer"
+                      >
+                        +{n}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center rounded-xl border border-slate-200 bg-slate-50 p-1 shadow-2xs">
+                    <button
+                      type="button"
+                      onClick={() => setQuantity(prev => Math.max(0, prev - 1))}
+                      className="w-8 h-8 rounded-lg bg-white hover:bg-slate-200 text-slate-700 flex items-center justify-center font-bold transition-all cursor-pointer shadow-2xs"
+                    >
+                      <Minus className="w-3.5 h-3.5" />
+                    </button>
+                    <input
+                      type="number"
+                      placeholder="0"
+                      value={quantity === 0 ? '' : quantity}
+                      onChange={e => setQuantity(e.target.value === '' ? 0 : Math.max(0, parseInt(e.target.value, 10) || 0))}
+                      className="w-16 text-center text-sm sm:text-base font-black font-mono bg-transparent text-slate-900 focus:outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setQuantity(prev => prev + 1)}
+                      className="w-8 h-8 rounded-lg bg-white hover:bg-slate-200 text-slate-700 flex items-center justify-center font-bold transition-all cursor-pointer shadow-2xs"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+
+                  <select
+                    value={unit}
+                    onChange={e => setUnit(e.target.value)}
+                    className="px-3 py-2 text-xs sm:text-sm font-bold bg-white border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 shadow-2xs cursor-pointer"
+                  >
+                    <option value="pcs">pcs (Pieces)</option>
+                    <option value="meters">meters</option>
+                    <option value="cones">cones (Thread)</option>
+                    <option value="packets">packets</option>
+                    <option value="sets">sets</option>
+                  </select>
+
+                  <div className="ml-auto px-3 py-1.5 rounded-xl bg-rose-50 border border-rose-200/80 text-rose-800 text-xs font-mono font-bold flex items-center gap-1.5">
+                    <span>Stock:</span>
+                    <strong className="text-rose-700">-{quantity} {unit}</strong>
+                  </div>
+                </div>
+              </div>
+
+              {/* 6. Reason for Replacement */}
+              <div className="space-y-2">
+                <label className="text-xs font-mono font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                  <AlertCircle className="w-3.5 h-3.5 text-slate-500" />
+                  Reason for Replacement <span className="text-rose-600">*</span>
+                </label>
+
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    {
+                      key: 'MACHINE_DAMAGE',
+                      label: 'Machine Cut',
+                      desc: 'Needle break or blade cut',
+                      icon: Scissors,
+                    },
+                    {
+                      key: 'LOST',
+                      label: 'Worker Lost',
+                      desc: 'Dropped or misplaced',
+                      icon: AlertTriangle,
+                    },
+                    {
+                      key: 'DEFECTIVE_PIECE',
+                      label: 'Defective Trim',
+                      desc: 'Broken teeth, bad dye/puller',
+                      icon: ShieldAlert,
+                    },
+                    {
+                      key: 'SHORT_IN_LOT',
+                      label: 'Bundle Shortage',
+                      desc: 'Initial lot count was short',
+                      icon: PackageCheck,
+                    },
+                  ].map(r => {
+                    const isSelected = reason === r.key
+                    const IconComp = r.icon
+                    return (
+                      <button
+                        key={r.key}
+                        type="button"
+                        onClick={() => setReason(r.key as any)}
+                        className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex items-start gap-2.5 ${
+                          isSelected
+                            ? 'bg-[#3A3564] text-white border-[#3A3564] shadow-xs'
+                            : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
+                        }`}
+                      >
+                        <div className={`p-1.5 rounded-lg shrink-0 mt-0.5 ${
+                          isSelected ? 'bg-white/20 text-white' : 'bg-white text-slate-600 border border-slate-200'
+                        }`}>
+                          <IconComp className="w-3.5 h-3.5" />
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold leading-tight">{r.label}</p>
+                          <p className={`text-[10px] mt-0.5 leading-tight ${isSelected ? 'text-slate-200' : 'text-slate-500'}`}>
+                            {r.desc}
+                          </p>
+                        </div>
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+
+              {/* 7. Store Remarks */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-mono font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                  Remarks / Machine No. <span className="text-slate-400 text-[10px] font-normal normal-case">(Optional)</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Needle jammed on zipper slider, machine #4"
+                  value={notes}
+                  onChange={e => setNotes(e.target.value)}
+                  className="w-full px-3.5 py-2 text-xs sm:text-sm font-semibold bg-white border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] transition-all shadow-2xs"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Modal Footer */}
+        <div className="px-5 py-4 border-t border-black/10 bg-[#FAF7F0] flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 text-xs font-mono text-slate-600">
+            <span>Deducting:</span>
+            <span className="px-2 py-0.5 rounded-md font-bold font-mono bg-rose-100 text-rose-800 border border-rose-200">
+              -{quantity} {unit}
+            </span>
+            <span className="text-slate-500 hidden sm:inline">• Live Godown Stock Sync</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={isSubmitting}
+              className="px-4 py-2 text-xs font-bold text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl transition-all shadow-2xs cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleSubmit}
+              disabled={isSubmitting || quantity <= 0 || !workerName.trim() || !itemName.trim()}
+              className="px-5 py-2 text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] rounded-xl shadow-xs transition-all flex items-center gap-2 disabled:opacity-50 cursor-pointer"
+            >
+              <Check className="w-4 h-4" />
+              <span>{isSubmitting ? 'Recording...' : `Confirm & Deduct Stock (${quantity} ${unit})`}</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
