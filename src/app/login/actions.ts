@@ -2,9 +2,25 @@
 
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { headers } from 'next/headers'
 import { createClient } from '../../utils/supabase/server'
+import { checkRateLimit, resetRateLimit } from '@/lib/rate-limit'
 
 export async function login(formData: FormData) {
+  // Extract client IP for rate limiting
+  const headersList = await headers()
+  const forwardedFor = headersList.get('x-forwarded-for')
+  const clientIp = forwardedFor ? forwardedFor.split(',')[0].trim() : (headersList.get('x-real-ip') || '127.0.0.1')
+
+  const rateCheck = checkRateLimit(`login_${clientIp}`, 5, 60 * 1000)
+  if (!rateCheck.success) {
+    return {
+      error: `Too many login attempts. Please wait ${rateCheck.resetInSeconds} seconds before trying again.`,
+      rateLimited: true,
+      retryAfter: rateCheck.resetInSeconds,
+    }
+  }
+
   const supabase = await createClient()
 
   const rawInput = (formData.get('email') as string)?.trim()
@@ -39,6 +55,9 @@ export async function login(formData: FormData) {
   if (error) {
     return { error: error.message }
   }
+
+  // Clear rate limit record upon successful authentication
+  resetRateLimit(`login_${clientIp}`)
 
   // Check user role for dynamic destination routing: All managers go to 6-Module Hub
   let targetRoute = '/modules'

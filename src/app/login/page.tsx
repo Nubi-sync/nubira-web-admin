@@ -19,6 +19,7 @@ import {
   Sparkles,
   Loader2
 } from 'lucide-react'
+import { toast } from 'sonner'
 
 function IndiaFlag({ className = "w-5 h-3.5" }: { className?: string }) {
   return (
@@ -76,17 +77,21 @@ export default function LoginPage() {
       const result = await login(formData)
       if (result?.error) {
         setError(result.error)
+        toast.error(result.error)
         setIsPending(false)
         setIsSuccess(false)
       } else {
         setIsSuccess(true)
+        toast.success('Signed in successfully. Redirecting to dashboard...')
       }
     } catch (err: any) {
       if (err?.message?.includes('NEXT_REDIRECT')) {
         setIsSuccess(true)
         return
       }
-      setError(err?.message || 'Failed to sign in')
+      const errMsg = err?.message || 'Failed to sign in'
+      setError(errMsg)
+      toast.error(errMsg)
       setIsPending(false)
     }
   }
@@ -104,8 +109,11 @@ export default function LoginPage() {
     const res = await sendPasswordResetOtp(formData)
     if (res?.error) {
       setForgotError(res.error)
+      toast.error(res.error)
     } else if (res?.success) {
-      setForgotStatus('6-digit OTP has been sent to your email.')
+      const msg = '6-digit OTP has been sent to your email.'
+      setForgotStatus(msg)
+      toast.success(msg)
       setForgotStep(2)
     }
     setIsForgotPending(false)
@@ -124,7 +132,9 @@ export default function LoginPage() {
     const res = await verifyRecoveryOtp(formData)
     if (res?.error) {
       setForgotError(res.error)
+      toast.error(res.error)
     } else if (res?.success) {
+      toast.success('Security code verified. Please set your new password.')
       setForgotStep(3)
     }
     setIsForgotPending(false)
@@ -137,13 +147,17 @@ export default function LoginPage() {
     setForgotError(null)
 
     if (newPassword.length < 6) {
-      setForgotError('Password must be at least 6 characters long.')
+      const msg = 'Password must be at least 6 characters long.'
+      setForgotError(msg)
+      toast.error(msg)
       setIsForgotPending(false)
       return
     }
 
     if (newPassword !== confirmPassword) {
-      setForgotError('Passwords do not match.')
+      const msg = 'Passwords do not match.'
+      setForgotError(msg)
+      toast.error(msg)
       setIsForgotPending(false)
       return
     }
@@ -155,8 +169,10 @@ export default function LoginPage() {
     const res = await setNewPassword(formData)
     if (res?.error) {
       setForgotError(res.error)
+      toast.error(res.error)
     } else if (res?.success) {
       setIsResetSuccess(true)
+      toast.success('Password updated successfully!')
       setIsForgotPending(false)
       setTimeout(() => {
         router.push('/')

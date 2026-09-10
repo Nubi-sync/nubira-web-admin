@@ -1,7 +1,33 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { checkRateLimit } from '@/lib/rate-limit'
 
 export async function updateSession(request: NextRequest) {
+  const pathname = request.nextUrl.pathname
+
+  // Enforce Rate Limiting on Login & Auth POST requests (sliding window)
+  if (request.method === 'POST' && (pathname === '/login' || pathname.startsWith('/auth') || pathname.startsWith('/api/auth'))) {
+    const forwardedFor = request.headers.get('x-forwarded-for')
+    const clientIp = forwardedFor ? forwardedFor.split(',')[0].trim() : (request.headers.get('x-real-ip') || '127.0.0.1')
+    
+    const rateCheck = checkRateLimit(`mw_login_${clientIp}`, 5, 60 * 1000)
+    if (!rateCheck.success) {
+      return new NextResponse(
+        JSON.stringify({
+          error: `Too many attempts. Please wait ${rateCheck.resetInSeconds} seconds before trying again.`,
+          retryAfter: rateCheck.resetInSeconds,
+        }),
+        {
+          status: 429,
+          headers: {
+            'Content-Type': 'application/json',
+            'Retry-After': String(rateCheck.resetInSeconds),
+          },
+        }
+      )
+    }
+  }
+
   let supabaseResponse = NextResponse.next({
     request,
   })
@@ -37,7 +63,6 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   // Redirect logic
-  const pathname = request.nextUrl.pathname
   const isLoginPage = pathname === '/login' || pathname.startsWith('/login')
   
   // Explicit protected dashboard & module pages that require login

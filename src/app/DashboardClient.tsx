@@ -331,38 +331,47 @@ export default function DashboardClient({
   const [expandedLinemen, setExpandedLinemen] = useState<Record<string, boolean>>({})
   const [articleCardTabs, setArticleCardTabs] = useState<Record<string, 'matrix' | 'workers'>>({})
 
-  // Real-time live synchronization with mobile floor apps via Supabase WebSockets
+  // Real-time live synchronization with mobile floor apps via Supabase WebSockets (Optimized with Visibility & Debounce)
   useEffect(() => {
     const supabase = createClient()
+    let hasPendingUpdates = false
+    let debounceTimer: ReturnType<typeof setTimeout> | null = null
+
+    const triggerRefresh = () => {
+      if (document.hidden) {
+        hasPendingUpdates = true
+        return
+      }
+      if (debounceTimer) clearTimeout(debounceTimer)
+      debounceTimer = setTimeout(() => {
+        router.refresh()
+      }, 300)
+    }
+
+    const handleVisibilityChange = () => {
+      if (!document.hidden && hasPendingUpdates) {
+        hasPendingUpdates = false
+        router.refresh()
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
     const channel = supabase
       .channel('realtime-dashboard-client')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'allotments' }, () => {
-        router.refresh()
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'worker_assignments' }, () => {
-        router.refresh()
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'qc_logs' }, () => {
-        router.refresh()
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'store_transactions' }, () => {
-        router.refresh()
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'delivery_challans' }, () => {
-        router.refresh()
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'daily_product' }, () => {
-        router.refresh()
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'challans' }, () => {
-        router.refresh()
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'truck_inwards' }, () => {
-        router.refresh()
-      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'allotments' }, triggerRefresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'worker_assignments' }, triggerRefresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'qc_logs' }, triggerRefresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'store_transactions' }, triggerRefresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'delivery_challans' }, triggerRefresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'daily_product' }, triggerRefresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'challans' }, triggerRefresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'truck_inwards' }, triggerRefresh)
       .subscribe()
 
     return () => {
+      if (debounceTimer) clearTimeout(debounceTimer)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
       supabase.removeChannel(channel)
     }
   }, [router])

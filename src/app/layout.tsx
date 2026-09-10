@@ -141,6 +141,9 @@ const jsonLd = {
 };
 
 import { ReactQueryProvider } from "../lib/react-query-provider";
+import { AuthSyncProvider } from "@/components/providers/AuthSyncProvider";
+import { OfflineBanner } from "@/components/ui/OfflineBanner";
+import { Toaster } from "sonner";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -156,7 +159,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="min-h-full flex flex-col font-sans">
         <ReactQueryProvider>
-          {children}
+          <AuthSyncProvider>
+            <OfflineBanner />
+            {children}
+            <Toaster position="top-right" richColors closeButton />
+          </AuthSyncProvider>
         </ReactQueryProvider>
       </body>
     </html>
