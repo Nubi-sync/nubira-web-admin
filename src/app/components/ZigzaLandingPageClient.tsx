@@ -34,7 +34,9 @@ import {
   Menu,
   Check,
   Mail,
-  Settings
+  Settings,
+  Zap,
+  Building2
 } from 'lucide-react'
 
 function IndiaFlag({ className = "w-5 h-3.5" }: { className?: string }) {
@@ -100,10 +102,6 @@ export function ZigzaLandingPageClient({
     return () => clearInterval(pipelineTimer)
   }, [])
 
-  // ROI Calculator State
-  const [monthlyPieces, setMonthlyPieces] = useState<number>(35000)
-  const [linemenCount, setLinemenCount] = useState<number>(24)
-
   // Demo Form State: Company Name, Owner Name, Phone, Business Email
   const [demoForm, setDemoForm] = useState({
     companyName: '',
@@ -112,11 +110,6 @@ export function ZigzaLandingPageClient({
     email: ''
   })
   const [isSubmitted, setIsSubmitted] = useState(false)
-
-  // Calculated ROI Metrics
-  const estimatedHoursSaved = Math.round((monthlyPieces / 1000) * 4.5)
-  const estimatedPaperSavings = Math.round((monthlyPieces / 100) * 35)
-  const disputeReductionRate = 100
 
   const handleDemoSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -207,11 +200,11 @@ ${demoForm.ownerName}`
               <span className="absolute bottom-0 left-3 right-3 h-[2px] bg-[#3A3564] rounded-full scale-x-0 group-hover:scale-x-100 transition-transform duration-200 ease-out origin-left" />
             </a>
             <a 
-              href="#roi"
-              onClick={(e) => scrollToSection(e, 'roi')}
+              href="#pricing"
+              onClick={(e) => scrollToSection(e, 'pricing')}
               className="group relative px-2.5 lg:px-3 py-2 text-[#57564E] hover:text-[#14140F] transition-colors duration-150 cursor-pointer"
             >
-              <span>ROI Estimator</span>
+              <span>Subscription Plans</span>
               <span className="absolute bottom-0 left-3 right-3 h-[2px] bg-[#3A3564] rounded-full scale-x-0 group-hover:scale-x-100 transition-transform duration-200 ease-out origin-left" />
             </a>
             <a 
@@ -282,7 +275,7 @@ ${demoForm.ownerName}`
                 { id: 'modules', label: 'Modules' },
                 { id: 'workflow', label: 'Floor Workflow' },
                 { id: 'roles', label: 'Role Solutions' },
-                { id: 'roi', label: 'ROI Estimator' },
+                { id: 'pricing', label: 'Subscription Plans' },
                 { id: 'faq', label: 'FAQ' },
               ].map(item => (
                 <a
@@ -1298,183 +1291,234 @@ ${demoForm.ownerName}`
       {/* =================================================================== */}
       {/* 7. INTERACTIVE ROI & COST SAVINGS CALCULATOR                        */}
       {/* =================================================================== */}
-      <section id="roi" className="py-14 sm:py-20 bg-white border-y border-[#57564E]/15">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* =================================================================== */}
+      {/* 7. SUBSCRIPTION PLANS & PRODUCTION DEPLOYMENT PRICING               */}
+      {/* =================================================================== */}
+      <section id="pricing" className="py-16 sm:py-24 bg-white border-y border-[#57564E]/15 scroll-mt-20">
+        <div id="roi" className="sr-only" /> {/* Legacy anchor fallback */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
+          {/* Section Header (No pill badge) */}
+          <div className="text-center max-w-3xl mx-auto mb-14 sm:mb-20">
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">
-              Estimate Your Plant's Monthly Time & Error Savings
+              Predictable Plans for Modern Plants
             </h2>
-            <p className="text-base sm:text-lg text-slate-600 mt-3 leading-relaxed">
-              Adjust the sliders based on your factory's production volume to see estimated impact.
+            <p className="text-base sm:text-lg text-slate-600 mt-4 leading-relaxed max-w-2xl mx-auto">
+              From modular floor units to complete synchronized AI operations and bespoke machine engineering.
             </p>
           </div>
 
-          {/* Outer ROI Box with Slim Black Outline */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-stretch bg-white p-6 sm:p-8 lg:p-10 rounded-2xl border border-black shadow-sm">
+          {/* 3 Clean & Spacious Pricing Cards Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-stretch">
             
-            {/* Sliders Area (7 Cols) */}
-            <div className="lg:col-span-7 flex flex-col justify-between space-y-8">
-              
-              {/* Slider 1: Garment Output */}
+            {/* TIER 1: MODULAR FLOOR */}
+            <div className="flex flex-col justify-between p-7 sm:p-9 rounded-2xl bg-white border border-black/80 hover:border-black shadow-2xs hover:shadow-md transition-all duration-200">
               <div>
-                <div className="flex justify-between items-center mb-3">
-                  <label className="text-sm sm:text-base font-bold text-slate-900">
-                    Monthly Garment Output
-                  </label>
-                  <span
-                    key={monthlyPieces}
-                    className="px-3 py-1 rounded-lg bg-[#FAF7F0] border border-black/15 text-slate-900 font-mono font-bold text-sm sm:text-base tabular-nums animate-digit-pop"
-                  >
-                    {monthlyPieces.toLocaleString()} pcs
-                  </span>
-                </div>
-                
-                <input
-                  type="range"
-                  min="5000"
-                  max="200000"
-                  step="5000"
-                  value={monthlyPieces}
-                  onChange={e => setMonthlyPieces(Number(e.target.value))}
-                  className="w-full h-2.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-[#3A3564] border border-black/10 md:hover:accent-[#2A2649] transition-all"
-                />
-                
-                <div className="flex justify-between text-[11px] text-slate-500 font-mono tabular-nums mt-1.5">
-                  <span>5,000 pcs</span>
-                  <span>50,000 pcs</span>
-                  <span>100,000 pcs</span>
-                  <span>200,000+ pcs</span>
+                <div className="w-12 h-12 rounded-xl bg-[#FAF7F0] text-[#3A3564] flex items-center justify-center mb-6 shadow-2xs">
+                  <Layers className="w-6 h-6 stroke-[2]" />
                 </div>
 
-                {/* Quick Presets */}
-                <div className="flex items-center gap-1.5 mt-3 flex-wrap">
-                  <span className="text-xs text-slate-400 mr-1">Quick presets:</span>
-                  {[15000, 35000, 75000, 150000].map(val => (
-                    <button
-                      key={val}
-                      type="button"
-                      onClick={() => setMonthlyPieces(val)}
-                      className={`px-2.5 py-1 rounded-md text-xs font-mono font-semibold transition-all cursor-pointer ${
-                        monthlyPieces === val
-                          ? 'bg-[#3A3564] text-white shadow-xs'
-                          : 'bg-[#FAF7F0] border border-black/10 text-slate-600 hover:text-black hover:border-black/30'
-                      }`}
-                    >
-                      {(val / 1000)}k pcs
-                    </button>
-                  ))}
-                </div>
-              </div>
+                <h3 className="text-2xl font-bold text-slate-900">
+                  Modular Floor
+                </h3>
+                <p className="mt-2 text-sm text-slate-600 leading-relaxed">
+                  Select 1 to 3 production units tailored to your specific plant workflow.
+                </p>
 
-              {/* Slider 2: Linemen Count */}
-              <div>
-                <div className="flex justify-between items-center mb-3">
-                  <label className="text-sm sm:text-base font-bold text-slate-900">
-                    Active Stitching Linemen
-                  </label>
-                  <span
-                    key={linemenCount}
-                    className="px-3 py-1 rounded-lg bg-[#FAF7F0] border border-black/15 text-slate-900 font-mono font-bold text-sm sm:text-base tabular-nums animate-digit-pop"
-                  >
-                    {linemenCount} operators
-                  </span>
-                </div>
-                
-                <input
-                  type="range"
-                  min="5"
-                  max="100"
-                  step="1"
-                  value={linemenCount}
-                  onChange={e => setLinemenCount(Number(e.target.value))}
-                  className="w-full h-2.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-[#3A3564] border border-black/10 md:hover:accent-[#2A2649] transition-all"
-                />
-                
-                <div className="flex justify-between text-[11px] text-slate-500 font-mono tabular-nums mt-1.5">
-                  <span>5 linemen</span>
-                  <span>25 linemen</span>
-                  <span>50 linemen</span>
-                  <span>100+ linemen</span>
-                </div>
-
-                {/* Quick Presets */}
-                <div className="flex items-center gap-1.5 mt-3 flex-wrap">
-                  <span className="text-xs text-slate-400 mr-1">Quick presets:</span>
-                  {[12, 24, 48, 80].map(val => (
-                    <button
-                      key={val}
-                      type="button"
-                      onClick={() => setLinemenCount(val)}
-                      className={`px-2.5 py-1 rounded-md text-xs font-mono font-semibold transition-all cursor-pointer ${
-                        linemenCount === val
-                          ? 'bg-[#3A3564] text-white shadow-xs'
-                          : 'bg-[#FAF7F0] border border-black/10 text-slate-600 hover:text-black hover:border-black/30'
-                      }`}
-                    >
-                      {val} lines
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-            </div>
-
-            {/* Calculated Output Card (5 Cols) */}
-            <div className="lg:col-span-5 bg-[#FAF7F0] p-6 sm:p-7 rounded-2xl border border-black/15 flex flex-col justify-between space-y-5">
-              <div>
-                <div className="flex items-center justify-between pb-3 mb-4 border-b border-black/10">
-                  <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#3A3564]">
-                    Estimated Monthly Savings
-                  </span>
-                  <span className="text-[11px] font-mono text-slate-500">
-                    PER FACTORY SHIFT
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3 mb-4">
-                  {/* Metric 1 */}
-                  <div className="bg-white p-3.5 rounded-xl border border-black/10">
-                    <span className="text-[11px] font-medium text-slate-500 block">Floor Hours Saved</span>
-                    <p
-                      key={estimatedHoursSaved}
-                      className="text-2xl sm:text-3xl font-extrabold text-slate-900 font-mono tabular-nums mt-1 animate-digit-pop"
-                    >
-                      ~{estimatedHoursSaved}h
-                    </p>
-                    <span className="text-[10px] text-slate-400 mt-1 block">per month</span>
+                {/* Price Block */}
+                <div className="my-7 pt-6 border-t border-black/10">
+                  <div className="flex items-baseline gap-1.5">
+                    <span className="text-4xl font-extrabold font-mono text-slate-900">
+                      ₹4,999
+                    </span>
+                    <span className="text-xs font-semibold text-slate-500">
+                      / module / mo
+                    </span>
                   </div>
-
-                  {/* Metric 2 */}
-                  <div className="bg-white p-3.5 rounded-xl border border-black/10">
-                    <span className="text-[11px] font-medium text-slate-500 block">Payout Disputes</span>
-                    <p className="text-2xl sm:text-3xl font-extrabold text-[#3A3564] font-mono tabular-nums mt-1">
-                      0%
-                    </p>
-                    <span className="text-[10px] text-slate-400 mt-1 block">100% reconciled</span>
-                  </div>
-                </div>
-
-                {/* Zero Mismatch Guarantee Note */}
-                <div className="group bg-white p-3.5 rounded-xl border border-black/10 cursor-default">
-                  <span className="font-bold text-slate-900 text-xs flex items-center gap-1.5 mb-1">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-[#3A3564] md:group-hover:text-emerald-600 md:group-hover:scale-115 transition-all" />
-                    Zero Ghost Piece Guarantee
-                  </span>
-                  <p className="text-[11.5px] leading-relaxed text-slate-600">
-                    Every garment cut on table is reconciled across lineman bundle tickets, QC lightboxes, and dispatch cartons.
+                  <p className="text-xs text-slate-500 mt-1 font-medium">
+                    Pay only for the divisions you run
                   </p>
                 </div>
+
+                {/* Uncluttered Punchy Features */}
+                <div className="space-y-3.5">
+                  <div className="flex items-center gap-3 text-sm text-slate-700">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span>1 to 3 production units of your choice</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm text-slate-700">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span>Operator bundle QR & barcode tracking</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm text-slate-700">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span>Daily cutting lots & piece-rate wage ledgers</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm text-slate-700">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span>Mobile floor app with real-time sync</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm text-slate-400">
+                    <X className="w-4 h-4 text-slate-300 shrink-0" />
+                    <span>Zigza AI floor copilot not included</span>
+                  </div>
+                </div>
               </div>
 
-              <button
-                type="button"
-                onClick={() => setIsDemoModalOpen(true)}
-                className="group w-full py-3.5 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-sm font-bold transition-all shadow-sm hover:shadow-md cursor-pointer flex items-center justify-center gap-2"
-              >
-                <span>Schedule Free Factory Audit</span>
-                <ArrowRight className="w-4 h-4 transition-transform duration-200 md:group-hover:translate-x-1" />
-              </button>
+              {/* Action Button */}
+              <div className="mt-9 pt-6 border-t border-black/10">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setDemoForm(prev => ({ ...prev, companyName: prev.companyName || 'Modular Deployment' }))
+                    setIsDemoModalOpen(true)
+                  }}
+                  className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-lg text-sm font-bold bg-[#FAF7F0] text-slate-900 hover:bg-[#3A3564] hover:text-white border border-black transition-all shadow-2xs cursor-pointer"
+                >
+                  <span>Select Modular Units</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* TIER 2: ALL-ACCESS + ZIGZA AI */}
+            <div className="flex flex-col justify-between p-7 sm:p-9 rounded-2xl bg-[#FAF7F0] border-2 border-[#3A3564] shadow-sm transition-all duration-200">
+              <div>
+                <div className="w-12 h-12 rounded-xl bg-[#3A3564] text-white flex items-center justify-center mb-6 shadow-2xs">
+                  <Zap className="w-6 h-6 stroke-[2]" />
+                </div>
+
+                <h3 className="text-2xl font-bold text-slate-900">
+                  Full Access + Zigza AI
+                </h3>
+                <p className="mt-2 text-sm text-slate-600 leading-relaxed">
+                  All 6 divisions unified with real-time floor intelligence to maximize speed.
+                </p>
+
+                {/* Price Block */}
+                <div className="my-7 pt-6 border-t border-black/10">
+                  <div className="flex items-baseline gap-1.5">
+                    <span className="text-4xl font-extrabold font-mono text-[#3A3564]">
+                      ₹14,999
+                    </span>
+                    <span className="text-xs font-semibold text-[#3A3564]/80">
+                      / plant / mo
+                    </span>
+                  </div>
+                  <p className="text-xs text-[#3A3564] mt-1 font-medium">
+                    All 6 modules unlocked • Unlimited operators
+                  </p>
+                </div>
+
+                {/* Uncluttered Punchy Features */}
+                <div className="space-y-3.5">
+                  <div className="flex items-center gap-3 text-sm text-slate-900 font-medium">
+                    <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0" />
+                    <span>All 6 production divisions unlocked</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm text-slate-900 font-medium">
+                    <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0" />
+                    <span>In-built Zigza AI floor assistant & audit</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm text-slate-900 font-medium">
+                    <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0" />
+                    <span>Zero Ghost Piece guarantee (100% matched)</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm text-slate-900 font-medium">
+                    <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0" />
+                    <span>Cross-division automatic pipeline sync</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm text-slate-900 font-medium">
+                    <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0" />
+                    <span>Real-time line velocity & bottleneck alerts</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Button */}
+              <div className="mt-9 pt-6 border-t border-black/10">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setDemoForm(prev => ({ ...prev, companyName: prev.companyName || 'Full Plant + Zigza AI' }))
+                    setIsDemoModalOpen(true)
+                  }}
+                  className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-lg text-sm font-bold bg-[#3A3564] hover:bg-[#2A2649] text-white border border-black shadow-xs transition-all cursor-pointer"
+                >
+                  <span>Deploy Full Plant + AI</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* TIER 3: CUSTOM ENGINEERING */}
+            <div className="flex flex-col justify-between p-7 sm:p-9 rounded-2xl bg-white border border-black/80 hover:border-black shadow-2xs hover:shadow-md transition-all duration-200">
+              <div>
+                <div className="w-12 h-12 rounded-xl bg-[#FAF7F0] text-[#3A3564] flex items-center justify-center mb-6 shadow-2xs">
+                  <Building2 className="w-6 h-6 stroke-[2]" />
+                </div>
+
+                <h3 className="text-2xl font-bold text-slate-900">
+                  Custom Engineering
+                </h3>
+                <p className="mt-2 text-sm text-slate-600 leading-relaxed">
+                  Bespoke modules, custom machinery telemetry, and enterprise software scaling.
+                </p>
+
+                {/* Price Block */}
+                <div className="my-7 pt-6 border-t border-black/10">
+                  <div className="flex items-baseline gap-1.5">
+                    <span className="text-4xl font-extrabold font-mono text-slate-900">
+                      Custom
+                    </span>
+                    <span className="text-xs font-semibold text-slate-500">
+                      / tailored quote
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500 mt-1 font-medium">
+                    Dedicated roadmap & hardware link
+                  </p>
+                </div>
+
+                {/* Uncluttered Punchy Features */}
+                <div className="space-y-3.5">
+                  <div className="flex items-center gap-3 text-sm text-slate-700">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span>Custom division stages built to spec</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm text-slate-700">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span>Bi-directional SAP, Oracle & Tally sync</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm text-slate-700">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span>Weighing scales, auto-cutters & RFID hooks</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm text-slate-700">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span>Multi-plant executive dashboard</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm text-slate-700">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span>Dedicated solutions architect & 24/7 SLA</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Button */}
+              <div className="mt-9 pt-6 border-t border-black/10">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setDemoForm(prev => ({ ...prev, companyName: prev.companyName || 'Custom Engineering' }))
+                    setIsDemoModalOpen(true)
+                  }}
+                  className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-lg text-sm font-bold bg-[#FAF7F0] text-slate-900 hover:bg-[#3A3564] hover:text-white border border-black transition-all shadow-2xs cursor-pointer"
+                >
+                  <span>Request Custom Build</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
             </div>
 
           </div>
@@ -1970,10 +2014,10 @@ ${demoForm.ownerName}`
                 </li>
                 <li>
                   <a 
-                    href="#roi" 
+                    href="#pricing" 
                     className="text-slate-600 hover:text-slate-900 transition-colors inline-block"
                   >
-                    ROI Estimator
+                    Subscription Plans
                   </a>
                 </li>
                 <li>
