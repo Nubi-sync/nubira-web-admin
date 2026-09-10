@@ -60,8 +60,8 @@ export default async function ProductionOrdersPage() {
         
         {/* 1. Breadcrumb */}
         <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
-          <Link href="/dashboard" className="hover:text-[#3A3564] transition-colors">
-            Dashboard
+          <Link href="/stitching-sewing/dashboard" className="hover:text-[#3A3564] transition-colors">
+            Sewing Dashboard
           </Link>
           <span>/</span>
           <span>Production</span>

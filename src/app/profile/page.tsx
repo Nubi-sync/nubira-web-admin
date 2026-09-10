@@ -104,8 +104,8 @@ export default async function ProfilePage() {
       <div className="flex-1 p-4 sm:p-6 md:p-8 max-w-7xl w-full mx-auto space-y-5 sm:space-y-6">
         {/* 1. Breadcrumb */}
         <div className="flex items-center gap-2 text-xs sm:text-sm font-medium text-slate-500">
-          <Link href="/dashboard" className="hover:text-[#3A3564] transition-colors">
-            Dashboard
+          <Link href="/stitching-sewing/dashboard" className="hover:text-[#3A3564] transition-colors">
+            Sewing Dashboard
           </Link>
           <span>/</span>
           <span>Manage</span>

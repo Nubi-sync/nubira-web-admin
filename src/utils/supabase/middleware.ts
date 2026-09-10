@@ -40,8 +40,15 @@ export async function updateSession(request: NextRequest) {
   const pathname = request.nextUrl.pathname
   const isLoginPage = pathname === '/login' || pathname.startsWith('/login')
   
-  // Explicit protected dashboard pages that require login
+  // Explicit protected dashboard & module pages that require login
   const PROTECTED_DASHBOARD_ROUTES = [
+    '/modules',
+    '/stitching-sewing',
+    '/factory',
+    '/brands',
+    '/washing',
+    '/printing',
+    '/embroidery',
     '/dashboard',
     '/allotments',
     '/articles',
@@ -52,6 +59,9 @@ export async function updateSession(request: NextRequest) {
     '/reports',
     '/reset-password',
     '/zigza-ai',
+    '/store',
+    '/vendors',
+    '/profile',
   ]
   const isProtectedRoute = PROTECTED_DASHBOARD_ROUTES.some(route => pathname.startsWith(route))
 
@@ -63,9 +73,9 @@ export async function updateSession(request: NextRequest) {
   }
 
   if (user && isLoginPage) {
-    // If already logged in and visiting /login in another tab, redirect to /dashboard
+    // If already logged in and visiting /login in another tab, redirect to /modules
     const url = request.nextUrl.clone()
-    url.pathname = '/dashboard'
+    url.pathname = '/modules'
     return NextResponse.redirect(url)
   }
 

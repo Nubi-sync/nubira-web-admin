@@ -23,7 +23,7 @@ function MobileTopBar({ onMenuToggle }: { onMenuToggle: () => void }) {
       </button>
 
       {/* Center: Brand Logo */}
-      <Link href="/dashboard" className="flex items-center">
+      <Link href="/modules" className="flex items-center">
         <img 
           src="/z i g z a (2).png" 
           alt="zigza." 

@@ -19,7 +19,8 @@ import {
   LogOut,
   User,
   Store,
-  Boxes
+  Boxes,
+  LayoutGrid
 } from 'lucide-react'
 
 type NavItem = {
@@ -36,30 +37,36 @@ type NavSection = {
 
 const navSections: NavSection[] = [
   {
-    section: 'Overview',
+    section: 'Workspace Hub',
     items: [
-      { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-      { label: 'Store Dashboard', href: '/store', icon: Store },
-      { label: 'Zigza AI', href: '/zigza-ai', icon: Bot },
+      { label: 'All Modules', href: '/modules', icon: LayoutGrid, badge: '6 Units' },
+    ],
+  },
+  {
+    section: 'Sewing Floor',
+    items: [
+      { label: 'Dashboard', href: '/stitching-sewing/dashboard', icon: LayoutDashboard },
+      { label: 'Store Dashboard', href: '/stitching-sewing/store', icon: Store },
+      { label: 'Zigza AI', href: '/stitching-sewing/zigza-ai', icon: Bot },
     ],
   },
   {
     section: 'Production',
     items: [
-      { label: 'Production Chart', href: '/production-orders', icon: Layers },
-      { label: 'Target Allotments', href: '/allotments', icon: ClipboardList },
-      { label: 'Godown & Inventory', href: '/inventory', icon: Warehouse },
-      { label: 'Dispatch & Challans', href: '/dispatch', icon: Truck },
+      { label: 'Production Chart', href: '/stitching-sewing/production-orders', icon: Layers },
+      { label: 'Target Allotments', href: '/stitching-sewing/allotments', icon: ClipboardList },
+      { label: 'Godown & Inventory', href: '/stitching-sewing/inventory', icon: Warehouse },
+      { label: 'Dispatch & Challans', href: '/stitching-sewing/dispatch', icon: Truck },
     ],
   },
   {
     section: 'Manage',
     items: [
-      { label: 'Profile', href: '/profile', icon: User },
-      { label: 'Brands & Vendors', href: '/vendors', icon: Building2 },
-      { label: 'Employees', href: '/employees', icon: Users },
-      { label: 'Articles', href: '/articles', icon: Tag },
-      { label: 'Reports & Analytics', href: '/reports', icon: FileText },
+      { label: 'Profile', href: '/stitching-sewing/profile', icon: User },
+      { label: 'Brands & Vendors', href: '/stitching-sewing/vendors', icon: Building2 },
+      { label: 'Employees', href: '/stitching-sewing/employees', icon: Users },
+      { label: 'Articles', href: '/stitching-sewing/articles', icon: Tag },
+      { label: 'Reports & Analytics', href: '/stitching-sewing/reports', icon: FileText },
     ],
   },
 ]
@@ -95,15 +102,21 @@ export function AdminSidebar({
   const activeNavSections: NavSection[] = isStoreUser
     ? [
         {
+          section: 'Workspace Hub',
+          items: [
+            { label: 'All Modules', href: '/modules', icon: LayoutGrid },
+          ],
+        },
+        {
           section: 'Godown Shift',
           items: [
-            { label: 'Store Dashboard', href: '/store', icon: Store },
+            { label: 'Store Dashboard', href: '/stitching-sewing/store', icon: Store },
           ],
         },
         {
           section: 'Account',
           items: [
-            { label: 'Profile', href: '/profile', icon: User },
+            { label: 'Profile', href: '/stitching-sewing/profile', icon: User },
           ],
         },
       ]
@@ -155,10 +168,22 @@ export function AdminSidebar({
     ? userEmail.split('@')[0].slice(0, 2).toUpperCase()
     : 'SA'
 
+  function checkIsCurrentActive(href: string, currentPath: string) {
+    if (href === '/stitching-sewing/dashboard' || href === '/dashboard') {
+      return (
+        currentPath === '/stitching-sewing/dashboard' ||
+        currentPath === '/dashboard' ||
+        currentPath === '/'
+      )
+    }
+    if (href === '/modules') {
+      return currentPath === '/modules'
+    }
+    return currentPath === href || currentPath.startsWith(href)
+  }
+
   function handleNavClick(e: React.MouseEvent, href: string) {
-    const isCurrentActive = href === '/dashboard'
-      ? pathname === '/dashboard' || pathname === '/'
-      : pathname.startsWith(href)
+    const isCurrentActive = checkIsCurrentActive(href, pathname)
 
     if (isCurrentActive) {
       e.preventDefault()
@@ -174,9 +199,7 @@ export function AdminSidebar({
   // Render navigation item
   function renderNavItem(item: NavItem, isExpanded: boolean) {
     const Icon = item.icon
-    const isActive = item.href === '/dashboard'
-      ? pathname === '/dashboard' || pathname === '/'
-      : pathname.startsWith(item.href)
+    const isActive = checkIsCurrentActive(item.href, pathname)
     const isLoading = navigatingTo === item.href
 
     return (
@@ -264,7 +287,7 @@ export function AdminSidebar({
       >
         {/* Top Header / Logo Block */}
         <div className="border-b border-slate-200 h-[65px] flex items-center px-4 overflow-hidden">
-          <Link href={isStoreUser ? '/store' : '/dashboard'} className="flex items-center gap-2.5 min-w-0 w-full">
+          <Link href={isStoreUser ? '/stitching-sewing/store' : '/modules'} className="flex items-center gap-2.5 min-w-0 w-full">
             {/* Collapsed Favicon */}
             <div className={`shrink-0 flex items-center justify-center transition-all ${
               isHovered 
@@ -392,7 +415,7 @@ export function AdminSidebar({
         <div>
           {/* Header */}
           <div className="p-4 pb-3.5 border-b border-slate-200 flex items-center justify-between">
-            <Link href={isStoreUser ? '/store' : '/dashboard'} className="flex items-center gap-2.5">
+            <Link href={isStoreUser ? '/stitching-sewing/store' : '/modules'} className="flex items-center gap-2.5">
               <img 
                 src="/z i g z a (2).png" 
                 alt="zigza." 

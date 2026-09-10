@@ -18,9 +18,9 @@ export default async function HomePage({
   const resolvedParams = searchParams ? await searchParams : {}
   const isShowcase = resolvedParams?.showcase === 'true'
 
-  // If user is authenticated and didn't explicitly request the showcase view, route them based on role
+  // If user is authenticated and didn't explicitly request the showcase view, route them to Workspace Hub
   if (user && !isShowcase) {
-    let targetRoute = '/dashboard'
+    let targetRoute = '/modules'
     try {
       const { data: profile } = await supabase
         .from('profiles')
@@ -29,8 +29,8 @@ export default async function HomePage({
         .single()
 
       const role = (profile?.role || '').toUpperCase()
-      if (role === 'STORE' || role === 'STORE_SUPERVISOR' || role === 'GODOWN') {
-        targetRoute = '/store'
+      if (role === 'STORE' || role === 'STORE_SUPERVISOR' || role === 'GODOWN' || user.email?.startsWith('store@')) {
+        targetRoute = '/stitching-sewing/store'
       }
     } catch (_) {}
     redirect(targetRoute)

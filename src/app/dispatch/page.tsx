@@ -162,8 +162,8 @@ export default async function DispatchPage() {
         
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-xs sm:text-sm font-medium text-slate-500">
-          <Link href="/dashboard" className="hover:text-[#3A3564] transition-colors">
-            Production
+          <Link href="/stitching-sewing/dashboard" className="hover:text-[#3A3564] transition-colors">
+            Sewing Dashboard
           </Link>
           <span>/</span>
           <span className="font-bold text-slate-900">

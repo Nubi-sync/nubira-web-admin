@@ -40,8 +40,8 @@ export async function login(formData: FormData) {
     return { error: error.message }
   }
 
-  // Check user role for dynamic destination routing
-  let targetRoute = '/dashboard'
+  // Check user role for dynamic destination routing: All managers go to 6-Module Hub
+  let targetRoute = '/modules'
   try {
     const userId = authData.user?.id
     if (userId) {
@@ -52,8 +52,8 @@ export async function login(formData: FormData) {
         .single()
 
       const role = (profile?.role || '').toUpperCase()
-      if (role === 'STORE' || role === 'STORE_SUPERVISOR' || role === 'GODOWN') {
-        targetRoute = '/store'
+      if (role === 'STORE' || role === 'STORE_SUPERVISOR' || role === 'GODOWN' || email?.startsWith('store@')) {
+        targetRoute = '/stitching-sewing/store'
       }
     }
   } catch (err) {
