@@ -40,7 +40,7 @@ const MODULES: ModuleCardData[] = [
     badge: 'PLANT HUB',
     statusText: 'OPERATIONAL',
     icon: Factory,
-    href: '/modules/factory',
+    href: '/factory',
     features: ['Plant-Wide Telemetry', 'Department Oversight', 'Shift Master Control'],
   },
   {
@@ -50,7 +50,7 @@ const MODULES: ModuleCardData[] = [
     badge: 'BUYER CRM',
     statusText: 'CLIENT PORTAL',
     icon: Briefcase,
-    href: '/modules/brands',
+    href: '/brands',
     features: ['PO Contract Ledger', 'Brand Style Catalogs', 'Buyer Compliance'],
   },
   {
@@ -60,7 +60,7 @@ const MODULES: ModuleCardData[] = [
     badge: 'WET PROCESSING',
     statusText: 'WASH FLOOR',
     icon: Waves,
-    href: '/modules/washing',
+    href: '/washing',
     features: ['Enzyme & Silicone Cycles', 'Batch Liquor Tracker', 'Hydro & Tumbler Logs'],
   },
   {
@@ -70,7 +70,7 @@ const MODULES: ModuleCardData[] = [
     badge: 'SURFACE ART',
     statusText: 'PRINT DIVISION',
     icon: Printer,
-    href: '/modules/printing',
+    href: '/printing',
     features: ['Screen Table Lots', 'Strike-Off Approvals', 'DTG & Sublimation Flow'],
   },
   {
@@ -80,7 +80,7 @@ const MODULES: ModuleCardData[] = [
     badge: 'THREAD ART',
     statusText: 'EMBROIDERY UNIT',
     icon: Sparkles,
-    href: '/modules/embroidery',
+    href: '/embroidery',
     features: ['Multi-Head Machine Runs', 'Punch File Library', 'Stitch Rate Billing'],
   },
   {
@@ -90,7 +90,7 @@ const MODULES: ModuleCardData[] = [
     badge: 'SEWING FLOOR',
     statusText: 'FLOOR EXECUTION',
     icon: Scissors,
-    href: '/modules/stitching-sewing',
+    href: '/stitching-sewing/dashboard',
     features: ['Live Cutting Challans', 'Lineman Bundle Allocations', '3-Stage QC & Store Sync'],
   },
 ]
