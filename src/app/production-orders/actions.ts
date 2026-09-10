@@ -72,6 +72,8 @@ export type CreateChallanPayload = {
   challan_no: string
   challan_date: string
   brand: string
+  vendor_id?: string
+  vendor_name?: string
   delivery_date?: string
   fabric_type?: string
   sample_given?: boolean
@@ -87,6 +89,8 @@ export type ChallanGroupedOrder = {
   challan_no: string
   challan_date: string
   brand: string
+  vendor_id?: string
+  vendor_name?: string
   delivery_date: string
   fabric_type: string
   sample_given: boolean
@@ -367,6 +371,8 @@ export async function getProductionOrders(): Promise<ChallanGroupedOrder[]> {
           challan_no: ch.challan_no || 'CHALLAN',
           challan_date: ch.challan_date || new Date(ch.created_at).toISOString().split('T')[0],
           brand: ch.brand || '',
+          vendor_id: ch.vendor_id || undefined,
+          vendor_name: ch.vendor_name || undefined,
           delivery_date: ch.delivery_date || '',
           fabric_type: ch.fabric_type || '',
           sample_given: !!ch.sample_given,
@@ -510,23 +516,36 @@ export async function createChallan(payload: CreateChallanPayload) {
     const safeDeliveryDate = sanitizeDate(delivery_date)
 
     // 3. Insert into `challans` table
-    const { data: newChallan, error: challanInsertErr } = await supabase
+    const challanInsertPayload: any = {
+      challan_no: cleanChallanNo,
+      challan_date: safeChallanDate,
+      brand: brand.trim().toUpperCase(),
+      delivery_date: safeDeliveryDate,
+      fabric_type: fabric_type.trim(),
+      sample_given: !!sample_given,
+      notes: challanNotesJson,
+      total_sets: grandTotalSets,
+      total_pcs: grandTotalPcs,
+      status: 'IN_PROGRESS',
+      bom_details: bom_items
+    }
+    if (payload.vendor_id) challanInsertPayload.vendor_id = payload.vendor_id
+    if (payload.vendor_name) challanInsertPayload.vendor_name = payload.vendor_name
+
+    let { data: newChallan, error: challanInsertErr } = await supabase
       .from('challans')
-      .insert({
-        challan_no: cleanChallanNo,
-        challan_date: safeChallanDate,
-        brand: brand.trim().toUpperCase(),
-        delivery_date: safeDeliveryDate,
-        fabric_type: fabric_type.trim(),
-        sample_given: !!sample_given,
-        notes: challanNotesJson,
-        total_sets: grandTotalSets,
-        total_pcs: grandTotalPcs,
-        status: 'IN_PROGRESS',
-        bom_details: bom_items
-      })
+      .insert(challanInsertPayload)
       .select('id')
       .single()
+
+    // Fallback if vendor columns not in schema yet
+    if (challanInsertErr && (challanInsertErr.message?.includes('vendor') || challanInsertErr.code === '42703')) {
+      delete challanInsertPayload.vendor_id
+      delete challanInsertPayload.vendor_name
+      const retryRes = await supabase.from('challans').insert(challanInsertPayload).select('id').single()
+      newChallan = retryRes.data
+      challanInsertErr = retryRes.error
+    }
 
     if (challanInsertErr || !newChallan) {
       console.error('Failed to create challan header:', challanInsertErr)
@@ -618,20 +637,29 @@ export async function createChallan(payload: CreateChallanPayload) {
       }
 
       for (const grp of groupedAllotmentMap.values()) {
-        const { data: newAl } = await supabase
+        const allotInsertPayload: any = {
+          challan_id: newChallan.id,
+          article_id: grp.artObj.id,
+          lineman_id: grp.resolvedLinemanId,
+          target_qty: grp.totalTargetQty || 0,
+          status: 'IN_PROGRESS',
+          qc_status: 'PENDING_STITCHING',
+          mending_status: 'PENDING_STITCHING',
+          allotment_date: safeChallanDate
+        }
+        if (payload.vendor_id) allotInsertPayload.vendor_id = payload.vendor_id
+
+        let { data: newAl, error: alErr } = await supabase
           .from('allotments')
-          .insert({
-            challan_id: newChallan.id,
-            article_id: grp.artObj.id,
-            lineman_id: grp.resolvedLinemanId,
-            target_qty: grp.totalTargetQty || 0,
-            status: 'IN_PROGRESS',
-            qc_status: 'PENDING_STITCHING',
-            mending_status: 'PENDING_STITCHING',
-            allotment_date: safeChallanDate
-          })
+          .insert(allotInsertPayload)
           .select('id')
           .single()
+
+        if (alErr && (alErr.message?.includes('vendor_id') || alErr.code === '42703')) {
+          delete allotInsertPayload.vendor_id
+          const retryAl = await supabase.from('allotments').insert(allotInsertPayload).select('id').single()
+          newAl = retryAl.data
+        }
 
         if (newAl) {
           const vars = Array.from(grp.variantsMap.values()).map(v => ({
@@ -1311,7 +1339,52 @@ export async function createBulkChallans(payloads: CreateChallanPayload[]): Prom
       }
     })
 
-    // 4. Prepare Batch Insert for Challans with Floor Personnel Metadata
+    // 4. Resolve & Auto-Provision Vendors across Brands
+    const vendorLookupMap = new Map<string, { id: string; vendor_name: string; brand_name: string }>()
+    try {
+      const { data: existingVendors } = await supabase.from('vendors').select('id, vendor_name, brand_name')
+      existingVendors?.forEach((v: any) => {
+        if (v.vendor_name) {
+          const key = `${(v.brand_name || '').toUpperCase()}__${v.vendor_name.trim().toUpperCase()}`
+          vendorLookupMap.set(key, v)
+          vendorLookupMap.set(v.vendor_name.trim().toUpperCase(), v)
+        }
+      })
+    } catch (_) {}
+
+    // Auto-provision any vendor that was uploaded via Excel but does not exist yet
+    for (const p of validPayloads) {
+      const vName = (p.vendor_name || '').trim()
+      if (vName) {
+        const bName = (p.brand || 'OLLYPOP').trim().toUpperCase()
+        const key = `${bName}__${vName.toUpperCase()}`
+        if (!vendorLookupMap.has(key) && !vendorLookupMap.has(vName.toUpperCase())) {
+          try {
+            const rand = Math.floor(100 + Math.random() * 900)
+            const code = `${bName.slice(0, 2)}-VND-${rand}`
+            const { data: newVnd } = await supabase
+              .from('vendors')
+              .insert({
+                vendor_code: code,
+                vendor_name: vName,
+                brand_name: bName,
+                vendor_type: 'STITCHING_JOB_WORK',
+                stitching_rate: 20.00,
+                is_active: true
+              })
+              .select('id, vendor_name, brand_name')
+              .maybeSingle()
+
+            if (newVnd) {
+              vendorLookupMap.set(key, newVnd)
+              vendorLookupMap.set(vName.toUpperCase(), newVnd)
+            }
+          } catch (_) {}
+        }
+      }
+    }
+
+    // 5. Prepare Batch Insert for Challans with Floor Personnel & Vendor Metadata
     const challansToInsert: any[] = []
     const challanMetadataMap = new Map<string, {
       payload: CreateChallanPayload
@@ -1320,12 +1393,21 @@ export async function createBulkChallans(payloads: CreateChallanPayload[]): Prom
       totalPcs: number
       hasAnyLinemanAllotted: boolean
       allLinemenAllotted: boolean
+      resolvedVendorId?: string | null
+      resolvedVendorName?: string | null
     }>()
 
     for (const payload of validPayloads) {
       const cleanChallanNo = (payload.challan_no || '').trim().toUpperCase()
       const processedLines: any[] = []
       let allottedCount = 0
+
+      // Match vendor
+      const vName = (payload.vendor_name || '').trim()
+      const bName = (payload.brand || '').trim().toUpperCase()
+      const matchedVendor = vName ? (vendorLookupMap.get(`${bName}__${vName.toUpperCase()}`) || vendorLookupMap.get(vName.toUpperCase())) : null
+      const resolvedVendorId = payload.vendor_id || matchedVendor?.id || null
+      const resolvedVendorName = vName || matchedVendor?.vendor_name || null
 
       for (const line of payload.article_lines || []) {
         const cleanArtNo = (line.art_no || '').trim().toUpperCase()
@@ -1388,7 +1470,9 @@ export async function createBulkChallans(payloads: CreateChallanPayload[]): Prom
         totalSets: grandTotalSets,
         totalPcs: grandTotalPcs,
         hasAnyLinemanAllotted: hasAnyLineman,
-        allLinemenAllotted: allAllotted
+        allLinemenAllotted: allAllotted,
+        resolvedVendorId,
+        resolvedVendorName
       })
 
       const todayDate = new Date().toISOString().split('T')[0]
@@ -1397,7 +1481,7 @@ export async function createBulkChallans(payloads: CreateChallanPayload[]): Prom
 
       const initialStatus = allAllotted ? 'IN_PROGRESS' : (hasAnyLineman ? 'PARTIALLY_ALLOTTED' : 'PENDING')
 
-      challansToInsert.push({
+      const rowToInsert: any = {
         challan_no: cleanChallanNo,
         challan_date: safeChallanDate,
         brand: (payload.brand || '').trim().toUpperCase(),
@@ -1409,25 +1493,45 @@ export async function createBulkChallans(payloads: CreateChallanPayload[]): Prom
         total_pcs: grandTotalPcs,
         status: initialStatus,
         bom_details: payload.bom_items || []
-      })
+      }
+      if (resolvedVendorId) rowToInsert.vendor_id = resolvedVendorId
+      if (resolvedVendorName) rowToInsert.vendor_name = resolvedVendorName
+
+      challansToInsert.push(rowToInsert)
     }
 
-    // 5. Safe Parallel Batch Insert into database (chunks of 50 rows)
+    // 6. Safe Parallel Batch Insert into database (chunks of 50 rows)
     const challanInsertChunks = chunkArray(challansToInsert, 50)
     const insertedChallansList: Array<{ id: string; challan_no: string; created_at?: string }> = []
 
     await Promise.all(
       challanInsertChunks.map(async chunk => {
-        const { data, error: bulkInsertErr } = await supabase
+        let { data, error: bulkInsertErr } = await supabase
           .from('challans')
           .insert(chunk)
           .select('id, challan_no, created_at')
+
+        // Fallback if vendor columns not in schema yet
+        if (bulkInsertErr && (bulkInsertErr.message?.includes('vendor') || bulkInsertErr.code === '42703')) {
+          const strippedChunk = chunk.map(c => {
+            const copy = { ...c }
+            delete copy.vendor_id
+            delete copy.vendor_name
+            return copy
+          })
+          const retryRes = await supabase
+            .from('challans')
+            .insert(strippedChunk)
+            .select('id, challan_no, created_at')
+          data = retryRes.data
+          bulkInsertErr = retryRes.error
+        }
 
         if (bulkInsertErr) {
           throw new Error(bulkInsertErr.message || 'Failed to bulk insert delivery challans.')
         }
         if (data) {
-            insertedChallansList.push(...data)
+          insertedChallansList.push(...data)
         }
       })
     )
@@ -1447,6 +1551,7 @@ export async function createBulkChallans(payloads: CreateChallanPayload[]): Prom
       fullArtCode: string
       artDescription: string
       brand: string
+      vendor_id?: string | null
       fabric: string
       challanNo: string
       assigned_lineman_name: string
@@ -1494,6 +1599,7 @@ export async function createBulkChallans(payloads: CreateChallanPayload[]): Prom
             fullArtCode: baseArtNo,
             artDescription: artObj.description || '',
             brand: meta.payload.brand || '',
+            vendor_id: meta.resolvedVendorId || null,
             fabric: meta.payload.fabric_type || '',
             challanNo: cNo,
             assigned_lineman_name: line.assigned_lineman_name || 'Lineman',
@@ -1528,6 +1634,7 @@ export async function createBulkChallans(payloads: CreateChallanPayload[]): Prom
         article_id: g.article_id,
         lineman_id: g.lineman_id,
         target_qty: g.target_qty,
+        vendor_id: g.vendor_id || null,
         status: g.status,
         qc_status: g.qc_status,
         mending_status: g.mending_status,
@@ -1539,10 +1646,20 @@ export async function createBulkChallans(payloads: CreateChallanPayload[]): Prom
       const insertedAllotments: Array<{ id: string; challan_id: string; article_id: string; lineman_id: string }> = []
 
       for (const chunk of allotChunks) {
-        const { data } = await supabase
+        let { data, error: alErr } = await supabase
           .from('allotments')
           .insert(chunk)
           .select('id, challan_id, article_id, lineman_id')
+
+        if (alErr && (alErr.message?.includes('vendor_id') || alErr.code === '42703')) {
+          const stripped = chunk.map(c => {
+            const copy = { ...c }
+            delete (copy as any).vendor_id
+            return copy
+          })
+          const retryRes = await supabase.from('allotments').insert(stripped).select('id, challan_id, article_id, lineman_id')
+          data = retryRes.data
+        }
 
         if (data) insertedAllotments.push(...data)
       }

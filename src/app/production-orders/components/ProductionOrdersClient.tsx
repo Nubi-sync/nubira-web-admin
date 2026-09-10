@@ -83,14 +83,6 @@ const DEFAULT_FABRICS = [
   'TERRY COTTON'
 ]
 
-const DEFAULT_BRANDS = [
-  'OLLYPOP',
-  'FIRST SMILE',
-  'LAZY BONES',
-  'CANDY POP',
-  'NUBIRA IN-HOUSE',
-  'CHERRY POP'
-]
 
 const COMMON_SIZES = ['L/XXL', '22X26', '28X32', '16X20', 'M/L/XL', 'Free Size']
 
@@ -116,12 +108,16 @@ interface ProductionOrdersClientProps {
   initialOrders: ChallanGroupedOrder[]
   articlesList: any[]
   linemenList?: any[]
+  brandsList?: any[]
+  vendorsList?: any[]
 }
 
 export function ProductionOrdersClient({
   initialOrders = [],
   articlesList = [],
-  linemenList = []
+  linemenList = [],
+  brandsList = [],
+  vendorsList = []
 }: ProductionOrdersClientProps) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
@@ -135,6 +131,7 @@ export function ProductionOrdersClient({
   // Filters
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedBrand, setSelectedBrand] = useState('ALL')
+  const [selectedVendor, setSelectedVendor] = useState('ALL')
   const [selectedStatus, setSelectedStatus] = useState<string>('PENDING')
   const [selectedDate, setSelectedDate] = useState('ALL')
 
@@ -233,10 +230,30 @@ export function ProductionOrdersClient({
     { value: 'ALL', label: `All Orders (${statusCounts.total})`, dotColor: '#64748B' },
   ], [statusCounts])
 
-  const brandFilterOptions: CustomSelectOption[] = [
+  const dynamicBrands = useMemo(() => {
+    const listNames = (brandsList || []).map((b: any) => b.brand_name || b.name || b).filter(Boolean)
+    const orderNames = orders.map((o: any) => o.brand).filter(Boolean)
+    return Array.from(new Set([...listNames, ...orderNames]))
+  }, [brandsList, orders])
+
+  const brandFilterOptions: CustomSelectOption[] = useMemo(() => [
     { value: 'ALL', label: 'All Brands' },
-    ...DEFAULT_BRANDS.map(b => ({ value: b, label: b }))
-  ]
+    ...dynamicBrands.map((b: string) => ({ value: b, label: b }))
+  ], [dynamicBrands])
+
+  const filteredVendorsList = useMemo(() => {
+    if (!vendorsList || vendorsList.length === 0) return []
+    if (selectedBrand === 'ALL') return vendorsList
+    return vendorsList.filter((v: any) => !v.brand_name || v.brand_name.toUpperCase() === selectedBrand.toUpperCase())
+  }, [vendorsList, selectedBrand])
+
+  const vendorFilterOptions: CustomSelectOption[] = useMemo(() => [
+    { value: 'ALL', label: 'All Vendors' },
+    ...filteredVendorsList.map((v: any) => ({
+      value: v.id || v.vendor_name,
+      label: `${v.vendor_name} (${v.vendor_code || v.vendor_type || 'Vendor'})`
+    }))
+  ], [filteredVendorsList])
 
   // Active Linemen list for Dropdowns
   const linemanOptions: CustomSelectOption[] = useMemo(() => {
@@ -253,6 +270,8 @@ export function ProductionOrdersClient({
   const [formChallanNo, setFormChallanNo] = useState('')
   const [formChallanDate, setFormChallanDate] = useState(new Date().toISOString().split('T')[0])
   const [formBrand, setFormBrand] = useState('')
+  const [formVendorId, setFormVendorId] = useState('')
+  const [formVendorName, setFormVendorName] = useState('')
   const [formDeliveryDate, setFormDeliveryDate] = useState('')
   const [formFabric, setFormFabric] = useState('')
   const [formSampleGiven, setFormSampleGiven] = useState(false)
@@ -269,6 +288,8 @@ export function ProductionOrdersClient({
     setFormChallanNo('')
     setFormChallanDate(new Date().toISOString().split('T')[0])
     setFormBrand('')
+    setFormVendorId('')
+    setFormVendorName('')
     setFormDeliveryDate('')
     setFormFabric('')
     setFormSampleGiven(false)
@@ -301,6 +322,19 @@ export function ProductionOrdersClient({
         const data = multiData.challans[0]
         if (data.challan_no) setFormChallanNo(data.challan_no)
         if (data.brand) setFormBrand(data.brand)
+        if (data.vendor_name) {
+          const matchedVendor = vendorsList.find((v: any) => v.vendor_name?.toLowerCase() === data.vendor_name?.toLowerCase())
+          if (matchedVendor) {
+            setFormVendorId(matchedVendor.id)
+            setFormVendorName(matchedVendor.vendor_name)
+            if (matchedVendor.brand_name && !data.brand) {
+              setFormBrand(matchedVendor.brand_name)
+            }
+          } else {
+            setFormVendorId('')
+            setFormVendorName(data.vendor_name)
+          }
+        }
         if (data.challan_date) setFormChallanDate(data.challan_date)
         if (data.fabric_type) setFormFabric(data.fabric_type)
         if (data.delivery_date) setFormDeliveryDate(data.delivery_date)
@@ -358,6 +392,7 @@ export function ProductionOrdersClient({
       challan_no: ch.challan_no.trim().toUpperCase(),
       challan_date: ch.challan_date,
       brand: (ch.brand || '').trim().toUpperCase(),
+      vendor_name: (ch.vendor_name || '').trim(),
       delivery_date: ch.delivery_date || undefined,
       fabric_type: ch.fabric_type.trim() || '',
       sample_given: ch.sample_given,
@@ -756,6 +791,7 @@ export function ProductionOrdersClient({
         q === '' ||
         ch.challan_no?.toLowerCase().includes(q) ||
         ch.brand?.toLowerCase().includes(q) ||
+        ch.vendor_name?.toLowerCase().includes(q) ||
         ch.fabric_type?.toLowerCase().includes(q) ||
         ch.articles?.some(a => {
           const art = (a.art_no || '').toLowerCase()
@@ -767,6 +803,10 @@ export function ProductionOrdersClient({
         })
 
       const matchBrand = selectedBrand === 'ALL' || ch.brand?.toUpperCase() === selectedBrand.toUpperCase()
+      const matchVendor =
+        selectedVendor === 'ALL' ||
+        ch.vendor_id === selectedVendor ||
+        ch.vendor_name?.toLowerCase() === selectedVendor.toLowerCase()
 
       let matchStatus = true
       if (selectedStatus === 'PENDING') {
@@ -781,9 +821,9 @@ export function ProductionOrdersClient({
 
       const matchDate = selectedDate === 'ALL' || ch.challan_date === selectedDate
 
-      return matchSearch && matchBrand && matchStatus && matchDate
+      return matchSearch && matchBrand && matchVendor && matchStatus && matchDate
     })
-  }, [orders, searchQuery, selectedBrand, selectedStatus, selectedDate])
+  }, [orders, searchQuery, selectedBrand, selectedVendor, selectedStatus, selectedDate])
 
   // Save Challan Action
   const handleSaveChallan = (e: React.FormEvent) => {
@@ -819,6 +859,8 @@ export function ProductionOrdersClient({
       challan_no: cleanChallan,
       challan_date: formChallanDate,
       brand: (formBrand || '').trim().toUpperCase(),
+      vendor_id: formVendorId || undefined,
+      vendor_name: formVendorName || undefined,
       delivery_date: formDeliveryDate || undefined,
       fabric_type: formFabric.trim() || '',
       sample_given: formSampleGiven,
@@ -846,6 +888,8 @@ export function ProductionOrdersClient({
           challan_no: payload.challan_no,
           challan_date: payload.challan_date,
           brand: payload.brand,
+          vendor_id: payload.vendor_id,
+          vendor_name: payload.vendor_name,
           delivery_date: payload.delivery_date || '',
           fabric_type: payload.fabric_type || '',
           sample_given: !!payload.sample_given,
@@ -1399,10 +1443,25 @@ export function ProductionOrdersClient({
             <span className="text-slate-500 font-semibold">Brand:</span>
             <CustomSelect
               value={selectedBrand}
-              onChange={setSelectedBrand}
+              onChange={val => {
+                setSelectedBrand(val)
+                setSelectedVendor('ALL')
+              }}
               options={brandFilterOptions}
               align="right"
               buttonClassName="min-w-[130px]"
+            />
+          </div>
+
+          {/* Vendor Filter */}
+          <div className="flex items-center gap-2 text-xs sm:text-sm">
+            <span className="text-slate-500 font-semibold">Vendor:</span>
+            <CustomSelect
+              value={selectedVendor}
+              onChange={setSelectedVendor}
+              options={vendorFilterOptions}
+              align="right"
+              buttonClassName="min-w-[140px]"
             />
           </div>
 
@@ -1520,6 +1579,12 @@ export function ProductionOrdersClient({
                         <span className="px-2.5 py-1 rounded-xl text-xs font-bold bg-slate-100 text-slate-800 border border-slate-200">
                           {challan.brand}
                         </span>
+                        {challan.vendor_name && (
+                          <span className="px-2.5 py-1 rounded-xl text-xs font-bold bg-purple-50 text-purple-700 border border-purple-200 flex items-center gap-1">
+                            <span className="text-[10px] uppercase font-bold text-purple-400">Unit:</span>
+                            {challan.vendor_name}
+                          </span>
+                        )}
                         <span className="px-2.5 py-1 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">
                           {challan.fabric_type}
                         </span>
@@ -2214,6 +2279,11 @@ export function ProductionOrdersClient({
                                 <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-100 text-slate-800 border border-black/5">
                                   {ch.brand}
                                 </span>
+                                {ch.vendor_name && (
+                                  <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-purple-50 text-purple-700 border border-purple-200">
+                                    Unit: {ch.vendor_name}
+                                  </span>
+                                )}
                                 {isExisting && (
                                   <span className="px-2 py-0.5 rounded-lg text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1">
                                     <AlertCircle className="w-3 h-3" />
@@ -2474,7 +2544,7 @@ export function ProductionOrdersClient({
                   <span>1. Challan Header</span>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                   <div>
                     <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">
                       JOB / CHALLAN NO. *
@@ -2528,12 +2598,51 @@ export function ProductionOrdersClient({
                     </label>
                     <input
                       type="text"
+                      list="brands-datalist"
                       required
                       placeholder="e.g. OLLYPOP"
                       value={formBrand}
                       onChange={e => setFormBrand(e.target.value)}
                       className="w-full px-3.5 py-2.5 bg-white border border-black/10 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                     />
+                    <datalist id="brands-datalist">
+                      {dynamicBrands.map((b: string) => (
+                        <option key={b} value={b} />
+                      ))}
+                    </datalist>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">
+                      VENDOR / UNIT
+                    </label>
+                    <select
+                      value={formVendorId}
+                      onChange={e => {
+                        const vId = e.target.value
+                        setFormVendorId(vId)
+                        const found = vendorsList.find((v: any) => v.id === vId)
+                        if (found) {
+                          setFormVendorName(found.vendor_name)
+                          if (found.brand_name && !formBrand) {
+                            setFormBrand(found.brand_name)
+                          }
+                        } else {
+                          setFormVendorName('')
+                        }
+                      }}
+                      className="w-full px-3.5 py-2.5 bg-white border border-black/10 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                    >
+                      <option value="">In-House / Default Unit</option>
+                      {(formBrand
+                        ? vendorsList.filter((v: any) => !v.brand_name || v.brand_name.toUpperCase() === formBrand.toUpperCase())
+                        : vendorsList
+                      ).map((v: any) => (
+                        <option key={v.id} value={v.id}>
+                          {v.vendor_name} ({v.vendor_code || v.brand_name || 'Vendor'})
+                        </option>
+                      ))}
+                    </select>
                   </div>
 
                   <div>

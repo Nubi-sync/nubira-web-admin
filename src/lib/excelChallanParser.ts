@@ -64,6 +64,7 @@ export function downloadCleanChallanTemplate() {
     'MENDING',
     'STATUS',
     'BRAND',
+    'VENDOR',
     'FABRIC TYPE',
     'EXPECTED DELIVERY DATE',
     'SPECIAL REMARKS'
@@ -93,6 +94,7 @@ export function downloadCleanChallanTemplate() {
     { wch: 18 }, // MENDING
     { wch: 14 }, // STATUS
     { wch: 18 }, // BRAND
+    { wch: 22 }, // VENDOR
     { wch: 20 }, // FABRIC TYPE
     { wch: 22 }, // EXPECTED DELIVERY DATE
     { wch: 26 }  // SPECIAL REMARKS
@@ -121,6 +123,7 @@ export interface ParsedSingleArticleLine {
   lineman_name?: string
   qc_name?: string
   mending_name?: string
+  vendor_name?: string
   stage_status?: string
   status: string
   stitching_rate?: number
@@ -139,6 +142,8 @@ export interface ParsedMultiChallanGroup {
   challan_no: string
   challan_date: string
   brand: string
+  vendor_name?: string
+  vendor_id?: string
   fabric_type: string
   delivery_date: string
   sample_given: boolean
@@ -329,6 +334,10 @@ const COLUMN_SYNONYMS = {
     'brandparty', 'brand', 'party', 'client', 'buyer', 'customer', 'partyname',
     'brandname', 'company', 'clientname', 'buyername'
   ],
+  vendor: [
+    'vendor', 'vendorunit', 'vendorname', 'jobworker', 'contractor', 'stitchingunit',
+    'supplier', 'factory', 'unit', 'unitname', 'partyunit', 'karigar'
+  ],
   fabric_type: [
     'fabrictype', 'fabric', 'materialtype', 'cloth', 'fabricname', 'quality',
     'fabricquality', 'yarn'
@@ -489,6 +498,7 @@ export async function parseMultiChallanExcelFile(file: File): Promise<ParsedMult
 
   for (const [chNo, group] of challanGroupsMap.entries()) {
     let brand = ''
+    let vendorName = ''
     let challanDate = todayIso
     let fabricType = ''
     let deliveryDate = ''
@@ -508,6 +518,7 @@ export async function parseMultiChallanExcelFile(file: File): Promise<ParsedMult
 
     for (const rowMap of group.rawRows) {
       if (!brand) brand = String(getNormalizedField(rowMap, COLUMN_SYNONYMS.brand)).trim()
+      if (!vendorName) vendorName = String(getNormalizedField(rowMap, COLUMN_SYNONYMS.vendor)).trim()
       if (!fabricType) fabricType = String(getNormalizedField(rowMap, COLUMN_SYNONYMS.fabric_type)).trim()
       if (!notes) notes = String(getNormalizedField(rowMap, COLUMN_SYNONYMS.notes)).trim()
 
@@ -593,6 +604,7 @@ export async function parseMultiChallanExcelFile(file: File): Promise<ParsedMult
           lineman_name: linemanName || undefined,
           qc_name: qcName || undefined,
           mending_name: mendingName || undefined,
+          vendor_name: vendorName || undefined,
           stage_status: stageStatus || undefined,
           status: rowStatus || 'RUNNING',
           stitching_rate: typeof rateVal === 'number' && rateVal > 0 ? rateVal : undefined
@@ -622,6 +634,7 @@ export async function parseMultiChallanExcelFile(file: File): Promise<ParsedMult
         challan_no: chNo,
         challan_date: challanDate || todayIso,
         brand: brand || '',
+        vendor_name: vendorName || undefined,
         fabric_type: fabricType || '',
         delivery_date: deliveryDate,
         sample_given: sampleGiven,

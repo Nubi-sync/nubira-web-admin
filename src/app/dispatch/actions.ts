@@ -8,6 +8,8 @@ export async function createDeliveryChallan(formData: FormData) {
 
   const challanNo = (formData.get('challan_no') as string)?.trim() || `CH-${new Date().getFullYear()}-${Date.now().toString().slice(-4)}`
   const buyerName = (formData.get('buyer_name') as string)?.trim()
+  const vendorName = (formData.get('vendor_name') as string)?.trim() || null
+  const vendorId = (formData.get('vendor_id') as string)?.trim() || null
   const destination = (formData.get('destination') as string)?.trim() || null
   const vehicleNo = (formData.get('vehicle_no') as string)?.trim() || null
   const driverName = (formData.get('driver_name') as string)?.trim() || null
@@ -32,25 +34,44 @@ export async function createDeliveryChallan(formData: FormData) {
   const totalPieces = items.reduce((sum, item) => sum + (item.quantity || 0), 0)
   const todayStr = new Date().toISOString().split('T')[0]
 
-  // 1. Insert Delivery Challan
-  const { data: challanData, error: challanError } = await supabase
+  // 1. Insert Delivery Challan (with fallback for vendor fields)
+  const insertPayload: Record<string, any> = {
+    challan_no: challanNo,
+    buyer_name: buyerName,
+    destination,
+    vehicle_no: vehicleNo,
+    driver_name: driverName,
+    driver_phone: driverPhone,
+    total_pieces: totalPieces,
+    delivery_date: todayStr,
+    status: 'DISPATCHED',
+  }
+
+  if (vendorId) insertPayload.vendor_id = vendorId
+  if (vendorName) insertPayload.vendor_name = vendorName
+
+  let challanData: any = null
+  const { data: insertedData, error: challanError } = await supabase
     .from('delivery_challans')
-    .insert({
-      challan_no: challanNo,
-      buyer_name: buyerName,
-      destination,
-      vehicle_no: vehicleNo,
-      driver_name: driverName,
-      driver_phone: driverPhone,
-      total_pieces: totalPieces,
-      delivery_date: todayStr,
-      status: 'DISPATCHED',
-    })
+    .insert(insertPayload)
     .select()
     .single()
 
   if (challanError) {
-    throw new Error(challanError.message)
+    delete insertPayload.vendor_id
+    delete insertPayload.vendor_name
+    const { data: fallbackData, error: fallbackError } = await supabase
+      .from('delivery_challans')
+      .insert(insertPayload)
+      .select()
+      .single()
+
+    if (fallbackError) {
+      throw new Error(fallbackError.message)
+    }
+    challanData = fallbackData
+  } else {
+    challanData = insertedData
   }
 
   const challanId = challanData.id

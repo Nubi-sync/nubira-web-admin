@@ -50,6 +50,8 @@ type DeliveryChallan = {
   id: string
   challan_no: string
   buyer_name: string
+  vendor_id?: string | null
+  vendor_name?: string | null
   destination?: string | null
   vehicle_no?: string | null
   driver_name?: string | null
@@ -167,9 +169,9 @@ export function DispatchClient({
   }>>([
     {
       article_id: articles.length > 0 ? articles[0].id : '',
-      color: 'Navy Blue',
-      size: 'L',
-      quantity: 200,
+      color: '',
+      size: '',
+      quantity: 0,
     }
   ])
 
@@ -260,6 +262,7 @@ export function DispatchClient({
       list = list.filter(ch => 
         ch.challan_no.toLowerCase().includes(q) ||
         ch.buyer_name.toLowerCase().includes(q) ||
+        (ch.vendor_name && ch.vendor_name.toLowerCase().includes(q)) ||
         (ch.destination && ch.destination.toLowerCase().includes(q)) ||
         (ch.vehicle_no && ch.vehicle_no.toLowerCase().includes(q)) ||
         (ch.driver_name && ch.driver_name.toLowerCase().includes(q)) ||
@@ -419,9 +422,9 @@ export function DispatchClient({
             onClick={() => {
               setChallanRows([{
                 article_id: articles.length > 0 ? articles[0].id : '',
-                color: 'Navy Blue',
-                size: 'L',
-                quantity: 200,
+                color: '',
+                size: '',
+                quantity: 0,
               }])
               setShowCreateChallanModal(true)
             }}
@@ -636,9 +639,9 @@ export function DispatchClient({
                   onClick={() => {
                     setChallanRows([{
                       article_id: articles.length > 0 ? articles[0].id : '',
-                      color: 'Navy Blue',
-                      size: 'L',
-                      quantity: 200,
+                      color: '',
+                      size: '',
+                      quantity: 0,
                     }])
                     setShowCreateChallanModal(true)
                   }}
@@ -735,6 +738,11 @@ export function DispatchClient({
                         </td>
                         <td className="py-3.5 px-4">
                           <div className="font-extrabold text-slate-900">{row.buyer_name}</div>
+                          {row.vendor_name && (
+                            <div className="inline-flex items-center gap-1 mt-0.5 px-2 py-0.5 rounded-md text-[11px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
+                              <span>Unit: {row.vendor_name}</span>
+                            </div>
+                          )}
                           {row.destination && <div className="text-[11px] text-slate-500 font-normal">{row.destination}</div>}
                         </td>
                         <td className="py-3.5 px-4 text-slate-600">
@@ -1029,7 +1037,7 @@ export function DispatchClient({
               <div className="p-4 sm:p-6 space-y-5 overflow-y-auto overflow-x-hidden max-h-[calc(88vh-140px)]">
                 
                 {/* Section 1: Basic Identifiers */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div>
                     <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
                       Challan Number *
@@ -1049,7 +1057,18 @@ export function DispatchClient({
                       type="text" 
                       name="buyer_name" 
                       required 
-                      placeholder="e.g. Zara Mumbai Hub" 
+                      placeholder="e.g. OLLYPOP INDUSTRIES" 
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] transition-all" 
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                      Manufacturing Vendor / Unit
+                    </label>
+                    <input 
+                      type="text" 
+                      name="vendor_name" 
+                      placeholder="e.g. Enter Vendor / Unit Name" 
                       className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] transition-all" 
                     />
                   </div>
@@ -1307,7 +1326,8 @@ export function DispatchClient({
                     <input 
                       type="text" 
                       name="color" 
-                      defaultValue="Navy Blue" 
+                      defaultValue="" 
+                      placeholder="Color"
                       className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20" 
                     />
                   </div>
@@ -1318,7 +1338,8 @@ export function DispatchClient({
                     <input 
                       type="text" 
                       name="size" 
-                      defaultValue="L" 
+                      defaultValue="" 
+                      placeholder="Size"
                       className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 text-center" 
                     />
                   </div>
@@ -1419,6 +1440,11 @@ export function DispatchClient({
                 <p className="font-extrabold text-slate-900 text-sm">
                   {selectedChallanForPrint.billed_to_name || selectedChallanForPrint.buyer_name}
                 </p>
+                {selectedChallanForPrint.vendor_name && (
+                  <p className="text-xs font-semibold text-purple-700 mt-0.5">
+                    Manufactured By: <span className="font-bold">{selectedChallanForPrint.vendor_name}</span>
+                  </p>
+                )}
                 <p className="text-slate-600 mt-0.5">
                   {selectedChallanForPrint.billed_to_address || selectedChallanForPrint.destination || 'Direct Factory Delivery'}
                 </p>
@@ -1462,7 +1488,7 @@ export function DispatchClient({
                   {(selectedChallanForPrint.challan_items || []).map((item, idx) => (
                     <tr key={item.id || idx} className="hover:bg-slate-50/50">
                       <td className="py-2.5 px-3 text-slate-400 font-mono">{idx + 1}</td>
-                      <td className="py-2.5 px-3 font-extrabold text-slate-900 font-mono">{item.article?.art_no || '5223'}</td>
+                      <td className="py-2.5 px-3 font-extrabold text-slate-900 font-mono">{item.article?.art_no || '-'}</td>
                       <td className="py-2.5 px-3 text-slate-700 font-medium">{item.color || '-'}</td>
                       <td className="py-2.5 px-3 font-mono font-bold text-slate-800">{item.size || '-'}</td>
                       <td className="py-2.5 px-3 text-right font-mono text-slate-500">

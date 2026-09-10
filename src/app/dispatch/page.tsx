@@ -36,13 +36,16 @@ export default async function DispatchPage() {
     .eq('is_active', true)
     .order('art_no')
 
-  // 2. Fetch Delivery Challans with items
-  const { data: deliveryChallans } = await supabase
+  // 2. Fetch Delivery Challans with items (with fallback for schema flexibility)
+  let deliveryChallans: any[] | null = null
+  const { data: dcWithVendor, error: dcErr } = await supabase
     .from('delivery_challans')
     .select(`
       id,
       challan_no,
       buyer_name,
+      vendor_id,
+      vendor_name,
       destination,
       vehicle_no,
       driver_name,
@@ -77,6 +80,52 @@ export default async function DispatchPage() {
       )
     `)
     .order('created_at', { ascending: false })
+
+  if (!dcErr && dcWithVendor) {
+    deliveryChallans = dcWithVendor
+  } else {
+    const { data: dcFallback } = await supabase
+      .from('delivery_challans')
+      .select(`
+        id,
+        challan_no,
+        buyer_name,
+        destination,
+        vehicle_no,
+        driver_name,
+        driver_phone,
+        total_pieces,
+        delivery_date,
+        created_at,
+        status,
+        notes,
+        spot_notes,
+        billed_to_name,
+        billed_to_address,
+        billed_to_gstin,
+        shipping_to_name,
+        shipping_to_address,
+        total_bags,
+        total_order_qty,
+        total_delivery_qty,
+        total_balance_qty,
+        challan_items (
+          id,
+          article_id,
+          color,
+          size,
+          quantity,
+          category,
+          product_type,
+          order_qty,
+          delivery_qty,
+          balance_qty,
+          article:articles(art_no, description)
+        )
+      `)
+      .order('created_at', { ascending: false })
+    deliveryChallans = dcFallback
+  }
 
   // 3. Fetch Counting Reports
   const { data: countingReports } = await supabase

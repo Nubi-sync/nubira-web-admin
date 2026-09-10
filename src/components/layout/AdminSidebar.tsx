@@ -56,6 +56,7 @@ const navSections: NavSection[] = [
     section: 'Manage',
     items: [
       { label: 'Profile', href: '/profile', icon: User },
+      { label: 'Brands & Vendors', href: '/vendors', icon: Building2 },
       { label: 'Employees', href: '/employees', icon: Users },
       { label: 'Articles', href: '/articles', icon: Tag },
       { label: 'Reports & Analytics', href: '/reports', icon: FileText },
