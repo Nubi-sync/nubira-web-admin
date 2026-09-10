@@ -362,15 +362,8 @@ export default function DashboardClient({
       })
       .subscribe()
 
-    // Window focus refresh: automatically re-sync whenever admin tabs back into the window
-    const onFocus = () => {
-      router.refresh()
-    }
-    window.addEventListener('focus', onFocus)
-
     return () => {
       supabase.removeChannel(channel)
-      window.removeEventListener('focus', onFocus)
     }
   }, [router])
 

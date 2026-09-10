@@ -37,20 +37,9 @@ export default async function DashboardPage() {
     redirect('/login')
   }
 
-  // Restrict Store Supervisors from admin dashboard
-  const { data: userProfile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single()
-
-  const userRole = (userProfile?.role || '').toUpperCase()
-  if (userRole === 'STORE' || userRole === 'STORE_SUPERVISOR' || userRole === 'GODOWN' || user.email?.startsWith('store@')) {
-    redirect('/store')
-  }
-
-  // Fetch all 9 factory datasets concurrently in parallel
+  // Fetch user profile and all factory datasets concurrently in parallel
   const [
+    { data: userProfile },
     { data: articlesData },
     { data: allotmentsData },
     { data: challansData },
@@ -62,6 +51,12 @@ export default async function DashboardPage() {
     { data: materialsData },
     { data: workerAssignmentsData },
   ] = await Promise.all([
+    supabaseAdmin
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .maybeSingle(),
+
     supabaseAdmin
       .from('articles')
       .select('id, art_no, description, stitching_rate, size_rates')
@@ -186,6 +181,12 @@ export default async function DashboardPage() {
       .order('assigned_at', { ascending: false })
       .limit(500)
   ])
+
+  // Restrict Store Supervisors from admin dashboard
+  const userRole = (userProfile?.role || '').toUpperCase()
+  if (userRole === 'STORE' || userRole === 'STORE_SUPERVISOR' || userRole === 'GODOWN' || user.email?.startsWith('store@')) {
+    redirect('/store')
+  }
 
   // 9. Synthesize Multi-Stage Activity Stream
   const activities: Array<{
