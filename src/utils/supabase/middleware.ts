@@ -5,12 +5,17 @@ import { checkRateLimit } from '@/lib/rate-limit'
 export async function updateSession(request: NextRequest) {
   const pathname = request.nextUrl.pathname
 
-  // Enforce Rate Limiting on Login & Auth POST requests (sliding window)
-  if (request.method === 'POST' && (pathname === '/login' || pathname.startsWith('/auth') || pathname.startsWith('/api/auth'))) {
+  // Enforce Rate Limiting on Login & Auth POST requests (sliding window, exempting sign-out)
+  if (
+    request.method === 'POST' &&
+    pathname !== '/auth/signout' &&
+    (pathname === '/login' || pathname.startsWith('/auth') || pathname.startsWith('/api/auth'))
+  ) {
     const forwardedFor = request.headers.get('x-forwarded-for')
     const clientIp = forwardedFor ? forwardedFor.split(',')[0].trim() : (request.headers.get('x-real-ip') || '127.0.0.1')
     
-    const rateCheck = checkRateLimit(`mw_login_${clientIp}`, 5, 60 * 1000)
+    // 20 requests per minute at edge layer to accommodate shared factory floor IP gateways
+    const rateCheck = checkRateLimit(`mw_login_${clientIp}`, 20, 60 * 1000)
     if (!rateCheck.success) {
       return new NextResponse(
         JSON.stringify({

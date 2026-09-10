@@ -164,54 +164,20 @@ export function ModuleHubClient({ userEmail, userName, userRole }: ModuleHubClie
               href={mod.href}
               onClick={(e) => handleCardClick(e, mod)}
               aria-disabled={isOtherLaunching}
-              className={`group relative flex flex-col justify-between p-6 sm:p-7 rounded-2xl bg-white border shadow-2xs transition-all duration-200 cursor-pointer overflow-hidden ${
+              className={`group relative flex flex-col justify-between p-6 sm:p-7 rounded-2xl bg-white border shadow-2xs transition-all duration-200 cursor-pointer ${
                 isLaunching
-                  ? 'border-[#3A3564] ring-2 ring-[#3A3564]/20 shadow-md bg-[#FAF7F0]/40'
+                  ? 'border-2 border-[#3A3564] ring-2 ring-[#3A3564]/20 shadow-md bg-[#FAF7F0]/40'
                   : isOtherLaunching
-                    ? 'border-black/10 opacity-50 pointer-events-none'
-                    : 'border-black/10 hover:shadow-xs hover:border-[#3A3564]/40'
+                    ? 'border-black/20 opacity-50 pointer-events-none'
+                    : 'border-black/80 hover:border-black hover:shadow-md hover:-translate-y-0.5'
               }`}
             >
-              {/* Slim black outline with a single calm, synchronized shiny point running around it */}
-              <svg 
-                className="absolute inset-0 w-full h-full pointer-events-none rounded-2xl overflow-visible z-10"
-                style={{ width: '100%', height: '100%' }}
-              >
-                {/* 1. Slim stationary black outline */}
-                <rect
-                  x="1"
-                  y="1"
-                  rx="16"
-                  fill="none"
-                  stroke="#000000"
-                  strokeWidth="1"
-                  strokeOpacity="0.22"
-                  style={{
-                    width: 'calc(100% - 2px)',
-                    height: 'calc(100% - 2px)'
-                  }}
-                />
-                {/* 2. Single sleek, slim shiny point smoothly running around the perimeter */}
-                <rect
-                  x="1"
-                  y="1"
-                  rx="16"
-                  fill="none"
-                  stroke="#000000"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  pathLength="100"
-                  className="sync-shiny-point"
-                  style={{
-                    width: 'calc(100% - 2px)',
-                    height: 'calc(100% - 2px)'
-                  }}
-                />
-              </svg>
+              {/* Single calm, synchronized shiny point running smoothly along the slim black outline */}
+              <span className="border-shiny-point" aria-hidden="true" />
 
               {/* Top animated progress bar when launching */}
               {isLaunching && (
-                <div className="absolute top-0 left-0 right-0 h-1.5 bg-[#3A3564] overflow-hidden z-20">
+                <div className="absolute top-0 left-0 right-0 h-1.5 bg-[#3A3564] overflow-hidden rounded-t-2xl z-20">
                   <div className="w-full h-full bg-gradient-to-r from-[#3A3564] via-[#FAF7F0] to-[#3A3564] animate-pulse" />
                 </div>
               )}

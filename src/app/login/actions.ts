@@ -56,8 +56,9 @@ export async function login(formData: FormData) {
     return { error: error.message }
   }
 
-  // Clear rate limit record upon successful authentication
+  // Clear rate limit record upon successful authentication (both action and middleware buckets)
   resetRateLimit(`login_${clientIp}`)
+  resetRateLimit(`mw_login_${clientIp}`)
 
   // Check user role for dynamic destination routing: All managers go to 6-Module Hub
   let targetRoute = '/modules'
