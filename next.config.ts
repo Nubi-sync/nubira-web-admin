@@ -60,6 +60,7 @@ const nextConfig: NextConfig = {
         '*.local',
         '*.local:3000',
         'zigza.in',
+        'www.zigza.in',
         '*.zigza.in',
         '*.vercel.app',
       ],
