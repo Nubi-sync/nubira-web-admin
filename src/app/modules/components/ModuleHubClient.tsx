@@ -26,11 +26,9 @@ interface ModuleCardData {
   title: string
   subtitle: string
   badge: string
-  statusType: 'live' | 'ready'
   statusText: string
   icon: React.ComponentType<{ className?: string }>
   href: string
-  isCore?: boolean
   features: string[]
 }
 
@@ -38,9 +36,8 @@ const MODULES: ModuleCardData[] = [
   {
     id: 'factory',
     title: 'Factory Control Center',
-    subtitle: 'Master plant operations, overall equipment efficiency (OEE), department telemetry, and executive plant KPIs.',
+    subtitle: 'Plant operations, equipment efficiency (OEE), and master line telemetry.',
     badge: 'PLANT HUB',
-    statusType: 'ready',
     statusText: 'OPERATIONAL',
     icon: Factory,
     href: '/factory',
@@ -49,9 +46,8 @@ const MODULES: ModuleCardData[] = [
   {
     id: 'brands',
     title: 'Brands & Buyer Portfolios',
-    subtitle: 'Buyer accounts, export PO contracts, style catalogs, buyer compliance matrices, and dispatch order pipelines.',
+    subtitle: 'Buyer style catalogs, PO contract allocations, and delivery schedules.',
     badge: 'BUYER CRM',
-    statusType: 'ready',
     statusText: 'CLIENT PORTAL',
     icon: Briefcase,
     href: '/brands',
@@ -60,9 +56,8 @@ const MODULES: ModuleCardData[] = [
   {
     id: 'washing',
     title: 'Industrial Washing',
-    subtitle: 'Garment enzyme wash, silicon softeners, acid wash cycles, batch liquor ratios, and wet processing quality checks.',
+    subtitle: 'Garment enzyme wash, silicon softeners, and liquor ratio batch tracking.',
     badge: 'WET PROCESSING',
-    statusType: 'ready',
     statusText: 'WASH FLOOR',
     icon: Waves,
     href: '/washing',
@@ -71,9 +66,8 @@ const MODULES: ModuleCardData[] = [
   {
     id: 'printing',
     title: 'Screen & Digital Printing',
-    subtitle: 'Rotary screen tables, digital DTG printing, sublimation ovens, strike-off color approvals, and print defect tracking.',
+    subtitle: 'Screen print tables, industrial DTG curing, and strike-off color approvals.',
     badge: 'SURFACE ART',
-    statusType: 'ready',
     statusText: 'PRINT DIVISION',
     icon: Printer,
     href: '/printing',
@@ -82,9 +76,8 @@ const MODULES: ModuleCardData[] = [
   {
     id: 'embroidery',
     title: 'Multi-Head Embroidery',
-    subtitle: 'Computerized embroidery lines, thread shade matching, punch digitizing files, frame stitch counts, and jobwork billing.',
+    subtitle: 'Multi-head computerized machines, punch digitizing, and stitch billing.',
     badge: 'THREAD ART',
-    statusType: 'ready',
     statusText: 'EMBROIDERY UNIT',
     icon: Sparkles,
     href: '/embroidery',
@@ -93,13 +86,11 @@ const MODULES: ModuleCardData[] = [
   {
     id: 'stitching-sewing',
     title: 'Stitching & Sewing Floor',
-    subtitle: 'Live cutting matrices, lineman bundle allotments, piece-rate wages, inline checking, 3-stage QC audit, and godown store sync.',
-    badge: 'CORE FLOOR',
-    statusType: 'live',
-    statusText: 'LIVE FLOOR EXECUTION',
+    subtitle: 'Live cutting lots, lineman bundle allocations, 3-stage QC, and store sync.',
+    badge: 'SEWING FLOOR',
+    statusText: 'FLOOR EXECUTION',
     icon: Scissors,
     href: '/stitching-sewing/dashboard',
-    isCore: true,
     features: ['Live Cutting Challans', 'Lineman Bundle Allocations', '3-Stage QC & Store Sync'],
   },
 ]
@@ -144,23 +135,18 @@ export function ModuleHubClient({ userEmail, userName, userRole }: ModuleHubClie
           </div>
         </div>
 
-        {/* 6 Interactive Enterprise Module Cards Grid */}
+        {/* 6 Equalized Enterprise Module Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {MODULES.map((mod) => {
             const Icon = mod.icon
-            const isCore = mod.isCore
 
             return (
               <Link
                 key={mod.id}
                 href={mod.href}
-                className={`group relative flex flex-col justify-between p-6 sm:p-7 rounded-2xl bg-white border transition-all duration-200 cursor-pointer ${
-                  isCore
-                    ? 'border-[#3A3564]/40 shadow-2xs hover:shadow-md hover:border-[#3A3564]'
-                    : 'border-black/10 shadow-2xs hover:shadow-xs hover:border-[#3A3564]/30'
-                }`}
+                className="group relative flex flex-col justify-between p-6 sm:p-7 rounded-2xl bg-white border border-black/10 shadow-2xs hover:shadow-xs hover:border-[#3A3564]/40 transition-all duration-200 cursor-pointer"
               >
-                {/* Top Row: Icon Container + Badges */}
+                {/* Top Row: Icon Container + Category Badge */}
                 <div>
                   <div className="flex items-start justify-between gap-3 mb-4">
                     {/* Ivory Icon Container */}
@@ -168,18 +154,10 @@ export function ModuleHubClient({ userEmail, userName, userRole }: ModuleHubClie
                       <Icon className="w-6 h-6 stroke-[2]" />
                     </div>
 
-                    {/* Category & Status Badges */}
-                    <div className="flex flex-col items-end gap-1.5">
-                      <span className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider bg-[#FAF7F0] text-slate-700 border border-black/10">
-                        {mod.badge}
-                      </span>
-                      {isCore && (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                          LIVE OPERATIONAL
-                        </span>
-                      )}
-                    </div>
+                    {/* Category Badge */}
+                    <span className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider bg-[#FAF7F0] text-slate-700 border border-black/10">
+                      {mod.badge}
+                    </span>
                   </div>
 
                   {/* Card Title */}

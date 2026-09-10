@@ -146,7 +146,7 @@ export function AdminSidebar({
       {
         section: 'Account',
         items: [
-          { label: 'Profile', href: '/stitching-sewing/profile', icon: User },
+          { label: 'Division Profile', href: '/factory/profile', icon: User },
         ],
       },
     ]
@@ -168,7 +168,7 @@ export function AdminSidebar({
       {
         section: 'Account',
         items: [
-          { label: 'Profile', href: '/stitching-sewing/profile', icon: User },
+          { label: 'Division Profile', href: '/brands/profile', icon: User },
         ],
       },
     ]
@@ -190,7 +190,7 @@ export function AdminSidebar({
       {
         section: 'Account',
         items: [
-          { label: 'Profile', href: '/stitching-sewing/profile', icon: User },
+          { label: 'Division Profile', href: '/washing/profile', icon: User },
         ],
       },
     ]
@@ -212,7 +212,7 @@ export function AdminSidebar({
       {
         section: 'Account',
         items: [
-          { label: 'Profile', href: '/stitching-sewing/profile', icon: User },
+          { label: 'Division Profile', href: '/printing/profile', icon: User },
         ],
       },
     ]
@@ -234,7 +234,7 @@ export function AdminSidebar({
       {
         section: 'Account',
         items: [
-          { label: 'Profile', href: '/stitching-sewing/profile', icon: User },
+          { label: 'Division Profile', href: '/embroidery/profile', icon: User },
         ],
       },
     ]
@@ -392,6 +392,16 @@ export function AdminSidebar({
     )
   }
 
+  let divisionProfileHref = '/stitching-sewing/profile'
+  if (pathname?.startsWith('/factory')) divisionProfileHref = '/factory/profile'
+  else if (pathname?.startsWith('/brands')) divisionProfileHref = '/brands/profile'
+  else if (pathname?.startsWith('/washing')) divisionProfileHref = '/washing/profile'
+  else if (pathname?.startsWith('/printing')) divisionProfileHref = '/printing/profile'
+  else if (pathname?.startsWith('/embroidery')) divisionProfileHref = '/embroidery/profile'
+  else if (pathname === '/modules') divisionProfileHref = '/profile'
+
+  const isProfileActive = pathname === divisionProfileHref || pathname === '/profile'
+
   return (
     <>
       {/* ======================================================== */}
@@ -460,17 +470,17 @@ export function AdminSidebar({
 
         {/* Bottom User Profile Block */}
         <div className={`p-3.5 border-t transition-colors flex items-center overflow-hidden h-[65px] ${
-          pathname === '/profile'
+          isProfileActive
             ? 'bg-[#FAF7F0] border-[#3A3564]/30 shadow-2xs'
             : 'border-slate-200 bg-[#FAFAF8] hover:bg-slate-50'
         }`}>
           <Link
-            href="/profile"
+            href={divisionProfileHref}
             className="flex items-center min-w-0 flex-1 group"
-            title="Open Company & Admin Profile"
+            title="Open Profile"
           >
             <div className={`w-9 h-9 rounded-full flex items-center justify-center text-white text-[13px] font-bold shrink-0 shadow-xs bg-[#3A3564] mx-auto transition-all ${
-              pathname === '/profile'
+              isProfileActive
                 ? 'ring-2 ring-[#3A3564] ring-offset-2 ring-offset-[#FAF7F0]'
                 : 'group-hover:ring-2 group-hover:ring-[#3A3564]/30'
             }`}>
@@ -578,17 +588,17 @@ export function AdminSidebar({
 
         {/* Bottom User with Sign Out */}
         <div className={`p-4 border-t transition-colors flex items-center justify-between gap-3 shrink-0 ${
-          pathname === '/profile'
+          isProfileActive
             ? 'bg-[#FAF7F0] border-[#3A3564]/30'
             : 'border-slate-200 bg-[#FAFAF8]'
         }`}>
           <Link
-            href="/profile"
+            href={divisionProfileHref}
             onClick={onMobileClose}
             className="flex items-center gap-3 min-w-0 flex-1 group"
           >
             <div className={`w-9 h-9 rounded-full flex items-center justify-center text-white text-[13px] font-bold shrink-0 shadow-xs bg-[#3A3564] transition-all ${
-              pathname === '/profile'
+              isProfileActive
                 ? 'ring-2 ring-[#3A3564] ring-offset-2 ring-offset-[#FAF7F0]'
                 : 'group-hover:ring-2 group-hover:ring-[#3A3564]/30'
             }`}>
@@ -596,7 +606,7 @@ export function AdminSidebar({
             </div>
             <div className="flex flex-col min-w-0 flex-1">
               <span className={`text-[13px] font-bold truncate leading-tight transition-colors ${
-                pathname === '/profile' ? 'text-[#3A3564]' : 'text-slate-900 group-hover:text-[#3A3564]'
+                isProfileActive ? 'text-[#3A3564]' : 'text-slate-900 group-hover:text-[#3A3564]'
               }`}>
                 {userEmail}
               </span>
