@@ -5,9 +5,11 @@ import { checkRateLimit } from '@/lib/rate-limit'
 export async function updateSession(request: NextRequest) {
   const pathname = request.nextUrl.pathname
 
-  // Enforce Rate Limiting on Login & Auth POST requests (sliding window, exempting sign-out)
+  // Enforce Rate Limiting on direct API Login & Auth POST requests (exempting internal Next.js Server Actions & sign-out)
+  const isServerAction = request.headers.has('next-action')
   if (
     request.method === 'POST' &&
+    !isServerAction &&
     pathname !== '/auth/signout' &&
     (pathname === '/login' || pathname.startsWith('/auth') || pathname.startsWith('/api/auth'))
   ) {
@@ -95,18 +97,21 @@ export async function updateSession(request: NextRequest) {
   ]
   const isProtectedRoute = PROTECTED_DASHBOARD_ROUTES.some(route => pathname.startsWith(route))
 
-  if (!user && isProtectedRoute) {
-    // If not logged in and accessing protected internal pages, redirect to login
-    const url = request.nextUrl.clone()
-    url.pathname = '/login'
-    return NextResponse.redirect(url)
-  }
+  // Only perform page navigation redirects on standard page requests (NOT on Server Actions)
+  if (!isServerAction) {
+    if (!user && isProtectedRoute) {
+      // If not logged in and accessing protected internal pages, redirect to login
+      const url = request.nextUrl.clone()
+      url.pathname = '/login'
+      return NextResponse.redirect(url)
+    }
 
-  if (user && isLoginPage) {
-    // If already logged in and visiting /login in another tab, redirect to /modules
-    const url = request.nextUrl.clone()
-    url.pathname = '/modules'
-    return NextResponse.redirect(url)
+    if (user && isLoginPage) {
+      // If already logged in and visiting /login in another tab, redirect to /modules
+      const url = request.nextUrl.clone()
+      url.pathname = '/modules'
+      return NextResponse.redirect(url)
+    }
   }
 
   return supabaseResponse
