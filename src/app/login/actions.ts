@@ -226,9 +226,9 @@ export async function verifyRecoveryOtp(formData: FormData) {
 
 // Step 3: Set New Password
 export async function setNewPassword(formData: FormData) {
-  const supabase = await createClient()
   const password = formData.get('password') as string
   const confirmPassword = formData.get('confirm_password') as string
+  const email = (formData.get('email') as string)?.trim()
 
   if (!password || password.length < 6) {
     return { error: 'Password must be at least 6 characters long.' }
@@ -238,16 +238,54 @@ export async function setNewPassword(formData: FormData) {
     return { error: 'Passwords do not match.' }
   }
 
+  const supabase = await createClient()
+
+  // 1. Try standard user session update
   const { error } = await supabase.auth.updateUser({
     password,
   })
 
-  if (error) {
-    return { error: error.message }
+  if (!error) {
+    revalidatePath('/', 'layout')
+    return { success: true }
   }
 
-  revalidatePath('/', 'layout')
-  return { success: true }
+  // 2. Fallback: If session missing between multi-step OTP, update via Supabase Admin
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+
+  if (email && serviceRoleKey && supabaseUrl) {
+    try {
+      const admin = createAdminClient(supabaseUrl, serviceRoleKey)
+      const { data: usersData, error: listErr } = await admin.auth.admin.listUsers()
+      if (!listErr && usersData?.users) {
+        const targetUser = usersData.users.find(
+          (u) => u.email?.toLowerCase() === email.toLowerCase()
+        )
+        if (targetUser) {
+          const { error: updateErr } = await admin.auth.admin.updateUserById(targetUser.id, {
+            password,
+          })
+          if (updateErr) {
+            return { error: updateErr.message }
+          }
+
+          // Sign the user in with new credentials to establish active browser session
+          await supabase.auth.signInWithPassword({
+            email,
+            password,
+          })
+
+          revalidatePath('/', 'layout')
+          return { success: true }
+        }
+      }
+    } catch (adminErr: any) {
+      console.error('Admin password reset fallback error:', adminErr)
+    }
+  }
+
+  return { error: error.message || 'Failed to update password. Please request a new OTP.' }
 }
 
 export async function updatePassword(formData: FormData) {

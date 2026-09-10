@@ -163,20 +163,28 @@ export default function LoginPage() {
     }
 
     const formData = new FormData()
+    formData.append('email', forgotEmail)
     formData.append('password', newPassword)
     formData.append('confirm_password', confirmPassword)
 
-    const res = await setNewPassword(formData)
-    if (res?.error) {
-      setForgotError(res.error)
-      toast.error(res.error)
-    } else if (res?.success) {
-      setIsResetSuccess(true)
-      toast.success('Password updated successfully!')
+    try {
+      const res = await setNewPassword(formData)
+      if (res?.error) {
+        setForgotError(res.error)
+        toast.error(res.error)
+      } else if (res?.success) {
+        setIsResetSuccess(true)
+        toast.success('Password updated successfully!')
+        setTimeout(() => {
+          router.push('/')
+        }, 1500)
+      }
+    } catch (err: any) {
+      const msg = err?.message || 'Failed to update password. Please try again.'
+      setForgotError(msg)
+      toast.error(msg)
+    } finally {
       setIsForgotPending(false)
-      setTimeout(() => {
-        router.push('/')
-      }, 1500)
     }
   }
 

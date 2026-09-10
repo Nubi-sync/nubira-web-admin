@@ -8,11 +8,11 @@ if (typeof process !== 'undefined') {
 
 const cspHeader = `
   default-src 'self';
-  script-src 'self' 'unsafe-inline' 'unsafe-eval';
+  script-src 'self' 'unsafe-inline' 'unsafe-eval' https://static.cloudflareinsights.com;
   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
   img-src 'self' blob: data: https:;
   font-src 'self' data: https://fonts.gstatic.com;
-  connect-src 'self' https://*.supabase.co wss://*.supabase.co ws://localhost:* http://localhost:* ws://127.0.0.1:* http://127.0.0.1:*;
+  connect-src 'self' https://*.supabase.co wss://*.supabase.co https://static.cloudflareinsights.com https://cloudflareinsights.com ws://localhost:* http://localhost:* ws://127.0.0.1:* http://127.0.0.1:*;
   frame-ancestors 'none';
   object-src 'none';
   base-uri 'self';
@@ -59,6 +59,9 @@ const nextConfig: NextConfig = {
         '127.0.0.1:3000',
         '*.local',
         '*.local:3000',
+        'zigza.in',
+        '*.zigza.in',
+        '*.vercel.app',
       ],
     },
   },
