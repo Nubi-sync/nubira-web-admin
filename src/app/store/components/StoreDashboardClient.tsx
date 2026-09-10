@@ -848,16 +848,24 @@ export function StoreDashboardClient({
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {truckInwards.slice(0, 6).map(grn => {
+            {truckInwards.slice(0, 10).map(grn => {
               const isExpanded = expandedGrnId === grn.id
-              const items = grn.items || []
-              const isDue = grn.status === 'DUE_PENDING' || grn.due_items_count > 0
-              const isShortage = grn.status === 'SHORTAGE' || grn.shortage_items_count > 0
+              const items: any[] = (grn.items && grn.items.length > 0) ? grn.items : (grn.line_items || [])
+              
+              const totalChallanQty = items.reduce((acc, it) => acc + Number(it.challan_qty || (Number(it.quantity || it.received_qty || 0) + Number(it.shortage_qty || 0))), 0)
+              const totalReceivedQty = items.reduce((acc, it) => acc + Number(it.quantity || it.received_qty || 0), 0)
+              const totalShortageQty = items.reduce((acc, it) => (it.status === 'SHORTAGE' ? acc + Number(it.shortage_qty || 0) : acc), 0)
+              const totalDefectiveQty = items.reduce((acc, it) => (it.status === 'DEFECTIVE' ? acc + Number(it.shortage_qty || 0) : acc), 0)
+              const totalDueQty = items.reduce((acc, it) => (it.status === 'DUE' ? acc + Number(it.shortage_qty || 0) : acc), 0)
+
+              const isDue = grn.status === 'DUE_PENDING' || grn.due_items_count > 0 || totalDueQty > 0
+              const isShortage = grn.status === 'SHORTAGE' || grn.shortage_items_count > 0 || totalShortageQty > 0
+              const isDefective = totalDefectiveQty > 0
 
               return (
                 <div 
                   key={grn.id}
-                  className="bg-white p-5 rounded-2xl border border-black/10 hover:border-slate-300 shadow-2xs space-y-3 transition-all"
+                  className="bg-white p-5 rounded-2xl border border-black/10 hover:border-slate-300 shadow-2xs space-y-3.5 transition-all"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div>
@@ -865,27 +873,36 @@ export function StoreDashboardClient({
                         <span className="text-sm font-black font-mono text-[#3A3564]">
                           {grn.grn_no}
                         </span>
-                        {isDue && (
-                          <span className="px-2 py-0.5 text-[10px] font-bold bg-blue-50 text-blue-800 border border-blue-200 rounded-lg">
-                            Due Pending
-                          </span>
-                        )}
                         {isShortage && (
-                          <span className="px-2 py-0.5 text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200 rounded-lg">
-                            Shortage Logged
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 text-[11px] font-bold font-mono bg-amber-50 text-amber-800 border border-amber-300 rounded-lg">
+                            <AlertTriangle className="w-3 h-3 text-amber-700" />
+                            Shortage: {totalShortageQty > 0 ? `${totalShortageQty} pcs` : 'Logged'}
                           </span>
                         )}
-                        {!isDue && !isShortage && (
-                          <span className="px-2 py-0.5 text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-lg">
+                        {isDefective && (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 text-[11px] font-bold font-mono bg-rose-50 text-rose-800 border border-rose-300 rounded-lg">
+                            <AlertCircle className="w-3 h-3 text-rose-700" />
+                            Defective: {totalDefectiveQty} pcs
+                          </span>
+                        )}
+                        {isDue && (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 text-[11px] font-bold font-mono bg-indigo-50 text-indigo-800 border border-indigo-300 rounded-lg">
+                            <Clock className="w-3 h-3 text-indigo-700" />
+                            Due: {totalDueQty > 0 ? `${totalDueQty} pcs` : 'Pending'}
+                          </span>
+                        )}
+                        {!isDue && !isShortage && !isDefective && (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 text-[11px] font-bold font-mono bg-emerald-50 text-emerald-800 border border-emerald-300 rounded-lg">
+                            <CheckCircle2 className="w-3 h-3 text-emerald-700" />
                             Verified
                           </span>
                         )}
                       </div>
-                      <h4 className="text-sm font-extrabold text-slate-900 mt-1">
+                      <h4 className="text-base font-extrabold text-slate-900 mt-1.5">
                         {grn.party_name}
                       </h4>
                       <p className="text-xs text-slate-500 font-medium">
-                        Challan #{grn.challan_no || '-'} • Vehicle: {grn.truck_no || 'Direct Inward'}
+                        Challan #{grn.challan_no || '-'} • Vehicle: {grn.truck_no || 'Direct Inward'} • Style: {grn.article_no || '-'}
                       </p>
                     </div>
 
@@ -906,7 +923,7 @@ export function StoreDashboardClient({
                           type: 'TRUCK_INWARD',
                           id: grn.id,
                           title: `GRN Slip: ${grn.grn_no}`,
-                          subtitle: `Supplier: ${grn.party_name} (${grn.total_items} items)`
+                          subtitle: `Supplier: ${grn.party_name} (${items.length || grn.total_items} items)`
                         })}
                         className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer"
                         title="Delete GRN Entry"
@@ -916,9 +933,39 @@ export function StoreDashboardClient({
                     </div>
                   </div>
 
-                  {/* Summary Bar */}
-                  <div className="flex items-center justify-between text-xs font-semibold text-slate-600 pt-2.5 border-t border-slate-100">
-                    <span>Date: {grn.inward_date || 'Today'}</span>
+                  {/* Quantity Breakdown Pills Strip */}
+                  <div className="grid grid-cols-3 gap-2 p-2.5 bg-slate-50 rounded-xl border border-slate-200/70 text-xs">
+                    <div>
+                      <span className="block text-[10px] font-mono font-bold uppercase text-slate-400">Challan Billed</span>
+                      <span className="font-mono font-extrabold text-slate-800 text-sm">{totalChallanQty}</span>
+                    </div>
+                    <div>
+                      <span className="block text-[10px] font-mono font-bold uppercase text-emerald-600">In Godown</span>
+                      <span className="font-mono font-extrabold text-emerald-700 text-sm">{totalReceivedQty}</span>
+                    </div>
+                    <div>
+                      <span className="block text-[10px] font-mono font-bold uppercase text-slate-400">
+                        {isShortage ? 'Shortage' : isDefective ? 'Defective' : isDue ? 'Due' : 'Variance'}
+                      </span>
+                      <span className={`font-mono font-extrabold text-sm ${
+                        (totalShortageQty > 0 || totalDefectiveQty > 0) ? 'text-rose-700' : 'text-slate-500'
+                      }`}>
+                        {totalShortageQty > 0 
+                          ? `-${totalShortageQty}` 
+                          : totalDefectiveQty > 0 
+                            ? `${totalDefectiveQty} def` 
+                            : totalDueQty > 0 
+                              ? `${totalDueQty} due` 
+                              : '0'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Summary Bar with Accordion Toggle */}
+                  <div className="flex items-center justify-between text-xs font-semibold text-slate-600 pt-1">
+                    <span className="text-[11px] text-slate-500">
+                      Receiver: {grn.receiver_name || 'Store Incharge'} • {grn.inward_date || 'Today'}
+                    </span>
                     <button
                       type="button"
                       onClick={() => setExpandedGrnId(isExpanded ? null : grn.id)}
@@ -929,27 +976,57 @@ export function StoreDashboardClient({
                     </button>
                   </div>
 
-                  {/* Accordion Line Items */}
+                  {/* Accordion Line Items Detailed Breakdown */}
                   {isExpanded && items.length > 0 && (
-                    <div className="space-y-1.5 pt-2 border-t border-slate-100">
-                      {items.map((it, idx) => (
-                        <div key={idx} className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 text-xs">
-                          <div>
-                            <p className="font-bold text-slate-900">
-                              {it.item_name} {it.size_label ? `(${it.size_label})` : ''}
-                            </p>
-                            {it.remarks && <p className="text-[11px] text-slate-500 mt-0.5">{it.remarks}</p>}
+                    <div className="space-y-2 pt-2 border-t border-slate-100">
+                      {items.map((it: any, idx: number) => {
+                        const itChallan = it.challan_qty || (Number(it.quantity || it.received_qty || 0) + Number(it.shortage_qty || 0))
+                        const itReceived = Number(it.quantity || it.received_qty || 0)
+                        const itShortage = Number(it.shortage_qty || 0)
+                        const itStatus = it.status || 'RECEIVED'
+
+                        return (
+                          <div key={idx} className="p-2.5 rounded-xl bg-slate-50/80 border border-slate-200/80 space-y-1.5 text-xs">
+                            <div className="flex items-center justify-between gap-2">
+                              <p className="font-bold text-slate-900">
+                                {it.item_name} {it.size_label ? `(${it.size_label})` : it.size_color ? `(${it.size_color})` : ''}
+                              </p>
+                              <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md font-mono font-bold uppercase text-[10px] ${
+                                itStatus === 'SHORTAGE' ? 'bg-amber-100 text-amber-900 border border-amber-300' :
+                                itStatus === 'DEFECTIVE' ? 'bg-rose-100 text-rose-900 border border-rose-300' :
+                                itStatus === 'DUE' ? 'bg-indigo-100 text-indigo-900 border border-indigo-300' :
+                                'bg-emerald-100 text-emerald-900 border border-emerald-300'
+                              }`}>
+                                {itStatus === 'SHORTAGE' ? (
+                                  <><AlertTriangle className="w-3 h-3 text-amber-700" /> Shortage</>
+                                ) : itStatus === 'DEFECTIVE' ? (
+                                  <><AlertCircle className="w-3 h-3 text-rose-700" /> Defective</>
+                                ) : itStatus === 'DUE' ? (
+                                  <><Clock className="w-3 h-3 text-indigo-700" /> Due</>
+                                ) : (
+                                  <><CheckCircle2 className="w-3 h-3 text-emerald-700" /> Received</>
+                                )}
+                              </span>
+                            </div>
+
+                            <div className="flex items-center justify-between text-[11px] font-mono font-semibold text-slate-600 pt-1 border-t border-slate-200/50">
+                              <span>Challan: <strong className="text-slate-800">{itChallan} {it.unit || 'pcs'}</strong></span>
+                              <span>Received: <strong className="text-emerald-700">{itReceived} {it.unit || 'pcs'}</strong></span>
+                              {itShortage > 0 && (
+                                <span className={itStatus === 'DEFECTIVE' ? 'text-rose-700 font-bold' : 'text-amber-700 font-bold'}>
+                                  {itStatus}: {itShortage} {it.unit || 'pcs'}
+                                </span>
+                              )}
+                            </div>
+
+                            {it.remarks && (
+                              <p className="text-[11px] text-slate-500 italic bg-white px-2 py-1 rounded border border-slate-200/60">
+                                Note: {it.remarks}
+                              </p>
+                            )}
                           </div>
-                          <div className="text-right font-mono">
-                            <span className="font-bold text-slate-900">{it.quantity} {it.unit || 'pcs'}</span>
-                            <span className={`block text-[10px] font-bold ${
-                              it.status === 'SHORTAGE' ? 'text-amber-700' : it.status === 'DUE' ? 'text-blue-700' : 'text-emerald-700'
-                            }`}>
-                              {it.status}
-                            </span>
-                          </div>
-                        </div>
-                      ))}
+                        )
+                      })}
                     </div>
                   )}
                 </div>
@@ -1395,8 +1472,9 @@ function GrnInwardModal({
   articles: Article[]
   currentUserName: string
 }) {
+  const router = useRouter()
   const [partyName, setPartyName] = useState('')
-  const [articleNo, setArticleNo] = useState(articles[0]?.art_no || '')
+  const [articleNo, setArticleNo] = useState('')
   const [challanNo, setChallanNo] = useState('')
   const [truckNo, setTruckNo] = useState('')
   const [inwardDate, setInwardDate] = useState(new Date().toISOString().split('T')[0])
@@ -1406,16 +1484,13 @@ function GrnInwardModal({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const [items, setItems] = useState<TruckInwardItemInput[]>([
-    { item_name: 'Main Zipper', quantity: 500, unit: 'pcs', size_label: 'L / Navy', status: 'RECEIVED', shortage_qty: 0, remarks: '' },
-    { item_name: 'Care Label', quantity: 500, unit: 'pcs', size_label: 'Free', status: 'RECEIVED', shortage_qty: 0, remarks: '' },
-  ])
+  const [items, setItems] = useState<TruckInwardItemInput[]>([])
 
   // Presets to quickly add items
   const addPreset = (name: string, unit: string = 'pcs') => {
     setItems(prev => [
       ...prev,
-      { item_name: name, quantity: 100, unit, size_label: '', status: 'RECEIVED', shortage_qty: 0, remarks: '' }
+      { item_name: name, quantity: 0, unit, size_label: '', status: 'RECEIVED', shortage_qty: 0, remarks: '' }
     ])
   }
 
@@ -1459,6 +1534,7 @@ function GrnInwardModal({
     if (res.error) {
       setError(res.error)
     } else {
+      router.refresh()
       onClose()
     }
   }
@@ -1584,109 +1660,246 @@ function GrnInwardModal({
                 Challan Line Items ({items.length})
               </label>
             </div>
-            {items.map((it, idx) => (
-              <div key={idx} className="p-3.5 bg-slate-50/70 rounded-xl border border-slate-200/80 space-y-3">
-                <div className="flex items-center justify-between gap-2.5">
-                  <input
-                    type="text"
-                    placeholder="Item description (e.g. Antique Brass Zipper)"
-                    value={it.item_name}
-                    onChange={e => {
-                      const copy = [...items]
-                      copy[idx].item_name = e.target.value
-                      setItems(copy)
-                    }}
-                    className="flex-1 px-3 py-2 text-xs sm:text-sm font-bold text-slate-900 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564]"
-                  />
+            {items.length === 0 ? (
+              <div className="p-6 text-center bg-slate-50/60 rounded-xl border border-dashed border-slate-200">
+                <p className="text-xs font-semibold text-slate-500 mb-2.5">
+                  No line items added yet. Click an "Add Preset" button above or add a custom item.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setItems([
+                    { item_name: '', quantity: 0, unit: 'pcs', size_label: '', status: 'RECEIVED', shortage_qty: 0, remarks: '' }
+                  ])}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-[#3A3564] bg-white hover:bg-slate-100 rounded-xl border border-slate-200 transition-all cursor-pointer shadow-2xs"
+                >
+                  <Plus className="w-3.5 h-3.5" /> + Add Line Item
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {items.map((it, idx) => (
+                  <div key={idx} className="p-3.5 bg-slate-50/70 rounded-xl border border-slate-200/80 space-y-3">
+                    <div className="flex items-center justify-between gap-2.5">
+                      <input
+                        type="text"
+                        placeholder="Item description (e.g. Antique Brass Zipper)"
+                        value={it.item_name}
+                        onChange={e => {
+                          const copy = [...items]
+                          copy[idx].item_name = e.target.value
+                          setItems(copy)
+                        }}
+                        className="flex-1 px-3 py-2 text-xs sm:text-sm font-bold text-slate-900 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564]"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setItems(items.filter((_, i) => i !== idx))}
+                        className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 text-xs">
+                      <div>
+                        <label className="block text-[11px] font-mono font-bold uppercase tracking-wider text-slate-700 mb-1">
+                          Challan Qty *
+                        </label>
+                        <input
+                          type="number"
+                          placeholder="0"
+                          value={it.challan_qty === 0 ? '' : it.challan_qty ?? (it.quantity === 0 ? '' : it.quantity)}
+                          onChange={e => {
+                            const val = e.target.value
+                            const cQty = val === '' ? 0 : Number(val)
+                            const copy = [...items]
+                            copy[idx].challan_qty = cQty
+                            if (!copy[idx].quantity || copy[idx].quantity === 0 || copy[idx].status === 'RECEIVED') {
+                              copy[idx].quantity = cQty
+                              copy[idx].shortage_qty = 0
+                              copy[idx].status = 'RECEIVED'
+                            } else {
+                              const diff = Math.max(0, cQty - (copy[idx].quantity || 0))
+                              copy[idx].shortage_qty = diff
+                            }
+                            setItems(copy)
+                          }}
+                          className="w-full px-3 py-2 font-mono font-bold text-slate-900 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564]"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-mono font-bold uppercase tracking-wider text-emerald-700 mb-1 flex items-center justify-between">
+                          <span>Received Qty *</span>
+                          <span className="text-[10px] text-slate-400 font-normal">In Godown</span>
+                        </label>
+                        <input
+                          type="number"
+                          placeholder="0"
+                          value={it.quantity === 0 ? '' : it.quantity}
+                          onChange={e => {
+                            const val = e.target.value
+                            const rQty = val === '' ? 0 : Number(val)
+                            const copy = [...items]
+                            copy[idx].quantity = rQty
+                            const cQty = copy[idx].challan_qty ?? rQty
+                            if (!copy[idx].challan_qty) {
+                              copy[idx].challan_qty = rQty
+                            }
+                            if (rQty < cQty) {
+                              copy[idx].shortage_qty = cQty - rQty
+                              if (copy[idx].status === 'RECEIVED') {
+                                copy[idx].status = 'SHORTAGE'
+                              }
+                            } else {
+                              copy[idx].shortage_qty = 0
+                              copy[idx].status = 'RECEIVED'
+                            }
+                            setItems(copy)
+                          }}
+                          className="w-full px-3 py-2 font-mono font-bold text-emerald-700 bg-emerald-50/40 border border-emerald-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 mb-1">Unit</label>
+                        <select
+                          value={it.unit}
+                          onChange={e => {
+                            const copy = [...items]
+                            copy[idx].unit = e.target.value
+                            setItems(copy)
+                          }}
+                          className="w-full px-3 py-2 font-bold text-slate-900 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564]"
+                        >
+                          {['pcs', 'cones', 'kg', 'mt', 'rolls', 'gross'].map(u => (
+                            <option key={u} value={u}>{u}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 mb-1">Size / Color</label>
+                        <input
+                          type="text"
+                          placeholder="e.g. M / Black"
+                          value={it.size_label || ''}
+                          onChange={e => {
+                            const copy = [...items]
+                            copy[idx].size_label = e.target.value
+                            setItems(copy)
+                          }}
+                          className="w-full px-3 py-2 font-semibold text-slate-900 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564]"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 mb-1">Status</label>
+                        <select
+                          value={it.status}
+                          onChange={e => {
+                            const newStatus = e.target.value as any
+                            const copy = [...items]
+                            copy[idx].status = newStatus
+                            if (newStatus === 'RECEIVED') {
+                              copy[idx].shortage_qty = 0
+                              copy[idx].quantity = copy[idx].challan_qty ?? copy[idx].quantity
+                            } else if (!copy[idx].shortage_qty || copy[idx].shortage_qty === 0) {
+                              const cQty = copy[idx].challan_qty ?? copy[idx].quantity
+                              const rQty = copy[idx].quantity
+                              copy[idx].shortage_qty = Math.max(0, cQty - rQty) || 1
+                            }
+                            setItems(copy)
+                          }}
+                          className={`w-full px-3 py-2 font-bold bg-white border rounded-xl focus:outline-none focus:ring-2 ${
+                            it.status === 'RECEIVED' 
+                              ? 'text-emerald-700 border-emerald-300' 
+                              : it.status === 'SHORTAGE' 
+                                ? 'text-amber-700 border-amber-300' 
+                                : it.status === 'DEFECTIVE'
+                                  ? 'text-rose-700 border-rose-300'
+                                  : 'text-indigo-700 border-indigo-300'
+                          }`}
+                        >
+                          <option value="RECEIVED">Full Received</option>
+                          <option value="SHORTAGE">Shortage</option>
+                          <option value="DEFECTIVE">Defective</option>
+                          <option value="DUE">Due (Pending)</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {Boolean(it.status !== 'RECEIVED' || ((it.shortage_qty || 0) > 0)) && (
+                      <div className="p-2.5 bg-amber-50/70 border border-amber-200 rounded-xl space-y-2 text-xs">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md font-mono font-bold uppercase text-[10px] ${
+                              it.status === 'SHORTAGE' ? 'bg-amber-100 text-amber-900 border border-amber-300' :
+                              it.status === 'DEFECTIVE' ? 'bg-rose-100 text-rose-900 border border-rose-300' :
+                              'bg-indigo-100 text-indigo-900 border border-indigo-300'
+                            }`}>
+                              {it.status === 'SHORTAGE' ? (
+                                <><AlertTriangle className="w-3 h-3 text-amber-700" /> Shortage</>
+                              ) : it.status === 'DEFECTIVE' ? (
+                                <><AlertCircle className="w-3 h-3 text-rose-700" /> Defective</>
+                              ) : (
+                                <><Clock className="w-3 h-3 text-indigo-700" /> Due Pending</>
+                              )}
+                            </span>
+                            <span className="font-semibold text-slate-700">
+                              Challan: <strong className="text-slate-900 font-mono">{it.challan_qty ?? (it.quantity + (it.shortage_qty || 0))}</strong> | 
+                              Received: <strong className="text-emerald-700 font-mono">{it.quantity}</strong> | 
+                              Issue: <strong className="text-rose-700 font-mono">{it.shortage_qty || 0} {it.unit}</strong>
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <label className="text-[11px] font-mono font-bold uppercase text-slate-600">
+                              {it.status === 'SHORTAGE' ? 'Short Qty:' : it.status === 'DEFECTIVE' ? 'Defect Qty:' : 'Due Qty:'}
+                            </label>
+                            <input
+                              type="number"
+                              placeholder="0"
+                              value={it.shortage_qty === 0 ? '' : it.shortage_qty}
+                              onChange={e => {
+                                const val = e.target.value
+                                const sQty = val === '' ? 0 : Number(val)
+                                const copy = [...items]
+                                copy[idx].shortage_qty = sQty
+                                const cQty = copy[idx].challan_qty ?? (copy[idx].quantity + sQty)
+                                copy[idx].challan_qty = cQty
+                                copy[idx].quantity = Math.max(0, cQty - sQty)
+                                setItems(copy)
+                              }}
+                              className="w-20 px-2 py-1 text-xs font-mono font-bold bg-white border border-amber-300 rounded-lg text-right focus:outline-none focus:ring-2 focus:ring-amber-500/20"
+                            />
+                          </div>
+                        </div>
+                        <input
+                          type="text"
+                          placeholder="Remarks / Note (e.g. 50 pcs short from supplier, or damaged on truck)"
+                          value={it.remarks || ''}
+                          onChange={e => {
+                            const copy = [...items]
+                            copy[idx].remarks = e.target.value
+                            setItems(copy)
+                          }}
+                          className="w-full px-3 py-1.5 text-xs bg-white border border-slate-200 rounded-lg text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20"
+                        />
+                      </div>
+                    )}
+                  </div>
+                ))}
+
+                <div className="flex justify-end pt-1">
                   <button
                     type="button"
-                    onClick={() => setItems(items.filter((_, i) => i !== idx))}
-                    className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors"
+                    onClick={() => setItems(prev => [
+                      ...prev,
+                      { item_name: '', quantity: 0, unit: 'pcs', size_label: '', status: 'RECEIVED', shortage_qty: 0, remarks: '' }
+                    ])}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-[#3A3564] bg-slate-100 hover:bg-slate-200 rounded-xl transition-all cursor-pointer"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Plus className="w-3.5 h-3.5" /> + Add Another Item
                   </button>
                 </div>
-
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
-                  <div>
-                    <label className="block text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 mb-1">Quantity</label>
-                    <input
-                      type="number"
-                      value={it.quantity}
-                      onChange={e => {
-                        const copy = [...items]
-                        copy[idx].quantity = Number(e.target.value) || 0
-                        setItems(copy)
-                      }}
-                      className="w-full px-3 py-2 font-mono font-bold text-slate-900 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564]"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 mb-1">Unit</label>
-                    <select
-                      value={it.unit}
-                      onChange={e => {
-                        const copy = [...items]
-                        copy[idx].unit = e.target.value
-                        setItems(copy)
-                      }}
-                      className="w-full px-3 py-2 font-bold text-slate-900 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564]"
-                    >
-                      {['pcs', 'cones', 'kg', 'mt', 'rolls', 'gross'].map(u => (
-                        <option key={u} value={u}>{u}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 mb-1">Size / Color</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. M / Black"
-                      value={it.size_label || ''}
-                      onChange={e => {
-                        const copy = [...items]
-                        copy[idx].size_label = e.target.value
-                        setItems(copy)
-                      }}
-                      className="w-full px-3 py-2 font-semibold text-slate-900 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564]"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 mb-1">Status</label>
-                    <select
-                      value={it.status}
-                      onChange={e => {
-                        const copy = [...items]
-                        copy[idx].status = e.target.value as any
-                        setItems(copy)
-                      }}
-                      className="w-full px-3 py-2 font-bold bg-white border border-slate-200 rounded-xl text-emerald-700 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564]"
-                    >
-                      <option value="RECEIVED">Received</option>
-                      <option value="SHORTAGE">Shortage</option>
-                      <option value="DUE">Due (Pending)</option>
-                      <option value="DEFECTIVE">Defective</option>
-                    </select>
-                  </div>
-                </div>
-
-                {it.status === 'SHORTAGE' && (
-                  <div>
-                    <input
-                      type="number"
-                      placeholder="Shortage missing quantity..."
-                      value={it.shortage_qty || ''}
-                      onChange={e => {
-                        const copy = [...items]
-                        copy[idx].shortage_qty = Number(e.target.value) || 0
-                        setItems(copy)
-                      }}
-                      className="w-full px-3 py-2 text-xs font-mono font-bold text-amber-700 bg-amber-50 border border-amber-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20"
-                    />
-                  </div>
-                )}
               </div>
-            ))}
+            )}
           </div>
 
           {/* Photo Attachment */}
@@ -2026,11 +2239,7 @@ function ProductionInwardModal({
   }, [readyQcAllotments, selectedArticleId])
 
   // Extract variants from ready lots or fallback standard sizes
-  const [variantInputs, setVariantInputs] = useState<Array<{ color: string; size: string; quantity: number }>>([
-    { color: 'Standard', size: 'M', quantity: 0 },
-    { color: 'Standard', size: 'L', quantity: 0 },
-    { color: 'Standard', size: 'XL', quantity: 0 },
-  ])
+  const [variantInputs, setVariantInputs] = useState<Array<{ color: string; size: string; quantity: number }>>([])
 
   // If prefilledLot changes or selectedAllotmentId selected, populate variants
   useMemo(() => {
@@ -2241,11 +2450,12 @@ function ProductionInwardModal({
                   />
                   <input
                     type="number"
-                    placeholder="Qty"
-                    value={v.quantity || ''}
+                    placeholder="0"
+                    value={v.quantity === 0 ? '' : v.quantity}
                     onChange={e => {
+                      const val = e.target.value
                       const copy = [...variantInputs]
-                      copy[idx].quantity = Number(e.target.value) || 0
+                      copy[idx].quantity = val === '' ? 0 : Number(val)
                       setVariantInputs(copy)
                     }}
                     className="flex-1 px-3 py-1.5 bg-white font-mono font-bold text-slate-900 border border-slate-200 rounded-xl text-right focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564]"
@@ -2329,11 +2539,7 @@ function FinishedGoodsOutwardModal({
 
   const availableStock = articleStockMap[selectedArticleId] || 0
 
-  const [variantInputs, setVariantInputs] = useState<Array<{ color: string; size: string; quantity: number }>>([
-    { color: 'Standard', size: 'M', quantity: 0 },
-    { color: 'Standard', size: 'L', quantity: 0 },
-    { color: 'Standard', size: 'XL', quantity: 0 },
-  ])
+  const [variantInputs, setVariantInputs] = useState<Array<{ color: string; size: string; quantity: number }>>([])
 
   const totalDispatchPieces = variantInputs.reduce((a, b) => a + (Number(b.quantity) || 0), 0)
 
@@ -2489,11 +2695,12 @@ function FinishedGoodsOutwardModal({
                   />
                   <input
                     type="number"
-                    placeholder="Qty"
-                    value={v.quantity || ''}
+                    placeholder="0"
+                    value={v.quantity === 0 ? '' : v.quantity}
                     onChange={e => {
+                      const val = e.target.value
                       const copy = [...variantInputs]
-                      copy[idx].quantity = Number(e.target.value) || 0
+                      copy[idx].quantity = val === '' ? 0 : Number(val)
                       setVariantInputs(copy)
                     }}
                     className="flex-1 px-3 py-1.5 bg-white font-mono font-bold text-rose-600 border border-slate-200 rounded-xl text-right focus:outline-none focus:ring-2 focus:ring-rose-500/20"

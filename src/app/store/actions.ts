@@ -10,6 +10,7 @@ import { revalidatePath } from 'next/cache'
 export type TruckInwardItemInput = {
   item_name: string
   quantity: number
+  challan_qty?: number
   unit: string
   size_label?: string
   status: 'RECEIVED' | 'SHORTAGE' | 'DUE' | 'DEFECTIVE'
@@ -44,19 +45,24 @@ export async function createTruckInwardGrn(payload: CreateTruckInwardPayload) {
 
     const dueCount = payload.items.filter(i => i.status === 'DUE').length
     const shortageCount = payload.items.filter(i => i.status === 'SHORTAGE').length
-    const overallStatus = dueCount > 0 ? 'DUE_PENDING' : shortageCount > 0 ? 'SHORTAGE' : 'VERIFIED'
+    const defectiveCount = payload.items.filter(i => i.status === 'DEFECTIVE').length
+    const overallStatus = dueCount > 0 ? 'DUE_PENDING' : shortageCount > 0 ? 'SHORTAGE' : defectiveCount > 0 ? 'DEFECTIVE' : 'VERIFIED'
     const grnNo = `GRN-${new Date().getFullYear()}-${Date.now().toString().slice(-6)}`
 
     // Map line items JSON
-    const lineItemsJson = payload.items.map(i => ({
-      item_name: i.item_name.trim(),
-      size_color: i.size_label?.trim() || '',
-      challan_qty: i.quantity,
-      unit: i.unit || 'pcs',
-      status: i.status,
-      shortage_qty: i.shortage_qty || 0,
-      remarks: i.remarks?.trim() || ''
-    }))
+    const lineItemsJson = payload.items.map(i => {
+      const cQty = i.challan_qty ?? (i.quantity + (i.shortage_qty || 0))
+      return {
+        item_name: i.item_name.trim(),
+        size_color: i.size_label?.trim() || '',
+        challan_qty: cQty,
+        received_qty: i.quantity,
+        unit: i.unit || 'pcs',
+        status: i.status,
+        shortage_qty: i.shortage_qty || 0,
+        remarks: i.remarks?.trim() || ''
+      }
+    })
 
     // 1. Insert into truck_inwards
     const { data: insertedInward, error: inwardError } = await supabase
@@ -89,18 +95,21 @@ export async function createTruckInwardGrn(payload: CreateTruckInwardPayload) {
     const truckInwardId = insertedInward.id
 
     // 2. Insert child items into truck_inward_items
-    const childItemRows = payload.items.map(it => ({
-      truck_inward_id: truckInwardId,
-      item_name: it.item_name.trim(),
-      quantity: it.quantity,
-      challan_qty: it.quantity,
-      unit: it.unit || 'pcs',
-      size_label: it.size_label?.trim() || null,
-      size_color: it.size_label?.trim() || null,
-      status: it.status,
-      shortage_qty: it.shortage_qty || 0,
-      remarks: it.remarks?.trim() || null
-    }))
+    const childItemRows = payload.items.map(it => {
+      const cQty = it.challan_qty ?? (it.quantity + (it.shortage_qty || 0))
+      return {
+        truck_inward_id: truckInwardId,
+        item_name: it.item_name.trim(),
+        quantity: it.quantity, // Physical received count
+        challan_qty: cQty,     // Billed challan count
+        unit: it.unit || 'pcs',
+        size_label: it.size_label?.trim() || null,
+        size_color: it.size_label?.trim() || null,
+        status: it.status,
+        shortage_qty: it.shortage_qty || 0,
+        remarks: it.remarks?.trim() || null
+      }
+    })
 
     const { error: itemsError } = await supabase.from('truck_inward_items').insert(childItemRows)
     if (itemsError) {
@@ -109,17 +118,18 @@ export async function createTruckInwardGrn(payload: CreateTruckInwardPayload) {
 
     // 3. Log inward rows in accessories table so godown stock is instantly credited
     const accessoryRows = payload.items
-      .filter(it => it.status !== 'DUE' && it.quantity > 0)
+      .filter(it => it.quantity > 0)
       .map(it => {
         const sizeSuffix = it.size_label?.trim() ? ` (${it.size_label.trim()})` : ''
+        const issueNote = (it.shortage_qty && it.shortage_qty > 0) ? ` • ${it.status}: ${it.shortage_qty} ${it.unit}` : ''
         return {
           item_name: it.item_name.trim() + sizeSuffix,
           action: 'IN',
-          quantity: it.quantity,
+          quantity: it.quantity, // Only what is physically received enters godown stock
           unit: it.unit || 'pcs',
           party_name: payload.party_name.trim(),
           entry_date: payload.inward_date || new Date().toISOString().split('T')[0],
-          notes: `Challan #${payload.challan_no?.trim() || '-'} • Art ${payload.article_no?.trim() || '-'} • ${grnNo}`,
+          notes: `Challan #${payload.challan_no?.trim() || '-'} • Art ${payload.article_no?.trim() || '-'} • ${grnNo}${issueNote}`,
         }
       })
 
