@@ -1,4 +1,5 @@
-import { createClient } from '../../utils/supabase/server'
+import { AdminShell } from '@/components/layout/AdminShell'
+import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { ModuleHubClient } from './components/ModuleHubClient'
 
@@ -30,10 +31,12 @@ export default async function ModulesHubPage() {
   }
 
   return (
-    <ModuleHubClient
-      userEmail={user.email || ''}
-      userName={profile?.username || user.email?.split('@')[0] || 'Administrator'}
-      userRole={userRole || 'Plant Administrator'}
-    />
+    <AdminShell userEmail={user.email} userRole={userRole}>
+      <ModuleHubClient
+        userEmail={user.email || ''}
+        userName={profile?.username || user.email?.split('@')[0] || 'Administrator'}
+        userRole={userRole || 'Plant Administrator'}
+      />
+    </AdminShell>
   )
 }

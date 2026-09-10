@@ -25,7 +25,8 @@ import {
   Briefcase,
   Waves,
   Printer,
-  Sparkles
+  Sparkles,
+  Scissors
 } from 'lucide-react'
 
 type NavItem = {
@@ -124,7 +125,28 @@ export function AdminSidebar({
       {
         section: 'Account',
         items: [
-          { label: 'Profile', href: '/stitching-sewing/profile', icon: User },
+          { label: 'Profile', href: '/stitching-sewing/store', icon: User },
+        ],
+      },
+    ]
+  } else if (pathname === '/modules' || pathname?.startsWith('/modules') || pathname === '/profile') {
+    activeNavSections = [
+      {
+        section: 'Workspace Hub',
+        items: [
+          { label: 'All Modules', href: '/modules', icon: LayoutGrid, badge: '6 Units' },
+          { label: 'Company Profile', href: '/profile', icon: Building2 },
+        ],
+      },
+      {
+        section: 'Manufacturing Units',
+        items: [
+          { label: 'Factory Control', href: '/modules/factory', icon: Factory },
+          { label: 'Brands & Buyers', href: '/modules/brands', icon: Briefcase },
+          { label: 'Industrial Washing', href: '/modules/washing', icon: Waves },
+          { label: 'Screen & Printing', href: '/modules/printing', icon: Printer },
+          { label: 'Multi-Head Embroidery', href: '/modules/embroidery', icon: Sparkles },
+          { label: 'Stitching & Sewing', href: '/modules/stitching-sewing', icon: Scissors },
         ],
       },
     ]
