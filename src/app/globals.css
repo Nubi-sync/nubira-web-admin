@@ -355,8 +355,8 @@
   }
 }
 
-/* Synchronized Calm Flowing Black Perimeter Outline for Enterprise Module Hub Cards */
-@keyframes syncBorderFlow {
+/* Synchronized Calm Flowing Shiny Point for Enterprise Module Hub Cards */
+@keyframes syncPointOrbit {
   0% {
     stroke-dashoffset: 0;
   }
@@ -365,11 +365,12 @@
   }
 }
 
-.sync-running-border {
-  stroke-dasharray: 22 78;
+.sync-shiny-point {
+  stroke-dasharray: 1.2 98.8;
   stroke-dashoffset: 0;
-  animation: syncBorderFlow 7.5s linear infinite;
+  animation: syncPointOrbit 8.5s linear infinite;
   will-change: stroke-dashoffset;
+  filter: drop-shadow(0 0 1.5px rgba(0, 0, 0, 0.8)) drop-shadow(0 0 3px rgba(255, 255, 255, 0.9));
 }
 
 

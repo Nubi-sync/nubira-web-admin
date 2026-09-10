@@ -172,11 +172,26 @@ export function ModuleHubClient({ userEmail, userName, userRole }: ModuleHubClie
                     : 'border-black/10 hover:shadow-xs hover:border-[#3A3564]/40'
               }`}
             >
-              {/* Synchronized Calm Flowing Black Perimeter Outline */}
+              {/* Slim black outline with a single calm, synchronized shiny point running around it */}
               <svg 
                 className="absolute inset-0 w-full h-full pointer-events-none rounded-2xl overflow-visible z-10"
                 style={{ width: '100%', height: '100%' }}
               >
+                {/* 1. Slim stationary black outline */}
+                <rect
+                  x="1"
+                  y="1"
+                  rx="16"
+                  fill="none"
+                  stroke="#000000"
+                  strokeWidth="1"
+                  strokeOpacity="0.22"
+                  style={{
+                    width: 'calc(100% - 2px)',
+                    height: 'calc(100% - 2px)'
+                  }}
+                />
+                {/* 2. Single sleek, slim shiny point smoothly running around the perimeter */}
                 <rect
                   x="1"
                   y="1"
@@ -186,7 +201,7 @@ export function ModuleHubClient({ userEmail, userName, userRole }: ModuleHubClie
                   strokeWidth="2"
                   strokeLinecap="round"
                   pathLength="100"
-                  className="sync-running-border opacity-90"
+                  className="sync-shiny-point"
                   style={{
                     width: 'calc(100% - 2px)',
                     height: 'calc(100% - 2px)'
