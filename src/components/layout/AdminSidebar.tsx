@@ -20,7 +20,12 @@ import {
   User,
   Store,
   Boxes,
-  LayoutGrid
+  LayoutGrid,
+  Factory,
+  Briefcase,
+  Waves,
+  Printer,
+  Sparkles
 } from 'lucide-react'
 
 type NavItem = {
@@ -99,28 +104,144 @@ export function AdminSidebar({
     userEmail?.toLowerCase() === 'store'
   )
 
-  const activeNavSections: NavSection[] = isStoreUser
-    ? [
-        {
-          section: 'Workspace Hub',
-          items: [
-            { label: 'All Modules', href: '/modules', icon: LayoutGrid },
-          ],
-        },
-        {
-          section: 'Godown Shift',
-          items: [
-            { label: 'Store Dashboard', href: '/stitching-sewing/store', icon: Store },
-          ],
-        },
-        {
-          section: 'Account',
-          items: [
-            { label: 'Profile', href: '/stitching-sewing/profile', icon: User },
-          ],
-        },
-      ]
-    : navSections
+  // Module-specific unique side navigation
+  let activeNavSections: NavSection[] = []
+
+  if (isStoreUser) {
+    activeNavSections = [
+      {
+        section: 'Workspace Hub',
+        items: [
+          { label: 'All Modules', href: '/modules', icon: LayoutGrid },
+        ],
+      },
+      {
+        section: 'Godown Shift',
+        items: [
+          { label: 'Store Dashboard', href: '/stitching-sewing/store', icon: Store },
+        ],
+      },
+      {
+        section: 'Account',
+        items: [
+          { label: 'Profile', href: '/stitching-sewing/profile', icon: User },
+        ],
+      },
+    ]
+  } else if (pathname?.startsWith('/factory')) {
+    activeNavSections = [
+      {
+        section: 'Workspace Hub',
+        items: [
+          { label: 'All Modules', href: '/modules', icon: LayoutGrid },
+        ],
+      },
+      {
+        section: 'Factory Division',
+        items: [
+          { label: 'Factory Control', href: '/factory', icon: Factory },
+          { label: 'Factory AI', href: '/factory/zigza-ai', icon: Bot },
+        ],
+      },
+      {
+        section: 'Account',
+        items: [
+          { label: 'Profile', href: '/stitching-sewing/profile', icon: User },
+        ],
+      },
+    ]
+  } else if (pathname?.startsWith('/brands')) {
+    activeNavSections = [
+      {
+        section: 'Workspace Hub',
+        items: [
+          { label: 'All Modules', href: '/modules', icon: LayoutGrid },
+        ],
+      },
+      {
+        section: 'Brands Division',
+        items: [
+          { label: 'Brands & POs', href: '/brands', icon: Briefcase },
+          { label: 'Brands AI', href: '/brands/zigza-ai', icon: Bot },
+        ],
+      },
+      {
+        section: 'Account',
+        items: [
+          { label: 'Profile', href: '/stitching-sewing/profile', icon: User },
+        ],
+      },
+    ]
+  } else if (pathname?.startsWith('/washing')) {
+    activeNavSections = [
+      {
+        section: 'Workspace Hub',
+        items: [
+          { label: 'All Modules', href: '/modules', icon: LayoutGrid },
+        ],
+      },
+      {
+        section: 'Washing Division',
+        items: [
+          { label: 'Washing Ops', href: '/washing', icon: Waves },
+          { label: 'Washing AI', href: '/washing/zigza-ai', icon: Bot },
+        ],
+      },
+      {
+        section: 'Account',
+        items: [
+          { label: 'Profile', href: '/stitching-sewing/profile', icon: User },
+        ],
+      },
+    ]
+  } else if (pathname?.startsWith('/printing')) {
+    activeNavSections = [
+      {
+        section: 'Workspace Hub',
+        items: [
+          { label: 'All Modules', href: '/modules', icon: LayoutGrid },
+        ],
+      },
+      {
+        section: 'Printing Division',
+        items: [
+          { label: 'Printing Ops', href: '/printing', icon: Printer },
+          { label: 'Printing AI', href: '/printing/zigza-ai', icon: Bot },
+        ],
+      },
+      {
+        section: 'Account',
+        items: [
+          { label: 'Profile', href: '/stitching-sewing/profile', icon: User },
+        ],
+      },
+    ]
+  } else if (pathname?.startsWith('/embroidery')) {
+    activeNavSections = [
+      {
+        section: 'Workspace Hub',
+        items: [
+          { label: 'All Modules', href: '/modules', icon: LayoutGrid },
+        ],
+      },
+      {
+        section: 'Embroidery Division',
+        items: [
+          { label: 'Embroidery Floor', href: '/embroidery', icon: Sparkles },
+          { label: 'Embroidery AI', href: '/embroidery/zigza-ai', icon: Bot },
+        ],
+      },
+      {
+        section: 'Account',
+        items: [
+          { label: 'Profile', href: '/stitching-sewing/profile', icon: User },
+        ],
+      },
+    ]
+  } else {
+    // Default to full Stitching & Sewing Floor Nav
+    activeNavSections = navSections
+  }
 
   // Fast, eager open when cursor moves towards side nav
   const handleMouseEnter = () => {
