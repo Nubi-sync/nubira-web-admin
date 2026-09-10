@@ -355,6 +355,23 @@
   }
 }
 
+/* Synchronized Calm Flowing Black Perimeter Outline for Enterprise Module Hub Cards */
+@keyframes syncBorderFlow {
+  0% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: -100;
+  }
+}
+
+.sync-running-border {
+  stroke-dasharray: 22 78;
+  stroke-dashoffset: 0;
+  animation: syncBorderFlow 7.5s linear infinite;
+  will-change: stroke-dashoffset;
+}
+
 
 
 

@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useRef } from 'react'
+import { usePathname } from 'next/navigation'
 import { 
   Bot, 
   Send, 
@@ -10,8 +11,8 @@ import {
   Database, 
   Copy, 
   Check, 
-  PanelLeft,
-  PanelLeftClose,
+  PanelLeft, 
+  PanelLeftClose, 
   PanelRight, 
   BarChart3, 
   Warehouse, 
@@ -19,12 +20,27 @@ import {
   CheckCircle2, 
   Tag, 
   Truck, 
-  ArrowRight,
-  Loader2,
-  X,
-  Menu
+  ArrowRight, 
+  Loader2, 
+  X, 
+  Menu,
+  LayoutGrid,
+  Briefcase,
+  Waves,
+  Printer,
+  Sparkles,
+  Scissors
 } from 'lucide-react'
 import { TvViewButton } from '@/components/ui/TvViewButton'
+
+export type PortalType = 
+  | 'modules' 
+  | 'factory' 
+  | 'brands' 
+  | 'washing' 
+  | 'printing' 
+  | 'embroidery' 
+  | 'stitching-sewing'
 
 interface Message {
   id: string
@@ -42,46 +58,362 @@ interface ChatSession {
   updatedAt: number
 }
 
-const PREWRITTEN_QUERIES = [
-  {
-    icon: BarChart3,
-    title: 'Factory Health Check',
-    description: 'Check active orders, total pieces, WIP in line, godown stock, and dispatches.',
-    prompt: 'Give me an overall factory health check including total orders, WIP pieces in line, ready stock in Godown, and dispatched pieces.'
-  },
-  {
-    icon: Warehouse,
-    title: 'Godown Ready Stock',
-    description: 'What finished garment pieces are currently ready in warehouse stock?',
-    prompt: 'How many ready pieces are in Godown right now? Show me the breakdown across articles.'
-  },
-  {
-    icon: Layers,
-    title: 'Daily Sewing Output',
-    description: 'Review today\'s sewing logs, pieces stitched, and lineman throughput.',
-    prompt: 'Show today\'s sewing production logs, total pieces stitched, and lineman breakdown.'
-  },
-  {
-    icon: CheckCircle2,
-    title: 'QC Rejections & Defects',
-    description: 'Inspect passed pieces vs rejections and common defect types.',
-    prompt: 'What are our recent QC inspection results? Show passed vs rejected piece counts and defect types.'
-  },
-  {
-    icon: Tag,
-    title: 'Articles Catalog & Rates',
-    description: 'Browse article styles, descriptions, and piece-rate stitching rates.',
-    prompt: 'List all active article styles with their descriptions and stitching piece rates.'
-  },
-  {
-    icon: Truck,
-    title: 'Dispatch & Gate Passes',
-    description: 'Review recent delivery challans dispatched out of the factory to buyers.',
-    prompt: 'Show recent delivery challans dispatched to buyers with total pieces and vehicle details.'
-  }
-]
+interface QueryCard {
+  icon: React.ComponentType<{ className?: string }>
+  title: string
+  description: string
+  prompt: string
+}
 
-export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?: string }) {
+const PORTAL_METADATA: Record<PortalType, {
+  title: string
+  subtitle: string
+  badge: string
+  heroTitle: string
+  heroDescription: string
+  queries: QueryCard[]
+}> = {
+  'modules': {
+    title: 'Zigza AI • Enterprise Hub',
+    subtitle: 'Cross-division executive intelligence and multi-plant operations',
+    badge: 'ENTERPRISE AI',
+    heroTitle: 'Executive workspace overview & multi-plant status',
+    heroDescription: 'Ask for holistic updates across all 6 operating divisions, plant-wide output, and master logistics.',
+    queries: [
+      {
+        icon: LayoutGrid,
+        title: 'Enterprise Health Check',
+        description: 'Audit live operations across all 6 manufacturing divisions.',
+        prompt: 'Give me an overall factory health check across all operational divisions including total running orders, ready stock, and dispatches.'
+      },
+      {
+        icon: Warehouse,
+        title: 'Master Finished Stock',
+        description: 'Audit finished garment inventory ready in central godown.',
+        prompt: 'How many ready pieces are in Godown right now? Show me the breakdown across articles.'
+      },
+      {
+        icon: Layers,
+        title: 'Floor Production Logs',
+        description: 'Review today\'s sewing logs, pieces stitched, and lineman throughput.',
+        prompt: 'Show today\'s sewing production logs, total pieces stitched, and lineman breakdown.'
+      },
+      {
+        icon: CheckCircle2,
+        title: 'Plant QC & Defects',
+        description: 'Inspect passed pieces vs rejections and defect rates.',
+        prompt: 'What are our recent QC inspection results? Show passed vs rejected piece counts and defect types.'
+      },
+      {
+        icon: Tag,
+        title: 'Article Styles & Rates',
+        description: 'Active design styles and piece-rate stitching cost breakdown.',
+        prompt: 'List all active article styles with their descriptions and stitching piece rates.'
+      },
+      {
+        icon: Truck,
+        title: 'Dispatches & Gate Passes',
+        description: 'Recent delivery challans dispatched out of factory.',
+        prompt: 'Show recent delivery challans dispatched to buyers with total pieces and vehicle details.'
+      }
+    ]
+  },
+  'factory': {
+    title: 'Zigza AI • Factory Control',
+    subtitle: 'Master plant telemetry, machinery health, and floor OEE',
+    badge: 'PLANT HUB AI',
+    heroTitle: 'What plant or machinery data would you like to check?',
+    heroDescription: 'Ask about equipment uptime, shift allocations, running cutting lines, and plant throughput.',
+    queries: [
+      {
+        icon: BarChart3,
+        title: 'Plant OEE & Health',
+        description: 'Review overall equipment efficiency and machine utilization.',
+        prompt: 'Give me a plant health check including active line efficiency, running orders, and shift output.'
+      },
+      {
+        icon: Layers,
+        title: 'Shift Output & Lines',
+        description: 'Review pieces made across shifts and active worker lines.',
+        prompt: 'Show today\'s production logs, total pieces stitched, and lineman output breakdown.'
+      },
+      {
+        icon: CheckCircle2,
+        title: 'QC Passed vs Alteration',
+        description: 'Check passed rate vs rejections on the production lines.',
+        prompt: 'What are our recent QC inspection results? Show passed vs rejected piece counts and alteration types.'
+      },
+      {
+        icon: Warehouse,
+        title: 'Godown Intake & Stock',
+        description: 'Finished goods delivered from the factory floor to the godown.',
+        prompt: 'How many finished pieces are in Godown right now across articles?'
+      },
+      {
+        icon: Tag,
+        title: 'Design Styles & Ops',
+        description: 'Active article codes and stitching rates.',
+        prompt: 'List all active article styles with their descriptions and stitching piece rates.'
+      },
+      {
+        icon: Truck,
+        title: 'Outward Plant Dispatches',
+        description: 'Gate pass logs and buyer shipment departures.',
+        prompt: 'Show recent delivery challans dispatched to buyers with vehicle details.'
+      }
+    ]
+  },
+  'brands': {
+    title: 'Zigza AI • Brands & Buyers',
+    subtitle: 'Buyer PO contracts, style catalogs, and export delivery schedules',
+    badge: 'BUYER CRM AI',
+    heroTitle: 'What brand accounts or PO contracts would you like to review?',
+    heroDescription: 'Ask about purchase order fulfillment, buyer styles, delivery deadlines, and dispatched shipments.',
+    queries: [
+      {
+        icon: Briefcase,
+        title: 'Buyer PO Status',
+        description: 'Active export orders, running styles, and target quantities.',
+        prompt: 'Give me an overview of all active buyer production orders, target quantities, and current progress.'
+      },
+      {
+        icon: Tag,
+        title: 'Brand Style Catalogs',
+        description: 'Review article codes, style names, and billable rates.',
+        prompt: 'List all active article styles with their descriptions and stitching piece rates.'
+      },
+      {
+        icon: Truck,
+        title: 'Buyer Dispatches',
+        description: 'Track completed challans dispatched to brand clients.',
+        prompt: 'Show recent delivery challans dispatched to buyers with total pieces and vehicle details.'
+      },
+      {
+        icon: Warehouse,
+        title: 'Available Brand Stock',
+        description: 'Ready pieces in godown awaiting client shipment.',
+        prompt: 'How many ready pieces are in Godown right now? Show me the breakdown across styles.'
+      },
+      {
+        icon: CheckCircle2,
+        title: 'Buyer Compliance QC',
+        description: 'Finished quality pass percentage and audit inspection.',
+        prompt: 'What are our recent QC inspection results? Show passed vs rejected piece counts.'
+      },
+      {
+        icon: Layers,
+        title: 'Sewing Lot Progress',
+        description: 'Lineman WIP on current brand cut allotments.',
+        prompt: 'Show today\'s sewing production logs, total pieces stitched, and lineman breakdown.'
+      }
+    ]
+  },
+  'washing': {
+    title: 'Zigza AI • Industrial Washing',
+    subtitle: 'Garment enzyme wash, silicon softeners, and liquor ratio batch tracking',
+    badge: 'WET PROCESSING AI',
+    heroTitle: 'What industrial wash lot would you like to track?',
+    heroDescription: 'Ask about garment enzyme baths, hydro extractor logs, tumble drying, and wash floor throughput.',
+    queries: [
+      {
+        icon: Waves,
+        title: 'Wash Floor Status',
+        description: 'Active garment wash batches, running orders, and output.',
+        prompt: 'Give me a wash floor status including active running orders, ready stock, and processed pieces.'
+      },
+      {
+        icon: Layers,
+        title: 'Daily Processed Pieces',
+        description: 'Garment pieces completed through wet finishing today.',
+        prompt: 'Show today\'s production logs, total pieces stitched, and lineman throughput.'
+      },
+      {
+        icon: CheckCircle2,
+        title: 'Wash Defect Inspection',
+        description: 'Color bleed, shrinkage alterations, and wash defect logs.',
+        prompt: 'What are our recent QC inspection results? Show passed vs rejected piece counts and defect types.'
+      },
+      {
+        icon: Warehouse,
+        title: 'Ready Stock in Godown',
+        description: 'Washed and finished garments transferred to storage.',
+        prompt: 'How many ready pieces are in Godown right now? Show me the breakdown across articles.'
+      },
+      {
+        icon: Tag,
+        title: 'Article Wash Specs',
+        description: 'Garment styles currently in wash processing queue.',
+        prompt: 'List all active article styles with their descriptions and stitching piece rates.'
+      },
+      {
+        icon: Truck,
+        title: 'Outward Wash Shipments',
+        description: 'Washed batches dispatched to finishing or buyers.',
+        prompt: 'Show recent delivery challans dispatched to buyers with total pieces and vehicle details.'
+      }
+    ]
+  },
+  'printing': {
+    title: 'Zigza AI • Screen & Digital Printing',
+    subtitle: 'Screen print tables, industrial DTG curing, and strike-off color approvals',
+    badge: 'SURFACE ART AI',
+    heroTitle: 'What screen or digital print job would you like to inspect?',
+    heroDescription: 'Ask about print table lots, strike-off approvals, curing oven logs, and print orders.',
+    queries: [
+      {
+        icon: Printer,
+        title: 'Print Floor Overview',
+        description: 'Running orders, strike-off approvals, and printed output.',
+        prompt: 'Give me a print division overview including active orders, printed pieces, and dispatches.'
+      },
+      {
+        icon: Layers,
+        title: 'Daily Print Output',
+        description: 'Print pieces finished across table lines today.',
+        prompt: 'Show today\'s production logs, total pieces stitched, and lineman breakdown.'
+      },
+      {
+        icon: CheckCircle2,
+        title: 'Print QC & Misprints',
+        description: 'Ink bleed, off-registration defects, and pass rates.',
+        prompt: 'What are our recent QC inspection results? Show passed vs rejected piece counts and defect types.'
+      },
+      {
+        icon: Warehouse,
+        title: 'Godown Printed Stock',
+        description: 'Printed and dried garment inventory in godown.',
+        prompt: 'How many ready pieces are in Godown right now? Show me the breakdown across articles.'
+      },
+      {
+        icon: Tag,
+        title: 'Active Artwork Styles',
+        description: 'Article designs currently in screen print schedule.',
+        prompt: 'List all active article styles with their descriptions and stitching piece rates.'
+      },
+      {
+        icon: Truck,
+        title: 'Print Delivery Challans',
+        description: 'Finished print lots dispatched out of unit.',
+        prompt: 'Show recent delivery challans dispatched to buyers with total pieces and vehicle details.'
+      }
+    ]
+  },
+  'embroidery': {
+    title: 'Zigza AI • Multi-Head Embroidery',
+    subtitle: 'Multi-head computerized machines, punch digitizing, and stitch rate billing',
+    badge: 'THREAD ART AI',
+    heroTitle: 'What embroidery machine lot would you like to inspect?',
+    heroDescription: 'Ask about computerized head runtime, punch files, stitch counts, and thread orders.',
+    queries: [
+      {
+        icon: Sparkles,
+        title: 'Embroidery Floor Status',
+        description: 'Multi-head machine runs, open orders, and output.',
+        prompt: 'Give me an embroidery floor status including active running orders, ready stock, and pieces made.'
+      },
+      {
+        icon: Layers,
+        title: 'Daily Embroidered Pieces',
+        description: 'Garment pieces completed across embroidery heads today.',
+        prompt: 'Show today\'s production logs, total pieces stitched, and lineman breakdown.'
+      },
+      {
+        icon: CheckCircle2,
+        title: 'Thread Break & QC Defect',
+        description: 'Puckering, needle cut alterations, and pass rates.',
+        prompt: 'What are our recent QC inspection results? Show passed vs rejected piece counts and defect types.'
+      },
+      {
+        icon: Warehouse,
+        title: 'Godown Embroidered Stock',
+        description: 'Finished embroidery garments stored in godown.',
+        prompt: 'How many ready pieces are in Godown right now? Show me the breakdown across articles.'
+      },
+      {
+        icon: Tag,
+        title: 'Embroidery Article Styles',
+        description: 'Active design codes, punch files, and stitch piece rates.',
+        prompt: 'List all active article styles with their descriptions and stitching piece rates.'
+      },
+      {
+        icon: Truck,
+        title: 'Embroidery Dispatches',
+        description: 'Delivery gate passes for completed embroidery runs.',
+        prompt: 'Show recent delivery challans dispatched to buyers with total pieces and vehicle details.'
+      }
+    ]
+  },
+  'stitching-sewing': {
+    title: 'Zigza AI • Stitching Floor',
+    subtitle: 'Cutting orders, tailor pieces, bundle allocations, 3-stage QC, and godown stock',
+    badge: 'SEWING FLOOR AI',
+    heroTitle: 'What factory data would you like to check?',
+    heroDescription: 'Ask in plain English. Verified numbers directly from cutting orders, sewing lines, godown stock, and dispatches.',
+    queries: [
+      {
+        icon: BarChart3,
+        title: 'Factory Health Check',
+        description: 'Check active orders, total pieces, WIP in line, godown stock, and dispatches.',
+        prompt: 'Give me an overall factory health check including total orders, WIP pieces in line, ready stock in Godown, and dispatched pieces.'
+      },
+      {
+        icon: Warehouse,
+        title: 'Godown Ready Stock',
+        description: 'What finished garment pieces are currently ready in warehouse stock?',
+        prompt: 'How many ready pieces are in Godown right now? Show me the breakdown across articles.'
+      },
+      {
+        icon: Layers,
+        title: 'Daily Sewing Output',
+        description: 'Review today\'s sewing logs, pieces stitched, and lineman throughput.',
+        prompt: 'Show today\'s sewing production logs, total pieces stitched, and lineman breakdown.'
+      },
+      {
+        icon: CheckCircle2,
+        title: 'QC Rejections & Defects',
+        description: 'Inspect passed pieces vs rejections and common defect types.',
+        prompt: 'What are our recent QC inspection results? Show passed vs rejected piece counts and defect types.'
+      },
+      {
+        icon: Tag,
+        title: 'Articles Catalog & Rates',
+        description: 'Browse article styles, descriptions, and piece-rate stitching rates.',
+        prompt: 'List all active article styles with their descriptions and stitching piece rates.'
+      },
+      {
+        icon: Truck,
+        title: 'Dispatch & Gate Passes',
+        description: 'Review recent delivery challans dispatched out of the factory to buyers.',
+        prompt: 'Show recent delivery challans dispatched to buyers with total pieces and vehicle details.'
+      }
+    ]
+  }
+}
+
+interface ZigzaAiClientProps {
+  userEmail?: string
+  portal?: PortalType
+}
+
+export function ZigzaAiClient({ 
+  userEmail = 'admin@nubira.local',
+  portal
+}: ZigzaAiClientProps) {
+  const pathname = usePathname()
+
+  // Resolve active portal context
+  const activePortal: PortalType = portal || (() => {
+    if (pathname?.startsWith('/modules')) return 'modules'
+    if (pathname?.startsWith('/factory')) return 'factory'
+    if (pathname?.startsWith('/brands')) return 'brands'
+    if (pathname?.startsWith('/washing')) return 'washing'
+    if (pathname?.startsWith('/printing')) return 'printing'
+    if (pathname?.startsWith('/embroidery')) return 'embroidery'
+    return 'stitching-sewing'
+  })()
+
+  const meta = PORTAL_METADATA[activePortal] || PORTAL_METADATA['stitching-sewing']
+
   const [isMounted, setIsMounted] = useState(false)
   const [sessions, setSessions] = useState<ChatSession[]>([])
   const [currentSessionId, setCurrentSessionId] = useState<string>('')
@@ -104,14 +436,24 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
     }
   }, [])
 
-  // 2. Load & Sync Chat Sessions across account devices by Email
+  // 2. Load & Sync Chat Sessions across account devices by Email and Portal
   useEffect(() => {
     let initialLocalSessions: ChatSession[] = []
 
-    // Step A: Load from email-keyed localStorage for zero-delay instant render
+    // Step A: Load from portal-scoped email-keyed localStorage for zero-delay instant render
     try {
-      const storageKey = userEmail ? `zigza_ai_chat_sessions_${userEmail}` : 'zigza_ai_chat_sessions'
-      const local = localStorage.getItem(storageKey) || localStorage.getItem('zigza_ai_chat_sessions')
+      const storageKey = userEmail 
+        ? `zigza_ai_chat_sessions_${activePortal}_${userEmail}` 
+        : `zigza_ai_chat_sessions_${activePortal}`
+      let local = localStorage.getItem(storageKey)
+
+      // Fallback for legacy stitching-sewing history
+      if (!local && activePortal === 'stitching-sewing') {
+        local = userEmail 
+          ? (localStorage.getItem(`zigza_ai_chat_sessions_${userEmail}`) || localStorage.getItem('zigza_ai_chat_sessions'))
+          : localStorage.getItem('zigza_ai_chat_sessions')
+      }
+
       if (local) {
         const parsed: ChatSession[] = JSON.parse(local)
         if (Array.isArray(parsed) && parsed.length > 0) {
@@ -120,17 +462,21 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
           // Find first session that has actual messages
           const active = parsed.find(s => s.messages && s.messages.length > 0) || parsed[0]
           setCurrentSessionId(active.id)
+        } else {
+          setSessions([])
         }
+      } else {
+        setSessions([])
       }
     } catch (e) {
       console.error('Failed to parse local sessions', e)
     }
 
-    // Step B: Cloud Sync: Fetch email-synced chat history from Supabase
+    // Step B: Cloud Sync: Fetch portal-synced chat history from Supabase
     async function loadAccountSyncedHistory() {
       try {
-        const emailQuery = userEmail ? `?email=${encodeURIComponent(userEmail)}` : ''
-        const res = await fetch(`/api/chat/history${emailQuery}`, { cache: 'no-store' })
+        const emailQuery = userEmail ? `&email=${encodeURIComponent(userEmail)}` : ''
+        const res = await fetch(`/api/chat/history?portal=${activePortal}${emailQuery}`, { cache: 'no-store' })
         if (res.ok) {
           const data = await res.json()
           if (Array.isArray(data.sessions)) {
@@ -158,12 +504,10 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
               }
 
               const merged = Array.from(map.values())
-              // Keep sessions that have messages, or keep all if none have messages yet
               const meaningful = merged.filter(s => s.messages && s.messages.length > 0)
               const finalList = meaningful.length > 0 ? meaningful : merged
 
               if (finalList.length > 0) {
-                // Ensure current session selection doesn't drop to a blank new chat
                 setCurrentSessionId(currentId => {
                   const stillActiveWithMsg = finalList.find(s => s.id === currentId && (s.messages?.length || 0) > 0)
                   if (stillActiveWithMsg) return currentId
@@ -172,9 +516,10 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
                 })
 
                 try {
-                  const storageKey = userEmail ? `zigza_ai_chat_sessions_${userEmail}` : 'zigza_ai_chat_sessions'
+                  const storageKey = userEmail 
+                    ? `zigza_ai_chat_sessions_${activePortal}_${userEmail}` 
+                    : `zigza_ai_chat_sessions_${activePortal}`
                   localStorage.setItem(storageKey, JSON.stringify(finalList))
-                  localStorage.setItem('zigza_ai_chat_sessions', JSON.stringify(finalList))
                 } catch {}
 
                 return finalList
@@ -213,15 +558,16 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
     }
 
     loadAccountSyncedHistory()
-  }, [userEmail])
+  }, [userEmail, activePortal])
 
-  // Helper: Persist updated sessions to localStorage AND Supabase Cloud for this Email
+  // Helper: Persist updated sessions to localStorage AND Supabase Cloud for this Email and Portal
   function persistSessions(newSessions: ChatSession[]) {
     setSessions(newSessions)
     try {
-      const storageKey = userEmail ? `zigza_ai_chat_sessions_${userEmail}` : 'zigza_ai_chat_sessions'
+      const storageKey = userEmail 
+        ? `zigza_ai_chat_sessions_${activePortal}_${userEmail}` 
+        : `zigza_ai_chat_sessions_${activePortal}`
       localStorage.setItem(storageKey, JSON.stringify(newSessions))
-      localStorage.setItem('zigza_ai_chat_sessions', JSON.stringify(newSessions))
     } catch (e) {
       console.error('Error saving to localStorage', e)
     }
@@ -229,7 +575,7 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
     // Only send to cloud if there is at least one session with actual messages
     const hasMeaningfulMessages = newSessions.some(s => s.messages && s.messages.length > 0)
     if (!hasMeaningfulMessages && newSessions.length > 0) {
-      return // Avoid wiping cloud storage with a blank empty conversation
+      return
     }
 
     // Debounce cloud sync to avoid spamming backend
@@ -241,6 +587,7 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
             email: userEmail,
+            portal: activePortal,
             sessions: newSessions 
           })
         })
@@ -378,7 +725,8 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: query,
-          history
+          history,
+          portal: activePortal
         })
       })
 
@@ -667,7 +1015,7 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
         {/* Sessions List */}
         <div className="flex-1 overflow-y-auto px-3 py-1 space-y-1">
           <div className="px-2 text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 mb-1">
-            Recent Chats ({userEmail})
+            {meta.badge} • {userEmail}
           </div>
 
           {sessions.map(s => {
@@ -772,11 +1120,16 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
               <Bot className="w-5 h-5 sm:w-5.5 sm:h-5.5" />
             </div>
             <div className="min-w-0 hidden sm:block">
-              <h1 className="text-base sm:text-lg md:text-xl font-extrabold text-slate-900 tracking-tight font-[family-name:var(--font-heading)] whitespace-nowrap">
-                Zigza AI
-              </h1>
+              <div className="flex items-center gap-2">
+                <h1 className="text-base sm:text-lg md:text-xl font-extrabold text-slate-900 tracking-tight font-[family-name:var(--font-heading)] whitespace-nowrap">
+                  {meta.title}
+                </h1>
+                <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs">
+                  {meta.badge}
+                </span>
+              </div>
               <p className="text-xs text-slate-500 truncate font-medium">
-                Direct database queries connected to live plant operations
+                {meta.subtitle}
               </p>
             </div>
           </div>
@@ -830,20 +1183,19 @@ export function ZigzaAiClient({ userEmail = 'admin@nubira.local' }: { userEmail?
               <div className="space-y-2 sm:space-y-3 text-center max-w-xl mx-auto px-2">
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 text-[10px] sm:text-xs font-mono font-bold shadow-2xs">
                   <Bot className="w-3.5 h-3.5" />
-                  <span className="sm:hidden">ZIGZA AI</span>
-                  <span className="hidden sm:inline">PLANT INTELLIGENCE</span>
+                  <span>{meta.badge}</span>
                 </div>
                 <h2 className="text-xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight leading-snug">
-                  What factory data would you like to check?
+                  {meta.heroTitle}
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
-                  Ask in plain English. Verified numbers directly from cutting orders, sewing lines, godown stock, and dispatches.
+                  {meta.heroDescription}
                 </p>
               </div>
 
               {/* Pre-written Prompt Cards: Spacious, breathable 2-column cards on mobile, 3-col on desktop */}
               <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-2.5 sm:gap-4">
-                {PREWRITTEN_QUERIES.map((card, idx) => {
+                {meta.queries.map((card, idx) => {
                   const Icon = card.icon
                   return (
                     <button

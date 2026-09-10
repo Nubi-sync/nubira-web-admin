@@ -136,7 +136,7 @@ export function AdminSidebar({
         items: [
           { label: 'All Modules', href: '/modules', icon: LayoutGrid, badge: '6 Units' },
           { label: 'Company Profile', href: '/modules/profile', icon: Building2 },
-          { label: 'Zigza AI', href: '/stitching-sewing/zigza-ai', icon: Bot },
+          { label: 'Zigza AI', href: '/modules/zigza-ai', icon: Bot },
         ],
       },
       {
@@ -163,7 +163,7 @@ export function AdminSidebar({
         section: 'Factory Division',
         items: [
           { label: 'Factory Control', href: '/factory', icon: Factory },
-          { label: 'Zigza AI', href: '/stitching-sewing/zigza-ai', icon: Bot },
+          { label: 'Zigza AI', href: '/factory/zigza-ai', icon: Bot },
         ],
       },
       {
@@ -185,7 +185,7 @@ export function AdminSidebar({
         section: 'Brands Division',
         items: [
           { label: 'Brands & POs', href: '/brands', icon: Briefcase },
-          { label: 'Zigza AI', href: '/stitching-sewing/zigza-ai', icon: Bot },
+          { label: 'Zigza AI', href: '/brands/zigza-ai', icon: Bot },
         ],
       },
       {
@@ -207,7 +207,7 @@ export function AdminSidebar({
         section: 'Washing Division',
         items: [
           { label: 'Washing Ops', href: '/washing', icon: Waves },
-          { label: 'Zigza AI', href: '/stitching-sewing/zigza-ai', icon: Bot },
+          { label: 'Zigza AI', href: '/washing/zigza-ai', icon: Bot },
         ],
       },
       {
@@ -229,7 +229,7 @@ export function AdminSidebar({
         section: 'Printing Division',
         items: [
           { label: 'Printing Ops', href: '/printing', icon: Printer },
-          { label: 'Zigza AI', href: '/stitching-sewing/zigza-ai', icon: Bot },
+          { label: 'Zigza AI', href: '/printing/zigza-ai', icon: Bot },
         ],
       },
       {
@@ -251,7 +251,7 @@ export function AdminSidebar({
         section: 'Embroidery Division',
         items: [
           { label: 'Embroidery Floor', href: '/embroidery', icon: Sparkles },
-          { label: 'Zigza AI', href: '/stitching-sewing/zigza-ai', icon: Bot },
+          { label: 'Zigza AI', href: '/embroidery/zigza-ai', icon: Bot },
         ],
       },
       {

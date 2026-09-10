@@ -172,9 +172,31 @@ export function ModuleHubClient({ userEmail, userName, userRole }: ModuleHubClie
                     : 'border-black/10 hover:shadow-xs hover:border-[#3A3564]/40'
               }`}
             >
+              {/* Synchronized Calm Flowing Black Perimeter Outline */}
+              <svg 
+                className="absolute inset-0 w-full h-full pointer-events-none rounded-2xl overflow-visible z-10"
+                style={{ width: '100%', height: '100%' }}
+              >
+                <rect
+                  x="1"
+                  y="1"
+                  rx="16"
+                  fill="none"
+                  stroke="#000000"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  pathLength="100"
+                  className="sync-running-border opacity-90"
+                  style={{
+                    width: 'calc(100% - 2px)',
+                    height: 'calc(100% - 2px)'
+                  }}
+                />
+              </svg>
+
               {/* Top animated progress bar when launching */}
               {isLaunching && (
-                <div className="absolute top-0 left-0 right-0 h-1.5 bg-[#3A3564] overflow-hidden">
+                <div className="absolute top-0 left-0 right-0 h-1.5 bg-[#3A3564] overflow-hidden z-20">
                   <div className="w-full h-full bg-gradient-to-r from-[#3A3564] via-[#FAF7F0] to-[#3A3564] animate-pulse" />
                 </div>
               )}

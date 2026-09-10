@@ -8,12 +8,18 @@ const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
 const ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
 const BUCKET_NAME = 'ai_chat_history'
 
-function getEmailStorageKey(email: string): string {
+function getEmailStorageKey(email: string, portal: string = 'stitching-sewing'): string {
+  const sanitizedEmail = email.toLowerCase().trim().replace(/[^a-z0-9@._-]/g, '_')
+  const sanitizedPortal = (portal || 'stitching-sewing').toLowerCase().trim().replace(/[^a-z0-9_-]/g, '_')
+  return `${sanitizedEmail}_${sanitizedPortal}.json`
+}
+
+function getLegacyStorageKey(email: string): string {
   const sanitized = email.toLowerCase().trim().replace(/[^a-z0-9@._-]/g, '_')
   return `${sanitized}.json`
 }
 
-// GET: Retrieve saved chat history based on EMAIL
+// GET: Retrieve saved chat history based on EMAIL and PORTAL
 export async function GET(req: NextRequest) {
   try {
     const supabase = await createClient()
@@ -21,12 +27,13 @@ export async function GET(req: NextRequest) {
 
     const queryEmail = req.nextUrl.searchParams.get('email')
     const email = (user?.email || queryEmail || '').trim()
+    const portal = (req.nextUrl.searchParams.get('portal') || 'stitching-sewing').toLowerCase().trim()
 
     if (!email) {
       return NextResponse.json({ sessions: [], error: 'No email provided' }, { status: 400 })
     }
 
-    const filePath = getEmailStorageKey(email)
+    const filePath = getEmailStorageKey(email, portal)
 
     // 1. First attempt: Direct public storage fetch (Bucket is public, zero auth failure risk)
     try {
@@ -38,6 +45,7 @@ export async function GET(req: NextRequest) {
           return NextResponse.json({ 
             sessions: publicSessions,
             email,
+            portal,
             syncedKey: filePath,
             source: 'public_bucket'
           })
@@ -49,7 +57,7 @@ export async function GET(req: NextRequest) {
 
     // 2. Fallback: Authenticated fetch using Service Role Key
     const keyToUse = SERVICE_KEY || ANON_KEY
-    const res = await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET_NAME}/${filePath}`, {
+    let res = await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET_NAME}/${filePath}`, {
       headers: {
         apikey: keyToUse,
         Authorization: `Bearer ${keyToUse}`
@@ -57,32 +65,55 @@ export async function GET(req: NextRequest) {
       cache: 'no-store'
     })
 
+    // If stitching-sewing and not found yet, check legacy un-suffixed key for backwards compatibility
+    if (!res.ok && portal === 'stitching-sewing') {
+      const legacyKey = getLegacyStorageKey(email)
+      const legacyRes = await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET_NAME}/${legacyKey}`, {
+        headers: {
+          apikey: keyToUse,
+          Authorization: `Bearer ${keyToUse}`
+        },
+        cache: 'no-store'
+      })
+      if (legacyRes.ok) {
+        const legacySessions = await legacyRes.json()
+        return NextResponse.json({ 
+          sessions: Array.isArray(legacySessions) ? legacySessions : [],
+          email,
+          portal,
+          syncedKey: legacyKey
+        })
+      }
+    }
+
     if (!res.ok) {
-      return NextResponse.json({ sessions: [], email, syncedKey: filePath })
+      return NextResponse.json({ sessions: [], email, portal, syncedKey: filePath })
     }
 
     const sessions = await res.json()
     return NextResponse.json({ 
       sessions: Array.isArray(sessions) ? sessions : [],
       email,
+      portal,
       syncedKey: filePath
     })
   } catch (error: any) {
-    console.error('Error fetching chat history by email:', error)
+    console.error('Error fetching chat history by email and portal:', error)
     return NextResponse.json({ sessions: [] })
   }
 }
 
-// POST: Save updated chat history based on EMAIL
+// POST: Save updated chat history based on EMAIL and PORTAL
 export async function POST(req: NextRequest) {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
     const body = await req.json()
-    const { sessions, email: bodyEmail } = body
+    const { sessions, email: bodyEmail, portal: bodyPortal } = body
 
     const email = (user?.email || bodyEmail || '').trim()
+    const portal = (bodyPortal || 'stitching-sewing').toLowerCase().trim()
 
     if (!email) {
       return NextResponse.json({ error: 'No email provided' }, { status: 400 })
@@ -92,12 +123,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid sessions array' }, { status: 400 })
     }
 
-    const filePath = getEmailStorageKey(email)
+    const filePath = getEmailStorageKey(email, portal)
 
     // Safeguard: Never overwrite cloud storage with completely empty sessions (0 messages)
     const hasAnyMessages = sessions.some((s: any) => Array.isArray(s.messages) && s.messages.length > 0)
     if (!hasAnyMessages && sessions.length > 0) {
-      return NextResponse.json({ success: true, email, skipped: true, message: 'Skipped blank sessions' })
+      return NextResponse.json({ success: true, email, portal, skipped: true, message: 'Skipped blank sessions' })
     }
 
     const sanitizedSessions = sessions.slice(0, 50)
@@ -120,9 +151,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Failed to persist history' }, { status: 500 })
     }
 
-    return NextResponse.json({ success: true, email, syncedKey: filePath })
+    return NextResponse.json({ success: true, email, portal, syncedKey: filePath })
   } catch (error: any) {
-    console.error('Error saving chat history by email:', error)
+    console.error('Error saving chat history by email and portal:', error)
     return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
   }
 }

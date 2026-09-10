@@ -52,7 +52,7 @@ function AdminShellContent({
   const pathname = usePathname()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
-  const isAiPage = pathname === '/zigza-ai' || pathname?.startsWith('/zigza-ai')
+  const isAiPage = pathname === '/zigza-ai' || pathname?.includes('/zigza-ai')
   const isStoreUser = (
     userRole?.toUpperCase() === 'STORE' ||
     userRole?.toUpperCase() === 'STORE_SUPERVISOR' ||

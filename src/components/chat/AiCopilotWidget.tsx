@@ -9,15 +9,25 @@ export function AiCopilotWidget() {
   const pathname = usePathname()
 
   // Hide the floating button on the dedicated Zigza AI page itself
-  if (pathname === '/zigza-ai' || pathname?.startsWith('/zigza-ai')) {
+  if (pathname === '/zigza-ai' || pathname?.includes('/zigza-ai')) {
     return null
+  }
+
+  function getPortalAiRoute() {
+    if (pathname?.startsWith('/factory')) return '/factory/zigza-ai'
+    if (pathname?.startsWith('/brands')) return '/brands/zigza-ai'
+    if (pathname?.startsWith('/washing')) return '/washing/zigza-ai'
+    if (pathname?.startsWith('/printing')) return '/printing/zigza-ai'
+    if (pathname?.startsWith('/embroidery')) return '/embroidery/zigza-ai'
+    if (pathname?.startsWith('/modules')) return '/modules/zigza-ai'
+    return '/stitching-sewing/zigza-ai'
   }
 
   return (
     <div className="fixed bottom-9 right-9 sm:bottom-10 sm:right-10 z-40 animate-in fade-in duration-200">
       <button
         type="button"
-        onClick={() => router.push('/zigza-ai')}
+        onClick={() => router.push(getPortalAiRoute())}
         className="inline-flex items-center gap-3 px-4 py-3 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-2xl shadow-xl shadow-[#3A3564]/30 hover:shadow-2xl hover:shadow-[#3A3564]/40 transition-all cursor-pointer border border-white/20 group hover:scale-[1.03] active:scale-[0.97] select-none ring-2 ring-[#3A3564]/15 shrink-0"
         aria-label="Open Zigza AI"
       >
