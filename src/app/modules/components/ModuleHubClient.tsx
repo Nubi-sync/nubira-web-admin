@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import Link from 'next/link'
 import {
   Factory,
@@ -12,7 +12,8 @@ import {
   ArrowRight,
   LogOut,
   LayoutGrid,
-  CheckCircle2
+  CheckCircle2,
+  Loader2
 } from 'lucide-react'
 
 interface ModuleHubClientProps {
@@ -96,6 +97,16 @@ const MODULES: ModuleCardData[] = [
 ]
 
 export function ModuleHubClient({ userEmail, userName, userRole }: ModuleHubClientProps) {
+  const [launchingId, setLaunchingId] = useState<string | null>(null)
+
+  const handleCardClick = (e: React.MouseEvent, mod: ModuleCardData) => {
+    if (launchingId) {
+      e.preventDefault()
+      return
+    }
+    setLaunchingId(mod.id)
+  }
+
   return (
     <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto select-none">
       
@@ -144,29 +155,66 @@ export function ModuleHubClient({ userEmail, userName, userRole }: ModuleHubClie
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
         {MODULES.map((mod) => {
           const Icon = mod.icon
+          const isLaunching = launchingId === mod.id
+          const isOtherLaunching = Boolean(launchingId && launchingId !== mod.id)
 
           return (
             <Link
               key={mod.id}
               href={mod.href}
-              className="group relative flex flex-col justify-between p-6 sm:p-7 rounded-2xl bg-white border border-black/10 shadow-2xs hover:shadow-xs hover:border-[#3A3564]/40 transition-all duration-200 cursor-pointer"
+              onClick={(e) => handleCardClick(e, mod)}
+              aria-disabled={isOtherLaunching}
+              className={`group relative flex flex-col justify-between p-6 sm:p-7 rounded-2xl bg-white border shadow-2xs transition-all duration-200 cursor-pointer overflow-hidden ${
+                isLaunching
+                  ? 'border-[#3A3564] ring-2 ring-[#3A3564]/20 shadow-md bg-[#FAF7F0]/40'
+                  : isOtherLaunching
+                    ? 'border-black/10 opacity-50 pointer-events-none'
+                    : 'border-black/10 hover:shadow-xs hover:border-[#3A3564]/40'
+              }`}
             >
+              {/* Top animated progress bar when launching */}
+              {isLaunching && (
+                <div className="absolute top-0 left-0 right-0 h-1.5 bg-[#3A3564] overflow-hidden">
+                  <div className="w-full h-full bg-gradient-to-r from-[#3A3564] via-[#FAF7F0] to-[#3A3564] animate-pulse" />
+                </div>
+              )}
+
               {/* Top Row: Icon Container + Category Badge */}
               <div>
                 <div className="flex items-start justify-between gap-3 mb-4">
-                  {/* Ivory Icon Container */}
-                  <div className="w-12 h-12 rounded-2xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs transition-transform duration-200 group-hover:scale-105">
-                    <Icon className="w-6 h-6 stroke-[2]" />
+                  {/* Icon Container */}
+                  <div
+                    className={`w-12 h-12 rounded-2xl border flex items-center justify-center shadow-2xs transition-all duration-200 ${
+                      isLaunching
+                        ? 'bg-[#3A3564] text-white border-[#3A3564]'
+                        : 'bg-[#FAF7F0] border-black/10 text-[#3A3564] group-hover:scale-105'
+                    }`}
+                  >
+                    {isLaunching ? (
+                      <Loader2 className="w-6 h-6 stroke-[2.2] animate-spin" />
+                    ) : (
+                      <Icon className="w-6 h-6 stroke-[2]" />
+                    )}
                   </div>
 
                   {/* Category Badge */}
-                  <span className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider bg-[#FAF7F0] text-slate-700 border border-black/10">
-                    {mod.badge}
+                  <span
+                    className={`text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider border transition-colors ${
+                      isLaunching
+                        ? 'bg-[#3A3564] text-white border-[#3A3564]'
+                        : 'bg-[#FAF7F0] text-slate-700 border border-black/10'
+                    }`}
+                  >
+                    {isLaunching ? 'OPENING...' : mod.badge}
                   </span>
                 </div>
 
                 {/* Card Title */}
-                <h2 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight group-hover:text-[#3A3564] transition-colors">
+                <h2
+                  className={`text-lg sm:text-xl font-bold tracking-tight transition-colors ${
+                    isLaunching ? 'text-[#3A3564]' : 'text-slate-900 group-hover:text-[#3A3564]'
+                  }`}
+                >
                   {mod.title}
                 </h2>
 
@@ -179,7 +227,11 @@ export function ModuleHubClient({ userEmail, userName, userRole }: ModuleHubClie
                 <div className="mt-4 pt-4 border-t border-slate-100 flex flex-col gap-1.5">
                   {mod.features.map((feat, idx) => (
                     <div key={idx} className="flex items-center gap-2 text-xs font-semibold text-slate-700">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                      <CheckCircle2
+                        className={`w-3.5 h-3.5 shrink-0 ${
+                          isLaunching ? 'text-[#3A3564]' : 'text-slate-400'
+                        }`}
+                      />
                       <span>{feat}</span>
                     </div>
                   ))}
@@ -188,13 +240,28 @@ export function ModuleHubClient({ userEmail, userName, userRole }: ModuleHubClie
 
               {/* Bottom Row: Status Tag + Launch Button */}
               <div className="mt-6 pt-4 border-t border-black/5 flex items-center justify-between">
-                <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
-                  {mod.statusText}
-                </span>
-                <div className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-full text-xs font-bold bg-[#FAF7F0] text-slate-800 group-hover:bg-[#3A3564] group-hover:text-white border border-black/10 transition-all">
-                  <span>Launch</span>
-                  <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
-                </div>
+                {isLaunching ? (
+                  <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#3A3564] uppercase tracking-wider">
+                    <span className="w-2 h-2 rounded-full bg-[#3A3564] animate-ping" />
+                    <span>Opening Portal...</span>
+                  </div>
+                ) : (
+                  <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
+                    {mod.statusText}
+                  </span>
+                )}
+
+                {isLaunching ? (
+                  <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-[#3A3564] text-white border border-[#3A3564] shadow-xs">
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>Opening...</span>
+                  </div>
+                ) : (
+                  <div className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-full text-xs font-bold bg-[#FAF7F0] text-slate-800 group-hover:bg-[#3A3564] group-hover:text-white border border-black/10 transition-all">
+                    <span>Launch</span>
+                    <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+                  </div>
+                )}
               </div>
             </Link>
           )

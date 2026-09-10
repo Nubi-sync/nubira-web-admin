@@ -312,18 +312,30 @@ export function AdminSidebar({
     ? userEmail.split('@')[0].slice(0, 2).toUpperCase()
     : 'SA'
 
+  function itemIsExactMatch(href: string, currentPath: string) {
+    if (href === currentPath) return true
+    if (
+      (href === '/stitching-sewing/dashboard' || href === '/dashboard') &&
+      (currentPath === '/' || currentPath === '/dashboard' || currentPath === '/stitching-sewing/dashboard')
+    ) {
+      return true
+    }
+    return false
+  }
+
   function checkIsCurrentActive(href: string, currentPath: string) {
-    if (href === '/stitching-sewing/dashboard' || href === '/dashboard') {
-      return (
-        currentPath === '/stitching-sewing/dashboard' ||
-        currentPath === '/dashboard' ||
-        currentPath === '/'
-      )
+    const allItems = activeNavSections.flatMap((group) => group.items)
+    const hasExactMatch = allItems.some((item) => itemIsExactMatch(item.href, currentPath))
+
+    if (hasExactMatch) {
+      return itemIsExactMatch(href, currentPath)
     }
-    if (href === '/modules') {
-      return currentPath === '/modules'
+
+    if (href === '/modules' || href === '/') {
+      return currentPath === href
     }
-    return currentPath === href || currentPath.startsWith(href)
+
+    return currentPath === href || currentPath.startsWith(href + '/')
   }
 
   function handleNavClick(e: React.MouseEvent, href: string) {
