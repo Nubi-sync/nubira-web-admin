@@ -113,7 +113,7 @@ export function ModuleHubClient({ userEmail, userName, userRole }: ModuleHubClie
       {/* 1. Page Header Card (Standard Zigza Admin Card) */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
         <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+          <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564]">
             <LayoutGrid className="w-5 h-5" />
           </div>
           <div>
@@ -121,7 +121,7 @@ export function ModuleHubClient({ userEmail, userName, userRole }: ModuleHubClie
               <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
                 Enterprise Workspace Hub
               </h1>
-              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
+              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-1 rounded-md bg-[#FAF7F0] text-[#3A3564] shadow-2xs tracking-wider">
                 6 Operating Units
               </span>
             </div>
@@ -172,9 +172,6 @@ export function ModuleHubClient({ userEmail, userName, userRole }: ModuleHubClie
                     : 'border-black/80 hover:border-black hover:shadow-md hover:-translate-y-0.5'
               }`}
             >
-              {/* Single calm, synchronized shiny point running smoothly along the slim black outline */}
-              <span className="border-shiny-point" aria-hidden="true" />
-
               {/* Top animated progress bar when launching */}
               {isLaunching && (
                 <div className="absolute top-0 left-0 right-0 h-1.5 bg-[#3A3564] overflow-hidden rounded-t-2xl z-20">
@@ -187,10 +184,10 @@ export function ModuleHubClient({ userEmail, userName, userRole }: ModuleHubClie
                 <div className="flex items-start justify-between gap-3 mb-4">
                   {/* Icon Container */}
                   <div
-                    className={`w-12 h-12 rounded-2xl border flex items-center justify-center shadow-2xs transition-all duration-200 ${
+                    className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-2xs transition-all duration-200 ${
                       isLaunching
-                        ? 'bg-[#3A3564] text-white border-[#3A3564]'
-                        : 'bg-[#FAF7F0] border-black/10 text-[#3A3564] group-hover:scale-105'
+                        ? 'bg-[#3A3564] text-white'
+                        : 'bg-[#FAF7F0] text-[#3A3564] group-hover:scale-105'
                     }`}
                   >
                     {isLaunching ? (
@@ -200,12 +197,12 @@ export function ModuleHubClient({ userEmail, userName, userRole }: ModuleHubClie
                     )}
                   </div>
 
-                  {/* Category Badge */}
+                  {/* Category Badge: Rectangular with subtle rounded corners */}
                   <span
-                    className={`text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider border transition-colors ${
+                    className={`text-[10px] font-mono font-bold px-2.5 py-1 rounded-md uppercase tracking-wider transition-colors ${
                       isLaunching
-                        ? 'bg-[#3A3564] text-white border-[#3A3564]'
-                        : 'bg-[#FAF7F0] text-slate-700 border border-black/10'
+                        ? 'bg-[#3A3564] text-white'
+                        : 'bg-[#FAF7F0] text-slate-700'
                     }`}
                   >
                     {isLaunching ? 'OPENING...' : mod.badge}
@@ -255,14 +252,14 @@ export function ModuleHubClient({ userEmail, userName, userRole }: ModuleHubClie
                 )}
 
                 {isLaunching ? (
-                  <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-[#3A3564] text-white border border-[#3A3564] shadow-xs">
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <div className="inline-flex items-center gap-2 px-4.5 py-2 rounded-lg text-xs sm:text-sm font-bold bg-[#3A3564] text-white border border-black shadow-xs">
+                    <Loader2 className="w-4 h-4 animate-spin" />
                     <span>Opening...</span>
                   </div>
                 ) : (
-                  <div className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-full text-xs font-bold bg-[#FAF7F0] text-slate-800 group-hover:bg-[#3A3564] group-hover:text-white border border-black/10 transition-all">
+                  <div className="inline-flex items-center gap-1.5 px-4.5 py-2 rounded-lg text-xs sm:text-sm font-bold bg-[#FAF7F0] text-slate-900 group-hover:bg-[#3A3564] group-hover:text-white border border-black transition-all shadow-2xs">
                     <span>Launch</span>
-                    <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
                   </div>
                 )}
               </div>
