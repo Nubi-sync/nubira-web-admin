@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { headers } from 'next/headers'
 import { createClient } from '../../utils/supabase/server'
+import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { checkRateLimit, resetRateLimit } from '@/lib/rate-limit'
 
 export async function login(formData: FormData) {
@@ -84,15 +85,113 @@ export async function login(formData: FormData) {
   redirect(targetRoute)
 }
 
+function renderOtpEmailHtml(otp: string, email: string) {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Zigza Security Verification</title>
+</head>
+<body style="margin:0;padding:0;background-color:#F8F9FA;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#1A1A1A;">
+  <div style="width:100%;background-color:#F8F9FA;padding:40px 16px;box-sizing:border-box;">
+    <table align="center" style="max-width:520px;width:100%;margin:0 auto;background-color:#FFFFFF;border:1px solid #E5E7EB;border-radius:16px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.04);">
+      <tr>
+        <td style="padding:28px 32px 18px;border-bottom:1px solid #F1F3F5;">
+          <div style="font-size:20px;font-weight:800;letter-spacing:-0.5px;color:#3A3564;">ZIGZA<span style="color:#6366F1;">.</span></div>
+          <div style="font-size:11px;font-weight:700;color:#868E96;text-transform:uppercase;letter-spacing:1px;margin-top:4px;">Floor Execution Platform</div>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:28px 32px;">
+          <h1 style="font-size:20px;font-weight:700;color:#111827;margin:0 0 12px;">Password Reset Verification</h1>
+          <p style="font-size:14px;line-height:22px;color:#4B5563;margin:0 0 20px;">
+            We received a request to verify your identity and reset your password for <strong>${email}</strong>. Enter this 6-digit security code on the portal:
+          </p>
+          <div style="background-color:#FAF7F0;border:1.5px dashed #D1D5DB;border-radius:12px;padding:20px;text-align:center;margin:20px 0;">
+            <div style="font-size:11px;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;">Security Verification Code</div>
+            <div style="font-family:'SFMono-Regular',Consolas,Menlo,monospace;font-size:36px;font-weight:800;letter-spacing:8px;color:#3A3564;margin:0;padding-left:8px;">${otp}</div>
+            <div style="font-size:12px;color:#9CA3AF;margin-top:8px;">Valid for 10 minutes • Single use only</div>
+          </div>
+          <p style="font-size:12px;line-height:18px;color:#6B7280;margin:20px 0 0;border-left:3px solid #E5E7EB;padding-left:12px;">
+            If you did not request this code, you can safely ignore this email. Your Zigza account remains fully secure.
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td style="background-color:#FAFAFA;padding:20px 32px;border-top:1px solid #F1F3F5;font-size:11px;line-height:18px;color:#9CA3AF;text-align:center;">
+          <div style="display:inline-block;background-color:#F3F4F6;color:#4B5563;padding:3px 8px;border-radius:6px;font-family:monospace;font-size:10px;font-weight:600;margin-bottom:8px;">AUTOMATED NOTICE • DO NOT REPLY</div>
+          <div style="margin:0 0 4px;">Sent automatically from <strong>noreply@zigza.in</strong>. Responses to this address are not monitored.</div>
+          <div>&copy; 2026 Zigza MES. All rights reserved.</div>
+        </td>
+      </tr>
+    </table>
+  </div>
+</body>
+</html>`
+}
+
 // Step 1: Send OTP
 export async function sendPasswordResetOtp(formData: FormData) {
-  const supabase = await createClient()
   const email = (formData.get('email') as string)?.trim()
 
   if (!email) {
     return { error: 'Please enter your registered email address.' }
   }
 
+  const resendApiKey = process.env.RESEND_API_KEY
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+
+  // Direct Resend delivery via Supabase Admin OTP generation
+  if (resendApiKey && serviceRoleKey && supabaseUrl) {
+    try {
+      const admin = createAdminClient(supabaseUrl, serviceRoleKey)
+      const { data: linkData, error: linkErr } = await admin.auth.admin.generateLink({
+        type: 'recovery',
+        email,
+      })
+
+      if (linkErr) {
+        if (linkErr.message?.toLowerCase().includes('not found') || linkErr.message?.toLowerCase().includes('user')) {
+          return { error: 'No registered user found with this email address.' }
+        }
+        return { error: linkErr.message }
+      }
+
+      const otp = linkData?.properties?.email_otp
+      if (!otp) {
+        return { error: 'Failed to generate verification code. Please try again.' }
+      }
+
+      const resendResponse = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${resendApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: 'Zigza Security <noreply@zigza.in>',
+          to: [email],
+          subject: `Your Zigza Security Verification Code: ${otp}`,
+          html: renderOtpEmailHtml(otp, email),
+        }),
+      })
+
+      if (!resendResponse.ok) {
+        const errorData = await resendResponse.json().catch(() => ({}))
+        console.error('Resend API Error:', errorData)
+        return { error: errorData?.message || 'Email delivery failed via Resend.' }
+      }
+
+      return { success: true, message: '6-digit OTP has been sent to your email.' }
+    } catch (err: any) {
+      console.error('Direct Resend OTP Error:', err)
+      // Fall through to standard Supabase auth
+    }
+  }
+
+  // Fallback: Standard Supabase Auth reset
+  const supabase = await createClient()
   const { error } = await supabase.auth.resetPasswordForEmail(email)
 
   if (error) {
