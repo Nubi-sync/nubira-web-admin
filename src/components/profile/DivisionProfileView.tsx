@@ -174,7 +174,7 @@ export function DivisionProfileView({
           </span>
         </div>
         <Link
-          href="/profile"
+          href="/modules/profile"
           className="px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-[#3A3564] font-bold border border-black/10 shadow-2xs shrink-0 transition-colors"
         >
           Master Company Profile →

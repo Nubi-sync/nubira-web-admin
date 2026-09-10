@@ -129,13 +129,13 @@ export function AdminSidebar({
         ],
       },
     ]
-  } else if (pathname === '/modules' || pathname?.startsWith('/modules') || pathname === '/profile') {
+  } else if (pathname === '/modules' || pathname?.startsWith('/modules')) {
     activeNavSections = [
       {
         section: 'Workspace Hub',
         items: [
           { label: 'All Modules', href: '/modules', icon: LayoutGrid, badge: '6 Units' },
-          { label: 'Company Profile', href: '/profile', icon: Building2 },
+          { label: 'Company Profile', href: '/modules/profile', icon: Building2 },
         ],
       },
       {
@@ -420,9 +420,9 @@ export function AdminSidebar({
   else if (pathname?.startsWith('/washing')) divisionProfileHref = '/washing/profile'
   else if (pathname?.startsWith('/printing')) divisionProfileHref = '/printing/profile'
   else if (pathname?.startsWith('/embroidery')) divisionProfileHref = '/embroidery/profile'
-  else if (pathname === '/modules') divisionProfileHref = '/profile'
+  else if (pathname === '/modules' || pathname?.startsWith('/modules')) divisionProfileHref = '/modules/profile'
 
-  const isProfileActive = pathname === divisionProfileHref || pathname === '/profile'
+  const isProfileActive = pathname === divisionProfileHref || pathname === '/modules/profile' || pathname === '/profile'
 
   return (
     <>

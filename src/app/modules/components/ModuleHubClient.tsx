@@ -122,7 +122,7 @@ export function ModuleHubClient({ userEmail, userName, userRole }: ModuleHubClie
 
         <div className="flex items-center gap-2.5 flex-wrap">
           <Link
-            href="/profile"
+            href="/modules/profile"
             className="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-[#3A3564] border border-black/10 rounded-xl text-xs sm:text-sm font-bold transition-all shadow-2xs cursor-pointer"
           >
             <span>Company Profile</span>
