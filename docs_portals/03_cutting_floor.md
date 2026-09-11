@@ -265,26 +265,8 @@ CREATE TABLE cutting_end_bit_logs (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 5. Quantity Integrity Constraint Trigger (Enforcing Zero Ghost Piece Rule)
-CREATE OR REPLACE FUNCTION validate_bundle_allotment_sum()
-RETURNS TRIGGER AS $$
-DECLARE
-  v_piece_count INTEGER;
-  v_total_allotted INTEGER;
-BEGIN
-  SELECT piece_count INTO v_piece_count FROM cutting_bundles WHERE id = NEW.bundle_id;
-  SELECT COALESCE(SUM(allotted_quantity), 0) INTO v_total_allotted FROM allotments 
-  WHERE bundle_id = NEW.bundle_id AND id != COALESCE(NEW.id, '00000000-0000-0000-0000-000000000000');
-  
-  IF (v_total_allotted + NEW.allotted_quantity) > v_piece_count THEN
-    RAISE EXCEPTION 'Quantity Integrity Violation: Total allotted quantity (%) exceeds physical bundle piece count (%) for bundle %',
-      (v_total_allotted + NEW.allotted_quantity), v_piece_count, NEW.bundle_id;
-  END IF;
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER trg_validate_bundle_allotment_sum
-BEFORE INSERT OR UPDATE ON allotments
-FOR EACH ROW EXECUTE FUNCTION validate_bundle_allotment_sum();
+-- 5. Quantity Integrity Enforcement (Zero Ghost Piece Constraint)
+-- The runtime trigger `trg_validate_bundle_allotment_sum` is defined and attached 
+-- to the `allotments` table in `06_stitching_sewing.md` (§7), validating that 
+-- SUM(allotments.allotted_quantity) <= cutting_bundles.piece_count.
 ```

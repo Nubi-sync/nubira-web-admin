@@ -93,7 +93,7 @@ employees.id (PK)              qc_logs.id (PK)            ▼ (FK: carton_id)
 
 To transition the **Zero Ghost Piece Guarantee** from a passive schema relationship into active, runtime database enforcement, two triggers are specified and wired with `CREATE TRIGGER` statements in `03`, `06`, and `09`:
 
-### 1. Bundle Allotment Ceiling Trigger (in `03_cutting_floor.md` & `06_stitching_sewing.md`)
+### 1. Bundle Allotment Ceiling Trigger (owned by `allotments` in `06_stitching_sewing.md`, referenced in `03`)
 $$\sum (\text{allotments.allotted\_quantity}) \le \text{cutting\_bundles.piece\_count}$$
 ```sql
 CREATE TRIGGER trg_validate_bundle_allotment_sum
