@@ -145,22 +145,22 @@ export function AdminSidebar({
       {
         section: 'Operating Divisions (1–5)',
         items: [
-          { label: '1. Design Studio', href: '/design', icon: Palette },
-          { label: '2. Merchandising', href: '/merchandising', icon: Briefcase },
-          { label: '3. Cutting Floor', href: '/cutting', icon: Scissors },
-          { label: '4. Printing Unit', href: '/printing', icon: Printer },
-          { label: '5. Embroidery Unit', href: '/embroidery', icon: Sparkles },
+          { label: '1. Design Studio', href: '/modules/design', icon: Palette },
+          { label: '2. Merchandising', href: '/modules/merchandising', icon: Briefcase },
+          { label: '3. Cutting Floor', href: '/modules/cutting', icon: Scissors },
+          { label: '4. Printing Unit', href: '/modules/printing', icon: Printer },
+          { label: '5. Embroidery Unit', href: '/modules/embroidery', icon: Sparkles },
         ],
       },
       {
         section: 'Operating Divisions (6–11)',
         items: [
-          { label: '6. Stitching & Sewing', href: '/stitching-sewing/dashboard', icon: Layers },
-          { label: '7. Industrial Washing', href: '/washing', icon: Waves },
-          { label: '8. Steam Ironing', href: '/iron', icon: Flame },
-          { label: '9. Ready Goods & Packing', href: '/ready-goods', icon: Boxes },
-          { label: '10. Alteration & Rework', href: '/alter', icon: Wrench },
-          { label: '11. Central Store', href: '/store', icon: Store },
+          { label: '6. Stitching & Sewing', href: '/modules/stitching-sewing', icon: Layers },
+          { label: '7. Industrial Washing', href: '/modules/washing', icon: Waves },
+          { label: '8. Steam Ironing', href: '/modules/iron', icon: Flame },
+          { label: '9. Ready Goods & Packing', href: '/modules/ready-goods', icon: Boxes },
+          { label: '10. Alteration & Rework', href: '/modules/alter', icon: Wrench },
+          { label: '11. Central Store', href: '/modules/store', icon: Store },
         ],
       },
     ]

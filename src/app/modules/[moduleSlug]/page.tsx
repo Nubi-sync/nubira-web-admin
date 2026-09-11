@@ -9,6 +9,11 @@ import {
   Printer,
   Sparkles,
   Scissors,
+  Palette,
+  Flame,
+  Boxes,
+  Wrench,
+  Store,
   ArrowRight,
   ChevronLeft,
   Activity,
@@ -38,74 +43,74 @@ interface ModuleInfo {
 }
 
 const MODULE_DATA: Record<string, ModuleInfo> = {
-  factory: {
-    slug: 'factory',
-    title: 'Factory Control Center',
-    categoryBadge: 'PLANT OPERATIONS',
-    subtitle: 'Central command for master plant telemetry, machinery health, overall equipment efficiency (OEE), and line throughput.',
-    operationalRoute: '/factory',
-    icon: Factory,
+  design: {
+    slug: 'design',
+    title: 'Design & Tech-Pack Studio',
+    categoryBadge: 'CREATIVE STUDIO',
+    subtitle: 'CAD sketches, measurement tech-packs, sample iteration grading, and fabric consumption approvals.',
+    operationalRoute: '/design',
+    icon: Palette,
     stats: [
-      { label: 'Active Lines', value: '12 / 12', hint: '100% floor uptime' },
-      { label: 'Plant OEE', value: '88.4%', hint: 'Target: 85.0%' },
-      { label: 'Shift Output', value: '4,850 Pcs', hint: 'Today cumulative' },
-      { label: 'Floor Status', value: 'OPTIMAL', hint: 'Zero critical alarms' },
+      { label: 'Active Tech-Packs', value: '28 Specs', hint: '12 approved for bulk' },
+      { label: 'Sample Approvals', value: '8 Pending', hint: 'Avg cycle: 3.2 days' },
+      { label: 'Grading Matrix', value: '6 Sizes', hint: 'XS to XXL standard' },
+      { label: 'PPS Readiness', value: '96.4%', hint: 'Pre-production speed' },
     ],
     keyCapabilities: [
-      'Real-time automated line telemetry streaming',
-      'Central shift coordination & supervisor broadcast',
-      'Machine maintenance logs & preventative warnings',
-      'Department-wide energy & throughput auditing'
+      'CAD sketch & digital spec sheet library',
+      'Size grading measurement tables & tolerances',
+      'Sample fit iteration & PPS approval tracker',
+      'Fabric blend & GSM specification matrix'
     ],
-    supervisorTitle: 'Plant Operations Head',
-    shiftInfo: 'Shift A & B (24/7 Monitored)',
-    capacity: '12 Automated Production Lines'
+    supervisorTitle: 'Chief Creative Lead',
+    shiftInfo: 'General Shift (09:00 AM - 06:00 PM)',
+    capacity: 'Full CAD & Sample Development Suite'
   },
-  brands: {
-    slug: 'brands',
-    title: 'Brands & Buyer Portfolios',
-    categoryBadge: 'BUYER CRM',
-    subtitle: 'Comprehensive portfolio management for global buyer accounts, export purchase orders, style specs, and delivery schedules.',
-    operationalRoute: '/brands',
+  merchandising: {
+    slug: 'merchandising',
+    title: 'Merchandising & Sourcing',
+    categoryBadge: 'COMMERCIAL OPS',
+    subtitle: 'Buyer PO allocation, BOM costing ledgers, trim procurement schedules, and export delivery timetables.',
+    operationalRoute: '/merchandising',
     icon: Briefcase,
     stats: [
-      { label: 'Active Buyers', value: '18 Global', hint: 'Contract accounts' },
-      { label: 'Open PO Orders', value: '42 Orders', hint: 'In manufacturing flow' },
-      { label: 'Export Value', value: '₹1.84 Cr', hint: 'Current cycle' },
-      { label: 'On-Time Delivery', value: '99.2%', hint: 'SLA target met' },
+      { label: 'Active Buyer POs', value: '14 Orders', hint: '185k total pcs' },
+      { label: 'BOM Costing', value: '98.2%', hint: 'Variance within ±1.8%' },
+      { label: 'Trim Sourcing', value: '100%', hint: 'Trims in-house' },
+      { label: 'On-Time Delivery', value: '97.8%', hint: '3 shipments this week' },
     ],
     keyCapabilities: [
       'Direct buyer style matrix & tech-pack tracking',
       'Purchase order ledger & milestone billing',
-      'Buyer compliance & quality certificate hub',
+      'BOM costing & trim procurement ledger',
       'Shipment dispatch pipeline & delivery challans'
     ],
-    supervisorTitle: 'Merchandising & Brand Lead',
+    supervisorTitle: 'Head of Merchandising',
     shiftInfo: 'General Shift (09:00 AM - 06:30 PM)',
-    capacity: '18 Active Buyer Portfolios'
+    capacity: '14 Active Global Buyer Portfolios'
   },
-  washing: {
-    slug: 'washing',
-    title: 'Industrial Washing Division',
-    categoryBadge: 'WET PROCESSING',
-    subtitle: 'Precision wet processing line managing garment enzyme washes, silicon softeners, acid wash recipes, and liquor ratios.',
-    operationalRoute: '/washing',
-    icon: Waves,
+  cutting: {
+    slug: 'cutting',
+    title: 'Cutting & Lay Floor',
+    categoryBadge: 'CUTTING DIVISION',
+    subtitle: 'Fabric roll lay planning, marker efficiency, computerized auto-cutters, and bundle QR ticket creation.',
+    operationalRoute: '/cutting',
+    icon: Scissors,
     stats: [
-      { label: 'Wash Tumblers', value: '6 / 6', hint: 'Running at capacity' },
-      { label: 'Batch Volume', value: '3,200 Pcs', hint: 'Daily wet load' },
-      { label: 'Liquor Ratio', value: '1:5.2', hint: 'Standard eco-ratio' },
-      { label: 'Shrinkage Rate', value: '< 1.5%', hint: 'Strict quality spec' },
+      { label: 'Daily Cut Volume', value: '8,240 Pcs', hint: '4 active lay tables' },
+      { label: 'Marker Efficiency', value: '88.4%', hint: 'Target: > 86.0%' },
+      { label: 'Bundles Issued', value: '328 Bundles', hint: '100% QR tagged' },
+      { label: 'Fabric Meterage', value: '4,120 m', hint: 'Scrap: 1.4%' },
     ],
     keyCapabilities: [
-      'Automated batch recipe & chemical liquor monitoring',
-      'Enzyme, bio-polish, and softening cycle tracking',
-      'Hydro-extractor load timing & high-temp drying logs',
-      'Colorfastness & shade matching quality approvals'
+      'Fabric roll spread planning & layer optimization',
+      'Marker ratio generation & end-bit waste minimize',
+      'Computerized auto-cutter file streaming',
+      'Lineman bundle QR ticket numbering & issue'
     ],
-    supervisorTitle: 'Washing & Wet Processing Master',
+    supervisorTitle: 'Cutting Floor Master',
     shiftInfo: 'Shift A (07:30 AM - 05:00 PM)',
-    capacity: '6 Industrial Washers (600kg/batch)'
+    capacity: '4 Spreading Tables & 2 Auto-Cutters'
   },
   printing: {
     slug: 'printing',
@@ -159,7 +164,7 @@ const MODULE_DATA: Record<string, ModuleInfo> = {
     categoryBadge: 'CORE SEWING FLOOR',
     subtitle: 'High-throughput garment manufacturing floor managing cutting lots, lineman bundle allocations, 3-stage QC, and godown store sync.',
     operationalRoute: '/stitching-sewing/dashboard',
-    icon: Scissors,
+    icon: Layers,
     stats: [
       { label: 'Sewing Lines', value: '8 Active Lines', hint: 'Lineman assigned' },
       { label: 'Bundles in Flow', value: '1,420 Bundles', hint: 'Cutting to finishing' },
@@ -175,6 +180,167 @@ const MODULE_DATA: Record<string, ModuleInfo> = {
     supervisorTitle: 'Floor Operations Head',
     shiftInfo: 'Shift A (08:00 AM - 05:30 PM)',
     capacity: '8 High-Speed Progressive Sewing Lines'
+  },
+  washing: {
+    slug: 'washing',
+    title: 'Industrial Washing Division',
+    categoryBadge: 'WET PROCESSING',
+    subtitle: 'Precision wet processing line managing garment enzyme washes, silicon softeners, acid wash recipes, and liquor ratios.',
+    operationalRoute: '/washing',
+    icon: Waves,
+    stats: [
+      { label: 'Wash Tumblers', value: '6 / 6', hint: 'Running at capacity' },
+      { label: 'Batch Volume', value: '3,200 Pcs', hint: 'Daily wet load' },
+      { label: 'Liquor Ratio', value: '1:5.2', hint: 'Standard eco-ratio' },
+      { label: 'Shrinkage Rate', value: '< 1.5%', hint: 'Strict quality spec' },
+    ],
+    keyCapabilities: [
+      'Automated batch recipe & chemical liquor monitoring',
+      'Enzyme, bio-polish, and softening cycle tracking',
+      'Hydro-extractor load timing & high-temp drying logs',
+      'Colorfastness & shade matching quality approvals'
+    ],
+    supervisorTitle: 'Washing & Wet Processing Master',
+    shiftInfo: 'Shift A (07:30 AM - 05:00 PM)',
+    capacity: '6 Industrial Washers (600kg/batch)'
+  },
+  iron: {
+    slug: 'iron',
+    title: 'Ironing & Steam Pressing',
+    categoryBadge: 'FINISHING UNIT',
+    subtitle: 'Industrial boiler steam pressing, vacuum buck tables, inline finish inspections, and operator piece-rate tracking.',
+    operationalRoute: '/iron',
+    icon: Flame,
+    stats: [
+      { label: 'Daily Pressed', value: '6,180 Pcs', hint: 'Target: 7,500 pcs' },
+      { label: 'Steam Pressure', value: '4.5 Bar', hint: 'Optimal 4.2–4.8 Bar' },
+      { label: 'Pressing Tables', value: '12 Tables', hint: 'Vacuum active' },
+      { label: 'Finishing Pass', value: '99.1%', hint: 'Zero glaze defects' },
+    ],
+    keyCapabilities: [
+      'High-pressure boiler steam vacuum pressing',
+      'Teflon shoe temperature regulation & crease set',
+      'Operator piece-rate finishing wage log',
+      'Inline finish audit & handover to carton packing'
+    ],
+    supervisorTitle: 'Finishing Floor Master',
+    shiftInfo: 'Shift A (08:00 AM - 05:30 PM)',
+    capacity: '12 Boiler Steam Vacuum Tables'
+  },
+  'ready-goods': {
+    slug: 'ready-goods',
+    title: 'Ready Goods & Packing',
+    categoryBadge: 'FINAL PACKING',
+    subtitle: 'AQL 2.5 final inspection, barcode hangtag affixing, polybag packing, and master export carton manifest.',
+    operationalRoute: '/ready-goods',
+    icon: Boxes,
+    stats: [
+      { label: 'Packed Cartons', value: '142 Cartons', hint: '5,680 finished garments' },
+      { label: 'AQL 2.5 Score', value: 'PASS (0.4%)', hint: 'Strict inspection met' },
+      { label: 'Hangtag Match', value: '100% OK', hint: 'EAN-13 barcode synced' },
+      { label: 'Godown Stock', value: '42,500 Pcs', hint: 'Central storage' },
+    ],
+    keyCapabilities: [
+      'AQL 2.5 statistical sample audit & defect scoring',
+      'Barcode hangtag verification & polybag sealing',
+      'Ratio assortment carton packing list manifest',
+      'Direct warehouse transfer & container load'
+    ],
+    supervisorTitle: 'Packing & QA Lead',
+    shiftInfo: 'Shift A (08:00 AM - 06:00 PM)',
+    capacity: '4 Packing Lines (200 Cartons/Day)'
+  },
+  alter: {
+    slug: 'alter',
+    title: 'Alteration & Quality Rework',
+    categoryBadge: 'QUALITY RECOVERY',
+    subtitle: 'Defect categorization, seam rework, stitch alterations, and post-repair secondary AQL inspections.',
+    operationalRoute: '/alter',
+    icon: Wrench,
+    stats: [
+      { label: 'In-Queue', value: '42 Pcs', hint: 'Floor defect rate: 0.8%' },
+      { label: 'Repaired & Clear', value: '38 Pcs', hint: 'Passed back to line' },
+      { label: 'Top Defect', value: 'Skip Stitch', hint: 'Tension adjusted' },
+      { label: 'Recovery Rate', value: '95.2%', hint: 'Scrap minimal: 0.04%' },
+    ],
+    keyCapabilities: [
+      'Defect root-cause categorization & Pareto logging',
+      'Seam rework, collar reset, and stitch mending',
+      'Operator alteration piece-rate tracking',
+      'Secondary AQL clearance back to production'
+    ],
+    supervisorTitle: 'Quality Recovery Master',
+    shiftInfo: 'Shift A (08:00 AM - 05:30 PM)',
+    capacity: '6 Dedicated Mending & Rework Stations'
+  },
+  store: {
+    slug: 'store',
+    title: 'Central Store & Godown',
+    categoryBadge: 'CENTRAL GODOWN',
+    subtitle: 'Raw fabric rolls, trims godown, cutting challan issues, and finished export carton storage.',
+    operationalRoute: '/store',
+    icon: Store,
+    stats: [
+      { label: 'Fabric Rolls', value: '1,240 Rolls', hint: '32.5 tons in stock' },
+      { label: 'Finished Stock', value: '42,500 Pcs', hint: 'Central Godown Bay 3-5' },
+      { label: 'Challans Issued', value: '18 Today', hint: 'Cutting & floor dispatch' },
+      { label: 'Ledger Accuracy', value: '99.9%', hint: 'Barcode verified' },
+    ],
+    keyCapabilities: [
+      'Raw material fabric roll inwarding & GSM verification',
+      'Trims, thread, and accessory godown ledger',
+      'Cutting challan issue & roll consumption sync',
+      'Finished carton storage & dispatch gate passes'
+    ],
+    supervisorTitle: 'Chief Storekeeper',
+    shiftInfo: 'Shift A (07:30 AM - 06:00 PM)',
+    capacity: '50,000 Pcs Ready Godown & Central Yard'
+  },
+  factory: {
+    slug: 'factory',
+    title: 'Factory Control Center',
+    categoryBadge: 'PLANT OPERATIONS',
+    subtitle: 'Central command for master plant telemetry, machinery health, overall equipment efficiency (OEE), and line throughput.',
+    operationalRoute: '/factory',
+    icon: Factory,
+    stats: [
+      { label: 'Active Lines', value: '12 / 12', hint: '100% floor uptime' },
+      { label: 'Plant OEE', value: '88.4%', hint: 'Target: 85.0%' },
+      { label: 'Shift Output', value: '4,850 Pcs', hint: 'Today cumulative' },
+      { label: 'Floor Status', value: 'OPTIMAL', hint: 'Zero critical alarms' },
+    ],
+    keyCapabilities: [
+      'Real-time automated line telemetry streaming',
+      'Central shift coordination & supervisor broadcast',
+      'Machine maintenance logs & preventative warnings',
+      'Department-wide energy & throughput auditing'
+    ],
+    supervisorTitle: 'Plant Operations Head',
+    shiftInfo: 'Shift A & B (24/7 Monitored)',
+    capacity: '12 Automated Production Lines'
+  },
+  brands: {
+    slug: 'brands',
+    title: 'Brands & Buyer Portfolios',
+    categoryBadge: 'BUYER CRM',
+    subtitle: 'Comprehensive portfolio management for global buyer accounts, export purchase orders, style specs, and delivery schedules.',
+    operationalRoute: '/brands',
+    icon: Briefcase,
+    stats: [
+      { label: 'Active Buyers', value: '18 Global', hint: 'Contract accounts' },
+      { label: 'Open PO Orders', value: '42 Orders', hint: 'In manufacturing flow' },
+      { label: 'Export Value', value: '₹1.84 Cr', hint: 'Current cycle' },
+      { label: 'On-Time Delivery', value: '99.2%', hint: 'SLA target met' },
+    ],
+    keyCapabilities: [
+      'Direct buyer style matrix & tech-pack tracking',
+      'Purchase order ledger & milestone billing',
+      'Buyer compliance & quality certificate hub',
+      'Shipment dispatch pipeline & delivery challans'
+    ],
+    supervisorTitle: 'Merchandising & Brand Lead',
+    shiftInfo: 'General Shift (09:00 AM - 06:30 PM)',
+    capacity: '18 Active Buyer Portfolios'
   }
 }
 

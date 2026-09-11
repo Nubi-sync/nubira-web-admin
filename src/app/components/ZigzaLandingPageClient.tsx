@@ -1327,16 +1327,19 @@ ${demoForm.ownerName}`
 
                 {/* Price Block */}
                 <div className="my-7 pt-6 border-t border-black/10">
-                  <div className="flex items-baseline gap-1.5">
+                  <div className="flex items-baseline gap-2 flex-wrap">
                     <span className="text-4xl font-extrabold font-mono text-slate-900">
-                      ₹4,999
+                      ₹1,999
+                    </span>
+                    <span className="text-sm font-semibold font-mono text-slate-400 line-through">
+                      ₹3,999
                     </span>
                     <span className="text-xs font-semibold text-slate-500">
                       / module / mo
                     </span>
                   </div>
                   <p className="text-xs text-slate-500 mt-1 font-medium">
-                    Pay only for the divisions you run
+                    Pay only for the divisions you run • Special Discount
                   </p>
                 </div>
 
@@ -1392,21 +1395,24 @@ ${demoForm.ownerName}`
                   Full Access + Zigza AI
                 </h3>
                 <p className="mt-2 text-sm text-slate-600 leading-relaxed">
-                  All 6 divisions unified with real-time floor intelligence to maximize speed.
+                  All 11 divisions unified with real-time floor intelligence to maximize speed.
                 </p>
 
                 {/* Price Block */}
                 <div className="my-7 pt-6 border-t border-black/10">
-                  <div className="flex items-baseline gap-1.5">
+                  <div className="flex items-baseline gap-2 flex-wrap">
                     <span className="text-4xl font-extrabold font-mono text-[#3A3564]">
-                      ₹14,999
+                      ₹4,999
+                    </span>
+                    <span className="text-sm font-semibold font-mono text-[#3A3564]/50 line-through">
+                      ₹8,999
                     </span>
                     <span className="text-xs font-semibold text-[#3A3564]/80">
                       / plant / mo
                     </span>
                   </div>
                   <p className="text-xs text-[#3A3564] mt-1 font-medium">
-                    All 6 modules unlocked • Unlimited operators
+                    All 11 modules unlocked • Unlimited operators
                   </p>
                 </div>
 
@@ -1414,7 +1420,7 @@ ${demoForm.ownerName}`
                 <div className="space-y-3.5">
                   <div className="flex items-center gap-3 text-sm text-slate-900 font-medium">
                     <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0" />
-                    <span>All 6 production divisions unlocked</span>
+                    <span>All 11 production divisions unlocked</span>
                   </div>
                   <div className="flex items-center gap-3 text-sm text-slate-900 font-medium">
                     <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0" />
