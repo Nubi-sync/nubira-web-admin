@@ -13,10 +13,11 @@ The **Screen & Digital Printing Unit** executes garment surface embellishment. I
 │                    04. SCREEN & DIGITAL PRINTING UNIT                       │
 ├────────────────────────────────┬────────────────────────────────────────────┤
 │ Industry Standard Standard:    │ AATCC 61 (Colorfastness) / ISO 105-X12     │
-│ Upstream Inward Entity:        │ 03. Cutting Floor (Cut Panels) + 01. Design│
-│ Downstream Outward Entity:     │ 06. Stitching & Sewing (or 05. Embroidery) │
+│ Upstream Inward Entity:        │ 03. Cutting Floor (or 05. Embroidery)      │
+│ Downstream Outward Entity:     │ 06. Stitching & Sewing Floor               │
 │ Curing Temperature SLA:        │ 160°C ± 3°C (Verified with heat probe strips)│
 │ Strike-Off Color Match Delta:  │ Delta E ≤ 1.0 against Pantone TCX Standard │
+│ Embellishment Sequencing Rule: │ Default: Embroidery-First -> Print-Second  │
 └────────────────────────────────┴────────────────────────────────────────────┘
 ```
 
@@ -25,9 +26,10 @@ The **Screen & Digital Printing Unit** executes garment surface embellishment. I
 ## 2. Inward & Outward Handshake Pipeline
 
 ```
-[ 03. CUTTING FLOOR ]                     [ 01. DESIGN STUDIO ]
+[ 03. CUTTING / 05. EMBROIDERY ]          [ 01. DESIGN STUDIO ]
 • Numbered Bundles of Cut Panels          • High-Res Vector Artwork (AI/PDF)
-• Placement Registration Notches          • Pantone TCX Color Codes & Scale Specs
+• Panels with Pre-Stitched Embroidery     • Pantone TCX Color Codes & Scale Specs
+• Placement Registration Notches          • Sequence Directive: EMBROIDERY_FIRST
             │                                         │
             └────────────────────┬────────────────────┘
                                  ▼
@@ -40,7 +42,7 @@ The **Screen & Digital Printing Unit** executes garment surface embellishment. I
 └─────────────────────────────────────────────────────────────────────────────┘
                                  │
                                  ▼ (Handshake Payload)
-[ 06. STITCHING & SEWING FLOOR ] (or 05. Embroidery if multi-technique)
+[ 06. STITCHING & SEWING FLOOR ]
 • 100% Inspected & Cured Printed Panels
 • Scanned Bundle Barcode Verification (Zero panel mix-up)
 • Handover Challan to Lineman Dispatch
@@ -49,7 +51,8 @@ The **Screen & Digital Printing Unit** executes garment surface embellishment. I
 ### Inward Handshake (What Printing Receives)
 | Input Parameter | Source Entity | Data Format | Validation Rule |
 | :--- | :--- | :--- | :--- |
-| **Cut Panel Bundles** | `03. Cutting Floor` | Barcode (`BDL-XXXX`) | Every panel must have bundle tag intact |
+| **Cut Panel Bundles** | `03. Cutting Floor` | Barcode (`cutting_bundles.id`)| Every panel must have bundle tag intact |
+| **Embroidered Panels (Dual)**| `05. Embroidery Unit` | Physical Lot + Scan | Verified embroidery pass before printing |
 | **Artwork Vector File** | `01. Design Studio` | Vector SVG / AI | 1:1 Scale with registration targets |
 | **Pantone Color Reference**| Buyer / Design | E.g. `Pantone 19-4052 TCX` | Standard textile color system |
 | **Print Technique** | Buyer Tech-Pack | `Plastisol`, `Discharge`, `DTG` | Defines ink recipe & screen mesh |
@@ -58,7 +61,6 @@ The **Screen & Digital Printing Unit** executes garment surface embellishment. I
 | Output Payload | Recipient Portal | Handshake Trigger | Critical Data Transferred |
 | :--- | :--- | :--- | :--- |
 | **Cured Printed Panels** | `06. Stitching & Sewing` | Curing & QC Pass | Intact bundle integrity, print pass badge, zero print smudge |
-| **Dual Embellishment Panels**| `05. Embroidery Unit` | Dual Tech Flag | Position-matched panels needing chest embroidery over print |
 | **Print Rejection / Defect Log**| `10. Alteration / Store` | Panel QC Failure | Exact piece count rejected for re-cut from end-bits |
 
 ---
@@ -84,7 +86,7 @@ The Printing Unit portal has **8 dedicated side navigation views**:
 
 ---
 
-## 4. Page Specifications & Core Telemetry
+## 4. Complete Page Specifications (All 8 Navigation Views)
 
 ### Page 1: Print Floor Dashboard (`/printing`)
 * **Purpose**: Overview of running printing tables, digital machine cycles, and curing oven temperature.
@@ -95,15 +97,34 @@ The Printing Unit portal has **8 dedicated side navigation views**:
   4. `Tunnel Oven Curing Temp`: **160°C Verified** *(Thermal strip probe audit)*
 
 ### Page 2: Screen & Stencil Library (`/printing/screens`)
-* **Purpose**: Catalog of photo-emulsion screens, mesh counts (e.g. 150 for glitter, 230 for high-detail halftones), and physical rack bin storage.
+* **Purpose**: Catalog of photo-emulsion screens, mesh counts (120 to 305), frame tension (Newtons), and physical rack bin storage.
 
-### Page 3: Ink Kitchen & Recipe Formulations (`/printing/ink-kitchen`)
+### Page 3: Table Batch Queue & DTG Runs (`/printing/table-runs`)
+* **Purpose**: Live scheduling of table lots, stroke count, printing master operator assignment, and progress against planned bundles.
+
+### Page 4: Strike-Off Lab Dip Approvals (`/printing/strike-offs`)
+* **Purpose**: Spectrophotometer Delta E color matching, wash fastness, and buyer digital approval before bulk run authorization.
+
+### Page 5: Ink Kitchen & Recipe Formulations (`/printing/ink-kitchen`)
 * **Purpose**: Exact grams chemical ledger per print batch.
-* **Recipe Formulation Ledger**:
+* **Standard Plastisol Recipe**:
   * Base Binder: 850 g
   * Pigment Concentrate: 120 g
   * Fixer / Cross-Linker: 30 g
   * Viscosity: 18,000 cps (Centipoise)
+
+### Page 6: Curing Oven & Wash Fastness QC (`/printing/curing-qc`)
+* **Purpose**: Continuous temperature logger for tunnel ovens (160°C target), 50-wash crocking audit, and stretch tests.
+
+### Page 7: Zigza AI Copilot (`/printing/zigza-ai`)
+* **Purpose**: Ink chemistry optimization, humidity compensation, and curing temperature analytics.
+* **Pre-Loaded Prompts**:
+  1. `"Humidity is 84% today. Should we adjust water-based retarder in the black pigment recipe?"`
+  2. `"Alert me if Tunnel Oven #2 temperature drops below 157°C during fleece curing."`
+  3. `"Which screens from completed Zara PO-8901 are ready for chemical stripping and reuse?"`
+
+### Page 8: Printing Unit Profile (`/printing/profile`)
+* **Purpose**: Printing master technician credentials, chemical safety certifications, and table assignments.
 
 ---
 
@@ -120,6 +141,19 @@ The Printing Unit portal has **8 dedicated side navigation views**:
 | `curing_temp_c` | Number | Yes | Default: 160 (Min: 140, Max: 180)| Oven heat setting |
 | `stretch_test_pass`| Boolean | Yes | Checkbox | No ink cracking on 100% stretch |
 | `approval_status` | Select Dropdown | Yes | `APPROVED`, `REVISE_RECIPE`, `REJECTED` | Master approval state |
+
+### Form 2: End-of-Shift Printing Production & Rejection Log Form
+* **Trigger**: `Log Shift Production` on `/printing/table-runs`
+* **Purpose**: **Directly writes to `printing_production_runs`** to populate `panels_completed` and `panels_rejected`.
+
+| Field Name | Type | Required | Validation / Options | Tooltip / Hint |
+| :--- | :--- | :--- | :--- | :--- |
+| `run_id` | Select Dropdown | Yes | Active production runs | Scheduled run |
+| `operator_id` | Select Dropdown | Yes | Active employees master (FK) | Printing master responsible |
+| `panels_completed`| Number | Yes | Min: 0, Max: 5,000 | Good panels printed & cured |
+| `panels_rejected` | Number | Yes | Min: 0, Max: 500 | Defective panels |
+| `defect_reason` | Select Dropdown | No | `SMUDGE`, `BLEED`, `OFF_REGISTRATION`, `CURING_SCORCH` | Root cause for re-cut |
+| `curing_temp_verified`| Number | Yes | Default: 160 | Probe temperature during shift |
 
 ---
 
@@ -138,15 +172,17 @@ The Printing Unit portal has **8 dedicated side navigation views**:
 CREATE TABLE printing_production_runs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   run_number VARCHAR(50) NOT NULL UNIQUE,
-  order_id UUID REFERENCES merchandising_orders(id),
+  order_id UUID REFERENCES merchandising_orders(id) ON DELETE RESTRICTED,
   table_number VARCHAR(20) NOT NULL,
+  operator_id UUID REFERENCES employees(id) ON DELETE SET NULL,
   technique VARCHAR(40) NOT NULL, -- PLASTISOL, WATER_BASED, DISCHARGE, DTG, PUFF
   pantone_codes TEXT[] NOT NULL,
   total_panels_issued INTEGER NOT NULL,
-  total_panels_passed INTEGER NOT NULL,
-  panels_rejected INTEGER DEFAULT 0,
+  panels_completed INTEGER NOT NULL DEFAULT 0,
+  panels_rejected INTEGER NOT NULL DEFAULT 0,
   curing_temp_c INTEGER DEFAULT 160,
-  status VARCHAR(30) DEFAULT 'PRINTING',
-  created_at TIMESTAMPTZ DEFAULT NOW()
+  status VARCHAR(30) DEFAULT 'PRINTING', -- QUEUED, PRINTING, CURING, COMPLETED, QUARANTINED
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 ```
