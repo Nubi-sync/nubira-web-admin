@@ -9,7 +9,6 @@ import {
   CheckCircle2,
   AlertTriangle,
   ArrowRight,
-  Bot,
   Scissors,
   ShieldCheck
 } from 'lucide-react'
@@ -64,16 +63,6 @@ export default async function AlterModulePage() {
                 Defect categorization, seam rework, stitch alterations, and post-repair secondary AQL inspections
               </p>
             </div>
-          </div>
-
-          <div className="flex items-center gap-2.5 flex-wrap">
-            <Link
-              href="/alter/zigza-ai"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
-            >
-              <Bot className="w-4 h-4" />
-              <span>Alteration AI</span>
-            </Link>
           </div>
         </div>
 
