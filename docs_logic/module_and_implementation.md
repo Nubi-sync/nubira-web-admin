@@ -10,6 +10,9 @@ This document records the architectural specifications, implemented features, po
 6. **Division 04: Screen & Digital Printing Unit** (`/printing`)
 7. **Division 05: Multi-Head Embroidery Unit** (`/embroidery`)
 8. **Division 06: Stitching & Sewing Floor** (`/stitching-sewing`)
+9. **Division 07: Industrial Washing Plant** (`/washing`)
+10. **Division 08: Ironing & Steam Pressing Operations** (`/iron`)
+11. **Division 09: Ready Goods & Export Carton Packing** (`/ready-goods`)
 
 All divisions strictly conform to the **Industrial Luxury** aesthetic defined in [`docs_logic/design.md`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/docs_logic/design.md) (Palette `#3A3564` Indigo Night, `#FAF7F0` Cream Canvas, `#FFFFFF` crisp encapsulated cards, `#09090B` Ink, and semantic status badge pastels).
 
@@ -1036,7 +1039,187 @@ CREATE TABLE iron_handovers (
 
 ---
 
-## 11. Cross-Division Handshake Architecture
+## 11. Division 09: Ready Goods & Export Carton Packing (`/ready-goods`)
+
+### 11.1 Portal Routing & Sidebar Integration
+[`AdminSidebar.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/components/layout/AdminSidebar.tsx) defines the complete 8-item navigation structure for the `/ready-goods` portal:
+- **Workspace Hub**: `All Modules` (`/modules`)
+- **9. Ready Goods & Packing Operations**:
+  - `Packing Dashboard` (`/ready-goods`)
+  - `AQL 2.5 Inspection` (`/ready-goods/aql-inspection`) [Badge: `AQL 2.5`]
+  - `Hangtag & Polybag` (`/ready-goods/tagging-polybag`)
+  - `Carton Packing Manifest` (`/ready-goods/carton-packing`)
+  - `Scale Weight & Audit` (`/ready-goods/carton-weight`) [Badge: `±0.15kg`]
+  - `Central Godown Handover` (`/ready-goods/handover`)
+  - `Zigza AI` (`/ready-goods/zigza-ai`)
+- **Account**: `Division Profile` (`/ready-goods/profile`)
+
+### 11.2 Packing Dashboard (`/ready-goods`)
+- **File**: [`src/app/ready-goods/components/ReadyGoodsDashboardClient.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/ready-goods/components/ReadyGoodsDashboardClient.tsx)
+- **4 Metric KPI Cards**:
+  - `Packed Cartons Today`: **142 Cartons** *(5,680 Finished Export Garments)*
+  - `AQL 2.5 Audit Score`: **PASS (0.4% Defects)** *(Critical: 0, Major: 2, Limit ≤ 10)*
+  - `Hangtag Barcode Match`: **100% Verified** *(Zero EAN-13 scanning errors)*
+  - `Ready in Central Godown`: **42,500 pcs** *(Stored in Central Godown Bay 3–5)*
+- **Live Master Export Carton Manifest**: Tabbed filtering (`ALL`, `PACKED`, `AQL_AUDIT_PASSED`, `QUARANTINED_AQL_FAILED`, `SHIPPED`), real-time search, size ratio breakdown chips, gross weighbridge comparison ($\pm 0.15\text{ kg}$ threshold), and detailed carton inspector modal.
+
+### 11.3 AQL 2.5 Statistical Inspection Station (`/ready-goods/aql-inspection`)
+- **File**: [`src/app/ready-goods/aql-inspection/components/AqlInspectionClient.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/ready-goods/aql-inspection/components/AqlInspectionClient.tsx)
+- **ISO 2859-1 Normal Level II Sampling Reference Table**:
+  - Interactive lookup table mapping lot sizes (e.g. 3,201–10,000 pcs $\rightarrow$ 200 pcs sample size).
+  - SLA enforcement: Strict 0 Critical Defects allowed, $\le 10$ Major Defects, $\le 14$ Minor Defects.
+- **Form 1 (AQL 2.5 Final Audit Submission Form)**: [`AqlAuditModal.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/ready-goods/aql-inspection/components/AqlAuditModal.tsx)
+  - Fields: `audit_number` (`AQL-XXXXX`), `order_id`, `carton_id`, `inspector_name`, `lot_size_pieces`, `sample_size_audited` (auto-calculated per ISO 2859-1), `critical_defects` (0 allowed), `major_defects`, `minor_defects`, `audit_decision` (`PASS`, `RE_AUDIT`, `REJECT_QUARANTINE`), `remarks`.
+  - **Automated Lifecycle Trigger**: Marking a carton or lot as `REJECT_QUARANTINE` automatically updates `ready_goods_cartons.status` to `QUARANTINED_AQL_FAILED` and halts godown release. Submitting `PASS` promotes carton to `AQL_AUDIT_PASSED`.
+
+### 11.4 Hangtag & Polybag Station (`/ready-goods/tagging-polybag`)
+- **File**: [`src/app/ready-goods/tagging-polybag/components/TaggingPolybagClient.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/ready-goods/tagging-polybag/components/TaggingPolybagClient.tsx)
+- **Verification Engine**: [`ScanHangtagModal.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/ready-goods/tagging-polybag/components/ScanHangtagModal.tsx)
+- **Operator Verification Checklist**:
+  - 13-digit EAN-13 / UPC barcode matched with buyer SKU.
+  - Kimble tag gun / micro-tach fastener attached firmly to armhole or neck seam.
+  - 2g silica gel moisture-barrier desiccant pouch placed inside.
+  - Warning-labeled polybag folded and adhesive heat-sealed.
+
+### 11.5 Master Carton Packing Manifest (`/ready-goods/carton-packing`)
+- **File**: [`src/app/ready-goods/carton-packing/components/CartonPackingClient.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/ready-goods/carton-packing/components/CartonPackingClient.tsx)
+- **Form 2 (Master Carton Packing & Gross Weight Form)**: [`SealCartonModal.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/ready-goods/carton-packing/components/SealCartonModal.tsx)
+  - Fields: `carton_number` (`CTN-XXXXX`), `order_id`, `packed_bundle_ids` (scanned bundle QR tickets from `cutting_bundles`), `total_pieces`, `size_breakdown` (ratio assortment grid e.g. `{"S": 10, "M": 15, "L": 15}`), `measured_gross_weight_kg`, `expected_gross_weight_kg` (auto-calculated from BOM yield + tare weight), `godown_bay` (`BAY_3`, `BAY_4`, `BAY_5`), operator signoff.
+  - **Zero Ghost Piece Enforcement**: Bundle linkage verification preventing overpacking beyond physical cut bundle quantities.
+
+### 11.6 Scale Weight & Carton Audit Log (`/ready-goods/carton-weight`)
+- **File**: [`src/app/ready-goods/carton-weight/components/CartonWeightClient.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/ready-goods/carton-weight/components/CartonWeightClient.tsx)
+- **Weighbridge Audit Modal**: [`ScaleAuditModal.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/ready-goods/carton-weight/components/ScaleAuditModal.tsx)
+- **Telemetry & Tolerance**: Digital scale integration monitoring load cells across Bay 3, Bay 4, and Bay 5 with a strict $\pm 0.15\text{ kg}$ tolerance. Automatically warns and locks cartons exceeding tolerance to prevent foreign objects or missing pieces.
+
+### 11.7 Central Godown Handover (`/ready-goods/handover`)
+- **File**: [`src/app/ready-goods/handover/components/GodownHandoverClient.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/ready-goods/handover/components/GodownHandoverClient.tsx)
+- **Pallet Manifest & Gate Pass Generator**: [`CreatePalletModal.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/ready-goods/handover/components/CreatePalletModal.tsx)
+- **Export Staging**: Groups `AQL_AUDIT_PASSED` export cartons onto wooden/plastic export pallets (`PLT-XXXX`), calculates aggregate gross weight and CBM volume, designates godown high-rack bay and container dock gate (`DOCK_01`, `DOCK_02`, `DOCK_03`), and issues official dispatch gate passes.
+
+### 11.8 PostgreSQL Database Schema Blueprint
+```sql
+-- 1. Master Packed Export Cartons
+CREATE TABLE ready_goods_cartons (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  carton_number VARCHAR(40) NOT NULL UNIQUE,
+  order_id UUID REFERENCES merchandising_orders(id) ON DELETE RESTRICTED,
+  total_pieces INTEGER NOT NULL CHECK (total_pieces > 0),
+  size_breakdown JSONB NOT NULL,
+  measured_gross_weight_kg NUMERIC(6,2) NOT NULL,
+  expected_gross_weight_kg NUMERIC(6,2) NOT NULL,
+  weight_variance_kg NUMERIC(4,2) GENERATED ALWAYS AS (measured_gross_weight_kg - expected_gross_weight_kg) STORED,
+  status VARCHAR(40) DEFAULT 'PACKED', -- PACKED, AQL_AUDIT_PASSED, QUARANTINED_AQL_FAILED, UNPACKED_FOR_REWORK, SHIPPED
+  godown_bay_location VARCHAR(30) DEFAULT 'BAY_3',
+  dimensions_cm VARCHAR(30) DEFAULT '60x40x40',
+  cbm_volume NUMERIC(5,3) DEFAULT 0.096,
+  sealed_by VARCHAR(100) NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 2. Carton-to-Bundle Traceability Binding (Closes the Zero Ghost Piece Chain)
+CREATE TABLE ready_goods_carton_bundles (
+  carton_id UUID REFERENCES ready_goods_cartons(id) ON DELETE CASCADE,
+  bundle_id UUID REFERENCES cutting_bundles(id) ON DELETE RESTRICTED,
+  pieces_from_bundle INTEGER NOT NULL CHECK (pieces_from_bundle > 0),
+  PRIMARY KEY (carton_id, bundle_id)
+);
+
+-- 3. AQL 2.5 Quality Audit Records (Populated by Form 1)
+CREATE TABLE ready_goods_aql_audits (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  audit_number VARCHAR(50) NOT NULL UNIQUE,
+  order_id UUID REFERENCES merchandising_orders(id) ON DELETE RESTRICTED,
+  carton_id UUID REFERENCES ready_goods_cartons(id) ON DELETE RESTRICTED,
+  inspector_id UUID REFERENCES employees(id) ON DELETE SET NULL,
+  lot_size_pieces INTEGER NOT NULL,
+  sample_size_audited INTEGER NOT NULL,
+  critical_defects INTEGER NOT NULL DEFAULT 0,
+  major_defects INTEGER NOT NULL DEFAULT 0,
+  minor_defects INTEGER NOT NULL DEFAULT 0,
+  audit_decision VARCHAR(30) NOT NULL, -- PASS, RE_AUDIT, REJECT_QUARANTINE
+  remarks TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 4. Weighbridge Scale Audit Logs
+CREATE TABLE ready_goods_scale_audits (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  scale_id VARCHAR(30) NOT NULL,
+  carton_id UUID REFERENCES ready_goods_cartons(id) ON DELETE RESTRICTED,
+  measured_weight_kg NUMERIC(6,2) NOT NULL,
+  expected_weight_kg NUMERIC(6,2) NOT NULL,
+  variance_kg NUMERIC(4,2) NOT NULL,
+  tolerance_passed BOOLEAN DEFAULT TRUE,
+  auditor_name VARCHAR(100) NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 5. Central Godown Pallet Gate Passes
+CREATE TABLE ready_goods_handovers (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  pallet_code VARCHAR(50) NOT NULL UNIQUE,
+  order_id UUID REFERENCES merchandising_orders(id) ON DELETE RESTRICTED,
+  total_cartons INTEGER NOT NULL,
+  total_pieces INTEGER NOT NULL,
+  total_gross_weight_kg NUMERIC(8,2) NOT NULL,
+  total_cbm NUMERIC(6,3) NOT NULL,
+  target_bay VARCHAR(30) DEFAULT 'BAY_3',
+  dock_gate VARCHAR(30) DEFAULT 'DOCK_01',
+  gate_pass_status VARCHAR(30) DEFAULT 'READY_FOR_STUFFING',
+  supervisor_signoff VARCHAR(100) NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 6. Trigger: Enforcing Carton Piece Ceiling Against Physical Bundles
+CREATE OR REPLACE FUNCTION validate_carton_bundle_sum()
+RETURNS TRIGGER AS $$
+DECLARE
+  v_bundle_pieces INTEGER;
+  v_already_packed INTEGER;
+BEGIN
+  SELECT piece_count INTO v_bundle_pieces FROM cutting_bundles WHERE id = NEW.bundle_id;
+  SELECT COALESCE(SUM(pieces_from_bundle), 0) INTO v_already_packed FROM ready_goods_carton_bundles
+  WHERE bundle_id = NEW.bundle_id AND carton_id != COALESCE(NEW.carton_id, '00000000-0000-0000-0000-000000000000');
+  
+  IF (v_already_packed + NEW.pieces_from_bundle) > v_bundle_pieces THEN
+    RAISE EXCEPTION 'Quantity Integrity Violation: Total pieces packed from bundle (%) exceeds physical bundle count (%)',
+      (v_already_packed + NEW.pieces_from_bundle), v_bundle_pieces;
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_validate_carton_bundle_sum
+BEFORE INSERT OR UPDATE ON ready_goods_carton_bundles
+FOR EACH ROW EXECUTE FUNCTION validate_carton_bundle_sum();
+
+-- 7. Trigger: Automated Carton Lifecycle Transition from AQL Decision
+CREATE OR REPLACE FUNCTION update_carton_status_from_aql()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF NEW.audit_decision = 'PASS' THEN
+    UPDATE ready_goods_cartons 
+    SET status = 'AQL_AUDIT_PASSED', updated_at = NOW() 
+    WHERE id = NEW.carton_id;
+  ELSIF NEW.audit_decision = 'REJECT_QUARANTINE' THEN
+    UPDATE ready_goods_cartons 
+    SET status = 'QUARANTINED_AQL_FAILED', updated_at = NOW() 
+    WHERE id = NEW.carton_id;
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_update_carton_status_from_aql
+AFTER INSERT OR UPDATE ON ready_goods_aql_audits
+FOR EACH ROW EXECUTE FUNCTION update_carton_status_from_aql();
+```
+
+---
+
+## 12. Cross-Division Handshake Architecture
 
 ```
 ┌───────────────────────────────────────────────────────────────────────────────┐
@@ -1079,18 +1262,23 @@ CREATE TABLE iron_handovers (
              │
              ▼ (Mobile Trolleys Manifest)
   [ 09. READY GOODS & PACKING FLOOR ]
-  Tagging, Polybagging, Carton Assortments
+  Tagging, Polybagging, Carton Assortments (AQL 2.5 Audit & ±0.15kg Scale Check)
+             │
+             ▼ (Pallet Gate Pass Handover)
+  [ 11. CENTRAL STORE GODOWN / EXPORT CONTAINER LOADING ]
+  High-Bay Stacking (Bay 3–5) & Dock 01–03 Container Stuffing
 ```
 
 ---
 
-## 12. Quality, Performance & Compliance Metrics
+## 13. Quality, Performance & Compliance Metrics
 
 - **Compilation Status**: Zero TypeScript compiler errors (`npx tsc --noEmit` exited code 0).
-- **Turbopack Cache Invalidation**: Fully resolved runtime `TypeError: ... is not a function` by creating dedicated `'use client'` storage utilities ([`cuttingStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/cutting/utils/cuttingStorage.ts), [`printingStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/printing/utils/printingStorage.ts), [`embroideryStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/embroidery/utils/embroideryStorage.ts), [`washingStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/washing/utils/washingStorage.ts), and [`ironStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/iron/utils/ironStorage.ts)).
+- **Turbopack Cache Invalidation**: Fully resolved runtime `TypeError: ... is not a function` by creating dedicated `'use client'` storage utilities ([`cuttingStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/cutting/utils/cuttingStorage.ts), [`printingStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/printing/utils/printingStorage.ts), [`embroideryStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/embroidery/utils/embroideryStorage.ts), [`washingStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/washing/utils/washingStorage.ts), [`ironStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/iron/utils/ironStorage.ts), and [`readyGoodsStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/ready-goods/utils/readyGoodsStorage.ts)).
 - **Live Supabase Synchronization**: Division 06 is 100% connected to live Supabase backend tables with full server action cache revalidations on all `/stitching-sewing/*` routes.
-- **Aesthetic Consistency**: Strict adherence to the Industrial Luxury design system across all views of Division 01, 02, 03, 04, 05, 06, 07, and 08.
+- **Aesthetic Consistency**: Strict adherence to the Industrial Luxury design system across all views of Division 01, 02, 03, 04, 05, 06, 07, 08, and 09.
 - **Brand Terminology**: Canonical brand name **"Zigza AI"** maintained across all routes and copilots.
+
 
 
 

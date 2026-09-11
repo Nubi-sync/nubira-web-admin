@@ -32,7 +32,7 @@ export const INITIAL_CARTONS: ReadyGoodsCarton[] = [
     measuredGrossWeightKg: 18.20,
     expectedGrossWeightKg: 18.15,
     weightVarianceKg: 0.05,
-    status: 'SEALED_WEIGHED' as any || 'AQL_AUDIT_PASSED',
+    status: 'AQL_AUDIT_PASSED',
     godownBay: 'BAY_3',
     dimensionsCm: '60x40x40',
     cbmVolume: 0.096,
