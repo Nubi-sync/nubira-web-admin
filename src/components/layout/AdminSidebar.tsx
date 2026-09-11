@@ -364,9 +364,14 @@ export function AdminSidebar({
         ],
       },
       {
-        section: '7. Washing Division',
+        section: '7. Washing Operations',
         items: [
-          { label: 'Industrial Washing', href: '/washing', icon: Waves },
+          { label: 'Washing Dashboard', href: '/washing', icon: Waves },
+          { label: 'Wash Recipes & Chemistry', href: '/washing/recipes', icon: FlaskConical },
+          { label: 'Tumbler & Hydro Runs', href: '/washing/machine-runs', icon: Cpu },
+          { label: 'Liquor Ratio & Water Audit', href: '/washing/liquor-audit', icon: Droplets },
+          { label: 'Shrinkage & Fastness QC', href: '/washing/shrinkage-qc', icon: CheckCircle2 },
+          { label: 'Finishing Handover', href: '/washing/handover', icon: ArrowRight },
           { label: 'Zigza AI', href: '/washing/zigza-ai', icon: Bot },
         ],
       },
