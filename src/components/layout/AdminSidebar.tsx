@@ -270,7 +270,12 @@ export function AdminSidebar({
       {
         section: '4. Printing Division',
         items: [
-          { label: 'Screen & Digital Print', href: '/printing', icon: Printer },
+          { label: 'Floor Dashboard', href: '/printing', icon: Printer },
+          { label: 'Screen & Stencil Library', href: '/printing/screens', icon: Layers },
+          { label: 'Table Batch Queue & DTG', href: '/printing/table-runs', icon: Cpu },
+          { label: 'Strike-Off Lab Approvals', href: '/printing/strike-offs', icon: FileCheck2 },
+          { label: 'Ink Kitchen & Recipes', href: '/printing/ink-kitchen', icon: Palette },
+          { label: 'Curing Oven & Fastness QC', href: '/printing/curing-qc', icon: Flame },
           { label: 'Zigza AI', href: '/printing/zigza-ai', icon: Bot },
         ],
       },
