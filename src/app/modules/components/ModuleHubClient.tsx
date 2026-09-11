@@ -206,6 +206,36 @@ export function ModuleHubClient({ userEmail, userName, userRole }: ModuleHubClie
         </div>
       </div>
 
+      {/* Supervisor Absentee Override Hub Banner */}
+      <div className="bg-gradient-to-r from-[#3A3564] to-[#2B274C] p-5 sm:p-6 rounded-2xl text-white shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="flex items-start sm:items-center gap-3.5">
+          <div className="w-11 h-11 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center shrink-0">
+            <Wrench className="w-5 h-5 text-amber-300" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h2 className="text-base sm:text-lg font-black tracking-tight text-white">
+                Floor Supervisor Operations & Absentee Override Hub
+              </h2>
+              <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-950">
+                Executive Control
+              </span>
+            </div>
+            <p className="text-xs sm:text-sm text-white/80 font-medium mt-0.5">
+              Direct access to Lineman lines, Mending verification, QC inspection, Store issuance, and Dispatch gates.
+            </p>
+          </div>
+        </div>
+
+        <Link
+          href="/stitching-sewing/supervisor-desk"
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-white hover:bg-[#FAF7F0] text-[#3A3564] font-bold text-xs sm:text-sm rounded-xl transition-all shadow-xs shrink-0 cursor-pointer"
+        >
+          <span>Open Floor Stations</span>
+          <ArrowRight className="w-4 h-4" />
+        </Link>
+      </div>
+
       {/* 2. 6 Equalized Enterprise Module Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
         {MODULES.map((mod) => {

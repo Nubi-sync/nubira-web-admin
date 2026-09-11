@@ -55,6 +55,7 @@ const navSections: NavSection[] = [
     section: 'Sewing Floor',
     items: [
       { label: 'Dashboard', href: '/stitching-sewing/dashboard', icon: LayoutDashboard },
+      { label: 'Supervisor Desk', href: '/stitching-sewing/supervisor-desk', icon: Wrench, badge: 'Override' },
       { label: 'Store Dashboard', href: '/stitching-sewing/store', icon: Store },
       { label: 'Zigza AI', href: '/stitching-sewing/zigza-ai', icon: Bot },
     ],
