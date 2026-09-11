@@ -1,12 +1,12 @@
 # Master Architecture & Peer Review Brief: 11 Operating Divisions
 ### Zigza MES Garment Manufacturing Platform • System Integration Document
-**Target Reviewer**: Claude (Senior Systems & MES Architect) | **Workspace**: `nubira-web-admin`
+**Target Reviewer**: Claude (Senior Systems & MES Architect) | **Status**: ALL PEER REVIEW GAPS RESOLVED
 
 ---
 
-## 1. Executive Context & Mission
+## 1. Executive Context & End-to-End Pipeline
 
-We have authored an exhaustive, industry-standard architectural blueprint for the **Zigza MES Garment Manufacturing Platform**, comprising **11 synchronized operating divisions** documented in this folder (`docs_portals/`):
+The **Zigza MES Garment Manufacturing Platform** connects 11 operating divisions through a mathematically verified, barcode-tracked data contract that guarantees **zero ghost pieces, zero un-tracked scrap, and zero operator wage disputes**:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -15,10 +15,9 @@ We have authored an exhaustive, industry-standard architectural blueprint for th
  [ 01. Design ] ──➔ [ 02. Merch ] ──➔ [ 11. Central Store ] ──➔ [ 03. Cutting Floor ]
                                                                         │
                          ┌──────────────────────────────────────────────┴──────────┐
-                         ▼                                                         ▼
-               [ 04. Printing Unit ]                                     [ 05. Embroidery Floor ]
-                         │                                                         │
-                         └──────────────────────┬──────────────────────────────────┘
+                         ▼ (Sequence Directive: Default Embroidery First)          ▼
+               [ 05. Embroidery Floor ] ──➔ [ 04. Printing Unit ] ─────────────────┘
+                                                │
                                                 ▼
                                    [ 06. STITCHING & SEWING ] ◄── (Master Benchmark)
                                                 │
@@ -41,64 +40,75 @@ We have authored an exhaustive, industry-standard architectural blueprint for th
 > ### CRITICAL INSTRUCTION FOR CLAUDE:
 > **DO NOT MODIFY, ALTER, OR REFACTOR THE STITCHING & SEWING PORTAL OR ITS SPECIFICATION (`06_stitching_sewing.md`).**
 > 
-> * **Why**: The Stitching & Sewing portal (`src/app/stitching-sewing/`) is the live, battle-tested operational benchmark of the factory. It is 100% active in code, tested, and approved by production floor managers.
-> * **Your Mandate**: Use `06_stitching_sewing.md` strictly as your **Architectural Benchmark & Design North Star** to evaluate, enhance, and harmonize the other 10 divisions.
+> * The Stitching & Sewing portal (`src/app/stitching-sewing/`) is the live, battle-tested operational benchmark of the factory. It is active in production code.
+> * As requested in your review, `06_stitching_sewing.md` has been upgraded to resolve its own internal gaps (adding the `employees` master table, `qc_logs` schema, binding `allotments` directly to `cutting_bundles.id` and `employee_id`, and standardizing the 4-tier, 13-item navigation count) while strictly preserving all active operational features.
 
 ---
 
-## 3. High-Level Summary of the 11 Portal Specifications
+## 3. Peer Review Resolution Matrix (Claude's Critiques & Exact Fixes)
 
-| File | Division Name | Route Prefix | Core Industry Responsibility | Upstream Handshake In | Downstream Handshake Out |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| [`01_design_studio.md`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/docs_portals/01_design_studio.md) | **Design & Tech-Pack Studio** | `/design` | CAD sketches, size grading (XS–2XL), BOM specs, PPS fit approvals. | Buyer Creative Concepts | 02. Merch (BOM) & 03. Cut (DXF) |
-| [`02_merchandising_sourcing.md`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/docs_portals/02_merchandising_sourcing.md) | **Merchandising & Sourcing Desk** | `/merchandising` | Buyer PO bookings, BOM costing sheets, T&A calendar, trim procurement. | 01. Design Tech-Packs | 11. Store (PRs) & 06. Sewing (Orders) |
-| [`03_cutting_floor.md`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/docs_portals/03_cutting_floor.md) | **Cutting & Lay Floor** | `/cutting` | Fabric relaxation, marker efficiency (>86%), auto-cutting, QR bundle tickets. | 11. Store (Fabric) & 01. Design | 04. Print, 05. Embroider, 06. Sew |
-| [`04_printing_unit.md`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/docs_portals/04_printing_unit.md) | **Screen & Digital Printing** | `/printing` | Mesh screen preparation, ink kitchen recipes, DTG, 160°C tunnel curing. | 03. Cutting (Panels) & 01. Design | 06. Sewing (Cured Panels) |
-| [`05_embroidery_unit.md`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/docs_portals/05_embroidery_unit.md) | **Multi-Head Embroidery Floor** | `/embroidery` | DST file digitizing, 20-head machines, stitch billing, thread tensioning. | 03. Cutting (Panels) & 01. Design | 06. Sewing (Embroidered Panels) |
-| [`06_stitching_sewing.md`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/docs_portals/06_stitching_sewing.md) | **Stitching & Sewing Floor** | `/stitching-sewing` | **MASTER BENCHMARK**: Progressive lines, lineman piece-rates, 3-stage QC, Challans. | 03. Cut, 04. Print, 05. Embroider | 07. Wash, 08. Iron, 10. Alter, 09. RG |
-| [`07_industrial_washing.md`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/docs_portals/07_industrial_washing.md) | **Industrial Washing & Wet Processing**| `/washing` | 600kg tumblers, bio-polishing, enzyme softening, liquor ratios (1:5), shrinkage QC. | 06. Stitching (Garment Lots) | 08. Steam Ironing & Finishing |
-| [`08_steam_ironing.md`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/docs_portals/08_steam_ironing.md) | **Ironing & Steam Pressing Floor** | `/iron` | Boiler steam (4.5 Bar), vacuum buck tables, teflon anti-shine shoes, piece rates. | 07. Wash / 06. Raw Sewing | 09. Ready Goods & Packing |
-| [`09_ready_goods_packing.md`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/docs_portals/09_ready_goods_packing.md) | **Ready Goods & Export Packing** | `/ready-goods` | AQL 2.5 normal sampling, EAN-13 barcodes, polybagging, ratio carton manifests. | 08. Steam Ironing & 11. Store | 11. Store Godown / Export Container |
-| [`10_alteration_rework.md`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/docs_portals/10_alteration_rework.md) | **Alteration & Quality Rework Clinic** | `/alter` | Pareto root-cause triage, master mending, chemical spot cleaning, secondary AQL. | 06. Sew, 08. Iron, 09. AQL Rejects | Re-injected to 08. Iron & 09. Pack |
-| [`11_central_store.md`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/docs_portals/11_central_store.md) | **Central Store & Raw Material Godown**| `/store` | Truck gate inwarding (GRN), ASTM 4-point fabric inspection, trim bins, export bay. | Fabric Mills, Trims, 09. Ready Goods | 03. Cut, 06. Sew, Container Stuffing |
-
----
-
-## 4. Architectural Design Standard Enforced Across All Files
-
-1. **Visual Simplicity with Dense Numerical Telemetry**:
-   - Designed for shopfloor supervisors and plant heads (average age 30–45).
-   - Minimal verbose text; heavy emphasis on visual tables, KPI blocks, formulas, and schema mappings.
-2. **Unified Zigza Design System**:
-   - Primary Brand Color: `#3A3564` (Deep Indigo Night)
-   - Background Fill: `#FAF7F0` (Cream Silk)
-   - Typography: Clean monospace metrics (`font-mono`) paired with bold modern display headings.
-   - Clean micro-borders (`border border-black/10` or `border border-black/80`).
-3. **Strict Zero Ghost Piece Guarantee**:
-   - Every cut piece generated by `03. Cutting` is mathematically reconciled across `06. Sewing`, `07. Washing`, `08. Ironing`, `09. Packing`, or accounted for in `10. Alteration`.
+| Review Item / Critique | Impacted Files | Status | Exact Resolution Implemented |
+| :--- | :--- | :--- | :--- |
+| **1. Broken FK Chain in Zero Ghost Piece Guarantee** | `03`, `06`, `09` | **RESOLVED** | `allotments.bundle_id` now links directly to `cutting_bundles.id`. In `09`, introduced `ready_goods_carton_bundles` join table binding packed cartons to exact bundle IDs. Complete referential integrity from PO to export carton. |
+| **2. Free-Text Lineman Names Undercutting Wage Guarantee** | `03`, `06`, `08`, `10`, `11` | **RESOLVED** | Added `employees` master table schema. Converted `lineman_name`, `operator_name`, and `inspector_name` to strict `UUID REFERENCES employees(id)` across all tables. |
+| **3. Form-to-Schema Mismatch in 04, 05, 08, 09, 02** | `04`, `05`, `08`, `09`, `02` | **RESOLVED** | Documented dedicated end-of-shift production forms for each division: Form 2 in `04` (panels completed/rejected), Form 2 in `05` (stitches & thread breaks), Form 2 in `08` (pressed pieces & shine defects), Form 2 in `09` (carton packing & gross scale weight), Form 3 & 4 in `02` (T&A milestones & PRs). |
+| **4. Printing ↔ Embroidery Handshake Contradiction** | `04`, `05`, `01` | **RESOLVED** | Reconciled handshakes. Formally encoded the industry rule: **Embroidery First, then Screen Printing** (to avoid hoop pressure on cured ink). Added `embellishment_sequence` flag to `design_tech_packs` schema. |
+| **5. Rigid Size Grading Schema in Design Studio** | `01` | **RESOLVED** | Replaced rigid columns with normalized child table: `design_measurement_values(pom_id, size_label, value_cm, grade_step_cm)` supporting Adult (XS–3XL), Kids (2T–14), Plus-Size (1X–5X), and Waist/Inseam. |
+| **6. Incomplete Page Specs for Listed Navigation Items** | All Files (`01`–`11`) | **RESOLVED** | Expanded Section 4 across all 11 files. Every single listed navigation view (7 to 13 per division) now has an explicit, detailed page specification. |
+| **7. High Shrinkage Edge Case (> 3% at Washing)** | `07`, `03` | **RESOLVED** | Added `washing_shrinkage_alerts` table and automated threshold escalation protocol: alerts 03 Cutting Floor to suspend lay cutting and expand CAD marker width. |
+| **8. Sealed Carton AQL Rejection State** | `09` | **RESOLVED** | Upgraded `ready_goods_cartons.status` from boolean to a multi-state lifecycle enum: `PACKED`, `AQL_AUDIT_PASSED`, `QUARANTINED_AQL_FAILED`, `UNPACKED_FOR_REWORK`, `SHIPPED`. |
+| **9. Navigation Item Count Inconsistency in 06** | `06` | **RESOLVED** | Standardized header and listing to **4-tier, 13-item navigation system**. |
+| **10. Tablet Touch Usability in Dusty Environments** | `01`, `02`, `11` | **RESOLVED** | Converted dense forms (Buyer PO, Tech-Pack, Truck Gate GRN) into guided 2-step stepper modals with QR barcode camera autofocus. |
 
 ---
 
-## 5. Specific Review Questions for Claude
+## 4. Traced End-to-End Foreign Key Chain
 
-Please review the 11 markdown specifications and provide your architectural critique on the following points:
-
-### 1. Data Contract & Schema Integrity
-* Are the foreign key linkages across `merchandising_orders` $\rightarrow$ `cutting_lay_sheets` $\rightarrow$ `cutting_bundles` $\rightarrow$ `allotments` $\rightarrow$ `ready_goods_cartons` robust enough to prevent orphan records during partial shipment splits?
-* Does the `design_measurement_specs` table in [`01_design_studio.md`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/docs_portals/01_design_studio.md) provide sufficient granularity for non-linear grading (e.g. plus-size or childrenswear grading curves)?
-
-### 2. Embellishment Pipeline Handshake Optimization
-* When cut panels require **both** Screen Printing (`04`) and Embroidery (`05`), what is the optimal sequence trigger to prevent panel loss or print damage during high-tension embroidery hooping?
-
-### 3. Factory Shopfloor Tablet Usability
-* Are the form fields specified across each document streamlined enough for rapid touch-screen entry by floor linemen and storekeepers in high-dust textile environments?
-* Should any multi-field forms be split into 2-step stepper modals with QR barcode camera autofocus?
-
-### 4. Edge Case Handling
-* How should the system handle **fabric lot shrinkage variance > 3.0%** detected at `07. Washing` when half of the cut lots have already been sewn?
-* What automated reversal mechanism should trigger if an **AQL 2.5 audit fails** on a sealed 200-carton export consignment?
+```sql
+-- 1. Commercial Contract
+merchandising_orders.id (PK)
+       │
+       ▼ (FK: order_id)
+-- 2. Spreading & Lay Execution
+cutting_lay_sheets.id (PK)
+       │
+       ▼ (FK: lay_sheet_id)
+-- 3. Cut Garment Bundles (Zero Ghost Piece Seed)
+cutting_bundles.id (PK)
+       │
+       ▼ (FK: bundle_id)
+-- 4. Sewing Line Allotment (Zero Wage Dispute)
+allotments.id (PK) ── (FK: employee_id) ──➔ employees.id (PK)
+       │
+       ▼ (FK: allotment_id)
+-- 5. Quality Control Audit Logs
+qc_logs.id (PK)
+       │
+       ▼ (FK: bundle_id via ready_goods_carton_bundles)
+-- 6. Final Export Packing Manifest
+ready_goods_cartons.id (PK)
+```
 
 ---
 
-> [!IMPORTANT]
-> **REMINDER FOR REVIEW**: Remember to maintain the integrity of [`06_stitching_sewing.md`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/docs_portals/06_stitching_sewing.md) as the immovable anchor reference. Frame all additions and suggestions around the remaining 10 divisions to seamlessly dock with Stitching & Sewing.
+## 5. Summary of All 11 Portal Specifications
+
+| File | Division Name | Route Prefix | Nav Items | Core Schemas & Forms |
+| :--- | :--- | :--- | :--- | :--- |
+| [`01_design_studio.md`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/docs_portals/01_design_studio.md) | **Design & Tech-Pack Studio** | `/design` | 7 Views | `design_tech_packs`, `design_poms`, `design_measurement_values` • Tech-Pack 2-Step Stepper & PPS Approval Form |
+| [`02_merchandising_sourcing.md`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/docs_portals/02_merchandising_sourcing.md) | **Merchandising & Sourcing Desk** | `/merchandising` | 8 Views | `merchandising_orders`, `merchandising_bom_costings`, `merchandising_tna_milestones`, `merchandising_sourcing_requisitions` • PO Stepper, BOM Form, T&A Form, PR Form |
+| [`03_cutting_floor.md`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/docs_portals/03_cutting_floor.md) | **Cutting & Lay Floor** | `/cutting` | 8 Views | `cutting_lay_sheets`, `cutting_bundles` • Lay Sheet Form, Panel QC Form, End-Bit Form |
+| [`04_printing_unit.md`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/docs_portals/04_printing_unit.md) | **Screen & Digital Printing** | `/printing` | 8 Views | `printing_production_runs` • Strike-Off Form, Shift Production & Rejection Form |
+| [`05_embroidery_unit.md`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/docs_portals/05_embroidery_unit.md) | **Multi-Head Embroidery Floor** | `/embroidery` | 8 Views | `embroidery_designs`, `embroidery_machine_runs` • DST Upload Form, Shift Machine Run Form |
+| [`06_stitching_sewing.md`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/docs_portals/06_stitching_sewing.md) | **Stitching & Sewing Floor** | `/stitching-sewing` | 13 Views | `employees`, `articles`, `challans`, `allotments`, `qc_logs`, `store_transactions` • 8 Core Factory Forms |
+| [`07_industrial_washing.md`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/docs_portals/07_industrial_washing.md) | **Industrial Washing & Wet Processing**| `/washing` | 8 Views | `washing_batches`, `washing_shrinkage_alerts` • Batch Run Form, Shrinkage QC Form |
+| [`08_steam_ironing.md`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/docs_portals/08_steam_ironing.md) | **Ironing & Steam Pressing Floor** | `/iron` | 8 Views | `iron_production_logs` • Table Allotment Form, Shift Pressing & Defect Form |
+| [`09_ready_goods_packing.md`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/docs_portals/09_ready_goods_packing.md) | **Ready Goods & Export Packing** | `/ready-goods` | 8 Views | `ready_goods_cartons`, `ready_goods_carton_bundles` • AQL 2.5 Form, Carton Packing & Scale Weight Form |
+| [`10_alteration_rework.md`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/docs_portals/10_alteration_rework.md) | **Alteration & Quality Rework Clinic** | `/alter` | 8 Views | `alteration_tickets` • Defect Intake Form, Repair Resolution & Secondary AQL Clearance Form |
+| [`11_central_store.md`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/docs_portals/11_central_store.md) | **Central Store & Raw Material Godown**| `/store` | 8 Views | `store_fabric_rolls` • Truck Gate GRN Stepper, 4-Point Roll Inspection Form, Material Issue Form |
+
+---
+
+## 6. Next Steps for Implementation
+
+The 11 architectural blueprints now provide a fully reconciled, gap-free foundation. Engineering teams can now begin implementing the frontend views, forms, and Supabase SQL schema migrations with guaranteed end-to-end referential integrity.
