@@ -61,22 +61,27 @@ The **Zigza MES Garment Manufacturing Platform** connects 11 operating divisions
 ## 4. Accurate Relational & Foreign Key Chain
 
 ```sql
--- 1. Commercial Contract
-merchandising_orders.id (PK)
-       │
-       ▼ (FK: order_id)
--- 2. Spreading & Lay Execution
-cutting_lay_sheets.id (PK)
-       │
-       ▼ (FK: lay_sheet_id)
+-- 0. Core Enterprise Entities (Managed by 06 /stitching-sewing/vendors)
+brands.id (PK) ── (1:N) ──➔ vendors.id (PK)
+       │                         │
+       ├─────────────────────────┼───────────────────────────┐
+       ▼ (FK: brand_id)          ▼ (FK: vendor_id)           ▼ (FK: brand_id)
+-- 1. Commercial Contract & Challans
+merchandising_orders.id (PK)    challans.id (PK)
+       │                               │
+       ▼ (FK: order_id)                │
+-- 2. Spreading & Lay Execution         │
+cutting_lay_sheets.id (PK)             │
+       │                               │
+       ▼ (FK: lay_sheet_id)            │
 -- 3. Cut Garment Bundles (Zero Ghost Piece Seed)
-cutting_bundles.id (PK)
-       │
-       ├──────────────────────────────────────────────────┐
-       ▼ (FK: bundle_id)                                  ▼ (FK: bundle_id)
--- 4. Sewing Line Allotment                -- 5. Carton Packing Join Binding
-allotments.id (PK)                         ready_goods_carton_bundles
-       │                                   (carton_id, bundle_id, pieces_from_bundle)
+cutting_bundles.id (PK)                │
+       │                               │
+       ├───────────────────────────────┼──────────────────┐
+       ▼ (FK: bundle_id)               │                  ▼ (FK: bundle_id)
+-- 4. Sewing Line Allotment (FK: challan_id) -- 5. Carton Packing Join Binding
+allotments.id (PK)                     ready_goods_carton_bundles
+       │                               (carton_id, bundle_id, pieces_from_bundle)
        ├─────────────────────────┐                        │
        ▼ (FK: employee_id)       ▼ (FK: allotment_id)     │
 employees.id (PK)              qc_logs.id (PK)            ▼ (FK: carton_id)
@@ -130,7 +135,7 @@ FOR EACH ROW EXECUTE FUNCTION update_carton_status_from_aql();
 | [`03_cutting_floor.md`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/docs_portals/03_cutting_floor.md) | **Cutting & Lay Floor** | `/cutting` | 8 Views | `cutting_lay_sheets`, `cutting_bundles`, `cutting_panel_qc_audits`, `cutting_end_bit_logs` • 3 Complete Forms + Trigger |
 | [`04_printing_unit.md`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/docs_portals/04_printing_unit.md) | **Screen & Digital Printing** | `/printing` | 8 Views | `printing_production_runs` • Strike-Off Form, Shift Production & Rejection Form |
 | [`05_embroidery_unit.md`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/docs_portals/05_embroidery_unit.md) | **Multi-Head Embroidery Floor** | `/embroidery` | 8 Views | `embroidery_designs`, `embroidery_machine_runs` • DST Upload Form, Shift Machine Run Form |
-| [`06_stitching_sewing.md`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/docs_portals/06_stitching_sewing.md) | **Stitching & Sewing Floor** | `/stitching-sewing` | 13 Views | `employees`, `articles`, `challans`, `allotments`, `qc_logs`, `store_transactions` • 8 Core Factory Forms + Trigger |
+| [`06_stitching_sewing.md`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/docs_portals/06_stitching_sewing.md) | **Stitching & Sewing Floor** | `/stitching-sewing` | 13 Views | `brands`, `vendors`, `employees`, `articles`, `challans`, `allotments`, `qc_logs`, `store_transactions` • 8 Core Factory Forms + Trigger |
 | [`07_industrial_washing.md`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/docs_portals/07_industrial_washing.md) | **Industrial Washing & Wet Processing**| `/washing` | 8 Views | `washing_batches`, `washing_shrinkage_alerts` • Batch Run Form, Shrinkage QC Form |
 | [`08_steam_ironing.md`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/docs_portals/08_steam_ironing.md) | **Ironing & Steam Pressing Floor** | `/iron` | 8 Views | `iron_production_logs` • Table Allotment Form, Shift Pressing & Defect Form |
 | [`09_ready_goods_packing.md`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/docs_portals/09_ready_goods_packing.md) | **Ready Goods & Export Packing** | `/ready-goods` | 8 Views | `ready_goods_cartons`, `ready_goods_carton_bundles`, `ready_goods_aql_audits` • AQL 2.5 Form, Carton Packing Form + Trigger |

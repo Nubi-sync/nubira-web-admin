@@ -189,7 +189,7 @@ The Merchandising portal has **8 dedicated side navigation views**:
   | `etd_date` | Date Picker | Yes | Estimated departure | Loading date |
   | `eta_date` | Date Picker | Yes | Estimated arrival | Destination arrival date |
   | `bl_number` | Text | No | Bill of Lading number | Transport document |
-  | `shipment_status` | Select Dropdown | Yes | `BOOKED`, `CONTAINER_STUFFED`, `SAILING`, `CUSTOMS_CLEARED`, `DELIVERED` | Status lifecycle |
+  | `status` | Select Dropdown | Yes | `BOOKED`, `CONTAINER_STUFFED`, `SAILING`, `CUSTOMS_CLEARED`, `DELIVERED` | Status lifecycle |
 
 ---
 

@@ -3,8 +3,8 @@
 **Route Prefix**: `/stitching-sewing` | **Division Order**: 06 of 11 | **Theme**: `#3A3564` (Indigo Night) & `#FAF7F0` (Cream Silk)
 
 > [!IMPORTANT]
-> **MASTER BENCHMARK REFERENCE NOTICE**:
-> This document represents the operational **Gold Standard** of the Zigza MES ecosystem. The Stitching & Sewing Floor is already operational in active code. All other 10 division documentation files take structural, navigational, and schema reference from this benchmark.
+> **MASTER BENCHMARK REFERENCE NOTICE (FROZEN STATUS)**:
+> This document represents the operational **Gold Standard** of the Zigza MES ecosystem, directly matching production code (`src/app/stitching-sewing/` and `src/app/vendors/actions.ts`). All master entities (`brands`, `vendors`, `employees`, `articles`, `challans`, `allotments`, `qc_logs`, `store_transactions`) are 100% reconciled to the live database schema, and this specification is now formally locked.
 
 ---
 
@@ -144,7 +144,7 @@ The Stitching & Sewing Floor portal features a comprehensive **4-tier, 13-item n
 
 ## 5. Complete Forms Catalog (Every Form in Total)
 
-The Stitching & Sewing portal contains **8 production-critical data entry forms**:
+The Stitching & Sewing portal contains **9 production-critical data entry forms**:
 
 ### Form 1: Delivery Challan Creation & Excel Import Form
 * **Location**: `/stitching-sewing/production-orders`
@@ -170,9 +170,15 @@ The Stitching & Sewing portal contains **8 production-critical data entry forms*
 * **Location**: `/stitching-sewing/store`
 * **Fields**: `original_challan_id`, `damaged_panel_type`, `quantity`, `defect_reason`, `supervisor_signoff`.
 
-### Form 7: Brand & Vendor Registration Form
-* **Location**: `/stitching-sewing/vendors`
-* **Fields**: `entity_type` (`BRAND` vs `VENDOR`), `name`, `contact_person`, `phone`, `gst_number`, `address`, `linked_brand_id` (if vendor).
+### Form 7A: Principal Buyer Brand Registration Form
+* **Location**: `/stitching-sewing/vendors` (Action: `+ Add Brand` Modal)
+* **Purpose**: **Directly creates records in `brands` table**.
+* **Fields**: `brand_code` (Unique prefix, e.g. `OLY`), `brand_name` (e.g. `OLLYPOP`), `contact_person`, `city`, `phone`, `email`, `gstin`.
+
+### Form 7B: Sub-Contract Vendor Registration Form
+* **Location**: `/stitching-sewing/vendors` (Action: `+ Add Vendor` Modal)
+* **Purpose**: **Directly creates records in `vendors` table**.
+* **Fields**: `vendor_code` (Unique prefix, e.g. `VND-SHANTI-01`), `vendor_name`, `brand_id` (Dropdown FK to `brands.id`), `vendor_type` (`STITCHING_JOB_WORK`, `FABRIC_SUPPLIER`, `TRIMS_ACCESSORIES`, `PRINTING_EMBROIDERY`, `WASHING_FINISHING`), `stitching_rate` (Numeric, e.g. ₹20.00), `contact_person`, `phone`, `city`, `address`, `gst_no`.
 
 ### Form 8: Outward Delivery Challan & Dispatch Form
 * **Location**: `/stitching-sewing/dispatch`
@@ -191,7 +197,41 @@ The Stitching & Sewing portal contains **8 production-critical data entry forms*
 ## 7. Database Schema Reference (Enhanced Benchmark Architecture)
 
 ```sql
--- 1. Employees Master Table (Eliminates Free-Text Lineman Names)
+-- 1. Master Brands Table (Principal Buyers / Retailers)
+CREATE TABLE brands (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  brand_code VARCHAR(30) NOT NULL UNIQUE, -- e.g. OLY, ZAR, HM
+  brand_name VARCHAR(100) NOT NULL UNIQUE, -- e.g. OLLYPOP, ZARA, H&M
+  contact_person VARCHAR(100),
+  phone VARCHAR(20),
+  email VARCHAR(100),
+  city VARCHAR(50) DEFAULT 'Kolkata',
+  address TEXT,
+  gstin VARCHAR(30),
+  is_active BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 2. Master Vendors & Sub-Contract Units (Job-Workers & Suppliers)
+CREATE TABLE vendors (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  vendor_code VARCHAR(50) NOT NULL UNIQUE, -- e.g. VND-SHANTI-01
+  vendor_name VARCHAR(100) NOT NULL,
+  brand_id UUID REFERENCES brands(id) ON DELETE SET NULL,
+  brand_name VARCHAR(100),
+  vendor_type VARCHAR(50) DEFAULT 'STITCHING_JOB_WORK', -- STITCHING_JOB_WORK, FABRIC_SUPPLIER, TRIMS_ACCESSORIES, PRINTING_EMBROIDERY, WASHING_FINISHING
+  contact_person VARCHAR(100),
+  phone VARCHAR(20),
+  city VARCHAR(50) DEFAULT 'Kolkata',
+  address TEXT,
+  gst_no VARCHAR(30),
+  stitching_rate NUMERIC(8,2) DEFAULT 20.00,
+  is_active BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 3. Employees Master Table (Eliminates Free-Text Lineman Names)
 CREATE TABLE employees (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   employee_code VARCHAR(30) NOT NULL UNIQUE, -- e.g. EMP-1042
@@ -203,7 +243,7 @@ CREATE TABLE employees (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 2. Core Production Articles
+-- 4. Core Production Articles
 CREATE TABLE articles (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   art_no VARCHAR(50) NOT NULL UNIQUE,
@@ -213,7 +253,7 @@ CREATE TABLE articles (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 3. Master Challans
+-- 5. Master Challans
 CREATE TABLE challans (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   challan_no VARCHAR(60) NOT NULL UNIQUE,
@@ -227,7 +267,7 @@ CREATE TABLE challans (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 4. Lineman Target Allotments (Strict FK Chain to cutting_bundles & employees)
+-- 6. Lineman Target Allotments (Strict FK Chain to cutting_bundles & employees)
 CREATE TABLE allotments (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   challan_id UUID REFERENCES challans(id) ON DELETE CASCADE,
@@ -241,7 +281,7 @@ CREATE TABLE allotments (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 5. Quality Control Audit Logs (Inline & End-of-Line Audits)
+-- 7. Quality Control Audit Logs (Inline & End-of-Line Audits)
 CREATE TABLE qc_logs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   allotment_id UUID REFERENCES allotments(id) ON DELETE CASCADE,
@@ -253,7 +293,7 @@ CREATE TABLE qc_logs (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 6. Store Transactions & GRN
+-- 8. Store Transactions & GRN
 CREATE TABLE store_transactions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   entry_date DATE DEFAULT CURRENT_DATE,
@@ -266,7 +306,7 @@ CREATE TABLE store_transactions (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 7. Quantity Integrity Constraint Trigger (Enforces Piece Count Ceiling)
+-- 9. Quantity Integrity Constraint Trigger (Enforces Piece Count Ceiling)
 CREATE OR REPLACE FUNCTION validate_bundle_allotment_sum()
 RETURNS TRIGGER AS $$
 DECLARE
