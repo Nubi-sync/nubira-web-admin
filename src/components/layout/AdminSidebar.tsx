@@ -41,7 +41,8 @@ import {
   CheckCircle2,
   Clock,
   Cpu,
-  BarChart3
+  BarChart3,
+  FileCode
 } from 'lucide-react'
 
 type NavItem = {
@@ -297,7 +298,12 @@ export function AdminSidebar({
       {
         section: '5. Embroidery Division',
         items: [
-          { label: 'Multi-Head Embroidery', href: '/embroidery', icon: Sparkles },
+          { label: 'Floor Dashboard', href: '/embroidery', icon: Sparkles },
+          { label: 'DST Punch File Library', href: '/embroidery/punch-library', icon: FileCode },
+          { label: 'Machine Runs & Hooping', href: '/embroidery/machine-runs', icon: Cpu },
+          { label: 'Stitch Count & Billing', href: '/embroidery/stitch-billing', icon: Calculator },
+          { label: 'Thread Store & Cones Log', href: '/embroidery/thread-store', icon: Boxes },
+          { label: 'Quality & Thread Break QC', href: '/embroidery/embroidery-qc', icon: CheckCircle2 },
           { label: 'Zigza AI', href: '/embroidery/zigza-ai', icon: Bot },
         ],
       },
