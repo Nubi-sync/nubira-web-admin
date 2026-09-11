@@ -16,7 +16,7 @@ import {
   ArrowRight
 } from 'lucide-react'
 import { PanelQcAudit, PanelQcResult, LaySheet } from '../../types/cutting'
-import { getPanelAudits, savePanelAudit, getLaySheets } from '../../utils/storage'
+import { getPanelAudits, savePanelAudit, getLaySheets } from '../../utils/cuttingStorage'
 
 export function PanelQcClient() {
   const [audits, setAudits] = useState<PanelQcAudit[]>([])

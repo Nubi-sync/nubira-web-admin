@@ -31,7 +31,7 @@ import {
   saveCutBundle,
   getMarkers,
   getEndBits
-} from '../utils/storage'
+} from '../utils/cuttingStorage'
 
 interface CuttingDashboardClientProps {
   userEmail?: string

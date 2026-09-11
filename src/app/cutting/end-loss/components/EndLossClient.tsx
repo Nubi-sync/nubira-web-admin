@@ -15,7 +15,7 @@ import {
   Scissors
 } from 'lucide-react'
 import { EndLossRemnant, RemnantDisposition } from '../../types/cutting'
-import { getEndLossRemnants, saveEndLossRemnant } from '../../utils/storage'
+import { getEndLossRemnants, saveEndLossRemnant } from '../../utils/cuttingStorage'
 
 export function EndLossClient() {
   const [remnants, setRemnants] = useState<EndLossRemnant[]>([])
@@ -230,7 +230,7 @@ export function EndLossClient() {
                     <td className="py-3.5 px-4 font-mono font-bold text-slate-900">
                       <div>{rem.remnant_code}</div>
                       <div className="text-[10px] text-slate-400 font-normal">
-                        {new Date(rem.logged_at).toLocaleDateString()}
+                        {new Date(rem.logged_at || rem.created_at || Date.now()).toLocaleDateString()}
                       </div>
                     </td>
                     <td className="py-3.5 px-4 font-mono text-[#3A3564] font-bold">

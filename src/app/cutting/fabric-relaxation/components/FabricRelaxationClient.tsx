@@ -15,7 +15,7 @@ import {
   ArrowRight
 } from 'lucide-react'
 import { FabricRollStaging, RollRelaxationStatus } from '../../types/cutting'
-import { getFabricRolls, saveFabricRoll } from '../../utils/storage'
+import { getFabricRolls, saveFabricRoll } from '../../utils/cuttingStorage'
 
 export function FabricRelaxationClient() {
   const [rolls, setRolls] = useState<FabricRollStaging[]>([])
