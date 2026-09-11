@@ -1,4 +1,4 @@
-import { LaySheet, CutBundle, MarkerEfficiency, PanelQCAudit, EndBitRemnant, CuttingTable } from '../types/cutting'
+import { LaySheet, CutBundle, MarkerEfficiency, PanelQCAudit, PanelQcAudit, EndBitRemnant, CuttingTable, FabricRollStaging, EndLossRemnant } from '../types/cutting'
 
 export const INITIAL_CUTTING_TABLES: CuttingTable[] = [
   {
@@ -522,7 +522,7 @@ export const INITIAL_END_BITS: EndBitRemnant[] = [
   }
 ]
 
-export const INITIAL_FABRIC_ROLLS: any[] = [
+export const INITIAL_FABRIC_ROLLS: FabricRollStaging[] = [
   {
     id: 'roll-101',
     roll_barcode: 'ROL-2026-101',
@@ -573,7 +573,7 @@ export const INITIAL_FABRIC_ROLLS: any[] = [
   }
 ]
 
-export const INITIAL_END_LOSS_REMNANTS: any[] = [
+export const INITIAL_END_LOSS_REMNANTS: EndLossRemnant[] = [
   {
     id: 'rem-01',
     remnant_code: 'REM-2026-01',
@@ -602,7 +602,7 @@ export const INITIAL_END_LOSS_REMNANTS: any[] = [
   }
 ]
 
-export const INITIAL_PANEL_AUDITS: any[] = [
+export const INITIAL_PANEL_AUDITS: PanelQcAudit[] = [
   {
     id: 'pqc-101',
     audit_number: 'QC-CUT-9011',

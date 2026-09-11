@@ -16,7 +16,7 @@ import {
   AlertCircle
 } from 'lucide-react'
 import { LaySheet, LaySheetStatus } from '../../types/cutting'
-import { getLaySheets, saveLaySheet } from '../../utils/storage'
+import { getLaySheets, saveLaySheet } from '../../utils/cuttingStorage'
 
 export function LaySheetsClient() {
   const [lays, setLays] = useState<LaySheet[]>([])

@@ -16,7 +16,7 @@ import {
   Ruler
 } from 'lucide-react'
 import { MarkerEfficiency, CADSoftware } from '../../types/cutting'
-import { getMarkers, saveMarker } from '../../utils/storage'
+import { getMarkers, saveMarker } from '../../utils/cuttingStorage'
 
 export function MarkersClient() {
   const [markers, setMarkers] = useState<MarkerEfficiency[]>([])

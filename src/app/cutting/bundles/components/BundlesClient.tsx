@@ -17,7 +17,7 @@ import {
   Layers
 } from 'lucide-react'
 import { CutBundle, BundleStatus, HandoverDestination, LaySheet } from '../../types/cutting'
-import { getCutBundles, saveCutBundle, bulkAddCutBundles, getLaySheets } from '../../utils/storage'
+import { getCutBundles, saveCutBundle, bulkAddCutBundles, getLaySheets } from '../../utils/cuttingStorage'
 
 export function BundlesClient() {
   const [bundles, setBundles] = useState<CutBundle[]>([])
