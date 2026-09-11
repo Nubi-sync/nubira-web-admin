@@ -8,6 +8,7 @@ This document records the architectural specifications, implemented features, po
 4. **Division 02: Merchandising & Sourcing Desk** (`/merchandising`)
 5. **Division 03: Cutting & Lay Floor Operations** (`/cutting`)
 6. **Division 04: Screen & Digital Printing Unit** (`/printing`)
+7. **Division 05: Multi-Head Embroidery Unit** (`/embroidery`)
 
 All divisions strictly conform to the **Industrial Luxury** aesthetic defined in [`docs_logic/design.md`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/docs_logic/design.md) (Palette `#3A3564` Indigo Night, `#FAF7F0` Cream Canvas, `#FFFFFF` crisp encapsulated cards, `#09090B` Ink, and semantic status badge pastels).
 
@@ -355,7 +356,174 @@ CREATE TABLE printing_curing_logs (
 
 ---
 
-## 7. Cross-Division Handshake Architecture
+## 7. Division 05: Multi-Head Embroidery Unit (`/embroidery`)
+
+### 7.1 Portal Routing & Sidebar Integration
+[`AdminSidebar.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/components/layout/AdminSidebar.tsx) defines the 8-item navigation structure for `/embroidery`:
+- **Workspace Hub**: `All Modules` (`/modules`)
+- **5. Embroidery Division**:
+  - `Floor Dashboard` (`/embroidery`)
+  - `DST Punch File Library` (`/embroidery/punch-library`)
+  - `Machine Runs & Hooping` (`/embroidery/machine-runs`)
+  - `Stitch Count & Billing` (`/embroidery/stitch-billing`)
+  - `Thread Store & Cones Log` (`/embroidery/thread-store`)
+  - `Quality & Thread Break QC` (`/embroidery/embroidery-qc`)
+  - `Zigza AI` (`/embroidery/zigza-ai`)
+- **Account**: `Division Profile` (`/embroidery/profile`)
+
+### 7.2 Floor Dashboard (`/embroidery`)
+- **Files**:
+  - Server Page: [`src/app/embroidery/page.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/embroidery/page.tsx)
+  - Client Component: [`src/app/embroidery/components/EmbroideryDashboardClient.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/embroidery/components/EmbroideryDashboardClient.tsx)
+- **Executive Metric KPI Cards**:
+  1. `Active 20-Head Lines`: **10 Automated Lines** (200 Computerized Heads active)
+  2. `Daily Stitch Throughput`: **1.85 Million Stitches** (Real-time shift cumulative)
+  3. `Thread Break Frequency (TBF)`: **0.02%** (< 0.03% ASTM standard threshold)
+  4. `DST Punch Library`: **Approved Tajima / Barudan Stitch Files**
+- **Machine Floor Grid**:
+  - Real-time telemetry monitoring 10 computerized multi-head machines (Tajima TFMX, Barudan, SWF).
+  - Tracks running DST punch file, buyer PO, active operator, RPM speed gauge (850–920 RPM), active heads count, thread break frequency, and shift cycle progress percentage bar.
+
+### 7.3 DST Punch File Library (`/embroidery/punch-library`)
+- **Files**:
+  - Server Page: [`src/app/embroidery/punch-library/page.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/embroidery/punch-library/page.tsx)
+  - Client Component: [`src/app/embroidery/punch-library/components/PunchLibraryClient.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/embroidery/punch-library/components/PunchLibraryClient.tsx)
+  - Modal: **Form 1** [`UploadPunchModal.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/embroidery/punch-library/components/UploadPunchModal.tsx)
+- **Form 1 Technical Implementation**:
+  - Registers machine binary stitch files (`.DST`, `.DSB`) with stitch density bounds (500 to 250,000 stitches).
+  - Captures needle color stop sequences (1 to 15 stops), frame dimensions (mm), thread manufacturer (`Madeira`, `Isacord`, `Coats`, `Vardhman`), and backing stabilizer specification (`Tear-Away 40 GSM`, `Cut-Away 60 GSM`, `Water Soluble`).
+  - Interactive DST inspector modal visualizing stitch density breakdown and needle sequences.
+
+### 7.4 Machine Runs & Frame Hooping (`/embroidery/machine-runs`)
+- **Files**:
+  - Server Page: [`src/app/embroidery/machine-runs/page.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/embroidery/machine-runs/page.tsx)
+  - Client Component: [`src/app/embroidery/machine-runs/components/MachineRunsClient.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/embroidery/machine-runs/components/MachineRunsClient.tsx)
+  - Modal 1: **Form 2** [`CompleteRunModal.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/embroidery/machine-runs/components/CompleteRunModal.tsx)
+  - Modal 2: [`StartRunModal.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/embroidery/machine-runs/components/StartRunModal.tsx)
+- **Form 2 Technical Implementation**:
+  - Directly commits to `embroidery_machine_runs` recording `panels_completed`, `thread_breaks_count`, and machine odometer reading `total_stitches_run`.
+  - Termination status validation: `COMPLETED`, `RUNNING`, `PAUSED_NEEDLE_ERROR`, `MAINTENANCE`.
+  - Launches new 20-head runs with backing stabilizer specifications and RPM calibration.
+
+### 7.5 Stitch Count & Jobwork Billing Ledgers (`/embroidery/stitch-billing`)
+- **Files**:
+  - Server Page: [`src/app/embroidery/stitch-billing/page.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/embroidery/stitch-billing/page.tsx)
+  - Client Component: [`src/app/embroidery/stitch-billing/components/StitchBillingClient.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/embroidery/stitch-billing/components/StitchBillingClient.tsx)
+  - Modal: [`CreateBillingModal.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/embroidery/stitch-billing/components/CreateBillingModal.tsx)
+- **Commercial Piece-Rate Formula**:
+  $$\text{Unit Embroidery Cost} = \left(\frac{\text{Stitch Count}}{1,000}\right) \times \text{Rate per 1k (e.g. ₹2.80)} + \text{Backing Paper Cost}$$
+  $$\text{Total Invoice Amount} = \text{Total Pieces} \times \text{Unit Embroidery Cost}$$
+- **Features**: One-click CSV ledger export, buyer-level piece-rate auditing, and billing statuses (`PENDING_AUDIT`, `APPROVED`, `INVOICED`).
+
+### 7.6 Thread Store & Cones Log (`/embroidery/thread-store`)
+- **Files**:
+  - Server Page: [`src/app/embroidery/thread-store/page.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/embroidery/thread-store/page.tsx)
+  - Client Component: [`src/app/embroidery/thread-store/components/ThreadStoreClient.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/embroidery/thread-store/components/ThreadStoreClient.tsx)
+  - Modal: [`AddThreadConeModal.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/embroidery/thread-store/components/AddThreadConeModal.tsx)
+- **Features**: Spool weight consumption meters (initial vs current grams), shade matching against Pantone TCX standards, storage shelf allocation (Racks E-01 to E-04), and automatic low stock alerts (< 5 cones).
+
+### 7.7 Quality & Thread Break QC (`/embroidery/embroidery-qc`)
+- **Files**:
+  - Server Page: [`src/app/embroidery/embroidery-qc/page.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/embroidery/embroidery-qc/page.tsx)
+  - Client Component: [`src/app/embroidery/embroidery-qc/components/EmbroideryQcClient.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/embroidery/embroidery-qc/components/EmbroideryQcClient.tsx)
+  - Modal: [`LogThreadBreakModal.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/embroidery/embroidery-qc/components/LogThreadBreakModal.tsx)
+- **Features**: Head 1–20 root cause logging: `BIRD_NESTING`, `NEEDLE_BREAKAGE`, `TENSION_LOOPING`, `HOOP_DISTORTION`, `MISSED_STITCH`, `JUMP_TRIM_STRAY`. Tracks corrective maintenance actions (needle replacement, tension spring calibration, rotary hook lint clearing) and auditor sign-offs.
+
+### 7.8 PostgreSQL Database Schema Blueprint
+```sql
+-- 1. Digitized Stitch Files (DST / DSB)
+CREATE TABLE embroidery_designs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  design_code VARCHAR(60) NOT NULL UNIQUE,
+  design_name VARCHAR(120) NOT NULL,
+  buyer_name VARCHAR(100) NOT NULL,
+  order_id UUID REFERENCES merchandising_orders(id) ON DELETE RESTRICTED,
+  total_stitches INTEGER NOT NULL CHECK (total_stitches BETWEEN 500 AND 250000),
+  color_stops_count INTEGER NOT NULL CHECK (color_stops_count BETWEEN 1 AND 15),
+  dst_file_name VARCHAR(120) NOT NULL,
+  rate_per_thousand_stitches NUMERIC(6,2) DEFAULT 2.80,
+  backing_type VARCHAR(50) NOT NULL, -- Tear-Away 40 GSM, Cut-Away 60 GSM, Water Soluble
+  thread_brand VARCHAR(50) NOT NULL, -- Madeira, Isacord, Coats, Vardhman
+  status VARCHAR(30) DEFAULT 'APPROVED',
+  width_mm NUMERIC(6,2),
+  height_mm NUMERIC(6,2),
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 2. Machine Shift Production Runs (Form 2)
+CREATE TABLE embroidery_machine_runs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  run_number VARCHAR(50) NOT NULL UNIQUE,
+  machine_number VARCHAR(60) NOT NULL,
+  operator_name VARCHAR(100) NOT NULL,
+  design_id UUID REFERENCES embroidery_designs(id) ON DELETE RESTRICTED,
+  design_code VARCHAR(60) NOT NULL,
+  order_po VARCHAR(60) NOT NULL,
+  panels_loaded INTEGER NOT NULL,
+  panels_completed INTEGER NOT NULL DEFAULT 0,
+  thread_breaks_count INTEGER NOT NULL DEFAULT 0,
+  total_stitches_run BIGINT NOT NULL DEFAULT 0,
+  rpm_speed INTEGER DEFAULT 880,
+  active_heads INTEGER DEFAULT 20,
+  total_heads INTEGER DEFAULT 20,
+  backing_spec VARCHAR(100) NOT NULL,
+  status VARCHAR(40) DEFAULT 'RUNNING', -- QUEUED, RUNNING, COMPLETED, PAUSED_NEEDLE_ERROR, MAINTENANCE
+  run_date DATE DEFAULT CURRENT_DATE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 3. Commercial Stitch Billing Ledgers
+CREATE TABLE embroidery_billing_ledgers (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  invoice_code VARCHAR(50) NOT NULL UNIQUE,
+  order_po VARCHAR(60) NOT NULL,
+  buyer_name VARCHAR(100) NOT NULL,
+  design_code VARCHAR(60) NOT NULL,
+  total_pieces INTEGER NOT NULL,
+  stitch_count_per_piece INTEGER NOT NULL,
+  total_stitches_billed BIGINT NOT NULL,
+  rate_per_thousand NUMERIC(6,2) NOT NULL,
+  backing_cost_per_piece NUMERIC(6,2) NOT NULL,
+  total_amount NUMERIC(10,2) NOT NULL,
+  billing_status VARCHAR(30) DEFAULT 'PENDING_AUDIT', -- PENDING_AUDIT, APPROVED, INVOICED
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 4. Thread Cone Inventory Ledger
+CREATE TABLE embroidery_thread_cones (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  cone_code VARCHAR(50) NOT NULL UNIQUE,
+  brand VARCHAR(50) NOT NULL,
+  shade_number VARCHAR(80) NOT NULL,
+  pantone_match VARCHAR(80) NOT NULL,
+  thread_type VARCHAR(60) NOT NULL,
+  initial_weight_grams INTEGER NOT NULL,
+  current_weight_grams INTEGER NOT NULL,
+  cones_in_stock INTEGER NOT NULL,
+  storage_bin VARCHAR(60) NOT NULL,
+  status VARCHAR(30) DEFAULT 'IN_STOCK', -- IN_STOCK, LOW_STOCK, EXHAUSTED
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 5. Thread Break & Quality Audits
+CREATE TABLE embroidery_qc_audits (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  audit_code VARCHAR(50) NOT NULL UNIQUE,
+  run_id UUID REFERENCES embroidery_machine_runs(id) ON DELETE CASCADE,
+  machine_number VARCHAR(50) NOT NULL,
+  head_number INTEGER NOT NULL CHECK (head_number BETWEEN 1 AND 20),
+  defect_type VARCHAR(50) NOT NULL,
+  severity VARCHAR(30) NOT NULL, -- CRITICAL, MAJOR, MINOR
+  action_taken TEXT NOT NULL,
+  auditor_name VARCHAR(100) NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+```
+
+---
+
+## 8. Cross-Division Handshake Architecture
 
 ```
 ┌───────────────────────────────────────────────────────────────────────────────┐
@@ -387,9 +555,10 @@ CREATE TABLE printing_curing_logs (
 
 ---
 
-## 8. Quality, Performance & Compliance Metrics
+## 9. Quality, Performance & Compliance Metrics
 
 - **Compilation Status**: Zero TypeScript compiler errors (`npx tsc --noEmit` exited code 0).
-- **Turbopack Cache Invalidation**: Fully resolved runtime `TypeError: ... is not a function` by creating `'use client'` dedicated utilities ([`cuttingStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/cutting/utils/cuttingStorage.ts) and [`printingStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/printing/utils/printingStorage.ts)).
-- **Aesthetic Consistency**: Strict adherence to the Industrial Luxury design system across all views of Division 01, 02, 03, and 04.
+- **Turbopack Cache Invalidation**: Fully resolved runtime `TypeError: ... is not a function` by creating `'use client'` dedicated utilities ([`cuttingStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/cutting/utils/cuttingStorage.ts), [`printingStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/printing/utils/printingStorage.ts), and [`embroideryStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/embroidery/utils/embroideryStorage.ts)).
+- **Aesthetic Consistency**: Strict adherence to the Industrial Luxury design system across all views of Division 01, 02, 03, 04, and 05.
 - **Brand Terminology**: Canonical brand name **"Zigza AI"** maintained across all routes and copilots.
+
