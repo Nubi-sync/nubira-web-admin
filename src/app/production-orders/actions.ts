@@ -84,6 +84,10 @@ export type CreateChallanPayload = {
   status?: 'PENDING' | 'IN_PRODUCTION' | 'QC_PASSED' | 'DISPATCHED'
 }
 
+export type UpdateChallanPayload = CreateChallanPayload & {
+  challan_id: string
+}
+
 export type ChallanGroupedOrder = {
   id: string // challan_id
   challan_no: string
@@ -704,6 +708,241 @@ export async function createChallan(payload: CreateChallanPayload) {
   } catch (err: any) {
     console.error('Error in createChallan:', err)
     return { error: err?.message || 'Server error while creating delivery challan.' }
+  }
+}
+
+// ----------------------------------------------------------------------
+// UPDATE / EDIT EXISTING CHALLAN & ARTICLE LINES
+// ----------------------------------------------------------------------
+export async function updateChallan(payload: UpdateChallanPayload) {
+  const supabase = supabaseAdmin
+  const {
+    challan_id,
+    challan_no,
+    challan_date,
+    brand,
+    delivery_date,
+    fabric_type = '',
+    sample_given = false,
+    notes = '',
+    article_lines = [],
+    bom_items = []
+  } = payload
+
+  if (!challan_id) {
+    return { error: 'Challan ID is required for editing.' }
+  }
+
+  if (!challan_no || !challan_no.trim()) {
+    return { error: 'Please enter a Challan / Job Number.' }
+  }
+
+  if (!article_lines || article_lines.length === 0) {
+    return { error: 'Please enter at least one article line in the delivery challan.' }
+  }
+
+  const grandTotalSets = article_lines.reduce((acc, row) => acc + (Number(row.sets) || 0), 0)
+  const grandTotalPcs = article_lines.reduce((acc, row) => acc + (Number(row.total_pcs) || 0), 0)
+
+  try {
+    const cleanChallanNo = challan_no.trim().toUpperCase()
+
+    // 1. Check if another challan already uses this challan_no (excluding current challan)
+    const { data: duplicateChallans } = await supabase
+      .from('challans')
+      .select('id, challan_no')
+      .ilike('challan_no', cleanChallanNo)
+      .neq('id', challan_id)
+      .limit(1)
+
+    if (duplicateChallans && duplicateChallans.length > 0) {
+      return {
+        error: `Challan #${cleanChallanNo} is already in use by another order. Please use a unique number.`
+      }
+    }
+
+    // 2. Fetch current challan to preserve existing status and dates
+    const { data: currentChallan, error: fetchErr } = await supabase
+      .from('challans')
+      .select('*')
+      .eq('id', challan_id)
+      .single()
+
+    if (fetchErr || !currentChallan) {
+      return { error: 'Challan not found in database.' }
+    }
+
+    // 3. Process and sync articles in master catalog
+    const processedLines = []
+    for (let idx = 0; idx < article_lines.length; idx++) {
+      const line = article_lines[idx]
+      const cleanArtNo = line.art_no.trim().toUpperCase()
+      const cleanSubArt = (line.sub_art_no || '').trim().toUpperCase()
+      const fullArtCode = cleanSubArt ? `${cleanArtNo}${cleanSubArt}` : cleanArtNo
+      const linePcs = Number(line.total_pcs) || ((Number(line.sets) || 1) * (Number(line.pcs_per_set) || 9))
+      const lineSets = Number(line.sets) || Math.round(linePcs / (Number(line.pcs_per_set) || 9))
+      const lineRatio = Number(line.pcs_per_set) || 9
+      const lineRate = line.stitching_rate && Number(line.stitching_rate) > 0 ? Number(line.stitching_rate) : null
+      const sizeKey = (line.size_range || '').trim() || 'Standard'
+
+      // Ensure style exists in master catalog
+      const { data: existingArt } = await supabase
+        .from('articles')
+        .select('id, size_rates')
+        .eq('art_no', fullArtCode)
+        .limit(1)
+        .maybeSingle()
+
+      if (!existingArt) {
+        await supabase
+          .from('articles')
+          .insert({
+            art_no: fullArtCode,
+            description: line.description || `${fullArtCode} - ${line.color_pattern || ''} (${line.size_range || ''})`.trim(),
+            stitching_rate: lineRate || 0,
+            is_active: true,
+            size_rates: {
+              ...(lineRate && sizeKey ? { [sizeKey]: lineRate } : {}),
+              _meta: {
+                base_art: cleanArtNo,
+                sub_art: cleanSubArt,
+                pattern: line.pattern_no || '',
+                fabric: fabric_type,
+                party: brand,
+                size: line.size_range,
+                picture_url: line.picture_url || ''
+              }
+            }
+          })
+      } else if (lineRate) {
+        const existingRates = existingArt.size_rates || {}
+        if (sizeKey && existingRates[sizeKey] !== lineRate) {
+          await supabase
+            .from('articles')
+            .update({
+              size_rates: { ...existingRates, [sizeKey]: lineRate }
+            })
+            .eq('id', existingArt.id)
+        }
+      }
+
+      processedLines.push({
+        ...line,
+        full_art_code: fullArtCode,
+        sets: lineSets,
+        pcs_per_set: lineRatio,
+        total_pcs: linePcs,
+        stitching_rate: lineRate || undefined
+      })
+    }
+
+    // 4. Structured Challan Notes JSON
+    const challanNotesJson = JSON.stringify({
+      user_notes: notes.trim(),
+      article_lines: processedLines
+    })
+
+    const todayDate = new Date().toISOString().split('T')[0]
+    const safeChallanDate = sanitizeDate(challan_date) || currentChallan.challan_date || todayDate
+    const safeDeliveryDate = sanitizeDate(delivery_date)
+
+    // 5. Update `challans` row
+    const challanUpdatePayload: any = {
+      challan_no: cleanChallanNo,
+      challan_date: safeChallanDate,
+      brand: brand.trim().toUpperCase(),
+      delivery_date: safeDeliveryDate,
+      fabric_type: fabric_type.trim(),
+      sample_given: !!sample_given,
+      notes: challanNotesJson,
+      total_sets: grandTotalSets,
+      total_pcs: grandTotalPcs,
+      bom_details: bom_items
+    }
+    if (payload.vendor_id) challanUpdatePayload.vendor_id = payload.vendor_id
+    if (payload.vendor_name) challanUpdatePayload.vendor_name = payload.vendor_name
+
+    const { error: updateErr } = await supabase
+      .from('challans')
+      .update(challanUpdatePayload)
+      .eq('id', challan_id)
+
+    if (updateErr) {
+      if (updateErr.message?.includes('vendor') || updateErr.code === '42703') {
+        delete challanUpdatePayload.vendor_id
+        delete challanUpdatePayload.vendor_name
+        const retryErr = await supabase.from('challans').update(challanUpdatePayload).eq('id', challan_id)
+        if (retryErr.error) {
+          return { error: `Failed to update Challan: ${retryErr.error.message}` }
+        }
+      } else {
+        return { error: `Failed to update Challan: ${updateErr.message}` }
+      }
+    }
+
+    // 6. Synchronize active allotments target quantities if matched
+    try {
+      const { data: existingAllotments } = await supabase
+        .from('allotments')
+        .select('id, target_qty, article_id, articles(art_no)')
+        .eq('challan_id', challan_id)
+
+      if (existingAllotments && existingAllotments.length > 0) {
+        for (const al of existingAllotments) {
+          const art = (Array.isArray(al.articles) ? al.articles[0] : al.articles) as any
+          const matchingLines = processedLines.filter(l => 
+            (l.art_no || '').trim().toUpperCase() === (art?.art_no || '').trim().toUpperCase() ||
+            (l.full_art_code || '').trim().toUpperCase() === (art?.art_no || '').trim().toUpperCase()
+          )
+          if (matchingLines.length > 0) {
+            const sumLinePcs = matchingLines.reduce((acc, l) => acc + Number(l.total_pcs), 0)
+            if (sumLinePcs > 0 && sumLinePcs !== al.target_qty) {
+              await supabase
+                .from('allotments')
+                .update({ target_qty: sumLinePcs })
+                .eq('id', al.id)
+            }
+          }
+        }
+      }
+    } catch (allotUpdateErr) {
+      console.warn('Sync existing allotments warning:', allotUpdateErr)
+    }
+
+    revalidatePath('/production-orders')
+    revalidatePath('/allotments')
+    revalidatePath('/articles')
+    revalidatePath('/')
+
+    return {
+      success: true,
+      updated_challan: {
+        id: challan_id,
+        challan_no: cleanChallanNo,
+        challan_date: safeChallanDate,
+        brand: brand.trim().toUpperCase(),
+        vendor_id: payload.vendor_id,
+        vendor_name: payload.vendor_name,
+        delivery_date: safeDeliveryDate || '',
+        fabric_type: fabric_type.trim(),
+        sample_given: !!sample_given,
+        notes: notes.trim(),
+        total_sets: grandTotalSets,
+        total_pcs: grandTotalPcs,
+        status: currentChallan.status || 'PENDING',
+        bom_details: bom_items,
+        articles: processedLines.map((line, idx) => ({
+          ...line,
+          allotment_id: line.allotment_id || ('line-' + idx),
+          status: line.status || currentChallan.status || 'PENDING',
+          assigned_lineman_name: line.assigned_lineman_name || 'Unassigned'
+        })),
+        created_at: currentChallan.created_at || new Date().toISOString()
+      }
+    }
+  } catch (err: any) {
+    console.error('Error in updateChallan:', err)
+    return { error: err?.message || 'Server error while updating delivery challan.' }
   }
 }
 
