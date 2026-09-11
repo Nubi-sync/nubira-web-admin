@@ -66,26 +66,33 @@ export type GrainlineConstraint =
   | 'EITHER_WAY' 
   | 'FACE_TO_FACE'
 
+export type CADSoftware = 'GERBER_ACCUMARK' | 'LECTRA_MODARIS' | 'OPTITEX_PDS' | 'CLO3D' | string
+
 export interface MarkerEfficiency {
   id: string
-  marker_ref: string
+  marker_ref?: string
+  marker_name?: string
   style_ref: string
-  style_name: string
-  category: string
+  style_name?: string
+  category?: string
   fabric_width_inches: number
   marker_length_meters: number
-  patterns_nested: number
-  fabric_yield_meters_per_piece: number
+  patterns_nested?: number
+  fabric_yield_meters_per_piece?: number
   efficiency_percent: number
-  scrap_percent: number
-  cad_software: string
-  grainline_constraint: GrainlineConstraint
-  status: MarkerStatus
+  scrap_percent?: number
+  cad_software: CADSoftware | string
+  grainline_constraint?: GrainlineConstraint
+  status?: MarkerStatus
+  sizes_included?: string[] | any
+  ratio?: string
+  pattern_master?: string
   created_at: string
 }
 
 export type SampledPly = 'TOP' | 'MIDDLE' | 'BOTTOM'
 export type AuditDecision = 'PASSED' | 'RECUT_REQUIRED' | 'HOLD'
+export type PanelQcResult = 'PASSED' | 'PASSED_WITH_CONDITIONS' | 'RECUT_REQUIRED' | 'HOLD'
 
 export interface PanelQCAudit {
   id: string
@@ -105,6 +112,21 @@ export interface PanelQCAudit {
   created_at: string
 }
 
+export interface PanelQcAudit {
+  id: string
+  audit_number: string
+  lay_sheet_id: string
+  lay_number: string
+  component_name: string
+  sampled_plies: string[]
+  notch_alignment_check: 'ACCURATE' | 'SHIFTED_1MM' | 'MISSING_NOTCH' | string
+  top_bottom_ply_variance_mm: number
+  defects_found: string[]
+  result: PanelQcResult
+  auditor_name: string
+  audit_timestamp: string
+}
+
 export type RemnantStatus = 
   | 'AVAILABLE_FOR_RECUT' 
   | 'CONSUMED' 
@@ -122,6 +144,42 @@ export interface EndBitRemnant {
   status: RemnantStatus
   logged_by: string
   created_at: string
+}
+
+export type RemnantDisposition = 'AVAILABLE_FOR_RECUT' | 'SALVAGED_FOR_POCKETS' | 'RECYCLED_SCRAP' | string
+
+export interface EndLossRemnant {
+  id: string
+  remnant_code: string
+  source_roll_barcode: string
+  fabric_type: string
+  colorway: string
+  length_meters: number
+  width_inches: number
+  reason: string
+  disposition: RemnantDisposition
+  allocated_to: string
+  logged_at?: string
+  created_at?: string
+}
+
+export type RollRelaxationStatus = 'ACCLIMATIZING' | 'CONDITIONING_COMPLETED' | 'ALLOCATED_TO_LAY'
+
+export interface FabricRollStaging {
+  id: string
+  roll_barcode: string
+  fabric_lot_number: string
+  fabric_type: string
+  colorway: string
+  weight_kg: number
+  meters_length: number
+  nominal_gsm: number
+  tested_gsm: number
+  unrolled_at: string
+  relaxation_hours_required: number
+  relaxation_hours_elapsed: number
+  status: RollRelaxationStatus
+  staging_rack: string
 }
 
 export type TableStatus = 'IDLE' | 'SPREADING' | 'CUTTING' | 'MAINTENANCE'

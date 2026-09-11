@@ -38,7 +38,10 @@ import {
   Ship,
   QrCode,
   Maximize2,
-  CheckCircle2
+  CheckCircle2,
+  Clock,
+  Cpu,
+  BarChart3
 } from 'lucide-react'
 
 type NavItem = {
@@ -238,11 +241,14 @@ export function AdminSidebar({
         section: '3. Cutting Floor',
         items: [
           { label: 'Floor Dashboard', href: '/cutting', icon: Scissors },
-          { label: 'Spreading & Lay Sheets', href: '/cutting/lay-sheets', icon: Layers },
-          { label: 'Bundle QR Generation', href: '/cutting/bundles', icon: QrCode },
-          { label: 'Marker Efficiency Library', href: '/cutting/markers', icon: Maximize2 },
+          { label: 'Fabric Relaxation Staging', href: '/cutting/fabric-relaxation', icon: Clock },
+          { label: 'Spreading & Lay Plans', href: '/cutting/lay-sheets', icon: Layers },
+          { label: 'CAD Markers & Nesting', href: '/cutting/markers', icon: Maximize2 },
+          { label: 'Cutting Orders & Queue', href: '/cutting/orders', icon: Cpu },
+          { label: 'Bundle Tickets & Barcodes', href: '/cutting/bundles', icon: QrCode },
           { label: 'Cut Panel QC Audits', href: '/cutting/panel-qc', icon: CheckCircle2 },
-          { label: 'Fabric End-Bits & Remnants', href: '/cutting/end-bits', icon: Boxes },
+          { label: 'End-Loss & Remnants', href: '/cutting/end-loss', icon: Boxes },
+          { label: 'Reports & Analytics', href: '/cutting/reports', icon: BarChart3 },
           { label: 'Zigza AI', href: '/cutting/zigza-ai', icon: Bot },
         ],
       },

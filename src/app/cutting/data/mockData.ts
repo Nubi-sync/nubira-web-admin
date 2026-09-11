@@ -521,3 +521,114 @@ export const INITIAL_END_BITS: EndBitRemnant[] = [
     created_at: '2026-09-08T17:30:00Z'
   }
 ]
+
+export const INITIAL_FABRIC_ROLLS: any[] = [
+  {
+    id: 'roll-101',
+    roll_barcode: 'ROL-2026-101',
+    fabric_lot_number: 'LOT-TX-9821',
+    fabric_type: '100% Combed Cotton Single Jersey',
+    colorway: 'Obsidian Black',
+    weight_kg: 24.5,
+    meters_length: 130,
+    nominal_gsm: 180,
+    tested_gsm: 182,
+    unrolled_at: '2026-09-11T06:00:00Z',
+    relaxation_hours_required: 24,
+    relaxation_hours_elapsed: 24,
+    status: 'CONDITIONING_COMPLETED',
+    staging_rack: 'Rack B-01 (Air-Conditioned Bay)'
+  },
+  {
+    id: 'roll-102',
+    roll_barcode: 'ROL-2026-102',
+    fabric_lot_number: 'LOT-TX-9822',
+    fabric_type: '95% Cotton 5% Spandex French Terry',
+    colorway: 'Heather Grey',
+    weight_kg: 32.0,
+    meters_length: 110,
+    nominal_gsm: 260,
+    tested_gsm: 258,
+    unrolled_at: '2026-09-11T14:30:00Z',
+    relaxation_hours_required: 36,
+    relaxation_hours_elapsed: 18,
+    status: 'ACCLIMATIZING',
+    staging_rack: 'Rack B-04 (De-tension Table)'
+  },
+  {
+    id: 'roll-103',
+    roll_barcode: 'ROL-2026-103',
+    fabric_lot_number: 'LOT-TX-9823',
+    fabric_type: '100% Organic Heavy Cotton Fleece',
+    colorway: 'Midnight Navy',
+    weight_kg: 28.0,
+    meters_length: 95,
+    nominal_gsm: 380,
+    tested_gsm: 384,
+    unrolled_at: '2026-09-10T10:00:00Z',
+    relaxation_hours_required: 48,
+    relaxation_hours_elapsed: 48,
+    status: 'ALLOCATED_TO_LAY',
+    staging_rack: 'Rack A-02 (Ready for Spreading)'
+  }
+]
+
+export const INITIAL_END_LOSS_REMNANTS: any[] = [
+  {
+    id: 'rem-01',
+    remnant_code: 'REM-2026-01',
+    source_roll_barcode: 'ROL-2026-101',
+    fabric_type: '100% Combed Cotton Single Jersey',
+    colorway: 'Obsidian Black',
+    length_meters: 2.1,
+    width_inches: 60,
+    reason: 'End-of-roll cut off insufficient for full marker lay',
+    disposition: 'SALVAGED_FOR_POCKETS',
+    allocated_to: 'Pocket linings & Neck tape trims',
+    created_at: '2026-09-11T12:00:00Z'
+  },
+  {
+    id: 'rem-02',
+    remnant_code: 'REM-2026-02',
+    source_roll_barcode: 'ROL-2026-102',
+    fabric_type: '95% Cotton 5% Spandex French Terry',
+    colorway: 'Heather Grey',
+    length_meters: 3.4,
+    width_inches: 58,
+    reason: 'Lay plan shrinkage trim allowance',
+    disposition: 'AVAILABLE_FOR_RECUT',
+    allocated_to: 'Reserved for small recut panels',
+    created_at: '2026-09-11T15:30:00Z'
+  }
+]
+
+export const INITIAL_PANEL_AUDITS: any[] = [
+  {
+    id: 'pqc-101',
+    audit_number: 'QC-CUT-9011',
+    lay_sheet_id: 'lay-089',
+    lay_number: 'LAY-2026-089',
+    component_name: 'Front Body Panel',
+    sampled_plies: ['Top Ply #1', 'Mid Ply #40', 'Bottom Ply #80'],
+    notch_alignment_check: 'ACCURATE',
+    top_bottom_ply_variance_mm: 0.5,
+    defects_found: ['None detected'],
+    result: 'PASSED',
+    auditor_name: 'M. Anitha (Senior QC Inspector)',
+    audit_timestamp: '2026-09-11T09:30:00Z'
+  },
+  {
+    id: 'pqc-102',
+    audit_number: 'QC-CUT-9012',
+    lay_sheet_id: 'lay-090',
+    lay_number: 'LAY-2026-090',
+    component_name: 'Sleeve Panel Pair',
+    sampled_plies: ['Top Ply #1', 'Mid Ply #55', 'Bottom Ply #110'],
+    notch_alignment_check: 'ACCURATE',
+    top_bottom_ply_variance_mm: 0.8,
+    defects_found: ['Minor knife deflection within spec'],
+    result: 'PASSED',
+    auditor_name: 'M. Anitha (Senior QC Inspector)',
+    audit_timestamp: '2026-09-11T14:15:00Z'
+  }
+]

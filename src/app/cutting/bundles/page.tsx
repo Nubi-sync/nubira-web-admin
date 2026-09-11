@@ -1,11 +1,11 @@
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { AdminShell } from '@/components/layout/AdminShell'
-import { CuttingDashboardClient } from './components/CuttingDashboardClient'
+import { BundlesClient } from './components/BundlesClient'
 
 export const dynamic = 'force-dynamic'
 
-export default async function CuttingModulePage() {
+export default async function BundlesPage() {
   const supabase = await createClient()
 
   const {
@@ -18,7 +18,7 @@ export default async function CuttingModulePage() {
 
   return (
     <AdminShell userEmail={user.email}>
-      <CuttingDashboardClient userEmail={user.email} />
+      <BundlesClient />
     </AdminShell>
   )
 }

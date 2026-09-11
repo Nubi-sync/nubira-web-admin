@@ -1,11 +1,11 @@
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { AdminShell } from '@/components/layout/AdminShell'
-import { CuttingDashboardClient } from './components/CuttingDashboardClient'
+import { EndLossClient } from './components/EndLossClient'
 
 export const dynamic = 'force-dynamic'
 
-export default async function CuttingModulePage() {
+export default async function EndLossPage() {
   const supabase = await createClient()
 
   const {
@@ -18,7 +18,7 @@ export default async function CuttingModulePage() {
 
   return (
     <AdminShell userEmail={user.email}>
-      <CuttingDashboardClient userEmail={user.email} />
+      <EndLossClient />
     </AdminShell>
   )
 }
