@@ -35,7 +35,10 @@ import {
   Calendar,
   Calculator,
   ShoppingCart,
-  Ship
+  Ship,
+  QrCode,
+  Maximize2,
+  CheckCircle2
 } from 'lucide-react'
 
 type NavItem = {
@@ -234,7 +237,12 @@ export function AdminSidebar({
       {
         section: '3. Cutting Floor',
         items: [
-          { label: 'Cutting & Lay Sheets', href: '/cutting', icon: Scissors },
+          { label: 'Floor Dashboard', href: '/cutting', icon: Scissors },
+          { label: 'Spreading & Lay Sheets', href: '/cutting/lay-sheets', icon: Layers },
+          { label: 'Bundle QR Generation', href: '/cutting/bundles', icon: QrCode },
+          { label: 'Marker Efficiency Library', href: '/cutting/markers', icon: Maximize2 },
+          { label: 'Cut Panel QC Audits', href: '/cutting/panel-qc', icon: CheckCircle2 },
+          { label: 'Fabric End-Bits & Remnants', href: '/cutting/end-bits', icon: Boxes },
           { label: 'Zigza AI', href: '/cutting/zigza-ai', icon: Bot },
         ],
       },
