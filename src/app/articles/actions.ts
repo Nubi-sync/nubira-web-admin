@@ -57,8 +57,12 @@ export async function createArticle(formData: FormData) {
   }
 
   revalidatePath('/articles')
+  revalidatePath('/stitching-sewing/articles')
   revalidatePath('/allotments')
+  revalidatePath('/stitching-sewing/allotments')
   revalidatePath('/inventory')
+  revalidatePath('/stitching-sewing/inventory')
+  revalidatePath('/stitching-sewing/dashboard')
   return { success: true, data }
 }
 
@@ -104,7 +108,10 @@ export async function updateArticleRate(articleId: string, oldRate: number, newR
   }
 
   revalidatePath('/articles')
+  revalidatePath('/stitching-sewing/articles')
   revalidatePath('/allotments')
+  revalidatePath('/stitching-sewing/allotments')
+  revalidatePath('/stitching-sewing/dashboard')
   return { success: true }
 }
 
@@ -121,7 +128,10 @@ export async function toggleArticleArchive(articleId: string, currentIsActive: b
   }
 
   revalidatePath('/articles')
+  revalidatePath('/stitching-sewing/articles')
   revalidatePath('/allotments')
+  revalidatePath('/stitching-sewing/allotments')
+  revalidatePath('/stitching-sewing/dashboard')
   return { success: true }
 }
 
@@ -140,6 +150,8 @@ export async function bulkArchiveArticles(articleIds: string[]) {
   }
 
   revalidatePath('/articles')
+  revalidatePath('/stitching-sewing/articles')
+  revalidatePath('/stitching-sewing/dashboard')
   return { success: true }
 }
 
@@ -158,6 +170,8 @@ export async function bulkRestoreArticles(articleIds: string[]) {
   }
 
   revalidatePath('/articles')
+  revalidatePath('/stitching-sewing/articles')
+  revalidatePath('/stitching-sewing/dashboard')
   return { success: true }
 }
 
@@ -225,9 +239,14 @@ export async function deleteArticle(articleId: string) {
     }
 
     revalidatePath('/articles')
+    revalidatePath('/stitching-sewing/articles')
     revalidatePath('/allotments')
+    revalidatePath('/stitching-sewing/allotments')
     revalidatePath('/production-orders')
+    revalidatePath('/stitching-sewing/production-orders')
     revalidatePath('/inventory')
+    revalidatePath('/stitching-sewing/inventory')
+    revalidatePath('/stitching-sewing/dashboard')
     revalidatePath('/')
     return { success: true }
   } catch (err: any) {
@@ -285,9 +304,14 @@ export async function bulkDeleteArticles(articleIds: string[]) {
     }
 
     revalidatePath('/articles')
+    revalidatePath('/stitching-sewing/articles')
     revalidatePath('/allotments')
+    revalidatePath('/stitching-sewing/allotments')
     revalidatePath('/production-orders')
+    revalidatePath('/stitching-sewing/production-orders')
     revalidatePath('/inventory')
+    revalidatePath('/stitching-sewing/inventory')
+    revalidatePath('/stitching-sewing/dashboard')
     revalidatePath('/')
     return { success: true }
   } catch (err: any) {

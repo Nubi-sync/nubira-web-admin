@@ -315,6 +315,42 @@ export function AdminSidebar({
         ],
       },
     ]
+  } else if (pathname?.startsWith('/stitching-sewing')) {
+    activeNavSections = [
+      {
+        section: 'Workspace Hub',
+        items: [
+          { label: 'All Modules', href: '/modules', icon: LayoutGrid, badge: '11 Units' },
+        ],
+      },
+      {
+        section: '6. Sewing Operations',
+        items: [
+          { label: 'Floor Dashboard', href: '/stitching-sewing/dashboard', icon: LayoutDashboard },
+          { label: 'Store Dashboard', href: '/stitching-sewing/store', icon: Store },
+          { label: 'Zigza AI', href: '/stitching-sewing/zigza-ai', icon: Bot },
+        ],
+      },
+      {
+        section: 'Production',
+        items: [
+          { label: 'Production Chart', href: '/stitching-sewing/production-orders', icon: Layers },
+          { label: 'Target Allotments', href: '/stitching-sewing/allotments', icon: ClipboardList },
+          { label: 'Godown & Inventory', href: '/stitching-sewing/inventory', icon: Warehouse },
+          { label: 'Dispatch & Challans', href: '/stitching-sewing/dispatch', icon: Truck },
+        ],
+      },
+      {
+        section: 'Manage',
+        items: [
+          { label: 'Supervisor Profile', href: '/stitching-sewing/profile', icon: User },
+          { label: 'Brands & Vendors', href: '/stitching-sewing/vendors', icon: Building2 },
+          { label: 'Employees', href: '/stitching-sewing/employees', icon: Users },
+          { label: 'Articles', href: '/stitching-sewing/articles', icon: Tag },
+          { label: 'Reports & Analytics', href: '/stitching-sewing/reports', icon: FileText },
+        ],
+      },
+    ]
   } else if (pathname?.startsWith('/washing')) {
     activeNavSections = [
       {

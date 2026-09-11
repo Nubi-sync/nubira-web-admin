@@ -234,6 +234,8 @@ export async function createDetailedAllotment(payload: {
   }
 
   revalidatePath('/allotments')
+  revalidatePath('/stitching-sewing/allotments')
+  revalidatePath('/stitching-sewing/dashboard')
   return { success: true }
   } catch (globalErr: any) {
     console.error('Fatal error in createDetailedAllotment:', globalErr)
@@ -284,6 +286,8 @@ export async function updateAllotmentStatus(allotmentId: string, newStatus: stri
   }
 
   revalidatePath('/allotments')
+  revalidatePath('/stitching-sewing/allotments')
+  revalidatePath('/stitching-sewing/dashboard')
   return { success: true }
 }
 
@@ -315,8 +319,12 @@ export async function deleteAllotment(allotmentId: string) {
     }
 
     revalidatePath('/allotments')
+    revalidatePath('/stitching-sewing/allotments')
     revalidatePath('/production-orders')
+    revalidatePath('/stitching-sewing/production-orders')
     revalidatePath('/articles')
+    revalidatePath('/stitching-sewing/articles')
+    revalidatePath('/stitching-sewing/dashboard')
     revalidatePath('/')
     return { success: true }
   } catch (err: any) {
@@ -341,6 +349,7 @@ export async function toggleMaterialIssue(materialId: string, issued: boolean) {
   }
 
   revalidatePath('/allotments')
+  revalidatePath('/stitching-sewing/allotments')
   return { success: true }
 }
 
@@ -392,6 +401,8 @@ export async function createFloorAlert(payload: {
   }
 
   revalidatePath('/allotments')
+  revalidatePath('/stitching-sewing/allotments')
+  revalidatePath('/stitching-sewing/dashboard')
   return { success: true }
 }
 
@@ -412,5 +423,7 @@ export async function resolveFloorAlert(alertId: string, resolvedBy: string = 'P
   }
 
   revalidatePath('/allotments')
+  revalidatePath('/stitching-sewing/allotments')
+  revalidatePath('/stitching-sewing/dashboard')
   return { success: true }
 }

@@ -148,8 +148,12 @@ export async function createVendor(formData: FormData) {
   }
 
   revalidatePath('/vendors')
+  revalidatePath('/stitching-sewing/vendors')
   revalidatePath('/production-orders')
+  revalidatePath('/stitching-sewing/production-orders')
   revalidatePath('/dispatch')
+  revalidatePath('/stitching-sewing/dispatch')
+  revalidatePath('/stitching-sewing/dashboard')
   return { success: true, data }
 }
 
@@ -175,8 +179,12 @@ export async function updateVendor(vendorId: string, payload: Partial<VendorReco
   }
 
   revalidatePath('/vendors')
+  revalidatePath('/stitching-sewing/vendors')
   revalidatePath('/production-orders')
+  revalidatePath('/stitching-sewing/production-orders')
   revalidatePath('/dispatch')
+  revalidatePath('/stitching-sewing/dispatch')
+  revalidatePath('/stitching-sewing/dashboard')
   return { success: true, data }
 }
 
@@ -199,6 +207,8 @@ export async function toggleVendorStatus(vendorId: string, currentIsActive: bool
   }
 
   revalidatePath('/vendors')
+  revalidatePath('/stitching-sewing/vendors')
+  revalidatePath('/stitching-sewing/dashboard')
   return { success: true }
 }
 
@@ -232,7 +242,10 @@ export async function createBrand(brandName: string, brandCode: string, contactP
   }
 
   revalidatePath('/vendors')
+  revalidatePath('/stitching-sewing/vendors')
   revalidatePath('/production-orders')
+  revalidatePath('/stitching-sewing/production-orders')
+  revalidatePath('/stitching-sewing/dashboard')
   return { success: true, data }
 }
 
@@ -257,6 +270,9 @@ export async function deleteVendor(vendorId: string) {
   }
 
   revalidatePath('/vendors')
+  revalidatePath('/stitching-sewing/vendors')
   revalidatePath('/production-orders')
+  revalidatePath('/stitching-sewing/production-orders')
+  revalidatePath('/stitching-sewing/dashboard')
   return { success: true }
 }

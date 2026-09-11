@@ -9,6 +9,7 @@ This document records the architectural specifications, implemented features, po
 5. **Division 03: Cutting & Lay Floor Operations** (`/cutting`)
 6. **Division 04: Screen & Digital Printing Unit** (`/printing`)
 7. **Division 05: Multi-Head Embroidery Unit** (`/embroidery`)
+8. **Division 06: Stitching & Sewing Floor** (`/stitching-sewing`)
 
 All divisions strictly conform to the **Industrial Luxury** aesthetic defined in [`docs_logic/design.md`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/docs_logic/design.md) (Palette `#3A3564` Indigo Night, `#FAF7F0` Cream Canvas, `#FFFFFF` crisp encapsulated cards, `#09090B` Ink, and semantic status badge pastels).
 
@@ -523,7 +524,202 @@ CREATE TABLE embroidery_qc_audits (
 
 ---
 
-## 8. Cross-Division Handshake Architecture
+## 8. Division 06: Stitching & Sewing Floor (Core MES Benchmark)
+
+### 8.1 Executive & Operational Scope
+The **Stitching & Sewing Floor** is the core assembly engine and master operational benchmark of the Zigza MES platform. It is 100% connected to live Supabase backend tables with referential integrity. It enforces the **Zero Ghost Piece Guarantee**: every single cut piece entered into a sewing line is accounted for through progressive workstation allotments, lineman piece-rate wage calculation ledgers, 3-stage QC auditing, and direct store godown handshakes.
+
+### 8.2 Complete Side Navigation Architecture (4-Tier / 13-Route System)
+[`AdminSidebar.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/components/layout/AdminSidebar.tsx) defines the complete 4-tier navigation structure:
+- **Tier 1: Workspace Hub**:
+  - `All Modules` (`/modules`)
+- **Tier 2: 6. Sewing Operations**:
+  - `Floor Dashboard` (`/stitching-sewing/dashboard`)
+  - `Store Dashboard & Inward` (`/stitching-sewing/store`)
+  - `Zigza AI Copilot` (`/stitching-sewing/zigza-ai`)
+- **Tier 3: Production Execution**:
+  - `Production Chart & Orders` (`/stitching-sewing/production-orders`)
+  - `Target Allotments & Bundles` (`/stitching-sewing/allotments`)
+  - `Godown & WIP Inventory` (`/stitching-sewing/inventory`)
+  - `Dispatch & Challans Hub` (`/stitching-sewing/dispatch`)
+- **Tier 4: Master Management**:
+  - `Supervisor Profile` (`/stitching-sewing/profile`)
+  - `Brands & Multi-Vendors` (`/stitching-sewing/vendors`)
+  - `Floor Employees & Linemen` (`/stitching-sewing/employees`)
+  - `Articles Master Catalog` (`/stitching-sewing/articles`)
+  - `Reports & Analytics Audit` (`/stitching-sewing/reports`)
+
+### 8.3 Implemented Floor Components & Features
+
+1. **Master Floor Dashboard (`/stitching-sewing/dashboard`)**:
+   - **Files**: [`page.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/stitching-sewing/dashboard/page.tsx), [`DashboardClient.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/DashboardClient.tsx)
+   - **6-Stage Progressive Throughput Pipeline**:
+     $$\text{Stage 1: Total Stocks} \to \text{Stage 2: Goods in Line} \to \text{Stage 3: Mending \& Checking} \to \text{Stage 4: Ready Goods} \to \text{Stage 5: RTO} \to \text{Stage 6: Ready Delivery}$$
+   - Real-time TV View Mode toggle (`TvViewButton`) for shopfloor display monitors.
+   - Multi-stage concurrent data synthesis from `articles`, `allotments`, `challans`, `daily_product`, `qc_logs`, `store_transactions`, `delivery_challans`, and `worker_assignments`.
+
+2. **Store Dashboard & Receiving (`/stitching-sewing/store`)**:
+   - Inward truck gate GRN logs (vehicle, party, rolls, transport slip).
+   - Lineman trim/thread cone issuance and floor reissue/scrap exchange workflows.
+
+3. **Production Chart & Challan Hub (`/stitching-sewing/production-orders`)**:
+   - Vendor challan scheduling, multi-tier brand/vendor dropdowns, Excel order imports, and status tracking.
+
+4. **Target Allotments (`/stitching-sewing/allotments`)**:
+   - Individual lineman bundle allocation, size-tier matrix expansion, and live wage calculation:
+     $$\text{Lineman Shift Wages} = \text{Verified Passed Pcs} \times \text{Article Stitching Rate (₹)}$$
+   - Mending and QC inspection handovers.
+
+5. **Godown & WIP Inventory (`/stitching-sewing/inventory`)**:
+   - Real-time stock visibility across cut goods, WIP on line, and finished cartons.
+
+6. **Dispatch & Challans (`/stitching-sewing/dispatch`)**:
+   - Outward delivery challan generation for goods moving to Washing, Steam Ironing, or Central Godown.
+
+7. **Brands & Multi-Vendors (`/stitching-sewing/vendors`)**:
+   - Segregation of Principal Buyers (`brands` table) from Job-Workers (`vendors` table) with stitching rate defaults.
+
+8. **Floor Employees & Linemen (`/stitching-sewing/employees`)**:
+   - Lineman skill grades (Grade A Tailor, Overlock Master) and wage rate profiles.
+
+9. **Articles Master Catalog (`/stitching-sewing/articles`)**:
+   - Garment style repository with SAM minutes, default stitching rate, and size-specific pricing tiers (`size_rates`).
+
+10. **Reports & Analytics (`/stitching-sewing/reports`)**:
+    - Shift productivity exports, lineman wage summaries, rejection Pareto charts, and date-range CSV dumps.
+
+11. **Dedicated Zigza AI (`/stitching-sewing/zigza-ai`)**:
+    - Lineman wage audits, line-wise SAM velocity queries, and open challan aging diagnostics.
+
+### 8.4 Complete Forms Catalog (All 9 Production Forms)
+1. **Form 1: Delivery Challan Creation & Excel Import Form** (`/stitching-sewing/production-orders`)
+2. **Form 2: New Article Registration Form** (`/stitching-sewing/articles`)
+3. **Form 3: Daily Target Allotment Form** (`/stitching-sewing/allotments`) — Foreign Key bound to `employees.id` and `cutting_bundles.id`
+4. **Form 4: Store Truck Inward (GRN) Form** (`/stitching-sewing/store`)
+5. **Form 5: Accessory & Trim Allotment Form** (`/stitching-sewing/store`)
+6. **Form 6: Floor Reissue & Scrap Exchange Form** (`/stitching-sewing/store`)
+7. **Form 7A: Principal Buyer Brand Registration Form** (`/stitching-sewing/vendors`)
+8. **Form 7B: Sub-Contract Vendor Registration Form** (`/stitching-sewing/vendors`)
+9. **Form 8: Outward Delivery Challan & Dispatch Form** (`/stitching-sewing/dispatch`)
+
+### 8.5 PostgreSQL Database Schema Reference (Live Backend Tables)
+```sql
+-- 1. Master Brands (Principal Buyers / Retailers)
+CREATE TABLE brands (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  brand_code VARCHAR(30) NOT NULL UNIQUE,
+  brand_name VARCHAR(100) NOT NULL UNIQUE,
+  contact_person VARCHAR(100),
+  phone VARCHAR(20),
+  email VARCHAR(100),
+  city VARCHAR(50) DEFAULT 'Kolkata',
+  address TEXT,
+  gstin VARCHAR(30),
+  is_active BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 2. Master Vendors & Sub-Contract Units (Job-Workers & Suppliers)
+CREATE TABLE vendors (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  vendor_code VARCHAR(50) NOT NULL UNIQUE,
+  vendor_name VARCHAR(100) NOT NULL,
+  brand_id UUID REFERENCES brands(id) ON DELETE SET NULL,
+  brand_name VARCHAR(100),
+  vendor_type VARCHAR(50) DEFAULT 'STITCHING_JOB_WORK',
+  contact_person VARCHAR(100),
+  phone VARCHAR(20),
+  city VARCHAR(50) DEFAULT 'Kolkata',
+  address TEXT,
+  gst_no VARCHAR(30),
+  stitching_rate NUMERIC(8,2) DEFAULT 20.00,
+  is_active BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 3. Employees & Linemen Master
+CREATE TABLE employees (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  employee_code VARCHAR(30) NOT NULL UNIQUE,
+  full_name VARCHAR(100) NOT NULL,
+  role VARCHAR(50) NOT NULL,
+  skill_grade VARCHAR(10) DEFAULT 'GRADE_A',
+  phone VARCHAR(20),
+  is_active BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 4. Core Production Articles & SAM Specs
+CREATE TABLE articles (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  art_no VARCHAR(50) NOT NULL UNIQUE,
+  description TEXT,
+  stitching_rate NUMERIC(8,2) DEFAULT 0,
+  size_rates JSONB DEFAULT '{}'::jsonb,
+  is_active BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 5. Production Allotments (Zero Ghost Piece Binding)
+CREATE TABLE allotments (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  challan_id UUID REFERENCES challans(id) ON DELETE CASCADE,
+  bundle_id UUID, -- Bound to cutting_bundles.id
+  lineman_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
+  article_id UUID REFERENCES articles(id) ON DELETE CASCADE,
+  target_qty INTEGER NOT NULL,
+  allotment_date DATE DEFAULT CURRENT_DATE,
+  status VARCHAR(40) DEFAULT 'PENDING_STITCHING',
+  mending_status VARCHAR(40),
+  mending_total_counted INTEGER DEFAULT 0,
+  qc_status VARCHAR(40),
+  qc_total_passed INTEGER DEFAULT 0,
+  qc_total_alter INTEGER DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 6. Quality Control Inspection Logs (3-Stage Audits)
+CREATE TABLE qc_logs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  allotment_id UUID REFERENCES allotments(id) ON DELETE CASCADE,
+  article_id UUID REFERENCES articles(id) ON DELETE CASCADE,
+  qty_passed INTEGER NOT NULL DEFAULT 0,
+  qty_rejected INTEGER NOT NULL DEFAULT 0,
+  stage VARCHAR(50) NOT NULL, -- INLINE, END_OF_LINE, FINISHING
+  defect_type VARCHAR(100),
+  entry_date DATE DEFAULT CURRENT_DATE,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 7. Store & Godown Transactions
+CREATE TABLE store_transactions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  allotment_id UUID REFERENCES allotments(id) ON DELETE SET NULL,
+  article_id UUID REFERENCES articles(id) ON DELETE SET NULL,
+  type VARCHAR(30) NOT NULL, -- INWARD, OUTWARD, RTO, REJECT
+  quantity INTEGER NOT NULL,
+  party_name VARCHAR(100),
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 8. Outward Delivery Challans & Gate Passes
+CREATE TABLE delivery_challans (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  challan_no VARCHAR(60) NOT NULL UNIQUE,
+  buyer_name VARCHAR(100),
+  total_pieces INTEGER NOT NULL,
+  destination_type VARCHAR(50), -- WASHING, STEAM_IRONING, CENTRAL_GODOWN
+  vehicle_no VARCHAR(30),
+  driver_name VARCHAR(80),
+  status VARCHAR(30) DEFAULT 'DISPATCHED',
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+```
+
+---
+
+## 9. Cross-Division Handshake Architecture
 
 ```
 ┌───────────────────────────────────────────────────────────────────────────────┐
@@ -551,14 +747,20 @@ CREATE TABLE embroidery_qc_audits (
   [ 04. PRINTING / 05. EMBROIDERY ]  [ 06. STITCHING & SEWING ] [ 11. CENTRAL STORE ]
   Raw Panels for Embellishment       QR-tagged bundles          Scrap & End-Bits
   Pattern registration notches       Direct FK + Zero Ghost     Returned to inventory
+             │                          │
+             │ Handover slip            │ QC Passed garments
+             ▼                          ▼
+  [ 06. STITCHING & SEWING ]       [ 07. WASHING / 08. IRONING / 09. READY GOODS ]
 ```
 
 ---
 
-## 9. Quality, Performance & Compliance Metrics
+## 10. Quality, Performance & Compliance Metrics
 
 - **Compilation Status**: Zero TypeScript compiler errors (`npx tsc --noEmit` exited code 0).
 - **Turbopack Cache Invalidation**: Fully resolved runtime `TypeError: ... is not a function` by creating `'use client'` dedicated utilities ([`cuttingStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/cutting/utils/cuttingStorage.ts), [`printingStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/printing/utils/printingStorage.ts), and [`embroideryStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/embroidery/utils/embroideryStorage.ts)).
-- **Aesthetic Consistency**: Strict adherence to the Industrial Luxury design system across all views of Division 01, 02, 03, 04, and 05.
+- **Live Supabase Synchronization**: Division 06 is 100% connected to live Supabase backend tables with full server action cache revalidations on all `/stitching-sewing/*` routes.
+- **Aesthetic Consistency**: Strict adherence to the Industrial Luxury design system across all views of Division 01, 02, 03, 04, 05, and 06.
 - **Brand Terminology**: Canonical brand name **"Zigza AI"** maintained across all routes and copilots.
+
 
