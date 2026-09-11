@@ -13,7 +13,8 @@ import {
   Sparkles,
   Layers,
   Wrench,
-  AlertTriangle
+  AlertTriangle,
+  Scissors
 } from 'lucide-react'
 import { getAlterTickets, ALTER_UPDATE_EVENT } from '../../utils/alterStorage'
 import { AlterationTicket } from '../../types/alter'

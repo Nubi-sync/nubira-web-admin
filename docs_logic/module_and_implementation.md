@@ -13,6 +13,7 @@ This document records the architectural specifications, implemented features, po
 9. **Division 07: Industrial Washing Plant** (`/washing`)
 10. **Division 08: Ironing & Steam Pressing Operations** (`/iron`)
 11. **Division 09: Ready Goods & Export Carton Packing** (`/ready-goods`)
+12. **Division 10: Alteration, Repair & Scrap Reclamation Clinic** (`/alter`)
 
 All divisions strictly conform to the **Industrial Luxury** aesthetic defined in [`docs_logic/design.md`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/docs_logic/design.md) (Palette `#3A3564` Indigo Night, `#FAF7F0` Cream Canvas, `#FFFFFF` crisp encapsulated cards, `#09090B` Ink, and semantic status badge pastels).
 
@@ -1219,7 +1220,174 @@ FOR EACH ROW EXECUTE FUNCTION update_carton_status_from_aql();
 
 ---
 
-## 12. Cross-Division Handshake Architecture
+## 12. Division 10: Alteration, Repair & Scrap Reclamation Clinic (`/alter`)
+
+### 12.1 Portal Routing & Sidebar Integration
+[`AdminSidebar.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/components/layout/AdminSidebar.tsx) defines the complete 8-item navigation structure for the `/alter` portal:
+- **Workspace Hub**: `All Modules` (`/modules`)
+- **10. Alteration & Quality Recovery**:
+  - `Clinic Dashboard` (`/alter`)
+  - `Defect Intake & Pareto` (`/alter/defect-intake`) [Badge: `Pareto`]
+  - `Master Mending Stations` (`/alter/repair-stations`)
+  - `Chemical Spotting & Clean` (`/alter/spot-cleaning`) [Badge: `Eco-Gun`]
+  - `Secondary AQL Re-Audit` (`/alter/secondary-qc`) [Badge: `QC Pass`]
+  - `Scrap Salvage & Write-Off` (`/alter/scrap-salvage`)
+  - `Zigza AI` (`/alter/zigza-ai`)
+- **Account**: `Division Profile` (`/alter/profile`)
+
+### 12.2 Clinic Dashboard (`/alter`)
+- **File**: [`src/app/alter/components/ClinicDashboardClient.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/alter/components/ClinicDashboardClient.tsx)
+- **4 Metric KPI Cards**:
+  - `In-Queue for Rework`: **42 pcs** *(Current Floor Defect Rate: 0.8% • Low)*
+  - `Repaired & Cleared Today`: **38 pcs** *(Passed back to final finishing flow)*
+  - `Top Defect Root Cause`: **Skip Stitch** *(Line 2 & 4 Needle tension calibration • 34%)*
+  - `Recovery Clearance Rate`: **95.2%** *(True Scrap Rate: 0.04% • High salvage)*
+- **Pareto 80/20 Defect Analysis Panel**:
+  - `Skip Stitches` (34%): Root cause needle burr / hook timing &rarr; Groz-Beckert GEBEDUR titanium needles & hook re-timing.
+  - `Seam Opening / Broken Stitch` (26%): Root cause low thread strength / under-SPI &rarr; TKT 120 spun polyester & SPI 12.
+  - `Needle Oil / Machine Stains` (18%): Root cause excessive pressure lubrication on overlock needle bars &rarr; micro-oil seals & vacuum spray table.
+  - `Puckering / Uneven Tension` (14%): Root cause differential feed ratio mismatch &rarr; calibrate differential feed to 1:0.8 for stretch knits.
+  - `Fabric Hole / Needle Cut` (8%): Root cause dull ball-point needle cutting knit loops &rarr; SES/SUK light ball-point needles.
+- **Live Clinic Rework Manifest**: Tabbed filtering (`ALL`, `IN_REWORK`, `REPAIRED_PASSED`, `DECLARED_SCRAP`), full-text search, lineman employee origin attribution, and ticket detail inspector.
+
+### 12.3 Defect Intake & Pareto Categorization (`/alter/defect-intake`)
+- **File**: [`src/app/alter/defect-intake/components/DefectIntakeClient.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/alter/defect-intake/components/DefectIntakeClient.tsx)
+- **Form 1 (Defect Intake & Triage Form)**: [`LogDefectModal.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/alter/defect-intake/components/LogDefectModal.tsx)
+  - Fields: `ticket_number` (`ALT-XXXX`), `garment_barcode` (`BDL-XXXX-XX-PXX`), `orderNumber`, `buyer`, `styleName`, `size`, `color`, `sourceDivision` (`SEWING_LINE`, `WASHING`, `IRONING`, `PACKING_AQL`), `defectType` (`SKIP_STITCH`, `SEAM_OPEN`, `OIL_STAIN`, `PUCKERING`, `FABRIC_HOLE`, `SHADING`, `SIZE_MISTAG`), `linemanName` (responsible floor operator FK), `assignedStation` (Stations 01–06), `defectDescription`.
+  - On submission: saves ticket in status `IN_REWORK` and auto-allocates to appropriate station queue.
+
+### 12.4 Master Mending Stations (`/alter/repair-stations`)
+- **File**: [`src/app/alter/repair-stations/components/RepairStationsClient.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/alter/repair-stations/components/RepairStationsClient.tsx)
+- **Workstation Console (Stations 01–04)**:
+  - Station 01 (Collar & Neckband): Fatima Bano (Master Seamstress) • Juki DDL-9000C Direct-Drive Lockstitch.
+  - Station 02 (Flatlock & Overlock Seams): Rameshwar Lal (Senior Tailor) • Pegasus W500PV Cylinder Bed Interlock.
+  - Station 03 (Labels, Welts & Bartack): Zarina Begum (Trim Specialist) • Brother KE-430HX Electronic Bartack.
+  - Station 04 (Panel & Component Replacement): Harish Chander (Pattern Mender) • Juki LH-3568A 2-Needle Lockstitch.
+- **Form 2 (Repair Resolution & Secondary QA Sign-Off Form)**: [`SignOffRepairModal.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/alter/repair-stations/components/SignOffRepairModal.tsx)
+  - Fields: `ticket_id`, `mender_name`, `repair_action_taken` (`SEAM_RE_STITCHED`, `COLLAR_RESET`, `STAIN_SPRAY_CLEANED`, `PANEL_REPLACED`, `BUTTON_RESET`, `UNPICK_RESEW`), `inspector_name`, `resolution_status` (`REPAIRED_PASSED`, `DECLARED_SCRAP`), `scrap_reason`, `repair_cost` (₹).
+  - Direct status transition: Promoting to `REPAIRED_PASSED` clears garment for re-injection; declaring `DECLARED_SCRAP` automatically generates replacement re-cut order to Division 03 Cutting Floor.
+
+### 12.5 Chemical Spotting & Cleaning Desk (`/alter/spot-cleaning`)
+- **File**: [`src/app/alter/spot-cleaning/components/SpotCleaningClient.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/alter/spot-cleaning/components/SpotCleaningClient.tsx)
+- **Chemical Spotting Execution Modal**: [`ExecuteSpotCleanModal.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/alter/spot-cleaning/components/ExecuteSpotCleanModal.tsx)
+- **Telemetry & Protocols (Stations 05 & 06)**:
+  - Trevil Texi Vacuum Spotting Tables with high-pressure cold/air spray guns.
+  - Eco-certified solvents: Trichloroethylene-Free Citrus Degreaser A-9 (OEKO-TEX Certified) & Aliphatic Hydrocarbon Spot Lifter Formula B.
+  - Vacuum table suction evaporates residual rings, ensuring a 100% Zero-Halo standard under 1000-lux light.
+
+### 12.6 Secondary AQL Re-Inspection Station (`/alter/secondary-qc`)
+- **File**: [`src/app/alter/secondary-qc/components/SecondaryQcClient.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/alter/secondary-qc/components/SecondaryQcClient.tsx)
+- **Quality Assurance Re-Audit Gate**:
+  - Dedicated inspection console under 1000-lux luminaire certifying that repaired garments meet buyer export specifications.
+  - Generates official AQL Clearance Certificate and routes garments back to Division 08 (Steam Ironing) or Division 09 (Ready Goods Packing).
+
+### 12.7 Scrap Salvage & Write-Off Ledger (`/alter/scrap-salvage`)
+- **File**: [`src/app/alter/scrap-salvage/components/ScrapSalvageClient.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/alter/scrap-salvage/components/ScrapSalvageClient.tsx)
+- **Declare Scrap Modal**: [`DeclareScrapModal.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/alter/scrap-salvage/components/DeclareScrapModal.tsx)
+- **Downcycling & Cutting Loop Handshake**:
+  - Authorizes permanent cut scrap write-offs (true scrap rate 0.04% vs 0.05% ceiling SLA).
+  - Logs salvage rag weight (kg) for industrial wipe reclamation.
+  - Dispatches immediate single-piece replacement re-cut requisitions to Division 03 (Cutting Floor CAD), preserving exact piece count and closing the Zero Ghost Piece integrity loop.
+
+### 12.8 PostgreSQL Database Schema Blueprint
+```sql
+-- 1. Alteration Rework Tickets (Populated by Form 1 & resolved by Form 2)
+CREATE TABLE alteration_tickets (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  ticket_number VARCHAR(50) NOT NULL UNIQUE,
+  garment_barcode VARCHAR(60) NOT NULL,
+  order_id UUID REFERENCES merchandising_orders(id) ON DELETE RESTRICTED,
+  lineman_employee_id UUID REFERENCES employees(id) ON DELETE SET NULL,
+  mender_employee_id UUID REFERENCES employees(id) ON DELETE SET NULL,
+  inspector_id UUID REFERENCES employees(id) ON DELETE SET NULL,
+  source_division VARCHAR(40) NOT NULL, -- SEWING_LINE, WASHING, IRONING, PACKING_AQL
+  defect_type VARCHAR(60) NOT NULL, -- SKIP_STITCH, SEAM_OPEN, OIL_STAIN, PUCKERING, FABRIC_HOLE, SHADING, SIZE_MISTAG
+  defect_description TEXT NOT NULL,
+  assigned_station VARCHAR(50) NOT NULL, -- Mending Station 01-04, Spot Cleaning Gun 05-06
+  repair_action_taken VARCHAR(60), -- SEAM_RE_STITCHED, COLLAR_RESET, STAIN_SPRAY_CLEANED, PANEL_REPLACED
+  resolution_status VARCHAR(30) DEFAULT 'IN_REWORK', -- IN_REWORK, REPAIRED_PASSED, DECLARED_SCRAP
+  scrap_reason VARCHAR(60), -- HOLE_IN_SHELL, FABRIC_TORN, BURNT_FABRIC, PERMANENT_STAIN
+  repair_cost NUMERIC(6,2) DEFAULT 0.00,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  cleared_at TIMESTAMPTZ
+);
+
+-- 2. Alteration Mending Workstations
+CREATE TABLE alteration_stations (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  station_code VARCHAR(30) NOT NULL UNIQUE,
+  station_name VARCHAR(100) NOT NULL,
+  mender_employee_id UUID REFERENCES employees(id) ON DELETE SET NULL,
+  equipment_type VARCHAR(100) NOT NULL,
+  status VARCHAR(20) DEFAULT 'ACTIVE',
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 3. Chemical Spotting & Vacuum Degreasing Logs
+CREATE TABLE alteration_spotting_logs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  log_code VARCHAR(50) NOT NULL UNIQUE,
+  ticket_id UUID REFERENCES alteration_tickets(id) ON DELETE RESTRICTED,
+  stain_type VARCHAR(100) NOT NULL,
+  solvent_used VARCHAR(100) NOT NULL,
+  vacuum_table_sec INTEGER NOT NULL DEFAULT 20,
+  stain_removed BOOLEAN DEFAULT TRUE,
+  halo_visible BOOLEAN DEFAULT FALSE,
+  operator_name VARCHAR(100) NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 4. Scrap Write-Off & Re-Cut Requisitions (Triggered to Division 03 Cutting)
+CREATE TABLE alteration_scrap_requisitions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  scrap_code VARCHAR(50) NOT NULL UNIQUE,
+  ticket_id UUID REFERENCES alteration_tickets(id) ON DELETE RESTRICTED,
+  order_id UUID REFERENCES merchandising_orders(id) ON DELETE RESTRICTED,
+  garment_style VARCHAR(100) NOT NULL,
+  garment_size VARCHAR(20) NOT NULL,
+  garment_color VARCHAR(50) NOT NULL,
+  scrap_reason VARCHAR(60) NOT NULL,
+  salvage_weight_kg NUMERIC(6,2) DEFAULT 0.45,
+  re_cut_authorized BOOLEAN DEFAULT TRUE,
+  sent_to_cutting_at TIMESTAMPTZ DEFAULT NOW(),
+  authorized_by VARCHAR(100) NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 5. Trigger: Automated Re-Cut Dispatch to Cutting When Scrap is Declared
+CREATE OR REPLACE FUNCTION dispatch_scrap_recut_to_cutting()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF NEW.resolution_status = 'DECLARED_SCRAP' AND NEW.scrap_reason IS NOT NULL THEN
+    INSERT INTO alteration_scrap_requisitions (
+      scrap_code, ticket_id, order_id, garment_style, garment_size, garment_color,
+      scrap_reason, salvage_weight_kg, re_cut_authorized, sent_to_cutting_at, authorized_by
+    ) VALUES (
+      'SCRP-' || floor(random() * 9000 + 1000)::text,
+      NEW.id,
+      NEW.order_id,
+      'Export Style Rework',
+      'Standard',
+      'Assorted',
+      NEW.scrap_reason,
+      0.45,
+      TRUE,
+      NOW(),
+      COALESCE(NEW.inspector_id::text, 'Quality Head')
+    );
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_dispatch_scrap_recut
+AFTER UPDATE ON alteration_tickets
+FOR EACH ROW EXECUTE FUNCTION dispatch_scrap_recut_to_cutting();
+```
+
+---
+
+## 13. Cross-Division Handshake Architecture
 
 ```
 ┌───────────────────────────────────────────────────────────────────────────────┐
@@ -1237,13 +1405,14 @@ FOR EACH ROW EXECUTE FUNCTION update_carton_status_from_aql();
              │ Ratio Matrix & Rates     │ Fabric & Trims
              ▼                          ▼
   [ 03. CUTTING & LAY FLOOR ]      [ 11. CENTRAL STORE ]
-             │                          │
-             │ Relax, Lay, Cut          │ 4-Point Pass Rolls
-             │ Number & QR Barcode      │ Delivered to Tables
-             │                          │
-             ├──────────────────────────┼─────────────────────────┐
+             │ ◄────────────────────────┼─────────────────────────┐
+             │                          │                         │ (Scrap Replacement Re-Cut)
+             │ Relax, Lay, Cut          │ 4-Point Pass Rolls      │
+             │ Number & QR Barcode      │ Delivered to Tables     │
              │                          │                         │
-             ▼                          ▼                         ▼
+             ├──────────────────────────┼─────────────────────────┼───────┐
+             │                          │                         │       │
+             ▼                          ▼                         ▼       │
   [ 04. PRINTING / 05. EMBROIDERY ]  [ 06. STITCHING & SEWING ] [ 11. CENTRAL STORE ]
   Raw Panels for Embellishment       QR-tagged bundles          Scrap & End-Bits
   Pattern registration notches       Direct FK + Zero Ghost     Returned to inventory
@@ -1251,32 +1420,38 @@ FOR EACH ROW EXECUTE FUNCTION update_carton_status_from_aql();
              │ Handover slip            │ QC Passed garments
              ▼                          ▼
   [ 06. STITCHING & SEWING ] ───────► [ 07. INDUSTRIAL WASHING ]
-             │                          │ (Enzyme, Softener, 1:5.0 Ratio)
-             │ (Raw non-washed goods)   │
-             ├──────────────────────────┼─────────────────────────┐
-             │                          │                         │
-             ▼                          ▼                         ▼ (Shrinkage > 2.5% Alert)
+             │       ▲                  │ (Enzyme, Softener, 1:5.0 Ratio)
+             │       │                  │
+             │ (Raw non-washed goods)   ├─────────────────────────┐
+             │       │                  │                         │ (Shrinkage > 2.5% Alert)
+             ▼       │                  ▼                         ▼
   [ 08. STEAM IRONING & FINISHING ] ────┘               [ 03. CUTTING FLOOR CAD ]
   12 Vacuum Buck Tables (4.5 Bar steam)                 Expand lay marker by +1.4cm
   Zero shine / glaze SLA
              │
-             ▼ (Mobile Trolleys Manifest)
-  [ 09. READY GOODS & PACKING FLOOR ]
-  Tagging, Polybagging, Carton Assortments (AQL 2.5 Audit & ±0.15kg Scale Check)
-             │
-             ▼ (Pallet Gate Pass Handover)
-  [ 11. CENTRAL STORE GODOWN / EXPORT CONTAINER LOADING ]
-  High-Bay Stacking (Bay 3–5) & Dock 01–03 Container Stuffing
+             ├────────────────────────────────────────────────────┐
+             │                                                    │
+             ▼ (Mobile Trolleys Manifest)                         ▼ (Defects)
+  [ 09. READY GOODS & PACKING FLOOR ]               [ 10. ALTERATION & REWORK CLINIC ]
+  Tagging, Polybagging, Carton Assortments          Stations 01-04 Menders
+  (AQL 2.5 Audit & ±0.15kg Scale Check)             Stations 05-06 Chemical Spot Guns
+             │       ▲                                    │ (≥ 95.0% Salvaged)
+             │       │                                    ├───────────────────────┐
+             │       └────────────────────────────────────┘                       │
+             │ (AQL Rejects / Alteration Clearance Pass)                          │ (Irreparable Scrap)
+             ▼ (Pallet Gate Pass Handover)                                        ▼
+  [ 11. CENTRAL STORE GODOWN / EXPORT LOADING ]                      [ 03. CUTTING RE-CUT ORDER ]
+  High-Bay Stacking (Bay 3–5) & Container Stuffing                   Single-piece replacement cut
 ```
 
 ---
 
-## 13. Quality, Performance & Compliance Metrics
+## 14. Quality, Performance & Compliance Metrics
 
 - **Compilation Status**: Zero TypeScript compiler errors (`npx tsc --noEmit` exited code 0).
-- **Turbopack Cache Invalidation**: Fully resolved runtime `TypeError: ... is not a function` by creating dedicated `'use client'` storage utilities ([`cuttingStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/cutting/utils/cuttingStorage.ts), [`printingStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/printing/utils/printingStorage.ts), [`embroideryStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/embroidery/utils/embroideryStorage.ts), [`washingStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/washing/utils/washingStorage.ts), [`ironStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/iron/utils/ironStorage.ts), and [`readyGoodsStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/ready-goods/utils/readyGoodsStorage.ts)).
+- **Turbopack Cache Invalidation**: Fully resolved runtime `TypeError: ... is not a function` by creating dedicated `'use client'` storage utilities ([`cuttingStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/cutting/utils/cuttingStorage.ts), [`printingStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/printing/utils/printingStorage.ts), [`embroideryStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/embroidery/utils/embroideryStorage.ts), [`washingStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/washing/utils/washingStorage.ts), [`ironStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/iron/utils/ironStorage.ts), [`readyGoodsStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/ready-goods/utils/readyGoodsStorage.ts), and [`alterStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/alter/utils/alterStorage.ts)).
 - **Live Supabase Synchronization**: Division 06 is 100% connected to live Supabase backend tables with full server action cache revalidations on all `/stitching-sewing/*` routes.
-- **Aesthetic Consistency**: Strict adherence to the Industrial Luxury design system across all views of Division 01, 02, 03, 04, 05, 06, 07, 08, and 09.
+- **Aesthetic Consistency**: Strict adherence to the Industrial Luxury design system across all views of Division 01, 02, 03, 04, 05, 06, 07, 08, 09, and 10.
 - **Brand Terminology**: Canonical brand name **"Zigza AI"** maintained across all routes and copilots.
 
 
