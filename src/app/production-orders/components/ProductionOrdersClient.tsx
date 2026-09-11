@@ -47,8 +47,10 @@ import {
   ChallanArticleLine,
   ChallanBomItem,
   CreateChallanPayload,
+  UpdateChallanPayload,
   ChallanGroupedOrder,
   createChallan,
+  updateChallan,
   createBulkChallans,
   updateOrderStatus,
   deleteProductionOrder,
@@ -60,6 +62,7 @@ import {
   unallotChallanDirectly,
   updateChallanLineRate
 } from '../actions'
+import { toast } from 'sonner'
 import {
   downloadCleanChallanTemplate,
   parseChallanExcelFile,
@@ -137,6 +140,7 @@ export function ProductionOrdersClient({
 
   // Modals
   const [showNewChallanModal, setShowNewChallanModal] = useState(false)
+  const [editingChallanId, setEditingChallanId] = useState<string | null>(null)
   const [showArticleHistoryModal, setShowArticleHistoryModal] = useState(false)
   const [selectedArticleForHistory, setSelectedArticleForHistory] = useState<string>('')
   const [articleHistorySearch, setArticleHistorySearch] = useState<string>('')
@@ -283,8 +287,9 @@ export function ProductionOrdersClient({
   // BOM / Raw Materials List (Starts clean empty)
   const [bomItems, setBomItems] = useState<ChallanBomItem[]>([])
 
-  // Reset & Open Modal
+  // Reset & Open Modal (New Challan)
   const handleOpenNewChallan = () => {
+    setEditingChallanId(null)
     setFormChallanNo('')
     setFormChallanDate(new Date().toISOString().split('T')[0])
     setFormBrand('')
@@ -296,6 +301,75 @@ export function ProductionOrdersClient({
     setFormNotes('')
     setArticleLines([createEmptyArticleLine()])
     setBomItems([])
+    setImportStatus(null)
+    setShowNewChallanModal(true)
+  }
+
+  // Pre-fill & Open Modal in EDIT Mode
+  const handleOpenEditChallan = (challan: ChallanGroupedOrder) => {
+    setEditingChallanId(challan.id)
+    setFormChallanNo(challan.challan_no || '')
+    setFormChallanDate(challan.challan_date || new Date().toISOString().split('T')[0])
+    setFormBrand(challan.brand || '')
+    setFormVendorId(challan.vendor_id || '')
+    setFormVendorName(challan.vendor_name || '')
+    setFormDeliveryDate(challan.delivery_date || '')
+    setFormFabric(challan.fabric_type || '')
+    setFormSampleGiven(!!challan.sample_given)
+
+    // Extract user notes if stored in JSON
+    let notesText = ''
+    if (challan.notes) {
+      try {
+        const parsed = JSON.parse(challan.notes)
+        notesText = parsed.user_notes || (typeof parsed === 'string' ? parsed : '')
+      } catch {
+        notesText = challan.notes
+      }
+    }
+    setFormNotes(notesText)
+
+    // Pre-populate article lines
+    if (challan.articles && challan.articles.length > 0) {
+      setArticleLines(
+        challan.articles.map((art, idx) => ({
+          id: art.id || art.allotment_id || `line-${idx}`,
+          art_no: art.art_no || '',
+          sub_art_no: art.sub_art_no || '',
+          pattern_no: art.pattern_no || '',
+          category: art.category || '',
+          product: art.product || '',
+          description: art.description || '',
+          color_pattern: art.color_pattern || 'Standard',
+          size_range: art.size_range || 'Standard',
+          sets: art.sets ?? 1,
+          pcs_per_set: art.pcs_per_set ?? 9,
+          total_pcs: art.total_pcs ?? 9,
+          stitching_rate: art.stitching_rate && Number(art.stitching_rate) > 0 ? Number(art.stitching_rate) : undefined,
+          assigned_lineman_id: art.assigned_lineman_id || '',
+          picture_url: art.picture_url || '',
+          status: art.status || challan.status || 'PENDING'
+        }))
+      )
+    } else {
+      setArticleLines([createEmptyArticleLine()])
+    }
+
+    // Pre-populate BOM items
+    if (challan.bom_details && challan.bom_details.length > 0) {
+      setBomItems(
+        challan.bom_details.map(b => ({
+          material_type: b.material_type || 'FABRIC',
+          item_name: b.item_name || '',
+          lot_no: b.lot_no || '',
+          required_qty: b.required_qty || '',
+          status: b.status || 'PENDING'
+        }))
+      )
+    } else {
+      setBomItems([])
+    }
+
     setImportStatus(null)
     setShowNewChallanModal(true)
   }
@@ -846,7 +920,9 @@ export function ProductionOrdersClient({
     }
 
     const cleanChallan = formChallanNo.trim().toUpperCase()
-    const isDuplicate = orders.some(o => o.challan_no?.trim().toUpperCase() === cleanChallan)
+    const isDuplicate = orders.some(
+      o => o.id !== editingChallanId && o.challan_no?.trim().toUpperCase() === cleanChallan
+    )
     if (isDuplicate) {
       showErrorDialog(
         'Duplicate Challan Number',
@@ -877,38 +953,88 @@ export function ProductionOrdersClient({
     }
 
     startTransition(async () => {
-      const res = await createChallan(payload)
-      if (res?.error) {
-        showErrorDialog('Unable to Create Challan', res.error)
-      } else {
-        setShowNewChallanModal(false)
-        // Refresh local optimistic state
-        const newGroup: ChallanGroupedOrder = {
-          id: res.challan_id || 'temp-' + Date.now(),
-          challan_no: payload.challan_no,
-          challan_date: payload.challan_date,
-          brand: payload.brand,
-          vendor_id: payload.vendor_id,
-          vendor_name: payload.vendor_name,
-          delivery_date: payload.delivery_date || '',
-          fabric_type: payload.fabric_type || '',
-          sample_given: !!payload.sample_given,
-          notes: payload.notes || '',
-          total_sets: formGrandSets,
-          total_pcs: formGrandPcs,
-          status: 'IN_PRODUCTION',
-          bom_details: payload.bom_items || [],
-          articles: payload.article_lines.map((line, idx) => ({
-            ...line,
-            allotment_id: 'temp-art-' + idx,
-            status: 'IN_PROGRESS',
-            assigned_lineman_name: linemenList.find(l => l.id === line.assigned_lineman_id)?.username || 'Unassigned'
-          })),
-          created_at: new Date().toISOString()
-        }
+      if (editingChallanId) {
+        const res = await updateChallan({
+          ...payload,
+          challan_id: editingChallanId
+        })
+        if (res?.error) {
+          showErrorDialog('Unable to Update Challan', res.error)
+        } else {
+          setShowNewChallanModal(false)
+          toast.success(`Challan #${cleanChallan} updated successfully.`)
 
-        setOrders(prev => [newGroup, ...prev])
-        setExpandedChallans(prev => ({ ...prev, [newGroup.id]: true }))
+          setOrders(prev =>
+            prev.map(ch => {
+              if (ch.id === editingChallanId) {
+                return {
+                  ...ch,
+                  challan_no: payload.challan_no,
+                  challan_date: payload.challan_date,
+                  brand: payload.brand,
+                  vendor_id: payload.vendor_id,
+                  vendor_name: payload.vendor_name,
+                  delivery_date: payload.delivery_date || '',
+                  fabric_type: payload.fabric_type || '',
+                  sample_given: !!payload.sample_given,
+                  notes: payload.notes || '',
+                  total_sets: formGrandSets,
+                  total_pcs: formGrandPcs,
+                  bom_details: payload.bom_items || [],
+                  articles: payload.article_lines.map((line, idx) => {
+                    const existingLine = ch.articles?.find(a => 
+                      (a.art_no || '').trim().toUpperCase() === (line.art_no || '').trim().toUpperCase() &&
+                      (a.color_pattern || '').trim().toUpperCase() === (line.color_pattern || '').trim().toUpperCase() &&
+                      (a.size_range || '').trim().toUpperCase() === (line.size_range || '').trim().toUpperCase()
+                    )
+                    return {
+                      ...line,
+                      allotment_id: existingLine?.allotment_id || ('temp-art-' + idx),
+                      status: existingLine?.status || 'PENDING',
+                      assigned_lineman_name: existingLine?.assigned_lineman_name || linemenList.find(l => l.id === line.assigned_lineman_id)?.username || 'Unassigned'
+                    }
+                  })
+                }
+              }
+              return ch
+            })
+          )
+        }
+      } else {
+        const res = await createChallan(payload)
+        if (res?.error) {
+          showErrorDialog('Unable to Create Challan', res.error)
+        } else {
+          setShowNewChallanModal(false)
+          toast.success(`Challan #${cleanChallan} created successfully.`)
+          // Refresh local optimistic state
+          const newGroup: ChallanGroupedOrder = {
+            id: res.challan_id || 'temp-' + Date.now(),
+            challan_no: payload.challan_no,
+            challan_date: payload.challan_date,
+            brand: payload.brand,
+            vendor_id: payload.vendor_id,
+            vendor_name: payload.vendor_name,
+            delivery_date: payload.delivery_date || '',
+            fabric_type: payload.fabric_type || '',
+            sample_given: !!payload.sample_given,
+            notes: payload.notes || '',
+            total_sets: formGrandSets,
+            total_pcs: formGrandPcs,
+            status: 'IN_PRODUCTION',
+            bom_details: payload.bom_items || [],
+            articles: payload.article_lines.map((line, idx) => ({
+              ...line,
+              allotment_id: 'temp-art-' + idx,
+              status: 'IN_PROGRESS',
+              assigned_lineman_name: linemenList.find(l => l.id === line.assigned_lineman_id)?.username || 'Unassigned'
+            })),
+            created_at: new Date().toISOString()
+          }
+
+          setOrders(prev => [newGroup, ...prev])
+          setExpandedChallans(prev => ({ ...prev, [newGroup.id]: true }))
+        }
       }
     })
   }
@@ -1693,6 +1819,18 @@ export function ProductionOrdersClient({
                       </button>
                     )}
 
+                    {/* Edit Challan & Articles Button */}
+                    <button
+                      type="button"
+                      disabled={isPending}
+                      onClick={() => handleOpenEditChallan(challan)}
+                      title="Edit Challan Details & Articles"
+                      className="px-2.5 py-1.5 text-slate-600 hover:text-[#3A3564] rounded-xl hover:bg-[#FAF7F0] border border-black/10 hover:border-black/20 transition-all cursor-pointer flex items-center gap-1.5 text-xs font-bold shadow-2xs"
+                    >
+                      <Pencil className="w-3.5 h-3.5 text-[#3A3564]" />
+                      <span className="hidden sm:inline">Edit</span>
+                    </button>
+
                     <button
                       type="button"
                       onClick={() => handleDelete(challan.id, true)}
@@ -2465,39 +2603,52 @@ export function ProductionOrdersClient({
             <div className="p-4 sm:p-5 border-b border-black/10 flex items-center justify-between bg-[#FAF7F0] flex-wrap gap-3">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-xl bg-white text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
-                  <FileSpreadsheet className="w-4 h-4" />
+                  {editingChallanId ? <Pencil className="w-4 h-4 text-[#3A3564]" /> : <FileSpreadsheet className="w-4 h-4 text-[#3A3564]" />}
                 </div>
                 <div>
-                  <h2 className="text-base sm:text-lg font-extrabold text-slate-900">
-                    New Job Work Delivery Challan Entry
-                  </h2>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-base sm:text-lg font-extrabold text-slate-900">
+                      {editingChallanId ? `Edit Delivery Challan #${formChallanNo}` : 'New Job Work Delivery Challan Entry'}
+                    </h2>
+                    {editingChallanId && (
+                      <span className="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-amber-50 text-amber-800 border border-amber-200">
+                        Editing Mode
+                      </span>
+                    )}
+                  </div>
                   <p className="text-xs text-slate-500 mt-0.5">
-                    Enter multi-article cutting lots, sizes, and BOM materials directly or import via Excel
+                    {editingChallanId
+                      ? 'Add missed articles, update cutting quantities, rates, delivery dates, and BOM materials'
+                      : 'Enter multi-article cutting lots, sizes, and BOM materials directly or import via Excel'}
                   </p>
                 </div>
               </div>
 
               <div className="flex items-center gap-2.5">
-                <button
-                  type="button"
-                  onClick={downloadCleanChallanTemplate}
-                  className="px-3.5 py-2 rounded-xl text-xs font-bold border border-black/10 bg-white hover:bg-slate-50 text-slate-700 flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
-                  title="Download clean Excel template"
-                >
-                  <Download className="w-3.5 h-3.5 text-slate-500" />
-                  <span>Download Template</span>
-                </button>
+                {!editingChallanId && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={downloadCleanChallanTemplate}
+                      className="px-3.5 py-2 rounded-xl text-xs font-bold border border-black/10 bg-white hover:bg-slate-50 text-slate-700 flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
+                      title="Download clean Excel template"
+                    >
+                      <Download className="w-3.5 h-3.5 text-slate-500" />
+                      <span>Download Template</span>
+                    </button>
 
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={isImporting}
-                  className="px-3.5 py-2 rounded-xl text-xs font-bold bg-[#3A3564] hover:bg-[#2A2649] text-white flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
-                  title="Import from Excel or CSV"
-                >
-                  <UploadCloud className="w-3.5 h-3.5 text-white" />
-                  <span>{isImporting ? 'Importing...' : 'Import Excel'}</span>
-                </button>
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isImporting}
+                      className="px-3.5 py-2 rounded-xl text-xs font-bold bg-[#3A3564] hover:bg-[#2A2649] text-white flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
+                      title="Import from Excel or CSV"
+                    >
+                      <UploadCloud className="w-3.5 h-3.5 text-white" />
+                      <span>{isImporting ? 'Importing...' : 'Import Excel'}</span>
+                    </button>
+                  </>
+                )}
 
                 <button
                   type="button"
@@ -3025,11 +3176,14 @@ export function ProductionOrdersClient({
                     className="w-1/2 sm:w-auto px-6 py-2.5 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs sm:text-sm font-bold shadow-xs flex items-center justify-center gap-2 cursor-pointer transition-all disabled:opacity-50"
                   >
                     {isPending ? (
-                      <span>Saving Challan...</span>
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin text-white" />
+                        <span>{editingChallanId ? 'Updating Challan...' : 'Saving Challan...'}</span>
+                      </>
                     ) : (
                       <>
-                        <CheckCircle2 className="w-4 h-4" />
-                        <span>Save & Send Challan to Floor</span>
+                        <CheckCircle2 className="w-4 h-4 text-white" />
+                        <span>{editingChallanId ? 'Update Delivery Challan' : 'Save & Send Challan to Floor'}</span>
                       </>
                     )}
                   </button>
