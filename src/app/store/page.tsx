@@ -3,6 +3,7 @@ import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { StoreDashboardClient } from './components/StoreDashboardClient'
 import Link from 'next/link'
+import { Layers, Tag, Truck, ArrowRight, Warehouse, Bot, ShieldCheck, ChevronRight } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
@@ -255,14 +256,71 @@ export default async function StoreDashboardPage() {
       <div className="flex-1 p-4 md:p-8 max-w-7xl w-full mx-auto space-y-6">
         
         {/* Breadcrumb Bar */}
-        <div className="flex items-center gap-2 text-xs font-medium text-slate-500">
-          <Link href={profile?.role?.toUpperCase() === 'STORE' ? '/store' : '/dashboard'} className="hover:underline hover:text-slate-900 transition-colors">
-            Overview
-          </Link>
-          <span className="text-slate-300">/</span>
-          <span className="font-extrabold text-[#3A3564]">
-            Store & Godown
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <div className="flex items-center gap-2 text-xs font-medium text-slate-500">
+            <Link href={profile?.role?.toUpperCase() === 'STORE' ? '/store' : '/dashboard'} className="hover:underline hover:text-slate-900 transition-colors">
+              Overview
+            </Link>
+            <span className="text-slate-300">/</span>
+            <span className="font-extrabold text-[#3A3564]">
+              Store & Godown
+            </span>
+          </div>
+
+          <span className="text-[11px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+            Division 11 • Central Store & Finished Export Vault
           </span>
+        </div>
+
+        {/* Division 11 Quick Operations Navigation Bar */}
+        <div className="bg-white p-2.5 rounded-2xl border border-black/10 shadow-2xs flex items-center gap-2 overflow-x-auto">
+          <Link
+            href="/store/fabric-godown"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] text-[#3A3564] text-xs font-mono font-bold hover:bg-[#3A3564] hover:text-white transition-all whitespace-nowrap border border-black/10 shadow-2xs cursor-pointer"
+          >
+            <Layers className="w-3.5 h-3.5" />
+            <span>Fabric Godown & 4-Pt QC</span>
+          </Link>
+
+          <Link
+            href="/store/trims-warehouse"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] text-[#3A3564] text-xs font-mono font-bold hover:bg-[#3A3564] hover:text-white transition-all whitespace-nowrap border border-black/10 shadow-2xs cursor-pointer"
+          >
+            <Tag className="w-3.5 h-3.5" />
+            <span>Trims Warehouse (ROL)</span>
+          </Link>
+
+          <Link
+            href="/store/truck-inwards"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] text-[#3A3564] text-xs font-mono font-bold hover:bg-[#3A3564] hover:text-white transition-all whitespace-nowrap border border-black/10 shadow-2xs cursor-pointer"
+          >
+            <Truck className="w-3.5 h-3.5" />
+            <span>Truck Inward Gate (GRN)</span>
+          </Link>
+
+          <Link
+            href="/store/material-issues"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] text-[#3A3564] text-xs font-mono font-bold hover:bg-[#3A3564] hover:text-white transition-all whitespace-nowrap border border-black/10 shadow-2xs cursor-pointer"
+          >
+            <ArrowRight className="w-3.5 h-3.5" />
+            <span>Material Issues to Floor</span>
+          </Link>
+
+          <Link
+            href="/store/finished-godown"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] text-[#3A3564] text-xs font-mono font-bold hover:bg-[#3A3564] hover:text-white transition-all whitespace-nowrap border border-black/10 shadow-2xs cursor-pointer"
+          >
+            <Warehouse className="w-3.5 h-3.5" />
+            <span>Finished Export Bay 3–5</span>
+          </Link>
+
+          <Link
+            href="/store/zigza-ai"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] text-[#3A3564] text-xs font-mono font-bold hover:bg-[#3A3564] hover:text-white transition-all whitespace-nowrap border border-black/10 shadow-2xs cursor-pointer"
+          >
+            <Bot className="w-3.5 h-3.5" />
+            <span>Zigza AI</span>
+          </Link>
         </div>
 
         {/* Client Interactive Dashboard */}
