@@ -18,6 +18,7 @@ The **Central Store & Raw Material Godown** is the factory's inventory nerve cen
 │ Fabric Inspection 4-Point SLA: │ ≤ 28 Penalty Points per 100 Square Yards   │
 │ Inventory Ledger Accuracy:     │ ≥ 99.9% Barcode Verified Physical Audit    │
 │ Gate Entry Workflow:           │ 2-Step Stepper: Vehicle Gate -> Weighbridge│
+│ Inspector Accountability:      │ Direct FK to employees.id on Every Roll    │
 └────────────────────────────────┴────────────────────────────────────────────┘
 ```
 
@@ -143,10 +144,12 @@ The Central Store portal has **8 dedicated side navigation views**:
 
 ### Form 2: ASTM D5430 4-Point Roll Inspection Form
 * **Trigger**: `Inspect Fabric Roll` on `/store/fabric-godown`
+* **Purpose**: **Directly updates `store_fabric_rolls` with accountable inspector FK**.
 
 | Field Name | Type | Required | Validation / Options | Tooltip / Hint |
 | :--- | :--- | :--- | :--- | :--- |
 | `roll_barcode` | Text | Yes | Scanned mill roll barcode | Physical roll |
+| `inspector_id` | Select Dropdown | Yes | Certified fabric inspectors (`employees.id`)| Accountable QA inspector |
 | `measured_width_inches`| Number | Yes | Tolerance $\pm 0.5$ inches | Width check |
 | `measured_gsm` | Number | Yes | Tolerance $\pm 3\%$ of BOM spec | Weight check |
 | `penalty_points_total` | Number | Yes | Sum of 1, 2, 3, 4 point defects | ASTM 4-Point count |
@@ -156,7 +159,7 @@ The Central Store portal has **8 dedicated side navigation views**:
 
 ### Form 3: Material Floor Issue Challan Form
 * **Trigger**: `Issue Material to Floor` on `/store/material-issues`
-* **Fields**: `issue_challan_no`, `destination_division` (`CUTTING_FLOOR`, `SEWING_FLOOR`), `order_id`, `receiver_employee_id` (FK), `scanned_material_barcodes` (Array of fabric rolls or trim packs), `issue_notes`.
+* **Fields**: `issue_challan_no`, `destination_division` (`CUTTING_FLOOR`, `SEWING_FLOOR`), `order_id`, `receiver_employee_id` (FK to `employees.id`), `scanned_material_barcodes` (Array of fabric rolls or trim packs), `issue_notes`.
 
 ---
 
@@ -184,8 +187,10 @@ CREATE TABLE store_fabric_rolls (
   measured_gsm INTEGER NOT NULL,
   four_point_penalty_score NUMERIC(4,1) DEFAULT 0.0,
   inspection_status VARCHAR(30) DEFAULT 'PENDING_INSPECTION', -- PENDING_INSPECTION, PASSED, REJECTED
+  inspector_id UUID REFERENCES employees(id) ON DELETE SET NULL,
   godown_rack_location VARCHAR(30) DEFAULT 'BAY_1_RACK_02',
   is_issued_to_cutting BOOLEAN DEFAULT FALSE,
-  created_at TIMESTAMPTZ DEFAULT NOW()
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  inspected_at TIMESTAMPTZ
 );
 ```

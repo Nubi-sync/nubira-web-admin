@@ -265,4 +265,24 @@ CREATE TABLE store_transactions (
   notes TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- 7. Quantity Integrity Constraint Trigger (Enforces Piece Count Ceiling)
+CREATE OR REPLACE FUNCTION validate_bundle_allotment_sum()
+RETURNS TRIGGER AS $$
+DECLARE
+  v_piece_count INTEGER;
+  v_total_allotted INTEGER;
+BEGIN
+  SELECT piece_count INTO v_piece_count FROM cutting_bundles WHERE id = NEW.bundle_id;
+  SELECT COALESCE(SUM(allotted_quantity), 0) INTO v_total_allotted FROM allotments 
+  WHERE bundle_id = NEW.bundle_id AND id != COALESCE(NEW.id, '00000000-0000-0000-0000-000000000000');
+  
+  IF (v_total_allotted + NEW.allotted_quantity) > v_piece_count THEN
+    RAISE EXCEPTION 'Quantity Integrity Violation: Total allotted quantity (%) exceeds physical bundle piece count (%) for bundle %',
+      (v_total_allotted + NEW.allotted_quantity), v_piece_count, NEW.bundle_id;
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 ```
+

@@ -6,7 +6,7 @@
 
 ## 1. Executive Summary & Industry Scope
 
-The **Cutting & Lay Floor** is the physical conversion point where raw fabric rolls are transformed into precisely cut garment components. Cutting efficiency directly dictates factory profitability: fabric accounts for **60% to 70% of total garment cost**. The Cutting Floor enforces strict marker efficiency (target > 86%), computerized auto-cutting, shade grouping, and 100% QR barcode bundle tracking to feed the **Zero Ghost Piece Guarantee**.
+The **Cutting & Lay Floor** is the physical conversion point where raw fabric rolls are transformed into precisely cut garment components. Cutting efficiency directly dictates factory profitability: fabric accounts for **60% to 70% of total garment cost**. The Cutting Floor enforces strict marker efficiency (target > 86%), computerized auto-cutting, shade grouping, and 100% QR barcode bundle tracking to feed the **Zero Ghost Piece Guarantee** backed by strict database quantity integrity constraints.
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -17,7 +17,7 @@ The **Cutting & Lay Floor** is the physical conversion point where raw fabric ro
 │ Downstream Outward Entity:     │ 04. Print / 05. Embroider / 06. Sewing    │
 │ Target Marker Efficiency:      │ ≥ 86.5% (High Yield Marker Target)        │
 │ End-Bit Scrap Allowance:       │ ≤ 1.8% of Total Issued Fabric Meterage    │
-│ Bundle Traceability Standard:  │ Direct FK to Allotments & Operator Master │
+│ Bundle Traceability Standard:  │ Direct FK + Quantity Integrity Check Trigger│
 └────────────────────────────────┴────────────────────────────────────────────┘
 ```
 
@@ -45,7 +45,7 @@ The **Cutting & Lay Floor** is the physical conversion point where raw fabric ro
 [ 04. PRINTING / 05. EMBROIDERY ]       [ 06. STITCHING & SEWING FLOOR ]
 • Cut Front/Back Panels for Embellish   • Fully Numbered Bundle Packs
 • Sequence: Embroidery-First vs Print   • Direct FK Link: cutting_bundles.id
-• Registration Notches & Placement Mark • Scanned Inward QR Bundle Verification
+• Registration Notches & Placement Mark • Quantity Integrity Trigger Bound
 ```
 
 ### Inward Handshake (What Cutting Receives)
@@ -164,11 +164,32 @@ The Cutting Floor portal has **8 dedicated side navigation views**:
 
 ### Form 2: Cut Panel QC Audit Form
 * **Trigger**: `Conduct Panel Audit` on `/cutting/panel-qc`
-* **Fields**: `lay_sheet_id`, `bundle_id`, `notch_accuracy_mm`, `ply_deflection_mm`, `shade_continuity_pass` (Boolean), `template_match_pass` (Boolean), `inspector_id` (FK), `qc_verdict` (`PASS`, `RE_CUT_PANELS`, `REJECT`).
+* **Purpose**: **Directly writes to `cutting_panel_qc_audits`**.
+
+| Field Name | Type | Required | Validation / Options | Tooltip / Hint |
+| :--- | :--- | :--- | :--- | :--- |
+| `bundle_id` | Select Dropdown | Yes | Active cut bundles | Target bundle |
+| `lay_sheet_id` | Select Dropdown | Yes | Active lay sheets | Originating lay |
+| `inspector_id` | Select Dropdown | Yes | Active employees master (FK) | Inspector conducting audit |
+| `notch_accuracy_mm`| Number | Yes | Tolerance $\pm 1.0$ mm | Notch position |
+| `ply_deflection_mm`| Number | Yes | Tolerance $\pm 1.5$ mm | Top vs bottom ply shift |
+| `shade_continuity_pass`| Boolean | Yes | Checkbox | No shade variance across stack |
+| `template_match_pass` | Boolean | Yes | Checkbox | Silhouette matches master pattern |
+| `qc_verdict` | Select Dropdown | Yes | `PASS`, `RE_CUT_PANELS`, `REJECT` | QA status |
 
 ### Form 3: End-Bit Remnant & Roll Closing Form
 * **Trigger**: `Close Fabric Roll` on `/cutting/fabric-rolls`
-* **Fields**: `roll_id`, `actual_laid_meters`, `remnant_end_bit_meters`, `scrap_reason` (`DEFECTIVE_WEAVE`, `NARROW_WIDTH`, `END_OF_LAY`), `returned_to_store` (Boolean).
+* **Purpose**: **Directly writes to `cutting_end_bit_logs`**.
+
+| Field Name | Type | Required | Validation / Options | Tooltip / Hint |
+| :--- | :--- | :--- | :--- | :--- |
+| `lay_sheet_id` | Select Dropdown | Yes | Active lay sheets | Associated lay |
+| `roll_id` | Select Dropdown | Yes | Issued fabric rolls | Physical roll |
+| `actual_laid_meters`| Number | Yes | Decimal 2 places | Meterage consumed in lay |
+| `remnant_end_bit_meters`| Number | Yes | Decimal 2 places | Leftover remnant fabric |
+| `scrap_reason` | Select Dropdown | Yes | `END_OF_ROLL_REMNANT`, `FABRIC_DEFECT_CUTOUT`, `WIDTH_NARROW` | Reason |
+| `returned_to_store`| Boolean | Yes | Checkbox | Remnant physically moved back to store |
+| `logged_by_id` | Select Dropdown | Yes | Active employees (FK) | Cutting supervisor |
 
 ---
 
@@ -208,7 +229,7 @@ CREATE TABLE cutting_bundles (
   order_id UUID REFERENCES merchandising_orders(id) ON DELETE RESTRICTED,
   size VARCHAR(20) NOT NULL,
   color VARCHAR(50) NOT NULL,
-  piece_count INTEGER NOT NULL,
+  piece_count INTEGER NOT NULL CHECK (piece_count > 0),
   ply_start INTEGER NOT NULL,
   ply_end INTEGER NOT NULL,
   shade_group VARCHAR(20) NOT NULL,
@@ -216,4 +237,50 @@ CREATE TABLE cutting_bundles (
   is_allotted_to_sewing BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- 3. Cut Panel QC Audit Logs (Populated by Form 2)
+CREATE TABLE cutting_panel_qc_audits (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  bundle_id UUID REFERENCES cutting_bundles(id) ON DELETE CASCADE,
+  lay_sheet_id UUID REFERENCES cutting_lay_sheets(id) ON DELETE CASCADE,
+  inspector_id UUID REFERENCES employees(id) ON DELETE SET NULL,
+  notch_accuracy_mm NUMERIC(3,1) NOT NULL,
+  ply_deflection_mm NUMERIC(3,1) NOT NULL,
+  shade_continuity_pass BOOLEAN DEFAULT TRUE,
+  template_match_pass BOOLEAN DEFAULT TRUE,
+  qc_verdict VARCHAR(30) DEFAULT 'PASS', -- PASS, RE_CUT_PANELS, REJECT
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 4. Fabric Roll End-Bit Remnant Logs (Populated by Form 3)
+CREATE TABLE cutting_end_bit_logs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  lay_sheet_id UUID REFERENCES cutting_lay_sheets(id) ON DELETE CASCADE,
+  roll_id UUID REFERENCES store_fabric_rolls(id) ON DELETE RESTRICTED,
+  actual_laid_meters NUMERIC(6,2) NOT NULL,
+  remnant_end_bit_meters NUMERIC(6,2) NOT NULL,
+  scrap_reason VARCHAR(50) NOT NULL,
+  returned_to_store BOOLEAN DEFAULT TRUE,
+  logged_by_id UUID REFERENCES employees(id) ON DELETE SET NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 5. Quantity Integrity Constraint Trigger (Enforcing Zero Ghost Piece Rule)
+CREATE OR REPLACE FUNCTION validate_bundle_allotment_sum()
+RETURNS TRIGGER AS $$
+DECLARE
+  v_piece_count INTEGER;
+  v_total_allotted INTEGER;
+BEGIN
+  SELECT piece_count INTO v_piece_count FROM cutting_bundles WHERE id = NEW.bundle_id;
+  SELECT COALESCE(SUM(allotted_quantity), 0) INTO v_total_allotted FROM allotments 
+  WHERE bundle_id = NEW.bundle_id AND id != COALESCE(NEW.id, '00000000-0000-0000-0000-000000000000');
+  
+  IF (v_total_allotted + NEW.allotted_quantity) > v_piece_count THEN
+    RAISE EXCEPTION 'Quantity Integrity Violation: Total allotted quantity (%) exceeds physical bundle piece count (%) for bundle %',
+      (v_total_allotted + NEW.allotted_quantity), v_piece_count, NEW.bundle_id;
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 ```
