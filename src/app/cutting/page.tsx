@@ -9,7 +9,6 @@ import {
   Ruler,
   QrCode,
   ArrowRight,
-  Bot,
   Zap,
   Gauge
 } from 'lucide-react'
@@ -64,16 +63,6 @@ export default async function CuttingModulePage() {
                 Fabric roll lay sheets, marker efficiency, computerized auto-cutters, and bundle QR ticket generation
               </p>
             </div>
-          </div>
-
-          <div className="flex items-center gap-2.5 flex-wrap">
-            <Link
-              href="/cutting/zigza-ai"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
-            >
-              <Bot className="w-4 h-4" />
-              <span>Cutting AI</span>
-            </Link>
           </div>
         </div>
 

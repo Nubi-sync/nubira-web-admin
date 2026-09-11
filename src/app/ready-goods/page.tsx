@@ -9,7 +9,6 @@ import {
   CheckCircle2,
   Tag,
   ArrowRight,
-  Bot,
   Warehouse,
   Truck
 } from 'lucide-react'
@@ -64,16 +63,6 @@ export default async function ReadyGoodsModulePage() {
                 AQL 2.5 final inspection, barcode hangtag affixing, polybag packing, and master export carton manifest
               </p>
             </div>
-          </div>
-
-          <div className="flex items-center gap-2.5 flex-wrap">
-            <Link
-              href="/ready-goods/zigza-ai"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
-            >
-              <Bot className="w-4 h-4" />
-              <span>Packing AI</span>
-            </Link>
           </div>
         </div>
 

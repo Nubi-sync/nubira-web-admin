@@ -8,7 +8,6 @@ import {
   Thermometer,
   Sparkles,
   ArrowRight,
-  Bot,
   Gauge,
   CheckCircle2,
   Boxes
@@ -64,16 +63,6 @@ export default async function IronModulePage() {
                 Industrial boiler steam pressing, vacuum buck tables, inline finish inspections, and operator piece-rate tracking
               </p>
             </div>
-          </div>
-
-          <div className="flex items-center gap-2.5 flex-wrap">
-            <Link
-              href="/iron/zigza-ai"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
-            >
-              <Bot className="w-4 h-4" />
-              <span>Ironing AI</span>
-            </Link>
           </div>
         </div>
 
