@@ -42,7 +42,11 @@ import {
   Clock,
   Cpu,
   BarChart3,
-  FileCode
+  FileCode,
+  FlaskConical,
+  Droplets,
+  ShieldAlert,
+  ArrowRight
 } from 'lucide-react'
 
 type NavItem = {
