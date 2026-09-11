@@ -720,7 +720,7 @@ The figures below are the kind of order-of-magnitude impact a factory of meaning
 | 03 | Cutting & Lay Floor | `/cutting` | 8 | Fabric waste, ghost-piece origination |
 | 04 | Screen & Digital Printing | `/printing` | 8 | Ink defects, panel scrap |
 | 05 | Multi-Head Embroidery | `/embroidery` | 8 | Thread-break downtime, needle damage |
-| 06 | Stitching & Sewing (Core) | `/stitching-sewing` | 13 | Wage disputes, uninspected garment flow |
+| 06 | Stitching & Sewing (Core) | `/stitching-sewing` | 13 | Wage dispfor utes, uninspected garment flow |
 | 07 | Industrial Washing | `/washing` | 8 | Buyer rejections from post-wash shrinkage |
 | 08 | Steam Ironing | `/iron` | 8 | Scorched garments, dimensional miscalibration |
 | 09 | Ready Goods & Packing | `/ready-goods` | 8 | Missing carton pieces, AQL chargebacks |
