@@ -1,11 +1,11 @@
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { AdminShell } from '@/components/layout/AdminShell'
-import { DesignDashboardClient } from './components/DesignDashboardClient'
+import { MaterialsLibraryClient } from './components/MaterialsLibraryClient'
 
 export const dynamic = 'force-dynamic'
 
-export default async function DesignModulePage() {
+export default async function MaterialsLibraryPage() {
   const supabase = await createClient()
 
   const {
@@ -18,8 +18,8 @@ export default async function DesignModulePage() {
 
   return (
     <AdminShell userEmail={user.email}>
-      <div className="p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6 max-w-7xl w-full mx-auto select-none">
-        <DesignDashboardClient />
+      <div className="p-4 sm:p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto select-none">
+        <MaterialsLibraryClient />
       </div>
     </AdminShell>
   )
