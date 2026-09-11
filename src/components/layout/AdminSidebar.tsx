@@ -46,7 +46,8 @@ import {
   FlaskConical,
   Droplets,
   ShieldAlert,
-  ArrowRight
+  ArrowRight,
+  Gauge
 } from 'lucide-react'
 
 type NavItem = {
@@ -391,9 +392,14 @@ export function AdminSidebar({
         ],
       },
       {
-        section: '8. Steam Ironing',
+        section: '8. Ironing Operations',
         items: [
-          { label: 'Ironing & Finishing', href: '/iron', icon: Flame },
+          { label: 'Ironing Dashboard', href: '/iron', icon: Flame },
+          { label: 'Steam Vacuum Buck Tables', href: '/iron/tables', icon: Layers },
+          { label: 'Operator Piece-Rate Wages', href: '/iron/wages', icon: Calculator },
+          { label: 'Boiler Telemetry & Steam Log', href: '/iron/boiler-telemetry', icon: Gauge },
+          { label: 'Inline Finish & Glaze QC', href: '/iron/finish-qc', icon: CheckCircle2 },
+          { label: 'Outward Packing Handover', href: '/iron/handover', icon: Truck },
           { label: 'Zigza AI', href: '/iron/zigza-ai', icon: Bot },
         ],
       },

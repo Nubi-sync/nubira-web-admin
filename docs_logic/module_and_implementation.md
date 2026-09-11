@@ -719,7 +719,167 @@ CREATE TABLE delivery_challans (
 
 ---
 
-## 9. Cross-Division Handshake Architecture
+## 9. Division 07: Industrial Washing & Wet Processing
+
+### 9.1 Executive & Operational Scope
+The **Industrial Washing & Wet Processing Division (`/washing`)** is responsible for garment hand-feel enhancement, enzymatic bio-polishing, dimensional stabilization, and specialized aesthetic surface treatments. Operating commercial garment wash tumblers (600 kg batch capacity) and high-G hydro extractors, the division executes bio-polishing, silicon softening, vintage stone washes, and desizing cycles.
+- **Industry Standards**: AATCC 135 (Dimensional Changes of Fabrics after Home Laundering) / ISO 6330.
+- **Standard Liquor Ratio (M:L)**: **$1 : 5.0$** standard ($1\text{ kg dry garment} : 5\text{ Liters water}$).
+- **Residual Shrinkage Tolerance**: $\le 1.5\%$ Length $\times \le 1.5\%$ Width (strict zero-defect standard).
+- **Auto-Escalation Engine**: Any wash batch exhibiting $> 2.5\%$ shrinkage triggers an automated critical alert to **03 Cutting Floor** to halt lay cutting and apply CAD marker expansion factors.
+
+### 9.2 Complete Side Navigation Architecture (8 Dedicated Views)
+[`AdminSidebar.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/components/layout/AdminSidebar.tsx) defines the complete 8-view navigation structure:
+- **Tier 1: Workspace Hub**:
+  - `All Modules` (`/modules`)
+- **Tier 2: 7. Washing Operations**:
+  - `01. Washing Dashboard` (`/washing`)
+  - `02. Wash Recipes & Chemistry` (`/washing/recipes`)
+  - `03. Tumbler & Hydro Runs` (`/washing/machine-runs`)
+  - `04. Liquor Ratio & Water Audit` (`/washing/liquor-audit`)
+  - `05. Shrinkage & Fastness QC` (`/washing/shrinkage-qc`)
+  - `06. Finishing Handover` (`/washing/handover`)
+  - `07. Zigza AI Copilot` (`/washing/zigza-ai`)
+- **Tier 3: Account**:
+  - `08. Division Profile` (`/washing/profile`)
+
+### 9.3 Implemented Floor Components & Features
+
+1. **Master Washing Dashboard (`/washing`)**:
+   - **Files**: [`page.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/washing/page.tsx), [`WashingDashboardClient.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/washing/components/WashingDashboardClient.tsx)
+   - **4 Master KPI Cards**:
+     1. `Active Tumblers`: Running vs total 600 kg industrial drums with dynamic utilization progress bar.
+     2. `Daily Wash Volume`: Cumulative pieces processed vs plant daily wet capacity (6,000 pcs).
+     3. `Liquor Ratio (M:L)`: Current mean ratio benchmarked against $1:5.0$ eco-conservation target.
+     4. `Residual Shrinkage`: AATCC 135 compliance indicator ($< 1.15\%$) and grey-scale colorfastness rating.
+   - **Live Machine Floor Matrix**: Visual status cards for Washer 01–06, Hydro 01–04, and Tumbler Dryer 01–04 displaying active batch numbers, recipe formulas, time remaining, drum temperatures, and spin RPM.
+   - **Active Batch Queue**: Live status progression (WASHING &rarr; HYDRO &rarr; DRYING &rarr; PASSED/FAILED) with inline stage advance triggers.
+   - **Auto-Escalation Banner**: Flashing alert if any lot exceeds the $2.5\%$ shrinkage threshold with direct link to QC audit logs.
+
+2. **Wash Recipes & Chemistry (`/washing/recipes`)**:
+   - **Files**: [`page.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/washing/recipes/page.tsx), [`RecipesClient.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/washing/recipes/components/RecipesClient.tsx), [`CreateRecipeModal.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/washing/recipes/components/CreateRecipeModal.tsx)
+   - Formulation cards specifying Neutral Cellulase Enzyme ($1.5\text{ g/L}$), Acetic Acid Buffer ($0.8\text{ g/L}$), and Micro-Silicon Softener ($2.0\text{ g/L}$) with pH targets ($5.2 - 5.5$), thermal curves, and certified hand-feel benchmarks.
+   - Dynamic category filter: `ALL`, `BIO_POLISH`, `SILICON_SOFT`, `VINTAGE_STONE`, `DESIZE_NEUTRALIZE`.
+
+3. **Tumbler & Hydro Runs (`/washing/machine-runs`)**:
+   - **Files**: [`page.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/washing/machine-runs/page.tsx), [`MachineRunsClient.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/washing/machine-runs/components/MachineRunsClient.tsx), [`LoadBatchModal.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/washing/machine-runs/components/LoadBatchModal.tsx)
+   - 3-Stage equipment overview: Stage 1 Wash Tumblers (600 kg), Stage 2 Hydro Extractors (900 RPM / 45% moisture reduction), and Stage 3 Tumbler Dryers (65°C controlled curve).
+   - Contains **Form 1: Wash Batch Run Logging Form**.
+
+4. **Liquor Ratio & Water Audit (`/washing/liquor-audit`)**:
+   - **Files**: [`page.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/washing/liquor-audit/page.tsx), [`LiquorAuditClient.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/washing/liquor-audit/components/LiquorAuditClient.tsx), [`LogWaterAuditModal.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/washing/liquor-audit/components/LogWaterAuditModal.tsx)
+   - Environmental telemetry: Initial vs final water meter readings, calculated water consumed per kg dry load, and effluent discharge monitoring (pH 6.5–8.0 neutralizer standards).
+
+5. **Shrinkage & Fastness QC Station (`/washing/shrinkage-qc`)**:
+   - **Files**: [`page.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/washing/shrinkage-qc/page.tsx), [`ShrinkageQcClient.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/washing/shrinkage-qc/components/ShrinkageQcClient.tsx), [`RecordShrinkageModal.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/washing/shrinkage-qc/components/RecordShrinkageModal.tsx)
+   - 10-piece statistical dimensional audit per batch.
+   - Formula:
+     $$\text{Shrinkage \%} = \frac{\text{Pre-Wash Dimension (cm)} - \text{Post-Wash Dimension (cm)}}{\text{Pre-Wash Dimension (cm)}} \times 100$$
+   - Contains **Form 2: Shrinkage & Dimensional Audit Form** with live auto-verdict and automated CAD marker expansion notices to 03 Cutting Floor on $> 2.5\%$ shrinkage.
+
+6. **Outward Finishing Handover (`/washing/handover`)**:
+   - **Files**: [`page.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/washing/handover/page.tsx), [`HandoverClient.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/washing/handover/components/HandoverClient.tsx), [`CreateHandoverModal.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/washing/handover/components/CreateHandoverModal.tsx)
+   - Digital gate passes transferring conditioned garments to 08 Steam Ironing & Finishing Floor. Verifies zero dampness, zero chemical odor, and piece count reconciliation against sewing challans.
+
+7. **Zigza AI Copilot (`/washing/zigza-ai`)**:
+   - Integrated with [`ZigzaAiClient.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/zigza-ai/components/ZigzaAiClient.tsx) using portal `'washing'` with domain prompts for enzyme activity, liquor ratio optimization, and shrinkage compensation alerts.
+
+8. **Washing Division Profile (`/washing/profile`)**:
+   - [`DivisionProfileView`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/components/profile/DivisionProfileView.tsx) displaying plant supervisor credentials, equipment capacity (6 Washers • 6 Hydros), and ISO wet processing certifications.
+
+### 9.4 Complete Forms Catalog
+1. **Form 1: Wash Batch Run Logging Form** (`/washing/machine-runs` via `LoadBatchModal.tsx`):
+   - Fields: `batch_number` (`WB-XXXXX`), `washer_machine_id` (Washer 01–06), `challan_id` (Sewing lot reference), `operator_name`, `dry_weight_kg` (50–650 kg), `recipe_name`, `water_volume_liters` (auto-calculated: $\text{dry\_weight} \times 5.0$), `tumbler_temp_c` (40–85°C), `cycle_duration_minutes`.
+2. **Form 2: Shrinkage & Dimensional Audit Form** (`/washing/shrinkage-qc` via `RecordShrinkageModal.tsx`):
+   - Fields: `batch_id`, `sample_pieces_tested` (10 pcs), `pre_wash_length_cm`, `post_wash_length_cm`, `pre_wash_width_cm`, `post_wash_width_cm`, `colorfastness_rating` (1.0–5.0), `qc_status` (`PASS`, `MARGINAL_WARN`, `CRITICAL_FAIL`), auto-escalation alert trigger to Cutting CAD station.
+3. **Form 3: Create Wash Chemical Recipe Form** (`/washing/recipes` via `CreateRecipeModal.tsx`)
+4. **Form 4: Water & Effluent Discharge Audit Form** (`/washing/liquor-audit` via `LogWaterAuditModal.tsx`)
+5. **Form 5: Finishing Handover Gate Pass Form** (`/washing/handover` via `CreateHandoverModal.tsx`)
+
+### 9.5 PostgreSQL Database Schema Reference
+```sql
+-- 1. Washing Batches Master
+CREATE TABLE washing_batches (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  batch_number VARCHAR(50) NOT NULL UNIQUE,
+  challan_id UUID REFERENCES challans(id) ON DELETE RESTRICTED,
+  machine_number VARCHAR(20) NOT NULL,
+  operator_id UUID REFERENCES employees(id) ON DELETE SET NULL,
+  recipe_name VARCHAR(100) NOT NULL,
+  dry_weight_kg NUMERIC(6,2) NOT NULL,
+  water_liters NUMERIC(8,2) NOT NULL,
+  measured_shrinkage_length_pct NUMERIC(4,2),
+  measured_shrinkage_width_pct NUMERIC(4,2),
+  status VARCHAR(30) DEFAULT 'WASHING', -- WASHING, HYDRO, DRYING, PASSED, FAILED
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 2. Wash Chemical Recipes
+CREATE TABLE washing_recipes (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  recipe_code VARCHAR(30) NOT NULL UNIQUE,
+  recipe_name VARCHAR(100) NOT NULL,
+  category VARCHAR(50) NOT NULL,
+  enzyme_type VARCHAR(100) NOT NULL,
+  enzyme_dose_gpl NUMERIC(4,2) NOT NULL,
+  acetic_acid_gpl NUMERIC(4,2) NOT NULL,
+  softener_gpl NUMERIC(4,2) NOT NULL,
+  temp_c INTEGER NOT NULL DEFAULT 55,
+  cycle_minutes INTEGER NOT NULL DEFAULT 45,
+  ph_target VARCHAR(20) NOT NULL DEFAULT '5.2 - 5.5',
+  liquor_ratio VARCHAR(20) NOT NULL DEFAULT '1 : 5.0',
+  is_active BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 3. Shrinkage Threshold Alerts (Auto-Escalation Engine)
+CREATE TABLE washing_shrinkage_alerts (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  batch_id UUID REFERENCES washing_batches(id) ON DELETE CASCADE,
+  order_id UUID REFERENCES merchandising_orders(id),
+  measured_shrinkage_pct NUMERIC(4,2) NOT NULL,
+  threshold_exceeded_by NUMERIC(4,2) NOT NULL,
+  cutting_notified BOOLEAN DEFAULT FALSE,
+  resolved_action TEXT, -- e.g. "CAD marker expanded by +1.4cm"
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 4. Water Consumption & Effluent Audit Logs
+CREATE TABLE washing_water_audits (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  audit_date DATE DEFAULT CURRENT_DATE,
+  meter_initial INTEGER NOT NULL,
+  meter_final INTEGER NOT NULL,
+  liters_consumed INTEGER NOT NULL,
+  dry_weight_kg NUMERIC(6,2) NOT NULL,
+  liquor_ratio NUMERIC(4,2) NOT NULL,
+  effluent_ph NUMERIC(3,1) NOT NULL,
+  effluent_tds_ppm INTEGER,
+  compliance_status VARCHAR(30) DEFAULT 'COMPLIANT',
+  auditor_name VARCHAR(100) NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 5. Outward Finishing Handover Gate Passes
+CREATE TABLE washing_handovers (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  handover_code VARCHAR(50) NOT NULL UNIQUE,
+  batch_id UUID REFERENCES washing_batches(id) ON DELETE RESTRICTED,
+  challan_id UUID REFERENCES challans(id) ON DELETE RESTRICTED,
+  pieces_transferred INTEGER NOT NULL,
+  transferred_to VARCHAR(60) DEFAULT '08. Steam Ironing & Finishing Floor',
+  moisture_verified BOOLEAN DEFAULT TRUE,
+  odor_free_verified BOOLEAN DEFAULT TRUE,
+  piece_count_match BOOLEAN DEFAULT TRUE,
+  supervisor_signoff VARCHAR(100) NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+```
+
+---
+
+## 10. Cross-Division Handshake Architecture
 
 ```
 ┌───────────────────────────────────────────────────────────────────────────────┐
@@ -750,17 +910,27 @@ CREATE TABLE delivery_challans (
              │                          │
              │ Handover slip            │ QC Passed garments
              ▼                          ▼
-  [ 06. STITCHING & SEWING ]       [ 07. WASHING / 08. IRONING / 09. READY GOODS ]
+  [ 06. STITCHING & SEWING ] ───────► [ 07. INDUSTRIAL WASHING ]
+                                        │ (Enzyme, Softener, 1:5.0 Ratio)
+                                        │
+                         ┌──────────────┴────────────────┐
+                         │                               │
+                         ▼ (Clean Passed Handover)       ▼ (Shrinkage > 2.5% Alert)
+               [ 08. STEAM IRONING ]           [ 03. CUTTING FLOOR CAD ]
+               Zero dampness, 0 odor           Expand lay marker by +1.4cm
+                         │
+                         ▼
+               [ 09. READY GOODS & PACKING ]
 ```
 
 ---
 
-## 10. Quality, Performance & Compliance Metrics
+## 11. Quality, Performance & Compliance Metrics
 
 - **Compilation Status**: Zero TypeScript compiler errors (`npx tsc --noEmit` exited code 0).
-- **Turbopack Cache Invalidation**: Fully resolved runtime `TypeError: ... is not a function` by creating `'use client'` dedicated utilities ([`cuttingStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/cutting/utils/cuttingStorage.ts), [`printingStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/printing/utils/printingStorage.ts), and [`embroideryStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/embroidery/utils/embroideryStorage.ts)).
+- **Turbopack Cache Invalidation**: Fully resolved runtime `TypeError: ... is not a function` by creating dedicated `'use client'` storage utilities ([`cuttingStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/cutting/utils/cuttingStorage.ts), [`printingStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/printing/utils/printingStorage.ts), [`embroideryStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/embroidery/utils/embroideryStorage.ts), and [`washingStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/washing/utils/washingStorage.ts)).
 - **Live Supabase Synchronization**: Division 06 is 100% connected to live Supabase backend tables with full server action cache revalidations on all `/stitching-sewing/*` routes.
-- **Aesthetic Consistency**: Strict adherence to the Industrial Luxury design system across all views of Division 01, 02, 03, 04, 05, and 06.
+- **Aesthetic Consistency**: Strict adherence to the Industrial Luxury design system across all views of Division 01, 02, 03, 04, 05, 06, and 07.
 - **Brand Terminology**: Canonical brand name **"Zigza AI"** maintained across all routes and copilots.
 
 
