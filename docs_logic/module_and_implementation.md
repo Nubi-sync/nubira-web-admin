@@ -879,7 +879,164 @@ CREATE TABLE washing_handovers (
 
 ---
 
-## 10. Cross-Division Handshake Architecture
+## 10. Division 08: Ironing & Steam Pressing Floor
+
+### 10.1 Executive & Operational Scope
+The **Ironing & Steam Pressing Floor (`/iron`)** gives garments their crisp, commercial presentation. Utilizing centralized industrial boiler steam (operating at 4.2–4.8 Bar, nominal 4.5 Bar) and 12 vacuum suction buck tables, operators shape seams, eliminate wrinkles, and press collars/cuffs. Strict temperature regulation (Teflon shoe base covers at 140°C–160°C) prevents fabric glaze, shine marks, and synthetic fiber scorching.
+- **Industry Standard**: ISO 105-X11 (Pressing Heat Fastness).
+- **Boiler Steam Pressure Target**: 4.2 Bar – 4.8 Bar (continuous saturated steam flow).
+- **Zero Glaze / Shine Defect SLA**: 100% defect-free under 1000-lux high-intensity inspection lamps.
+- **Operator Wage Calculation**: Direct calculation based on verified wrinkle-free pieces pressed:
+  $$\text{Operator Earnings} = \text{Verified Passed Pressed Pieces} \times \text{Pressing Piece Rate (e.g. ₹2.20/pc)}$$
+
+### 10.2 Complete Side Navigation Architecture (8 Dedicated Views)
+[`AdminSidebar.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/components/layout/AdminSidebar.tsx) defines the complete 8-view navigation structure:
+- **Tier 1: Workspace Hub**:
+  - `All Modules` (`/modules`)
+- **Tier 2: 8. Ironing Operations**:
+  - `01. Ironing Dashboard` (`/iron`)
+  - `02. Steam Vacuum Buck Tables` (`/iron/tables`)
+  - `03. Operator Piece-Rate Wages` (`/iron/wages`)
+  - `04. Boiler Telemetry & Steam Log` (`/iron/boiler-telemetry`)
+  - `05. Inline Finish & Glaze QC` (`/iron/finish-qc`)
+  - `06. Outward Packing Handover` (`/iron/handover`)
+  - `07. Zigza AI Copilot` (`/iron/zigza-ai`)
+- **Tier 3: Account**:
+  - `08. Division Profile` (`/iron/profile`)
+
+### 10.3 Implemented Floor Components & Features
+
+1. **Master Ironing Dashboard (`/iron`)**:
+   - **Files**: [`page.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/iron/page.tsx), [`IronDashboardClient.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/iron/components/IronDashboardClient.tsx)
+   - **4 Master KPI Cards**:
+     1. `Daily Pressed Volume`: Cumulative pieces (6,180 pcs) vs shift target (7,500 pcs • 82.4%).
+     2. `Boiler Pressure`: Real-time steam header pressure (4.5 Bar optimal).
+     3. `Active Vacuum Tables`: Active vs total vacuum buck stations (11 / 12 online).
+     4. `First Pass QC Rate`: Finishing pass rate (99.1%) under ISO 105-X11 standards.
+   - **Central Boiler Ticker**: Header pressure, boiler core temperature (154°C), and condensate trap health.
+   - **Live 12-Table Vacuum Pressing Grid**: Station-by-station cards displaying table status, operator name, inward challan, target vs actual pieces pressed, iron temperature, and piece rate.
+   - **Shift Production & Wage Summary**: Real-time shift piece-rate earnings ledger.
+
+2. **Steam Vacuum Buck Tables (`/iron/tables`)**:
+   - **Files**: [`page.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/iron/tables/page.tsx), [`TablesClient.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/iron/tables/components/TablesClient.tsx)
+   - **Form 1: Ironing Table Allotment Form** ([`AllotTableModal.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/iron/tables/components/AllotTableModal.tsx)): Assigns operator, inward challan lot, hourly target (default 60 pcs/hr), and piece-rate (₹2.20/pc).
+   - **Form 2: Operator Shift Pressing & Defect Completion Form** ([`LogProductionModal.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/iron/tables/components/LogProductionModal.tsx)): Directly writes shift output to `iron_production_logs`, tracking wrinkle-free pieces, glaze/shine defects, and auto-calculated earnings.
+
+3. **Operator Piece-Rate Wages (`/iron/wages`)**:
+   - **Files**: [`page.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/iron/wages/page.tsx), [`WagesClient.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/iron/wages/components/WagesClient.tsx)
+   - Real-time payroll ledger with top earner highlights, average finishing piece-rates, defect deductions, and export-ready shift wage logs.
+
+4. **Boiler Telemetry & Steam Pressure Logs (`/iron/boiler-telemetry`)**:
+   - **Files**: [`page.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/iron/boiler-telemetry/page.tsx), [`BoilerTelemetryClient.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/iron/boiler-telemetry/components/BoilerTelemetryClient.tsx), [`LogBoilerModal.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/iron/boiler-telemetry/components/LogBoilerModal.tsx)
+   - Hourly telemetry monitoring: Steam pressure (4.2–4.8 Bar), boiler temperature, condensate trap drainage (`NORMAL`, `DRAINING`, `CLOGGED`), and sediment blowdown verification.
+
+5. **Inline Finish & Glaze QC Station (`/iron/finish-qc`)**:
+   - **Files**: [`page.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/iron/finish-qc/page.tsx), [`FinishQcClient.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/iron/finish-qc/components/FinishQcClient.tsx), [`RecordQcModal.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/iron/finish-qc/components/RecordQcModal.tsx)
+   - Spot-checking under high-intensity 1000-lux lamps for heat glaze, shine marks, water spots, and placket/seam symmetry. Quarantines defective pieces to 10 Alteration Clinic.
+
+6. **Outward Packing Handover (`/iron/handover`)**:
+   - **Files**: [`page.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/iron/handover/page.tsx), [`PackingHandoverClient.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/iron/handover/components/PackingHandoverClient.tsx), [`CreateTrolleyModal.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/iron/handover/components/CreateTrolleyModal.tsx)
+   - Mobile trolley gate pass manifests transferring verified wrinkle-free, zero-shine garments to 09 Ready Goods & Packing Floor.
+
+7. **Zigza AI Copilot (`/iron/zigza-ai`)**:
+   - Integrated with [`ZigzaAiClient.tsx`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/zigza-ai/components/ZigzaAiClient.tsx) under portal `'iron'` with domain queries for glaze prevention, boiler pressure trap troubleshooting, and shift output velocity forecasting.
+
+8. **Ironing Floor Profile (`/iron/profile`)**:
+   - [`DivisionProfileView`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/components/profile/DivisionProfileView.tsx) displaying Finishing Master profile, 12 boiler vacuum tables capacity, and ISO 105-X11 quality standards.
+
+### 10.4 Complete Forms Catalog
+1. **Form 1: Ironing Table Allotment Form** (`/iron/tables` via `AllotTableModal.tsx`):
+   - Fields: `table_number` (Table 01–12), `operator_name`, `challan_id`, `target_hourly_pcs` (default 60), `piece_rate` (default ₹2.20), `iron_temp_c` (140°C–160°C).
+2. **Form 2: Operator Shift Pressing & Wage Log Form** (`/iron/tables` via `LogProductionModal.tsx`):
+   - Fields: `table_number`, `operator_name`, `challan_id`, `pieces_pressed`, `defect_shine_count`, `water_stain_count`, `piece_rate`, `total_earned_wages` (auto-calculated), `notes`.
+3. **Form 3: Log Central Boiler Telemetry Form** (`/iron/boiler-telemetry` via `LogBoilerModal.tsx`)
+4. **Form 4: Record Finishing & Glaze QC Form** (`/iron/finish-qc` via `RecordQcModal.tsx`)
+5. **Form 5: Create Mobile Trolley Packing Handover Form** (`/iron/handover` via `CreateTrolleyModal.tsx`)
+
+### 10.5 PostgreSQL Database Schema Reference
+```sql
+-- 1. Ironing Station Production Logs (Populated by Form 2)
+CREATE TABLE iron_production_logs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  table_number VARCHAR(20) NOT NULL,
+  operator_name VARCHAR(100) NOT NULL,
+  operator_id UUID REFERENCES employees(id) ON DELETE SET NULL,
+  challan_id UUID REFERENCES challans(id) ON DELETE RESTRICTED,
+  pieces_pressed INTEGER NOT NULL DEFAULT 0,
+  defect_shine_count INTEGER NOT NULL DEFAULT 0,
+  water_stain_count INTEGER NOT NULL DEFAULT 0,
+  piece_rate NUMERIC(6,2) DEFAULT 2.20,
+  total_earned_wages NUMERIC(10,2) GENERATED ALWAYS AS (pieces_pressed * piece_rate) STORED,
+  shift_date DATE DEFAULT CURRENT_DATE,
+  shift_type VARCHAR(20) DEFAULT 'SHIFT_1',
+  notes TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 2. Ironing Table Assignments & Allotments
+CREATE TABLE iron_table_assignments (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  table_number VARCHAR(20) NOT NULL UNIQUE,
+  operator_id UUID REFERENCES employees(id) ON DELETE SET NULL,
+  challan_id UUID REFERENCES challans(id) ON DELETE RESTRICTED,
+  target_hourly_pcs INTEGER DEFAULT 60,
+  piece_rate NUMERIC(6,2) DEFAULT 2.20,
+  iron_temp_c INTEGER DEFAULT 150,
+  vacuum_active BOOLEAN DEFAULT TRUE,
+  status VARCHAR(20) DEFAULT 'ACTIVE',
+  allotment_date DATE DEFAULT CURRENT_DATE,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 3. Central Boiler Telemetry & Steam Pressure Logs
+CREATE TABLE iron_boiler_telemetry (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  log_time TIMESTAMPTZ DEFAULT NOW(),
+  steam_pressure_bar NUMERIC(4,2) NOT NULL, -- 4.2 - 4.8 Bar target
+  boiler_temp_c INTEGER NOT NULL,
+  condensate_status VARCHAR(30) DEFAULT 'NORMAL', -- NORMAL, DRAINING, CLOGGED
+  blowdown_done BOOLEAN DEFAULT FALSE,
+  feed_water_level_pct INTEGER DEFAULT 85,
+  operator_name VARCHAR(100) NOT NULL,
+  remarks TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 4. Finishing Inline & Glaze QC Audits
+CREATE TABLE iron_finish_qc_audits (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  audit_code VARCHAR(50) NOT NULL UNIQUE,
+  table_number VARCHAR(20) NOT NULL,
+  operator_id UUID REFERENCES employees(id) ON DELETE SET NULL,
+  challan_id UUID REFERENCES challans(id) ON DELETE RESTRICTED,
+  sample_pcs INTEGER NOT NULL DEFAULT 20,
+  glaze_defects INTEGER DEFAULT 0,
+  water_spots INTEGER DEFAULT 0,
+  unaligned_seams INTEGER DEFAULT 0,
+  qc_status VARCHAR(30) DEFAULT 'PASS', -- PASS, REWORK_ALTERATION
+  auditor_name VARCHAR(100) NOT NULL,
+  action_taken TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 5. Outward Mobile Trolley Packing Handovers
+CREATE TABLE iron_handovers (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  trolley_code VARCHAR(50) NOT NULL UNIQUE,
+  challan_id UUID REFERENCES challans(id) ON DELETE RESTRICTED,
+  pieces_transferred INTEGER NOT NULL,
+  transferred_to VARCHAR(60) DEFAULT '09. Ready Goods & Packing Floor',
+  wrinkle_free_verified BOOLEAN DEFAULT TRUE,
+  zero_shine_verified BOOLEAN DEFAULT TRUE,
+  supervisor_signoff VARCHAR(100) NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+```
+
+---
+
+## 11. Cross-Division Handshake Architecture
 
 ```
 ┌───────────────────────────────────────────────────────────────────────────────┐
@@ -911,26 +1068,29 @@ CREATE TABLE washing_handovers (
              │ Handover slip            │ QC Passed garments
              ▼                          ▼
   [ 06. STITCHING & SEWING ] ───────► [ 07. INDUSTRIAL WASHING ]
-                                        │ (Enzyme, Softener, 1:5.0 Ratio)
-                                        │
-                         ┌──────────────┴────────────────┐
-                         │                               │
-                         ▼ (Clean Passed Handover)       ▼ (Shrinkage > 2.5% Alert)
-               [ 08. STEAM IRONING ]           [ 03. CUTTING FLOOR CAD ]
-               Zero dampness, 0 odor           Expand lay marker by +1.4cm
-                         │
-                         ▼
-               [ 09. READY GOODS & PACKING ]
+             │                          │ (Enzyme, Softener, 1:5.0 Ratio)
+             │ (Raw non-washed goods)   │
+             ├──────────────────────────┼─────────────────────────┐
+             │                          │                         │
+             ▼                          ▼                         ▼ (Shrinkage > 2.5% Alert)
+  [ 08. STEAM IRONING & FINISHING ] ────┘               [ 03. CUTTING FLOOR CAD ]
+  12 Vacuum Buck Tables (4.5 Bar steam)                 Expand lay marker by +1.4cm
+  Zero shine / glaze SLA
+             │
+             ▼ (Mobile Trolleys Manifest)
+  [ 09. READY GOODS & PACKING FLOOR ]
+  Tagging, Polybagging, Carton Assortments
 ```
 
 ---
 
-## 11. Quality, Performance & Compliance Metrics
+## 12. Quality, Performance & Compliance Metrics
 
 - **Compilation Status**: Zero TypeScript compiler errors (`npx tsc --noEmit` exited code 0).
-- **Turbopack Cache Invalidation**: Fully resolved runtime `TypeError: ... is not a function` by creating dedicated `'use client'` storage utilities ([`cuttingStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/cutting/utils/cuttingStorage.ts), [`printingStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/printing/utils/printingStorage.ts), [`embroideryStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/embroidery/utils/embroideryStorage.ts), and [`washingStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/washing/utils/washingStorage.ts)).
+- **Turbopack Cache Invalidation**: Fully resolved runtime `TypeError: ... is not a function` by creating dedicated `'use client'` storage utilities ([`cuttingStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/cutting/utils/cuttingStorage.ts), [`printingStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/printing/utils/printingStorage.ts), [`embroideryStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/embroidery/utils/embroideryStorage.ts), [`washingStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/washing/utils/washingStorage.ts), and [`ironStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/iron/utils/ironStorage.ts)).
 - **Live Supabase Synchronization**: Division 06 is 100% connected to live Supabase backend tables with full server action cache revalidations on all `/stitching-sewing/*` routes.
-- **Aesthetic Consistency**: Strict adherence to the Industrial Luxury design system across all views of Division 01, 02, 03, 04, 05, 06, and 07.
+- **Aesthetic Consistency**: Strict adherence to the Industrial Luxury design system across all views of Division 01, 02, 03, 04, 05, 06, 07, and 08.
 - **Brand Terminology**: Canonical brand name **"Zigza AI"** maintained across all routes and copilots.
+
 
 
