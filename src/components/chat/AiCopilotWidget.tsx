@@ -14,12 +14,19 @@ export function AiCopilotWidget() {
   }
 
   function getPortalAiRoute() {
-    if (pathname?.startsWith('/factory')) return '/factory/zigza-ai'
-    if (pathname?.startsWith('/brands')) return '/brands/zigza-ai'
-    if (pathname?.startsWith('/washing')) return '/washing/zigza-ai'
+    if (pathname?.startsWith('/design')) return '/design/zigza-ai'
+    if (pathname?.startsWith('/merchandising')) return '/merchandising/zigza-ai'
+    if (pathname?.startsWith('/cutting')) return '/cutting/zigza-ai'
     if (pathname?.startsWith('/printing')) return '/printing/zigza-ai'
     if (pathname?.startsWith('/embroidery')) return '/embroidery/zigza-ai'
+    if (pathname?.startsWith('/washing')) return '/washing/zigza-ai'
+    if (pathname?.startsWith('/iron')) return '/iron/zigza-ai'
+    if (pathname?.startsWith('/ready-goods')) return '/ready-goods/zigza-ai'
+    if (pathname?.startsWith('/alter')) return '/alter/zigza-ai'
+    if (pathname === '/store' || (pathname?.startsWith('/store') && !pathname?.startsWith('/stitching-sewing/store'))) return '/store/zigza-ai'
     if (pathname?.startsWith('/modules')) return '/modules/zigza-ai'
+    if (pathname?.startsWith('/factory')) return '/factory/zigza-ai'
+    if (pathname?.startsWith('/brands')) return '/brands/zigza-ai'
     return '/stitching-sewing/zigza-ai'
   }
 

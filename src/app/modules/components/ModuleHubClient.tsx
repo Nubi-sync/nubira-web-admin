@@ -3,12 +3,17 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import {
-  Factory,
+  Palette,
   Briefcase,
-  Waves,
+  Scissors,
   Printer,
   Sparkles,
-  Scissors,
+  Layers,
+  Waves,
+  Flame,
+  Boxes,
+  Wrench,
+  Store,
   ArrowRight,
   LogOut,
   LayoutGrid,
@@ -35,34 +40,34 @@ interface ModuleCardData {
 
 const MODULES: ModuleCardData[] = [
   {
-    id: 'factory',
-    title: 'Factory Control Center',
-    subtitle: 'Plant operations, equipment efficiency (OEE), and master line telemetry.',
-    badge: 'PLANT HUB',
-    statusText: 'OPERATIONAL',
-    icon: Factory,
-    href: '/factory',
-    features: ['Plant-Wide Telemetry', 'Department Oversight', 'Shift Master Control'],
+    id: 'design',
+    title: 'Design & Tech-Pack Studio',
+    subtitle: 'CAD sketches, tech-pack specs, sample iterations, and fabric grading approvals.',
+    badge: 'CREATIVE STUDIO',
+    statusText: 'SAMPLE DEVELOPMENT',
+    icon: Palette,
+    href: '/design',
+    features: ['Tech-Pack Spec Sheets', 'CAD Sampling Approvals', 'Size & Fit Grading Matrix'],
   },
   {
-    id: 'brands',
-    title: 'Brands & Buyer Portfolios',
-    subtitle: 'Buyer style catalogs, PO contract allocations, and delivery schedules.',
-    badge: 'BUYER CRM',
-    statusText: 'CLIENT PORTAL',
+    id: 'merchandising',
+    title: 'Merchandising & Sourcing',
+    subtitle: 'Buyer PO allocation, BOM costing, trim procurement, and shipment schedules.',
+    badge: 'BUYER & SOURCING',
+    statusText: 'COMMERCIAL OPS',
     icon: Briefcase,
-    href: '/brands',
-    features: ['PO Contract Ledger', 'Brand Style Catalogs', 'Buyer Compliance'],
+    href: '/merchandising',
+    features: ['Buyer PO & BOM Costing', 'Trim Procurement Ledger', 'Production Milestone Gantt'],
   },
   {
-    id: 'washing',
-    title: 'Industrial Washing',
-    subtitle: 'Garment enzyme wash, silicon softeners, and liquor ratio batch tracking.',
-    badge: 'WET PROCESSING',
-    statusText: 'WASH FLOOR',
-    icon: Waves,
-    href: '/washing',
-    features: ['Enzyme & Silicone Cycles', 'Batch Liquor Tracker', 'Hydro & Tumbler Logs'],
+    id: 'cutting',
+    title: 'Cutting & Lay Floor',
+    subtitle: 'Fabric roll lay planning, marker efficiency, auto-cutters, and bundle generation.',
+    badge: 'CUTTING DIVISION',
+    statusText: 'LAY EXECUTION',
+    icon: Scissors,
+    href: '/cutting',
+    features: ['Lay Sheet & Marker Ratio', 'Fabric Roll Consumption', 'Bundle QR Ticket Generation'],
   },
   {
     id: 'printing',
@@ -90,9 +95,59 @@ const MODULES: ModuleCardData[] = [
     subtitle: 'Live cutting lots, lineman bundle allocations, 3-stage QC, and store sync.',
     badge: 'SEWING FLOOR',
     statusText: 'FLOOR EXECUTION',
-    icon: Scissors,
+    icon: Layers,
     href: '/stitching-sewing/dashboard',
     features: ['Live Cutting Challans', 'Lineman Bundle Allocations', '3-Stage QC & Store Sync'],
+  },
+  {
+    id: 'washing',
+    title: 'Industrial Washing',
+    subtitle: 'Garment enzyme wash, silicon softeners, and liquor ratio batch tracking.',
+    badge: 'WET PROCESSING',
+    statusText: 'WASH FLOOR',
+    icon: Waves,
+    href: '/washing',
+    features: ['Enzyme & Silicone Cycles', 'Batch Liquor Tracker', 'Hydro & Tumbler Logs'],
+  },
+  {
+    id: 'iron',
+    title: 'Ironing & Steam Pressing',
+    subtitle: 'Industrial steam irons, vacuum pressing boards, temperature checks, and inline finishing.',
+    badge: 'FINISHING UNIT',
+    statusText: 'STEAM PRESSING',
+    icon: Flame,
+    href: '/iron',
+    features: ['Steam Vacuum Tables', 'Inline Finish Inspection', 'Ironing Piece-Rate Logs'],
+  },
+  {
+    id: 'ready-goods',
+    title: 'Ready Goods & Packing',
+    subtitle: 'AQL 2.5 final inspection, barcode hangtags, polybag sealing, and carton packaging.',
+    badge: 'FINAL PACKING',
+    statusText: 'CARTON READY',
+    icon: Boxes,
+    href: '/ready-goods',
+    features: ['AQL Final Audit', 'Hangtag & Polybag Packing', 'Master Carton Manifest'],
+  },
+  {
+    id: 'alter',
+    title: 'Alteration & Rework',
+    subtitle: 'Defect categorization, seam rework, broken stitch alterations, and re-inspection logs.',
+    badge: 'REWORK CLINIC',
+    statusText: 'QUALITY RECOVERY',
+    icon: Wrench,
+    href: '/alter',
+    features: ['Defect Root-Cause Tagging', 'Line-Wise Rework Queue', 'Post-Repair AQL Clearance'],
+  },
+  {
+    id: 'store',
+    title: 'Central Store & Godown',
+    subtitle: 'Raw fabric rolls, trims inventory, cutting challan issue, and finished carton storage.',
+    badge: 'CENTRAL GODOWN',
+    statusText: 'STORE OPS',
+    icon: Store,
+    href: '/store',
+    features: ['Raw Material & Trim Godown', 'Cutting Challan Issues', 'Finished Carton Stock Ledger'],
   },
 ]
 
@@ -122,11 +177,11 @@ export function ModuleHubClient({ userEmail, userName, userRole }: ModuleHubClie
                 Enterprise Workspace Hub
               </h1>
               <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-1 rounded-md bg-[#FAF7F0] text-[#3A3564] shadow-2xs tracking-wider">
-                6 Operating Units
+                11 Operating Units
               </span>
             </div>
             <p className="text-sm sm:text-base text-slate-600 mt-1">
-              Central manufacturing execution hub across all apparel production divisions
+              Central manufacturing execution hub across all 11 apparel production divisions
             </p>
           </div>
         </div>

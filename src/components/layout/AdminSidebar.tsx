@@ -26,7 +26,10 @@ import {
   Waves,
   Printer,
   Sparkles,
-  Scissors
+  Scissors,
+  Palette,
+  Flame,
+  Wrench
 } from 'lucide-react'
 
 type NavItem = {
@@ -45,7 +48,7 @@ const navSections: NavSection[] = [
   {
     section: 'Workspace Hub',
     items: [
-      { label: 'All Modules', href: '/modules', icon: LayoutGrid, badge: '6 Units' },
+      { label: 'All Modules', href: '/modules', icon: LayoutGrid, badge: '11 Units' },
     ],
   },
   {
@@ -108,7 +111,7 @@ export function AdminSidebar({
   // Module-specific unique side navigation
   let activeNavSections: NavSection[] = []
 
-  if (isStoreUser) {
+  if (isStoreUser && !pathname?.startsWith('/modules')) {
     activeNavSections = [
       {
         section: 'Workspace Hub',
@@ -134,24 +137,34 @@ export function AdminSidebar({
       {
         section: 'Workspace Hub',
         items: [
-          { label: 'All Modules', href: '/modules', icon: LayoutGrid, badge: '6 Units' },
+          { label: 'All Modules', href: '/modules', icon: LayoutGrid, badge: '11 Units' },
           { label: 'Company Profile', href: '/modules/profile', icon: Building2 },
           { label: 'Zigza AI', href: '/modules/zigza-ai', icon: Bot },
         ],
       },
       {
-        section: 'Manufacturing Units',
+        section: 'Operating Divisions (1–5)',
         items: [
-          { label: 'Factory Control', href: '/modules/factory', icon: Factory },
-          { label: 'Brands & Buyers', href: '/modules/brands', icon: Briefcase },
-          { label: 'Industrial Washing', href: '/modules/washing', icon: Waves },
-          { label: 'Screen & Printing', href: '/modules/printing', icon: Printer },
-          { label: 'Multi-Head Embroidery', href: '/modules/embroidery', icon: Sparkles },
-          { label: 'Stitching & Sewing', href: '/modules/stitching-sewing', icon: Scissors },
+          { label: '1. Design Studio', href: '/design', icon: Palette },
+          { label: '2. Merchandising', href: '/merchandising', icon: Briefcase },
+          { label: '3. Cutting Floor', href: '/cutting', icon: Scissors },
+          { label: '4. Printing Unit', href: '/printing', icon: Printer },
+          { label: '5. Embroidery Unit', href: '/embroidery', icon: Sparkles },
+        ],
+      },
+      {
+        section: 'Operating Divisions (6–11)',
+        items: [
+          { label: '6. Stitching & Sewing', href: '/stitching-sewing/dashboard', icon: Layers },
+          { label: '7. Industrial Washing', href: '/washing', icon: Waves },
+          { label: '8. Steam Ironing', href: '/iron', icon: Flame },
+          { label: '9. Ready Goods & Packing', href: '/ready-goods', icon: Boxes },
+          { label: '10. Alteration & Rework', href: '/alter', icon: Wrench },
+          { label: '11. Central Store', href: '/store', icon: Store },
         ],
       },
     ]
-  } else if (pathname?.startsWith('/factory')) {
+  } else if (pathname?.startsWith('/design')) {
     activeNavSections = [
       {
         section: 'Workspace Hub',
@@ -160,20 +173,20 @@ export function AdminSidebar({
         ],
       },
       {
-        section: 'Factory Division',
+        section: '1. Design Studio',
         items: [
-          { label: 'Factory Control', href: '/factory', icon: Factory },
-          { label: 'Zigza AI', href: '/factory/zigza-ai', icon: Bot },
+          { label: 'Design & Tech-Pack', href: '/design', icon: Palette },
+          { label: 'Zigza AI', href: '/design/zigza-ai', icon: Bot },
         ],
       },
       {
         section: 'Account',
         items: [
-          { label: 'Division Profile', href: '/factory/profile', icon: User },
+          { label: 'Division Profile', href: '/design/profile', icon: User },
         ],
       },
     ]
-  } else if (pathname?.startsWith('/brands')) {
+  } else if (pathname?.startsWith('/merchandising')) {
     activeNavSections = [
       {
         section: 'Workspace Hub',
@@ -182,20 +195,20 @@ export function AdminSidebar({
         ],
       },
       {
-        section: 'Brands Division',
+        section: '2. Merchandising',
         items: [
-          { label: 'Brands & POs', href: '/brands', icon: Briefcase },
-          { label: 'Zigza AI', href: '/brands/zigza-ai', icon: Bot },
+          { label: 'Merchandising & POs', href: '/merchandising', icon: Briefcase },
+          { label: 'Zigza AI', href: '/merchandising/zigza-ai', icon: Bot },
         ],
       },
       {
         section: 'Account',
         items: [
-          { label: 'Division Profile', href: '/brands/profile', icon: User },
+          { label: 'Division Profile', href: '/merchandising/profile', icon: User },
         ],
       },
     ]
-  } else if (pathname?.startsWith('/washing')) {
+  } else if (pathname?.startsWith('/cutting')) {
     activeNavSections = [
       {
         section: 'Workspace Hub',
@@ -204,16 +217,16 @@ export function AdminSidebar({
         ],
       },
       {
-        section: 'Washing Division',
+        section: '3. Cutting Floor',
         items: [
-          { label: 'Washing Ops', href: '/washing', icon: Waves },
-          { label: 'Zigza AI', href: '/washing/zigza-ai', icon: Bot },
+          { label: 'Cutting & Lay Sheets', href: '/cutting', icon: Scissors },
+          { label: 'Zigza AI', href: '/cutting/zigza-ai', icon: Bot },
         ],
       },
       {
         section: 'Account',
         items: [
-          { label: 'Division Profile', href: '/washing/profile', icon: User },
+          { label: 'Division Profile', href: '/cutting/profile', icon: User },
         ],
       },
     ]
@@ -226,9 +239,9 @@ export function AdminSidebar({
         ],
       },
       {
-        section: 'Printing Division',
+        section: '4. Printing Division',
         items: [
-          { label: 'Printing Ops', href: '/printing', icon: Printer },
+          { label: 'Screen & Digital Print', href: '/printing', icon: Printer },
           { label: 'Zigza AI', href: '/printing/zigza-ai', icon: Bot },
         ],
       },
@@ -248,9 +261,9 @@ export function AdminSidebar({
         ],
       },
       {
-        section: 'Embroidery Division',
+        section: '5. Embroidery Division',
         items: [
-          { label: 'Embroidery Floor', href: '/embroidery', icon: Sparkles },
+          { label: 'Multi-Head Embroidery', href: '/embroidery', icon: Sparkles },
           { label: 'Zigza AI', href: '/embroidery/zigza-ai', icon: Bot },
         ],
       },
@@ -261,8 +274,118 @@ export function AdminSidebar({
         ],
       },
     ]
+  } else if (pathname?.startsWith('/washing')) {
+    activeNavSections = [
+      {
+        section: 'Workspace Hub',
+        items: [
+          { label: 'All Modules', href: '/modules', icon: LayoutGrid },
+        ],
+      },
+      {
+        section: '7. Washing Division',
+        items: [
+          { label: 'Industrial Washing', href: '/washing', icon: Waves },
+          { label: 'Zigza AI', href: '/washing/zigza-ai', icon: Bot },
+        ],
+      },
+      {
+        section: 'Account',
+        items: [
+          { label: 'Division Profile', href: '/washing/profile', icon: User },
+        ],
+      },
+    ]
+  } else if (pathname?.startsWith('/iron')) {
+    activeNavSections = [
+      {
+        section: 'Workspace Hub',
+        items: [
+          { label: 'All Modules', href: '/modules', icon: LayoutGrid },
+        ],
+      },
+      {
+        section: '8. Steam Ironing',
+        items: [
+          { label: 'Ironing & Finishing', href: '/iron', icon: Flame },
+          { label: 'Zigza AI', href: '/iron/zigza-ai', icon: Bot },
+        ],
+      },
+      {
+        section: 'Account',
+        items: [
+          { label: 'Division Profile', href: '/iron/profile', icon: User },
+        ],
+      },
+    ]
+  } else if (pathname?.startsWith('/ready-goods')) {
+    activeNavSections = [
+      {
+        section: 'Workspace Hub',
+        items: [
+          { label: 'All Modules', href: '/modules', icon: LayoutGrid },
+        ],
+      },
+      {
+        section: '9. Ready Goods',
+        items: [
+          { label: 'Ready Stock & Packing', href: '/ready-goods', icon: Boxes },
+          { label: 'Zigza AI', href: '/ready-goods/zigza-ai', icon: Bot },
+        ],
+      },
+      {
+        section: 'Account',
+        items: [
+          { label: 'Division Profile', href: '/ready-goods/profile', icon: User },
+        ],
+      },
+    ]
+  } else if (pathname?.startsWith('/alter')) {
+    activeNavSections = [
+      {
+        section: 'Workspace Hub',
+        items: [
+          { label: 'All Modules', href: '/modules', icon: LayoutGrid },
+        ],
+      },
+      {
+        section: '10. Alteration Unit',
+        items: [
+          { label: 'Alteration & Rework', href: '/alter', icon: Wrench },
+          { label: 'Zigza AI', href: '/alter/zigza-ai', icon: Bot },
+        ],
+      },
+      {
+        section: 'Account',
+        items: [
+          { label: 'Division Profile', href: '/alter/profile', icon: User },
+        ],
+      },
+    ]
+  } else if (pathname === '/store' || (pathname?.startsWith('/store') && !pathname?.startsWith('/stitching-sewing/store'))) {
+    activeNavSections = [
+      {
+        section: 'Workspace Hub',
+        items: [
+          { label: 'All Modules', href: '/modules', icon: LayoutGrid },
+        ],
+      },
+      {
+        section: '11. Central Store',
+        items: [
+          { label: 'Store & Godown Ops', href: '/store', icon: Store },
+          { label: 'Zigza AI', href: '/store/zigza-ai', icon: Bot },
+        ],
+      },
+      {
+        section: 'Account',
+        items: [
+          { label: 'Division Profile', href: '/store/profile', icon: User },
+        ],
+      },
+    ]
   } else {
-    // Default to full Stitching & Sewing Floor Nav
+    // Default to full 6. Stitching & Sewing Floor Nav (Preserved)
     activeNavSections = navSections
   }
 
