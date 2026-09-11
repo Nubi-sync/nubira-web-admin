@@ -29,18 +29,30 @@ import {
   Waves,
   Printer,
   Sparkles,
-  Scissors
+  Scissors,
+  Palette,
+  Flame,
+  Boxes,
+  Wrench,
+  Store
 } from 'lucide-react'
 import { TvViewButton } from '@/components/ui/TvViewButton'
 
 export type PortalType = 
   | 'modules' 
-  | 'factory' 
-  | 'brands' 
-  | 'washing' 
+  | 'design'
+  | 'merchandising'
+  | 'cutting'
   | 'printing' 
   | 'embroidery' 
   | 'stitching-sewing'
+  | 'washing' 
+  | 'iron'
+  | 'ready-goods'
+  | 'alter'
+  | 'store'
+  | 'factory' 
+  | 'brands'
 
 interface Message {
   id: string
@@ -78,12 +90,12 @@ const PORTAL_METADATA: Record<PortalType, {
     subtitle: 'Cross-division executive intelligence and multi-plant operations',
     badge: 'ENTERPRISE AI',
     heroTitle: 'Executive workspace overview & multi-plant status',
-    heroDescription: 'Ask for holistic updates across all 6 operating divisions, plant-wide output, and master logistics.',
+    heroDescription: 'Ask for holistic updates across all 11 operating divisions, plant-wide output, and master logistics.',
     queries: [
       {
         icon: LayoutGrid,
         title: 'Enterprise Health Check',
-        description: 'Audit live operations across all 6 manufacturing divisions.',
+        description: 'Audit live operations across all 11 manufacturing divisions.',
         prompt: 'Give me an overall factory health check across all operational divisions including total running orders, ready stock, and dispatches.'
       },
       {
@@ -115,6 +127,195 @@ const PORTAL_METADATA: Record<PortalType, {
         title: 'Dispatches & Gate Passes',
         description: 'Recent delivery challans dispatched out of factory.',
         prompt: 'Show recent delivery challans dispatched to buyers with total pieces and vehicle details.'
+      }
+    ]
+  },
+  'design': {
+    title: 'Zigza AI • Design Studio',
+    subtitle: 'CAD sketches, tech-packs, measurement specs, and grading matrices',
+    badge: 'DESIGN AI',
+    heroTitle: 'What design style or spec sheet would you like to review?',
+    heroDescription: 'Ask about tech-pack measurements, size grading breakdowns, sample iterations, and fabric specs.',
+    queries: [
+      {
+        icon: Palette,
+        title: 'Active Tech-Pack Catalog',
+        description: 'Review active style sketches, BOM specs, and colorways.',
+        prompt: 'Show me all active tech-packs and style specifications currently under sample review.'
+      },
+      {
+        icon: Tag,
+        title: 'Size & Grading Specs',
+        description: 'Inspect fit specifications across XS, S, M, L, XL, XXL sizes.',
+        prompt: 'Show the measurement grading table and tolerance matrix for our current production styles.'
+      },
+      {
+        icon: Layers,
+        title: 'Sample Fit Iterations',
+        description: 'Track sample approvals from proto to size-set and PPS.',
+        prompt: 'What is the status of pending buyer sample fit approvals and PPS submissions?'
+      }
+    ]
+  },
+  'merchandising': {
+    title: 'Zigza AI • Merchandising & Sourcing',
+    subtitle: 'Buyer PO contracts, BOM costing, trim allocation, and shipment schedules',
+    badge: 'MERCHANDISING AI',
+    heroTitle: 'What buyer PO or trim allocation would you like to audit?',
+    heroDescription: 'Ask about order costing, raw material delivery dates, buyer PO quantities, and critical path deadlines.',
+    queries: [
+      {
+        icon: Briefcase,
+        title: 'Buyer PO Contract Status',
+        description: 'Active buyer orders, delivery milestones, and booked quantities.',
+        prompt: 'Give me an overview of all active buyer production orders, target quantities, and current progress.'
+      },
+      {
+        icon: Tag,
+        title: 'BOM & Trim Sourcing',
+        description: 'Check zippers, buttons, labels, and thread procurement.',
+        prompt: 'What is our current trim inventory and procurement status for running production orders?'
+      },
+      {
+        icon: Truck,
+        title: 'Delivery Milestone Tracking',
+        description: 'Monitor FOB/CIF delivery deadlines and export packing schedules.',
+        prompt: 'Show upcoming shipment deadlines and delivery readiness for current buyer POs.'
+      }
+    ]
+  },
+  'cutting': {
+    title: 'Zigza AI • Cutting Floor',
+    subtitle: 'Fabric roll lay sheets, marker efficiency, auto-cutters, and bundle tickets',
+    badge: 'CUTTING AI',
+    heroTitle: 'What cutting lay or fabric consumption lot would you like to inspect?',
+    heroDescription: 'Ask about lay sheet efficiency, roll end wastage, cut piece yields, and bundle tickets issued to lines.',
+    queries: [
+      {
+        icon: Scissors,
+        title: 'Daily Cut Pieces & Lots',
+        description: 'Review fabric lays completed and total pieces cut today.',
+        prompt: 'Show today\'s cutting logs, total fabric meters consumed, and pieces cut across styles.'
+      },
+      {
+        icon: Layers,
+        title: 'Bundle QR Allocations',
+        description: 'Lineman bundle ticket generation and sewing line handover.',
+        prompt: 'How many cutting bundles were issued to sewing lines today? Show line-wise breakdown.'
+      },
+      {
+        icon: CheckCircle2,
+        title: 'Marker Efficiency & Yield',
+        description: 'Fabric utilization percentage and end-bit scrap tracking.',
+        prompt: 'What is our average marker efficiency and fabric wastage percentage for current cutting lots?'
+      }
+    ]
+  },
+  'iron': {
+    title: 'Zigza AI • Steam Ironing & Finishing',
+    subtitle: 'Steam vacuum tables, temperature logs, piece rates, and inline finish checks',
+    badge: 'IRONING AI',
+    heroTitle: 'What ironing line or finishing lot would you like to check?',
+    heroDescription: 'Ask about steam table pieces pressed, operator piece-rates, shine/glaze defect logs, and finishing speed.',
+    queries: [
+      {
+        icon: Flame,
+        title: 'Ironing Output & Velocity',
+        description: 'Track garments pressed per table and finishing speed.',
+        prompt: 'Show today\'s ironing production throughput, pieces pressed, and table-wise operator rates.'
+      },
+      {
+        icon: CheckCircle2,
+        title: 'Finishing Defect Logs',
+        description: 'Check burn marks, glaze defects, and unpressed seam checks.',
+        prompt: 'What are our recent finishing QC results? Show passed vs rework counts and defect types.'
+      },
+      {
+        icon: Boxes,
+        title: 'Handover to Packing',
+        description: 'Pressed garments ready for final barcode hangtag and polybag.',
+        prompt: 'How many pressed garments were handed over to ready goods packing today?'
+      }
+    ]
+  },
+  'ready-goods': {
+    title: 'Zigza AI • Ready Goods & Packing',
+    subtitle: 'AQL 2.5 final inspection, barcode hangtags, carton manifests, and godown storage',
+    badge: 'PACKING AI',
+    heroTitle: 'What carton shipment or packing lot would you like to inspect?',
+    heroDescription: 'Ask about carton packing lists, barcode hangtag verification, AQL pass audits, and finished stock.',
+    queries: [
+      {
+        icon: Boxes,
+        title: 'Carton Packing Manifest',
+        description: 'Packed cartons, ratio assortments, and total piece counts.',
+        prompt: 'Show all packed cartons ready for shipment today with size-ratio breakdown.'
+      },
+      {
+        icon: CheckCircle2,
+        title: 'AQL Final Inspection',
+        description: 'Critical, major, and minor defect audit scores before carton sealing.',
+        prompt: 'What are our latest AQL 2.5 final inspection audit scores across packed lots?'
+      },
+      {
+        icon: Warehouse,
+        title: 'Finished Godown Balance',
+        description: 'Sealed cartons stored in godown awaiting container dispatch.',
+        prompt: 'How many finished pieces are in Godown right now across articles?'
+      }
+    ]
+  },
+  'alter': {
+    title: 'Zigza AI • Alteration & Rework Clinic',
+    subtitle: 'Defect categorization, seam rework, stitch repair queues, and re-inspection logs',
+    badge: 'ALTERATION AI',
+    heroTitle: 'What alteration line or defect log would you like to analyze?',
+    heroDescription: 'Ask about rework queues, root-cause defect Pareto charts, alteration piece rates, and cleared garment rates.',
+    queries: [
+      {
+        icon: Wrench,
+        title: 'Alteration Rework Queue',
+        description: 'Garments currently under repair by defect classification.',
+        prompt: 'Show all garments currently in the alteration queue grouped by defect type and sewing line.'
+      },
+      {
+        icon: CheckCircle2,
+        title: 'Re-Inspection Pass Rate',
+        description: 'Repaired garments audited and cleared back to production.',
+        prompt: 'What percentage of altered garments passed secondary QC today? Show line breakdown.'
+      },
+      {
+        icon: Tag,
+        title: 'Defect Root-Cause Pareto',
+        description: 'Top recurring defects (skipped stitches, broken seams, puckering).',
+        prompt: 'What are the top 5 recurring defect types on our sewing lines this week?'
+      }
+    ]
+  },
+  'store': {
+    title: 'Zigza AI • Central Store & Godown',
+    subtitle: 'Raw fabric rolls, trims inventory, cutting challan issue, and finished carton storage',
+    badge: 'CENTRAL STORE AI',
+    heroTitle: 'What store inventory or fabric stock would you like to audit?',
+    heroDescription: 'Ask about fabric roll meters in godown, trims balance, cutting challans issued, and stock reconciliation.',
+    queries: [
+      {
+        icon: Store,
+        title: 'Raw Material & Fabric Stock',
+        description: 'Rolls in stock by GSM, color, and supplier lot number.',
+        prompt: 'Show our current fabric inventory in Godown grouped by color, GSM, and roll count.'
+      },
+      {
+        icon: Warehouse,
+        title: 'Finished Goods Inventory',
+        description: 'Finished pieces stored in central warehouse ready for dispatch.',
+        prompt: 'How many ready pieces are in Godown right now? Show me the breakdown across articles.'
+      },
+      {
+        icon: Truck,
+        title: 'Cutting Challans Issued',
+        description: 'Fabric rolls issued to the cutting floor with lot reference.',
+        prompt: 'Show all fabric and trim issues dispatched to cutting and production floors today.'
       }
     ]
   },
