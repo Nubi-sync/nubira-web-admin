@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useTransition, useRef } from 'react'
+import { useState, useMemo, useTransition, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   Calendar,
@@ -130,6 +130,13 @@ export function ProductionOrdersClient({
     initialOrders.forEach(o => { initial[o.id] = true })
     return initial
   })
+
+  // Synchronize live orders whenever server component revalidates (revalidatePath / router.refresh)
+  useEffect(() => {
+    if (initialOrders && initialOrders.length > 0) {
+      setOrders(initialOrders)
+    }
+  }, [initialOrders])
 
   // Filters
   const [searchQuery, setSearchQuery] = useState('')
@@ -931,6 +938,13 @@ export function ProductionOrdersClient({
       return
     }
 
+    const assignedCount = validLines.filter(l => l.assigned_lineman_id).length
+    const initialStatus = assignedCount === 0 
+      ? 'PENDING' 
+      : assignedCount === validLines.length 
+        ? 'IN_PROGRESS' 
+        : 'PARTIALLY_ALLOTTED'
+
     const payload: CreateChallanPayload = {
       challan_no: cleanChallan,
       challan_date: formChallanDate,
@@ -949,7 +963,7 @@ export function ProductionOrdersClient({
         total_pcs: Number(l.total_pcs) || ((Number(l.sets) || 1) * (Number(l.pcs_per_set) || 9))
       })),
       bom_items: bomItems.filter(b => b.item_name && b.item_name.trim()),
-      status: 'IN_PRODUCTION'
+      status: initialStatus
     }
 
     startTransition(async () => {
@@ -999,6 +1013,7 @@ export function ProductionOrdersClient({
               return ch
             })
           )
+          router.refresh()
         }
       } else {
         const res = await createChallan(payload)
@@ -1007,7 +1022,16 @@ export function ProductionOrdersClient({
         } else {
           setShowNewChallanModal(false)
           toast.success(`Challan #${cleanChallan} created successfully.`)
-          // Refresh local optimistic state
+
+          // If current tab is not matching, ensure it is set so the new challan is immediately visible
+          if (initialStatus === 'PENDING') {
+            setSelectedStatus('PENDING')
+          }
+          if (searchQuery.trim()) {
+            setSearchQuery('')
+          }
+
+          // Refresh local optimistic state with correct initial status
           const newGroup: ChallanGroupedOrder = {
             id: res.challan_id || 'temp-' + Date.now(),
             challan_no: payload.challan_no,
@@ -1021,19 +1045,20 @@ export function ProductionOrdersClient({
             notes: payload.notes || '',
             total_sets: formGrandSets,
             total_pcs: formGrandPcs,
-            status: 'IN_PRODUCTION',
+            status: (res as any)?.status || initialStatus,
             bom_details: payload.bom_items || [],
             articles: payload.article_lines.map((line, idx) => ({
               ...line,
               allotment_id: 'temp-art-' + idx,
-              status: 'IN_PROGRESS',
-              assigned_lineman_name: linemenList.find(l => l.id === line.assigned_lineman_id)?.username || 'Unassigned'
+              status: line.assigned_lineman_id ? 'IN_PROGRESS' : 'PENDING',
+              assigned_lineman_name: linemenList.find(l => l.id === line.assigned_lineman_id)?.username || 'Unassigned (Floor Order)'
             })),
             created_at: new Date().toISOString()
           }
 
-          setOrders(prev => [newGroup, ...prev])
+          setOrders(prev => [newGroup, ...prev.filter(o => o.id !== newGroup.id)])
           setExpandedChallans(prev => ({ ...prev, [newGroup.id]: true }))
+          router.refresh()
         }
       }
     })
