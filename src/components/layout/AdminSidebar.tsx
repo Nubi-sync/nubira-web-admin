@@ -29,7 +29,20 @@ import {
   Scissors,
   Palette,
   Flame,
-  Wrench
+  Wrench,
+  FileCheck2,
+  Ruler,
+  Calendar,
+  Calculator,
+  ShoppingCart,
+  Ship,
+  QrCode,
+  Maximize2,
+  CheckCircle2,
+  Clock,
+  Cpu,
+  BarChart3,
+  FileCode
 } from 'lucide-react'
 
 type NavItem = {
@@ -176,14 +189,18 @@ export function AdminSidebar({
       {
         section: '1. Design Studio',
         items: [
-          { label: 'Design & Tech-Pack', href: '/design', icon: Palette },
+          { label: 'Studio Dashboard', href: '/design', icon: Palette },
+          { label: 'Tech-Pack Catalog', href: '/design/tech-packs', icon: FileCheck2 },
+          { label: 'Sample Approvals (PPS)', href: '/design/sample-approvals', icon: Sparkles },
+          { label: 'Size Grading Matrix', href: '/design/grading-matrix', icon: Ruler },
+          { label: 'Fabric & Trims Library', href: '/design/materials-library', icon: Layers },
           { label: 'Zigza AI', href: '/design/zigza-ai', icon: Bot },
         ],
       },
       {
         section: 'Account',
         items: [
-          { label: 'Division Profile', href: '/design/profile', icon: User },
+          { label: 'Studio Profile', href: '/design/profile', icon: User },
         ],
       },
     ]
@@ -198,14 +215,19 @@ export function AdminSidebar({
       {
         section: '2. Merchandising',
         items: [
-          { label: 'Merchandising & POs', href: '/merchandising', icon: Briefcase },
+          { label: 'Desk Dashboard', href: '/merchandising', icon: Briefcase },
+          { label: 'Buyer Purchase Orders', href: '/merchandising/orders', icon: ClipboardList },
+          { label: 'BOM & Costing Ledgers', href: '/merchandising/costing', icon: Calculator },
+          { label: 'Time & Action (T&A) Planner', href: '/merchandising/tna-calendar', icon: Calendar },
+          { label: 'Trim & Sourcing Requisitions', href: '/merchandising/sourcing', icon: ShoppingCart },
+          { label: 'Shipment & FOB Pipeline', href: '/merchandising/shipments', icon: Ship },
           { label: 'Zigza AI', href: '/merchandising/zigza-ai', icon: Bot },
         ],
       },
       {
         section: 'Account',
         items: [
-          { label: 'Division Profile', href: '/merchandising/profile', icon: User },
+          { label: 'Desk Profile', href: '/merchandising/profile', icon: User },
         ],
       },
     ]
@@ -220,7 +242,15 @@ export function AdminSidebar({
       {
         section: '3. Cutting Floor',
         items: [
-          { label: 'Cutting & Lay Sheets', href: '/cutting', icon: Scissors },
+          { label: 'Floor Dashboard', href: '/cutting', icon: Scissors },
+          { label: 'Fabric Relaxation Staging', href: '/cutting/fabric-relaxation', icon: Clock },
+          { label: 'Spreading & Lay Plans', href: '/cutting/lay-sheets', icon: Layers },
+          { label: 'CAD Markers & Nesting', href: '/cutting/markers', icon: Maximize2 },
+          { label: 'Cutting Orders & Queue', href: '/cutting/orders', icon: Cpu },
+          { label: 'Bundle Tickets & Barcodes', href: '/cutting/bundles', icon: QrCode },
+          { label: 'Cut Panel QC Audits', href: '/cutting/panel-qc', icon: CheckCircle2 },
+          { label: 'End-Loss & Remnants', href: '/cutting/end-loss', icon: Boxes },
+          { label: 'Reports & Analytics', href: '/cutting/reports', icon: BarChart3 },
           { label: 'Zigza AI', href: '/cutting/zigza-ai', icon: Bot },
         ],
       },
@@ -242,7 +272,12 @@ export function AdminSidebar({
       {
         section: '4. Printing Division',
         items: [
-          { label: 'Screen & Digital Print', href: '/printing', icon: Printer },
+          { label: 'Floor Dashboard', href: '/printing', icon: Printer },
+          { label: 'Screen & Stencil Library', href: '/printing/screens', icon: Layers },
+          { label: 'Table Batch Queue & DTG', href: '/printing/table-runs', icon: Cpu },
+          { label: 'Strike-Off Lab Approvals', href: '/printing/strike-offs', icon: FileCheck2 },
+          { label: 'Ink Kitchen & Recipes', href: '/printing/ink-kitchen', icon: Palette },
+          { label: 'Curing Oven & Fastness QC', href: '/printing/curing-qc', icon: Flame },
           { label: 'Zigza AI', href: '/printing/zigza-ai', icon: Bot },
         ],
       },
@@ -264,7 +299,12 @@ export function AdminSidebar({
       {
         section: '5. Embroidery Division',
         items: [
-          { label: 'Multi-Head Embroidery', href: '/embroidery', icon: Sparkles },
+          { label: 'Floor Dashboard', href: '/embroidery', icon: Sparkles },
+          { label: 'DST Punch File Library', href: '/embroidery/punch-library', icon: FileCode },
+          { label: 'Machine Runs & Hooping', href: '/embroidery/machine-runs', icon: Cpu },
+          { label: 'Stitch Count & Billing', href: '/embroidery/stitch-billing', icon: Calculator },
+          { label: 'Thread Store & Cones Log', href: '/embroidery/thread-store', icon: Boxes },
+          { label: 'Quality & Thread Break QC', href: '/embroidery/embroidery-qc', icon: CheckCircle2 },
           { label: 'Zigza AI', href: '/embroidery/zigza-ai', icon: Bot },
         ],
       },
@@ -557,6 +597,8 @@ export function AdminSidebar({
   else if (pathname?.startsWith('/washing')) divisionProfileHref = '/washing/profile'
   else if (pathname?.startsWith('/printing')) divisionProfileHref = '/printing/profile'
   else if (pathname?.startsWith('/embroidery')) divisionProfileHref = '/embroidery/profile'
+  else if (pathname?.startsWith('/design')) divisionProfileHref = '/design/profile'
+  else if (pathname?.startsWith('/merchandising')) divisionProfileHref = '/merchandising/profile'
   else if (pathname === '/modules' || pathname?.startsWith('/modules')) divisionProfileHref = '/modules/profile'
 
   const isProfileActive = pathname === divisionProfileHref || pathname === '/modules/profile' || pathname === '/profile'

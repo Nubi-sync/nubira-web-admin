@@ -6,7 +6,7 @@
 
 ## 1. Executive Summary & Industry Scope
 
-The **Merchandising & Sourcing Desk** is the commercial engine and critical path coordinator of the garment factory. It converts buyer purchase orders into profitable manufacturing runs, monitors Bill of Materials (BOM) cost variances, sources bulk fabric and trims, and ensures strict compliance with Buyer Time & Action (T&A) delivery schedules.
+The **Merchandising & Sourcing Desk** is the commercial engine and critical path coordinator of the garment factory. It converts buyer purchase orders into profitable manufacturing runs, monitors Bill of Materials (BOM) cost variances, sources bulk fabric and trims, tracks export shipping containers, and enforces strict compliance with Buyer Time & Action (T&A) delivery schedules.
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -17,6 +17,7 @@ The **Merchandising & Sourcing Desk** is the commercial engine and critical path
 │ Downstream Outward Entity:     │ 11. Central Store & 03. Cutting & 06. Sew │
 │ BOM Cost Variance Target:      │ Within ± 1.5% of approved buyer quotation  │
 │ On-Time Delivery (OTD) SLA:    │ ≥ 98.0% across all confirmed buyer POs     │
+│ Critical Path Milestones:      │ 8 Standard T&A Gates with Alert Engine     │
 └────────────────────────────────┴────────────────────────────────────────────┘
 ```
 
@@ -28,21 +29,23 @@ The **Merchandising & Sourcing Desk** is the commercial engine and critical path
 [ 01. DESIGN STUDIO ]                     [ BUYER CONTRACT / EDI ]
 • Approved Tech-Pack Spec                 • Confirmed Purchase Order (PO)
 • Fabric Consumption per Piece            • Delivery Date & FOB Price
+• Embellishment Sequence Rule             • Ratio Matrix by Color & Size
             │                                         │
             └────────────────────┬────────────────────┘
                                  ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │ 02. MERCHANDISING & SOURCING DESK                                           │
 │ • Lock Pre-Costing & Post-Costing BOM Ledger                                │
-│ • Create T&A Critical Path Milestones (Lab dips, Fabric Inward, Bulk Cut)   │
-│ • Generate Material Purchase Requisitions for Fabric & Accessories          │
+│ • Create Dynamic T&A Critical Path Milestones (Lab dips, Inward, Cut, Sew)   │
+│ • Issue Material Sourcing Requisitions (PR) for Fabric, Thread & Accessories│
+│ • Track Container Bookings, Freight Forwarders, and Bill of Lading (BL)     │
 └─────────────────────────────────────────────────────────────────────────────┘
       │                                       │
       ▼ (Handshake Payload A)                 ▼ (Handshake Payload B)
 [ 11. CENTRAL STORE & GODOWN ]          [ 03. CUTTING & 06. SEWING ]
-• Material Procurement Requisitions     • Work Order Release Authorization
+• Material Procurement Requisitions (PR)• Work Order Release Authorization
 • Approved Vendor Challan List          • Confirmed Cut Quantity by Size-Color
-• Required Fabric Meterage & Trims      • Ex-Factory Milestone Deadline
+• Required Fabric Meterage & Trims      • Ex-Factory Milestone Deadline & Rates
 ```
 
 ### Inward Handshake (What Merchandising Receives)
@@ -60,6 +63,7 @@ The **Merchandising & Sourcing Desk** is the commercial engine and critical path
 | **Purchase Requisition (PR)** | `11. Central Store` | PO Confirmation | Fabric meterage, yarn specs, zipper/button counts, approved suppliers |
 | **Production Work Order** | `03. Cutting Floor` | Fabric Inward Verified | Total lot quantity, ratio breakdown (S-M-L-XL), target cut start date |
 | **Target Stitching Rate** | `06. Stitching & Sewing` | Order Allotment | Fixed piece-rate per garment (e.g. ₹24.50/pc), style complexity rating |
+| **Commercial Shipping Manifest**| Overseas Forwarder | Port Booking | CBM volume, container type, commercial invoice & packing list |
 
 ---
 
@@ -84,7 +88,7 @@ The Merchandising portal has **8 dedicated side navigation views**:
 
 ---
 
-## 4. Page Specifications & Core Telemetry
+## 4. Complete Page Specifications (All 8 Navigation Views)
 
 ### Page 1: Desk Dashboard (`/merchandising`)
 * **Purpose**: Master summary of open buyer commitments, cost variances, and factory capacity loading.
@@ -110,7 +114,7 @@ The Merchandising portal has **8 dedicated side navigation views**:
 
 ### Page 4: Time & Action (T&A) Calendar (`/merchandising/tna-calendar`)
 * **Purpose**: Interactive Gantt-chart and checklist mapping every critical path event from order placement to shipment.
-* **Tracked Milestones**:
+* **8 Tracked Industry Milestones**:
   1. Lab Dip Approval (Target: Day +7)
   2. Bulk Fabric Inward (Target: Day +20)
   3. Size Set Sample Approval (Target: Day +24)
@@ -120,33 +124,72 @@ The Merchandising portal has **8 dedicated side navigation views**:
   7. Final AQL 2.5 Audit & Carton Sealing (Target: Day +52)
   8. Container Handover / Port Departure (Target: Day +55)
 
+### Page 5: Trim & Sourcing Requisitions (`/merchandising/sourcing`)
+* **Purpose**: Material Requisition (PR) console pushing automated procurement requests to `11. Central Store`.
+* **Columns**: `PR Number`, `Linked PO`, `Material Name`, `Required Qty`, `Unit (Kg/Mtr/Gross)`, `Supplier Name`, `Target In-House Date`, `Fulfillment Status` (`PENDING`, `ORDERED`, `STORE_RECEIVED`).
+
+### Page 6: Shipment & FOB Pipeline (`/merchandising/shipments`)
+* **Purpose**: Commercial export logistics tracking port cutoffs, Bill of Lading (BL) releases, forwarder container bookings, and customs releases.
+* **Columns**: `Shipment Ref`, `Linked PO`, `Forwarder`, `Container #`, `Booking CBM`, `Port of Loading`, `Destination Port`, `ETD`, `ETA`, `BL #`, `Status`.
+
+### Page 7: Zigza AI Copilot (`/merchandising/zigza-ai`)
+* **Purpose**: Commercial intelligence, margin calculation, and T&A delay prediction engine.
+* **Pre-Loaded Prompts**:
+  1. `"Which buyer POs have ex-factory dates in the next 14 days where sewing output is below 70%?"`
+  2. `"If French Terry fabric price increases by ₹18/kg, how does that impact our net margin on PO-8901?"`
+  3. `"Check trim inward status for Zara PO-8905 and report any missing hangtags or care labels."`
+
+### Page 8: Merchandising Desk Profile (`/merchandising/profile`)
+* **Purpose**: Merchandiser account credentials, assigned brand portfolio, and commercial signing limits.
+
 ---
 
 ## 5. Complete Form Specifications
 
-### Form 1: Master Buyer Purchase Order (PO) Form
+### Form 1: Master Buyer Purchase Order (PO) 2-Step Stepper
 * **Trigger**: `Book New Buyer PO` on `/merchandising/orders`
-
-| Field Name | Type | Required | Validation / Options | Tooltip / Hint |
-| :--- | :--- | :--- | :--- | :--- |
-| `po_number` | Text | Yes | Alpha-numeric unique string | Buyer's purchase order reference |
-| `brand_id` | Select Dropdown | Yes | Active registered brands | Buyer company |
-| `tech_pack_id` | Select Dropdown | Yes | Approved tech-packs | Linking design technical sheet |
-| `currency` | Select Dropdown | Yes | `INR (₹)`, `USD ($)`, `EUR (€)`, `GBP (£)` | Billing contract currency |
-| `unit_fob_price` | Number | Yes | Min: 0.01, Decimal 2 places | Price per finished garment |
-| `total_order_qty` | Number | Yes | Min: 100, Max: 1,000,000 | Total contracted pieces |
-| `colorways` | Multi-Select | Yes | E.g. `Jet Black`, `Off White`, `Heather Grey` | Colors in production run |
-| `size_breakdown` | JSON / Table | Yes | XS, S, M, L, XL, 2XL qty matrix | Must sum exactly to total_order_qty |
-| `ex_factory_date` | Date Picker | Yes | Future date | Required factory dispatch date |
-
-* **Post-Submit Action**:
-  - Automatically initializes 8 T&A Calendar Milestones.
-  - Creates draft Material Requisition in `/merchandising/sourcing`.
+* **Step 1: Commercial Order Basics**:
+  * `po_number` (Text, Unique)
+  * `brand_id` (Dropdown, Registered Brands)
+  * `tech_pack_id` (Dropdown, Approved Tech-Packs)
+  * `currency` (`INR`, `USD`, `EUR`, `GBP`)
+  * `unit_fob_price` (Decimal, 2 places)
+  * `total_order_qty` (Number, e.g. `24,000`)
+  * `ex_factory_date` (Date Picker)
+* **Step 2: Dynamic Color & Size Matrix Grid Entry**:
+  * Interactive grid: Rows = Colors (e.g. `Jet Black`, `Heather Grey`), Columns = Sizes (dynamically populated from linked Tech-Pack sizing scheme).
+  * Auto-validation: Sum of all cells in grid must equal `total_order_qty`.
 
 ### Form 2: BOM Costing Sheet Entry Form
 * **Trigger**: `Create Costing Sheet` on `/merchandising/costing`
 * **Fields**: `po_id`, `fabric_cost_per_kg`, `fabric_consumption_kg`, `sewing_thread_cost`, `zipper_cost`, `labels_tags_cost`, `stitching_cm_rate`, `washing_cost`, `printing_embroidery_cost`, `packaging_cost`, `rejection_contingency_percent` (Default: 2%).
-* **Post-Submit Action**: Computes net garment FOB cost and factory gross margin percentage.
+
+### Form 3: Time & Action (T&A) Milestone Update Form
+* **Trigger**: `Update Milestone` on `/merchandising/tna-calendar`
+* **Fields**: `milestone_id`, `planned_date`, `actual_completed_date`, `milestone_status` (`ON_SCHEDULE`, `DELAYED`, `COMPLETED`, `ESCALATED`), `delay_reason`, `mitigation_notes`.
+
+### Form 4: Material Sourcing Requisition (PR) Form
+* **Trigger**: `Generate Sourcing PR` on `/merchandising/sourcing`
+* **Fields**: `order_id`, `material_name`, `material_type` (`FABRIC`, `SEWING_THREAD`, `LABEL`, `ZIPPER`, `POLYBAG`, `CARTON`), `required_quantity`, `unit`, `suggested_vendor_id`, `required_in_store_date`.
+
+### Form 5: Export Shipment Booking & B/L Entry Form
+* **Trigger**: `Book Export Shipment` on `/merchandising/shipments`
+* **Purpose**: **Directly creates `merchandising_shipments` records**.
+* **Fields**:
+  | Field Name | Type | Required | Validation / Options | Tooltip / Hint |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `shipment_ref` | Text | Yes | Pattern: `^SHP-[0-9]{5,8}$` | Unique shipment booking ref |
+  | `order_id` | Select Dropdown | Yes | Active orders in packing/ready | Commercial PO |
+  | `forwarder_name` | Text | Yes | E.g. `Kuehne+Nagel`, `DB Schenker`, `DHL Global`| Freight forwarding agent |
+  | `carrier_vessel` | Text | Yes | E.g. `MSC GULSUN Voy 204E` | Shipping line vessel / voyage |
+  | `container_number`| Text | Yes | E.g. `MSCU-482019-4` | 40ft HC / 20ft container |
+  | `booking_cbm` | Number | Yes | Min: 1.0, Max: 76.0 CBM | Total container cubic meters |
+  | `port_of_loading` | Text | Yes | E.g. `Nhava Sheva (INNSA)`, `Mundra (INMUN)` | Port of export |
+  | `port_of_discharge`| Text | Yes | E.g. `Rotterdam (NLRTM)`, `New York (USNYC)` | Port of destination |
+  | `etd_date` | Date Picker | Yes | Estimated departure | Loading date |
+  | `eta_date` | Date Picker | Yes | Estimated arrival | Destination arrival date |
+  | `bl_number` | Text | No | Bill of Lading number | Transport document |
+  | `status` | Select Dropdown | Yes | `BOOKED`, `CONTAINER_STUFFED`, `SAILING`, `CUSTOMS_CLEARED`, `DELIVERED` | Status lifecycle |
 
 ---
 
@@ -154,7 +197,7 @@ The Merchandising portal has **8 dedicated side navigation views**:
 
 1. **Critical Path Bottleneck Alert**: `"Which buyer POs have ex-factory dates in the next 14 days where sewing output is below 70%?"`
 2. **Fabric Consumption Re-Costing**: `"If French Terry fabric price increases by ₹18/kg, how does that impact our net margin on PO-8901?"`
-3. **BOM Shortage Query**: `"Check trim inward status for Zara PO-8905 and report any missing hangtags or care labels."`
+3. **Container Load Tracking**: `"What is the customs clearance status of Container MSCU-482019-4 for buyer Zara?"`
 
 ---
 
@@ -192,5 +235,51 @@ CREATE TABLE merchandising_bom_costings (
   target_margin_percent NUMERIC(4,2) NOT NULL,
   actual_realized_cost NUMERIC(10,2),
   variance_percent NUMERIC(4,2)
+);
+
+-- 3. Time & Action (T&A) Milestones
+CREATE TABLE merchandising_tna_milestones (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  order_id UUID REFERENCES merchandising_orders(id) ON DELETE CASCADE,
+  milestone_name VARCHAR(100) NOT NULL,
+  planned_date DATE NOT NULL,
+  actual_date DATE,
+  status VARCHAR(30) DEFAULT 'ON_SCHEDULE', -- ON_SCHEDULE, DELAYED, COMPLETED, ESCALATED
+  delay_reason VARCHAR(100),
+  sort_order INTEGER NOT NULL
+);
+
+-- 4. Material Sourcing Requisitions (PR)
+CREATE TABLE merchandising_sourcing_requisitions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  pr_number VARCHAR(50) NOT NULL UNIQUE,
+  order_id UUID REFERENCES merchandising_orders(id) ON DELETE CASCADE,
+  material_name VARCHAR(100) NOT NULL,
+  material_type VARCHAR(40) NOT NULL, -- FABRIC, SEWING_THREAD, LABEL, ZIPPER, CARTON
+  required_quantity NUMERIC(10,2) NOT NULL,
+  unit VARCHAR(20) NOT NULL,
+  vendor_id UUID REFERENCES vendors(id),
+  required_in_store_date DATE NOT NULL,
+  fulfillment_status VARCHAR(30) DEFAULT 'PENDING', -- PENDING, ORDERED, STORE_RECEIVED
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 5. Export Container Shipments (Populated by Form 5)
+CREATE TABLE merchandising_shipments (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  shipment_ref VARCHAR(50) NOT NULL UNIQUE,
+  order_id UUID REFERENCES merchandising_orders(id) ON DELETE RESTRICTED,
+  forwarder_name VARCHAR(100) NOT NULL,
+  carrier_vessel VARCHAR(100) NOT NULL,
+  container_number VARCHAR(50) NOT NULL,
+  booking_cbm NUMERIC(8,2) NOT NULL,
+  port_of_loading VARCHAR(60) NOT NULL,
+  port_of_discharge VARCHAR(60) NOT NULL,
+  etd_date DATE NOT NULL,
+  eta_date DATE NOT NULL,
+  bl_number VARCHAR(60),
+  status VARCHAR(30) DEFAULT 'BOOKED', -- BOOKED, CONTAINER_STUFFED, SAILING, CUSTOMS_CLEARED, DELIVERED
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 ```

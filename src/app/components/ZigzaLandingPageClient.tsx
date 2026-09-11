@@ -1363,7 +1363,7 @@ ${demoForm.ownerName}`
                   </div>
                   <div className="flex items-center gap-3 text-sm text-slate-400">
                     <X className="w-4 h-4 text-slate-300 shrink-0" />
-                    <span>Zigza AI floor copilot not included</span>
+                    <span>Zigza AI floor assistant not included</span>
                   </div>
                 </div>
               </div>
