@@ -47,7 +47,8 @@ import {
   Droplets,
   ShieldAlert,
   ArrowRight,
-  Gauge
+  Gauge,
+  PackageCheck
 } from 'lucide-react'
 
 type NavItem = {
@@ -419,9 +420,14 @@ export function AdminSidebar({
         ],
       },
       {
-        section: '9. Ready Goods',
+        section: '9. Ready Goods & Packing',
         items: [
-          { label: 'Ready Stock & Packing', href: '/ready-goods', icon: Boxes },
+          { label: 'Packing Dashboard', href: '/ready-goods', icon: Boxes },
+          { label: 'AQL 2.5 Inspection', href: '/ready-goods/aql-inspection', icon: CheckCircle2, badge: 'AQL 2.5' },
+          { label: 'Hangtag & Polybag', href: '/ready-goods/tagging-polybag', icon: Tag },
+          { label: 'Carton Packing Manifest', href: '/ready-goods/carton-packing', icon: PackageCheck },
+          { label: 'Scale Weight & Audit', href: '/ready-goods/carton-weight', icon: Gauge, badge: '±0.15kg' },
+          { label: 'Central Godown Handover', href: '/ready-goods/handover', icon: Warehouse },
           { label: 'Zigza AI', href: '/ready-goods/zigza-ai', icon: Bot },
         ],
       },
