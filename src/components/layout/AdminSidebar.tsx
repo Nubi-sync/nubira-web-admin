@@ -31,7 +31,11 @@ import {
   Flame,
   Wrench,
   FileCheck2,
-  Ruler
+  Ruler,
+  Calendar,
+  Calculator,
+  ShoppingCart,
+  Ship
 } from 'lucide-react'
 
 type NavItem = {
@@ -182,7 +186,7 @@ export function AdminSidebar({
           { label: 'Sample Approvals (PPS)', href: '/design/sample-approvals', icon: Sparkles },
           { label: 'Size Grading Matrix', href: '/design/grading-matrix', icon: Ruler },
           { label: 'Fabric & Trims Library', href: '/design/materials-library', icon: Layers },
-          { label: 'Zigza AI Copilot', href: '/design/zigza-ai', icon: Bot },
+          { label: 'Zigza AI', href: '/design/zigza-ai', icon: Bot },
         ],
       },
       {
@@ -203,14 +207,19 @@ export function AdminSidebar({
       {
         section: '2. Merchandising',
         items: [
-          { label: 'Merchandising & POs', href: '/merchandising', icon: Briefcase },
+          { label: 'Desk Dashboard', href: '/merchandising', icon: Briefcase },
+          { label: 'Buyer Purchase Orders', href: '/merchandising/orders', icon: ClipboardList },
+          { label: 'BOM & Costing Ledgers', href: '/merchandising/costing', icon: Calculator },
+          { label: 'Time & Action (T&A) Planner', href: '/merchandising/tna-calendar', icon: Calendar },
+          { label: 'Trim & Sourcing Requisitions', href: '/merchandising/sourcing', icon: ShoppingCart },
+          { label: 'Shipment & FOB Pipeline', href: '/merchandising/shipments', icon: Ship },
           { label: 'Zigza AI', href: '/merchandising/zigza-ai', icon: Bot },
         ],
       },
       {
         section: 'Account',
         items: [
-          { label: 'Division Profile', href: '/merchandising/profile', icon: User },
+          { label: 'Desk Profile', href: '/merchandising/profile', icon: User },
         ],
       },
     ]
@@ -563,6 +572,7 @@ export function AdminSidebar({
   else if (pathname?.startsWith('/printing')) divisionProfileHref = '/printing/profile'
   else if (pathname?.startsWith('/embroidery')) divisionProfileHref = '/embroidery/profile'
   else if (pathname?.startsWith('/design')) divisionProfileHref = '/design/profile'
+  else if (pathname?.startsWith('/merchandising')) divisionProfileHref = '/merchandising/profile'
   else if (pathname === '/modules' || pathname?.startsWith('/modules')) divisionProfileHref = '/modules/profile'
 
   const isProfileActive = pathname === divisionProfileHref || pathname === '/modules/profile' || pathname === '/profile'

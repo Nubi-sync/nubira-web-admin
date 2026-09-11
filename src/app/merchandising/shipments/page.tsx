@@ -1,11 +1,11 @@
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { AdminShell } from '@/components/layout/AdminShell'
-import { MerchandisingDashboardClient } from './components/MerchandisingDashboardClient'
+import { ShipmentPipelineClient } from './components/ShipmentPipelineClient'
 
 export const dynamic = 'force-dynamic'
 
-export default async function MerchandisingPage() {
+export default async function MerchandisingShipmentsPage() {
   const supabase = await createClient()
 
   const {
@@ -18,7 +18,7 @@ export default async function MerchandisingPage() {
 
   return (
     <AdminShell userEmail={user.email}>
-      <MerchandisingDashboardClient />
+      <ShipmentPipelineClient />
     </AdminShell>
   )
 }
