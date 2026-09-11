@@ -91,15 +91,33 @@ employees.id (PK)              qc_logs.id (PK)            ▼ (FK: carton_id)
 
 ## 5. Quantity Integrity Enforced by PostgreSQL Triggers
 
-To transition the **Zero Ghost Piece Guarantee** from a passive schema relationship into active, runtime database enforcement, two triggers are specified in `03`, `06`, and `09`:
+To transition the **Zero Ghost Piece Guarantee** from a passive schema relationship into active, runtime database enforcement, two triggers are specified and wired with `CREATE TRIGGER` statements in `03`, `06`, and `09`:
 
-### 1. Bundle Allotment Ceiling Trigger
+### 1. Bundle Allotment Ceiling Trigger (in `03_cutting_floor.md` & `06_stitching_sewing.md`)
 $$\sum (\text{allotments.allotted\_quantity}) \le \text{cutting\_bundles.piece\_count}$$
+```sql
+CREATE TRIGGER trg_validate_bundle_allotment_sum
+BEFORE INSERT OR UPDATE ON allotments
+FOR EACH ROW EXECUTE FUNCTION validate_bundle_allotment_sum();
+```
 * Any attempt by floor supervisors to allocate more pieces across lineman tickets than physically cut raises a hard database exception.
 
-### 2. Carton Packing Ceiling Trigger
+### 2. Carton Packing Ceiling Trigger (in `09_ready_goods_packing.md`)
 $$\sum (\text{ready\_goods\_carton\_bundles.pieces\_from\_bundle}) \le \text{cutting\_bundles.piece\_count}$$
+```sql
+CREATE TRIGGER trg_validate_carton_bundle_sum
+BEFORE INSERT OR UPDATE ON ready_goods_carton_bundles
+FOR EACH ROW EXECUTE FUNCTION validate_carton_bundle_sum();
+```
 * Prevents packing conveyor lines from ever packing more garments into master export cartons than were verified cut and sewn.
+
+### 3. Automated Carton Status Transition Trigger (in `09_ready_goods_packing.md`)
+```sql
+CREATE TRIGGER trg_update_carton_status_from_aql
+AFTER INSERT OR UPDATE ON ready_goods_aql_audits
+FOR EACH ROW EXECUTE FUNCTION update_carton_status_from_aql();
+```
+* Automatically transitions `ready_goods_cartons.status` to `AQL_AUDIT_PASSED` or `QUARANTINED_AQL_FAILED` upon AQL audit completion.
 
 ---
 

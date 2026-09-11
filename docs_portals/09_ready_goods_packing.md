@@ -238,4 +238,29 @@ BEGIN
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_validate_carton_bundle_sum
+BEFORE INSERT OR UPDATE ON ready_goods_carton_bundles
+FOR EACH ROW EXECUTE FUNCTION validate_carton_bundle_sum();
+
+-- 5. Automated Carton Lifecycle Transition Trigger from AQL Decision
+CREATE OR REPLACE FUNCTION update_carton_status_from_aql()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF NEW.audit_decision = 'PASS' THEN
+    UPDATE ready_goods_cartons 
+    SET status = 'AQL_AUDIT_PASSED', updated_at = NOW() 
+    WHERE id = NEW.carton_id;
+  ELSIF NEW.audit_decision = 'REJECT_QUARANTINE' THEN
+    UPDATE ready_goods_cartons 
+    SET status = 'QUARANTINED_AQL_FAILED', updated_at = NOW() 
+    WHERE id = NEW.carton_id;
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_update_carton_status_from_aql
+AFTER INSERT OR UPDATE ON ready_goods_aql_audits
+FOR EACH ROW EXECUTE FUNCTION update_carton_status_from_aql();
 ```

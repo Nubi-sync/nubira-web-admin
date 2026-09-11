@@ -283,4 +283,8 @@ BEGIN
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_validate_bundle_allotment_sum
+BEFORE INSERT OR UPDATE ON allotments
+FOR EACH ROW EXECUTE FUNCTION validate_bundle_allotment_sum();
 ```
