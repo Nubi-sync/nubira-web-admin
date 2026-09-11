@@ -34,14 +34,16 @@ The **Zigza MES Garment Manufacturing Platform** connects 11 operating divisions
 
 ---
 
-## 2. STRICT NON-NEGOTIABLE BENCHMARK DIRECTIVE
+## 2. STRICT NON-NEGOTIABLE BENCHMARK DIRECTIVE (STATUS: FROZEN)
 
 > [!CAUTION]
 > ### CRITICAL INSTRUCTION FOR CLAUDE:
-> **DO NOT MODIFY, ALTER, OR REFACTOR THE STITCHING & SEWING PORTAL OR ITS SPECIFICATION (`06_stitching_sewing.md`).**
+> **THE STITCHING & SEWING BENCHMARK (`06_stitching_sewing.md`) IS NOW 100% COMPLETE AND FROZEN.**
 > 
 > * The Stitching & Sewing portal (`src/app/stitching-sewing/`) is the live, battle-tested operational benchmark of the factory. It is active in production code.
-> * `06_stitching_sewing.md` has been upgraded to resolve internal gaps (adding the `employees` master table, `qc_logs` schema, binding `allotments` directly to `cutting_bundles.id` and `employee_id`, adding the quantity integrity check trigger, and standardizing the 4-tier, 13-item navigation count) while strictly preserving all active operational features.
+> * All shared master entities (`brands`, `vendors`, `employees`, `articles`, `challans`, `allotments`, `qc_logs`, `store_transactions`) are now fully reconciled to match the live production schema (`src/app/vendors/actions.ts`).
+> * Form 7 has been formally split into **Form 7A (Principal Brands)** and **Form 7B (Sub-Contract Vendors)**, ensuring exact 1:1 field parity with their respective database tables.
+> * No further edits to `06_stitching_sewing.md` are permitted or needed.
 
 ---
 
@@ -55,6 +57,7 @@ The **Zigza MES Garment Manufacturing Platform** connects 11 operating divisions
 | **4. Unbacked Merchandising Shipment Page** | `02_merchandising_sourcing.md` | **RESOLVED** | Added `merchandising_shipments` schema table to Section 7 and Form 5 ("Export Shipment Booking & B/L Entry Form") to back Page 6 (`/merchandising/shipments`). |
 | **5. Quantity Integrity (Enforcing Piece Ceilings)** | `03`, `06`, `09` | **RESOLVED** | Added PostgreSQL constraint triggers `validate_bundle_allotment_sum()` and `validate_carton_bundle_sum()`. Prevents sum of allotted or packed pieces from ever exceeding physical bundle `piece_count`. |
 | **6. Traced FK Chain Diagram Correction** | `FOR_CLAUDE.md` | **RESOLVED** | Corrected Section 4 diagram to accurately reflect the real relational path: `qc_logs.allotment_id → allotments.bundle_id` and `cutting_bundles.id → ready_goods_carton_bundles.bundle_id → ready_goods_cartons.id`. |
+| **7. Brand & Vendor Live Parity & Form Split** | `06_stitching_sewing.md` | **RESOLVED** | Split Form 7 into Form 7A (Principal Brands) and Form 7B (Vendors). Synchronized DDL with live production code (`src/app/vendors/actions.ts`), fully superseding preliminary notes in `BRAND_AND_VENDOR_ARCHITECTURE_PLAN.md`. |
 
 ---
 
@@ -135,7 +138,7 @@ FOR EACH ROW EXECUTE FUNCTION update_carton_status_from_aql();
 | [`03_cutting_floor.md`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/docs_portals/03_cutting_floor.md) | **Cutting & Lay Floor** | `/cutting` | 8 Views | `cutting_lay_sheets`, `cutting_bundles`, `cutting_panel_qc_audits`, `cutting_end_bit_logs` • 3 Complete Forms + Trigger |
 | [`04_printing_unit.md`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/docs_portals/04_printing_unit.md) | **Screen & Digital Printing** | `/printing` | 8 Views | `printing_production_runs` • Strike-Off Form, Shift Production & Rejection Form |
 | [`05_embroidery_unit.md`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/docs_portals/05_embroidery_unit.md) | **Multi-Head Embroidery Floor** | `/embroidery` | 8 Views | `embroidery_designs`, `embroidery_machine_runs` • DST Upload Form, Shift Machine Run Form |
-| [`06_stitching_sewing.md`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/docs_portals/06_stitching_sewing.md) | **Stitching & Sewing Floor** | `/stitching-sewing` | 13 Views | `brands`, `vendors`, `employees`, `articles`, `challans`, `allotments`, `qc_logs`, `store_transactions` • 8 Core Factory Forms + Trigger |
+| [`06_stitching_sewing.md`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/docs_portals/06_stitching_sewing.md) | **Stitching & Sewing Floor** | `/stitching-sewing` | 13 Views | `brands`, `vendors`, `employees`, `articles`, `challans`, `allotments`, `qc_logs`, `store_transactions` • 9 Core Factory Forms + Trigger |
 | [`07_industrial_washing.md`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/docs_portals/07_industrial_washing.md) | **Industrial Washing & Wet Processing**| `/washing` | 8 Views | `washing_batches`, `washing_shrinkage_alerts` • Batch Run Form, Shrinkage QC Form |
 | [`08_steam_ironing.md`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/docs_portals/08_steam_ironing.md) | **Ironing & Steam Pressing Floor** | `/iron` | 8 Views | `iron_production_logs` • Table Allotment Form, Shift Pressing & Defect Form |
 | [`09_ready_goods_packing.md`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/docs_portals/09_ready_goods_packing.md) | **Ready Goods & Export Packing** | `/ready-goods` | 8 Views | `ready_goods_cartons`, `ready_goods_carton_bundles`, `ready_goods_aql_audits` • AQL 2.5 Form, Carton Packing Form + Trigger |

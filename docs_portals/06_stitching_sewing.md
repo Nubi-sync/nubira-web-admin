@@ -178,7 +178,7 @@ The Stitching & Sewing portal contains **9 production-critical data entry forms*
 ### Form 7B: Sub-Contract Vendor Registration Form
 * **Location**: `/stitching-sewing/vendors` (Action: `+ Add Vendor` Modal)
 * **Purpose**: **Directly creates records in `vendors` table**.
-* **Fields**: `vendor_code` (Unique prefix, e.g. `VND-SHANTI-01`), `vendor_name`, `brand_id` (Dropdown FK to `brands.id`), `vendor_type` (`STITCHING_JOB_WORK`, `FABRIC_SUPPLIER`, `TRIMS_ACCESSORIES`, `PRINTING_EMBROIDERY`, `WASHING_FINISHING`), `stitching_rate` (Numeric, e.g. ₹20.00), `contact_person`, `phone`, `city`, `address`, `gst_no`.
+* **Fields**: `vendor_code` (Unique prefix, e.g. `VND-SHANTI-01`), `vendor_name`, `brand_id` (Dropdown FK to `brands.id`; UI automatically writes `brand_id` and caches `brand_name`), `vendor_type` (`STITCHING_JOB_WORK`, `FABRIC_SUPPLIER`, `TRIMS_ACCESSORIES`, `PRINTING_EMBROIDERY`, `WASHING_FINISHING`), `stitching_rate` (Numeric, e.g. ₹20.00), `contact_person`, `phone`, `city`, `address`, `gst_no`.
 
 ### Form 8: Outward Delivery Challan & Dispatch Form
 * **Location**: `/stitching-sewing/dispatch`
@@ -218,7 +218,7 @@ CREATE TABLE vendors (
   vendor_code VARCHAR(50) NOT NULL UNIQUE, -- e.g. VND-SHANTI-01
   vendor_name VARCHAR(100) NOT NULL,
   brand_id UUID REFERENCES brands(id) ON DELETE SET NULL,
-  brand_name VARCHAR(100),
+  brand_name VARCHAR(100), -- Denormalized read-cache populated on insert from brands.brand_name for fast client-side filtering without JOINs (mirrors src/app/vendors/actions.ts:132)
   vendor_type VARCHAR(50) DEFAULT 'STITCHING_JOB_WORK', -- STITCHING_JOB_WORK, FABRIC_SUPPLIER, TRIMS_ACCESSORIES, PRINTING_EMBROIDERY, WASHING_FINISHING
   contact_person VARCHAR(100),
   phone VARCHAR(20),
