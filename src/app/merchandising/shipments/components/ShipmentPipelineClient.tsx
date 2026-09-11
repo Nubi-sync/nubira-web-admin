@@ -5,14 +5,12 @@ import Link from 'next/link'
 import { 
   Ship, 
   Plus, 
-  ArrowLeft, 
   Search, 
-  Filter, 
-  Clock, 
   Anchor, 
   CheckCircle2, 
-  FileText, 
-  Truck 
+  Truck,
+  Layers,
+  ArrowUpRight
 } from 'lucide-react'
 import { ExportShipment, ShipmentStatus } from '../../types/merchandising'
 import { getShipments, saveShipment, MERCHANDISING_UPDATE_EVENT } from '../../utils/merchandisingStorage'
@@ -53,56 +51,180 @@ export function ShipmentPipelineClient() {
     return matchesFilter && matchesSearch
   })
 
+  const totalCbm = shipments.reduce((sum, s) => sum + s.booking_cbm, 0)
+  const sailingCount = shipments.filter(s => s.status === 'SAILING').length
+  const stuffedCount = shipments.filter(s => s.status === 'CONTAINER_STUFFED').length
+
   return (
-    <div className="min-h-screen bg-[#FAF7F0] text-[#09090b]">
-      {/* Top Header */}
-      <header className="sticky top-0 z-30 border-b border-black/10 bg-[#FAF7F0]/90 backdrop-blur-md px-6 py-4">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <Link
-              href="/merchandising"
-              className="p-2 rounded-xl bg-white border border-black/10 text-slate-600 hover:text-slate-900 transition-colors shadow-2xs"
-            >
-              <ArrowLeft className="w-4 h-4" />
-            </Link>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-[11px] font-bold tracking-widest uppercase px-2.5 py-0.5 rounded-full bg-[#3A3564]/10 text-[#3A3564]">
-                  Division 02 • Global Forwarding
-                </span>
-                <span className="text-xs text-slate-500 font-medium">Export Container &amp; Bill of Lading (BL) Desk</span>
-              </div>
-              <h1 className="text-2xl font-bold tracking-tight text-[#09090b] mt-1 font-[family-name:var(--font-heading)]">
+    <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto text-[#09090b]">
+      {/* 1. Breadcrumb */}
+      <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
+        <Link href="/merchandising" className="hover:text-[#3A3564] transition-colors">
+          Merchandising &amp; Sourcing
+        </Link>
+        <span>/</span>
+        <span>Global Forwarding</span>
+        <span>/</span>
+        <span className="font-bold text-slate-900">
+          Shipment &amp; FOB Export Pipeline
+        </span>
+      </div>
+
+      {/* 2. Top Header Card (6th Box Theme) */}
+      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all">
+        <div className="flex items-center gap-3.5">
+          <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+            <Ship className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 Shipment &amp; FOB Export Pipeline
               </h1>
+              <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
+                {shipments.length} Consignments
+              </span>
             </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => setIsModalOpen(true)}
-              className="inline-flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] rounded-xl shadow-sm transition-all"
-            >
-              <Plus className="w-4 h-4" />
-              Book Export Shipment
-            </button>
+            <p className="text-sm sm:text-base text-slate-600 mt-1">
+              Container stuffing control, customs documentation, vessel ETD/ETA tracking, and Bill of Lading (BL) handshake
+            </p>
           </div>
         </div>
-      </header>
 
-      <main className="max-w-7xl mx-auto px-6 py-8 space-y-6">
-        {/* Filter Controls & Search */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs font-semibold">
+        <div className="flex items-center gap-2.5 self-end sm:self-auto">
+          <button
+            type="button"
+            onClick={() => setIsModalOpen(true)}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] transition-all shadow-xs cursor-pointer active:scale-[0.98]"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Book Export Shipment</span>
+          </button>
+        </div>
+      </div>
+
+      {/* 3. Executive KPI Metric Cards (Matching 6th Box) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
+        {/* Card 1 */}
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
+          <div className="flex items-start justify-between gap-2">
+            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+              <Layers className="w-5 h-5" />
+            </div>
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
+              STAGE 01
+            </span>
+          </div>
+          <div className="mt-3">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
+              Total Bookings
+            </div>
+            <div className="text-[11px] text-slate-400 font-medium">Export container jobs</div>
+          </div>
+          <div className="pt-2 border-t border-slate-100 flex items-baseline justify-between mt-3">
+            <div className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900">
+              {shipments.length}
+            </div>
+            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+              Containers
+            </span>
+          </div>
+        </div>
+
+        {/* Card 2 */}
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
+          <div className="flex items-start justify-between gap-2">
+            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+              <Anchor className="w-5 h-5 text-sky-600" />
+            </div>
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
+              STAGE 02
+            </span>
+          </div>
+          <div className="mt-3">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
+              On High Seas
+            </div>
+            <div className="text-[11px] text-slate-400 font-medium">Vessels actively sailing</div>
+          </div>
+          <div className="pt-2 border-t border-slate-100 flex items-baseline justify-between mt-3">
+            <div className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900">
+              {sailingCount}
+            </div>
+            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-sky-50 text-sky-700 border border-sky-200">
+              Sailing
+            </span>
+          </div>
+        </div>
+
+        {/* Card 3 */}
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
+          <div className="flex items-start justify-between gap-2">
+            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+              <Truck className="w-5 h-5 text-amber-600" />
+            </div>
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
+              STAGE 03
+            </span>
+          </div>
+          <div className="mt-3">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
+              Container Stuffed
+            </div>
+            <div className="text-[11px] text-slate-400 font-medium">ICD/CFS port gate-in</div>
+          </div>
+          <div className="pt-2 border-t border-slate-100 flex items-baseline justify-between mt-3">
+            <div className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900">
+              {stuffedCount}
+            </div>
+            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+              Port Gate-In
+            </span>
+          </div>
+        </div>
+
+        {/* Card 4 */}
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
+          <div className="flex items-start justify-between gap-2">
+            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+              <Ship className="w-5 h-5 text-emerald-600" />
+            </div>
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
+              STAGE 04
+            </span>
+          </div>
+          <div className="mt-3">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
+              Total Volume
+            </div>
+            <div className="text-[11px] text-slate-400 font-medium">Aggregated freight CBM</div>
+          </div>
+          <div className="pt-2 border-t border-slate-100 flex items-baseline justify-between mt-3">
+            <div className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900">
+              {totalCbm.toFixed(1)}
+            </div>
+            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+              CBM Cubic
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* 4. Main Shipments Table Card (Toolbar + Table with 6th Box Design) */}
+      <div className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden">
+        {/* Toolbar */}
+        <div className="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white">
+          {/* Status Filter Tabs */}
+          <div className="flex items-center gap-1.5 overflow-x-auto text-xs font-semibold">
             {['ALL', 'BOOKED', 'CONTAINER_STUFFED', 'SAILING', 'CUSTOMS_CLEARED', 'DELIVERED'].map(tab => (
               <button
                 key={tab}
+                type="button"
                 onClick={() => setActiveFilter(tab)}
-                className={`px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap ${
+                className={`px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
                   activeFilter === tab
-                    ? 'bg-[#3A3564] text-white'
-                    : 'text-slate-600 bg-white border border-black/5 hover:bg-black/5'
+                    ? 'bg-[#3A3564] text-white shadow-2xs font-bold'
+                    : 'text-slate-600 bg-[#FAF7F0] border border-black/5 hover:bg-black/5'
                 }`}
               >
                 {tab.replace('_', ' ')}
@@ -110,130 +232,129 @@ export function ShipmentPipelineClient() {
             ))}
           </div>
 
-          <div className="relative w-full sm:w-80">
+          {/* Search Box */}
+          <div className="relative w-full sm:w-72">
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               placeholder="Search Shipment, Container, Vessel..."
-              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-white border border-black/10 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564]"
+              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564]"
             />
           </div>
         </div>
 
         {/* Shipments Table */}
-        <div className="bg-white rounded-2xl border border-black/10 shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-[#FAF7F0] border-b border-black/10 text-slate-600 uppercase tracking-wider font-semibold">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <thead>
+              <tr className="border-b border-slate-100 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0]">
+                <th className="py-3 px-4">Shipment Ref</th>
+                <th className="py-3 px-4">Linked PO</th>
+                <th className="py-3 px-4">Forwarder &amp; Vessel</th>
+                <th className="py-3 px-4">Container #</th>
+                <th className="py-3 px-3 text-right">CBM</th>
+                <th className="py-3 px-4">Routing (POL → POD)</th>
+                <th className="py-3 px-4">ETD / ETA</th>
+                <th className="py-3 px-4">B/L Number</th>
+                <th className="py-3 px-4 text-center">Status</th>
+                <th className="py-3 px-4 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 text-xs">
+              {filteredShipments.length === 0 ? (
                 <tr>
-                  <th className="px-5 py-3.5">Shipment Ref</th>
-                  <th className="px-5 py-3.5">Linked PO</th>
-                  <th className="px-5 py-3.5">Forwarder &amp; Vessel</th>
-                  <th className="px-5 py-3.5">Container #</th>
-                  <th className="px-4 py-3.5 text-right">CBM</th>
-                  <th className="px-5 py-3.5">Routing (POL → POD)</th>
-                  <th className="px-4 py-3.5">ETD / ETA</th>
-                  <th className="px-4 py-3.5">B/L Number</th>
-                  <th className="px-5 py-3.5">Status</th>
-                  <th className="px-5 py-3.5 text-right">Actions</th>
+                  <td colSpan={10} className="py-10 text-center text-slate-400">
+                    No container shipments found. Click &quot;Book Export Shipment&quot; to schedule one.
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="divide-y divide-black/5">
-                {filteredShipments.length === 0 ? (
-                  <tr>
-                    <td colSpan={10} className="px-5 py-8 text-center text-slate-500">
-                      No container shipments found. Click &quot;Book Export Shipment&quot; to schedule one.
+              ) : (
+                filteredShipments.map(shp => (
+                  <tr key={shp.id} className="hover:bg-slate-50 transition-colors">
+                    <td className="py-3 px-4 font-bold font-mono text-[#3A3564]">
+                      {shp.shipment_ref}
+                    </td>
+                    <td className="py-3 px-4 font-bold text-slate-900 font-mono">
+                      {shp.po_number}
+                    </td>
+                    <td className="py-3 px-4">
+                      <span className="font-bold text-slate-900 block">{shp.forwarder_name}</span>
+                      <span className="text-[11px] text-slate-400 font-mono block truncate max-w-[180px]">{shp.carrier_vessel}</span>
+                    </td>
+                    <td className="py-3 px-4 font-mono font-bold text-slate-800">
+                      {shp.container_number}
+                    </td>
+                    <td className="py-3 px-3 text-right font-bold text-slate-900 font-mono">
+                      {shp.booking_cbm.toFixed(1)}
+                    </td>
+                    <td className="py-3 px-4 text-slate-700">
+                      <div className="font-semibold text-[11px]">{shp.port_of_loading}</div>
+                      <div className="text-[10px] text-slate-400">↓ {shp.port_of_discharge}</div>
+                    </td>
+                    <td className="py-3 px-4 font-mono text-slate-700">
+                      <div className="text-emerald-700 font-bold">ETD: {shp.etd_date}</div>
+                      <div className="text-slate-400 text-[10px]">ETA: {shp.eta_date}</div>
+                    </td>
+                    <td className="py-3 px-4 font-mono font-medium text-slate-600">
+                      {shp.bl_number || <span className="text-slate-400 italic">Pending</span>}
+                    </td>
+                    <td className="py-3 px-4 text-center">
+                      <span
+                        className={`inline-block px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
+                          shp.status === 'SAILING'
+                            ? 'bg-sky-50 text-sky-700 border border-sky-200'
+                            : shp.status === 'DELIVERED'
+                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                            : shp.status === 'CUSTOMS_CLEARED'
+                            ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                            : shp.status === 'CONTAINER_STUFFED'
+                            ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                            : 'bg-slate-100 text-slate-700'
+                        }`}
+                      >
+                        {shp.status.replace('_', ' ')}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4 text-right">
+                      {shp.status !== 'DELIVERED' ? (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const orderMap: Record<ShipmentStatus, ShipmentStatus> = {
+                              'BOOKED': 'CONTAINER_STUFFED',
+                              'CONTAINER_STUFFED': 'SAILING',
+                              'SAILING': 'CUSTOMS_CLEARED',
+                              'CUSTOMS_CLEARED': 'DELIVERED',
+                              'DELIVERED': 'DELIVERED'
+                            }
+                            handleUpdateStatus(shp, orderMap[shp.status])
+                          }}
+                          className="inline-flex items-center px-2.5 py-1 text-[11px] font-bold text-[#3A3564] bg-[#FAF7F0] hover:bg-[#F2ECE1] border border-black/10 rounded-lg transition-colors shadow-2xs cursor-pointer whitespace-nowrap"
+                        >
+                          Advance Status
+                        </button>
+                      ) : (
+                        <span className="text-[11px] font-bold text-emerald-700 inline-flex items-center gap-1 font-mono">
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          Delivered
+                        </span>
+                      )}
                     </td>
                   </tr>
-                ) : (
-                  filteredShipments.map(shp => (
-                    <tr key={shp.id} className="hover:bg-slate-50/70 transition-colors">
-                      <td className="px-5 py-3.5 font-bold font-mono text-[#3A3564]">
-                        {shp.shipment_ref}
-                      </td>
-                      <td className="px-5 py-3.5 font-bold text-slate-900">
-                        {shp.po_number}
-                      </td>
-                      <td className="px-5 py-3.5">
-                        <div className="font-semibold text-slate-900">{shp.forwarder_name}</div>
-                        <div className="text-[11px] text-slate-500 font-mono truncate max-w-xs">{shp.carrier_vessel}</div>
-                      </td>
-                      <td className="px-5 py-3.5 font-mono font-semibold text-slate-800">
-                        {shp.container_number}
-                      </td>
-                      <td className="px-4 py-3.5 text-right font-bold text-slate-900 font-mono">
-                        {shp.booking_cbm.toFixed(1)}
-                      </td>
-                      <td className="px-5 py-3.5 text-slate-700">
-                        <div className="font-medium text-[11px]">{shp.port_of_loading}</div>
-                        <div className="text-[10px] text-slate-400">↓ {shp.port_of_discharge}</div>
-                      </td>
-                      <td className="px-4 py-3.5 font-mono text-slate-700">
-                        <div className="text-emerald-700 font-medium">ETD: {shp.etd_date}</div>
-                        <div className="text-slate-500">ETA: {shp.eta_date}</div>
-                      </td>
-                      <td className="px-4 py-3.5 font-mono text-slate-600 font-medium">
-                        {shp.bl_number || <span className="text-slate-400 italic">Pending</span>}
-                      </td>
-                      <td className="px-5 py-3.5">
-                        <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-                            shp.status === 'SAILING'
-                              ? 'bg-sky-100 text-sky-800'
-                              : shp.status === 'DELIVERED'
-                              ? 'bg-emerald-100 text-emerald-800'
-                              : shp.status === 'CUSTOMS_CLEARED'
-                              ? 'bg-indigo-100 text-[#3A3564]'
-                              : shp.status === 'CONTAINER_STUFFED'
-                              ? 'bg-amber-100 text-amber-800'
-                              : 'bg-slate-100 text-slate-700'
-                          }`}
-                        >
-                          {shp.status.replace('_', ' ')}
-                        </span>
-                      </td>
-                      <td className="px-5 py-3.5 text-right">
-                        {shp.status !== 'DELIVERED' ? (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const orderMap: Record<ShipmentStatus, ShipmentStatus> = {
-                                'BOOKED': 'CONTAINER_STUFFED',
-                                'CONTAINER_STUFFED': 'SAILING',
-                                'SAILING': 'CUSTOMS_CLEARED',
-                                'CUSTOMS_CLEARED': 'DELIVERED',
-                                'DELIVERED': 'DELIVERED'
-                              }
-                              handleUpdateStatus(shp, orderMap[shp.status])
-                            }}
-                            className="px-2.5 py-1 text-[11px] font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors whitespace-nowrap"
-                          >
-                            Advance Status
-                          </button>
-                        ) : (
-                          <span className="text-[11px] font-medium text-emerald-700 inline-flex items-center gap-1">
-                            <CheckCircle2 className="w-3.5 h-3.5" />
-                            Archived
-                          </span>
-                        )}
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
+      </div>
 
-        {/* Modal: Form 5 Book Shipment */}
-        <BookShipmentModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          onSuccess={reloadData}
-        />
-      </main>
+      {/* Modal: Form 5 Book Shipment */}
+      <BookShipmentModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSuccess={reloadData}
+      />
     </div>
   )
 }
