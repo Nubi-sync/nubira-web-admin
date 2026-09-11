@@ -48,7 +48,8 @@ import {
   ShieldAlert,
   ArrowRight,
   Gauge,
-  PackageCheck
+  PackageCheck,
+  AlertTriangle
 } from 'lucide-react'
 
 type NavItem = {
@@ -447,9 +448,14 @@ export function AdminSidebar({
         ],
       },
       {
-        section: '10. Alteration Unit',
+        section: '10. Alteration & Quality Recovery',
         items: [
-          { label: 'Alteration & Rework', href: '/alter', icon: Wrench },
+          { label: 'Clinic Dashboard', href: '/alter', icon: Wrench },
+          { label: 'Defect Intake & Pareto', href: '/alter/defect-intake', icon: AlertTriangle, badge: 'Pareto' },
+          { label: 'Master Mending Stations', href: '/alter/repair-stations', icon: Scissors },
+          { label: 'Chemical Spotting & Clean', href: '/alter/spot-cleaning', icon: Droplets, badge: 'Eco-Gun' },
+          { label: 'Secondary AQL Re-Audit', href: '/alter/secondary-qc', icon: CheckCircle2, badge: 'QC Pass' },
+          { label: 'Scrap Salvage & Write-Off', href: '/alter/scrap-salvage', icon: FileText },
           { label: 'Zigza AI', href: '/alter/zigza-ai', icon: Bot },
         ],
       },
