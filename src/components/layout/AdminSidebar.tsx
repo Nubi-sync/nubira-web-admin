@@ -29,7 +29,9 @@ import {
   Scissors,
   Palette,
   Flame,
-  Wrench
+  Wrench,
+  FileCheck2,
+  Ruler
 } from 'lucide-react'
 
 type NavItem = {
@@ -175,14 +177,18 @@ export function AdminSidebar({
       {
         section: '1. Design Studio',
         items: [
-          { label: 'Design & Tech-Pack', href: '/design', icon: Palette },
-          { label: 'Zigza AI', href: '/design/zigza-ai', icon: Bot },
+          { label: 'Studio Dashboard', href: '/design', icon: Palette },
+          { label: 'Tech-Pack Catalog', href: '/design/tech-packs', icon: FileCheck2 },
+          { label: 'Sample Approvals (PPS)', href: '/design/sample-approvals', icon: Sparkles },
+          { label: 'Size Grading Matrix', href: '/design/grading-matrix', icon: Ruler },
+          { label: 'Fabric & Trims Library', href: '/design/materials-library', icon: Layers },
+          { label: 'Zigza AI Copilot', href: '/design/zigza-ai', icon: Bot },
         ],
       },
       {
         section: 'Account',
         items: [
-          { label: 'Division Profile', href: '/design/profile', icon: User },
+          { label: 'Studio Profile', href: '/design/profile', icon: User },
         ],
       },
     ]
@@ -556,6 +562,7 @@ export function AdminSidebar({
   else if (pathname?.startsWith('/washing')) divisionProfileHref = '/washing/profile'
   else if (pathname?.startsWith('/printing')) divisionProfileHref = '/printing/profile'
   else if (pathname?.startsWith('/embroidery')) divisionProfileHref = '/embroidery/profile'
+  else if (pathname?.startsWith('/design')) divisionProfileHref = '/design/profile'
   else if (pathname === '/modules' || pathname?.startsWith('/modules')) divisionProfileHref = '/modules/profile'
 
   const isProfileActive = pathname === divisionProfileHref || pathname === '/modules/profile' || pathname === '/profile'
