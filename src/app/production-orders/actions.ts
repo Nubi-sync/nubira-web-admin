@@ -81,7 +81,7 @@ export type CreateChallanPayload = {
   receiver_name?: string
   article_lines: ChallanArticleLine[]
   bom_items?: ChallanBomItem[]
-  status?: 'PENDING' | 'IN_PRODUCTION' | 'QC_PASSED' | 'DISPATCHED'
+  status?: 'PENDING' | 'IN_PRODUCTION' | 'IN_PROGRESS' | 'PARTIALLY_ALLOTTED' | 'QC_PASSED' | 'DISPATCHED'
 }
 
 export type UpdateChallanPayload = CreateChallanPayload & {
@@ -519,6 +519,13 @@ export async function createChallan(payload: CreateChallanPayload) {
     const safeChallanDate = sanitizeDate(challan_date) || todayDate
     const safeDeliveryDate = sanitizeDate(delivery_date)
 
+    const assignedCount = processedLines.filter(l => (l as any).assigned_lineman_id).length
+    const initialChallanStatus = assignedCount === 0
+      ? 'PENDING'
+      : assignedCount === processedLines.length
+        ? 'IN_PROGRESS'
+        : 'PARTIALLY_ALLOTTED'
+
     // 3. Insert into `challans` table
     const challanInsertPayload: any = {
       challan_no: cleanChallanNo,
@@ -530,7 +537,7 @@ export async function createChallan(payload: CreateChallanPayload) {
       notes: challanNotesJson,
       total_sets: grandTotalSets,
       total_pcs: grandTotalPcs,
-      status: 'IN_PROGRESS',
+      status: initialChallanStatus,
       bom_details: bom_items
     }
     if (payload.vendor_id) challanInsertPayload.vendor_id = payload.vendor_id
@@ -704,7 +711,7 @@ export async function createChallan(payload: CreateChallanPayload) {
     revalidatePath('/allotments')
     revalidatePath('/articles')
     revalidatePath('/')
-    return { success: true, challan_id: newChallan.id }
+    return { success: true, challan_id: newChallan.id, status: initialChallanStatus }
   } catch (err: any) {
     console.error('Error in createChallan:', err)
     return { error: err?.message || 'Server error while creating delivery challan.' }
