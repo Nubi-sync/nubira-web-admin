@@ -17,6 +17,7 @@ The **Industrial Washing & Wet Processing Division** is responsible for garment 
 │ Downstream Outward Entity:     │ 08. Steam Ironing & Finishing Floor        │
 │ Standard Liquor Ratio (M:L):   │ 1 : 5.0 (1 kg dry garment : 5 Liters water)│
 │ Maximum Residual Shrinkage:    │ ≤ 1.5% Length × ≤ 1.5% Width (Strict Spec) │
+│ High Shrinkage Alert Trigger:  │ Auto-Escalation to Cutting if > 2.5%       │
 └────────────────────────────────┴────────────────────────────────────────────┘
 ```
 
@@ -39,12 +40,12 @@ The **Industrial Washing & Wet Processing Division** is responsible for garment 
 │ • Steam Tumbler Drying (65°C Controlled Heat Curve) & Relaxation Cool-Down  │
 │ • Dimensional Shrinkage Template Audit (10 Samples per Batch)               │
 └─────────────────────────────────────────────────────────────────────────────┘
-                                 │
-                                 ▼ (Handshake Payload)
-[ 08. STEAM IRONING & FINISHING FLOOR ]
-• Conditioned, Dried & Softened Garments
-• Verified Batch Piece Count Match
-• Shrinkage Pass Certificate Attached to Lot Slip
+      │                                       │
+      ▼ (Clean Pass Payload)                  ▼ (High Shrinkage Escalation)
+[ 08. STEAM IRONING & FINISHING FLOOR ] [ 03. CUTTING FLOOR & 01. DESIGN ]
+• Conditioned, Dried & Softened Garments• Automated Critical Shrinkage Alert
+• Verified Batch Piece Count Match      • Suspend Lay Cutting for Roll Lot
+• Shrinkage Pass Certificate Attached   • Recalculate Marker Expansion in CAD
 ```
 
 ### Inward Handshake (What Washing Receives)
@@ -59,7 +60,7 @@ The **Industrial Washing & Wet Processing Division** is responsible for garment 
 | Output Payload | Recipient Portal | Handshake Trigger | Critical Data Transferred |
 | :--- | :--- | :--- | :--- |
 | **Washed & Dried Garments** | `08. Steam Ironing` | Tumbler Unload & QC | Zero dampness, zero chemical odor, verified piece count |
-| **Shrinkage & Shade Report**| `02. Merchandising` | Lab Dimension Check | Length/width change %, shade continuity band (Delta E < 0.8) |
+| **Shrinkage Alert Protocol**| `03. Cutting Floor` | Shrinkage > 2.5% | Roll ID, measured length/width shrinkage %, halt cut order |
 | **Wash Defect Quarantine** | `10. Alteration / Clinic`| Color Bleed / Tear | Damaged pieces flagged for mending or replacement claim |
 
 ---
@@ -85,7 +86,7 @@ The Washing Division portal has **8 dedicated side navigation views**:
 
 ---
 
-## 4. Page Specifications & Core Telemetry
+## 4. Complete Page Specifications (All 8 Navigation Views)
 
 ### Page 1: Washing Dashboard (`/washing`)
 * **Purpose**: Real-time monitoring of commercial wash tumblers, hydro extractors, and batch chemical cycles.
@@ -105,10 +106,30 @@ The Washing Division portal has **8 dedicated side navigation views**:
   * Micro-Silicon Softener: 2.0 g/L (Silk-touch hand-feel)
   * Cycle Duration: 45 min at 50°C
 
-### Page 3: Shrinkage & Colorfastness QC (`/washing/shrinkage-qc`)
+### Page 3: Tumbler & Hydro Runs (`/washing/machine-runs`)
+* **Purpose**: Live floor scheduler assigning incoming sewing challans to specific washing drums, tracking wash start/finish timestamps.
+
+### Page 4: Liquor Ratio & Water Audit (`/washing/liquor-audit`)
+* **Purpose**: Environmental and cost monitoring of water meters (liters per kg garment) and wastewater effluent discharge standards (pH 6.5–8.0).
+
+### Page 5: Shrinkage & Fastness QC Station (`/washing/shrinkage-qc`)
 * **Purpose**: 10-piece statistical dimensional audit per batch.
 * **Shrinkage Formula**:
   $$\text{Shrinkage \%} = \frac{\text{Pre-Wash Dimension (cm)} - \text{Post-Wash Dimension (cm)}}{\text{Pre-Wash Dimension (cm)}} \times 100$$
+* **Auto-Escalation Engine**: Highlights any batch with $> 2.5\%$ shrinkage in flashing red and auto-generates a Cutting Alert.
+
+### Page 6: Outward Finishing Handover (`/washing/handover`)
+* **Purpose**: Digital sign-off and piece-count verification transferring dry, conditioned garments to 08 Steam Ironing.
+
+### Page 7: Zigza AI Copilot (`/washing/zigza-ai`)
+* **Purpose**: Chemical recipe advisor, water reduction optimization, and shrinkage trend analytics.
+* **Pre-Loaded Prompts**:
+  1. `"Garment batch #402 has heavy fuzz. Should we adjust cellulase enzyme run time from 35 min to 45 min?"`
+  2. `"Calculate water savings if we drop liquor ratio on 2,500 cotton hoodies from 1:6 to 1:5."`
+  3. `"Style ART-9920 showed 2.1% width shrinkage. Alert Cutting Floor to expand marker width."`
+
+### Page 8: Washing Division Profile (`/washing/profile`)
+* **Purpose**: Chemical handling operator certifications, washing master credentials, and effluent plant logs.
 
 ---
 
@@ -121,11 +142,24 @@ The Washing Division portal has **8 dedicated side navigation views**:
 | :--- | :--- | :--- | :--- | :--- |
 | `batch_number` | Text | Yes | Pattern: `^WB-[0-9]{5}$` | Unique washing batch run ID |
 | `washer_machine_id`| Select Dropdown | Yes | `Washer 01` to `Washer 06` | Physical commercial tumbler |
-| `sewing_challan_id`| Select Dropdown | Yes | Active sewing challans | Inward lot reference |
+| `challan_id` | Select Dropdown | Yes | Active sewing challans | Inward lot reference |
+| `operator_id` | Select Dropdown | Yes | Active employees master (FK) | Washing technician |
 | `dry_weight_kg` | Number | Yes | Min: 50, Max: 650 kg | Total dry weight loaded |
 | `recipe_id` | Select Dropdown | Yes | Approved wash recipes | Chemical recipe applied |
 | `water_volume_liters`| Number | Yes | Auto-calculated `dry_weight × 5` | Total water consumed |
 | `tumbler_temp_c` | Number | Yes | Default: 65 (Min: 40, Max: 85) | Drying temperature setting |
+
+### Form 2: Shrinkage & Dimensional Audit Form
+* **Trigger**: `Record Shrinkage QC` on `/washing/shrinkage-qc`
+
+| Field Name | Type | Required | Validation / Options | Tooltip / Hint |
+| :--- | :--- | :--- | :--- | :--- |
+| `batch_id` | Select Dropdown | Yes | Finished wash batches | Linked batch |
+| `sample_pieces_tested`| Number | Yes | Default: 10 (Min: 5, Max: 20) | Number of garments measured |
+| `avg_length_shrink_pct`| Number | Yes | Decimal 2 places (e.g. `1.15`) | Measured length change |
+| `avg_width_shrink_pct` | Number | Yes | Decimal 2 places (e.g. `0.95`) | Measured width change |
+| `colorfastness_rating` | Number | Yes | 1.0 to 5.0 scale (Grey Scale) | Color rub test |
+| `qc_status` | Select Dropdown | Yes | `PASS`, `MARGINAL_WARN`, `CRITICAL_FAIL` | Overall verdict |
 
 ---
 
@@ -144,14 +178,28 @@ The Washing Division portal has **8 dedicated side navigation views**:
 CREATE TABLE washing_batches (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   batch_number VARCHAR(50) NOT NULL UNIQUE,
-  challan_id UUID REFERENCES challans(id),
+  challan_id UUID REFERENCES challans(id) ON DELETE RESTRICTED,
   machine_number VARCHAR(20) NOT NULL,
+  operator_id UUID REFERENCES employees(id) ON DELETE SET NULL,
   recipe_name VARCHAR(100) NOT NULL,
   dry_weight_kg NUMERIC(6,2) NOT NULL,
   water_liters NUMERIC(8,2) NOT NULL,
   measured_shrinkage_length_pct NUMERIC(4,2),
   measured_shrinkage_width_pct NUMERIC(4,2),
   status VARCHAR(30) DEFAULT 'WASHING', -- WASHING, HYDRO, DRYING, PASSED, FAILED
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 2. Shrinkage Threshold Alerts (Auto-Escalation Engine)
+CREATE TABLE washing_shrinkage_alerts (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  batch_id UUID REFERENCES washing_batches(id) ON DELETE CASCADE,
+  order_id UUID REFERENCES merchandising_orders(id),
+  measured_shrinkage_pct NUMERIC(4,2) NOT NULL,
+  threshold_exceeded_by NUMERIC(4,2) NOT NULL,
+  cutting_notified BOOLEAN DEFAULT FALSE,
+  resolved_action TEXT, -- e.g. "CAD marker expanded by +1.4cm"
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 ```

@@ -17,6 +17,7 @@ The **Central Store & Raw Material Godown** is the factory's inventory nerve cen
 │ Downstream Outward Entity:     │ 03. Cut / 06. Sew / Export Shipping Dock   │
 │ Fabric Inspection 4-Point SLA: │ ≤ 28 Penalty Points per 100 Square Yards   │
 │ Inventory Ledger Accuracy:     │ ≥ 99.9% Barcode Verified Physical Audit    │
+│ Gate Entry Workflow:           │ 2-Step Stepper: Vehicle Gate -> Weighbridge│
 └────────────────────────────────┴────────────────────────────────────────────┘
 ```
 
@@ -83,7 +84,7 @@ The Central Store portal has **8 dedicated side navigation views**:
 
 ---
 
-## 4. Page Specifications & Core Telemetry
+## 4. Complete Page Specifications (All 8 Navigation Views)
 
 ### Page 1: Store Dashboard (`/store`)
 * **Purpose**: Master inventory cockpit of fabric yardage, trim stocks, and finished export goods.
@@ -94,29 +95,68 @@ The Central Store portal has **8 dedicated side navigation views**:
   4. `Inventory Ledger Accuracy`: **99.9%** *(100% Barcode verified cycle count)*
 
 ### Page 2: Fabric Godown & 4-Point Inspection (`/store/fabric-godown`)
-* **ASTM D5430 4-Point System Penalty Scale**:
+* **Purpose**: Digital roll yardage ledger and inspection console enforcing the **ASTM D5430 4-Point System**:
   * Defect up to 3 inches: **1 Point**
   * Defect 3 to 6 inches: **2 Points**
   * Defect 6 to 9 inches: **3 Points**
   * Defect over 9 inches / Holes: **4 Points**
-  * **Pass Benchmark**: Total points per 100 sq yards must be **≤ 28 points**.
+  * **Pass Standard**: Total penalty points $\le 28$ per 100 sq yards.
+
+### Page 3: Trims & Accessories Warehouse (`/store/trims-warehouse`)
+* **Purpose**: Bin-location manager for threads, zippers, buttons, labels, and polybags with Re-Order Level (ROL) traffic lights.
+
+### Page 4: Truck Inward Gate & GRN Hub (`/store/truck-inwards`)
+* **Purpose**: Security gatehouse console registering truck arrival, weighbridge slips, and generating electronic GRNs.
+
+### Page 5: Material Issues to Floor (`/store/material-issues`)
+* **Purpose**: Barcode scanner dispatch station releasing reserved fabric rolls to Cutting and BOM trim packages to Sewing.
+
+### Page 6: Finished Goods Export Staging Bay 3–5 (`/store/finished-godown`)
+* **Purpose**: Pallet racking console tracking packed cartons waiting for container stuffing, cross-checked against buyer commercial invoices.
+
+### Page 7: Zigza AI Copilot (`/store/zigza-ai`)
+* **Purpose**: Deadstock identification, inventory cycle audit, and container load optimization assistant.
+* **Pre-Loaded Prompts**:
+  1. `"Identify all fabric rolls stored in Bay 1 that have remained un-issued for more than 90 days."`
+  2. `"Which sewing thread colors have stock levels below 3 days of average line consumption?"`
+  3. `"Cross-check loaded carton count for Container MSCU-4820 against buyer packing list."`
+
+### Page 8: Central Store Profile (`/store/profile`)
+* **Purpose**: Storekeeper authorizations, material custody sign-offs, and weighbridge calibration logs.
 
 ---
 
 ## 5. Complete Form Specifications
 
-### Form 1: Truck Gate Inward & GRN Form
+### Form 1: Truck Gate Inward & GRN 2-Step Stepper
 * **Trigger**: `Record Truck Inward` on `/store/truck-inwards`
+* **Step 1: Security & Transport Details**:
+  * `grn_number` (Text, Unique Pattern: `^GRN-[0-9]{5,8}$`)
+  * `vehicle_number` (Text, e.g. `DL-01-AB-1234`)
+  * `supplier_id` (Dropdown, Registered Vendors)
+  * `po_reference` (Dropdown, Active Buyer Orders)
+* **Step 2: Consignment Quantities & Weighbridge**:
+  * `item_category` (`RAW_FABRIC_ROLL`, `TRIMS`, `PACKAGING`, `CHEMICAL`)
+  * `total_rolls_boxes` (Number, Min: 1)
+  * `gross_weight_kg` (Number from weighbridge scale)
+  * `driver_phone` (Phone)
+
+### Form 2: ASTM D5430 4-Point Roll Inspection Form
+* **Trigger**: `Inspect Fabric Roll` on `/store/fabric-godown`
 
 | Field Name | Type | Required | Validation / Options | Tooltip / Hint |
 | :--- | :--- | :--- | :--- | :--- |
-| `grn_number` | Text | Yes | Pattern: `^GRN-[0-9]{5,8}$` | Unique Goods Received Note |
-| `vehicle_number` | Text | Yes | Indian Vehicle Format (e.g. `DL-01-AB-1234`)| Physical transport truck |
-| `supplier_id` | Select Dropdown | Yes | Registered fabric/trims vendors | Delivering company |
-| `item_category` | Select Dropdown | Yes | `RAW_FABRIC_ROLL`, `TRIMS`, `PACKAGING`, `CHEMICAL` | Material category |
-| `total_rolls_boxes`| Number | Yes | Min: 1, Max: 5,000 | Number of packages unloaded |
-| `gross_weight_kg` | Number | Yes | Weighbridge weigh slip | Total consignment weight |
-| `po_reference` | Select Dropdown | Yes | Active buyer purchase orders | Linked commercial PO |
+| `roll_barcode` | Text | Yes | Scanned mill roll barcode | Physical roll |
+| `measured_width_inches`| Number | Yes | Tolerance $\pm 0.5$ inches | Width check |
+| `measured_gsm` | Number | Yes | Tolerance $\pm 3\%$ of BOM spec | Weight check |
+| `penalty_points_total` | Number | Yes | Sum of 1, 2, 3, 4 point defects | ASTM 4-Point count |
+| `points_per_100_sq_yd` | Number (Auto) | Yes | Auto-calculated | Must be $\le 28$ to pass |
+| `shade_group` | Select Dropdown | Yes | `SHADE_A`, `SHADE_B`, `SHADE_C` | Spectro shade banding |
+| `inspection_verdict` | Select Dropdown | Yes | `PASS_FOR_CUTTING`, `REJECT_RETURN_TO_MILL`| Master roll status |
+
+### Form 3: Material Floor Issue Challan Form
+* **Trigger**: `Issue Material to Floor` on `/store/material-issues`
+* **Fields**: `issue_challan_no`, `destination_division` (`CUTTING_FLOOR`, `SEWING_FLOOR`), `order_id`, `receiver_employee_id` (FK), `scanned_material_barcodes` (Array of fabric rolls or trim packs), `issue_notes`.
 
 ---
 
@@ -143,6 +183,7 @@ CREATE TABLE store_fabric_rolls (
   net_meterage NUMERIC(6,2) NOT NULL,
   measured_gsm INTEGER NOT NULL,
   four_point_penalty_score NUMERIC(4,1) DEFAULT 0.0,
+  inspection_status VARCHAR(30) DEFAULT 'PENDING_INSPECTION', -- PENDING_INSPECTION, PASSED, REJECTED
   godown_rack_location VARCHAR(30) DEFAULT 'BAY_1_RACK_02',
   is_issued_to_cutting BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMPTZ DEFAULT NOW()
