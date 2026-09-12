@@ -197,7 +197,7 @@ export default function TenantFactoriesPage() {
             </div>
             <div className="pt-2 border-t border-slate-100 flex items-baseline justify-between mt-3">
               <div className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-emerald-700 font-mono">
-                {totalTenants > 0 ? Math.round((activeCount / totalTenants) * 100) : 100}%
+                {totalTenants > 0 ? Math.round((activeCount / totalTenants) * 100) : 0}%
               </div>
               <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
                 {activeCount} Live
@@ -290,8 +290,32 @@ export default function TenantFactoriesPage() {
               <tbody className="divide-y divide-slate-100 text-xs">
                 {filteredTenants.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="py-10 text-center text-slate-400 font-mono text-xs">
-                      No tenant factories found matching criteria.
+                    <td colSpan={7} className="py-16 text-center">
+                      <div className="flex flex-col items-center justify-center max-w-md mx-auto space-y-3">
+                        <div className="w-12 h-12 rounded-2xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+                          <Building2 className="w-6 h-6 text-[#3A3564]" />
+                        </div>
+                        <div className="space-y-1">
+                          <h4 className="text-sm font-bold text-slate-900 font-[family-name:var(--font-heading)]">
+                            {searchQuery || statusFilter !== 'ALL' ? 'No Matching Factories Found' : 'No Tenant Factories Provisioned Yet'}
+                          </h4>
+                          <p className="text-xs text-slate-500 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
+                            {searchQuery || statusFilter !== 'ALL'
+                              ? 'Try searching with a different term or resetting the status filter tabs.'
+                              : 'Click "Provision New Tenant" above to issue Super Admin credentials and allocate production units to your first apparel client.'}
+                          </p>
+                        </div>
+                        {!searchQuery && statusFilter === 'ALL' && (
+                          <button
+                            type="button"
+                            onClick={() => setIsModalOpen(true)}
+                            className="mt-2 inline-flex items-center gap-2 px-4 py-2 text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] rounded-xl shadow-xs cursor-pointer transition-all active:scale-[0.98]"
+                          >
+                            <Plus className="w-3.5 h-3.5" />
+                            <span>Provision First Client Factory</span>
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ) : (

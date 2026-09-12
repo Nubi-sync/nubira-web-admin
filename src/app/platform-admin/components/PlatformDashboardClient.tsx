@@ -20,13 +20,15 @@ import {
 import { DemoRequestInquiry, DemoRequestStatus, PlatformMetrics } from '../types/platform'
 import {
   getDemoRequests,
+  getTenantFactories,
   updateDemoRequestStatus,
-  getPlatformMetrics,
-  PLATFORM_UPDATE_EVENT
+  PLATFORM_UPDATE_EVENT,
+  clearAllPlatformData
 } from '../utils/platformStorage'
 import {
   fetchDemoRequestsAction,
-  updateDemoRequestStatusAction
+  updateDemoRequestStatusAction,
+  fetchTenantFactoriesAction
 } from '../actions'
 import { ProvisionTenantModal } from './ProvisionTenantModal'
 
@@ -51,33 +53,63 @@ export function PlatformDashboardClient() {
   const loadData = async () => {
     setIsLoading(true)
     try {
-      const res = await fetchDemoRequestsAction()
-      if (res.data) {
-        setDemos(res.data)
-        setIsLiveDatabase(res.isLiveDatabase)
+      const [demosRes, tenantsRes] = await Promise.all([
+        fetchDemoRequestsAction(),
+        fetchTenantFactoriesAction()
+      ])
 
-        const total = res.data.length
-        const pending = res.data.filter(d => d.status === 'NEW_LEAD' || d.status === 'CONTACTED').length
-        const provisioned = res.data.filter(d => d.status === 'PROVISIONED_TENANT').length
-        setMetrics({
-          totalDemoLeads: total,
-          pendingReviewCount: pending,
-          provisionedFactoriesCount: provisioned,
-          activeTenantsCount: Math.max(4, provisioned + 3),
-          conversionRatePercent: total > 0 ? Math.round((provisioned / total) * 100) : 0,
-          totalProjectedMrrInr: 21996
-        })
-      }
+      const demoList = demosRes.data || []
+      const tenantList = tenantsRes.data || []
+
+      setDemos(demoList)
+      setIsLiveDatabase(demosRes.isLiveDatabase)
+
+      const total = demoList.length
+      const pending = demoList.filter(d => d.status === 'NEW_LEAD' || d.status === 'CONTACTED').length
+      const provisioned = demoList.filter(d => d.status === 'PROVISIONED_TENANT').length
+      const activeTenants = tenantList.filter(t => t.status === 'ACTIVE').length
+      const totalMrr = tenantList.reduce((acc, t) => acc + (t.monthlyBillingInr || 0), 0)
+
+      setMetrics({
+        totalDemoLeads: total,
+        pendingReviewCount: pending,
+        provisionedFactoriesCount: tenantList.length,
+        activeTenantsCount: activeTenants,
+        conversionRatePercent: total > 0 ? Math.round((provisioned / total) * 100) : 0,
+        totalProjectedMrrInr: totalMrr
+      })
     } catch (err) {
       console.warn('Backend fetch notice:', err)
-      setDemos(getDemoRequests())
-      setMetrics(getPlatformMetrics())
+      const fallbackDemos = getDemoRequests()
+      const fallbackTenants = getTenantFactories()
+      setDemos(fallbackDemos)
+      setMetrics({
+        totalDemoLeads: fallbackDemos.length,
+        pendingReviewCount: fallbackDemos.filter(d => d.status === 'NEW_LEAD').length,
+        provisionedFactoriesCount: fallbackTenants.length,
+        activeTenantsCount: fallbackTenants.filter(t => t.status === 'ACTIVE').length,
+        conversionRatePercent: fallbackDemos.length > 0 ? 100 : 0,
+        totalProjectedMrrInr: fallbackTenants.reduce((acc, t) => acc + (t.monthlyBillingInr || 0), 0)
+      })
     } finally {
       setIsLoading(false)
     }
   }
 
   useEffect(() => {
+    // Purge any lingering old mock entries from client localStorage
+    if (typeof window !== 'undefined') {
+      try {
+        const rawDemos = localStorage.getItem('zigza_platform_demo_requests_v1')
+        if (rawDemos && (rawDemos.includes('demo-101') || rawDemos.includes('Tirupur Knitwear') || rawDemos.includes('b0000000'))) {
+          localStorage.removeItem('zigza_platform_demo_requests_v1')
+        }
+        const rawTenants = localStorage.getItem('zigza_platform_tenants_v1')
+        if (rawTenants && (rawTenants.includes('ten-01') || rawTenants.includes('Vardhman') || rawTenants.includes('c0000000'))) {
+          localStorage.removeItem('zigza_platform_tenants_v1')
+        }
+      } catch (_) {}
+    }
     loadData()
     const handleUpdate = () => loadData()
     window.addEventListener(PLATFORM_UPDATE_EVENT, handleUpdate)
@@ -134,14 +166,24 @@ export function PlatformDashboardClient() {
             <Inbox className="w-5 h-5" />
           </div>
           <div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
-                Demo Leads & Access Provisioning
-              </h1>
-              <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
-                {demos.length} Active Leads
-              </span>
-            </div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
+                  Demo Leads & Access Provisioning
+                </h1>
+                <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
+                  {demos.length} {demos.length === 1 ? 'Active Lead' : 'Active Leads'}
+                </span>
+                {isLiveDatabase ? (
+                  <span className="inline-flex items-center gap-1.5 text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs tracking-wider">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    PostgreSQL Live
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1.5 text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 shadow-2xs tracking-wider">
+                    Connecting
+                  </span>
+                )}
+              </div>
             <p className="text-sm sm:text-base text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)]">
               Review incoming live demo inquiries from prospective apparel factories and grant Super Admin access to the 11-division MES
             </p>
@@ -326,8 +368,32 @@ export function PlatformDashboardClient() {
             <tbody className="divide-y divide-slate-100 text-xs">
               {filteredDemos.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-10 text-center text-slate-400 font-mono text-xs">
-                    No demo requests found matching the selected filter.
+                  <td colSpan={7} className="py-16 text-center">
+                    <div className="flex flex-col items-center justify-center max-w-md mx-auto space-y-3">
+                      <div className="w-12 h-12 rounded-2xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+                        <Inbox className="w-6 h-6 text-[#3A3564]" />
+                      </div>
+                      <div className="space-y-1">
+                        <h4 className="text-sm font-bold text-slate-900 font-[family-name:var(--font-heading)]">
+                          {searchQuery || statusFilter !== 'ALL' ? 'No Matching Leads Found' : 'No Inbound Demo Inquiries Yet'}
+                        </h4>
+                        <p className="text-xs text-slate-500 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
+                          {searchQuery || statusFilter !== 'ALL'
+                            ? 'Try adjusting your search query or switching status filter tabs.'
+                            : 'Prospective factory clients who submit the "Request Live Demo" form on your website will appear here instantly in real-time.'}
+                        </p>
+                      </div>
+                      {!searchQuery && statusFilter === 'ALL' && (
+                        <button
+                          type="button"
+                          onClick={openNewProvisionModal}
+                          className="mt-2 inline-flex items-center gap-2 px-4 py-2 text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] rounded-xl shadow-xs cursor-pointer transition-all active:scale-[0.98]"
+                        >
+                          <Key className="w-3.5 h-3.5" />
+                          <span>Provision Factory Directly</span>
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ) : (
