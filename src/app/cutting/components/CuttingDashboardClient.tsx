@@ -69,12 +69,14 @@ export function CuttingDashboardClient({
         localStorage.setItem('zigza_cutting_lays_v1', JSON.stringify(initialLays))
       }
       
-      // Dynamically attach live active lay to table
+      // Dynamically attach live active lay to table and clear mock lay IDs
+      const cleanTbl = (s: string) => (s || '').toLowerCase().replace(/[^a-z0-9]/g, '')
       const syncedTables = rawTables.map(t => {
-        const found = initialLays.find(l => 
-          l.table_number.toLowerCase().replace(/[^a-z0-9]/g, '') === t.table_number.toLowerCase().replace(/[^a-z0-9]/g, '') ||
-          t.table_name.toLowerCase().includes(l.table_number.toLowerCase())
-        )
+        const cleanT = cleanTbl(t.table_number)
+        const found = initialLays.find(l => {
+          const cleanL = cleanTbl(l.table_number)
+          return cleanL === cleanT || cleanT.includes(cleanL) || cleanL.includes(cleanT)
+        })
         if (found) {
           return {
             ...t,
@@ -82,7 +84,11 @@ export function CuttingDashboardClient({
             status: (found.status === 'CUT_COMPLETED' || (found.status as string) === 'COMPLETED') ? 'IDLE' : 'SPREADING'
           } as CuttingTable
         }
-        return t
+        return {
+          ...t,
+          current_lay_id: undefined,
+          status: 'IDLE'
+        } as CuttingTable
       })
       setTables(syncedTables)
     } else {

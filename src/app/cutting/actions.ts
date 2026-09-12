@@ -22,8 +22,8 @@ export async function fetchLaySheetsAction(): Promise<LaySheet[]> {
           currency,
           fob_price_per_piece,
           total_quantity,
-          brands:buyer_id (name),
-          design_tech_packs:tech_pack_id (style_number, garment_silhouette)
+          brands:buyer_id (brand_name),
+          design_tech_packs:tech_pack_id (style_number, category, fabric_composition)
         ),
         cutting_lay_rolls (
           id,
@@ -50,9 +50,9 @@ export async function fetchLaySheetsAction(): Promise<LaySheet[]> {
       id: sheet.id,
       lay_number: sheet.lay_sheet_number,
       po_number: sheet.merchandising_orders?.order_number || 'PO-PENDING',
-      brand_name: sheet.merchandising_orders?.brands?.name || 'OLLYPOP',
+      brand_name: sheet.merchandising_orders?.brands?.brand_name || 'OLLYPOP',
       style_ref: sheet.merchandising_orders?.design_tech_packs?.style_number || 'ART-HD-8821',
-      style_name: sheet.merchandising_orders?.design_tech_packs?.garment_silhouette || 'Heavyweight Hoodie',
+      style_name: sheet.merchandising_orders?.design_tech_packs?.category || 'Heavyweight Hoodie',
       table_number: sheet.cutting_table_id,
       fabric_roll_barcodes: (sheet.cutting_lay_rolls || []).map((r: any) => r.store_fabric_rolls?.roll_barcode || 'ROL-FT-8821'),
       shell_fabric: sheet.cutting_lay_rolls?.[0]?.store_fabric_rolls?.fabric_name || 'Heavyweight French Terry 380 GSM',
@@ -196,7 +196,7 @@ export async function fetchCutBundlesAction(filters?: {
           cutting_table_id,
           merchandising_orders:order_id (
             order_number,
-            design_tech_packs:tech_pack_id (style_number, garment_silhouette)
+            design_tech_packs:tech_pack_id (style_number, category)
           )
         )
       `)
@@ -226,7 +226,7 @@ export async function fetchCutBundlesAction(filters?: {
       lay_number: b.cutting_lay_sheets?.lay_sheet_number || 'LAY-0842',
       po_number: b.cutting_lay_sheets?.merchandising_orders?.order_number || 'PO-ZIG-8901',
       style_ref: b.cutting_lay_sheets?.merchandising_orders?.design_tech_packs?.style_number || 'ART-HD-8821',
-      style_name: b.cutting_lay_sheets?.merchandising_orders?.design_tech_packs?.garment_silhouette || 'Hoodie',
+      style_name: b.cutting_lay_sheets?.merchandising_orders?.design_tech_packs?.category || 'Hoodie',
       color: b.color_name,
       size: b.size_label,
       ply_range_start: b.start_ply_num,
