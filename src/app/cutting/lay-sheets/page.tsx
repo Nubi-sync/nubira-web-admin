@@ -2,6 +2,7 @@ import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { AdminShell } from '@/components/layout/AdminShell'
 import { LaySheetsClient } from './components/LaySheetsClient'
+import { fetchLaySheetsAction } from '../actions'
 
 export const dynamic = 'force-dynamic'
 
@@ -16,9 +17,11 @@ export default async function LaySheetsPage() {
     redirect('/login')
   }
 
+  const initialLays = await fetchLaySheetsAction()
+
   return (
     <AdminShell userEmail={user.email}>
-      <LaySheetsClient />
+      <LaySheetsClient initialLays={initialLays} />
     </AdminShell>
   )
 }

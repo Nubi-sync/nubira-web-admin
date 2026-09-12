@@ -2,6 +2,7 @@ import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { AdminShell } from '@/components/layout/AdminShell'
 import { BundlesClient } from './components/BundlesClient'
+import { fetchCutBundlesAction } from '../actions'
 
 export const dynamic = 'force-dynamic'
 
@@ -16,9 +17,11 @@ export default async function BundlesPage() {
     redirect('/login')
   }
 
+  const initialBundles = await fetchCutBundlesAction()
+
   return (
     <AdminShell userEmail={user.email}>
-      <BundlesClient />
+      <BundlesClient initialBundles={initialBundles} />
     </AdminShell>
   )
 }

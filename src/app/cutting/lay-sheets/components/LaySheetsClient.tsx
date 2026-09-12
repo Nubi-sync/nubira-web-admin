@@ -18,8 +18,15 @@ import {
 import { LaySheet, LaySheetStatus } from '../../types/cutting'
 import { getLaySheets, saveLaySheet } from '../../utils/cuttingStorage'
 
-export function LaySheetsClient() {
-  const [lays, setLays] = useState<LaySheet[]>([])
+interface LaySheetsClientProps {
+  initialLays?: LaySheet[]
+}
+
+export function LaySheetsClient({ initialLays }: LaySheetsClientProps = {}) {
+  const [lays, setLays] = useState<LaySheet[]>(() => {
+    if (initialLays && initialLays.length > 0) return initialLays
+    return []
+  })
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('ALL')
   const [selectedLay, setSelectedLay] = useState<LaySheet | null>(null)
@@ -46,8 +53,15 @@ export function LaySheetsClient() {
   })
 
   useEffect(() => {
-    setLays(getLaySheets())
-  }, [])
+    if (initialLays && initialLays.length > 0) {
+      setLays(initialLays)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('zigza_cutting_laysheets_v1', JSON.stringify(initialLays))
+      }
+    } else {
+      setLays(getLaySheets())
+    }
+  }, [initialLays])
 
   const filteredLays = lays.filter(lay => {
     const matchSearch =

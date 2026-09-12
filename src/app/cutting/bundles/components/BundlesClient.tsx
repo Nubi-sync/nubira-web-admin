@@ -19,8 +19,15 @@ import {
 import { CutBundle, BundleStatus, HandoverDestination, LaySheet } from '../../types/cutting'
 import { getCutBundles, saveCutBundle, bulkAddCutBundles, getLaySheets } from '../../utils/cuttingStorage'
 
-export function BundlesClient() {
-  const [bundles, setBundles] = useState<CutBundle[]>([])
+interface BundlesClientProps {
+  initialBundles?: CutBundle[]
+}
+
+export function BundlesClient({ initialBundles }: BundlesClientProps = {}) {
+  const [bundles, setBundles] = useState<CutBundle[]>(() => {
+    if (initialBundles && initialBundles.length > 0) return initialBundles
+    return []
+  })
   const [lays, setLays] = useState<LaySheet[]>([])
   const [search, setSearch] = useState('')
   const [destFilter, setDestFilter] = useState<string>('ALL')
@@ -30,21 +37,27 @@ export function BundlesClient() {
 
   // Generator form
   const [genLayId, setGenLayId] = useState('')
-  const [genColor, setGenColor] = useState('Obsidian Black')
+  const [genColor, setGenColor] = useState('Jet Black')
   const [genSize, setGenSize] = useState('M')
-  const [genPiecesPerBundle, setGenPiecesPerBundle] = useState(40)
-  const [genTotalPieces, setGenTotalPieces] = useState(120)
+  const [genPiecesPerBundle, setGenPiecesPerBundle] = useState(25)
+  const [genTotalPieces, setGenTotalPieces] = useState(100)
   const [genDestination, setGenDestination] = useState<HandoverDestination>('06_SEWING')
 
   useEffect(() => {
-    const loadedBundles = getCutBundles()
+    if (initialBundles && initialBundles.length > 0) {
+      setBundles(initialBundles)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('zigza_cutting_bundles_v1', JSON.stringify(initialBundles))
+      }
+    } else {
+      setBundles(getCutBundles())
+    }
     const loadedLays = getLaySheets()
-    setBundles(loadedBundles)
     setLays(loadedLays)
     if (loadedLays.length > 0) {
       setGenLayId(loadedLays[0].id)
     }
-  }, [])
+  }, [initialBundles])
 
   const filteredBundles = bundles.filter(b => {
     const matchSearch =
