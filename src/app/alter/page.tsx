@@ -3,6 +3,8 @@ import { redirect } from 'next/navigation'
 import { AdminShell } from '@/components/layout/AdminShell'
 import { ClinicDashboardClient } from './components/ClinicDashboardClient'
 
+import { fetchAlterDashboardDataAction } from './actions'
+
 export const dynamic = 'force-dynamic'
 
 export default async function AlterModulePage() {
@@ -16,15 +18,22 @@ export default async function AlterModulePage() {
     redirect('/login')
   }
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single()
+  const [{ data: profile }, liveData] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single(),
+    fetchAlterDashboardDataAction()
+  ])
 
   return (
     <AdminShell userEmail={user.email} userRole={profile?.role}>
-      <ClinicDashboardClient userEmail={user.email} />
+      <ClinicDashboardClient
+        userEmail={user.email}
+        initialTickets={liveData.tickets}
+        initialScrapLogs={liveData.scrapLogs}
+      />
     </AdminShell>
   )
 }

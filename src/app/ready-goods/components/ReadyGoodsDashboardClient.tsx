@@ -34,19 +34,27 @@ import { ReadyGoodsCarton, AqlAudit, CartonStatus } from '../types/readyGoods'
 
 interface ReadyGoodsDashboardClientProps {
   userEmail?: string
+  initialCartons?: ReadyGoodsCarton[]
+  initialAqlAudits?: AqlAudit[]
 }
 
-export function ReadyGoodsDashboardClient({ userEmail }: ReadyGoodsDashboardClientProps) {
-  const [cartons, setCartons] = useState<ReadyGoodsCarton[]>([])
-  const [aqlAudits, setAqlAudits] = useState<AqlAudit[]>([])
+export function ReadyGoodsDashboardClient({
+  userEmail,
+  initialCartons,
+  initialAqlAudits
+}: ReadyGoodsDashboardClientProps) {
+  const [cartons, setCartons] = useState<ReadyGoodsCarton[]>(initialCartons && initialCartons.length > 0 ? initialCartons : [])
+  const [aqlAudits, setAqlAudits] = useState<AqlAudit[]>(initialAqlAudits && initialAqlAudits.length > 0 ? initialAqlAudits : [])
   const [metrics, setMetrics] = useState(getReadyGoodsMetrics())
   const [statusFilter, setStatusFilter] = useState<string>('ALL')
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [selectedCarton, setSelectedCarton] = useState<ReadyGoodsCarton | null>(null)
 
   function loadData() {
-    setCartons(getReadyGoodsCartons())
-    setAqlAudits(getAqlAudits())
+    const localCartons = getReadyGoodsCartons()
+    setCartons(initialCartons && initialCartons.length > 0 ? initialCartons : localCartons)
+    const localAql = getAqlAudits()
+    setAqlAudits(initialAqlAudits && initialAqlAudits.length > 0 ? initialAqlAudits : localAql)
     setMetrics(getReadyGoodsMetrics())
   }
 
@@ -55,7 +63,7 @@ export function ReadyGoodsDashboardClient({ userEmail }: ReadyGoodsDashboardClie
     const handleUpdate = () => loadData()
     window.addEventListener(READY_GOODS_UPDATE_EVENT, handleUpdate)
     return () => window.removeEventListener(READY_GOODS_UPDATE_EVENT, handleUpdate)
-  }, [])
+  }, [initialCartons, initialAqlAudits])
 
   const filteredCartons = cartons.filter(carton => {
     const matchesStatus =

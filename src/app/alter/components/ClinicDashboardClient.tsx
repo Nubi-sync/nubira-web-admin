@@ -28,22 +28,29 @@ import {
   getParetoDefectSummary,
   ALTER_UPDATE_EVENT
 } from '../utils/alterStorage'
-import { AlterationTicket, AlterationMetrics } from '../types/alter'
+import { AlterationTicket, AlterationMetrics, ScrapRequisition } from '../types/alter'
 
 interface ClinicDashboardClientProps {
   userEmail?: string
+  initialTickets?: AlterationTicket[]
+  initialScrapLogs?: ScrapRequisition[]
 }
 
-export function ClinicDashboardClient({ userEmail }: ClinicDashboardClientProps) {
-  const [tickets, setTickets] = useState<AlterationTicket[]>([])
+export function ClinicDashboardClient({
+  userEmail,
+  initialTickets,
+  initialScrapLogs
+}: ClinicDashboardClientProps) {
+  const [tickets, setTickets] = useState<AlterationTicket[]>(initialTickets && initialTickets.length > 0 ? initialTickets : [])
   const [metrics, setMetrics] = useState<AlterationMetrics>(getAlterMetrics())
   const [statusFilter, setStatusFilter] = useState<string>('ALL')
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [selectedTicket, setSelectedTicket] = useState<AlterationTicket | null>(null)
 
   function loadData() {
-    const all = getAlterTickets()
-    setTickets(all)
+    const localTickets = getAlterTickets()
+    const finalTickets = initialTickets && initialTickets.length > 0 ? initialTickets : localTickets
+    setTickets(finalTickets)
     setMetrics(getAlterMetrics())
   }
 
@@ -52,7 +59,7 @@ export function ClinicDashboardClient({ userEmail }: ClinicDashboardClientProps)
     const handleUpdate = () => loadData()
     window.addEventListener(ALTER_UPDATE_EVENT, handleUpdate)
     return () => window.removeEventListener(ALTER_UPDATE_EVENT, handleUpdate)
-  }, [])
+  }, [initialTickets, initialScrapLogs])
 
   const paretoSummary = getParetoDefectSummary(tickets)
 
