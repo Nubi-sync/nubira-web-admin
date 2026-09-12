@@ -20,21 +20,36 @@ import {
 import { StitchBillingLedger, BillingStatus } from '../../types/embroidery'
 import { CreateBillingModal } from './CreateBillingModal'
 
-export function StitchBillingClient() {
-  const [ledgers, setLedgers] = useState<StitchBillingLedger[]>([])
+export function StitchBillingClient({
+  initialLedgers
+}: {
+  initialLedgers?: StitchBillingLedger[]
+} = {}) {
+  const [ledgers, setLedgers] = useState<StitchBillingLedger[]>(() => {
+    if (initialLedgers && initialLedgers.length > 0) return initialLedgers
+    return []
+  })
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('ALL')
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   function loadLedgers() {
-    setLedgers(getBillingLedgers())
+    if (initialLedgers && initialLedgers.length > 0) {
+      setLedgers(initialLedgers)
+    } else {
+      setLedgers(getBillingLedgers())
+    }
   }
 
   useEffect(() => {
-    loadLedgers()
+    if (initialLedgers && initialLedgers.length > 0) {
+      setLedgers(initialLedgers)
+    } else {
+      loadLedgers()
+    }
     window.addEventListener(EMBROIDERY_UPDATE_EVENT, loadLedgers)
     return () => window.removeEventListener(EMBROIDERY_UPDATE_EVENT, loadLedgers)
-  }, [])
+  }, [initialLedgers])
 
   const filteredLedgers = ledgers.filter(ledger => {
     const matchesSearch =
