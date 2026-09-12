@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import {
   ShieldCheck,
@@ -8,106 +8,37 @@ import {
   Download,
   AlertTriangle,
   CheckCircle2,
-  Globe
+  Globe,
+  RefreshCw
 } from 'lucide-react'
 import { PlatformAdminShell } from '../components/PlatformAdminShell'
-
-interface AuditEvent {
-  id: string
-  timestamp: string
-  actor: string
-  action: string
-  category: 'AUTH' | 'PROVISIONING' | 'SECURITY_ALERT' | 'CONFIG_CHANGE'
-  details: string
-  ipAddress: string
-  location: string
-  status: 'SUCCESS' | 'WARNING' | 'FAILED'
-}
-
-const INITIAL_AUDIT_LOGS: AuditEvent[] = [
-  {
-    id: 'LOG-8801',
-    timestamp: '2026-09-12 15:45:10',
-    actor: 'admin@zigza.in',
-    action: 'Root SuperAdmin Sign-In',
-    category: 'AUTH',
-    details: 'Authenticated via Platform Master Portal credential challenge',
-    ipAddress: '103.24.12.89',
-    location: 'Burhanpur, MP, India',
-    status: 'SUCCESS'
-  },
-  {
-    id: 'LOG-8802',
-    timestamp: '2026-09-12 15:20:44',
-    actor: 'admin@zigza.in',
-    action: 'Tenant Provisioning Completed',
-    category: 'PROVISIONING',
-    details: 'Generated credentials and allotted 11 divisions for Shahi Exports Unit 9',
-    ipAddress: '103.24.12.89',
-    location: 'Burhanpur, MP, India',
-    status: 'SUCCESS'
-  },
-  {
-    id: 'LOG-8803',
-    timestamp: '2026-09-12 14:02:18',
-    actor: 'system_bot',
-    action: 'Demo Lead Ingestion',
-    category: 'CONFIG_CHANGE',
-    details: 'New inquiry registered: Arvind Fashions (Deepak Sharma, Bengaluru)',
-    ipAddress: '49.207.211.34',
-    location: 'Bengaluru, KA, India',
-    status: 'SUCCESS'
-  },
-  {
-    id: 'LOG-8804',
-    timestamp: '2026-09-12 12:45:00',
-    actor: 'unknown@external',
-    action: 'Repeated Invalid Sign-In Attempt',
-    category: 'SECURITY_ALERT',
-    details: '3 consecutive failed attempts on /login; IP rate-limited for 15 minutes',
-    ipAddress: '185.220.101.5',
-    location: 'Frankfurt, Germany',
-    status: 'WARNING'
-  },
-  {
-    id: 'LOG-8805',
-    timestamp: '2026-09-12 11:15:32',
-    actor: 'admin@zigza.in',
-    action: 'API Key Re-Issue',
-    category: 'PROVISIONING',
-    details: 'Rotated Supabase Service Role client keys for Raymon Mills Plant',
-    ipAddress: '103.24.12.89',
-    location: 'Burhanpur, MP, India',
-    status: 'SUCCESS'
-  },
-  {
-    id: 'LOG-8806',
-    timestamp: '2026-09-11 18:30:12',
-    actor: 'admin@zigza.in',
-    action: 'Division Module Entitlement Added',
-    category: 'CONFIG_CHANGE',
-    details: 'Enabled Washing & Garment Finishing unit for Eastman Exports',
-    ipAddress: '103.24.12.89',
-    location: 'Burhanpur, MP, India',
-    status: 'SUCCESS'
-  },
-  {
-    id: 'LOG-8807',
-    timestamp: '2026-09-11 14:12:05',
-    actor: 'system_backup',
-    action: 'PostgreSQL Snapshot Sync',
-    category: 'AUTH',
-    details: 'Encrypted AES-256 cloud snapshot created for multi-tenant partitions',
-    ipAddress: '10.0.4.12',
-    location: 'AWS ap-south-1 Mumbai',
-    status: 'SUCCESS'
-  }
-]
+import { fetchPlatformAuditLogsAction, PlatformAuditLogEntry } from '../actions'
 
 export default function SecurityAuditLogsPage() {
-  const [logs, setLogs] = useState<AuditEvent[]>(INITIAL_AUDIT_LOGS)
+  const [logs, setLogs] = useState<PlatformAuditLogEntry[]>([])
+  const [isLiveDatabase, setIsLiveDatabase] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
-  const [categoryFilter, setCategoryFilter] = useState<'ALL' | AuditEvent['category']>('ALL')
+  const [categoryFilter, setCategoryFilter] = useState<'ALL' | PlatformAuditLogEntry['category']>('ALL')
+
+  const loadLogs = async () => {
+    setIsLoading(true)
+    try {
+      const res = await fetchPlatformAuditLogsAction()
+      if (res.data) {
+        setLogs(res.data)
+        setIsLiveDatabase(res.isLiveDatabase)
+      }
+    } catch (err) {
+      console.warn('Audit logs fetch error:', err)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    loadLogs()
+  }, [])
 
   const filteredLogs = logs.filter(log => {
     const matchesSearch =
@@ -116,6 +47,7 @@ export default function SecurityAuditLogsPage() {
       log.details.toLowerCase().includes(searchQuery.toLowerCase()) ||
       log.ipAddress.includes(searchQuery) ||
       log.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      log.logCode.toLowerCase().includes(searchQuery.toLowerCase()) ||
       log.id.toLowerCase().includes(searchQuery.toLowerCase())
 
     if (!matchesSearch) return false
@@ -124,11 +56,11 @@ export default function SecurityAuditLogsPage() {
   })
 
   const exportCSV = () => {
-    const headers = 'ID,Timestamp,Actor,Action,Category,Details,IP,Location,Status\n'
+    const headers = 'ID,Code,Timestamp,Actor,Action,Category,Details,IP,Location,Status\n'
     const rows = filteredLogs
       .map(
         l =>
-          `"${l.id}","${l.timestamp}","${l.actor}","${l.action}","${l.category}","${l.details}","${l.ipAddress}","${l.location}","${l.status}"`
+          `"${l.id}","${l.logCode}","${l.createdAt}","${l.actor}","${l.action}","${l.category}","${l.details.replace(/"/g, '""')}","${l.ipAddress}","${l.location}","${l.status}"`
       )
       .join('\n')
     const blob = new Blob([headers + rows], { type: 'text/csv;charset=utf-8;' })
@@ -170,6 +102,16 @@ export default function SecurityAuditLogsPage() {
                 <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs tracking-wider">
                   SOC-2 Compliant Trail
                 </span>
+                {isLiveDatabase ? (
+                  <span className="inline-flex items-center gap-1.5 text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs tracking-wider">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    PostgreSQL Live
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1.5 text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 shadow-2xs tracking-wider">
+                    Offline Cache
+                  </span>
+                )}
               </div>
               <p className="text-sm sm:text-base text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)]">
                 Real-time tracking of Root Super Admin sessions, tenant provisioning events, and cloud access security
@@ -180,10 +122,19 @@ export default function SecurityAuditLogsPage() {
           <div className="flex items-center gap-2.5 self-end sm:self-auto">
             <button
               type="button"
-              onClick={exportCSV}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-slate-700 bg-white border border-black/10 hover:bg-slate-100 transition-all shadow-2xs cursor-pointer active:scale-[0.98]"
+              onClick={loadLogs}
+              disabled={isLoading}
+              className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-sm font-bold text-slate-700 bg-white border border-black/10 hover:bg-slate-100 transition-all shadow-2xs cursor-pointer active:scale-[0.98] disabled:opacity-50"
             >
-              <Download className="w-4 h-4 text-slate-500" />
+              <RefreshCw className={`w-4 h-4 text-slate-500 ${isLoading ? 'animate-spin' : ''}`} />
+              <span>Refresh</span>
+            </button>
+            <button
+              type="button"
+              onClick={exportCSV}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] transition-all shadow-xs cursor-pointer active:scale-[0.98]"
+            >
+              <Download className="w-4 h-4 text-white" />
               <span>Export Audit Trail (CSV)</span>
             </button>
           </div>
@@ -254,11 +205,11 @@ export default function SecurityAuditLogsPage() {
                   filteredLogs.map(l => (
                     <tr key={l.id} className="hover:bg-slate-50 transition-colors">
                       <td className="py-3.5 px-4 font-mono font-bold text-slate-700">
-                        {l.id}
+                        {l.logCode || l.id}
                       </td>
 
                       <td className="py-3.5 px-4 font-mono text-[11px] text-slate-500 whitespace-nowrap">
-                        {l.timestamp}
+                        {new Date(l.createdAt).toLocaleString()}
                       </td>
 
                       <td className="py-3.5 px-4 font-mono text-[11px] font-bold text-[#3A3564]">
