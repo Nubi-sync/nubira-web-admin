@@ -22,17 +22,17 @@ const TECHNIQUES: PrintTechnique[] = [
 
 export function SubmitStrikeOffModal({ isOpen, onClose, onSuccess }: SubmitStrikeOffModalProps) {
   const [poNumber, setPoNumber] = useState('PO-ZIG-8901')
-  const [styleRef, setStyleRef] = useState('STY-HD-8901')
-  const [pantoneTarget, setPantoneTarget] = useState('Pantone 19-4052 TCX (Classic Navy)')
+  const [styleRef, setStyleRef] = useState('ART-HD-8821')
+  const [pantoneTarget, setPantoneTarget] = useState('Pantone 19-4052 TCX (Classic Navy), Pantone 11-0601 TCX')
   const [technique, setTechnique] = useState<PrintTechnique>('PLASTISOL')
-  const [spectroDeltaE, setSpectroDeltaE] = useState('0.65')
-  const [curingTemp, setCuringTemp] = useState('160')
+  const [spectroDeltaE, setSpectroDeltaE] = useState('0.38')
+  const [curingTemp, setCuringTemp] = useState('162')
   const [stretchTestPass, setStretchTestPass] = useState(true)
   const [crockingTestPass, setCrockingTestPass] = useState(true)
   const [washFastness, setWashFastness] = useState('4.5')
   const [approvalStatus, setApprovalStatus] = useState<StrikeOffStatus>('APPROVED')
-  const [auditorName, setAuditorName] = useState('M. Anitha (Color Spectro Lab)')
-  const [remarks, setRemarks] = useState('Spectro match within ΔE 1.0 limit. Excellent elongation without cracking.')
+  const [auditorName, setAuditorName] = useState('S. Mehra (Buyer Technical QA)')
+  const [remarks, setRemarks] = useState('Spectro match within ΔE 0.5 limit. Excellent elongation without cracking on 380 GSM fleece.')
   const [error, setError] = useState<string | null>(null)
 
   if (!isOpen) return null

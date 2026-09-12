@@ -18,21 +18,39 @@ import { CuringOvenLog } from '../../types/printing'
 import { getCuringLogs, saveCuringLog, PRINTING_UPDATE_EVENT } from '../../utils/printingStorage'
 import { LogCuringProbeModal } from './LogCuringProbeModal'
 
-export function CuringQcClient() {
-  const [logs, setLogs] = useState<CuringOvenLog[]>([])
+interface CuringQcClientProps {
+  initialCuringLogs?: CuringOvenLog[]
+}
+
+export function CuringQcClient({ initialCuringLogs }: CuringQcClientProps = {}) {
+  const [logs, setLogs] = useState<CuringOvenLog[]>(() => {
+    if (initialCuringLogs && initialCuringLogs.length > 0) return initialCuringLogs
+    return []
+  })
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('ALL')
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   const reloadData = () => {
-    setLogs(getCuringLogs())
+    if (initialCuringLogs && initialCuringLogs.length > 0) {
+      setLogs(initialCuringLogs)
+    } else {
+      setLogs(getCuringLogs())
+    }
   }
 
   useEffect(() => {
-    reloadData()
+    if (initialCuringLogs && initialCuringLogs.length > 0) {
+      setLogs(initialCuringLogs)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('zigza_printing_curing_logs_v2', JSON.stringify(initialCuringLogs))
+      }
+    } else {
+      setLogs(getCuringLogs())
+    }
     window.addEventListener(PRINTING_UPDATE_EVENT, reloadData)
     return () => window.removeEventListener(PRINTING_UPDATE_EVENT, reloadData)
-  }, [])
+  }, [initialCuringLogs])
 
   const filteredLogs = logs.filter(l => {
     const matchesFilter = statusFilter === 'ALL' || l.status === statusFilter

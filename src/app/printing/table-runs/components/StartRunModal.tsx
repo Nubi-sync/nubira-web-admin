@@ -21,15 +21,15 @@ const TECHNIQUES: PrintTechnique[] = [
 ]
 
 export function StartRunModal({ isOpen, onClose, onSuccess }: StartRunModalProps) {
-  const [poNumber, setPoNumber] = useState('PO-ZIG-8905')
-  const [styleRef, setStyleRef] = useState('STY-TS-8905')
-  const [styleName, setStyleName] = useState('Heavyweight Graphic Oversized Tee')
-  const [tableOrMachine, setTableOrMachine] = useState('Table 01 (60m Conveyor)')
+  const [poNumber, setPoNumber] = useState('PO-ZIG-8901')
+  const [styleRef, setStyleRef] = useState('ART-HD-8821')
+  const [styleName, setStyleName] = useState('Heavyweight French Terry Hoodie')
+  const [tableOrMachine, setTableOrMachine] = useState('Octopus Carousel 01 (12 Color Auto)')
   const [operatorName, setOperatorName] = useState('R. Veeramani (Master Printer)')
   const [technique, setTechnique] = useState<PrintTechnique>('PLASTISOL')
   const [pantoneCodes, setPantoneCodes] = useState('Pantone 19-4052 TCX, Pantone 11-0601 TCX')
-  const [totalPanelsIssued, setTotalPanelsIssued] = useState('2400')
-  const [curingTemp, setCuringTemp] = useState('160')
+  const [totalPanelsIssued, setTotalPanelsIssued] = useState('800')
+  const [curingTemp, setCuringTemp] = useState('162')
   const [error, setError] = useState<string | null>(null)
 
   if (!isOpen) return null
