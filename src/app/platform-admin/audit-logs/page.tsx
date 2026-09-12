@@ -4,16 +4,9 @@ import { useState } from 'react'
 import Link from 'next/link'
 import {
   ShieldCheck,
-  ChevronLeft,
   Search,
   Download,
-  Filter,
-  Lock,
-  UserCheck,
-  Key,
   AlertTriangle,
-  FileText,
-  Clock,
   CheckCircle2,
   Globe
 } from 'lucide-react'
@@ -150,93 +143,97 @@ export default function SecurityAuditLogsPage() {
 
   return (
     <PlatformAdminShell userEmail="admin@zigza.in">
-      <div className="p-4 sm:p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto select-none">
+      <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto text-[#09090b]">
         
-        {/* Navigation Breadcrumb */}
-        <div className="flex items-center justify-between gap-4">
-          <Link
-            href="/platform-admin"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs cursor-pointer"
-          >
-            <ChevronLeft className="w-3.5 h-3.5" />
-            <span>Platform Command</span>
+        {/* Layer 1: Breadcrumb Hierarchy Trail */}
+        <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
+          <Link href="/platform-admin" className="hover:text-[#3A3564] transition-colors">
+            Platform Root
           </Link>
-          <span className="text-[11px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-            Immutable Security & Infrastructure Audit Trail
-          </span>
+          <span>/</span>
+          <span>Security & Compliance</span>
+          <span>/</span>
+          <span className="font-bold text-slate-900">Security & Audit Logs</span>
         </div>
 
-        {/* Header Banner */}
-        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        {/* Layer 2: Encapsulated Top Header Card */}
+        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all">
           <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#3A3564]/10 text-[#3A3564] border border-[#3A3564]/20">
-              <ShieldCheck className="w-6 h-6" />
+            <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+              <ShieldCheck className="w-5 h-5" />
             </div>
             <div>
-              <div className="flex items-center gap-2.5 flex-wrap">
-                <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                   Security & Audit Logs
                 </h1>
-                <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 tracking-wider">
-                  SOC-2 Ready Audit Trail
+                <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs tracking-wider">
+                  SOC-2 Compliant Trail
                 </span>
               </div>
-              <p className="text-xs sm:text-sm font-medium text-slate-600 mt-1">
+              <p className="text-sm sm:text-base text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)]">
                 Real-time tracking of Root Super Admin sessions, tenant provisioning events, and cloud access security
               </p>
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={exportCSV}
-            className="px-4 py-2.5 rounded-xl bg-white border border-black/10 text-slate-700 text-xs font-mono font-bold hover:bg-slate-50 transition-all shadow-2xs inline-flex items-center gap-2 cursor-pointer shrink-0"
-          >
-            <Download className="w-4 h-4 text-slate-500" />
-            <span>Export Audit Log (CSV)</span>
-          </button>
-        </div>
-
-        {/* Search & Category Filter */}
-        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-          <div className="relative flex-1">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by event, actor, IP address, location, or details..."
-              className="w-full pl-9 pr-4 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-mono font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
-            />
-          </div>
-
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
-            {(['ALL', 'AUTH', 'PROVISIONING', 'SECURITY_ALERT', 'CONFIG_CHANGE'] as const).map(cat => {
-              const label = cat === 'ALL' ? 'All Events' : cat.replace('_', ' ')
-              const active = categoryFilter === cat
-              return (
-                <button
-                  key={cat}
-                  onClick={() => setCategoryFilter(cat)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold whitespace-nowrap transition-all cursor-pointer ${
-                    active
-                      ? 'bg-[#3A3564] text-white shadow-2xs'
-                      : 'bg-[#FAF7F0] text-slate-600 hover:text-slate-900 border border-black/10'
-                  }`}
-                >
-                  {label}
-                </button>
-              )
-            })}
+          <div className="flex items-center gap-2.5 self-end sm:self-auto">
+            <button
+              type="button"
+              onClick={exportCSV}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-slate-700 bg-white border border-black/10 hover:bg-slate-100 transition-all shadow-2xs cursor-pointer active:scale-[0.98]"
+            >
+              <Download className="w-4 h-4 text-slate-500" />
+              <span>Export Audit Trail (CSV)</span>
+            </button>
           </div>
         </div>
 
-        {/* Audit Table */}
+        {/* Layer 4 & 5: Unified Toolbar & Data Table Container */}
         <div className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden">
+          
+          {/* Layer 4: Toolbar Header */}
+          <div className="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white">
+            
+            {/* Category Filter Tabs */}
+            <div className="flex items-center gap-1.5 overflow-x-auto text-xs font-semibold pb-1 sm:pb-0">
+              {(['ALL', 'AUTH', 'PROVISIONING', 'SECURITY_ALERT', 'CONFIG_CHANGE'] as const).map(cat => {
+                const label = cat === 'ALL' ? 'All Events' : cat.replace(/_/g, ' ')
+                const active = categoryFilter === cat
+                return (
+                  <button
+                    key={cat}
+                    onClick={() => setCategoryFilter(cat)}
+                    className={`px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
+                      active
+                        ? 'bg-[#3A3564] text-white shadow-2xs font-bold'
+                        : 'text-slate-600 bg-[#FAF7F0] border border-black/5 hover:bg-black/5'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                )
+              })}
+            </div>
+
+            {/* Search Box */}
+            <div className="relative w-full sm:w-72">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search event, IP, actor, location..."
+                className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564]"
+              />
+            </div>
+          </div>
+
+          {/* Layer 5: Primary Data Table */}
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs border-collapse">
+            <table className="w-full text-left text-sm">
               <thead>
-                <tr className="bg-[#FAF7F0] border-b border-black/10 font-mono text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                <tr className="border-b border-slate-100 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0]">
                   <th className="py-3 px-4">Event ID</th>
                   <th className="py-3 px-4">Timestamp</th>
                   <th className="py-3 px-4">Actor</th>
@@ -246,62 +243,62 @@ export default function SecurityAuditLogsPage() {
                   <th className="py-3 px-4 text-right">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-black/5 font-medium text-slate-800">
+              <tbody className="divide-y divide-slate-100 text-xs">
                 {filteredLogs.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="py-8 text-center text-slate-400 font-mono text-xs">
+                    <td colSpan={7} className="py-10 text-center text-slate-400 font-mono text-xs">
                       No security audit events found matching filters.
                     </td>
                   </tr>
                 ) : (
                   filteredLogs.map(l => (
                     <tr key={l.id} className="hover:bg-slate-50 transition-colors">
-                      <td className="py-3 px-4 font-mono font-bold text-slate-700">
+                      <td className="py-3.5 px-4 font-mono font-bold text-slate-700">
                         {l.id}
                       </td>
 
-                      <td className="py-3 px-4 font-mono text-[11px] text-slate-500 whitespace-nowrap">
+                      <td className="py-3.5 px-4 font-mono text-[11px] text-slate-500 whitespace-nowrap">
                         {l.timestamp}
                       </td>
 
-                      <td className="py-3 px-4 font-mono text-[11px] font-bold text-[#3A3564]">
+                      <td className="py-3.5 px-4 font-mono text-[11px] font-bold text-[#3A3564]">
                         {l.actor}
                       </td>
 
-                      <td className="py-3 px-4 max-w-sm">
-                        <div className="font-bold text-slate-900">{l.action}</div>
-                        <div className="text-[11px] text-slate-500 font-normal truncate mt-0.5">
+                      <td className="py-3.5 px-4 max-w-sm">
+                        <div className="font-bold text-slate-900 font-[family-name:var(--font-heading)]">{l.action}</div>
+                        <div className="text-[11px] text-slate-500 font-medium font-[family-name:var(--font-public-sans)] truncate mt-0.5">
                           {l.details}
                         </div>
                       </td>
 
-                      <td className="py-3 px-4">
-                        <span className="px-2 py-0.5 rounded-md bg-slate-100 border border-slate-200 text-[10px] font-mono font-bold text-slate-700">
-                          {l.category.replace('_', ' ')}
+                      <td className="py-3.5 px-4 font-mono">
+                        <span className="px-2.5 py-0.5 rounded-full bg-[#FAF7F0] border border-black/10 text-[10px] font-bold text-slate-700">
+                          {l.category.replace(/_/g, ' ')}
                         </span>
                       </td>
 
-                      <td className="py-3 px-4 font-mono text-[11px]">
+                      <td className="py-3.5 px-4 font-mono text-[11px]">
                         <div className="font-bold text-slate-900">{l.ipAddress}</div>
-                        <div className="text-slate-500 flex items-center gap-1 text-[10px]">
+                        <div className="text-slate-500 flex items-center gap-1 text-[10px] mt-0.5">
                           <Globe className="w-3 h-3 text-slate-400" />
                           <span>{l.location}</span>
                         </div>
                       </td>
 
-                      <td className="py-3 px-4 text-right">
+                      <td className="py-3.5 px-4 text-right">
                         {l.status === 'SUCCESS' ? (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-mono font-bold uppercase border border-emerald-200">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-mono font-bold uppercase border border-emerald-200">
                             <CheckCircle2 className="w-3 h-3" />
                             Success
                           </span>
                         ) : l.status === 'WARNING' ? (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-mono font-bold uppercase border border-amber-200">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 text-[10px] font-mono font-bold uppercase border border-amber-200">
                             <AlertTriangle className="w-3 h-3" />
                             Warning
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 text-[10px] font-mono font-bold uppercase border border-rose-200">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 text-[10px] font-mono font-bold uppercase border border-rose-200">
                             Failed
                           </span>
                         )}

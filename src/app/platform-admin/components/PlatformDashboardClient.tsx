@@ -6,20 +6,16 @@ import {
   Inbox,
   Building2,
   Key,
-  Activity,
-  ShieldCheck,
+  Clock,
+  Zap,
   Search,
   Phone,
   Mail,
   CheckCircle2,
-  Clock,
-  ExternalLink,
-  Plus,
-  Zap,
-  Layers,
   Sparkles,
-  ArrowRight,
-  Filter
+  ExternalLink,
+  ChevronRight,
+  Send
 } from 'lucide-react'
 import { DemoRequestInquiry, DemoRequestStatus, PlatformMetrics } from '../types/platform'
 import {
@@ -86,31 +82,45 @@ export function PlatformDashboardClient() {
   }
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto select-none">
+    <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto text-[#09090b]">
       
-      {/* Top Banner */}
-      <div className="flex items-center justify-between gap-4 flex-wrap">
-        <div>
-          <div className="flex items-center gap-2 text-xs font-medium text-slate-500">
-            <span className="font-extrabold text-[#3A3564]">
-              Zigza Platform Super Admin
-            </span>
-            <span className="text-slate-300">/</span>
-            <span>Infrastructure & Tenant Provisioning Hub</span>
+      {/* Layer 1: Breadcrumb Hierarchy Trail */}
+      <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
+        <Link href="/platform-admin" className="hover:text-[#3A3564] transition-colors">
+          Platform Root
+        </Link>
+        <span>/</span>
+        <span>Platform Command</span>
+        <span>/</span>
+        <span className="font-bold text-slate-900">Demo Leads & Access Provisioning</span>
+      </div>
+
+      {/* Layer 2: Encapsulated Top Header Card */}
+      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all">
+        <div className="flex items-center gap-3.5">
+          <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+            <Inbox className="w-5 h-5" />
           </div>
-          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 mt-1">
-            Demo Leads & Access Provisioning
-          </h1>
-          <p className="text-xs sm:text-sm font-medium text-slate-600 mt-0.5">
-            Review incoming live demo inquiries from prospective apparel factories and grant Super Admin access to the 11-division MES
-          </p>
+          <div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
+                Demo Leads & Access Provisioning
+              </h1>
+              <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
+                {demos.length} Active Leads
+              </span>
+            </div>
+            <p className="text-sm sm:text-base text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)]">
+              Review incoming live demo inquiries from prospective apparel factories and grant Super Admin access to the 11-division MES
+            </p>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2.5 self-end sm:self-auto">
           <button
             type="button"
             onClick={openNewProvisionModal}
-            className="px-4 py-2.5 rounded-xl bg-[#3A3564] text-white text-xs font-mono font-bold hover:bg-[#2c284e] transition-all shadow-2xs inline-flex items-center gap-2 cursor-pointer"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] transition-all shadow-xs cursor-pointer active:scale-[0.98]"
           >
             <Key className="w-4 h-4" />
             <span>Provision New Factory</span>
@@ -118,211 +128,236 @@ export function PlatformDashboardClient() {
         </div>
       </div>
 
-      {/* 4 Metric KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
-              Total Demo Inquiries
-            </span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] flex items-center justify-center">
-              <Inbox className="w-4 h-4" />
+      {/* Layer 3: Executive KPI Metric Cards (Grid of 4) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
+        
+        {/* Metric 01: Total Leads */}
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
+          <div className="flex items-start justify-between gap-2">
+            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+              <Inbox className="w-5 h-5" />
             </div>
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
+              METRIC 01
+            </span>
           </div>
-          <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900">
-            {metrics.totalDemoLeads} <span className="text-sm font-normal text-slate-500">Leads</span>
+          <div className="mt-3">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
+              Total Inquiries
+            </div>
+            <div className="text-[11px] text-slate-400 font-medium">Inbound Factory Leads</div>
           </div>
-          <p className="text-[11px] font-mono text-slate-500 mt-1">
-            Submitted from introductory site
-          </p>
+          <div className="pt-2 border-t border-slate-100 flex items-baseline justify-between mt-3">
+            <div className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900">
+              {metrics.totalDemoLeads}
+            </div>
+            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+              Live Leads
+            </span>
+          </div>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
-              Pending First Review
-            </span>
-            <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center">
-              <Clock className="w-4 h-4" />
+        {/* Metric 02: Awaiting Contact */}
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
+          <div className="flex items-start justify-between gap-2">
+            <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-700 shadow-2xs">
+              <Clock className="w-5 h-5" />
             </div>
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+              METRIC 02
+            </span>
           </div>
-          <div className="text-2xl sm:text-3xl font-black font-mono text-amber-600">
-            {metrics.pendingReviewCount} <span className="text-sm font-normal text-slate-500">New</span>
+          <div className="mt-3">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
+              Awaiting Contact
+            </div>
+            <div className="text-[11px] text-slate-400 font-medium">Requires Engineer Call</div>
           </div>
-          <p className="text-[11px] font-mono text-slate-500 mt-1">
-            Awaiting WhatsApp/Call contact
-          </p>
+          <div className="pt-2 border-t border-slate-100 flex items-baseline justify-between mt-3">
+            <div className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-amber-700">
+              {metrics.pendingReviewCount}
+            </div>
+            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200">
+              Follow Up
+            </span>
+          </div>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
-              Provisioned Tenants
-            </span>
-            <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center">
-              <Building2 className="w-4 h-4" />
+        {/* Metric 03: Active Factory Tenants */}
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
+          <div className="flex items-start justify-between gap-2">
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700 shadow-2xs">
+              <Building2 className="w-5 h-5" />
             </div>
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+              METRIC 03
+            </span>
           </div>
-          <div className="text-2xl sm:text-3xl font-black font-mono text-emerald-700">
-            {metrics.provisionedFactoriesCount} <span className="text-sm font-normal text-slate-500">Plants</span>
+          <div className="mt-3">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
+              Active Factories
+            </div>
+            <div className="text-[11px] text-slate-400 font-medium">Live On-Floor MES Units</div>
           </div>
-          <p className="text-[11px] font-mono text-emerald-700 mt-1">
-            {metrics.activeTenantsCount} Currently Active on MES
-          </p>
+          <div className="pt-2 border-t border-slate-100 flex items-baseline justify-between mt-3">
+            <div className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-emerald-700">
+              {metrics.activeTenantsCount}
+            </div>
+            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+              11 Divisions
+            </span>
+          </div>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
-              Active Monthly ARR/MRR
-            </span>
-            <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-700 flex items-center justify-center">
-              <Zap className="w-4 h-4" />
+        {/* Metric 04: Contracted MRR */}
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
+          <div className="flex items-start justify-between gap-2">
+            <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-700 shadow-2xs">
+              <Zap className="w-5 h-5" />
             </div>
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+              METRIC 04
+            </span>
           </div>
-          <div className="text-2xl sm:text-3xl font-black font-mono text-indigo-700">
-            ₹{metrics.totalProjectedMrrInr.toLocaleString()}
+          <div className="mt-3">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
+              Contracted MRR
+            </div>
+            <div className="text-[11px] text-slate-400 font-medium">Recurring SaaS Billing</div>
           </div>
-          <p className="text-[11px] font-mono text-slate-500 mt-1">
-            Conversion rate: {metrics.conversionRatePercent}%
-          </p>
+          <div className="pt-2 border-t border-slate-100 flex items-baseline justify-between mt-3">
+            <div className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-blue-700 font-mono">
+              ₹{metrics.totalProjectedMrrInr.toLocaleString()}
+            </div>
+            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-blue-50 text-blue-800 border border-blue-200">
+              Monthly
+            </span>
+          </div>
         </div>
+
       </div>
 
-      {/* Filter & Search Bar */}
-      <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-        <div className="relative flex-1">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by applicant, company name, phone, email, or city..."
-            className="w-full pl-9 pr-4 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-mono font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
-          />
-        </div>
-
-        {/* Status Filter Tabs */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
-          {(['ALL', 'NEW_LEAD', 'CONTACTED', 'DEMO_SCHEDULED', 'PROVISIONED_TENANT'] as const).map(tab => {
-            const label = tab === 'ALL' ? 'All Inquiries' : tab.replace('_', ' ')
-            const active = statusFilter === tab
-            return (
-              <button
-                key={tab}
-                onClick={() => setStatusFilter(tab)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold whitespace-nowrap transition-all cursor-pointer ${
-                  active 
-                    ? 'bg-[#3A3564] text-white shadow-2xs' 
-                    : 'bg-[#FAF7F0] text-slate-600 hover:text-slate-900 border border-black/10'
-                }`}
-              >
-                {label}
-              </button>
-            )
-          })}
-        </div>
-      </div>
-
-      {/* Demo Leads Manifest Table */}
+      {/* Layer 4 & 5: Unified Toolbar & Primary Data Table Container */}
       <div className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden">
+        
+        {/* Layer 4: Toolbar Header */}
+        <div className="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white">
+          
+          {/* Status Filter Tabs */}
+          <div className="flex items-center gap-1.5 overflow-x-auto text-xs font-semibold pb-1 sm:pb-0">
+            {(['ALL', 'NEW_LEAD', 'CONTACTED', 'DEMO_SCHEDULED', 'PROVISIONED_TENANT', 'ARCHIVED'] as const).map(tab => {
+              const label = tab === 'ALL' ? 'All Leads' : tab.replace(/_/g, ' ')
+              const active = statusFilter === tab
+              return (
+                <button
+                  key={tab}
+                  onClick={() => setStatusFilter(tab)}
+                  className={`px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
+                    active
+                      ? 'bg-[#3A3564] text-white shadow-2xs font-bold'
+                      : 'text-slate-600 bg-[#FAF7F0] border border-black/5 hover:bg-black/5'
+                  }`}
+                >
+                  {label}
+                </button>
+              )
+            })}
+          </div>
+
+          {/* Search Box */}
+          <div className="relative w-full sm:w-72">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              placeholder="Search leads, plant, email, phone..."
+              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564]"
+            />
+          </div>
+        </div>
+
+        {/* Layer 5: Primary Data Table */}
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse">
+          <table className="w-full text-left text-sm">
             <thead>
-              <tr className="bg-[#FAF7F0] border-b border-black/10 font-mono text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+              <tr className="border-b border-slate-100 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0]">
                 <th className="py-3 px-4">Applicant & Company</th>
                 <th className="py-3 px-4">Contact Channels</th>
-                <th className="py-3 px-4">Location & Plant Size</th>
+                <th className="py-3 px-4">Plant Location</th>
                 <th className="py-3 px-4">Requested Plan</th>
-                <th className="py-3 px-4">Submission Time</th>
-                <th className="py-3 px-4">Inquiry Status</th>
-                <th className="py-3 px-4 text-right">Infrastructure Action</th>
+                <th className="py-3 px-4">Status</th>
+                <th className="py-3 px-4">Submission Date</th>
+                <th className="py-3 px-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-black/5 font-medium text-slate-800">
+            <tbody className="divide-y divide-slate-100 text-xs">
               {filteredDemos.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-8 text-center text-slate-400 font-mono text-xs">
-                    No demo request inquiries match your search filter.
+                  <td colSpan={7} className="py-10 text-center text-slate-400 font-mono text-xs">
+                    No demo requests found matching the selected filter.
                   </td>
                 </tr>
               ) : (
-                filteredDemos.map(d => {
-                  const cleanPhone = d.phone.replace(/[^0-9]/g, '')
-                  const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(`Hi ${d.applicantName}, this is Sumit from Zigza MES regarding your live demo request for ${d.companyName}.`)}`
-                  const isProvisioned = d.status === 'PROVISIONED_TENANT'
+                filteredDemos.map((item) => {
+                  const whatsappCleanPhone = item.phone.replace(/[^0-9]/g, '')
+                  const whatsappMsg = `Hi ${item.applicantName}, I am reaching out from Zigza MES regarding your live demo request for ${item.companyName}. When would be a good time for a 20-minute floor walkthrough?`
+                  const whatsappUrl = `https://wa.me/${whatsappCleanPhone}?text=${encodeURIComponent(whatsappMsg)}`
 
                   return (
-                    <tr key={d.id} className="hover:bg-slate-50 transition-colors">
-                      <td className="py-3 px-4">
-                        <div className="font-bold text-slate-900 text-sm">
-                          {d.companyName}
+                    <tr key={item.id} className="hover:bg-slate-50 transition-colors">
+                      
+                      {/* Company & Applicant */}
+                      <td className="py-3.5 px-4">
+                        <div className="font-bold text-slate-900 text-sm font-[family-name:var(--font-heading)]">
+                          {item.companyName}
                         </div>
-                        <div className="text-[11px] font-mono text-slate-500">
-                          Contact: {d.applicantName}
+                        <div className="text-xs text-slate-600 font-medium font-[family-name:var(--font-public-sans)] mt-0.5">
+                          {item.applicantName}
                         </div>
                       </td>
 
-                      <td className="py-3 px-4 font-mono text-[11px]">
-                        <div className="flex items-center gap-1.5 text-slate-900 font-bold">
-                          <a
-                            href={waUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-emerald-700 hover:underline inline-flex items-center gap-1"
-                            title="Chat on WhatsApp"
-                          >
-                            <Phone className="w-3 h-3 text-emerald-600" />
-                            <span>{d.phone}</span>
-                          </a>
+                      {/* Contact Info */}
+                      <td className="py-3.5 px-4 font-mono text-[11px]">
+                        <div className="flex items-center gap-1.5 text-slate-800 font-bold">
+                          <Phone className="w-3 h-3 text-[#3A3564]" />
+                          <span>{item.phone}</span>
                         </div>
-                        <div className="text-slate-500 flex items-center gap-1 mt-0.5">
+                        <div className="flex items-center gap-1.5 text-slate-500 mt-0.5">
                           <Mail className="w-3 h-3 text-slate-400" />
-                          <span>{d.email}</span>
+                          <span className="truncate max-w-[160px]">{item.email}</span>
                         </div>
                       </td>
 
-                      <td className="py-3 px-4">
-                        <div className="font-medium text-slate-800">
-                          {d.cityState || 'India'}
-                        </div>
-                        {d.estimatedMachines && (
-                          <div className="text-[10px] font-mono text-slate-500">
-                            ~{d.estimatedMachines} Machines
-                          </div>
-                        )}
-                      </td>
-
-                      <td className="py-3 px-4">
-                        <span className={`px-2.5 py-0.5 rounded-full font-mono text-[10px] font-bold uppercase border ${
-                          d.preferredPlan === 'FULL_PLANT_AI'
-                            ? 'bg-[#3A3564]/10 text-[#3A3564] border-[#3A3564]/20'
-                            : d.preferredPlan === 'MODULAR'
-                            ? 'bg-blue-50 text-blue-700 border-blue-200'
-                            : 'bg-purple-50 text-purple-700 border-purple-200'
-                        }`}>
-                          {d.preferredPlan.replace(/_/g, ' ')}
+                      {/* City & State */}
+                      <td className="py-3.5 px-4">
+                        <span className="text-slate-700 font-medium">
+                          {item.cityState || 'India'}
                         </span>
                       </td>
 
-                      <td className="py-3 px-4 font-mono text-[11px] text-slate-500">
-                        {new Date(d.submittedAt).toLocaleDateString()} • {new Date(d.submittedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      {/* Preferred Plan */}
+                      <td className="py-3.5 px-4 font-mono">
+                        <span className="font-bold text-[#3A3564]">
+                          {item.preferredPlan ? item.preferredPlan.replace(/_/g, ' ') : 'FULL PLANT AI'}
+                        </span>
                       </td>
 
-                      <td className="py-3 px-4">
+                      {/* Status Dropdown */}
+                      <td className="py-3.5 px-4">
                         <select
-                          value={d.status}
-                          onChange={(e) => handleStatusChange(d.id, e.target.value as DemoRequestStatus)}
-                          className={`px-2.5 py-1 rounded-lg text-[11px] font-mono font-bold border cursor-pointer ${
-                            d.status === 'NEW_LEAD'
-                              ? 'bg-amber-50 text-amber-800 border-amber-200'
-                              : d.status === 'CONTACTED'
-                              ? 'bg-blue-50 text-blue-800 border-blue-200'
-                              : d.status === 'DEMO_SCHEDULED'
-                              ? 'bg-purple-50 text-purple-800 border-purple-200'
-                              : d.status === 'PROVISIONED_TENANT'
-                              ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                              : 'bg-slate-100 text-slate-600 border-slate-200'
+                          value={item.status}
+                          onChange={(e) => handleStatusChange(item.id, e.target.value as DemoRequestStatus)}
+                          className={`text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-1 rounded-full border cursor-pointer outline-none ${
+                            item.status === 'NEW_LEAD'
+                              ? 'bg-indigo-50 text-[#3A3564] border-indigo-200'
+                              : item.status === 'CONTACTED'
+                              ? 'bg-blue-50 text-blue-700 border-blue-200'
+                              : item.status === 'DEMO_SCHEDULED'
+                              ? 'bg-amber-50 text-amber-700 border-amber-200'
+                              : item.status === 'PROVISIONED_TENANT'
+                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                              : 'bg-slate-100 text-slate-700 border-slate-200'
                           }`}
                         >
                           <option value="NEW_LEAD">New Lead</option>
@@ -333,22 +368,35 @@ export function PlatformDashboardClient() {
                         </select>
                       </td>
 
-                      <td className="py-3 px-4 text-right">
-                        {!isProvisioned ? (
-                          <button
-                            onClick={() => openProvisionModal(d)}
-                            className="px-3.5 py-1.5 rounded-xl bg-[#3A3564] hover:bg-[#2c284e] text-white text-xs font-mono font-bold transition-all shadow-2xs cursor-pointer inline-flex items-center gap-1.5"
-                          >
-                            <Key className="w-3.5 h-3.5" />
-                            <span>Provision Super Admin</span>
-                          </button>
-                        ) : (
-                          <span className="text-[11px] font-mono font-bold text-emerald-700 inline-flex items-center gap-1">
-                            <CheckCircle2 className="w-3.5 h-3.5" />
-                            <span>Live Tenant ({d.provisionedTenantId || 'Active'})</span>
-                          </span>
-                        )}
+                      {/* Submitted At */}
+                      <td className="py-3.5 px-4 font-mono text-[11px] text-slate-500 whitespace-nowrap">
+                        {new Date(item.submittedAt).toLocaleDateString()}
                       </td>
+
+                      {/* Actions */}
+                      <td className="py-3.5 px-4 text-right">
+                        <div className="flex items-center justify-end gap-1.5">
+                          <a
+                            href={whatsappUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title="Chat via WhatsApp"
+                            className="p-1.5 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 transition-colors cursor-pointer shadow-2xs"
+                          >
+                            <Phone className="w-3.5 h-3.5" />
+                          </a>
+
+                          <button
+                            type="button"
+                            onClick={() => openProvisionModal(item)}
+                            className="px-2.5 py-1.5 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-[11px] font-mono font-bold transition-all shadow-xs inline-flex items-center gap-1 cursor-pointer active:scale-[0.98]"
+                          >
+                            <Key className="w-3 h-3" />
+                            <span>Provision</span>
+                          </button>
+                        </div>
+                      </td>
+
                     </tr>
                   )
                 })
@@ -356,9 +404,10 @@ export function PlatformDashboardClient() {
             </tbody>
           </table>
         </div>
+
       </div>
 
-      {/* Modal */}
+      {/* Provisioning Modal */}
       <ProvisionTenantModal
         isOpen={isProvisionModalOpen}
         onClose={() => setIsProvisionModalOpen(false)}

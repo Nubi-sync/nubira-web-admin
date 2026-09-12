@@ -12,8 +12,6 @@ import {
   User,
   LogOut,
   X,
-  Sparkles,
-  Server,
   Layers,
   ChevronRight,
   ExternalLink
@@ -80,7 +78,7 @@ export function PlatformAdminSidebar({
     }
     leaveTimerRef.current = setTimeout(() => {
       setIsHovered(false)
-    }, 280)
+    }, 250)
   }
 
   useEffect(() => {
@@ -109,7 +107,7 @@ export function PlatformAdminSidebar({
         prefetch={true}
         onClick={() => onMobileClose?.()}
         title={!isExpanded ? item.label : undefined}
-        className={`relative flex items-center rounded-xl text-sm outline-none transition-all duration-200 cursor-pointer ${
+        className={`relative flex items-center rounded-xl text-sm outline-none transition-all duration-150 cursor-pointer ${
           isExpanded
             ? 'px-3 py-2.5 justify-between w-full'
             : 'w-10 h-10 mx-auto justify-center'
@@ -126,17 +124,19 @@ export function PlatformAdminSidebar({
             } ${isExpanded ? 'w-4 h-4 mr-3' : 'w-5 h-5'}`}
           />
           {isExpanded && (
-            <span className="truncate text-xs font-mono font-bold tracking-tight">
+            <span className={`truncate text-xs tracking-tight font-[family-name:var(--font-public-sans)] ${
+              isActive ? 'font-bold text-[#3A3564]' : 'font-medium text-slate-700'
+            }`}>
               {item.label}
             </span>
           )}
         </div>
 
         {isExpanded && item.badge && (
-          <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full border shrink-0 ${
+          <span className={`text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full border shrink-0 ${
             isActive 
               ? 'bg-[#3A3564] text-white border-[#3A3564]' 
-              : 'bg-emerald-50 text-emerald-800 border-emerald-200'
+              : 'bg-emerald-50 text-emerald-700 border-emerald-200'
           }`}>
             {item.badge}
           </span>
@@ -154,21 +154,21 @@ export function PlatformAdminSidebar({
         className={`hidden lg:flex fixed top-0 left-0 z-40 h-screen bg-white border-r border-black/10 flex-col justify-between shadow-2xs select-none ${
           isHovered
             ? 'w-[260px] duration-200 ease-out'
-            : 'w-[72px] duration-500 ease-in-out'
+            : 'w-[72px] duration-300 ease-in-out'
         }`}
       >
         {/* Top Branding */}
         <div>
-          <div className="p-4 pb-3 flex items-center justify-between border-b border-black/5 min-h-[64px]">
+          <div className="p-4 pb-3 flex items-center justify-between border-b border-black/10 min-h-[64px]">
             <Link href="/platform-admin" className="flex items-center gap-2.5 overflow-hidden">
               <img
                 src="/z i g z a (2).png"
                 alt="zigza."
-                className="h-8 w-auto object-contain rounded-lg shrink-0 shadow-2xs"
+                className="h-8 w-auto object-contain rounded-xl shrink-0 shadow-2xs"
               />
             </Link>
             {isHovered && (
-              <span className="text-[10px] font-mono font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#3A3564] text-white animate-in fade-in duration-150 shrink-0">
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#3A3564] text-white animate-in fade-in duration-150 shrink-0 shadow-2xs">
                 ROOT ADMIN
               </span>
             )}
@@ -192,21 +192,21 @@ export function PlatformAdminSidebar({
         </div>
 
         {/* Bottom Root Profile & Sign Out */}
-        <div className="p-3 border-t border-black/10 bg-[#FAF7F0]/60 flex items-center justify-between gap-2">
+        <div className="p-3 border-t border-black/10 bg-[#FAF7F0] flex items-center justify-between gap-2">
           <Link
             href="/platform-admin/profile"
             className="flex items-center gap-2.5 min-w-0 flex-1 group"
           >
-            <div className="w-8 h-8 rounded-lg bg-[#3A3564] text-white flex items-center justify-center text-xs font-black font-mono shrink-0 shadow-xs">
+            <div className="w-8 h-8 rounded-xl bg-[#3A3564] text-white flex items-center justify-center text-xs font-bold font-mono shrink-0 shadow-2xs">
               RA
             </div>
             {isHovered && (
               <div className="flex flex-col min-w-0 flex-1 animate-in fade-in duration-150">
-                <span className="text-xs font-bold text-slate-900 truncate">
+                <span className="text-xs font-bold text-slate-900 truncate font-[family-name:var(--font-public-sans)]">
                   {userEmail}
                 </span>
                 <span className="text-[10px] font-mono text-[#3A3564] font-bold">
-                  Platform SuperAdmin ↗
+                  Root SuperAdmin ↗
                 </span>
               </div>
             )}
@@ -245,11 +245,11 @@ export function PlatformAdminSidebar({
               <img
                 src="/z i g z a (2).png"
                 alt="zigza."
-                className="h-8 w-auto object-contain rounded-lg shadow-2xs"
+                className="h-8 w-auto object-contain rounded-xl shadow-2xs"
               />
             </Link>
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono font-black uppercase px-2 py-0.5 rounded-full bg-[#3A3564] text-white">
+              <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#3A3564] text-white">
                 ROOT
               </span>
               <button
@@ -278,11 +278,11 @@ export function PlatformAdminSidebar({
 
         <div className="p-4 border-t border-black/10 bg-[#FAF7F0] flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5 min-w-0 flex-1">
-            <div className="w-8 h-8 rounded-lg bg-[#3A3564] text-white flex items-center justify-center text-xs font-black font-mono shrink-0">
+            <div className="w-8 h-8 rounded-xl bg-[#3A3564] text-white flex items-center justify-center text-xs font-bold font-mono shrink-0 shadow-2xs">
               RA
             </div>
             <div className="flex flex-col min-w-0">
-              <span className="text-xs font-bold text-slate-900 truncate">
+              <span className="text-xs font-bold text-slate-900 truncate font-[family-name:var(--font-public-sans)]">
                 {userEmail}
               </span>
               <span className="text-[10px] font-mono text-[#3A3564] font-bold">
