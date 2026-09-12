@@ -12,6 +12,8 @@ import {
 } from 'lucide-react'
 import { IronDashboardClient } from './components/IronDashboardClient'
 
+import { fetchIronDashboardDataAction } from './actions'
+
 export const dynamic = 'force-dynamic'
 
 export default async function IronDashboardPage() {
@@ -25,11 +27,14 @@ export default async function IronDashboardPage() {
     redirect('/login')
   }
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('id, username, role')
-    .eq('id', user.id)
-    .single()
+  const [{ data: profile }, liveData] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('id, username, role')
+      .eq('id', user.id)
+      .single(),
+    fetchIronDashboardDataAction()
+  ])
 
   return (
     <AdminShell userEmail={user.email} userRole={profile?.role}>
@@ -89,7 +94,11 @@ export default async function IronDashboardPage() {
         </div>
 
         {/* Dashboard Client Component */}
-        <IronDashboardClient />
+        <IronDashboardClient
+          initialTables={liveData.tables}
+          initialLogs={liveData.logs}
+          initialQcAudits={liveData.qcAudits}
+        />
 
       </div>
     </AdminShell>

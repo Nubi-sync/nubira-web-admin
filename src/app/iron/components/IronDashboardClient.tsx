@@ -35,19 +35,32 @@ import {
   IRON_UPDATE_EVENT,
 } from '../utils/ironStorage'
 
-export function IronDashboardClient() {
-  const [tables, setTables] = useState<IronTable[]>([])
-  const [logs, setLogs] = useState<IronProductionLog[]>([])
+interface IronDashboardClientProps {
+  initialTables?: IronTable[]
+  initialLogs?: IronProductionLog[]
+  initialQcAudits?: FinishQcAudit[]
+}
+
+export function IronDashboardClient({
+  initialTables,
+  initialLogs,
+  initialQcAudits
+}: IronDashboardClientProps = {}) {
+  const [tables, setTables] = useState<IronTable[]>(initialTables && initialTables.length > 0 ? initialTables : [])
+  const [logs, setLogs] = useState<IronProductionLog[]>(initialLogs && initialLogs.length > 0 ? initialLogs : [])
   const [boilerLogs, setBoilerLogs] = useState<BoilerTelemetryLog[]>([])
-  const [qcAudits, setQcAudits] = useState<FinishQcAudit[]>([])
+  const [qcAudits, setQcAudits] = useState<FinishQcAudit[]>(initialQcAudits && initialQcAudits.length > 0 ? initialQcAudits : [])
   const [handovers, setPackingHandovers] = useState<PackingHandover[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
   function loadData() {
-    setTables(getIronTables())
-    setLogs(getIronProductionLogs())
+    const localTables = getIronTables()
+    setTables(initialTables && initialTables.length > 0 ? initialTables : localTables)
+    const localLogs = getIronProductionLogs()
+    setLogs(initialLogs && initialLogs.length > 0 ? initialLogs : localLogs)
     setBoilerLogs(getBoilerLogs())
-    setQcAudits(getFinishQcAudits())
+    const localQc = getFinishQcAudits()
+    setQcAudits(initialQcAudits && initialQcAudits.length > 0 ? initialQcAudits : localQc)
     setPackingHandovers(getPackingHandovers())
     setIsLoading(false)
   }
@@ -57,7 +70,7 @@ export function IronDashboardClient() {
     const handleUpdate = () => loadData()
     window.addEventListener(IRON_UPDATE_EVENT, handleUpdate)
     return () => window.removeEventListener(IRON_UPDATE_EVENT, handleUpdate)
-  }, [])
+  }, [initialTables, initialLogs, initialQcAudits])
 
   // KPI Calculations
   const activeTablesCount = tables.filter(t => t.status === 'ACTIVE').length
