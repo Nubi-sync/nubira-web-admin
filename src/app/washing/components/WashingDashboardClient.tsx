@@ -37,20 +37,33 @@ import {
   updateBatchStatus,
 } from '../utils/washingStorage'
 
-export function WashingDashboardClient() {
-  const [batches, setBatches] = useState<WashBatch[]>([])
+interface WashingDashboardClientProps {
+  initialBatches?: WashBatch[]
+  initialRecipes?: WashRecipe[]
+  initialShrinkageQc?: ShrinkageQcRecord[]
+}
+
+export function WashingDashboardClient({
+  initialBatches,
+  initialRecipes,
+  initialShrinkageQc
+}: WashingDashboardClientProps = {}) {
+  const [batches, setBatches] = useState<WashBatch[]>(initialBatches && initialBatches.length > 0 ? initialBatches : [])
   const [machines, setMachines] = useState<WasherMachine[]>([])
-  const [recipes, setRecipes] = useState<WashRecipe[]>([])
+  const [recipes, setRecipes] = useState<WashRecipe[]>(initialRecipes && initialRecipes.length > 0 ? initialRecipes : [])
   const [waterAudits, setWaterAudits] = useState<WaterAuditLog[]>([])
-  const [shrinkageQc, setShrinkageQc] = useState<ShrinkageQcRecord[]>([])
+  const [shrinkageQc, setShrinkageQc] = useState<ShrinkageQcRecord[]>(initialShrinkageQc && initialShrinkageQc.length > 0 ? initialShrinkageQc : [])
   const [isLoading, setIsLoading] = useState(true)
 
   function loadAllData() {
-    setBatches(getWashBatches())
+    const localBatches = getWashBatches()
+    setBatches(initialBatches && initialBatches.length > 0 ? initialBatches : localBatches)
     setMachines(getWasherMachines())
-    setRecipes(getWashRecipes())
+    const localRecipes = getWashRecipes()
+    setRecipes(initialRecipes && initialRecipes.length > 0 ? initialRecipes : localRecipes)
     setWaterAudits(getWaterAuditLogs())
-    setShrinkageQc(getShrinkageQcRecords())
+    const localShrinkage = getShrinkageQcRecords()
+    setShrinkageQc(initialShrinkageQc && initialShrinkageQc.length > 0 ? initialShrinkageQc : localShrinkage)
     setIsLoading(false)
   }
 
@@ -59,7 +72,7 @@ export function WashingDashboardClient() {
     const handleUpdate = () => loadAllData()
     window.addEventListener(WASHING_UPDATE_EVENT, handleUpdate)
     return () => window.removeEventListener(WASHING_UPDATE_EVENT, handleUpdate)
-  }, [])
+  }, [initialBatches, initialRecipes, initialShrinkageQc])
 
   // KPI Calculations
   const runningWashers = machines.filter(m => m.type === 'WASHER' && m.status === 'RUNNING').length

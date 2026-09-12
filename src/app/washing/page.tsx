@@ -13,6 +13,8 @@ import {
 } from 'lucide-react'
 import { WashingDashboardClient } from './components/WashingDashboardClient'
 
+import { fetchWashingDashboardDataAction } from './actions'
+
 export const dynamic = 'force-dynamic'
 
 export default async function WashingDashboardPage() {
@@ -26,11 +28,14 @@ export default async function WashingDashboardPage() {
     redirect('/login')
   }
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('id, username, role')
-    .eq('id', user.id)
-    .single()
+  const [{ data: profile }, liveData] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('id, username, role')
+      .eq('id', user.id)
+      .single(),
+    fetchWashingDashboardDataAction()
+  ])
 
   return (
     <AdminShell userEmail={user.email} userRole={profile?.role}>
@@ -90,7 +95,11 @@ export default async function WashingDashboardPage() {
         </div>
 
         {/* Dashboard Client Area */}
-        <WashingDashboardClient />
+        <WashingDashboardClient
+          initialBatches={liveData.batches}
+          initialRecipes={liveData.recipes}
+          initialShrinkageQc={liveData.shrinkageQc}
+        />
 
       </div>
     </AdminShell>
