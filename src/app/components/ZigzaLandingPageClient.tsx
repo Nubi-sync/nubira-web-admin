@@ -38,6 +38,7 @@ import {
   Zap,
   Building2
 } from 'lucide-react'
+import { saveDemoRequest } from '../platform-admin/utils/platformStorage'
 
 function IndiaFlag({ className = "w-5 h-3.5" }: { className?: string }) {
   return (
@@ -114,6 +115,20 @@ export function ZigzaLandingPageClient({
   const handleDemoSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitted(true)
+
+    // Persist live lead to Platform SuperAdmin reactive storage
+    try {
+      saveDemoRequest({
+        applicantName: demoForm.ownerName.trim() || 'Prospective Plant Head',
+        companyName: demoForm.companyName.trim() || 'Apparel Factory Unit',
+        phone: demoForm.phone.trim() || '+91 98000 00000',
+        email: demoForm.email.trim() || 'inquiry@factory.com',
+        preferredPlan: 'FULL_PLANT_AI',
+        cityState: 'India (Landing Page Inquiry)'
+      })
+    } catch (err) {
+      console.warn('Could not persist demo request to platform storage:', err)
+    }
 
     const subject = `Zigza Live Demo Request - ${demoForm.companyName || 'New Factory'}`
     const body = `Hi Sumit,
@@ -1306,6 +1321,40 @@ ${demoForm.ownerName}`
             <p className="text-base sm:text-lg text-slate-600 mt-4 leading-relaxed max-w-2xl mx-auto">
               From modular floor units to complete synchronized AI operations and bespoke machine engineering.
             </p>
+          </div>
+
+          {/* Prominent Live Demo Request Banner near Subscription Boxes */}
+          <div className="mb-10 p-5 sm:p-6 rounded-2xl bg-[#FAF7F0] border border-[#3A3564]/20 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-5">
+            <div className="flex items-center gap-4 text-center sm:text-left">
+              <div className="w-12 h-12 rounded-xl bg-[#3A3564] text-white flex items-center justify-center shrink-0 shadow-2xs">
+                <Sparkles className="w-6 h-6 stroke-[2]" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 justify-center sm:justify-start flex-wrap">
+                  <h3 className="text-base sm:text-lg font-bold text-slate-900">
+                    Need a Live Walkthrough with Your Plant Data?
+                  </h3>
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-[#3A3564] text-white">
+                    20-Min Session
+                  </span>
+                </div>
+                <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
+                  See how all 11 production divisions map directly to your fabric rolls, cutting tables, and operator wage ledgers.
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                setDemoForm(prev => ({ ...prev, companyName: prev.companyName || '' }))
+                setIsDemoModalOpen(true)
+              }}
+              className="px-6 py-3.5 rounded-xl bg-[#3A3564] hover:bg-[#2c284e] text-white text-xs sm:text-sm font-bold transition-all shadow-xs inline-flex items-center gap-2 cursor-pointer shrink-0"
+            >
+              <span>Request for a Live Demo</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
           </div>
 
           {/* 3 Clean & Spacious Pricing Cards Grid */}
