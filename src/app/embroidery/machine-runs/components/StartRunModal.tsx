@@ -17,11 +17,11 @@ export function StartRunModal({ isOpen, onClose }: StartRunModalProps) {
   const designs = getEmbroideryDesigns()
 
   const [machineNumber, setMachineNumber] = useState('Machine 05 (20-Head Tajima)')
-  const [operatorName, setOperatorName] = useState('Dinesh Kumar')
+  const [operatorName, setOperatorName] = useState('P. Murugesan (Senior Embroidery Master)')
   const [selectedDesignId, setSelectedDesignId] = useState(designs[0]?.id || '')
-  const [orderPo, setOrderPo] = useState(designs[0]?.order_id || 'PO-2026-ZARA-01')
-  const [panelsLoaded, setPanelsLoaded] = useState(1000)
-  const [rpmSpeed, setRpmSpeed] = useState(880)
+  const [orderPo, setOrderPo] = useState(designs[0]?.order_id || 'PO-ZIG-8901')
+  const [panelsLoaded, setPanelsLoaded] = useState(25)
+  const [rpmSpeed, setRpmSpeed] = useState(850)
   const [backingSpec, setBackingSpec] = useState('Tear-Away 40 GSM (Double Layer)')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -35,11 +35,11 @@ export function StartRunModal({ isOpen, onClose }: StartRunModalProps) {
 
     const newRun: EmbroideryMachineRun = {
       id: `run-emb-${Date.now()}`,
-      run_number: `RUN-EMB-2026-${Math.floor(100 + Math.random() * 900)}`,
+      run_number: `EMB-RUN-2026-${Math.floor(100 + Math.random() * 900)}`,
       machine_number: machineNumber,
       operator_name: operatorName,
-      design_id: selectedDesign?.id || 'emb-des-001',
-      design_code: selectedDesign?.design_code || 'DST-ZARA-04',
+      design_id: selectedDesign?.id || 'emb-des-0842',
+      design_code: selectedDesign?.design_code || 'DST-OLLY-HD8821-CHEST',
       order_po: orderPo,
       panels_loaded: Number(panelsLoaded),
       panels_completed: 0,

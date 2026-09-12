@@ -20,11 +20,11 @@ export function CompleteRunModal({
   activeRun,
 }: CompleteRunModalProps) {
   const [machineNumber, setMachineNumber] = useState(activeRun?.machine_number || 'Machine 01 (20-Head Tajima)')
-  const [operatorName, setOperatorName] = useState(activeRun?.operator_name || 'Kavitha Ramanathan')
-  const [designCode, setDesignCode] = useState(activeRun?.design_code || 'DST-ZARA-CREST-04')
-  const [panelsCompleted, setPanelsCompleted] = useState(activeRun?.panels_completed || 960)
-  const [threadBreaks, setThreadBreaks] = useState(activeRun?.thread_breaks_count || 2)
-  const [totalStitchesRun, setTotalStitchesRun] = useState(activeRun?.total_stitches_run || 17712000)
+  const [operatorName, setOperatorName] = useState(activeRun?.operator_name || 'P. Murugesan (Senior Embroidery Master)')
+  const [designCode, setDesignCode] = useState(activeRun?.design_code || 'DST-OLLY-HD8821-CHEST')
+  const [panelsCompleted, setPanelsCompleted] = useState(activeRun?.panels_completed || 25)
+  const [threadBreaks, setThreadBreaks] = useState(activeRun?.thread_breaks_count || 1)
+  const [totalStitchesRun, setTotalStitchesRun] = useState(activeRun?.total_stitches_run || 448000)
   const [runStatus, setRunStatus] = useState<EmbroideryRunStatus>('COMPLETED')
   const [isSubmitting, setIsSubmitting] = useState(false)
 

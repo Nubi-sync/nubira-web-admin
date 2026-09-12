@@ -29,21 +29,80 @@ import {
 } from '../utils/embroideryStorage'
 import { EmbroideryMachineRun, EmbroideryDesign } from '../types/embroidery'
 
-export function EmbroideryDashboardClient() {
-  const [runs, setRuns] = useState<EmbroideryMachineRun[]>([])
-  const [designs, setDesigns] = useState<EmbroideryDesign[]>([])
+interface EmbroideryDashboardClientProps {
+  userEmail?: string
+  liveKpis?: any
+  initialRuns?: EmbroideryMachineRun[]
+  initialDesigns?: EmbroideryDesign[]
+  initialAudits?: any[]
+  initialCones?: any[]
+}
+
+export function EmbroideryDashboardClient({
+  userEmail,
+  liveKpis,
+  initialRuns,
+  initialDesigns,
+  initialAudits,
+  initialCones
+}: EmbroideryDashboardClientProps = {}) {
+  const [runs, setRuns] = useState<EmbroideryMachineRun[]>(() => {
+    if (initialRuns && initialRuns.length > 0) return initialRuns
+    return []
+  })
+  const [designs, setDesigns] = useState<EmbroideryDesign[]>(() => {
+    if (initialDesigns && initialDesigns.length > 0) return initialDesigns
+    return []
+  })
   const [searchFilter, setSearchFilter] = useState('')
 
   function loadData() {
-    setRuns(getMachineRuns())
-    setDesigns(getEmbroideryDesigns())
+    if (initialRuns && initialRuns.length > 0) {
+      setRuns(initialRuns)
+    } else {
+      setRuns(getMachineRuns())
+    }
+    if (initialDesigns && initialDesigns.length > 0) {
+      setDesigns(initialDesigns)
+    } else {
+      setDesigns(getEmbroideryDesigns())
+    }
   }
 
   useEffect(() => {
-    loadData()
+    if (initialRuns && initialRuns.length > 0) {
+      setRuns(initialRuns)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('zigza_embroidery_runs_v2', JSON.stringify(initialRuns))
+      }
+    } else {
+      setRuns(getMachineRuns())
+    }
+
+    if (initialDesigns && initialDesigns.length > 0) {
+      setDesigns(initialDesigns)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('zigza_embroidery_designs_v2', JSON.stringify(initialDesigns))
+      }
+    } else {
+      setDesigns(getEmbroideryDesigns())
+    }
+
+    if (initialAudits && initialAudits.length > 0) {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('zigza_embroidery_qc_v2', JSON.stringify(initialAudits))
+      }
+    }
+
+    if (initialCones && initialCones.length > 0) {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('zigza_embroidery_cones_v2', JSON.stringify(initialCones))
+      }
+    }
+
     window.addEventListener(EMBROIDERY_UPDATE_EVENT, loadData)
     return () => window.removeEventListener(EMBROIDERY_UPDATE_EVENT, loadData)
-  }, [])
+  }, [initialRuns, initialDesigns, initialAudits, initialCones])
 
   // Calculations
   const totalStitchesToday = runs.reduce((acc, r) => acc + (r.total_stitches_run || 0), 0)

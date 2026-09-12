@@ -24,22 +24,40 @@ import { EmbroideryMachineRun, EmbroideryRunStatus } from '../../types/embroider
 import { CompleteRunModal } from './CompleteRunModal'
 import { StartRunModal } from './StartRunModal'
 
-export function MachineRunsClient() {
-  const [runs, setRuns] = useState<EmbroideryMachineRun[]>([])
+interface MachineRunsClientProps {
+  initialRuns?: EmbroideryMachineRun[]
+}
+
+export function MachineRunsClient({ initialRuns }: MachineRunsClientProps = {}) {
+  const [runs, setRuns] = useState<EmbroideryMachineRun[]>(() => {
+    if (initialRuns && initialRuns.length > 0) return initialRuns
+    return []
+  })
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('ALL')
   const [isStartOpen, setIsStartOpen] = useState(false)
   const [activeRunToComplete, setActiveRunToComplete] = useState<EmbroideryMachineRun | null>(null)
 
   function loadRuns() {
-    setRuns(getMachineRuns())
+    if (initialRuns && initialRuns.length > 0) {
+      setRuns(initialRuns)
+    } else {
+      setRuns(getMachineRuns())
+    }
   }
 
   useEffect(() => {
-    loadRuns()
+    if (initialRuns && initialRuns.length > 0) {
+      setRuns(initialRuns)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('zigza_embroidery_runs_v2', JSON.stringify(initialRuns))
+      }
+    } else {
+      setRuns(getMachineRuns())
+    }
     window.addEventListener(EMBROIDERY_UPDATE_EVENT, loadRuns)
     return () => window.removeEventListener(EMBROIDERY_UPDATE_EVENT, loadRuns)
-  }, [])
+  }, [initialRuns])
 
   const filteredRuns = runs.filter(run => {
     const matchesSearch =

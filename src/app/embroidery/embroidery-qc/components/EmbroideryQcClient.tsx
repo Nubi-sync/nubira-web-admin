@@ -20,21 +20,39 @@ import {
 import { EmbroideryQcAudit } from '../../types/embroidery'
 import { LogThreadBreakModal } from './LogThreadBreakModal'
 
-export function EmbroideryQcClient() {
-  const [audits, setAudits] = useState<EmbroideryQcAudit[]>([])
+interface EmbroideryQcClientProps {
+  initialAudits?: EmbroideryQcAudit[]
+}
+
+export function EmbroideryQcClient({ initialAudits }: EmbroideryQcClientProps = {}) {
+  const [audits, setAudits] = useState<EmbroideryQcAudit[]>(() => {
+    if (initialAudits && initialAudits.length > 0) return initialAudits
+    return []
+  })
   const [searchTerm, setSearchTerm] = useState('')
   const [severityFilter, setSeverityFilter] = useState('ALL')
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   function loadAudits() {
-    setAudits(getQcAudits())
+    if (initialAudits && initialAudits.length > 0) {
+      setAudits(initialAudits)
+    } else {
+      setAudits(getQcAudits())
+    }
   }
 
   useEffect(() => {
-    loadAudits()
+    if (initialAudits && initialAudits.length > 0) {
+      setAudits(initialAudits)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('zigza_embroidery_qc_v2', JSON.stringify(initialAudits))
+      }
+    } else {
+      setAudits(getQcAudits())
+    }
     window.addEventListener(EMBROIDERY_UPDATE_EVENT, loadAudits)
     return () => window.removeEventListener(EMBROIDERY_UPDATE_EVENT, loadAudits)
-  }, [])
+  }, [initialAudits])
 
   const filteredAudits = audits.filter(a => {
     const matchesSearch =

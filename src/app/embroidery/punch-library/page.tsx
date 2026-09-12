@@ -2,10 +2,11 @@ import { AdminShell } from '@/components/layout/AdminShell'
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { PunchLibraryClient } from './components/PunchLibraryClient'
+import { fetchEmbroideryDesignsAction } from '../actions'
 
 export const dynamic = 'force-dynamic'
 
-export default async function EmbroideryPunchLibraryPage() {
+export default async function PunchLibraryPage() {
   const supabase = await createClient()
 
   const {
@@ -22,9 +23,11 @@ export default async function EmbroideryPunchLibraryPage() {
     .eq('id', user.id)
     .single()
 
+  const initialDesigns = await fetchEmbroideryDesignsAction()
+
   return (
     <AdminShell userEmail={user.email} userRole={profile?.role}>
-      <PunchLibraryClient />
+      <PunchLibraryClient initialDesigns={initialDesigns} />
     </AdminShell>
   )
 }

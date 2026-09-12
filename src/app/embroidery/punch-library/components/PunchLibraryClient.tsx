@@ -22,22 +22,40 @@ import {
 import { EmbroideryDesign } from '../../types/embroidery'
 import { UploadPunchModal } from './UploadPunchModal'
 
-export function PunchLibraryClient() {
-  const [designs, setDesigns] = useState<EmbroideryDesign[]>([])
+interface PunchLibraryClientProps {
+  initialDesigns?: EmbroideryDesign[]
+}
+
+export function PunchLibraryClient({ initialDesigns }: PunchLibraryClientProps = {}) {
+  const [designs, setDesigns] = useState<EmbroideryDesign[]>(() => {
+    if (initialDesigns && initialDesigns.length > 0) return initialDesigns
+    return []
+  })
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedBuyer, setSelectedBuyer] = useState('ALL')
   const [isUploadOpen, setIsUploadOpen] = useState(false)
   const [activePreview, setActivePreview] = useState<EmbroideryDesign | null>(null)
 
   function loadDesigns() {
-    setDesigns(getEmbroideryDesigns())
+    if (initialDesigns && initialDesigns.length > 0) {
+      setDesigns(initialDesigns)
+    } else {
+      setDesigns(getEmbroideryDesigns())
+    }
   }
 
   useEffect(() => {
-    loadDesigns()
+    if (initialDesigns && initialDesigns.length > 0) {
+      setDesigns(initialDesigns)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('zigza_embroidery_designs_v2', JSON.stringify(initialDesigns))
+      }
+    } else {
+      setDesigns(getEmbroideryDesigns())
+    }
     window.addEventListener(EMBROIDERY_UPDATE_EVENT, loadDesigns)
     return () => window.removeEventListener(EMBROIDERY_UPDATE_EVENT, loadDesigns)
-  }, [])
+  }, [initialDesigns])
 
   const filteredDesigns = designs.filter(d => {
     const matchesSearch =
@@ -146,11 +164,7 @@ export function PunchLibraryClient() {
             className="px-3 py-2 text-xs rounded-xl border border-black/10 bg-white font-medium focus:ring-1 focus:ring-[#3A3564] outline-none"
           >
             <option value="ALL">All Buyers</option>
-            <option value="Zara Man">Zara Man</option>
-            <option value="Nordic Velocity">Nordic Velocity</option>
-            <option value="Ollypop Kids">Ollypop Kids</option>
-            <option value="H&M Essentials">H&M Essentials</option>
-            <option value="Ralph Lauren Line">Ralph Lauren Line</option>
+            <option value="OLLYPOP">OLLYPOP</option>
           </select>
         </div>
       </div>

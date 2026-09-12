@@ -18,11 +18,11 @@ import {
 export const EMBROIDERY_UPDATE_EVENT = 'zigza:embroidery_updated'
 
 const KEYS = {
-  DESIGNS: 'zigza_embroidery_designs_v1',
-  RUNS: 'zigza_embroidery_runs_v1',
-  BILLING: 'zigza_embroidery_billing_v1',
-  CONES: 'zigza_embroidery_cones_v1',
-  QC: 'zigza_embroidery_qc_v1',
+  DESIGNS: 'zigza_embroidery_designs_v2',
+  RUNS: 'zigza_embroidery_runs_v2',
+  BILLING: 'zigza_embroidery_billing_v2',
+  CONES: 'zigza_embroidery_cones_v2',
+  QC: 'zigza_embroidery_qc_v2',
 }
 
 function emitUpdate() {

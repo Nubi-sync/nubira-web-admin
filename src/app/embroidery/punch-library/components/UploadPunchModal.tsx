@@ -17,8 +17,8 @@ interface UploadPunchModalProps {
 export function UploadPunchModal({ isOpen, onClose }: UploadPunchModalProps) {
   const [designCode, setDesignCode] = useState('')
   const [designName, setDesignName] = useState('')
-  const [buyerName, setBuyerName] = useState('Zara Man')
-  const [orderId, setOrderId] = useState('PO-2026-ZARA-01')
+  const [buyerName, setBuyerName] = useState('OLLYPOP')
+  const [orderId, setOrderId] = useState('PO-ZIG-8901')
   const [fileName, setFileName] = useState('')
   const [totalStitches, setTotalStitches] = useState(18500)
   const [colorStopsCount, setColorStopsCount] = useState(4)
@@ -96,7 +96,7 @@ export function UploadPunchModal({ isOpen, onClose }: UploadPunchModalProps) {
               <input
                 type="text"
                 required
-                placeholder="e.g. DST-ZARA-04"
+                placeholder="e.g. DST-OLLY-HD8821-CHEST"
                 value={designCode}
                 onChange={e => setDesignCode(e.target.value)}
                 className="w-full px-3 py-2 rounded-xl border border-black/10 focus:ring-1 focus:ring-[#3A3564] outline-none font-mono"
@@ -126,11 +126,7 @@ export function UploadPunchModal({ isOpen, onClose }: UploadPunchModalProps) {
                 onChange={e => setBuyerName(e.target.value)}
                 className="w-full px-3 py-2 rounded-xl border border-black/10 focus:ring-1 focus:ring-[#3A3564] outline-none bg-white font-medium"
               >
-                <option value="Zara Man">Zara Man</option>
-                <option value="Nordic Velocity">Nordic Velocity</option>
-                <option value="Ollypop Kids">Ollypop Kids</option>
-                <option value="H&M Essentials">H&M Essentials</option>
-                <option value="Ralph Lauren Line">Ralph Lauren Line</option>
+                <option value="OLLYPOP">OLLYPOP</option>
               </select>
             </div>
             <div>
@@ -140,7 +136,7 @@ export function UploadPunchModal({ isOpen, onClose }: UploadPunchModalProps) {
               <input
                 type="text"
                 required
-                placeholder="e.g. PO-2026-ZARA-01"
+                placeholder="e.g. PO-ZIG-8901"
                 value={orderId}
                 onChange={e => setOrderId(e.target.value)}
                 className="w-full px-3 py-2 rounded-xl border border-black/10 focus:ring-1 focus:ring-[#3A3564] outline-none font-mono"

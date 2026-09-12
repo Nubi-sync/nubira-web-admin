@@ -19,21 +19,39 @@ import {
 import { ThreadConeItem } from '../../types/embroidery'
 import { AddThreadConeModal } from './AddThreadConeModal'
 
-export function ThreadStoreClient() {
-  const [cones, setCones] = useState<ThreadConeItem[]>([])
+interface ThreadStoreClientProps {
+  initialCones?: ThreadConeItem[]
+}
+
+export function ThreadStoreClient({ initialCones }: ThreadStoreClientProps = {}) {
+  const [cones, setCones] = useState<ThreadConeItem[]>(() => {
+    if (initialCones && initialCones.length > 0) return initialCones
+    return []
+  })
   const [searchTerm, setSearchTerm] = useState('')
   const [brandFilter, setBrandFilter] = useState('ALL')
   const [isAddOpen, setIsAddOpen] = useState(false)
 
   function loadCones() {
-    setCones(getThreadCones())
+    if (initialCones && initialCones.length > 0) {
+      setCones(initialCones)
+    } else {
+      setCones(getThreadCones())
+    }
   }
 
   useEffect(() => {
-    loadCones()
+    if (initialCones && initialCones.length > 0) {
+      setCones(initialCones)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('zigza_embroidery_cones_v2', JSON.stringify(initialCones))
+      }
+    } else {
+      setCones(getThreadCones())
+    }
     window.addEventListener(EMBROIDERY_UPDATE_EVENT, loadCones)
     return () => window.removeEventListener(EMBROIDERY_UPDATE_EVENT, loadCones)
-  }, [])
+  }, [initialCones])
 
   const filteredCones = cones.filter(c => {
     const matchesSearch =
