@@ -66,7 +66,10 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands }: Tec
   }, [initialTechPacks])
 
   const filteredPacks = techPacks.filter(tp => {
-    const matchesStatus = statusFilter === 'ALL' || tp.status === statusFilter
+    const matchesStatus = 
+      statusFilter === 'ALL' || 
+      tp.status === statusFilter || 
+      (statusFilter === 'APPROVED_BULK' && (tp.status as string) === 'PPS_APPROVED')
     const matchesSearch = 
       tp.style_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
       tp.style_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -135,9 +138,9 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands }: Tec
       <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
         {/* Status Pills */}
         <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
-          {(['ALL', 'APPROVED_BULK', 'PPS_SUBMITTED', 'SAMPLE_DEV', 'REVISE_FIT', 'DRAFT'] as const).map(st => {
+          {(['ALL', 'APPROVED_BULK', 'PPS_APPROVED', 'PPS_SUBMITTED', 'SAMPLE_DEV', 'REVISE_FIT', 'DRAFT'] as const).map(st => {
             const isSel = statusFilter === st
-            const label = st === 'ALL' ? 'All Specs' : STATUS_CONFIG[st as TechPackStatus]?.label || st
+            const label = st === 'ALL' ? 'All Specs' : STATUS_CONFIG[st]?.label || st
             return (
               <button
                 key={st}

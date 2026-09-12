@@ -18,7 +18,7 @@ import {
   AlertCircle,
   Scissors
 } from 'lucide-react'
-import { TechPack, TechPackStatus } from '../types/design'
+import { TechPack, TechPackStatus, SampleApproval, GradingScheme, MaterialItem } from '../types/design'
 import { getStoredTechPacks } from '../utils/designStorage'
 import { CreateTechPackModal } from '../tech-packs/components/CreateTechPackModal'
 
@@ -33,9 +33,17 @@ const STATUS_CONFIG: Record<string, { label: string; badgeClass: string }> = {
 
 interface DesignDashboardClientProps {
   initialTechPacks?: TechPack[]
+  initialApprovals?: SampleApproval[]
+  initialSchemes?: GradingScheme[]
+  initialMaterials?: MaterialItem[]
 }
 
-export function DesignDashboardClient({ initialTechPacks }: DesignDashboardClientProps = {}) {
+export function DesignDashboardClient({ 
+  initialTechPacks,
+  initialApprovals,
+  initialSchemes,
+  initialMaterials
+}: DesignDashboardClientProps = {}) {
   const [techPacks, setTechPacks] = useState<TechPack[]>(() => {
     if (initialTechPacks && initialTechPacks.length > 0) return initialTechPacks
     return []
@@ -68,8 +76,18 @@ export function DesignDashboardClient({ initialTechPacks }: DesignDashboardClien
   const approvedCount = techPacks.filter(p => p.status === 'APPROVED_BULK' || (p.status as string) === 'PPS_APPROVED').length
   const pendingCount = techPacks.filter(p => p.status === 'PPS_SUBMITTED' || p.status === 'SAMPLE_DEV').length
 
+  // Live Database Metrics
+  const approvalsTotal = initialApprovals?.length || 0
+  const approvedAuditsCount = initialApprovals?.filter(a => a.approval_status === 'APPROVED').length || 0
+  const totalPomsCount = initialSchemes?.reduce((acc, s) => acc + (s.poms?.length || 0), 0) || 0
+  const uniqueSystemsCount = new Set(techPacks.map(p => p.size_system)).size || 1
+  const readinessPct = techPacks.length > 0 ? (approvedCount / techPacks.length) * 100 : 0
+
   const filteredPacks = techPacks.filter(tp => {
-    const matchesStatus = statusFilter === 'ALL' || tp.status === statusFilter
+    const matchesStatus = 
+      statusFilter === 'ALL' || 
+      tp.status === statusFilter || 
+      (statusFilter === 'APPROVED_BULK' && (tp.status as string) === 'PPS_APPROVED')
     const matchesSearch = 
       tp.style_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
       tp.style_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -166,10 +184,10 @@ export function DesignDashboardClient({ initialTechPacks }: DesignDashboardClien
             </div>
           </div>
           <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900">
-            {pendingCount} Pending
+            {pendingCount > 0 ? `${pendingCount} Pending` : `${approvalsTotal} Audited`}
           </div>
           <p className="text-xs font-semibold text-slate-500 mt-1">
-            Avg approval cycle: 3.2 days
+            {approvalsTotal > 0 ? `${approvedAuditsCount} of ${approvalsTotal} Golden Seal Fit` : '0 pending review'}
           </p>
         </div>
 
@@ -183,10 +201,10 @@ export function DesignDashboardClient({ initialTechPacks }: DesignDashboardClien
             </div>
           </div>
           <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900">
-            4 Systems
+            {totalPomsCount > 0 ? `${totalPomsCount} Points` : `${uniqueSystemsCount} Systems`}
           </div>
           <p className="text-xs font-semibold text-slate-500 mt-1">
-            Adult, Kids, Numeric, Plus
+            Graded across {techPacks.length} active style{techPacks.length === 1 ? '' : 's'}
           </p>
         </div>
 
@@ -200,10 +218,10 @@ export function DesignDashboardClient({ initialTechPacks }: DesignDashboardClien
             </div>
           </div>
           <div className="text-2xl sm:text-3xl font-black font-mono text-emerald-600">
-            96.4%
+            {readinessPct.toFixed(1)}%
           </div>
           <p className="text-xs font-semibold text-slate-500 mt-1">
-            Pre-Production Sample speed
+            {approvedCount} of {techPacks.length} production ready
           </p>
         </div>
       </div>
@@ -228,7 +246,7 @@ export function DesignDashboardClient({ initialTechPacks }: DesignDashboardClien
         {/* Filter Pills & Search */}
         <div className="flex flex-col sm:flex-row gap-3 items-center justify-between pt-1">
           <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
-            {(['ALL', 'APPROVED_BULK', 'PPS_SUBMITTED', 'SAMPLE_DEV', 'REVISE_FIT', 'DRAFT'] as const).map(st => (
+            {(['ALL', 'APPROVED_BULK', 'PPS_APPROVED', 'PPS_SUBMITTED', 'SAMPLE_DEV', 'REVISE_FIT', 'DRAFT'] as const).map(st => (
               <button
                 key={st}
                 onClick={() => setStatusFilter(st)}
