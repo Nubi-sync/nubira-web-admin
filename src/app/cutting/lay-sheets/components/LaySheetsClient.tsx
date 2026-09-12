@@ -35,19 +35,19 @@ export function LaySheetsClient({ initialLays }: LaySheetsClientProps = {}) {
   // Form state
   const [formData, setFormData] = useState({
     lay_number: '',
-    po_number: '',
-    brand_name: '',
-    style_ref: '',
-    style_name: '',
+    po_number: 'PO-ZIG-8901',
+    brand_name: 'OLLYPOP',
+    style_ref: 'ART-HD-8821',
+    style_name: 'Heavyweight French Terry Hoodie',
     table_number: 'Table 01',
-    shell_fabric: '',
-    gsm: 200,
-    plies_count: 60,
-    marker_length_meters: 5.5,
-    total_cut_pieces: 360,
-    ratio_breakdown: '1:2:2:1 (S-M-L-XL)',
-    fabric_weight_kg: 85.0,
-    fabric_roll_barcodes: 'ROL-NEW-001, ROL-NEW-002',
+    shell_fabric: '100% Combed Cotton French Terry 380 GSM',
+    gsm: 380,
+    plies_count: 80,
+    marker_length_meters: 5.4,
+    total_cut_pieces: 800,
+    ratio_breakdown: 'XS:1, S:2, M:4, L:2, XL:1',
+    fabric_weight_kg: 216.0,
+    fabric_roll_barcodes: 'ROL-FT-8821-A1, ROL-FT-8821-A2',
     cutting_master: 'R. Veerappan (Master Cutter)',
     status: 'SPREADING' as LaySheetStatus
   })
@@ -56,7 +56,7 @@ export function LaySheetsClient({ initialLays }: LaySheetsClientProps = {}) {
     if (initialLays && initialLays.length > 0) {
       setLays(initialLays)
       if (typeof window !== 'undefined') {
-        localStorage.setItem('zigza_cutting_laysheets_v1', JSON.stringify(initialLays))
+        localStorage.setItem('zigza_cutting_lays_v2', JSON.stringify(initialLays))
       }
     } else {
       setLays(getLaySheets())
@@ -357,7 +357,7 @@ export function LaySheetsClient({ initialLays }: LaySheetsClientProps = {}) {
                   <input
                     type="text"
                     required
-                    placeholder="e.g. Nordic Velocity"
+                    placeholder="e.g. OLLYPOP"
                     value={formData.brand_name}
                     onChange={e => setFormData({ ...formData, brand_name: e.target.value })}
                     className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10"

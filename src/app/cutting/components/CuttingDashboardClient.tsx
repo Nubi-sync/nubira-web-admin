@@ -66,7 +66,7 @@ export function CuttingDashboardClient({
     if (initialLays && initialLays.length > 0) {
       setLaySheets(initialLays)
       if (typeof window !== 'undefined') {
-        localStorage.setItem('zigza_cutting_lays_v1', JSON.stringify(initialLays))
+        localStorage.setItem('zigza_cutting_lays_v2', JSON.stringify(initialLays))
       }
       
       // Dynamically attach live active lay to table and clear mock lay IDs
@@ -99,7 +99,7 @@ export function CuttingDashboardClient({
     if (initialBundles && initialBundles.length > 0) {
       setBundles(initialBundles)
       if (typeof window !== 'undefined') {
-        localStorage.setItem('zigza_cutting_bundles_v1', JSON.stringify(initialBundles))
+        localStorage.setItem('zigza_cutting_bundles_v2', JSON.stringify(initialBundles))
       }
     } else {
       setBundles(getCutBundles())

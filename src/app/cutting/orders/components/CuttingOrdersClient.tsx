@@ -37,77 +37,33 @@ export interface CuttingOrder {
 
 const INITIAL_ORDERS: CuttingOrder[] = [
   {
-    id: 'co-101',
-    order_number: 'CO-2026-088',
-    buyer_po: 'PO-ZARA-9921',
-    buyer_name: 'Zara Men International',
-    style_number: 'STY-CREW-8801',
-    style_name: 'Classic Heavyweight Crewneck',
-    colorway: 'Obsidian Black',
-    total_pieces: 2400,
+    id: 'co-8901',
+    order_number: 'CO-2026-0842',
+    buyer_po: 'PO-ZIG-8901',
+    buyer_name: 'OLLYPOP',
+    style_number: 'ART-HD-8821',
+    style_name: 'Heavyweight French Terry Hoodie',
+    colorway: 'Jet Black',
+    total_pieces: 5000,
     plies_planned: 80,
-    fabric_meters_allocated: 480,
-    table_assigned: 'Table 01 - Gerber Paragon HX',
-    status: 'CUTTING',
-    priority: 'URGENT',
-    scheduled_start: 'Today, 08:30 AM',
-    operator_lead: 'K. Rajan / P. Murugan'
-  },
-  {
-    id: 'co-102',
-    order_number: 'CO-2026-089',
-    buyer_po: 'PO-HM-4102',
-    buyer_name: 'H&M Basic Essentials',
-    style_number: 'STY-HD-9022',
-    style_name: 'French Terry Relaxed Hoodie',
-    colorway: 'Oatmeal Heather Melange',
-    total_pieces: 1800,
-    plies_planned: 60,
-    fabric_meters_allocated: 620,
-    table_assigned: 'Table 02 - Lectra Vector iX6',
-    status: 'SPREADING',
-    priority: 'HIGH',
-    scheduled_start: 'Today, 11:00 AM',
-    operator_lead: 'S. Kumar / A. Velu'
-  },
-  {
-    id: 'co-103',
-    order_number: 'CO-2026-090',
-    buyer_po: 'PO-COS-1190',
-    buyer_name: 'COS Modern Silhouettes',
-    style_number: 'STY-OVS-4410',
-    style_name: 'Drop Shoulder Boxy Tee',
-    colorway: 'Deep Forest Pine',
-    total_pieces: 3200,
-    plies_planned: 100,
     fabric_meters_allocated: 540,
     table_assigned: 'Table 01 - Gerber Paragon HX',
-    status: 'QUEUED',
-    priority: 'NORMAL',
-    scheduled_start: 'Tomorrow, 09:00 AM',
-    operator_lead: 'Unassigned (Queue)'
-  },
-  {
-    id: 'co-104',
-    order_number: 'CO-2026-091',
-    buyer_po: 'PO-ASOS-3004',
-    buyer_name: 'ASOS Streetwear Line',
-    style_number: 'STY-PNT-3301',
-    style_name: 'Cargo Sweatpant Bottoms',
-    colorway: 'Washed Charcoal Grey',
-    total_pieces: 1500,
-    plies_planned: 50,
-    fabric_meters_allocated: 590,
-    table_assigned: 'Table 03 - Eastman Straight Blade Manual',
-    status: 'INSPECTED',
-    priority: 'NORMAL',
-    scheduled_start: 'Yesterday, 02:00 PM',
-    operator_lead: 'M. Anand / R. Siva'
+    status: 'CUTTING',
+    priority: 'HIGH',
+    scheduled_start: 'Active Batch',
+    operator_lead: 'R. Veerappan (Master Cutter)'
   }
 ]
 
-export function CuttingOrdersClient() {
-  const [orders, setOrders] = useState<CuttingOrder[]>([])
+interface CuttingOrdersClientProps {
+  initialOrders?: CuttingOrder[]
+}
+
+export function CuttingOrdersClient({ initialOrders }: CuttingOrdersClientProps = {}) {
+  const [orders, setOrders] = useState<CuttingOrder[]>(() => {
+    if (initialOrders && initialOrders.length > 0) return initialOrders
+    return INITIAL_ORDERS
+  })
   const [search, setSearch] = useState('')
   const [tableFilter, setTableFilter] = useState('ALL')
   const [statusFilter, setStatusFilter] = useState('ALL')
@@ -117,33 +73,42 @@ export function CuttingOrdersClient() {
   // Form state
   const [formData, setFormData] = useState({
     order_number: '',
-    buyer_po: 'PO-UNIQLO-7712',
-    buyer_name: 'Uniqlo Casual Basics',
-    style_number: 'STY-TEE-1011',
-    style_name: 'Supima Cotton Relaxed Tee',
-    colorway: 'Navy Blue',
-    total_pieces: 2000,
-    plies_planned: 70,
-    fabric_meters_allocated: 450,
+    buyer_po: 'PO-ZIG-8901',
+    buyer_name: 'OLLYPOP',
+    style_number: 'ART-HD-8821',
+    style_name: 'Heavyweight French Terry Hoodie',
+    colorway: 'Jet Black',
+    total_pieces: 1000,
+    plies_planned: 80,
+    fabric_meters_allocated: 120,
     table_assigned: 'Table 01 - Gerber Paragon HX',
     priority: 'NORMAL' as const,
     scheduled_start: 'Today, 02:00 PM',
-    operator_lead: 'K. Rajan / P. Murugan'
+    operator_lead: 'R. Veerappan (Master Cutter)'
   })
 
   useEffect(() => {
-    const saved = localStorage.getItem('cutting_orders_data')
-    if (saved) {
-      try {
-        setOrders(JSON.parse(saved))
-      } catch (e) {
-        setOrders(INITIAL_ORDERS)
+    if (initialOrders && initialOrders.length > 0) {
+      setOrders(initialOrders)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('cutting_orders_data', JSON.stringify(initialOrders))
       }
     } else {
-      setOrders(INITIAL_ORDERS)
-      localStorage.setItem('cutting_orders_data', JSON.stringify(INITIAL_ORDERS))
+      const saved = localStorage.getItem('cutting_orders_data')
+      if (saved) {
+        try {
+          setOrders(JSON.parse(saved))
+        } catch {
+          setOrders(INITIAL_ORDERS)
+        }
+      } else {
+        setOrders(INITIAL_ORDERS)
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('cutting_orders_data', JSON.stringify(INITIAL_ORDERS))
+        }
+      }
     }
-  }, [])
+  }, [initialOrders])
 
   const saveOrders = (updated: CuttingOrder[]) => {
     setOrders(updated)
