@@ -173,7 +173,7 @@ In real life, buyers do not just buy "5,000 hoodies." They buy specific sizes an
 │ Jet Black    │ 500  │ 1000 │ 1000 │ 500  │ 0    │ 3,000 pcs            │
 │ Vintage Grey │ 300  │ 700  │ 700  │ 300  │ 0    │ 2,000 pcs            │
 ├──────────────┼──────┼──────┼──────┼──────┼──────┼──────────────────────┤
-│ Column Sum   │ 800  │ 1700 │ 1700 │ 800  │ 0    │ Total: 5,000 pcs ✅  │
+│ Column Sum   │ 800  │ 1700 │ 1700 │ 800  │ 0    │ Total: 5,000 pcs (OK)│
 └──────────────┴──────┴──────┴──────┴──────┴──────┴──────────────────────┤
 │                                                    [ Save Order ]      │
 └────────────────────────────────────────────────────────────────────────┘
@@ -192,7 +192,7 @@ This screen shows **where every single rupee goes** and whether the factory will
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────────────┐
-│ 💰 BOM Costing & Pre/Post-Costing Ledger                                [ + New BOM ]   │
+│ [BOM] Costing & Pre/Post-Costing Ledger                                 [ + New BOM ]   │
 ├─────────────────────────────────────────────────────────────────────────────────────────┤
 │ Filter: [ All Styles ] [ On-Target (Variance <= 2%) ] [ Variance Alerts (> 2%) ]        │
 ├─────────────────────────────────────────────────────────────────────────────────────────┤
@@ -227,7 +227,7 @@ You cannot sew a hoodie without cloth and trims. This screen creates the shoppin
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────────────┐
-│ 📦 Raw Material Sourcing & Purchase Requisitions (PR)                   [ + Create PR ] │
+│ [PR] Raw Material Sourcing & Purchase Requisitions (PR)                 [ + Create PR ] │
 ├─────────────────────────────────────────────────────────────────────────────────────────┤
 │ Filter: [ All Items ] [ Fabric ] [ Trims ] [ Thread ] [ Pending ] [ Received ]          │
 ├─────────────────────────────────────────────────────────────────────────────────────────┤
@@ -255,7 +255,7 @@ A garment order is like a relay race. If runner #1 is late, the whole race is lo
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────────────┐
-│ 📅 Critical Path Time & Action (T&A) Calendar                                           │
+│ [T&A] Critical Path Time & Action (T&A) Calendar                                        │
 │ Order: PO-ZIG-8901 (5,000 Hoodies) • Ex-Factory Deadline: 28-Oct-2026                   │
 ├─────────────────────────────────────────────────────────────────────────────────────────┤
 │ MILESTONE               │ PLANNED DATE │ ACTUAL DATE  │ DELAY  │ STATUS                 │
