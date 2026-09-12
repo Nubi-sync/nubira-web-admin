@@ -193,18 +193,18 @@ export default function SuperAdminProfilePage() {
               </Link>
 
               <Link
-                href="/modules"
+                href="/platform-admin/modules"
                 className="p-3.5 rounded-xl border border-black/10 hover:border-[#3A3564] bg-[#FAF7F0] hover:bg-white flex items-center justify-between transition-all block cursor-pointer group shadow-2xs"
               >
                 <div>
                   <span className="font-bold text-slate-900 group-hover:text-[#3A3564] block font-[family-name:var(--font-public-sans)]">
-                    Inspect 11 Factory Division Units
+                    Overview 11 Enterprise Modules
                   </span>
                   <span className="text-[11px] text-slate-500 font-sans font-medium">
-                    Open client garment manufacturing floor view
+                    Inspect architecture, tenant safety boundaries, and schemas
                   </span>
                 </div>
-                <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-[#3A3564]" />
+                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#3A3564]" />
               </Link>
             </div>
           </div>

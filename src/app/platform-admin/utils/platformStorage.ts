@@ -31,21 +31,57 @@ function broadcastUpdate() {
   }
 }
 
+function sanitizeStorage() {
+  if (typeof window === 'undefined') return
+  try {
+    const rawDemos = localStorage.getItem(STORAGE_KEYS.DEMO_REQUESTS)
+    if (rawDemos) {
+      const parsed = JSON.parse(rawDemos)
+      const isMock = Array.isArray(parsed) && parsed.some((d: any) => 
+        ['demo-101', 'demo-102', 'b0000000', 'Tirupur Knitwear', 'Apex Knits', 'Ludhiana Woollens'].some(k => 
+          JSON.stringify(d).includes(k)
+        )
+      )
+      if (isMock) {
+        localStorage.removeItem(STORAGE_KEYS.DEMO_REQUESTS)
+      }
+    }
+    const rawTenants = localStorage.getItem(STORAGE_KEYS.TENANTS)
+    if (rawTenants) {
+      const parsed = JSON.parse(rawTenants)
+      const isMock = Array.isArray(parsed) && parsed.some((t: any) => 
+        ['ten-01', 'c0000000', 'Vardhman', 'Page Industries', 'Classic Polo'].some(k => 
+          JSON.stringify(t).includes(k)
+        )
+      )
+      if (isMock) {
+        localStorage.removeItem(STORAGE_KEYS.TENANTS)
+      }
+    }
+  } catch (_) {}
+}
+
+export function clearAllPlatformData(): void {
+  if (typeof window === 'undefined') return
+  try {
+    localStorage.removeItem(STORAGE_KEYS.DEMO_REQUESTS)
+    localStorage.removeItem(STORAGE_KEYS.TENANTS)
+    broadcastUpdate()
+  } catch (_) {}
+}
+
 // ----------------------------------------------------------------------------
 // 1. DEMO INQUIRIES CRUD
 // ----------------------------------------------------------------------------
 export function getDemoRequests(): DemoRequestInquiry[] {
-  if (typeof window === 'undefined') return INITIAL_DEMO_REQUESTS
+  if (typeof window === 'undefined') return []
+  sanitizeStorage()
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.DEMO_REQUESTS)
-    if (!raw) {
-      localStorage.setItem(STORAGE_KEYS.DEMO_REQUESTS, JSON.stringify(INITIAL_DEMO_REQUESTS))
-      return INITIAL_DEMO_REQUESTS
-    }
+    if (!raw) return []
     return JSON.parse(raw)
   } catch (e) {
-    console.error('Failed to load demo requests from localStorage:', e)
-    return INITIAL_DEMO_REQUESTS
+    return []
   }
 }
 
@@ -107,17 +143,14 @@ export function updateDemoRequestStatus(
 // 2. TENANT FACTORIES & INFRASTRUCTURE PROVISIONING
 // ----------------------------------------------------------------------------
 export function getTenantFactories(): TenantFactory[] {
-  if (typeof window === 'undefined') return INITIAL_TENANT_FACTORIES
+  if (typeof window === 'undefined') return []
+  sanitizeStorage()
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.TENANTS)
-    if (!raw) {
-      localStorage.setItem(STORAGE_KEYS.TENANTS, JSON.stringify(INITIAL_TENANT_FACTORIES))
-      return INITIAL_TENANT_FACTORIES
-    }
+    if (!raw) return []
     return JSON.parse(raw)
   } catch (e) {
-    console.error('Failed to load tenants from localStorage:', e)
-    return INITIAL_TENANT_FACTORIES
+    return []
   }
 }
 

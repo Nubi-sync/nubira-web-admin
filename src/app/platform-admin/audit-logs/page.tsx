@@ -197,8 +197,22 @@ export default function SecurityAuditLogsPage() {
               <tbody className="divide-y divide-slate-100 text-xs">
                 {filteredLogs.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="py-10 text-center text-slate-400 font-mono text-xs">
-                      No security audit events found matching filters.
+                    <td colSpan={7} className="py-16 text-center">
+                      <div className="flex flex-col items-center justify-center max-w-md mx-auto space-y-3">
+                        <div className="w-12 h-12 rounded-2xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+                          <ShieldCheck className="w-6 h-6 text-[#3A3564]" />
+                        </div>
+                        <div className="space-y-1">
+                          <h4 className="text-sm font-bold text-slate-900 font-[family-name:var(--font-heading)]">
+                            {searchQuery || categoryFilter !== 'ALL' ? 'No Matching Audit Records Found' : 'No Audit Records Recorded Yet'}
+                          </h4>
+                          <p className="text-xs text-slate-500 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
+                            {searchQuery || categoryFilter !== 'ALL'
+                              ? 'Try adjusting your search terms or selecting All Events.'
+                              : 'Administrative sign-ins, tenant factory provisioning, and security challenges will be immutably recorded here.'}
+                          </p>
+                        </div>
+                      </div>
                     </td>
                   </tr>
                 ) : (
