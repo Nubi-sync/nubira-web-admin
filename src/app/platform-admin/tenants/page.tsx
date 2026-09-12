@@ -14,17 +14,31 @@ import {
 } from 'lucide-react'
 import { PlatformAdminShell } from '../components/PlatformAdminShell'
 import { TenantFactory, TenantStatus } from '../types/platform'
-import { getTenantFactories, PLATFORM_UPDATE_EVENT } from '../utils/platformStorage'
+import { PLATFORM_UPDATE_EVENT } from '../utils/platformStorage'
+import { fetchTenantFactoriesAction } from '../actions'
 import { ProvisionTenantModal } from '../components/ProvisionTenantModal'
 
 export default function TenantFactoriesPage() {
   const [tenants, setTenants] = useState<TenantFactory[]>([])
+  const [isLiveDatabase, setIsLiveDatabase] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<'ALL' | TenantStatus>('ALL')
   const [isModalOpen, setIsModalOpen] = useState(false)
 
-  const loadTenants = () => {
-    setTenants(getTenantFactories())
+  const loadTenants = async () => {
+    setIsLoading(true)
+    try {
+      const res = await fetchTenantFactoriesAction()
+      if (res.data) {
+        setTenants(res.data)
+        setIsLiveDatabase(res.isLiveDatabase)
+      }
+    } catch (err) {
+      console.warn('Tenant factories fetch error:', err)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   useEffect(() => {
@@ -81,6 +95,16 @@ export default function TenantFactoriesPage() {
                 <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
                   {activeCount} Active Plants
                 </span>
+                {isLiveDatabase ? (
+                  <span className="inline-flex items-center gap-1.5 text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs tracking-wider">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    PostgreSQL Live
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1.5 text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 shadow-2xs tracking-wider">
+                    Offline Cache
+                  </span>
+                )}
               </div>
               <p className="text-sm sm:text-base text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)]">
                 Authorized garment factory clients running Zigza Enterprise MES across multi-division production floors
@@ -347,6 +371,7 @@ export default function TenantFactoriesPage() {
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           inquiry={null}
+          onSuccess={loadTenants}
         />
 
       </div>

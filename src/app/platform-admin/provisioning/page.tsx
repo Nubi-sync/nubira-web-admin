@@ -12,7 +12,7 @@ import {
 import { PlatformAdminShell } from '../components/PlatformAdminShell'
 import { SubscriptionPlanTier } from '../types/platform'
 import { ENTERPRISE_DIVISIONS_CATALOG } from '../data/initialPlatformData'
-import { provisionNewTenant } from '../utils/platformStorage'
+import { provisionTenantFactoryAction } from '../actions'
 
 export default function ProvisioningConsolePage() {
   const [companyName, setCompanyName] = useState('')
@@ -55,7 +55,7 @@ export default function ProvisioningConsolePage() {
     }
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (selectedDivisions.length === 0) {
       alert('Please select at least 1 division module.')
@@ -64,7 +64,7 @@ export default function ProvisioningConsolePage() {
 
     setIsSubmitting(true)
     try {
-      provisionNewTenant({
+      const res = await provisionTenantFactoryAction({
         companyName,
         adminName,
         adminEmail,
@@ -75,9 +75,15 @@ export default function ProvisioningConsolePage() {
         monthlyBillingInr,
         selectedDivisions
       })
-      setProvisionedSuccess(true)
-    } catch (err) {
+
+      if (res.success) {
+        setProvisionedSuccess(true)
+      } else {
+        alert(res.error || 'Failed to provision tenant factory.')
+      }
+    } catch (err: any) {
       console.error('Provisioning failed:', err)
+      alert('An unexpected error occurred during tenant provisioning.')
     } finally {
       setIsSubmitting(false)
     }

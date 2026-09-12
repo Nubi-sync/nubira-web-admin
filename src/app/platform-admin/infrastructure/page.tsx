@@ -1,5 +1,4 @@
-'use client'
-
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import {
   Activity,
@@ -7,11 +6,47 @@ import {
   Database,
   ShieldCheck,
   Zap,
-  Globe
+  Globe,
+  RefreshCw,
+  CheckCircle2
 } from 'lucide-react'
 import { PlatformAdminShell } from '../components/PlatformAdminShell'
+import { fetchInfrastructureTelemetryAction, LiveInfrastructureTelemetry } from '../actions'
 
 export default function InfrastructureTelemetryPage() {
+  const [telemetry, setTelemetry] = useState<LiveInfrastructureTelemetry>({
+    databaseLatencyMs: 14,
+    isDatabaseConnected: true,
+    edgeCacheHitRatio: '99.4%',
+    activeDevicesCount: 34,
+    tableCounts: {
+      profiles: 8,
+      articles: 12,
+      challans: 16,
+      allotments: 24,
+      storeTransactions: 42,
+      tenantFactories: 4
+    }
+  })
+  const [isRefreshing, setIsRefreshing] = useState(false)
+  const [lastRefreshedAt, setLastRefreshedAt] = useState<string>('')
+
+  const loadTelemetry = async () => {
+    setIsRefreshing(true)
+    try {
+      const data = await fetchInfrastructureTelemetryAction()
+      setTelemetry(data)
+      setLastRefreshedAt(new Date().toLocaleTimeString())
+    } catch (err) {
+      console.warn('Telemetry fetch error:', err)
+    } finally {
+      setIsRefreshing(false)
+    }
+  }
+
+  useEffect(() => {
+    loadTelemetry()
+  }, [])
   return (
     <PlatformAdminShell userEmail="admin@zigza.in">
       <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto text-[#09090b]">
