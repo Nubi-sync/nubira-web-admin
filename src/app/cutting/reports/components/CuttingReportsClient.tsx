@@ -21,11 +21,8 @@ export function CuttingReportsClient() {
 
   // Sample static performance dataset
   const styleYields = [
-    { style: 'Classic Heavyweight Tee (STY-CREW-8801)', cadTarget: 88.5, actualYield: 89.1, variance: '+0.6%', status: 'OPTIMAL' },
-    { style: 'French Terry Relaxed Hoodie (STY-HD-9022)', cadTarget: 85.0, actualYield: 85.8, variance: '+0.8%', status: 'OPTIMAL' },
-    { style: 'Drop Shoulder Boxy Tee (STY-OVS-4410)', cadTarget: 89.0, actualYield: 88.2, variance: '-0.8%', status: 'MONITOR' },
-    { style: 'Cargo Sweatpant Bottoms (STY-PNT-3301)', cadTarget: 84.5, actualYield: 84.9, variance: '+0.4%', status: 'OPTIMAL' },
-    { style: 'Athletic Quarter Zip Pullover (STY-QZ-1088)', cadTarget: 87.0, actualYield: 87.4, variance: '+0.4%', status: 'OPTIMAL' }
+    { style: 'Heavyweight French Terry Hoodie (ART-HD-8821)', cadTarget: 89.6, actualYield: 89.8, variance: '+0.2%', status: 'OPTIMAL' },
+    { style: 'French Terry Overhead PPS Sample (ART-HD-8821-S)', cadTarget: 88.0, actualYield: 88.5, variance: '+0.5%', status: 'OPTIMAL' }
   ]
 
   const tableThroughputs = [

@@ -27,9 +27,9 @@ export function EndLossClient() {
   // Form state
   const [formData, setFormData] = useState({
     remnant_code: '',
-    source_roll_barcode: 'ROL-2026-104',
-    fabric_type: '100% Combed Cotton Single Jersey',
-    colorway: 'Obsidian Black',
+    source_roll_barcode: 'ROL-FT-8821-A1',
+    fabric_type: 'Heavyweight French Terry 380 GSM Combed Cotton',
+    colorway: 'Jet Black',
     length_meters: 1.8,
     width_inches: 60,
     reason: 'End of roll remnant insufficient for full marker lay',

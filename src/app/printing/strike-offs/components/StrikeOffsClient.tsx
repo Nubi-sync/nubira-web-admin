@@ -19,21 +19,39 @@ import { StrikeOffTest, StrikeOffStatus } from '../../types/printing'
 import { getStrikeOffs, saveStrikeOff, PRINTING_UPDATE_EVENT } from '../../utils/printingStorage'
 import { SubmitStrikeOffModal } from './SubmitStrikeOffModal'
 
-export function StrikeOffsClient() {
-  const [strikeOffs, setStrikeOffs] = useState<StrikeOffTest[]>([])
+interface StrikeOffsClientProps {
+  initialStrikeOffs?: StrikeOffTest[]
+}
+
+export function StrikeOffsClient({ initialStrikeOffs }: StrikeOffsClientProps = {}) {
+  const [strikeOffs, setStrikeOffs] = useState<StrikeOffTest[]>(() => {
+    if (initialStrikeOffs && initialStrikeOffs.length > 0) return initialStrikeOffs
+    return []
+  })
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('ALL')
   const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false)
 
   const reloadData = () => {
-    setStrikeOffs(getStrikeOffs())
+    if (initialStrikeOffs && initialStrikeOffs.length > 0) {
+      setStrikeOffs(initialStrikeOffs)
+    } else {
+      setStrikeOffs(getStrikeOffs())
+    }
   }
 
   useEffect(() => {
-    reloadData()
+    if (initialStrikeOffs && initialStrikeOffs.length > 0) {
+      setStrikeOffs(initialStrikeOffs)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('zigza_printing_strike_offs_v2', JSON.stringify(initialStrikeOffs))
+      }
+    } else {
+      setStrikeOffs(getStrikeOffs())
+    }
     window.addEventListener(PRINTING_UPDATE_EVENT, reloadData)
     return () => window.removeEventListener(PRINTING_UPDATE_EVENT, reloadData)
-  }, [])
+  }, [initialStrikeOffs])
 
   const filteredTests = strikeOffs.filter(t => {
     const matchesFilter = statusFilter === 'ALL' || t.approval_status === statusFilter

@@ -37,26 +37,89 @@ import {
   PRINTING_UPDATE_EVENT
 } from '../utils/printingStorage'
 
-export function PrintingDashboardClient() {
-  const [runs, setRuns] = useState<PrintingProductionRun[]>([])
+interface PrintingDashboardClientProps {
+  userEmail?: string
+  initialRuns?: PrintingProductionRun[]
+  initialStrikeOffs?: StrikeOffTest[]
+  initialCuringLogs?: CuringOvenLog[]
+  liveKpis?: any
+}
+
+export function PrintingDashboardClient({
+  userEmail,
+  initialRuns,
+  initialStrikeOffs,
+  initialCuringLogs,
+  liveKpis
+}: PrintingDashboardClientProps = {}) {
+  const [runs, setRuns] = useState<PrintingProductionRun[]>(() => {
+    if (initialRuns && initialRuns.length > 0) return initialRuns
+    return []
+  })
   const [screens, setScreens] = useState<PrintingScreen[]>([])
-  const [strikeOffs, setStrikeOffs] = useState<StrikeOffTest[]>([])
-  const [curingLogs, setCuringLogs] = useState<CuringOvenLog[]>([])
+  const [strikeOffs, setStrikeOffs] = useState<StrikeOffTest[]>(() => {
+    if (initialStrikeOffs && initialStrikeOffs.length > 0) return initialStrikeOffs
+    return []
+  })
+  const [curingLogs, setCuringLogs] = useState<CuringOvenLog[]>(() => {
+    if (initialCuringLogs && initialCuringLogs.length > 0) return initialCuringLogs
+    return []
+  })
   const [activeTab, setActiveTab] = useState<string>('ALL')
   const [searchQuery, setSearchQuery] = useState('')
 
   const reloadData = () => {
-    setRuns(getProductionRuns())
+    if (initialRuns && initialRuns.length > 0) {
+      setRuns(initialRuns)
+    } else {
+      setRuns(getProductionRuns())
+    }
     setScreens(getScreens())
-    setStrikeOffs(getStrikeOffs())
-    setCuringLogs(getCuringLogs())
+    if (initialStrikeOffs && initialStrikeOffs.length > 0) {
+      setStrikeOffs(initialStrikeOffs)
+    } else {
+      setStrikeOffs(getStrikeOffs())
+    }
+    if (initialCuringLogs && initialCuringLogs.length > 0) {
+      setCuringLogs(initialCuringLogs)
+    } else {
+      setCuringLogs(getCuringLogs())
+    }
   }
 
   useEffect(() => {
-    reloadData()
+    if (initialRuns && initialRuns.length > 0) {
+      setRuns(initialRuns)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('zigza_printing_runs_v2', JSON.stringify(initialRuns))
+      }
+    } else {
+      setRuns(getProductionRuns())
+    }
+
+    if (initialStrikeOffs && initialStrikeOffs.length > 0) {
+      setStrikeOffs(initialStrikeOffs)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('zigza_printing_strike_offs_v2', JSON.stringify(initialStrikeOffs))
+      }
+    } else {
+      setStrikeOffs(getStrikeOffs())
+    }
+
+    if (initialCuringLogs && initialCuringLogs.length > 0) {
+      setCuringLogs(initialCuringLogs)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('zigza_printing_curing_logs_v2', JSON.stringify(initialCuringLogs))
+      }
+    } else {
+      setCuringLogs(getCuringLogs())
+    }
+
+    setScreens(getScreens())
+
     window.addEventListener(PRINTING_UPDATE_EVENT, reloadData)
     return () => window.removeEventListener(PRINTING_UPDATE_EVENT, reloadData)
-  }, [])
+  }, [initialRuns, initialStrikeOffs, initialCuringLogs])
 
   // KPI Calculations
   const activeRunsCount = runs.filter(r => r.status === 'PRINTING' || r.status === 'CURING').length

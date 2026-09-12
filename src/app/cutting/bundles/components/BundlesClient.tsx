@@ -47,7 +47,7 @@ export function BundlesClient({ initialBundles }: BundlesClientProps = {}) {
     if (initialBundles && initialBundles.length > 0) {
       setBundles(initialBundles)
       if (typeof window !== 'undefined') {
-        localStorage.setItem('zigza_cutting_bundles_v1', JSON.stringify(initialBundles))
+        localStorage.setItem('zigza_cutting_bundles_v2', JSON.stringify(initialBundles))
       }
     } else {
       setBundles(getCutBundles())

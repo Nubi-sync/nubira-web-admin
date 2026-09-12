@@ -20,22 +20,40 @@ import { getProductionRuns, saveProductionRun, PRINTING_UPDATE_EVENT } from '../
 import { LogProductionModal } from './LogProductionModal'
 import { StartRunModal } from './StartRunModal'
 
-export function TableRunsClient() {
-  const [runs, setRuns] = useState<PrintingProductionRun[]>([])
+interface TableRunsClientProps {
+  initialRuns?: PrintingProductionRun[]
+}
+
+export function TableRunsClient({ initialRuns }: TableRunsClientProps = {}) {
+  const [runs, setRuns] = useState<PrintingProductionRun[]>(() => {
+    if (initialRuns && initialRuns.length > 0) return initialRuns
+    return []
+  })
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('ALL')
   const [selectedRunForLog, setSelectedRunForLog] = useState<PrintingProductionRun | null>(null)
   const [isStartModalOpen, setIsStartModalOpen] = useState(false)
 
   const reloadData = () => {
-    setRuns(getProductionRuns())
+    if (initialRuns && initialRuns.length > 0) {
+      setRuns(initialRuns)
+    } else {
+      setRuns(getProductionRuns())
+    }
   }
 
   useEffect(() => {
-    reloadData()
+    if (initialRuns && initialRuns.length > 0) {
+      setRuns(initialRuns)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('zigza_printing_runs_v2', JSON.stringify(initialRuns))
+      }
+    } else {
+      setRuns(getProductionRuns())
+    }
     window.addEventListener(PRINTING_UPDATE_EVENT, reloadData)
     return () => window.removeEventListener(PRINTING_UPDATE_EVENT, reloadData)
-  }, [])
+  }, [initialRuns])
 
   const handleAdvanceStatus = (run: PrintingProductionRun) => {
     let next: PrintRunStatus = run.status
