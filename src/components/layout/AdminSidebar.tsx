@@ -475,10 +475,15 @@ export function AdminSidebar({
         ],
       },
       {
-        section: '11. Central Store',
+        section: '11. Central Store & Godown',
         items: [
-          { label: 'Store & Godown Ops', href: '/store', icon: Store },
-          { label: 'Zigza AI', href: '/store/zigza-ai', icon: Bot },
+          { label: 'Store Dashboard', href: '/store', icon: Store },
+          { label: 'Fabric Godown & 4-Point QC', href: '/store/fabric-godown', icon: Layers, badge: '4-Point' },
+          { label: 'Trims & Accessories Whse', href: '/store/trims-warehouse', icon: Tag, badge: 'ROL' },
+          { label: 'Truck Inward Gate (GRN)', href: '/store/truck-inwards', icon: Truck, badge: 'GRN' },
+          { label: 'Material Issues to Floor', href: '/store/material-issues', icon: ArrowRight },
+          { label: 'Finished Export Bay 3-5', href: '/store/finished-godown', icon: Warehouse, badge: 'Bay 3-5' },
+          { label: 'Zigza AI Copilot', href: '/store/zigza-ai', icon: Bot },
         ],
       },
       {

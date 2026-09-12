@@ -14,6 +14,7 @@ This document records the architectural specifications, implemented features, po
 10. **Division 08: Ironing & Steam Pressing Operations** (`/iron`)
 11. **Division 09: Ready Goods & Export Carton Packing** (`/ready-goods`)
 12. **Division 10: Alteration, Repair & Scrap Reclamation Clinic** (`/alter`)
+13. **Division 11: Central Store Godown & Finished Inventory Vault** (`/store`)
 
 All divisions strictly conform to the **Industrial Luxury** aesthetic defined in [`docs_logic/design.md`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/docs_logic/design.md) (Palette `#3A3564` Indigo Night, `#FAF7F0` Cream Canvas, `#FFFFFF` crisp encapsulated cards, `#09090B` Ink, and semantic status badge pastels).
 
@@ -1387,7 +1388,176 @@ FOR EACH ROW EXECUTE FUNCTION dispatch_scrap_recut_to_cutting();
 
 ---
 
-## 13. Cross-Division Handshake Architecture
+## 13. Division 11: Central Store Godown & Finished Inventory Vault (`/store`)
+
+### 13.1 Portal Routing & Sidebar Integration
+Division 11 manages the factory's inventory nerve center and logistics custodian, tracking over 50,000 finished export garments and 30+ tons of raw fabric rolls across 8 dedicated navigation views:
+1. `/store` (Store Dashboard & Operational Cockpit)
+2. `/store/fabric-godown` (Fabric Godown & ASTM D5430 4-Point QC Console)
+3. `/store/trims-warehouse` (Trims & Accessories Warehouse with ROL Alerts)
+4. `/store/truck-inwards` (Truck Inward Gate & Weighbridge GRN Hub)
+5. `/store/material-issues` (Material Issues to Floor Dispatch Console)
+6. `/store/finished-godown` (Finished Goods Export Staging Bay 3–5)
+7. `/store/zigza-ai` (Central Store AI Copilot & Reconciliation)
+8. `/store/profile` (Chief Storekeeper Profile & Custody Audits)
+
+### 13.2 ASTM D5430 4-Point Fabric Inspection Standard & Shade Banding
+- **Penalty Point Scoring Rules**:
+  - Defect length up to 3 inches: **1 Point**
+  - Defect length 3 to 6 inches: **2 Points**
+  - Defect length 6 to 9 inches: **3 Points**
+  - Defect length over 9 inches or any hole: **4 Points**
+  - Maximum points per single linear yard: **4 Points**
+- **Calculated ASTM Score Formula**:
+  $$\text{Points per 100 sq yds} = \frac{\text{Total Penalty Points} \times 3600}{\text{Inspected Length (yds)} \times \text{Cuttable Width (in)}}$$
+- **Pass Standard**: Must be $\le 28.0$ penalty points per 100 square yards.
+- **Spectrophotometer Shade Grouping**:
+  - `SHADE_A`: Standard core master shade.
+  - `SHADE_B`: Slightly deeper delta-E shade band.
+  - `SHADE_C`: Slightly lighter delta-E shade band.
+  - Shade segregation in Godown Bay 1–2 prevents mixed-shade panel cutting in Division 03.
+
+### 13.3 Trims & Accessories Bin-Location Manager & Re-Order Level (ROL) Alerts
+- Real-time tracking of thread cones, zippers, buttons, labels, and polybags by explicit bin coordinates (`BIN_A-14`, `RACK_B-08`, `BAY_4_PALLET_STACK`).
+- Automatic visual traffic lights whenever `currentStock <= reorderLevel`, alerting the sourcing desk (Division 02) to trigger purchase requisitions before assembly halts.
+
+### 13.4 Truck Gate Inward & Weighbridge GRN 2-Step Stepper
+- **Step 1: Security & Transport Details**:
+  - `grn_number` (System generated: `^GRN-[0-9]{5,8}$`)
+  - `vehicle_number` (Vehicle registration number)
+  - `supplier_name` & `po_reference` validation
+  - `driver_name` & `driver_phone`
+- **Step 2: Consignment Quantities & Weighbridge Scale Slip**:
+  - `item_category` (`RAW_FABRIC_ROLL`, `TRIMS`, `PACKAGING`, `CHEMICAL`)
+  - `total_packages` (Rolls or carton count)
+  - Automatic net weight calculation:
+    $$\text{Net Weight (kg)} = \text{Gross Weight (kg)} - \text{Tare Weight (kg)}$$
+  - Receiving storekeeper sign-off and electronic GRN issuance.
+
+### 13.5 Material Floor Issue Challan Protocol
+- Dispatches reserved 4-Point passed fabric rolls to Division 03 Cutting Floor and BOM packages (threads, labels, zippers) to Division 06 Sewing Lines.
+- Barcode multi-scanning ensures 100% trace custody and prevents wrong roll allocations.
+- Receiver floor supervisor acceptance handshake confirms zero shortages on the shop floor.
+
+### 13.6 Finished Goods Export Staging Bay 3–5 & Container Stuffing Gate Pass
+- High-bay pallet racking matrix in Bay 3, Bay 4, and Bay 5 for export cartons delivered from Division 09 Ready Goods with verified AQL 2.5 pass seals (`AQL-PASS-XXXX`).
+- Container stuffing modal consolidates staged pallets into overseas export container trucks (40ft high-cube), assigns customs bolt seals (`SEAL-XXXX`), and issues container export gate passes.
+
+### 13.7 Complete Database Schema Blueprint (PostgreSQL / Supabase)
+
+```sql
+-- 1. Raw Fabric Rolls Inventory & ASTM D5430 Inspection
+CREATE TABLE store_fabric_rolls (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  roll_barcode VARCHAR(50) NOT NULL UNIQUE,
+  supplier_name VARCHAR(100) NOT NULL,
+  fabric_type VARCHAR(100) NOT NULL,
+  color_shade VARCHAR(50) NOT NULL,
+  shade_group VARCHAR(10) NOT NULL DEFAULT 'SHADE_A', -- SHADE_A, SHADE_B, SHADE_C
+  gross_weight_kg NUMERIC(6,2) NOT NULL,
+  net_meterage NUMERIC(6,2) NOT NULL,
+  measured_gsm INTEGER NOT NULL,
+  target_gsm INTEGER NOT NULL,
+  measured_width_inches NUMERIC(4,1) NOT NULL,
+  target_width_inches NUMERIC(4,1) NOT NULL,
+  penalty_points_total INTEGER DEFAULT 0,
+  points_per_100_sq_yd NUMERIC(4,1) DEFAULT 0.0,
+  inspection_status VARCHAR(30) DEFAULT 'PENDING_INSPECTION', -- PENDING_INSPECTION, PASSED, REJECTED
+  inspector_id UUID REFERENCES employees(id) ON DELETE SET NULL,
+  inspector_name VARCHAR(100),
+  godown_rack_location VARCHAR(30) DEFAULT 'BAY_1_RACK_02',
+  is_issued_to_cutting BOOLEAN DEFAULT FALSE,
+  allocated_order_id VARCHAR(50),
+  defect_breakdown JSONB DEFAULT '{"points1": 0, "points2": 0, "points3": 0, "points4": 0}',
+  notes TEXT,
+  inspected_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 2. Trims & Accessories Inventory
+CREATE TABLE store_trims_inventory (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  item_code VARCHAR(50) NOT NULL UNIQUE,
+  item_name VARCHAR(150) NOT NULL,
+  category VARCHAR(30) NOT NULL, -- SEWING_THREAD, ZIPPERS, BUTTONS, LABELS, PACKAGING, ELASTIC_TAPE
+  bin_location VARCHAR(30) NOT NULL,
+  current_stock INTEGER NOT NULL DEFAULT 0,
+  reorder_level INTEGER NOT NULL DEFAULT 100,
+  unit VARCHAR(20) NOT NULL DEFAULT 'pcs',
+  supplier_name VARCHAR(100) NOT NULL,
+  lead_time_days INTEGER DEFAULT 5,
+  color VARCHAR(50),
+  last_replenished_at DATE DEFAULT CURRENT_DATE,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 3. Truck Inward Gate & Weighbridge Log (GRN)
+CREATE TABLE store_truck_inwards (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  grn_number VARCHAR(50) NOT NULL UNIQUE,
+  vehicle_number VARCHAR(30) NOT NULL,
+  supplier_name VARCHAR(100) NOT NULL,
+  po_reference VARCHAR(50) NOT NULL,
+  driver_name VARCHAR(100) NOT NULL,
+  driver_phone VARCHAR(30) NOT NULL,
+  arrival_timestamp TIMESTAMPTZ DEFAULT NOW(),
+  gross_weight_kg NUMERIC(8,2) NOT NULL,
+  tare_weight_kg NUMERIC(8,2) NOT NULL,
+  net_weight_kg NUMERIC(8,2) NOT NULL,
+  item_category VARCHAR(30) NOT NULL, -- RAW_FABRIC_ROLL, TRIMS, PACKAGING, CHEMICAL
+  total_packages INTEGER NOT NULL DEFAULT 1,
+  gate_security_status VARCHAR(30) DEFAULT 'GATE_INWARDED', -- GATE_INWARDED, WEIGHBRIDGE_COMPLETED, UNLOADED_VERIFIED
+  receiver_inspector VARCHAR(100) NOT NULL,
+  remarks TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 4. Material Floor Issue Challans
+CREATE TABLE store_material_issue_challans (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  issue_challan_no VARCHAR(50) NOT NULL UNIQUE,
+  destination_division VARCHAR(30) NOT NULL, -- CUTTING_FLOOR, SEWING_FLOOR
+  order_id VARCHAR(50) NOT NULL,
+  article_no VARCHAR(50) NOT NULL,
+  buyer_name VARCHAR(100) NOT NULL,
+  receiver_employee_id UUID REFERENCES employees(id) ON DELETE SET NULL,
+  receiver_name VARCHAR(100) NOT NULL,
+  issued_by VARCHAR(100) NOT NULL,
+  scanned_barcodes TEXT[] DEFAULT '{}',
+  material_summary TEXT NOT NULL,
+  quantity_issued NUMERIC(8,2) NOT NULL,
+  unit VARCHAR(20) NOT NULL,
+  status VARCHAR(30) DEFAULT 'PREPARED', -- PREPARED, IN_TRANSIT_TO_FLOOR, ACCEPTED_BY_FLOOR
+  issued_at TIMESTAMPTZ DEFAULT NOW(),
+  accepted_at TIMESTAMPTZ,
+  notes TEXT
+);
+
+-- 5. Finished Goods Export Pallets & Container Stuffing
+CREATE TABLE store_finished_export_pallets (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  pallet_id VARCHAR(50) NOT NULL UNIQUE,
+  buyer_name VARCHAR(100) NOT NULL,
+  order_number VARCHAR(50) NOT NULL,
+  style_description VARCHAR(150) NOT NULL,
+  bay_location VARCHAR(20) NOT NULL DEFAULT 'BAY_3', -- BAY_3, BAY_4, BAY_5
+  rack_number VARCHAR(30) NOT NULL,
+  carton_count INTEGER NOT NULL,
+  total_pcs INTEGER NOT NULL,
+  gross_weight_kg NUMERIC(8,2) NOT NULL,
+  aql_pass_seal_number VARCHAR(50) NOT NULL,
+  destination_country VARCHAR(100) NOT NULL,
+  destination_port VARCHAR(100),
+  shipping_status VARCHAR(30) DEFAULT 'STAGED_IN_BAY', -- STAGED_IN_BAY, STUFFED_IN_CONTAINER, EXPORT_DISPATCHED
+  container_number VARCHAR(50),
+  staged_at TIMESTAMPTZ DEFAULT NOW(),
+  stuffed_at TIMESTAMPTZ
+);
+```
+
+---
+
+## 14. Cross-Division Handshake Architecture
 
 ```
 ┌───────────────────────────────────────────────────────────────────────────────┐
@@ -1446,13 +1616,14 @@ FOR EACH ROW EXECUTE FUNCTION dispatch_scrap_recut_to_cutting();
 
 ---
 
-## 14. Quality, Performance & Compliance Metrics
+## 15. Quality, Performance & Compliance Metrics
 
 - **Compilation Status**: Zero TypeScript compiler errors (`npx tsc --noEmit` exited code 0).
-- **Turbopack Cache Invalidation**: Fully resolved runtime `TypeError: ... is not a function` by creating dedicated `'use client'` storage utilities ([`cuttingStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/cutting/utils/cuttingStorage.ts), [`printingStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/printing/utils/printingStorage.ts), [`embroideryStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/embroidery/utils/embroideryStorage.ts), [`washingStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/washing/utils/washingStorage.ts), [`ironStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/iron/utils/ironStorage.ts), [`readyGoodsStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/ready-goods/utils/readyGoodsStorage.ts), and [`alterStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/alter/utils/alterStorage.ts)).
-- **Live Supabase Synchronization**: Division 06 is 100% connected to live Supabase backend tables with full server action cache revalidations on all `/stitching-sewing/*` routes.
-- **Aesthetic Consistency**: Strict adherence to the Industrial Luxury design system across all views of Division 01, 02, 03, 04, 05, 06, 07, 08, 09, and 10.
+- **Turbopack Cache Invalidation**: Fully resolved runtime `TypeError: ... is not a function` by creating dedicated `'use client'` storage utilities ([`cuttingStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/cutting/utils/cuttingStorage.ts), [`printingStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/printing/utils/printingStorage.ts), [`embroideryStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/embroidery/utils/embroideryStorage.ts), [`washingStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/washing/utils/washingStorage.ts), [`ironStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/iron/utils/ironStorage.ts), [`readyGoodsStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/ready-goods/utils/readyGoodsStorage.ts), [`alterStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/alter/utils/alterStorage.ts), and [`storeStorage.ts`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/store/utils/storeStorage.ts)).
+- **Live Supabase Synchronization**: Division 06 and Division 11 are connected to live Supabase backend tables with full server action cache revalidations on all `/stitching-sewing/*` and `/store/*` routes.
+- **Aesthetic Consistency**: Strict adherence to the Industrial Luxury design system across all 11 operating manufacturing divisions of the enterprise.
 - **Brand Terminology**: Canonical brand name **"Zigza AI"** maintained across all routes and copilots.
+
 
 
 
