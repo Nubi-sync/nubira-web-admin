@@ -15,18 +15,20 @@ import {
 } from 'lucide-react'
 import { DemoRequestInquiry, SubscriptionPlanTier } from '../types/platform'
 import { ENTERPRISE_DIVISIONS_CATALOG } from '../data/initialPlatformData'
-import { provisionNewTenant } from '../utils/platformStorage'
+import { provisionTenantFactoryAction } from '../actions'
 
 interface ProvisionTenantModalProps {
   isOpen: boolean
   onClose: () => void
   inquiry: DemoRequestInquiry | null
+  onSuccess?: () => void
 }
 
 export function ProvisionTenantModal({
   isOpen,
   onClose,
-  inquiry
+  inquiry,
+  onSuccess
 }: ProvisionTenantModalProps) {
   const [companyName, setCompanyName] = useState('')
   const [adminName, setAdminName] = useState('')
@@ -97,7 +99,7 @@ export function ProvisionTenantModal({
     }
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (selectedDivisions.length === 0) {
       alert('Please select at least 1 production division to allocate.')
@@ -106,7 +108,7 @@ export function ProvisionTenantModal({
 
     setIsSubmitting(true)
     try {
-      provisionNewTenant({
+      const res = await provisionTenantFactoryAction({
         demoRequestId: inquiry?.id,
         companyName,
         adminName,
@@ -118,9 +120,18 @@ export function ProvisionTenantModal({
         monthlyBillingInr,
         selectedDivisions
       })
-      setProvisionedSuccess(true)
-    } catch (err) {
+
+      if (res.success) {
+        setProvisionedSuccess(true)
+        if (onSuccess) {
+          onSuccess()
+        }
+      } else {
+        alert(res.error || 'Failed to provision tenant')
+      }
+    } catch (err: any) {
       console.error('Provisioning error:', err)
+      alert('An unexpected error occurred while provisioning tenant.')
     } finally {
       setIsSubmitting(false)
     }
