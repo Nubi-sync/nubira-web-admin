@@ -35,24 +35,73 @@ import {
 
 interface CuttingDashboardClientProps {
   userEmail?: string
+  initialLays?: LaySheet[]
+  initialBundles?: CutBundle[]
+  liveKpis?: any
 }
 
-export function CuttingDashboardClient({ userEmail }: CuttingDashboardClientProps) {
+export function CuttingDashboardClient({ 
+  userEmail,
+  initialLays,
+  initialBundles,
+  liveKpis
+}: CuttingDashboardClientProps) {
   const [tables, setTables] = useState<CuttingTable[]>([])
-  const [laySheets, setLaySheets] = useState<LaySheet[]>([])
-  const [bundles, setBundles] = useState<CutBundle[]>([])
+  const [laySheets, setLaySheets] = useState<LaySheet[]>(() => {
+    if (initialLays && initialLays.length > 0) return initialLays
+    return []
+  })
+  const [bundles, setBundles] = useState<CutBundle[]>(() => {
+    if (initialBundles && initialBundles.length > 0) return initialBundles
+    return []
+  })
   const [markers, setMarkers] = useState<MarkerEfficiency[]>([])
   const [endBits, setEndBits] = useState<EndBitRemnant[]>([])
   const [selectedLay, setSelectedLay] = useState<LaySheet | null>(null)
   const [tableModal, setTableModal] = useState<CuttingTable | null>(null)
 
   useEffect(() => {
-    setTables(getCuttingTables())
-    setLaySheets(getLaySheets())
-    setBundles(getCutBundles())
+    const rawTables = getCuttingTables()
+    
+    if (initialLays && initialLays.length > 0) {
+      setLaySheets(initialLays)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('zigza_cutting_lays_v1', JSON.stringify(initialLays))
+      }
+      
+      // Dynamically attach live active lay to table
+      const syncedTables = rawTables.map(t => {
+        const found = initialLays.find(l => 
+          l.table_number.toLowerCase().replace(/[^a-z0-9]/g, '') === t.table_number.toLowerCase().replace(/[^a-z0-9]/g, '') ||
+          t.table_name.toLowerCase().includes(l.table_number.toLowerCase())
+        )
+        if (found) {
+          return {
+            ...t,
+            current_lay_id: found.id,
+            status: (found.status === 'CUT_COMPLETED' || (found.status as string) === 'COMPLETED') ? 'IDLE' : 'SPREADING'
+          } as CuttingTable
+        }
+        return t
+      })
+      setTables(syncedTables)
+    } else {
+      setLaySheets(getLaySheets())
+      setTables(rawTables)
+    }
+
+    if (initialBundles && initialBundles.length > 0) {
+      setBundles(initialBundles)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('zigza_cutting_bundles_v1', JSON.stringify(initialBundles))
+      }
+    } else {
+      setBundles(getCutBundles())
+    }
+
     setMarkers(getMarkers())
     setEndBits(getEndBits())
-  }, [])
+  }, [initialLays, initialBundles])
 
   const handleTableStatusChange = (tableId: string, newStatus: CuttingTable['status']) => {
     const updated = tables.map(t => t.id === tableId ? { ...t, status: newStatus } : t)
