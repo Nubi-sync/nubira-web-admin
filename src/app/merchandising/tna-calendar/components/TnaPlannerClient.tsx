@@ -19,9 +19,19 @@ import { TnaMilestone } from '../../types/merchandising'
 import { getTnaMilestones, MERCHANDISING_UPDATE_EVENT } from '../../utils/merchandisingStorage'
 import { UpdateTnaMilestoneModal } from './UpdateTnaMilestoneModal'
 
-export function TnaPlannerClient() {
-  const [milestones, setMilestones] = useState<TnaMilestone[]>([])
-  const [selectedPo, setSelectedPo] = useState<string>('PO-ZIG-8901')
+interface TnaPlannerClientProps {
+  initialMilestones?: TnaMilestone[]
+}
+
+export function TnaPlannerClient({ initialMilestones }: TnaPlannerClientProps = {}) {
+  const [milestones, setMilestones] = useState<TnaMilestone[]>(() => {
+    if (initialMilestones && initialMilestones.length > 0) return initialMilestones
+    return []
+  })
+  const [selectedPo, setSelectedPo] = useState<string>(() => {
+    if (initialMilestones && initialMilestones.length > 0) return initialMilestones[0].po_number
+    return 'PO-ZIG-8901'
+  })
   const [editingMilestone, setEditingMilestone] = useState<TnaMilestone | null>(null)
 
   const reloadData = () => {
@@ -29,10 +39,18 @@ export function TnaPlannerClient() {
   }
 
   useEffect(() => {
-    reloadData()
+    if (initialMilestones && initialMilestones.length > 0) {
+      setMilestones(initialMilestones)
+      setSelectedPo(initialMilestones[0].po_number)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('zigza_merchandising_tna_milestones_v1', JSON.stringify(initialMilestones))
+      }
+    } else {
+      reloadData()
+    }
     window.addEventListener(MERCHANDISING_UPDATE_EVENT, reloadData)
     return () => window.removeEventListener(MERCHANDISING_UPDATE_EVENT, reloadData)
-  }, [])
+  }, [initialMilestones])
 
   // Unique POs available in milestones
   const availablePos = Array.from(new Set(milestones.map(m => m.po_number)))

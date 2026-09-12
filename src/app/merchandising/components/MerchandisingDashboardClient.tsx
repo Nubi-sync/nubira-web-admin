@@ -24,7 +24,7 @@ import {
   FileSpreadsheet,
   Boxes
 } from 'lucide-react'
-import { MerchandisingOrder, OrderStatus } from '../types/merchandising'
+import { MerchandisingOrder, OrderStatus, BomCosting, TnaMilestone, ExportShipment } from '../types/merchandising'
 import { getOrders, MERCHANDISING_UPDATE_EVENT } from '../utils/merchandisingStorage'
 import { CreateOrderModal } from '../orders/components/CreateOrderModal'
 
@@ -40,8 +40,23 @@ interface ActivityItem {
   relativeTime: string
 }
 
-export function MerchandisingDashboardClient() {
-  const [orders, setOrders] = useState<MerchandisingOrder[]>([])
+interface MerchandisingDashboardClientProps {
+  initialOrders?: MerchandisingOrder[]
+  initialBomCostings?: BomCosting[]
+  initialMilestones?: TnaMilestone[]
+  initialShipments?: ExportShipment[]
+}
+
+export function MerchandisingDashboardClient({
+  initialOrders,
+  initialBomCostings,
+  initialMilestones,
+  initialShipments
+}: MerchandisingDashboardClientProps = {}) {
+  const [orders, setOrders] = useState<MerchandisingOrder[]>(() => {
+    if (initialOrders && initialOrders.length > 0) return initialOrders
+    return []
+  })
   const [selectedBrand, setSelectedBrand] = useState<string>('ALL')
   const [selectedStyleId, setSelectedStyleId] = useState<string>('ALL')
   const [isStyleMenuOpen, setIsStyleMenuOpen] = useState(false)
@@ -56,10 +71,17 @@ export function MerchandisingDashboardClient() {
   }
 
   useEffect(() => {
-    reloadData()
+    if (initialOrders && initialOrders.length > 0) {
+      setOrders(initialOrders)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('zigza_merchandising_orders_v1', JSON.stringify(initialOrders))
+      }
+    } else {
+      reloadData()
+    }
     window.addEventListener(MERCHANDISING_UPDATE_EVENT, reloadData)
     return () => window.removeEventListener(MERCHANDISING_UPDATE_EVENT, reloadData)
-  }, [])
+  }, [initialOrders])
 
   const handleManualSync = () => {
     setIsSyncing(true)

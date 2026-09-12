@@ -16,8 +16,15 @@ import { ExportShipment, ShipmentStatus } from '../../types/merchandising'
 import { getShipments, saveShipment, MERCHANDISING_UPDATE_EVENT } from '../../utils/merchandisingStorage'
 import { BookShipmentModal } from './BookShipmentModal'
 
-export function ShipmentPipelineClient() {
-  const [shipments, setShipments] = useState<ExportShipment[]>([])
+interface ShipmentPipelineClientProps {
+  initialShipments?: ExportShipment[]
+}
+
+export function ShipmentPipelineClient({ initialShipments }: ShipmentPipelineClientProps = {}) {
+  const [shipments, setShipments] = useState<ExportShipment[]>(() => {
+    if (initialShipments && initialShipments.length > 0) return initialShipments
+    return []
+  })
   const [searchQuery, setSearchQuery] = useState('')
   const [activeFilter, setActiveFilter] = useState<string>('ALL')
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -27,10 +34,17 @@ export function ShipmentPipelineClient() {
   }
 
   useEffect(() => {
-    reloadData()
+    if (initialShipments && initialShipments.length > 0) {
+      setShipments(initialShipments)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('zigza_merchandising_shipments_v1', JSON.stringify(initialShipments))
+      }
+    } else {
+      reloadData()
+    }
     window.addEventListener(MERCHANDISING_UPDATE_EVENT, reloadData)
     return () => window.removeEventListener(MERCHANDISING_UPDATE_EVENT, reloadData)
-  }, [])
+  }, [initialShipments])
 
   const handleUpdateStatus = (shp: ExportShipment, nextStatus: ShipmentStatus) => {
     const updated: ExportShipment = {

@@ -13,15 +13,22 @@ import {
   X,
   TrendingUp,
   Layers,
-  DollarSign,
+  IndianRupee,
   ArrowUpRight
 } from 'lucide-react'
 import { MerchandisingOrder } from '../../types/merchandising'
 import { getOrders, MERCHANDISING_UPDATE_EVENT } from '../../utils/merchandisingStorage'
 import { CreateOrderModal } from './CreateOrderModal'
 
-export function OrdersCatalogClient() {
-  const [orders, setOrders] = useState<MerchandisingOrder[]>([])
+interface OrdersCatalogClientProps {
+  initialOrders?: MerchandisingOrder[]
+}
+
+export function OrdersCatalogClient({ initialOrders }: OrdersCatalogClientProps = {}) {
+  const [orders, setOrders] = useState<MerchandisingOrder[]>(() => {
+    if (initialOrders && initialOrders.length > 0) return initialOrders
+    return []
+  })
   const [activeFilter, setActiveFilter] = useState<string>('ALL')
   const [searchQuery, setSearchQuery] = useState('')
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
@@ -32,10 +39,17 @@ export function OrdersCatalogClient() {
   }
 
   useEffect(() => {
-    reloadData()
+    if (initialOrders && initialOrders.length > 0) {
+      setOrders(initialOrders)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('zigza_merchandising_orders_v1', JSON.stringify(initialOrders))
+      }
+    } else {
+      reloadData()
+    }
     window.addEventListener(MERCHANDISING_UPDATE_EVENT, reloadData)
     return () => window.removeEventListener(MERCHANDISING_UPDATE_EVENT, reloadData)
-  }, [])
+  }, [initialOrders])
 
   const filteredOrders = orders.filter(ord => {
     const matchesFilter = activeFilter === 'ALL' || ord.status === activeFilter
@@ -184,7 +198,7 @@ export function OrdersCatalogClient() {
         <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
           <div className="flex items-start justify-between gap-2">
             <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
-              <DollarSign className="w-5 h-5" />
+              <IndianRupee className="w-5 h-5" />
             </div>
             <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
               FINANCIAL
@@ -194,14 +208,18 @@ export function OrdersCatalogClient() {
             <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
               Contract Value
             </div>
-            <div className="text-[11px] text-slate-400 font-medium">Booked export revenue</div>
+            <div className="text-[11px] text-slate-400 font-medium">Booked commercial revenue</div>
           </div>
           <div className="pt-2 border-t border-slate-100 flex items-baseline justify-between mt-3">
             <div className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900">
-              ${(totalValue / 1000).toFixed(1)}k
+              {totalValue >= 10000000 
+                ? `₹${(totalValue / 10000000).toFixed(2)} Cr` 
+                : totalValue >= 100000 
+                ? `₹${(totalValue / 100000).toFixed(2)} Lakh` 
+                : `₹${(totalValue / 1000).toFixed(1)}k`}
             </div>
             <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-              Export Value
+              Order Value
             </span>
           </div>
         </div>
@@ -282,12 +300,12 @@ export function OrdersCatalogClient() {
                       {order.total_quantity.toLocaleString()}
                     </td>
                     <td className="py-3 px-4 text-right font-mono text-slate-700">
-                      {order.currency === 'USD' ? '$' : order.currency === 'INR' ? '₹' : '€'}
+                      {order.currency === 'USD' ? '$' : order.currency === 'EUR' ? '€' : '₹'}
                       {order.unit_fob_price.toFixed(2)}
                     </td>
                     <td className="py-3 px-4 text-right font-bold text-slate-900 font-mono">
-                      {order.currency === 'USD' ? '$' : order.currency === 'INR' ? '₹' : '€'}
-                      {order.total_contract_value.toLocaleString()}
+                      {order.currency === 'USD' ? '$' : order.currency === 'EUR' ? '€' : '₹'}
+                      {order.total_contract_value.toLocaleString('en-IN')}
                     </td>
                     <td className="py-3 px-4 text-slate-700 font-mono font-medium">
                       {order.ex_factory_date}

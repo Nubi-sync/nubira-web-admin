@@ -17,8 +17,15 @@ import { SourcingRequisition } from '../../types/merchandising'
 import { getSourcingRequisitions, saveSourcingRequisition, MERCHANDISING_UPDATE_EVENT } from '../../utils/merchandisingStorage'
 import { CreateRequisitionModal } from './CreateRequisitionModal'
 
-export function SourcingRequisitionsClient() {
-  const [requisitions, setRequisitions] = useState<SourcingRequisition[]>([])
+interface SourcingRequisitionsClientProps {
+  initialRequisitions?: SourcingRequisition[]
+}
+
+export function SourcingRequisitionsClient({ initialRequisitions }: SourcingRequisitionsClientProps = {}) {
+  const [requisitions, setRequisitions] = useState<SourcingRequisition[]>(() => {
+    if (initialRequisitions && initialRequisitions.length > 0) return initialRequisitions
+    return []
+  })
   const [searchQuery, setSearchQuery] = useState('')
   const [activeFilter, setActiveFilter] = useState<string>('ALL')
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -28,10 +35,17 @@ export function SourcingRequisitionsClient() {
   }
 
   useEffect(() => {
-    reloadData()
+    if (initialRequisitions && initialRequisitions.length > 0) {
+      setRequisitions(initialRequisitions)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('zigza_merchandising_sourcing_pr_v1', JSON.stringify(initialRequisitions))
+      }
+    } else {
+      reloadData()
+    }
     window.addEventListener(MERCHANDISING_UPDATE_EVENT, reloadData)
     return () => window.removeEventListener(MERCHANDISING_UPDATE_EVENT, reloadData)
-  }, [])
+  }, [initialRequisitions])
 
   const handleUpdateStatus = (req: SourcingRequisition, newStatus: SourcingRequisition['fulfillment_status']) => {
     const updated: SourcingRequisition = {

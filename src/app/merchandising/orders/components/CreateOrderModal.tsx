@@ -2,8 +2,10 @@
 
 import React, { useState } from 'react'
 import { X, CheckCircle2, AlertCircle, ArrowRight, ArrowLeft, Plus, Trash2 } from 'lucide-react'
+import { toast } from 'sonner'
 import { MerchandisingOrder, ColorSizeMatrixItem } from '../../types/merchandising'
 import { saveOrder } from '../../utils/merchandisingStorage'
+import { createBuyerOrderAction } from '../../actions'
 
 interface CreateOrderModalProps {
   isOpen: boolean
@@ -30,9 +32,9 @@ export function CreateOrderModal({ isOpen, onClose, onSuccess }: CreateOrderModa
   const [brandName, setBrandName] = useState(REGISTERED_BRANDS[0])
   const [styleRef, setStyleRef] = useState('')
   const [styleName, setStyleName] = useState('')
-  const [currency, setCurrency] = useState<'INR' | 'USD' | 'EUR' | 'GBP'>('USD')
-  const [unitFobPrice, setUnitFobPrice] = useState<string>('12.50')
-  const [totalQuantity, setTotalQuantity] = useState<string>('10000')
+  const [currency, setCurrency] = useState<'INR' | 'USD' | 'EUR' | 'GBP'>('INR')
+  const [unitFobPrice, setUnitFobPrice] = useState<string>('750.00')
+  const [totalQuantity, setTotalQuantity] = useState<string>('5000')
   const [exFactoryDate, setExFactoryDate] = useState('')
 
   // Step 2 State
@@ -110,7 +112,7 @@ export function CreateOrderModal({ isOpen, onClose, onSuccess }: CreateOrderModa
     })
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
 
@@ -136,16 +138,33 @@ export function CreateOrderModal({ isOpen, onClose, onSuccess }: CreateOrderModa
       id: `ord-${Date.now()}`,
       po_number: poNumber.trim().toUpperCase(),
       brand_name: brandName,
-      style_ref: styleRef.trim().toUpperCase(),
-      style_name: styleName.trim(),
+      style_ref: styleRef.trim().toUpperCase() || 'ART-HD-8821',
+      style_name: styleName.trim() || 'Custom Bulk Order',
       total_quantity: targetQty,
       currency,
       unit_fob_price: unitPrice,
       total_contract_value: totalContractValue,
-      ex_factory_date: exFactoryDate,
+      ex_factory_date: exFactoryDate || new Date(Date.now() + 45*86400000).toISOString().split('T')[0],
       status: 'BOOKED',
       color_matrix,
       created_at: new Date().toISOString().split('T')[0]
+    }
+
+    const res = await createBuyerOrderAction({
+      po_number: newOrder.po_number,
+      brand_name: newOrder.brand_name,
+      style_ref: newOrder.style_ref,
+      total_quantity: newOrder.total_quantity,
+      unit_fob_price: newOrder.unit_fob_price,
+      currency: newOrder.currency,
+      ex_factory_date: newOrder.ex_factory_date,
+      color_matrix: newOrder.color_matrix
+    })
+
+    if (res.success) {
+      toast.success(`PO ${newOrder.po_number} synced to Supabase! (8 T&A Milestones Auto-Generated)`)
+    } else {
+      toast.error(res.error || 'Failed to save to Supabase.')
     }
 
     saveOrder(newOrder)
@@ -274,8 +293,8 @@ export function CreateOrderModal({ isOpen, onClose, onSuccess }: CreateOrderModa
                     onChange={e => setCurrency(e.target.value as any)}
                     className="w-full px-3.5 py-2.5 rounded-xl border border-black/10 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] bg-white"
                   >
+                    <option value="INR">INR (₹) - Indian Rupee</option>
                     <option value="USD">USD ($)</option>
-                    <option value="INR">INR (₹)</option>
                     <option value="EUR">EUR (€)</option>
                     <option value="GBP">GBP (£)</option>
                   </select>

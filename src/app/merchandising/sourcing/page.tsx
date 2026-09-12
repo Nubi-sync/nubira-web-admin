@@ -2,6 +2,7 @@ import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { AdminShell } from '@/components/layout/AdminShell'
 import { SourcingRequisitionsClient } from './components/SourcingRequisitionsClient'
+import { fetchSourcingRequisitionsAction } from '../actions'
 
 export const dynamic = 'force-dynamic'
 
@@ -16,9 +17,11 @@ export default async function MerchandisingSourcingPage() {
     redirect('/login')
   }
 
+  const initialRequisitions = await fetchSourcingRequisitionsAction()
+
   return (
     <AdminShell userEmail={user.email}>
-      <SourcingRequisitionsClient />
+      <SourcingRequisitionsClient initialRequisitions={initialRequisitions} />
     </AdminShell>
   )
 }

@@ -17,8 +17,15 @@ import { BomCosting } from '../../types/merchandising'
 import { getBomCostings, MERCHANDISING_UPDATE_EVENT } from '../../utils/merchandisingStorage'
 import { CreateCostingModal } from './CreateCostingModal'
 
-export function BomCostingClient() {
-  const [costings, setCostings] = useState<BomCosting[]>([])
+interface BomCostingClientProps {
+  initialCostings?: BomCosting[]
+}
+
+export function BomCostingClient({ initialCostings }: BomCostingClientProps = {}) {
+  const [costings, setCostings] = useState<BomCosting[]>(() => {
+    if (initialCostings && initialCostings.length > 0) return initialCostings
+    return []
+  })
   const [searchQuery, setSearchQuery] = useState('')
   const [activeTab, setActiveTab] = useState<'ALL' | 'ON_TARGET' | 'VARIANCE_ALERT'>('ALL')
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -28,10 +35,17 @@ export function BomCostingClient() {
   }
 
   useEffect(() => {
-    reloadData()
+    if (initialCostings && initialCostings.length > 0) {
+      setCostings(initialCostings)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('zigza_merchandising_bom_costings_v1', JSON.stringify(initialCostings))
+      }
+    } else {
+      reloadData()
+    }
     window.addEventListener(MERCHANDISING_UPDATE_EVENT, reloadData)
     return () => window.removeEventListener(MERCHANDISING_UPDATE_EVENT, reloadData)
-  }, [])
+  }, [initialCostings])
 
   const filteredCostings = costings.filter(c => {
     const matchesSearch = 
@@ -144,7 +158,7 @@ export function BomCostingClient() {
           </div>
           <div className="pt-2 border-t border-slate-100 flex items-baseline justify-between mt-3">
             <div className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900">
-              ${avgPlannedFob.toFixed(2)}
+              ₹{avgPlannedFob.toFixed(2)}
             </div>
             <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
               Unit FOB
@@ -323,25 +337,25 @@ export function BomCostingClient() {
                         <span className="text-[11px] text-slate-400 block truncate">{costing.style_name}</span>
                       </td>
                       <td className="py-3 px-3 text-right font-mono text-slate-700">
-                        ${costing.fabric_cost.toFixed(2)}
+                        ₹{costing.fabric_cost.toFixed(2)}
                       </td>
                       <td className="py-3 px-3 text-right font-mono text-slate-700">
-                        ${costing.trims_accessories_cost.toFixed(2)}
+                        ₹{costing.trims_accessories_cost.toFixed(2)}
                       </td>
                       <td className="py-3 px-3 text-right font-mono text-slate-700">
-                        ${costing.cmt_sewing_rate.toFixed(2)}
+                        ₹{costing.cmt_sewing_rate.toFixed(2)}
                       </td>
                       <td className="py-3 px-3 text-right font-mono text-slate-700">
-                        ${embellishWashTotal.toFixed(2)}
+                        ₹{embellishWashTotal.toFixed(2)}
                       </td>
                       <td className="py-3 px-3 text-right font-mono text-slate-400">
-                        ${overheadVal.toFixed(2)}
+                        ₹{overheadVal.toFixed(2)}
                       </td>
                       <td className="py-3 px-4 text-right font-mono font-bold text-[#3A3564]">
-                        ${costing.net_fob_cost.toFixed(2)}
+                        ₹{costing.net_fob_cost.toFixed(2)}
                       </td>
                       <td className="py-3 px-4 text-right font-mono font-semibold text-slate-900">
-                        ${costing.actual_realized_cost.toFixed(2)}
+                        ₹{costing.actual_realized_cost.toFixed(2)}
                       </td>
                       <td className="py-3 px-4 text-center">
                         <span
