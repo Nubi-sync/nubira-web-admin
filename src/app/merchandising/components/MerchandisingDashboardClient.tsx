@@ -67,11 +67,14 @@ export function MerchandisingDashboardClient({
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
 
   const reloadData = () => {
-    setOrders(getOrders())
+    const stored = getOrders()
+    if (stored && stored.length > 0) {
+      setOrders(stored)
+    }
   }
 
   useEffect(() => {
-    if (initialOrders && initialOrders.length > 0) {
+    if (initialOrders !== undefined) {
       setOrders(initialOrders)
       if (typeof window !== 'undefined') {
         localStorage.setItem('zigza_merchandising_orders_v1', JSON.stringify(initialOrders))
