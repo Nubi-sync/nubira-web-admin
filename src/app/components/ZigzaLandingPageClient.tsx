@@ -39,6 +39,7 @@ import {
   Building2
 } from 'lucide-react'
 import { saveDemoRequest } from '../platform-admin/utils/platformStorage'
+import { submitDemoRequestAction } from '../platform-admin/actions'
 
 function IndiaFlag({ className = "w-5 h-3.5" }: { className?: string }) {
   return (
@@ -116,7 +117,19 @@ export function ZigzaLandingPageClient({
     e.preventDefault()
     setIsSubmitted(true)
 
-    // Persist live lead to Platform SuperAdmin reactive storage
+    // Persist live lead to Platform SuperAdmin backend (Supabase PostgreSQL)
+    submitDemoRequestAction({
+      applicantName: demoForm.ownerName.trim() || 'Prospective Plant Head',
+      companyName: demoForm.companyName.trim() || 'Apparel Factory Unit',
+      phone: demoForm.phone.trim() || '+91 98000 00000',
+      email: demoForm.email.trim() || 'inquiry@factory.com',
+      preferredPlan: 'FULL_PLANT_AI',
+      cityState: 'India (Landing Page Inquiry)'
+    }).catch(err => {
+      console.warn('Could not submit demo request to Supabase:', err)
+    })
+
+    // Also trigger reactive client bus for instant UI reflection
     try {
       saveDemoRequest({
         applicantName: demoForm.ownerName.trim() || 'Prospective Plant Head',
@@ -126,9 +139,7 @@ export function ZigzaLandingPageClient({
         preferredPlan: 'FULL_PLANT_AI',
         cityState: 'India (Landing Page Inquiry)'
       })
-    } catch (err) {
-      console.warn('Could not persist demo request to platform storage:', err)
-    }
+    } catch (_) {}
 
     const subject = `Zigza Live Demo Request - ${demoForm.companyName || 'New Factory'}`
     const body = `Hi Sumit,
