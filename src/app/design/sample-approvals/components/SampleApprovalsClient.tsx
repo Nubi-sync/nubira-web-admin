@@ -15,16 +15,29 @@ import {
   ShieldCheck,
   TrendingDown
 } from 'lucide-react'
-import { SampleApproval, SampleStage, SampleApprovalStatus } from '../../types/design'
+import { toast } from 'sonner'
+import { SampleApproval, SampleStage, SampleApprovalStatus, TechPack } from '../../types/design'
 import { getStoredSampleApprovals, saveStoredSampleApproval, getStoredTechPacks } from '../../utils/designStorage'
+import { createSampleApprovalAction } from '../../actions'
 
-export function SampleApprovalsClient() {
-  const [approvals, setApprovals] = useState<SampleApproval[]>([])
+interface SampleApprovalsClientProps {
+  initialApprovals?: SampleApproval[]
+  initialTechPacks?: TechPack[]
+}
+
+export function SampleApprovalsClient({ initialApprovals, initialTechPacks }: SampleApprovalsClientProps = {}) {
+  const [approvals, setApprovals] = useState<SampleApproval[]>(() => {
+    if (initialApprovals && initialApprovals.length > 0) return initialApprovals
+    return []
+  })
   const [stageFilter, setStageFilter] = useState<string>('ALL')
   const [isSubmitOpen, setIsSubmitOpen] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const techPacks = initialTechPacks && initialTechPacks.length > 0 ? initialTechPacks : getStoredTechPacks()
 
   // Form 2 State
-  const [selectedStyle, setSelectedStyle] = useState('TP-2026-088')
+  const [selectedStyle, setSelectedStyle] = useState(techPacks[0]?.style_number || 'ART-HD-8821')
   const [stage, setStage] = useState<SampleStage>('PPS')
   const [measuredChest, setMeasuredChest] = useState('53.2')
   const [targetChest, setTargetChest] = useState('53.0')
@@ -41,13 +54,18 @@ export function SampleApprovalsClient() {
   }
 
   useEffect(() => {
-    loadApprovals()
+    if (initialApprovals && initialApprovals.length > 0) {
+      setApprovals(initialApprovals)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('zigza_design_sample_approvals', JSON.stringify(initialApprovals))
+      }
+    } else {
+      loadApprovals()
+    }
     const handler = () => loadApprovals()
     window.addEventListener('zigza_sample_approvals_updated', handler)
     return () => window.removeEventListener('zigza_sample_approvals_updated', handler)
-  }, [])
-
-  const techPacks = getStoredTechPacks()
+  }, [initialApprovals])
 
   const filteredApprovals = approvals.filter(item => {
     if (stageFilter === 'ALL') return true
@@ -59,8 +77,12 @@ export function SampleApprovalsClient() {
   const lengthDiff = Math.abs(Number(measuredLength) - Number(targetLength))
   const isOutOfTolerance = chestDiff > 0.5 || lengthDiff > 0.5
 
-  function handleSubmitApproval() {
+  async function handleSubmitApproval() {
+    setIsSubmitting(true)
     const tp = techPacks.find(p => p.style_number === selectedStyle) || techPacks[0]
+    const maxVar = Math.max(chestDiff, lengthDiff)
+    const verdictDB = approvalStatus === 'APPROVED' ? 'APPROVED' : approvalStatus === 'REVISE_FIT' ? 'REVISE_FIT' : 'REJECTED'
+
     const newApproval: SampleApproval = {
       id: `sa-${Date.now()}`,
       tech_pack_id: tp?.id || 'tp-001',
@@ -82,7 +104,28 @@ export function SampleApprovalsClient() {
       audit_date: approvalStatus === 'APPROVED' ? new Date().toISOString().split('T')[0] : undefined
     }
 
+    if (tp?.id) {
+      const res = await createSampleApprovalAction({
+        tech_pack_id: tp.id,
+        sample_stage: stage,
+        measured_chest: Number(measuredChest),
+        measured_length: Number(measuredLength),
+        measured_sleeve: Number(measuredSleeve),
+        variance_max_cm: maxVar,
+        within_tolerance: !isOutOfTolerance,
+        fit_comments: fitComments || 'Verified against master dress form.',
+        buyer_reviewer_name: buyerEmail.split('@')[0],
+        buyer_reviewer_email: buyerEmail,
+        verdict: verdictDB as any
+      })
+
+      if (res.success) {
+        toast.success(`Sample Audit recorded to Supabase!${stage === 'PPS' && verdictDB === 'APPROVED' ? ' (Tech-Pack auto-promoted to PPS APPROVED)' : ''}`)
+      }
+    }
+
     saveStoredSampleApproval(newApproval)
+    setIsSubmitting(false)
     setIsSubmitOpen(false)
     loadApprovals()
   }

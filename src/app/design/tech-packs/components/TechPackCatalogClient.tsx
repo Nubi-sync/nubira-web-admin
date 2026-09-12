@@ -22,16 +22,25 @@ import { TechPack, TechPackStatus } from '../../types/design'
 import { getStoredTechPacks } from '../../utils/designStorage'
 import { CreateTechPackModal } from './CreateTechPackModal'
 
-const STATUS_CONFIG: Record<TechPackStatus, { label: string; badgeClass: string }> = {
+const STATUS_CONFIG: Record<string, { label: string; badgeClass: string }> = {
   DRAFT: { label: 'DRAFT', badgeClass: 'bg-slate-100 text-slate-700 border-slate-200' },
   SAMPLE_DEV: { label: 'SAMPLE DEV', badgeClass: 'bg-amber-50 text-amber-800 border-amber-200' },
   PPS_SUBMITTED: { label: 'PPS SUBMITTED', badgeClass: 'bg-sky-50 text-sky-800 border-sky-200' },
+  PPS_APPROVED: { label: 'PPS APPROVED', badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200' },
   APPROVED_BULK: { label: 'APPROVED BULK', badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200' },
   REVISE_FIT: { label: 'REVISE FIT', badgeClass: 'bg-rose-50 text-rose-800 border-rose-200' }
 }
 
-export function TechPackCatalogClient() {
-  const [techPacks, setTechPacks] = useState<TechPack[]>([])
+interface TechPackCatalogClientProps {
+  initialTechPacks?: TechPack[]
+  availableBrands?: { id: string; brand_name: string; brand_code: string }[]
+}
+
+export function TechPackCatalogClient({ initialTechPacks, availableBrands }: TechPackCatalogClientProps = {}) {
+  const [techPacks, setTechPacks] = useState<TechPack[]>(() => {
+    if (initialTechPacks && initialTechPacks.length > 0) return initialTechPacks
+    return []
+  })
   const [activeTab, setActiveTab] = useState<'gallery' | 'table'>('gallery')
   const [statusFilter, setStatusFilter] = useState<string>('ALL')
   const [searchQuery, setSearchQuery] = useState('')
@@ -43,11 +52,18 @@ export function TechPackCatalogClient() {
   }
 
   useEffect(() => {
-    loadPacks()
+    if (initialTechPacks && initialTechPacks.length > 0) {
+      setTechPacks(initialTechPacks)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('zigza_design_tech_packs', JSON.stringify(initialTechPacks))
+      }
+    } else {
+      loadPacks()
+    }
     const handler = () => loadPacks()
     window.addEventListener('zigza_tech_packs_updated', handler)
     return () => window.removeEventListener('zigza_tech_packs_updated', handler)
-  }, [])
+  }, [initialTechPacks])
 
   const filteredPacks = techPacks.filter(tp => {
     const matchesStatus = statusFilter === 'ALL' || tp.status === statusFilter
@@ -364,6 +380,7 @@ export function TechPackCatalogClient() {
         isOpen={isCreateOpen}
         onClose={() => setIsCreateOpen(false)}
         onCreated={loadPacks}
+        availableBrands={availableBrands}
       />
     </div>
   )

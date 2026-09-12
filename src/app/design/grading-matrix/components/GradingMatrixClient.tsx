@@ -16,9 +16,19 @@ import {
 import { GradingScheme, PointOfMeasure, SizeSystem } from '../../types/design'
 import { getStoredGradingSchemes, saveStoredGradingScheme } from '../../utils/designStorage'
 
-export function GradingMatrixClient() {
-  const [schemes, setSchemes] = useState<GradingScheme[]>([])
-  const [selectedSchemeId, setSelectedSchemeId] = useState<string>('scheme-adult-unisex')
+interface GradingMatrixClientProps {
+  initialSchemes?: GradingScheme[]
+}
+
+export function GradingMatrixClient({ initialSchemes }: GradingMatrixClientProps = {}) {
+  const [schemes, setSchemes] = useState<GradingScheme[]>(() => {
+    if (initialSchemes && initialSchemes.length > 0) return initialSchemes
+    return []
+  })
+  const [selectedSchemeId, setSelectedSchemeId] = useState<string>(() => {
+    if (initialSchemes && initialSchemes.length > 0) return initialSchemes[0].id
+    return 'scheme-adult-unisex'
+  })
   const [isAddPomOpen, setIsAddPomOpen] = useState(false)
 
   // New POM form state
@@ -34,11 +44,19 @@ export function GradingMatrixClient() {
   }
 
   useEffect(() => {
-    loadSchemes()
+    if (initialSchemes && initialSchemes.length > 0) {
+      setSchemes(initialSchemes)
+      setSelectedSchemeId(initialSchemes[0].id)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('zigza_design_grading_schemes', JSON.stringify(initialSchemes))
+      }
+    } else {
+      loadSchemes()
+    }
     const handler = () => loadSchemes()
     window.addEventListener('zigza_grading_schemes_updated', handler)
     return () => window.removeEventListener('zigza_grading_schemes_updated', handler)
-  }, [])
+  }, [initialSchemes])
 
   const currentScheme = schemes.find(s => s.id === selectedSchemeId) || schemes[0]
 

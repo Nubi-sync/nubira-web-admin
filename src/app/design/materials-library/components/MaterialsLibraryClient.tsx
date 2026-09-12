@@ -17,13 +17,23 @@ import {
   ArrowDownRight
 } from 'lucide-react'
 import { MaterialItem, MaterialType, MaterialStatus } from '../../types/design'
+import { toast } from 'sonner'
 import { getStoredMaterials, saveStoredMaterial } from '../../utils/designStorage'
+import { createMaterialAction } from '../../actions'
 
-export function MaterialsLibraryClient() {
-  const [materials, setMaterials] = useState<MaterialItem[]>([])
+interface MaterialsLibraryClientProps {
+  initialMaterials?: MaterialItem[]
+}
+
+export function MaterialsLibraryClient({ initialMaterials }: MaterialsLibraryClientProps = {}) {
+  const [materials, setMaterials] = useState<MaterialItem[]>(() => {
+    if (initialMaterials && initialMaterials.length > 0) return initialMaterials
+    return []
+  })
   const [typeFilter, setTypeFilter] = useState<string>('ALL')
   const [searchQuery, setSearchQuery] = useState('')
   const [isAddOpen, setIsAddOpen] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   // New Material form state
   const [materialCode, setMaterialCode] = useState('')
@@ -44,11 +54,18 @@ export function MaterialsLibraryClient() {
   }
 
   useEffect(() => {
-    loadMaterials()
+    if (initialMaterials && initialMaterials.length > 0) {
+      setMaterials(initialMaterials)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('zigza_design_materials', JSON.stringify(initialMaterials))
+      }
+    } else {
+      loadMaterials()
+    }
     const handler = () => loadMaterials()
     window.addEventListener('zigza_materials_updated', handler)
     return () => window.removeEventListener('zigza_materials_updated', handler)
-  }, [])
+  }, [initialMaterials])
 
   const filteredMaterials = materials.filter(m => {
     const matchesType = typeFilter === 'ALL' || m.type === typeFilter
@@ -60,12 +77,16 @@ export function MaterialsLibraryClient() {
     return matchesType && matchesSearch
   })
 
-  function handleSaveMaterial() {
+  async function handleSaveMaterial() {
     if (!materialName.trim()) return
+    setIsSubmitting(true)
+
+    const matCodeClean = materialCode.trim().toUpperCase() || `MAT-${Date.now().toString().slice(-4)}`
+    const matTypeDB = type === 'FABRIC' ? 'KNIT_FABRIC' : type === 'TRIM' ? 'RIB_TRIM' : 'SEWING_THREAD'
 
     const newMat: MaterialItem = {
       id: `mat-${Date.now()}`,
-      material_code: materialCode.trim().toUpperCase() || `MAT-${Date.now().toString().slice(-4)}`,
+      material_code: matCodeClean,
       material_name: materialName.trim(),
       type,
       construction: construction.trim() || 'Industrial Textile Standard',
@@ -80,8 +101,27 @@ export function MaterialsLibraryClient() {
       status: 'CERTIFIED'
     }
 
+    const res = await createMaterialAction({
+      material_code: matCodeClean,
+      material_name: materialName.trim(),
+      material_type: matTypeDB as any,
+      composition: composition.trim() || '100% Cotton',
+      nominal_gsm: Number(gsm) || 300,
+      length_shrinkage_pct: Number(shrinkLength) || 3.5,
+      width_shrinkage_pct: Number(shrinkWidth) || 1.5,
+      spirality_pct: Number(spirality) || 1.0,
+      recommended_needle: needle.trim()
+    })
+
+    if (res.success) {
+      toast.success(`Material ${matCodeClean} saved to Supabase!`)
+    } else {
+      toast.error(res.error || 'Failed to save material to Supabase.')
+    }
+
     saveStoredMaterial(newMat)
     loadMaterials()
+    setIsSubmitting(false)
     setIsAddOpen(false)
     setMaterialCode('')
     setMaterialName('')

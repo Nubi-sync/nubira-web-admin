@@ -22,16 +22,24 @@ import { TechPack, TechPackStatus } from '../types/design'
 import { getStoredTechPacks } from '../utils/designStorage'
 import { CreateTechPackModal } from '../tech-packs/components/CreateTechPackModal'
 
-const STATUS_CONFIG: Record<TechPackStatus, { label: string; badgeClass: string }> = {
+const STATUS_CONFIG: Record<string, { label: string; badgeClass: string }> = {
   DRAFT: { label: 'DRAFT', badgeClass: 'bg-slate-100 text-slate-700 border-slate-200' },
   SAMPLE_DEV: { label: 'SAMPLE DEV', badgeClass: 'bg-amber-50 text-amber-800 border-amber-200' },
   PPS_SUBMITTED: { label: 'PPS REVIEW', badgeClass: 'bg-sky-50 text-sky-800 border-sky-200' },
+  PPS_APPROVED: { label: 'PPS APPROVED', badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200' },
   APPROVED_BULK: { label: 'APPROVED BULK', badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200' },
   REVISE_FIT: { label: 'REVISE FIT', badgeClass: 'bg-rose-50 text-rose-800 border-rose-200' }
 }
 
-export function DesignDashboardClient() {
-  const [techPacks, setTechPacks] = useState<TechPack[]>([])
+interface DesignDashboardClientProps {
+  initialTechPacks?: TechPack[]
+}
+
+export function DesignDashboardClient({ initialTechPacks }: DesignDashboardClientProps = {}) {
+  const [techPacks, setTechPacks] = useState<TechPack[]>(() => {
+    if (initialTechPacks && initialTechPacks.length > 0) return initialTechPacks
+    return []
+  })
   const [statusFilter, setStatusFilter] = useState<string>('ALL')
   const [searchQuery, setSearchQuery] = useState('')
   const [isCreateOpen, setIsCreateOpen] = useState(false)
@@ -41,13 +49,23 @@ export function DesignDashboardClient() {
   }
 
   useEffect(() => {
-    loadData()
-    const handler = () => loadData()
+    if (initialTechPacks && initialTechPacks.length > 0) {
+      setTechPacks(initialTechPacks)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('zigza_design_tech_packs', JSON.stringify(initialTechPacks))
+      }
+    } else {
+      loadData()
+    }
+
+    const handler = () => {
+      loadData()
+    }
     window.addEventListener('zigza_tech_packs_updated', handler)
     return () => window.removeEventListener('zigza_tech_packs_updated', handler)
-  }, [])
+  }, [initialTechPacks])
 
-  const approvedCount = techPacks.filter(p => p.status === 'APPROVED_BULK').length
+  const approvedCount = techPacks.filter(p => p.status === 'APPROVED_BULK' || (p.status as string) === 'PPS_APPROVED').length
   const pendingCount = techPacks.filter(p => p.status === 'PPS_SUBMITTED' || p.status === 'SAMPLE_DEV').length
 
   const filteredPacks = techPacks.filter(tp => {

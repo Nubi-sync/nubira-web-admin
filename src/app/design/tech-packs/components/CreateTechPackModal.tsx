@@ -2,13 +2,16 @@
 
 import { useState } from 'react'
 import { X, Check, ArrowRight, ArrowLeft, Sparkles, FileText, Layers, Tag, Scissors } from 'lucide-react'
+import { toast } from 'sonner'
 import { TechPack, GarmentCategory, SizeSystem, EmbellishmentSequence, SeamClass } from '../../types/design'
 import { saveStoredTechPack } from '../../utils/designStorage'
+import { createTechPackAction } from '../../actions'
 
 interface CreateTechPackModalProps {
   isOpen: boolean
   onClose: () => void
   onCreated?: (techPack: TechPack) => void
+  availableBrands?: { id: string; brand_name: string; brand_code: string }[]
 }
 
 const CATEGORIES: GarmentCategory[] = ['Hoodie', 'T-Shirt', 'Polo', 'Jogger', 'Jacket', 'Kids Romper']
@@ -32,15 +35,17 @@ const SEAM_CLASSES: SeamClass[] = [
   'ISO 4915 Class 607 (Flatlock)'
 ]
 
-export function CreateTechPackModal({ isOpen, onClose, onCreated }: CreateTechPackModalProps) {
+export function CreateTechPackModal({ isOpen, onClose, onCreated, availableBrands }: CreateTechPackModalProps) {
   const [step, setStep] = useState<1 | 2>(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
 
+  const brandsList = (availableBrands && availableBrands.length > 0) ? availableBrands.map(b => b.brand_name) : BRANDS
+
   // Form State
   const [styleNumber, setStyleNumber] = useState('')
   const [styleName, setStyleName] = useState('')
-  const [brandName, setBrandName] = useState('OLLYPOP')
+  const [brandName, setBrandName] = useState(brandsList[0] || 'OLLYPOP')
   const [category, setCategory] = useState<GarmentCategory>('Hoodie')
   const [sizeSystem, setSizeSystem] = useState<SizeSystem>('ALPHA_ADULT')
   const [baseSize, setBaseSize] = useState('M')
@@ -105,15 +110,17 @@ export function CreateTechPackModal({ isOpen, onClose, onCreated }: CreateTechPa
     }
   }
 
-  function handleSubmit() {
+  async function handleSubmit() {
     if (!validateStep2()) return
     setIsSubmitting(true)
 
-    const newPack: TechPack = {
-      id: `tp-${Date.now()}`,
+    const matchedBrand = availableBrands?.find(b => b.brand_name === brandName)
+
+    const res = await createTechPackAction({
       style_number: styleNumber.trim().toUpperCase(),
       style_name: styleName.trim(),
       brand_name: brandName,
+      brand_id: matchedBrand?.id,
       category,
       size_system: sizeSystem,
       base_size: baseSize,
@@ -122,17 +129,18 @@ export function CreateTechPackModal({ isOpen, onClose, onCreated }: CreateTechPa
       embellishment_sequence: embellishmentSeq,
       spi: Number(spi),
       seam_class: seamClass,
-      status: 'DRAFT',
-      target_cut_date: targetCutDate,
-      version: 1,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    }
+    })
 
-    saveStoredTechPack(newPack)
     setIsSubmitting(false)
-    onCreated?.(newPack)
-    onClose()
+
+    if (res.success && res.data) {
+      saveStoredTechPack(res.data)
+      toast.success(`Tech-Pack ${res.data.style_number} created in Supabase!`)
+      onCreated?.(res.data)
+      onClose()
+    } else {
+      toast.error(res.error || 'Failed to create tech pack in Supabase.')
+    }
   }
 
   return (
@@ -228,7 +236,7 @@ export function CreateTechPackModal({ isOpen, onClose, onCreated }: CreateTechPa
                     onChange={e => setBrandName(e.target.value)}
                     className="w-full px-3 py-2 rounded-xl border border-black/15 text-sm font-bold text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                   >
-                    {BRANDS.map(b => (
+                    {brandsList.map(b => (
                       <option key={b} value={b}>{b}</option>
                     ))}
                   </select>
