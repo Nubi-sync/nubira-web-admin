@@ -74,6 +74,7 @@ export async function updateSession(request: NextRequest) {
   
   // Explicit protected dashboard & module pages that require login
   const PROTECTED_DASHBOARD_ROUTES = [
+    '/platform-admin',
     '/modules',
     '/stitching-sewing',
     '/factory',
@@ -107,9 +108,9 @@ export async function updateSession(request: NextRequest) {
     }
 
     if (user && isLoginPage) {
-      // If already logged in and visiting /login in another tab, redirect to /modules
+      // If already logged in and visiting /login in another tab, redirect to appropriate portal
       const url = request.nextUrl.clone()
-      url.pathname = '/modules'
+      url.pathname = user.email?.toLowerCase() === 'admin@zigza.in' ? '/platform-admin' : '/modules'
       return NextResponse.redirect(url)
     }
   }

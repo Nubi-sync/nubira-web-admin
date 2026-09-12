@@ -35,8 +35,58 @@ export async function login(formData: FormData) {
   const cleanEmailKey = rawInput.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_.-]/g, '')
   const email = rawInput.includes('@') ? rawInput : `${cleanEmailKey}@nubira.local`
 
+  // Dedicated Platform Root SuperAdmin credentials check (admin@zigza.in / @Burhanpur123)
+  const isPlatformRootCredential =
+    (email.toLowerCase() === 'admin@zigza.in' || cleanEmailKey === 'admin') &&
+    password === '@Burhanpur123'
+
+  if (isPlatformRootCredential) {
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    if (serviceRoleKey && supabaseUrl) {
+      try {
+        const adminClient = createAdminClient(supabaseUrl, serviceRoleKey)
+        const { data: usersData } = await adminClient.auth.admin.listUsers()
+        const existingAdmin = usersData?.users?.find(
+          u => u.email?.toLowerCase() === 'admin@zigza.in'
+        )
+
+        if (!existingAdmin) {
+          const { data: created, error: createErr } = await adminClient.auth.admin.createUser({
+            email: 'admin@zigza.in',
+            password: '@Burhanpur123',
+            email_confirm: true,
+            user_metadata: { role: 'PLATFORM_SUPERADMIN', username: 'Platform SuperAdmin' }
+          })
+          if (!createErr && created?.user) {
+            await adminClient.from('profiles').upsert({
+              id: created.user.id,
+              username: 'Platform SuperAdmin',
+              role: 'PLATFORM_SUPERADMIN'
+            })
+          }
+        } else {
+          // Ensure password and role are active
+          await adminClient.auth.admin.updateUserById(existingAdmin.id, {
+            password: '@Burhanpur123',
+            email_confirm: true,
+            user_metadata: { role: 'PLATFORM_SUPERADMIN', username: 'Platform SuperAdmin' }
+          })
+          await adminClient.from('profiles').upsert({
+            id: existingAdmin.id,
+            username: 'Platform SuperAdmin',
+            role: 'PLATFORM_SUPERADMIN'
+          })
+        }
+      } catch (adminErr) {
+        console.warn('SuperAdmin auto-provision notice:', adminErr)
+      }
+    }
+  }
+
+  const loginEmail = isPlatformRootCredential ? 'admin@zigza.in' : email
   let { data: authData, error } = await supabase.auth.signInWithPassword({
-    email,
+    email: loginEmail,
     password,
   })
 
@@ -61,24 +111,34 @@ export async function login(formData: FormData) {
   resetRateLimit(`login_${clientIp}`)
   resetRateLimit(`mw_login_${clientIp}`)
 
-  // Check user role for dynamic destination routing: All managers go to 6-Module Hub
+  // Dynamic destination routing: Root SuperAdmin routes to /platform-admin
   let targetRoute = '/modules'
-  try {
-    const userId = authData.user?.id
-    if (userId) {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', userId)
-        .single()
+  const isRootAdmin =
+    loginEmail.toLowerCase() === 'admin@zigza.in' ||
+    authData?.user?.email?.toLowerCase() === 'admin@zigza.in'
 
-      const role = (profile?.role || '').toUpperCase()
-      if (role === 'STORE' || role === 'STORE_SUPERVISOR' || role === 'GODOWN' || email?.startsWith('store@')) {
-        targetRoute = '/stitching-sewing/store'
+  if (isRootAdmin) {
+    targetRoute = '/platform-admin'
+  } else {
+    try {
+      const userId = authData?.user?.id
+      if (userId) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', userId)
+          .single()
+
+        const role = (profile?.role || '').toUpperCase()
+        if (role === 'PLATFORM_SUPERADMIN' || role === 'SUPERADMIN') {
+          targetRoute = '/platform-admin'
+        } else if (role === 'STORE' || role === 'STORE_SUPERVISOR' || role === 'GODOWN' || loginEmail?.startsWith('store@')) {
+          targetRoute = '/stitching-sewing/store'
+        }
       }
+    } catch (err) {
+      console.error('Error fetching user profile role upon login:', err)
     }
-  } catch (err) {
-    console.error('Error fetching user profile role upon login:', err)
   }
 
   revalidatePath('/', 'layout')

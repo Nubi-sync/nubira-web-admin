@@ -18,21 +18,29 @@ export default async function HomePage({
   const resolvedParams = searchParams ? await searchParams : {}
   const isShowcase = resolvedParams?.showcase === 'true'
 
-  // If user is authenticated and didn't explicitly request the showcase view, route them to Workspace Hub
+  // If user is authenticated and didn't explicitly request the showcase view, route them to appropriate portal
   if (user && !isShowcase) {
     let targetRoute = '/modules'
-    try {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', user.id)
-        .single()
+    const isRootAdmin = user.email?.toLowerCase() === 'admin@zigza.in'
 
-      const role = (profile?.role || '').toUpperCase()
-      if (role === 'STORE' || role === 'STORE_SUPERVISOR' || role === 'GODOWN' || user.email?.startsWith('store@')) {
-        targetRoute = '/stitching-sewing/store'
-      }
-    } catch (_) {}
+    if (isRootAdmin) {
+      targetRoute = '/platform-admin'
+    } else {
+      try {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single()
+
+        const role = (profile?.role || '').toUpperCase()
+        if (role === 'PLATFORM_SUPERADMIN' || role === 'SUPERADMIN') {
+          targetRoute = '/platform-admin'
+        } else if (role === 'STORE' || role === 'STORE_SUPERVISOR' || role === 'GODOWN' || user.email?.startsWith('store@')) {
+          targetRoute = '/stitching-sewing/store'
+        }
+      } catch (_) {}
+    }
     redirect(targetRoute)
   }
 
