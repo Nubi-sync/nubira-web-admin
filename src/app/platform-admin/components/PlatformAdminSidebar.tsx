@@ -13,8 +13,7 @@ import {
   LogOut,
   X,
   Layers,
-  ChevronRight,
-  ExternalLink
+  ChevronRight
 } from 'lucide-react'
 
 interface PlatformAdminSidebarProps {
@@ -50,7 +49,7 @@ const navSections: NavSection[] = [
     section: 'Root Master',
     items: [
       { label: 'SuperAdmin Profile', href: '/platform-admin/profile', icon: User },
-      { label: 'View Enterprise Modules', href: '/modules', icon: Layers, badge: '11 Units' },
+      { label: '11 Enterprise Modules', href: '/platform-admin/modules', icon: Layers, badge: '11 Units' },
     ],
   },
 ]
@@ -107,40 +106,54 @@ export function PlatformAdminSidebar({
         prefetch={true}
         onClick={() => onMobileClose?.()}
         title={!isExpanded ? item.label : undefined}
-        className={`relative flex items-center rounded-xl text-sm outline-none transition-all duration-150 cursor-pointer ${
+        className={`relative flex items-center rounded-xl text-sm outline-none focus-visible:ring-2 focus-visible:ring-[#3A3564] cursor-pointer ${
           isExpanded
-            ? 'px-3 py-2.5 justify-between w-full'
-            : 'w-10 h-10 mx-auto justify-center'
+            ? 'px-3 py-2.5 justify-between w-full transition-all duration-200 ease-out'
+            : 'w-10 h-10 mx-auto justify-center transition-all duration-500 ease-in-out'
         } ${
           isActive
             ? 'bg-[#FAF7F0] text-[#3A3564] font-bold border border-black/10 shadow-2xs'
             : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-medium'
         }`}
       >
-        <div className="flex items-center min-w-0">
-          <Icon
-            className={`shrink-0 transition-colors ${
-              isActive ? 'text-[#3A3564]' : 'text-slate-500'
-            } ${isExpanded ? 'w-4 h-4 mr-3' : 'w-5 h-5'}`}
+        {/* Left active accent bar matching AdminSidebar */}
+        {isActive && (
+          <div 
+            className={`absolute left-0 top-1/2 -translate-y-1/2 rounded-r-full bg-[#3A3564] transition-all ${
+              isExpanded ? 'w-[3.5px] h-6 duration-200' : 'w-[3px] h-5 duration-500'
+            }`}
           />
-          {isExpanded && (
-            <span className={`truncate text-xs tracking-tight font-[family-name:var(--font-public-sans)] ${
-              isActive ? 'font-bold text-[#3A3564]' : 'font-medium text-slate-700'
-            }`}>
-              {item.label}
-            </span>
-          )}
+        )}
+
+        <div className={`flex items-center min-w-0 transition-all ${
+          isExpanded ? 'gap-3 flex-1 duration-200' : 'justify-center duration-500'
+        }`}>
+          <Icon
+            className={`w-[18px] h-[18px] shrink-0 transition-colors ${
+              isActive ? 'text-[#3A3564]' : 'text-slate-500'
+            }`}
+          />
+          <span className={`overflow-hidden whitespace-nowrap transition-all text-sm ${
+            isExpanded 
+              ? 'max-w-[170px] opacity-100 truncate duration-200 ease-out font-medium' 
+              : 'max-w-0 opacity-0 duration-400 ease-in-out'
+          } ${isActive ? 'font-bold text-[#3A3564]' : 'text-slate-700'}`}>
+            {item.label}
+          </span>
         </div>
 
-        {isExpanded && item.badge && (
-          <span className={`text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full border shrink-0 ${
-            isActive 
-              ? 'bg-[#3A3564] text-white border-[#3A3564]' 
-              : 'bg-emerald-50 text-emerald-700 border-emerald-200'
-          }`}>
-            {item.badge}
-          </span>
-        )}
+        {/* Pill Badge */}
+        <div className={`overflow-hidden transition-all shrink-0 ${
+          isExpanded 
+            ? 'max-w-[90px] opacity-100 duration-200 ease-out' 
+            : 'max-w-0 opacity-0 duration-400 ease-in-out'
+        }`}>
+          {item.badge ? (
+            <span className="text-[10px] font-mono font-extrabold uppercase tracking-wider text-[#3A3564] bg-[#FAF7F0] border border-black/15 px-2 py-0.5 rounded-md shadow-2xs whitespace-nowrap">
+              {item.badge}
+            </span>
+          ) : null}
+        </div>
       </Link>
     )
   }
@@ -151,38 +164,60 @@ export function PlatformAdminSidebar({
       <aside
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
-        className={`hidden lg:flex fixed top-0 left-0 z-40 h-screen bg-white border-r border-black/10 flex-col justify-between shadow-2xs select-none ${
+        className={`hidden lg:flex fixed top-0 left-0 z-40 h-screen bg-white border-r border-slate-200 flex-col justify-between shadow-xs select-none ${
           isHovered
-            ? 'w-[260px] duration-200 ease-out'
-            : 'w-[72px] duration-300 ease-in-out'
+            ? 'w-[264px] shadow-2xl transition-all duration-200 ease-out'
+            : 'w-[72px] shadow-xs transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]'
         }`}
       >
-        {/* Top Branding */}
+        {/* Top Branding / Logo Block */}
         <div>
-          <div className="p-4 pb-3 flex items-center justify-between border-b border-black/10 min-h-[64px]">
-            <Link href="/platform-admin" className="flex items-center gap-2.5 overflow-hidden">
-              <img
-                src="/z i g z a (2).png"
-                alt="zigza."
-                className="h-8 w-auto object-contain rounded-xl shrink-0 shadow-2xs"
-              />
+          <div className="border-b border-slate-200 h-[65px] flex items-center px-4 overflow-hidden">
+            <Link href="/platform-admin" className="flex items-center gap-2.5 min-w-0 w-full">
+              {/* Collapsed Favicon (Shown when sidebar is closed) */}
+              <div className={`shrink-0 flex items-center justify-center transition-all ${
+                isHovered 
+                  ? 'w-0 opacity-0 overflow-hidden duration-200 ease-out' 
+                  : 'w-10 h-10 opacity-100 mx-auto duration-500 ease-in-out'
+              }`}>
+                <img 
+                  src="/favicon.ico" 
+                  alt="zigza." 
+                  className="w-9 h-9 object-contain rounded-xl shadow-xs"
+                />
+              </div>
+
+              {/* Expanded Full Logo + ROOT Badge (Shown when sidebar expands) */}
+              <div className={`flex items-center justify-between w-full overflow-hidden transition-all ${
+                isHovered 
+                  ? 'opacity-100 max-w-[220px] duration-200 ease-out' 
+                  : 'opacity-0 max-w-0 duration-500 ease-in-out'
+              }`}>
+                <img 
+                  src="/z i g z a (2).png" 
+                  alt="zigza." 
+                  className="h-9 w-auto object-contain rounded-xl shadow-2xs"
+                />
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#3A3564] text-white shrink-0 shadow-2xs ml-2">
+                  ROOT
+                </span>
+              </div>
             </Link>
-            {isHovered && (
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#3A3564] text-white animate-in fade-in duration-150 shrink-0 shadow-2xs">
-                ROOT ADMIN
-              </span>
-            )}
           </div>
 
           {/* Navigation Items */}
-          <nav className="p-3 space-y-5 overflow-y-auto max-h-[calc(100vh-140px)]">
+          <nav className="p-2.5 py-4 space-y-4 flex-1 overflow-y-auto overflow-x-hidden">
             {navSections.map((group) => (
               <div key={group.section} className="space-y-1">
-                {isHovered && (
-                  <div className="px-3 text-[10px] font-bold uppercase tracking-[1.5px] text-slate-400 font-mono mb-1.5 animate-in fade-in duration-150">
+                <div className={`overflow-hidden transition-all ${
+                  isHovered 
+                    ? 'h-5 opacity-100 duration-200 ease-out mb-1.5' 
+                    : 'h-0 opacity-0 duration-500 ease-in-out'
+                }`}>
+                  <div className="px-3 text-[10px] font-bold uppercase tracking-[1.5px] text-slate-400 font-mono whitespace-nowrap">
                     {group.section}
                   </div>
-                )}
+                </div>
                 <div className="space-y-1">
                   {group.items.map((item) => renderNavItem(item, isHovered))}
                 </div>
@@ -192,28 +227,51 @@ export function PlatformAdminSidebar({
         </div>
 
         {/* Bottom Root Profile & Sign Out */}
-        <div className="p-3 border-t border-black/10 bg-[#FAF7F0] flex items-center justify-between gap-2">
+        <div className={`p-3.5 border-t transition-colors flex items-center overflow-hidden h-[65px] ${
+          pathname === '/platform-admin/profile'
+            ? 'bg-[#FAF7F0] border-[#3A3564]/30 shadow-2xs'
+            : 'border-slate-200 bg-[#FAFAF8] hover:bg-slate-50'
+        }`}>
           <Link
             href="/platform-admin/profile"
-            className="flex items-center gap-2.5 min-w-0 flex-1 group"
+            className="flex items-center min-w-0 flex-1 group"
+            title="SuperAdmin Profile"
           >
-            <div className="w-8 h-8 rounded-xl bg-[#3A3564] text-white flex items-center justify-center text-xs font-bold font-mono shrink-0 shadow-2xs">
+            <div className={`w-9 h-9 rounded-full bg-[#3A3564] text-white flex items-center justify-center text-[13px] font-bold font-mono shrink-0 shadow-xs mx-auto transition-all ${
+              pathname === '/platform-admin/profile'
+                ? 'ring-2 ring-[#3A3564] ring-offset-2 ring-offset-[#FAF7F0]'
+                : 'group-hover:ring-2 group-hover:ring-[#3A3564]/30'
+            }`}>
               RA
             </div>
-            {isHovered && (
-              <div className="flex flex-col min-w-0 flex-1 animate-in fade-in duration-150">
-                <span className="text-xs font-bold text-slate-900 truncate font-[family-name:var(--font-public-sans)]">
+
+            <div className={`flex items-center min-w-0 transition-all ${
+              isHovered 
+                ? 'ml-3 max-w-[155px] opacity-100 flex-1 duration-200 ease-out' 
+                : 'ml-0 max-w-0 opacity-0 duration-500 ease-in-out'
+            }`}>
+              <div className="flex flex-col min-w-0 flex-1">
+                <span 
+                  className={`text-[13px] font-bold truncate leading-tight transition-colors ${
+                    pathname === '/platform-admin/profile' ? 'text-[#3A3564]' : 'text-slate-900 group-hover:text-[#3A3564]'
+                  }`}
+                  title={userEmail}
+                >
                   {userEmail}
                 </span>
-                <span className="text-[10px] font-mono text-[#3A3564] font-bold">
-                  Root SuperAdmin ↗
+                <span className="text-[11px] font-mono text-[#3A3564] font-semibold leading-tight">
+                  Root SuperAdmin
                 </span>
               </div>
-            )}
+            </div>
           </Link>
 
-          {isHovered && (
-            <form action="/auth/signout" method="POST" className="shrink-0 animate-in fade-in duration-150">
+          <div className={`overflow-hidden transition-all shrink-0 ${
+            isHovered 
+              ? 'max-w-[40px] opacity-100 duration-200 ease-out' 
+              : 'max-w-0 opacity-0 duration-400 ease-in-out'
+          }`}>
+            <form action="/auth/signout" method="POST">
               <button
                 type="submit"
                 title="Sign Out"
@@ -222,7 +280,7 @@ export function PlatformAdminSidebar({
                 <LogOut className="w-4 h-4" />
               </button>
             </form>
-          )}
+          </div>
         </div>
       </aside>
 
@@ -240,12 +298,17 @@ export function PlatformAdminSidebar({
         }`}
       >
         <div>
-          <div className="p-4 pb-3.5 border-b border-black/10 flex items-center justify-between">
+          <div className="p-4 pb-3.5 border-b border-slate-200 flex items-center justify-between h-[65px]">
             <Link href="/platform-admin" className="flex items-center gap-2">
+              <img 
+                src="/favicon.ico" 
+                alt="zigza." 
+                className="w-7 h-7 object-contain rounded-lg shadow-xs"
+              />
               <img
                 src="/z i g z a (2).png"
                 alt="zigza."
-                className="h-8 w-auto object-contain rounded-xl shadow-2xs"
+                className="h-7 w-auto object-contain rounded-xl shadow-2xs ml-1"
               />
             </Link>
             <div className="flex items-center gap-2">
@@ -265,7 +328,7 @@ export function PlatformAdminSidebar({
           <nav className="p-3.5 space-y-5 overflow-y-auto max-h-[calc(100vh-140px)]">
             {navSections.map((group) => (
               <div key={group.section} className="space-y-1">
-                <div className="px-3 text-[10px] font-bold uppercase tracking-[1.5px] text-slate-400 font-mono mb-1.5">
+                <div className="px-3 text-[10px] font-bold uppercase tracking-[1.5px] text-slate-400 font-mono mb-2">
                   {group.section}
                 </div>
                 <div className="space-y-1">
@@ -276,17 +339,17 @@ export function PlatformAdminSidebar({
           </nav>
         </div>
 
-        <div className="p-4 border-t border-black/10 bg-[#FAF7F0] flex items-center justify-between gap-3">
+        <div className="p-4 border-t border-slate-200 bg-[#FAF7F0] flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5 min-w-0 flex-1">
-            <div className="w-8 h-8 rounded-xl bg-[#3A3564] text-white flex items-center justify-center text-xs font-bold font-mono shrink-0 shadow-2xs">
+            <div className="w-9 h-9 rounded-full bg-[#3A3564] text-white flex items-center justify-center text-[13px] font-bold font-mono shrink-0 shadow-xs">
               RA
             </div>
             <div className="flex flex-col min-w-0">
-              <span className="text-xs font-bold text-slate-900 truncate font-[family-name:var(--font-public-sans)]">
+              <span className="text-[13px] font-bold text-slate-900 truncate font-[family-name:var(--font-heading)]">
                 {userEmail}
               </span>
-              <span className="text-[10px] font-mono text-[#3A3564] font-bold">
-                Platform SuperAdmin
+              <span className="text-[11px] font-mono text-[#3A3564] font-semibold">
+                Root SuperAdmin
               </span>
             </div>
           </div>
