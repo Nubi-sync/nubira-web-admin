@@ -50,11 +50,14 @@ export function SampleApprovalsClient({ initialApprovals, initialTechPacks }: Sa
   const [approvalStatus, setApprovalStatus] = useState<SampleApprovalStatus>('APPROVED')
 
   function loadApprovals() {
-    setApprovals(getStoredSampleApprovals())
+    const stored = getStoredSampleApprovals()
+    if (stored && stored.length > 0) {
+      setApprovals(stored)
+    }
   }
 
   useEffect(() => {
-    if (initialApprovals && initialApprovals.length > 0) {
+    if (initialApprovals !== undefined) {
       setApprovals(initialApprovals)
       if (typeof window !== 'undefined') {
         localStorage.setItem('zigza_design_sample_approvals', JSON.stringify(initialApprovals))

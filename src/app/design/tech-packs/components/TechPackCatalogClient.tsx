@@ -48,11 +48,14 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands }: Tec
   const [diffPack, setDiffPack] = useState<TechPack | null>(null)
 
   function loadPacks() {
-    setTechPacks(getStoredTechPacks())
+    const stored = getStoredTechPacks()
+    if (stored && stored.length > 0) {
+      setTechPacks(stored)
+    }
   }
 
   useEffect(() => {
-    if (initialTechPacks && initialTechPacks.length > 0) {
+    if (initialTechPacks !== undefined) {
       setTechPacks(initialTechPacks)
       if (typeof window !== 'undefined') {
         localStorage.setItem('zigza_design_tech_packs', JSON.stringify(initialTechPacks))
