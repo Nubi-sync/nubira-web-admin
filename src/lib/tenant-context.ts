@@ -210,3 +210,20 @@ export async function resolveUserTenant(user: {
     isProvisionedTenant: true
   }
 }
+
+/**
+ * Checks if a resolved tenant profile belongs to the primary legacy plant (Nubira Creation).
+ * Used across operational division modules to ensure 100% of historical production data is preserved
+ * for team.anga9@gmail.com, while newly registered client factories start with an isolated sandbox.
+ */
+export function isLegacyNubiraTenant(tenant: ResolvedTenantProfile): boolean {
+  if (!tenant) return false
+  const email = (tenant.userEmail || '').toLowerCase().trim()
+  const comp = (tenant.companyName || '').toLowerCase().trim()
+  return (
+    email === 'team.anga9@gmail.com' ||
+    email === 'admin@nubira.local' ||
+    email.endsWith('@nubira.local') ||
+    comp === 'nubira creation'
+  )
+}

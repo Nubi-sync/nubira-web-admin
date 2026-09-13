@@ -10,7 +10,7 @@ const supabaseAdmin = createAdminClient(
 )
 
 // 1. Fetch Lay Sheets with Commercial Order Handshake
-export async function fetchLaySheetsAction(): Promise<LaySheet[]> {
+export async function fetchLaySheetsAction(companyName?: string): Promise<LaySheet[]> {
   try {
     const { data: sheets, error } = await supabaseAdmin
       .from('cutting_lay_sheets')
@@ -46,11 +46,21 @@ export async function fetchLaySheetsAction(): Promise<LaySheet[]> {
       return []
     }
 
-    return (sheets || []).map((sheet: any) => ({
+    const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
+    const targetComp = (companyName || '').toUpperCase()
+
+    const filteredSheets = isNonNubira
+      ? (sheets || []).filter((s: any) => {
+          const b = (s.merchandising_orders?.brands?.brand_name || '').toUpperCase()
+          return b.length > 0 && b.includes(targetComp)
+        })
+      : (sheets || [])
+
+    return filteredSheets.map((sheet: any) => ({
       id: sheet.id,
       lay_number: sheet.lay_sheet_number,
       po_number: sheet.merchandising_orders?.order_number || 'PO-PENDING',
-      brand_name: sheet.merchandising_orders?.brands?.brand_name || 'OLLYPOP',
+      brand_name: sheet.merchandising_orders?.brands?.brand_name || (isNonNubira ? companyName : 'OLLYPOP'),
       style_ref: sheet.merchandising_orders?.design_tech_packs?.style_number || 'ART-HD-8821',
       style_name: sheet.merchandising_orders?.design_tech_packs?.category || 'Heavyweight Hoodie',
       table_number: sheet.cutting_table_id,
@@ -181,11 +191,14 @@ export async function createLaySheetAction(payload: {
 }
 
 // 3. Fetch Cut Bundles (The Root Seed)
-export async function fetchCutBundlesAction(filters?: {
-  lay_sheet_id?: string
-  status?: string
-  current_division?: string
-}): Promise<CutBundle[]> {
+export async function fetchCutBundlesAction(
+  filters?: {
+    lay_sheet_id?: string
+    status?: string
+    current_division?: string
+  },
+  companyName?: string
+): Promise<CutBundle[]> {
   try {
     let query = supabaseAdmin
       .from('cutting_bundles')
@@ -196,6 +209,7 @@ export async function fetchCutBundlesAction(filters?: {
           cutting_table_id,
           merchandising_orders:order_id (
             order_number,
+            brands:buyer_id (brand_name),
             design_tech_packs:tech_pack_id (style_number, category)
           )
         )
@@ -219,7 +233,17 @@ export async function fetchCutBundlesAction(filters?: {
       return []
     }
 
-    return (bundles || []).map((b: any) => ({
+    const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
+    const targetComp = (companyName || '').toUpperCase()
+
+    const filteredBundles = isNonNubira
+      ? (bundles || []).filter((b: any) => {
+          const brand = (b.cutting_lay_sheets?.merchandising_orders?.brands?.brand_name || '').toUpperCase()
+          return brand.length > 0 && brand.includes(targetComp)
+        })
+      : (bundles || [])
+
+    return filteredBundles.map((b: any) => ({
       id: b.id,
       bundle_number: b.bundle_barcode,
       lay_sheet_id: b.lay_sheet_id,
@@ -308,8 +332,19 @@ export async function fetchEndBitLogsAction() {
 }
 
 // 6. Fetch Executive Cutting Floor KPIs
-export async function fetchCuttingDashboardKpisAction() {
+export async function fetchCuttingDashboardKpisAction(companyName?: string) {
   try {
+    const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
+    if (isNonNubira) {
+      return {
+        total_lays: 0,
+        total_plies: 0,
+        total_cut_pieces: 0,
+        avg_marker_efficiency: 0,
+        active_tables: 0
+      }
+    }
+
     const { data: kpis, error } = await supabaseAdmin
       .from('view_cutting_floor_kpis')
       .select('*')

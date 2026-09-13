@@ -3,7 +3,8 @@ import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { StoreDashboardClient } from './components/StoreDashboardClient'
 import Link from 'next/link'
-import { Layers, Tag, Truck, ArrowRight, Warehouse, Bot, ShieldCheck, ChevronRight } from 'lucide-react'
+import { Layers, Tag, Truck, ArrowRight, Warehouse, Bot, ShieldCheck, ChevronRight, Building2 } from 'lucide-react'
+import { resolveUserTenant, isLegacyNubiraTenant } from '@/lib/tenant-context'
 
 export const dynamic = 'force-dynamic'
 
@@ -17,6 +18,10 @@ export default async function StoreDashboardPage() {
   if (!user) {
     redirect('/login')
   }
+
+  // Centrally resolve tenant identity
+  const tenant = await resolveUserTenant(user)
+  const isLegacy = isLegacyNubiraTenant(tenant)
 
   // Fetch current user's profile for display & role context
   const { data: profile } = await supabase
@@ -189,13 +194,49 @@ export default async function StoreDashboardPage() {
       .limit(200)
   ])
 
-  const articles = (articlesData as any) || []
-  const storeTransactions = ((storeTransactionsData as any) || []).map((tx: any) => ({
+  // Multi-tenant scoping: Client factories only view records tagged for their company
+  const targetCompany = tenant.companyName.toUpperCase()
+
+  const rawStoreTransactions = isLegacy
+    ? (storeTransactionsData || [])
+    : (storeTransactionsData || []).filter((tx: any) =>
+        (tx.party_name || '').toUpperCase().includes(targetCompany) ||
+        (tx.notes || '').toUpperCase().includes(targetCompany)
+      )
+
+  const rawAccessories = isLegacy
+    ? (accessoriesData || [])
+    : (accessoriesData || []).filter((ac: any) =>
+        (ac.party_name || '').toUpperCase().includes(targetCompany) ||
+        (ac.notes || '').toUpperCase().includes(targetCompany)
+      )
+
+  const rawTruckInwards = isLegacy
+    ? (truckInwardsData || [])
+    : (truckInwardsData || []).filter((t: any) =>
+        (t.supplier_name || '').toUpperCase().includes(targetCompany) ||
+        (t.receiver_name || '').toUpperCase().includes(targetCompany)
+      )
+
+  const rawActiveAllotments = isLegacy
+    ? (activeAllotmentsData || [])
+    : (activeAllotmentsData || []).filter((al: any) =>
+        ((al.challans as any)?.brand || '').toUpperCase().includes(targetCompany)
+      )
+
+  const rawReadyQcAllotments = isLegacy
+    ? (readyQcAllotmentsData || [])
+    : (readyQcAllotmentsData || []).filter((al: any) =>
+        ((al.challans as any)?.brand || '').toUpperCase().includes(targetCompany)
+      )
+
+  const articles = isLegacy ? ((articlesData as any) || []) : []
+  const storeTransactions = (rawStoreTransactions as any[]).map((tx: any) => ({
     ...tx,
     article: Array.isArray(tx.article) ? tx.article[0] : tx.article,
   }))
-  const accessories = (accessoriesData as any) || []
-  const truckInwards = ((truckInwardsData as any) || []).map((t: any) => {
+  const accessories = (rawAccessories as any) || []
+  const truckInwards = (rawTruckInwards as any[]).map((t: any) => {
     let garmentType = t.garment_type
     if (!garmentType && t.notes) {
       const match = t.notes.match(/\[Garment:\s*([^\]]+)\]/i)
@@ -206,7 +247,7 @@ export default async function StoreDashboardPage() {
       garment_type: garmentType || null,
     }
   })
-  const activeAllotments = ((activeAllotmentsData as any) || []).map((al: any) => {
+  const activeAllotments = (rawActiveAllotments as any[]).map((al: any) => {
     let prio = al.priority || 'NORMAL'
     if (prio === 'NORMAL' && al.allotment_materials) {
       for (const m of al.allotment_materials) {
@@ -235,7 +276,7 @@ export default async function StoreDashboardPage() {
     return new Date(b.created_at || '').getTime() - new Date(a.created_at || '').getTime()
   })
 
-  const readyQcAllotments = ((readyQcAllotmentsData as any) || []).map((al: any) => ({
+  const readyQcAllotments = (rawReadyQcAllotments as any[]).map((al: any) => ({
     ...al,
     article: Array.isArray(al.article) ? al.article[0] : al.article,
     lineman: Array.isArray(al.lineman) ? al.lineman[0] : al.lineman,
@@ -246,24 +287,29 @@ export default async function StoreDashboardPage() {
     if (diff !== 0) return diff
     return new Date(b.created_at || '').getTime() - new Date(a.created_at || '').getTime()
   })
-  const floorReissues = (floorReissuesData as any) || []
-  const workerAssignments = (workerAssignmentsData as any) || []
+  const floorReissues = isLegacy ? ((floorReissuesData as any) || []) : []
+  const workerAssignments = isLegacy ? ((workerAssignmentsData as any) || []) : []
 
-  const currentUserName = profile?.username || user.user_metadata?.full_name || user.email?.split('@')[0] || 'Store Supervisor'
+  const currentUserName = tenant.adminDisplayName || profile?.username || user.user_metadata?.full_name || user.email?.split('@')[0] || 'Store Supervisor'
 
   return (
-    <AdminShell userEmail={user.email} userRole={profile?.role}>
+    <AdminShell userEmail={tenant.userEmail} userRole={tenant.role}>
       <div className="flex-1 p-4 md:p-8 max-w-7xl w-full mx-auto space-y-6">
         
         {/* Breadcrumb Bar */}
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-2 text-xs font-medium text-slate-500">
-            <Link href={profile?.role?.toUpperCase() === 'STORE' ? '/store' : '/dashboard'} className="hover:underline hover:text-slate-900 transition-colors">
-              Overview
+            <Link href="/modules" className="hover:underline hover:text-slate-900 transition-colors">
+              Workspace Hub
             </Link>
             <span className="text-slate-300">/</span>
             <span className="font-extrabold text-[#3A3564]">
               Store & Godown
+            </span>
+            <span className="text-slate-300">•</span>
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[11px] font-mono font-semibold bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+              <Building2 className="w-3.5 h-3.5" />
+              {tenant.companyName}
             </span>
           </div>
 
