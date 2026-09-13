@@ -195,11 +195,11 @@ export function MaterialsLibraryClient({ initialMaterials }: MaterialsLibraryCli
       {filteredMaterials.length === 0 ? (
         <EmptyState
           icon={Layers}
-          title="No materials or trims registered"
+          title={searchQuery || typeFilter !== 'ALL' ? "No matching materials" : "No materials registered"}
           description={
             searchQuery || typeFilter !== 'ALL'
-              ? "No materials match your current search or category filter. Try clearing filters or register a new textile specification."
-              : "No materials, trims, or thread specifications have been registered yet. Register a textile specification with composition, shrinkage metrics, and needle gauge calibrations."
+              ? "Try clearing filters or search query."
+              : "Register textile specifications, trims, or thread specs."
           }
           actionLabel="Register material spec"
           onAction={() => setIsAddOpen(true)}
@@ -228,7 +228,7 @@ export function MaterialsLibraryClient({ initialMaterials }: MaterialsLibraryCli
                   <span className="text-xs font-semibold text-[#3A3564] px-2.5 py-0.5 rounded-md bg-white border border-black/10 shadow-2xs">
                     {mat.material_code}
                   </span>
-                  <span className="text-xs font-semibold px-2.5 py-0.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200">
+                  <span className="text-xs font-semibold px-2.5 py-0.5 rounded-md bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs">
                     {mat.status === 'CERTIFIED' ? 'Certified' : mat.status}
                   </span>
                 </div>

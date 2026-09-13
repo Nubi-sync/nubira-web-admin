@@ -230,11 +230,11 @@ export function SampleApprovalsClient({ initialApprovals, initialTechPacks }: Sa
       {filteredApprovals.length === 0 ? (
         <EmptyState
           icon={ShieldCheck}
-          title="No sample audits recorded"
+          title={stageFilter !== 'ALL' ? "No stage audits found" : "No sample audits recorded"}
           description={
             stageFilter !== 'ALL'
-              ? `No ${stageFilter} stage sample audits recorded yet. Submit a physical sample dimensional measurement against locked POM specs.`
-              : "No sample fit audits have been recorded yet. Submit a dimensional fit audit for Proto, Size-Set, or PPS approval."
+              ? "Try selecting all sample stages."
+              : "Submit an audit for proto, size-set, or PPS approval."
           }
           actionLabel="Submit sample audit"
           onAction={() => setIsSubmitOpen(true)}
@@ -279,13 +279,13 @@ export function SampleApprovalsClient({ initialApprovals, initialTechPacks }: Sa
                       </td>
                       <td className="py-3.5 px-4">
                         {item.variance_status === 'WITHIN_TOLERANCE' ? (
-                          <span className="inline-flex items-center gap-1.5 text-emerald-800 bg-emerald-50/70 border border-emerald-200/60 px-2 py-0.5 rounded-md text-xs font-medium">
-                            <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                          <span className="inline-flex items-center gap-1.5 text-slate-800 bg-[#FAF7F0] border border-black/10 px-2 py-0.5 rounded-md text-xs font-medium shadow-2xs">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-[#3A3564] shrink-0" />
                             <span>±0.5 cm pass</span>
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1.5 text-rose-800 bg-rose-50/70 border border-rose-200/60 px-2 py-0.5 rounded-md text-xs font-medium">
-                            <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                          <span className="inline-flex items-center gap-1.5 text-slate-800 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-md text-xs font-medium">
+                            <AlertCircle className="w-3.5 h-3.5 text-[#3A3564] shrink-0" />
                             <span>Out of spec</span>
                           </span>
                         )}
@@ -293,10 +293,10 @@ export function SampleApprovalsClient({ initialApprovals, initialTechPacks }: Sa
                       <td className="py-3.5 px-4">
                         <span className={`text-xs font-medium px-2 py-0.5 rounded-md border ${
                           isPass 
-                            ? 'bg-emerald-50 text-emerald-800 border-emerald-200' 
+                            ? 'bg-[#FAF7F0] text-[#3A3564] border-black/10 font-bold' 
                             : isRevise
-                              ? 'bg-rose-50 text-rose-800 border-rose-200'
-                              : 'bg-amber-50 text-amber-800 border-amber-200'
+                              ? 'bg-slate-100 text-slate-800 border-slate-200 font-semibold'
+                              : 'bg-slate-50 text-slate-600 border-slate-200'
                         }`}>
                           {item.approval_status === 'APPROVED' ? 'Approved' : item.approval_status === 'REVISE_FIT' ? 'Revise fit' : 'Pending review'}
                         </span>

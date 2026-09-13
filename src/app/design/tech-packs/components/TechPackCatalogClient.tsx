@@ -178,11 +178,11 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands }: Tec
       {filteredPacks.length === 0 ? (
         <EmptyState
           icon={FileCheck2}
-          title="No tech-packs found"
+          title={searchQuery || statusFilter !== 'ALL' ? "No matching tech-packs" : "No tech-packs found"}
           description={
             searchQuery || statusFilter !== 'ALL'
-              ? "No technical packages match the active filters or search term. Try resetting your filters or create a new style."
-              : "No technical packages have been registered yet. Create a complete specification package with POM measurements, BOM trims, and CAD vector drawings."
+              ? "Try adjusting your filters or search query."
+              : "Create your first specification package."
           }
           actionLabel="Create Tech-Pack"
           onAction={() => setIsCreateOpen(true)}

@@ -174,8 +174,8 @@ export function GradingMatrixClient({ initialSchemes }: GradingMatrixClientProps
       {!currentScheme || currentScheme.poms.length === 0 ? (
         <EmptyState
           icon={Ruler}
-          title="No POM rules registered"
-          description="This grading scheme currently has no Points of Measure defined. Add a POM rule with base size values and grade step increments."
+          title="No POM rules defined"
+          description="Add a measurement rule with base values and grade steps."
           actionLabel="Add point of measure"
           onAction={() => setIsAddPomOpen(true)}
         />
