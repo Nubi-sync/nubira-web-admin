@@ -12,15 +12,15 @@ interface LogCuringProbeModalProps {
 }
 
 export function LogCuringProbeModal({ isOpen, onClose, onSuccess }: LogCuringProbeModalProps) {
-  const [ovenId, setOvenId] = useState('Continuous Tunnel Oven #1 (Gas Infrared)')
+  const [ovenId, setOvenId] = useState('Tunnel Oven 01')
   const [targetTemp, setTargetTemp] = useState('160')
-  const [probeTemp, setProbeTemp] = useState('161.5')
-  const [conveyorSpeed, setConveyorSpeed] = useState('2.8')
+  const [probeTemp, setProbeTemp] = useState('160.0')
+  const [conveyorSpeed, setConveyorSpeed] = useState('2.5')
   const [dwellTime, setDwellTime] = useState('2.5')
-  const [poNumber, setPoNumber] = useState('PO-ZIG-8901')
+  const [poNumber, setPoNumber] = useState('')
   const [washCycles, setWashCycles] = useState('50')
-  const [fastnessRating, setFastnessRating] = useState('4.8')
-  const [auditorName, setAuditorName] = useState('R. Veeramani (Print Master)')
+  const [fastnessRating, setFastnessRating] = useState('5.0')
+  const [auditorName, setAuditorName] = useState('Print Auditor')
   const [error, setError] = useState<string | null>(null)
 
   if (!isOpen) return null

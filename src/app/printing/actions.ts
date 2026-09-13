@@ -251,11 +251,11 @@ export async function fetchCuringLogsAction(companyName?: string) {
       probe_temp_c: Number(l.probe_temp_c) || 162.4,
       conveyor_speed_mpm: Number(l.conveyor_speed_mpm) || 2.4,
       dwell_time_minutes: Number((l.dwell_time_seconds / 60).toFixed(1)) || 2.0,
-      active_run_id: l.printing_production_runs?.run_code || 'PRN-2026-0842',
-      po_number: l.printing_production_runs?.merchandising_orders?.order_number || 'PO-ZIG-8901',
-      wash_test_cycles: l.wash_test_cycles || 5,
-      fastness_rating: Number(l.fastness_rating) || 4.5,
-      auditor_name: l.auditor_name || 'K. Balaji (QA Inspector)',
+      active_run_id: l.printing_production_runs?.run_code || 'N/A',
+      po_number: l.printing_production_runs?.merchandising_orders?.order_number || 'N/A',
+      wash_test_cycles: l.wash_test_cycles || 0,
+      fastness_rating: Number(l.fastness_rating) || 5.0,
+      auditor_name: l.auditor_name || 'QA Inspector',
       status: (l.status || 'OPTIMAL') as 'OPTIMAL' | 'TEMP_WARNING' | 'CRITICAL',
       logged_at: l.created_at || new Date().toISOString()
     } as CuringOvenLog))
