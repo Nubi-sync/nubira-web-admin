@@ -5,6 +5,8 @@ import Link from 'next/link'
 import { ChevronLeft, Droplets } from 'lucide-react'
 import { LiquorAuditClient } from './components/LiquorAuditClient'
 
+import { resolveUserTenant } from '@/lib/tenant-context'
+
 export const dynamic = 'force-dynamic'
 
 export default async function LiquorAuditPage() {
@@ -18,14 +20,10 @@ export default async function LiquorAuditPage() {
     redirect('/login')
   }
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('id, username, role')
-    .eq('id', user.id)
-    .single()
+  const tenant = await resolveUserTenant(user)
 
   return (
-    <AdminShell userEmail={user.email} userRole={profile?.role}>
+    <AdminShell userEmail={tenant.userEmail} userRole={tenant.role}>
       <div className="p-4 sm:p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto">
         
         {/* Navigation Breadcrumb */}
