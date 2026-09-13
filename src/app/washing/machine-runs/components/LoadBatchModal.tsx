@@ -72,7 +72,7 @@ export function LoadBatchModal({ isOpen, onClose }: LoadBatchModalProps) {
       batchNumber,
       challanId: selectedChallanId || 'CH-001',
       articleName: 'Garment Batch',
-      colorway: 'Standard',
+      color: 'Standard',
       totalPieces: 500,
       washerMachineId,
       operatorName: operatorName.split(' (')[0],
