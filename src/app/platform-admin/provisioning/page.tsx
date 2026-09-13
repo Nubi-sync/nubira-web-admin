@@ -17,6 +17,7 @@ import { provisionTenantFactoryAction } from '../actions'
 export default function ProvisioningConsolePage() {
   const [companyName, setCompanyName] = useState('')
   const [adminName, setAdminName] = useState('')
+  const [customUsername, setCustomUsername] = useState('client_admin')
   const [adminEmail, setAdminEmail] = useState('')
   const [initialPassword, setInitialPassword] = useState('@Factory2026!')
   const [phone, setPhone] = useState('')
@@ -30,6 +31,15 @@ export default function ProvisioningConsolePage() {
   const [provisionedSuccess, setProvisionedSuccess] = useState(false)
   const [copied, setCopied] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const handleCompanyNameChange = (value: string) => {
+    setCompanyName(value)
+    const clean = value.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '')
+    setCustomUsername(clean ? `${clean}_admin` : 'client_admin')
+    const cleanCap = value.trim().split(' ')[0].replace(/[^a-zA-Z0-9]/g, '')
+    const cap = cleanCap ? cleanCap.charAt(0).toUpperCase() + cleanCap.slice(1).toLowerCase() : 'Factory'
+    setInitialPassword(`@${cap}2026!`)
+  }
 
   const toggleDivision = (route: string) => {
     setSelectedDivisions(prev =>
@@ -67,6 +77,7 @@ export default function ProvisioningConsolePage() {
       const res = await provisionTenantFactoryAction({
         companyName,
         adminName,
+        customUsername,
         adminEmail,
         initialPassword,
         phone,
@@ -94,11 +105,12 @@ ZIGZA MES - CLIENT SUPER ADMIN ACTIVATION
 ===========================================
 Factory / Company : ${companyName}
 Super Admin Name  : ${adminName}
+Custom Username   : ${customUsername}
 Login Portal URL  : https://app.zigza.in/login
 Login Email       : ${adminEmail}
 Initial Password  : ${initialPassword}
 Subscription Plan : ${subscriptionTier.replace(/_/g, ' ')} (₹${monthlyBillingInr.toLocaleString()}/mo)
-Allocated Units   : ${selectedDivisions.length} Manufacturing Divisions
+Allocated Units   : ${selectedDivisions.length} of ${ENTERPRISE_DIVISIONS_CATALOG.length} Manufacturing Divisions
 ===========================================`
 
   const copySlip = () => {
@@ -240,7 +252,7 @@ Allocated Units   : ${selectedDivisions.length} Manufacturing Divisions
                   type="text"
                   required
                   value={companyName}
-                  onChange={(e) => setCompanyName(e.target.value)}
+                  onChange={(e) => handleCompanyNameChange(e.target.value)}
                   placeholder="e.g. Vardhman Textiles Garment Division"
                   className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
                 />
@@ -264,6 +276,20 @@ Allocated Units   : ${selectedDivisions.length} Manufacturing Divisions
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
+                  Custom Username (Generated) <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={customUsername}
+                  onChange={(e) => setCustomUsername(e.target.value)}
+                  placeholder="e.g. vardhman_admin"
+                  className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-mono font-bold text-[#3A3564] outline-none shadow-2xs transition-all"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
                   Super Admin Login Email <span className="text-rose-500">*</span>
                 </label>
                 <input
@@ -275,7 +301,9 @@ Allocated Units   : ${selectedDivisions.length} Manufacturing Divisions
                   className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-mono font-bold text-slate-900 outline-none shadow-2xs transition-all"
                 />
               </div>
+            </div>
 
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
                   Initial Temporary Password <span className="text-rose-500">*</span>
@@ -288,9 +316,7 @@ Allocated Units   : ${selectedDivisions.length} Manufacturing Divisions
                   className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-mono font-bold text-slate-900 outline-none shadow-2xs transition-all"
                 />
               </div>
-            </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
                   Phone / WhatsApp Contact <span className="text-rose-500">*</span>
@@ -304,19 +330,19 @@ Allocated Units   : ${selectedDivisions.length} Manufacturing Divisions
                   className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-mono font-medium text-slate-900 outline-none shadow-2xs transition-all"
                 />
               </div>
+            </div>
 
-              <div>
-                <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
-                  Plant Location (City, State)
-                </label>
-                <input
-                  type="text"
-                  value={cityState}
-                  onChange={(e) => setCityState(e.target.value)}
-                  placeholder="e.g. Baddi, Himachal Pradesh"
-                  className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
-                />
-              </div>
+            <div>
+              <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
+                Plant Location (City, State)
+              </label>
+              <input
+                type="text"
+                value={cityState}
+                onChange={(e) => setCityState(e.target.value)}
+                placeholder="e.g. Baddi, Himachal Pradesh"
+                className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
+              />
             </div>
 
             {/* Plan Tier Selection */}
@@ -336,7 +362,7 @@ Allocated Units   : ${selectedDivisions.length} Manufacturing Divisions
                 >
                   <span className="text-xs font-bold text-slate-900 block font-[family-name:var(--font-heading)]">Full Access + Zigza AI</span>
                   <span className="text-lg font-bold font-mono text-[#3A3564] block mt-1">₹4,999<span className="text-xs font-normal text-slate-500">/mo</span></span>
-                  <span className="text-[11px] text-slate-500 block mt-1">All 11 Divisions + AI Floor Assistant</span>
+                  <span className="text-[11px] text-slate-500 block mt-1">All {ENTERPRISE_DIVISIONS_CATALOG.length} Divisions + AI Assistant</span>
                 </div>
 
                 <div
@@ -371,14 +397,14 @@ Allocated Units   : ${selectedDivisions.length} Manufacturing Divisions
             <div className="border-t border-slate-100 pt-4 space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#3A3564] font-mono">
-                  3. Allot Manufacturing Divisions ({selectedDivisions.length} / 11 Selected)
+                  3. Allot Manufacturing Divisions ({selectedDivisions.length} / {ENTERPRISE_DIVISIONS_CATALOG.length} Selected)
                 </span>
                 <button
                   type="button"
                   onClick={selectAllDivisions}
                   className="text-xs font-mono font-bold text-[#3A3564] hover:underline cursor-pointer"
                 >
-                  Select All 11 Divisions
+                  Select All {ENTERPRISE_DIVISIONS_CATALOG.length} Divisions
                 </button>
               </div>
 

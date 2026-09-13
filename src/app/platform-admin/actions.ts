@@ -241,13 +241,21 @@ export async function fetchTenantFactoriesAction(): Promise<{
 
 export async function provisionTenantFactoryAction(
   payload: ProvisionTenantPayload
-): Promise<{ success: boolean; tenantId?: string; error?: string }> {
+): Promise<{
+  success: boolean
+  tenantId?: string
+  error?: string
+  emailStatus?: { sent: boolean; simulated?: boolean; error?: string }
+}> {
   try {
     const plantSlug = payload.companyName
       .toLowerCase()
       .trim()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '')
+
+    const customUsername = payload.customUsername?.trim() || 
+      `${payload.companyName.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '') || 'tenant'}_admin`
 
     // Step A: Create User in Supabase Auth via Service Role
     let authUserId: string | undefined
@@ -258,7 +266,8 @@ export async function provisionTenantFactoryAction(
         email_confirm: true,
         user_metadata: {
           role: 'SUPERADMIN',
-          username: payload.adminName,
+          username: customUsername,
+          displayName: payload.adminName,
           company: payload.companyName
         }
       })
@@ -273,7 +282,7 @@ export async function provisionTenantFactoryAction(
           authUserId = existing.id
           await supabaseAdmin.auth.admin.updateUserById(existing.id, {
             password: payload.initialPassword,
-            user_metadata: { role: 'SUPERADMIN', username: payload.adminName, company: payload.companyName }
+            user_metadata: { role: 'SUPERADMIN', username: customUsername, displayName: payload.adminName, company: payload.companyName }
           })
         }
       }
@@ -286,7 +295,7 @@ export async function provisionTenantFactoryAction(
       try {
         await supabaseAdmin.from('profiles').upsert({
           id: authUserId,
-          username: payload.adminName,
+          username: customUsername,
           role: 'SUPERADMIN',
           is_active: true
         })
@@ -342,7 +351,7 @@ export async function provisionTenantFactoryAction(
         actor: 'admin@zigza.in',
         action: 'Tenant Provisioning Completed',
         category: 'PROVISIONING',
-        details: `Generated credentials and allotted ${payload.selectedDivisions.length} divisions for ${payload.companyName}`,
+        details: `Generated credentials (Username: ${customUsername}) and allotted ${payload.selectedDivisions.length} divisions for ${payload.companyName}`,
         ip_address: '103.24.12.89',
         location: payload.cityState || 'India',
         status: 'SUCCESS'
@@ -357,6 +366,7 @@ export async function provisionTenantFactoryAction(
         companyName: payload.companyName,
         adminName: payload.adminName,
         loginEmail: payload.adminEmail,
+        customUsername: customUsername,
         initialPassword: payload.initialPassword,
         subscriptionTier: payload.subscriptionTier,
         divisionsCount: payload.selectedDivisions.length

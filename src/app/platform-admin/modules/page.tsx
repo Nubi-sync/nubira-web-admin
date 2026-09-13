@@ -20,6 +20,7 @@ import {
   Boxes,
   Wrench,
   Store,
+  Truck,
   Search,
   ArrowRight,
   Code2,
@@ -286,6 +287,27 @@ const ENTERPRISE_MODULES: ModuleArchitectureItem[] = [
     tierAvailability: 'Core Materials & Full Plant AI',
     icon: Store,
   },
+  {
+    id: 'dispatch',
+    unitNumber: 'UNIT 12',
+    code: 'DIS-12',
+    title: 'Dispatch & Delivery Logistics',
+    category: 'Materials & Logistics',
+    tenantRoute: '/dispatch',
+    summary: 'Finished goods dispatch challans, buyer shipping manifests, transport vehicle gate passes, delivery receipts, and logistics tracking.',
+    workflows: [
+      'Finished Goods Dispatch Challan & Buyer Invoicing',
+      'Vehicle Gate Pass Authorization & Weighbridge Clearance',
+      'Proof-of-Delivery (POD) Logistics Tracking & Signature Capture'
+    ],
+    databaseTables: ['dispatch_challans', 'delivery_manifests', 'vehicle_gate_passes', 'shipping_logs'],
+    clientRoles: ['DISPATCH_MANAGER', 'LOGISTICS_COORDINATOR', 'SECURITY_GATE_OFFICER', 'SUPERADMIN'],
+    hardwareProfile: 'Barcode Dispatch Scanners, Gate Cameras, Digital Signature Tablets',
+    rlsPolicy: "tenant_id = auth.jwt()->>'tenant_id' AND role IN ('DISPATCH_MANAGER', 'LOGISTICS_COORDINATOR', 'SUPERADMIN')",
+    telemetryHook: 'realtime:dispatch_challans, event:delivery_completed',
+    tierAvailability: 'Core Materials & Full Plant AI',
+    icon: Truck,
+  },
 ]
 
 export default function EnterpriseModulesPage() {
@@ -341,18 +363,18 @@ export default function EnterpriseModulesPage() {
             <div className="flex items-center gap-2 text-[11px] font-mono uppercase tracking-wider text-slate-500 mb-1">
               <span>Platform Root Admin</span>
               <ChevronRight className="w-3.5 h-3.5" />
-              <span className="text-[#3A3564] font-bold">11 Enterprise Modules</span>
+              <span className="text-[#3A3564] font-bold">12 Enterprise Modules</span>
             </div>
             <div className="flex items-center gap-3">
               <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 Enterprise Manufacturing Modules
               </h1>
               <span className="text-[10px] font-mono font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-[#3A3564] text-white shadow-2xs">
-                11 UNITS
+                12 UNITS
               </span>
             </div>
             <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-3xl">
-              Platform-wide master catalog, tenant boundary guarantees, database schema footprints, and division microservice specifications for all 11 licensed Zigza manufacturing units.
+              Platform-wide master catalog, tenant boundary guarantees, database schema footprints, and division microservice specifications for all 12 licensed Zigza manufacturing units.
             </p>
           </div>
 
@@ -391,7 +413,7 @@ export default function EnterpriseModulesPage() {
                 </span>
               </div>
               <p className="text-xs text-slate-600 leading-relaxed font-sans">
-                As the Platform Root Administrator (<code className="px-1.5 py-0.5 bg-slate-100 rounded text-slate-800 font-mono text-[11px]">admin@zigza.in</code>), operational factory floor modules (<code className="px-1.5 py-0.5 bg-slate-100 rounded text-slate-800 font-mono text-[11px]">/modules</code>, <code className="px-1.5 py-0.5 bg-slate-100 rounded text-slate-800 font-mono text-[11px]">/stitching-sewing</code>, etc.) are strictly partitioned per client tenant. This console governs the 11-module master architecture, tenant licensing allocations, and microservice definitions without trespassing on private client company data.
+                As the Platform Root Administrator (<code className="px-1.5 py-0.5 bg-slate-100 rounded text-slate-800 font-mono text-[11px]">admin@zigza.in</code>), operational factory floor modules (<code className="px-1.5 py-0.5 bg-slate-100 rounded text-slate-800 font-mono text-[11px]">/modules</code>, <code className="px-1.5 py-0.5 bg-slate-100 rounded text-slate-800 font-mono text-[11px]">/stitching-sewing</code>, etc.) are strictly partitioned per client tenant. This console governs the 12-module master architecture, tenant licensing allocations, and microservice definitions without trespassing on private client company data.
               </p>
             </div>
           </div>
@@ -404,7 +426,7 @@ export default function EnterpriseModulesPage() {
               <span className="text-[11px] font-mono uppercase tracking-wider text-slate-500 font-bold">Total Units</span>
               <Layers className="w-4 h-4 text-[#3A3564]" />
             </div>
-            <div className="text-2xl font-bold font-mono text-slate-900 mt-2">11</div>
+            <div className="text-2xl font-bold font-mono text-slate-900 mt-2">12</div>
             <div className="text-[11px] text-slate-500 mt-0.5">Fully engineered manufacturing divisions</div>
           </div>
 
@@ -451,7 +473,7 @@ export default function EnterpriseModulesPage() {
                     : 'bg-white border border-black/10 text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                 }`}
               >
-                {cat === 'ALL' ? 'All 11 Units' : cat}
+                {cat === 'ALL' ? 'All 12 Units' : cat}
               </button>
             ))}
           </div>

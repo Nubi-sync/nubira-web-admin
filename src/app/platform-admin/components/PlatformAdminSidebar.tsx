@@ -13,7 +13,8 @@ import {
   LogOut,
   X,
   Layers,
-  ChevronRight
+  ChevronRight,
+  Sparkles
 } from 'lucide-react'
 
 interface PlatformAdminSidebarProps {
@@ -41,6 +42,7 @@ const navSections: NavSection[] = [
       { label: 'Demo Leads & Inquiries', href: '/platform-admin', icon: Inbox, badge: 'Live' },
       { label: 'Tenant Factories', href: '/platform-admin/tenants', icon: Building2 },
       { label: 'Access Provisioning', href: '/platform-admin/provisioning', icon: Key },
+      { label: 'Custom Enterprise Requests', href: '/platform-admin/custom-requests', icon: Sparkles, badge: 'Bespoke' },
       { label: 'Infrastructure Telemetry', href: '/platform-admin/infrastructure', icon: Activity },
       { label: 'Security & Audit Logs', href: '/platform-admin/audit-logs', icon: ShieldCheck },
     ],
@@ -49,7 +51,7 @@ const navSections: NavSection[] = [
     section: 'Root Master',
     items: [
       { label: 'SuperAdmin Profile', href: '/platform-admin/profile', icon: User },
-      { label: '11 Enterprise Modules', href: '/platform-admin/modules', icon: Layers, badge: '11 Units' },
+      { label: '12 Enterprise Modules', href: '/platform-admin/modules', icon: Layers, badge: '12 Units' },
     ],
   },
 ]

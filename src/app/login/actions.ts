@@ -31,9 +31,46 @@ export async function login(formData: FormData) {
     return { error: 'Username/email and password are required' }
   }
 
-  // Format email: If user enters "Store" or "lineman" (without @), convert to "store@nubira.local" (matching mobile app)
+  // Format email: If user enters a custom username without @, check if it matches a registered username in profiles or tenant factories
   const cleanEmailKey = rawInput.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_.-]/g, '')
-  const email = rawInput.includes('@') ? rawInput : `${cleanEmailKey}@nubira.local`
+  let email = rawInput.includes('@') ? rawInput : `${cleanEmailKey}@nubira.local`
+
+  // If user entered a custom username without @ (e.g. vardhman_admin or Vardhman), resolve their real login email
+  if (!rawInput.includes('@')) {
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    if (serviceRoleKey && supabaseUrl) {
+      try {
+        const adminClient = createAdminClient(supabaseUrl, serviceRoleKey)
+        // 1. Check profiles by username
+        const { data: matchedProfile } = await adminClient
+          .from('profiles')
+          .select('id')
+          .ilike('username', rawInput.trim())
+          .maybeSingle()
+
+        if (matchedProfile?.id) {
+          const { data: authUser } = await adminClient.auth.admin.getUserById(matchedProfile.id)
+          if (authUser?.user?.email) {
+            email = authUser.user.email
+          }
+        } else {
+          // 2. Check platform_tenant_factories by plant_slug or admin_name
+          const { data: matchedTenant } = await adminClient
+            .from('platform_tenant_factories')
+            .select('admin_email')
+            .or(`plant_slug.eq.${cleanEmailKey},admin_name.ilike.${rawInput.trim()}`)
+            .maybeSingle()
+
+          if (matchedTenant?.admin_email) {
+            email = matchedTenant.admin_email
+          }
+        }
+      } catch (lookupErr) {
+        console.warn('Username lookup notice:', lookupErr)
+      }
+    }
+  }
 
   // Dedicated Platform Root SuperAdmin credentials check (admin@zigza.in / @Burhanpur123)
   const isPlatformRootCredential =

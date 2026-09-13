@@ -399,7 +399,7 @@ export function PlatformDashboardClient() {
               ) : (
                 filteredDemos.map((item) => {
                   const whatsappCleanPhone = item.phone.replace(/[^0-9]/g, '')
-                  const whatsappMsg = `Hi ${item.applicantName}, I am reaching out from Zigza MES regarding your live demo request for ${item.companyName}. When would be a good time for a 20-minute floor walkthrough?`
+                  const whatsappMsg = `Hi ${item.applicantName}, I am reaching out from Zigza MES regarding your live demo request for ${item.companyName}. When would be a good time for a personalized floor walkthrough?`
                   const whatsappUrl = `https://wa.me/${whatsappCleanPhone}?text=${encodeURIComponent(whatsappMsg)}`
 
                   return (

@@ -1791,7 +1791,7 @@ ${demoForm.ownerName}`
                 Transform Your Garment Factory Today
               </h2>
               <p className="text-base sm:text-lg text-slate-600 leading-relaxed">
-                Book a personalized 20-minute live demonstration tailored to your plant capacity, 
+                Book a personalized live demonstration tailored to your plant capacity, 
                 cutting tables, and floor workflow.
               </p>
 

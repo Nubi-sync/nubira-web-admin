@@ -11,7 +11,8 @@ import {
   Layers,
   Sparkles,
   ExternalLink,
-  CheckCircle2
+  CheckCircle2,
+  Mail
 } from 'lucide-react'
 import { DemoRequestInquiry, SubscriptionPlanTier } from '../types/platform'
 import { ENTERPRISE_DIVISIONS_CATALOG } from '../data/initialPlatformData'
@@ -24,6 +25,20 @@ interface ProvisionTenantModalProps {
   onSuccess?: () => void
 }
 
+function deriveUsername(company: string) {
+  const clean = company
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '')
+  return clean ? `${clean}_admin` : 'client_admin'
+}
+
+function deriveInitialPassword(company: string) {
+  const cleanSlug = company.trim().split(' ')[0].replace(/[^a-zA-Z0-9]/g, '')
+  const cap = cleanSlug ? cleanSlug.charAt(0).toUpperCase() + cleanSlug.slice(1).toLowerCase() : 'Zigza'
+  return `@${cap}2026!`
+}
+
 export function ProvisionTenantModal({
   isOpen,
   onClose,
@@ -32,6 +47,7 @@ export function ProvisionTenantModal({
 }: ProvisionTenantModalProps) {
   const [companyName, setCompanyName] = useState('')
   const [adminName, setAdminName] = useState('')
+  const [customUsername, setCustomUsername] = useState('')
   const [adminEmail, setAdminEmail] = useState('')
   const [initialPassword, setInitialPassword] = useState('')
   const [phone, setPhone] = useState('')
@@ -43,6 +59,11 @@ export function ProvisionTenantModal({
   )
 
   const [provisionedSuccess, setProvisionedSuccess] = useState(false)
+  const [emailDispatchResult, setEmailDispatchResult] = useState<{
+    sent: boolean
+    simulated?: boolean
+    error?: string
+  } | null>(null)
   const [copied, setCopied] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -50,18 +71,20 @@ export function ProvisionTenantModal({
     if (inquiry) {
       setCompanyName(inquiry.companyName)
       setAdminName(inquiry.applicantName)
+      setCustomUsername(deriveUsername(inquiry.companyName))
       setAdminEmail(inquiry.email)
       setPhone(inquiry.phone)
       setCityState(inquiry.cityState || 'India')
       setSubscriptionTier(inquiry.preferredPlan || 'FULL_PLANT_AI')
       setMonthlyBillingInr(inquiry.preferredPlan === 'MODULAR' ? 1999 : 4999)
-      
-      const cleanCompanySlug = inquiry.companyName.split(' ')[0].replace(/[^a-zA-Z0-9]/g, '')
-      setInitialPassword(`@${cleanCompanySlug || 'Zigza'}2026!`)
+      setInitialPassword(deriveInitialPassword(inquiry.companyName))
+      setSelectedDivisions(ENTERPRISE_DIVISIONS_CATALOG.map(d => d.route))
       setProvisionedSuccess(false)
+      setEmailDispatchResult(null)
     } else {
       setCompanyName('')
       setAdminName('')
+      setCustomUsername('client_admin')
       setAdminEmail('')
       setInitialPassword(`@Zigza${Math.floor(1000 + Math.random() * 9000)}!`)
       setPhone('')
@@ -70,10 +93,22 @@ export function ProvisionTenantModal({
       setMonthlyBillingInr(4999)
       setSelectedDivisions(ENTERPRISE_DIVISIONS_CATALOG.map(d => d.route))
       setProvisionedSuccess(false)
+      setEmailDispatchResult(null)
     }
   }, [inquiry, isOpen])
 
   if (!isOpen) return null
+
+  const handleCompanyNameChange = (value: string) => {
+    setCompanyName(value)
+    // Only auto-update custom username and password if user hasn't explicitly customized it
+    if (!customUsername || customUsername.endsWith('_admin')) {
+      setCustomUsername(deriveUsername(value))
+    }
+    if (!initialPassword || initialPassword.startsWith('@')) {
+      setInitialPassword(deriveInitialPassword(value))
+    }
+  }
 
   const toggleDivision = (route: string) => {
     setSelectedDivisions(prev =>
@@ -112,6 +147,7 @@ export function ProvisionTenantModal({
         demoRequestId: inquiry?.id,
         companyName,
         adminName,
+        customUsername,
         adminEmail,
         initialPassword,
         phone,
@@ -122,6 +158,7 @@ export function ProvisionTenantModal({
       })
 
       if (res.success) {
+        setEmailDispatchResult(res.emailStatus || null)
         setProvisionedSuccess(true)
         if (onSuccess) {
           onSuccess()
@@ -142,11 +179,12 @@ ZIGZA MES - CLIENT SUPER ADMIN ACTIVATION
 ===========================================
 Factory / Company : ${companyName}
 Super Admin Name  : ${adminName}
-Login Portal URL  : https://app.zigza.in/login
+Custom Username   : ${customUsername}
 Login Email       : ${adminEmail}
 Initial Password  : ${initialPassword}
+Login Portal URL  : https://app.zigza.in/login
 Subscription Plan : ${subscriptionTier.replace(/_/g, ' ')} (₹${monthlyBillingInr.toLocaleString()}/mo)
-Allocated Units   : ${selectedDivisions.length} Manufacturing Divisions
+Allocated Units   : ${selectedDivisions.length} of ${ENTERPRISE_DIVISIONS_CATALOG.length} Manufacturing Divisions
 ===========================================`
 
   const copySlip = () => {
@@ -180,7 +218,7 @@ Allocated Units   : ${selectedDivisions.length} Manufacturing Divisions
 
         {provisionedSuccess ? (
           /* Success Activation Slip View */
-          <div className="p-6 space-y-5">
+          <div className="p-6 space-y-4">
             <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-2xs">
                 <Check className="w-5 h-5 stroke-[2.5]" />
@@ -190,8 +228,25 @@ Allocated Units   : ${selectedDivisions.length} Manufacturing Divisions
                   Factory Tenant Successfully Provisioned
                 </h4>
                 <p className="text-xs text-emerald-800 mt-0.5">
-                  The infrastructure has been allocated. Send this slip to the plant head to initiate on-floor setup.
+                  Infrastructure allocated. Official activation credentials have been generated.
                 </p>
+              </div>
+            </div>
+
+            {/* Resend Email Status Box */}
+            <div className="p-3.5 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center gap-3 text-xs text-slate-800">
+              <div className="w-7 h-7 rounded-lg bg-white border border-black/10 text-[#3A3564] flex items-center justify-center shrink-0 shadow-2xs">
+                <Mail className="w-3.5 h-3.5" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="font-bold text-slate-900">Resend Automated Notification:</div>
+                <div className="text-slate-600 truncate mt-0.5 font-mono text-[11px]">
+                  {emailDispatchResult?.simulated
+                    ? `Simulated delivery (RESEND_API_KEY not configured in .env.local). Slip ready below.`
+                    : emailDispatchResult?.sent
+                    ? `Dispatched activation email to ${adminEmail} from noreply@zigza.in.`
+                    : `Credentials generated. Ready to deliver to ${adminEmail}.`}
+                </div>
               </div>
             </div>
 
@@ -212,11 +267,12 @@ Allocated Units   : ${selectedDivisions.length} Manufacturing Divisions
 
               <div><strong>Company / Plant :</strong> {companyName}</div>
               <div><strong>Plant Head     :</strong> {adminName}</div>
+              <div><strong>Custom Username:</strong> <span className="text-[#3A3564] font-bold bg-white px-2 py-0.5 rounded border border-black/15">{customUsername}</span></div>
               <div><strong>Login URL      :</strong> <span className="text-[#3A3564] font-bold">https://app.zigza.in/login</span></div>
-              <div><strong>Admin Email    :</strong> <span className="text-slate-900 font-bold">{adminEmail}</span></div>
+              <div><strong>Login Email    :</strong> <span className="text-slate-900 font-bold">{adminEmail}</span></div>
               <div><strong>Password       :</strong> <span className="bg-white px-2 py-0.5 rounded border border-black/15 font-bold text-slate-900">{initialPassword}</span></div>
               <div><strong>Plan & Billing :</strong> {subscriptionTier.replace(/_/g, ' ')} (₹{monthlyBillingInr.toLocaleString()}/mo)</div>
-              <div><strong>Units Allotted :</strong> {selectedDivisions.length} Active Factory Modules</div>
+              <div><strong>Units Allotted :</strong> {selectedDivisions.length} of {ENTERPRISE_DIVISIONS_CATALOG.length} Active Factory Modules</div>
             </div>
 
             <div className="flex items-center justify-end gap-3 pt-2">
@@ -243,7 +299,7 @@ Allocated Units   : ${selectedDivisions.length} Manufacturing Divisions
                     type="text"
                     required
                     value={companyName}
-                    onChange={(e) => setCompanyName(e.target.value)}
+                    onChange={(e) => handleCompanyNameChange(e.target.value)}
                     placeholder="e.g. Vardhman Textiles Garment Division"
                     className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
                   />
@@ -264,10 +320,28 @@ Allocated Units   : ${selectedDivisions.length} Manufacturing Divisions
                 </div>
               </div>
 
+              {/* Custom Username & Client Email */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
-                    Super Admin Login Email <span className="text-rose-500">*</span>
+                    Custom Username (Generated) <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={customUsername}
+                    onChange={(e) => setCustomUsername(e.target.value)}
+                    placeholder="e.g. vardhman_admin"
+                    className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-mono font-bold text-[#3A3564] outline-none shadow-2xs transition-all"
+                  />
+                  <span className="text-[10px] text-slate-500 mt-1 block">
+                    Derived from company name. Client can sign in with this or email.
+                  </span>
+                </div>
+
+                <div>
+                  <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
+                    Super Admin Email (Recipient) <span className="text-rose-500">*</span>
                   </label>
                   <input
                     type="email"
@@ -277,11 +351,16 @@ Allocated Units   : ${selectedDivisions.length} Manufacturing Divisions
                     placeholder="admin@vardhman.com"
                     className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-mono font-bold text-slate-900 outline-none shadow-2xs transition-all"
                   />
+                  <span className="text-[10px] text-slate-500 mt-1 block">
+                    Resend will dispatch credentials here from noreply@zigza.in.
+                  </span>
                 </div>
+              </div>
 
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
-                    Initial Password <span className="text-rose-500">*</span>
+                    Initial Temporary Password <span className="text-rose-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -291,9 +370,7 @@ Allocated Units   : ${selectedDivisions.length} Manufacturing Divisions
                     className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-mono font-bold text-slate-900 outline-none shadow-2xs transition-all"
                   />
                 </div>
-              </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
                     Phone / WhatsApp Number <span className="text-rose-500">*</span>
@@ -326,19 +403,19 @@ Allocated Units   : ${selectedDivisions.length} Manufacturing Divisions
                     />
                   </div>
                 </div>
+              </div>
 
-                <div>
-                  <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
-                    Plant Location (City, State)
-                  </label>
-                  <input
-                    type="text"
-                    value={cityState}
-                    onChange={(e) => setCityState(e.target.value)}
-                    placeholder="e.g. Tirupur, Tamil Nadu"
-                    className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
-                  />
-                </div>
+              <div>
+                <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
+                  Plant Location (City, State)
+                </label>
+                <input
+                  type="text"
+                  value={cityState}
+                  onChange={(e) => setCityState(e.target.value)}
+                  placeholder="e.g. Tirupur, Tamil Nadu"
+                  className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
+                />
               </div>
 
               {/* Plan Tiers */}
@@ -358,7 +435,7 @@ Allocated Units   : ${selectedDivisions.length} Manufacturing Divisions
                   >
                     <span className="text-xs font-bold text-slate-900 block font-[family-name:var(--font-heading)]">Full Access + AI</span>
                     <span className="text-sm font-bold font-mono text-[#3A3564] block mt-0.5">₹4,999/mo</span>
-                    <span className="text-[10px] text-slate-500 block">All 11 Divisions</span>
+                    <span className="text-[10px] text-slate-500 block">All 12 Divisions</span>
                   </button>
 
                   <button
@@ -395,14 +472,14 @@ Allocated Units   : ${selectedDivisions.length} Manufacturing Divisions
               <div className="pt-2">
                 <div className="flex items-center justify-between mb-2">
                   <label className="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#3A3564] font-mono">
-                    Allot Manufacturing Divisions ({selectedDivisions.length} / 11)
+                    Allot Manufacturing Divisions ({selectedDivisions.length} / {ENTERPRISE_DIVISIONS_CATALOG.length})
                   </label>
                   <button
                     type="button"
                     onClick={selectAllDivisions}
                     className="text-xs font-mono font-bold text-[#3A3564] hover:underline cursor-pointer"
                   >
-                    Select All 11
+                    Select All {ENTERPRISE_DIVISIONS_CATALOG.length}
                   </button>
                 </div>
 
@@ -447,9 +524,10 @@ Allocated Units   : ${selectedDivisions.length} Manufacturing Divisions
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="px-5 py-2 text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] rounded-xl shadow-xs cursor-pointer active:scale-[0.98] disabled:opacity-50"
+                className="px-5 py-2 text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] rounded-xl shadow-xs cursor-pointer active:scale-[0.98] disabled:opacity-50 inline-flex items-center gap-2"
               >
-                {isSubmitting ? 'Provisioning Infra...' : 'Confirm & Allot Access'}
+                <Key className="w-3.5 h-3.5" />
+                <span>{isSubmitting ? 'Provisioning Infra...' : 'Confirm & Allot Access'}</span>
               </button>
             </div>
           </form>

@@ -101,7 +101,6 @@ export async function sendTenantActivationEmail(params: TenantActivationEmailPar
                 <span class="cred-val">${subscriptionTier.replace(/_/g, ' ')}</span>
               </div>
             </div>
-            </div>
 
             <div class="button-wrap">
               <a href="https://app.zigza.in/login" class="btn-login" target="_blank">Access Factory Workspace</a>
