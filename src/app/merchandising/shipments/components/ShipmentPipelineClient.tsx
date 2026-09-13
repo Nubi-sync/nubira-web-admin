@@ -144,7 +144,7 @@ export function ShipmentPipelineClient({ initialShipments }: ShipmentPipelineCli
         {/* Card 2 */}
         <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
           <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
-            <Anchor className="w-5 h-5 text-sky-600" />
+            <Anchor className="w-5 h-5" />
           </div>
           <div className="mt-3">
             <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
@@ -156,7 +156,7 @@ export function ShipmentPipelineClient({ initialShipments }: ShipmentPipelineCli
             <div className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900">
               {sailingCount}
             </div>
-            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-sky-50 text-sky-700 border border-sky-200">
+            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
               Sailing
             </span>
           </div>
@@ -165,7 +165,7 @@ export function ShipmentPipelineClient({ initialShipments }: ShipmentPipelineCli
         {/* Card 3 */}
         <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
           <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
-            <Truck className="w-5 h-5 text-amber-600" />
+            <Truck className="w-5 h-5" />
           </div>
           <div className="mt-3">
             <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
@@ -177,7 +177,7 @@ export function ShipmentPipelineClient({ initialShipments }: ShipmentPipelineCli
             <div className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900">
               {stuffedCount}
             </div>
-            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
               Port Gate-In
             </span>
           </div>
@@ -186,7 +186,7 @@ export function ShipmentPipelineClient({ initialShipments }: ShipmentPipelineCli
         {/* Card 4 */}
         <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
           <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
-            <Ship className="w-5 h-5 text-emerald-600" />
+            <Ship className="w-5 h-5" />
           </div>
           <div className="mt-3">
             <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
@@ -198,7 +198,7 @@ export function ShipmentPipelineClient({ initialShipments }: ShipmentPipelineCli
             <div className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900">
               {totalCbm.toFixed(1)}
             </div>
-            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
               CBM Cubic
             </span>
           </div>
@@ -242,20 +242,18 @@ export function ShipmentPipelineClient({ initialShipments }: ShipmentPipelineCli
 
         {/* Shipments Table or Empty State */}
         {filteredShipments.length === 0 ? (
-          <div className="py-8">
-            <EmptyState
-              icon={Ship}
-              title={searchQuery || activeFilter !== 'ALL' ? "No export consignments match your criteria" : "No export consignments found"}
-              description={searchQuery || activeFilter !== 'ALL' ? "Try adjusting your search query or shipment status filter." : "Schedule and book export container shipments to track customs documents and vessel schedules."}
-              actionLabel="Book Export Shipment"
-              onAction={() => setIsModalOpen(true)}
-              secondaryActionLabel={searchQuery || activeFilter !== 'ALL' ? "Reset Filters" : undefined}
-              onSecondaryAction={searchQuery || activeFilter !== 'ALL' ? () => {
-                setSearchQuery('')
-                setActiveFilter('ALL')
-              } : undefined}
-            />
-          </div>
+          <EmptyState
+            icon={Ship}
+            title={searchQuery || activeFilter !== 'ALL' ? "No matching consignments" : "No export consignments"}
+            description={searchQuery || activeFilter !== 'ALL' ? "Try adjusting your search query or shipment status filter." : "Schedule and book export container shipments."}
+            actionLabel="Book Export Shipment"
+            onAction={() => setIsModalOpen(true)}
+            secondaryActionLabel={searchQuery || activeFilter !== 'ALL' ? "Reset Filters" : undefined}
+            onSecondaryAction={searchQuery || activeFilter !== 'ALL' ? () => {
+              setSearchQuery('')
+              setActiveFilter('ALL')
+            } : undefined}
+          />
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
@@ -297,7 +295,7 @@ export function ShipmentPipelineClient({ initialShipments }: ShipmentPipelineCli
                       <div className="text-[10px] text-slate-400">↓ {shp.port_of_discharge}</div>
                     </td>
                     <td className="py-3 px-4 font-mono text-slate-700">
-                      <div className="text-emerald-700 font-bold">ETD: {shp.etd_date}</div>
+                      <div className="text-slate-900 font-bold font-mono">ETD: {shp.etd_date}</div>
                       <div className="text-slate-400 text-[10px]">ETA: {shp.eta_date}</div>
                     </td>
                     <td className="py-3 px-4 font-mono font-medium text-slate-600">
@@ -306,15 +304,11 @@ export function ShipmentPipelineClient({ initialShipments }: ShipmentPipelineCli
                     <td className="py-3 px-4 text-center">
                       <span
                         className={`inline-block px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
-                          shp.status === 'SAILING'
-                            ? 'bg-sky-50 text-sky-700 border border-sky-200'
-                            : shp.status === 'DELIVERED'
-                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                            : shp.status === 'CUSTOMS_CLEARED'
-                            ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                            : shp.status === 'CONTAINER_STUFFED'
-                            ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                            : 'bg-slate-100 text-slate-700'
+                          shp.status === 'DELIVERED'
+                            ? 'bg-[#FAF7F0] text-[#3A3564] border border-black/10 font-bold'
+                            : shp.status === 'SAILING'
+                            ? 'bg-slate-100 text-slate-800 border border-slate-200 font-semibold'
+                            : 'bg-slate-50 text-slate-600 border border-slate-200'
                         }`}
                       >
                         {shp.status.replace('_', ' ')}
@@ -339,8 +333,8 @@ export function ShipmentPipelineClient({ initialShipments }: ShipmentPipelineCli
                           Advance Status
                         </button>
                       ) : (
-                        <span className="text-[11px] font-bold text-emerald-700 inline-flex items-center gap-1 font-mono">
-                          <CheckCircle2 className="w-3.5 h-3.5" />
+                        <span className="text-[11px] font-bold text-slate-700 inline-flex items-center gap-1 font-mono">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-[#3A3564]" />
                           Delivered
                         </span>
                       )}

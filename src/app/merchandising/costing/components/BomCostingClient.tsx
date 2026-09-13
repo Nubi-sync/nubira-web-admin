@@ -169,14 +169,10 @@ export function BomCostingClient({ initialCostings }: BomCostingClientProps = {}
             <div className="text-[11px] text-slate-400 font-medium">&gt; 2.0% cost overruns</div>
           </div>
           <div className="pt-2 border-t border-slate-100 flex items-baseline justify-between mt-3">
-            <div className={`text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] ${alertCostingsCount > 0 ? 'text-rose-600' : 'text-slate-900'}`}>
+            <div className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900">
               {alertCostingsCount}
             </div>
-            <span className={`text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full ${
-              alertCostingsCount > 0 
-                ? 'bg-rose-50 text-rose-700 border border-rose-200' 
-                : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-            }`}>
+            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
               {alertCostingsCount > 0 ? 'Review Needed' : 'Zero Overrun'}
             </span>
           </div>
@@ -197,7 +193,7 @@ export function BomCostingClient({ initialCostings }: BomCostingClientProps = {}
             <div className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900">
               12.0%
             </div>
-            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
               Standard SLA
             </span>
           </div>
@@ -221,13 +217,13 @@ export function BomCostingClient({ initialCostings }: BomCostingClientProps = {}
         </div>
 
         {alertCostingsCount > 0 ? (
-          <div className="px-3 py-1.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold flex items-center gap-2 shrink-0">
-            <AlertTriangle className="w-4 h-4 text-rose-600" />
+          <div className="px-3 py-1.5 rounded-xl bg-[#FAF7F0] border border-black/10 text-[#3A3564] text-xs font-bold flex items-center gap-2 shrink-0 shadow-2xs">
+            <AlertTriangle className="w-4 h-4 text-[#3A3564]" />
             <span>{alertCostingsCount} Style(s) exceeding &gt; 2.0% variance threshold</span>
           </div>
         ) : (
-          <div className="px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center gap-2 shrink-0">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+          <div className="px-3 py-1.5 rounded-xl bg-[#FAF7F0] border border-black/10 text-slate-700 text-xs font-bold flex items-center gap-2 shrink-0 shadow-2xs">
+            <CheckCircle2 className="w-4 h-4 text-[#3A3564]" />
             <span>All active BOM costings are strictly within tolerance limits</span>
           </div>
         )}
