@@ -17,6 +17,7 @@ import { TenantFactory, TenantStatus } from '../types/platform'
 import { PLATFORM_UPDATE_EVENT } from '../utils/platformStorage'
 import { fetchTenantFactoriesAction } from '../actions'
 import { ProvisionTenantModal } from '../components/ProvisionTenantModal'
+import { ENTERPRISE_DIVISIONS_CATALOG } from '../data/initialPlatformData'
 
 export default function TenantFactoriesPage() {
   const [tenants, setTenants] = useState<TenantFactory[]>([])
@@ -165,7 +166,7 @@ export default function TenantFactoriesPage() {
             </div>
             <div className="mt-3">
               <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
-                Full 11 Divisions
+                Full {ENTERPRISE_DIVISIONS_CATALOG.length} Divisions
               </div>
               <div className="text-[11px] text-slate-400 font-medium">End-to-End Synchronized</div>
             </div>
@@ -353,11 +354,17 @@ export default function TenantFactoriesPage() {
                         <div className="text-[10px] text-slate-500 mt-0.5">
                           ₹{t.monthlyBillingInr.toLocaleString()}/mo
                         </div>
+                        <div className="text-[10px] font-semibold text-emerald-700 mt-1 flex items-center gap-1">
+                          <Clock className="w-3 h-3 text-emerald-600 shrink-0" />
+                          <span>
+                            Expires: {t.expiresAt ? new Date(t.expiresAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '19-Aug-2027'}
+                          </span>
+                        </div>
                       </td>
 
                       <td className="py-3.5 px-4 font-mono">
                         <span className="px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-slate-800 font-bold text-[10px] border border-black/10">
-                          {t.activeDivisionsCount} / 11 Units
+                          {t.activeDivisionsCount} / {ENTERPRISE_DIVISIONS_CATALOG.length} Units
                         </span>
                       </td>
 
