@@ -201,10 +201,10 @@ Allocated Units   : ${selectedDivisions.length} of ${ENTERPRISE_DIVISIONS_CATALO
         {/* Modal Header */}
         <div className="px-6 py-5 bg-[#FAF7F0] border-b border-black/10 flex items-center justify-between">
           <div>
-            <span className="text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-white text-[#3A3564] border border-black/10 shadow-2xs">
-              Infrastructure Provisioning
+            <span className="text-xs font-medium px-2.5 py-0.5 rounded-md bg-white text-[#3A3564] border border-black/10">
+              Access Management
             </span>
-            <h2 className="text-lg font-bold text-slate-900 mt-1 font-[family-name:var(--font-heading)]">
+            <h2 className="text-xl font-bold text-slate-900 mt-1 font-[family-name:var(--font-heading)]">
               {provisionedSuccess ? 'Access Activation Slip Ready' : 'Provision Client Super Admin'}
             </h2>
           </div>
@@ -221,7 +221,7 @@ Allocated Units   : ${selectedDivisions.length} of ${ENTERPRISE_DIVISIONS_CATALO
           /* Success Activation Slip View */
           <div className="p-6 space-y-4">
             <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-2xs">
+              <div className="w-10 h-10 rounded-xl bg-emerald-700 text-white flex items-center justify-center shrink-0 shadow-2xs">
                 <Check className="w-5 h-5 stroke-[2.5]" />
               </div>
               <div>
@@ -241,7 +241,7 @@ Allocated Units   : ${selectedDivisions.length} of ${ENTERPRISE_DIVISIONS_CATALO
                   <AlertTriangle className="w-3.5 h-3.5" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="font-bold text-amber-950">Email Delivery Simulated:</div>
+                  <div className="font-semibold text-amber-950">Email Delivery Simulated:</div>
                   <div className="text-amber-800 mt-0.5 leading-relaxed font-sans text-xs">
                     RESEND_API_KEY is not configured in .env.local, so no live email was sent to <span className="font-mono font-semibold">{adminEmail}</span>. The tenant account has been provisioned in the database. Copy the activation credentials below or configure RESEND_API_KEY for live delivery.
                   </div>
@@ -253,7 +253,7 @@ Allocated Units   : ${selectedDivisions.length} of ${ENTERPRISE_DIVISIONS_CATALO
                   <CheckCircle2 className="w-3.5 h-3.5" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="font-bold text-emerald-950">Live Activation Email Dispatched:</div>
+                  <div className="font-semibold text-emerald-950">Live Activation Email Dispatched:</div>
                   <div className="text-emerald-800 mt-0.5 leading-relaxed font-sans text-xs">
                     Activation credentials have been successfully transmitted to <span className="font-mono font-semibold">{adminEmail}</span> via Resend.
                   </div>
@@ -265,7 +265,7 @@ Allocated Units   : ${selectedDivisions.length} of ${ENTERPRISE_DIVISIONS_CATALO
                   <AlertTriangle className="w-3.5 h-3.5" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="font-bold text-rose-950">Email Dispatch Notice:</div>
+                  <div className="font-semibold text-rose-950">Email Dispatch Notice:</div>
                   <div className="text-rose-800 mt-0.5 leading-relaxed font-sans text-xs">
                     {emailDispatchResult.error}. Use the activation slip below for manual credential delivery.
                   </div>
@@ -277,8 +277,8 @@ Allocated Units   : ${selectedDivisions.length} of ${ENTERPRISE_DIVISIONS_CATALO
                   <Mail className="w-3.5 h-3.5" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="font-bold text-slate-900">Resend Automated Notification:</div>
-                  <div className="text-slate-600 truncate mt-0.5 font-mono text-[11px]">
+                  <div className="font-semibold text-slate-900">Resend Automated Notification:</div>
+                  <div className="text-slate-600 truncate mt-0.5 font-mono text-xs">
                     Credentials generated. Ready to deliver to {adminEmail}.
                   </div>
                 </div>
@@ -287,13 +287,13 @@ Allocated Units   : ${selectedDivisions.length} of ${ENTERPRISE_DIVISIONS_CATALO
 
             <div className="bg-[#FAF7F0] p-5 rounded-2xl border border-black/10 font-mono text-xs text-slate-800 space-y-2 relative">
               <div className="flex items-center justify-between border-b border-black/10 pb-2.5 mb-2.5">
-                <span className="font-bold text-[#3A3564] uppercase tracking-wider text-[11px]">
+                <span className="font-bold text-[#3A3564] uppercase tracking-wider text-xs">
                   Official Activation Credentials
                 </span>
                 <button
                   type="button"
                   onClick={copySlip}
-                  className="px-3 py-1.5 rounded-xl bg-white border border-black/10 hover:bg-[#3A3564] hover:text-white text-xs font-bold transition-all inline-flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                  className="px-3 py-1.5 rounded-xl bg-white border border-black/10 hover:bg-[#3A3564] hover:text-white text-xs font-semibold transition-all inline-flex items-center gap-1.5 cursor-pointer shadow-2xs"
                 >
                   {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
                   <span>{copied ? 'Copied!' : 'Copy Activation Slip'}</span>
@@ -323,11 +323,11 @@ Allocated Units   : ${selectedDivisions.length} of ${ENTERPRISE_DIVISIONS_CATALO
         ) : (
           /* Form Body */
           <form onSubmit={handleSubmit}>
-            <div className="p-6 max-h-[72vh] overflow-y-auto space-y-4 text-xs sm:text-[13px]">
+            <div className="p-6 max-h-[72vh] overflow-y-auto space-y-4 text-sm">
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
+                  <label className="block text-sm font-semibold text-slate-800 mb-1.5">
                     Factory / Company Name <span className="text-rose-500">*</span>
                   </label>
                   <input
@@ -341,7 +341,7 @@ Allocated Units   : ${selectedDivisions.length} of ${ENTERPRISE_DIVISIONS_CATALO
                 </div>
 
                 <div>
-                  <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
+                  <label className="block text-sm font-semibold text-slate-800 mb-1.5">
                     Plant Head / Super Admin <span className="text-rose-500">*</span>
                   </label>
                   <input
@@ -358,7 +358,7 @@ Allocated Units   : ${selectedDivisions.length} of ${ENTERPRISE_DIVISIONS_CATALO
               {/* Custom Username & Client Email */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
+                  <label className="block text-sm font-semibold text-slate-800 mb-1.5">
                     Custom Username (Generated) <span className="text-rose-500">*</span>
                   </label>
                   <input
@@ -369,13 +369,13 @@ Allocated Units   : ${selectedDivisions.length} of ${ENTERPRISE_DIVISIONS_CATALO
                     placeholder="e.g. vardhman_admin"
                     className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-mono font-bold text-[#3A3564] outline-none shadow-2xs transition-all"
                   />
-                  <span className="text-[10px] text-slate-500 mt-1 block">
+                  <span className="text-xs text-slate-500 mt-1 block">
                     Derived from company name. Client can sign in with this or email.
                   </span>
                 </div>
 
                 <div>
-                  <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
+                  <label className="block text-sm font-semibold text-slate-800 mb-1.5">
                     Super Admin Email (Recipient) <span className="text-rose-500">*</span>
                   </label>
                   <input
@@ -386,7 +386,7 @@ Allocated Units   : ${selectedDivisions.length} of ${ENTERPRISE_DIVISIONS_CATALO
                     placeholder="admin@vardhman.com"
                     className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-mono font-bold text-slate-900 outline-none shadow-2xs transition-all"
                   />
-                  <span className="text-[10px] text-slate-500 mt-1 block">
+                  <span className="text-xs text-slate-500 mt-1 block">
                     Resend will dispatch credentials here from noreply@zigza.in.
                   </span>
                 </div>
@@ -394,7 +394,7 @@ Allocated Units   : ${selectedDivisions.length} of ${ENTERPRISE_DIVISIONS_CATALO
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
+                  <label className="block text-sm font-semibold text-slate-800 mb-1.5">
                     Initial Temporary Password <span className="text-rose-500">*</span>
                   </label>
                   <input
@@ -407,7 +407,7 @@ Allocated Units   : ${selectedDivisions.length} of ${ENTERPRISE_DIVISIONS_CATALO
                 </div>
 
                 <div>
-                  <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
+                  <label className="block text-sm font-semibold text-slate-800 mb-1.5">
                     Phone / WhatsApp Number <span className="text-rose-500">*</span>
                   </label>
                   <div className="flex bg-slate-50/70 hover:bg-white focus-within:bg-white border border-slate-200 focus-within:border-[#3A3564] focus-within:ring-2 focus-within:ring-[#3A3564]/10 rounded-xl overflow-hidden shadow-2xs transition-all">
@@ -441,7 +441,7 @@ Allocated Units   : ${selectedDivisions.length} of ${ENTERPRISE_DIVISIONS_CATALO
               </div>
 
               <div>
-                <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
+                <label className="block text-sm font-semibold text-slate-800 mb-1.5">
                   Plant Location (City, State)
                 </label>
                 <input
@@ -455,50 +455,50 @@ Allocated Units   : ${selectedDivisions.length} of ${ENTERPRISE_DIVISIONS_CATALO
 
               {/* Plan Tiers */}
               <div className="pt-2">
-                <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#3A3564] font-mono mb-2">
+                <label className="block text-sm font-semibold text-slate-800 mb-2">
                   Subscription Package Tier
                 </label>
-                <div className="grid grid-cols-3 gap-2.5">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                   <button
                     type="button"
                     onClick={() => handlePlanChange('FULL_PLANT_AI')}
-                    className={`p-3 rounded-xl border text-left cursor-pointer transition-all ${
+                    className={`p-3.5 rounded-xl border text-left cursor-pointer transition-all ${
                       subscriptionTier === 'FULL_PLANT_AI'
                         ? 'bg-[#FAF7F0] border-[#3A3564] ring-2 ring-[#3A3564]/20 shadow-2xs'
                         : 'bg-white border-black/10 hover:border-black/30'
                     }`}
                   >
-                    <span className="text-xs font-bold text-slate-900 block font-[family-name:var(--font-heading)]">Full Access + AI</span>
+                    <span className="text-sm font-bold text-slate-900 block font-[family-name:var(--font-heading)]">Full Access + AI</span>
                     <span className="text-sm font-bold font-mono text-[#3A3564] block mt-0.5">₹4,999/mo</span>
-                    <span className="text-[10px] text-slate-500 block">All 12 Divisions</span>
+                    <span className="text-xs text-slate-500 block mt-0.5">All 12 Divisions</span>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => handlePlanChange('MODULAR')}
-                    className={`p-3 rounded-xl border text-left cursor-pointer transition-all ${
+                    className={`p-3.5 rounded-xl border text-left cursor-pointer transition-all ${
                       subscriptionTier === 'MODULAR'
                         ? 'bg-[#FAF7F0] border-[#3A3564] ring-2 ring-[#3A3564]/20 shadow-2xs'
                         : 'bg-white border-black/10 hover:border-black/30'
                     }`}
                   >
-                    <span className="text-xs font-bold text-slate-900 block font-[family-name:var(--font-heading)]">Modular Floor</span>
+                    <span className="text-sm font-bold text-slate-900 block font-[family-name:var(--font-heading)]">Modular Floor</span>
                     <span className="text-sm font-bold font-mono text-slate-900 block mt-0.5">₹1,999/mo</span>
-                    <span className="text-[10px] text-slate-500 block">1 to 3 Units</span>
+                    <span className="text-xs text-slate-500 block mt-0.5">1 to 3 Units</span>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => handlePlanChange('CUSTOM')}
-                    className={`p-3 rounded-xl border text-left cursor-pointer transition-all ${
+                    className={`p-3.5 rounded-xl border text-left cursor-pointer transition-all ${
                       subscriptionTier === 'CUSTOM'
                         ? 'bg-[#FAF7F0] border-[#3A3564] ring-2 ring-[#3A3564]/20 shadow-2xs'
                         : 'bg-white border-black/10 hover:border-black/30'
                     }`}
                   >
-                    <span className="text-xs font-bold text-slate-900 block font-[family-name:var(--font-heading)]">Custom Enterprise</span>
+                    <span className="text-sm font-bold text-slate-900 block font-[family-name:var(--font-heading)]">Custom Enterprise</span>
                     <span className="text-sm font-bold font-mono text-slate-900 block mt-0.5">₹9,999/mo</span>
-                    <span className="text-[10px] text-slate-500 block">Hardware & Telemetry</span>
+                    <span className="text-xs text-slate-500 block mt-0.5">Hardware & Telemetry</span>
                   </button>
                 </div>
               </div>
@@ -506,27 +506,27 @@ Allocated Units   : ${selectedDivisions.length} of ${ENTERPRISE_DIVISIONS_CATALO
               {/* Manufacturing Divisions Allocation */}
               <div className="pt-2">
                 <div className="flex items-center justify-between mb-2">
-                  <label className="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#3A3564] font-mono">
+                  <label className="text-sm font-semibold text-slate-800">
                     Allot Manufacturing Divisions ({selectedDivisions.length} / {ENTERPRISE_DIVISIONS_CATALOG.length})
                   </label>
                   <button
                     type="button"
                     onClick={selectAllDivisions}
-                    className="text-xs font-mono font-bold text-[#3A3564] hover:underline cursor-pointer"
+                    className="text-xs font-semibold text-[#3A3564] hover:underline cursor-pointer"
                   >
                     Select All {ENTERPRISE_DIVISIONS_CATALOG.length}
                   </button>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 p-3 bg-[#FAF7F0] rounded-2xl border border-black/10 max-h-48 overflow-y-auto">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-3 bg-[#FAF7F0] rounded-2xl border border-black/10 max-h-52 overflow-y-auto">
                   {ENTERPRISE_DIVISIONS_CATALOG.map((div) => {
                     const isChecked = selectedDivisions.includes(div.route)
                     return (
                       <label
                         key={div.id}
-                        className={`flex items-center gap-2 p-2 rounded-xl border text-xs font-mono transition-all cursor-pointer ${
+                        className={`flex items-center gap-2.5 p-2.5 rounded-xl border text-xs transition-all cursor-pointer ${
                           isChecked
-                            ? 'bg-white border-[#3A3564] font-bold text-slate-900 shadow-2xs'
+                            ? 'bg-white border-[#3A3564] font-semibold text-slate-900 shadow-2xs'
                             : 'bg-white/60 border-black/5 text-slate-500 hover:bg-white'
                         }`}
                       >
@@ -534,7 +534,7 @@ Allocated Units   : ${selectedDivisions.length} of ${ENTERPRISE_DIVISIONS_CATALO
                           type="checkbox"
                           checked={isChecked}
                           onChange={() => toggleDivision(div.route)}
-                          className="rounded border-slate-300 text-[#3A3564] focus:ring-[#3A3564] cursor-pointer"
+                          className="w-4 h-4 rounded border-slate-300 text-[#3A3564] focus:ring-[#3A3564] cursor-pointer"
                         />
                         <span className="truncate">
                           {div.code}. {div.name}
