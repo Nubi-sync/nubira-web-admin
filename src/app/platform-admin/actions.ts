@@ -77,6 +77,66 @@ export async function fetchDemoRequestsAction(): Promise<{
   }
 }
 
+export async function checkContactInUseAction(email: string, phone: string): Promise<{
+  inUse: boolean
+  field?: 'email' | 'phone'
+  companyName?: string
+}> {
+  try {
+    const cleanEmail = email.trim().toLowerCase()
+    const cleanPhoneDigits = phone.replace(/\D/g, '')
+    const phoneLast10 = cleanPhoneDigits.slice(-10)
+
+    if (cleanEmail) {
+      const { data: emailLead } = await supabaseAdmin
+        .from('platform_demo_requests')
+        .select('company_name')
+        .ilike('email', cleanEmail)
+        .limit(1)
+
+      if (emailLead && emailLead.length > 0) {
+        return { inUse: true, field: 'email', companyName: emailLead[0].company_name }
+      }
+
+      const { data: emailTenant } = await supabaseAdmin
+        .from('platform_tenant_factories')
+        .select('company_name')
+        .ilike('admin_email', cleanEmail)
+        .limit(1)
+
+      if (emailTenant && emailTenant.length > 0) {
+        return { inUse: true, field: 'email', companyName: emailTenant[0].company_name }
+      }
+    }
+
+    if (phoneLast10 && phoneLast10.length === 10) {
+      const { data: phoneLead } = await supabaseAdmin
+        .from('platform_demo_requests')
+        .select('company_name')
+        .ilike('phone', `%${phoneLast10}%`)
+        .limit(1)
+
+      if (phoneLead && phoneLead.length > 0) {
+        return { inUse: true, field: 'phone', companyName: phoneLead[0].company_name }
+      }
+
+      const { data: phoneTenant } = await supabaseAdmin
+        .from('platform_tenant_factories')
+        .select('company_name')
+        .ilike('phone', `%${phoneLast10}%`)
+        .limit(1)
+
+      if (phoneTenant && phoneTenant.length > 0) {
+        return { inUse: true, field: 'phone', companyName: phoneTenant[0].company_name }
+      }
+    }
+
+    return { inUse: false }
+  } catch {
+    return { inUse: false }
+  }
+}
+
 export async function submitDemoRequestAction(payload: {
   applicantName: string
   companyName: string
@@ -86,13 +146,59 @@ export async function submitDemoRequestAction(payload: {
   cityState?: string
   estimatedMachines?: number
   notes?: string
-}): Promise<{ success: boolean; leadId?: string; error?: string }> {
+}): Promise<{
+  success: boolean
+  leadId?: string
+  alreadyExists?: boolean
+  existingCompany?: string
+  error?: string
+}> {
   try {
+    const cleanEmail = payload.email.trim().toLowerCase()
+    const cleanPhoneDigits = payload.phone.replace(/\D/g, '')
+    const phoneLast10 = cleanPhoneDigits.slice(-10)
+
+    // Check if email or phone already exists in platform_demo_requests
+    try {
+      const { data: existingLeads } = await supabaseAdmin
+        .from('platform_demo_requests')
+        .select('id, email, phone, company_name, status')
+        .or(`email.ilike.${cleanEmail},phone.ilike.%${phoneLast10}%`)
+        .limit(1)
+
+      if (existingLeads && existingLeads.length > 0) {
+        return {
+          success: false,
+          alreadyExists: true,
+          existingCompany: existingLeads[0].company_name,
+          error: `An inquiry is already registered for ${existingLeads[0].company_name} with this email or phone number. Our team is already reviewing your request.`
+        }
+      }
+
+      // Check if already an active provisioned tenant factory
+      const { data: existingTenants } = await supabaseAdmin
+        .from('platform_tenant_factories')
+        .select('id, company_name, admin_email, phone')
+        .or(`admin_email.ilike.${cleanEmail},phone.ilike.%${phoneLast10}%`)
+        .limit(1)
+
+      if (existingTenants && existingTenants.length > 0) {
+        return {
+          success: false,
+          alreadyExists: true,
+          existingCompany: existingTenants[0].company_name,
+          error: `Factory account ${existingTenants[0].company_name} is already provisioned with this email or phone. Please sign in to your staff portal.`
+        }
+      }
+    } catch (checkErr) {
+      console.warn('[submitDemoRequestAction] Duplicate check notice:', checkErr)
+    }
+
     const row = {
       applicant_name: payload.applicantName.trim(),
       company_name: payload.companyName.trim(),
       phone: payload.phone.trim(),
-      email: payload.email.trim(),
+      email: cleanEmail,
       preferred_plan: payload.preferredPlan || 'FULL_PLANT_AI',
       city_state: payload.cityState || 'India',
       estimated_machines: payload.estimatedMachines || 0,
