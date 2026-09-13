@@ -111,34 +111,26 @@ export async function login(formData: FormData) {
   resetRateLimit(`login_${clientIp}`)
   resetRateLimit(`mw_login_${clientIp}`)
 
-  // Dynamic destination routing: Root SuperAdmin routes to /platform-admin
+  // Dynamic destination routing via centralized Access Control engine
   let targetRoute = '/modules'
-  const isRootAdmin =
-    loginEmail.toLowerCase() === 'admin@zigza.in' ||
-    authData?.user?.email?.toLowerCase() === 'admin@zigza.in'
+  try {
+    const { getUserAllowedModules, getDefaultLandingRoute } = await import('@/lib/access-control')
+    const userId = authData?.user?.id
+    let userRole = (authData?.user?.user_metadata?.role || '').toUpperCase()
 
-  if (isRootAdmin) {
-    targetRoute = '/platform-admin'
-  } else {
-    try {
-      const userId = authData?.user?.id
-      if (userId) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', userId)
-          .single()
-
-        const role = (profile?.role || '').toUpperCase()
-        if (role === 'PLATFORM_SUPERADMIN' || role === 'SUPERADMIN') {
-          targetRoute = '/platform-admin'
-        } else if (role === 'STORE' || role === 'STORE_SUPERVISOR' || role === 'GODOWN' || loginEmail?.startsWith('store@')) {
-          targetRoute = '/stitching-sewing/store'
-        }
-      }
-    } catch (err) {
-      console.error('Error fetching user profile role upon login:', err)
+    if (userId && !userRole) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', userId)
+        .single()
+      userRole = (profile?.role || '').toUpperCase()
     }
+
+    const allowedModules = getUserAllowedModules(authData?.user, { role: userRole })
+    targetRoute = getDefaultLandingRoute(allowedModules, userRole, loginEmail)
+  } catch (err) {
+    console.error('Error resolving landing route upon login:', err)
   }
 
   revalidatePath('/', 'layout')

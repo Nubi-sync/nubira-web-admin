@@ -43,6 +43,9 @@ export async function createEmployee(formData: FormData) {
     }
 
     // 3. Create user in Supabase Auth
+    const { ROLE_MODULE_MAPPING } = await import('@/lib/access-control')
+    const allowedModules = ROLE_MODULE_MAPPING[role] || (role === 'ADMIN' ? ['/modules'] : ['/stitching-sewing'])
+
     let authUserId: string | null = null
     const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
       email: fakeEmail,
@@ -51,7 +54,8 @@ export async function createEmployee(formData: FormData) {
       user_metadata: {
         username: displayName,
         display_name: displayName,
-        role: role
+        role: role,
+        allowed_modules: allowedModules
       }
     })
 
@@ -63,7 +67,7 @@ export async function createEmployee(formData: FormData) {
         if (matched) {
           await supabaseAdmin.auth.admin.updateUserById(matched.id, {
             password: password,
-            user_metadata: { username: displayName, display_name: displayName, role: role }
+            user_metadata: { username: displayName, display_name: displayName, role: role, allowed_modules: allowedModules }
           })
           authUserId = matched.id
         } else {

@@ -72,31 +72,37 @@ export async function updateSession(request: NextRequest) {
   // Redirect logic
   const isLoginPage = pathname === '/login' || pathname.startsWith('/login')
   
-  // Explicit protected dashboard & module pages that require login
+  // Explicit protected dashboard & division routes that require authorization
   const PROTECTED_DASHBOARD_ROUTES = [
     '/platform-admin',
     '/modules',
-    '/stitching-sewing',
-    '/factory',
-    '/brands',
-    '/washing',
+    '/design',
+    '/merchandising',
+    '/cutting',
     '/printing',
     '/embroidery',
+    '/stitching-sewing',
+    '/washing',
+    '/iron',
+    '/ready-goods',
+    '/alter',
+    '/store',
+    '/dispatch',
+    '/factory',
+    '/brands',
     '/dashboard',
     '/allotments',
     '/articles',
-    '/dispatch',
     '/employees',
     '/inventory',
     '/production-orders',
     '/reports',
     '/reset-password',
     '/zigza-ai',
-    '/store',
     '/vendors',
     '/profile',
   ]
-  const isProtectedRoute = PROTECTED_DASHBOARD_ROUTES.some(route => pathname.startsWith(route))
+  const isProtectedRoute = PROTECTED_DASHBOARD_ROUTES.some(route => pathname === route || pathname.startsWith(`${route}/`))
 
   // Only perform page navigation redirects on standard page requests (NOT on Server Actions)
   if (!isServerAction) {
@@ -107,11 +113,37 @@ export async function updateSession(request: NextRequest) {
       return NextResponse.redirect(url)
     }
 
-    if (user && isLoginPage) {
-      // If already logged in and visiting /login in another tab, redirect to appropriate portal
-      const url = request.nextUrl.clone()
-      url.pathname = user.email?.toLowerCase() === 'admin@zigza.in' ? '/platform-admin' : '/modules'
-      return NextResponse.redirect(url)
+    if (user) {
+      // Resolve user role & allowed modules
+      let userRole = (user.user_metadata?.role || '').toUpperCase()
+      if (!userRole) {
+        try {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', user.id)
+            .single()
+          userRole = (profile?.role || '').toUpperCase()
+        } catch (_) {}
+      }
+
+      const { getUserAllowedModules, isRouteAuthorized, getDefaultLandingRoute } = await import('@/lib/access-control')
+      const allowedModules = getUserAllowedModules(user, { role: userRole })
+      const defaultLanding = getDefaultLandingRoute(allowedModules, userRole, user.email)
+
+      // If already logged in and visiting /login, redirect to designated division or hub
+      if (isLoginPage) {
+        const url = request.nextUrl.clone()
+        url.pathname = defaultLanding
+        return NextResponse.redirect(url)
+      }
+
+      // Enforce strict module isolation: block unauthorized division visits
+      if (isProtectedRoute && !isRouteAuthorized(allowedModules, pathname)) {
+        const url = request.nextUrl.clone()
+        url.pathname = defaultLanding
+        return NextResponse.redirect(url)
+      }
     }
   }
 

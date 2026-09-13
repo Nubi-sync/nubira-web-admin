@@ -133,13 +133,20 @@ export function CreateEmployeeForm() {
                   : 'border-slate-200'
               }`}
             >
-              <option value="PRODUCTION_MANAGER">Production Manager (Live Floor & Pipeline Dashboard)</option>
-              <option value="QC">QC Inspector / Supervisor (Quality Inspection & Packing)</option>
-              <option value="MENDING">Mending (Piece Counting & Matrix Reconciliation)</option>
-              <option value="LINEMAN">Lineman (Stitching & Floor Allotment)</option>
-              <option value="STORE">Store (Godown & Raw Trims)</option>
-              <option value="DISPATCH">Dispatch (Packing & Delivery Challans)</option>
-              <option value="ADMIN">Admin (Executive Full Access)</option>
+              <option value="ADMIN">Admin (Executive Full Access - All Divisions)</option>
+              <option value="DESIGN">Design Studio (Tech-Packs & CAD Sampling)</option>
+              <option value="MERCHANDISING">Merchandising (Buyer POs & Sourcing)</option>
+              <option value="CUTTING">Cutting Floor (Lay Sheets & Spreading)</option>
+              <option value="PRINTING">Printing Unit (Screen & Digital Runs)</option>
+              <option value="EMBROIDERY">Embroidery Unit (Multi-Head Runs)</option>
+              <option value="PRODUCTION_MANAGER">Stitching Supervisor (Sewing Floor & Allotments)</option>
+              <option value="LINEMAN">Lineman (Floor Allotment & Machine Line)</option>
+              <option value="WASHING">Washing Unit (Enzyme Batch & Tumblers)</option>
+              <option value="IRON">Ironing Floor (Steam Tables & Finishing)</option>
+              <option value="QC">Ready Goods & Packing (AQL Inspection & Cartons)</option>
+              <option value="MENDING">Alteration Clinic (Mending & Rework)</option>
+              <option value="STORE">Central Store (Raw Godown & Roll QC)</option>
+              <option value="DISPATCH">Dispatch Hub (Delivery Challans & Gate-Out)</option>
             </select>
           </div>
           {touchedRole && !isRoleValid && (

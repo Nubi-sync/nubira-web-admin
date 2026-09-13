@@ -2,6 +2,7 @@ import { AdminShell } from '@/components/layout/AdminShell'
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { ModuleHubClient } from './components/ModuleHubClient'
+import { getUserAllowedModules } from '@/lib/access-control'
 
 export const dynamic = 'force-dynamic'
 
@@ -24,10 +25,11 @@ export default async function ModulesHubPage() {
     .single()
 
   const userRole = (profile?.role || '').toUpperCase()
+  const allowedModules = getUserAllowedModules(user, { role: userRole })
 
-  // Store supervisors go directly to store godown if needed
-  if (userRole === 'STORE' || userRole === 'STORE_SUPERVISOR' || userRole === 'GODOWN' || user.email?.startsWith('store@')) {
-    redirect('/stitching-sewing/store')
+  // If user only has 1 operational division, redirect them straight to their own workplace
+  if (allowedModules.length === 1 && !allowedModules.includes('/modules')) {
+    redirect(allowedModules[0])
   }
 
   return (
@@ -36,6 +38,7 @@ export default async function ModulesHubPage() {
         userEmail={user.email || ''}
         userName={profile?.username || user.email?.split('@')[0] || 'Administrator'}
         userRole={userRole || 'Plant Administrator'}
+        allowedModules={allowedModules}
       />
     </AdminShell>
   )

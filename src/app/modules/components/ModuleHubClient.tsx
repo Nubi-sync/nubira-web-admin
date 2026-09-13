@@ -14,6 +14,7 @@ import {
   Boxes,
   Wrench,
   Store,
+  Truck,
   ArrowRight,
   LogOut,
   LayoutGrid,
@@ -25,6 +26,7 @@ interface ModuleHubClientProps {
   userEmail: string
   userName: string
   userRole: string
+  allowedModules?: string[]
 }
 
 interface ModuleCardData {
@@ -149,10 +151,24 @@ const MODULES: ModuleCardData[] = [
     href: '/store',
     features: ['Raw Material & Trim Godown', 'Cutting Challan Issues', 'Finished Carton Stock Ledger'],
   },
+  {
+    id: 'dispatch',
+    title: 'Dispatch & Delivery Logistics',
+    subtitle: 'Delivery challans, physical counting audits, transport vehicle assignments, and gate-out passes.',
+    badge: 'LOGISTICS GATE',
+    statusText: 'GATE DISPATCH',
+    icon: Truck,
+    href: '/dispatch',
+    features: ['Pre-Loading Counting Audit', 'GST Delivery Challans', 'Factory Gate-Out Authorization'],
+  },
 ]
 
-export function ModuleHubClient({ userEmail, userName, userRole }: ModuleHubClientProps) {
+export function ModuleHubClient({ userEmail, userName, userRole, allowedModules }: ModuleHubClientProps) {
   const [launchingId, setLaunchingId] = useState<string | null>(null)
+
+  const visibleModules = (allowedModules && !allowedModules.includes('/modules'))
+    ? MODULES.filter(m => allowedModules.includes(m.href))
+    : MODULES
 
   const handleCardClick = (e: React.MouseEvent, mod: ModuleCardData) => {
     if (launchingId) {
@@ -177,11 +193,11 @@ export function ModuleHubClient({ userEmail, userName, userRole }: ModuleHubClie
                 Enterprise Workspace Hub
               </h1>
               <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-1 rounded-md bg-[#FAF7F0] text-[#3A3564] shadow-2xs tracking-wider">
-                11 Operating Units
+                {visibleModules.length} Operating Units
               </span>
             </div>
             <p className="text-sm sm:text-base text-slate-600 mt-1">
-              Central manufacturing execution hub across all 11 apparel production divisions
+              Central manufacturing execution hub across {visibleModules.length === MODULES.length ? 'all 12 apparel production divisions' : 'your authorized division modules'}
             </p>
           </div>
         </div>
@@ -194,7 +210,7 @@ export function ModuleHubClient({ userEmail, userName, userRole }: ModuleHubClie
             <span>Company Profile</span>
           </Link>
 
-          <form action="/auth/signout" method="POST">
+          <form action="/auth/signout" method="post">
             <button 
               type="submit"
               className="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-black/15 rounded-xl text-xs sm:text-sm font-bold text-slate-700 hover:bg-rose-50 hover:text-rose-600 transition-all shadow-2xs cursor-pointer"
@@ -236,9 +252,9 @@ export function ModuleHubClient({ userEmail, userName, userRole }: ModuleHubClie
         </Link>
       </div>
 
-      {/* 2. 6 Equalized Enterprise Module Cards Grid */}
+      {/* 2. Equalized Enterprise Module Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
-        {MODULES.map((mod) => {
+        {visibleModules.map((mod) => {
           const Icon = mod.icon
           const isLaunching = launchingId === mod.id
           const isOtherLaunching = Boolean(launchingId && launchingId !== mod.id)

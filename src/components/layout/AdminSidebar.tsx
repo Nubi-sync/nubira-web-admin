@@ -129,17 +129,27 @@ export function AdminSidebar({
     userEmail?.toLowerCase() === 'store'
   )
 
+  const isAdmin = (
+    userEmail?.toLowerCase() === 'admin@zigza.in' ||
+    userEmail?.toLowerCase() === 'team.anga9@gmail.com' ||
+    userRole?.toUpperCase() === 'ADMIN' ||
+    userRole?.toUpperCase() === 'SUPERADMIN' ||
+    userRole?.toUpperCase() === 'PLATFORM_SUPERADMIN'
+  )
+
   // Module-specific unique side navigation
   let activeNavSections: NavSection[] = []
 
   if (isStoreUser && !pathname?.startsWith('/modules')) {
     activeNavSections = [
-      {
-        section: 'Workspace Hub',
-        items: [
-          { label: 'All Modules', href: '/modules', icon: LayoutGrid },
-        ],
-      },
+      ...(isAdmin ? [
+        {
+          section: 'Workspace Hub',
+          items: [
+            { label: 'All Modules', href: '/modules', icon: LayoutGrid },
+          ],
+        },
+      ] : []),
       {
         section: 'Godown Shift',
         items: [
@@ -158,7 +168,7 @@ export function AdminSidebar({
       {
         section: 'Workspace Hub',
         items: [
-          { label: 'All Modules', href: '/modules', icon: LayoutGrid, badge: '11 Units' },
+          { label: 'All Modules', href: '/modules', icon: LayoutGrid, badge: '12 Units' },
           { label: 'Company Profile', href: '/modules/profile', icon: Building2 },
           { label: 'Zigza AI', href: '/modules/zigza-ai', icon: Bot },
         ],
@@ -174,7 +184,7 @@ export function AdminSidebar({
         ],
       },
       {
-        section: 'Operating Divisions (6–11)',
+        section: 'Operating Divisions (6–12)',
         items: [
           { label: '6. Stitching & Sewing', href: '/modules/stitching-sewing', icon: Layers },
           { label: '7. Industrial Washing', href: '/modules/washing', icon: Waves },
@@ -182,6 +192,7 @@ export function AdminSidebar({
           { label: '9. Ready Goods & Packing', href: '/modules/ready-goods', icon: Boxes },
           { label: '10. Alteration & Rework', href: '/modules/alter', icon: Wrench },
           { label: '11. Central Store', href: '/modules/store', icon: Store },
+          { label: '12. Dispatch & Logistics', href: '/dispatch', icon: Truck },
         ],
       },
     ]
@@ -490,6 +501,31 @@ export function AdminSidebar({
         section: 'Account',
         items: [
           { label: 'Division Profile', href: '/store/profile', icon: User },
+        ],
+      },
+    ]
+  } else if (pathname === '/dispatch' || pathname?.startsWith('/dispatch')) {
+    activeNavSections = [
+      ...(isAdmin ? [
+        {
+          section: 'Workspace Hub',
+          items: [
+            { label: 'All Modules', href: '/modules', icon: LayoutGrid, badge: '12 Units' },
+          ],
+        },
+      ] : []),
+      {
+        section: '12. Dispatch Operations',
+        items: [
+          { label: 'Dispatch Hub', href: '/dispatch', icon: Truck },
+          { label: 'Pre-Loading Audits', href: '/dispatch', icon: ClipboardList },
+          { label: 'Delivery Challans', href: '/dispatch', icon: FileText },
+        ],
+      },
+      {
+        section: 'Account',
+        items: [
+          { label: 'Staff Profile', href: '/profile', icon: User },
         ],
       },
     ]
