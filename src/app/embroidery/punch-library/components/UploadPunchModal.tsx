@@ -121,13 +121,13 @@ export function UploadPunchModal({ isOpen, onClose }: UploadPunchModalProps) {
               <label className="block font-mono font-bold text-slate-700 mb-1">
                 Buyer Account
               </label>
-              <select
+              <input
+                type="text"
+                placeholder="e.g. Principal Buyer"
                 value={buyerName}
                 onChange={e => setBuyerName(e.target.value)}
                 className="w-full px-3 py-2 rounded-xl border border-black/10 focus:ring-1 focus:ring-[#3A3564] outline-none bg-white font-medium"
-              >
-                <option value="OLLYPOP">OLLYPOP</option>
-              </select>
+              />
             </div>
             <div>
               <label className="block font-mono font-bold text-slate-700 mb-1">

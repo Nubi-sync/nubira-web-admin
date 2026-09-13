@@ -581,7 +581,7 @@ export function VendorsClient({ brands: initialBrands, vendors: initialVendors }
                   <select
                     name="brand_name"
                     required
-                    defaultValue={editingVendor?.brand_name || (brands[0]?.brand_name || 'OLLYPOP')}
+                    defaultValue={editingVendor?.brand_name || (brands[0]?.brand_name || '')}
                     className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20"
                   >
                     {brands.map(b => (

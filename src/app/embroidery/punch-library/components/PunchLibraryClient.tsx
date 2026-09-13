@@ -164,7 +164,9 @@ export function PunchLibraryClient({ initialDesigns }: PunchLibraryClientProps =
             className="px-3 py-2 text-xs rounded-xl border border-black/10 bg-white font-medium focus:ring-1 focus:ring-[#3A3564] outline-none"
           >
             <option value="ALL">All Buyers</option>
-            <option value="OLLYPOP">OLLYPOP</option>
+            {Array.from(new Set(designs.map(d => d.buyer_name).filter(Boolean))).map(b => (
+              <option key={b} value={b}>{b}</option>
+            ))}
           </select>
         </div>
       </div>
