@@ -428,6 +428,10 @@ export default function TenantFactoriesPage() {
           isOpen={!!selectedTenantForView}
           onClose={() => setSelectedTenantForView(null)}
           tenant={selectedTenantForView}
+          onTenantUpdated={(updated) => {
+            setTenants(prev => prev.map(t => t.id === updated.id ? updated : t))
+            setSelectedTenantForView(updated)
+          }}
         />
 
       </div>

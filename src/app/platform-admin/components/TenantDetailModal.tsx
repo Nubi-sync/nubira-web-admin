@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   X,
   Building2,
@@ -27,15 +27,23 @@ import {
   Boxes,
   Wrench,
   Store,
-  Truck
+  Truck,
+  Edit3,
+  CheckSquare,
+  Square,
+  Save,
+  Loader2
 } from 'lucide-react'
 import { TenantFactory } from '../types/platform'
 import { ENTERPRISE_DIVISIONS_CATALOG } from '../data/initialPlatformData'
+import { updateTenantAllowedDivisionsAction } from '../actions'
+import { updateTenantDivisions } from '../utils/platformStorage'
 
 interface TenantDetailModalProps {
   isOpen: boolean
   onClose: () => void
   tenant: TenantFactory | null
+  onTenantUpdated?: (updated: TenantFactory) => void
 }
 
 const DIVISION_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -53,15 +61,71 @@ const DIVISION_ICONS: Record<string, React.ComponentType<{ className?: string }>
   '/dispatch': Truck,
 }
 
-export function TenantDetailModal({ isOpen, onClose, tenant }: TenantDetailModalProps) {
+export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenantUpdated }: TenantDetailModalProps) {
   const [copiedField, setCopiedField] = useState<string | null>(null)
+  const [tenantState, setTenantState] = useState<TenantFactory | null>(propTenant)
+  const [isEditingDivisions, setIsEditingDivisions] = useState(false)
+  const [selectedDivisions, setSelectedDivisions] = useState<string[]>([])
+  const [isSaving, setIsSaving] = useState(false)
+  const [saveSuccess, setSaveSuccess] = useState(false)
 
-  if (!isOpen || !tenant) return null
+  useEffect(() => {
+    setTenantState(propTenant)
+    setSelectedDivisions(Array.isArray(propTenant?.allowedDivisions) ? propTenant!.allowedDivisions : [])
+    setIsEditingDivisions(false)
+    setSaveSuccess(false)
+  }, [propTenant, isOpen])
+
+  if (!isOpen || !propTenant) return null
+  const tenant = tenantState || propTenant
 
   const handleCopy = (text: string, fieldKey: string) => {
     navigator.clipboard.writeText(text)
     setCopiedField(fieldKey)
     setTimeout(() => setCopiedField(null), 2500)
+  }
+
+  const toggleDivision = (route: string) => {
+    setSelectedDivisions(prev =>
+      prev.includes(route) ? prev.filter(r => r !== route) : [...prev, route]
+    )
+  }
+
+  const selectAll = () => {
+    setSelectedDivisions(ENTERPRISE_DIVISIONS_CATALOG.map(d => d.route))
+  }
+
+  const handleSaveDivisions = async () => {
+    if (selectedDivisions.length === 0) {
+      alert('Please keep at least 1 division module active.')
+      return
+    }
+
+    setIsSaving(true)
+    try {
+      const res = await updateTenantAllowedDivisionsAction(tenant.id, selectedDivisions)
+      if (res.success) {
+        updateTenantDivisions(tenant.id, selectedDivisions)
+        const updated: TenantFactory = {
+          ...tenant,
+          allowedDivisions: selectedDivisions,
+          activeDivisionsCount: selectedDivisions.length,
+          lastActiveAt: new Date().toISOString()
+        }
+        setTenantState(updated)
+        setIsEditingDivisions(false)
+        setSaveSuccess(true)
+        setTimeout(() => setSaveSuccess(false), 3000)
+        onTenantUpdated?.(updated)
+      } else {
+        alert(res.error || 'Failed to update tenant divisions.')
+      }
+    } catch (err) {
+      console.error('Failed to save tenant divisions:', err)
+      alert('An unexpected error occurred while saving divisions.')
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   // Calculate subscription dates
@@ -243,27 +307,86 @@ export function TenantDetailModal({ isOpen, onClose, tenant }: TenantDetailModal
 
           {/* Section C: Allocated Manufacturing Divisions */}
           <div>
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-                <Layers className="w-4 h-4 text-[#3A3564]" />
-                <span>Allocated Manufacturing Divisions</span>
-              </h3>
-              <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-                {allowedRoutes.length} of {ENTERPRISE_DIVISIONS_CATALOG.length} Units Active
-              </span>
+            <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+              <div className="flex items-center gap-2">
+                <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                  <Layers className="w-4 h-4 text-[#3A3564]" />
+                  <span>Allocated Manufacturing Divisions</span>
+                </h3>
+                {saveSuccess && (
+                  <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 animate-in fade-in">
+                    Saved
+                  </span>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                  {isEditingDivisions ? selectedDivisions.length : allowedRoutes.length} of {ENTERPRISE_DIVISIONS_CATALOG.length} Units Active
+                </span>
+
+                {!isEditingDivisions ? (
+                  <button
+                    type="button"
+                    onClick={() => setIsEditingDivisions(true)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold text-[#3A3564] bg-white border border-black/15 hover:bg-[#FAF7F0] rounded-lg shadow-2xs transition-all cursor-pointer"
+                  >
+                    <Edit3 className="w-3.5 h-3.5" />
+                    <span>Edit Modules</span>
+                  </button>
+                ) : (
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={selectAll}
+                      className="px-2.5 py-1 text-[11px] font-mono font-bold text-slate-700 hover:text-slate-900 bg-white border border-black/10 rounded-lg cursor-pointer"
+                    >
+                      Select All
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedDivisions(Array.isArray(tenant?.allowedDivisions) ? tenant.allowedDivisions : [])
+                        setIsEditingDivisions(false)
+                      }}
+                      className="px-2.5 py-1 text-[11px] font-mono font-bold text-slate-500 hover:text-slate-800 rounded-lg cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      disabled={isSaving}
+                      onClick={handleSaveDivisions}
+                      className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] rounded-lg shadow-2xs transition-all cursor-pointer disabled:opacity-50"
+                    >
+                      {isSaving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+                      <span>Save Changes</span>
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
               {ENTERPRISE_DIVISIONS_CATALOG.map((div) => {
-                const isAssigned = allowedRoutes.includes(div.route)
+                const isAssigned = isEditingDivisions
+                  ? selectedDivisions.includes(div.route)
+                  : allowedRoutes.includes(div.route)
                 const DivIcon = DIVISION_ICONS[div.route] || Layers
 
                 return (
                   <div
                     key={div.id}
+                    onClick={() => {
+                      if (isEditingDivisions) {
+                        toggleDivision(div.route)
+                      }
+                    }}
                     className={`p-3 rounded-xl border flex items-center justify-between gap-2.5 transition-all ${
+                      isEditingDivisions ? 'cursor-pointer select-none hover:border-[#3A3564]/50' : ''
+                    } ${
                       isAssigned
-                        ? 'bg-white border-slate-200 shadow-2xs'
+                        ? 'bg-white border-slate-200 shadow-2xs' + (isEditingDivisions ? ' ring-2 ring-[#3A3564]/20 border-[#3A3564]' : '')
                         : 'bg-slate-50/50 border-dashed border-slate-200 opacity-50'
                     }`}
                   >
@@ -285,7 +408,15 @@ export function TenantDetailModal({ isOpen, onClose, tenant }: TenantDetailModal
                       </div>
                     </div>
 
-                    {isAssigned ? (
+                    {isEditingDivisions ? (
+                      <div className="shrink-0 text-[#3A3564]">
+                        {isAssigned ? (
+                          <CheckSquare className="w-4 h-4 text-[#3A3564]" />
+                        ) : (
+                          <Square className="w-4 h-4 text-slate-300" />
+                        )}
+                      </div>
+                    ) : isAssigned ? (
                       <span className="text-[9px] font-mono font-bold uppercase px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">
                         Active
                       </span>
