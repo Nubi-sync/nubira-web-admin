@@ -35,25 +35,7 @@ export interface CuttingOrder {
   operator_lead: string
 }
 
-const INITIAL_ORDERS: CuttingOrder[] = [
-  {
-    id: 'co-8901',
-    order_number: 'CO-2026-0842',
-    buyer_po: 'PO-ZIG-8901',
-    buyer_name: 'OLLYPOP',
-    style_number: 'ART-HD-8821',
-    style_name: 'Heavyweight French Terry Hoodie',
-    colorway: 'Jet Black',
-    total_pieces: 5000,
-    plies_planned: 80,
-    fabric_meters_allocated: 540,
-    table_assigned: 'Table 01 - Gerber Paragon HX',
-    status: 'CUTTING',
-    priority: 'HIGH',
-    scheduled_start: 'Active Batch',
-    operator_lead: 'R. Veerappan (Master Cutter)'
-  }
-]
+const INITIAL_ORDERS: CuttingOrder[] = []
 
 interface CuttingOrdersClientProps {
   initialOrders?: CuttingOrder[]
@@ -61,8 +43,8 @@ interface CuttingOrdersClientProps {
 
 export function CuttingOrdersClient({ initialOrders }: CuttingOrdersClientProps = {}) {
   const [orders, setOrders] = useState<CuttingOrder[]>(() => {
-    if (initialOrders && initialOrders.length > 0) return initialOrders
-    return INITIAL_ORDERS
+    if (initialOrders) return initialOrders
+    return []
   })
   const [search, setSearch] = useState('')
   const [tableFilter, setTableFilter] = useState('ALL')
@@ -73,22 +55,22 @@ export function CuttingOrdersClient({ initialOrders }: CuttingOrdersClientProps 
   // Form state
   const [formData, setFormData] = useState({
     order_number: '',
-    buyer_po: 'PO-ZIG-8901',
-    buyer_name: 'OLLYPOP',
-    style_number: 'ART-HD-8821',
-    style_name: 'Heavyweight French Terry Hoodie',
-    colorway: 'Jet Black',
-    total_pieces: 1000,
-    plies_planned: 80,
-    fabric_meters_allocated: 120,
-    table_assigned: 'Table 01 - Gerber Paragon HX',
+    buyer_po: '',
+    buyer_name: '',
+    style_number: '',
+    style_name: '',
+    colorway: '',
+    total_pieces: 0,
+    plies_planned: 0,
+    fabric_meters_allocated: 0,
+    table_assigned: 'Table 01',
     priority: 'NORMAL' as const,
-    scheduled_start: 'Today, 02:00 PM',
-    operator_lead: 'R. Veerappan (Master Cutter)'
+    scheduled_start: '',
+    operator_lead: ''
   })
 
   useEffect(() => {
-    if (initialOrders && initialOrders.length > 0) {
+    if (initialOrders !== undefined) {
       setOrders(initialOrders)
       if (typeof window !== 'undefined') {
         localStorage.setItem('cutting_orders_data', JSON.stringify(initialOrders))
@@ -99,12 +81,7 @@ export function CuttingOrdersClient({ initialOrders }: CuttingOrdersClientProps 
         try {
           setOrders(JSON.parse(saved))
         } catch {
-          setOrders(INITIAL_ORDERS)
-        }
-      } else {
-        setOrders(INITIAL_ORDERS)
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('cutting_orders_data', JSON.stringify(INITIAL_ORDERS))
+          setOrders([])
         }
       }
     }
