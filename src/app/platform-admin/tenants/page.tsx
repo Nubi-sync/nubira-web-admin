@@ -87,40 +87,30 @@ export default function TenantFactoriesPage() {
 
         {/* Layer 2: Encapsulated Top Header Card */}
         <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all">
-          <div className="flex items-center gap-3.5">
-            <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-              <Building2 className="w-5 h-5" />
+          <div className="flex items-start sm:items-center gap-3.5">
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+              <Building2 className="w-6 h-6" />
             </div>
             <div>
-              <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex items-center gap-2.5 flex-wrap">
                 <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                   Tenant Factories Directory
                 </h1>
-                <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
-                  {activeCount} Active Plants
+                <span className="text-xs font-medium px-2.5 py-0.5 rounded-md bg-[#FAF7F0] text-slate-700 border border-black/10">
+                  {activeCount} {activeCount === 1 ? 'active plant' : 'active plants'}
                 </span>
-                {isLiveDatabase ? (
-                  <span className="inline-flex items-center gap-1.5 text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs tracking-wider">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                    PostgreSQL Live
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center gap-1.5 text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 shadow-2xs tracking-wider">
-                    Offline Cache
-                  </span>
-                )}
               </div>
               <p className="text-sm sm:text-base text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)]">
-                Authorized garment factory clients running Zigza Enterprise MES across multi-division production floors
+                Garment factory clients running Zigza Enterprise MES across multi-division production floors
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2.5 self-end sm:self-auto">
+          <div className="flex items-center gap-2.5 self-stretch sm:self-auto justify-end">
             <button
               type="button"
               onClick={() => setIsModalOpen(true)}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] transition-all shadow-xs cursor-pointer active:scale-[0.98]"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] transition-all shadow-xs cursor-pointer active:scale-[0.98]"
             >
               <Plus className="w-4 h-4" />
               <span>Provision New Tenant</span>
@@ -129,109 +119,89 @@ export default function TenantFactoriesPage() {
         </div>
 
         {/* Layer 3: Executive KPI Metric Cards (Grid of 4) */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           
           {/* Card 1: Total Tenants */}
-          <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
-            <div className="flex items-start justify-between gap-2">
-              <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+          <div className="bg-white rounded-2xl p-5 border border-black/10 shadow-2xs flex flex-col justify-between">
+            <div className="flex items-center justify-between">
+              <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564]">
                 <Building2 className="w-5 h-5" />
               </div>
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
-                STAGE 01
-              </span>
+              <span className="text-xs text-slate-500 font-medium">Directory</span>
             </div>
-            <div className="mt-3">
-              <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
+            <div className="mt-4">
+              <div className="text-xs font-semibold uppercase tracking-wider text-slate-500">
                 Total Tenants
               </div>
-              <div className="text-[11px] text-slate-400 font-medium">Onboarded Plant Clients</div>
-            </div>
-            <div className="pt-2 border-t border-slate-100 flex items-baseline justify-between mt-3">
-              <div className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900">
+              <div className="text-2xl sm:text-3xl font-bold font-[family-name:var(--font-heading)] text-slate-900 mt-1">
                 {totalTenants}
               </div>
-              <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-                Factories
-              </span>
+            </div>
+            <div className="pt-3 border-t border-slate-100 mt-3 text-xs text-slate-500">
+              Onboarded plant clients
             </div>
           </div>
 
           {/* Card 2: Full 11-Division Plants */}
-          <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
-            <div className="flex items-start justify-between gap-2">
-              <div className="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-700 shadow-2xs">
+          <div className="bg-white rounded-2xl p-5 border border-black/10 shadow-2xs flex flex-col justify-between">
+            <div className="flex items-center justify-between">
+              <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564]">
                 <Layers className="w-5 h-5" />
               </div>
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200">
-                STAGE 02
-              </span>
+              <span className="text-xs text-slate-500 font-medium">Full Stack</span>
             </div>
-            <div className="mt-3">
-              <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
+            <div className="mt-4">
+              <div className="text-xs font-semibold uppercase tracking-wider text-slate-500">
                 Full {ENTERPRISE_DIVISIONS_CATALOG.length} Divisions
               </div>
-              <div className="text-[11px] text-slate-400 font-medium">End-to-End Synchronized</div>
-            </div>
-            <div className="pt-2 border-t border-slate-100 flex items-baseline justify-between mt-3">
-              <div className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-indigo-700">
+              <div className="text-2xl sm:text-3xl font-bold font-[family-name:var(--font-heading)] text-slate-900 mt-1">
                 {fullAccessCount}
               </div>
-              <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-800 border border-indigo-200">
-                Full Plant
-              </span>
+            </div>
+            <div className="pt-3 border-t border-slate-100 mt-3 text-xs text-slate-500">
+              Synchronized plant units
             </div>
           </div>
 
           {/* Card 3: Active Ratio */}
-          <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
-            <div className="flex items-start justify-between gap-2">
-              <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700 shadow-2xs">
+          <div className="bg-white rounded-2xl p-5 border border-black/10 shadow-2xs flex flex-col justify-between">
+            <div className="flex items-center justify-between">
+              <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564]">
                 <CheckCircle2 className="w-5 h-5" />
               </div>
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                STAGE 03
-              </span>
+              <span className="text-xs text-slate-500 font-medium">Utilization</span>
             </div>
-            <div className="mt-3">
-              <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
+            <div className="mt-4">
+              <div className="text-xs font-semibold uppercase tracking-wider text-slate-500">
                 Active Ratio
               </div>
-              <div className="text-[11px] text-slate-400 font-medium">Daily Active Operations</div>
-            </div>
-            <div className="pt-2 border-t border-slate-100 flex items-baseline justify-between mt-3">
-              <div className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-emerald-700 font-mono">
+              <div className="text-2xl sm:text-3xl font-bold font-[family-name:var(--font-heading)] text-slate-900 mt-1 font-mono">
                 {totalTenants > 0 ? Math.round((activeCount / totalTenants) * 100) : 0}%
               </div>
-              <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
-                {activeCount} Live
-              </span>
+            </div>
+            <div className="pt-3 border-t border-slate-100 mt-3 text-xs text-slate-500">
+              {activeCount} active operational floors
             </div>
           </div>
 
           {/* Card 4: Contracted MRR */}
-          <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
-            <div className="flex items-start justify-between gap-2">
-              <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-700 shadow-2xs">
+          <div className="bg-white rounded-2xl p-5 border border-black/10 shadow-2xs flex flex-col justify-between">
+            <div className="flex items-center justify-between">
+              <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564]">
                 <Zap className="w-5 h-5" />
               </div>
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
-                STAGE 04
-              </span>
+              <span className="text-xs text-slate-500 font-medium">Billing</span>
             </div>
-            <div className="mt-3">
-              <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
+            <div className="mt-4">
+              <div className="text-xs font-semibold uppercase tracking-wider text-slate-500">
                 Contracted MRR
               </div>
-              <div className="text-[11px] text-slate-400 font-medium">Monthly SaaS Invoicing</div>
-            </div>
-            <div className="pt-2 border-t border-slate-100 flex items-baseline justify-between mt-3">
-              <div className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-blue-700 font-mono">
+              <div className="text-2xl sm:text-3xl font-bold font-[family-name:var(--font-heading)] text-slate-900 mt-1 font-mono">
                 ₹{totalMrr.toLocaleString()}
               </div>
-              <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-blue-50 text-blue-800 border border-blue-200">
-                Monthly
-              </span>
+            </div>
+            <div className="pt-3 border-t border-slate-100 mt-3 text-xs text-slate-500">
+              Monthly SaaS invoicing
             </div>
           </div>
 
@@ -244,7 +214,7 @@ export default function TenantFactoriesPage() {
           <div className="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white">
             
             {/* Status Filter Tabs */}
-            <div className="flex items-center gap-1.5 overflow-x-auto text-xs font-semibold pb-1 sm:pb-0">
+            <div className="flex items-center gap-1.5 overflow-x-auto text-sm pb-1 sm:pb-0">
               {(['ALL', 'ACTIVE', 'PENDING_SETUP', 'SUSPENDED'] as const).map(tab => {
                 const label = tab === 'ALL' ? 'All Factories' : tab.replace('_', ' ')
                 const active = statusFilter === tab
@@ -252,10 +222,10 @@ export default function TenantFactoriesPage() {
                   <button
                     key={tab}
                     onClick={() => setStatusFilter(tab)}
-                    className={`px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
+                    className={`px-3.5 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer text-sm ${
                       active 
-                        ? 'bg-[#3A3564] text-white shadow-2xs font-bold' 
-                        : 'text-slate-600 bg-[#FAF7F0] border border-black/5 hover:bg-black/5'
+                        ? 'bg-[#3A3564] text-white shadow-2xs font-semibold' 
+                        : 'text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 font-medium'
                     }`}
                   >
                     {label}
@@ -272,7 +242,7 @@ export default function TenantFactoriesPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search factory, slug, email, city..."
-                className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564]"
+                className="w-full pl-9 pr-3 py-2 text-sm rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] text-slate-900"
               />
             </div>
           </div>
@@ -281,16 +251,16 @@ export default function TenantFactoriesPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="border-b border-slate-100 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0]">
-                  <th className="py-3 px-4">Factory & Location</th>
-                  <th className="py-3 px-4">Super Admin</th>
-                  <th className="py-3 px-4">Plan Tier</th>
-                  <th className="py-3 px-4">Divisions</th>
-                  <th className="py-3 px-4">Status</th>
-                  <th className="py-3 px-4 text-right">Actions</th>
+                <tr className="border-b border-slate-200 text-xs font-semibold text-slate-600 uppercase tracking-wider bg-[#FAF7F0]">
+                  <th className="py-3.5 px-4">Factory & Location</th>
+                  <th className="py-3.5 px-4">Super Admin</th>
+                  <th className="py-3.5 px-4">Plan Tier</th>
+                  <th className="py-3.5 px-4">Divisions</th>
+                  <th className="py-3.5 px-4">Status</th>
+                  <th className="py-3.5 px-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 text-xs">
+              <tbody className="divide-y divide-slate-100 text-sm">
                 {filteredTenants.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="py-16 text-center">
@@ -299,10 +269,10 @@ export default function TenantFactoriesPage() {
                           <Building2 className="w-6 h-6 text-[#3A3564]" />
                         </div>
                         <div className="space-y-1">
-                          <h4 className="text-sm font-bold text-slate-900 font-[family-name:var(--font-heading)]">
+                          <h4 className="text-base font-bold text-slate-900 font-[family-name:var(--font-heading)]">
                             {searchQuery || statusFilter !== 'ALL' ? 'No Matching Factories Found' : 'No Tenant Factories Provisioned Yet'}
                           </h4>
-                          <p className="text-xs text-slate-500 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
+                          <p className="text-sm text-slate-500 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
                             {searchQuery || statusFilter !== 'ALL'
                               ? 'Try searching with a different term or resetting the status filter tabs.'
                               : 'Click "Provision New Tenant" above to issue Super Admin credentials and allocate production units to your first apparel client.'}
@@ -312,9 +282,9 @@ export default function TenantFactoriesPage() {
                           <button
                             type="button"
                             onClick={() => setIsModalOpen(true)}
-                            className="mt-2 inline-flex items-center gap-2 px-4 py-2 text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] rounded-xl shadow-xs cursor-pointer transition-all active:scale-[0.98]"
+                            className="mt-2 inline-flex items-center gap-2 px-4 py-2 text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] rounded-xl shadow-xs cursor-pointer transition-all active:scale-[0.98]"
                           >
-                            <Plus className="w-3.5 h-3.5" />
+                            <Plus className="w-4 h-4" />
                             <span>Provision First Client Factory</span>
                           </button>
                         )}
@@ -333,13 +303,13 @@ export default function TenantFactoriesPage() {
                         <div className="font-bold text-slate-900 text-sm font-[family-name:var(--font-heading)] group-hover:text-[#3A3564] transition-colors">
                           {t.companyName}
                         </div>
-                        <div className="flex items-center gap-2 text-[11px] font-mono text-slate-500 mt-0.5 flex-wrap">
-                          <span className="bg-[#FAF7F0] px-1.5 py-0.5 rounded border border-black/5 text-slate-700 font-semibold">
+                        <div className="flex items-center gap-2 text-xs text-slate-500 mt-1 flex-wrap">
+                          <span className="bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10 text-slate-700 font-medium font-mono text-[11px]">
                             {t.plantSlug}
                           </span>
                           <span>•</span>
                           <span className="flex items-center gap-1">
-                            <Globe className="w-3 h-3 text-slate-400" />
+                            <Globe className="w-3.5 h-3.5 text-slate-400" />
                             {t.cityState}
                           </span>
                         </div>
@@ -347,46 +317,45 @@ export default function TenantFactoriesPage() {
 
                       {/* 2. Super Admin Contact */}
                       <td className="py-3.5 px-4">
-                        <div className="font-bold text-slate-900 text-xs">
+                        <div className="font-semibold text-slate-900 text-sm">
                           {t.adminName}
                         </div>
-                        <div className="text-[11px] font-mono text-slate-500 mt-0.5 truncate max-w-[220px]">
+                        <div className="text-xs font-mono text-slate-500 mt-0.5 truncate max-w-[220px]">
                           {t.adminEmail}
                         </div>
                       </td>
 
                       {/* 3. Plan & Tier */}
-                      <td className="py-3.5 px-4 font-mono">
-                        <span className="inline-block font-bold text-xs text-[#3A3564] bg-indigo-50/80 border border-indigo-100 px-2 py-0.5 rounded-md">
+                      <td className="py-3.5 px-4">
+                        <span className="inline-block font-semibold text-xs text-[#3A3564] bg-[#FAF7F0] border border-black/10 px-2 py-0.5 rounded-md">
                           {t.subscriptionTier.replace(/_/g, ' ')}
                         </span>
-                        <div className="text-[10px] text-slate-500 mt-1">
+                        <div className="text-xs text-slate-500 mt-1 font-mono">
                           ₹{t.monthlyBillingInr.toLocaleString()}/mo
                         </div>
                       </td>
 
                       {/* 4. Active Divisions */}
-                      <td className="py-3.5 px-4 font-mono">
-                        <span className="px-2.5 py-1 rounded-full bg-[#FAF7F0] text-slate-800 font-bold text-xs border border-black/10 inline-flex items-center gap-1.5">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                          {t.activeDivisionsCount} / {ENTERPRISE_DIVISIONS_CATALOG.length} Units
+                      <td className="py-3.5 px-4">
+                        <span className="px-2.5 py-1 rounded-md bg-[#FAF7F0] text-slate-800 font-medium text-xs border border-black/10 inline-flex items-center gap-1.5">
+                          {t.activeDivisionsCount} of {ENTERPRISE_DIVISIONS_CATALOG.length} divisions
                         </span>
                       </td>
 
                       {/* 5. Operational Status */}
                       <td className="py-3.5 px-4">
                         {t.status === 'ACTIVE' ? (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-mono font-bold uppercase border border-emerald-200">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-800 text-xs font-medium border border-emerald-200">
                             <CheckCircle2 className="w-3.5 h-3.5" />
                             Active
                           </span>
                         ) : t.status === 'PENDING_SETUP' ? (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 text-xs font-mono font-bold uppercase border border-amber-200">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-50 text-amber-800 text-xs font-medium border border-amber-200">
                             <Clock className="w-3.5 h-3.5" />
-                            Pending
+                            Pending Setup
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-rose-50 text-rose-700 text-xs font-mono font-bold uppercase border border-rose-200">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 text-xs font-medium border border-slate-200">
                             Suspended
                           </span>
                         )}
@@ -400,11 +369,11 @@ export default function TenantFactoriesPage() {
                             e.stopPropagation()
                             setSelectedTenantForView(t)
                           }}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-[#3A3564] bg-[#FAF7F0] hover:bg-[#3A3564] hover:text-white border border-black/10 transition-all cursor-pointer shadow-2xs group-hover:border-[#3A3564]/30 active:scale-95"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-[#3A3564] bg-[#FAF7F0] hover:bg-[#3A3564] hover:text-white border border-black/10 transition-all cursor-pointer shadow-2xs group-hover:border-[#3A3564]/30 active:scale-95"
                           title={`View complete dossier for ${t.companyName}`}
                         >
                           <Eye className="w-3.5 h-3.5" />
-                          <span>View More</span>
+                          <span>View Details</span>
                         </button>
                       </td>
                     </tr>
