@@ -15,6 +15,7 @@ import {
 import { ExportShipment, ShipmentStatus } from '../../types/merchandising'
 import { getShipments, saveShipment, MERCHANDISING_UPDATE_EVENT } from '../../utils/merchandisingStorage'
 import { BookShipmentModal } from './BookShipmentModal'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 interface ShipmentPipelineClientProps {
   initialShipments?: ExportShipment[]
@@ -117,17 +118,12 @@ export function ShipmentPipelineClient({ initialShipments }: ShipmentPipelineCli
         </div>
       </div>
 
-      {/* 3. Executive KPI Metric Cards (Matching 6th Box) */}
+      {/* 3. Executive KPI Metric Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
         {/* Card 1 */}
         <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
-          <div className="flex items-start justify-between gap-2">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
-              <Layers className="w-5 h-5" />
-            </div>
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
-              STAGE 01
-            </span>
+          <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+            <Layers className="w-5 h-5" />
           </div>
           <div className="mt-3">
             <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
@@ -147,13 +143,8 @@ export function ShipmentPipelineClient({ initialShipments }: ShipmentPipelineCli
 
         {/* Card 2 */}
         <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
-          <div className="flex items-start justify-between gap-2">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
-              <Anchor className="w-5 h-5 text-sky-600" />
-            </div>
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
-              STAGE 02
-            </span>
+          <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+            <Anchor className="w-5 h-5 text-sky-600" />
           </div>
           <div className="mt-3">
             <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
@@ -173,13 +164,8 @@ export function ShipmentPipelineClient({ initialShipments }: ShipmentPipelineCli
 
         {/* Card 3 */}
         <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
-          <div className="flex items-start justify-between gap-2">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
-              <Truck className="w-5 h-5 text-amber-600" />
-            </div>
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
-              STAGE 03
-            </span>
+          <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+            <Truck className="w-5 h-5 text-amber-600" />
           </div>
           <div className="mt-3">
             <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
@@ -199,13 +185,8 @@ export function ShipmentPipelineClient({ initialShipments }: ShipmentPipelineCli
 
         {/* Card 4 */}
         <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
-          <div className="flex items-start justify-between gap-2">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
-              <Ship className="w-5 h-5 text-emerald-600" />
-            </div>
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
-              STAGE 04
-            </span>
+          <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+            <Ship className="w-5 h-5 text-emerald-600" />
           </div>
           <div className="mt-3">
             <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
@@ -259,32 +240,41 @@ export function ShipmentPipelineClient({ initialShipments }: ShipmentPipelineCli
           </div>
         </div>
 
-        {/* Shipments Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="border-b border-slate-100 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0]">
-                <th className="py-3 px-4">Shipment Ref</th>
-                <th className="py-3 px-4">Linked PO</th>
-                <th className="py-3 px-4">Forwarder &amp; Vessel</th>
-                <th className="py-3 px-4">Container #</th>
-                <th className="py-3 px-3 text-right">CBM</th>
-                <th className="py-3 px-4">Routing (POL → POD)</th>
-                <th className="py-3 px-4">ETD / ETA</th>
-                <th className="py-3 px-4">B/L Number</th>
-                <th className="py-3 px-4 text-center">Status</th>
-                <th className="py-3 px-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 text-xs">
-              {filteredShipments.length === 0 ? (
-                <tr>
-                  <td colSpan={10} className="py-10 text-center text-slate-400">
-                    No container shipments found. Click &quot;Book Export Shipment&quot; to schedule one.
-                  </td>
+        {/* Shipments Table or Empty State */}
+        {filteredShipments.length === 0 ? (
+          <div className="py-8">
+            <EmptyState
+              icon={Ship}
+              title={searchQuery || activeFilter !== 'ALL' ? "No export consignments match your criteria" : "No export consignments found"}
+              description={searchQuery || activeFilter !== 'ALL' ? "Try adjusting your search query or shipment status filter." : "Schedule and book export container shipments to track customs documents and vessel schedules."}
+              actionLabel="Book Export Shipment"
+              onAction={() => setIsModalOpen(true)}
+              secondaryActionLabel={searchQuery || activeFilter !== 'ALL' ? "Reset Filters" : undefined}
+              onSecondaryAction={searchQuery || activeFilter !== 'ALL' ? () => {
+                setSearchQuery('')
+                setActiveFilter('ALL')
+              } : undefined}
+            />
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead>
+                <tr className="border-b border-slate-100 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0]">
+                  <th className="py-3 px-4">Shipment Ref</th>
+                  <th className="py-3 px-4">Linked PO</th>
+                  <th className="py-3 px-4">Forwarder &amp; Vessel</th>
+                  <th className="py-3 px-4">Container #</th>
+                  <th className="py-3 px-3 text-right">CBM</th>
+                  <th className="py-3 px-4">Routing (POL → POD)</th>
+                  <th className="py-3 px-4">ETD / ETA</th>
+                  <th className="py-3 px-4">B/L Number</th>
+                  <th className="py-3 px-4 text-center">Status</th>
+                  <th className="py-3 px-4 text-right">Actions</th>
                 </tr>
-              ) : (
-                filteredShipments.map(shp => (
+              </thead>
+              <tbody className="divide-y divide-slate-100 text-xs">
+                {filteredShipments.map(shp => (
                   <tr key={shp.id} className="hover:bg-slate-50 transition-colors">
                     <td className="py-3 px-4 font-bold font-mono text-[#3A3564]">
                       {shp.shipment_ref}
@@ -356,11 +346,11 @@ export function ShipmentPipelineClient({ initialShipments }: ShipmentPipelineCli
                       )}
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {/* Modal: Form 5 Book Shipment */}

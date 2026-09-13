@@ -16,6 +16,7 @@ import {
 import { SourcingRequisition } from '../../types/merchandising'
 import { getSourcingRequisitions, saveSourcingRequisition, MERCHANDISING_UPDATE_EVENT } from '../../utils/merchandisingStorage'
 import { CreateRequisitionModal } from './CreateRequisitionModal'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 interface SourcingRequisitionsClientProps {
   initialRequisitions?: SourcingRequisition[]
@@ -117,17 +118,12 @@ export function SourcingRequisitionsClient({ initialRequisitions }: SourcingRequ
         </div>
       </div>
 
-      {/* 3. Executive KPI Metric Cards (Matching 6th Box) */}
+      {/* 3. Executive KPI Metric Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
         {/* Card 1 */}
         <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
-          <div className="flex items-start justify-between gap-2">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
-              <Layers className="w-5 h-5" />
-            </div>
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
-              STAGE 01
-            </span>
+          <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+            <Layers className="w-5 h-5" />
           </div>
           <div className="mt-3">
             <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
@@ -147,13 +143,8 @@ export function SourcingRequisitionsClient({ initialRequisitions }: SourcingRequ
 
         {/* Card 2 */}
         <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
-          <div className="flex items-start justify-between gap-2">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
-              <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-            </div>
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
-              STAGE 02
-            </span>
+          <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+            <CheckCircle2 className="w-5 h-5 text-emerald-600" />
           </div>
           <div className="mt-3">
             <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
@@ -173,13 +164,8 @@ export function SourcingRequisitionsClient({ initialRequisitions }: SourcingRequ
 
         {/* Card 3 */}
         <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
-          <div className="flex items-start justify-between gap-2">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
-              <Truck className="w-5 h-5 text-blue-600" />
-            </div>
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
-              STAGE 03
-            </span>
+          <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+            <Truck className="w-5 h-5 text-blue-600" />
           </div>
           <div className="mt-3">
             <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
@@ -199,13 +185,8 @@ export function SourcingRequisitionsClient({ initialRequisitions }: SourcingRequ
 
         {/* Card 4 */}
         <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
-          <div className="flex items-start justify-between gap-2">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
-              <Clock className="w-5 h-5 text-amber-600" />
-            </div>
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
-              STAGE 04
-            </span>
+          <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+            <Clock className="w-5 h-5 text-amber-600" />
           </div>
           <div className="mt-3">
             <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
@@ -261,31 +242,40 @@ export function SourcingRequisitionsClient({ initialRequisitions }: SourcingRequ
           </div>
         </div>
 
-        {/* Requisitions Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="border-b border-slate-100 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0]">
-                <th className="py-3 px-4">PR Number</th>
-                <th className="py-3 px-4">Linked PO</th>
-                <th className="py-3 px-4">Material Description</th>
-                <th className="py-3 px-4">Classification</th>
-                <th className="py-3 px-4 text-right">Required Qty</th>
-                <th className="py-3 px-4">Approved Vendor</th>
-                <th className="py-3 px-4">In-House Target</th>
-                <th className="py-3 px-4 text-center">Status</th>
-                <th className="py-3 px-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 text-xs">
-              {filteredRequisitions.length === 0 ? (
-                <tr>
-                  <td colSpan={9} className="py-10 text-center text-slate-400">
-                    No material sourcing requisitions found. Click &quot;Generate Sourcing PR&quot; to create one.
-                  </td>
+        {/* Requisitions Table or Empty State */}
+        {filteredRequisitions.length === 0 ? (
+          <div className="py-8">
+            <EmptyState
+              icon={ShoppingCart}
+              title={searchQuery || activeFilter !== 'ALL' ? "No sourcing requisitions match your criteria" : "No sourcing requisitions recorded"}
+              description={searchQuery || activeFilter !== 'ALL' ? "Try adjusting your search query or status filter." : "Generate your first material purchase requisition to indent trims, fabric, or accessories for production."}
+              actionLabel="Generate Sourcing PR"
+              onAction={() => setIsModalOpen(true)}
+              secondaryActionLabel={searchQuery || activeFilter !== 'ALL' ? "Reset Filters" : undefined}
+              onSecondaryAction={searchQuery || activeFilter !== 'ALL' ? () => {
+                setSearchQuery('')
+                setActiveFilter('ALL')
+              } : undefined}
+            />
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead>
+                <tr className="border-b border-slate-100 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0]">
+                  <th className="py-3 px-4">PR Number</th>
+                  <th className="py-3 px-4">Linked PO</th>
+                  <th className="py-3 px-4">Material Description</th>
+                  <th className="py-3 px-4">Classification</th>
+                  <th className="py-3 px-4 text-right">Required Qty</th>
+                  <th className="py-3 px-4">Approved Vendor</th>
+                  <th className="py-3 px-4">In-House Target</th>
+                  <th className="py-3 px-4 text-center">Status</th>
+                  <th className="py-3 px-4 text-right">Actions</th>
                 </tr>
-              ) : (
-                filteredRequisitions.map(req => (
+              </thead>
+              <tbody className="divide-y divide-slate-100 text-xs">
+                {filteredRequisitions.map(req => (
                   <tr key={req.id} className="hover:bg-slate-50 transition-colors">
                     <td className="py-3 px-4 font-bold font-mono text-[#3A3564]">
                       {req.pr_number}
@@ -341,11 +331,11 @@ export function SourcingRequisitionsClient({ initialRequisitions }: SourcingRequ
                       )}
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {/* Modal: Form 4 Sourcing PR */}

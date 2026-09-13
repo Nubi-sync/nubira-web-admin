@@ -246,80 +246,92 @@ export function TnaPlannerClient({ initialMilestones }: TnaPlannerClientProps = 
           </span>
         </div>
 
-        <div className="relative pl-6 sm:pl-8 space-y-4 sm:space-y-5 before:absolute before:left-3 before:sm:left-4 before:top-3 before:bottom-3 before:w-0.5 before:bg-slate-200">
-          {activeMilestones.map((m, idx) => {
-            const isCompleted = m.status === 'COMPLETED'
-            const isDelayed = m.status === 'DELAYED' || m.status === 'ESCALATED'
+        {activeMilestones.length === 0 ? (
+          <div className="py-8">
+            <EmptyState
+              icon={Calendar}
+              title={availablePos.length === 0 ? "No T&A milestone schedules recorded" : `No milestone gates found for PO ${selectedPo}`}
+              description={availablePos.length === 0 ? "No active purchase orders with critical path milestones exist. Book a new Buyer PO to auto-generate standard T&A milestone gates." : "Select another active purchase order from the selector above to track critical path progress."}
+              actionLabel={availablePos.length === 0 ? "Go to Buyer POs" : undefined}
+              onAction={availablePos.length === 0 ? () => { window.location.href = '/merchandising/orders' } : undefined}
+            />
+          </div>
+        ) : (
+          <div className="relative pl-6 sm:pl-8 space-y-4 sm:space-y-5 before:absolute before:left-3 before:sm:left-4 before:top-3 before:bottom-3 before:w-0.5 before:bg-slate-200">
+            {activeMilestones.map((m, idx) => {
+              const isCompleted = m.status === 'COMPLETED'
+              const isDelayed = m.status === 'DELAYED' || m.status === 'ESCALATED'
 
-            return (
-              <div key={m.id} className="relative group">
-                {/* Step Marker Dot */}
-                <span
-                  className={`absolute -left-[29px] sm:-left-[33px] top-4 w-4 h-4 rounded-full border-2 border-white shadow-xs transition-transform group-hover:scale-125 ${
-                    isCompleted
-                      ? 'bg-emerald-600'
-                      : isDelayed
-                      ? 'bg-rose-600 animate-pulse'
-                      : 'bg-[#3A3564]'
-                  }`}
-                />
+              return (
+                <div key={m.id} className="relative group">
+                  {/* Step Marker Dot */}
+                  <span
+                    className={`absolute -left-[29px] sm:-left-[33px] top-4 w-4 h-4 rounded-full border-2 border-white shadow-xs transition-transform group-hover:scale-125 ${
+                      isCompleted
+                        ? 'bg-emerald-600'
+                        : isDelayed
+                        ? 'bg-rose-600 animate-pulse'
+                        : 'bg-[#3A3564]'
+                    }`}
+                  />
 
-                <div className="p-4 sm:p-5 rounded-2xl border border-black/10 hover:border-black/20 bg-white hover:bg-slate-50/50 shadow-2xs transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div className="space-y-1.5">
-                    <div className="flex items-center gap-2.5 flex-wrap">
-                      <span className="text-[11px] font-mono font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded">
-                        GATE {String(idx + 1).padStart(2, '0')}
-                      </span>
-                      <span className="font-bold text-slate-900 text-sm sm:text-base">
-                        {m.milestone_name}
-                      </span>
-                      <span
-                        className={`inline-block px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
-                          isCompleted
-                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                            : isDelayed
-                            ? 'bg-rose-50 text-rose-700 border border-rose-200'
-                            : 'bg-blue-50 text-blue-700 border border-blue-200'
-                        }`}
-                      >
-                        {m.status.replace('_', ' ')}
-                      </span>
-                    </div>
+                  <div className="p-4 sm:p-5 rounded-2xl border border-black/10 hover:border-black/20 bg-white hover:bg-slate-50/50 shadow-2xs transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="space-y-1.5">
+                      <div className="flex items-center gap-2.5 flex-wrap">
+                        <span className="text-[11px] font-mono font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded">
+                          GATE {String(idx + 1).padStart(2, '0')}
+                        </span>
+                        <span className="font-bold text-slate-900 text-sm sm:text-base">
+                          {m.milestone_name}
+                        </span>
+                        <span
+                          className={`inline-block px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
+                            isCompleted
+                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                              : isDelayed
+                              ? 'bg-rose-50 text-rose-700 border border-rose-200'
+                              : 'bg-blue-50 text-blue-700 border border-blue-200'
+                          }`}
+                        >
+                          {m.status.replace('_', ' ')}
+                        </span>
+                      </div>
 
-                    <div className="flex items-center gap-5 text-slate-500 text-xs flex-wrap">
-                      <span>Planned Target: <strong className="text-slate-800 font-mono">{m.planned_date}</strong></span>
-                      {m.actual_date && (
-                        <span>Actual Completed: <strong className="text-emerald-700 font-mono font-bold">{m.actual_date}</strong></span>
+                      <div className="flex items-center gap-5 text-slate-500 text-xs flex-wrap">
+                        <span>Planned Target: <strong className="text-slate-800 font-mono">{m.planned_date}</strong></span>
+                        {m.actual_date && (
+                          <span>Actual Completed: <strong className="text-emerald-700 font-mono font-bold">{m.actual_date}</strong></span>
+                        )}
+                      </div>
+
+                      {m.delay_reason && (
+                        <div className="text-xs text-rose-700 font-medium flex items-center gap-1.5 pt-1">
+                          <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                          <span>Delay Reason: <strong>{m.delay_reason}</strong></span>
+                        </div>
+                      )}
+
+                      {m.mitigation_notes && (
+                        <div className="text-xs text-slate-600 italic">
+                          Mitigation Plan: &quot;{m.mitigation_notes}&quot;
+                        </div>
                       )}
                     </div>
 
-                    {m.delay_reason && (
-                      <div className="text-xs text-rose-700 font-medium flex items-center gap-1.5 pt-1">
-                        <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                        <span>Delay Reason: <strong>{m.delay_reason}</strong></span>
-                      </div>
-                    )}
-
-                    {m.mitigation_notes && (
-                      <div className="text-xs text-slate-600 italic">
-                        Mitigation Plan: &quot;{m.mitigation_notes}&quot;
-                      </div>
-                    )}
+                    <button
+                      type="button"
+                      onClick={() => setEditingMilestone(m)}
+                      className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-xs font-bold text-[#3A3564] transition-colors shrink-0 shadow-2xs cursor-pointer self-start sm:self-auto"
+                    >
+                      <Edit3 className="w-3.5 h-3.5 text-[#3A3564]" />
+                      <span>Update Gate</span>
+                    </button>
                   </div>
-
-                  <button
-                    type="button"
-                    onClick={() => setEditingMilestone(m)}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-xs font-bold text-[#3A3564] transition-colors shrink-0 shadow-2xs cursor-pointer self-start sm:self-auto"
-                  >
-                    <Edit3 className="w-3.5 h-3.5 text-[#3A3564]" />
-                    <span>Update Gate</span>
-                  </button>
                 </div>
-              </div>
-            )
-          })}
-        </div>
+              )
+            })}
+          </div>
+        )}
       </div>
 
       {/* Modal: Form 3 T&A Milestone Update */}
