@@ -267,7 +267,29 @@ export default function CustomEnterpriseRequestsPage() {
         </div>
 
         {/* Layer 5: Inbound Custom Requests Cards */}
-        {filteredRequests.length === 0 ? (
+        {isLoading ? (
+          <div className="space-y-4">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="bg-white rounded-2xl p-5 border border-black/10 shadow-2xs space-y-4 animate-pulse">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 shrink-0" />
+                    <div className="space-y-1.5">
+                      <div className="h-5 w-48 bg-slate-200 rounded-lg" />
+                      <div className="h-3.5 w-32 bg-slate-100 rounded" />
+                    </div>
+                  </div>
+                  <div className="h-7 w-28 bg-slate-200 rounded-lg" />
+                </div>
+                <div className="h-16 w-full bg-slate-100 rounded-xl" />
+                <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                  <div className="h-4 w-40 bg-slate-200 rounded" />
+                  <div className="h-8 w-32 bg-slate-200 rounded-xl" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : filteredRequests.length === 0 ? (
           <div className="bg-white p-12 rounded-2xl border border-black/10 text-center space-y-3">
             <div className="w-12 h-12 rounded-2xl bg-[#FAF7F0] border border-black/10 text-[#3A3564] flex items-center justify-center mx-auto shadow-2xs">
               <Sparkles className="w-6 h-6" />

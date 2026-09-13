@@ -185,7 +185,19 @@ export default function SecurityAuditLogsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-sm">
-                {filteredLogs.length === 0 ? (
+                {isLoading ? (
+                  Array.from({ length: 5 }).map((_, i) => (
+                    <tr key={i} className="animate-pulse">
+                      <td className="py-4 px-4"><div className="h-4 w-20 bg-slate-200 rounded" /></td>
+                      <td className="py-4 px-4"><div className="h-4 w-24 bg-slate-200 rounded" /></td>
+                      <td className="py-4 px-4"><div className="h-4 w-32 bg-slate-200 rounded" /></td>
+                      <td className="py-4 px-4"><div className="h-4 w-44 bg-slate-200 rounded mb-1.5" /><div className="h-3 w-32 bg-slate-100 rounded" /></td>
+                      <td className="py-4 px-4"><div className="h-5 w-20 bg-slate-200 rounded-md" /></td>
+                      <td className="py-4 px-4"><div className="h-4 w-28 bg-slate-200 rounded" /></td>
+                      <td className="py-4 px-4 text-right"><div className="h-5 w-16 bg-slate-200 rounded-md ml-auto" /></td>
+                    </tr>
+                  ))
+                ) : filteredLogs.length === 0 ? (
                   <tr>
                     <td colSpan={7} className="py-16 text-center">
                       <div className="flex flex-col items-center justify-center max-w-md mx-auto space-y-3">
