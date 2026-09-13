@@ -28,31 +28,31 @@ export function SealCartonModal({
   onSuccess
 }: SealCartonModalProps) {
   const [cartonNumber, setCartonNumber] = useState('')
-  const [orderNumber, setOrderNumber] = useState('PO-7714')
-  const [buyer, setBuyer] = useState('Urban Outfitters')
-  const [styleName, setStyleName] = useState('French Terry Relaxed Hoodie')
-  const [color, setColor] = useState('Washed Charcoal')
-  const [bundleInput, setBundleInput] = useState('BDL-7714-19, BDL-7714-20')
+  const [orderNumber, setOrderNumber] = useState('')
+  const [buyer, setBuyer] = useState('')
+  const [styleName, setStyleName] = useState('')
+  const [color, setColor] = useState('')
+  const [bundleInput, setBundleInput] = useState('')
   
   // Size Breakdown
-  const [sizeS, setSizeS] = useState(10)
-  const [sizeM, setSizeM] = useState(15)
-  const [sizeL, setSizeL] = useState(15)
+  const [sizeS, setSizeS] = useState(0)
+  const [sizeM, setSizeM] = useState(0)
+  const [sizeL, setSizeL] = useState(0)
   const [sizeXL, setSizeXL] = useState(0)
 
   const totalPieces = Number(sizeS) + Number(sizeM) + Number(sizeL) + Number(sizeXL)
 
   // Weight
-  const [unitBOMWeightKg, setUnitBOMWeightKg] = useState(0.43) // per garment
-  const tareWeightKg = 0.95 // 5-ply export box + tape + silica
+  const [unitBOMWeightKg, setUnitBOMWeightKg] = useState(0.40)
+  const tareWeightKg = 0.95
   const expectedGrossWeight = (totalPieces * unitBOMWeightKg) + tareWeightKg
-  const [measuredGrossWeight, setMeasuredGrossWeight] = useState(18.20)
+  const [measuredGrossWeight, setMeasuredGrossWeight] = useState(0)
 
   const weightVariance = measuredGrossWeight - expectedGrossWeight
   const isVarianceOk = Math.abs(weightVariance) <= 0.15
 
   const [godownBay, setGodownBay] = useState<'BAY_3' | 'BAY_4' | 'BAY_5'>('BAY_3')
-  const [sealedBy, setSealedBy] = useState('Rajesh Kumar (Packing Line 1)')
+  const [sealedBy, setSealedBy] = useState('')
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
