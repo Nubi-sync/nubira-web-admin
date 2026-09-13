@@ -4,6 +4,8 @@ import { AdminShell } from '@/components/layout/AdminShell'
 import { CuringQcClient } from './components/CuringQcClient'
 import { fetchCuringLogsAction } from '../actions'
 
+import { resolveUserTenant, isLegacyNubiraTenant } from '@/lib/tenant-context'
+
 export const dynamic = 'force-dynamic'
 
 export default async function PrintingCuringQcPage() {
@@ -17,10 +19,14 @@ export default async function PrintingCuringQcPage() {
     redirect('/login')
   }
 
-  const initialCuringLogs = await fetchCuringLogsAction()
+  const tenant = await resolveUserTenant(user)
+  const isLegacy = isLegacyNubiraTenant(tenant)
+  const companyFilter = isLegacy ? undefined : tenant.companyName
+
+  const initialCuringLogs = await fetchCuringLogsAction(companyFilter)
 
   return (
-    <AdminShell userEmail={user.email}>
+    <AdminShell userEmail={tenant.userEmail} userRole={tenant.role}>
       <CuringQcClient initialCuringLogs={initialCuringLogs} />
     </AdminShell>
   )
