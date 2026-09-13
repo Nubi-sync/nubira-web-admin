@@ -4,6 +4,8 @@ import { AdminShell } from '@/components/layout/AdminShell'
 import { StrikeOffsClient } from './components/StrikeOffsClient'
 import { fetchStrikeOffsAction } from '../actions'
 
+import { resolveUserTenant, isLegacyNubiraTenant } from '@/lib/tenant-context'
+
 export const dynamic = 'force-dynamic'
 
 export default async function PrintingStrikeOffsPage() {
@@ -17,10 +19,14 @@ export default async function PrintingStrikeOffsPage() {
     redirect('/login')
   }
 
-  const initialStrikeOffs = await fetchStrikeOffsAction()
+  const tenant = await resolveUserTenant(user)
+  const isLegacy = isLegacyNubiraTenant(tenant)
+  const companyFilter = isLegacy ? undefined : tenant.companyName
+
+  const initialStrikeOffs = await fetchStrikeOffsAction(undefined, companyFilter)
 
   return (
-    <AdminShell userEmail={user.email}>
+    <AdminShell userEmail={tenant.userEmail} userRole={tenant.role}>
       <StrikeOffsClient initialStrikeOffs={initialStrikeOffs} />
     </AdminShell>
   )

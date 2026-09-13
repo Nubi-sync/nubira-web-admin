@@ -4,6 +4,8 @@ import { AdminShell } from '@/components/layout/AdminShell'
 import { TableRunsClient } from './components/TableRunsClient'
 import { fetchPrintingRunsAction } from '../actions'
 
+import { resolveUserTenant, isLegacyNubiraTenant } from '@/lib/tenant-context'
+
 export const dynamic = 'force-dynamic'
 
 export default async function TableRunsPage() {
@@ -17,10 +19,14 @@ export default async function TableRunsPage() {
     redirect('/login')
   }
 
-  const initialRuns = await fetchPrintingRunsAction()
+  const tenant = await resolveUserTenant(user)
+  const isLegacy = isLegacyNubiraTenant(tenant)
+  const companyFilter = isLegacy ? undefined : tenant.companyName
+
+  const initialRuns = await fetchPrintingRunsAction(undefined, companyFilter)
 
   return (
-    <AdminShell userEmail={user.email}>
+    <AdminShell userEmail={tenant.userEmail} userRole={tenant.role}>
       <TableRunsClient initialRuns={initialRuns} />
     </AdminShell>
   )
