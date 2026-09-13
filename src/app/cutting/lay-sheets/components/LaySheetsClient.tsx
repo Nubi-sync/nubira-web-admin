@@ -15,6 +15,7 @@ import {
   Calendar,
   AlertCircle
 } from 'lucide-react'
+import { EmptyState } from '@/components/ui/EmptyState'
 import { LaySheet, LaySheetStatus } from '../../types/cutting'
 import { getLaySheets, saveLaySheet } from '../../utils/cuttingStorage'
 
@@ -193,7 +194,7 @@ export function LaySheetsClient({ initialLays }: LaySheetsClientProps = {}) {
 
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
           <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">Cut Completion Rate</span>
-          <div className="text-2xl sm:text-3xl font-black font-mono text-emerald-600 mt-2">{completedRate}%</div>
+          <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 mt-2">{completedRate}%</div>
           <p className="text-xs font-semibold text-slate-500 mt-1">Progressed to bundles</p>
         </div>
       </div>
@@ -233,85 +234,96 @@ export function LaySheetsClient({ initialLays }: LaySheetsClientProps = {}) {
 
       {/* 5. Lay Sheets Data Table */}
       <div className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-[#FAF7F0] text-[#3A3564] font-mono uppercase text-[10px] tracking-wider border-b border-black/10">
-              <tr>
-                <th className="py-3 px-4 font-bold">Lay Ref / PO</th>
-                <th className="py-3 px-4 font-bold">Style & Fabric</th>
-                <th className="py-3 px-4 font-bold">Table</th>
-                <th className="py-3 px-4 font-bold">Plies & Pcs</th>
-                <th className="py-3 px-4 font-bold">Marker Spec</th>
-                <th className="py-3 px-4 font-bold">Cutting Master</th>
-                <th className="py-3 px-4 font-bold">Status</th>
-                <th className="py-3 px-4 font-bold text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-black/5 font-medium">
-              {filteredLays.map(lay => {
-                let badge = 'bg-slate-100 text-slate-700'
-                if (lay.status === 'SPREADING') badge = 'bg-amber-100 text-amber-800'
-                if (lay.status === 'READY_FOR_CUT') badge = 'bg-purple-100 text-purple-800'
-                if (lay.status === 'CUT_IN_PROGRESS') badge = 'bg-sky-100 text-sky-800'
-                if (lay.status === 'CUT_COMPLETED') badge = 'bg-emerald-100 text-emerald-800'
-                if (lay.status === 'BUNDLED') badge = 'bg-teal-100 text-teal-800'
+        {filteredLays.length === 0 ? (
+          <div className="p-8">
+            <EmptyState
+              title="No lay sheets found"
+              description="Create a new lay run or adjust filters to view spreading ledger."
+              action={{
+                label: "New Lay Sheet",
+                onClick: () => setIsCreateModalOpen(true)
+              }}
+            />
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs min-w-[760px]">
+              <thead className="bg-[#FAF7F0] text-[#3A3564] font-mono uppercase text-[10px] tracking-wider border-b border-black/10">
+                <tr>
+                  <th className="py-3 px-4 font-bold">Lay Ref / PO</th>
+                  <th className="py-3 px-4 font-bold">Style & Fabric</th>
+                  <th className="py-3 px-4 font-bold">Table</th>
+                  <th className="py-3 px-4 font-bold">Plies & Pcs</th>
+                  <th className="py-3 px-4 font-bold">Marker Spec</th>
+                  <th className="py-3 px-4 font-bold">Cutting Master</th>
+                  <th className="py-3 px-4 font-bold">Status</th>
+                  <th className="py-3 px-4 font-bold text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-black/5 font-medium">
+                {filteredLays.map(lay => {
+                  let badge = 'bg-[#FAF7F0] text-[#3A3564] border border-black/10'
+                  if (lay.status === 'SPREADING' || lay.status === 'READY_FOR_CUT') {
+                    badge = 'bg-slate-100 text-slate-700 border border-slate-200'
+                  }
 
-                return (
-                  <tr key={lay.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="py-3.5 px-4 font-mono">
-                      <div className="font-bold text-slate-900">{lay.lay_number}</div>
-                      <div className="text-[10px] text-slate-500">{lay.po_number}</div>
-                      <div className="text-[10px] text-indigo-700 font-bold">{lay.brand_name}</div>
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <div className="font-bold text-slate-900">{lay.style_name}</div>
-                      <div className="text-[11px] text-slate-600 line-clamp-1">{lay.shell_fabric}</div>
-                      <div className="text-[10px] font-mono text-slate-400">{lay.gsm} GSM</div>
-                    </td>
-                    <td className="py-3.5 px-4 font-mono font-bold text-[#3A3564]">
-                      {lay.table_number}
-                    </td>
-                    <td className="py-3.5 px-4 font-mono">
-                      <div className="font-bold text-slate-900">{lay.plies_count} plies</div>
-                      <div className="text-[10px] text-slate-500">{lay.total_cut_pieces} cut pieces</div>
-                    </td>
-                    <td className="py-3.5 px-4 font-mono text-slate-700">
-                      <div>{lay.marker_length_meters}m length</div>
-                      <div className="text-[10px] text-slate-500">{lay.ratio_breakdown}</div>
-                    </td>
-                    <td className="py-3.5 px-4 text-slate-700">
-                      {lay.cutting_master}
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <span className={`text-[10px] font-mono px-2 py-0.5 rounded font-bold uppercase ${badge}`}>
-                        {lay.status.replace(/_/g, ' ')}
-                      </span>
-                    </td>
-                    <td className="py-3.5 px-4 text-right">
-                      <div className="flex items-center justify-end gap-1.5">
-                        {lay.status !== 'BUNDLED' && (
+                  return (
+                    <tr key={lay.id} className="hover:bg-slate-50 transition-colors">
+                      <td className="py-3.5 px-4 font-mono">
+                        <div className="font-bold text-slate-900">{lay.lay_number}</div>
+                        <div className="text-[10px] text-slate-500">{lay.po_number}</div>
+                        <div className="text-[10px] text-slate-900 font-bold">{lay.brand_name}</div>
+                      </td>
+                      <td className="py-3.5 px-4">
+                        <div className="font-bold text-slate-900">{lay.style_name}</div>
+                        <div className="text-[11px] text-slate-600 line-clamp-1">{lay.shell_fabric}</div>
+                        <div className="text-[10px] font-mono text-slate-400">{lay.gsm} GSM</div>
+                      </td>
+                      <td className="py-3.5 px-4 font-mono font-bold text-[#3A3564]">
+                        {lay.table_number}
+                      </td>
+                      <td className="py-3.5 px-4 font-mono">
+                        <span className="font-bold text-slate-900">{lay.plies_count} plies</span>
+                        <div className="text-[10px] text-slate-500">{lay.total_cut_pieces} cut pieces</div>
+                      </td>
+                      <td className="py-3.5 px-4 font-mono text-slate-700">
+                        <div>{lay.marker_length_meters}m length</div>
+                        <div className="text-[10px] text-slate-500">{lay.ratio_breakdown}</div>
+                      </td>
+                      <td className="py-3.5 px-4 text-slate-700">
+                        {lay.cutting_master}
+                      </td>
+                      <td className="py-3.5 px-4">
+                        <span className={`text-[10px] font-mono px-2 py-0.5 rounded font-bold uppercase ${badge}`}>
+                          {lay.status.replace(/_/g, ' ')}
+                        </span>
+                      </td>
+                      <td className="py-3.5 px-4 text-right">
+                        <div className="flex items-center justify-end gap-1.5">
+                          {lay.status !== 'BUNDLED' && (
+                            <button
+                              onClick={() => handleAdvanceStatus(lay)}
+                              className="px-2.5 py-1 rounded-lg bg-[#FAF7F0] hover:bg-white text-[#3A3564] border border-black/10 font-mono text-[10px] font-bold"
+                              title="Advance Lay Status"
+                            >
+                              Advance
+                            </button>
+                          )}
                           <button
-                            onClick={() => handleAdvanceStatus(lay)}
-                            className="px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-mono text-[10px] font-bold"
-                            title="Advance Lay Status"
+                            onClick={() => setSelectedLay(lay)}
+                            className="px-2.5 py-1 rounded-lg bg-white hover:bg-[#FAF7F0] border border-black/10 font-mono text-[11px] text-[#3A3564] font-bold shadow-2xs"
                           >
-                            Advance
+                            Dossier
                           </button>
-                        )}
-                        <button
-                          onClick={() => setSelectedLay(lay)}
-                          className="px-2.5 py-1 rounded-lg bg-white hover:bg-[#FAF7F0] border border-black/10 font-mono text-[11px] text-[#3A3564] font-bold shadow-2xs"
-                        >
-                          Dossier
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {/* Create Lay Sheet Modal */}

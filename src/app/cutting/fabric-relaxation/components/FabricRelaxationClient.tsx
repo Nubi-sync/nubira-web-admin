@@ -14,6 +14,7 @@ import {
   Sparkles,
   ArrowRight
 } from 'lucide-react'
+import { EmptyState } from '@/components/ui/EmptyState'
 import { FabricRollStaging, RollRelaxationStatus } from '../../types/cutting'
 import { getFabricRolls, saveFabricRoll } from '../../utils/cuttingStorage'
 
@@ -150,13 +151,13 @@ export function FabricRelaxationClient() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
           <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">Acclimatizing Now</span>
-          <div className="text-2xl sm:text-3xl font-black font-mono text-amber-600 mt-2">{inConditioningCount} rolls</div>
+          <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 mt-2">{inConditioningCount} rolls</div>
           <p className="text-xs font-semibold text-slate-500 mt-1">Active tension release</p>
         </div>
 
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
           <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">Ready for Lay</span>
-          <div className="text-2xl sm:text-3xl font-black font-mono text-emerald-600 mt-2">{readyCount} rolls</div>
+          <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 mt-2">{readyCount} rolls</div>
           <p className="text-xs font-semibold text-slate-500 mt-1">Passed 24h rest threshold</p>
         </div>
 
@@ -168,7 +169,7 @@ export function FabricRelaxationClient() {
 
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
           <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">Standard Rest Cycle</span>
-          <div className="text-2xl sm:text-3xl font-black font-mono text-indigo-600 mt-2">24.0 Hours</div>
+          <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 mt-2">24.0 Hours</div>
           <p className="text-xs font-semibold text-slate-500 mt-1">Strict anti-shrinkage protocol</p>
         </div>
       </div>
@@ -207,106 +208,117 @@ export function FabricRelaxationClient() {
 
       {/* 5. Rolls Table */}
       <div className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-[#FAF7F0] text-[#3A3564] font-mono uppercase text-[10px] tracking-wider border-b border-black/10">
-              <tr>
-                <th className="py-3 px-4 font-bold">Roll Barcode / Lot</th>
-                <th className="py-3 px-4 font-bold">Fabric Spec & Color</th>
-                <th className="py-3 px-4 font-bold">Weight & Meterage</th>
-                <th className="py-3 px-4 font-bold">Tested GSM</th>
-                <th className="py-3 px-4 font-bold">Relaxation Progress</th>
-                <th className="py-3 px-4 font-bold">Staging Rack</th>
-                <th className="py-3 px-4 font-bold">Status</th>
-                <th className="py-3 px-4 font-bold text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-black/5 font-medium">
-              {filteredRolls.map(roll => {
-                let badge = 'bg-slate-100 text-slate-700'
-                if (roll.status === 'ACCLIMATIZING') badge = 'bg-amber-100 text-amber-800'
-                if (roll.status === 'CONDITIONING_COMPLETED') badge = 'bg-emerald-100 text-emerald-800'
-                if (roll.status === 'ALLOCATED_TO_LAY') badge = 'bg-sky-100 text-sky-800'
+        {filteredRolls.length === 0 ? (
+          <div className="p-8">
+            <EmptyState
+              title="No fabric rolls in relaxation queue"
+              description="Stage an unrolled fabric lot to track 24-hour tension relief and shrinkage stabilization."
+              action={{
+                label: "Stage New Fabric Roll",
+                onClick: () => setIsNewModalOpen(true)
+              }}
+            />
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs min-w-[760px]">
+              <thead className="bg-[#FAF7F0] text-[#3A3564] font-mono uppercase text-[10px] tracking-wider border-b border-black/10">
+                <tr>
+                  <th className="py-3 px-4 font-bold">Roll Barcode / Lot</th>
+                  <th className="py-3 px-4 font-bold">Fabric Spec & Color</th>
+                  <th className="py-3 px-4 font-bold">Weight & Meterage</th>
+                  <th className="py-3 px-4 font-bold">Tested GSM</th>
+                  <th className="py-3 px-4 font-bold">Relaxation Progress</th>
+                  <th className="py-3 px-4 font-bold">Staging Rack</th>
+                  <th className="py-3 px-4 font-bold">Status</th>
+                  <th className="py-3 px-4 font-bold text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-black/5 font-medium">
+                {filteredRolls.map(roll => {
+                  let badge = 'bg-[#FAF7F0] text-[#3A3564] border border-black/10'
+                  if (roll.status === 'ACCLIMATIZING') {
+                    badge = 'bg-slate-100 text-slate-700 border border-slate-200'
+                  }
 
-                const progressPct = Math.min(
-                  Math.round((roll.relaxation_hours_elapsed / roll.relaxation_hours_required) * 100),
-                  100
-                )
+                  const progressPct = Math.min(
+                    Math.round((roll.relaxation_hours_elapsed / roll.relaxation_hours_required) * 100),
+                    100
+                  )
 
-                return (
-                  <tr key={roll.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="py-3.5 px-4 font-mono font-bold text-slate-900">
-                      <div>{roll.roll_barcode}</div>
-                      <div className="text-[10px] text-slate-500 font-normal">{roll.fabric_lot_number}</div>
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <div className="font-bold text-slate-900">{roll.colorway}</div>
-                      <div className="text-[11px] text-slate-600 line-clamp-1">{roll.fabric_type}</div>
-                    </td>
-                    <td className="py-3.5 px-4 font-mono">
-                      <div className="font-bold text-slate-900">{roll.weight_kg} kg</div>
-                      <div className="text-[10px] text-slate-500">{roll.meters_length} meters</div>
-                    </td>
-                    <td className="py-3.5 px-4 font-mono">
-                      <div className="font-bold text-slate-900">{roll.tested_gsm} GSM</div>
-                      <div className="text-[10px] text-slate-400">Nom: {roll.nominal_gsm} GSM</div>
-                    </td>
-                    <td className="py-3.5 px-4 w-44">
-                      <div className="space-y-1">
-                        <div className="flex items-center justify-between text-[10px] font-mono text-slate-500">
-                          <span>{roll.relaxation_hours_elapsed}h of {roll.relaxation_hours_required}h</span>
-                          <span className="font-bold text-slate-900">{progressPct}%</span>
+                  return (
+                    <tr key={roll.id} className="hover:bg-slate-50 transition-colors">
+                      <td className="py-3.5 px-4 font-mono font-bold text-slate-900">
+                        <div>{roll.roll_barcode}</div>
+                        <div className="text-[10px] text-slate-500 font-normal">{roll.fabric_lot_number}</div>
+                      </td>
+                      <td className="py-3.5 px-4">
+                        <div className="font-bold text-slate-900">{roll.colorway}</div>
+                        <div className="text-[11px] text-slate-600 line-clamp-1">{roll.fabric_type}</div>
+                      </td>
+                      <td className="py-3.5 px-4 font-mono">
+                        <div className="font-bold text-slate-900">{roll.weight_kg} kg</div>
+                        <div className="text-[10px] text-slate-500">{roll.meters_length} meters</div>
+                      </td>
+                      <td className="py-3.5 px-4 font-mono">
+                        <div className="font-bold text-slate-900">{roll.tested_gsm} GSM</div>
+                        <div className="text-[10px] text-slate-400">Nom: {roll.nominal_gsm} GSM</div>
+                      </td>
+                      <td className="py-3.5 px-4 w-44">
+                        <div className="space-y-1">
+                          <div className="flex items-center justify-between text-[10px] font-mono text-slate-500">
+                            <span>{roll.relaxation_hours_elapsed}h of {roll.relaxation_hours_required}h</span>
+                            <span className="font-bold text-slate-900">{progressPct}%</span>
+                          </div>
+                          <div className="w-full h-2 rounded-full bg-[#FAF7F0] border border-black/10 overflow-hidden">
+                            <div
+                              className="h-full rounded-full transition-all bg-[#3A3564]"
+                              style={{ width: `${progressPct}%` }}
+                            />
+                          </div>
                         </div>
-                        <div className="w-full h-2 rounded-full bg-[#FAF7F0] border border-black/10 overflow-hidden">
-                          <div
-                            className={`h-full rounded-full transition-all ${
-                              progressPct >= 100 ? 'bg-emerald-500' : 'bg-amber-500'
-                            }`}
-                            style={{ width: `${progressPct}%` }}
-                          />
+                      </td>
+                      <td className="py-3.5 px-4 font-mono text-slate-700 text-[11px]">
+                        {roll.staging_rack}
+                      </td>
+                      <td className="py-3.5 px-4">
+                        <span className={`text-[10px] font-mono px-2 py-0.5 rounded font-bold uppercase ${badge}`}>
+                          {roll.status.replace(/_/g, ' ')}
+                        </span>
+                      </td>
+                      <td className="py-3.5 px-4 text-right">
+                        <div className="flex items-center justify-end gap-1.5">
+                          {roll.status === 'ACCLIMATIZING' && (
+                            <button
+                              onClick={() => handleAdvanceStatus(roll)}
+                              className="px-2.5 py-1 rounded-lg bg-[#FAF7F0] hover:bg-white text-[#3A3564] border border-black/10 font-mono text-[10px] font-bold"
+                            >
+                              Mark Rested
+                            </button>
+                          )}
+                          {roll.status === 'CONDITIONING_COMPLETED' && (
+                            <button
+                              onClick={() => handleAdvanceStatus(roll)}
+                              className="px-2.5 py-1 rounded-lg bg-[#3A3564] hover:bg-[#2e2a50] text-white font-mono text-[10px] font-bold"
+                            >
+                              Allocate Lay
+                            </button>
+                          )}
+                          <button
+                            onClick={() => setSelectedRoll(roll)}
+                            className="px-2 py-1 rounded-lg bg-white hover:bg-[#FAF7F0] border border-black/10 font-mono text-[11px] text-[#3A3564] font-bold shadow-2xs"
+                          >
+                            Details
+                          </button>
                         </div>
-                      </div>
-                    </td>
-                    <td className="py-3.5 px-4 font-mono text-slate-700 text-[11px]">
-                      {roll.staging_rack}
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <span className={`text-[10px] font-mono px-2 py-0.5 rounded font-bold uppercase ${badge}`}>
-                        {roll.status.replace(/_/g, ' ')}
-                      </span>
-                    </td>
-                    <td className="py-3.5 px-4 text-right">
-                      <div className="flex items-center justify-end gap-1.5">
-                        {roll.status === 'ACCLIMATIZING' && (
-                          <button
-                            onClick={() => handleAdvanceStatus(roll)}
-                            className="px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-mono text-[10px] font-bold"
-                          >
-                            Mark Rested
-                          </button>
-                        )}
-                        {roll.status === 'CONDITIONING_COMPLETED' && (
-                          <button
-                            onClick={() => handleAdvanceStatus(roll)}
-                            className="px-2.5 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-800 border border-indigo-200 font-mono text-[10px] font-bold"
-                          >
-                            Allocate Lay
-                          </button>
-                        )}
-                        <button
-                          onClick={() => setSelectedRoll(roll)}
-                          className="px-2 py-1 rounded-lg bg-white hover:bg-[#FAF7F0] border border-black/10 font-mono text-[11px] text-[#3A3564] font-bold shadow-2xs"
-                        >
-                          Details
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {/* Stage Roll Modal */}
