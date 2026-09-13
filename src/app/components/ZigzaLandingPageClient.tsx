@@ -1833,7 +1833,7 @@ ${demoForm.ownerName}`
                   </p>
                   <div className="pt-3 flex flex-col sm:flex-row items-center justify-center gap-2.5">
                     <a
-                      href={`https://mail.google.com/mail/?view=cm&fs=1&to=shawsumit6286@gmail.com&su=${encodeURIComponent(`Live Demo Request - ${demoForm.companyName || 'Apparel Factory'}`)}&body=${encodeURIComponent(`Hi Sumit,\n\nI would like to request a live demo of Zigza MES for our garment manufacturing unit.\n\nDetails:\n• Company: ${demoForm.companyName}\n• Owner / Plant Head: ${demoForm.ownerName}\n• Phone / WhatsApp: ${demoForm.phone}\n• Business Email: ${demoForm.email}\n\nPlease contact us to schedule the walkthrough.\n\nBest regards,\n${demoForm.ownerName}`)}`}
+                      href={`https://mail.google.com/mail/?view=cm&fs=1&to=shawsumit6286@gmail.com&su=${encodeURIComponent(`Live Demo Request - ${demoForm.companyName || 'Apparel Factory'}`)}&body=${encodeURIComponent(`Hi Sumit,\n\nI would like to request a live demo of Zigza MES for our garment manufacturing unit.\n\nDetails:\n• Company: ${demoForm.companyName}\n• Owner / Plant Head: ${demoForm.ownerName}\n• Phone / WhatsApp: ${demoForm.phone.trim() ? `+91 ${demoForm.phone.trim()}` : '+91 98000 00000'}\n• Business Email: ${demoForm.email}\n\nPlease contact us to schedule the walkthrough.\n\nBest regards,\n${demoForm.ownerName}`)}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="px-4 py-2 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs font-bold transition-colors inline-flex items-center gap-1.5 cursor-pointer shadow-xs"
@@ -1898,16 +1898,20 @@ ${demoForm.ownerName}`
                     <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1.5">
                       Phone Number *
                     </label>
-                    <div className="relative">
+                    <div className="relative flex rounded-xl border border-slate-300 focus-within:ring-2 focus-within:ring-[#3A3564] focus-within:border-transparent transition-all overflow-hidden bg-white shadow-2xs">
+                      <div className="flex items-center justify-center px-3.5 bg-slate-50 border-r border-slate-200 text-slate-700 font-mono font-bold text-sm select-none shrink-0">
+                        +91
+                      </div>
                       <input
                         type="tel"
                         required
-                        placeholder="+91 98765 43210"
+                        placeholder="98765 43210"
                         value={demoForm.phone}
-                        onChange={e => setDemoForm({ ...demoForm, phone: e.target.value })}
-                        className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
+                        onChange={e => handlePhoneChange(e.target.value)}
+                        maxLength={11}
+                        className="w-full px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none bg-transparent font-mono"
                       />
-                      {demoForm.phone.trim().length > 0 && (
+                      {demoForm.phone.replace(/\D/g, '').length === 10 && (
                         <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-emerald-600">
                           <Check className="w-4 h-4 stroke-[2.5]" />
                         </div>
@@ -2191,12 +2195,12 @@ ${demoForm.ownerName}`
                   <div className="text-slate-500 font-sans">Details being sent:</div>
                   <div className="text-slate-800"><strong>Company:</strong> {demoForm.companyName}</div>
                   <div className="text-slate-800"><strong>Owner:</strong> {demoForm.ownerName}</div>
-                  <div className="text-slate-800"><strong>Phone:</strong> {demoForm.phone}</div>
+                  <div className="text-slate-800"><strong>Phone:</strong> {demoForm.phone.trim() ? `+91 ${demoForm.phone.trim()}` : '+91 98000 00000'}</div>
                   <div className="text-slate-800"><strong>Email:</strong> {demoForm.email}</div>
                 </div>
                 <div className="pt-3 flex flex-col sm:flex-row items-center justify-center gap-2.5">
                   <a
-                    href={`https://mail.google.com/mail/?view=cm&fs=1&to=shawsumit6286@gmail.com&su=${encodeURIComponent(`Live Demo Request - ${demoForm.companyName || 'Apparel Factory'}`)}&body=${encodeURIComponent(`Hi Sumit,\n\nI would like to request a live demo of Zigza MES for our garment manufacturing unit.\n\nDetails:\n• Company Name: ${demoForm.companyName}\n• Owner / Contact Name: ${demoForm.ownerName}\n• Phone / WhatsApp: ${demoForm.phone}\n• Business Email: ${demoForm.email}\n\nPlease contact us to schedule the live walkthrough.\n\nBest regards,\n${demoForm.ownerName}`)}`}
+                    href={`https://mail.google.com/mail/?view=cm&fs=1&to=shawsumit6286@gmail.com&su=${encodeURIComponent(`Live Demo Request - ${demoForm.companyName || 'Apparel Factory'}`)}&body=${encodeURIComponent(`Hi Sumit,\n\nI would like to request a live demo of Zigza MES for our garment manufacturing unit.\n\nDetails:\n• Company Name: ${demoForm.companyName}\n• Owner / Contact Name: ${demoForm.ownerName}\n• Phone / WhatsApp: ${demoForm.phone.trim() ? `+91 ${demoForm.phone.trim()}` : '+91 98000 00000'}\n• Business Email: ${demoForm.email}\n\nPlease contact us to schedule the live walkthrough.\n\nBest regards,\n${demoForm.ownerName}`)}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="px-4 py-2 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs font-bold transition-colors inline-flex items-center gap-2 cursor-pointer shadow-xs"
@@ -2250,14 +2254,25 @@ ${demoForm.ownerName}`
                   <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1.5">
                     Phone Number *
                   </label>
-                  <input
-                    type="tel"
-                    required
-                    placeholder="+91 98765 43210"
-                    value={demoForm.phone}
-                    onChange={e => setDemoForm({ ...demoForm, phone: e.target.value })}
-                    className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
-                  />
+                  <div className="relative flex rounded-xl border border-slate-300 focus-within:ring-2 focus-within:ring-[#3A3564] focus-within:border-transparent transition-all overflow-hidden bg-white shadow-2xs">
+                    <div className="flex items-center justify-center px-3.5 bg-slate-50 border-r border-slate-200 text-slate-700 font-mono font-bold text-sm select-none shrink-0">
+                      +91
+                    </div>
+                    <input
+                      type="tel"
+                      required
+                      placeholder="98765 43210"
+                      value={demoForm.phone}
+                      onChange={e => handlePhoneChange(e.target.value)}
+                      maxLength={11}
+                      className="w-full px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none bg-transparent font-mono"
+                    />
+                    {demoForm.phone.replace(/\D/g, '').length === 10 && (
+                      <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-emerald-600">
+                        <Check className="w-4 h-4 stroke-[2.5]" />
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div>
