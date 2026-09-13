@@ -4,6 +4,8 @@ import { redirect } from 'next/navigation'
 import { StitchBillingClient } from './components/StitchBillingClient'
 import { fetchStitchBillingLedgerAction } from '../actions'
 
+import { resolveUserTenant, isLegacyNubiraTenant } from '@/lib/tenant-context'
+
 export const dynamic = 'force-dynamic'
 
 export default async function EmbroideryStitchBillingPage() {
@@ -17,16 +19,14 @@ export default async function EmbroideryStitchBillingPage() {
     redirect('/login')
   }
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single()
+  const tenant = await resolveUserTenant(user)
+  const isLegacy = isLegacyNubiraTenant(tenant)
+  const companyFilter = isLegacy ? undefined : tenant.companyName
 
-  const initialLedgers = await fetchStitchBillingLedgerAction()
+  const initialLedgers = await fetchStitchBillingLedgerAction(companyFilter)
 
   return (
-    <AdminShell userEmail={user.email} userRole={profile?.role}>
+    <AdminShell userEmail={tenant.userEmail} userRole={tenant.role}>
       <StitchBillingClient initialLedgers={initialLedgers} />
     </AdminShell>
   )

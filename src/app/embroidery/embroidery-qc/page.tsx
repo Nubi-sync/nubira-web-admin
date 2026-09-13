@@ -4,6 +4,8 @@ import { redirect } from 'next/navigation'
 import { EmbroideryQcClient } from './components/EmbroideryQcClient'
 import { fetchEmbroideryQcAuditsAction } from '../actions'
 
+import { resolveUserTenant, isLegacyNubiraTenant } from '@/lib/tenant-context'
+
 export const dynamic = 'force-dynamic'
 
 export default async function EmbroideryQcPage() {
@@ -17,16 +19,14 @@ export default async function EmbroideryQcPage() {
     redirect('/login')
   }
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single()
+  const tenant = await resolveUserTenant(user)
+  const isLegacy = isLegacyNubiraTenant(tenant)
+  const companyFilter = isLegacy ? undefined : tenant.companyName
 
-  const initialAudits = await fetchEmbroideryQcAuditsAction()
+  const initialAudits = await fetchEmbroideryQcAuditsAction(companyFilter)
 
   return (
-    <AdminShell userEmail={user.email} userRole={profile?.role}>
+    <AdminShell userEmail={tenant.userEmail} userRole={tenant.role}>
       <EmbroideryQcClient initialAudits={initialAudits} />
     </AdminShell>
   )
