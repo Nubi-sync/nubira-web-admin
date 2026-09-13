@@ -274,10 +274,8 @@ export function BundlesClient({ initialBundles }: BundlesClientProps = {}) {
             <EmptyState
               title="No QR cut bundles found"
               description="Batch generate bundle barcodes from completed lay sheets to route cut panels to production lines."
-              action={{
-                label: "Batch Generate QR Bundles",
-                onClick: () => setIsGenerateModalOpen(true)
-              }}
+              actionLabel="Batch Generate QR Bundles"
+              onAction={() => setIsGenerateModalOpen(true)}
             />
           </div>
         ) : (

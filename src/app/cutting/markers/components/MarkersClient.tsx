@@ -197,10 +197,8 @@ export function MarkersClient() {
           <EmptyState
             title="No CAD markers cataloged"
             description="Archive a new CAD nesting marker to benchmark fabric yield and cutting tolerances."
-            action={{
-              label: "New CAD Marker",
-              onClick: () => setIsNewModalOpen(true)
-            }}
+            actionLabel="New CAD Marker"
+            onAction={() => setIsNewModalOpen(true)}
           />
         </div>
       ) : (

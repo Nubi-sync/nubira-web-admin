@@ -358,10 +358,8 @@ export function CuttingDashboardClient({
               <EmptyState
                 title="No active lay sheets queued"
                 description="Spreading jobs and ply allocations will appear here once scheduled."
-                action={{
-                  label: "Create Lay Sheet",
-                  onClick: () => window.location.href = '/cutting/lay-sheets'
-                }}
+                actionLabel="Create Lay Sheet"
+                onAction={() => { window.location.href = '/cutting/lay-sheets' }}
               />
             </div>
           ) : (
@@ -443,10 +441,8 @@ export function CuttingDashboardClient({
                 compact
                 title="No bundles awaiting handover"
                 description="QR bundles will list here once generated."
-                action={{
-                  label: "Generate Bundles",
-                  onClick: () => window.location.href = '/cutting/bundles'
-                }}
+                actionLabel="Generate Bundles"
+                onAction={() => { window.location.href = '/cutting/bundles' }}
               />
             </div>
           ) : (

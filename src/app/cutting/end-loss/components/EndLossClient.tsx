@@ -210,10 +210,8 @@ export function EndLossClient() {
             <EmptyState
               title="No fabric remnants logged"
               description="Record end bits and scrap roll cuts for zero-waste salvage triage."
-              action={{
-                label: "Log Remnant Cut Piece",
-                onClick: () => setIsNewModalOpen(true)
-              }}
+              actionLabel="Log Remnant Cut Piece"
+              onAction={() => setIsNewModalOpen(true)}
             />
           </div>
         ) : (

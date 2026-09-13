@@ -273,10 +273,8 @@ export function CuttingOrdersClient({ initialOrders }: CuttingOrdersClientProps 
             <EmptyState
               title="No cutting orders found"
               description="Dispatch a work order to populate the CNC cutting queue and assign physical tables."
-              action={{
-                label: "Dispatch Cut Work Order",
-                onClick: () => setIsNewModalOpen(true)
-              }}
+              actionLabel="Dispatch Cut Work Order"
+              onAction={() => setIsNewModalOpen(true)}
             />
           </div>
         ) : (

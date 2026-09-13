@@ -202,10 +202,8 @@ export function PanelQcClient() {
             <EmptyState
               title="No panel QC audits recorded"
               description="Log a multi-ply tolerance inspection to verify blade precision and notch alignment."
-              action={{
-                label: "Log Panel QC Audit",
-                onClick: () => setIsNewAuditModalOpen(true)
-              }}
+              actionLabel="Log Panel QC Audit"
+              onAction={() => setIsNewAuditModalOpen(true)}
             />
           </div>
         ) : (

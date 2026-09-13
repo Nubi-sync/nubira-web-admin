@@ -239,10 +239,8 @@ export function LaySheetsClient({ initialLays }: LaySheetsClientProps = {}) {
             <EmptyState
               title="No lay sheets found"
               description="Create a new lay run or adjust filters to view spreading ledger."
-              action={{
-                label: "New Lay Sheet",
-                onClick: () => setIsCreateModalOpen(true)
-              }}
+              actionLabel="New Lay Sheet"
+              onAction={() => setIsCreateModalOpen(true)}
             />
           </div>
         ) : (

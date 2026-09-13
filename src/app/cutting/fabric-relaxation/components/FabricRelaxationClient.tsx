@@ -213,10 +213,8 @@ export function FabricRelaxationClient() {
             <EmptyState
               title="No fabric rolls in relaxation queue"
               description="Stage an unrolled fabric lot to track 24-hour tension relief and shrinkage stabilization."
-              action={{
-                label: "Stage New Fabric Roll",
-                onClick: () => setIsNewModalOpen(true)
-              }}
+              actionLabel="Stage New Fabric Roll"
+              onAction={() => setIsNewModalOpen(true)}
             />
           </div>
         ) : (
