@@ -1,11 +1,11 @@
 import { Resend } from 'resend'
 
-const resendApiKey = process.env.RESEND_API_KEY
+export function getResendClient(): Resend | null {
+  const apiKey = process.env.RESEND_API_KEY
+  return apiKey ? new Resend(apiKey) : null
+}
 
-export const resend = resendApiKey ? new Resend(resendApiKey) : null
-
-// Sender configuration: if customized in env use it, otherwise default to verified or onboarding sender
-const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'Zigza Activation <onboarding@resend.dev>'
+export const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null
 
 export interface TenantActivationEmailParams {
   to: string
@@ -30,7 +30,10 @@ export async function sendTenantActivationEmail(params: TenantActivationEmailPar
     divisionsCount
   } = params
 
-  if (!resend) {
+  const client = getResendClient()
+  const fromEmail = process.env.RESEND_FROM_EMAIL || 'Zigza Activation <onboarding@resend.dev>'
+
+  if (!client) {
     console.warn('[Resend] RESEND_API_KEY not set. Simulating activation email dispatch to:', to)
     return {
       success: true,
@@ -118,8 +121,8 @@ export async function sendTenantActivationEmail(params: TenantActivationEmailPar
       </html>
     `
 
-    const result = await resend.emails.send({
-      from: FROM_EMAIL,
+    const result = await client.emails.send({
+      from: fromEmail,
       to,
       subject: `Zigza MES Activation Credentials - ${companyName}`,
       html: htmlContent,
@@ -142,7 +145,10 @@ export interface CustomInquiryNotificationParams {
 }
 
 export async function sendCustomInquiryNotificationEmail(params: CustomInquiryNotificationParams) {
-  if (!resend) {
+  const client = getResendClient()
+  const fromEmail = process.env.RESEND_FROM_EMAIL || 'Zigza Activation <onboarding@resend.dev>'
+
+  if (!client) {
     console.warn('[Resend] Simulating custom inquiry notification email for:', params.companyName)
     return { success: true, simulated: true }
   }
@@ -173,8 +179,8 @@ export async function sendCustomInquiryNotificationEmail(params: CustomInquiryNo
       </div>
     `
 
-    const result = await resend.emails.send({
-      from: FROM_EMAIL,
+    const result = await client.emails.send({
+      from: fromEmail,
       to: adminNotificationEmail,
       subject: `New Custom Build Request: ${params.companyName} (${params.applicantName})`,
       html: htmlContent,
