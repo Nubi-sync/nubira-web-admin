@@ -3,6 +3,8 @@ import { redirect } from 'next/navigation'
 import { AdminShell } from '@/components/layout/AdminShell'
 import { AqlInspectionClient } from './components/AqlInspectionClient'
 
+import { resolveUserTenant } from '@/lib/tenant-context'
+
 export const dynamic = 'force-dynamic'
 
 export default async function AqlInspectionPage() {
@@ -16,15 +18,11 @@ export default async function AqlInspectionPage() {
     redirect('/login')
   }
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single()
+  const tenant = await resolveUserTenant(user)
 
   return (
-    <AdminShell userEmail={user.email} userRole={profile?.role}>
-      <AqlInspectionClient userEmail={user.email} />
+    <AdminShell userEmail={tenant.userEmail} userRole={tenant.role}>
+      <AqlInspectionClient userEmail={tenant.userEmail} />
     </AdminShell>
   )
 }
