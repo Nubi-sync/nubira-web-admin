@@ -16,6 +16,7 @@ import {
 import { BomCosting } from '../../types/merchandising'
 import { getBomCostings, MERCHANDISING_UPDATE_EVENT } from '../../utils/merchandisingStorage'
 import { CreateCostingModal } from './CreateCostingModal'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 interface BomCostingClientProps {
   initialCostings?: BomCosting[]

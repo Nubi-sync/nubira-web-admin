@@ -27,6 +27,7 @@ import {
 import { MerchandisingOrder, OrderStatus, BomCosting, TnaMilestone, ExportShipment } from '../types/merchandising'
 import { getOrders, MERCHANDISING_UPDATE_EVENT } from '../utils/merchandisingStorage'
 import { CreateOrderModal } from '../orders/components/CreateOrderModal'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 type DateFilter = 'today' | 'week' | 'month' | 'all'
 
@@ -150,14 +151,9 @@ export function MerchandisingDashboardClient({
             <Briefcase className="w-5 h-5" />
           </div>
           <div>
-            <div className="flex items-center gap-2.5 flex-wrap">
-              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
-                Merchandising &amp; Sourcing Desk
-              </h1>
-              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
-                Commercial Engine Live
-              </span>
-            </div>
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
+              Merchandising &amp; Sourcing Desk
+            </h1>
             <p className="text-sm sm:text-base text-slate-600 mt-1">
               Real-time buyer PO contracts, BOM costing variance, critical path T&amp;A, and container logistics
             </p>
@@ -363,11 +359,11 @@ export function MerchandisingDashboardClient({
       </div>
 
       {/* ========================================================= */}
-      {/* 3. 6-STAGE COMMERCIAL LIFECYCLE KPI CARDS (EXACT 6TH BOX)  */}
+      {/* 3. COMMERCIAL LIFECYCLE KPI CARDS                          */}
       {/* ========================================================= */}
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3.5 sm:gap-4">
         
-        {/* STAGE 1: ACTIVE BUYER POS */}
+        {/* CARD 1: ACTIVE BUYER POS */}
         <Link 
           href="/merchandising/orders"
           className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-[#3A3564]/40 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group relative shadow-2xs select-none hover:-translate-y-0.5"
@@ -377,20 +373,15 @@ export function MerchandisingDashboardClient({
               <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-[#3A3564] group-hover:text-white group-hover:border-[#3A3564] transition-colors">
                 <Briefcase className="w-5 h-5" />
               </div>
-              <div className="flex items-center gap-1.5">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 group-hover:text-[#3A3564] transition-colors">
-                  STAGE 01
-                </span>
-                <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#3A3564] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
-              </div>
+              <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#3A3564] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
             </div>
 
             <div className="mt-3.5">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
-                1. Active Buyer POs
+                Active Buyer POs
               </span>
               <p className="text-[11px] text-slate-400 font-medium truncate mt-0.5">
-                Order Pipeline Target
+                Order pipeline target
               </p>
             </div>
           </div>
@@ -407,7 +398,7 @@ export function MerchandisingDashboardClient({
           </div>
         </Link>
 
-        {/* STAGE 2: BOM COST REALIZATION */}
+        {/* CARD 2: BOM COST REALIZATION */}
         <Link 
           href="/merchandising/costing"
           className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-[#3A3564]/40 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group relative shadow-2xs select-none hover:-translate-y-0.5"
@@ -417,20 +408,15 @@ export function MerchandisingDashboardClient({
               <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-[#3A3564] group-hover:text-white group-hover:border-[#3A3564] transition-colors">
                 <TrendingUp className="w-5 h-5" />
               </div>
-              <div className="flex items-center gap-1.5">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 group-hover:text-[#3A3564] transition-colors">
-                  STAGE 02
-                </span>
-                <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#3A3564] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
-              </div>
+              <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#3A3564] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
             </div>
 
             <div className="mt-3.5">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
-                2. BOM Cost Target
+                BOM Cost Target
               </span>
               <p className="text-[11px] text-slate-400 font-medium truncate mt-0.5">
-                Cost Variance Target
+                Cost variance target
               </p>
             </div>
           </div>
@@ -447,7 +433,7 @@ export function MerchandisingDashboardClient({
           </div>
         </Link>
 
-        {/* STAGE 3: TRIM IN-HOUSE SOURCING */}
+        {/* CARD 3: TRIM IN-HOUSE SOURCING */}
         <Link 
           href="/merchandising/sourcing"
           className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-[#3A3564]/40 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group relative shadow-2xs select-none hover:-translate-y-0.5"
@@ -457,20 +443,15 @@ export function MerchandisingDashboardClient({
               <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-[#3A3564] group-hover:text-white group-hover:border-[#3A3564] transition-colors">
                 <PackageCheck className="w-5 h-5" />
               </div>
-              <div className="flex items-center gap-1.5">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 group-hover:text-[#3A3564] transition-colors">
-                  STAGE 03
-                </span>
-                <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#3A3564] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
-              </div>
+              <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#3A3564] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
             </div>
 
             <div className="mt-3.5">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
-                3. Trim In-House
+                Trim In-House
               </span>
               <p className="text-[11px] text-slate-400 font-medium truncate mt-0.5">
-                Central Store Sourcing
+                Central store sourcing
               </p>
             </div>
           </div>
@@ -487,7 +468,7 @@ export function MerchandisingDashboardClient({
           </div>
         </Link>
 
-        {/* STAGE 4: TIME & ACTION (T&A) GATES */}
+        {/* CARD 4: TIME & ACTION (T&A) GATES */}
         <Link 
           href="/merchandising/tna-calendar"
           className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-[#3A3564]/40 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group relative shadow-2xs select-none hover:-translate-y-0.5"
@@ -497,20 +478,15 @@ export function MerchandisingDashboardClient({
               <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-[#3A3564] group-hover:text-white group-hover:border-[#3A3564] transition-colors">
                 <Calendar className="w-5 h-5" />
               </div>
-              <div className="flex items-center gap-1.5">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 group-hover:text-[#3A3564] transition-colors">
-                  STAGE 04
-                </span>
-                <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#3A3564] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
-              </div>
+              <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#3A3564] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
             </div>
 
             <div className="mt-3.5">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
-                4. Critical Path SLA
+                Critical Path SLA
               </span>
               <p className="text-[11px] text-slate-400 font-medium truncate mt-0.5">
-                T&amp;A Milestone Gates
+                T&amp;A milestone gates
               </p>
             </div>
           </div>
@@ -527,7 +503,7 @@ export function MerchandisingDashboardClient({
           </div>
         </Link>
 
-        {/* STAGE 5: EXPORT LOGISTICS & CONTAINERS */}
+        {/* CARD 5: EXPORT LOGISTICS & CONTAINERS */}
         <Link 
           href="/merchandising/shipments"
           className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-[#3A3564]/40 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group relative shadow-2xs select-none hover:-translate-y-0.5"
@@ -537,20 +513,15 @@ export function MerchandisingDashboardClient({
               <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-[#3A3564] group-hover:text-white group-hover:border-[#3A3564] transition-colors">
                 <Ship className="w-5 h-5" />
               </div>
-              <div className="flex items-center gap-1.5">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 group-hover:text-[#3A3564] transition-colors">
-                  STAGE 05
-                </span>
-                <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#3A3564] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
-              </div>
+              <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#3A3564] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
             </div>
 
             <div className="mt-3.5">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
-                5. Export Container
+                Export Container
               </span>
               <p className="text-[11px] text-slate-400 font-medium truncate mt-0.5">
-                FOB Booked Vessels
+                FOB booked vessels
               </p>
             </div>
           </div>
@@ -567,7 +538,7 @@ export function MerchandisingDashboardClient({
           </div>
         </Link>
 
-        {/* STAGE 6: ON-TIME DELIVERY (OTD) */}
+        {/* CARD 6: ON-TIME DELIVERY (OTD) */}
         <Link 
           href="/merchandising/shipments"
           className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-[#3A3564]/40 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group relative shadow-2xs select-none hover:-translate-y-0.5"
@@ -577,20 +548,15 @@ export function MerchandisingDashboardClient({
               <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-[#3A3564] group-hover:text-white group-hover:border-[#3A3564] transition-colors">
                 <Truck className="w-5 h-5" />
               </div>
-              <div className="flex items-center gap-1.5">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 group-hover:text-[#3A3564] transition-colors">
-                  STAGE 06
-                </span>
-                <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#3A3564] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
-              </div>
+              <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#3A3564] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
             </div>
 
             <div className="mt-3.5">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
-                6. On-Time Delivery
+                On-Time Delivery
               </span>
               <p className="text-[11px] text-slate-400 font-medium truncate mt-0.5">
-                Ex-Factory Compliance
+                Ex-factory compliance
               </p>
             </div>
           </div>
@@ -808,91 +774,102 @@ export function MerchandisingDashboardClient({
             </div>
 
             {/* Table with Exact 6th Box Typography */}
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
-                <thead>
-                  <tr className="border-b border-slate-100 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0]">
-                    <th className="py-2.5 px-3">PO Number</th>
-                    <th className="py-2.5 px-3">Brand / Buyer</th>
-                    <th className="py-2.5 px-3">Style Description</th>
-                    <th className="py-2.5 px-3 text-right">Total Pcs</th>
-                    <th className="py-2.5 px-3">Unit FOB</th>
-                    <th className="py-2.5 px-3">Order Value</th>
-                    <th className="py-2.5 px-3 text-center">Status</th>
-                    <th className="py-2.5 px-3 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 text-xs">
-                  {filteredOrders.slice(0, 8).map(ord => (
-                    <tr key={ord.id} className="hover:bg-slate-50 transition-colors">
-                      <td className="py-2.5 px-3 font-bold text-slate-900 font-mono text-[#3A3564]">
-                        {ord.po_number}
-                      </td>
-                      <td className="py-2.5 px-3 font-bold text-indigo-600">
-                        {ord.brand_name}
-                      </td>
-                      <td className="py-2.5 px-3">
-                        <span className="font-bold text-slate-800 block">
-                          {ord.style_ref}
-                        </span>
-                        <span className="block text-[10.5px] font-normal text-slate-400 truncate max-w-[200px]">
-                          {ord.style_name}
-                        </span>
-                      </td>
-                      <td className="py-2.5 px-3 text-right font-bold text-slate-900 font-mono">
-                        {ord.total_quantity.toLocaleString()}
-                      </td>
-                      <td className="py-2.5 px-3 font-mono text-slate-700">
-                        {ord.currency === 'INR' ? '₹' : ord.currency === 'USD' ? '$' : '€'}
-                        {ord.unit_fob_price.toFixed(2)}
-                      </td>
-                      <td className="py-2.5 px-3 font-mono font-bold text-slate-900">
-                        {ord.currency === 'INR' ? '₹' : ord.currency === 'USD' ? '$' : '€'}
-                        {ord.total_contract_value.toLocaleString()}
-                      </td>
-                      <td className="py-2.5 px-3 text-center">
-                        <span
-                          className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
-                            ord.status === 'IN_PRODUCTION'
-                              ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                              : ord.status === 'PACKED'
-                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                              : ord.status === 'IN_FABRIC'
-                              ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                              : 'bg-slate-100 text-slate-700'
-                          }`}
-                        >
-                          {ord.status.replace('_', ' ')}
-                        </span>
-                      </td>
-                      <td className="py-2.5 px-3 text-right">
-                        <div className="flex items-center justify-end gap-1.5">
-                          <Link
-                            href="/merchandising/costing"
-                            className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#FAF7F0] hover:bg-[#F2ECE1] text-[#3A3564] border border-black/10 shadow-2xs"
-                          >
-                            BOM Cost
-                          </Link>
-                          <Link
-                            href="/merchandising/tna-calendar"
-                            className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#3A3564] hover:bg-[#2A2649] text-white shadow-2xs"
-                          >
-                            T&amp;A
-                          </Link>
-                        </div>
-                      </td>
+            {filteredOrders.length === 0 ? (
+              <div className="py-6">
+                <EmptyState
+                  icon={Briefcase}
+                  title={selectedBrand !== 'ALL' || selectedStyleId !== 'ALL' || statusFilter !== 'ALL' ? "No commercial orders match your filters" : "No active commercial orders found"}
+                  description={selectedBrand !== 'ALL' || selectedStyleId !== 'ALL' || statusFilter !== 'ALL' ? "Try adjusting your brand, style, or status filter to view active orders." : "Register your first buyer purchase order to begin commercial tracking and line allocation."}
+                  actionLabel="Book New PO"
+                  onAction={() => setIsCreateModalOpen(true)}
+                  secondaryActionLabel={selectedBrand !== 'ALL' || selectedStyleId !== 'ALL' || statusFilter !== 'ALL' ? "Reset Filters" : undefined}
+                  onSecondaryAction={selectedBrand !== 'ALL' || selectedStyleId !== 'ALL' || statusFilter !== 'ALL' ? () => {
+                    setSelectedBrand('ALL')
+                    setSelectedStyleId('ALL')
+                    setStatusFilter('ALL')
+                  } : undefined}
+                />
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm">
+                  <thead>
+                    <tr className="border-b border-slate-100 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0]">
+                      <th className="py-2.5 px-3">PO Number</th>
+                      <th className="py-2.5 px-3">Brand / Buyer</th>
+                      <th className="py-2.5 px-3">Style Description</th>
+                      <th className="py-2.5 px-3 text-right">Total Pcs</th>
+                      <th className="py-2.5 px-3">Unit FOB</th>
+                      <th className="py-2.5 px-3">Order Value</th>
+                      <th className="py-2.5 px-3 text-center">Status</th>
+                      <th className="py-2.5 px-3 text-right">Actions</th>
                     </tr>
-                  ))}
-                  {filteredOrders.length === 0 && (
-                    <tr>
-                      <td colSpan={8} className="py-8 text-center text-xs text-slate-400">
-                        No active commercial orders found for the selected filter.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 text-xs">
+                    {filteredOrders.slice(0, 8).map(ord => (
+                      <tr key={ord.id} className="hover:bg-slate-50 transition-colors">
+                        <td className="py-2.5 px-3 font-bold text-slate-900 font-mono text-[#3A3564]">
+                          {ord.po_number}
+                        </td>
+                        <td className="py-2.5 px-3 font-bold text-indigo-600">
+                          {ord.brand_name}
+                        </td>
+                        <td className="py-2.5 px-3">
+                          <span className="font-bold text-slate-800 block">
+                            {ord.style_ref}
+                          </span>
+                          <span className="block text-[10.5px] font-normal text-slate-400 truncate max-w-[200px]">
+                            {ord.style_name}
+                          </span>
+                        </td>
+                        <td className="py-2.5 px-3 text-right font-bold text-slate-900 font-mono">
+                          {ord.total_quantity.toLocaleString()}
+                        </td>
+                        <td className="py-2.5 px-3 font-mono text-slate-700">
+                          {ord.currency === 'INR' ? '₹' : ord.currency === 'USD' ? '$' : '€'}
+                          {ord.unit_fob_price.toFixed(2)}
+                        </td>
+                        <td className="py-2.5 px-3 font-mono font-bold text-slate-900">
+                          {ord.currency === 'INR' ? '₹' : ord.currency === 'USD' ? '$' : '€'}
+                          {ord.total_contract_value.toLocaleString()}
+                        </td>
+                        <td className="py-2.5 px-3 text-center">
+                          <span
+                            className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
+                              ord.status === 'IN_PRODUCTION'
+                                ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                                : ord.status === 'PACKED'
+                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                : ord.status === 'IN_FABRIC'
+                                ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                                : 'bg-slate-100 text-slate-700'
+                            }`}
+                          >
+                            {ord.status.replace('_', ' ')}
+                          </span>
+                        </td>
+                        <td className="py-2.5 px-3 text-right">
+                          <div className="flex items-center justify-end gap-1.5">
+                            <Link
+                              href="/merchandising/costing"
+                              className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#FAF7F0] hover:bg-[#F2ECE1] text-[#3A3564] border border-black/10 shadow-2xs"
+                            >
+                              BOM Cost
+                            </Link>
+                            <Link
+                              href="/merchandising/tna-calendar"
+                              className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#3A3564] hover:bg-[#2A2649] text-white shadow-2xs"
+                            >
+                              T&amp;A
+                            </Link>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </div>
 
