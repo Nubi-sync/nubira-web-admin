@@ -21,13 +21,15 @@ export default async function ModulesHubPage() {
   // Centrally resolve the authenticated tenant profile
   const tenant = await resolveUserTenant(user)
   const userRole = tenant.role.toUpperCase()
-  const isProvisioned = tenant.isProvisionedTenant && tenant.companyName !== 'Nubira Creation'
 
-  const allowedModules = isProvisioned
-    ? (Array.isArray(tenant.allowedDivisions) && tenant.allowedDivisions.length > 0 ? tenant.allowedDivisions : [])
+  // Module allotment: If the tenant organization has configured allowed divisions in platform_tenant_factories, strictly respect them
+  const hasConfiguredDivisions = Array.isArray(tenant.allowedDivisions) && tenant.allowedDivisions.length > 0
+
+  const allowedModules = hasConfiguredDivisions
+    ? tenant.allowedDivisions
     : (tenant.isSuperAdmin
         ? [...ALL_DIVISION_ROUTES, '/modules']
-        : (tenant.allowedDivisions.length > 0 ? tenant.allowedDivisions : getUserAllowedModules(user, { role: userRole })))
+        : getUserAllowedModules(user, { role: userRole }))
 
   // If user only has 1 operational division, redirect them straight to their assigned workplace
   if (allowedModules.length === 1 && !allowedModules.includes('/modules')) {
