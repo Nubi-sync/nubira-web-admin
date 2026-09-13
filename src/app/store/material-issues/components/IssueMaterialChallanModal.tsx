@@ -13,16 +13,16 @@ interface IssueMaterialChallanModalProps {
 export function IssueMaterialChallanModal({ isOpen, onClose }: IssueMaterialChallanModalProps) {
   const [issueChallanNo, setIssueChallanNo] = useState(`CHL-FLR-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`)
   const [destinationDivision, setDestinationDivision] = useState<MaterialDestination>('CUTTING_FLOOR')
-  const [orderId, setOrderId] = useState('ORD-ZARA-7812')
-  const [articleNo, setArticleNo] = useState('ART-7812-CREW')
-  const [buyerName, setBuyerName] = useState('Zara Inditex Spain')
-  const [receiverName, setReceiverName] = useState('Suresh Verma (Cutting CAD In-Charge)')
-  const [issuedBy, setIssuedBy] = useState('Kishan Chand (Chief Storekeeper)')
-  const [barcodesRaw, setBarcodesRaw] = useState('RLL-2026-9812, RLL-2026-9813')
-  const [materialSummary, setMaterialSummary] = useState('100% Combed Cotton Single Jersey (Shade A) • 2 Rolls (222.5m)')
-  const [quantityIssued, setQuantityIssued] = useState<number>(222.5)
+  const [orderId, setOrderId] = useState('')
+  const [articleNo, setArticleNo] = useState('')
+  const [buyerName, setBuyerName] = useState('')
+  const [receiverName, setReceiverName] = useState('Floor Supervisor')
+  const [issuedBy, setIssuedBy] = useState('Store Supervisor')
+  const [barcodesRaw, setBarcodesRaw] = useState('')
+  const [materialSummary, setMaterialSummary] = useState('')
+  const [quantityIssued, setQuantityIssued] = useState<number>(0)
   const [unit, setUnit] = useState<string>('meters')
-  const [notes, setNotes] = useState<string>('Dispatched for Marker Lay #01.')
+  const [notes, setNotes] = useState<string>('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   if (!isOpen) return null
@@ -30,17 +30,11 @@ export function IssueMaterialChallanModal({ isOpen, onClose }: IssueMaterialChal
   const handleDestinationChange = (dest: MaterialDestination) => {
     setDestinationDivision(dest)
     if (dest === 'CUTTING_FLOOR') {
-      setReceiverName('Suresh Verma (Cutting CAD In-Charge)')
+      setReceiverName('Cutting Supervisor')
       setUnit('meters')
-      setBarcodesRaw('RLL-2026-9812, RLL-2026-9813')
-      setMaterialSummary('100% Combed Cotton Single Jersey (Shade A) • 2 Rolls (222.5m)')
-      setQuantityIssued(222.5)
     } else {
-      setReceiverName('Ramesh Kumar (Line 01 Supervisor)')
+      setReceiverName('Sewing Supervisor')
       setUnit('sets')
-      setBarcodesRaw('TRM-THRD-01, TRM-LBL-01, TRM-LBL-02')
-      setMaterialSummary('BOM Trims Package: 48 Cones Thread, 2,400 Neck Labels, 2,400 Care Labels')
-      setQuantityIssued(2400)
     }
   }
 

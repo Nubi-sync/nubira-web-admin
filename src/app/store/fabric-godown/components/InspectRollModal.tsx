@@ -19,8 +19,8 @@ export function InspectRollModal({ isOpen, onClose, roll }: InspectRollModalProp
   const [points3, setPoints3] = useState<number>(0)
   const [points4, setPoints4] = useState<number>(0)
   const [shadeGroup, setShadeGroup] = useState<ShadeGroup>('SHADE_A')
-  const [inspectorName, setInspectorName] = useState<string>('Devrat Sharma (QA-4Pt)')
-  const [godownRack, setGodownRack] = useState<string>('BAY_1_RACK_02')
+  const [inspectorName, setInspectorName] = useState<string>('QA Fabric Auditor')
+  const [godownRack, setGodownRack] = useState<string>('BAY_1_RACK_01')
   const [notes, setNotes] = useState<string>('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 

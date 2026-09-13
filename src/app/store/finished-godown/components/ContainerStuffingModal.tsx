@@ -12,10 +12,10 @@ interface ContainerStuffingModalProps {
 }
 
 export function ContainerStuffingModal({ isOpen, onClose, availablePallets }: ContainerStuffingModalProps) {
-  const [containerNumber, setContainerNumber] = useState('MSCU-482091-7')
-  const [shippingLine, setShippingLine] = useState('MSC Mediterranean Shipping Co.')
+  const [containerNumber, setContainerNumber] = useState('')
+  const [shippingLine, setShippingLine] = useState('')
   const [sealNumber, setSealNumber] = useState(`SEAL-${Math.floor(100000 + Math.random() * 900000)}`)
-  const [destinationPort, setDestinationPort] = useState('Port of Valencia, Spain')
+  const [destinationPort, setDestinationPort] = useState('')
   const [selectedPalletIds, setSelectedPalletIds] = useState<string[]>(
     availablePallets.filter(p => p.shippingStatus === 'STAGED_IN_BAY').map(p => p.id)
   )
