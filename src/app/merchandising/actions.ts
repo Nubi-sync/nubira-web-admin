@@ -47,7 +47,7 @@ function mapDbTnaStatusToUI(st: string): TnaStatus {
 // 1. ORDERS
 // -----------------------------------------------------------------------------
 
-export async function fetchMerchandisingOrdersAction(): Promise<MerchandisingOrder[]> {
+export async function fetchMerchandisingOrdersAction(companyName?: string): Promise<MerchandisingOrder[]> {
   try {
     const { data, error } = await supabaseAdmin
       .from('merchandising_orders')
@@ -66,7 +66,17 @@ export async function fetchMerchandisingOrdersAction(): Promise<MerchandisingOrd
 
     if (!data || data.length === 0) return []
 
-    return data.map((row: any) => {
+    const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
+    const targetComp = (companyName || '').toUpperCase()
+
+    const filteredData = isNonNubira
+      ? data.filter((row: any) => {
+          const b = (row.brands?.brand_name || '').toUpperCase()
+          return b.length > 0 && b.includes(targetComp)
+        })
+      : data
+
+    return filteredData.map((row: any) => {
       // Group ratios by color_name
       const colorGroups: Record<string, { sizes: Record<string, number>; total: number }> = {}
       ;(row.merchandising_order_ratios || []).forEach((r: any) => {
@@ -217,8 +227,11 @@ export async function createBuyerOrderAction(payload: {
 // 2. BOM COSTINGS
 // -----------------------------------------------------------------------------
 
-export async function fetchBomCostingsAction(): Promise<BomCosting[]> {
+export async function fetchBomCostingsAction(companyName?: string): Promise<BomCosting[]> {
   try {
+    const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
+    if (isNonNubira) return []
+
     const { data, error } = await supabaseAdmin
       .from('view_merchandising_order_economics')
       .select('*')
@@ -258,8 +271,11 @@ export async function fetchBomCostingsAction(): Promise<BomCosting[]> {
 // 3. T&A MILESTONES
 // -----------------------------------------------------------------------------
 
-export async function fetchTnaMilestonesAction(): Promise<TnaMilestone[]> {
+export async function fetchTnaMilestonesAction(companyName?: string): Promise<TnaMilestone[]> {
   try {
+    const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
+    if (isNonNubira) return []
+
     const { data, error } = await supabaseAdmin
       .from('merchandising_tna_milestones')
       .select(`
@@ -329,8 +345,11 @@ export async function updateTnaMilestoneAction(payload: {
 // 4. SOURCING REQUISITIONS (PR)
 // -----------------------------------------------------------------------------
 
-export async function fetchSourcingRequisitionsAction(): Promise<SourcingRequisition[]> {
+export async function fetchSourcingRequisitionsAction(companyName?: string): Promise<SourcingRequisition[]> {
   try {
+    const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
+    if (isNonNubira) return []
+
     const { data, error } = await supabaseAdmin
       .from('merchandising_sourcing_requisitions')
       .select(`
@@ -371,8 +390,11 @@ export async function fetchSourcingRequisitionsAction(): Promise<SourcingRequisi
 // 5. EXPORT SHIPMENTS
 // -----------------------------------------------------------------------------
 
-export async function fetchShipmentsAction(): Promise<ExportShipment[]> {
+export async function fetchShipmentsAction(companyName?: string): Promise<ExportShipment[]> {
   try {
+    const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
+    if (isNonNubira) return []
+
     const { data, error } = await supabaseAdmin
       .from('merchandising_shipments')
       .select(`

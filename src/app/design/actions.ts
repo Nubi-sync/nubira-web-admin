@@ -38,7 +38,7 @@ function mapCategoryToUI(cat: string): GarmentCategory {
 // 1. TECH PACKS
 // -----------------------------------------------------------------------------
 
-export async function fetchTechPacksAction(): Promise<TechPack[]> {
+export async function fetchTechPacksAction(companyName?: string): Promise<TechPack[]> {
   try {
     const { data, error } = await supabaseAdmin
       .from('design_tech_packs')
@@ -52,7 +52,17 @@ export async function fetchTechPacksAction(): Promise<TechPack[]> {
 
     if (!data || data.length === 0) return []
 
-    return data.map((row: any) => ({
+    const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
+    const targetComp = (companyName || '').toUpperCase()
+
+    const filteredData = isNonNubira
+      ? data.filter((row: any) => {
+          const b = (row.brands?.brand_name || '').toUpperCase()
+          return b.length > 0 && b.includes(targetComp)
+        })
+      : data
+
+    return filteredData.map((row: any) => ({
       id: row.id,
       style_number: row.style_number,
       style_name: `${row.category} Style ${row.style_number}`,
@@ -173,7 +183,7 @@ export async function createTechPackAction(payload: {
 // 2. SAMPLE APPROVALS
 // -----------------------------------------------------------------------------
 
-export async function fetchSampleApprovalsAction(): Promise<SampleApproval[]> {
+export async function fetchSampleApprovalsAction(companyName?: string): Promise<SampleApproval[]> {
   try {
     const { data, error } = await supabaseAdmin
       .from('design_sample_audits')
@@ -187,7 +197,17 @@ export async function fetchSampleApprovalsAction(): Promise<SampleApproval[]> {
 
     if (!data || data.length === 0) return []
 
-    return data.map((row: any) => ({
+    const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
+    const targetComp = (companyName || '').toUpperCase()
+
+    const filteredData = isNonNubira
+      ? data.filter((row: any) => {
+          const b = (row.design_tech_packs?.brands?.brand_name || '').toUpperCase()
+          return b.length > 0 && b.includes(targetComp)
+        })
+      : data
+
+    return filteredData.map((row: any) => ({
       id: row.id,
       tech_pack_id: row.tech_pack_id,
       style_number: row.design_tech_packs?.style_number || 'UNKNOWN',

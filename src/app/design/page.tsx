@@ -8,6 +8,7 @@ import {
   fetchGradingSchemesAction, 
   fetchMaterialsLibraryAction 
 } from './actions'
+import { resolveUserTenant, isLegacyNubiraTenant } from '@/lib/tenant-context'
 
 export const dynamic = 'force-dynamic'
 
@@ -22,15 +23,20 @@ export default async function DesignModulePage() {
     redirect('/login')
   }
 
+  // Centrally resolve tenant identity
+  const tenant = await resolveUserTenant(user)
+  const isLegacy = isLegacyNubiraTenant(tenant)
+  const companyFilter = isLegacy ? undefined : tenant.companyName
+
   const [initialTechPacks, initialApprovals, initialSchemes, initialMaterials] = await Promise.all([
-    fetchTechPacksAction(),
-    fetchSampleApprovalsAction(),
+    fetchTechPacksAction(companyFilter),
+    fetchSampleApprovalsAction(companyFilter),
     fetchGradingSchemesAction(),
     fetchMaterialsLibraryAction()
   ])
 
   return (
-    <AdminShell userEmail={user.email}>
+    <AdminShell userEmail={tenant.userEmail} userRole={tenant.role}>
       <div className="p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6 max-w-7xl w-full mx-auto select-none">
         <DesignDashboardClient 
           initialTechPacks={initialTechPacks}
