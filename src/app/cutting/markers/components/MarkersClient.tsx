@@ -27,15 +27,15 @@ export function MarkersClient() {
 
   // Form state
   const [formData, setFormData] = useState({
-    marker_name: 'MKR-HD-8821-B',
-    style_ref: 'ART-HD-8821',
+    marker_name: '',
+    style_ref: '',
     cad_software: 'GERBER_ACCUMARK' as CADSoftware,
     fabric_width_inches: 60,
-    marker_length_meters: 5.4,
-    efficiency_percent: 89.6,
-    sizes_included: 'XS, S, M, L, XL',
-    ratio: '1:2:4:2:1',
-    pattern_master: 'S. Selvam (CAD Specialist)'
+    marker_length_meters: 0,
+    efficiency_percent: 0,
+    sizes_included: '',
+    ratio: '',
+    pattern_master: ''
   })
 
   useEffect(() => {

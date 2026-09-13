@@ -3,6 +3,8 @@ import { redirect } from 'next/navigation'
 import { AdminShell } from '@/components/layout/AdminShell'
 import { FabricRelaxationClient } from './components/FabricRelaxationClient'
 
+import { resolveUserTenant } from '@/lib/tenant-context'
+
 export const dynamic = 'force-dynamic'
 
 export default async function FabricRelaxationPage() {
@@ -16,8 +18,10 @@ export default async function FabricRelaxationPage() {
     redirect('/login')
   }
 
+  const tenant = await resolveUserTenant(user)
+
   return (
-    <AdminShell userEmail={user.email}>
+    <AdminShell userEmail={tenant.userEmail} userRole={tenant.role}>
       <FabricRelaxationClient />
     </AdminShell>
   )
