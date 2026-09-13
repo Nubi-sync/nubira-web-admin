@@ -10,13 +10,15 @@ import {
   Plus,
   Layers,
   Zap,
-  Globe
+  Globe,
+  Eye
 } from 'lucide-react'
 import { PlatformAdminShell } from '../components/PlatformAdminShell'
 import { TenantFactory, TenantStatus } from '../types/platform'
 import { PLATFORM_UPDATE_EVENT } from '../utils/platformStorage'
 import { fetchTenantFactoriesAction } from '../actions'
 import { ProvisionTenantModal } from '../components/ProvisionTenantModal'
+import { TenantDetailModal } from '../components/TenantDetailModal'
 import { ENTERPRISE_DIVISIONS_CATALOG } from '../data/initialPlatformData'
 
 export default function TenantFactoriesPage() {
@@ -26,6 +28,7 @@ export default function TenantFactoriesPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<'ALL' | TenantStatus>('ALL')
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [selectedTenantForView, setSelectedTenantForView] = useState<TenantFactory | null>(null)
 
   const loadTenants = async () => {
     setIsLoading(true)
@@ -279,19 +282,18 @@ export default function TenantFactoriesPage() {
             <table className="w-full text-left text-sm">
               <thead>
                 <tr className="border-b border-slate-100 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0]">
-                  <th className="py-3 px-4">Company & Slug</th>
-                  <th className="py-3 px-4">Super Admin Contact</th>
-                  <th className="py-3 px-4">Plant Location</th>
-                  <th className="py-3 px-4">Plan & Billing</th>
-                  <th className="py-3 px-4">Active Divisions</th>
+                  <th className="py-3 px-4">Factory & Location</th>
+                  <th className="py-3 px-4">Super Admin</th>
+                  <th className="py-3 px-4">Plan Tier</th>
+                  <th className="py-3 px-4">Divisions</th>
                   <th className="py-3 px-4">Status</th>
-                  <th className="py-3 px-4 text-right">Last Sync</th>
+                  <th className="py-3 px-4 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-xs">
                 {filteredTenants.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="py-16 text-center">
+                    <td colSpan={6} className="py-16 text-center">
                       <div className="flex flex-col items-center justify-center max-w-md mx-auto space-y-3">
                         <div className="w-12 h-12 rounded-2xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
                           <Building2 className="w-6 h-6 text-[#3A3564]" />
@@ -321,73 +323,89 @@ export default function TenantFactoriesPage() {
                   </tr>
                 ) : (
                   filteredTenants.map(t => (
-                    <tr key={t.id} className="hover:bg-slate-50 transition-colors">
+                    <tr 
+                      key={t.id} 
+                      onClick={() => setSelectedTenantForView(t)}
+                      className="hover:bg-slate-50/80 transition-colors cursor-pointer group"
+                    >
+                      {/* 1. Factory & Location */}
                       <td className="py-3.5 px-4">
-                        <div className="font-bold text-slate-900 text-sm font-[family-name:var(--font-heading)]">
+                        <div className="font-bold text-slate-900 text-sm font-[family-name:var(--font-heading)] group-hover:text-[#3A3564] transition-colors">
                           {t.companyName}
                         </div>
-                        <div className="text-[11px] font-mono text-slate-500 mt-0.5">
-                          Slug: {t.plantSlug}
-                        </div>
-                      </td>
-
-                      <td className="py-3.5 px-4 font-mono text-[11px]">
-                        <div className="font-bold text-slate-900">
-                          {t.adminName}
-                        </div>
-                        <div className="text-slate-500 mt-0.5">
-                          {t.adminEmail} • {t.phone}
-                        </div>
-                      </td>
-
-                      <td className="py-3.5 px-4">
-                        <div className="font-medium text-slate-800 flex items-center gap-1.5">
-                          <Globe className="w-3.5 h-3.5 text-slate-400" />
-                          <span>{t.cityState}</span>
-                        </div>
-                      </td>
-
-                      <td className="py-3.5 px-4 font-mono">
-                        <span className="font-bold text-[#3A3564]">
-                          {t.subscriptionTier.replace(/_/g, ' ')}
-                        </span>
-                        <div className="text-[10px] text-slate-500 mt-0.5">
-                          ₹{t.monthlyBillingInr.toLocaleString()}/mo
-                        </div>
-                        <div className="text-[10px] font-semibold text-emerald-700 mt-1 flex items-center gap-1">
-                          <Clock className="w-3 h-3 text-emerald-600 shrink-0" />
-                          <span>
-                            Expires: {t.expiresAt ? new Date(t.expiresAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '19-Aug-2027'}
+                        <div className="flex items-center gap-2 text-[11px] font-mono text-slate-500 mt-0.5 flex-wrap">
+                          <span className="bg-[#FAF7F0] px-1.5 py-0.5 rounded border border-black/5 text-slate-700 font-semibold">
+                            {t.plantSlug}
+                          </span>
+                          <span>•</span>
+                          <span className="flex items-center gap-1">
+                            <Globe className="w-3 h-3 text-slate-400" />
+                            {t.cityState}
                           </span>
                         </div>
                       </td>
 
+                      {/* 2. Super Admin Contact */}
+                      <td className="py-3.5 px-4">
+                        <div className="font-bold text-slate-900 text-xs">
+                          {t.adminName}
+                        </div>
+                        <div className="text-[11px] font-mono text-slate-500 mt-0.5 truncate max-w-[220px]">
+                          {t.adminEmail}
+                        </div>
+                      </td>
+
+                      {/* 3. Plan & Tier */}
                       <td className="py-3.5 px-4 font-mono">
-                        <span className="px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-slate-800 font-bold text-[10px] border border-black/10">
+                        <span className="inline-block font-bold text-xs text-[#3A3564] bg-indigo-50/80 border border-indigo-100 px-2 py-0.5 rounded-md">
+                          {t.subscriptionTier.replace(/_/g, ' ')}
+                        </span>
+                        <div className="text-[10px] text-slate-500 mt-1">
+                          ₹{t.monthlyBillingInr.toLocaleString()}/mo
+                        </div>
+                      </td>
+
+                      {/* 4. Active Divisions */}
+                      <td className="py-3.5 px-4 font-mono">
+                        <span className="px-2.5 py-1 rounded-full bg-[#FAF7F0] text-slate-800 font-bold text-xs border border-black/10 inline-flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                           {t.activeDivisionsCount} / {ENTERPRISE_DIVISIONS_CATALOG.length} Units
                         </span>
                       </td>
 
+                      {/* 5. Operational Status */}
                       <td className="py-3.5 px-4">
                         {t.status === 'ACTIVE' ? (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-mono font-bold uppercase border border-emerald-200">
-                            <CheckCircle2 className="w-3 h-3" />
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-mono font-bold uppercase border border-emerald-200">
+                            <CheckCircle2 className="w-3.5 h-3.5" />
                             Active
                           </span>
                         ) : t.status === 'PENDING_SETUP' ? (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 text-[10px] font-mono font-bold uppercase border border-amber-200">
-                            <Clock className="w-3 h-3" />
-                            Pending Setup
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 text-xs font-mono font-bold uppercase border border-amber-200">
+                            <Clock className="w-3.5 h-3.5" />
+                            Pending
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 text-[10px] font-mono font-bold uppercase border border-rose-200">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-rose-50 text-rose-700 text-xs font-mono font-bold uppercase border border-rose-200">
                             Suspended
                           </span>
                         )}
                       </td>
 
-                      <td className="py-3.5 px-4 text-right font-mono text-[11px] text-slate-500">
-                        {t.lastActiveAt ? new Date(t.lastActiveAt).toLocaleDateString() : 'Just Now'}
+                      {/* 6. Action Button (Eye Icon / View More) */}
+                      <td className="py-3.5 px-4 text-right">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setSelectedTenantForView(t)
+                          }}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-[#3A3564] bg-[#FAF7F0] hover:bg-[#3A3564] hover:text-white border border-black/10 transition-all cursor-pointer shadow-2xs group-hover:border-[#3A3564]/30 active:scale-95"
+                          title={`View complete dossier for ${t.companyName}`}
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                          <span>View More</span>
+                        </button>
                       </td>
                     </tr>
                   ))
@@ -397,12 +415,19 @@ export default function TenantFactoriesPage() {
           </div>
         </div>
 
-        {/* Modal */}
+        {/* Modal: Provision New Factory */}
         <ProvisionTenantModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           inquiry={null}
           onSuccess={loadTenants}
+        />
+
+        {/* Modal: Comprehensive Factory Details Dialog */}
+        <TenantDetailModal
+          isOpen={!!selectedTenantForView}
+          onClose={() => setSelectedTenantForView(null)}
+          tenant={selectedTenantForView}
         />
 
       </div>
