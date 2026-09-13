@@ -104,12 +104,15 @@ export function ZigzaLandingPageClient({
     return () => clearInterval(pipelineTimer)
   }, [])
 
-  // Demo Form State: Company Name, Owner Name, Phone, Business Email
+  // Demo Form State: Plan, Company Name, Owner Name, Phone, Business Email, Estimated Machines, Custom Requirements
   const [demoForm, setDemoForm] = useState({
+    plan: 'FULL_PLANT_AI' as 'MODULAR' | 'FULL_PLANT_AI' | 'CUSTOM',
     companyName: '',
     ownerName: '',
     phone: '',
-    email: ''
+    email: '',
+    estimatedMachines: '',
+    customRequirements: ''
   })
   const [isSubmitted, setIsSubmitted] = useState(false)
 
@@ -150,8 +153,10 @@ export function ZigzaLandingPageClient({
       companyName: demoForm.companyName.trim() || 'Apparel Factory Unit',
       phone: formattedPhone,
       email: demoForm.email.trim() || 'inquiry@factory.com',
-      preferredPlan: 'FULL_PLANT_AI',
-      cityState: 'India (Landing Page Inquiry)'
+      preferredPlan: demoForm.plan,
+      cityState: 'India (Landing Page Inquiry)',
+      estimatedMachines: demoForm.estimatedMachines ? parseInt(demoForm.estimatedMachines, 10) : undefined,
+      notes: demoForm.customRequirements.trim() || (demoForm.plan === 'CUSTOM' ? 'Custom Enterprise Build Inquiry' : 'Inquiry submitted via introductory site live demo modal')
     }).catch(err => {
       console.warn('Could not submit demo request to Supabase:', err)
     })
@@ -163,21 +168,30 @@ export function ZigzaLandingPageClient({
         companyName: demoForm.companyName.trim() || 'Apparel Factory Unit',
         phone: formattedPhone,
         email: demoForm.email.trim() || 'inquiry@factory.com',
-        preferredPlan: 'FULL_PLANT_AI',
-        cityState: 'India (Landing Page Inquiry)'
+        preferredPlan: demoForm.plan,
+        cityState: 'India (Landing Page Inquiry)',
+        estimatedMachines: demoForm.estimatedMachines ? parseInt(demoForm.estimatedMachines, 10) : undefined,
+        notes: demoForm.customRequirements.trim() || (demoForm.plan === 'CUSTOM' ? 'Custom Enterprise Build Inquiry' : 'Inquiry submitted via introductory site live demo modal')
       })
     } catch (_) {}
 
-    const subject = `Zigza Live Demo Request - ${demoForm.companyName || 'New Factory'}`
+    const planLabel = demoForm.plan === 'FULL_PLANT_AI' 
+      ? 'Full Plant + Zigza AI' 
+      : demoForm.plan === 'MODULAR' 
+      ? 'Modular Floor' 
+      : 'Custom Enterprise Build'
+
+    const subject = `Zigza Live Demo Request - ${demoForm.companyName || 'New Factory'} (${planLabel})`
     const body = `Hi Sumit,
 
 I would like to request a live demo walkthrough of Zigza MES for our garment manufacturing unit.
 
 Details:
+• Requested Plan: ${planLabel}
 • Company / Factory Name: ${demoForm.companyName}
 • Owner / Plant Head Name: ${demoForm.ownerName}
 • Phone / WhatsApp Number: ${formattedPhone}
-• Business Email ID: ${demoForm.email}
+• Business Email ID: ${demoForm.email}${demoForm.customRequirements ? `\n• Custom Requirements & Scope: ${demoForm.customRequirements}` : ''}${demoForm.estimatedMachines ? `\n• Estimated Machines: ${demoForm.estimatedMachines}` : ''}
 
 Please contact us to schedule the live walkthrough.
 
@@ -1372,12 +1386,9 @@ ${demoForm.ownerName}`
                   <h3 className="text-base sm:text-lg font-bold text-slate-900">
                     Need a Live Walkthrough with Your Plant Data?
                   </h3>
-                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-[#3A3564] text-white">
-                    20-Min Session
-                  </span>
                 </div>
                 <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
-                  See how all 11 production divisions map directly to your fabric rolls, cutting tables, and operator wage ledgers.
+                  See how all 12 production divisions map directly to your fabric rolls, cutting tables, and operator wage ledgers.
                 </p>
               </div>
             </div>
@@ -1385,7 +1396,7 @@ ${demoForm.ownerName}`
             <button
               type="button"
               onClick={() => {
-                setDemoForm(prev => ({ ...prev, companyName: prev.companyName || '' }))
+                setDemoForm(prev => ({ ...prev, plan: 'FULL_PLANT_AI' }))
                 setIsDemoModalOpen(true)
               }}
               className="px-6 py-3.5 rounded-xl bg-[#3A3564] hover:bg-[#2c284e] text-white text-xs sm:text-sm font-bold transition-all shadow-xs inline-flex items-center gap-2 cursor-pointer shrink-0"
@@ -1460,7 +1471,7 @@ ${demoForm.ownerName}`
                 <button
                   type="button"
                   onClick={() => {
-                    setDemoForm(prev => ({ ...prev, companyName: prev.companyName || 'Modular Deployment' }))
+                    setDemoForm(prev => ({ ...prev, plan: 'MODULAR' }))
                     setIsDemoModalOpen(true)
                   }}
                   className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-lg text-sm font-bold bg-[#FAF7F0] text-slate-900 hover:bg-[#3A3564] hover:text-white border border-black transition-all shadow-2xs cursor-pointer"
@@ -1482,7 +1493,7 @@ ${demoForm.ownerName}`
                   Full Access + Zigza AI
                 </h3>
                 <p className="mt-2 text-sm text-slate-600 leading-relaxed">
-                  All 11 divisions unified with real-time floor intelligence to maximize speed.
+                  All 12 divisions unified with real-time floor intelligence to maximize speed.
                 </p>
 
                 {/* Price Block */}
@@ -1499,7 +1510,7 @@ ${demoForm.ownerName}`
                     </span>
                   </div>
                   <p className="text-xs text-[#3A3564] mt-1 font-medium">
-                    All 11 modules unlocked • Unlimited operators
+                    All 12 modules unlocked • Unlimited operators
                   </p>
                 </div>
 
@@ -1507,7 +1518,7 @@ ${demoForm.ownerName}`
                 <div className="space-y-3.5">
                   <div className="flex items-center gap-3 text-sm text-slate-900 font-medium">
                     <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0" />
-                    <span>All 11 production divisions unlocked</span>
+                    <span>All 12 production divisions unlocked</span>
                   </div>
                   <div className="flex items-center gap-3 text-sm text-slate-900 font-medium">
                     <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0" />
@@ -1533,7 +1544,7 @@ ${demoForm.ownerName}`
                 <button
                   type="button"
                   onClick={() => {
-                    setDemoForm(prev => ({ ...prev, companyName: prev.companyName || 'Full Plant + Zigza AI' }))
+                    setDemoForm(prev => ({ ...prev, plan: 'FULL_PLANT_AI' }))
                     setIsDemoModalOpen(true)
                   }}
                   className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-lg text-sm font-bold bg-[#3A3564] hover:bg-[#2A2649] text-white border border-black shadow-xs transition-all cursor-pointer"
@@ -1603,7 +1614,7 @@ ${demoForm.ownerName}`
                 <button
                   type="button"
                   onClick={() => {
-                    setDemoForm(prev => ({ ...prev, companyName: prev.companyName || 'Custom Engineering' }))
+                    setDemoForm(prev => ({ ...prev, plan: 'CUSTOM' }))
                     setIsDemoModalOpen(true)
                   }}
                   className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-lg text-sm font-bold bg-[#FAF7F0] text-slate-900 hover:bg-[#3A3564] hover:text-white border border-black transition-all shadow-2xs cursor-pointer"
@@ -1829,11 +1840,11 @@ ${demoForm.ownerName}`
                   </div>
                   <h4 className="text-base font-bold text-slate-900">Demo Request Prepared!</h4>
                   <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-sm mx-auto">
-                    Your email application has been opened with your pre-filled request.
+                    Your request has been submitted to our platform team.
                   </p>
                   <div className="pt-3 flex flex-col sm:flex-row items-center justify-center gap-2.5">
                     <a
-                      href={`https://mail.google.com/mail/?view=cm&fs=1&to=shawsumit6286@gmail.com&su=${encodeURIComponent(`Live Demo Request - ${demoForm.companyName || 'Apparel Factory'}`)}&body=${encodeURIComponent(`Hi Sumit,\n\nI would like to request a live demo of Zigza MES for our garment manufacturing unit.\n\nDetails:\n• Company: ${demoForm.companyName}\n• Owner / Plant Head: ${demoForm.ownerName}\n• Phone / WhatsApp: ${demoForm.phone.trim() ? `+91 ${demoForm.phone.trim()}` : '+91 98000 00000'}\n• Business Email: ${demoForm.email}\n\nPlease contact us to schedule the walkthrough.\n\nBest regards,\n${demoForm.ownerName}`)}`}
+                      href={`https://mail.google.com/mail/?view=cm&fs=1&to=shawsumit6286@gmail.com&su=${encodeURIComponent(`Live Demo Request - ${demoForm.companyName || 'Apparel Factory'}`)}&body=${encodeURIComponent(`Hi Sumit,\n\nI would like to request a live demo of Zigza MES for our garment manufacturing unit.\n\nDetails:\n• Plan: ${demoForm.plan}\n• Company: ${demoForm.companyName}\n• Owner / Plant Head: ${demoForm.ownerName}\n• Phone / WhatsApp: ${demoForm.phone.trim() ? `+91 ${demoForm.phone.trim()}` : '+91 98000 00000'}\n• Business Email: ${demoForm.email}${demoForm.customRequirements ? `\n• Requirements: ${demoForm.customRequirements}` : ''}\n\nPlease contact us to schedule the walkthrough.\n\nBest regards,\n${demoForm.ownerName}`)}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="px-4 py-2 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs font-bold transition-colors inline-flex items-center gap-1.5 cursor-pointer shadow-xs"
@@ -1852,6 +1863,22 @@ ${demoForm.ownerName}`
                 </div>
               ) : (
                 <form onSubmit={handleDemoSubmit} className="space-y-4">
+                  {/* Field 1: Type of Plan Desired */}
+                  <div>
+                    <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1.5">
+                      Type of Plan Desired *
+                    </label>
+                    <select
+                      value={demoForm.plan}
+                      onChange={e => setDemoForm({ ...demoForm, plan: e.target.value as any })}
+                      className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all font-medium cursor-pointer"
+                    >
+                      <option value="FULL_PLANT_AI">Full Plant + Zigza AI (All 12 Units - ₹4,999/mo)</option>
+                      <option value="MODULAR">Modular Floor (1-3 Units - ₹1,999/mo)</option>
+                      <option value="CUSTOM">Custom Enterprise Build (Bespoke Requirements)</option>
+                    </select>
+                  </div>
+
                   <div>
                     <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1.5">
                       Company / Factory Name *
@@ -1939,6 +1966,37 @@ ${demoForm.ownerName}`
                       )}
                     </div>
                   </div>
+
+                  {demoForm.plan === 'CUSTOM' && (
+                    <>
+                      <div>
+                        <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1.5">
+                          Custom Engineering Requirements & Scope *
+                        </label>
+                        <textarea
+                          rows={3}
+                          required
+                          placeholder="Tell us what all requirements you have with us (e.g. machinery sensors, custom division workflows, ERP integrations)..."
+                          value={demoForm.customRequirements}
+                          onChange={e => setDemoForm({ ...demoForm, customRequirements: e.target.value })}
+                          className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all resize-none"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1.5">
+                          Estimated Machines / Capacity (Optional)
+                        </label>
+                        <input
+                          type="number"
+                          placeholder="e.g. 150 sewing machines"
+                          value={demoForm.estimatedMachines}
+                          onChange={e => setDemoForm({ ...demoForm, estimatedMachines: e.target.value })}
+                          className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
+                        />
+                      </div>
+                    </>
+                  )}
 
                   <button
                     type="submit"
@@ -2193,14 +2251,18 @@ ${demoForm.ownerName}`
                 </p>
                 <div className="p-3 bg-white border border-black/10 rounded-xl text-left text-xs space-y-1 font-mono">
                   <div className="text-slate-500 font-sans">Details being sent:</div>
+                  <div className="text-slate-800"><strong>Plan:</strong> {demoForm.plan === 'FULL_PLANT_AI' ? 'Full Plant + Zigza AI' : demoForm.plan === 'MODULAR' ? 'Modular Floor' : 'Custom Enterprise Build'}</div>
                   <div className="text-slate-800"><strong>Company:</strong> {demoForm.companyName}</div>
                   <div className="text-slate-800"><strong>Owner:</strong> {demoForm.ownerName}</div>
                   <div className="text-slate-800"><strong>Phone:</strong> {demoForm.phone.trim() ? `+91 ${demoForm.phone.trim()}` : '+91 98000 00000'}</div>
                   <div className="text-slate-800"><strong>Email:</strong> {demoForm.email}</div>
+                  {demoForm.customRequirements && (
+                    <div className="text-slate-800"><strong>Requirements:</strong> {demoForm.customRequirements}</div>
+                  )}
                 </div>
                 <div className="pt-3 flex flex-col sm:flex-row items-center justify-center gap-2.5">
                   <a
-                    href={`https://mail.google.com/mail/?view=cm&fs=1&to=shawsumit6286@gmail.com&su=${encodeURIComponent(`Live Demo Request - ${demoForm.companyName || 'Apparel Factory'}`)}&body=${encodeURIComponent(`Hi Sumit,\n\nI would like to request a live demo of Zigza MES for our garment manufacturing unit.\n\nDetails:\n• Company Name: ${demoForm.companyName}\n• Owner / Contact Name: ${demoForm.ownerName}\n• Phone / WhatsApp: ${demoForm.phone.trim() ? `+91 ${demoForm.phone.trim()}` : '+91 98000 00000'}\n• Business Email: ${demoForm.email}\n\nPlease contact us to schedule the live walkthrough.\n\nBest regards,\n${demoForm.ownerName}`)}`}
+                    href={`https://mail.google.com/mail/?view=cm&fs=1&to=shawsumit6286@gmail.com&su=${encodeURIComponent(`Live Demo Request - ${demoForm.companyName || 'Apparel Factory'}`)}&body=${encodeURIComponent(`Hi Sumit,\n\nI would like to request a live demo of Zigza MES for our garment manufacturing unit.\n\nDetails:\n• Plan: ${demoForm.plan}\n• Company Name: ${demoForm.companyName}\n• Owner / Contact Name: ${demoForm.ownerName}\n• Phone / WhatsApp: ${demoForm.phone.trim() ? `+91 ${demoForm.phone.trim()}` : '+91 98000 00000'}\n• Business Email: ${demoForm.email}${demoForm.customRequirements ? `\n• Requirements: ${demoForm.customRequirements}` : ''}\n\nPlease contact us to schedule the live walkthrough.\n\nBest regards,\n${demoForm.ownerName}`)}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="px-4 py-2 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs font-bold transition-colors inline-flex items-center gap-2 cursor-pointer shadow-xs"
@@ -2222,6 +2284,22 @@ ${demoForm.ownerName}`
               </div>
             ) : (
               <form onSubmit={handleDemoSubmit} className="space-y-4">
+                {/* Field 1: Type of Plan Desired */}
+                <div>
+                  <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1.5">
+                    Type of Plan Desired *
+                  </label>
+                  <select
+                    value={demoForm.plan}
+                    onChange={e => setDemoForm({ ...demoForm, plan: e.target.value as any })}
+                    className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all font-medium cursor-pointer"
+                  >
+                    <option value="FULL_PLANT_AI">Full Plant + Zigza AI (All 12 Units - ₹4,999/mo)</option>
+                    <option value="MODULAR">Modular Units (Selected Units - ₹1,999/mo)</option>
+                    <option value="CUSTOM">Custom Enterprise Build (Bespoke Requirements)</option>
+                  </select>
+                </div>
+
                 <div>
                   <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1.5">
                     Company / Factory Name *
@@ -2288,6 +2366,37 @@ ${demoForm.ownerName}`
                     className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
                   />
                 </div>
+
+                {demoForm.plan === 'CUSTOM' && (
+                  <>
+                    <div>
+                      <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1.5">
+                        Custom Engineering Requirements & Scope *
+                      </label>
+                      <textarea
+                        rows={3}
+                        required
+                        placeholder="Tell us what all requirements you have with us (e.g. machinery sensors, custom division workflows, ERP integrations)..."
+                        value={demoForm.customRequirements}
+                        onChange={e => setDemoForm({ ...demoForm, customRequirements: e.target.value })}
+                        className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all resize-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1.5">
+                        Estimated Machines / Capacity (Optional)
+                      </label>
+                      <input
+                        type="number"
+                        placeholder="e.g. 150 sewing machines"
+                        value={demoForm.estimatedMachines}
+                        onChange={e => setDemoForm({ ...demoForm, estimatedMachines: e.target.value })}
+                        className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
+                      />
+                    </div>
+                  </>
+                )}
 
                 <button
                   type="submit"

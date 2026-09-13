@@ -55,6 +55,7 @@ export interface ProvisionTenantPayload {
   companyName: string
   adminName: string
   adminEmail: string
+  customUsername?: string
   initialPassword: string
   phone: string
   cityState: string

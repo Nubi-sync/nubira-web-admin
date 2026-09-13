@@ -19,6 +19,11 @@ import {
   INITIAL_DEMO_REQUESTS,
   INITIAL_TENANT_FACTORIES
 } from './data/initialPlatformData'
+import {
+  sendTenantActivationEmail,
+  sendCustomInquiryNotificationEmail,
+  TenantActivationEmailParams
+} from '@/lib/resend'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -122,7 +127,24 @@ export async function submitDemoRequestAction(payload: {
       }])
     } catch (_) {}
 
+    // If this is a custom plan request, dispatch email alert to admin via Resend
+    if (payload.preferredPlan === 'CUSTOM') {
+      try {
+        await sendCustomInquiryNotificationEmail({
+          applicantName: payload.applicantName.trim(),
+          companyName: payload.companyName.trim(),
+          phone: payload.phone.trim(),
+          email: payload.email.trim(),
+          estimatedMachines: payload.estimatedMachines,
+          requirements: payload.notes || 'Custom Enterprise Build Request'
+        })
+      } catch (emailErr) {
+        console.warn('[submitDemoRequestAction] Custom inquiry email notice:', emailErr)
+      }
+    }
+
     revalidatePath('/platform-admin')
+    revalidatePath('/platform-admin/custom-requests')
     return { success: true, leadId: data?.id }
   } catch (err: any) {
     console.error('[submitDemoRequestAction] Error:', err)
@@ -327,14 +349,44 @@ export async function provisionTenantFactoryAction(
       }])
     } catch (_) {}
 
+    // Step F: Dispatch Welcome & Activation Credentials Email via Resend
+    let emailStatus = { sent: false, simulated: false, error: undefined as string | undefined }
+    try {
+      const emailRes = await sendTenantActivationEmail({
+        to: payload.adminEmail,
+        companyName: payload.companyName,
+        adminName: payload.adminName,
+        loginEmail: payload.adminEmail,
+        initialPassword: payload.initialPassword,
+        subscriptionTier: payload.subscriptionTier,
+        divisionsCount: payload.selectedDivisions.length
+      })
+      emailStatus = {
+        sent: emailRes.success,
+        simulated: !!emailRes.simulated,
+        error: emailRes.error
+      }
+    } catch (emailErr: any) {
+      console.warn('[provisionTenantFactoryAction] Resend activation email warning:', emailErr)
+      emailStatus.error = emailErr?.message
+    }
+
     revalidatePath('/platform-admin')
     revalidatePath('/platform-admin/tenants')
     revalidatePath('/platform-admin/provisioning')
-    return { success: true, tenantId: tenantData?.id || `tenant-${Date.now()}` }
+    return {
+      success: true,
+      tenantId: tenantData?.id || `tenant-${Date.now()}`,
+      emailStatus
+    }
   } catch (err: any) {
     console.error('[provisionTenantFactoryAction] Fatal:', err)
     return { success: false, error: err?.message || 'Failed to provision tenant' }
   }
+}
+
+export async function sendActivationEmailAction(params: TenantActivationEmailParams) {
+  return sendTenantActivationEmail(params)
 }
 
 // -----------------------------------------------------------------------------

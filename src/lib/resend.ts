@@ -12,6 +12,7 @@ export interface TenantActivationEmailParams {
   companyName: string
   adminName: string
   loginEmail: string
+  customUsername?: string
   initialPassword: string
   subscriptionTier: string
   divisionsCount: number
@@ -23,6 +24,7 @@ export async function sendTenantActivationEmail(params: TenantActivationEmailPar
     companyName,
     adminName,
     loginEmail,
+    customUsername,
     initialPassword,
     subscriptionTier,
     divisionsCount
@@ -81,8 +83,13 @@ export async function sendTenantActivationEmail(params: TenantActivationEmailPar
                 <span class="cred-label">Login URL:</span>
                 <span class="cred-highlight">https://app.zigza.in/login</span>
               </div>
+              ${customUsername ? `
               <div class="cred-row">
-                <span class="cred-label">Username / Email:</span>
+                <span class="cred-label">Custom Username:</span>
+                <span class="cred-highlight">${customUsername}</span>
+              </div>` : ''}
+              <div class="cred-row">
+                <span class="cred-label">Login Email:</span>
                 <span class="cred-val">${loginEmail}</span>
               </div>
               <div class="cred-row">
@@ -93,6 +100,7 @@ export async function sendTenantActivationEmail(params: TenantActivationEmailPar
                 <span class="cred-label">Plan Tier:</span>
                 <span class="cred-val">${subscriptionTier.replace(/_/g, ' ')}</span>
               </div>
+            </div>
             </div>
 
             <div class="button-wrap">
