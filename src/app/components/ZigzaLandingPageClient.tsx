@@ -113,15 +113,42 @@ export function ZigzaLandingPageClient({
   })
   const [isSubmitted, setIsSubmitted] = useState(false)
 
+  const handlePhoneChange = (val: string) => {
+    // Strip non-digits
+    let digits = val.replace(/\D/g, '')
+    // If pasted with 91 prefix (12 digits), strip country code
+    if (digits.length > 10 && digits.startsWith('91')) {
+      digits = digits.slice(2)
+    }
+    // If starts with leading 0, strip it
+    if (digits.length > 10 && digits.startsWith('0')) {
+      digits = digits.slice(1)
+    }
+    // Limit to 10 digits
+    digits = digits.slice(0, 10)
+    
+    // Format nicely as 5 digits + space + 5 digits (e.g. 98765 43210)
+    let formatted = digits
+    if (digits.length > 5) {
+      formatted = `${digits.slice(0, 5)} ${digits.slice(5)}`
+    }
+    setDemoForm(prev => ({ ...prev, phone: formatted }))
+  }
+
   const handleDemoSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitted(true)
+
+    const rawDigits = demoForm.phone.replace(/\D/g, '')
+    const formattedPhone = rawDigits.length > 0 
+      ? `+91 ${demoForm.phone.trim()}` 
+      : '+91 98000 00000'
 
     // Persist live lead to Platform SuperAdmin backend (Supabase PostgreSQL)
     submitDemoRequestAction({
       applicantName: demoForm.ownerName.trim() || 'Prospective Plant Head',
       companyName: demoForm.companyName.trim() || 'Apparel Factory Unit',
-      phone: demoForm.phone.trim() || '+91 98000 00000',
+      phone: formattedPhone,
       email: demoForm.email.trim() || 'inquiry@factory.com',
       preferredPlan: 'FULL_PLANT_AI',
       cityState: 'India (Landing Page Inquiry)'
@@ -134,7 +161,7 @@ export function ZigzaLandingPageClient({
       saveDemoRequest({
         applicantName: demoForm.ownerName.trim() || 'Prospective Plant Head',
         companyName: demoForm.companyName.trim() || 'Apparel Factory Unit',
-        phone: demoForm.phone.trim() || '+91 98000 00000',
+        phone: formattedPhone,
         email: demoForm.email.trim() || 'inquiry@factory.com',
         preferredPlan: 'FULL_PLANT_AI',
         cityState: 'India (Landing Page Inquiry)'
@@ -149,7 +176,7 @@ I would like to request a live demo walkthrough of Zigza MES for our garment man
 Details:
 • Company / Factory Name: ${demoForm.companyName}
 • Owner / Plant Head Name: ${demoForm.ownerName}
-• Phone / WhatsApp Number: ${demoForm.phone}
+• Phone / WhatsApp Number: ${formattedPhone}
 • Business Email ID: ${demoForm.email}
 
 Please contact us to schedule the live walkthrough.
