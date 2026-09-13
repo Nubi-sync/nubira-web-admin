@@ -11,13 +11,13 @@ interface CreateBillingModalProps {
 }
 
 export function CreateBillingModal({ isOpen, onClose }: CreateBillingModalProps) {
-  const [orderPo, setOrderPo] = useState('PO-ZIG-8901')
-  const [buyerName, setBuyerName] = useState('OLLYPOP')
-  const [designCode, setDesignCode] = useState('DST-OLLY-HD8821-CHEST')
-  const [totalPieces, setTotalPieces] = useState(25)
-  const [stitchCountPerPiece, setStitchCountPerPiece] = useState(22400)
+  const [orderPo, setOrderPo] = useState('')
+  const [buyerName, setBuyerName] = useState('')
+  const [designCode, setDesignCode] = useState('')
+  const [totalPieces, setTotalPieces] = useState(0)
+  const [stitchCountPerPiece, setStitchCountPerPiece] = useState(0)
   const [ratePerThousand, setRatePerThousand] = useState(2.80)
-  const [backingCostPerPiece, setBackingCostPerPiece] = useState(0.45)
+  const [backingCostPerPiece, setBackingCostPerPiece] = useState(0)
   const [billingStatus, setBillingStatus] = useState<BillingStatus>('APPROVED')
   const [isSubmitting, setIsSubmitting] = useState(false)
 

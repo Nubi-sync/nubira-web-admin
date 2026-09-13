@@ -28,11 +28,11 @@ export function CreatePalletModal({
   const [availableCartons, setAvailableCartons] = useState<ReadyGoodsCarton[]>([])
   const [selectedCartonIds, setSelectedCartonIds] = useState<string[]>([])
   const [palletCode, setPalletCode] = useState('')
-  const [orderNumber, setOrderNumber] = useState('PO-7714')
-  const [buyer, setBuyer] = useState('Urban Outfitters')
+  const [orderNumber, setOrderNumber] = useState('')
+  const [buyer, setBuyer] = useState('')
   const [targetBay, setTargetBay] = useState<'BAY_3' | 'BAY_4' | 'BAY_5'>('BAY_3')
   const [dockGate, setDockGate] = useState<'DOCK_01' | 'DOCK_02' | 'DOCK_03'>('DOCK_01')
-  const [supervisorSignoff, setSupervisorSignoff] = useState('Mukesh Chandra (Head of Packaging)')
+  const [supervisorSignoff, setSupervisorSignoff] = useState('Packaging Supervisor')
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {

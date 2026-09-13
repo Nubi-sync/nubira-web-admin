@@ -17,16 +17,16 @@ interface UploadPunchModalProps {
 export function UploadPunchModal({ isOpen, onClose }: UploadPunchModalProps) {
   const [designCode, setDesignCode] = useState('')
   const [designName, setDesignName] = useState('')
-  const [buyerName, setBuyerName] = useState('OLLYPOP')
-  const [orderId, setOrderId] = useState('PO-ZIG-8901')
+  const [buyerName, setBuyerName] = useState('')
+  const [orderId, setOrderId] = useState('')
   const [fileName, setFileName] = useState('')
-  const [totalStitches, setTotalStitches] = useState(18500)
-  const [colorStopsCount, setColorStopsCount] = useState(4)
+  const [totalStitches, setTotalStitches] = useState(0)
+  const [colorStopsCount, setColorStopsCount] = useState(1)
   const [backingType, setBackingType] = useState<BackingType>('Tear-Away 40 GSM')
   const [threadBrand, setThreadBrand] = useState<ThreadBrand>('Madeira')
   const [ratePerThousand, setRatePerThousand] = useState(2.80)
-  const [widthMm, setWidthMm] = useState(80)
-  const [heightMm, setHeightMm] = useState(85)
+  const [widthMm, setWidthMm] = useState(0)
+  const [heightMm, setHeightMm] = useState(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   if (!isOpen) return null

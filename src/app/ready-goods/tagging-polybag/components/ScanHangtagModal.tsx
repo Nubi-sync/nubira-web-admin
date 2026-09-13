@@ -25,12 +25,12 @@ export function ScanHangtagModal({
   onSuccess
 }: ScanHangtagModalProps) {
   const [scanCode, setScanCode] = useState('')
-  const [orderNumber, setOrderNumber] = useState('PO-7714')
-  const [styleName, setStyleName] = useState('French Terry Relaxed Hoodie')
-  const [sku, setSku] = useState('UO-HOOD-BLK-L')
-  const [size, setSize] = useState('L')
-  const [color, setColor] = useState('Washed Charcoal')
-  const [operatorName, setOperatorName] = useState('Sanjay Rawat')
+  const [orderNumber, setOrderNumber] = useState('')
+  const [styleName, setStyleName] = useState('')
+  const [sku, setSku] = useState('')
+  const [size, setSize] = useState('M')
+  const [color, setColor] = useState('')
+  const [operatorName, setOperatorName] = useState('Floor Operator')
   const [kimbleAttached, setKimbleAttached] = useState(true)
   const [silicaInserted, setSilicaInserted] = useState(true)
   const [polybagSealed, setPolybagSealed] = useState(true)
@@ -144,15 +144,13 @@ export function ScanHangtagModal({
               <label className="block text-[11px] font-mono font-bold uppercase tracking-wider text-slate-600 mb-1">
                 Order PO
               </label>
-              <select
+              <input
+                type="text"
+                placeholder="e.g. PO-1001"
                 value={orderNumber}
                 onChange={e => setOrderNumber(e.target.value)}
                 className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-white font-mono font-bold text-slate-800"
-              >
-                <option value="PO-7714">PO-7714 (Urban Outfitters)</option>
-                <option value="PO-8102">PO-8102 (Zara Men)</option>
-                <option value="PO-9045">PO-9045 (Pull & Bear)</option>
-              </select>
+              />
             </div>
 
             <div>
