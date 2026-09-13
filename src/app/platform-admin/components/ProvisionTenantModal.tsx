@@ -12,7 +12,8 @@ import {
   Sparkles,
   ExternalLink,
   CheckCircle2,
-  Mail
+  Mail,
+  AlertTriangle
 } from 'lucide-react'
 import { DemoRequestInquiry, SubscriptionPlanTier } from '../types/platform'
 import { ENTERPRISE_DIVISIONS_CATALOG } from '../data/initialPlatformData'
@@ -234,21 +235,55 @@ Allocated Units   : ${selectedDivisions.length} of ${ENTERPRISE_DIVISIONS_CATALO
             </div>
 
             {/* Resend Email Status Box */}
-            <div className="p-3.5 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center gap-3 text-xs text-slate-800">
-              <div className="w-7 h-7 rounded-lg bg-white border border-black/10 text-[#3A3564] flex items-center justify-center shrink-0 shadow-2xs">
-                <Mail className="w-3.5 h-3.5" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="font-bold text-slate-900">Resend Automated Notification:</div>
-                <div className="text-slate-600 truncate mt-0.5 font-mono text-[11px]">
-                  {emailDispatchResult?.simulated
-                    ? `Simulated delivery (RESEND_API_KEY not configured in .env.local). Slip ready below.`
-                    : emailDispatchResult?.sent
-                    ? `Dispatched activation email to ${adminEmail} from noreply@zigza.in.`
-                    : `Credentials generated. Ready to deliver to ${adminEmail}.`}
+            {emailDispatchResult?.simulated ? (
+              <div className="p-3.5 rounded-xl bg-amber-50/90 border border-amber-200 flex items-start gap-3 text-xs text-amber-900">
+                <div className="w-7 h-7 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center shrink-0 border border-amber-200">
+                  <AlertTriangle className="w-3.5 h-3.5" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-bold text-amber-950">Email Delivery Simulated:</div>
+                  <div className="text-amber-800 mt-0.5 leading-relaxed font-sans text-xs">
+                    RESEND_API_KEY is not configured in .env.local, so no live email was sent to <span className="font-mono font-semibold">{adminEmail}</span>. The tenant account has been provisioned in the database. Copy the activation credentials below or configure RESEND_API_KEY for live delivery.
+                  </div>
                 </div>
               </div>
-            </div>
+            ) : emailDispatchResult?.sent ? (
+              <div className="p-3.5 rounded-xl bg-emerald-50/90 border border-emerald-200 flex items-start gap-3 text-xs text-emerald-900">
+                <div className="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0 border border-emerald-200">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-bold text-emerald-950">Live Activation Email Dispatched:</div>
+                  <div className="text-emerald-800 mt-0.5 leading-relaxed font-sans text-xs">
+                    Activation credentials have been successfully transmitted to <span className="font-mono font-semibold">{adminEmail}</span> via Resend.
+                  </div>
+                </div>
+              </div>
+            ) : emailDispatchResult?.error ? (
+              <div className="p-3.5 rounded-xl bg-rose-50/90 border border-rose-200 flex items-start gap-3 text-xs text-rose-900">
+                <div className="w-7 h-7 rounded-lg bg-rose-100 text-rose-800 flex items-center justify-center shrink-0 border border-rose-200">
+                  <AlertTriangle className="w-3.5 h-3.5" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-bold text-rose-950">Email Dispatch Notice:</div>
+                  <div className="text-rose-800 mt-0.5 leading-relaxed font-sans text-xs">
+                    {emailDispatchResult.error}. Use the activation slip below for manual credential delivery.
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="p-3.5 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center gap-3 text-xs text-slate-800">
+                <div className="w-7 h-7 rounded-lg bg-white border border-black/10 text-[#3A3564] flex items-center justify-center shrink-0 shadow-2xs">
+                  <Mail className="w-3.5 h-3.5" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-bold text-slate-900">Resend Automated Notification:</div>
+                  <div className="text-slate-600 truncate mt-0.5 font-mono text-[11px]">
+                    Credentials generated. Ready to deliver to {adminEmail}.
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div className="bg-[#FAF7F0] p-5 rounded-2xl border border-black/10 font-mono text-xs text-slate-800 space-y-2 relative">
               <div className="flex items-center justify-between border-b border-black/10 pb-2.5 mb-2.5">

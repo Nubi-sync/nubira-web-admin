@@ -478,7 +478,7 @@ export async function provisionTenantFactoryAction(
         divisionsCount: payload.selectedDivisions.length
       })
       emailStatus = {
-        sent: emailRes.success,
+        sent: !emailRes.simulated && !!emailRes.success,
         simulated: !!emailRes.simulated,
         error: emailRes.error
       }
