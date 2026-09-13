@@ -4,6 +4,8 @@ import { redirect } from 'next/navigation'
 import { ArticlesClient } from './components/ArticlesClient'
 import Link from 'next/link'
 
+import { resolveUserTenant } from '@/lib/tenant-context'
+
 export const dynamic = 'force-dynamic'
 
 export default async function ArticlesPage() {
@@ -17,24 +19,22 @@ export default async function ArticlesPage() {
     redirect('/login')
   }
 
-  // Restrict Store Supervisors from admin articles management
-  const { data: userProfile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single()
+  // Centrally resolve tenant identity
+  const tenant = await resolveUserTenant(user)
+  const isProvisionedTenant = tenant.isProvisionedTenant && tenant.companyName !== 'Nubira Creation'
 
-  const userRole = (userProfile?.role || '').toUpperCase()
+  // Restrict Store Supervisors from admin articles management
+  const userRole = tenant.role.toUpperCase()
   if (userRole === 'STORE' || userRole === 'STORE_SUPERVISOR' || userRole === 'GODOWN' || user.email?.startsWith('store@')) {
     redirect('/store')
   }
 
   // Parallel concurrent data fetching for Articles and Lineman Allotment History
   const [
-    { data: articles },
-    { data: allotments },
-    { data: challans },
-    { data: profiles }
+    { data: rawArticles },
+    { data: rawAllotments },
+    { data: rawChallans },
+    { data: rawProfiles }
   ] = await Promise.all([
     supabase
       .from('articles')
@@ -71,8 +71,19 @@ export default async function ArticlesPage() {
       .eq('is_active', true)
   ])
 
+  const allotments = isProvisionedTenant
+    ? (rawAllotments || []).filter((a: any) => ((a.challans as any)?.brand || '').toUpperCase().includes(tenant.companyName.toUpperCase()))
+    : (rawAllotments || [])
+
+  const challans = isProvisionedTenant
+    ? (rawChallans || []).filter((c: any) => (c.brand || '').toUpperCase().includes(tenant.companyName.toUpperCase()))
+    : (rawChallans || [])
+
+  const articles = isProvisionedTenant ? [] : (rawArticles || [])
+  const profiles = isProvisionedTenant ? [] : (rawProfiles || [])
+
   return (
-    <AdminShell userEmail={user.email}>
+    <AdminShell userEmail={user.email} userRole={userRole}>
       <div className="flex-1 p-6 md:p-8 max-w-7xl w-full mx-auto space-y-5">
         
         {/* 1. Breadcrumb */}
@@ -85,6 +96,9 @@ export default async function ArticlesPage() {
           <span>/</span>
           <span className="font-bold text-slate-900">
             Articles & Lineman History
+          </span>
+          <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700 ml-auto border border-slate-200">
+            {tenant.companyName}
           </span>
         </div>
 

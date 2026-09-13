@@ -2,7 +2,7 @@ import { AdminShell } from '@/components/layout/AdminShell'
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { ReportsClient } from './components/ReportsClient'
-
+import { resolveUserTenant } from '@/lib/tenant-context'
 import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
@@ -18,24 +18,22 @@ export default async function ReportsPage() {
     redirect('/login')
   }
 
-  // Restrict Store Supervisors from admin factory reports
-  const { data: userProfile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single()
+  // Centrally resolve tenant identity
+  const tenant = await resolveUserTenant(user)
+  const isProvisionedTenant = tenant.isProvisionedTenant && tenant.companyName !== 'Nubira Creation'
 
-  const userRole = (userProfile?.role || '').toUpperCase()
+  // Restrict Store Supervisors from admin factory reports
+  const userRole = tenant.role.toUpperCase()
   if (userRole === 'STORE' || userRole === 'STORE_SUPERVISOR' || userRole === 'GODOWN' || user.email?.startsWith('store@')) {
     redirect('/store')
   }
 
   // Parallel concurrent data fetching
   const [
-    { data: dailyProducts },
-    { data: qcLogs },
-    { data: storeTransactions },
-    { data: workerAssignments }
+    { data: rawDailyProducts },
+    { data: rawQcLogs },
+    { data: rawStoreTransactions },
+    { data: rawWorkerAssignments }
   ] = await Promise.all([
     supabase
       .from('daily_product')
@@ -117,8 +115,26 @@ export default async function ReportsPage() {
       .limit(400)
   ])
 
+  const targetCompany = tenant.companyName.toUpperCase()
+
+  const dailyProducts = isProvisionedTenant
+    ? (rawDailyProducts || []).filter((d: any) => (d.notes || '').toUpperCase().includes(targetCompany))
+    : (rawDailyProducts || [])
+
+  const qcLogs = isProvisionedTenant
+    ? (rawQcLogs || []).filter((q: any) => (q.remarks || '').toUpperCase().includes(targetCompany))
+    : (rawQcLogs || [])
+
+  const storeTransactions = isProvisionedTenant
+    ? (rawStoreTransactions || []).filter((s: any) => (s.party_name || '').toUpperCase().includes(targetCompany))
+    : (rawStoreTransactions || [])
+
+  const workerAssignments = isProvisionedTenant
+    ? (rawWorkerAssignments || []).filter((w: any) => (w.notes || '').toUpperCase().includes(targetCompany))
+    : (rawWorkerAssignments || [])
+
   return (
-    <AdminShell userEmail={user.email}>
+    <AdminShell userEmail={tenant.userEmail} userRole={userRole}>
       <div className="flex-1 p-6 md:p-8 max-w-7xl w-full mx-auto space-y-5">
         
         {/* 1. Breadcrumb */}
@@ -129,6 +145,9 @@ export default async function ReportsPage() {
           <span>/</span>
           <span className="font-bold text-slate-900">
             Reports & Analytics
+          </span>
+          <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700 ml-auto border border-slate-200">
+            {tenant.companyName}
           </span>
         </div>
 

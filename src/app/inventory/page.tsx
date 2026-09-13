@@ -4,6 +4,8 @@ import { redirect } from 'next/navigation'
 import { InventoryClient } from './components/InventoryClient'
 import Link from 'next/link'
 
+import { resolveUserTenant } from '@/lib/tenant-context'
+
 export const dynamic = 'force-dynamic'
 
 export default async function InventoryPage() {
@@ -17,13 +19,17 @@ export default async function InventoryPage() {
     redirect('/login')
   }
 
+  // Centrally resolve tenant identity
+  const tenant = await resolveUserTenant(user)
+  const isProvisionedTenant = tenant.isProvisionedTenant && tenant.companyName !== 'Nubira Creation'
+
   // Parallel concurrent data fetching for inventory datasets & QC Handshake Approvals
   const [
-    { data: articles },
-    { data: storeTransactions },
-    { data: accessories },
-    { data: truckInwardsData },
-    { data: pendingQcAllotmentsData }
+    { data: rawArticles },
+    { data: rawStoreTransactions },
+    { data: rawAccessories },
+    { data: rawTruckInwardsData },
+    { data: rawPendingQcAllotmentsData }
   ] = await Promise.all([
     supabase
       .from('articles')
@@ -130,11 +136,38 @@ export default async function InventoryPage() {
       .limit(60)
   ])
 
-  const truckInwards = truckInwardsData || []
-  const pendingQcAllotments = pendingQcAllotmentsData || []
+  const targetCompany = tenant.companyName.toUpperCase()
+
+  const storeTransactions = isProvisionedTenant
+    ? (rawStoreTransactions || []).filter((tx: any) =>
+        (tx.party_name || '').toUpperCase().includes(targetCompany) ||
+        (tx.notes || '').toUpperCase().includes(targetCompany)
+      )
+    : (rawStoreTransactions || [])
+
+  const accessories = isProvisionedTenant
+    ? (rawAccessories || []).filter((ac: any) =>
+        (ac.party_name || '').toUpperCase().includes(targetCompany) ||
+        (ac.notes || '').toUpperCase().includes(targetCompany)
+      )
+    : (rawAccessories || [])
+
+  const truckInwards = isProvisionedTenant
+    ? (rawTruckInwardsData || []).filter((t: any) =>
+        (t.party_name || '').toUpperCase().includes(targetCompany)
+      )
+    : (rawTruckInwardsData || [])
+
+  const pendingQcAllotments = isProvisionedTenant
+    ? (rawPendingQcAllotmentsData || []).filter((al: any) =>
+        ((al.challans as any)?.brand || '').toUpperCase().includes(targetCompany)
+      )
+    : (rawPendingQcAllotmentsData || [])
+
+  const articles = isProvisionedTenant ? [] : (rawArticles || [])
 
   return (
-    <AdminShell userEmail={user.email}>
+    <AdminShell userEmail={tenant.userEmail} userRole={tenant.role}>
       <div className="flex-1 p-6 md:p-8 max-w-7xl w-full mx-auto space-y-5">
         
         {/* Breadcrumb */}
@@ -145,6 +178,9 @@ export default async function InventoryPage() {
           <span>/</span>
           <span className="font-semibold" style={{ color: 'var(--steel-dark, #1F3A63)' }}>
             Godown & Inventory
+          </span>
+          <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700 ml-auto border border-slate-200">
+            {tenant.companyName}
           </span>
         </div>
 
