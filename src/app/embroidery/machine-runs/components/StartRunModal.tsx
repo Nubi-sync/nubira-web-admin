@@ -16,13 +16,13 @@ interface StartRunModalProps {
 export function StartRunModal({ isOpen, onClose }: StartRunModalProps) {
   const designs = getEmbroideryDesigns()
 
-  const [machineNumber, setMachineNumber] = useState('Machine 05 (20-Head Tajima)')
-  const [operatorName, setOperatorName] = useState('P. Murugesan (Senior Embroidery Master)')
+  const [machineNumber, setMachineNumber] = useState('Machine 01 (Multi-Head)')
+  const [operatorName, setOperatorName] = useState('Floor Embroidery Master')
   const [selectedDesignId, setSelectedDesignId] = useState(designs[0]?.id || '')
-  const [orderPo, setOrderPo] = useState(designs[0]?.order_id || 'PO-ZIG-8901')
-  const [panelsLoaded, setPanelsLoaded] = useState(25)
+  const [orderPo, setOrderPo] = useState(designs[0]?.order_id || '')
+  const [panelsLoaded, setPanelsLoaded] = useState(0)
   const [rpmSpeed, setRpmSpeed] = useState(850)
-  const [backingSpec, setBackingSpec] = useState('Tear-Away 40 GSM (Double Layer)')
+  const [backingSpec, setBackingSpec] = useState('Tear-Away Standard')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   if (!isOpen) return null

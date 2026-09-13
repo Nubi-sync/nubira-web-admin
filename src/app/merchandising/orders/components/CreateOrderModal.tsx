@@ -138,7 +138,7 @@ export function CreateOrderModal({ isOpen, onClose, onSuccess }: CreateOrderModa
       id: `ord-${Date.now()}`,
       po_number: poNumber.trim().toUpperCase(),
       brand_name: brandName,
-      style_ref: styleRef.trim().toUpperCase() || 'ART-HD-8821',
+      style_ref: styleRef.trim().toUpperCase() || 'CUSTOM-STYLE',
       style_name: styleName.trim() || 'Custom Bulk Order',
       total_quantity: targetQty,
       currency,

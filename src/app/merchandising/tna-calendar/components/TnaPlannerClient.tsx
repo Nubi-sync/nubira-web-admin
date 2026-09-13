@@ -30,7 +30,7 @@ export function TnaPlannerClient({ initialMilestones }: TnaPlannerClientProps = 
   })
   const [selectedPo, setSelectedPo] = useState<string>(() => {
     if (initialMilestones && initialMilestones.length > 0) return initialMilestones[0].po_number
-    return 'PO-ZIG-8901'
+    return ''
   })
   const [editingMilestone, setEditingMilestone] = useState<TnaMilestone | null>(null)
 
