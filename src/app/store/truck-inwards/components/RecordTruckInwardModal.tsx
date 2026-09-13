@@ -15,18 +15,18 @@ export function RecordTruckInwardModal({ isOpen, onClose }: RecordTruckInwardMod
   
   // Step 1: Security & Transport
   const [grnNumber, setGrnNumber] = useState(`GRN-${new Date().getFullYear()}-${Math.floor(10000 + Math.random() * 90000)}`)
-  const [vehicleNumber, setVehicleNumber] = useState('PB-10-CZ-8820')
-  const [supplierName, setSupplierName] = useState('Vardhman Textiles Ltd.')
-  const [poReference, setPoReference] = useState('PO-2026-0890')
-  const [driverName, setDriverName] = useState('Baldev Singh')
-  const [driverPhone, setDriverPhone] = useState('+91 98765 00123')
+  const [vehicleNumber, setVehicleNumber] = useState('')
+  const [supplierName, setSupplierName] = useState('')
+  const [poReference, setPoReference] = useState('')
+  const [driverName, setDriverName] = useState('')
+  const [driverPhone, setDriverPhone] = useState('')
 
   // Step 2: Consignment & Weighbridge
   const [itemCategory, setItemCategory] = useState<GateItemCategory>('RAW_FABRIC_ROLL')
-  const [totalPackages, setTotalPackages] = useState<number>(180)
-  const [grossWeightKg, setGrossWeightKg] = useState<number>(15200)
-  const [tareWeightKg, setTareWeightKg] = useState<number>(9400)
-  const [receiverInspector, setReceiverInspector] = useState('Kishan Chand (Store In-Charge)')
+  const [totalPackages, setTotalPackages] = useState<number>(0)
+  const [grossWeightKg, setGrossWeightKg] = useState<number>(0)
+  const [tareWeightKg, setTareWeightKg] = useState<number>(0)
+  const [receiverInspector, setReceiverInspector] = useState('Store Inspector')
   const [remarks, setRemarks] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
