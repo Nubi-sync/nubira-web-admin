@@ -12,6 +12,7 @@ import {
   Sparkles,
   PieChart
 } from 'lucide-react'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 export function CuttingReportsClient() {
   const [dateRange, setDateRange] = useState('THIS_MONTH')
@@ -149,15 +150,19 @@ export function CuttingReportsClient() {
 
           <div className="space-y-3">
             {styleYields.length === 0 ? (
-              <div className="py-12 text-center text-xs font-mono text-slate-400">
-                No style cutting yield data recorded for this period yet.
+              <div className="py-6">
+                <EmptyState
+                  compact
+                  title="No style yield data recorded"
+                  description="Actual vs CAD nesting metrics will render once production cuts complete."
+                />
               </div>
             ) : (
               styleYields.map(s => (
                 <div key={s.style} className="p-3 rounded-xl bg-[#FAF7F0]/60 border border-black/5 space-y-1.5">
                   <div className="flex items-center justify-between text-xs">
                     <span className="font-bold text-slate-900">{s.style}</span>
-                    <span className="font-mono font-black text-emerald-700">{s.variance}</span>
+                    <span className="font-mono font-black text-slate-900">{s.variance}</span>
                   </div>
                   <div className="flex items-center justify-between text-[11px] font-mono text-slate-500">
                     <span>Actual: <strong>{s.actualYield}%</strong></span>
@@ -187,8 +192,12 @@ export function CuttingReportsClient() {
 
           <div className="space-y-3">
             {defectPareto.length === 0 ? (
-              <div className="py-12 text-center text-xs font-mono text-slate-400">
-                No defect or non-conformance incidents logged.
+              <div className="py-6">
+                <EmptyState
+                  compact
+                  title="No defect incidents logged"
+                  description="Zero cut floor non-conformances reported for this period."
+                />
               </div>
             ) : (
               defectPareto.map(d => (
@@ -199,7 +208,7 @@ export function CuttingReportsClient() {
                   </div>
                   <div className="w-full h-2 rounded-full bg-[#FAF7F0] border border-black/10 overflow-hidden">
                     <div
-                      className="h-full bg-amber-500 rounded-full"
+                      className="h-full bg-[#3A3564] rounded-full"
                       style={{ width: d.share }}
                     />
                   </div>
