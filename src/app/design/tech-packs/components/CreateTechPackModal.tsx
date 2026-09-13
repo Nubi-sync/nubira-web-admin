@@ -15,7 +15,7 @@ interface CreateTechPackModalProps {
 }
 
 const CATEGORIES: GarmentCategory[] = ['Hoodie', 'T-Shirt', 'Polo', 'Jogger', 'Jacket', 'Kids Romper']
-const BRANDS = ['OLLYPOP', 'NUBIRA ESSENTIALS', 'ZARA GLOBAL', 'H&M BASICS', 'MANGO MENSWEAR']
+const BRANDS = ['DIRECT CLIENT', 'PRIVATE LABEL', 'GLOBAL BRAND']
 const SIZE_SYSTEMS: { label: string; value: SizeSystem; defaultBase: string }[] = [
   { label: 'Adult Unisex Alpha (XS–3XL)', value: 'ALPHA_ADULT', defaultBase: 'M' },
   { label: 'Toddler & Kids (2T–14)', value: 'KIDS_AGE', defaultBase: '4T' },
@@ -45,7 +45,7 @@ export function CreateTechPackModal({ isOpen, onClose, onCreated, availableBrand
   // Form State
   const [styleNumber, setStyleNumber] = useState('')
   const [styleName, setStyleName] = useState('')
-  const [brandName, setBrandName] = useState(brandsList[0] || 'OLLYPOP')
+  const [brandName, setBrandName] = useState(brandsList[0] || 'DIRECT CLIENT')
   const [category, setCategory] = useState<GarmentCategory>('Hoodie')
   const [sizeSystem, setSizeSystem] = useState<SizeSystem>('ALPHA_ADULT')
   const [baseSize, setBaseSize] = useState('M')

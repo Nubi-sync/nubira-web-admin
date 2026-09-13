@@ -15,12 +15,10 @@ interface CreateOrderModalProps {
 
 const DEFAULT_SIZES = ['XS', 'S', 'M', 'L', 'XL']
 const REGISTERED_BRANDS = [
-  'Zara Global',
-  'Ollypop Kids',
-  'H&M Basics',
-  'Nubira Essentials',
-  'Mango Casuals',
-  'Uniqlo Core'
+  'Direct Client',
+  'Private Label',
+  'Global Partner',
+  'Domestic Brand'
 ]
 
 export function CreateOrderModal({ isOpen, onClose, onSuccess }: CreateOrderModalProps) {

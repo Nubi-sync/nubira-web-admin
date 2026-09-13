@@ -27,15 +27,15 @@ export function FabricRelaxationClient() {
   // Form state
   const [formData, setFormData] = useState({
     roll_barcode: '',
-    fabric_lot_number: 'LOT-2026-991',
-    fabric_type: 'Heavyweight French Terry 380 GSM Combed Cotton',
-    colorway: 'Jet Black',
-    weight_kg: 22.5,
-    meters_length: 55.0,
-    nominal_gsm: 380,
-    tested_gsm: 382,
+    fabric_lot_number: '',
+    fabric_type: '',
+    colorway: '',
+    weight_kg: 0,
+    meters_length: 0,
+    nominal_gsm: 0,
+    tested_gsm: 0,
     relaxation_hours_required: 24,
-    staging_rack: 'Rack A-01 (Air-Conditioned Bay)'
+    staging_rack: 'Rack A-01'
   })
 
   useEffect(() => {

@@ -1612,7 +1612,7 @@ export async function createBulkChallans(payloads: CreateChallanPayload[]): Prom
     for (const p of validPayloads) {
       const vName = (p.vendor_name || '').trim()
       if (vName) {
-        const bName = (p.brand || 'OLLYPOP').trim().toUpperCase()
+        const bName = (p.brand || 'DIRECT').trim().toUpperCase()
         const key = `${bName}__${vName.toUpperCase()}`
         if (!vendorLookupMap.has(key) && !vendorLookupMap.has(vName.toUpperCase())) {
           try {

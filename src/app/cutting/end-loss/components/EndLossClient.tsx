@@ -27,14 +27,14 @@ export function EndLossClient() {
   // Form state
   const [formData, setFormData] = useState({
     remnant_code: '',
-    source_roll_barcode: 'ROL-FT-8821-A1',
-    fabric_type: 'Heavyweight French Terry 380 GSM Combed Cotton',
-    colorway: 'Jet Black',
-    length_meters: 1.8,
+    source_roll_barcode: '',
+    fabric_type: '',
+    colorway: '',
+    length_meters: 0,
     width_inches: 60,
-    reason: 'End of roll remnant insufficient for full marker lay',
+    reason: '',
     disposition: 'SALVAGED_FOR_POCKETS' as RemnantDisposition,
-    allocated_to: 'Pocket linings & Neck tape trims'
+    allocated_to: ''
   })
 
   useEffect(() => {
