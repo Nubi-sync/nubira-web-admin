@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { AdminShell } from '@/components/layout/AdminShell'
 import { SourcingRequisitionsClient } from './components/SourcingRequisitionsClient'
 import { fetchSourcingRequisitionsAction } from '../actions'
+import { resolveUserTenant, isLegacyNubiraTenant } from '@/lib/tenant-context'
 
 export const dynamic = 'force-dynamic'
 
@@ -17,10 +18,14 @@ export default async function MerchandisingSourcingPage() {
     redirect('/login')
   }
 
-  const initialRequisitions = await fetchSourcingRequisitionsAction()
+  const tenant = await resolveUserTenant(user)
+  const isLegacy = isLegacyNubiraTenant(tenant)
+  const companyFilter = isLegacy ? undefined : tenant.companyName
+
+  const initialRequisitions = await fetchSourcingRequisitionsAction(companyFilter)
 
   return (
-    <AdminShell userEmail={user.email}>
+    <AdminShell userEmail={tenant.userEmail} userRole={tenant.role}>
       <SourcingRequisitionsClient initialRequisitions={initialRequisitions} />
     </AdminShell>
   )

@@ -288,7 +288,7 @@ export async function createSampleApprovalAction(payload: {
 // 3. GRADING MATRIX
 // -----------------------------------------------------------------------------
 
-export async function fetchGradingSchemesAction(): Promise<GradingScheme[]> {
+export async function fetchGradingSchemesAction(companyName?: string): Promise<GradingScheme[]> {
   try {
     const { data: techPacks, error } = await supabaseAdmin
       .from('design_tech_packs')
@@ -298,6 +298,7 @@ export async function fetchGradingSchemesAction(): Promise<GradingScheme[]> {
         category,
         size_system,
         base_size,
+        brands ( brand_name ),
         design_poms (
           id,
           pom_code,
@@ -322,7 +323,17 @@ export async function fetchGradingSchemesAction(): Promise<GradingScheme[]> {
 
     if (!techPacks || techPacks.length === 0) return []
 
-    return techPacks.map((tp: any) => {
+    const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
+    const targetComp = (companyName || '').toUpperCase()
+
+    const filteredTechPacks = isNonNubira
+      ? techPacks.filter((tp: any) => {
+          const b = (tp.brands?.brand_name || '').toUpperCase()
+          return b.length > 0 && b.includes(targetComp)
+        })
+      : techPacks
+
+    return filteredTechPacks.map((tp: any) => {
       const pomsList: PointOfMeasure[] = (tp.design_poms || [])
         .sort((a: any, b: any) => (a.sort_order || 0) - (b.sort_order || 0))
         .map((p: any) => {
@@ -380,8 +391,13 @@ export async function fetchGradingSchemesAction(): Promise<GradingScheme[]> {
 // 4. MATERIALS LIBRARY
 // -----------------------------------------------------------------------------
 
-export async function fetchMaterialsLibraryAction(): Promise<MaterialItem[]> {
+export async function fetchMaterialsLibraryAction(companyName?: string): Promise<MaterialItem[]> {
   try {
+    const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
+    if (isNonNubira) {
+      return []
+    }
+
     const { data, error } = await supabaseAdmin
       .from('design_materials_library')
       .select('*')
@@ -471,7 +487,7 @@ export async function createMaterialAction(payload: {
 // 5. BRANDS LIST
 // -----------------------------------------------------------------------------
 
-export async function fetchBrandsAction(): Promise<{ id: string; brand_name: string; brand_code: string }[]> {
+export async function fetchBrandsAction(companyName?: string): Promise<{ id: string; brand_name: string; brand_code: string }[]> {
   try {
     const { data, error } = await supabaseAdmin
       .from('brands')
@@ -482,6 +498,15 @@ export async function fetchBrandsAction(): Promise<{ id: string; brand_name: str
     if (error) {
       console.error('[fetchBrandsAction] DB error:', error)
       return []
+    }
+
+    const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
+    const targetComp = (companyName || '').toUpperCase()
+
+    if (isNonNubira) {
+      const filtered = (data || []).filter((b: any) => (b.brand_name || '').toUpperCase().includes(targetComp))
+      if (filtered.length > 0) return filtered
+      return [{ id: 'inhouse', brand_name: companyName || 'Inhouse', brand_code: 'INHOUSE' }]
     }
 
     return data || []

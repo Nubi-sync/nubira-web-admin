@@ -31,8 +31,8 @@ export default async function DesignModulePage() {
   const [initialTechPacks, initialApprovals, initialSchemes, initialMaterials] = await Promise.all([
     fetchTechPacksAction(companyFilter),
     fetchSampleApprovalsAction(companyFilter),
-    fetchGradingSchemesAction(),
-    fetchMaterialsLibraryAction()
+    fetchGradingSchemesAction(companyFilter),
+    fetchMaterialsLibraryAction(companyFilter)
   ])
 
   return (

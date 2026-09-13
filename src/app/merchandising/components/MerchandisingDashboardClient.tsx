@@ -123,64 +123,20 @@ export function MerchandisingDashboardClient({
   // Dynamic calculations
   const totalBookedPcs = orders.reduce((acc, curr) => acc + curr.total_quantity, 0)
   const activeOrdersCount = orders.filter(o => o.status !== 'CLOSED' && o.status !== 'DISPATCHED').length
+  const hasOrders = orders.length > 0
 
-  // Realistic recent commercial activity stream
-  const activities: ActivityItem[] = [
-    {
-      id: 'act-1',
-      type: 'PO',
-      title: 'PO-ZIG-8901 Released to Floor',
-      details: '24,000 pcs • Zara Global (ZG-HOOD-01)',
-      location: 'Commercial Desk',
-      timestamp: '2026-09-11T16:00:00Z',
-      relativeTime: '2 hrs ago'
-    },
-    {
-      id: 'act-2',
-      type: 'LAB_DIP',
-      title: 'Lab Dip Approved by H&M Quality',
-      details: 'Lemon Yellow Shade Sign-off (HM-TSH-102)',
-      location: 'Testing Lab',
-      timestamp: '2026-09-11T13:30:00Z',
-      relativeTime: '5 hrs ago'
-    },
-    {
-      id: 'act-3',
-      type: 'BOM',
-      title: 'BOM Variance Locked at ±0.8%',
-      details: 'Ollypop Kids Raglan Tee (OP-KID-401)',
-      location: 'Costing Audit',
-      timestamp: '2026-09-11T10:00:00Z',
-      relativeTime: '8 hrs ago'
-    },
-    {
-      id: 'act-4',
-      type: 'TRIM',
-      title: 'Central Store Inward Cleared',
-      details: '18,240 kg Single Jersey & Core Spun Thread',
-      location: 'Central Store',
-      timestamp: '2026-09-10T15:00:00Z',
-      relativeTime: '1 day ago'
-    },
-    {
-      id: 'act-5',
-      type: 'CONTAINER',
-      title: 'Container Handover Scheduled',
-      details: 'MSCU-482019-4 (68.0 CBM) for Rotterdam',
-      location: 'Dispatch Bay',
-      timestamp: '2026-09-10T09:00:00Z',
-      relativeTime: '1 day ago'
-    },
-    {
-      id: 'act-6',
-      type: 'AQL',
-      title: 'Final AQL 2.5 Audit Passed',
-      details: 'Mango Casuals 8,500 pcs packed for export',
-      location: 'Finished Godown',
-      timestamp: '2026-09-09T18:00:00Z',
-      relativeTime: '2 days ago'
-    }
-  ]
+  // Real commercial activity stream derived from real live orders
+  const activities: ActivityItem[] = orders.length === 0
+    ? []
+    : orders.slice(0, 6).map((ord, idx) => ({
+        id: `act-${ord.id || idx}`,
+        type: 'PO' as const,
+        title: `PO ${ord.po_number} Active`,
+        details: `${ord.total_quantity.toLocaleString()} pcs • ${ord.brand_name} (${ord.style_ref})`,
+        location: 'Commercial Desk',
+        timestamp: ord.created_at || new Date().toISOString(),
+        relativeTime: 'Active'
+      }))
 
   return (
     <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto text-[#09090b]">
@@ -481,11 +437,13 @@ export function MerchandisingDashboardClient({
 
           <div className="mt-4 pt-3 border-t border-slate-100/80">
             <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none">
-              98.2%
+          <div className="mt-4 pt-3 border-t border-slate-100/80">
+            <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none">
+              {hasOrders ? '98.2%' : '0.0%'}
             </h3>
             <div className="mt-2.5 flex items-center justify-between">
-              <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-emerald-800 border border-emerald-200 tracking-wider shadow-2xs">
-                ±1.8% Variance
+              <span className={`text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] ${hasOrders ? 'text-emerald-800 border border-emerald-200' : 'text-slate-500 border border-black/10'} tracking-wider shadow-2xs`}>
+                {hasOrders ? '±1.8% Variance' : '0% Variance'}
               </span>
             </div>
           </div>
@@ -521,11 +479,11 @@ export function MerchandisingDashboardClient({
 
           <div className="mt-4 pt-3 border-t border-slate-100/80">
             <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none">
-              100%
+              {hasOrders ? '100%' : '0%'}
             </h3>
             <div className="mt-2.5 flex items-center justify-between">
               <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 tracking-wider shadow-2xs">
-                Zero Line Stop
+                {hasOrders ? 'Zero Line Stop' : 'No Active Orders'}
               </span>
             </div>
           </div>
@@ -561,11 +519,11 @@ export function MerchandisingDashboardClient({
 
           <div className="mt-4 pt-3 border-t border-slate-100/80">
             <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none">
-              92.5%
+              {hasOrders ? '92.5%' : '0.0%'}
             </h3>
             <div className="mt-2.5 flex items-center justify-between">
               <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 tracking-wider shadow-2xs">
-                8 Gates Tracked
+                {hasOrders ? '8 Gates Tracked' : '0 Gates Tracked'}
               </span>
             </div>
           </div>
@@ -601,11 +559,11 @@ export function MerchandisingDashboardClient({
 
           <div className="mt-4 pt-3 border-t border-slate-100/80">
             <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none">
-              192.0
+              {hasOrders ? '192.0' : '0.0'}
             </h3>
             <div className="mt-2.5 flex items-center justify-between">
               <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 tracking-wider shadow-2xs">
-                3 Boxes Booked
+                {hasOrders ? '3 Boxes Booked' : '0 Boxes Booked'}
               </span>
             </div>
           </div>
@@ -641,11 +599,11 @@ export function MerchandisingDashboardClient({
 
           <div className="mt-4 pt-3 border-t border-slate-100/80">
             <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none">
-              97.8%
+              {hasOrders ? '97.8%' : '0.0%'}
             </h3>
             <div className="mt-2.5 flex items-center justify-between">
-              <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-emerald-800 border border-emerald-200 tracking-wider shadow-2xs">
-                Port Cut-Off OK
+              <span className={`text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] ${hasOrders ? 'text-emerald-800 border border-emerald-200' : 'text-slate-500 border border-black/10'} tracking-wider shadow-2xs`}>
+                {hasOrders ? 'Port Cut-Off OK' : 'No Orders'}
               </span>
             </div>
           </div>
@@ -692,19 +650,19 @@ export function MerchandisingDashboardClient({
                 1. Fabric Inward
               </span>
               <span className="text-xs font-extrabold font-mono text-emerald-700 bg-emerald-50 border border-emerald-200/60 px-2 py-0.5 rounded-full">
-                92%
+                {hasOrders ? '92%' : '0%'}
               </span>
             </div>
             <div className="mt-2 flex items-baseline justify-between">
               <p className="text-lg sm:text-xl font-bold font-[family-name:var(--font-heading)] text-slate-900">
-                18,240 <span className="text-xs font-normal text-slate-400">kg</span>
+                {hasOrders ? '18,240' : '0'} <span className="text-xs font-normal text-slate-400">kg</span>
               </p>
-              <span className="text-[10px] font-medium text-slate-400">Cleared Lab</span>
+              <span className="text-[10px] font-medium text-slate-400">{hasOrders ? 'Cleared Lab' : 'No Inward'}</span>
             </div>
             <div className="w-full bg-slate-100 h-1 rounded-full mt-2.5 overflow-hidden">
               <div 
                 className="bg-emerald-500 h-full rounded-full transition-all duration-500" 
-                style={{ width: '92%' }}
+                style={{ width: hasOrders ? '92%' : '0%' }}
               />
             </div>
           </div>
@@ -716,19 +674,19 @@ export function MerchandisingDashboardClient({
                 2. Bulk Cutting
               </span>
               <span className="text-xs font-extrabold font-mono text-indigo-600 bg-indigo-50 border border-indigo-200/60 px-2 py-0.5 rounded-full">
-                78%
+                {hasOrders ? '78%' : '0%'}
               </span>
             </div>
             <div className="mt-2 flex items-baseline justify-between">
               <p className="text-lg sm:text-xl font-bold font-[family-name:var(--font-heading)] text-slate-900">
-                78% <span className="text-xs font-normal text-slate-400">Cut</span>
+                {hasOrders ? '78%' : '0%'} <span className="text-xs font-normal text-slate-400">Cut</span>
               </p>
-              <span className="text-[10px] font-medium text-slate-400">Ratio OK</span>
+              <span className="text-[10px] font-medium text-slate-400">{hasOrders ? 'Ratio OK' : 'No Cutting'}</span>
             </div>
             <div className="w-full bg-slate-100 h-1 rounded-full mt-2.5 overflow-hidden">
               <div 
                 className="bg-indigo-500 h-full rounded-full transition-all duration-500" 
-                style={{ width: '78%' }}
+                style={{ width: hasOrders ? '78%' : '0%' }}
               />
             </div>
           </div>
@@ -740,19 +698,19 @@ export function MerchandisingDashboardClient({
                 3. Sewing Floor
               </span>
               <span className="text-xs font-extrabold font-mono text-blue-600 bg-blue-50 border border-blue-200/60 px-2 py-0.5 rounded-full">
-                64%
+                {hasOrders ? '64%' : '0%'}
               </span>
             </div>
             <div className="mt-2 flex items-baseline justify-between">
               <p className="text-lg sm:text-xl font-bold font-[family-name:var(--font-heading)] text-slate-900">
-                64% <span className="text-xs font-normal text-slate-400">WIP</span>
+                {hasOrders ? '64%' : '0%'} <span className="text-xs font-normal text-slate-400">WIP</span>
               </p>
-              <span className="text-[10px] font-medium text-slate-400">88% Output</span>
+              <span className="text-[10px] font-medium text-slate-400">{hasOrders ? '88% Output' : 'No Sewing'}</span>
             </div>
             <div className="w-full bg-slate-100 h-1 rounded-full mt-2.5 overflow-hidden">
               <div 
                 className="bg-blue-500 h-full rounded-full transition-all duration-500" 
-                style={{ width: '64%' }}
+                style={{ width: hasOrders ? '64%' : '0%' }}
               />
             </div>
           </div>
@@ -764,19 +722,19 @@ export function MerchandisingDashboardClient({
                 4. Washing &amp; Finish
               </span>
               <span className="text-xs font-extrabold font-mono text-amber-700 bg-amber-50 border border-amber-200/60 px-2 py-0.5 rounded-full">
-                42%
+                {hasOrders ? '42%' : '0%'}
               </span>
             </div>
             <div className="mt-2 flex items-baseline justify-between">
               <p className="text-lg sm:text-xl font-bold font-[family-name:var(--font-heading)] text-slate-900">
-                42% <span className="text-xs font-normal text-slate-400">Done</span>
+                {hasOrders ? '42%' : '0%'} <span className="text-xs font-normal text-slate-400">Done</span>
               </p>
-              <span className="text-[10px] font-medium text-slate-400">In Drum</span>
+              <span className="text-[10px] font-medium text-slate-400">{hasOrders ? 'In Drum' : 'No Washing'}</span>
             </div>
             <div className="w-full bg-slate-100 h-1 rounded-full mt-2.5 overflow-hidden">
               <div 
                 className="bg-amber-500 h-full rounded-full transition-all duration-500" 
-                style={{ width: '42%' }}
+                style={{ width: hasOrders ? '42%' : '0%' }}
               />
             </div>
           </div>
@@ -788,19 +746,19 @@ export function MerchandisingDashboardClient({
                 5. Carton Pack (AQL)
               </span>
               <span className="text-xs font-extrabold font-mono text-[#3A3564] bg-[#FAF7F0] border border-black/10 px-2 py-0.5 rounded-full shadow-2xs">
-                30%
+                {hasOrders ? '30%' : '0%'}
               </span>
             </div>
             <div className="mt-2 flex items-baseline justify-between">
               <p className="text-lg sm:text-xl font-bold font-[family-name:var(--font-heading)] text-slate-900">
-                30% <span className="text-xs font-normal text-slate-400">Packed</span>
+                {hasOrders ? '30%' : '0%'} <span className="text-xs font-normal text-slate-400">Packed</span>
               </p>
-              <span className="text-[10px] font-medium text-slate-400">AQL 2.5 Audit</span>
+              <span className="text-[10px] font-medium text-slate-400">{hasOrders ? 'AQL 2.5 Audit' : 'No Cartons'}</span>
             </div>
             <div className="w-full bg-slate-100 h-1 rounded-full mt-2.5 overflow-hidden">
               <div 
                 className="bg-[#3A3564] h-full rounded-full transition-all duration-500" 
-                style={{ width: '30%' }}
+                style={{ width: hasOrders ? '30%' : '0%' }}
               />
             </div>
           </div>
@@ -951,37 +909,43 @@ export function MerchandisingDashboardClient({
             </div>
 
             <div className="mt-4 space-y-2.5">
-              {activities.map(act => (
-                <div key={act.id} className="flex items-start gap-3 p-3 rounded-xl bg-slate-50/70 border border-slate-200/80 hover:bg-[#FAF7F0]/60 transition-all">
-                  <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
-                    {act.type === 'PO' ? (
-                      <Briefcase className="w-4 h-4 text-[#3A3564]" />
-                    ) : act.type === 'LAB_DIP' ? (
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600 stroke-[2.5]" />
-                    ) : act.type === 'BOM' ? (
-                      <TrendingUp className="w-4 h-4 text-indigo-600" />
-                    ) : act.type === 'TRIM' ? (
-                      <Boxes className="w-4 h-4 text-amber-600" />
-                    ) : act.type === 'CONTAINER' ? (
-                      <Ship className="w-4 h-4 text-[#3A3564]" />
-                    ) : (
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600 stroke-[2.5]" />
-                    )}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <span className="text-xs font-bold text-slate-900 block truncate">
-                      {act.title}
-                    </span>
-                    <span className="text-[11px] text-slate-500 block truncate mt-0.5 font-medium">
-                      {act.details}
-                    </span>
-                    <div className="flex items-center justify-between mt-1 text-[10px] text-slate-400 font-mono">
-                      <span>{act.location}</span>
-                      <span>{act.relativeTime}</span>
+              {activities.length === 0 ? (
+                <div className="py-12 text-center text-xs text-slate-400 font-medium">
+                  No commercial activities recorded yet for this factory account.
+                </div>
+              ) : (
+                activities.map(act => (
+                  <div key={act.id} className="flex items-start gap-3 p-3 rounded-xl bg-slate-50/70 border border-slate-200/80 hover:bg-[#FAF7F0]/60 transition-all">
+                    <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+                      {act.type === 'PO' ? (
+                        <Briefcase className="w-4 h-4 text-[#3A3564]" />
+                      ) : act.type === 'LAB_DIP' ? (
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600 stroke-[2.5]" />
+                      ) : act.type === 'BOM' ? (
+                        <TrendingUp className="w-4 h-4 text-indigo-600" />
+                      ) : act.type === 'TRIM' ? (
+                        <Boxes className="w-4 h-4 text-amber-600" />
+                      ) : act.type === 'CONTAINER' ? (
+                        <Ship className="w-4 h-4 text-[#3A3564]" />
+                      ) : (
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600 stroke-[2.5]" />
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <span className="text-xs font-bold text-slate-900 block truncate">
+                        {act.title}
+                      </span>
+                      <span className="text-[11px] text-slate-500 block truncate mt-0.5 font-medium">
+                        {act.details}
+                      </span>
+                      <div className="flex items-center justify-between mt-1 text-[10px] text-slate-400 font-mono">
+                        <span>{act.location}</span>
+                        <span>{act.relativeTime}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
 
