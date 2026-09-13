@@ -46,22 +46,23 @@ export function IronDashboardClient({
   initialLogs,
   initialQcAudits
 }: IronDashboardClientProps = {}) {
-  const [tables, setTables] = useState<IronTable[]>(initialTables && initialTables.length > 0 ? initialTables : [])
-  const [logs, setLogs] = useState<IronProductionLog[]>(initialLogs && initialLogs.length > 0 ? initialLogs : [])
+  const [tables, setTables] = useState<IronTable[]>(initialTables !== undefined ? initialTables : [])
+  const [logs, setLogs] = useState<IronProductionLog[]>(initialLogs !== undefined ? initialLogs : [])
   const [boilerLogs, setBoilerLogs] = useState<BoilerTelemetryLog[]>([])
-  const [qcAudits, setQcAudits] = useState<FinishQcAudit[]>(initialQcAudits && initialQcAudits.length > 0 ? initialQcAudits : [])
+  const [qcAudits, setQcAudits] = useState<FinishQcAudit[]>(initialQcAudits !== undefined ? initialQcAudits : [])
   const [handovers, setPackingHandovers] = useState<PackingHandover[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
   function loadData() {
+    const isCleanZeroTenant = initialTables !== undefined && initialTables.length === 0
     const localTables = getIronTables()
-    setTables(initialTables && initialTables.length > 0 ? initialTables : localTables)
+    setTables(initialTables !== undefined ? initialTables : localTables)
     const localLogs = getIronProductionLogs()
-    setLogs(initialLogs && initialLogs.length > 0 ? initialLogs : localLogs)
-    setBoilerLogs(getBoilerLogs())
+    setLogs(initialLogs !== undefined ? initialLogs : localLogs)
+    setBoilerLogs(isCleanZeroTenant ? [] : getBoilerLogs())
     const localQc = getFinishQcAudits()
-    setQcAudits(initialQcAudits && initialQcAudits.length > 0 ? initialQcAudits : localQc)
-    setPackingHandovers(getPackingHandovers())
+    setQcAudits(initialQcAudits !== undefined ? initialQcAudits : localQc)
+    setPackingHandovers(isCleanZeroTenant ? [] : getPackingHandovers())
     setIsLoading(false)
   }
 

@@ -41,17 +41,39 @@ export function ClinicDashboardClient({
   initialTickets,
   initialScrapLogs
 }: ClinicDashboardClientProps) {
-  const [tickets, setTickets] = useState<AlterationTicket[]>(initialTickets && initialTickets.length > 0 ? initialTickets : [])
+  const [tickets, setTickets] = useState<AlterationTicket[]>(initialTickets !== undefined ? initialTickets : [])
   const [metrics, setMetrics] = useState<AlterationMetrics>(getAlterMetrics())
   const [statusFilter, setStatusFilter] = useState<string>('ALL')
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [selectedTicket, setSelectedTicket] = useState<AlterationTicket | null>(null)
 
+  function computeLiveMetrics(tList: AlterationTicket[]): AlterationMetrics {
+    const pareto = getParetoDefectSummary(tList)
+    const activeInQueue = tList.filter(t => t.resolutionStatus === 'IN_REWORK').length
+    const cleared = tList.filter(t => t.resolutionStatus === 'REPAIRED_PASSED').length
+    const scrap = tList.filter(t => t.resolutionStatus === 'DECLARED_SCRAP').length
+    const totalProcessed = cleared + scrap
+    const clearanceRate = totalProcessed > 0 ? Number(((cleared / totalProcessed) * 100).toFixed(1)) : 100
+
+    return {
+      activeInQueueCount: activeInQueue,
+      repairedAndClearedToday: cleared,
+      topRecurringDefect: pareto[0]?.label || 'None',
+      recoveryClearanceRatePct: clearanceRate,
+      scrapCountToday: scrap
+    }
+  }
+
   function loadData() {
     const localTickets = getAlterTickets()
-    const finalTickets = initialTickets && initialTickets.length > 0 ? initialTickets : localTickets
-    setTickets(finalTickets)
-    setMetrics(getAlterMetrics())
+    const activeTickets = initialTickets !== undefined ? initialTickets : localTickets
+    setTickets(activeTickets)
+
+    if (initialTickets !== undefined) {
+      setMetrics(computeLiveMetrics(activeTickets))
+    } else {
+      setMetrics(getAlterMetrics())
+    }
   }
 
   useEffect(() => {

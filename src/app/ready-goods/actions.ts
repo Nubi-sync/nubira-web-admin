@@ -18,17 +18,42 @@ const supabaseAdmin = createAdminClient(
 // 1. FETCH READY GOODS DASHBOARD DATA
 // -----------------------------------------------------------------------------
 
-export async function fetchReadyGoodsDashboardDataAction(): Promise<{
+export async function fetchReadyGoodsDashboardDataAction(companyName?: string): Promise<{
   cartons: ReadyGoodsCarton[]
   aqlAudits: AqlAudit[]
 }> {
   try {
+    const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
+    const targetComp = (companyName || '').toUpperCase()
+
     const [cartonsRes, aqlRes] = await Promise.all([
-      supabaseAdmin.from('ready_goods_cartons').select('*, order:merchandising_orders(po_number, brand_buyer, style_name), bundles:ready_goods_carton_bundles(bundle_id, pieces_from_bundle)').order('created_at', { ascending: false }).limit(50),
-      supabaseAdmin.from('ready_goods_aql_audits').select('*, carton:ready_goods_cartons(carton_barcode, order_id)').order('created_at', { ascending: false }).limit(50)
+      supabaseAdmin
+        .from('ready_goods_cartons')
+        .select('*, order:merchandising_orders(po_number, brand_buyer, style_name, brands:buyer_id(brand_name)), bundles:ready_goods_carton_bundles(bundle_id, pieces_from_bundle)')
+        .order('created_at', { ascending: false })
+        .limit(50),
+      supabaseAdmin
+        .from('ready_goods_aql_audits')
+        .select('*, carton:ready_goods_cartons(carton_barcode, order_id, order:merchandising_orders(brand_buyer, brands:buyer_id(brand_name)))')
+        .order('created_at', { ascending: false })
+        .limit(50)
     ])
 
-    const cartons: ReadyGoodsCarton[] = (cartonsRes.data || []).map((c: any) => {
+    const rawCartons = isNonNubira
+      ? (cartonsRes.data || []).filter((c: any) => {
+          const brand = ((c.order?.brands?.brand_name || c.order?.brand_buyer || '')).toUpperCase()
+          return brand.length > 0 && brand.includes(targetComp)
+        })
+      : (cartonsRes.data || [])
+
+    const rawAql = isNonNubira
+      ? (aqlRes.data || []).filter((a: any) => {
+          const brand = ((a.carton?.order?.brands?.brand_name || a.carton?.order?.brand_buyer || '')).toUpperCase()
+          return brand.length > 0 && brand.includes(targetComp)
+        })
+      : (aqlRes.data || [])
+
+    const cartons: ReadyGoodsCarton[] = rawCartons.map((c: any) => {
       const gross = Number(c.gross_weight_kg) || 12.5
       const expected = 12.4
       const bundles = (c.bundles || []).map((b: any) => b.bundle_id?.slice(0, 8) || 'BDL')
@@ -38,7 +63,7 @@ export async function fetchReadyGoodsDashboardDataAction(): Promise<{
         cartonNumber: c.carton_barcode || `CTN-${c.id?.slice(0, 5)}`,
         orderId: c.order_id,
         orderNumber: c.order?.po_number || 'PO-7714',
-        buyer: c.order?.brand_buyer || 'Urban Outfitters',
+        buyer: c.order?.brands?.brand_name || c.order?.brand_buyer || 'Urban Outfitters',
         styleName: c.order?.style_name || 'French Terry Hoodie',
         color: 'Vintage Charcoal',
         totalPieces: c.total_pieces || 0,
@@ -57,7 +82,7 @@ export async function fetchReadyGoodsDashboardDataAction(): Promise<{
       }
     })
 
-    const aqlAudits: AqlAudit[] = (aqlRes.data || []).map((a: any) => {
+    const aqlAudits: AqlAudit[] = rawAql.map((a: any) => {
       const isPass = a.verdict === 'PASS'
       return {
         id: a.id,

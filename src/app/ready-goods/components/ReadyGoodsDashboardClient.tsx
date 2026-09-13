@@ -43,19 +43,41 @@ export function ReadyGoodsDashboardClient({
   initialCartons,
   initialAqlAudits
 }: ReadyGoodsDashboardClientProps) {
-  const [cartons, setCartons] = useState<ReadyGoodsCarton[]>(initialCartons && initialCartons.length > 0 ? initialCartons : [])
-  const [aqlAudits, setAqlAudits] = useState<AqlAudit[]>(initialAqlAudits && initialAqlAudits.length > 0 ? initialAqlAudits : [])
+  const [cartons, setCartons] = useState<ReadyGoodsCarton[]>(initialCartons !== undefined ? initialCartons : [])
+  const [aqlAudits, setAqlAudits] = useState<AqlAudit[]>(initialAqlAudits !== undefined ? initialAqlAudits : [])
   const [metrics, setMetrics] = useState(getReadyGoodsMetrics())
   const [statusFilter, setStatusFilter] = useState<string>('ALL')
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [selectedCarton, setSelectedCarton] = useState<ReadyGoodsCarton | null>(null)
 
+  function computeLiveMetrics(cList: ReadyGoodsCarton[], aList: AqlAudit[]) {
+    const totalGarments = cList.reduce((acc, c) => acc + (c.totalPieces || 0), 0)
+    const passedAql = aList.filter(a => a.auditDecision === 'PASS').length
+    const passRate = aList.length > 0 ? Number(((passedAql / aList.length) * 100).toFixed(1)) : 100
+    const inGodown = cList.filter(c => c.status === 'PACKED' || c.status === 'AQL_AUDIT_PASSED').length
+
+    return {
+      totalPackedCartonsToday: cList.length,
+      totalGarmentsPackedToday: totalGarments,
+      aqlPassRatePct: passRate,
+      godownInventoryCartons: inGodown
+    }
+  }
+
   function loadData() {
     const localCartons = getReadyGoodsCartons()
-    setCartons(initialCartons && initialCartons.length > 0 ? initialCartons : localCartons)
+    const activeCartons = initialCartons !== undefined ? initialCartons : localCartons
+    setCartons(activeCartons)
+
     const localAql = getAqlAudits()
-    setAqlAudits(initialAqlAudits && initialAqlAudits.length > 0 ? initialAqlAudits : localAql)
-    setMetrics(getReadyGoodsMetrics())
+    const activeAql = initialAqlAudits !== undefined ? initialAqlAudits : localAql
+    setAqlAudits(activeAql)
+
+    if (initialCartons !== undefined) {
+      setMetrics(computeLiveMetrics(activeCartons, activeAql))
+    } else {
+      setMetrics(getReadyGoodsMetrics())
+    }
   }
 
   useEffect(() => {

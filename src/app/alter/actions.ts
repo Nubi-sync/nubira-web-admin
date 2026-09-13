@@ -22,17 +22,42 @@ const supabaseAdmin = createAdminClient(
 // 1. FETCH ALTERATION CLINIC DASHBOARD DATA
 // -----------------------------------------------------------------------------
 
-export async function fetchAlterDashboardDataAction(): Promise<{
+export async function fetchAlterDashboardDataAction(companyName?: string): Promise<{
   tickets: AlterationTicket[]
   scrapLogs: ScrapRequisition[]
 }> {
   try {
+    const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
+    const targetComp = (companyName || '').toUpperCase()
+
     const [ticketsRes, scrapRes] = await Promise.all([
-      supabaseAdmin.from('alteration_tickets').select('*, allotment:allotments(art_no, color, challan_id), bundle:cutting_bundles(bundle_barcode, size)').order('created_at', { ascending: false }).limit(50),
-      supabaseAdmin.from('alteration_scrap_logs').select('*, ticket:alteration_tickets(ticket_number)').order('created_at', { ascending: false }).limit(50)
+      supabaseAdmin
+        .from('alteration_tickets')
+        .select('*, allotment:allotments(art_no, color, challan_id, challans(id, brand)), bundle:cutting_bundles(bundle_barcode, size)')
+        .order('created_at', { ascending: false })
+        .limit(50),
+      supabaseAdmin
+        .from('alteration_scrap_logs')
+        .select('*, ticket:alteration_tickets(ticket_number, allotment:allotments(challans(id, brand)))')
+        .order('created_at', { ascending: false })
+        .limit(50)
     ])
 
-    const tickets: AlterationTicket[] = (ticketsRes.data || []).map((t: any) => {
+    const rawTickets = isNonNubira
+      ? (ticketsRes.data || []).filter((t: any) => {
+          const brand = (t.allotment?.challans?.brand || '').toUpperCase()
+          return brand.length > 0 && brand.includes(targetComp)
+        })
+      : (ticketsRes.data || [])
+
+    const rawScrap = isNonNubira
+      ? (scrapRes.data || []).filter((s: any) => {
+          const brand = (s.ticket?.allotment?.challans?.brand || '').toUpperCase()
+          return brand.length > 0 && brand.includes(targetComp)
+        })
+      : (scrapRes.data || [])
+
+    const tickets: AlterationTicket[] = rawTickets.map((t: any) => {
       const statusMap: Record<string, ResolutionStatus> = {
         INTAKE: 'IN_REWORK',
         IN_REPAIR: 'IN_REWORK',
@@ -74,7 +99,7 @@ export async function fetchAlterDashboardDataAction(): Promise<{
       }
     })
 
-    const scrapLogs: ScrapRequisition[] = (scrapRes.data || []).map((s: any) => ({
+    const scrapLogs: ScrapRequisition[] = rawScrap.map((s: any) => ({
       id: s.id,
       scrapCode: `SCRP-${s.id?.slice(0, 5)}`,
       ticketNumber: s.ticket?.ticket_number || 'ALT-001',
