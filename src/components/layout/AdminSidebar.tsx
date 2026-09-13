@@ -173,28 +173,6 @@ export function AdminSidebar({
           { label: 'Zigza AI', href: '/modules/zigza-ai', icon: Bot },
         ],
       },
-      {
-        section: 'Operating Divisions (1–5)',
-        items: [
-          { label: '1. Design Studio', href: '/modules/design', icon: Palette },
-          { label: '2. Merchandising', href: '/modules/merchandising', icon: Briefcase },
-          { label: '3. Cutting Floor', href: '/modules/cutting', icon: Scissors },
-          { label: '4. Printing Unit', href: '/modules/printing', icon: Printer },
-          { label: '5. Embroidery Unit', href: '/modules/embroidery', icon: Sparkles },
-        ],
-      },
-      {
-        section: 'Operating Divisions (6–12)',
-        items: [
-          { label: '6. Stitching & Sewing', href: '/modules/stitching-sewing', icon: Layers },
-          { label: '7. Industrial Washing', href: '/modules/washing', icon: Waves },
-          { label: '8. Steam Ironing', href: '/modules/iron', icon: Flame },
-          { label: '9. Ready Goods & Packing', href: '/modules/ready-goods', icon: Boxes },
-          { label: '10. Alteration & Rework', href: '/modules/alter', icon: Wrench },
-          { label: '11. Central Store', href: '/modules/store', icon: Store },
-          { label: '12. Dispatch & Logistics', href: '/dispatch', icon: Truck },
-        ],
-      },
     ]
   } else if (pathname?.startsWith('/design')) {
     activeNavSections = [
