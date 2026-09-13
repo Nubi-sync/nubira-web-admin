@@ -166,8 +166,17 @@ const MODULES: ModuleCardData[] = [
 export function ModuleHubClient({ userEmail, userName, userRole, allowedModules }: ModuleHubClientProps) {
   const [launchingId, setLaunchingId] = useState<string | null>(null)
 
+  const isModuleAllowed = (modHref: string) => {
+    if (!allowedModules || allowedModules.includes('/modules')) return true
+    return allowedModules.some(allowed => {
+      const a = allowed.replace(/\/+$/, '')
+      const h = modHref.replace(/\/+$/, '')
+      return a === h || h.startsWith(`${a}/`) || a.startsWith(`${h}/`)
+    })
+  }
+
   const visibleModules = (allowedModules && !allowedModules.includes('/modules'))
-    ? MODULES.filter(m => allowedModules.includes(m.href))
+    ? MODULES.filter(m => isModuleAllowed(m.href))
     : MODULES
 
   const handleCardClick = (e: React.MouseEvent, mod: ModuleCardData) => {
