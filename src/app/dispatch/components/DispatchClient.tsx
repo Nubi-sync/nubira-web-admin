@@ -100,6 +100,8 @@ interface DispatchClientProps {
   deliveryChallans: DeliveryChallan[]
   countingReports: CountingReport[]
   allotments?: Allotment[]
+  companyName?: string
+  factoryAddress?: string
 }
 
 type TabKey = 'challans' | 'counting'
@@ -111,8 +113,17 @@ export function DispatchClient({
   deliveryChallans,
   countingReports,
   allotments = [],
+  companyName = 'Enterprise Apparel Factory',
+  factoryAddress = 'Industrial Apparel Park, India',
 }: DispatchClientProps) {
-  const [activeTab, setActiveTab] = useState<TabKey>('challans')
+  const [activeTab, setActiveTab] = useState<TabKey>(() => {
+    if (typeof window !== 'undefined') {
+      const p = new URLSearchParams(window.location.search)
+      if (p.get('tab') === 'counting') return 'counting'
+      if (p.get('tab') === 'challans') return 'challans'
+    }
+    return 'challans'
+  })
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState<ReconciliationStatus>('ALL')
   const [currentPage, setCurrentPage] = useState(1)
@@ -1417,11 +1428,11 @@ export function DispatchClient({
             {/* Header / Invoice Branding */}
             <div className="flex items-start justify-between pb-4 border-b border-black/10">
               <div>
-                <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-                  NUBIRA CREATION
+                <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight uppercase">
+                  {companyName}
                 </h2>
                 <p className="text-xs text-slate-600 font-semibold mt-0.5">Garment Manufacturing & Apparel Unit</p>
-                <p className="text-xs text-slate-400 font-mono mt-0.5">Rafi Ahmed Kidwai Road, Kolkata 700055, West Bengal</p>
+                <p className="text-xs text-slate-400 font-mono mt-0.5">{factoryAddress}</p>
               </div>
               <div className="text-right">
                 <span className="inline-block px-3 py-1 rounded-lg bg-[#FAF7F0] border border-black/10 font-mono font-extrabold text-xs text-[#3A3564] shadow-2xs">

@@ -3,6 +3,7 @@ import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { redirect } from 'next/navigation'
 import { AdminShell } from '@/components/layout/AdminShell'
 import { SupervisorDeskClient } from './SupervisorDeskClient'
+import { resolveUserTenant } from '@/lib/tenant-context'
 
 export const dynamic = 'force-dynamic'
 
@@ -22,17 +23,13 @@ export default async function SupervisorDeskPage() {
     redirect('/login')
   }
 
-  // 1. Fetch user role
-  const { data: profile } = await supabaseAdmin
-    .from('profiles')
-    .select('id, username, role')
-    .eq('id', user.id)
-    .single()
-
-  const userRole = (profile?.role || '').toUpperCase()
+  // Centrally resolve tenant identity
+  const tenant = await resolveUserTenant(user)
+  const isProvisionedTenant = tenant.isProvisionedTenant && tenant.companyName !== 'Nubira Creation'
+  const userRole = tenant.role.toUpperCase()
 
   // 2. Fetch all active floor allotments with relations
-  const { data: allotmentsData, error: allotmentsErr } = await supabaseAdmin
+  const { data: rawAllotmentsData, error: allotmentsErr } = await supabaseAdmin
     .from('allotments')
     .select(`
       id,
@@ -72,27 +69,35 @@ export default async function SupervisorDeskPage() {
   }
 
   // 3. Fetch all linemen profiles
-  const { data: linemenProfiles } = await supabaseAdmin
+  const { data: rawLinemenProfiles } = await supabaseAdmin
     .from('profiles')
     .select('id, username, role')
     .eq('role', 'LINEMAN')
     .order('username')
 
   // 4. Fetch all profiles for reference
-  const { data: allProfiles } = await supabaseAdmin
+  const { data: rawAllProfiles } = await supabaseAdmin
     .from('profiles')
     .select('id, username, role')
     .order('username')
 
+  // Multi-tenant scoping: Client factories only view allotments matching their company
+  const allotmentsData = isProvisionedTenant
+    ? (rawAllotmentsData || []).filter(a => (a.challans as any)?.brand?.toUpperCase().includes(tenant.companyName.toUpperCase()))
+    : (rawAllotmentsData || [])
+
+  const linemenProfiles = isProvisionedTenant ? [] : (rawLinemenProfiles || [])
+  const allProfiles = isProvisionedTenant ? [] : (rawAllProfiles || [])
+
   return (
-    <AdminShell userEmail={user.email} userRole={userRole}>
+    <AdminShell userEmail={tenant.userEmail} userRole={userRole}>
       <SupervisorDeskClient
         initialAllotments={(allotmentsData as any) || []}
         linemenProfiles={linemenProfiles || []}
         allProfiles={allProfiles || []}
-        currentUserEmail={user.email || ''}
-        currentUserName={profile?.username || user.email?.split('@')[0] || 'Admin'}
-        currentUserRole={userRole || 'Plant Admin'}
+        currentUserEmail={tenant.userEmail}
+        currentUserName={tenant.adminDisplayName || tenant.customUsername || user.email?.split('@')[0] || 'Enterprise Admin'}
+        currentUserRole={tenant.isSuperAdmin ? 'Enterprise Master' : (userRole || 'Plant Admin')}
       />
     </AdminShell>
   )

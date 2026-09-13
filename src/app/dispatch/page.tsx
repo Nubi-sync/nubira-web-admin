@@ -3,6 +3,7 @@ import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { DispatchClient } from './components/DispatchClient'
 import Link from 'next/link'
+import { resolveUserTenant } from '@/lib/tenant-context'
 
 export const dynamic = 'force-dynamic'
 
@@ -17,27 +18,25 @@ export default async function DispatchPage() {
     redirect('/login')
   }
 
-  // Restrict Store Supervisors from admin dispatch management
-  const { data: userProfile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single()
+  // Centrally resolve tenant identity
+  const tenant = await resolveUserTenant(user)
+  const isProvisionedTenant = tenant.isProvisionedTenant && tenant.companyName !== 'Nubira Creation'
 
-  const userRole = (userProfile?.role || '').toUpperCase()
+  // Restrict Store Supervisors from admin dispatch management
+  const userRole = tenant.role.toUpperCase()
   if (userRole === 'STORE' || userRole === 'STORE_SUPERVISOR' || userRole === 'GODOWN' || user.email?.startsWith('store@')) {
     redirect('/store')
   }
 
   // 1. Fetch Articles
-  const { data: articles } = await supabase
+  const { data: rawArticles } = await supabase
     .from('articles')
     .select('id, art_no, description')
     .eq('is_active', true)
     .order('art_no')
 
   // 2. Fetch Delivery Challans with items (with fallback for schema flexibility)
-  let deliveryChallans: any[] | null = null
+  let rawDeliveryChallans: any[] | null = null
   const { data: dcWithVendor, error: dcErr } = await supabase
     .from('delivery_challans')
     .select(`
@@ -82,7 +81,7 @@ export default async function DispatchPage() {
     .order('created_at', { ascending: false })
 
   if (!dcErr && dcWithVendor) {
-    deliveryChallans = dcWithVendor
+    rawDeliveryChallans = dcWithVendor
   } else {
     const { data: dcFallback } = await supabase
       .from('delivery_challans')
@@ -124,11 +123,11 @@ export default async function DispatchPage() {
         )
       `)
       .order('created_at', { ascending: false })
-    deliveryChallans = dcFallback
+    rawDeliveryChallans = dcFallback
   }
 
   // 3. Fetch Counting Reports
-  const { data: countingReports } = await supabase
+  const { data: rawCountingReports } = await supabase
     .from('counting_reports')
     .select(`
       id,
@@ -145,29 +144,47 @@ export default async function DispatchPage() {
     .order('created_at', { ascending: false })
 
   // 4. Fetch Allotments for Cut Qty reconciliation
-  const { data: allotments } = await supabase
+  const { data: rawAllotments } = await supabase
     .from('allotments')
     .select(`
       id,
       article_id,
       target_qty,
       allotment_date,
-      article:articles(art_no, description)
+      article:articles(art_no, description),
+      challans:challan_id(brand)
     `)
     .order('created_at', { ascending: false })
 
+  // Multi-tenant scoping: provisioned factories only see records tagged to their company
+  const deliveryChallans = isProvisionedTenant
+    ? (rawDeliveryChallans || []).filter(dc => 
+        (dc.billed_to_name && dc.billed_to_name.toUpperCase().includes(tenant.companyName.toUpperCase())) ||
+        (dc.notes && dc.notes.toUpperCase().includes(tenant.companyName.toUpperCase()))
+      )
+    : (rawDeliveryChallans || [])
+
+  const countingReports = isProvisionedTenant ? [] : (rawCountingReports || [])
+  const articles = isProvisionedTenant ? [] : (rawArticles || [])
+  const allotments = isProvisionedTenant
+    ? (rawAllotments || []).filter(a => (a.challans as any)?.brand?.toUpperCase().includes(tenant.companyName.toUpperCase()))
+    : (rawAllotments || [])
+
   return (
-    <AdminShell userEmail={user.email}>
+    <AdminShell userEmail={tenant.userEmail} userRole={userRole}>
       <div className="flex-1 p-4 sm:p-6 md:p-8 max-w-7xl w-full mx-auto space-y-5 sm:space-y-6">
         
-        {/* Breadcrumb */}
+        {/* Breadcrumb according to Division 12 Guide */}
         <div className="flex items-center gap-2 text-xs sm:text-sm font-medium text-slate-500">
-          <Link href="/stitching-sewing/dashboard" className="hover:text-[#3A3564] transition-colors">
-            Sewing Dashboard
+          <Link href="/modules" className="hover:text-[#3A3564] transition-colors">
+            Workspace Hub
           </Link>
           <span>/</span>
           <span className="font-bold text-slate-900">
-            Dispatch & Challans
+            12. Dispatch & Logistics Hub
+          </span>
+          <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700 ml-auto border border-slate-200">
+            {tenant.companyName}
           </span>
         </div>
 
@@ -176,6 +193,8 @@ export default async function DispatchPage() {
           deliveryChallans={(deliveryChallans as any) || []}
           countingReports={(countingReports as any) || []}
           allotments={(allotments as any) || []}
+          companyName={tenant.companyName}
+          factoryAddress={tenant.cityState}
         />
 
       </div>

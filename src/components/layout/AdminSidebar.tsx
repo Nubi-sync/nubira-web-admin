@@ -86,7 +86,7 @@ const navSections: NavSection[] = [
       { label: 'Production Chart', href: '/stitching-sewing/production-orders', icon: Layers },
       { label: 'Target Allotments', href: '/stitching-sewing/allotments', icon: ClipboardList },
       { label: 'Godown & Inventory', href: '/stitching-sewing/inventory', icon: Warehouse },
-      { label: 'Dispatch & Challans', href: '/stitching-sewing/dispatch', icon: Truck },
+      { label: 'Dispatch & Challans', href: '/dispatch', icon: Truck },
     ],
   },
   {
@@ -517,14 +517,14 @@ export function AdminSidebar({
         section: '12. Dispatch Operations',
         items: [
           { label: 'Dispatch Hub', href: '/dispatch', icon: Truck },
-          { label: 'Pre-Loading Audits', href: '/dispatch', icon: ClipboardList },
-          { label: 'Delivery Challans', href: '/dispatch', icon: FileText },
+          { label: 'Pre-Loading Audits', href: '/dispatch?tab=counting', icon: ClipboardList },
+          { label: 'Delivery Challans', href: '/dispatch?tab=challans', icon: FileText },
         ],
       },
       {
         section: 'Account',
         items: [
-          { label: 'Staff Profile', href: '/profile', icon: User },
+          { label: 'Company Profile', href: '/modules/profile', icon: Building2 },
         ],
       },
     ]
@@ -627,7 +627,7 @@ export function AdminSidebar({
 
     return (
       <Link
-        key={item.href}
+        key={`${item.href}-${item.label}`}
         href={item.href}
         prefetch={true}
         onClick={(e) => handleNavClick(e, item.href)}
