@@ -241,23 +241,38 @@ function formatExcelDate(dateVal: any): string {
     }
   }
 
-  // If DD-MM-YYYY or DD/MM/YYYY
+  // Handle DD-MM-YYYY or DD/MM/YYYY or D/M/YYYY (Indian Standard Business Date)
   const parts = str.split(/[-/.]/)
   if (parts.length >= 3) {
-    if (parts[0].length === 2 && parts[1].length === 2 && parts[2].length === 4) {
-      const d = parts[0]
-      const m = parts[1]
-      const y = parseInt(parts[2], 10)
-      if (y >= 1990 && y <= 2099) {
-        return `${y}-${m}-${d}`
+    // Check if 3rd part is year (e.g. 4/8/2026 or 04/08/2026)
+    const yCandidate = parseInt(parts[2], 10)
+    if (parts[2].length === 4 || (yCandidate >= 1990 && yCandidate <= 2099)) {
+      const y = yCandidate
+      const p0 = parseInt(parts[0], 10)
+      const p1 = parseInt(parts[1], 10)
+
+      let d = p0
+      let m = p1
+
+      // If second part is > 12, it must be the day (MM/DD/YYYY)
+      if (p0 <= 12 && p1 > 12 && p1 <= 31) {
+        m = p0
+        d = p1
+      }
+
+      if (y >= 1990 && y <= 2099 && m >= 1 && m <= 12 && d >= 1 && d <= 31) {
+        return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`
       }
     }
-    if (parts[0].length === 4 && parts[1].length === 2 && parts[2].length === 2) {
-      const y = parseInt(parts[0], 10)
-      const m = parts[1]
-      const d = parts[2]
-      if (y >= 1990 && y <= 2099) {
-        return `${y}-${m}-${d}`
+
+    // Check if 1st part is year (e.g. 2026/8/4 or 2026-8-4)
+    const firstYCandidate = parseInt(parts[0], 10)
+    if (parts[0].length === 4 || (firstYCandidate >= 1990 && firstYCandidate <= 2099)) {
+      const y = firstYCandidate
+      const m = parseInt(parts[1], 10)
+      const d = parseInt(parts[2], 10)
+      if (y >= 1990 && y <= 2099 && m >= 1 && m <= 12 && d >= 1 && d <= 31) {
+        return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`
       }
     }
   }

@@ -17,6 +17,10 @@ import {
   ArrowDown,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
+  ChevronUp,
+  Tag,
+  Receipt,
   FileText,
   Image as ImageIcon,
   AlertTriangle,
@@ -1119,10 +1123,10 @@ export function InventoryClient({
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse text-xs sm:text-[13px]">
                   <thead>
-                    <tr className="bg-[#FAF7F0] border-b border-black/10 text-xs font-mono uppercase tracking-wider font-bold text-slate-700">
+                    <tr className="bg-[#FAF7F0] border-b border-black/10 text-[11px] font-mono uppercase tracking-wider font-bold text-slate-700">
                       <th 
                         onClick={() => handleSort('date')}
-                        className="px-5 py-3.5 cursor-pointer hover:bg-slate-100 transition-colors select-none font-bold"
+                        className="px-4 py-3.5 cursor-pointer hover:bg-slate-100 transition-colors select-none font-bold w-[150px]"
                       >
                         <div className="flex items-center gap-1.5">
                           <span>GRN # & Date</span>
@@ -1133,16 +1137,16 @@ export function InventoryClient({
                           )}
                         </div>
                       </th>
-                      <th className="px-4 py-3.5 font-bold">Supplier / Brand</th>
-                      <th className="px-4 py-3.5 font-bold">Article No</th>
-                      <th className="px-4 py-3.5 font-bold">Challan / Vehicle</th>
-                      <th className="px-4 py-3.5 font-bold">Items Breakdown</th>
-                      <th className="px-4 py-3.5 font-bold text-center">Status</th>
-                      <th className="px-4 py-3.5 font-bold text-center">Slip Proof</th>
-                      <th className="px-5 py-3.5 font-bold text-right">Actions</th>
+                      <th className="px-4 py-3.5 font-bold min-w-[180px]">Supplier / Brand</th>
+                      <th className="px-3 py-3.5 font-bold w-[110px]">Article No</th>
+                      <th className="px-4 py-3.5 font-bold min-w-[140px]">Challan / Vehicle</th>
+                      <th className="px-4 py-3.5 font-bold min-w-[340px]">Items Breakdown & Quantities</th>
+                      <th className="px-4 py-3.5 font-bold text-center w-[130px]">Status</th>
+                      <th className="px-3 py-3.5 font-bold text-center w-[110px]">Slip Proof</th>
+                      <th className="px-4 py-3.5 font-bold text-right w-[70px]">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100">
+                  <tbody className="divide-y divide-slate-100 bg-white">
                     {paginatedChallans.map((row) => {
                       const isExpanded = expandedGrnId === row.id
                       const isVerified = row.status === 'VERIFIED'
@@ -1150,130 +1154,242 @@ export function InventoryClient({
                       const isDue = row.status === 'DUE_PENDING'
 
                       return (
-                        <tr key={row.id} className="hover:bg-slate-50/50 transition-colors align-top">
-                          <td className="px-5 py-3.5 whitespace-nowrap">
-                            <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs">
-                              {row.grn_no}
-                            </span>
-                            <div className="text-xs text-slate-500 mt-1 font-mono">
-                              {row.inward_date || row.created_at.split('T')[0]}
+                        <tr key={row.id} className="hover:bg-slate-50/70 transition-colors align-top">
+                          {/* 1. GRN # & DATE */}
+                          <td className="px-4 py-3.5 whitespace-nowrap">
+                            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-[#FAF7F0] text-[#3A3564] border border-[#3A3564]/15 shadow-2xs">
+                              <FileText className="w-3.5 h-3.5 text-[#3A3564] shrink-0" />
+                              <span>{row.grn_no}</span>
+                            </div>
+                            <div className="text-[11px] text-slate-500 mt-1.5 flex items-center gap-1 font-mono pl-0.5">
+                              <Clock className="w-3 h-3 text-slate-400 shrink-0" />
+                              <span>{row.inward_date || row.created_at.split('T')[0]}</span>
                             </div>
                           </td>
 
+                          {/* 2. SUPPLIER / BRAND */}
                           <td className="px-4 py-3.5">
-                            <div className="font-bold text-sm text-slate-900">{row.party_name}</div>
-                            <div className="mt-1 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-[#FAF7F0] border border-black/10 text-[11px] font-bold text-[#3A3564] shadow-2xs">
-                              <User className="w-3 h-3 text-[#3A3564]" />
-                              <span>{row.receiver_name || 'Store Inward'}</span>
-                            </div>
-                          </td>
-
-                          <td className="px-4 py-3.5">
-                            {row.article_no ? (
-                              <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-100 text-slate-800 border border-slate-200">
-                                Art {row.article_no}
-                              </span>
-                            ) : (
-                              <span className="text-slate-400">-</span>
-                            )}
-                          </td>
-
-                          <td className="px-4 py-3.5 text-slate-600 text-xs sm:text-[13px]">
-                            <div className="font-medium text-slate-800">{row.challan_no ? 'Challan #' + row.challan_no : 'Direct Delivery'}</div>
-                            {row.truck_no && (
-                              <div className="text-slate-500 mt-0.5 font-mono">{row.truck_no}</div>
-                            )}
-                          </td>
-
-                          <td className="px-4 py-3.5">
-                            <div className="space-y-1.5 max-w-md">
-                              {(() => {
-                                const allItems: Array<{ item_name: string; size_label?: string | null; quantity: number; unit?: string | null; status: string }> = 
-                                  (row.items && row.items.length > 0)
-                                    ? row.items
-                                    : Array.isArray(row.line_items)
-                                      ? row.line_items.map((li: any) => ({
-                                          item_name: li.name || li.item_name || 'Item',
-                                          size_label: li.size || li.size_label || '',
-                                          quantity: Number(li.qty || li.quantity) || 0,
-                                          unit: li.unit || 'pcs',
-                                          status: li.status || 'RECEIVED'
-                                        }))
-                                      : []
-
-                                return (
-                                  <>
-                                    {allItems.slice(0, isExpanded ? allItems.length : 3).map((it, i) => (
-                                      <div key={i} className="flex items-center gap-1.5 text-xs text-slate-700">
-                                        <span className={`w-2 h-2 rounded-full shrink-0 ${it.status === 'DUE' ? 'bg-purple-500' : it.status === 'SHORTAGE' ? 'bg-amber-500' : 'bg-emerald-500'}`} />
-                                        <span className="font-semibold text-slate-900">{it.item_name}</span>
-                                        {it.size_label && <span className="text-slate-500 font-mono">({it.size_label})</span>}
-                                        <span className="text-slate-500 font-mono font-bold">: {it.quantity} {it.unit}</span>
-                                        {it.status === 'DUE' && (
-                                          <span className="px-1.5 py-0.5 rounded text-xs font-bold bg-purple-100 text-purple-700">DUE</span>
-                                        )}
-                                        {it.status === 'SHORTAGE' && (
-                                          <span className="px-1.5 py-0.5 rounded text-xs font-bold bg-amber-100 text-amber-700">SHORT</span>
-                                        )}
-                                      </div>
-                                    ))}
-                                    {allItems.length > 3 && (
-                                      <button
-                                        type="button"
-                                        onClick={() => setExpandedGrnId(isExpanded ? null : row.id)}
-                                        className="text-xs font-bold text-[#3A3564] hover:underline pt-0.5 block cursor-pointer"
-                                      >
-                                        {isExpanded ? 'Show less' : `+ ${allItems.length - 3} more items`}
-                                      </button>
-                                    )}
-                                  </>
-                                )
-                              })()}
-                            </div>
-                            {row.notes && (
-                              <div className="text-xs text-slate-500 italic mt-1.5 bg-slate-50 px-2 py-1 rounded border border-slate-200/60">
-                                Note: {row.notes}
+                            <div className="flex items-start gap-2.5">
+                              <div className="w-7 h-7 rounded-lg bg-[#FAF7F0] border border-[#3A3564]/15 text-[#3A3564] font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs">
+                                {row.party_name ? row.party_name.substring(0, 2).toUpperCase() : 'SP'}
                               </div>
+                              <div className="min-w-0">
+                                <div className="font-bold text-[13px] text-slate-900 leading-tight">
+                                  {row.party_name}
+                                </div>
+                                <div className="mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 text-[10.5px] font-medium text-slate-600 border border-slate-200/60">
+                                  <User className="w-3 h-3 text-slate-400" />
+                                  <span>{row.receiver_name || 'Store Inward'}</span>
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+
+                          {/* 3. ARTICLE NO */}
+                          <td className="px-3 py-3.5 whitespace-nowrap">
+                            {row.article_no ? (
+                              <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-50/90 text-[#3A3564] border border-[#3A3564]/20 shadow-2xs">
+                                <Tag className="w-3 h-3 text-[#3A3564]" />
+                                <span>Art {row.article_no}</span>
+                              </div>
+                            ) : (
+                              <span className="text-slate-300 font-mono text-xs pl-2">—</span>
                             )}
                           </td>
 
-                          <td className="px-4 py-3.5 text-center">
+                          {/* 4. CHALLAN / VEHICLE */}
+                          <td className="px-4 py-3.5 text-xs">
+                            <div className="flex items-center gap-1.5 font-semibold text-slate-800">
+                              <Receipt className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                              <span>{row.challan_no ? `Challan #${row.challan_no}` : 'Direct Delivery'}</span>
+                            </div>
+                            {row.truck_no ? (
+                              <div className="inline-flex items-center gap-1 mt-1 text-[11px] text-slate-600 bg-slate-100 px-2 py-0.5 rounded font-mono border border-slate-200/60">
+                                <Truck className="w-3 h-3 text-slate-500 shrink-0" />
+                                <span>{row.truck_no}</span>
+                              </div>
+                            ) : (
+                              <div className="text-[10.5px] text-slate-400 mt-1 pl-5">No vehicle logged</div>
+                            )}
+                          </td>
+
+                          {/* 5. ITEMS BREAKDOWN & QUANTITIES */}
+                          <td className="px-4 py-3 min-w-[340px] max-w-[420px]">
+                            {(() => {
+                              const allItems: Array<{ item_name: string; size_label?: string | null; quantity: number; unit?: string | null; status: string }> = 
+                                (row.items && row.items.length > 0)
+                                  ? row.items
+                                  : Array.isArray(row.line_items)
+                                    ? row.line_items.map((li: any) => ({
+                                        item_name: li.name || li.item_name || 'Item',
+                                        size_label: li.size || li.size_label || '',
+                                        quantity: Number(li.qty || li.quantity) || 0,
+                                        unit: li.unit || 'pcs',
+                                        status: li.status || 'RECEIVED'
+                                      }))
+                                    : []
+
+                              const totalQty = allItems.reduce((acc, it) => acc + (Number(it.quantity) || 0), 0)
+                              const shortageCount = allItems.filter(it => it.status === 'SHORTAGE').length
+                              const dueCount = allItems.filter(it => it.status === 'DUE').length
+
+                              if (allItems.length === 0) {
+                                return <span className="text-slate-400 italic text-xs">No items logged</span>
+                              }
+
+                              return (
+                                <div className="bg-slate-50/90 rounded-xl p-2.5 border border-slate-200/80 shadow-2xs">
+                                  {/* Header Summary Bar */}
+                                  <div className="flex items-center justify-between gap-2 pb-2 mb-2 border-b border-slate-200/60">
+                                    <div className="flex items-center gap-1.5">
+                                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Inward:</span>
+                                      <span className="inline-flex items-center px-2 py-0.5 rounded-md font-mono font-bold text-xs bg-[#3A3564] text-white shadow-2xs">
+                                        {totalQty.toLocaleString('en-IN')} <span className="text-[10px] font-normal opacity-85 ml-1">{allItems[0]?.unit || 'pcs'}</span>
+                                      </span>
+                                    </div>
+                                    <div className="flex items-center gap-1.5">
+                                      <span className="text-[11px] font-semibold text-slate-600 bg-white px-2 py-0.5 rounded-md border border-slate-200 shadow-2xs">
+                                        {allItems.length} {allItems.length === 1 ? 'item' : 'items'}
+                                      </span>
+                                      {shortageCount > 0 && (
+                                        <span className="text-[10px] font-bold text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded">
+                                          {shortageCount} short
+                                        </span>
+                                      )}
+                                      {dueCount > 0 && (
+                                        <span className="text-[10px] font-bold text-purple-700 bg-purple-100 px-1.5 py-0.5 rounded">
+                                          {dueCount} due
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+
+                                  {/* List of items */}
+                                  <div className="space-y-1.5">
+                                    {allItems.slice(0, isExpanded ? allItems.length : 3).map((it, i) => {
+                                      let cleanName = it.item_name
+                                      let detectedSize = it.size_label || ''
+                                      const match = cleanName.match(/\(([^)]+)\)$/)
+                                      if (match) {
+                                        if (!detectedSize) detectedSize = match[1]
+                                        cleanName = cleanName.replace(/\(([^)]+)\)$/, '').trim()
+                                      }
+
+                                      return (
+                                        <div 
+                                          key={i} 
+                                          className={`flex items-center justify-between gap-2 px-2 py-1.5 rounded-lg border text-xs transition-colors ${
+                                            it.status === 'SHORTAGE' 
+                                              ? 'bg-amber-50/60 border-amber-200/70 text-amber-950' 
+                                              : it.status === 'DUE' 
+                                                ? 'bg-purple-50/60 border-purple-200/70 text-purple-950' 
+                                                : 'bg-white border-slate-200/70 text-slate-800 hover:border-slate-300'
+                                          }`}
+                                        >
+                                          {/* Left: Indicator + Name + Size */}
+                                          <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                                            <span className={`w-2 h-2 rounded-full shrink-0 ${
+                                              it.status === 'DUE' ? 'bg-purple-500' : it.status === 'SHORTAGE' ? 'bg-amber-500' : 'bg-emerald-500'
+                                            }`} />
+                                            <span className="font-semibold text-slate-800 text-[12px] truncate" title={it.item_name}>
+                                              {cleanName}
+                                            </span>
+                                            {detectedSize && (
+                                              <span className="px-1.5 py-0.2 rounded text-[10px] font-mono font-semibold bg-slate-100 text-slate-600 border border-slate-200 shrink-0">
+                                                {detectedSize}
+                                              </span>
+                                            )}
+                                          </div>
+
+                                          {/* Right: Quantity + Status Pill */}
+                                          <div className="flex items-center gap-1.5 shrink-0 pl-1">
+                                            <span className="font-mono font-bold text-xs text-slate-900 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200/60">
+                                              {Number(it.quantity).toLocaleString('en-IN')} <span className="text-[10px] font-normal text-slate-500">{it.unit || 'pcs'}</span>
+                                            </span>
+                                            {it.status === 'DUE' && (
+                                              <span className="px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-purple-100 text-purple-700">
+                                                DUE
+                                              </span>
+                                            )}
+                                            {it.status === 'SHORTAGE' && (
+                                              <span className="px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-amber-100 text-amber-800">
+                                                SHORT
+                                              </span>
+                                            )}
+                                          </div>
+                                        </div>
+                                      )
+                                    })}
+                                  </div>
+
+                                  {/* Expand / Collapse Button */}
+                                  {allItems.length > 3 && (
+                                    <button
+                                      type="button"
+                                      onClick={() => setExpandedGrnId(isExpanded ? null : row.id)}
+                                      className="w-full mt-2 pt-1.5 border-t border-slate-200 flex items-center justify-center gap-1 text-[11px] font-bold text-[#3A3564] hover:text-[#2A2554] hover:bg-slate-100/80 py-1 rounded-md transition-all cursor-pointer"
+                                    >
+                                      {isExpanded ? (
+                                        <>Show less items <ChevronUp className="w-3.5 h-3.5" /></>
+                                      ) : (
+                                        <>+ View all {allItems.length} items ({allItems.length - 3} more) <ChevronDown className="w-3.5 h-3.5" /></>
+                                      )}
+                                    </button>
+                                  )}
+
+                                  {row.notes && (
+                                    <div className="text-[11px] text-slate-600 italic mt-2 bg-amber-50/60 p-1.5 rounded-lg border border-amber-200/50 flex items-start gap-1">
+                                      <span className="font-bold text-amber-900 not-italic">Note:</span> {row.notes}
+                                    </div>
+                                  )}
+                                </div>
+                              )
+                            })()}
+                          </td>
+
+                          {/* 6. STATUS */}
+                          <td className="px-4 py-3.5 text-center whitespace-nowrap">
                             {isVerified && (
-                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
-                                <Check className="w-3.5 h-3.5 text-emerald-600" />
+                              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-2xs">
+                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                                 Verified
                               </span>
                             )}
                             {isShortage && (
-                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200">
+                              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200 shadow-2xs">
                                 <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
                                 Shortage ({row.shortage_items_count})
                               </span>
                             )}
                             {isDue && (
-                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-purple-50 text-purple-800 border border-purple-200">
+                              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-purple-50 text-purple-800 border border-purple-200 shadow-2xs">
                                 <Clock className="w-3.5 h-3.5 text-purple-600" />
                                 Due ({row.due_items_count})
                               </span>
                             )}
                           </td>
 
-                          <td className="px-4 py-3.5 text-center">
+                          {/* 7. SLIP PROOF */}
+                          <td className="px-3 py-3.5 text-center whitespace-nowrap">
                             {row.challan_photo_url ? (
                               <button
                                 type="button"
                                 onClick={() => setActivePhoto({ url: row.challan_photo_url!, title: `${row.party_name} • ${row.grn_no}` })}
-                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-[#FAF7F0] hover:bg-slate-100 text-[#3A3564] border border-black/10 transition-colors cursor-pointer shadow-2xs"
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-white hover:bg-slate-50 text-[#3A3564] border border-slate-200 hover:border-slate-300 shadow-2xs transition-all cursor-pointer"
                               >
-                                <ImageIcon className="w-3.5 h-3.5 text-[#3A3564]" />
+                                <Eye className="w-3.5 h-3.5 text-[#3A3564]" />
                                 <span>View Slip</span>
                               </button>
                             ) : (
-                              <span className="text-slate-400 text-xs italic">No photo</span>
+                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-medium text-slate-400 bg-slate-100/70 border border-slate-200/40">
+                                <ImageIcon className="w-3 h-3 text-slate-300" />
+                                No Slip
+                              </span>
                             )}
                           </td>
 
-                          <td className="px-5 py-3.5 text-right whitespace-nowrap">
+                          {/* 8. ACTIONS */}
+                          <td className="px-4 py-3.5 text-right whitespace-nowrap">
                             <button
                               type="button"
                               onClick={() => {
@@ -1285,7 +1401,7 @@ export function InventoryClient({
                                   subtitle: `Supplier: ${row.party_name} • Challan: ${row.challan_no || '-'}`
                                 })
                               }}
-                              className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                              className="p-2 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition-all cursor-pointer"
                               title="Delete GRN Receipt"
                             >
                               <Trash2 className="w-4 h-4" />

@@ -107,6 +107,20 @@ const createEmptyArticleLine = (): ChallanArticleLine => ({
   status: 'RUNNING'
 })
 
+function formatDisplayDate(dateStr?: string | null): string {
+  if (!dateStr) return '-'
+  const match = String(dateStr).trim().match(/^(\d{4})-(\d{2})-(\d{2})/)
+  if (!match) return dateStr
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+  const y = match[1]
+  const m = parseInt(match[2], 10) - 1
+  const d = match[3]
+  if (m >= 0 && m <= 11) {
+    return `${d} ${months[m]} ${y}`
+  }
+  return dateStr
+}
+
 interface ProductionOrdersClientProps {
   initialOrders: ChallanGroupedOrder[]
   articlesList: any[]
@@ -864,9 +878,9 @@ export function ProductionOrdersClient({
     return masterArticlesUniverse.find(a => a.art_no === selectedArticleForHistory) || masterArticlesUniverse[0]
   }, [selectedArticleForHistory, masterArticlesUniverse])
 
-  // Filtered Orders (Dynamically filters based on selected tab / status)
+  // Filtered Orders (Dynamically filters based on selected tab / status, sorted with newest on top)
   const filteredOrders = useMemo(() => {
-    return orders.filter(ch => {
+    const list = orders.filter(ch => {
       const q = searchQuery.trim().toLowerCase()
       const matchSearch =
         q === '' ||
@@ -903,6 +917,13 @@ export function ProductionOrdersClient({
       const matchDate = selectedDate === 'ALL' || ch.challan_date === selectedDate
 
       return matchSearch && matchBrand && matchVendor && matchStatus && matchDate
+    })
+
+    // Strict Descending Sort: Newest created or updated Challan / Article is guaranteed at the very TOP
+    return list.sort((a, b) => {
+      const timeA = new Date(a.created_at || a.challan_date).getTime()
+      const timeB = new Date(b.created_at || b.challan_date).getTime()
+      return timeB - timeA
     })
   }, [orders, searchQuery, selectedBrand, selectedVendor, selectedStatus, selectedDate])
 
@@ -978,41 +999,41 @@ export function ProductionOrdersClient({
           setShowNewChallanModal(false)
           toast.success(`Challan #${cleanChallan} updated successfully.`)
 
-          setOrders(prev =>
-            prev.map(ch => {
-              if (ch.id === editingChallanId) {
+          setOrders(prev => {
+            const existing = prev.find(ch => ch.id === editingChallanId)
+            const updatedChallan: ChallanGroupedOrder = {
+              ...(existing || {}),
+              id: editingChallanId,
+              challan_no: payload.challan_no,
+              challan_date: payload.challan_date,
+              brand: payload.brand,
+              vendor_id: payload.vendor_id,
+              vendor_name: payload.vendor_name,
+              delivery_date: payload.delivery_date || '',
+              fabric_type: payload.fabric_type || '',
+              sample_given: !!payload.sample_given,
+              notes: payload.notes || '',
+              total_sets: formGrandSets,
+              total_pcs: formGrandPcs,
+              status: existing?.status || 'PENDING',
+              bom_details: payload.bom_items || [],
+              articles: payload.article_lines.map((line, idx) => {
+                const existingLine = existing?.articles?.find(a => 
+                  (a.art_no || '').trim().toUpperCase() === (line.art_no || '').trim().toUpperCase() &&
+                  (a.color_pattern || '').trim().toUpperCase() === (line.color_pattern || '').trim().toUpperCase() &&
+                  (a.size_range || '').trim().toUpperCase() === (line.size_range || '').trim().toUpperCase()
+                )
                 return {
-                  ...ch,
-                  challan_no: payload.challan_no,
-                  challan_date: payload.challan_date,
-                  brand: payload.brand,
-                  vendor_id: payload.vendor_id,
-                  vendor_name: payload.vendor_name,
-                  delivery_date: payload.delivery_date || '',
-                  fabric_type: payload.fabric_type || '',
-                  sample_given: !!payload.sample_given,
-                  notes: payload.notes || '',
-                  total_sets: formGrandSets,
-                  total_pcs: formGrandPcs,
-                  bom_details: payload.bom_items || [],
-                  articles: payload.article_lines.map((line, idx) => {
-                    const existingLine = ch.articles?.find(a => 
-                      (a.art_no || '').trim().toUpperCase() === (line.art_no || '').trim().toUpperCase() &&
-                      (a.color_pattern || '').trim().toUpperCase() === (line.color_pattern || '').trim().toUpperCase() &&
-                      (a.size_range || '').trim().toUpperCase() === (line.size_range || '').trim().toUpperCase()
-                    )
-                    return {
-                      ...line,
-                      allotment_id: existingLine?.allotment_id || ('temp-art-' + idx),
-                      status: existingLine?.status || 'PENDING',
-                      assigned_lineman_name: existingLine?.assigned_lineman_name || linemenList.find(l => l.id === line.assigned_lineman_id)?.username || 'Unassigned'
-                    }
-                  })
+                  ...line,
+                  allotment_id: existingLine?.allotment_id || ('temp-art-' + idx),
+                  status: existingLine?.status || 'PENDING',
+                  assigned_lineman_name: existingLine?.assigned_lineman_name || linemenList.find(l => l.id === line.assigned_lineman_id)?.username || 'Unassigned'
                 }
-              }
-              return ch
-            })
-          )
+              }),
+              created_at: new Date().toISOString()
+            }
+            return [updatedChallan, ...prev.filter(ch => ch.id !== editingChallanId)]
+          })
           router.refresh()
         }
       } else {
@@ -1748,9 +1769,9 @@ export function ProductionOrdersClient({
                       </div>
 
                       <div className="flex items-center gap-3 text-xs sm:text-[13px] text-slate-600 mt-2 flex-wrap">
-                        <span>Challan Date: <strong className="text-slate-900 font-mono font-bold">{challan.challan_date}</strong></span>
+                        <span>Challan Date: <strong className="text-slate-900 font-mono font-bold">{formatDisplayDate(challan.challan_date)}</strong></span>
                         {challan.delivery_date && (
-                          <span>• Delivery: <strong className="text-slate-900 font-mono font-bold">{challan.delivery_date}</strong></span>
+                          <span>• Delivery: <strong className="text-slate-900 font-mono font-bold">{formatDisplayDate(challan.delivery_date)}</strong></span>
                         )}
                         {(() => {
                           const masterStyles = new Set((challan.articles || []).map(a => (a.art_no || '').replace(/[^0-9].*$/, '').trim() || a.art_no)).size

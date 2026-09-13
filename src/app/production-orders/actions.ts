@@ -11,13 +11,23 @@ import { supabaseAdmin } from '@/utils/supabase/admin'
 function sanitizeDate(dateStr?: string | null): string | null {
   if (!dateStr || typeof dateStr !== 'string') return null
   const trimmed = dateStr.trim()
-  const match = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})$/)
-  if (!match) return null
-  const y = parseInt(match[1], 10)
-  const m = parseInt(match[2], 10)
-  const d = parseInt(match[3], 10)
-  if (y >= 1990 && y <= 2099 && m >= 1 && m <= 12 && d >= 1 && d <= 31) {
-    return `${match[1]}-${match[2]}-${match[3]}`
+  const matchIso = trimmed.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})$/)
+  if (matchIso) {
+    const y = parseInt(matchIso[1], 10)
+    const m = parseInt(matchIso[2], 10)
+    const d = parseInt(matchIso[3], 10)
+    if (y >= 1990 && y <= 2099 && m >= 1 && m <= 12 && d >= 1 && d <= 31) {
+      return `${matchIso[1]}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`
+    }
+  }
+  const matchDmy = trimmed.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})$/)
+  if (matchDmy) {
+    const d = parseInt(matchDmy[1], 10)
+    const m = parseInt(matchDmy[2], 10)
+    const y = parseInt(matchDmy[3], 10)
+    if (y >= 1990 && y <= 2099 && m >= 1 && m <= 12 && d >= 1 && d <= 31) {
+      return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`
+    }
   }
   return null
 }
