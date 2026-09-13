@@ -3,7 +3,7 @@ import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { DispatchClient } from './components/DispatchClient'
 import Link from 'next/link'
-import { resolveUserTenant } from '@/lib/tenant-context'
+import { resolveUserTenant, isLegacyNubiraTenant } from '@/lib/tenant-context'
 
 export const dynamic = 'force-dynamic'
 
@@ -20,7 +20,7 @@ export default async function DispatchPage() {
 
   // Centrally resolve tenant identity
   const tenant = await resolveUserTenant(user)
-  const isProvisionedTenant = tenant.isProvisionedTenant && tenant.companyName !== 'Nubira Creation'
+  const isProvisionedTenant = !isLegacyNubiraTenant(tenant)
 
   // Restrict Store Supervisors from admin dispatch management
   const userRole = tenant.role.toUpperCase()
