@@ -136,7 +136,7 @@ export function UploadPunchModal({ isOpen, onClose }: UploadPunchModalProps) {
               <input
                 type="text"
                 required
-                placeholder="e.g. PO-ZIG-8901"
+                placeholder="e.g. PO-1001"
                 value={orderId}
                 onChange={e => setOrderId(e.target.value)}
                 className="w-full px-3 py-2 rounded-xl border border-black/10 focus:ring-1 focus:ring-[#3A3564] outline-none font-mono"
