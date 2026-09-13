@@ -31,7 +31,7 @@ export async function sendTenantActivationEmail(params: TenantActivationEmailPar
   } = params
 
   const client = getResendClient()
-  const fromEmail = process.env.RESEND_FROM_EMAIL || 'Zigza Activation <onboarding@resend.dev>'
+  const fromEmail = process.env.RESEND_FROM_EMAIL || 'Zigza Activation <noreply@zigza.in>'
 
   if (!client) {
     console.warn('[Resend] RESEND_API_KEY not set. Simulating activation email dispatch to:', to)
@@ -128,6 +128,11 @@ export async function sendTenantActivationEmail(params: TenantActivationEmailPar
       html: htmlContent,
     })
 
+    if (result.error) {
+      console.error('[sendTenantActivationEmail] Resend API error:', result.error)
+      return { success: false, error: result.error.message || 'Resend rejected email dispatch' }
+    }
+
     return { success: true, id: result.data?.id }
   } catch (error: any) {
     console.error('[sendTenantActivationEmail] Error:', error)
@@ -146,7 +151,7 @@ export interface CustomInquiryNotificationParams {
 
 export async function sendCustomInquiryNotificationEmail(params: CustomInquiryNotificationParams) {
   const client = getResendClient()
-  const fromEmail = process.env.RESEND_FROM_EMAIL || 'Zigza Activation <onboarding@resend.dev>'
+  const fromEmail = process.env.RESEND_FROM_EMAIL || 'Zigza Activation <noreply@zigza.in>'
 
   if (!client) {
     console.warn('[Resend] Simulating custom inquiry notification email for:', params.companyName)
@@ -185,6 +190,11 @@ export async function sendCustomInquiryNotificationEmail(params: CustomInquiryNo
       subject: `New Custom Build Request: ${params.companyName} (${params.applicantName})`,
       html: htmlContent,
     })
+
+    if (result.error) {
+      console.error('[sendCustomInquiryNotificationEmail] Resend API error:', result.error)
+      return { success: false, error: result.error.message }
+    }
 
     return { success: true, id: result.data?.id }
   } catch (error: any) {
