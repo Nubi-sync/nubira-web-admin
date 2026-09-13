@@ -45,6 +45,7 @@ export interface TenantFactory {
   monthlyBillingInr: number
   activeDivisionsCount: number
   provisionedAt: string
+  expiresAt?: string
   status: TenantStatus
   allowedDivisions: string[] // division routes e.g. ['/design', '/merchandising', '/cutting', ...]
   lastActiveAt?: string

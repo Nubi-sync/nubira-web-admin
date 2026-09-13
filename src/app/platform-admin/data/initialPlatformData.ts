@@ -20,7 +20,8 @@ export const ENTERPRISE_DIVISIONS_CATALOG: TenantDivisionConfig[] = [
   { id: 'div-08', code: '08', name: 'Steam Pressing & Ironing', route: '/iron', isActive: true },
   { id: 'div-09', code: '09', name: 'Ready Goods & Carton Packing', route: '/ready-goods', isActive: true },
   { id: 'div-10', code: '10', name: 'Alteration & Reclamation Clinic', route: '/alter', isActive: true },
-  { id: 'div-11', code: '11', name: 'Central Store Godown & Finished Vault', route: '/store', isActive: true }
+  { id: 'div-11', code: '11', name: 'Central Store Godown & Finished Vault', route: '/store', isActive: true },
+  { id: 'div-12', code: '12', name: 'Dispatch & Delivery Logistics', route: '/dispatch', isActive: true }
 ]
 
 export const INITIAL_DEMO_REQUESTS: DemoRequestInquiry[] = []

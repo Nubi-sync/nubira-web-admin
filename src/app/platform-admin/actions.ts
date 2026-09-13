@@ -186,22 +186,29 @@ export async function fetchTenantFactoriesAction(): Promise<{
       return { data: [], isLiveDatabase: true }
     }
 
-    const mapped: TenantFactory[] = data.map((row: any) => ({
-      id: row.id,
-      companyName: row.company_name,
-      plantSlug: row.plant_slug,
-      adminEmail: row.admin_email,
-      adminName: row.admin_name,
-      phone: row.phone,
-      cityState: row.city_state,
-      subscriptionTier: (row.subscription_tier || 'FULL_PLANT_AI') as SubscriptionPlanTier,
-      monthlyBillingInr: Number(row.monthly_billing_inr || 4999),
-      activeDivisionsCount: row.active_divisions_count || 11,
-      status: row.status || 'ACTIVE',
-      allowedDivisions: Array.isArray(row.allowed_divisions) ? row.allowed_divisions : [],
-      provisionedAt: row.provisioned_at || new Date().toISOString(),
-      lastActiveAt: row.last_active_at || undefined
-    }))
+    const mapped: TenantFactory[] = data.map((row: any) => {
+      const provisionDate = new Date(row.provisioned_at || Date.now())
+      const calculatedExpiry = new Date(provisionDate)
+      calculatedExpiry.setFullYear(calculatedExpiry.getFullYear() + 1)
+
+      return {
+        id: row.id,
+        companyName: row.company_name,
+        plantSlug: row.plant_slug,
+        adminEmail: row.admin_email,
+        adminName: row.admin_name,
+        phone: row.phone,
+        cityState: row.city_state,
+        subscriptionTier: (row.subscription_tier || 'FULL_PLANT_AI') as SubscriptionPlanTier,
+        monthlyBillingInr: Number(row.monthly_billing_inr || 4999),
+        activeDivisionsCount: row.active_divisions_count || (Array.isArray(row.allowed_divisions) ? row.allowed_divisions.length : 12),
+        status: row.status || 'ACTIVE',
+        allowedDivisions: Array.isArray(row.allowed_divisions) ? row.allowed_divisions : [],
+        provisionedAt: row.provisioned_at || new Date().toISOString(),
+        expiresAt: row.expires_at || calculatedExpiry.toISOString(),
+        lastActiveAt: row.last_active_at || undefined
+      }
+    })
 
     return { data: mapped, isLiveDatabase: true }
   } catch (err: any) {
