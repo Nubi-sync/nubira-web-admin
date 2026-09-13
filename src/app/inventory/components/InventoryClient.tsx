@@ -1725,7 +1725,7 @@ export function InventoryClient({
                     const passedQty = lot.qc_total_passed || lot.target_qty || 0
                     const artNo = lot.article?.art_no || 'Garment'
                     const challanNo = lot.challans?.challan_no || '-'
-                    const brand = lot.challans?.brand || 'OLLYPOP'
+                    const brand = lot.challans?.brand || 'Direct Buyer'
                     const lineman = lot.lineman?.username || 'Lineman'
                     const qcSupervisor = lot.qc_supervisor_name || 'QC Supervisor'
                     const variants = lot.allotment_variants || []
