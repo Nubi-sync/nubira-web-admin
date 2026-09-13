@@ -3,9 +3,10 @@ import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { redirect } from 'next/navigation'
 import { AdminShell } from '@/components/layout/AdminShell'
 import DashboardClient from '@/app/DashboardClient'
-import { LogOut, LayoutDashboard } from 'lucide-react'
+import { LogOut, LayoutDashboard, Building2, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import { TvViewButton } from '@/components/ui/TvViewButton'
+import { resolveUserTenant } from '@/lib/tenant-context'
 
 export const dynamic = 'force-dynamic'
 
@@ -37,155 +38,237 @@ export default async function StitchingSewingDashboardPage() {
     redirect('/login')
   }
 
-  // Fetch user profile and all factory datasets concurrently in parallel
-  const [
-    { data: userProfile },
-    { data: articlesData },
-    { data: allotmentsData },
-    { data: challansData },
-    { data: variantsData },
-    { data: prodData },
-    { data: qcData },
-    { data: storeData },
-    { data: dispatchData },
-    { data: materialsData },
-    { data: workerAssignmentsData },
-  ] = await Promise.all([
-    supabaseAdmin
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .maybeSingle(),
+  // Centrally resolve the authenticated tenant organization
+  const tenant = await resolveUserTenant(user)
+  const isProvisionedTenant = tenant.isProvisionedTenant && tenant.companyName !== 'Nubira Creation'
 
-    supabaseAdmin
-      .from('articles')
-      .select('id, art_no, description, stitching_rate, size_rates')
-      .eq('is_active', true)
-      .order('art_no'),
-
-    supabaseAdmin
-      .from('allotments')
-      .select(`
-        id,
-        challan_id,
-        lineman_id,
-        article_id,
-        target_qty,
-        status,
-        allotment_date,
-        mending_status,
-        mending_total_counted,
-        mending_supervisor_name,
-        mending_supervisor_id,
-        handed_to_mending_by,
-        handed_to_mending_at,
-        mending_handover_notes,
-        qc_status,
-        qc_total_passed,
-        qc_total_alter,
-        qc_supervisor_name,
-        handed_to_qc_by,
-        handed_to_qc_at,
-        created_at,
-        profiles:lineman_id ( id, username ),
-        articles:article_id ( id, art_no, description, size_rates, stitching_rate ),
-        challans:challan_id ( id, challan_no, brand, fabric_type )
-      `)
-      .order('created_at', { ascending: false })
-      .limit(200),
-
-    supabaseAdmin
-      .from('challans')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(100),
-
-    supabaseAdmin
-      .from('allotment_variants')
-      .select('*')
-      .limit(500),
-
-    supabaseAdmin
-      .from('daily_product')
-      .select(`
-        id,
-        quantity,
-        entry_date,
-        created_at,
-        article_id,
-        lineman_id,
-        article:article_id ( id, art_no, description )
-      `)
-      .order('created_at', { ascending: false })
-      .limit(200),
-
-    supabaseAdmin
-      .from('qc_logs')
-      .select(`
-        id,
-        qty_passed,
-        qty_rejected,
-        stage,
-        defect_type,
-        entry_date,
-        created_at,
-        article_id,
-        article:article_id ( id, art_no, description )
-      `)
-      .order('created_at', { ascending: false })
-      .limit(200),
-
-    supabaseAdmin
-      .from('store_transactions')
-      .select(`
-        id,
-        type,
-        quantity,
-        party_name,
-        created_at,
-        article:article_id ( art_no, description )
-      `)
-      .order('created_at', { ascending: false })
-      .limit(200),
-
-    supabaseAdmin
-      .from('delivery_challans')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(100),
-
-    supabaseAdmin
-      .from('allotment_materials')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(200),
-
-    supabaseAdmin
-      .from('worker_assignments')
-      .select(`
-        id,
-        allotment_id,
-        lineman_id,
-        article_id,
-        worker_name,
-        assigned_qty,
-        completed_qty,
-        color,
-        size,
-        status,
-        notes,
-        assigned_at,
-        completed_at,
-        entry_date
-      `)
-      .order('assigned_at', { ascending: false })
-      .limit(500)
-  ])
-
-  // Restrict Store Supervisors from admin dashboard
-  const userRole = (userProfile?.role || '').toUpperCase()
+  // Restrict operational floor store supervisors from general admin dashboard
+  const userRole = tenant.role.toUpperCase()
   if (userRole === 'STORE' || userRole === 'STORE_SUPERVISOR' || userRole === 'GODOWN' || user.email?.startsWith('store@')) {
     redirect('/stitching-sewing/store')
+  }
+
+  let articlesData: any[] = []
+  let allotmentsData: any[] = []
+  let challansData: any[] = []
+  let variantsData: any[] = []
+  let prodData: any[] = []
+  let qcData: any[] = []
+  let storeData: any[] = []
+  let dispatchData: any[] = []
+  let materialsData: any[] = []
+  let workerAssignmentsData: any[] = []
+
+  if (!isProvisionedTenant) {
+    // 1. Primary Factory (Nubira Creation / Plant 1) — Load all legacy plant operational records
+    const [
+      { data: art },
+      { data: allot },
+      { data: chal },
+      { data: varData },
+      { data: pData },
+      { data: qData },
+      { data: sData },
+      { data: dData },
+      { data: mData },
+      { data: wData },
+    ] = await Promise.all([
+      supabaseAdmin
+        .from('articles')
+        .select('id, art_no, description, stitching_rate, size_rates')
+        .eq('is_active', true)
+        .order('art_no'),
+
+      supabaseAdmin
+        .from('allotments')
+        .select(`
+          id,
+          challan_id,
+          lineman_id,
+          article_id,
+          target_qty,
+          status,
+          allotment_date,
+          mending_status,
+          mending_total_counted,
+          mending_supervisor_name,
+          mending_supervisor_id,
+          handed_to_mending_by,
+          handed_to_mending_at,
+          mending_handover_notes,
+          qc_status,
+          qc_total_passed,
+          qc_total_alter,
+          qc_supervisor_name,
+          handed_to_qc_by,
+          handed_to_qc_at,
+          created_at,
+          profiles:lineman_id ( id, username ),
+          articles:article_id ( id, art_no, description, size_rates, stitching_rate ),
+          challans:challan_id ( id, challan_no, brand, fabric_type )
+        `)
+        .order('created_at', { ascending: false })
+        .limit(200),
+
+      supabaseAdmin
+        .from('challans')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(100),
+
+      supabaseAdmin
+        .from('allotment_variants')
+        .select('*')
+        .limit(500),
+
+      supabaseAdmin
+        .from('daily_product')
+        .select(`
+          id,
+          quantity,
+          entry_date,
+          created_at,
+          article_id,
+          lineman_id,
+          article:article_id ( id, art_no, description )
+        `)
+        .order('created_at', { ascending: false })
+        .limit(200),
+
+      supabaseAdmin
+        .from('qc_logs')
+        .select(`
+          id,
+          qty_passed,
+          qty_rejected,
+          stage,
+          defect_type,
+          entry_date,
+          created_at,
+          article_id,
+          article:article_id ( id, art_no, description )
+        `)
+        .order('created_at', { ascending: false })
+        .limit(200),
+
+      supabaseAdmin
+        .from('store_transactions')
+        .select(`
+          id,
+          type,
+          quantity,
+          party_name,
+          created_at,
+          article:article_id ( art_no, description )
+        `)
+        .order('created_at', { ascending: false })
+        .limit(200),
+
+      supabaseAdmin
+        .from('delivery_challans')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(100),
+
+      supabaseAdmin
+        .from('allotment_materials')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(200),
+
+      supabaseAdmin
+        .from('worker_assignments')
+        .select(`
+          id,
+          allotment_id,
+          lineman_id,
+          article_id,
+          worker_name,
+          assigned_qty,
+          completed_qty,
+          color,
+          size,
+          status,
+          notes,
+          assigned_at,
+          completed_at,
+          entry_date
+        `)
+        .order('assigned_at', { ascending: false })
+        .limit(500)
+    ])
+
+    articlesData = art || []
+    allotmentsData = allot || []
+    challansData = chal || []
+    variantsData = varData || []
+    prodData = pData || []
+    qcData = qData || []
+    storeData = sData || []
+    dispatchData = dData || []
+    materialsData = mData || []
+    workerAssignmentsData = wData || []
+  } else {
+    // 2. Client Tenant Factory (e.g. Shaw Industries) — Query strictly scoped records
+    try {
+      const { data: tenantChallans } = await supabaseAdmin
+        .from('challans')
+        .select('*')
+        .ilike('brand', `%${tenant.companyName}%`)
+        .order('created_at', { ascending: false })
+
+      if (tenantChallans && tenantChallans.length > 0) {
+        challansData = tenantChallans
+        const challanIds = tenantChallans.map(c => c.id)
+
+        const { data: tenantAllotments } = await supabaseAdmin
+          .from('allotments')
+          .select(`
+            id,
+            challan_id,
+            lineman_id,
+            article_id,
+            target_qty,
+            status,
+            allotment_date,
+            mending_status,
+            mending_total_counted,
+            mending_supervisor_name,
+            mending_supervisor_id,
+            handed_to_mending_by,
+            handed_to_mending_at,
+            mending_handover_notes,
+            qc_status,
+            qc_total_passed,
+            qc_total_alter,
+            qc_supervisor_name,
+            handed_to_qc_by,
+            handed_to_qc_at,
+            created_at,
+            profiles:lineman_id ( id, username ),
+            articles:article_id ( id, art_no, description, size_rates, stitching_rate ),
+            challans:challan_id ( id, challan_no, brand, fabric_type )
+          `)
+          .in('challan_id', challanIds)
+          .order('created_at', { ascending: false })
+
+        allotmentsData = tenantAllotments || []
+
+        if (allotmentsData.length > 0) {
+          const allotmentIds = allotmentsData.map(a => a.id)
+          const [{ data: varData }, { data: matData }, { data: workData }] = await Promise.all([
+            supabaseAdmin.from('allotment_variants').select('*').in('allotment_id', allotmentIds),
+            supabaseAdmin.from('allotment_materials').select('*').in('allotment_id', allotmentIds),
+            supabaseAdmin.from('worker_assignments').select('*').in('allotment_id', allotmentIds)
+          ])
+          variantsData = varData || []
+          materialsData = matData || []
+          workerAssignmentsData = workData || []
+        }
+      }
+    } catch (err) {
+      console.warn('[StitchingSewingDashboardPage] Tenant scoping notice:', err)
+    }
   }
 
   // Synthesize Multi-Stage Activity Stream
@@ -245,13 +328,12 @@ export default async function StitchingSewingDashboardPage() {
     const art = Array.isArray(al.articles) ? al.articles[0] : al.articles
     const lm = Array.isArray(al.profiles) ? al.profiles[0] : al.profiles
 
-    // Mending Handover Event (Lineman -> Mending In-Charge)
     if (al.handed_to_mending_at || al.mending_status === 'PENDING_MENDING' || al.mending_status === 'IN_MENDING') {
       activities.push({
         id: 'mending-' + al.id,
         type: 'ALLOTMENT',
         title: 'Handover to Mending Floor',
-        details: `${al.target_qty} pcs • Art ${art?.art_no || 'Article'} (${al.handed_to_mending_by || 'Lineman'} → ${al.mending_supervisor_name || 'Mending Floor'})`,
+        details: `${al.target_qty} pcs • Art ${art?.art_no || 'Article'} (${al.handed_to_mending_by || 'Lineman'} -> ${al.mending_supervisor_name || 'Mending Floor'})`,
         location: 'Mending Dept',
         timestamp: al.handed_to_mending_at || al.created_at,
         relativeTime: formatRelativeTime(al.handed_to_mending_at || al.created_at)
@@ -288,7 +370,7 @@ export default async function StitchingSewingDashboardPage() {
     .slice(0, 6)
 
   return (
-    <AdminShell userEmail={user.email}>
+    <AdminShell userEmail={user.email} userRole={userRole}>
       <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto">
         
         {/* Page Header Card */}
@@ -304,6 +386,9 @@ export default async function StitchingSewingDashboardPage() {
                 </h1>
                 <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
                   Floor Ops Live
+                </span>
+                <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-800 border border-slate-200">
+                  {tenant.companyName}
                 </span>
               </div>
               <p className="text-sm sm:text-base text-slate-600 mt-1">
@@ -327,6 +412,32 @@ export default async function StitchingSewingDashboardPage() {
             </form>
           </div>
         </div>
+
+        {/* Onboarding Banner for newly activated tenant factories */}
+        {isProvisionedTenant && allotmentsData.length === 0 && (
+          <div className="p-5 rounded-2xl bg-white border border-black/10 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-start gap-3.5">
+              <div className="w-10 h-10 rounded-xl bg-blue-50 text-[#3A3564] border border-blue-200/80 flex items-center justify-center shrink-0">
+                <Building2 className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-base font-extrabold text-slate-900">
+                  Welcome to {tenant.companyName} Garment Floor
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
+                  Your enterprise MES workspace is activated. Create your first production challan in Production Orders to begin tracking real-time line throughput.
+                </p>
+              </div>
+            </div>
+            <Link
+              href="/stitching-sewing/production-orders"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#3A3564] text-white text-xs sm:text-sm font-bold shadow-xs hover:bg-[#2c284e] transition-all shrink-0"
+            >
+              <span>Create First Challan</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+        )}
 
         {/* Enhanced 6-Stage Dashboard Client Component */}
         <DashboardClient

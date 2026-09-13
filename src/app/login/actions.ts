@@ -151,21 +151,16 @@ export async function login(formData: FormData) {
   // Dynamic destination routing via centralized Access Control engine
   let targetRoute = '/modules'
   try {
-    const { getUserAllowedModules, getDefaultLandingRoute } = await import('@/lib/access-control')
-    const userId = authData?.user?.id
-    let userRole = (authData?.user?.user_metadata?.role || '').toUpperCase()
-
-    if (userId && !userRole) {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', userId)
-        .single()
-      userRole = (profile?.role || '').toUpperCase()
+    if (authData?.user) {
+      const { resolveUserTenant } = await import('@/lib/tenant-context')
+      const { getUserAllowedModules, getDefaultLandingRoute, ALL_DIVISION_ROUTES } = await import('@/lib/access-control')
+      const tenant = await resolveUserTenant(authData.user)
+      const userRole = tenant.role.toUpperCase()
+      const allowedModules = tenant.isSuperAdmin
+        ? [...ALL_DIVISION_ROUTES, '/modules']
+        : (tenant.allowedDivisions.length > 0 ? tenant.allowedDivisions : getUserAllowedModules(authData.user, { role: userRole }))
+      targetRoute = getDefaultLandingRoute(allowedModules, userRole, loginEmail)
     }
-
-    const allowedModules = getUserAllowedModules(authData?.user, { role: userRole })
-    targetRoute = getDefaultLandingRoute(allowedModules, userRole, loginEmail)
   } catch (err) {
     console.error('Error resolving landing route upon login:', err)
   }

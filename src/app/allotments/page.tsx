@@ -7,6 +7,7 @@ import { CreateAllotmentForm } from './components/CreateAllotmentForm'
 import { AllotmentList } from './components/AllotmentList'
 import { getProductionOrders } from '@/app/production-orders/actions'
 import Link from 'next/link'
+import { resolveUserTenant } from '@/lib/tenant-context'
 
 export const dynamic = 'force-dynamic'
 
@@ -21,25 +22,23 @@ export default async function AllotmentsPage() {
     redirect('/login')
   }
 
-  // Restrict Store Supervisors from admin allotments management
-  const { data: userProfile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single()
+  // Centrally resolve tenant identity
+  const tenant = await resolveUserTenant(user)
+  const isProvisionedTenant = tenant.isProvisionedTenant && tenant.companyName !== 'Nubira Creation'
 
-  const userRole = (userProfile?.role || '').toUpperCase()
+  // Restrict Store Supervisors from admin allotments management
+  const userRole = tenant.role.toUpperCase()
   if (userRole === 'STORE' || userRole === 'STORE_SUPERVISOR' || userRole === 'GODOWN' || user.email?.startsWith('store@')) {
     redirect('/store')
   }
 
   // Concurrent parallel data fetching
   const [
-    { data: linemen },
-    { data: managers },
-    { data: articles },
-    productionOrders,
-    { data: allotmentsRaw }
+    { data: rawLinemen },
+    { data: rawManagers },
+    { data: rawArticles },
+    allProductionOrders,
+    { data: rawAllotments }
   ] = await Promise.all([
     supabaseAdmin
       .from('profiles')
@@ -93,6 +92,19 @@ export default async function AllotmentsPage() {
       .order('created_at', { ascending: false })
       .limit(200)
   ])
+
+  // Multi-tenant scoping: provisioned factories only see records tagged to their company
+  const allotmentsRaw = isProvisionedTenant
+    ? (rawAllotments || []).filter(a => (a.challans as any)?.brand?.toUpperCase().includes(tenant.companyName.toUpperCase()))
+    : (rawAllotments || [])
+
+  const productionOrders = isProvisionedTenant
+    ? (allProductionOrders || []).filter(o => o.brand?.toUpperCase().includes(tenant.companyName.toUpperCase()))
+    : (allProductionOrders || [])
+
+  const linemen = isProvisionedTenant ? [] : (rawLinemen || [])
+  const managers = isProvisionedTenant ? [] : (rawManagers || [])
+  const articles = isProvisionedTenant ? [] : (rawArticles || [])
 
   // Extract unique allotment IDs and dates for parallel child queries
   const rawList = allotmentsRaw || []
@@ -178,22 +190,40 @@ export default async function AllotmentsPage() {
           if (parsed.production_order_no && !poNo) poNo = parsed.production_order_no
           if (parsed.due_date && !dueDate) dueDate = parsed.due_date
           if (parsed.target_hours && !targetHours) targetHours = parsed.target_hours
-          if (parsed.priority && !priority) priority = parsed.priority
+          if (parsed.priority && priority === 'NORMAL') priority = parsed.priority
           if (parsed.client_challan_no && !clientChallanNo) clientChallanNo = parsed.client_challan_no
-          if (parsed.sample_photos && samplePhotos.length === 0) samplePhotos = parsed.sample_photos
+          if (parsed.sample_photos && Array.isArray(parsed.sample_photos) && samplePhotos.length === 0) {
+            samplePhotos = parsed.sample_photos
+          }
         } catch (_) {}
       }
     }
 
-    const rawProfile = Array.isArray(al.profiles) ? al.profiles[0] : al.profiles
-    const displayUsername = rawProfile?.username && rawProfile.username.toLowerCase() !== 'admin'
-      ? rawProfile.username
-      : 'Unassigned (Floor Order)'
-      
     return {
-      ...al,
-      profiles: { username: displayUsername },
-      manager_name: managerName || 'Production Manager',
+      id: al.id,
+      challan_id: (al as any).challan_id,
+      challan_no: (al.challans as any)?.challan_no || 'Internal Order',
+      brand: (al.challans as any)?.brand || 'Factory Brand',
+      fabric_type: (al.challans as any)?.fabric_type || 'Knit/Woven',
+      lineman_id: al.lineman_id,
+      lineman_name: (al.profiles as any)?.username || 'Unassigned',
+      article_id: al.article_id,
+      art_no: (al.articles as any)?.art_no || 'Standard Article',
+      description: (al.articles as any)?.description || '',
+      stitching_rate: (al.articles as any)?.stitching_rate || 0,
+      target_qty: al.target_qty,
+      status: al.status,
+      allotment_date: al.allotment_date,
+      created_at: al.created_at,
+      mending_status: al.mending_status,
+      mending_total_counted: al.mending_total_counted,
+      mending_supervisor_name: al.mending_supervisor_name,
+      mending_handover_notes: al.mending_handover_notes,
+      qc_status: al.qc_status,
+      qc_total_passed: al.qc_total_passed,
+      qc_total_alter: al.qc_total_alter,
+      qc_supervisor_name: al.qc_supervisor_name,
+      manager_name: managerName,
       production_order_no: poNo,
       due_date: dueDate,
       target_hours: targetHours,
@@ -208,7 +238,7 @@ export default async function AllotmentsPage() {
   })
 
   return (
-    <AdminShell userEmail={user.email}>
+    <AdminShell userEmail={user.email} userRole={userRole}>
       <div className="flex-1 p-6 md:p-8 max-w-7xl w-full mx-auto space-y-5">
         
         {/* 1. Breadcrumb */}
@@ -221,6 +251,9 @@ export default async function AllotmentsPage() {
           <span>/</span>
           <span className="font-bold text-slate-900">
             Target Allotments
+          </span>
+          <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700 ml-auto border border-slate-200">
+            {tenant.companyName}
           </span>
         </div>
 

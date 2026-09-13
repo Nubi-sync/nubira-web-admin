@@ -2,7 +2,8 @@ import { AdminShell } from '@/components/layout/AdminShell'
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { ModuleHubClient } from './components/ModuleHubClient'
-import { getUserAllowedModules } from '@/lib/access-control'
+import { getUserAllowedModules, ALL_DIVISION_ROUTES } from '@/lib/access-control'
+import { resolveUserTenant } from '@/lib/tenant-context'
 
 export const dynamic = 'force-dynamic'
 
@@ -17,17 +18,15 @@ export default async function ModulesHubPage() {
     redirect('/login')
   }
 
-  // Fetch profile for role & username
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('id, username, role')
-    .eq('id', user.id)
-    .single()
+  // Centrally resolve the authenticated tenant profile
+  const tenant = await resolveUserTenant(user)
+  const userRole = tenant.role.toUpperCase()
 
-  const userRole = (profile?.role || '').toUpperCase()
-  const allowedModules = getUserAllowedModules(user, { role: userRole })
+  const allowedModules = tenant.isSuperAdmin
+    ? [...ALL_DIVISION_ROUTES, '/modules']
+    : (tenant.allowedDivisions.length > 0 ? tenant.allowedDivisions : getUserAllowedModules(user, { role: userRole }))
 
-  // If user only has 1 operational division, redirect them straight to their own workplace
+  // If user only has 1 operational division, redirect them straight to their assigned workplace
   if (allowedModules.length === 1 && !allowedModules.includes('/modules')) {
     redirect(allowedModules[0])
   }
@@ -35,9 +34,9 @@ export default async function ModulesHubPage() {
   return (
     <AdminShell userEmail={user.email} userRole={userRole}>
       <ModuleHubClient
-        userEmail={user.email || ''}
-        userName={profile?.username || user.email?.split('@')[0] || 'Administrator'}
-        userRole={userRole || 'Plant Administrator'}
+        userEmail={tenant.userEmail}
+        userName={tenant.adminDisplayName || tenant.customUsername || 'Administrator'}
+        userRole={tenant.isSuperAdmin ? 'Enterprise Master' : (userRole || 'Plant Administrator')}
         allowedModules={allowedModules}
       />
     </AdminShell>

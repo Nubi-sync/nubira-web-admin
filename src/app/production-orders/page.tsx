@@ -5,6 +5,7 @@ import { ProductionOrdersClient } from './components/ProductionOrdersClient'
 import { getProductionOrders } from './actions'
 import { getBrands, getVendors } from '../vendors/actions'
 import Link from 'next/link'
+import { resolveUserTenant } from '@/lib/tenant-context'
 
 export const dynamic = 'force-dynamic'
 
@@ -19,25 +20,23 @@ export default async function ProductionOrdersPage() {
     redirect('/login')
   }
 
-  // Restrict Store Supervisors from admin production orders
-  const { data: userProfile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single()
+  // Centrally resolve tenant identity
+  const tenant = await resolveUserTenant(user)
+  const isProvisionedTenant = tenant.isProvisionedTenant && tenant.companyName !== 'Nubira Creation'
 
-  const userRole = (userProfile?.role || '').toUpperCase()
+  // Restrict Store Supervisors from admin production orders
+  const userRole = tenant.role.toUpperCase()
   if (userRole === 'STORE' || userRole === 'STORE_SUPERVISOR' || userRole === 'GODOWN' || user.email?.startsWith('store@')) {
     redirect('/store')
   }
 
   // Parallel concurrent data fetching
   const [
-    { data: articles },
-    { data: linemen },
-    orders,
-    brands,
-    vendors
+    { data: rawArticles },
+    { data: rawLinemen },
+    allOrders,
+    allBrands,
+    allVendors
   ] = await Promise.all([
     supabase
       .from('articles')
@@ -54,8 +53,24 @@ export default async function ProductionOrdersPage() {
     getVendors()
   ])
 
+  // Tenant data isolation: provisioned factories only view their own records
+  const filteredOrders = isProvisionedTenant
+    ? (allOrders || []).filter(o => o.brand?.toUpperCase().includes(tenant.companyName.toUpperCase()))
+    : (allOrders || [])
+
+  const filteredBrands = isProvisionedTenant
+    ? (allBrands || []).filter(b => b.brand_name.toUpperCase().includes(tenant.companyName.toUpperCase()))
+    : (allBrands || [])
+
+  const filteredVendors = isProvisionedTenant
+    ? (allVendors || []).filter(v => v.brand_name.toUpperCase().includes(tenant.companyName.toUpperCase()))
+    : (allVendors || [])
+
+  const filteredLinemen = isProvisionedTenant ? [] : (rawLinemen || [])
+  const filteredArticles = isProvisionedTenant ? [] : (rawArticles || [])
+
   return (
-    <AdminShell userEmail={user.email}>
+    <AdminShell userEmail={user.email} userRole={userRole}>
       <div className="flex-1 p-6 md:p-8 max-w-7xl w-full mx-auto space-y-5">
         
         {/* 1. Breadcrumb */}
@@ -69,15 +84,18 @@ export default async function ProductionOrdersPage() {
           <span className="font-bold text-slate-900">
             Production & Job Work Challans
           </span>
+          <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700 ml-auto border border-slate-200">
+            {tenant.companyName}
+          </span>
         </div>
 
         {/* Digital Production Chart Table & Matrix Client Component */}
         <ProductionOrdersClient 
-          initialOrders={orders || []} 
-          articlesList={articles || []} 
-          linemenList={linemen || []}
-          brandsList={brands || []}
-          vendorsList={vendors || []}
+          initialOrders={filteredOrders} 
+          articlesList={filteredArticles} 
+          linemenList={filteredLinemen}
+          brandsList={filteredBrands}
+          vendorsList={filteredVendors}
         />
 
       </div>

@@ -8,6 +8,7 @@ import { AdminIdentityCard } from '@/app/profile/components/AdminIdentityCard'
 import { SupervisorTeamOverview, ProfileUser } from '@/app/profile/components/SupervisorTeamOverview'
 import { AccountDeletionDangerZone } from '@/app/profile/components/AccountDeletionDangerZone'
 import { StaffProfileView } from '@/app/profile/components/StaffProfileView'
+import { resolveUserTenant } from '@/lib/tenant-context'
 
 export const dynamic = 'force-dynamic'
 
@@ -22,82 +23,82 @@ export default async function ModuleCompanyProfilePage() {
     redirect('/login')
   }
 
-  // Fetch current user's profile role
-  let currentProfile: any = null
-  try {
-    const { data: prof } = await supabase
-      .from('profiles')
-      .select('id, username, role, is_active, created_at')
-      .eq('id', user.id)
-      .maybeSingle()
-    currentProfile = prof
-  } catch (err) {
-    console.warn('current user profile fetch fallback:', err)
-  }
-
-  const userRole =
-    currentProfile?.role ||
-    (user.email === 'admin@nubira.local' ? 'ADMIN' : (user.email?.toLowerCase().includes('store') ? 'STORE_SUPERVISOR' : 'STAFF'))
+  // Centrally resolve the user's authenticated tenant organization and role
+  const tenant = await resolveUserTenant(user)
+  const userRole = tenant.role.toUpperCase()
 
   const isStoreUser =
-    userRole?.toUpperCase() === 'STORE' ||
-    userRole?.toUpperCase() === 'STORE_SUPERVISOR' ||
-    userRole?.toUpperCase() === 'GODOWN' ||
+    userRole === 'STORE' ||
+    userRole === 'STORE_SUPERVISOR' ||
+    userRole === 'GODOWN' ||
     user.email?.toLowerCase().startsWith('store@') ||
     user.email?.toLowerCase() === 'store'
 
-  const isStaffUser =
+  // Only operational floor staff users without administrative standing route to StaffProfileView
+  const isStaffUser = !tenant.isSuperAdmin && (
     isStoreUser ||
-    (userRole?.toUpperCase() !== 'ADMIN' &&
-      userRole?.toUpperCase() !== 'SUPERADMIN' &&
+    (userRole !== 'ADMIN' &&
+      userRole !== 'SUPERADMIN' &&
+      userRole !== 'PLATFORM_SUPERADMIN' &&
       user.email !== 'admin@nubira.local')
+  )
 
-  // If Store Supervisor or Floor Staff, show dedicated Staff Profile
+  // If operational floor staff, render staff profile scoped to their assigned company
   if (isStaffUser) {
     return (
       <AdminShell userEmail={user.email} userRole={userRole}>
-        <StaffProfileView user={user} profile={currentProfile} />
+        <StaffProfileView
+          user={user}
+          profile={{ username: tenant.customUsername, role: userRole }}
+          companyName={tenant.companyName}
+        />
       </AdminShell>
     )
   }
 
-  // Master Admin Company Profile view
+  // Master Admin Company Profile view for Enterprise Masters and SuperAdmins
   let companyData: any = null
-  try {
-    const { data } = await supabase
-      .from('company_profile')
-      .select('*')
-      .eq('id', 'default')
-      .maybeSingle()
-    companyData = data
-  } catch (err) {
-    console.warn('company_profile fetch fallback:', err)
+  if (!tenant.isProvisionedTenant) {
+    try {
+      const { data } = await supabase
+        .from('company_profile')
+        .select('*')
+        .eq('id', 'default')
+        .maybeSingle()
+      companyData = data
+    } catch (err) {
+      console.warn('company_profile fetch fallback:', err)
+    }
   }
 
   // Fetch staff & supervisor profiles
   let staffList: ProfileUser[] = []
-  try {
-    const { data: profiles } = await supabase
-      .from('profiles')
-      .select('id, username, role, is_active, created_at')
-      .order('created_at', { ascending: false })
-    staffList = (profiles as ProfileUser[]) || []
-  } catch (err) {
-    console.warn('profiles fetch fallback:', err)
+  if (!tenant.isProvisionedTenant) {
+    try {
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, username, role, is_active, created_at')
+        .order('created_at', { ascending: false })
+      staffList = (profiles as ProfileUser[]) || []
+    } catch (err) {
+      console.warn('profiles fetch fallback:', err)
+    }
   }
 
   const company = {
-    company_name: companyData?.company_name || 'Nubira Creation',
-    factory_address:
-      companyData?.factory_address ||
-      'Rafi Ahmed Kidwai Road, Kolkata 700055, West Bengal',
-    gstin: companyData?.gstin || '19AADCO1064C1ZK',
-    contact_phone: companyData?.contact_phone || '+91 98765 43210',
-    contact_email: companyData?.contact_email || 'creationnubira@gmail.com',
+    company_name: tenant.companyName,
+    factory_address: tenant.isProvisionedTenant
+      ? (tenant.cityState || 'Industrial Sector, India')
+      : (companyData?.factory_address || 'Rafi Ahmed Kidwai Road, Kolkata 700055, West Bengal'),
+    gstin: tenant.isProvisionedTenant
+      ? 'Pending Tenant GST Registration'
+      : (companyData?.gstin || '19AADCO1064C1ZK'),
+    contact_phone: tenant.phone || companyData?.contact_phone || '+91 98765 43210',
+    contact_email: tenant.userEmail || companyData?.contact_email || user.email || 'contact@factory.in',
   }
 
-  const adminDisplayName = companyData?.admin_display_name || 'admin'
-  const adminPhone = companyData?.admin_phone || '+91 98765 43210'
+  const adminDisplayName = tenant.adminDisplayName || tenant.customUsername || 'Enterprise Admin'
+  const adminPhone = tenant.phone || companyData?.admin_phone || '+91 98765 43210'
 
   return (
     <AdminShell userEmail={user.email} userRole={userRole}>
@@ -120,10 +121,13 @@ export default async function ModuleCompanyProfilePage() {
             <div>
               <div className="flex items-center gap-2.5 flex-wrap">
                 <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900">
-                  Company & Account Profile
+                  {tenant.companyName}
                 </h1>
                 <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
                   Enterprise Master
+                </span>
+                <span className="text-xs font-mono font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200">
+                  {tenant.subscriptionTier}
                 </span>
               </div>
               <p className="text-xs sm:text-sm md:text-base text-slate-600 mt-1">
@@ -137,21 +141,21 @@ export default async function ModuleCompanyProfilePage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
           <CompanyProfileCard company={company} />
           <AdminIdentityCard
-            userEmail={user.email || 'team.anga9@gmail.com'}
+            userEmail={tenant.userEmail}
             adminDisplayName={adminDisplayName}
             adminPhone={adminPhone}
             createdAt={user.created_at}
           />
         </div>
 
-        {/* 4. Supervisors & Team Floor Distribution */}
+        {/* 4. Supervisors & Team Floor Distribution (Scoped to tenant) */}
         <SupervisorTeamOverview staff={staffList} />
 
         {/* 5. Account Deletion Request Danger Zone */}
         <AccountDeletionDangerZone
-          companyName={company.company_name}
+          companyName={tenant.companyName}
           adminName={adminDisplayName}
-          userEmail={user.email || 'team.anga9@gmail.com'}
+          userEmail={tenant.userEmail}
           adminPhone={adminPhone}
         />
       </div>
