@@ -143,19 +143,19 @@ export async function fetchPrintingRunsAction(filters?: { status?: string }, com
         id: r.id,
         run_number: r.run_code,
         order_id: r.order_id,
-        po_number: r.merchandising_orders?.order_number || 'PO-ZIG-8901',
-        style_ref: r.merchandising_orders?.design_tech_packs?.style_number || 'ART-HD-8821',
-        style_name: r.merchandising_orders?.design_tech_packs?.category || 'Heavyweight French Terry Hoodie',
+        po_number: r.merchandising_orders?.order_number || 'PO-PENDING',
+        style_ref: r.merchandising_orders?.design_tech_packs?.style_number || 'N/A',
+        style_name: r.merchandising_orders?.design_tech_packs?.category || 'Standard Garment',
         table_or_machine: r.printing_table_or_machine,
         operator_id: r.operator_id,
-        operator_name: r.operator_name || 'R. Veeramani (Master Printer)',
+        operator_name: r.operator_name || 'In-House Printer',
         technique,
-        pantone_codes: r.printing_strike_offs?.pantone_codes || ['Pantone 19-4052 TCX', 'Pantone 11-0601 TCX'],
-        total_panels_issued: totalIssued > 0 ? totalIssued : (r.total_panels_printed + r.total_rejections || 75),
-        panels_completed: r.total_panels_printed || 74,
-        panels_rejected: r.total_rejections || 1,
+        pantone_codes: r.printing_strike_offs?.pantone_codes || ['Pantone Standard'],
+        total_panels_issued: totalIssued > 0 ? totalIssued : (r.total_panels_printed + r.total_rejections || 0),
+        panels_completed: r.total_panels_printed || 0,
+        panels_rejected: r.total_rejections || 0,
         defect_reason: r.total_rejections > 0 ? 'PINHOLE' : undefined,
-        curing_temp_c: Number(r.oven_temperature_c) || 162,
+        curing_temp_c: Number(r.oven_temperature_c) || 160,
         curing_temp_verified: Number(r.oven_temperature_c) >= 160,
         stroke_speed_cpm: r.stroke_speed_cpm || 28,
         status: r.status as PrintRunStatus,
@@ -201,9 +201,9 @@ export async function fetchStrikeOffsAction(filters?: { status?: string }, compa
     return (strikes || []).map((s: any) => ({
       id: s.id,
       test_number: s.strike_off_code,
-      po_number: s.merchandising_orders?.order_number || 'PO-ZIG-8901',
-      style_ref: s.merchandising_orders?.design_tech_packs?.style_number || 'ART-HD-8821',
-      pantone_target: Array.isArray(s.pantone_codes) ? s.pantone_codes.join(', ') : 'Pantone 19-4052 TCX',
+      po_number: s.merchandising_orders?.order_number || 'PO-PENDING',
+      style_ref: s.merchandising_orders?.design_tech_packs?.style_number || 'N/A',
+      pantone_target: Array.isArray(s.pantone_codes) ? s.pantone_codes.join(', ') : 'Standard Color',
       technique: s.print_technique as PrintTechnique,
       spectro_delta_e: Number(s.spectro_delta_e) || 0.38,
       curing_temp_c: 162,
@@ -211,8 +211,8 @@ export async function fetchStrikeOffsAction(filters?: { status?: string }, compa
       wash_fastness_rating: Number(s.wash_fastness_rating) || 4.5,
       crocking_test_pass: true,
       approval_status: s.approval_status as StrikeOffStatus,
-      auditor_name: s.approved_by || 'S. Mehra (Buyer Technical QA)',
-      remarks: s.remarks || 'Approved for bulk production print on 380 GSM French Terry.',
+      auditor_name: s.approved_by || 'Buyer Technical QA',
+      remarks: s.remarks || 'Approved for production.',
       tested_at: s.approved_at || s.created_at || new Date().toISOString()
     } as StrikeOffTest))
   } catch (err: any) {
@@ -222,8 +222,11 @@ export async function fetchStrikeOffsAction(filters?: { status?: string }, compa
 }
 
 // 4. Fetch Curing Oven Logs
-export async function fetchCuringLogsAction() {
+export async function fetchCuringLogsAction(companyName?: string) {
   try {
+    const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
+    if (isNonNubira) return []
+
     const { data: logs, error } = await supabaseAdmin
       .from('printing_curing_oven_logs')
       .select(`
