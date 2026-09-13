@@ -18,6 +18,7 @@ import {
 import { TnaMilestone } from '../../types/merchandising'
 import { getTnaMilestones, MERCHANDISING_UPDATE_EVENT } from '../../utils/merchandisingStorage'
 import { UpdateTnaMilestoneModal } from './UpdateTnaMilestoneModal'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 interface TnaPlannerClientProps {
   initialMilestones?: TnaMilestone[]
@@ -113,17 +114,12 @@ export function TnaPlannerClient({ initialMilestones }: TnaPlannerClientProps = 
         </div>
       </div>
 
-      {/* 3. Executive KPI Metric Cards (Matching 6th Box) */}
+      {/* 3. Executive KPI Metric Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
         {/* Card 1 */}
         <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
-          <div className="flex items-start justify-between gap-2">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
-              <Layers className="w-5 h-5" />
-            </div>
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
-              STAGE 01
-            </span>
+          <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+            <Layers className="w-5 h-5" />
           </div>
           <div className="mt-3">
             <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
@@ -143,13 +139,8 @@ export function TnaPlannerClient({ initialMilestones }: TnaPlannerClientProps = 
 
         {/* Card 2 */}
         <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
-          <div className="flex items-start justify-between gap-2">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
-              <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-            </div>
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
-              STAGE 02
-            </span>
+          <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+            <CheckCircle2 className="w-5 h-5 text-emerald-600" />
           </div>
           <div className="mt-3">
             <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
@@ -169,13 +160,8 @@ export function TnaPlannerClient({ initialMilestones }: TnaPlannerClientProps = 
 
         {/* Card 3 */}
         <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
-          <div className="flex items-start justify-between gap-2">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
-              <Clock className="w-5 h-5 text-blue-600" />
-            </div>
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
-              STAGE 03
-            </span>
+          <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+            <Clock className="w-5 h-5 text-blue-600" />
           </div>
           <div className="mt-3">
             <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
@@ -195,13 +181,8 @@ export function TnaPlannerClient({ initialMilestones }: TnaPlannerClientProps = 
 
         {/* Card 4 */}
         <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
-          <div className="flex items-start justify-between gap-2">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
-              <AlertTriangle className="w-5 h-5 text-rose-600" />
-            </div>
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
-              STAGE 04
-            </span>
+          <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+            <AlertTriangle className="w-5 h-5 text-rose-600" />
           </div>
           <div className="mt-3">
             <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
