@@ -437,8 +437,6 @@ export function MerchandisingDashboardClient({
 
           <div className="mt-4 pt-3 border-t border-slate-100/80">
             <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none">
-          <div className="mt-4 pt-3 border-t border-slate-100/80">
-            <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none">
               {hasOrders ? '98.2%' : '0.0%'}
             </h3>
             <div className="mt-2.5 flex items-center justify-between">

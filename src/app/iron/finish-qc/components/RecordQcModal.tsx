@@ -17,7 +17,7 @@ export function RecordQcModal({ isOpen, onClose }: RecordQcModalProps) {
   const [glazeDefects, setGlazeDefects] = useState(0)
   const [waterSpots, setWaterSpots] = useState(0)
   const [unalignedSeams, setUnalignedSeams] = useState(0)
-  const [auditorName, setAuditorName] = useState('S. Bhattacharya (Finish QC Master)')
+  const [auditorName, setAuditorName] = useState('Finish QC Master')
   const [actionTaken, setActionTaken] = useState('')
 
   useEffect(() => {
@@ -39,7 +39,7 @@ export function RecordQcModal({ isOpen, onClose }: RecordQcModalProps) {
       auditCode: `FQC-${Math.floor(7710 + Math.random() * 80)}`,
       tableNumber: selectedTableNumber,
       operatorName: activeTable?.operatorName || 'Pressing Operator',
-      challanId: activeTable?.challanId || 'CH-2026-901',
+      challanId: activeTable?.challanId || 'N/A',
       articleName: activeTable?.articleName || 'Garments Lot',
       samplePcs: Number(samplePcs),
       glazeDefects: Number(glazeDefects),

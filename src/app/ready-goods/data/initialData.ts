@@ -20,5 +20,7 @@ export const INITIAL_METRICS: ReadyGoodsMetrics = {
 export const INITIAL_CARTONS: ReadyGoodsCarton[] = []
 export const INITIAL_AQL_AUDITS: AqlAudit[] = []
 export const INITIAL_HANGTAG_VERIFICATIONS: HangtagVerification[] = []
+export const INITIAL_HANGTAG_SCANS: HangtagVerification[] = []
 export const INITIAL_WEIGHT_LOGS: ScaleWeightLog[] = []
+export const INITIAL_SCALE_LOGS: ScaleWeightLog[] = []
 export const INITIAL_PALLETS: GodownHandoverPallet[] = []
