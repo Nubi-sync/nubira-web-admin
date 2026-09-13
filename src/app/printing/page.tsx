@@ -32,7 +32,7 @@ export default async function PrintingModulePage() {
     fetchPrintingDashboardKpisAction(companyFilter),
     fetchPrintingRunsAction(undefined, companyFilter),
     fetchStrikeOffsAction(undefined, companyFilter),
-    fetchCuringLogsAction()
+    fetchCuringLogsAction(companyFilter)
   ])
 
   return (
