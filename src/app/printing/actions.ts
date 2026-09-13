@@ -17,8 +17,24 @@ const supabaseAdmin = createAdminClient(
 )
 
 // 1. Fetch Executive Printing Floor KPIs
-export async function fetchPrintingDashboardKpisAction() {
+export async function fetchPrintingDashboardKpisAction(companyName?: string) {
   try {
+    const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
+    if (isNonNubira) {
+      return {
+        totalStrikeOffs: 0,
+        approvedStrikeOffs: 0,
+        strikeOffApprovalRate: 0,
+        activeRuns: 0,
+        completedRuns: 0,
+        totalPanelsPrinted: 0,
+        totalPanelsRejected: 0,
+        rejectionRatePct: 0,
+        optimalOvensCount: 0,
+        thermalAlarmCount: 0
+      }
+    }
+
     const { data: kpiView, error: viewError } = await supabaseAdmin
       .from('view_printing_floor_kpis')
       .select('*')
@@ -66,7 +82,7 @@ export async function fetchPrintingDashboardKpisAction() {
 }
 
 // 2. Fetch Production Runs
-export async function fetchPrintingRunsAction(filters?: { status?: string }) {
+export async function fetchPrintingRunsAction(filters?: { status?: string }, companyName?: string) {
   try {
     let query = supabaseAdmin
       .from('printing_production_runs')
@@ -109,7 +125,17 @@ export async function fetchPrintingRunsAction(filters?: { status?: string }) {
       return []
     }
 
-    return (runs || []).map((r: any) => {
+    const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
+    const targetComp = (companyName || '').toUpperCase()
+
+    const filteredRuns = isNonNubira
+      ? (runs || []).filter((r: any) => {
+          const b = (r.merchandising_orders?.brands?.brand_name || '').toUpperCase()
+          return b.length > 0 && b.includes(targetComp)
+        })
+      : (runs || [])
+
+    return filteredRuns.map((r: any) => {
       const totalIssued = (r.printing_bundle_runs || []).reduce((acc: number, b: any) => acc + (b.received_pieces || 0), 0)
       const technique = (r.printing_strike_offs?.print_technique || 'PLASTISOL') as PrintTechnique
 
@@ -144,8 +170,11 @@ export async function fetchPrintingRunsAction(filters?: { status?: string }) {
 }
 
 // 3. Fetch Strike-Offs
-export async function fetchStrikeOffsAction(filters?: { status?: string }) {
+export async function fetchStrikeOffsAction(filters?: { status?: string }, companyName?: string) {
   try {
+    const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
+    if (isNonNubira) return []
+
     let query = supabaseAdmin
       .from('printing_strike_offs')
       .select(`

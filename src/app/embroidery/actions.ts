@@ -26,8 +26,20 @@ const supabaseAdmin = createAdminClient(
 // 1. DASHBOARD KPIS & TELEMETRY
 // -----------------------------------------------------------------------------
 
-export async function fetchEmbroideryDashboardKpisAction() {
+export async function fetchEmbroideryDashboardKpisAction(companyName?: string) {
   try {
+    const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
+    if (isNonNubira) {
+      return {
+        totalStitchesToday: 0,
+        totalCompletedPanels: 0,
+        totalBreaksCount: 0,
+        activeLinesCount: 0,
+        totalDesignsCount: 0,
+        averageRpm: 0
+      }
+    }
+
     const [runsRes, designsRes, machinesRes] = await Promise.all([
       supabaseAdmin.from('embroidery_production_runs').select('*'),
       supabaseAdmin.from('embroidery_designs').select('*'),
@@ -68,7 +80,7 @@ export async function fetchEmbroideryDashboardKpisAction() {
 // 2. PRODUCTION MACHINE RUNS
 // -----------------------------------------------------------------------------
 
-export async function fetchEmbroideryRunsAction(filters?: { status?: string }): Promise<EmbroideryMachineRun[]> {
+export async function fetchEmbroideryRunsAction(filters?: { status?: string }, companyName?: string): Promise<EmbroideryMachineRun[]> {
   try {
     let query = supabaseAdmin
       .from('embroidery_production_runs')
@@ -112,6 +124,16 @@ export async function fetchEmbroideryRunsAction(filters?: { status?: string }): 
 
     if (!data || data.length === 0) return []
 
+    const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
+    const targetComp = (companyName || '').toUpperCase()
+
+    const filteredData = isNonNubira
+      ? data.filter((row: any) => {
+          const b = (row.embroidery_designs?.merchandising_orders?.brands?.brand_name || '').toUpperCase()
+          return b.length > 0 && b.includes(targetComp)
+        })
+      : data
+
     return data.map((row: any) => {
       const design = row.embroidery_designs
       const machine = row.embroidery_machines
@@ -148,7 +170,7 @@ export async function fetchEmbroideryRunsAction(filters?: { status?: string }): 
 // 3. EMBROIDERY DESIGNS (PUNCH LIBRARY)
 // -----------------------------------------------------------------------------
 
-export async function fetchEmbroideryDesignsAction(): Promise<EmbroideryDesign[]> {
+export async function fetchEmbroideryDesignsAction(companyName?: string): Promise<EmbroideryDesign[]> {
   try {
     const { data, error } = await supabaseAdmin
       .from('embroidery_designs')
@@ -162,11 +184,21 @@ export async function fetchEmbroideryDesignsAction(): Promise<EmbroideryDesign[]
       .order('created_at', { ascending: false })
 
     if (error) {
-      console.error('[fetchEmbroideryDesignsAction] error:', error)
+      console.error('[fetchEmbroideryDesignsAction] DB error:', error)
       return []
     }
 
     if (!data || data.length === 0) return []
+
+    const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
+    const targetComp = (companyName || '').toUpperCase()
+
+    const filteredData = isNonNubira
+      ? data.filter((row: any) => {
+          const b = (row.merchandising_orders?.brands?.brand_name || '').toUpperCase()
+          return b.length > 0 && b.includes(targetComp)
+        })
+      : data
 
     return data.map((row: any) => ({
       id: row.id,
@@ -318,8 +350,11 @@ export async function createEmbroideryRunAction(payload: {
 // 7. THREAD INVENTORY
 // -----------------------------------------------------------------------------
 
-export async function fetchThreadInventoryAction(): Promise<ThreadConeItem[]> {
+export async function fetchThreadInventoryAction(companyName?: string): Promise<ThreadConeItem[]> {
   try {
+    const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
+    if (isNonNubira) return []
+
     const { data: storeTrims, error } = await supabaseAdmin
       .from('accessories')
       .select('*')
@@ -382,9 +417,12 @@ export async function fetchThreadInventoryAction(): Promise<ThreadConeItem[]> {
 // 8. EMBROIDERY QC AUDITS
 // -----------------------------------------------------------------------------
 
-export async function fetchEmbroideryQcAuditsAction(): Promise<EmbroideryQcAudit[]> {
+export async function fetchEmbroideryQcAuditsAction(companyName?: string): Promise<EmbroideryQcAudit[]> {
   try {
-    const runs = await fetchEmbroideryRunsAction()
+    const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
+    if (isNonNubira) return []
+
+    const runs = await fetchEmbroideryRunsAction(undefined, companyName)
     return runs.map((run, idx) => ({
       id: `qc-${run.id}`,
       audit_code: `AUD-EMB-2026-${String(idx + 1).padStart(4, '0')}`,

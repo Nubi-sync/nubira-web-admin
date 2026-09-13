@@ -9,6 +9,7 @@ import {
   fetchEmbroideryQcAuditsAction,
   fetchThreadInventoryAction
 } from './actions'
+import { resolveUserTenant, isLegacyNubiraTenant } from '@/lib/tenant-context'
 
 export const dynamic = 'force-dynamic'
 
@@ -23,24 +24,23 @@ export default async function EmbroideryPage() {
     redirect('/login')
   }
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single()
+  // Centrally resolve tenant identity
+  const tenant = await resolveUserTenant(user)
+  const isLegacy = isLegacyNubiraTenant(tenant)
+  const companyFilter = isLegacy ? undefined : tenant.companyName
 
   const [liveKpis, initialRuns, initialDesigns, initialAudits, initialCones] = await Promise.all([
-    fetchEmbroideryDashboardKpisAction(),
-    fetchEmbroideryRunsAction(),
-    fetchEmbroideryDesignsAction(),
-    fetchEmbroideryQcAuditsAction(),
-    fetchThreadInventoryAction()
+    fetchEmbroideryDashboardKpisAction(companyFilter),
+    fetchEmbroideryRunsAction(undefined, companyFilter),
+    fetchEmbroideryDesignsAction(companyFilter),
+    fetchEmbroideryQcAuditsAction(companyFilter),
+    fetchThreadInventoryAction(companyFilter)
   ])
 
   return (
-    <AdminShell userEmail={user.email} userRole={profile?.role}>
+    <AdminShell userEmail={tenant.userEmail} userRole={tenant.role}>
       <EmbroideryDashboardClient 
-        userEmail={user.email}
+        userEmail={tenant.userEmail}
         liveKpis={liveKpis}
         initialRuns={initialRuns}
         initialDesigns={initialDesigns}

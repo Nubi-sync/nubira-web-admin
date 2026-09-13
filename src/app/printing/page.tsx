@@ -8,6 +8,7 @@ import {
   fetchStrikeOffsAction,
   fetchCuringLogsAction
 } from './actions'
+import { resolveUserTenant, isLegacyNubiraTenant } from '@/lib/tenant-context'
 
 export const dynamic = 'force-dynamic'
 
@@ -22,17 +23,22 @@ export default async function PrintingModulePage() {
     redirect('/login')
   }
 
+  // Centrally resolve tenant identity
+  const tenant = await resolveUserTenant(user)
+  const isLegacy = isLegacyNubiraTenant(tenant)
+  const companyFilter = isLegacy ? undefined : tenant.companyName
+
   const [liveKpis, initialRuns, initialStrikeOffs, initialCuringLogs] = await Promise.all([
-    fetchPrintingDashboardKpisAction(),
-    fetchPrintingRunsAction(),
-    fetchStrikeOffsAction(),
+    fetchPrintingDashboardKpisAction(companyFilter),
+    fetchPrintingRunsAction(undefined, companyFilter),
+    fetchStrikeOffsAction(undefined, companyFilter),
     fetchCuringLogsAction()
   ])
 
   return (
-    <AdminShell userEmail={user.email}>
+    <AdminShell userEmail={tenant.userEmail} userRole={tenant.role}>
       <PrintingDashboardClient 
-        userEmail={user.email}
+        userEmail={tenant.userEmail}
         initialRuns={initialRuns}
         initialStrikeOffs={initialStrikeOffs}
         initialCuringLogs={initialCuringLogs}
