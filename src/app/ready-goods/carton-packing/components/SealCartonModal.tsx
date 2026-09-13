@@ -71,28 +71,6 @@ export function SealCartonModal({
 
   const handleOrderChange = (po: string) => {
     setOrderNumber(po)
-    if (po === 'PO-7714') {
-      setBuyer('Urban Outfitters')
-      setStyleName('French Terry Relaxed Hoodie')
-      setColor('Washed Charcoal')
-      setUnitBOMWeightKg(0.43)
-      setGodownBay('BAY_3')
-      setBundleInput('BDL-7714-19, BDL-7714-20')
-    } else if (po === 'PO-8102') {
-      setBuyer('Zara Men')
-      setStyleName('Slub Cotton Henley Tee')
-      setColor('Natural Oatmeal')
-      setUnitBOMWeightKg(0.23)
-      setGodownBay('BAY_4')
-      setBundleInput('BDL-8102-21, BDL-8102-22')
-    } else {
-      setBuyer('Pull & Bear')
-      setStyleName('Washed Twill Cargo Bottoms')
-      setColor('Olive Drab')
-      setUnitBOMWeightKg(0.48)
-      setGodownBay('BAY_5')
-      setBundleInput('BDL-9045-15, BDL-9045-16')
-    }
   }
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -210,15 +188,13 @@ export function SealCartonModal({
               <label className="block text-[11px] font-mono font-bold uppercase tracking-wider text-slate-600 mb-1">
                 Purchase Order PO *
               </label>
-              <select
+              <input
+                type="text"
+                placeholder="e.g. PO-1001"
                 value={orderNumber}
                 onChange={e => handleOrderChange(e.target.value)}
                 className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-white font-mono font-bold text-slate-800 focus:outline-none"
-              >
-                <option value="PO-7714">PO-7714 (Urban Outfitters)</option>
-                <option value="PO-8102">PO-8102 (Zara Men)</option>
-                <option value="PO-9045">PO-9045 (Pull & Bear)</option>
-              </select>
+              />
             </div>
           </div>
 
@@ -229,9 +205,13 @@ export function SealCartonModal({
               </label>
               <input
                 type="text"
-                value={`${buyer} • ${styleName}`}
-                readOnly
-                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-slate-50 text-slate-700 font-semibold"
+                placeholder="e.g. Client Buyer • Garment Style"
+                value={buyer || styleName ? `${buyer}${buyer && styleName ? ' • ' : ''}${styleName}` : ''}
+                onChange={e => {
+                  setBuyer(e.target.value)
+                  setStyleName(e.target.value)
+                }}
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-white text-slate-700 font-semibold"
               />
             </div>
             <div>

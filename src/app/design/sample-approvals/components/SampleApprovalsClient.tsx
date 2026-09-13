@@ -37,7 +37,7 @@ export function SampleApprovalsClient({ initialApprovals, initialTechPacks }: Sa
   const techPacks = initialTechPacks && initialTechPacks.length > 0 ? initialTechPacks : getStoredTechPacks()
 
   // Form 2 State
-  const [selectedStyle, setSelectedStyle] = useState(techPacks[0]?.style_number || 'ART-HD-8821')
+  const [selectedStyle, setSelectedStyle] = useState(techPacks[0]?.style_number || '')
   const [stage, setStage] = useState<SampleStage>('PPS')
   const [measuredChest, setMeasuredChest] = useState('53.2')
   const [targetChest, setTargetChest] = useState('53.0')
