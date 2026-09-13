@@ -15,18 +15,11 @@ interface LoadBatchModalProps {
   onClose: () => void
 }
 
-const SAMPLE_CHALLANS = [
-  { id: 'CH-2026-905', article: 'Heavyweight Pullover Hoodie 420 GSM', color: 'Vintage Black', pcs: 950, defaultDryWeight: 475 },
-  { id: 'CH-2026-906', article: 'Drop-Shoulder Oversized Tee', color: 'Washed Sage', pcs: 1600, defaultDryWeight: 380 },
-  { id: 'CH-2026-907', article: 'Relaxed Cargo Jogger Pants', color: 'Desert Khaki', pcs: 1100, defaultDryWeight: 510 },
-  { id: 'CH-2026-908', article: 'Waffle Knit Thermal Long Sleeve', color: 'Off-White', pcs: 1300, defaultDryWeight: 420 },
-]
-
 const OPERATORS = [
-  'Ramesh Mondal (Laundry Master)',
-  'Bikash Roy (Wet Process Spec)',
-  'Sunil Das (Floor In-Charge)',
-  'Tarun Bera (Chemical Dosing Tech)',
+  'Washing Master',
+  'Wet Processing Tech',
+  'Laundry Supervisor',
+  'Chemical Dosing Tech',
 ]
 
 export function LoadBatchModal({ isOpen, onClose }: LoadBatchModalProps) {
@@ -35,10 +28,10 @@ export function LoadBatchModal({ isOpen, onClose }: LoadBatchModalProps) {
 
   // Form State
   const [batchNumber, setBatchNumber] = useState(`WB-${Math.floor(40210 + Math.random() * 80)}`)
-  const [washerMachineId, setWasherMachineId] = useState('Washer 04')
-  const [selectedChallanId, setSelectedChallanId] = useState(SAMPLE_CHALLANS[0].id)
+  const [washerMachineId, setWasherMachineId] = useState('Washer 01')
+  const [selectedChallanId, setSelectedChallanId] = useState('')
   const [operatorName, setOperatorName] = useState(OPERATORS[0])
-  const [dryWeightKg, setDryWeightKg] = useState(SAMPLE_CHALLANS[0].defaultDryWeight)
+  const [dryWeightKg, setDryWeightKg] = useState(400)
   const [recipeName, setRecipeName] = useState('')
   const [tumblerTempC, setTumblerTempC] = useState(65)
   const [cycleDurationMinutes, setCycleDurationMinutes] = useState(45)
@@ -64,8 +57,6 @@ export function LoadBatchModal({ isOpen, onClose }: LoadBatchModalProps) {
 
   if (!isOpen) return null
 
-  const activeChallan = SAMPLE_CHALLANS.find(c => c.id === selectedChallanId) || SAMPLE_CHALLANS[0]
-
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
 
@@ -79,15 +70,15 @@ export function LoadBatchModal({ isOpen, onClose }: LoadBatchModalProps) {
     const newBatch: WashBatch = {
       id: `batch-${Date.now()}`,
       batchNumber,
-      challanId: selectedChallanId,
-      articleName: activeChallan.article,
-      color: activeChallan.color,
-      totalPieces: activeChallan.pcs,
+      challanId: selectedChallanId || 'CH-001',
+      articleName: 'Garment Batch',
+      colorway: 'Standard',
+      totalPieces: 500,
       washerMachineId,
       operatorName: operatorName.split(' (')[0],
       recipeName: recipeName || 'Bio-Enzyme Wash 55°C',
       dryWeightKg: Number(dryWeightKg),
-      waterVolumeLiters: autoWaterLiters,
+      waterVolumeLiters: Number(autoWaterLiters),
       tumblerTempC: Number(tumblerTempC),
       cycleDurationMinutes: Number(cycleDurationMinutes),
       status: 'WASHING',
@@ -183,26 +174,14 @@ export function LoadBatchModal({ isOpen, onClose }: LoadBatchModalProps) {
             <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
               Inward Sewing Challan Lot *
             </label>
-            <select
+            <input
+              type="text"
+              placeholder="e.g. CH-2001 or Sewing Lot No."
               value={selectedChallanId}
-              onChange={e => {
-                setSelectedChallanId(e.target.value)
-                const c = SAMPLE_CHALLANS.find(sc => sc.id === e.target.value)
-                if (c) setDryWeightKg(c.defaultDryWeight)
-              }}
+              onChange={e => setSelectedChallanId(e.target.value)}
               required
               className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
-            >
-              {SAMPLE_CHALLANS.map(c => (
-                <option key={c.id} value={c.id}>
-                  {c.id} • {c.article} ({c.color}) - {c.pcs} pcs
-                </option>
-              ))}
-            </select>
-            <div className="mt-1 flex items-center justify-between text-[11px] font-mono text-slate-500">
-              <span>Selected Garment: {activeChallan.article}</span>
-              <span className="font-bold text-[#3A3564]">{activeChallan.pcs} pcs</span>
-            </div>
+            />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

@@ -38,8 +38,8 @@ export function CreateHandoverModal({ isOpen, onClose }: CreateHandoverModalProp
     const newHandover: FinishingHandover = {
       id: `ho-${Date.now()}`,
       handoverCode: `WH-2026-${Math.floor(510 + Math.random() * 80)}`,
-      batchNumber: activeBatch?.batchNumber || 'WB-40190',
-      challanId: activeBatch?.challanId || 'CH-2026-880',
+      batchNumber: activeBatch?.batchNumber || 'N/A',
+      challanId: activeBatch?.challanId || 'N/A',
       articleName: activeBatch?.articleName || 'Garments Lot',
       piecesTransferred: Number(piecesTransferred),
       transferredTo: '08. Steam Ironing & Finishing Floor',
