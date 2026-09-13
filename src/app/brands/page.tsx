@@ -13,6 +13,8 @@ import {
   Boxes
 } from 'lucide-react'
 
+import { resolveUserTenant } from '@/lib/tenant-context'
+
 export const dynamic = 'force-dynamic'
 
 export default async function BrandsModulePage() {
@@ -26,8 +28,10 @@ export default async function BrandsModulePage() {
     redirect('/login')
   }
 
+  const tenant = await resolveUserTenant(user)
+
   return (
-    <AdminShell userEmail={user.email}>
+    <AdminShell userEmail={tenant.userEmail} userRole={tenant.role}>
       <div className="p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6 max-w-7xl w-full mx-auto">
         
         {/* Navigation Breadcrumb */}
@@ -40,7 +44,7 @@ export default async function BrandsModulePage() {
             <span>Workspace Hub</span>
           </Link>
           <span className="text-[11px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-            Buyer & Brand Portfolio
+            {tenant.companyName}
           </span>
         </div>
 
@@ -85,8 +89,8 @@ export default async function BrandsModulePage() {
                 <Building2 className="w-4 h-4" />
               </div>
             </div>
-            <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900">Ollypop & Direct</div>
-            <p className="text-xs font-semibold text-slate-500 mt-1">Verified partner brands</p>
+            <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 truncate">{tenant.companyName}</div>
+            <p className="text-xs font-semibold text-slate-500 mt-1">Verified partner account</p>
           </div>
 
           <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">

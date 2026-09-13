@@ -5,6 +5,8 @@ import { VendorsClient } from './components/VendorsClient'
 import { getBrands, getVendors } from './actions'
 import Link from 'next/link'
 
+import { resolveUserTenant } from '@/lib/tenant-context'
+
 export const dynamic = 'force-dynamic'
 
 export default async function VendorsPage() {
@@ -18,26 +20,34 @@ export default async function VendorsPage() {
     redirect('/login')
   }
 
-  // Restrict Store Supervisors from vendor management
-  const { data: userProfile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single()
+  // Centrally resolve tenant identity
+  const tenant = await resolveUserTenant(user)
+  const isProvisionedTenant = tenant.isProvisionedTenant && tenant.companyName !== 'Nubira Creation'
 
-  const userRole = (userProfile?.role || '').toUpperCase()
+  // Restrict Store Supervisors from vendor management
+  const userRole = tenant.role.toUpperCase()
   if (userRole === 'STORE' || userRole === 'STORE_SUPERVISOR' || userRole === 'GODOWN' || user.email?.startsWith('store@')) {
     redirect('/store')
   }
 
   // Fetch Brands and Vendors concurrently
-  const [brands, vendors] = await Promise.all([
+  const [rawBrands, rawVendors] = await Promise.all([
     getBrands(),
     getVendors()
   ])
 
+  const targetCompany = tenant.companyName.toUpperCase()
+
+  const brands = isProvisionedTenant
+    ? (rawBrands || []).filter(b => (b.brand_name || '').toUpperCase().includes(targetCompany))
+    : (rawBrands || [])
+
+  const vendors = isProvisionedTenant
+    ? (rawVendors || []).filter(v => (v.brand_name || '').toUpperCase().includes(targetCompany))
+    : (rawVendors || [])
+
   return (
-    <AdminShell userEmail={user.email}>
+    <AdminShell userEmail={tenant.userEmail} userRole={userRole}>
       <div className="flex-1 p-6 md:p-8 max-w-7xl w-full mx-auto space-y-5">
         
         {/* Breadcrumb */}
@@ -50,6 +60,9 @@ export default async function VendorsPage() {
           <span>/</span>
           <span className="font-bold text-slate-900">
             Brands & Vendors Master
+          </span>
+          <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700 ml-auto border border-slate-200">
+            {tenant.companyName}
           </span>
         </div>
 
