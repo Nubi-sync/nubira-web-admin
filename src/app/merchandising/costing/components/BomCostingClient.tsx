@@ -270,20 +270,18 @@ export function BomCostingClient({ initialCostings }: BomCostingClientProps = {}
 
         {/* Costing Table or Empty State */}
         {filteredCostings.length === 0 ? (
-          <div className="py-8">
-            <EmptyState
-              icon={Calculator}
-              title={searchQuery || activeTab !== 'ALL' ? "No costing sheets match your criteria" : "No BOM costing sheets found"}
-              description={searchQuery || activeTab !== 'ALL' ? "Try adjusting your search query or variance tab filter." : "Create your first pre-costing BOM sheet to analyze direct materials, CMT, and overhead realization."}
-              actionLabel="Create Costing Sheet"
-              onAction={() => setIsModalOpen(true)}
-              secondaryActionLabel={searchQuery || activeTab !== 'ALL' ? "Reset Filters" : undefined}
-              onSecondaryAction={searchQuery || activeTab !== 'ALL' ? () => {
-                setSearchQuery('')
-                setActiveTab('ALL')
-              } : undefined}
-            />
-          </div>
+          <EmptyState
+            icon={Calculator}
+            title={searchQuery || activeTab !== 'ALL' ? "No matching costings" : "No BOM costing sheets"}
+            description={searchQuery || activeTab !== 'ALL' ? "Try adjusting your search query or variance tab filter." : "Create your first pre-costing BOM sheet to analyze FOB margins."}
+            actionLabel="Create Costing Sheet"
+            onAction={() => setIsModalOpen(true)}
+            secondaryActionLabel={searchQuery || activeTab !== 'ALL' ? "Reset Filters" : undefined}
+            onSecondaryAction={searchQuery || activeTab !== 'ALL' ? () => {
+              setSearchQuery('')
+              setActiveTab('ALL')
+            } : undefined}
+          />
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
@@ -347,10 +345,10 @@ export function BomCostingClient({ initialCostings }: BomCostingClientProps = {}
                         <span
                           className={`inline-block px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
                             isExceeded
-                              ? 'bg-rose-50 text-rose-700 border border-rose-200'
+                              ? 'bg-slate-100 text-slate-900 border border-slate-300 font-bold'
                               : costing.variance_percent < 0
-                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                              : 'bg-slate-100 text-slate-700'
+                              ? 'bg-[#FAF7F0] text-[#3A3564] border border-black/10 font-semibold'
+                              : 'bg-slate-50 text-slate-600 border border-slate-200'
                           }`}
                         >
                           {costing.variance_percent > 0 ? `+${costing.variance_percent.toFixed(2)}%` : `${costing.variance_percent.toFixed(2)}%`}

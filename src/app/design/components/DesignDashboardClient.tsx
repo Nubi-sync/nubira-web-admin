@@ -274,11 +274,11 @@ export function DesignDashboardClient({
         {filteredPacks.length === 0 ? (
           <EmptyState
             icon={FileCheck2}
-            title="No development queue items"
+            title={searchQuery || statusFilter !== 'ALL' ? "No matching tech-packs" : "No development queue items"}
             description={
               searchQuery || statusFilter !== 'ALL'
-                ? "No tech-packs match your current filter. Clear your filters to view active queue records."
-                : "No active design packages in the queue. Create a new tech-pack to initiate proto development."
+                ? "Adjust filters or search query to find records."
+                : "Create your first tech-pack to initiate sampling."
             }
             actionLabel="Create Tech-Pack"
             onAction={() => setIsCreateOpen(true)}

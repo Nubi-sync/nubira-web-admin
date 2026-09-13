@@ -608,12 +608,12 @@ export function MerchandisingDashboardClient({
         <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
           
           {/* Flow 1: Fabric Inward */}
-          <div className="bg-white border border-black/10 border-l-4 border-l-emerald-500 rounded-xl p-3.5 shadow-2xs hover:border-black/25 transition-all flex flex-col justify-between">
+          <div className="bg-white border border-black/10 border-l-4 border-l-[#3A3564] rounded-xl p-3.5 shadow-2xs hover:border-black/25 transition-all flex flex-col justify-between">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 block">
                 1. Fabric Inward
               </span>
-              <span className="text-xs font-extrabold font-mono text-emerald-700 bg-emerald-50 border border-emerald-200/60 px-2 py-0.5 rounded-full">
+              <span className="text-xs font-extrabold font-mono text-[#3A3564] bg-[#FAF7F0] border border-black/10 px-2 py-0.5 rounded-full shadow-2xs">
                 {hasOrders ? '92%' : '0%'}
               </span>
             </div>
@@ -625,19 +625,19 @@ export function MerchandisingDashboardClient({
             </div>
             <div className="w-full bg-slate-100 h-1 rounded-full mt-2.5 overflow-hidden">
               <div 
-                className="bg-emerald-500 h-full rounded-full transition-all duration-500" 
+                className="bg-[#3A3564] h-full rounded-full transition-all duration-500" 
                 style={{ width: hasOrders ? '92%' : '0%' }}
               />
             </div>
           </div>
 
           {/* Flow 2: Bulk Cutting */}
-          <div className="bg-white border border-black/10 border-l-4 border-l-indigo-500 rounded-xl p-3.5 shadow-2xs hover:border-black/25 transition-all flex flex-col justify-between">
+          <div className="bg-white border border-black/10 border-l-4 border-l-[#3A3564] rounded-xl p-3.5 shadow-2xs hover:border-black/25 transition-all flex flex-col justify-between">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 block">
                 2. Bulk Cutting
               </span>
-              <span className="text-xs font-extrabold font-mono text-indigo-600 bg-indigo-50 border border-indigo-200/60 px-2 py-0.5 rounded-full">
+              <span className="text-xs font-extrabold font-mono text-[#3A3564] bg-[#FAF7F0] border border-black/10 px-2 py-0.5 rounded-full shadow-2xs">
                 {hasOrders ? '78%' : '0%'}
               </span>
             </div>
@@ -649,19 +649,19 @@ export function MerchandisingDashboardClient({
             </div>
             <div className="w-full bg-slate-100 h-1 rounded-full mt-2.5 overflow-hidden">
               <div 
-                className="bg-indigo-500 h-full rounded-full transition-all duration-500" 
+                className="bg-[#3A3564] h-full rounded-full transition-all duration-500" 
                 style={{ width: hasOrders ? '78%' : '0%' }}
               />
             </div>
           </div>
 
           {/* Flow 3: Sewing Floor */}
-          <div className="bg-white border border-black/10 border-l-4 border-l-blue-500 rounded-xl p-3.5 shadow-2xs hover:border-black/25 transition-all flex flex-col justify-between">
+          <div className="bg-white border border-black/10 border-l-4 border-l-[#3A3564] rounded-xl p-3.5 shadow-2xs hover:border-black/25 transition-all flex flex-col justify-between">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 block">
                 3. Sewing Floor
               </span>
-              <span className="text-xs font-extrabold font-mono text-blue-600 bg-blue-50 border border-blue-200/60 px-2 py-0.5 rounded-full">
+              <span className="text-xs font-extrabold font-mono text-[#3A3564] bg-[#FAF7F0] border border-black/10 px-2 py-0.5 rounded-full shadow-2xs">
                 {hasOrders ? '64%' : '0%'}
               </span>
             </div>
@@ -673,19 +673,19 @@ export function MerchandisingDashboardClient({
             </div>
             <div className="w-full bg-slate-100 h-1 rounded-full mt-2.5 overflow-hidden">
               <div 
-                className="bg-blue-500 h-full rounded-full transition-all duration-500" 
+                className="bg-[#3A3564] h-full rounded-full transition-all duration-500" 
                 style={{ width: hasOrders ? '64%' : '0%' }}
               />
             </div>
           </div>
 
           {/* Flow 4: Washing & Special Finish */}
-          <div className="bg-white border border-black/10 border-l-4 border-l-amber-500 rounded-xl p-3.5 shadow-2xs hover:border-black/25 transition-all flex flex-col justify-between">
+          <div className="bg-white border border-black/10 border-l-4 border-l-[#3A3564] rounded-xl p-3.5 shadow-2xs hover:border-black/25 transition-all flex flex-col justify-between">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 block">
                 4. Washing &amp; Finish
               </span>
-              <span className="text-xs font-extrabold font-mono text-amber-700 bg-amber-50 border border-amber-200/60 px-2 py-0.5 rounded-full">
+              <span className="text-xs font-extrabold font-mono text-[#3A3564] bg-[#FAF7F0] border border-black/10 px-2 py-0.5 rounded-full shadow-2xs">
                 {hasOrders ? '42%' : '0%'}
               </span>
             </div>
@@ -697,7 +697,7 @@ export function MerchandisingDashboardClient({
             </div>
             <div className="w-full bg-slate-100 h-1 rounded-full mt-2.5 overflow-hidden">
               <div 
-                className="bg-amber-500 h-full rounded-full transition-all duration-500" 
+                className="bg-[#3A3564] h-full rounded-full transition-all duration-500" 
                 style={{ width: hasOrders ? '42%' : '0%' }}
               />
             </div>
@@ -775,21 +775,19 @@ export function MerchandisingDashboardClient({
 
             {/* Table with Exact 6th Box Typography */}
             {filteredOrders.length === 0 ? (
-              <div className="py-6">
-                <EmptyState
-                  icon={Briefcase}
-                  title={selectedBrand !== 'ALL' || selectedStyleId !== 'ALL' || statusFilter !== 'ALL' ? "No commercial orders match your filters" : "No active commercial orders found"}
-                  description={selectedBrand !== 'ALL' || selectedStyleId !== 'ALL' || statusFilter !== 'ALL' ? "Try adjusting your brand, style, or status filter to view active orders." : "Register your first buyer purchase order to begin commercial tracking and line allocation."}
-                  actionLabel="Book New PO"
-                  onAction={() => setIsCreateModalOpen(true)}
-                  secondaryActionLabel={selectedBrand !== 'ALL' || selectedStyleId !== 'ALL' || statusFilter !== 'ALL' ? "Reset Filters" : undefined}
-                  onSecondaryAction={selectedBrand !== 'ALL' || selectedStyleId !== 'ALL' || statusFilter !== 'ALL' ? () => {
-                    setSelectedBrand('ALL')
-                    setSelectedStyleId('ALL')
-                    setStatusFilter('ALL')
-                  } : undefined}
-                />
-              </div>
+              <EmptyState
+                icon={Briefcase}
+                title={selectedBrand !== 'ALL' || selectedStyleId !== 'ALL' || statusFilter !== 'ALL' ? "No matching orders" : "No active commercial orders"}
+                description={selectedBrand !== 'ALL' || selectedStyleId !== 'ALL' || statusFilter !== 'ALL' ? "Try adjusting your brand, style, or status filter." : "Register a buyer purchase order to begin tracking."}
+                actionLabel="Book New PO"
+                onAction={() => setIsCreateModalOpen(true)}
+                secondaryActionLabel={selectedBrand !== 'ALL' || selectedStyleId !== 'ALL' || statusFilter !== 'ALL' ? "Reset Filters" : undefined}
+                onSecondaryAction={selectedBrand !== 'ALL' || selectedStyleId !== 'ALL' || statusFilter !== 'ALL' ? () => {
+                  setSelectedBrand('ALL')
+                  setSelectedStyleId('ALL')
+                  setStatusFilter('ALL')
+                } : undefined}
+              />
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">
@@ -808,10 +806,10 @@ export function MerchandisingDashboardClient({
                   <tbody className="divide-y divide-slate-100 text-xs">
                     {filteredOrders.slice(0, 8).map(ord => (
                       <tr key={ord.id} className="hover:bg-slate-50 transition-colors">
-                        <td className="py-2.5 px-3 font-bold text-slate-900 font-mono text-[#3A3564]">
+                        <td className="py-2.5 px-3 font-bold font-mono text-[#3A3564]">
                           {ord.po_number}
                         </td>
-                        <td className="py-2.5 px-3 font-bold text-indigo-600">
+                        <td className="py-2.5 px-3 font-bold text-slate-900">
                           {ord.brand_name}
                         </td>
                         <td className="py-2.5 px-3">
@@ -836,13 +834,11 @@ export function MerchandisingDashboardClient({
                         <td className="py-2.5 px-3 text-center">
                           <span
                             className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
-                              ord.status === 'IN_PRODUCTION'
-                                ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                                : ord.status === 'PACKED'
-                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                : ord.status === 'IN_FABRIC'
-                                ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                                : 'bg-slate-100 text-slate-700'
+                              ord.status === 'PACKED' || ord.status === 'DISPATCHED'
+                                ? 'bg-[#FAF7F0] text-[#3A3564] border border-black/10 font-bold'
+                                : ord.status === 'IN_PRODUCTION'
+                                ? 'bg-slate-100 text-slate-800 border border-slate-200 font-semibold'
+                                : 'bg-slate-50 text-slate-600 border border-slate-200'
                             }`}
                           >
                             {ord.status.replace('_', ' ')}
@@ -880,14 +876,17 @@ export function MerchandisingDashboardClient({
               <h3 className="text-base font-extrabold text-slate-900 font-[family-name:var(--font-heading)]">
                 Commercial Activity Stream
               </h3>
-              <Clock className="w-[18px] h-[18px] text-slate-400" />
+              <Clock className="w-[18px] h-[18px] text-[#3A3564]" />
             </div>
 
             <div className="mt-4 space-y-2.5">
               {activities.length === 0 ? (
-                <div className="py-12 text-center text-xs text-slate-400 font-medium">
-                  No commercial activities recorded yet for this factory account.
-                </div>
+                <EmptyState
+                  icon={Clock}
+                  title="No recent activity"
+                  description="Activity logs appear automatically as purchase orders progress."
+                  compact
+                />
               ) : (
                 activities.map(act => (
                   <div key={act.id} className="flex items-start gap-3 p-3 rounded-xl bg-slate-50/70 border border-slate-200/80 hover:bg-[#FAF7F0]/60 transition-all">
@@ -895,15 +894,15 @@ export function MerchandisingDashboardClient({
                       {act.type === 'PO' ? (
                         <Briefcase className="w-4 h-4 text-[#3A3564]" />
                       ) : act.type === 'LAB_DIP' ? (
-                        <CheckCircle2 className="w-4 h-4 text-emerald-600 stroke-[2.5]" />
+                        <CheckCircle2 className="w-4 h-4 text-[#3A3564]" />
                       ) : act.type === 'BOM' ? (
-                        <TrendingUp className="w-4 h-4 text-indigo-600" />
+                        <TrendingUp className="w-4 h-4 text-[#3A3564]" />
                       ) : act.type === 'TRIM' ? (
-                        <Boxes className="w-4 h-4 text-amber-600" />
+                        <Boxes className="w-4 h-4 text-[#3A3564]" />
                       ) : act.type === 'CONTAINER' ? (
                         <Ship className="w-4 h-4 text-[#3A3564]" />
                       ) : (
-                        <CheckCircle2 className="w-4 h-4 text-emerald-600 stroke-[2.5]" />
+                        <CheckCircle2 className="w-4 h-4 text-[#3A3564]" />
                       )}
                     </div>
                     <div className="min-w-0 flex-1">
@@ -926,8 +925,8 @@ export function MerchandisingDashboardClient({
 
           <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
             <span>Real-time ERP Synchronization</span>
-            <span className="inline-flex items-center gap-1 font-semibold text-emerald-700">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="inline-flex items-center gap-1.5 font-semibold text-slate-700">
+              <span className="w-2 h-2 rounded-full bg-slate-400" />
               Connected
             </span>
           </div>
