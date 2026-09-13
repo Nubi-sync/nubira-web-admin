@@ -132,3 +132,33 @@ A defined scale, used consistently across every section:
 - [x] **Flat and bordered over shadowed and rounded.** Thin 1px borders and 6px slightly-squared corners replace heavy soft drop-shadows and pill shapes.
 - [x] **Numbers are a first-class citizen of this product.** Every metric, percentage, and count across the site uses tabular figures (`tabular-nums font-mono`).
 - [x] **Remove decorative chrome that isn't yours.** Removed macOS traffic-light dots, generic circular checkmarks, and all-caps eyebrow labels.
+
+---
+
+## 6. Platform Administration & Enterprise Module Design Standards [x]
+
+The following standards apply across the Platform Root Administration portal (`/platform-admin`) and all 12 operational factory floor modules (`/design`, `/cutting`, `/merchandising`, etc.):
+
+### Single Icon Scheme (Deep Indigo on Warm Neutral)
+- **Container**: Warm neutral background (`#FAF7F0`), 1px thin border (`border-black/10` or `border-slate-200`), rounded square (`rounded-xl` or `rounded-lg`).
+- **Icon**: Deep Indigo (`#3A3564`), never electric or neon.
+- **Strict Rule**: Zero rainbow icon boxes (no scattered green, amber, purple, pink, or sky icon containers). Every KPI card, section header, table action, and modal header follows the `#FAF7F0` + `#3A3564` scheme.
+
+### De-Cluttering & Zero Rainbow Spill
+- **Eliminate Decorative Gimmicks**: Remove pulsating live dots, fake status pills ("LIVE", "PostgreSQL Live", "Offline Cache", "SOC-2 Compliant", "STAGE 01-04", "METRIC 01-04", "Creative Studio", "Form 01 • Stepper", "Section 03-05").
+- **Calm, Desaturated Status Indicators**: Use subtle neutral badges with muted text (e.g., `#FAF7F0` with slate text or desaturated sage `#2E6B4F` for approved states, muted amber `#8C601A` for pending, slate `#57564E` for draft). Never use neon fills.
+
+### Typography & Ergonomics for 30+ Year Old Users
+- **Comfortable Scale**: Replace microscopic 9px-11px uppercase monospaced text with comfortable 13px-15px typography.
+- **Sentence-Case Visual Hierarchy**: Form field labels and table headers use sentence case with crisp font weights instead of all-caps.
+- **High Contrast**: Primary text set to Ink (`#14140F` / `text-slate-900`), secondary descriptions in Slate (`#57564E` / `text-slate-600`).
+- **Generous Touch Targets**: All interactive elements (inputs, select dropdowns, filter tabs, modal close buttons, action links) must have a minimum tap height of 40px-44px.
+
+### Two-Tier Skeleton Loading Architecture
+- **Route-Level Suspense (`loading.tsx`)**: Every admin and operational route must provide a dedicated `loading.tsx` wrapped in the application shell (`PlatformAdminShell` or `AdminShell`) so that sidebar navigation rails remain stable while the content area displays an animated shimmer skeleton during page switches.
+- **In-Page Data Shimmer**: Client components that fetch data on mount must render skeleton rows/cards while `isLoading` is true to prevent layout shifts or flashing empty states ("No records found").
+
+### Mobile, Tablet, and Desktop Responsiveness Standards
+- **Viewport Adaptation**: Metric strips and card grids adapt smoothly from 1 column on mobile screens to 2 columns on tablet and 3-4 columns on desktop (`grid-cols-1 sm:grid-cols-2 lg:grid-cols-4`).
+- **Data Table Wrappers**: All tables must be enclosed in horizontally scrollable containers (`overflow-x-auto`) to guarantee zero horizontal clipping on small screens.
+- **Modal Viewports**: Modals must feature responsive width constraints (`max-w-2xl w-full max-h-[90vh]`), sticky header/footer bars, and internal scrollable content areas.

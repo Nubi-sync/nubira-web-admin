@@ -148,42 +148,37 @@ export function CreateTechPackModal({ isOpen, onClose, onCreated, availableBrand
       <div className="bg-white rounded-3xl border border-black/15 shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
         
         {/* Modal Header */}
-        <div className="px-6 py-5 border-b border-black/10 flex items-center justify-between bg-[#FAF7F0]/60">
+        <div className="px-6 py-5 border-b border-black/10 flex items-center justify-between bg-[#FAF7F0]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#3A3564] text-[#FAF7F0] flex items-center justify-center shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 text-[#3A3564] flex items-center justify-center shadow-2xs">
               <FileText className="w-5 h-5" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-lg font-black text-slate-900 tracking-tight">
-                  New Tech-Pack Specification
-                </h2>
-                <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-md bg-[#3A3564] text-[#FAF7F0]">
-                  Form 01 • Stepper
-                </span>
-              </div>
-              <p className="text-xs text-slate-500 font-medium">
+              <h2 className="text-lg font-bold text-slate-900 font-[family-name:var(--font-heading)]">
+                New Tech-Pack Specification
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-600">
                 Standardize industrial CAD parameters, grading rules & embellishment sequencing
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-black/5 transition-colors cursor-pointer"
+            className="w-9 h-9 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-black/5 transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Stepper Progress Bar */}
-        <div className="px-6 py-3 bg-slate-50/80 border-b border-black/10 flex items-center justify-between">
+        <div className="px-6 py-3.5 bg-slate-50 border-b border-black/10 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-mono font-bold ${
-              step === 1 ? 'bg-[#3A3564] text-[#FAF7F0]' : 'bg-emerald-600 text-white'
+              step === 1 ? 'bg-[#3A3564] text-[#FAF7F0]' : 'bg-[#3A3564] text-white'
             }`}>
               {step > 1 ? <Check className="w-3.5 h-3.5" /> : '1'}
             </div>
-            <span className={`text-xs font-bold ${step === 1 ? 'text-[#3A3564]' : 'text-slate-600'}`}>
+            <span className={`text-xs font-semibold ${step === 1 ? 'text-[#3A3564]' : 'text-slate-600'}`}>
               Step 1: Garment Metadata & Fabric
             </span>
           </div>
@@ -198,7 +193,7 @@ export function CreateTechPackModal({ isOpen, onClose, onCreated, availableBrand
             }`}>
               2
             </div>
-            <span className={`text-xs font-bold ${step === 2 ? 'text-[#3A3564]' : 'text-slate-400'}`}>
+            <span className={`text-xs font-semibold ${step === 2 ? 'text-[#3A3564]' : 'text-slate-400'}`}>
               Step 2: Stitches & Seam Specs
             </span>
           </div>
@@ -210,7 +205,7 @@ export function CreateTechPackModal({ isOpen, onClose, onCreated, availableBrand
             <div className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1">
+                  <label className="block text-sm font-semibold text-slate-900 mb-1.5">
                     Style Number / Article Code *
                   </label>
                   <input
@@ -218,23 +213,23 @@ export function CreateTechPackModal({ isOpen, onClose, onCreated, availableBrand
                     placeholder="e.g. TP-2026-101"
                     value={styleNumber}
                     onChange={e => setStyleNumber(e.target.value.toUpperCase())}
-                    className={`w-full px-3 py-2 rounded-xl border text-sm font-mono font-bold text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564] ${
+                    className={`w-full px-3.5 py-2.5 rounded-xl border text-sm font-mono font-bold text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564] ${
                       errors.styleNumber ? 'border-rose-500 bg-rose-50/20' : 'border-black/15'
                     }`}
                   />
                   {errors.styleNumber && (
-                    <p className="text-[11px] text-rose-600 font-medium mt-1">{errors.styleNumber}</p>
+                    <p className="text-xs text-rose-600 font-medium mt-1">{errors.styleNumber}</p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1">
+                  <label className="block text-sm font-semibold text-slate-900 mb-1.5">
                     Buyer / Brand Client *
                   </label>
                   <select
                     value={brandName}
                     onChange={e => setBrandName(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-black/15 text-sm font-bold text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-black/15 text-sm font-medium text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                   >
                     {brandsList.map(b => (
                       <option key={b} value={b}>{b}</option>
@@ -244,7 +239,7 @@ export function CreateTechPackModal({ isOpen, onClose, onCreated, availableBrand
               </div>
 
               <div>
-                <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1">
+                <label className="block text-sm font-semibold text-slate-900 mb-1.5">
                   Style Description / Commercial Name *
                 </label>
                 <input
@@ -252,24 +247,24 @@ export function CreateTechPackModal({ isOpen, onClose, onCreated, availableBrand
                   placeholder="e.g. Heavyweight Loopback French Terry Hoodie"
                   value={styleName}
                   onChange={e => setStyleName(e.target.value)}
-                  className={`w-full px-3 py-2 rounded-xl border text-sm font-semibold text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564] ${
+                  className={`w-full px-3.5 py-2.5 rounded-xl border text-sm font-medium text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564] ${
                     errors.styleName ? 'border-rose-500 bg-rose-50/20' : 'border-black/15'
                   }`}
                 />
                 {errors.styleName && (
-                  <p className="text-[11px] text-rose-600 font-medium mt-1">{errors.styleName}</p>
+                  <p className="text-xs text-rose-600 font-medium mt-1">{errors.styleName}</p>
                 )}
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1">
+                  <label className="block text-sm font-semibold text-slate-900 mb-1.5">
                     Garment Silhouette Category *
                   </label>
                   <select
                     value={category}
                     onChange={e => setCategory(e.target.value as GarmentCategory)}
-                    className="w-full px-3 py-2 rounded-xl border border-black/15 text-sm font-bold text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-black/15 text-sm font-medium text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                   >
                     {CATEGORIES.map(c => (
                       <option key={c} value={c}>{c}</option>
@@ -278,13 +273,13 @@ export function CreateTechPackModal({ isOpen, onClose, onCreated, availableBrand
                 </div>
 
                 <div>
-                  <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1">
+                  <label className="block text-sm font-semibold text-slate-900 mb-1.5">
                     Size Grading System *
                   </label>
                   <select
                     value={sizeSystem}
                     onChange={e => handleSizeSystemChange(e.target.value as SizeSystem)}
-                    className="w-full px-3 py-2 rounded-xl border border-black/15 text-sm font-bold text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-black/15 text-sm font-medium text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                   >
                     {SIZE_SYSTEMS.map(s => (
                       <option key={s.value} value={s.value}>{s.label}</option>
@@ -295,20 +290,20 @@ export function CreateTechPackModal({ isOpen, onClose, onCreated, availableBrand
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1">
+                  <label className="block text-sm font-semibold text-slate-900 mb-1.5">
                     Base Root Size *
                   </label>
                   <input
                     type="text"
                     value={baseSize}
                     onChange={e => setBaseSize(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-black/15 text-sm font-mono font-bold text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-black/15 text-sm font-mono font-bold text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                   />
-                  <p className="text-[10px] text-slate-500 mt-1">Golden sample fit size</p>
+                  <p className="text-xs text-slate-500 mt-1">Golden sample fit size</p>
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1">
+                  <label className="block text-sm font-semibold text-slate-900 mb-1.5">
                     Shell Fabric Composition *
                   </label>
                   <input
@@ -316,19 +311,19 @@ export function CreateTechPackModal({ isOpen, onClose, onCreated, availableBrand
                     placeholder="e.g. 100% Combed Compact Cotton"
                     value={fabricComposition}
                     onChange={e => setFabricComposition(e.target.value)}
-                    className={`w-full px-3 py-2 rounded-xl border text-sm font-semibold text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564] ${
+                    className={`w-full px-3.5 py-2.5 rounded-xl border text-sm font-medium text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564] ${
                       errors.fabricComposition ? 'border-rose-500 bg-rose-50/20' : 'border-black/15'
                     }`}
                   />
                   {errors.fabricComposition && (
-                    <p className="text-[11px] text-rose-600 font-medium mt-1">{errors.fabricComposition}</p>
+                    <p className="text-xs text-rose-600 font-medium mt-1">{errors.fabricComposition}</p>
                   )}
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1">
+                  <label className="block text-sm font-semibold text-slate-900 mb-1.5">
                     Target Weight (GSM) *
                   </label>
                   <div className="relative">
@@ -336,26 +331,26 @@ export function CreateTechPackModal({ isOpen, onClose, onCreated, availableBrand
                       type="number"
                       value={targetGsm}
                       onChange={e => setTargetGsm(Number(e.target.value))}
-                      className={`w-full px-3 py-2 rounded-xl border text-sm font-mono font-bold text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564] ${
+                      className={`w-full px-3.5 py-2.5 rounded-xl border text-sm font-mono font-bold text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564] ${
                         errors.targetGsm ? 'border-rose-500 bg-rose-50/20' : 'border-black/15'
                       }`}
                     />
-                    <span className="absolute right-3 top-2 text-xs font-mono text-slate-400 font-bold">GSM</span>
+                    <span className="absolute right-3.5 top-2.5 text-xs font-mono text-slate-400 font-bold">GSM</span>
                   </div>
                   {errors.targetGsm && (
-                    <p className="text-[11px] text-rose-600 font-medium mt-1">{errors.targetGsm}</p>
+                    <p className="text-xs text-rose-600 font-medium mt-1">{errors.targetGsm}</p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1">
+                  <label className="block text-sm font-semibold text-slate-900 mb-1.5">
                     Target Cut Release Date *
                   </label>
                   <input
                     type="date"
                     value={targetCutDate}
                     onChange={e => setTargetCutDate(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-black/15 text-sm font-mono text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-black/15 text-sm font-mono text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                   />
                 </div>
               </div>
@@ -363,14 +358,14 @@ export function CreateTechPackModal({ isOpen, onClose, onCreated, availableBrand
           ) : (
             <div className="space-y-4">
               <div>
-                <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                <label className="block text-sm font-semibold text-slate-900 mb-2">
                   Embellishment Routing Rule *
                 </label>
-                <div className="space-y-2">
+                <div className="space-y-2.5">
                   {EMBELLISHMENT_SEQUENCES.map(seq => (
                     <label
                       key={seq.value}
-                      className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
+                      className={`flex items-start gap-3 p-3.5 rounded-xl border cursor-pointer transition-all ${
                         embellishmentSeq === seq.value
                           ? 'border-[#3A3564] bg-[#FAF7F0] shadow-2xs'
                           : 'border-black/10 hover:bg-slate-50'
@@ -384,8 +379,8 @@ export function CreateTechPackModal({ isOpen, onClose, onCreated, availableBrand
                         className="mt-0.5 text-[#3A3564] focus:ring-[#3A3564]"
                       />
                       <div>
-                        <span className="text-xs font-bold text-slate-900 block">{seq.label}</span>
-                        <span className="text-[11px] text-slate-500">{seq.desc}</span>
+                        <span className="text-sm font-bold text-slate-900 block">{seq.label}</span>
+                        <span className="text-xs text-slate-500">{seq.desc}</span>
                       </div>
                     </label>
                   ))}
@@ -394,7 +389,7 @@ export function CreateTechPackModal({ isOpen, onClose, onCreated, availableBrand
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1">
+                  <label className="block text-sm font-semibold text-slate-900 mb-1.5">
                     Stitches Per Inch (SPI) *
                   </label>
                   <input
@@ -403,19 +398,19 @@ export function CreateTechPackModal({ isOpen, onClose, onCreated, availableBrand
                     max={20}
                     value={spi}
                     onChange={e => setSpi(Number(e.target.value))}
-                    className="w-full px-3 py-2 rounded-xl border border-black/15 text-sm font-mono font-bold text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-black/15 text-sm font-mono font-bold text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                   />
-                  <p className="text-[10px] text-slate-500 mt-1">Default 12 SPI for woven/knit apparel</p>
+                  <p className="text-xs text-slate-500 mt-1">Default 12 SPI for woven/knit apparel</p>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1">
+                  <label className="block text-sm font-semibold text-slate-900 mb-1.5">
                     Seam Construction Class *
                   </label>
                   <select
                     value={seamClass}
                     onChange={e => setSeamClass(e.target.value as SeamClass)}
-                    className="w-full px-3 py-2 rounded-xl border border-black/15 text-sm font-bold text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-black/15 text-sm font-medium text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                   >
                     {SEAM_CLASSES.map(sc => (
                       <option key={sc} value={sc}>{sc}</option>
@@ -426,21 +421,16 @@ export function CreateTechPackModal({ isOpen, onClose, onCreated, availableBrand
 
               {/* Vector Sketch Preview Box */}
               <div className="p-4 rounded-2xl border border-black/10 bg-[#FAF7F0]/60 space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-mono font-bold text-[#3A3564] uppercase tracking-wider">
-                    Auto-Generated Technical CAD Outline
-                  </span>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-white border border-black/10 text-slate-600 font-bold">
-                    PRESET VECTOR SVG
-                  </span>
-                </div>
+                <span className="text-xs font-semibold text-slate-600 uppercase tracking-wider block">
+                  Technical CAD Outline
+                </span>
                 <div className="h-28 rounded-xl bg-white border border-black/10 flex items-center justify-center p-4">
                   <div className="text-center space-y-1">
-                    <Scissors className="w-8 h-8 mx-auto text-[#3A3564]" />
-                    <p className="text-xs font-bold text-slate-700">
+                    <Scissors className="w-7 h-7 mx-auto text-[#3A3564]" />
+                    <p className="text-sm font-bold text-slate-900">
                       Standard {category} Vector Model Generated
                     </p>
-                    <p className="text-[10px] text-slate-400 font-mono">
+                    <p className="text-xs text-slate-500 font-mono">
                       Front & Back POM coordinates linked to {baseSize} Base Pattern
                     </p>
                   </div>
@@ -451,14 +441,14 @@ export function CreateTechPackModal({ isOpen, onClose, onCreated, availableBrand
         </div>
 
         {/* Modal Footer */}
-        <div className="px-6 py-4 border-t border-black/10 bg-slate-50 flex items-center justify-between">
+        <div className="px-6 py-4 border-t border-black/10 bg-[#FAF7F0]/60 flex items-center justify-between">
           {step === 2 ? (
             <button
               onClick={() => setStep(1)}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-black/10 text-xs font-bold text-slate-700 hover:bg-white transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-black/10 text-xs font-semibold text-slate-700 hover:bg-white transition-colors cursor-pointer"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Back to Metadata</span>
+              <span>Back</span>
             </button>
           ) : (
             <div />
@@ -467,7 +457,7 @@ export function CreateTechPackModal({ isOpen, onClose, onCreated, availableBrand
           <div className="flex items-center gap-3">
             <button
               onClick={onClose}
-              className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
+              className="px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
             >
               Cancel
             </button>
@@ -475,7 +465,7 @@ export function CreateTechPackModal({ isOpen, onClose, onCreated, availableBrand
             {step === 1 ? (
               <button
                 onClick={handleNext}
-                className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl bg-[#3A3564] text-[#FAF7F0] text-xs font-bold hover:bg-[#2A2649] transition-all shadow-2xs cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-[#3A3564] text-[#FAF7F0] text-xs font-bold hover:bg-[#2A2649] transition-all shadow-2xs cursor-pointer font-[family-name:var(--font-heading)]"
               >
                 <span>Continue to Step 2</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -484,7 +474,7 @@ export function CreateTechPackModal({ isOpen, onClose, onCreated, availableBrand
               <button
                 onClick={handleSubmit}
                 disabled={isSubmitting}
-                className="inline-flex items-center gap-1.5 px-6 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition-all shadow-2xs cursor-pointer disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 px-6 py-2.5 rounded-xl bg-[#3A3564] text-[#FAF7F0] text-xs font-bold hover:bg-[#2A2649] transition-all shadow-2xs cursor-pointer disabled:opacity-50 font-[family-name:var(--font-heading)]"
               >
                 <Check className="w-3.5 h-3.5" />
                 <span>Save Tech-Pack Specification</span>

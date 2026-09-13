@@ -99,36 +99,41 @@ export function GradingMatrixClient({ initialSchemes }: GradingMatrixClientProps
       
       {/* Action Header Card */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <div className="flex items-center gap-2.5 flex-wrap">
-            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
-              Dynamic Size Grading Matrix
-            </h1>
-            <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 tracking-wider">
-              ASTM D6961 / ISO 8559
-            </span>
+        <div className="flex items-start sm:items-center gap-3.5">
+          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#FAF7F0] border border-black/10 text-[#3A3564] flex items-center justify-center shrink-0 shadow-2xs">
+            <Ruler className="w-5 h-5" />
           </div>
-          <p className="text-xs sm:text-sm font-semibold text-slate-600 mt-1">
-            Standardized Points of Measure (POM), automated grade rule scaling & tolerance boundaries
-          </p>
+          <div>
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+                Dynamic Size Grading Matrix
+              </h1>
+              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                ASTM D6961 / ISO 8559
+              </span>
+            </div>
+            <p className="text-xs sm:text-sm text-slate-600 mt-1">
+              Standardized Points of Measure (POM), automated grade rule scaling & tolerance boundaries
+            </p>
+          </div>
         </div>
 
         <button
           onClick={() => setIsAddPomOpen(true)}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#3A3564] text-[#FAF7F0] text-xs font-bold hover:bg-[#2A2649] transition-all shadow-2xs cursor-pointer"
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#3A3564] text-[#FAF7F0] text-sm font-semibold hover:bg-[#2A2649] transition-all shadow-2xs cursor-pointer shrink-0"
         >
           <Plus className="w-4 h-4" />
-          <span>Add Point of Measure (POM)</span>
+          <span>Add point of measure</span>
         </button>
       </div>
 
-      {/* Dynamic Sizing Scheme Selector Pills */}
+      {/* Dynamic Sizing Scheme Selector Tabs */}
       <div className="flex items-center gap-2 overflow-x-auto pb-1">
         {schemes.map(sch => (
           <button
             key={sch.id}
             onClick={() => setSelectedSchemeId(sch.id)}
-            className={`px-4 py-2 rounded-xl text-xs font-mono font-bold tracking-tight transition-all shrink-0 cursor-pointer border ${
+            className={`px-4 py-2 rounded-xl text-sm font-medium tracking-tight transition-all shrink-0 cursor-pointer border ${
               selectedSchemeId === sch.id
                 ? 'bg-[#3A3564] text-[#FAF7F0] border-[#3A3564] shadow-2xs'
                 : 'bg-white text-slate-700 border-black/10 hover:bg-slate-50'
@@ -141,24 +146,24 @@ export function GradingMatrixClient({ initialSchemes }: GradingMatrixClientProps
 
       {/* Scheme Metadata Banner */}
       {currentScheme && (
-        <div className="bg-[#FAF7F0]/60 p-4 rounded-2xl border border-black/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+        <div className="bg-[#FAF7F0]/70 p-4 sm:p-5 rounded-2xl border border-black/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs sm:text-sm">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-[#3A3564] text-[#FAF7F0] flex items-center justify-center font-mono font-bold">
+            <div className="w-9 h-9 rounded-xl bg-white border border-black/10 text-[#3A3564] flex items-center justify-center font-bold text-sm shadow-2xs">
               {currentScheme.base_size}
             </div>
             <div>
-              <span className="font-bold text-slate-900 block">
-                Active System: {currentScheme.name}
+              <span className="font-semibold text-slate-900 block text-sm">
+                Active system: {currentScheme.name}
               </span>
-              <span className="text-[11px] text-slate-500 font-mono">
-                Base Fit Sample Size: <strong className="text-slate-800">{currentScheme.base_size}</strong> • Graded Sizes: {currentScheme.sizes.join(', ')}
+              <span className="text-xs text-slate-600">
+                Base fit sample size: <strong className="text-slate-900 font-semibold">{currentScheme.base_size}</strong> • Graded sizes: {currentScheme.sizes.join(', ')}
               </span>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-[11px] font-mono text-slate-500 font-bold">
-              {currentScheme.poms.length} Active POM Rules
+            <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-white border border-black/10 text-[#3A3564]">
+              {currentScheme.poms.length} active POM rules
             </span>
           </div>
         </div>
@@ -168,10 +173,10 @@ export function GradingMatrixClient({ initialSchemes }: GradingMatrixClientProps
       {currentScheme && (
         <div className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs">
+            <table className="w-full text-left border-collapse text-xs sm:text-sm">
               <thead>
-                <tr className="border-b border-black/10 bg-[#FAF7F0]/60 text-slate-600 font-mono font-bold uppercase tracking-wider">
-                  <th className="py-3 px-4">Point of Measure (POM)</th>
+                <tr className="border-b border-black/10 bg-[#FAF7F0]/70 text-slate-700 text-xs font-semibold">
+                  <th className="py-3 px-4">Point of measure (POM)</th>
                   <th className="py-3 px-4 text-center">Tolerance (±)</th>
                   {currentScheme.sizes.map(sz => {
                     const isBase = sz === currentScheme.base_size
@@ -179,24 +184,24 @@ export function GradingMatrixClient({ initialSchemes }: GradingMatrixClientProps
                       <th
                         key={sz}
                         className={`py-3 px-3 text-center ${
-                          isBase ? 'bg-[#3A3564] text-[#FAF7F0] font-black' : ''
+                          isBase ? 'bg-[#3A3564] text-[#FAF7F0] font-semibold' : ''
                         }`}
                       >
                         {sz} {isBase && '(Base)'}
                       </th>
                     )
                   })}
-                  <th className="py-3 px-4 text-right">Grade Step</th>
+                  <th className="py-3 px-4 text-right">Grade step</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-black/5 font-semibold text-slate-700">
+              <tbody className="divide-y divide-black/5 font-medium text-slate-700 text-xs sm:text-sm">
                 {currentScheme.poms.map(pom => (
                   <tr key={pom.pom_code} className="hover:bg-slate-50/80 transition-colors">
                     <td className="py-3.5 px-4">
-                      <span className="font-bold text-slate-900 block">{pom.pom_name}</span>
-                      <span className="font-mono text-[10px] text-slate-400 uppercase">{pom.pom_code}</span>
+                      <span className="font-semibold text-slate-900 block">{pom.pom_name}</span>
+                      <span className="text-xs text-slate-500 font-mono uppercase">{pom.pom_code}</span>
                     </td>
-                    <td className="py-3.5 px-4 text-center font-mono text-[11px] text-slate-500">
+                    <td className="py-3.5 px-4 text-center text-xs text-slate-600 font-mono">
                       ± {pom.tolerance_cm.toFixed(2)} cm
                     </td>
                     {currentScheme.sizes.map(sz => {
@@ -205,15 +210,15 @@ export function GradingMatrixClient({ initialSchemes }: GradingMatrixClientProps
                       return (
                         <td
                           key={sz}
-                          className={`py-3.5 px-3 text-center font-mono ${
-                            isBase ? 'bg-[#FAF7F0] font-black text-[#3A3564]' : 'text-slate-800'
+                          className={`py-3.5 px-3 text-center font-mono text-xs sm:text-sm ${
+                            isBase ? 'bg-[#FAF7F0] font-bold text-[#3A3564]' : 'text-slate-800'
                           }`}
                         >
                           {val.toFixed(1)}
                         </td>
                       )
                     })}
-                    <td className="py-3.5 px-4 text-right font-mono font-bold text-emerald-700">
+                    <td className="py-3.5 px-4 text-right font-mono font-semibold text-[#3A3564] text-xs sm:text-sm">
                       +{pom.grade_step_cm.toFixed(1)} cm
                     </td>
                   </tr>
@@ -226,25 +231,25 @@ export function GradingMatrixClient({ initialSchemes }: GradingMatrixClientProps
 
       {/* Add POM Modal */}
       {isAddPomOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in select-none">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in select-none">
           <div className="bg-white rounded-3xl border border-black/15 shadow-2xl max-w-md w-full overflow-hidden">
             <div className="px-6 py-5 border-b border-black/10 bg-[#FAF7F0] flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#3A3564] text-[#FAF7F0] flex items-center justify-center">
-                  <Ruler className="w-4 h-4" />
+                <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 text-[#3A3564] flex items-center justify-center shadow-2xs">
+                  <Ruler className="w-5 h-5" />
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-slate-900">
-                    Add Point of Measure (POM)
+                    Add point of measure (POM)
                   </h3>
-                  <p className="text-xs text-slate-500 font-medium">
+                  <p className="text-xs text-slate-600 font-medium">
                     Append new measurement spec to {currentScheme?.name}
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => setIsAddPomOpen(false)}
-                className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-700 cursor-pointer"
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-500 hover:text-slate-800 cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -252,74 +257,74 @@ export function GradingMatrixClient({ initialSchemes }: GradingMatrixClientProps
 
             <div className="p-6 space-y-4">
               <div>
-                <label className="block text-xs font-mono font-bold uppercase text-slate-700 mb-1">
-                  POM Code *
+                <label className="block text-xs font-semibold text-slate-800 mb-1.5">
+                  POM code *
                 </label>
                 <input
                   type="text"
                   placeholder="e.g. BICEP_WIDTH"
                   value={newPomCode}
                   onChange={e => setNewPomCode(e.target.value.toUpperCase())}
-                  className="w-full px-3 py-2 rounded-xl border border-black/15 text-xs font-mono font-bold text-slate-900 bg-white"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-black/15 text-sm font-semibold text-slate-900 bg-white uppercase focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-mono font-bold uppercase text-slate-700 mb-1">
-                  Measurement Description *
+                <label className="block text-xs font-semibold text-slate-800 mb-1.5">
+                  Measurement description *
                 </label>
                 <input
                   type="text"
                   placeholder="e.g. Upper Bicep Width (1 inch below armhole)"
                   value={newPomName}
                   onChange={e => setNewPomName(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-black/15 text-xs text-slate-900 bg-white"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-black/15 text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                 />
               </div>
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-xs font-mono font-bold uppercase text-slate-700 mb-1">
-                    Base Val (cm) *
+                  <label className="block text-xs font-semibold text-slate-800 mb-1.5">
+                    Base value (cm) *
                   </label>
                   <input
                     type="number"
                     step="0.5"
                     value={newBaseValue}
                     onChange={e => setNewBaseValue(e.target.value)}
-                    className="w-full px-2.5 py-1.5 rounded-xl border border-black/15 text-xs font-mono font-bold"
+                    className="w-full px-3 py-2 rounded-xl border border-black/15 text-sm font-semibold bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-mono font-bold uppercase text-slate-700 mb-1">
-                    Grade Step (cm) *
+                  <label className="block text-xs font-semibold text-slate-800 mb-1.5">
+                    Grade step (cm) *
                   </label>
                   <input
                     type="number"
                     step="0.5"
                     value={newGradeStep}
                     onChange={e => setNewGradeStep(e.target.value)}
-                    className="w-full px-2.5 py-1.5 rounded-xl border border-black/15 text-xs font-mono font-bold"
+                    className="w-full px-3 py-2 rounded-xl border border-black/15 text-sm font-semibold bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-mono font-bold uppercase text-slate-700 mb-1">
-                    Tolerance (±) *
+                  <label className="block text-xs font-semibold text-slate-800 mb-1.5">
+                    Tolerance (± cm) *
                   </label>
                   <input
                     type="number"
                     step="0.25"
                     value={newTolerance}
                     onChange={e => setNewTolerance(e.target.value)}
-                    className="w-full px-2.5 py-1.5 rounded-xl border border-black/15 text-xs font-mono font-bold"
+                    className="w-full px-3 py-2 rounded-xl border border-black/15 text-sm font-semibold bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                   />
                 </div>
               </div>
 
-              <div className="p-3 rounded-xl bg-slate-50 border border-black/5 text-[11px] text-slate-600 space-y-1">
-                <span className="font-mono font-bold block text-slate-700">AUTOMATIC CALIBRATION</span>
+              <div className="p-3.5 rounded-xl bg-[#FAF7F0]/40 border border-black/10 text-xs text-slate-600 space-y-1">
+                <span className="font-semibold block text-slate-800">Automatic calibration</span>
                 <p>Values for sizes ({currentScheme?.sizes.join(', ')}) will be auto-calculated relative to {currentScheme?.base_size} base value.</p>
               </div>
             </div>
@@ -327,16 +332,16 @@ export function GradingMatrixClient({ initialSchemes }: GradingMatrixClientProps
             <div className="px-6 py-4 border-t border-black/10 bg-slate-50 flex items-center justify-between">
               <button
                 onClick={() => setIsAddPomOpen(false)}
-                className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:text-slate-900 cursor-pointer"
+                className="px-4 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:text-slate-900 cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={handleAddPom}
-                className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl bg-[#3A3564] text-[#FAF7F0] text-xs font-bold hover:bg-[#2A2649] transition-all shadow-2xs cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-[#3A3564] text-[#FAF7F0] text-sm font-semibold hover:bg-[#2A2649] transition-all shadow-2xs cursor-pointer"
               >
                 <Check className="w-3.5 h-3.5" />
-                <span>Save POM to Scheme</span>
+                <span>Save POM to scheme</span>
               </button>
             </div>
           </div>
