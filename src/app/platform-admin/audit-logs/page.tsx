@@ -90,41 +90,31 @@ export default function SecurityAuditLogsPage() {
 
         {/* Layer 2: Encapsulated Top Header Card */}
         <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all">
-          <div className="flex items-center gap-3.5">
-            <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-              <ShieldCheck className="w-5 h-5" />
+          <div className="flex items-start sm:items-center gap-3.5">
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+              <ShieldCheck className="w-6 h-6" />
             </div>
             <div>
-              <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex items-center gap-2.5 flex-wrap">
                 <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                   Security & Audit Logs
                 </h1>
-                <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs tracking-wider">
-                  SOC-2 Compliant Trail
+                <span className="text-xs font-medium px-2.5 py-0.5 rounded-md bg-[#FAF7F0] text-slate-700 border border-black/10">
+                  {logs.length} {logs.length === 1 ? 'audit record' : 'audit records'}
                 </span>
-                {isLiveDatabase ? (
-                  <span className="inline-flex items-center gap-1.5 text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs tracking-wider">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                    PostgreSQL Live
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center gap-1.5 text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 shadow-2xs tracking-wider">
-                    Offline Cache
-                  </span>
-                )}
               </div>
               <p className="text-sm sm:text-base text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)]">
-                Real-time tracking of Root Super Admin sessions, tenant provisioning events, and cloud access security
+                Chronological log of platform super admin logins, tenant provisioning events, and configuration audits
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2.5 self-end sm:self-auto">
+          <div className="flex items-center gap-2.5 self-stretch sm:self-auto justify-end flex-wrap">
             <button
               type="button"
               onClick={loadLogs}
               disabled={isLoading}
-              className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-sm font-bold text-slate-700 bg-white border border-black/10 hover:bg-slate-100 transition-all shadow-2xs cursor-pointer active:scale-[0.98] disabled:opacity-50"
+              className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-all shadow-2xs cursor-pointer active:scale-[0.98] disabled:opacity-50"
             >
               <RefreshCw className={`w-4 h-4 text-slate-500 ${isLoading ? 'animate-spin' : ''}`} />
               <span>Refresh</span>
@@ -135,7 +125,7 @@ export default function SecurityAuditLogsPage() {
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] transition-all shadow-xs cursor-pointer active:scale-[0.98]"
             >
               <Download className="w-4 h-4 text-white" />
-              <span>Export Audit Trail (CSV)</span>
+              <span>Export CSV</span>
             </button>
           </div>
         </div>
@@ -147,7 +137,7 @@ export default function SecurityAuditLogsPage() {
           <div className="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white">
             
             {/* Category Filter Tabs */}
-            <div className="flex items-center gap-1.5 overflow-x-auto text-xs font-semibold pb-1 sm:pb-0">
+            <div className="flex items-center gap-1.5 overflow-x-auto text-sm pb-1 sm:pb-0">
               {(['ALL', 'AUTH', 'PROVISIONING', 'SECURITY_ALERT', 'CONFIG_CHANGE'] as const).map(cat => {
                 const label = cat === 'ALL' ? 'All Events' : cat.replace(/_/g, ' ')
                 const active = categoryFilter === cat
@@ -155,10 +145,10 @@ export default function SecurityAuditLogsPage() {
                   <button
                     key={cat}
                     onClick={() => setCategoryFilter(cat)}
-                    className={`px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
+                    className={`px-3.5 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer text-sm ${
                       active
-                        ? 'bg-[#3A3564] text-white shadow-2xs font-bold'
-                        : 'text-slate-600 bg-[#FAF7F0] border border-black/5 hover:bg-black/5'
+                        ? 'bg-[#3A3564] text-white shadow-2xs font-semibold'
+                        : 'text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 font-medium'
                     }`}
                   >
                     {label}
@@ -175,7 +165,7 @@ export default function SecurityAuditLogsPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search event, IP, actor, location..."
-                className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564]"
+                className="w-full pl-9 pr-3 py-2 text-sm rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] text-slate-900"
               />
             </div>
           </div>
@@ -184,17 +174,17 @@ export default function SecurityAuditLogsPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="border-b border-slate-100 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0]">
-                  <th className="py-3 px-4">Event ID</th>
-                  <th className="py-3 px-4">Timestamp</th>
-                  <th className="py-3 px-4">Actor</th>
-                  <th className="py-3 px-4">Action & Details</th>
-                  <th className="py-3 px-4">Category</th>
-                  <th className="py-3 px-4">Origin IP & Location</th>
-                  <th className="py-3 px-4 text-right">Status</th>
+                <tr className="border-b border-slate-200 text-xs font-semibold text-slate-600 uppercase tracking-wider bg-[#FAF7F0]">
+                  <th className="py-3.5 px-4">Event ID</th>
+                  <th className="py-3.5 px-4">Timestamp</th>
+                  <th className="py-3.5 px-4">Actor</th>
+                  <th className="py-3.5 px-4">Action & Details</th>
+                  <th className="py-3.5 px-4">Category</th>
+                  <th className="py-3.5 px-4">Origin IP & Location</th>
+                  <th className="py-3.5 px-4 text-right">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 text-xs">
+              <tbody className="divide-y divide-slate-100 text-sm">
                 {filteredLogs.length === 0 ? (
                   <tr>
                     <td colSpan={7} className="py-16 text-center">
@@ -203,13 +193,13 @@ export default function SecurityAuditLogsPage() {
                           <ShieldCheck className="w-6 h-6 text-[#3A3564]" />
                         </div>
                         <div className="space-y-1">
-                          <h4 className="text-sm font-bold text-slate-900 font-[family-name:var(--font-heading)]">
+                          <h4 className="text-base font-bold text-slate-900 font-[family-name:var(--font-heading)]">
                             {searchQuery || categoryFilter !== 'ALL' ? 'No Matching Audit Records Found' : 'No Audit Records Recorded Yet'}
                           </h4>
-                          <p className="text-xs text-slate-500 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
+                          <p className="text-sm text-slate-500 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
                             {searchQuery || categoryFilter !== 'ALL'
                               ? 'Try adjusting your search terms or selecting All Events.'
-                              : 'Administrative sign-ins, tenant factory provisioning, and security challenges will be immutably recorded here.'}
+                              : 'Administrative sign-ins, tenant factory provisioning, and security challenges will be recorded here.'}
                           </p>
                         </div>
                       </div>
@@ -218,52 +208,52 @@ export default function SecurityAuditLogsPage() {
                 ) : (
                   filteredLogs.map(l => (
                     <tr key={l.id} className="hover:bg-slate-50 transition-colors">
-                      <td className="py-3.5 px-4 font-mono font-bold text-slate-700">
+                      <td className="py-3.5 px-4 font-mono font-semibold text-slate-700 text-xs">
                         {l.logCode || l.id}
                       </td>
 
-                      <td className="py-3.5 px-4 font-mono text-[11px] text-slate-500 whitespace-nowrap">
+                      <td className="py-3.5 px-4 text-xs text-slate-500 whitespace-nowrap font-mono">
                         {new Date(l.createdAt).toLocaleString()}
                       </td>
 
-                      <td className="py-3.5 px-4 font-mono text-[11px] font-bold text-[#3A3564]">
+                      <td className="py-3.5 px-4 text-xs font-semibold text-[#3A3564]">
                         {l.actor}
                       </td>
 
                       <td className="py-3.5 px-4 max-w-sm">
-                        <div className="font-bold text-slate-900 font-[family-name:var(--font-heading)]">{l.action}</div>
-                        <div className="text-[11px] text-slate-500 font-medium font-[family-name:var(--font-public-sans)] truncate mt-0.5">
+                        <div className="font-semibold text-slate-900 text-sm">{l.action}</div>
+                        <div className="text-xs text-slate-500 font-medium truncate mt-0.5">
                           {l.details}
                         </div>
                       </td>
 
-                      <td className="py-3.5 px-4 font-mono">
-                        <span className="px-2.5 py-0.5 rounded-full bg-[#FAF7F0] border border-black/10 text-[10px] font-bold text-slate-700">
+                      <td className="py-3.5 px-4">
+                        <span className="px-2.5 py-0.5 rounded-md bg-[#FAF7F0] border border-black/10 text-xs font-medium text-slate-700">
                           {l.category.replace(/_/g, ' ')}
                         </span>
                       </td>
 
-                      <td className="py-3.5 px-4 font-mono text-[11px]">
-                        <div className="font-bold text-slate-900">{l.ipAddress}</div>
-                        <div className="text-slate-500 flex items-center gap-1 text-[10px] mt-0.5">
-                          <Globe className="w-3 h-3 text-slate-400" />
+                      <td className="py-3.5 px-4 text-xs">
+                        <div className="font-semibold text-slate-900 font-mono">{l.ipAddress}</div>
+                        <div className="text-slate-500 flex items-center gap-1 text-xs mt-0.5">
+                          <Globe className="w-3.5 h-3.5 text-slate-400" />
                           <span>{l.location}</span>
                         </div>
                       </td>
 
                       <td className="py-3.5 px-4 text-right">
                         {l.status === 'SUCCESS' ? (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-mono font-bold uppercase border border-emerald-200">
-                            <CheckCircle2 className="w-3 h-3" />
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-800 text-xs font-medium border border-emerald-200">
+                            <CheckCircle2 className="w-3.5 h-3.5" />
                             Success
                           </span>
                         ) : l.status === 'WARNING' ? (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 text-[10px] font-mono font-bold uppercase border border-amber-200">
-                            <AlertTriangle className="w-3 h-3" />
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-50 text-amber-800 text-xs font-medium border border-amber-200">
+                            <AlertTriangle className="w-3.5 h-3.5" />
                             Warning
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 text-[10px] font-mono font-bold uppercase border border-rose-200">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-rose-50 text-rose-800 text-xs font-medium border border-rose-200">
                             Failed
                           </span>
                         )}
