@@ -521,7 +521,7 @@ export async function updateTenantAllowedDivisionsAction(
       .update({
         allowed_divisions: allowedDivisions,
         active_divisions_count: allowedDivisions.length,
-        updated_at: new Date().toISOString(),
+        last_active_at: new Date().toISOString(),
       })
       .eq('id', tenantId)
 
