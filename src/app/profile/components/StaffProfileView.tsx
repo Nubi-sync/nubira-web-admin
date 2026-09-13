@@ -29,15 +29,16 @@ interface StaffProfileViewProps {
     is_active?: boolean
     created_at?: string
   } | null
+  companyName?: string
 }
 
-export function StaffProfileView({ user, profile }: StaffProfileViewProps) {
+export function StaffProfileView({ user, profile, companyName }: StaffProfileViewProps) {
   // Logout state
   const [logoutPending, startLogoutTransition] = useTransition()
 
-  const username = profile?.username || 'Store Supervisor'
-  const roleName = (profile?.role || 'STORE_SUPERVISOR').replace(/_/g, ' ').toUpperCase()
-  const displayEmail = user.email || 'store@nubira.local'
+  const username = profile?.username || user.email?.split('@')[0] || 'Floor Staff'
+  const roleName = (profile?.role || 'STAFF').replace(/_/g, ' ').toUpperCase()
+  const displayEmail = user.email || 'staff@factory.in'
   const initials = username.substring(0, 2).toUpperCase() || 'ST'
   const memberSince = (profile?.created_at || user.created_at)
     ? new Date(profile?.created_at || user.created_at || '').toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
@@ -142,7 +143,7 @@ export function StaffProfileView({ user, profile }: StaffProfileViewProps) {
                 <Building2 className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5" />
                 <div className="min-w-0">
                   <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Assigned Facility</div>
-                  <div className="text-sm font-semibold text-slate-900 truncate">Nubira Creation (Plant 1)</div>
+                  <div className="text-sm font-semibold text-slate-900 truncate">{companyName || 'Apparel Manufacturing Facility'}</div>
                 </div>
               </div>
 

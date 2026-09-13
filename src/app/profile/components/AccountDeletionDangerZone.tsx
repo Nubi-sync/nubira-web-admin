@@ -24,7 +24,7 @@ interface AccountDeletionDangerZoneProps {
 }
 
 export function AccountDeletionDangerZone({
-  companyName = 'Nubira Creation',
+  companyName = 'Company',
   adminName = 'admin',
   userEmail,
   adminPhone = '',
@@ -100,7 +100,7 @@ export function AccountDeletionDangerZone({
               </div>
               <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-2xl leading-relaxed">
                 Need to delete or close this company account? Submit an official deletion request.
-                Our administration desk at <strong className="text-slate-900 font-mono">team.anga9@gmail.com</strong> will
+                Our administration desk at <strong className="text-slate-900 font-mono">support@zigza.in</strong> will
                 verify your company credentials and securely archive all production records.
               </p>
             </div>
@@ -140,7 +140,7 @@ export function AccountDeletionDangerZone({
                     Request Account Deletion
                   </h3>
                   <p className="text-xs text-slate-500">
-                    Target Mail: <span className="font-mono text-slate-900 font-bold">team.anga9@gmail.com</span>
+                    Target Mail: <span className="font-mono text-slate-900 font-bold">support@zigza.in</span>
                   </p>
                 </div>
               </div>
@@ -166,7 +166,7 @@ export function AccountDeletionDangerZone({
                   </h4>
                   <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
                     Your request has been logged and dispatched to{' '}
-                    <strong className="text-slate-900 font-mono">team.anga9@gmail.com</strong>.
+                    <strong className="text-slate-900 font-mono">support@zigza.in</strong>.
                     Our core team will verify your credentials and execute the account deletion.
                   </p>
                 </div>
@@ -225,7 +225,7 @@ export function AccountDeletionDangerZone({
                   </div>
                   <p className="text-amber-900/90 text-xs">
                     Submitting this form dispatches a formal decommission request to{' '}
-                    <strong className="font-mono text-slate-900">team.anga9@gmail.com</strong>.
+                    <strong className="font-mono text-slate-900">support@zigza.in</strong>.
                     All supervisors, factory lots, challans, and stock logs under this company will be securely archived.
                   </p>
                 </div>
