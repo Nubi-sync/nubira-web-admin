@@ -4,6 +4,8 @@ import { redirect } from 'next/navigation'
 import { PunchLibraryClient } from './components/PunchLibraryClient'
 import { fetchEmbroideryDesignsAction } from '../actions'
 
+import { resolveUserTenant, isLegacyNubiraTenant } from '@/lib/tenant-context'
+
 export const dynamic = 'force-dynamic'
 
 export default async function PunchLibraryPage() {
@@ -17,16 +19,14 @@ export default async function PunchLibraryPage() {
     redirect('/login')
   }
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single()
+  const tenant = await resolveUserTenant(user)
+  const isLegacy = isLegacyNubiraTenant(tenant)
+  const companyFilter = isLegacy ? undefined : tenant.companyName
 
-  const initialDesigns = await fetchEmbroideryDesignsAction()
+  const initialDesigns = await fetchEmbroideryDesignsAction(companyFilter)
 
   return (
-    <AdminShell userEmail={user.email} userRole={profile?.role}>
+    <AdminShell userEmail={tenant.userEmail} userRole={tenant.role}>
       <PunchLibraryClient initialDesigns={initialDesigns} />
     </AdminShell>
   )

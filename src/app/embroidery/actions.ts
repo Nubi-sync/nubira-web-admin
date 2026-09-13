@@ -134,7 +134,7 @@ export async function fetchEmbroideryRunsAction(filters?: { status?: string }, c
         })
       : data
 
-    return data.map((row: any) => {
+    return filteredData.map((row: any) => {
       const design = row.embroidery_designs
       const machine = row.embroidery_machines
       const order = design?.merchandising_orders
@@ -145,18 +145,18 @@ export async function fetchEmbroideryRunsAction(filters?: { status?: string }, c
         machine_number: machine?.machine_code || 'TAJIMA-20-HEAD-01',
         operator_name: row.operator_name || 'Senior Operator',
         design_id: row.design_id,
-        design_code: design?.design_code || 'DST-OLLY-HD8821',
-        order_po: order?.order_number || 'PO-ZIG-8901',
-        panels_loaded: row.panels_loaded || 25,
-        panels_completed: row.total_panels_completed || 25,
+        design_code: design?.design_code || 'DST-DESIGN',
+        order_po: order?.order_number || 'PO-PENDING',
+        panels_loaded: row.panels_loaded || 0,
+        panels_completed: row.total_panels_completed || 0,
         thread_breaks_count: row.thread_breaks_count || 0,
-        total_stitches_run: Number(row.total_stitches_run) || 448000,
+        total_stitches_run: Number(row.total_stitches_run) || 0,
         rpm_speed: machine?.operational_rpm || 850,
         active_heads: machine?.head_count || 20,
         total_heads: machine?.head_count || 20,
         backing_spec: design?.backing_type || 'Tear-Away 40 GSM',
         status: (row.status as EmbroideryRunStatus) || 'COMPLETED',
-        run_date: row.created_at ? new Date(row.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '12 Sep 2026',
+        run_date: row.created_at ? new Date(row.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : new Date().toLocaleDateString('en-GB'),
         created_at: row.created_at
       }
     })
@@ -200,13 +200,13 @@ export async function fetchEmbroideryDesignsAction(companyName?: string): Promis
         })
       : data
 
-    return data.map((row: any) => ({
+    return filteredData.map((row: any) => ({
       id: row.id,
       design_code: row.design_code,
       design_name: row.design_name,
       buyer_name: row.merchandising_orders?.brands?.brand_name || 'In-House Brand',
-      order_id: row.merchandising_orders?.order_number || 'PO-ZIG-8901',
-      total_stitches: Number(row.total_stitches) || 22400,
+      order_id: row.merchandising_orders?.order_number || 'PO-PENDING',
+      total_stitches: Number(row.total_stitches) || 0,
       color_stops_count: row.color_change_count || 4,
       dst_file_name: row.dst_file_url?.split('/').pop() || `${row.design_code.toLowerCase()}.dst`,
       rate_per_thousand_stitches: Number(row.rate_per_thousand_stitches) || 2.80,
@@ -250,16 +250,17 @@ export async function fetchEmbroideryMachinesAction() {
 // 5. STITCH RATE BILLING LEDGER (Dynamic from Live Production)
 // -----------------------------------------------------------------------------
 
-export async function fetchStitchBillingLedgerAction(): Promise<StitchBillingLedger[]> {
+export async function fetchStitchBillingLedgerAction(companyName?: string): Promise<StitchBillingLedger[]> {
   try {
-    const runs = await fetchEmbroideryRunsAction()
-    const designs = await fetchEmbroideryDesignsAction()
+    const runs = await fetchEmbroideryRunsAction(undefined, companyName)
+    const designs = await fetchEmbroideryDesignsAction(companyName)
+    if (runs.length === 0) return []
     const designMap = new Map(designs.map(d => [d.id, d]))
 
     return runs.map((run, idx) => {
       const design = designMap.get(run.design_id) || designs[0]
-      const stitchCount = design?.total_stitches || 22400
-      const totalPieces = run.panels_completed || 25
+      const stitchCount = design?.total_stitches || 0
+      const totalPieces = run.panels_completed || 0
       const totalStitches = totalPieces * stitchCount
       const rate = design?.rate_per_thousand_stitches || 2.80
       const backingCost = 0.50
@@ -269,7 +270,7 @@ export async function fetchStitchBillingLedgerAction(): Promise<StitchBillingLed
         id: `bil-${run.id}`,
         invoice_code: `BIL-EMB-2026-${String(idx + 1).padStart(4, '0')}`,
         order_po: run.order_po,
-        buyer_name: design?.buyer_name || 'OLLYPOP',
+        buyer_name: design?.buyer_name || 'In-House Brand',
         design_code: run.design_code,
         total_pieces: totalPieces,
         stitch_count_per_piece: stitchCount,
@@ -366,47 +367,18 @@ export async function fetchThreadInventoryAction(companyName?: string): Promise<
         cone_code: `CONE-${String(idx + 1).padStart(3, '0')}`,
         brand: 'Madeira',
         shade_number: '1805',
-        pantone_match: '19-4052 TCX',
+        pantone_match: 'Standard Color',
         thread_type: 'Polyester 40wt',
         initial_weight_grams: 1000,
         current_weight_grams: 850,
-        cones_in_stock: Number(item.quantity) || 12,
+        cones_in_stock: Number(item.quantity) || 0,
         storage_bin: 'BIN-TH-01',
         status: (Number(item.quantity) > 5 ? 'IN_STOCK' : 'LOW_STOCK') as any,
         created_at: item.created_at || new Date().toISOString()
       }))
     }
 
-    return [
-      {
-        id: 'cone-01',
-        cone_code: 'CONE-MAD-1805-BLK',
-        brand: 'Madeira',
-        shade_number: '1805',
-        pantone_match: '19-4052 TCX (Classic Navy)',
-        thread_type: 'Polyester 40wt',
-        initial_weight_grams: 1000,
-        current_weight_grams: 850,
-        cones_in_stock: 14,
-        storage_bin: 'BIN-EMB-TH-01',
-        status: 'IN_STOCK',
-        created_at: '2026-09-12T08:00:00Z'
-      },
-      {
-        id: 'cone-02',
-        cone_code: 'CONE-MAD-1000-WHT',
-        brand: 'Madeira',
-        shade_number: '1000',
-        pantone_match: '11-0601 TCX (Bright White)',
-        thread_type: 'Polyester 40wt',
-        initial_weight_grams: 1000,
-        current_weight_grams: 420,
-        cones_in_stock: 8,
-        storage_bin: 'BIN-EMB-TH-02',
-        status: 'IN_STOCK',
-        created_at: '2026-09-12T08:00:00Z'
-      }
-    ]
+    return []
   } catch (err: any) {
     console.error('[fetchThreadInventoryAction] error:', err)
     return []
