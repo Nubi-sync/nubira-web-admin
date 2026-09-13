@@ -505,6 +505,55 @@ export async function sendActivationEmailAction(params: TenantActivationEmailPar
   return sendTenantActivationEmail(params)
 }
 
+export async function updateTenantAllowedDivisionsAction(
+  tenantId: string,
+  allowedDivisions: string[]
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const { data: currentTenant } = await supabaseAdmin
+      .from('platform_tenant_factories')
+      .select('company_name, plant_slug')
+      .eq('id', tenantId)
+      .maybeSingle()
+
+    const { error: updateErr } = await supabaseAdmin
+      .from('platform_tenant_factories')
+      .update({
+        allowed_divisions: allowedDivisions,
+        active_divisions_count: allowedDivisions.length,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', tenantId)
+
+    if (updateErr) {
+      console.error('[updateTenantAllowedDivisionsAction] Database error:', updateErr)
+      return { success: false, error: updateErr.message }
+    }
+
+    try {
+      await supabaseAdmin.from('platform_audit_logs').insert([{
+        log_code: `DIV-MOD-${Date.now().toString().slice(-4)}`,
+        actor: 'admin@zigza.in',
+        action: 'Tenant Divisions Modified',
+        category: 'CONFIG_CHANGE',
+        details: `Updated active manufacturing divisions for ${currentTenant?.company_name || tenantId} to ${allowedDivisions.length} units`,
+        ip_address: '103.24.12.89',
+        location: 'India',
+        status: 'SUCCESS'
+      }])
+    } catch (_) {}
+
+    revalidatePath('/platform-admin')
+    revalidatePath('/platform-admin/tenants')
+    revalidatePath('/modules')
+
+    return { success: true }
+  } catch (err: any) {
+    console.error('[updateTenantAllowedDivisionsAction] Fatal:', err)
+    return { success: false, error: err?.message || 'Failed to update tenant divisions' }
+  }
+}
+
 // -----------------------------------------------------------------------------
 // 3. SECURITY & AUDIT LOGS
 // -----------------------------------------------------------------------------

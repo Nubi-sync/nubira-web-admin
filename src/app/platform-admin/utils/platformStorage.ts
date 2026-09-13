@@ -209,6 +209,28 @@ export function provisionNewTenant(payload: ProvisionTenantPayload): TenantFacto
   return newTenant
 }
 
+export function updateTenantDivisions(tenantId: string, allowedDivisions: string[]): TenantFactory | null {
+  if (typeof window === 'undefined') return null
+  const current = getTenantFactories()
+  const idx = current.findIndex(t => t.id === tenantId)
+  if (idx < 0) return null
+  const updatedTenant: TenantFactory = {
+    ...current[idx],
+    allowedDivisions,
+    activeDivisionsCount: allowedDivisions.length,
+    lastActiveAt: new Date().toISOString()
+  }
+  const updatedList = [...current]
+  updatedList[idx] = updatedTenant
+  try {
+    localStorage.setItem(STORAGE_KEYS.TENANTS, JSON.stringify(updatedList))
+  } catch (e) {
+    console.error('Failed to update tenant divisions in storage:', e)
+  }
+  broadcastUpdate()
+  return updatedTenant
+}
+
 // ----------------------------------------------------------------------------
 // 3. PLATFORM METRICS
 // ----------------------------------------------------------------------------
