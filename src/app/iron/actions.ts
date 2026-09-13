@@ -20,19 +20,46 @@ const supabaseAdmin = createAdminClient(
 // 1. FETCH IRON DASHBOARD DATA
 // -----------------------------------------------------------------------------
 
-export async function fetchIronDashboardDataAction(): Promise<{
+export async function fetchIronDashboardDataAction(companyName?: string): Promise<{
   tables: IronTable[]
   logs: IronProductionLog[]
   qcAudits: FinishQcAudit[]
 }> {
   try {
+    const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
+    const targetComp = (companyName || '').toUpperCase()
+
     const [tablesRes, logsRes, defectsRes] = await Promise.all([
       supabaseAdmin.from('iron_tables').select('*').order('table_code', { ascending: true }),
-      supabaseAdmin.from('iron_production_logs').select('*, table:iron_tables(table_code), order:merchandising_orders(po_number, style_name)').order('created_at', { ascending: false }).limit(50),
-      supabaseAdmin.from('iron_defect_audits').select('*, iron_log:iron_production_logs(log_number)').order('created_at', { ascending: false }).limit(50)
+      supabaseAdmin
+        .from('iron_production_logs')
+        .select('*, table:iron_tables(table_code), order:merchandising_orders(po_number, style_name, brands:buyer_id(brand_name))')
+        .order('created_at', { ascending: false })
+        .limit(50),
+      supabaseAdmin
+        .from('iron_defect_audits')
+        .select('*, iron_log:iron_production_logs(log_number, order:merchandising_orders(brands:buyer_id(brand_name)))')
+        .order('created_at', { ascending: false })
+        .limit(50)
     ])
 
-    const tables: IronTable[] = (tablesRes.data || []).map((t: any, idx: number) => ({
+    const rawTables = isNonNubira ? [] : (tablesRes.data || [])
+
+    const rawLogs = isNonNubira
+      ? (logsRes.data || []).filter((l: any) => {
+          const brand = (l.order?.brands?.brand_name || '').toUpperCase()
+          return brand.length > 0 && brand.includes(targetComp)
+        })
+      : (logsRes.data || [])
+
+    const rawDefects = isNonNubira
+      ? (defectsRes.data || []).filter((d: any) => {
+          const brand = (d.iron_log?.order?.brands?.brand_name || '').toUpperCase()
+          return brand.length > 0 && brand.includes(targetComp)
+        })
+      : (defectsRes.data || [])
+
+    const tables: IronTable[] = rawTables.map((t: any, idx: number) => ({
       id: t.id,
       tableNumber: t.table_code || `Table ${(idx + 1).toString().padStart(2, '0')}`,
       operatorName: 'Finishing Presser',
@@ -48,7 +75,7 @@ export async function fetchIronDashboardDataAction(): Promise<{
       shiftStartTime: '08:00 AM'
     }))
 
-    const logs: IronProductionLog[] = (logsRes.data || []).map((l: any) => {
+    const logs: IronProductionLog[] = rawLogs.map((l: any) => {
       const pressed = Number(l.garments_pressed) || 0
       const rate = 2.20
       return {
@@ -68,7 +95,7 @@ export async function fetchIronDashboardDataAction(): Promise<{
       }
     })
 
-    const qcAudits: FinishQcAudit[] = (defectsRes.data || []).map((d: any) => {
+    const qcAudits: FinishQcAudit[] = rawDefects.map((d: any) => {
       const isGlaze = d.defect_type === 'THERMAL_SHINE_GLAZE'
       const isWater = d.defect_type === 'WATER_DROP_STAIN'
       return {

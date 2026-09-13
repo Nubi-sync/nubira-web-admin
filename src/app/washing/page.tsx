@@ -14,6 +14,7 @@ import {
 import { WashingDashboardClient } from './components/WashingDashboardClient'
 
 import { fetchWashingDashboardDataAction } from './actions'
+import { resolveUserTenant, isLegacyNubiraTenant } from '@/lib/tenant-context'
 
 export const dynamic = 'force-dynamic'
 
@@ -28,13 +29,17 @@ export default async function WashingDashboardPage() {
     redirect('/login')
   }
 
+  const tenant = await resolveUserTenant(user)
+  const isLegacy = isLegacyNubiraTenant(tenant)
+  const companyFilter = isLegacy ? undefined : tenant.companyName
+
   const [{ data: profile }, liveData] = await Promise.all([
     supabase
       .from('profiles')
       .select('id, username, role')
       .eq('id', user.id)
       .single(),
-    fetchWashingDashboardDataAction()
+    fetchWashingDashboardDataAction(companyFilter)
   ])
 
   return (

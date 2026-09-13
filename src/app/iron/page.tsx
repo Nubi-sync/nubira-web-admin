@@ -13,6 +13,7 @@ import {
 import { IronDashboardClient } from './components/IronDashboardClient'
 
 import { fetchIronDashboardDataAction } from './actions'
+import { resolveUserTenant, isLegacyNubiraTenant } from '@/lib/tenant-context'
 
 export const dynamic = 'force-dynamic'
 
@@ -27,13 +28,17 @@ export default async function IronDashboardPage() {
     redirect('/login')
   }
 
+  const tenant = await resolveUserTenant(user)
+  const isLegacy = isLegacyNubiraTenant(tenant)
+  const companyFilter = isLegacy ? undefined : tenant.companyName
+
   const [{ data: profile }, liveData] = await Promise.all([
     supabase
       .from('profiles')
       .select('id, username, role')
       .eq('id', user.id)
       .single(),
-    fetchIronDashboardDataAction()
+    fetchIronDashboardDataAction(companyFilter)
   ])
 
   return (

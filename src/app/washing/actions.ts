@@ -21,19 +21,46 @@ const supabaseAdmin = createAdminClient(
 // 1. FETCH WASHING DASHBOARD DATA
 // -----------------------------------------------------------------------------
 
-export async function fetchWashingDashboardDataAction(): Promise<{
+export async function fetchWashingDashboardDataAction(companyName?: string): Promise<{
   batches: WashBatch[]
   recipes: WashRecipe[]
   shrinkageQc: ShrinkageQcRecord[]
 }> {
   try {
+    const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
+    const targetComp = (companyName || '').toUpperCase()
+
     const [batchesRes, recipesRes, shrinkageRes] = await Promise.all([
-      supabaseAdmin.from('washing_batches').select('*, order:merchandising_orders(po_number, style_name), recipe:washing_recipes(recipe_code, wash_type)').order('started_at', { ascending: false }).limit(50),
+      supabaseAdmin
+        .from('washing_batches')
+        .select('*, order:merchandising_orders(po_number, style_name, brands:buyer_id(brand_name)), recipe:washing_recipes(recipe_code, wash_type)')
+        .order('started_at', { ascending: false })
+        .limit(50),
       supabaseAdmin.from('washing_recipes').select('*').order('recipe_code', { ascending: true }),
-      supabaseAdmin.from('washing_shrinkage_alerts').select('*, batch:washing_batches(batch_number)').order('created_at', { ascending: false }).limit(50)
+      supabaseAdmin
+        .from('washing_shrinkage_alerts')
+        .select('*, batch:washing_batches(batch_number, order:merchandising_orders(brands:buyer_id(brand_name)))')
+        .order('created_at', { ascending: false })
+        .limit(50)
     ])
 
-    const batches: WashBatch[] = (batchesRes.data || []).map((b: any) => ({
+    const rawBatches = isNonNubira
+      ? (batchesRes.data || []).filter((b: any) => {
+          const brand = (b.order?.brands?.brand_name || '').toUpperCase()
+          return brand.length > 0 && brand.includes(targetComp)
+        })
+      : (batchesRes.data || [])
+
+    const rawRecipes = isNonNubira ? [] : (recipesRes.data || [])
+
+    const rawShrinkage = isNonNubira
+      ? (shrinkageRes.data || []).filter((s: any) => {
+          const brand = (s.batch?.order?.brands?.brand_name || '').toUpperCase()
+          return brand.length > 0 && brand.includes(targetComp)
+        })
+      : (shrinkageRes.data || [])
+
+    const batches: WashBatch[] = rawBatches.map((b: any) => ({
       id: b.id,
       batchNumber: b.batch_number || `WB-${b.id?.slice(0, 5)}`,
       challanId: b.order?.po_number || 'CH-2026-901',
@@ -54,7 +81,7 @@ export async function fetchWashingDashboardDataAction(): Promise<{
       startedAt: b.started_at || new Date().toISOString()
     }))
 
-    const recipes: WashRecipe[] = (recipesRes.data || []).map((r: any) => ({
+    const recipes: WashRecipe[] = rawRecipes.map((r: any) => ({
       id: r.id,
       recipeCode: r.recipe_code,
       recipeName: `${r.wash_type} (${r.liquor_ratio || '1:10'})`,
@@ -72,7 +99,7 @@ export async function fetchWashingDashboardDataAction(): Promise<{
       status: 'ACTIVE'
     }))
 
-    const shrinkageQc: ShrinkageQcRecord[] = (shrinkageRes.data || []).map((s: any) => {
+    const shrinkageQc: ShrinkageQcRecord[] = rawShrinkage.map((s: any) => {
       const lenShrink = Number(s.length_shrinkage_percent) || 0
       const widShrink = Number(s.width_shrinkage_percent) || 0
       const isFail = !s.is_within_spec || lenShrink > 2.5 || widShrink > 2.5

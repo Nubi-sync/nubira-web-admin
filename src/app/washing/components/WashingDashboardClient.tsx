@@ -48,22 +48,23 @@ export function WashingDashboardClient({
   initialRecipes,
   initialShrinkageQc
 }: WashingDashboardClientProps = {}) {
-  const [batches, setBatches] = useState<WashBatch[]>(initialBatches && initialBatches.length > 0 ? initialBatches : [])
+  const [batches, setBatches] = useState<WashBatch[]>(initialBatches !== undefined ? initialBatches : [])
   const [machines, setMachines] = useState<WasherMachine[]>([])
-  const [recipes, setRecipes] = useState<WashRecipe[]>(initialRecipes && initialRecipes.length > 0 ? initialRecipes : [])
+  const [recipes, setRecipes] = useState<WashRecipe[]>(initialRecipes !== undefined ? initialRecipes : [])
   const [waterAudits, setWaterAudits] = useState<WaterAuditLog[]>([])
-  const [shrinkageQc, setShrinkageQc] = useState<ShrinkageQcRecord[]>(initialShrinkageQc && initialShrinkageQc.length > 0 ? initialShrinkageQc : [])
+  const [shrinkageQc, setShrinkageQc] = useState<ShrinkageQcRecord[]>(initialShrinkageQc !== undefined ? initialShrinkageQc : [])
   const [isLoading, setIsLoading] = useState(true)
 
   function loadAllData() {
+    const isCleanZeroTenant = initialBatches !== undefined && initialBatches.length === 0
     const localBatches = getWashBatches()
-    setBatches(initialBatches && initialBatches.length > 0 ? initialBatches : localBatches)
-    setMachines(getWasherMachines())
+    setBatches(initialBatches !== undefined ? initialBatches : localBatches)
+    setMachines(isCleanZeroTenant ? [] : getWasherMachines())
     const localRecipes = getWashRecipes()
-    setRecipes(initialRecipes && initialRecipes.length > 0 ? initialRecipes : localRecipes)
-    setWaterAudits(getWaterAuditLogs())
+    setRecipes(initialRecipes !== undefined ? initialRecipes : localRecipes)
+    setWaterAudits(isCleanZeroTenant ? [] : getWaterAuditLogs())
     const localShrinkage = getShrinkageQcRecords()
-    setShrinkageQc(initialShrinkageQc && initialShrinkageQc.length > 0 ? initialShrinkageQc : localShrinkage)
+    setShrinkageQc(initialShrinkageQc !== undefined ? initialShrinkageQc : localShrinkage)
     setIsLoading(false)
   }
 
