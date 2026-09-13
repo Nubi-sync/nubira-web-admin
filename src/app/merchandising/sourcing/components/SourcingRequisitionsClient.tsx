@@ -144,7 +144,7 @@ export function SourcingRequisitionsClient({ initialRequisitions }: SourcingRequ
         {/* Card 2 */}
         <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
           <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
-            <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+            <CheckCircle2 className="w-5 h-5" />
           </div>
           <div className="mt-3">
             <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
@@ -156,7 +156,7 @@ export function SourcingRequisitionsClient({ initialRequisitions }: SourcingRequ
             <div className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900">
               {inStoreCount}
             </div>
-            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
               In House OK
             </span>
           </div>
@@ -165,7 +165,7 @@ export function SourcingRequisitionsClient({ initialRequisitions }: SourcingRequ
         {/* Card 3 */}
         <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
           <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
-            <Truck className="w-5 h-5 text-blue-600" />
+            <Truck className="w-5 h-5" />
           </div>
           <div className="mt-3">
             <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
@@ -177,7 +177,7 @@ export function SourcingRequisitionsClient({ initialRequisitions }: SourcingRequ
             <div className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900">
               {orderedCount}
             </div>
-            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
               En Route
             </span>
           </div>
@@ -186,7 +186,7 @@ export function SourcingRequisitionsClient({ initialRequisitions }: SourcingRequ
         {/* Card 4 */}
         <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
           <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
-            <Clock className="w-5 h-5 text-amber-600" />
+            <Clock className="w-5 h-5" />
           </div>
           <div className="mt-3">
             <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
@@ -195,12 +195,10 @@ export function SourcingRequisitionsClient({ initialRequisitions }: SourcingRequ
             <div className="text-[11px] text-slate-400 font-medium">Awaiting vendor quotation</div>
           </div>
           <div className="pt-2 border-t border-slate-100 flex items-baseline justify-between mt-3">
-            <div className={`text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] ${pendingCount > 0 ? 'text-amber-600' : 'text-slate-900'}`}>
+            <div className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900">
               {pendingCount}
             </div>
-            <span className={`text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full ${
-              pendingCount > 0 ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-slate-100 text-slate-700'
-            }`}>
+            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
               {pendingCount > 0 ? 'PO Required' : 'Cleared'}
             </span>
           </div>
@@ -244,20 +242,18 @@ export function SourcingRequisitionsClient({ initialRequisitions }: SourcingRequ
 
         {/* Requisitions Table or Empty State */}
         {filteredRequisitions.length === 0 ? (
-          <div className="py-8">
-            <EmptyState
-              icon={ShoppingCart}
-              title={searchQuery || activeFilter !== 'ALL' ? "No sourcing requisitions match your criteria" : "No sourcing requisitions recorded"}
-              description={searchQuery || activeFilter !== 'ALL' ? "Try adjusting your search query or status filter." : "Generate your first material purchase requisition to indent trims, fabric, or accessories for production."}
-              actionLabel="Generate Sourcing PR"
-              onAction={() => setIsModalOpen(true)}
-              secondaryActionLabel={searchQuery || activeFilter !== 'ALL' ? "Reset Filters" : undefined}
-              onSecondaryAction={searchQuery || activeFilter !== 'ALL' ? () => {
-                setSearchQuery('')
-                setActiveFilter('ALL')
-              } : undefined}
-            />
-          </div>
+          <EmptyState
+            icon={ShoppingCart}
+            title={searchQuery || activeFilter !== 'ALL' ? "No matching requisitions" : "No sourcing requisitions"}
+            description={searchQuery || activeFilter !== 'ALL' ? "Try adjusting your search query or status filter." : "Generate a material purchase requisition to begin procurement."}
+            actionLabel="Generate Sourcing PR"
+            onAction={() => setIsModalOpen(true)}
+            secondaryActionLabel={searchQuery || activeFilter !== 'ALL' ? "Reset Filters" : undefined}
+            onSecondaryAction={searchQuery || activeFilter !== 'ALL' ? () => {
+              setSearchQuery('')
+              setActiveFilter('ALL')
+            } : undefined}
+          />
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
@@ -295,7 +291,7 @@ export function SourcingRequisitionsClient({ initialRequisitions }: SourcingRequ
                       {req.required_quantity.toLocaleString()}{' '}
                       <span className="text-[10px] text-slate-400 font-normal">{req.unit}</span>
                     </td>
-                    <td className="py-3 px-4 text-indigo-600 font-semibold">
+                    <td className="py-3 px-4 text-slate-900 font-semibold">
                       {req.vendor_name}
                     </td>
                     <td className="py-3 px-4 font-mono text-slate-700 font-medium">
@@ -305,10 +301,10 @@ export function SourcingRequisitionsClient({ initialRequisitions }: SourcingRequ
                       <span
                         className={`inline-block px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
                           req.fulfillment_status === 'STORE_RECEIVED'
-                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                            ? 'bg-[#FAF7F0] text-[#3A3564] border border-black/10'
                             : req.fulfillment_status === 'ORDERED'
-                            ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                            : 'bg-amber-50 text-amber-700 border border-amber-200'
+                            ? 'bg-slate-100 text-slate-800 border border-slate-200'
+                            : 'bg-slate-50 text-slate-600 border border-slate-200'
                         }`}
                       >
                         {req.fulfillment_status.replace('_', ' ')}
@@ -324,8 +320,8 @@ export function SourcingRequisitionsClient({ initialRequisitions }: SourcingRequ
                           {req.fulfillment_status === 'PENDING' ? 'Mark Ordered' : 'Inward to Store'}
                         </button>
                       ) : (
-                        <span className="text-[11px] font-bold text-emerald-700 inline-flex items-center gap-1 font-mono">
-                          <CheckCircle2 className="w-3.5 h-3.5" />
+                        <span className="text-[11px] font-bold text-slate-700 inline-flex items-center gap-1 font-mono">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-[#3A3564]" />
                           In Store OK
                         </span>
                       )}
