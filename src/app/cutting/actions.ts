@@ -60,12 +60,12 @@ export async function fetchLaySheetsAction(companyName?: string): Promise<LayShe
       id: sheet.id,
       lay_number: sheet.lay_sheet_number,
       po_number: sheet.merchandising_orders?.order_number || 'PO-PENDING',
-      brand_name: sheet.merchandising_orders?.brands?.brand_name || (isNonNubira ? companyName : 'OLLYPOP'),
-      style_ref: sheet.merchandising_orders?.design_tech_packs?.style_number || 'ART-HD-8821',
-      style_name: sheet.merchandising_orders?.design_tech_packs?.category || 'Heavyweight Hoodie',
+      brand_name: sheet.merchandising_orders?.brands?.brand_name || (isNonNubira ? companyName : 'Primary Factory'),
+      style_ref: sheet.merchandising_orders?.design_tech_packs?.style_number || 'N/A',
+      style_name: sheet.merchandising_orders?.design_tech_packs?.category || 'Standard Garment',
       table_number: sheet.cutting_table_id,
-      fabric_roll_barcodes: (sheet.cutting_lay_rolls || []).map((r: any) => r.store_fabric_rolls?.roll_barcode || 'ROL-FT-8821'),
-      shell_fabric: sheet.cutting_lay_rolls?.[0]?.store_fabric_rolls?.fabric_name || 'Heavyweight French Terry 380 GSM',
+      fabric_roll_barcodes: (sheet.cutting_lay_rolls || []).map((r: any) => r.store_fabric_rolls?.roll_barcode || 'ROL-ROLL'),
+      shell_fabric: sheet.cutting_lay_rolls?.[0]?.store_fabric_rolls?.fabric_name || 'Standard Fabric',
       gsm: 380,
       plies_count: sheet.total_plies,
       marker_length_meters: Number(sheet.marker_length_m),
@@ -247,10 +247,10 @@ export async function fetchCutBundlesAction(
       id: b.id,
       bundle_number: b.bundle_barcode,
       lay_sheet_id: b.lay_sheet_id,
-      lay_number: b.cutting_lay_sheets?.lay_sheet_number || 'LAY-0842',
-      po_number: b.cutting_lay_sheets?.merchandising_orders?.order_number || 'PO-ZIG-8901',
-      style_ref: b.cutting_lay_sheets?.merchandising_orders?.design_tech_packs?.style_number || 'ART-HD-8821',
-      style_name: b.cutting_lay_sheets?.merchandising_orders?.design_tech_packs?.category || 'Hoodie',
+      lay_number: b.cutting_lay_sheets?.lay_sheet_number || b.bundle_barcode,
+      po_number: b.cutting_lay_sheets?.merchandising_orders?.order_number || 'PO-PENDING',
+      style_ref: b.cutting_lay_sheets?.merchandising_orders?.design_tech_packs?.style_number || 'N/A',
+      style_name: b.cutting_lay_sheets?.merchandising_orders?.design_tech_packs?.category || 'Standard Garment',
       color: b.color_name,
       size: b.size_label,
       ply_range_start: b.start_ply_num,
@@ -268,8 +268,13 @@ export async function fetchCutBundlesAction(
 }
 
 // 4. Fetch Precision Cut Panel QC Audits
-export async function fetchPanelQcAuditsAction() {
+export async function fetchPanelQcAuditsAction(companyName?: string) {
   try {
+    const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
+    if (isNonNubira) {
+      return []
+    }
+
     const { data: audits, error } = await supabaseAdmin
       .from('cutting_panel_qc_audits')
       .select(`
@@ -288,9 +293,9 @@ export async function fetchPanelQcAuditsAction() {
       id: a.id,
       audit_number: `AUD-CUT-${String(index + 1).padStart(4, '0')}`,
       lay_sheet_id: a.lay_sheet_id,
-      lay_number: a.cutting_lay_sheets?.lay_sheet_number || 'LAY-0842',
-      bundle_number: a.cutting_bundles?.bundle_barcode || 'BND-0842-M-001',
-      style_ref: 'ART-HD-8821',
+      lay_number: a.cutting_lay_sheets?.lay_sheet_number || 'LAY-SHEET',
+      bundle_number: a.cutting_bundles?.bundle_barcode || 'BND-BUNDLE',
+      style_ref: 'Production Garment',
       sampled_ply: 'TOP' as const,
       measurement_variance_mm: Number(a.ply_deflection_mm),
       notching_precision: a.notch_accuracy_mm <= 1.0 ? 'PASS' : 'FAIL',
@@ -308,8 +313,13 @@ export async function fetchPanelQcAuditsAction() {
 }
 
 // 5. Fetch Remnant End-Bit Logs
-export async function fetchEndBitLogsAction() {
+export async function fetchEndBitLogsAction(companyName?: string) {
   try {
+    const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
+    if (isNonNubira) {
+      return []
+    }
+
     const { data: logs, error } = await supabaseAdmin
       .from('cutting_end_bit_logs')
       .select(`

@@ -4,6 +4,8 @@ import { AdminShell } from '@/components/layout/AdminShell'
 import { LaySheetsClient } from './components/LaySheetsClient'
 import { fetchLaySheetsAction } from '../actions'
 
+import { resolveUserTenant, isLegacyNubiraTenant } from '@/lib/tenant-context'
+
 export const dynamic = 'force-dynamic'
 
 export default async function LaySheetsPage() {
@@ -17,10 +19,14 @@ export default async function LaySheetsPage() {
     redirect('/login')
   }
 
-  const initialLays = await fetchLaySheetsAction()
+  const tenant = await resolveUserTenant(user)
+  const isLegacy = isLegacyNubiraTenant(tenant)
+  const companyFilter = isLegacy ? undefined : tenant.companyName
+
+  const initialLays = await fetchLaySheetsAction(companyFilter)
 
   return (
-    <AdminShell userEmail={user.email}>
+    <AdminShell userEmail={tenant.userEmail} userRole={tenant.role}>
       <LaySheetsClient initialLays={initialLays} />
     </AdminShell>
   )
