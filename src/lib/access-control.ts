@@ -91,8 +91,8 @@ export function getUserAllowedModules(
     return ['/platform-admin', ...ALL_DIVISION_ROUTES, '/modules']
   }
 
-  // 2. Primary Enterprise Owner (team.anga9@gmail.com) & Enterprise Admins
-  if (email === 'team.anga9@gmail.com' || role === 'SUPERADMIN' || role === 'ADMIN') {
+  // 2. Enterprise SuperAdmins & Master Factory Owners
+  if (role === 'SUPERADMIN' || role === 'ADMIN' || email === 'team.anga9@gmail.com') {
     return [...ALL_DIVISION_ROUTES, '/modules']
   }
 
@@ -140,8 +140,8 @@ export function getDefaultLandingRoute(
     return '/platform-admin'
   }
 
-  // Primary enterprise admin lands on enterprise modules hub
-  if (normEmail === 'team.anga9@gmail.com' || normRole === 'SUPERADMIN' || normRole === 'ADMIN') {
+  // Enterprise SuperAdmin & Factory Owners land on modules hub
+  if (normRole === 'SUPERADMIN' || normRole === 'ADMIN' || normEmail === 'team.anga9@gmail.com') {
     return '/modules'
   }
 

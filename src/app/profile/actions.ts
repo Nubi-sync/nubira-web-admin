@@ -116,7 +116,7 @@ export async function requestAccountDeletion(formData: FormData) {
     }
 
     // 2. Build email notification format
-    const targetEmail = 'team.anga9@gmail.com'
+    const targetEmail = process.env.PLATFORM_SUPPORT_EMAIL || 'support@zigza.in'
     const emailSubject = `[URGENT] Account Deletion Request - ${companyName} (${adminName})`
     const emailBody = `Account Deletion Request Details:
 ------------------------------------------
