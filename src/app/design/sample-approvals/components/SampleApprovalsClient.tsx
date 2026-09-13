@@ -19,6 +19,7 @@ import { toast } from 'sonner'
 import { SampleApproval, SampleStage, SampleApprovalStatus, TechPack } from '../../types/design'
 import { getStoredSampleApprovals, saveStoredSampleApproval, getStoredTechPacks } from '../../utils/designStorage'
 import { createSampleApprovalAction } from '../../actions'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 interface SampleApprovalsClientProps {
   initialApprovals?: SampleApproval[]
@@ -225,77 +226,93 @@ export function SampleApprovalsClient({ initialApprovals, initialTechPacks }: Sa
         ))}
       </div>
 
-      {/* Approvals Table */}
-      <div className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse text-xs">
-            <thead>
-              <tr className="border-b border-black/10 bg-[#FAF7F0]/70 text-slate-700 text-xs font-semibold">
-                <th className="py-3 px-4">Style reference</th>
-                <th className="py-3 px-4">Stage</th>
-                <th className="py-3 px-4">Chest (target / measured)</th>
-                <th className="py-3 px-4">Length (target / measured)</th>
-                <th className="py-3 px-4">Tolerance status</th>
-                <th className="py-3 px-4">Approval decision</th>
-                <th className="py-3 px-4">Auditor / date</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-black/5 font-medium text-slate-700 text-xs">
-              {filteredApprovals.map(item => {
-                const isPass = item.approval_status === 'APPROVED'
-                const isRevise = item.approval_status === 'REVISE_FIT'
-                return (
-                  <tr key={item.id} className="hover:bg-slate-50/80 transition-colors">
-                    <td className="py-3.5 px-4">
-                      <span className="font-semibold text-[#3A3564] block text-sm">{item.style_number}</span>
-                      <span className="text-xs text-slate-600 line-clamp-1">{item.style_name}</span>
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <span className="text-xs font-medium px-2 py-0.5 rounded-md bg-[#FAF7F0] border border-black/10 text-[#3A3564]">
-                        {item.sample_stage}
-                      </span>
-                    </td>
-                    <td className="py-3.5 px-4 font-mono text-xs">
-                      {item.target_chest} cm / <span className="font-semibold text-slate-900">{item.measured_chest} cm</span>
-                    </td>
-                    <td className="py-3.5 px-4 font-mono text-xs">
-                      {item.target_length} cm / <span className="font-semibold text-slate-900">{item.measured_length} cm</span>
-                    </td>
-                    <td className="py-3.5 px-4">
-                      {item.variance_status === 'WITHIN_TOLERANCE' ? (
-                        <span className="inline-flex items-center gap-1.5 text-emerald-800 bg-emerald-50/70 border border-emerald-200/60 px-2 py-0.5 rounded-md text-xs font-medium">
-                          <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
-                          <span>±0.5 cm pass</span>
+      {/* Approvals Table or Empty State */}
+      {filteredApprovals.length === 0 ? (
+        <EmptyState
+          icon={ShieldCheck}
+          title="No sample audits recorded"
+          description={
+            stageFilter !== 'ALL'
+              ? `No ${stageFilter} stage sample audits recorded yet. Submit a physical sample dimensional measurement against locked POM specs.`
+              : "No sample fit audits have been recorded yet. Submit a dimensional fit audit for Proto, Size-Set, or PPS approval."
+          }
+          actionLabel="Submit sample audit"
+          onAction={() => setIsSubmitOpen(true)}
+          secondaryActionLabel={stageFilter !== 'ALL' ? "Show all stages" : undefined}
+          onSecondaryAction={stageFilter !== 'ALL' ? () => setStageFilter('ALL') : undefined}
+        />
+      ) : (
+        <div className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr className="border-b border-black/10 bg-[#FAF7F0]/70 text-slate-700 text-xs font-semibold">
+                  <th className="py-3 px-4">Style reference</th>
+                  <th className="py-3 px-4">Stage</th>
+                  <th className="py-3 px-4">Chest (target / measured)</th>
+                  <th className="py-3 px-4">Length (target / measured)</th>
+                  <th className="py-3 px-4">Tolerance status</th>
+                  <th className="py-3 px-4">Approval decision</th>
+                  <th className="py-3 px-4">Auditor / date</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-black/5 font-medium text-slate-700 text-xs">
+                {filteredApprovals.map(item => {
+                  const isPass = item.approval_status === 'APPROVED'
+                  const isRevise = item.approval_status === 'REVISE_FIT'
+                  return (
+                    <tr key={item.id} className="hover:bg-slate-50/80 transition-colors">
+                      <td className="py-3.5 px-4">
+                        <span className="font-semibold text-[#3A3564] block text-sm">{item.style_number}</span>
+                        <span className="text-xs text-slate-600 line-clamp-1">{item.style_name}</span>
+                      </td>
+                      <td className="py-3.5 px-4">
+                        <span className="text-xs font-medium px-2 py-0.5 rounded-md bg-[#FAF7F0] border border-black/10 text-[#3A3564]">
+                          {item.sample_stage}
                         </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1.5 text-rose-800 bg-rose-50/70 border border-rose-200/60 px-2 py-0.5 rounded-md text-xs font-medium">
-                          <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                          <span>Out of spec</span>
+                      </td>
+                      <td className="py-3.5 px-4 font-mono text-xs">
+                        {item.target_chest} cm / <span className="font-semibold text-slate-900">{item.measured_chest} cm</span>
+                      </td>
+                      <td className="py-3.5 px-4 font-mono text-xs">
+                        {item.target_length} cm / <span className="font-semibold text-slate-900">{item.measured_length} cm</span>
+                      </td>
+                      <td className="py-3.5 px-4">
+                        {item.variance_status === 'WITHIN_TOLERANCE' ? (
+                          <span className="inline-flex items-center gap-1.5 text-emerald-800 bg-emerald-50/70 border border-emerald-200/60 px-2 py-0.5 rounded-md text-xs font-medium">
+                            <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                            <span>±0.5 cm pass</span>
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 text-rose-800 bg-rose-50/70 border border-rose-200/60 px-2 py-0.5 rounded-md text-xs font-medium">
+                            <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                            <span>Out of spec</span>
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-3.5 px-4">
+                        <span className={`text-xs font-medium px-2 py-0.5 rounded-md border ${
+                          isPass 
+                            ? 'bg-emerald-50 text-emerald-800 border-emerald-200' 
+                            : isRevise
+                              ? 'bg-rose-50 text-rose-800 border-rose-200'
+                              : 'bg-amber-50 text-amber-800 border-amber-200'
+                        }`}>
+                          {item.approval_status === 'APPROVED' ? 'Approved' : item.approval_status === 'REVISE_FIT' ? 'Revise fit' : 'Pending review'}
                         </span>
-                      )}
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <span className={`text-xs font-medium px-2 py-0.5 rounded-md border ${
-                        isPass 
-                          ? 'bg-emerald-50 text-emerald-800 border-emerald-200' 
-                          : isRevise
-                            ? 'bg-rose-50 text-rose-800 border-rose-200'
-                            : 'bg-amber-50 text-amber-800 border-amber-200'
-                      }`}>
-                        {item.approval_status === 'APPROVED' ? 'Approved' : item.approval_status === 'REVISE_FIT' ? 'Revise fit' : 'Pending review'}
-                      </span>
-                    </td>
-                    <td className="py-3.5 px-4 text-xs text-slate-600">
-                      <p className="truncate max-w-[150px] font-medium text-slate-800">{item.buyer_reviewer_email}</p>
-                      <p className="text-[11px] text-slate-500">{item.submitted_date}</p>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
+                      </td>
+                      <td className="py-3.5 px-4 text-xs text-slate-600">
+                        <p className="truncate max-w-[150px] font-medium text-slate-800">{item.buyer_reviewer_email}</p>
+                        <p className="text-[11px] text-slate-500">{item.submitted_date}</p>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Form 2 Submission Modal */}
       {isSubmitOpen && (

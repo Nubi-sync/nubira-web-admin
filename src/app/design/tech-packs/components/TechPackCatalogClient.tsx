@@ -21,6 +21,7 @@ import {
 import { TechPack, TechPackStatus } from '../../types/design'
 import { getStoredTechPacks } from '../../utils/designStorage'
 import { CreateTechPackModal } from './CreateTechPackModal'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 const STATUS_CONFIG: Record<string, { label: string; badgeClass: string }> = {
   DRAFT: { label: 'Draft', badgeClass: 'bg-slate-100 text-slate-700 border-slate-200' },
@@ -173,8 +174,31 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands }: Tec
         </div>
       </div>
 
-      {/* Primary Display: Gallery or Table */}
-      {activeTab === 'gallery' ? (
+      {/* Primary Display: Gallery, Table, or EmptyState */}
+      {filteredPacks.length === 0 ? (
+        <EmptyState
+          icon={FileCheck2}
+          title="No tech-packs found"
+          description={
+            searchQuery || statusFilter !== 'ALL'
+              ? "No technical packages match the active filters or search term. Try resetting your filters or create a new style."
+              : "No technical packages have been registered yet. Create a complete specification package with POM measurements, BOM trims, and CAD vector drawings."
+          }
+          actionLabel="Create Tech-Pack"
+          onAction={() => setIsCreateOpen(true)}
+          secondaryActionLabel={
+            searchQuery || statusFilter !== 'ALL' ? "Reset filters" : undefined
+          }
+          onSecondaryAction={
+            searchQuery || statusFilter !== 'ALL'
+              ? () => {
+                  setStatusFilter('ALL')
+                  setSearchQuery('')
+                }
+              : undefined
+          }
+        />
+      ) : activeTab === 'gallery' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {filteredPacks.map(pack => {
             const stCfg = STATUS_CONFIG[pack.status] || STATUS_CONFIG.DRAFT

@@ -20,6 +20,7 @@ import { MaterialItem, MaterialType, MaterialStatus } from '../../types/design'
 import { toast } from 'sonner'
 import { getStoredMaterials, saveStoredMaterial } from '../../utils/designStorage'
 import { createMaterialAction } from '../../actions'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 interface MaterialsLibraryClientProps {
   initialMaterials?: MaterialItem[]
@@ -190,88 +191,113 @@ export function MaterialsLibraryClient({ initialMaterials }: MaterialsLibraryCli
         </div>
       </div>
 
-      {/* Materials Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        {filteredMaterials.map(mat => (
-          <div
-            key={mat.id}
-            className="bg-white rounded-2xl border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between overflow-hidden"
-          >
-            {/* Card Header */}
-            <div className="p-5 border-b border-black/5 bg-[#FAF7F0]/40 space-y-2.5">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-[#3A3564] px-2.5 py-0.5 rounded-md bg-white border border-black/10 shadow-2xs">
-                  {mat.material_code}
-                </span>
-                <span className="text-xs font-semibold px-2.5 py-0.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200">
-                  {mat.status === 'CERTIFIED' ? 'Certified' : mat.status}
-                </span>
-              </div>
-
-              <div>
-                <h3 className="text-base font-bold text-slate-900 line-clamp-1">
-                  {mat.material_name}
-                </h3>
-                <p className="text-xs text-slate-600 font-medium mt-0.5">
-                  {mat.type === 'FABRIC' ? 'Fabric' : mat.type === 'TRIM' ? 'Trim' : 'Thread'} • {mat.construction}
-                </p>
-              </div>
-            </div>
-
-            {/* Technical Parameters */}
-            <div className="p-5 space-y-3.5 flex-1 text-xs sm:text-sm">
-              <div className="p-3 rounded-xl bg-[#FAF7F0]/40 border border-black/10 space-y-1">
-                <span className="text-xs text-slate-600 font-medium block">
-                  Fiber composition
-                </span>
-                <p className="font-semibold text-slate-900 text-xs sm:text-sm">{mat.composition}</p>
-              </div>
-
-              <div className="grid grid-cols-3 gap-2">
-                <div className="p-2.5 rounded-xl bg-[#FAF7F0]/30 border border-black/10 text-center">
-                  <span className="text-xs text-slate-600 block font-medium">Shrink L%</span>
-                  <span className="font-mono font-semibold text-slate-900 text-xs sm:text-sm">
-                    {mat.shrinkage_length_pct > 0 ? `-${mat.shrinkage_length_pct}%` : '0%'}
+      {/* Materials Cards Grid or Empty State */}
+      {filteredMaterials.length === 0 ? (
+        <EmptyState
+          icon={Layers}
+          title="No materials or trims registered"
+          description={
+            searchQuery || typeFilter !== 'ALL'
+              ? "No materials match your current search or category filter. Try clearing filters or register a new textile specification."
+              : "No materials, trims, or thread specifications have been registered yet. Register a textile specification with composition, shrinkage metrics, and needle gauge calibrations."
+          }
+          actionLabel="Register material spec"
+          onAction={() => setIsAddOpen(true)}
+          secondaryActionLabel={
+            searchQuery || typeFilter !== 'ALL' ? "Reset filters" : undefined
+          }
+          onSecondaryAction={
+            searchQuery || typeFilter !== 'ALL'
+              ? () => {
+                  setTypeFilter('ALL')
+                  setSearchQuery('')
+                }
+              : undefined
+          }
+        />
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {filteredMaterials.map(mat => (
+            <div
+              key={mat.id}
+              className="bg-white rounded-2xl border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between overflow-hidden"
+            >
+              {/* Card Header */}
+              <div className="p-5 border-b border-black/5 bg-[#FAF7F0]/40 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-[#3A3564] px-2.5 py-0.5 rounded-md bg-white border border-black/10 shadow-2xs">
+                    {mat.material_code}
+                  </span>
+                  <span className="text-xs font-semibold px-2.5 py-0.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200">
+                    {mat.status === 'CERTIFIED' ? 'Certified' : mat.status}
                   </span>
                 </div>
-                <div className="p-2.5 rounded-xl bg-[#FAF7F0]/30 border border-black/10 text-center">
-                  <span className="text-xs text-slate-600 block font-medium">Shrink W%</span>
-                  <span className="font-mono font-semibold text-slate-900 text-xs sm:text-sm">
-                    {mat.shrinkage_width_pct > 0 ? `-${mat.shrinkage_width_pct}%` : '0%'}
-                  </span>
-                </div>
-                <div className="p-2.5 rounded-xl bg-[#FAF7F0]/30 border border-black/10 text-center">
-                  <span className="text-xs text-slate-600 block font-medium">Spirality</span>
-                  <span className="font-mono font-semibold text-slate-900 text-xs sm:text-sm">
-                    {mat.spirality_pct}%
-                  </span>
+
+                <div>
+                  <h3 className="text-base font-bold text-slate-900 line-clamp-1">
+                    {mat.material_name}
+                  </h3>
+                  <p className="text-xs text-slate-600 font-medium mt-0.5">
+                    {mat.type === 'FABRIC' ? 'Fabric' : mat.type === 'TRIM' ? 'Trim' : 'Thread'} • {mat.construction}
+                  </p>
                 </div>
               </div>
 
-              <div className="space-y-1">
-                <span className="text-xs text-slate-600 font-medium block">
-                  Recommended needle gauge
-                </span>
-                <span className="inline-block text-xs font-medium text-[#3A3564] bg-[#FAF7F0] px-2.5 py-1 rounded-md border border-black/10">
-                  {mat.recommended_needle}
-                </span>
-              </div>
-            </div>
+              {/* Technical Parameters */}
+              <div className="p-5 space-y-3.5 flex-1 text-xs sm:text-sm">
+                <div className="p-3 rounded-xl bg-[#FAF7F0]/40 border border-black/10 space-y-1">
+                  <span className="text-xs text-slate-600 font-medium block">
+                    Fiber composition
+                  </span>
+                  <p className="font-semibold text-slate-900 text-xs sm:text-sm">{mat.composition}</p>
+                </div>
 
-            {/* Footer */}
-            <div className="p-4 border-t border-black/5 bg-slate-50/70 flex items-center justify-between text-xs text-slate-600 font-medium">
-              <div className="flex items-center gap-1.5">
-                <Building2 className="w-4 h-4 text-[#3A3564]" />
-                <span className="truncate max-w-[150px]">{mat.supplier_mill}</span>
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="p-2.5 rounded-xl bg-[#FAF7F0]/30 border border-black/10 text-center">
+                    <span className="text-xs text-slate-600 block font-medium">Shrink L%</span>
+                    <span className="font-mono font-semibold text-slate-900 text-xs sm:text-sm">
+                      {mat.shrinkage_length_pct > 0 ? `-${mat.shrinkage_length_pct}%` : '0%'}
+                    </span>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-[#FAF7F0]/30 border border-black/10 text-center">
+                    <span className="text-xs text-slate-600 block font-medium">Shrink W%</span>
+                    <span className="font-mono font-semibold text-slate-900 text-xs sm:text-sm">
+                      {mat.shrinkage_width_pct > 0 ? `-${mat.shrinkage_width_pct}%` : '0%'}
+                    </span>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-[#FAF7F0]/30 border border-black/10 text-center">
+                    <span className="text-xs text-slate-600 block font-medium">Spirality</span>
+                    <span className="font-mono font-semibold text-slate-900 text-xs sm:text-sm">
+                      {mat.spirality_pct}%
+                    </span>
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-xs text-slate-600 font-medium block">
+                    Recommended needle gauge
+                  </span>
+                  <span className="inline-block text-xs font-medium text-[#3A3564] bg-[#FAF7F0] px-2.5 py-1 rounded-md border border-black/10">
+                    {mat.recommended_needle}
+                  </span>
+                </div>
               </div>
-              <div className="flex items-center gap-1.5">
-                <Clock className="w-4 h-4 text-[#3A3564]" />
-                <span>{mat.lead_time_days}d lead</span>
+
+              {/* Footer */}
+              <div className="p-4 border-t border-black/5 bg-slate-50/70 flex items-center justify-between text-xs text-slate-600 font-medium">
+                <div className="flex items-center gap-1.5">
+                  <Building2 className="w-4 h-4 text-[#3A3564]" />
+                  <span className="truncate max-w-[150px]">{mat.supplier_mill}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Clock className="w-4 h-4 text-[#3A3564]" />
+                  <span>{mat.lead_time_days}d lead</span>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       {/* Register Material Modal */}
       {isAddOpen && (

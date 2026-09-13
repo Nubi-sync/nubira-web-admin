@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 import { GradingScheme, PointOfMeasure, SizeSystem } from '../../types/design'
 import { getStoredGradingSchemes, saveStoredGradingScheme } from '../../utils/designStorage'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 interface GradingMatrixClientProps {
   initialSchemes?: GradingScheme[]
@@ -169,8 +170,16 @@ export function GradingMatrixClient({ initialSchemes }: GradingMatrixClientProps
         </div>
       )}
 
-      {/* Master Interactive Grading Table */}
-      {currentScheme && (
+      {/* Master Interactive Grading Table or Empty State */}
+      {!currentScheme || currentScheme.poms.length === 0 ? (
+        <EmptyState
+          icon={Ruler}
+          title="No POM rules registered"
+          description="This grading scheme currently has no Points of Measure defined. Add a POM rule with base size values and grade step increments."
+          actionLabel="Add point of measure"
+          onAction={() => setIsAddPomOpen(true)}
+        />
+      ) : (
         <div className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs sm:text-sm">

@@ -21,6 +21,7 @@ import {
 import { TechPack, TechPackStatus, SampleApproval, GradingScheme, MaterialItem } from '../types/design'
 import { getStoredTechPacks } from '../utils/designStorage'
 import { CreateTechPackModal } from '../tech-packs/components/CreateTechPackModal'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 const STATUS_CONFIG: Record<string, { label: string; badgeClass: string }> = {
   DRAFT: { label: 'Draft', badgeClass: 'bg-slate-100 text-slate-700 border-slate-200' },
@@ -269,70 +270,95 @@ export function DesignDashboardClient({
           </div>
         </div>
 
-        {/* Interactive Queue Table */}
-        <div className="overflow-x-auto border border-black/10 rounded-xl">
-          <table className="w-full text-left border-collapse text-sm">
-            <thead>
-              <tr className="border-b border-black/10 bg-[#FAF7F0] text-slate-600 text-xs font-semibold uppercase tracking-wider">
-                <th className="py-3 px-4">Style Ref</th>
-                <th className="py-3 px-4">Buyer / Brand</th>
-                <th className="py-3 px-4">Garment Silhouette</th>
-                <th className="py-3 px-4">Base Size</th>
-                <th className="py-3 px-4">PPS Status</th>
-                <th className="py-3 px-4">Embellishment Flow</th>
-                <th className="py-3 px-4">Target Cut Date</th>
-                <th className="py-3 px-4 text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-black/5 text-slate-700">
-              {filteredPacks.map(pack => {
-                const stCfg = STATUS_CONFIG[pack.status] || STATUS_CONFIG.DRAFT
-                return (
-                  <tr key={pack.id} className="hover:bg-slate-50/80 transition-colors">
-                    <td className="py-3.5 px-4">
-                      <span className="font-mono font-bold text-[#3A3564] block text-sm">{pack.style_number}</span>
-                      <span className="text-xs text-slate-500 line-clamp-1">{pack.style_name}</span>
-                    </td>
-                    <td className="py-3.5 px-4 text-sm font-medium text-slate-700">
-                      {pack.brand_name}
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <span className="font-semibold text-slate-900 text-sm">{pack.category}</span>
-                      <span className="text-xs font-mono text-slate-500 block">{pack.target_gsm} GSM</span>
-                    </td>
-                    <td className="py-3.5 px-4 font-mono font-bold text-slate-800 text-sm">
-                      {pack.base_size}
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <span className={`text-xs px-2.5 py-0.5 rounded-md border ${stCfg.badgeClass}`}>
-                        {stCfg.label}
-                      </span>
-                    </td>
-                    <td className="py-3.5 px-4 text-xs font-medium text-slate-600">
-                      {pack.embellishment_sequence === 'NONE' ? (
-                        <span className="text-slate-400">Plain Cut</span>
-                      ) : (
-                        <span className="font-semibold text-[#3A3564]">{pack.embellishment_sequence.split('_')[0]} First</span>
-                      )}
-                    </td>
-                    <td className="py-3.5 px-4 font-mono text-xs text-slate-500">
-                      {pack.target_cut_date}
-                    </td>
-                    <td className="py-3.5 px-4 text-right">
-                      <Link
-                        href="/design/sample-approvals"
-                        className="inline-flex items-center gap-1 text-xs font-semibold text-[#3A3564] hover:underline"
-                      >
-                        <span>Audit</span>
-                        <ArrowRight className="w-3 h-3" />
-                      </Link>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
+        {/* Interactive Queue Table or Empty State */}
+        {filteredPacks.length === 0 ? (
+          <EmptyState
+            icon={FileCheck2}
+            title="No development queue items"
+            description={
+              searchQuery || statusFilter !== 'ALL'
+                ? "No tech-packs match your current filter. Clear your filters to view active queue records."
+                : "No active design packages in the queue. Create a new tech-pack to initiate proto development."
+            }
+            actionLabel="Create Tech-Pack"
+            onAction={() => setIsCreateOpen(true)}
+            secondaryActionLabel={
+              searchQuery || statusFilter !== 'ALL' ? "Reset filters" : undefined
+            }
+            onSecondaryAction={
+              searchQuery || statusFilter !== 'ALL'
+                ? () => {
+                    setStatusFilter('ALL')
+                    setSearchQuery('')
+                  }
+                : undefined
+            }
+          />
+        ) : (
+          <div className="overflow-x-auto border border-black/10 rounded-xl">
+            <table className="w-full text-left border-collapse text-sm">
+              <thead>
+                <tr className="border-b border-black/10 bg-[#FAF7F0] text-slate-600 text-xs font-semibold uppercase tracking-wider">
+                  <th className="py-3 px-4">Style Ref</th>
+                  <th className="py-3 px-4">Buyer / Brand</th>
+                  <th className="py-3 px-4">Garment Silhouette</th>
+                  <th className="py-3 px-4">Base Size</th>
+                  <th className="py-3 px-4">PPS Status</th>
+                  <th className="py-3 px-4">Embellishment Flow</th>
+                  <th className="py-3 px-4">Target Cut Date</th>
+                  <th className="py-3 px-4 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-black/5 text-slate-700">
+                {filteredPacks.map(pack => {
+                  const stCfg = STATUS_CONFIG[pack.status] || STATUS_CONFIG.DRAFT
+                  return (
+                    <tr key={pack.id} className="hover:bg-slate-50/80 transition-colors">
+                      <td className="py-3.5 px-4">
+                        <span className="font-mono font-bold text-[#3A3564] block text-sm">{pack.style_number}</span>
+                        <span className="text-xs text-slate-500 line-clamp-1">{pack.style_name}</span>
+                      </td>
+                      <td className="py-3.5 px-4 text-sm font-medium text-slate-700">
+                        {pack.brand_name}
+                      </td>
+                      <td className="py-3.5 px-4">
+                        <span className="font-semibold text-slate-900 text-sm">{pack.category}</span>
+                        <span className="text-xs font-mono text-slate-500 block">{pack.target_gsm} GSM</span>
+                      </td>
+                      <td className="py-3.5 px-4 font-mono font-bold text-slate-800 text-sm">
+                        {pack.base_size}
+                      </td>
+                      <td className="py-3.5 px-4">
+                        <span className={`text-xs px-2.5 py-0.5 rounded-md border ${stCfg.badgeClass}`}>
+                          {stCfg.label}
+                        </span>
+                      </td>
+                      <td className="py-3.5 px-4 text-xs font-medium text-slate-600">
+                        {pack.embellishment_sequence === 'NONE' ? (
+                          <span className="text-slate-400">Plain Cut</span>
+                        ) : (
+                          <span className="font-semibold text-[#3A3564]">{pack.embellishment_sequence.split('_')[0]} First</span>
+                        )}
+                      </td>
+                      <td className="py-3.5 px-4 font-mono text-xs text-slate-500">
+                        {pack.target_cut_date}
+                      </td>
+                      <td className="py-3.5 px-4 text-right">
+                        <Link
+                          href="/design/sample-approvals"
+                          className="inline-flex items-center gap-1 text-xs font-semibold text-[#3A3564] hover:underline"
+                        >
+                          <span>Audit</span>
+                          <ArrowRight className="w-3 h-3" />
+                        </Link>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {/* Quick Access Division Hub Cards */}
