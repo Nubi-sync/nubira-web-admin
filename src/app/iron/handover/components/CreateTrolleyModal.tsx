@@ -10,24 +10,16 @@ interface CreateTrolleyModalProps {
   onClose: () => void
 }
 
-const SAMPLE_CHALLANS = [
-  { id: 'CH-2026-901', article: 'Heavyweight Loopback Hoodie', color: 'Vintage Black', defaultPcs: 850 },
-  { id: 'CH-2026-902', article: 'Mercerized Interlock Polo', color: 'Navy Crisp', defaultPcs: 980 },
-  { id: 'CH-2026-903', article: 'Cargo Jogger Bottoms', color: 'Desert Khaki', defaultPcs: 820 },
-  { id: 'CH-2026-904', article: 'Relaxed Ribbed Henley', color: 'Olive Moss', defaultPcs: 1050 },
-]
-
 export function CreateTrolleyModal({ isOpen, onClose }: CreateTrolleyModalProps) {
   const [trolleyCode, setTrolleyCode] = useState(`TRL-2026-${Math.floor(105 + Math.random() * 80)}`)
-  const [selectedChallanId, setSelectedChallanId] = useState(SAMPLE_CHALLANS[0].id)
-  const [piecesTransferred, setPiecesTransferred] = useState(SAMPLE_CHALLANS[0].defaultPcs)
+  const [selectedChallanId, setSelectedChallanId] = useState('')
+  const [articleName, setArticleName] = useState('')
+  const [piecesTransferred, setPiecesTransferred] = useState(0)
   const [wrinkleFreeVerified, setWrinkleFreeVerified] = useState(true)
   const [zeroShineVerified, setZeroShineVerified] = useState(true)
-  const [supervisorSignoff, setSupervisorSignoff] = useState('P. Sengupta (Finishing Master)')
+  const [supervisorSignoff, setSupervisorSignoff] = useState('Finishing Supervisor')
 
   if (!isOpen) return null
-
-  const activeChallan = SAMPLE_CHALLANS.find(c => c.id === selectedChallanId) || SAMPLE_CHALLANS[0]
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -35,9 +27,9 @@ export function CreateTrolleyModal({ isOpen, onClose }: CreateTrolleyModalProps)
     const newHandover: PackingHandover = {
       id: `tr-${Date.now()}`,
       trolleyCode,
-      challanId: selectedChallanId,
-      articleName: activeChallan.article,
-      color: activeChallan.color,
+      challanId: selectedChallanId || 'N/A',
+      articleName: articleName || 'Standard Garment',
+      color: 'Standard',
       piecesTransferred: Number(piecesTransferred),
       transferredTo: '09. Ready Goods & Packing Floor',
       wrinkleFreeVerified,
@@ -106,26 +98,33 @@ export function CreateTrolleyModal({ isOpen, onClose }: CreateTrolleyModalProps)
             </div>
           </div>
 
-          <div>
-            <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
-              Challan Lot & Article *
-            </label>
-            <select
-              value={selectedChallanId}
-              onChange={e => {
-                setSelectedChallanId(e.target.value)
-                const c = SAMPLE_CHALLANS.find(sc => sc.id === e.target.value)
-                if (c) setPiecesTransferred(c.defaultPcs)
-              }}
-              required
-              className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-slate-50 focus:bg-white"
-            >
-              {SAMPLE_CHALLANS.map(c => (
-                <option key={c.id} value={c.id}>
-                  {c.id} • {c.article} ({c.color})
-                </option>
-              ))}
-            </select>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                Challan Lot *
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. CH-2001"
+                value={selectedChallanId}
+                onChange={e => setSelectedChallanId(e.target.value)}
+                required
+                className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-black/10 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                Article Name *
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. Garment Article"
+                value={articleName}
+                onChange={e => setArticleName(e.target.value)}
+                required
+                className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-black/10 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+              />
+            </div>
           </div>
 
           {/* Verification checklist */}

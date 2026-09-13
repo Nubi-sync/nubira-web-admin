@@ -14,39 +14,22 @@ interface AllotTableModalProps {
 const FINISHING_OPERATORS = [
   'Rajesh Halder (Senior Iron Master)',
   'Subhas Mondal (Pressing Tech)',
-  'Anup Sardar (Finish Specialist)',
-  'Prabir Das (Vacuum Table Operator)',
-  'Kalyan Roy (Steam Presser)',
-  'Dipankar Bera (Finish Tech)',
-  'Ashok Ghosh (Pressing Master)',
-  'Sukumar Paul (Pressing Operator)',
-  'Tarun Malik (Finish Specialist)',
-  'Biswajit Sen (Vacuum Presser)',
-  'Uttam Patra (Pressing Operator)',
-  'Manoj Karmakar (Finish Tech)',
-]
-
-const SAMPLE_INWARD_CHALLANS = [
-  { id: 'CH-2026-901', article: 'Heavyweight Loopback Hoodie', defaultRate: 2.50 },
-  { id: 'CH-2026-902', article: 'Mercerized Interlock Polo', defaultRate: 2.20 },
-  { id: 'CH-2026-903', article: 'Cargo Jogger Bottoms', defaultRate: 2.40 },
-  { id: 'CH-2026-904', article: 'Relaxed Ribbed Henley', defaultRate: 2.00 },
-  { id: 'CH-2026-905', article: 'Oversized Boxy Tee 240 GSM', defaultRate: 1.80 },
-  { id: 'CH-2026-908', article: 'French Terry Zip Hoodie', defaultRate: 2.50 },
+  'Finishing Presser A',
+  'Finishing Presser B',
+  'Finish Tech C',
 ]
 
 export function AllotTableModal({ isOpen, onClose, defaultTable }: AllotTableModalProps) {
   const [tableNumber, setTableNumber] = useState(defaultTable || 'Table 12')
   const [operatorName, setOperatorName] = useState(FINISHING_OPERATORS[0])
-  const [selectedChallanId, setSelectedChallanId] = useState(SAMPLE_INWARD_CHALLANS[0].id)
-  const [targetHourlyPcs, setTargetHourlyPcs] = useState(65)
-  const [pieceRate, setPieceRate] = useState(SAMPLE_INWARD_CHALLANS[0].defaultRate)
+  const [selectedChallanId, setSelectedChallanId] = useState('')
+  const [articleName, setArticleName] = useState('')
+  const [targetHourlyPcs, setTargetHourlyPcs] = useState(60)
+  const [pieceRate, setPieceRate] = useState(2.50)
   const [ironTempC, setIronTempC] = useState(150)
   const [vacuumActive, setVacuumActive] = useState(true)
 
   if (!isOpen) return null
-
-  const activeChallan = SAMPLE_INWARD_CHALLANS.find(c => c.id === selectedChallanId) || SAMPLE_INWARD_CHALLANS[0]
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -58,8 +41,8 @@ export function AllotTableModal({ isOpen, onClose, defaultTable }: AllotTableMod
       id: existing ? existing.id : `tbl-${Date.now()}`,
       tableNumber,
       operatorName: operatorName.split(' (')[0],
-      challanId: selectedChallanId,
-      articleName: activeChallan.article,
+      challanId: selectedChallanId || 'CH-001',
+      articleName: articleName || 'Garment Lot',
       targetHourlyPcs: Number(targetHourlyPcs),
       pieceRate: Number(pieceRate),
       currentPiecesPressed: existing ? existing.currentPiecesPressed : 0,
@@ -143,29 +126,32 @@ export function AllotTableModal({ isOpen, onClose, defaultTable }: AllotTableMod
             </div>
           </div>
 
-          {/* Inward Challan */}
-          <div>
-            <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
-              Inward Lot Challan *
-            </label>
-            <select
-              value={selectedChallanId}
-              onChange={e => {
-                setSelectedChallanId(e.target.value)
-                const c = SAMPLE_INWARD_CHALLANS.find(x => x.id === e.target.value)
-                if (c) setPieceRate(c.defaultRate)
-              }}
-              required
-              className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
-            >
-              {SAMPLE_INWARD_CHALLANS.map(c => (
-                <option key={c.id} value={c.id}>
-                  {c.id} • {c.article} (₹{c.defaultRate.toFixed(2)}/pc)
-                </option>
-              ))}
-            </select>
-            <div className="mt-1 text-[11px] font-mono text-slate-500">
-              Assigned Article: <strong className="text-slate-800">{activeChallan.article}</strong>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                Inward Lot Challan *
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. CH-2001"
+                value={selectedChallanId}
+                onChange={e => setSelectedChallanId(e.target.value)}
+                required
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                Assigned Article *
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. Garment Style"
+                value={articleName}
+                onChange={e => setArticleName(e.target.value)}
+                required
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+              />
             </div>
           </div>
 

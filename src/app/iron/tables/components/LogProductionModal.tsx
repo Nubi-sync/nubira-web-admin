@@ -40,7 +40,7 @@ export function LogProductionModal({ isOpen, onClose, defaultTable }: LogProduct
       id: `log-${Date.now()}`,
       tableNumber: selectedTableNumber,
       operatorName: activeTable?.operatorName || 'Pressing Operator',
-      challanId: activeTable?.challanId || 'CH-2026-901',
+      challanId: activeTable?.challanId || 'N/A',
       articleName: activeTable?.articleName || 'Garments Lot',
       piecesPressed: Number(piecesPressed),
       defectShineCount: Number(defectShineCount),
@@ -198,7 +198,7 @@ export function LogProductionModal({ isOpen, onClose, defaultTable }: LogProduct
             </label>
             <input
               type="text"
-              placeholder="e.g. Completed lot CH-2026-901 ahead of schedule"
+              placeholder="e.g. Completed lot ahead of schedule"
               value={notes}
               onChange={e => setNotes(e.target.value)}
               className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-slate-50 focus:bg-white"
