@@ -31,15 +31,15 @@ export function LogDefectModal({
 }: LogDefectModalProps) {
   const [ticketNumber, setTicketNumber] = useState('')
   const [garmentBarcode, setGarmentBarcode] = useState('')
-  const [orderNumber, setOrderNumber] = useState('PO-7714')
-  const [buyer, setBuyer] = useState('Urban Outfitters')
-  const [styleName, setStyleName] = useState('French Terry Relaxed Hoodie')
-  const [size, setSize] = useState('L')
-  const [color, setColor] = useState('Washed Charcoal')
+  const [orderNumber, setOrderNumber] = useState('')
+  const [buyer, setBuyer] = useState('')
+  const [styleName, setStyleName] = useState('')
+  const [size, setSize] = useState('M')
+  const [color, setColor] = useState('')
   const [defectSource, setDefectSource] = useState<DefectSource>('SEWING_LINE')
   const [defectType, setDefectType] = useState<DefectType>('SKIP_STITCH')
   const [defectDescription, setDefectDescription] = useState('')
-  const [linemanName, setLinemanName] = useState('Dinesh Prasad (Line 2 Operator)')
+  const [linemanName, setLinemanName] = useState('Floor Lineman')
   const [assignedStation, setAssignedStation] = useState<AssignedStation>('Mending Station 01')
   const [error, setError] = useState<string | null>(null)
 
@@ -47,8 +47,7 @@ export function LogDefectModal({
     if (isOpen) {
       const randomCode = Math.floor(5500 + Math.random() * 400)
       setTicketNumber(`ALT-${randomCode}`)
-      const randPcs = Math.floor(1 + Math.random() * 30)
-      setGarmentBarcode(`BDL-7714-04-P${randPcs < 10 ? '0' + randPcs : randPcs}`)
+      setGarmentBarcode('')
       setDefectDescription('')
       setError(null)
     }
@@ -71,19 +70,6 @@ export function LogDefectModal({
 
   const handleOrderChange = (po: string) => {
     setOrderNumber(po)
-    if (po === 'PO-7714') {
-      setBuyer('Urban Outfitters')
-      setStyleName('French Terry Relaxed Hoodie')
-      setColor('Washed Charcoal')
-    } else if (po === 'PO-8102') {
-      setBuyer('Zara Men')
-      setStyleName('Slub Cotton Henley Tee')
-      setColor('Natural Oatmeal')
-    } else {
-      setBuyer('Pull & Bear')
-      setStyleName('Washed Twill Cargo Bottoms')
-      setColor('Olive Drab')
-    }
   }
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -198,15 +184,13 @@ export function LogDefectModal({
               <label className="block text-[11px] font-mono font-bold uppercase tracking-wider text-slate-600 mb-1">
                 Order PO *
               </label>
-              <select
+              <input
+                type="text"
+                placeholder="e.g. PO-1001"
                 value={orderNumber}
                 onChange={e => handleOrderChange(e.target.value)}
                 className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-white font-mono font-bold text-slate-800"
-              >
-                <option value="PO-7714">PO-7714 (Urban Outfitters)</option>
-                <option value="PO-8102">PO-8102 (Zara Men)</option>
-                <option value="PO-9045">PO-9045 (Pull & Bear)</option>
-              </select>
+              />
             </div>
             <div>
               <label className="block text-[11px] font-mono font-bold uppercase tracking-wider text-slate-600 mb-1">
