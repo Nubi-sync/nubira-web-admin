@@ -9,7 +9,7 @@ import { TvModeProvider, useTvMode } from '@/context/TvModeContext'
 import { TvTopBar } from './TvTopBar'
 import { AiCopilotWidget } from '../chat/AiCopilotWidget'
 
-function MobileTopBar({ onMenuToggle }: { onMenuToggle: () => void }) {
+function MobileTopBar({ onMenuToggle, logoHref = '/modules' }: { onMenuToggle: () => void; logoHref?: string }) {
   return (
     <header className="lg:hidden sticky top-0 z-30 w-full bg-white border-b border-slate-200 px-4 py-2 flex items-center justify-between shadow-xs">
       {/* Hamburger Button */}
@@ -23,7 +23,7 @@ function MobileTopBar({ onMenuToggle }: { onMenuToggle: () => void }) {
       </button>
 
       {/* Center: Brand Logo */}
-      <Link href="/modules" className="flex items-center">
+      <Link href={logoHref} className="flex items-center">
         <img 
           src="/z i g z a (2).png" 
           alt="zigza." 
@@ -60,6 +60,21 @@ function AdminShellContent({
     userEmail?.toLowerCase().startsWith('store@') ||
     userEmail?.toLowerCase() === 'store'
   )
+
+  const isAdmin = (
+    userEmail?.toLowerCase() === 'admin@zigza.in' ||
+    userEmail?.toLowerCase() === 'team.anga9@gmail.com' ||
+    userRole?.toUpperCase() === 'ADMIN' ||
+    userRole?.toUpperCase() === 'SUPERADMIN' ||
+    userRole?.toUpperCase() === 'PLATFORM_SUPERADMIN' ||
+    userRole?.toUpperCase() === 'ADMINISTRATOR'
+  )
+
+  const homeHref = isAdmin 
+    ? '/modules' 
+    : (isStoreUser 
+        ? '/stitching-sewing/store' 
+        : (pathname?.startsWith('/stitching-sewing') ? '/stitching-sewing/dashboard' : (pathname?.startsWith('/store') ? '/store' : '/stitching-sewing/dashboard')))
 
   // Close mobile menu on route change
   useEffect(() => {
@@ -108,7 +123,7 @@ function AdminShellContent({
 
         {/* Mobile Top Bar — visible <lg, hidden in TV mode, and hidden on /zigza-ai to prevent double navbar */}
         {!isTvMode && !isAiPage && (
-          <MobileTopBar onMenuToggle={() => setIsMobileMenuOpen(prev => !prev)} />
+          <MobileTopBar onMenuToggle={() => setIsMobileMenuOpen(prev => !prev)} logoHref={homeHref} />
         )}
 
         <div className={`flex-1 min-h-0 flex flex-col h-full ${isTvMode ? 'w-full max-w-none' : ''}`}>

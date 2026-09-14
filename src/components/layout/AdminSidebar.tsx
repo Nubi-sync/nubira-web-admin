@@ -131,10 +131,18 @@ export function AdminSidebar({
 
   const isAdmin = (
     userEmail?.toLowerCase() === 'admin@zigza.in' ||
+    userEmail?.toLowerCase() === 'team.anga9@gmail.com' ||
     userRole?.toUpperCase() === 'ADMIN' ||
     userRole?.toUpperCase() === 'SUPERADMIN' ||
-    userRole?.toUpperCase() === 'PLATFORM_SUPERADMIN'
+    userRole?.toUpperCase() === 'PLATFORM_SUPERADMIN' ||
+    userRole?.toUpperCase() === 'ADMINISTRATOR'
   )
+
+  const roleLabel = isAdmin 
+    ? 'Super Admin' 
+    : (userRole 
+        ? userRole.toLowerCase().split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+        : (isStoreUser ? 'Store Supervisor' : 'Department Head'))
 
   // Module-specific unique side navigation
   let activeNavSections: NavSection[] = []
@@ -513,6 +521,17 @@ export function AdminSidebar({
     activeNavSections = navSections
   }
 
+  // Non-admin / Department Head filtering:
+  // If the user is NOT an admin, they should NOT see the Workspace Hub or links to "All Modules"
+  if (!isAdmin) {
+    activeNavSections = activeNavSections
+      .map((sec) => ({
+        ...sec,
+        items: sec.items.filter((item) => item.href !== '/modules' && item.href !== '/modules/access-control'),
+      }))
+      .filter((sec) => sec.items.length > 0 && sec.section !== 'Workspace Hub')
+  }
+
   // Fast, eager open when cursor moves towards side nav
   const handleMouseEnter = () => {
     if (leaveTimerRef.current) {
@@ -677,8 +696,13 @@ export function AdminSidebar({
   else if (pathname?.startsWith('/design')) divisionProfileHref = '/design/profile'
   else if (pathname?.startsWith('/merchandising')) divisionProfileHref = '/merchandising/profile'
   else if (pathname === '/modules' || pathname?.startsWith('/modules')) divisionProfileHref = '/modules/profile'
-
   const isProfileActive = pathname === divisionProfileHref || pathname === '/modules/profile' || pathname === '/profile'
+
+  const homeHref = isAdmin 
+    ? '/modules' 
+    : (isStoreUser 
+        ? '/stitching-sewing/store' 
+        : (activeNavSections[0]?.items[0]?.href || '/stitching-sewing/dashboard'))
 
   return (
     <>
@@ -696,7 +720,7 @@ export function AdminSidebar({
       >
         {/* Top Header / Logo Block */}
         <div className="border-b border-slate-200 h-[65px] flex items-center px-4 overflow-hidden">
-          <Link href={isStoreUser ? '/stitching-sewing/store' : '/modules'} className="flex items-center gap-2.5 min-w-0 w-full">
+          <Link href={homeHref} className="flex items-center gap-2.5 min-w-0 w-full">
             {/* Collapsed Favicon */}
             <div className={`shrink-0 flex items-center justify-center transition-all ${
               isHovered 
@@ -780,7 +804,7 @@ export function AdminSidebar({
                   {userEmail}
                 </span>
                 <span className="text-[11px] font-mono text-slate-500 flex items-center justify-between gap-1.5 mt-0.5">
-                  <span>{isStoreUser ? 'Store Supervisor' : 'Super Admin'}</span>
+                  <span>{roleLabel}</span>
                   <span className="text-[#3A3564] font-bold group-hover:underline text-[10px] tracking-tight shrink-0">
                     Profile ↗
                   </span>
@@ -824,7 +848,7 @@ export function AdminSidebar({
         <div>
           {/* Header */}
           <div className="p-4 pb-3.5 border-b border-slate-200 flex items-center justify-between">
-            <Link href={isStoreUser ? '/stitching-sewing/store' : '/modules'} className="flex items-center gap-2.5">
+            <Link href={homeHref} className="flex items-center gap-2.5">
               <img 
                 src="/z i g z a (2).png" 
                 alt="zigza." 
@@ -889,7 +913,7 @@ export function AdminSidebar({
                 {userEmail}
               </span>
               <span className="text-[11px] font-mono text-slate-500 flex items-center justify-between gap-1.5 mt-0.5">
-                <span>Super Admin</span>
+                <span>{roleLabel}</span>
                 <span className="text-[#3A3564] font-bold text-[10px] tracking-tight shrink-0">
                   Profile ↗
                 </span>
