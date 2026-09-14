@@ -17,6 +17,7 @@ import {
 import { getScrapRequisitions, ALTER_UPDATE_EVENT } from '../../utils/alterStorage'
 import { ScrapRequisition } from '../../types/alter'
 import { DeclareScrapModal } from './DeclareScrapModal'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 interface ScrapSalvageClientProps {
   userEmail?: string
@@ -68,7 +69,7 @@ export function ScrapSalvageClient({ userEmail }: ScrapSalvageClientProps) {
       {/* Header Banner */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-rose-50 text-rose-700 border border-rose-200">
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
             <Trash2 className="w-6 h-6" />
           </div>
           <div>
@@ -76,7 +77,7 @@ export function ScrapSalvageClient({ userEmail }: ScrapSalvageClientProps) {
               <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
                 Scrap Salvage & Write-Off Ledger
               </h1>
-              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-200 tracking-wider">
+              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 tracking-wider">
                 0.04% Plant True Scrap
               </span>
             </div>
@@ -88,7 +89,7 @@ export function ScrapSalvageClient({ userEmail }: ScrapSalvageClientProps) {
 
         <button
           onClick={() => setIsModalOpen(true)}
-          className="px-4 py-2.5 rounded-xl bg-rose-700 text-white text-xs font-bold hover:bg-rose-800 transition-all shadow-2xs inline-flex items-center gap-2 shrink-0 cursor-pointer"
+          className="px-4 py-2.5 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2c284e] transition-all shadow-2xs inline-flex items-center gap-2 shrink-0 cursor-pointer"
         >
           <Plus className="w-4 h-4" />
           <span>Declare Scrap & Re-Cut</span>
@@ -102,11 +103,11 @@ export function ScrapSalvageClient({ userEmail }: ScrapSalvageClientProps) {
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Scrap Write-Off Rate
             </span>
-            <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
               <ShieldCheck className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black font-mono text-emerald-600">
+          <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900">
             0.04%
           </div>
           <p className="text-xs font-semibold text-slate-500 mt-1">Well Below 0.05% Ceiling SLA</p>
@@ -117,11 +118,11 @@ export function ScrapSalvageClient({ userEmail }: ScrapSalvageClientProps) {
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Scrapped Garments
             </span>
-            <div className="w-8 h-8 rounded-lg bg-rose-50 text-rose-700 border border-rose-200 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
               <Trash2 className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black font-mono text-rose-700">
+          <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900">
             {scraps.length} Pieces
           </div>
           <p className="text-xs font-semibold text-slate-500 mt-1">Irreparable Structural Tears</p>
@@ -151,7 +152,7 @@ export function ScrapSalvageClient({ userEmail }: ScrapSalvageClientProps) {
               <Scissors className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black font-mono text-[#3A3564]">
+          <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900">
             {scraps.length} Orders
           </div>
           <p className="text-xs font-semibold text-slate-500 mt-1">Sent to 03. Cutting Floor CAD</p>
@@ -166,7 +167,7 @@ export function ScrapSalvageClient({ userEmail }: ScrapSalvageClientProps) {
               <h2 className="text-base sm:text-lg font-black text-slate-900">
                 Official Scrap Write-Off & Re-Cut Manifest
               </h2>
-              <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-rose-700 text-white font-bold">
+              <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-[#3A3564] text-white font-bold">
                 {filteredScraps.length} Records
               </span>
             </div>
@@ -188,7 +189,7 @@ export function ScrapSalvageClient({ userEmail }: ScrapSalvageClientProps) {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse">
+          <table className="w-full text-left text-xs border-collapse min-w-[760px]">
             <thead>
               <tr className="border-b border-black/10 bg-slate-50/70 text-slate-600 font-mono text-[11px] uppercase tracking-wider">
                 <th className="py-3 px-4">Scrap Code</th>
@@ -206,14 +207,21 @@ export function ScrapSalvageClient({ userEmail }: ScrapSalvageClientProps) {
             <tbody className="divide-y divide-black/5">
               {filteredScraps.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="py-8 text-center text-slate-400 font-mono text-xs">
-                    No scrap write-off records found matching your search.
+                  <td colSpan={10} className="p-8">
+                    <EmptyState
+                      icon={Trash2}
+                      title="No scrap write-off records found"
+                      description="Zero garments have been declared scrap today. High clinic salvage rate active."
+                      actionLabel="Declare Scrap & Re-Cut"
+                      onAction={() => setIsModalOpen(true)}
+                      variant="seamless"
+                    />
                   </td>
                 </tr>
               ) : (
                 filteredScraps.map(scrap => (
                   <tr key={scrap.id} className="hover:bg-[#FAF7F0]/40 transition-colors">
-                    <td className="py-3 px-4 font-mono font-black text-rose-700">
+                    <td className="py-3 px-4 font-mono font-black text-[#3A3564]">
                       {scrap.scrapCode}
                     </td>
                     <td className="py-3 px-4 font-mono font-bold text-slate-900">
@@ -230,7 +238,7 @@ export function ScrapSalvageClient({ userEmail }: ScrapSalvageClientProps) {
                       <span className="font-bold text-slate-900">{scrap.size}</span> • {scrap.color}
                     </td>
                     <td className="py-3 px-4">
-                      <span className="font-mono font-bold text-rose-800 bg-rose-50 px-2 py-0.5 rounded border border-rose-200 text-[11px]">
+                      <span className="font-mono font-bold text-[#3A3564] bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10 text-[11px]">
                         {scrap.scrapReason}
                       </span>
                     </td>
@@ -239,7 +247,7 @@ export function ScrapSalvageClient({ userEmail }: ScrapSalvageClientProps) {
                     </td>
                     <td className="py-3 px-4">
                       {scrap.reCutAuthorized ? (
-                        <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold border border-emerald-200 inline-flex items-center gap-1">
+                        <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-[#FAF7F0] text-[#3A3564] font-bold border border-black/10 inline-flex items-center gap-1">
                           <CheckCircle2 className="w-3 h-3" /> RE-CUT SENT (DIV 03)
                         </span>
                       ) : (
