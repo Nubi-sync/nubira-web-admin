@@ -53,7 +53,7 @@ export function LogThreadBreakModal({ isOpen, onClose }: LogThreadBreakModalProp
         <div className="p-5 border-b border-black/10 flex items-center justify-between bg-[#FAF7F0]/60">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl bg-white border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
-              <AlertTriangle className="w-5 h-5 text-amber-600" />
+              <AlertTriangle className="w-5 h-5 text-[#3A3564]" />
             </div>
             <div>
               <h3 className="text-base font-bold text-slate-900">

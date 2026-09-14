@@ -99,9 +99,9 @@ export function ScanHangtagModal({
           </div>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-700 text-sm font-bold font-mono px-2 py-1 rounded"
+            className="text-slate-400 hover:text-slate-700 p-1 rounded"
           >
-            ✕
+            <X className="w-4 h-4" />
           </button>
         </div>
 
@@ -258,7 +258,7 @@ export function ScanHangtagModal({
               type="submit"
               className="px-4 py-2 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2c284e] transition-all shadow-2xs cursor-pointer inline-flex items-center gap-1.5"
             >
-              <CheckCircle2 className="w-3.5 h-3.5 text-amber-300" />
+              <CheckCircle2 className="w-3.5 h-3.5 text-white" />
               <span>Verify & Record Polybag</span>
             </button>
           </div>

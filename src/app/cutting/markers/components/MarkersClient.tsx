@@ -15,6 +15,7 @@ import {
   AlertTriangle,
   Ruler
 } from 'lucide-react'
+import { EmptyState } from '@/components/ui/EmptyState'
 import { MarkerEfficiency, CADSoftware } from '../../types/cutting'
 import { getMarkers, saveMarker } from '../../utils/cuttingStorage'
 
@@ -135,7 +136,7 @@ export function MarkersClient() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
           <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">Average CAD Yield</span>
-          <div className="text-2xl sm:text-3xl font-black font-mono text-emerald-600 mt-2">{avgEfficiency}%</div>
+          <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 mt-2">{avgEfficiency}%</div>
           <p className="text-xs font-semibold text-slate-500 mt-1">Floor target is &gt;86.0%</p>
         </div>
 
@@ -147,7 +148,7 @@ export function MarkersClient() {
 
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
           <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">Markers &gt;88% Yield</span>
-          <div className="text-2xl sm:text-3xl font-black font-mono text-indigo-600 mt-2">{targetAbove88Count} of {markers.length}</div>
+          <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 mt-2">{targetAbove88Count} of {markers.length}</div>
           <p className="text-xs font-semibold text-slate-500 mt-1">High-utilization profiles</p>
         </div>
 
@@ -191,83 +192,86 @@ export function MarkersClient() {
       </div>
 
       {/* 5. Markers Visual Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {filteredMarkers.map(marker => {
-          let yieldColor = 'text-emerald-600 bg-emerald-50 border-emerald-200'
-          let barFill = 'bg-emerald-500'
-          if (marker.efficiency_percent < 87.0) {
-            yieldColor = 'text-sky-700 bg-sky-50 border-sky-200'
-            barFill = 'bg-sky-500'
-          }
-          if (marker.efficiency_percent < 85.0) {
-            yieldColor = 'text-amber-700 bg-amber-50 border-amber-200'
-            barFill = 'bg-amber-500'
-          }
-
-          return (
-            <div
-              key={marker.id}
-              className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs space-y-4 hover:border-black/20 transition-all"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-black text-base text-slate-900">{marker.marker_name}</h3>
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 font-bold uppercase">
-                      {marker.cad_software.replace(/_/g, ' ')}
-                    </span>
+      {filteredMarkers.length === 0 ? (
+        <div className="bg-white rounded-2xl border border-black/10 shadow-2xs p-8">
+          <EmptyState
+            title="No CAD markers cataloged"
+            description="Archive a new CAD nesting marker to benchmark fabric yield and cutting tolerances."
+            actionLabel="New CAD Marker"
+            onAction={() => setIsNewModalOpen(true)}
+          />
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {filteredMarkers.map(marker => {
+            return (
+              <div
+                key={marker.id}
+                className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs space-y-4 hover:border-black/20 transition-all"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-black text-base text-slate-900">{marker.marker_name}</h3>
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 font-bold uppercase">
+                        {marker.cad_software.replace(/_/g, ' ')}
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-500 font-mono mt-0.5">Style: {marker.style_ref}</p>
                   </div>
-                  <p className="text-xs text-slate-500 font-mono mt-0.5">Style: {marker.style_ref}</p>
+
+                  <div className="px-3 py-1.5 rounded-xl border border-black/10 bg-[#FAF7F0] text-[#3A3564] font-mono font-black text-sm flex flex-col items-end">
+                    <span>{marker.efficiency_percent}%</span>
+                    <span className="text-[9px] uppercase tracking-wider font-semibold">Yield</span>
+                  </div>
                 </div>
 
-                <div className={`px-3 py-1.5 rounded-xl border font-mono font-black text-sm flex flex-col items-end ${yieldColor}`}>
-                  <span>{marker.efficiency_percent}%</span>
-                  <span className="text-[9px] uppercase tracking-wider font-semibold">Yield</span>
+                {/* Visual Nesting Density Bar */}
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between text-[11px] font-mono text-slate-500">
+                    <span>Fabric Nesting Utilization</span>
+                    <span>{marker.efficiency_percent}% / 100%</span>
+                  </div>
+                  <div className="w-full h-2.5 rounded-full bg-[#FAF7F0] border border-black/10 overflow-hidden">
+                    <div
+                      className="h-full bg-[#3A3564] rounded-full transition-all"
+                      style={{ width: `${marker.efficiency_percent}%` }}
+                    />
+                  </div>
                 </div>
-              </div>
 
-              {/* Visual Nesting Density Bar */}
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between text-[11px] font-mono text-slate-500">
-                  <span>Fabric Nesting Utilization</span>
-                  <span>{marker.efficiency_percent}% / 100%</span>
+                {/* Marker Specs */}
+                <div className="grid grid-cols-3 gap-2 text-xs pt-1 border-t border-black/5 font-mono">
+                  <div className="p-2 rounded-lg bg-[#FAF7F0]/60 border border-black/5">
+                    <span className="text-[9px] text-slate-500 uppercase block">Width Bed:</span>
+                    <strong>{marker.fabric_width_inches}&quot; cut width</strong>
+                  </div>
+                  <div className="p-2 rounded-lg bg-[#FAF7F0]/60 border border-black/5">
+                    <span className="text-[9px] text-slate-500 uppercase block">Length:</span>
+                    <strong>{marker.marker_length_meters} meters</strong>
+                  </div>
+                  <div className="p-2 rounded-lg bg-[#FAF7F0]/60 border border-black/5">
+                    <span className="text-[9px] text-slate-500 uppercase block">Ratio:</span>
+                    <strong>{marker.ratio}</strong>
+                  </div>
                 </div>
-                <div className="w-full h-2.5 rounded-full bg-[#FAF7F0] border border-black/10 overflow-hidden">
-                  <div className={`h-full ${barFill} rounded-full transition-all`} style={{ width: `${marker.efficiency_percent}%` }} />
-                </div>
-              </div>
 
-              {/* Marker Specs */}
-              <div className="grid grid-cols-3 gap-2 text-xs pt-1 border-t border-black/5 font-mono">
-                <div className="p-2 rounded-lg bg-[#FAF7F0]/60 border border-black/5">
-                  <span className="text-[9px] text-slate-500 uppercase block">Width Bed:</span>
-                  <strong>{marker.fabric_width_inches}&quot; cut width</strong>
-                </div>
-                <div className="p-2 rounded-lg bg-[#FAF7F0]/60 border border-black/5">
-                  <span className="text-[9px] text-slate-500 uppercase block">Length:</span>
-                  <strong>{marker.marker_length_meters} meters</strong>
-                </div>
-                <div className="p-2 rounded-lg bg-[#FAF7F0]/60 border border-black/5">
-                  <span className="text-[9px] text-slate-500 uppercase block">Ratio:</span>
-                  <strong>{marker.ratio}</strong>
+                <div className="flex items-center justify-between pt-2 border-t border-black/5 text-xs">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="text-[10px] font-mono text-slate-400">SIZES:</span>
+                    {(Array.isArray(marker.sizes_included) ? marker.sizes_included : [String(marker.sizes_included || '')]).map((sz: string) => (
+                      <span key={sz} className="px-1.5 py-0.5 rounded bg-slate-100 font-mono text-[10px] font-bold text-slate-700">
+                        {sz}
+                      </span>
+                    ))}
+                  </div>
+                  <span className="text-[11px] text-slate-500 italic truncate max-w-[150px]">{marker.pattern_master}</span>
                 </div>
               </div>
-
-              <div className="flex items-center justify-between pt-2 border-t border-black/5 text-xs">
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="text-[10px] font-mono text-slate-400">SIZES:</span>
-                  {(Array.isArray(marker.sizes_included) ? marker.sizes_included : [String(marker.sizes_included || '')]).map((sz: string) => (
-                    <span key={sz} className="px-1.5 py-0.5 rounded bg-slate-100 font-mono text-[10px] font-bold text-slate-700">
-                      {sz}
-                    </span>
-                  ))}
-                </div>
-                <span className="text-[11px] text-slate-500 italic truncate max-w-[150px]">{marker.pattern_master}</span>
-              </div>
-            </div>
-          )
-        })}
-      </div>
+            )
+          })}
+        </div>
+      )}
 
       {/* New Marker Modal */}
       {isNewModalOpen && (

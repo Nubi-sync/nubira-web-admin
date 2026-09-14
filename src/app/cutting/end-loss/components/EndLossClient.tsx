@@ -14,6 +14,7 @@ import {
   Sparkles,
   Scissors
 } from 'lucide-react'
+import { EmptyState } from '@/components/ui/EmptyState'
 import { EndLossRemnant, RemnantDisposition } from '../../types/cutting'
 import { getEndLossRemnants, saveEndLossRemnant } from '../../utils/cuttingStorage'
 
@@ -147,7 +148,7 @@ export function EndLossClient() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
           <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">Salvage Rate</span>
-          <div className="text-2xl sm:text-3xl font-black font-mono text-emerald-600 mt-2">{salvageRate}%</div>
+          <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 mt-2">{salvageRate}%</div>
           <p className="text-xs font-semibold text-slate-500 mt-1">Rerouted from waste bin</p>
         </div>
 
@@ -159,7 +160,7 @@ export function EndLossClient() {
 
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
           <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">Total Remnants Logged</span>
-          <div className="text-2xl sm:text-3xl font-black font-mono text-indigo-600 mt-2">{totalRemnants} pieces</div>
+          <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 mt-2">{totalRemnants} pieces</div>
           <p className="text-xs font-semibold text-slate-500 mt-1">{totalMetersLogged} meters tracked</p>
         </div>
 
@@ -204,80 +205,89 @@ export function EndLossClient() {
 
       {/* 5. Remnants Table */}
       <div className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-[#FAF7F0] text-[#3A3564] font-mono uppercase text-[10px] tracking-wider border-b border-black/10">
-              <tr>
-                <th className="py-3 px-4 font-bold">Remnant Serial</th>
-                <th className="py-3 px-4 font-bold">Source Roll</th>
-                <th className="py-3 px-4 font-bold">Fabric Spec & Color</th>
-                <th className="py-3 px-4 font-bold">Dimensions</th>
-                <th className="py-3 px-4 font-bold">Generation Reason</th>
-                <th className="py-3 px-4 font-bold">Disposition</th>
-                <th className="py-3 px-4 font-bold text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-black/5 font-medium">
-              {filteredRemnants.map(rem => {
-                let badge = 'bg-slate-100 text-slate-700'
-                if (rem.disposition === 'LOGGED') badge = 'bg-slate-100 text-slate-800'
-                if (rem.disposition === 'SALVAGED_FOR_POCKETS') badge = 'bg-emerald-100 text-emerald-800'
-                if (rem.disposition === 'SCRAP_DISPOSED') badge = 'bg-rose-100 text-rose-800'
-                if (rem.disposition === 'RETURNED_TO_MILL') badge = 'bg-purple-100 text-purple-800'
+        {filteredRemnants.length === 0 ? (
+          <div className="p-8">
+            <EmptyState
+              title="No fabric remnants logged"
+              description="Record end bits and scrap roll cuts for zero-waste salvage triage."
+              actionLabel="Log Remnant Cut Piece"
+              onAction={() => setIsNewModalOpen(true)}
+            />
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs min-w-[720px]">
+              <thead className="bg-[#FAF7F0] text-[#3A3564] font-mono uppercase text-[10px] tracking-wider border-b border-black/10">
+                <tr>
+                  <th className="py-3 px-4 font-bold">Remnant Serial</th>
+                  <th className="py-3 px-4 font-bold">Source Roll</th>
+                  <th className="py-3 px-4 font-bold">Fabric Spec & Color</th>
+                  <th className="py-3 px-4 font-bold">Dimensions</th>
+                  <th className="py-3 px-4 font-bold">Generation Reason</th>
+                  <th className="py-3 px-4 font-bold">Disposition</th>
+                  <th className="py-3 px-4 font-bold text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-black/5 font-medium">
+                {filteredRemnants.map(rem => {
+                  let badge = 'bg-[#FAF7F0] text-[#3A3564] border border-black/10'
+                  if (rem.disposition === 'LOGGED') badge = 'bg-slate-100 text-slate-700 border border-slate-200'
+                  if (rem.disposition === 'SCRAP_DISPOSED') badge = 'bg-slate-900 text-white border border-slate-900'
 
-                return (
-                  <tr key={rem.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="py-3.5 px-4 font-mono font-bold text-slate-900">
-                      <div>{rem.remnant_code}</div>
-                      <div className="text-[10px] text-slate-400 font-normal">
-                        {new Date(rem.logged_at || rem.created_at || Date.now()).toLocaleDateString()}
-                      </div>
-                    </td>
-                    <td className="py-3.5 px-4 font-mono text-[#3A3564] font-bold">
-                      {rem.source_roll_barcode}
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <div className="font-bold text-slate-900">{rem.colorway}</div>
-                      <div className="text-[11px] text-slate-600 line-clamp-1">{rem.fabric_type}</div>
-                    </td>
-                    <td className="py-3.5 px-4 font-mono font-bold text-slate-900">
-                      {rem.length_meters}m × {rem.width_inches}&quot;
-                    </td>
-                    <td className="py-3.5 px-4 text-slate-600 text-[11px] max-w-xs">
-                      {rem.reason}
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <span className={`text-[10px] font-mono px-2 py-0.5 rounded font-bold uppercase ${badge}`}>
-                        {rem.disposition.replace(/_/g, ' ')}
-                      </span>
-                      {rem.allocated_to && (
-                        <div className="text-[10px] text-slate-500 mt-0.5 font-medium">{rem.allocated_to}</div>
-                      )}
-                    </td>
-                    <td className="py-3.5 px-4 text-right">
-                      <div className="flex items-center justify-end gap-1.5">
-                        {rem.disposition === 'LOGGED' && (
-                          <button
-                            onClick={() => handleUpdateDisposition(rem, 'SALVAGED_FOR_POCKETS', 'Allocated for pocket linings')}
-                            className="px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-mono text-[10px] font-bold"
-                          >
-                            Salvage Trim
-                          </button>
+                  return (
+                    <tr key={rem.id} className="hover:bg-slate-50 transition-colors">
+                      <td className="py-3.5 px-4 font-mono font-bold text-slate-900">
+                        <div>{rem.remnant_code}</div>
+                        <div className="text-[10px] text-slate-400 font-normal">
+                          {new Date(rem.logged_at || rem.created_at || Date.now()).toLocaleDateString()}
+                        </div>
+                      </td>
+                      <td className="py-3.5 px-4 font-mono text-[#3A3564] font-bold">
+                        {rem.source_roll_barcode}
+                      </td>
+                      <td className="py-3.5 px-4">
+                        <div className="font-bold text-slate-900">{rem.colorway}</div>
+                        <div className="text-[11px] text-slate-600 line-clamp-1">{rem.fabric_type}</div>
+                      </td>
+                      <td className="py-3.5 px-4 font-mono font-bold text-slate-900">
+                        {rem.length_meters}m × {rem.width_inches}&quot;
+                      </td>
+                      <td className="py-3.5 px-4 text-slate-600 text-[11px] max-w-xs">
+                        {rem.reason}
+                      </td>
+                      <td className="py-3.5 px-4">
+                        <span className={`text-[10px] font-mono px-2 py-0.5 rounded font-bold uppercase ${badge}`}>
+                          {rem.disposition.replace(/_/g, ' ')}
+                        </span>
+                        {rem.allocated_to && (
+                          <div className="text-[10px] text-slate-500 mt-0.5 font-medium">{rem.allocated_to}</div>
                         )}
-                        <button
-                          onClick={() => setSelectedRemnant(rem)}
-                          className="px-2 py-1 rounded-lg bg-white hover:bg-[#FAF7F0] border border-black/10 font-mono text-[11px] text-[#3A3564] font-bold shadow-2xs"
-                        >
-                          Dossier
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
+                      </td>
+                      <td className="py-3.5 px-4 text-right">
+                        <div className="flex items-center justify-end gap-1.5">
+                          {rem.disposition === 'LOGGED' && (
+                            <button
+                              onClick={() => handleUpdateDisposition(rem, 'SALVAGED_FOR_POCKETS', 'Allocated for pocket linings')}
+                              className="px-2.5 py-1 rounded-lg bg-[#FAF7F0] hover:bg-white text-[#3A3564] border border-black/10 font-mono text-[10px] font-bold"
+                            >
+                              Salvage Trim
+                            </button>
+                          )}
+                          <button
+                            onClick={() => setSelectedRemnant(rem)}
+                            className="px-2 py-1 rounded-lg bg-white hover:bg-[#FAF7F0] border border-black/10 font-mono text-[11px] text-[#3A3564] font-bold shadow-2xs"
+                          >
+                            Dossier
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {/* Log Remnant Modal */}

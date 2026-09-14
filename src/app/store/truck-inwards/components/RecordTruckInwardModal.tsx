@@ -82,11 +82,11 @@ export function RecordTruckInwardModal({ isOpen, onClose }: RecordTruckInwardMod
         {/* Modal Header */}
         <div className="flex items-center justify-between border-b border-black/10 pb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#3A3564]/10 text-[#3A3564] flex items-center justify-center font-bold">
+            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center font-bold shadow-2xs">
               <Truck className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-lg font-black text-slate-900">
+              <h2 className="text-lg font-black text-slate-900 font-[family-name:var(--font-heading)]">
                 Truck Inward & Weighbridge GRN
               </h2>
               <p className="text-xs font-mono text-slate-500">
@@ -96,7 +96,7 @@ export function RecordTruckInwardModal({ isOpen, onClose }: RecordTruckInwardMod
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-lg border border-black/10 text-slate-400 hover:text-slate-700 hover:bg-slate-50 flex items-center justify-center transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-lg border border-black/10 text-slate-400 hover:text-slate-700 hover:bg-[#FAF7F0] flex items-center justify-center transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -106,10 +106,10 @@ export function RecordTruckInwardModal({ isOpen, onClose }: RecordTruckInwardMod
         <div className="grid grid-cols-2 gap-2">
           <div className={`p-2.5 rounded-xl border text-center transition-all ${
             step === 1 
-              ? 'bg-[#3A3564] text-white border-[#3A3564] shadow-xs' 
+              ? 'bg-[#3A3564] text-white border-[#3A3564] shadow-2xs' 
               : 'bg-[#FAF7F0] text-slate-600 border-black/10'
           }`}>
-            <span className="text-[10px] font-mono uppercase font-bold tracking-wider block">
+            <span className="text-[10px] font-mono uppercase font-bold tracking-wider block opacity-80">
               Step 1
             </span>
             <span className="text-xs font-bold font-mono">
@@ -119,10 +119,10 @@ export function RecordTruckInwardModal({ isOpen, onClose }: RecordTruckInwardMod
 
           <div className={`p-2.5 rounded-xl border text-center transition-all ${
             step === 2 
-              ? 'bg-[#3A3564] text-white border-[#3A3564] shadow-xs' 
+              ? 'bg-[#3A3564] text-white border-[#3A3564] shadow-2xs' 
               : 'bg-[#FAF7F0] text-slate-600 border-black/10'
           }`}>
-            <span className="text-[10px] font-mono uppercase font-bold tracking-wider block">
+            <span className="text-[10px] font-mono uppercase font-bold tracking-wider block opacity-80">
               Step 2
             </span>
             <span className="text-xs font-bold font-mono">
@@ -138,27 +138,26 @@ export function RecordTruckInwardModal({ isOpen, onClose }: RecordTruckInwardMod
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-mono font-bold text-slate-600 mb-1">
-                    System GRN Slip No
+                    GRN Number (System)
                   </label>
                   <input
                     type="text"
                     value={grnNumber}
-                    onChange={(e) => setGrnNumber(e.target.value)}
-                    className="w-full px-3 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
-                    required
+                    readOnly
+                    className="w-full px-3 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-mono font-black text-slate-900 focus:outline-none"
                   />
                 </div>
 
                 <div>
                   <label className="block text-xs font-mono font-bold text-slate-600 mb-1">
-                    Truck / Vehicle Reg No
+                    Truck Vehicle Reg #
                   </label>
                   <input
                     type="text"
                     value={vehicleNumber}
-                    onChange={(e) => setVehicleNumber(e.target.value.toUpperCase())}
-                    placeholder="e.g. DL-01-AB-1234"
-                    className="w-full px-3 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                    onChange={(e) => setVehicleNumber(e.target.value)}
+                    placeholder="e.g. DL-01-AB-4920"
+                    className="w-full px-3 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-mono font-bold text-slate-900 uppercase focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                     required
                   />
                 </div>
@@ -167,25 +166,27 @@ export function RecordTruckInwardModal({ isOpen, onClose }: RecordTruckInwardMod
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-mono font-bold text-slate-600 mb-1">
-                    Supplier / Mill Name
+                    Mill / Vendor Supplier
                   </label>
                   <input
                     type="text"
                     value={supplierName}
                     onChange={(e) => setSupplierName(e.target.value)}
-                    className="w-full px-3 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                    placeholder="e.g. Vardhman Textiles Ltd"
+                    className="w-full px-3 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                     required
                   />
                 </div>
 
                 <div>
                   <label className="block text-xs font-mono font-bold text-slate-600 mb-1">
-                    Purchase Order (PO) Reference
+                    Purchase Order (PO #)
                   </label>
                   <input
                     type="text"
                     value={poReference}
                     onChange={(e) => setPoReference(e.target.value)}
+                    placeholder="e.g. PO-2026-8831"
                     className="w-full px-3 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                     required
                   />
@@ -201,19 +202,21 @@ export function RecordTruckInwardModal({ isOpen, onClose }: RecordTruckInwardMod
                     type="text"
                     value={driverName}
                     onChange={(e) => setDriverName(e.target.value)}
-                    className="w-full px-3 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                    placeholder="e.g. Gurdeep Singh"
+                    className="w-full px-3 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                     required
                   />
                 </div>
 
                 <div>
                   <label className="block text-xs font-mono font-bold text-slate-600 mb-1">
-                    Driver Phone Contact
+                    Driver Mobile Contact
                   </label>
                   <input
-                    type="tel"
+                    type="text"
                     value={driverPhone}
                     onChange={(e) => setDriverPhone(e.target.value)}
+                    placeholder="e.g. +91 98112-44910"
                     className="w-full px-3 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                     required
                   />
@@ -232,10 +235,10 @@ export function RecordTruckInwardModal({ isOpen, onClose }: RecordTruckInwardMod
                     onChange={(e) => setItemCategory(e.target.value as GateItemCategory)}
                     className="w-full px-3 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564] cursor-pointer"
                   >
-                    <option value="RAW_FABRIC_ROLL">Raw Fabric Rolls</option>
-                    <option value="TRIMS">Trims & Accessories</option>
-                    <option value="PACKAGING">Cartons & Packaging</option>
-                    <option value="CHEMICAL">Laundry & Spotting Chemicals</option>
+                    <option value="RAW_FABRIC_ROLL">Raw Fabric Rolls (Knit / Woven)</option>
+                    <option value="TRIMS_ACCESSORIES">Trims & Accessories (Buttons, Zips, Labels)</option>
+                    <option value="PACKAGING_MATERIAL">Packaging (Cartons, Polybags, Tapes)</option>
+                    <option value="CHEMICALS_DYES">Chemicals & Laundry Auxiliaries</option>
                   </select>
                 </div>
 
@@ -257,14 +260,14 @@ export function RecordTruckInwardModal({ isOpen, onClose }: RecordTruckInwardMod
               {/* Weighbridge Calculation Card */}
               <div className="bg-[#FAF7F0] p-4 rounded-xl border border-black/10 space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-mono font-black uppercase text-[#3A3564] tracking-wider">
+                  <span className="text-xs font-mono font-bold uppercase text-slate-700 tracking-wider">
                     Weighbridge Scale Slip
                   </span>
-                  <Scale className="w-4 h-4 text-slate-400" />
+                  <Scale className="w-4 h-4 text-slate-500" />
                 </div>
 
                 <div className="grid grid-cols-3 gap-2.5">
-                  <div className="bg-white p-2.5 rounded-lg border border-black/5">
+                  <div className="bg-white p-2.5 rounded-lg border border-black/10">
                     <span className="text-[10px] font-mono font-bold text-slate-500 block">
                       Gross Wt (kg)
                     </span>
@@ -272,12 +275,12 @@ export function RecordTruckInwardModal({ isOpen, onClose }: RecordTruckInwardMod
                       type="number"
                       value={grossWeightKg}
                       onChange={(e) => setGrossWeightKg(parseFloat(e.target.value) || 0)}
-                      className="w-full text-xs font-mono font-black text-slate-900 mt-1 focus:outline-none"
+                      className="w-full text-xs font-mono font-bold text-slate-900 mt-1 focus:outline-none"
                       required
                     />
                   </div>
 
-                  <div className="bg-white p-2.5 rounded-lg border border-black/5">
+                  <div className="bg-white p-2.5 rounded-lg border border-black/10">
                     <span className="text-[10px] font-mono font-bold text-slate-500 block">
                       Tare Wt (kg)
                     </span>
@@ -285,16 +288,16 @@ export function RecordTruckInwardModal({ isOpen, onClose }: RecordTruckInwardMod
                       type="number"
                       value={tareWeightKg}
                       onChange={(e) => setTareWeightKg(parseFloat(e.target.value) || 0)}
-                      className="w-full text-xs font-mono font-black text-slate-900 mt-1 focus:outline-none"
+                      className="w-full text-xs font-mono font-bold text-slate-900 mt-1 focus:outline-none"
                       required
                     />
                   </div>
 
-                  <div className="bg-emerald-50 p-2.5 rounded-lg border border-emerald-200">
-                    <span className="text-[10px] font-mono font-bold text-emerald-800 block">
+                  <div className="bg-[#FAF7F0] p-2.5 rounded-lg border border-black/10">
+                    <span className="text-[10px] font-mono font-bold text-slate-600 block">
                       Net Wt (kg)
                     </span>
-                    <span className="text-xs font-mono font-black text-emerald-950 block mt-1">
+                    <span className="text-xs font-mono font-black text-slate-900 block mt-1 tabular-nums">
                       {netWeightKg.toLocaleString()} kg
                     </span>
                   </div>
@@ -337,7 +340,7 @@ export function RecordTruckInwardModal({ isOpen, onClose }: RecordTruckInwardMod
               <button
                 type="button"
                 onClick={() => setStep(1)}
-                className="px-4 py-2 rounded-xl border border-black/10 text-xs font-mono font-bold text-slate-700 hover:bg-slate-50 transition-colors flex items-center gap-1.5 cursor-pointer"
+                className="px-4 py-2 rounded-xl border border-black/10 text-xs font-mono font-bold text-slate-700 hover:bg-[#FAF7F0] transition-colors flex items-center gap-1.5 cursor-pointer"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
                 <span>Back to Step 1</span>
@@ -346,7 +349,7 @@ export function RecordTruckInwardModal({ isOpen, onClose }: RecordTruckInwardMod
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 rounded-xl border border-black/10 text-xs font-mono font-bold text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
+                className="px-4 py-2 rounded-xl border border-black/10 text-xs font-mono font-bold text-slate-700 hover:bg-[#FAF7F0] transition-colors cursor-pointer"
               >
                 Cancel
               </button>
@@ -355,7 +358,7 @@ export function RecordTruckInwardModal({ isOpen, onClose }: RecordTruckInwardMod
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-5 py-2 rounded-xl bg-[#3A3564] text-white text-xs font-mono font-bold hover:bg-[#2e2a52] transition-colors shadow-xs flex items-center gap-1.5 cursor-pointer"
+              className="px-5 py-2 rounded-xl bg-[#3A3564] text-white text-xs font-mono font-bold hover:bg-[#2c284e] transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer"
             >
               {step === 1 ? (
                 <>

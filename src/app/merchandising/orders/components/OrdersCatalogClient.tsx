@@ -19,6 +19,7 @@ import {
 import { MerchandisingOrder } from '../../types/merchandising'
 import { getOrders, MERCHANDISING_UPDATE_EVENT } from '../../utils/merchandisingStorage'
 import { CreateOrderModal } from './CreateOrderModal'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 interface OrdersCatalogClientProps {
   initialOrders?: MerchandisingOrder[]
@@ -114,17 +115,12 @@ export function OrdersCatalogClient({ initialOrders }: OrdersCatalogClientProps 
         </div>
       </div>
 
-      {/* 3. Executive KPI Metric Cards (Matching 6th Box) */}
+      {/* 3. Executive KPI Metric Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
         {/* Card 1 */}
         <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
-          <div className="flex items-start justify-between gap-2">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
-              <ClipboardList className="w-5 h-5" />
-            </div>
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
-              LEDGER
-            </span>
+          <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+            <ClipboardList className="w-5 h-5" />
           </div>
           <div className="mt-3">
             <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
@@ -144,13 +140,8 @@ export function OrdersCatalogClient({ initialOrders }: OrdersCatalogClientProps 
 
         {/* Card 2 */}
         <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
-          <div className="flex items-start justify-between gap-2">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
-              <Layers className="w-5 h-5" />
-            </div>
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
-              VOLUME
-            </span>
+          <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+            <Layers className="w-5 h-5" />
           </div>
           <div className="mt-3">
             <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
@@ -162,7 +153,7 @@ export function OrdersCatalogClient({ initialOrders }: OrdersCatalogClientProps 
             <div className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900">
               {totalPieces.toLocaleString()}
             </div>
-            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
               Total Pcs
             </span>
           </div>
@@ -170,13 +161,8 @@ export function OrdersCatalogClient({ initialOrders }: OrdersCatalogClientProps 
 
         {/* Card 3 */}
         <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
-          <div className="flex items-start justify-between gap-2">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
-              <TrendingUp className="w-5 h-5" />
-            </div>
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
-              WIP FLOOR
-            </span>
+          <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+            <TrendingUp className="w-5 h-5" />
           </div>
           <div className="mt-3">
             <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
@@ -188,7 +174,7 @@ export function OrdersCatalogClient({ initialOrders }: OrdersCatalogClientProps 
             <div className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900">
               {activeWip}
             </div>
-            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
+            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
               Active WIP Lines
             </span>
           </div>
@@ -196,13 +182,8 @@ export function OrdersCatalogClient({ initialOrders }: OrdersCatalogClientProps 
 
         {/* Card 4 */}
         <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
-          <div className="flex items-start justify-between gap-2">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
-              <IndianRupee className="w-5 h-5" />
-            </div>
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
-              FINANCIAL
-            </span>
+          <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+            <IndianRupee className="w-5 h-5" />
           </div>
           <div className="mt-3">
             <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
@@ -260,36 +241,43 @@ export function OrdersCatalogClient({ initialOrders }: OrdersCatalogClientProps 
           </div>
         </div>
 
-        {/* Primary Order Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="border-b border-slate-100 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0]">
-                <th className="py-3 px-4">PO Number</th>
-                <th className="py-3 px-4">Brand / Buyer</th>
-                <th className="py-3 px-4">Style Reference</th>
-                <th className="py-3 px-4 text-right">Total Pcs</th>
-                <th className="py-3 px-4 text-right">Unit FOB</th>
-                <th className="py-3 px-4 text-right">Total Value</th>
-                <th className="py-3 px-4">Ex-Factory</th>
-                <th className="py-3 px-4 text-center">Status</th>
-                <th className="py-3 px-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 text-xs">
-              {filteredOrders.length === 0 ? (
-                <tr>
-                  <td colSpan={9} className="py-10 text-center text-slate-400">
-                    No purchase orders found matching your search. Click &quot;Book New Buyer PO&quot; to add one.
-                  </td>
+        {/* Primary Order Table or Empty State */}
+        {filteredOrders.length === 0 ? (
+          <EmptyState
+            icon={ClipboardList}
+            title={searchQuery || activeFilter !== 'ALL' ? "No matching orders" : "No purchase orders"}
+            description={searchQuery || activeFilter !== 'ALL' ? "Try adjusting your search query or status filter." : "Register your first buyer purchase order to begin commercial tracking."}
+            actionLabel="Book New Buyer PO"
+            onAction={() => setIsCreateModalOpen(true)}
+            secondaryActionLabel={searchQuery || activeFilter !== 'ALL' ? "Reset Filters" : undefined}
+            onSecondaryAction={searchQuery || activeFilter !== 'ALL' ? () => {
+              setSearchQuery('')
+              setActiveFilter('ALL')
+            } : undefined}
+          />
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead>
+                <tr className="border-b border-slate-100 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0]">
+                  <th className="py-3 px-4">PO Number</th>
+                  <th className="py-3 px-4">Brand / Buyer</th>
+                  <th className="py-3 px-4">Style Description</th>
+                  <th className="py-3 px-4 text-right">Quantity</th>
+                  <th className="py-3 px-4 text-right">FOB Price</th>
+                  <th className="py-3 px-4 text-right">Total Value</th>
+                  <th className="py-3 px-4">Ex-Factory</th>
+                  <th className="py-3 px-4 text-center">Status</th>
+                  <th className="py-3 px-4 text-right">Actions</th>
                 </tr>
-              ) : (
-                filteredOrders.map(order => (
+              </thead>
+              <tbody className="divide-y divide-slate-100 text-xs">
+                {filteredOrders.map(order => (
                   <tr key={order.id} className="hover:bg-slate-50 transition-colors">
                     <td className="py-3 px-4 font-bold text-[#3A3564] font-mono">
                       {order.po_number}
                     </td>
-                    <td className="py-3 px-4 font-bold text-indigo-600">
+                    <td className="py-3 px-4 font-bold text-slate-900">
                       {order.brand_name}
                     </td>
                     <td className="py-3 px-4">
@@ -313,15 +301,11 @@ export function OrdersCatalogClient({ initialOrders }: OrdersCatalogClientProps 
                     <td className="py-3 px-4 text-center">
                       <span
                         className={`inline-block px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
-                          order.status === 'IN_PRODUCTION'
-                            ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                            : order.status === 'IN_FABRIC'
-                            ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                            : order.status === 'PACKED'
-                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                            : order.status === 'DISPATCHED'
-                            ? 'bg-purple-50 text-purple-700 border border-purple-200'
-                            : 'bg-slate-100 text-slate-700'
+                          order.status === 'PACKED' || order.status === 'DISPATCHED'
+                            ? 'bg-[#FAF7F0] text-[#3A3564] border border-black/10 font-bold'
+                            : order.status === 'IN_PRODUCTION'
+                            ? 'bg-slate-100 text-slate-800 border border-slate-200 font-semibold'
+                            : 'bg-slate-50 text-slate-600 border border-slate-200'
                         }`}
                       >
                         {order.status.replace('_', ' ')}
@@ -338,11 +322,11 @@ export function OrdersCatalogClient({ initialOrders }: OrdersCatalogClientProps 
                       </button>
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {/* Color & Size Ratio Modal Drawer */}

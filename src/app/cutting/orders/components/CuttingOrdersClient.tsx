@@ -16,6 +16,7 @@ import {
   Clock,
   Sparkles
 } from 'lucide-react'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 export interface CuttingOrder {
   id: string
@@ -212,13 +213,13 @@ export function CuttingOrdersClient({ initialOrders }: CuttingOrdersClientProps 
 
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
           <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">Urgent Fast-Track</span>
-          <div className="text-2xl sm:text-3xl font-black font-mono text-rose-600 mt-2">{urgentCount} orders</div>
+          <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 mt-2">{urgentCount} orders</div>
           <p className="text-xs font-semibold text-slate-500 mt-1">Priority dispatch line</p>
         </div>
 
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
           <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">Total Work Orders</span>
-          <div className="text-2xl sm:text-3xl font-black font-mono text-indigo-600 mt-2">{totalOrders} orders</div>
+          <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 mt-2">{totalOrders} orders</div>
           <p className="text-xs font-semibold text-slate-500 mt-1">Full shift scheduling</p>
         </div>
       </div>
@@ -267,84 +268,94 @@ export function CuttingOrdersClient({ initialOrders }: CuttingOrdersClientProps 
 
       {/* 5. Orders Table */}
       <div className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-[#FAF7F0] text-[#3A3564] font-mono uppercase text-[10px] tracking-wider border-b border-black/10">
-              <tr>
-                <th className="py-3 px-4 font-bold">Cut Order / PO</th>
-                <th className="py-3 px-4 font-bold">Style & Colorway</th>
-                <th className="py-3 px-4 font-bold">Target Plies & Pcs</th>
-                <th className="py-3 px-4 font-bold">Assigned Table</th>
-                <th className="py-3 px-4 font-bold">Priority</th>
-                <th className="py-3 px-4 font-bold">Status</th>
-                <th className="py-3 px-4 font-bold text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-black/5 font-medium">
-              {filteredOrders.map(order => {
-                let badge = 'bg-slate-100 text-slate-700'
-                if (order.status === 'QUEUED') badge = 'bg-slate-100 text-slate-800'
-                if (order.status === 'SPREADING') badge = 'bg-amber-100 text-amber-800'
-                if (order.status === 'CUTTING') badge = 'bg-indigo-100 text-indigo-800'
-                if (order.status === 'INSPECTED') badge = 'bg-emerald-100 text-emerald-800'
-                if (order.status === 'BUNDLED') badge = 'bg-purple-100 text-purple-800'
+        {filteredOrders.length === 0 ? (
+          <div className="p-8">
+            <EmptyState
+              title="No cutting orders found"
+              description="Dispatch a work order to populate the CNC cutting queue and assign physical tables."
+              actionLabel="Dispatch Cut Work Order"
+              onAction={() => setIsNewModalOpen(true)}
+            />
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs min-w-[720px]">
+              <thead className="bg-[#FAF7F0] text-[#3A3564] font-mono uppercase text-[10px] tracking-wider border-b border-black/10">
+                <tr>
+                  <th className="py-3 px-4 font-bold">Cut Order / PO</th>
+                  <th className="py-3 px-4 font-bold">Style & Colorway</th>
+                  <th className="py-3 px-4 font-bold">Target Plies & Pcs</th>
+                  <th className="py-3 px-4 font-bold">Assigned Table</th>
+                  <th className="py-3 px-4 font-bold">Priority</th>
+                  <th className="py-3 px-4 font-bold">Status</th>
+                  <th className="py-3 px-4 font-bold text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-black/5 font-medium">
+                {filteredOrders.map(order => {
+                  let badge = 'bg-[#FAF7F0] text-[#3A3564] border border-black/10'
+                  if (order.status === 'QUEUED') {
+                    badge = 'bg-slate-100 text-slate-700 border border-slate-200'
+                  }
 
-                let prioBadge = 'bg-slate-100 text-slate-700'
-                if (order.priority === 'HIGH') prioBadge = 'bg-orange-100 text-orange-800'
-                if (order.priority === 'URGENT') prioBadge = 'bg-rose-100 text-rose-800'
+                  let prioBadge = 'bg-slate-100 text-slate-700 border border-slate-200'
+                  if (order.priority === 'URGENT') {
+                    prioBadge = 'bg-slate-900 text-white border border-slate-900'
+                  }
 
-                return (
-                  <tr key={order.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="py-3.5 px-4 font-mono font-bold text-slate-900">
-                      <div>{order.order_number}</div>
-                      <div className="text-[10px] text-slate-500 font-normal">{order.buyer_po}</div>
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <div className="font-bold text-slate-900">{order.style_name}</div>
-                      <div className="text-[11px] text-slate-600">{order.colorway} • <span className="font-mono text-slate-400">{order.style_number}</span></div>
-                    </td>
-                    <td className="py-3.5 px-4 font-mono">
-                      <div className="font-bold text-slate-900">{order.total_pieces.toLocaleString()} pcs</div>
-                      <div className="text-[10px] text-slate-500">{order.plies_planned} plies • {order.fabric_meters_allocated}m</div>
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <div className="font-mono font-bold text-slate-900 text-[11px]">{order.table_assigned}</div>
-                      <div className="text-[10px] text-slate-500">{order.operator_lead}</div>
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <span className={`text-[10px] font-mono px-2 py-0.5 rounded font-bold uppercase ${prioBadge}`}>
-                        {order.priority}
-                      </span>
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <span className={`text-[10px] font-mono px-2 py-0.5 rounded font-bold uppercase ${badge}`}>
-                        {order.status}
-                      </span>
-                    </td>
-                    <td className="py-3.5 px-4 text-right">
-                      <div className="flex items-center justify-end gap-1.5">
-                        {order.status !== 'BUNDLED' && (
+                  return (
+                    <tr key={order.id} className="hover:bg-slate-50 transition-colors">
+                      <td className="py-3.5 px-4 font-mono font-bold text-slate-900">
+                        <div>{order.order_number}</div>
+                        <div className="text-[10px] text-slate-500 font-normal">{order.buyer_po}</div>
+                      </td>
+                      <td className="py-3.5 px-4">
+                        <div className="font-bold text-slate-900">{order.style_name}</div>
+                        <div className="text-[11px] text-slate-600">{order.colorway} • <span className="font-mono text-slate-400">{order.style_number}</span></div>
+                      </td>
+                      <td className="py-3.5 px-4 font-mono">
+                        <div className="font-bold text-slate-900">{order.total_pieces.toLocaleString()} pcs</div>
+                        <div className="text-[10px] text-slate-500">{order.plies_planned} plies • {order.fabric_meters_allocated}m</div>
+                      </td>
+                      <td className="py-3.5 px-4">
+                        <div className="font-mono font-bold text-slate-900 text-[11px]">{order.table_assigned}</div>
+                        <div className="text-[10px] text-slate-500">{order.operator_lead}</div>
+                      </td>
+                      <td className="py-3.5 px-4">
+                        <span className={`text-[10px] font-mono px-2 py-0.5 rounded font-bold uppercase ${prioBadge}`}>
+                          {order.priority}
+                        </span>
+                      </td>
+                      <td className="py-3.5 px-4">
+                        <span className={`text-[10px] font-mono px-2 py-0.5 rounded font-bold uppercase ${badge}`}>
+                          {order.status}
+                        </span>
+                      </td>
+                      <td className="py-3.5 px-4 text-right">
+                        <div className="flex items-center justify-end gap-1.5">
+                          {order.status !== 'BUNDLED' && (
+                            <button
+                              onClick={() => handleAdvanceStatus(order)}
+                              className="px-2.5 py-1 rounded-lg bg-[#FAF7F0] hover:bg-white text-[#3A3564] border border-black/10 font-mono text-[10px] font-bold"
+                            >
+                              Advance
+                            </button>
+                          )}
                           <button
-                            onClick={() => handleAdvanceStatus(order)}
-                            className="px-2.5 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-800 border border-indigo-200 font-mono text-[10px] font-bold"
+                            onClick={() => setSelectedOrder(order)}
+                            className="px-2.5 py-1 rounded-lg bg-white hover:bg-[#FAF7F0] border border-black/10 font-mono text-[11px] text-[#3A3564] font-bold shadow-2xs"
                           >
-                            Advance
+                            Details
                           </button>
-                        )}
-                        <button
-                          onClick={() => setSelectedOrder(order)}
-                          className="px-2 py-1 rounded-lg bg-white hover:bg-[#FAF7F0] border border-black/10 font-mono text-[11px] text-[#3A3564] font-bold shadow-2xs"
-                        >
-                          Details
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {/* New Cut Order Modal */}

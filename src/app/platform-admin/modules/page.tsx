@@ -360,35 +360,30 @@ export default function EnterpriseModulesPage() {
         {/* Header Breadcrumb & Title */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-black/10 pb-5">
           <div>
-            <div className="flex items-center gap-2 text-[11px] font-mono uppercase tracking-wider text-slate-500 mb-1">
+            <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-slate-500 mb-1">
               <span>Platform Root Admin</span>
               <ChevronRight className="w-3.5 h-3.5" />
               <span className="text-[#3A3564] font-bold">12 Enterprise Modules</span>
             </div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
-                Enterprise Manufacturing Modules
-              </h1>
-              <span className="text-[10px] font-mono font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-[#3A3564] text-white shadow-2xs">
-                12 UNITS
-              </span>
-            </div>
-            <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-3xl">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
+              Enterprise Manufacturing Modules
+            </h1>
+            <p className="text-sm text-slate-600 mt-1 max-w-3xl">
               Platform-wide master catalog, tenant boundary guarantees, database schema footprints, and division microservice specifications for all 12 licensed Zigza manufacturing units.
             </p>
           </div>
 
-          <div className="flex items-center gap-2.5 shrink-0">
+          <div className="flex items-center gap-3 shrink-0">
             <Link
               href="/platform-admin/provisioning"
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2d2950] transition-colors shadow-xs cursor-pointer font-[family-name:var(--font-heading)]"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2d2950] transition-colors shadow-xs cursor-pointer font-[family-name:var(--font-heading)]"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Provision Factory</span>
             </Link>
             <Link
               href="/platform-admin/infrastructure"
-              className="inline-flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold text-slate-700 bg-[#FAF7F0] border border-black/10 hover:bg-slate-100 transition-colors shadow-2xs cursor-pointer font-[family-name:var(--font-heading)]"
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 bg-[#FAF7F0] border border-black/10 hover:bg-slate-100 transition-colors shadow-2xs cursor-pointer font-[family-name:var(--font-heading)]"
             >
               <Activity className="w-3.5 h-3.5 text-[#3A3564]" />
               <span>Telemetry</span>
@@ -397,80 +392,87 @@ export default function EnterpriseModulesPage() {
         </div>
 
         {/* Multi-Tenant Sovereign Isolation Protocol Alert */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-white border border-[#3A3564]/20 shadow-xs relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-[#FAF7F0] rounded-full blur-2xl pointer-events-none -mr-10 -mt-10" />
-          <div className="flex items-start gap-3.5 relative z-10">
+        <div className="p-4 sm:p-5 rounded-2xl bg-white border border-black/10 shadow-xs">
+          <div className="flex items-start gap-3.5">
             <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shrink-0 shadow-2xs mt-0.5">
               <ShieldCheck className="w-5 h-5" />
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap mb-1">
-                <span className="text-xs sm:text-sm font-bold text-slate-900 font-[family-name:var(--font-heading)]">
+                <span className="text-sm font-bold text-slate-900 font-[family-name:var(--font-heading)]">
                   Tenant Data Isolation & Zero Cross-Barging Protocol
                 </span>
-                <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-md bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-                  POSTGRESQL RLS ENFORCED
+                <span className="text-xs font-mono font-medium px-2 py-0.5 rounded bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                  PostgreSQL RLS Enforced
                 </span>
               </div>
-              <p className="text-xs text-slate-600 leading-relaxed font-sans">
-                As the Platform Root Administrator (<code className="px-1.5 py-0.5 bg-slate-100 rounded text-slate-800 font-mono text-[11px]">admin@zigza.in</code>), operational factory floor modules (<code className="px-1.5 py-0.5 bg-slate-100 rounded text-slate-800 font-mono text-[11px]">/modules</code>, <code className="px-1.5 py-0.5 bg-slate-100 rounded text-slate-800 font-mono text-[11px]">/stitching-sewing</code>, etc.) are strictly partitioned per client tenant. This console governs the 12-module master architecture, tenant licensing allocations, and microservice definitions without trespassing on private client company data.
+              <p className="text-sm text-slate-600 leading-relaxed font-sans">
+                As the Platform Root Administrator (<code className="px-1.5 py-0.5 bg-slate-100 rounded text-slate-800 font-mono text-xs">admin@zigza.in</code>), operational factory floor modules (<code className="px-1.5 py-0.5 bg-slate-100 rounded text-slate-800 font-mono text-xs">/modules</code>, <code className="px-1.5 py-0.5 bg-slate-100 rounded text-slate-800 font-mono text-xs">/stitching-sewing</code>, etc.) are strictly partitioned per client tenant. This console governs the 12-module master architecture, tenant licensing allocations, and microservice definitions without trespassing on private client company data.
               </p>
             </div>
           </div>
         </div>
 
         {/* Key Architectural Metrics Bar */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          <div className="p-4 rounded-xl bg-white border border-black/10 shadow-2xs">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="p-5 rounded-xl bg-white border border-black/10 shadow-2xs">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-mono uppercase tracking-wider text-slate-500 font-bold">Total Units</span>
-              <Layers className="w-4 h-4 text-[#3A3564]" />
+              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Units</span>
+              <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564]">
+                <Layers className="w-4 h-4" />
+              </div>
             </div>
             <div className="text-2xl font-bold font-mono text-slate-900 mt-2">12</div>
-            <div className="text-[11px] text-slate-500 mt-0.5">Fully engineered manufacturing divisions</div>
+            <div className="text-xs text-slate-500 mt-1">Manufacturing divisions</div>
           </div>
 
-          <div className="p-4 rounded-xl bg-white border border-black/10 shadow-2xs">
+          <div className="p-5 rounded-xl bg-white border border-black/10 shadow-2xs">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-mono uppercase tracking-wider text-slate-500 font-bold">Data Isolation</span>
-              <Lock className="w-4 h-4 text-emerald-600" />
+              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Data Isolation</span>
+              <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564]">
+                <Lock className="w-4 h-4" />
+              </div>
             </div>
             <div className="text-2xl font-bold font-mono text-slate-900 mt-2">100%</div>
-            <div className="text-[11px] text-emerald-700 font-medium mt-0.5">Supabase RLS tenant quarantine</div>
+            <div className="text-xs text-slate-500 mt-1">Row-level security isolation</div>
           </div>
 
-          <div className="p-4 rounded-xl bg-white border border-black/10 shadow-2xs">
+          <div className="p-5 rounded-xl bg-white border border-black/10 shadow-2xs">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-mono uppercase tracking-wider text-slate-500 font-bold">Provisioned Plants</span>
-              <Server className="w-4 h-4 text-[#3A3564]" />
+              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Provisioned Plants</span>
+              <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564]">
+                <Server className="w-4 h-4" />
+              </div>
             </div>
             <div className="text-2xl font-bold font-mono text-slate-900 mt-2">{tenants.length}</div>
-            <div className="text-[11px] text-slate-500 mt-0.5">Licensed manufacturing tenants</div>
+            <div className="text-xs text-slate-500 mt-1">Licensed manufacturing tenants</div>
           </div>
 
-          <div className="p-4 rounded-xl bg-white border border-black/10 shadow-2xs">
+          <div className="p-5 rounded-xl bg-white border border-black/10 shadow-2xs">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-mono uppercase tracking-wider text-slate-500 font-bold">Realtime Sync</span>
-              <Zap className="w-4 h-4 text-amber-600" />
+              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Realtime Latency</span>
+              <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564]">
+                <Zap className="w-4 h-4" />
+              </div>
             </div>
             <div className="text-2xl font-bold font-mono text-slate-900 mt-2">&lt; 15ms</div>
-            <div className="text-[11px] text-slate-500 mt-0.5">WebSocket edge telemetry latency</div>
+            <div className="text-xs text-slate-500 mt-1">Telemetry edge latency</div>
           </div>
         </div>
 
         {/* Filter & Search Bar */}
         <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between pt-2">
           {/* Category Tabs */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full scrollbar-none">
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 max-w-full scrollbar-none">
             {categories.map((cat) => (
               <button
                 key={cat}
                 type="button"
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 ${
+                className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer shrink-0 ${
                   selectedCategory === cat
                     ? 'bg-[#3A3564] text-white shadow-2xs'
-                    : 'bg-white border border-black/10 text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                    : 'bg-white border border-black/10 text-slate-600 hover:text-slate-900 hover:bg-[#FAF7F0]'
                 }`}
               >
                 {cat === 'ALL' ? 'All 12 Units' : cat}
@@ -479,14 +481,14 @@ export default function EnterpriseModulesPage() {
           </div>
 
           {/* Search Input */}
-          <div className="relative min-w-[260px] md:w-72">
+          <div className="relative min-w-[260px] md:w-80">
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search workflows, roles, tables..."
-              className="w-full pl-9 pr-3 py-1.5 bg-white border border-black/10 rounded-xl text-xs font-sans text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+              className="w-full pl-9 pr-3 py-2 bg-white border border-black/10 rounded-xl text-xs sm:text-sm font-sans text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
             />
             {searchQuery && (
               <button
@@ -494,13 +496,13 @@ export default function EnterpriseModulesPage() {
                 onClick={() => setSearchQuery('')}
                 className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
               >
-                <X className="w-3.5 h-3.5" />
+                <X className="w-4 h-4" />
               </button>
             )}
           </div>
         </div>
 
-        {/* 11 Modules Architecture Cards Grid */}
+        {/* 12 Modules Architecture Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
           {filteredModules.map((mod) => {
             const Icon = mod.icon
@@ -518,14 +520,14 @@ export default function EnterpriseModulesPage() {
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-mono font-extrabold uppercase px-1.5 py-0.5 rounded bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                          <span className="text-xs font-mono font-semibold px-2 py-0.5 rounded bg-[#FAF7F0] text-[#3A3564] border border-black/10">
                             {mod.unitNumber}
                           </span>
-                          <span className="text-[10px] font-mono text-slate-500 font-bold">
+                          <span className="text-xs font-mono text-slate-500 font-semibold">
                             {mod.code}
                           </span>
                         </div>
-                        <h3 className="text-base font-bold text-slate-900 tracking-tight font-[family-name:var(--font-heading)] leading-snug mt-0.5">
+                        <h3 className="text-base font-bold text-slate-900 tracking-tight font-[family-name:var(--font-heading)] leading-snug mt-1">
                           {mod.title}
                         </h3>
                       </div>
@@ -533,30 +535,30 @@ export default function EnterpriseModulesPage() {
                   </div>
 
                   {/* Summary */}
-                  <p className="text-xs text-slate-600 leading-relaxed font-sans">
+                  <p className="text-sm text-slate-600 leading-relaxed font-sans">
                     {mod.summary}
                   </p>
 
                   {/* Category & Tenant Route Badges */}
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-slate-100 text-slate-700">
+                    <span className="text-xs font-medium px-2.5 py-1 rounded bg-slate-100 text-slate-700">
                       {mod.category}
                     </span>
-                    <span className="text-[10px] font-mono text-slate-500 bg-[#FAF7F0] border border-black/10 px-2 py-0.5 rounded-md">
+                    <span className="text-xs font-mono text-slate-500 bg-[#FAF7F0] border border-black/10 px-2.5 py-1 rounded">
                       Route: {mod.tenantRoute}
                     </span>
                   </div>
 
                   {/* Key Workflows */}
                   <div className="space-y-1.5 pt-1">
-                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 block">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 block">
                       Production Workflows
                     </span>
                     <div className="space-y-1">
                       {mod.workflows.map((wf, idx) => (
-                        <div key={idx} className="flex items-start gap-2 text-xs text-slate-700">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-[#3A3564] shrink-0 mt-0.5" />
-                          <span className="leading-tight text-[11px]">{wf}</span>
+                        <div key={idx} className="flex items-start gap-2 text-sm text-slate-700">
+                          <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5" />
+                          <span className="leading-snug text-xs sm:text-sm">{wf}</span>
                         </div>
                       ))}
                     </div>
@@ -564,14 +566,14 @@ export default function EnterpriseModulesPage() {
 
                   {/* Database Tables Footprint */}
                   <div className="space-y-1.5 pt-1">
-                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 block">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 block">
                       PostgreSQL Tables Footprint
                     </span>
                     <div className="flex items-center gap-1.5 flex-wrap">
                       {mod.databaseTables.map((tbl) => (
                         <span
                           key={tbl}
-                          className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-50 text-slate-700 border border-black/5"
+                          className="text-xs font-mono px-2 py-0.5 rounded bg-[#FAF7F0] text-slate-700 border border-black/10"
                         >
                           {tbl}
                         </span>
@@ -583,11 +585,11 @@ export default function EnterpriseModulesPage() {
                 {/* Card Footer / Action */}
                 <div className="p-4 border-t border-black/10 bg-[#FAF7F0]/60 flex items-center justify-between gap-3">
                   <div className="flex flex-col">
-                    <span className="text-[10px] font-mono text-slate-500">
+                    <span className="text-xs text-slate-500 font-medium">
                       Roles: {mod.clientRoles.slice(0, 2).join(', ')}
                       {mod.clientRoles.length > 2 ? ` +${mod.clientRoles.length - 2}` : ''}
                     </span>
-                    <span className="text-[10px] font-mono text-emerald-700 font-bold">
+                    <span className="text-xs text-slate-600 font-medium">
                       RLS Verified Sovereign
                     </span>
                   </div>
@@ -595,7 +597,7 @@ export default function EnterpriseModulesPage() {
                   <button
                     type="button"
                     onClick={() => setActiveBlueprint(mod)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-[#3A3564] bg-white border border-black/10 hover:bg-[#3A3564] hover:text-white transition-all shadow-2xs cursor-pointer font-[family-name:var(--font-heading)]"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-[#3A3564] bg-[#FAF7F0] border border-black/10 hover:bg-[#3A3564] hover:text-white transition-all shadow-2xs cursor-pointer font-[family-name:var(--font-heading)]"
                   >
                     <span>Blueprint</span>
                     <ChevronRight className="w-3.5 h-3.5" />
@@ -616,22 +618,22 @@ export default function EnterpriseModulesPage() {
               {/* Modal Header */}
               <div className="p-5 border-b border-black/10 flex items-start justify-between bg-[#FAF7F0]">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-[#3A3564] text-white flex items-center justify-center shrink-0 shadow-2xs">
+                  <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 text-[#3A3564] flex items-center justify-center shrink-0 shadow-2xs">
                     <activeBlueprint.icon className="w-5 h-5" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded bg-white text-[#3A3564] border border-black/10">
+                      <span className="text-xs font-mono font-semibold px-2 py-0.5 rounded bg-white text-[#3A3564] border border-black/10">
                         {activeBlueprint.unitNumber}
                       </span>
-                      <span className="text-[10px] font-mono text-slate-500 font-bold">
+                      <span className="text-xs font-mono text-slate-500 font-semibold">
                         {activeBlueprint.code}
                       </span>
-                      <span className="text-[10px] font-mono uppercase tracking-wider text-slate-600 bg-slate-200/70 px-2 py-0.5 rounded">
+                      <span className="text-xs font-medium text-slate-600 bg-slate-200/70 px-2 py-0.5 rounded">
                         {activeBlueprint.category}
                       </span>
                     </div>
-                    <h2 className="text-lg font-bold text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
+                    <h2 className="text-lg font-bold text-slate-900 font-[family-name:var(--font-heading)] mt-1">
                       {activeBlueprint.title} Architecture Blueprint
                     </h2>
                   </div>
@@ -652,19 +654,19 @@ export default function EnterpriseModulesPage() {
                   <h4 className="text-xs font-bold text-slate-900 uppercase font-mono tracking-wider mb-1">
                     Functional Scope
                   </h4>
-                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-sans">
+                  <p className="text-sm text-slate-600 leading-relaxed font-sans">
                     {activeBlueprint.summary}
                   </p>
                 </div>
 
                 {/* Key Workflows */}
-                <div className="p-3.5 rounded-xl bg-slate-50 border border-black/5 space-y-2">
+                <div className="p-4 rounded-xl bg-[#FAF7F0]/60 border border-black/10 space-y-2">
                   <h4 className="text-xs font-bold text-slate-900 uppercase font-mono tracking-wider">
                     Core Operational Workflows
                   </h4>
-                  <div className="space-y-1.5">
+                  <div className="space-y-2">
                     {activeBlueprint.workflows.map((wf, i) => (
-                      <div key={i} className="flex items-start gap-2 text-xs text-slate-700">
+                      <div key={i} className="flex items-start gap-2.5 text-sm text-slate-700">
                         <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5" />
                         <span>{wf}</span>
                       </div>
@@ -673,37 +675,37 @@ export default function EnterpriseModulesPage() {
                 </div>
 
                 {/* Security RLS Policy */}
-                <div className="p-3.5 rounded-xl bg-[#FAF7F0] border border-black/10 space-y-2">
+                <div className="p-4 rounded-xl bg-[#FAF7F0] border border-black/10 space-y-2">
                   <div className="flex items-center justify-between">
                     <h4 className="text-xs font-bold text-[#3A3564] uppercase font-mono tracking-wider flex items-center gap-1.5">
-                      <Lock className="w-3.5 h-3.5 text-[#3A3564]" />
+                      <Lock className="w-4 h-4 text-[#3A3564]" />
                       <span>PostgreSQL Row-Level Security (RLS) Policy</span>
                     </h4>
-                    <span className="text-[10px] font-mono text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                    <span className="text-xs font-mono text-slate-700 font-semibold bg-white px-2 py-0.5 rounded border border-black/10">
                       TENANT_ID ENFORCED
                     </span>
                   </div>
-                  <pre className="p-2.5 bg-slate-900 text-slate-100 rounded-lg text-[11px] font-mono overflow-x-auto leading-relaxed">
+                  <pre className="p-3 bg-slate-900 text-slate-100 rounded-lg text-xs font-mono overflow-x-auto leading-relaxed">
                     {activeBlueprint.rlsPolicy}
                   </pre>
-                  <p className="text-[11px] text-slate-500 font-sans leading-tight">
+                  <p className="text-xs text-slate-500 font-sans leading-tight">
                     Ensures users of Company A can never view, mutate, or query manufacturing records belonging to Company B.
                   </p>
                 </div>
 
                 {/* Technical Specifications Matrix */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="p-3 rounded-xl border border-black/10 bg-white">
-                    <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-bold block mb-1">
+                  <div className="p-3.5 rounded-xl border border-black/10 bg-white">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 block mb-1">
                       Hardware & IoT Profile
                     </span>
-                    <p className="text-xs text-slate-700 font-sans">
+                    <p className="text-sm text-slate-700 font-sans">
                       {activeBlueprint.hardwareProfile}
                     </p>
                   </div>
 
-                  <div className="p-3 rounded-xl border border-black/10 bg-white">
-                    <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-bold block mb-1">
+                  <div className="p-3.5 rounded-xl border border-black/10 bg-white">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 block mb-1">
                       WebSocket Telemetry Hooks
                     </span>
                     <p className="text-xs font-mono text-slate-700">
@@ -711,13 +713,13 @@ export default function EnterpriseModulesPage() {
                     </p>
                   </div>
 
-                  <div className="p-3 rounded-xl border border-black/10 bg-white sm:col-span-2">
-                    <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-bold block mb-1">
+                  <div className="p-3.5 rounded-xl border border-black/10 bg-white sm:col-span-2">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 block mb-1.5">
                       Supported Factory Floor Roles
                     </span>
                     <div className="flex items-center gap-1.5 flex-wrap">
                       {activeBlueprint.clientRoles.map((r) => (
-                        <span key={r} className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-800">
+                        <span key={r} className="text-xs font-mono font-medium px-2 py-0.5 rounded bg-slate-100 text-slate-800">
                           {r}
                         </span>
                       ))}
@@ -727,8 +729,8 @@ export default function EnterpriseModulesPage() {
               </div>
 
               {/* Modal Footer */}
-              <div className="p-4 border-t border-black/10 bg-slate-50 flex items-center justify-between gap-3">
-                <span className="text-xs text-slate-500 font-mono">
+              <div className="p-4 border-t border-black/10 bg-[#FAF7F0]/60 flex items-center justify-between gap-3">
+                <span className="text-xs text-slate-600 font-mono">
                   Tenant Path: <strong className="text-slate-800">{activeBlueprint.tenantRoute}</strong>
                 </span>
 
@@ -736,13 +738,13 @@ export default function EnterpriseModulesPage() {
                   <button
                     type="button"
                     onClick={() => setActiveBlueprint(null)}
-                    className="px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-600 hover:text-slate-900 hover:bg-slate-200/60 transition-colors cursor-pointer"
+                    className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:text-slate-900 hover:bg-slate-200/60 transition-colors cursor-pointer"
                   >
                     Close
                   </button>
                   <Link
                     href={`/platform-admin/provisioning?module=${activeBlueprint.id}`}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2d2950] transition-colors shadow-2xs cursor-pointer font-[family-name:var(--font-heading)]"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2d2950] transition-colors shadow-2xs cursor-pointer font-[family-name:var(--font-heading)]"
                   >
                     <span>Allot in Tenant Provisioning</span>
                     <ArrowRight className="w-3.5 h-3.5" />

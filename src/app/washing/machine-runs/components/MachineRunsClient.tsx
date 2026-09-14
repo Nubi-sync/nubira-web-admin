@@ -5,17 +5,15 @@ import {
   Cpu,
   Plus,
   Search,
-  Filter,
-  ArrowRight,
   Clock,
   Thermometer,
   RotateCw,
   CheckCircle2,
   AlertTriangle,
-  PlayCircle,
   Layers,
   Waves
 } from 'lucide-react'
+import { EmptyState } from '@/components/ui/EmptyState'
 import { WashBatch, WasherMachine } from '../../types/washing'
 import {
   getWashBatches,
@@ -48,7 +46,6 @@ export function MachineRunsClient() {
   function advanceBatch(batch: WashBatch) {
     if (batch.status === 'WASHING') {
       updateBatchStatus(batch.id, 'HYDRO', { stageTimeRemainingMin: 8 })
-      // free washer
       const mach = machines.find(m => m.name === batch.washerMachineId)
       if (mach) {
         saveWasherMachine({ ...mach, status: 'IDLE', currentBatchNumber: undefined, currentRecipe: undefined })
@@ -81,7 +78,7 @@ export function MachineRunsClient() {
   const dryers = machines.filter(m => m.type === 'TUMBLER_DRYER')
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 select-none">
       {/* Action and Filter Bar */}
       <div className="bg-white p-4 sm:p-5 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         <div className="flex items-center gap-2 flex-1 max-w-md">
@@ -92,7 +89,7 @@ export function MachineRunsClient() {
               placeholder="Search batch number, challan, machine..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-black/10 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-black/10 bg-slate-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900 placeholder:text-slate-400 font-medium"
             />
           </div>
         </div>
@@ -103,7 +100,7 @@ export function MachineRunsClient() {
               <button
                 key={st}
                 onClick={() => setStatusFilter(st)}
-                className={`px-2.5 py-1 rounded-lg transition-all ${
+                className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
                   statusFilter === st
                     ? 'bg-[#3A3564] text-white shadow-xs'
                     : 'text-slate-600 hover:text-slate-900'
@@ -116,53 +113,41 @@ export function MachineRunsClient() {
 
           <button
             onClick={() => setIsModalOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs font-bold transition-all shadow-xs"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs font-bold transition-all shadow-xs shrink-0 cursor-pointer"
           >
             <Plus className="w-4 h-4" />
-            <span>Load New Batch (Form 1)</span>
+            <span>Load New Batch</span>
           </button>
         </div>
       </div>
 
-      {/* 3-Stage Equipment Overview */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Stage 1: Wash Tumblers */}
+      {/* 3 Machine Fleet Summary Columns */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Washers Column */}
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs space-y-3">
-          <div className="flex items-center justify-between pb-2 border-b border-black/5">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
             <div className="flex items-center gap-2">
-              <Waves className="w-4 h-4 text-[#3A3564]" />
-              <h3 className="text-sm font-black text-slate-900">Stage 1 • Wash Tumblers</h3>
+              <span className="w-7 h-7 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+                <Waves className="w-3.5 h-3.5" />
+              </span>
+              <span className="text-xs font-bold text-slate-900">Belly Washers ({washers.length})</span>
             </div>
-            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-              600 kg Tumblers
-            </span>
+            <span className="text-[10px] font-mono font-bold text-slate-500">600 kg</span>
           </div>
-          <div className="grid grid-cols-2 gap-2 text-xs">
+
+          <div className="space-y-2">
             {washers.map(m => (
-              <div
-                key={m.id}
-                className={`p-2.5 rounded-xl border ${
-                  m.status === 'RUNNING'
-                    ? 'bg-blue-50/50 border-blue-200'
-                    : m.status === 'MAINTENANCE'
-                    ? 'bg-amber-50/50 border-amber-200'
-                    : 'bg-slate-50 border-slate-200'
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-slate-800">{m.name}</span>
-                  <span
-                    className={`w-2 h-2 rounded-full ${
-                      m.status === 'RUNNING' ? 'bg-emerald-500 animate-pulse' : 'bg-slate-300'
-                    }`}
-                  />
+              <div key={m.id} className="p-3 bg-[#FAF7F0]/60 rounded-xl border border-black/5 text-xs font-mono">
+                <div className="flex justify-between items-center">
+                  <span className="font-bold text-slate-900">{m.name}</span>
+                  <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                    {m.status}
+                  </span>
                 </div>
-                <div className="text-[10px] font-mono text-slate-500 mt-1 truncate">
-                  {m.currentBatchNumber || 'Idle'}
-                </div>
-                {m.timeRemainingMin && (
-                  <div className="text-[10px] font-mono text-[#3A3564] font-bold mt-0.5">
-                    {m.timeRemainingMin} min left
+                {m.currentBatchNumber && (
+                  <div className="mt-1 pt-1 border-t border-black/5 flex justify-between text-[11px] text-slate-600">
+                    <span className="text-[#3A3564] font-bold">{m.currentBatchNumber}</span>
+                    <span>{m.timeRemainingMin} min</span>
                   </div>
                 )}
               </div>
@@ -170,41 +155,31 @@ export function MachineRunsClient() {
           </div>
         </div>
 
-        {/* Stage 2: Hydro Extractors */}
+        {/* Hydro Extractors Column */}
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs space-y-3">
-          <div className="flex items-center justify-between pb-2 border-b border-black/5">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
             <div className="flex items-center gap-2">
-              <RotateCw className="w-4 h-4 text-[#3A3564]" />
-              <h3 className="text-sm font-black text-slate-900">Stage 2 • Hydro Extractors</h3>
+              <span className="w-7 h-7 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+                <RotateCw className="w-3.5 h-3.5" />
+              </span>
+              <span className="text-xs font-bold text-slate-900">Hydro Spin ({hydros.length})</span>
             </div>
-            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-              900 RPM Centrifuge
-            </span>
+            <span className="text-[10px] font-mono font-bold text-slate-500">1200 RPM</span>
           </div>
-          <div className="grid grid-cols-2 gap-2 text-xs">
+
+          <div className="space-y-2">
             {hydros.map(m => (
-              <div
-                key={m.id}
-                className={`p-2.5 rounded-xl border ${
-                  m.status === 'RUNNING'
-                    ? 'bg-purple-50/50 border-purple-200'
-                    : 'bg-slate-50 border-slate-200'
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-slate-800">{m.name}</span>
-                  <span
-                    className={`w-2 h-2 rounded-full ${
-                      m.status === 'RUNNING' ? 'bg-purple-500 animate-pulse' : 'bg-slate-300'
-                    }`}
-                  />
+              <div key={m.id} className="p-3 bg-[#FAF7F0]/60 rounded-xl border border-black/5 text-xs font-mono">
+                <div className="flex justify-between items-center">
+                  <span className="font-bold text-slate-900">{m.name}</span>
+                  <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                    {m.status}
+                  </span>
                 </div>
-                <div className="text-[10px] font-mono text-slate-500 mt-1 truncate">
-                  {m.currentBatchNumber || 'Idle'}
-                </div>
-                {m.status === 'RUNNING' && (
-                  <div className="text-[10px] font-mono text-purple-700 font-bold mt-0.5">
-                    {m.rpm || 920} RPM • 45% Moisture
+                {m.currentBatchNumber && (
+                  <div className="mt-1 pt-1 border-t border-black/5 flex justify-between text-[11px] text-slate-600">
+                    <span className="text-[#3A3564] font-bold">{m.currentBatchNumber}</span>
+                    <span>{m.timeRemainingMin} min</span>
                   </div>
                 )}
               </div>
@@ -212,41 +187,31 @@ export function MachineRunsClient() {
           </div>
         </div>
 
-        {/* Stage 3: Tumbler Dryers */}
+        {/* Tumbler Dryers Column */}
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs space-y-3">
-          <div className="flex items-center justify-between pb-2 border-b border-black/5">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
             <div className="flex items-center gap-2">
-              <Thermometer className="w-4 h-4 text-[#3A3564]" />
-              <h3 className="text-sm font-black text-slate-900">Stage 3 • Steam Tumbler Dryers</h3>
+              <span className="w-7 h-7 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+                <Thermometer className="w-3.5 h-3.5" />
+              </span>
+              <span className="text-xs font-bold text-slate-900">Tumbler Dryers ({dryers.length})</span>
             </div>
-            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-              65°C Heat Curve
-            </span>
+            <span className="text-[10px] font-mono font-bold text-slate-500">80°C</span>
           </div>
-          <div className="grid grid-cols-2 gap-2 text-xs">
+
+          <div className="space-y-2">
             {dryers.map(m => (
-              <div
-                key={m.id}
-                className={`p-2.5 rounded-xl border ${
-                  m.status === 'RUNNING'
-                    ? 'bg-amber-50/50 border-amber-200'
-                    : 'bg-slate-50 border-slate-200'
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-slate-800">{m.name}</span>
-                  <span
-                    className={`w-2 h-2 rounded-full ${
-                      m.status === 'RUNNING' ? 'bg-amber-500 animate-pulse' : 'bg-slate-300'
-                    }`}
-                  />
+              <div key={m.id} className="p-3 bg-[#FAF7F0]/60 rounded-xl border border-black/5 text-xs font-mono">
+                <div className="flex justify-between items-center">
+                  <span className="font-bold text-slate-900">{m.name}</span>
+                  <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                    {m.status}
+                  </span>
                 </div>
-                <div className="text-[10px] font-mono text-slate-500 mt-1 truncate">
-                  {m.currentBatchNumber || 'Idle'}
-                </div>
-                {m.status === 'RUNNING' && (
-                  <div className="text-[10px] font-mono text-amber-800 font-bold mt-0.5">
-                    {m.tempC || 65}°C • {m.timeRemainingMin} min left
+                {m.currentBatchNumber && (
+                  <div className="mt-1 pt-1 border-t border-black/5 flex justify-between text-[11px] text-slate-600">
+                    <span className="text-[#3A3564] font-bold">{m.currentBatchNumber}</span>
+                    <span>{m.timeRemainingMin} min</span>
                   </div>
                 )}
               </div>
@@ -259,139 +224,132 @@ export function MachineRunsClient() {
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h2 className="text-base font-black text-slate-900">
+            <h2 className="text-base font-black text-slate-900 font-[family-name:var(--font-heading)]">
               Active Batch Runs & Timeline ({filteredBatches.length} Batches)
             </h2>
             <p className="text-xs text-slate-500 font-medium">
-              Click stage progression buttons to advance garments through Centrifugal Hydro and Tumbler Drying
+              Click stage progression buttons to advance garments through Centrifugal Hydro and Tumbler Drying.
             </p>
           </div>
         </div>
 
         <div className="space-y-3">
-          {filteredBatches.map(b => {
-            const isWashing = b.status === 'WASHING'
-            const isHydro = b.status === 'HYDRO'
-            const isDrying = b.status === 'DRYING'
-            const isPass = b.status === 'PASSED'
-            const isFail = b.status === 'FAILED'
+          {filteredBatches.length > 0 ? (
+            filteredBatches.map(b => {
+              const isWashing = b.status === 'WASHING'
+              const isHydro = b.status === 'HYDRO'
+              const isDrying = b.status === 'DRYING'
+              const isPass = b.status === 'PASSED'
+              const isFail = b.status === 'FAILED'
 
-            return (
-              <div
-                key={b.id}
-                className="p-4 rounded-xl border border-black/10 bg-white hover:border-[#3A3564]/30 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4"
-              >
-                <div className="space-y-1 min-w-[220px]">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-mono font-bold text-[#3A3564] bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
-                      {b.batchNumber}
-                    </span>
-                    <span className="text-xs font-mono text-slate-500">{b.challanId}</span>
-                    <span
-                      className={`text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full ${
-                        isPass
-                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                          : isFail
-                          ? 'bg-rose-50 text-rose-700 border border-rose-200'
-                          : isWashing
-                          ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                          : isHydro
-                          ? 'bg-purple-50 text-purple-700 border border-purple-200'
-                          : 'bg-amber-50 text-amber-700 border border-amber-200'
-                      }`}
-                    >
-                      {b.status}
-                    </span>
+              return (
+                <div
+                  key={b.id}
+                  className="p-4 rounded-xl border border-black/10 bg-white hover:border-black/20 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4"
+                >
+                  <div className="space-y-1 min-w-[220px]">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-mono font-bold text-[#3A3564] bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+                        {b.batchNumber}
+                      </span>
+                      <span className="text-xs font-mono text-slate-500">{b.challanId}</span>
+                      <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                        {b.status}
+                      </span>
+                    </div>
+                    <div className="text-sm font-black text-slate-900 font-[family-name:var(--font-heading)]">{b.articleName}</div>
+                    <div className="text-xs text-slate-500 font-mono">
+                      {b.color} • <strong className="text-slate-900">{b.totalPieces.toLocaleString()} pcs</strong> ({b.dryWeightKg} kg)
+                    </div>
                   </div>
-                  <div className="text-sm font-black text-slate-900">{b.articleName}</div>
-                  <div className="text-xs text-slate-500">
-                    {b.color} • <strong className="text-slate-700">{b.totalPieces.toLocaleString()} pcs</strong> ({b.dryWeightKg} kg)
-                  </div>
-                </div>
 
-                {/* Recipe & Parameters */}
-                <div className="text-xs space-y-1 min-w-[200px]">
-                  <div className="font-semibold text-slate-800">{b.recipeName}</div>
-                  <div className="text-slate-500 font-mono text-[11px]">
-                    Water: {b.waterVolumeLiters.toLocaleString()} L (1:5.0) • Temp: {b.tumblerTempC}°C
+                  {/* Recipe & Parameters */}
+                  <div className="text-xs space-y-1 min-w-[200px] font-mono">
+                    <div className="font-semibold text-slate-800">{b.recipeName}</div>
+                    <div className="text-slate-500 text-[11px]">
+                      Water: {b.waterVolumeLiters.toLocaleString()} L (1:5.0) • Temp: {b.tumblerTempC}°C
+                    </div>
+                    <div className="text-slate-500 text-[11px]">
+                      Assigned: {b.washerMachineId} • Op: {b.operatorName}
+                    </div>
                   </div>
-                  <div className="text-slate-500 text-[11px]">
-                    Assigned: {b.washerMachineId} • Op: {b.operatorName}
-                  </div>
-                </div>
 
-                {/* Shrinkage Measurement */}
-                <div className="text-xs min-w-[140px]">
-                  {b.measuredShrinkageLengthPct !== undefined ? (
-                    <div>
-                      <div className="text-[11px] text-slate-500 font-medium">Measured Shrinkage:</div>
-                      <div
-                        className={`font-mono font-bold text-xs ${
-                          b.measuredShrinkageLengthPct > 2.5
-                            ? 'text-rose-600'
-                            : 'text-emerald-700'
-                        }`}
-                      >
-                        L: {b.measuredShrinkageLengthPct}% | W: {b.measuredShrinkageWidthPct}%
+                  {/* Shrinkage Measurement */}
+                  <div className="text-xs min-w-[140px] font-mono">
+                    {b.measuredShrinkageLengthPct !== undefined ? (
+                      <div>
+                        <div className="text-[11px] text-slate-500 font-medium">Measured Shrinkage:</div>
+                        <div className="font-bold text-xs text-slate-900">
+                          L: {b.measuredShrinkageLengthPct}% | W: {b.measuredShrinkageWidthPct}%
+                        </div>
+                        <div className="text-[10px] text-slate-400">Fastness: {b.colorfastnessRating}/5</div>
                       </div>
-                      <div className="text-[10px] text-slate-400">Fastness: {b.colorfastnessRating}/5</div>
-                    </div>
-                  ) : (
-                    <div className="text-slate-400 italic text-[11px] font-mono">
-                      Cycle in progress...
-                    </div>
-                  )}
+                    ) : (
+                      <div className="text-slate-400 italic text-[11px]">
+                        Cycle in progress...
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Action Transition Controls */}
+                  <div className="flex items-center gap-2 shrink-0">
+                    {isWashing && (
+                      <button
+                        onClick={() => advanceBatch(b)}
+                        className="px-3.5 py-1.5 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+                      >
+                        <RotateCw className="w-3.5 h-3.5" />
+                        <span>Start Hydro Spin</span>
+                      </button>
+                    )}
+
+                    {isHydro && (
+                      <button
+                        onClick={() => advanceBatch(b)}
+                        className="px-3.5 py-1.5 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+                      >
+                        <Thermometer className="w-3.5 h-3.5" />
+                        <span>Transfer to Dryer</span>
+                      </button>
+                    )}
+
+                    {isDrying && (
+                      <button
+                        onClick={() => advanceBatch(b)}
+                        className="px-3.5 py-1.5 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+                      >
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        <span>Unload & Finish</span>
+                      </button>
+                    )}
+
+                    {isPass && (
+                      <span className="inline-flex items-center gap-1 text-xs font-bold text-slate-800 bg-[#FAF7F0] px-3 py-1.5 rounded-xl border border-black/10 font-mono">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-[#3A3564]" />
+                        <span>QC Certified</span>
+                      </span>
+                    )}
+
+                    {isFail && (
+                      <span className="inline-flex items-center gap-1 text-xs font-bold text-slate-800 bg-[#FAF7F0] px-3 py-1.5 rounded-xl border border-black/10 font-mono">
+                        <AlertTriangle className="w-3.5 h-3.5 text-[#3A3564]" />
+                        <span>Cutting Alerted</span>
+                      </span>
+                    )}
+                  </div>
                 </div>
-
-                {/* Action Transition Controls */}
-                <div className="flex items-center gap-2 shrink-0">
-                  {isWashing && (
-                    <button
-                      onClick={() => advanceBatch(b)}
-                      className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1.5"
-                    >
-                      <RotateCw className="w-3.5 h-3.5" />
-                      <span>Start Hydro Spin</span>
-                    </button>
-                  )}
-
-                  {isHydro && (
-                    <button
-                      onClick={() => advanceBatch(b)}
-                      className="px-3.5 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1.5"
-                    >
-                      <Thermometer className="w-3.5 h-3.5" />
-                      <span>Transfer to Dryer</span>
-                    </button>
-                  )}
-
-                  {isDrying && (
-                    <button
-                      onClick={() => advanceBatch(b)}
-                      className="px-3.5 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1.5"
-                    >
-                      <CheckCircle2 className="w-3.5 h-3.5" />
-                      <span>Unload & Finish</span>
-                    </button>
-                  )}
-
-                  {isPass && (
-                    <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200 font-mono">
-                      <CheckCircle2 className="w-3.5 h-3.5" />
-                      <span>QC Certified</span>
-                    </span>
-                  )}
-
-                  {isFail && (
-                    <span className="inline-flex items-center gap-1 text-xs font-bold text-rose-700 bg-rose-50 px-3 py-1.5 rounded-xl border border-rose-200 font-mono">
-                      <AlertTriangle className="w-3.5 h-3.5" />
-                      <span>Cutting Alerted</span>
-                    </span>
-                  )}
-                </div>
-              </div>
-            )
-          })}
+              )
+            })
+          ) : (
+            <EmptyState
+              variant="seamless"
+              icon={Cpu}
+              title="No washing machine runs scheduled"
+              description="Washer-extractor drums, centrifugal hydro-spin runs, and tumble drying cycles will display once loaded."
+              actionLabel="Load Washer Batch"
+              onAction={() => setIsModalOpen(true)}
+            />
+          )}
         </div>
       </div>
 

@@ -6,16 +6,11 @@ import {
   Flame,
   ChevronLeft,
   Plus,
-  Search,
-  CheckCircle2,
-  AlertTriangle,
-  Thermometer,
-  RotateCcw,
-  Sparkles,
-  ArrowRight
+  Search
 } from 'lucide-react'
+import { EmptyState } from '@/components/ui/EmptyState'
 import { CuringOvenLog } from '../../types/printing'
-import { getCuringLogs, saveCuringLog, PRINTING_UPDATE_EVENT } from '../../utils/printingStorage'
+import { getCuringLogs, PRINTING_UPDATE_EVENT } from '../../utils/printingStorage'
 import { LogCuringProbeModal } from './LogCuringProbeModal'
 
 interface CuringQcClientProps {
@@ -71,16 +66,19 @@ export function CuringQcClient({ initialCuringLogs }: CuringQcClientProps = {}) 
     : '160.0'
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6 max-w-7xl w-full mx-auto text-[#09090b]">
+    <div className="p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6 max-w-7xl w-full mx-auto text-[#09090b] select-none">
       {/* 1. Breadcrumbs */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
-          <Link href="/printing" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs">
+          <Link
+            href="/printing"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs cursor-pointer"
+          >
             <ChevronLeft className="w-3.5 h-3.5" />
             <span>Floor Dashboard</span>
           </Link>
-          <span>/</span>
-          <span className="font-mono font-bold text-slate-900">Curing Oven & Fastness QC</span>
+          <span className="text-slate-400 font-mono text-xs">/</span>
+          <span className="font-mono font-bold text-slate-900 text-xs">Curing Oven & Fastness QC</span>
         </div>
 
         <button
@@ -95,19 +93,19 @@ export function CuringQcClient({ initialCuringLogs }: CuringQcClientProps = {}) 
       {/* 2. Top Header Card */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-            <Flame className="w-5 h-5 text-amber-600" />
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+            <Flame className="w-6 h-6 text-[#3A3564]" />
           </div>
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
-              <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
+              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 Tunnel Curing Oven & Fastness QC
               </h1>
               <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15">
                 Target 160°C ± 3°C SLA
               </span>
             </div>
-            <p className="text-xs sm:text-sm font-medium text-slate-600 mt-1">
+            <p className="text-xs sm:text-sm font-semibold text-slate-600 mt-1">
               Thermal strip heat probe calibration, 2.5 min dwell chamber verification, and 50-wash cycle durability testing.
             </p>
           </div>
@@ -117,42 +115,40 @@ export function CuringQcClient({ initialCuringLogs }: CuringQcClientProps = {}) 
       {/* 3. Executive KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
-          <span className="text-[11px] font-mono font-bold text-slate-500 uppercase tracking-wider block mb-2">
+          <span className="text-xs font-mono font-bold text-slate-500 block mb-2">
             Average Tunnel Temp
           </span>
-          <div className="text-2xl sm:text-[28px] font-bold text-slate-900 font-mono">
+          <div className="text-2xl sm:text-3xl font-black text-slate-900 font-mono">
             {avgProbeTemp}°C
           </div>
-          <p className="text-xs text-emerald-700 mt-1 font-medium font-mono">Target: 160.0°C (±3°C window)</p>
+          <p className="text-xs text-slate-600 mt-1 font-medium font-mono">Target: 160.0°C (±3°C window)</p>
         </div>
 
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
-          <span className="text-[11px] font-mono font-bold text-slate-500 uppercase tracking-wider block mb-2">
+          <span className="text-xs font-mono font-bold text-slate-500 block mb-2">
             Audit Passes (160°C)
           </span>
-          <div className="text-2xl sm:text-[28px] font-bold text-emerald-700 font-mono">
+          <div className="text-2xl sm:text-3xl font-black text-slate-900 font-mono">
             {optimalAudits} / {totalAudits} Passes
           </div>
           <p className="text-xs text-slate-500 mt-1 font-medium">Thermal test strips compliant</p>
         </div>
 
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
-          <span className="text-[11px] font-mono font-bold text-slate-500 uppercase tracking-wider block mb-2">
+          <span className="text-xs font-mono font-bold text-slate-500 block mb-2">
             Temperature Alerts
           </span>
-          <div className={`text-2xl sm:text-[28px] font-bold font-mono ${
-            warningAudits > 0 ? 'text-amber-700' : 'text-slate-900'
-          }`}>
+          <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900">
             {warningAudits} Warnings
           </div>
           <p className="text-xs text-slate-500 mt-1 font-medium">Auto-compensated conveyor speed</p>
         </div>
 
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
-          <span className="text-[11px] font-mono font-bold text-slate-500 uppercase tracking-wider block mb-2">
+          <span className="text-xs font-mono font-bold text-slate-500 block mb-2">
             Standard Dwell Time
           </span>
-          <div className="text-2xl sm:text-[28px] font-bold text-[#3A3564] font-mono">
+          <div className="text-2xl sm:text-3xl font-black text-slate-900 font-mono">
             2.5 Minutes
           </div>
           <p className="text-xs text-slate-500 mt-1 font-medium">Full plastisol polymerization</p>
@@ -192,7 +188,7 @@ export function CuringQcClient({ initialCuringLogs }: CuringQcClientProps = {}) 
 
         {/* Data Table */}
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+          <table className="w-full min-w-[760px] text-left border-collapse">
             <thead>
               <tr className="border-b border-slate-100 bg-[#FAF7F0]/60 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">
                 <th className="py-3 px-4">Log #</th>
@@ -216,18 +212,14 @@ export function CuringQcClient({ initialCuringLogs }: CuringQcClientProps = {}) 
                     <td className="py-3 px-4 font-medium text-slate-900">
                       {log.oven_id}
                       {log.po_number && (
-                        <div className="text-[11px] font-mono text-slate-400">PO: {log.po_number}</div>
+                        <div className="text-[11px] font-mono text-slate-500">PO: {log.po_number}</div>
                       )}
                     </td>
-                    <td className="py-3 px-4 font-mono text-slate-500 font-bold">
+                    <td className="py-3 px-4 font-mono text-slate-700 font-bold">
                       {log.target_temp_c}°C
                     </td>
-                    <td className="py-3 px-4 font-mono font-bold">
-                      <span className={
-                        log.status === 'OPTIMAL' ? 'text-emerald-700' : 'text-amber-600'
-                      }>
-                        {log.probe_temp_c.toFixed(1)}°C
-                      </span>
+                    <td className="py-3 px-4 font-mono font-bold text-slate-900">
+                      {log.probe_temp_c.toFixed(1)}°C
                     </td>
                     <td className="py-3 px-4 font-mono text-slate-700">
                       {log.conveyor_speed_mpm > 0 ? `${log.conveyor_speed_mpm} m/min` : 'Static Chamber'}
@@ -235,17 +227,11 @@ export function CuringQcClient({ initialCuringLogs }: CuringQcClientProps = {}) 
                     <td className="py-3 px-4 font-mono text-slate-700">
                       {log.dwell_time_minutes} min
                     </td>
-                    <td className="py-3 px-4 text-center font-mono font-bold text-emerald-700">
+                    <td className="py-3 px-4 text-center font-mono font-bold text-slate-900">
                       {log.fastness_rating} / 5.0
                     </td>
                     <td className="py-3 px-4">
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase border ${
-                        log.status === 'OPTIMAL'
-                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                          : log.status === 'TEMP_WARNING'
-                          ? 'bg-amber-50 text-amber-700 border-amber-200'
-                          : 'bg-rose-50 text-rose-700 border-rose-200'
-                      }`}>
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase bg-[#FAF7F0] text-[#3A3564] border border-black/10">
                         {log.status.replace(/_/g, ' ')}
                       </span>
                     </td>
@@ -256,8 +242,15 @@ export function CuringQcClient({ initialCuringLogs }: CuringQcClientProps = {}) 
                 ))
               ) : (
                 <tr>
-                  <td colSpan={9} className="py-8 text-center text-slate-400 italic">
-                    No curing oven probe logs match the filter criteria.
+                  <td colSpan={9} className="p-0">
+                    <EmptyState
+                      variant="seamless"
+                      icon={Flame}
+                      title="No thermal probe audits logged"
+                      description="Heat strip sensor logs, 160°C tunnel calibration curves, and dwell fastness records will appear once logged."
+                      actionLabel="Log Thermal Probe Audit"
+                      onAction={() => setIsModalOpen(true)}
+                    />
                   </td>
                 </tr>
               )}

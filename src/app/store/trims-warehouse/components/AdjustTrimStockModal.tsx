@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { X, Check, Tag, Plus, Minus, RotateCw, AlertTriangle } from 'lucide-react'
+import { X, Check, Tag, Plus, Minus, RotateCw } from 'lucide-react'
 import { TrimsInventoryItem } from '../../types/store'
 import { adjustTrimsStock } from '../../utils/storeStorage'
 
@@ -52,11 +52,11 @@ export function AdjustTrimStockModal({ isOpen, onClose, item }: AdjustTrimStockM
         {/* Modal Header */}
         <div className="flex items-center justify-between border-b border-black/10 pb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#3A3564]/10 text-[#3A3564] flex items-center justify-center font-bold">
+            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center font-bold shadow-2xs">
               <Tag className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-lg font-black text-slate-900">
+              <h2 className="text-lg font-black text-slate-900 font-[family-name:var(--font-heading)]">
                 Adjust Trim Stock
               </h2>
               <p className="text-xs font-mono text-slate-500">
@@ -66,7 +66,7 @@ export function AdjustTrimStockModal({ isOpen, onClose, item }: AdjustTrimStockM
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-lg border border-black/10 text-slate-400 hover:text-slate-700 hover:bg-slate-50 flex items-center justify-center transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-lg border border-black/10 text-slate-400 hover:text-slate-700 hover:bg-[#FAF7F0] flex items-center justify-center transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -79,13 +79,13 @@ export function AdjustTrimStockModal({ isOpen, onClose, item }: AdjustTrimStockM
           </span>
           <div className="flex items-center justify-between mt-2 text-xs font-mono">
             <span className="text-slate-500">Current Stock:</span>
-            <span className="font-black text-slate-900">
+            <span className="font-black text-slate-900 tabular-nums">
               {item.currentStock.toLocaleString()} {item.unit}
             </span>
           </div>
           <div className="flex items-center justify-between mt-1 text-xs font-mono">
             <span className="text-slate-500">Re-Order Level (ROL):</span>
-            <span className="font-bold text-amber-700">
+            <span className="font-bold text-slate-900 tabular-nums">
               {item.reorderLevel.toLocaleString()} {item.unit}
             </span>
           </div>
@@ -99,10 +99,10 @@ export function AdjustTrimStockModal({ isOpen, onClose, item }: AdjustTrimStockM
             <button
               type="button"
               onClick={() => setMode('ADD')}
-              className={`p-2 rounded-xl text-xs font-mono font-bold border transition-all cursor-pointer flex items-center justify-center gap-1 ${
+              className={`p-2 rounded-xl text-xs font-mono font-bold border transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                 mode === 'ADD'
-                  ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
-                  : 'bg-white text-slate-700 border-black/10 hover:bg-slate-50'
+                  ? 'bg-[#3A3564] text-white border-[#3A3564] shadow-2xs'
+                  : 'bg-[#FAF7F0] text-slate-700 border-black/10 hover:bg-[#F2ECE1]'
               }`}
             >
               <Plus className="w-3.5 h-3.5" />
@@ -112,10 +112,10 @@ export function AdjustTrimStockModal({ isOpen, onClose, item }: AdjustTrimStockM
             <button
               type="button"
               onClick={() => setMode('SUBTRACT')}
-              className={`p-2 rounded-xl text-xs font-mono font-bold border transition-all cursor-pointer flex items-center justify-center gap-1 ${
+              className={`p-2 rounded-xl text-xs font-mono font-bold border transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                 mode === 'SUBTRACT'
-                  ? 'bg-rose-600 text-white border-rose-600 shadow-xs'
-                  : 'bg-white text-slate-700 border-black/10 hover:bg-slate-50'
+                  ? 'bg-[#3A3564] text-white border-[#3A3564] shadow-2xs'
+                  : 'bg-[#FAF7F0] text-slate-700 border-black/10 hover:bg-[#F2ECE1]'
               }`}
             >
               <Minus className="w-3.5 h-3.5" />
@@ -125,10 +125,10 @@ export function AdjustTrimStockModal({ isOpen, onClose, item }: AdjustTrimStockM
             <button
               type="button"
               onClick={() => setMode('SET')}
-              className={`p-2 rounded-xl text-xs font-mono font-bold border transition-all cursor-pointer flex items-center justify-center gap-1 ${
+              className={`p-2 rounded-xl text-xs font-mono font-bold border transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                 mode === 'SET'
-                  ? 'bg-[#3A3564] text-white border-[#3A3564] shadow-xs'
-                  : 'bg-white text-slate-700 border-black/10 hover:bg-slate-50'
+                  ? 'bg-[#3A3564] text-white border-[#3A3564] shadow-2xs'
+                  : 'bg-[#FAF7F0] text-slate-700 border-black/10 hover:bg-[#F2ECE1]'
               }`}
             >
               <RotateCw className="w-3.5 h-3.5" />
@@ -151,9 +151,9 @@ export function AdjustTrimStockModal({ isOpen, onClose, item }: AdjustTrimStockM
           </div>
 
           {/* New Stock Preview */}
-          <div className="p-3 rounded-xl border border-black/5 bg-slate-50 flex items-center justify-between text-xs font-mono">
+          <div className="p-3 rounded-xl border border-black/10 bg-[#FAF7F0] flex items-center justify-between text-xs font-mono">
             <span className="text-slate-500 font-bold">Projected New Balance:</span>
-            <span className="text-sm font-black text-slate-900">
+            <span className="text-sm font-black text-slate-900 tabular-nums">
               {calculatedNewStock.toLocaleString()} {item.unit}
             </span>
           </div>
@@ -177,14 +177,14 @@ export function AdjustTrimStockModal({ isOpen, onClose, item }: AdjustTrimStockM
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl border border-black/10 text-xs font-mono font-bold text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
+              className="px-4 py-2 rounded-xl border border-black/10 text-xs font-mono font-bold text-slate-700 hover:bg-[#FAF7F0] transition-colors cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-5 py-2 rounded-xl bg-[#3A3564] text-white text-xs font-mono font-bold hover:bg-[#2e2a52] transition-colors shadow-xs flex items-center gap-1.5 cursor-pointer"
+              className="px-5 py-2 rounded-xl bg-[#3A3564] text-white text-xs font-mono font-bold hover:bg-[#2c284e] transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer"
             >
               <Check className="w-4 h-4" />
               <span>{isSubmitting ? 'Updating...' : 'Commit Stock Update'}</span>

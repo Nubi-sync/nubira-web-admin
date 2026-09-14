@@ -21,14 +21,15 @@ import {
 import { TechPack, TechPackStatus } from '../../types/design'
 import { getStoredTechPacks } from '../../utils/designStorage'
 import { CreateTechPackModal } from './CreateTechPackModal'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 const STATUS_CONFIG: Record<string, { label: string; badgeClass: string }> = {
-  DRAFT: { label: 'DRAFT', badgeClass: 'bg-slate-100 text-slate-700 border-slate-200' },
-  SAMPLE_DEV: { label: 'SAMPLE DEV', badgeClass: 'bg-amber-50 text-amber-800 border-amber-200' },
-  PPS_SUBMITTED: { label: 'PPS SUBMITTED', badgeClass: 'bg-sky-50 text-sky-800 border-sky-200' },
-  PPS_APPROVED: { label: 'PPS APPROVED', badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200' },
-  APPROVED_BULK: { label: 'APPROVED BULK', badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200' },
-  REVISE_FIT: { label: 'REVISE FIT', badgeClass: 'bg-rose-50 text-rose-800 border-rose-200' }
+  DRAFT: { label: 'Draft', badgeClass: 'bg-slate-100 text-slate-700 border-slate-200' },
+  SAMPLE_DEV: { label: 'Sample Dev', badgeClass: 'bg-[#FAF7F0] text-[#3A3564] border-black/10 font-semibold' },
+  PPS_SUBMITTED: { label: 'PPS Review', badgeClass: 'bg-slate-100 text-slate-800 border-slate-200 font-semibold' },
+  PPS_APPROVED: { label: 'PPS Approved', badgeClass: 'bg-[#FAF7F0] text-slate-800 border-black/10 font-semibold' },
+  APPROVED_BULK: { label: 'Approved Bulk', badgeClass: 'bg-[#FAF7F0] text-slate-900 border-black/15 font-bold' },
+  REVISE_FIT: { label: 'Revise Fit', badgeClass: 'bg-slate-100 text-slate-700 border-slate-300' }
 }
 
 interface TechPackCatalogClientProps {
@@ -88,14 +89,14 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands }: Tec
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <div className="flex items-center gap-2.5 flex-wrap">
-            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
               Tech-Pack Master Catalog
             </h1>
-            <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 tracking-wider">
-              {filteredPacks.length} Specifications
+            <span className="text-xs font-mono text-slate-500 font-medium">
+              {filteredPacks.length} specifications
             </span>
           </div>
-          <p className="text-xs sm:text-sm font-semibold text-slate-600 mt-1">
+          <p className="text-xs sm:text-sm text-slate-600 mt-1">
             Standardized technical packages, CAD vectors, SPI standards & bill of materials
           </p>
         </div>
@@ -105,9 +106,9 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands }: Tec
           <div className="flex items-center p-1 rounded-xl bg-slate-100 border border-black/10 shrink-0">
             <button
               onClick={() => setActiveTab('gallery')}
-              className={`p-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              className={`p-2 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 activeTab === 'gallery'
-                  ? 'bg-white text-[#3A3564] shadow-2xs font-extrabold'
+                  ? 'bg-white text-[#3A3564] shadow-2xs font-bold'
                   : 'text-slate-500 hover:text-slate-800'
               }`}
               title="Visual Card Gallery"
@@ -116,9 +117,9 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands }: Tec
             </button>
             <button
               onClick={() => setActiveTab('table')}
-              className={`p-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              className={`p-2 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 activeTab === 'table'
-                  ? 'bg-white text-[#3A3564] shadow-2xs font-extrabold'
+                  ? 'bg-white text-[#3A3564] shadow-2xs font-bold'
                   : 'text-slate-500 hover:text-slate-800'
               }`}
               title="Detailed Spec Table"
@@ -139,7 +140,7 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands }: Tec
 
       {/* Filter & Search Bar */}
       <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
-        {/* Status Pills */}
+        {/* Status Tabs */}
         <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
           {(['ALL', 'APPROVED_BULK', 'PPS_APPROVED', 'PPS_SUBMITTED', 'SAMPLE_DEV', 'REVISE_FIT', 'DRAFT'] as const).map(st => {
             const isSel = statusFilter === st
@@ -148,10 +149,10 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands }: Tec
               <button
                 key={st}
                 onClick={() => setStatusFilter(st)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold tracking-tight transition-all shrink-0 cursor-pointer border ${
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 cursor-pointer border ${
                   isSel
                     ? 'bg-[#3A3564] text-[#FAF7F0] border-[#3A3564] shadow-2xs'
-                    : 'bg-white text-slate-600 border-black/10 hover:bg-slate-50'
+                    : 'bg-white text-slate-600 border-black/10 hover:bg-[#FAF7F0]'
                 }`}
               >
                 {label}
@@ -173,8 +174,31 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands }: Tec
         </div>
       </div>
 
-      {/* Primary Display: Gallery or Table */}
-      {activeTab === 'gallery' ? (
+      {/* Primary Display: Gallery, Table, or EmptyState */}
+      {filteredPacks.length === 0 ? (
+        <EmptyState
+          icon={FileCheck2}
+          title={searchQuery || statusFilter !== 'ALL' ? "No matching tech-packs" : "No tech-packs found"}
+          description={
+            searchQuery || statusFilter !== 'ALL'
+              ? "Try adjusting your filters or search query."
+              : "Create your first specification package."
+          }
+          actionLabel="Create Tech-Pack"
+          onAction={() => setIsCreateOpen(true)}
+          secondaryActionLabel={
+            searchQuery || statusFilter !== 'ALL' ? "Reset filters" : undefined
+          }
+          onSecondaryAction={
+            searchQuery || statusFilter !== 'ALL'
+              ? () => {
+                  setStatusFilter('ALL')
+                  setSearchQuery('')
+                }
+              : undefined
+          }
+        />
+      ) : activeTab === 'gallery' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {filteredPacks.map(pack => {
             const stCfg = STATUS_CONFIG[pack.status] || STATUS_CONFIG.DRAFT
@@ -186,60 +210,60 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands }: Tec
                 {/* Card Header */}
                 <div className="p-5 border-b border-black/5 bg-[#FAF7F0]/30 space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-mono font-black text-[#3A3564] px-2 py-0.5 rounded-md bg-white border border-black/10">
+                    <span className="text-xs font-mono font-bold text-[#3A3564] px-2.5 py-1 rounded-md bg-white border border-black/10">
                       {pack.style_number}
                     </span>
-                    <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-md border ${stCfg.badgeClass}`}>
+                    <span className={`text-xs px-2.5 py-0.5 rounded-md border ${stCfg.badgeClass}`}>
                       {stCfg.label}
                     </span>
                   </div>
 
                   <div>
-                    <h3 className="text-base font-bold text-slate-900 group-hover:text-[#3A3564] transition-colors line-clamp-1">
+                    <h3 className="text-base font-bold text-slate-900 group-hover:text-[#3A3564] transition-colors line-clamp-1 font-[family-name:var(--font-heading)]">
                       {pack.style_name}
                     </h3>
-                    <p className="text-xs font-mono text-slate-500 font-bold uppercase mt-0.5">
-                      Brand: {pack.brand_name} • Cat: {pack.category}
+                    <p className="text-xs text-slate-500 font-medium mt-0.5">
+                      Brand: {pack.brand_name} • Category: {pack.category}
                     </p>
                   </div>
                 </div>
 
                 {/* Card Specs Body */}
                 <div className="p-5 space-y-3.5 flex-1">
-                  <div className="grid grid-cols-2 gap-2 text-xs">
-                    <div className="p-2.5 rounded-xl bg-slate-50 border border-black/5">
-                      <span className="text-[10px] font-mono uppercase text-slate-400 font-bold block">Base Size</span>
-                      <span className="font-mono font-extrabold text-slate-800">{pack.base_size}</span>
+                  <div className="grid grid-cols-2 gap-2.5 text-xs sm:text-sm">
+                    <div className="p-3 rounded-xl bg-slate-50 border border-black/5">
+                      <span className="text-xs text-slate-400 font-medium block">Base Size</span>
+                      <span className="font-mono font-bold text-slate-800 text-sm">{pack.base_size}</span>
                     </div>
-                    <div className="p-2.5 rounded-xl bg-slate-50 border border-black/5">
-                      <span className="text-[10px] font-mono uppercase text-slate-400 font-bold block">Target Weight</span>
-                      <span className="font-mono font-extrabold text-slate-800">{pack.target_gsm} GSM</span>
+                    <div className="p-3 rounded-xl bg-slate-50 border border-black/5">
+                      <span className="text-xs text-slate-400 font-medium block">Target Weight</span>
+                      <span className="font-mono font-bold text-slate-800 text-sm">{pack.target_gsm} GSM</span>
                     </div>
                   </div>
 
-                  <div className="space-y-1 text-xs">
-                    <span className="text-[10px] font-mono uppercase text-slate-400 font-bold block">Fabric Composition</span>
-                    <p className="font-semibold text-slate-700 line-clamp-1">{pack.fabric_composition}</p>
+                  <div className="space-y-1 text-xs sm:text-sm">
+                    <span className="text-xs text-slate-400 font-medium block">Fabric Composition</span>
+                    <p className="font-medium text-slate-700 line-clamp-1">{pack.fabric_composition}</p>
                   </div>
 
-                  <div className="space-y-1 text-xs">
-                    <span className="text-[10px] font-mono uppercase text-slate-400 font-bold block">Embellishment Flow</span>
-                    <span className="inline-block text-[11px] font-mono font-bold text-[#3A3564] bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+                  <div className="space-y-1 text-xs sm:text-sm">
+                    <span className="text-xs text-slate-400 font-medium block">Embellishment Flow</span>
+                    <span className="inline-block text-xs font-mono font-medium text-[#3A3564] bg-[#FAF7F0] px-2.5 py-1 rounded border border-black/10">
                       {pack.embellishment_sequence === 'NONE' ? 'Plain Cut Assembly' : pack.embellishment_sequence}
                     </span>
                   </div>
                 </div>
 
                 {/* Card Footer */}
-                <div className="p-4 border-t border-black/5 bg-slate-50/70 flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-1.5 text-slate-500 font-mono text-[11px]">
+                <div className="p-4 border-t border-black/5 bg-[#FAF7F0]/40 flex items-center justify-between text-xs sm:text-sm">
+                  <div className="flex items-center gap-1.5 text-slate-500 font-mono text-xs">
                     <Clock className="w-3.5 h-3.5" />
                     <span>Cut: {pack.target_cut_date}</span>
                   </div>
 
                   <button
                     onClick={() => setDiffPack(pack)}
-                    className="inline-flex items-center gap-1 text-xs font-bold text-[#3A3564] hover:underline cursor-pointer"
+                    className="inline-flex items-center gap-1 text-xs font-semibold text-[#3A3564] hover:underline cursor-pointer"
                   >
                     <GitCompare className="w-3.5 h-3.5" />
                     <span>View Diff (v{pack.version}.0)</span>
@@ -253,9 +277,9 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands }: Tec
         /* Detailed Spec Table */
         <div className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs">
+            <table className="w-full text-left border-collapse text-sm">
               <thead>
-                <tr className="border-b border-black/10 bg-[#FAF7F0]/60 text-slate-600 font-mono font-bold uppercase tracking-wider">
+                <tr className="border-b border-black/10 bg-[#FAF7F0] text-slate-600 text-xs font-semibold uppercase tracking-wider">
                   <th className="py-3 px-4">Style Ref</th>
                   <th className="py-3 px-4">Commercial Name</th>
                   <th className="py-3 px-4">Buyer Brand</th>
@@ -267,7 +291,7 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands }: Tec
                   <th className="py-3 px-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-black/5 font-semibold text-slate-700">
+              <tbody className="divide-y divide-black/5 text-slate-700">
                 {filteredPacks.map(pack => {
                   const stCfg = STATUS_CONFIG[pack.status] || STATUS_CONFIG.DRAFT
                   return (
@@ -275,29 +299,29 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands }: Tec
                       <td className="py-3.5 px-4 font-mono font-bold text-[#3A3564]">
                         {pack.style_number}
                       </td>
-                      <td className="py-3.5 px-4 font-bold text-slate-900">
+                      <td className="py-3.5 px-4 font-semibold text-slate-900">
                         {pack.style_name}
                       </td>
-                      <td className="py-3.5 px-4 font-mono uppercase text-slate-600">
+                      <td className="py-3.5 px-4 font-medium text-slate-600">
                         {pack.brand_name}
                       </td>
-                      <td className="py-3.5 px-4">{pack.category}</td>
+                      <td className="py-3.5 px-4 font-medium">{pack.category}</td>
                       <td className="py-3.5 px-4 font-mono font-bold">{pack.base_size}</td>
-                      <td className="py-3.5 px-4 font-mono text-[11px]">
+                      <td className="py-3.5 px-4 font-mono text-xs">
                         {pack.target_gsm} GSM
                       </td>
-                      <td className="py-3.5 px-4 font-mono text-[11px] text-slate-500">
+                      <td className="py-3.5 px-4 font-mono text-xs text-slate-500">
                         {pack.spi} SPI • {pack.seam_class.split(' ')[2] || 'Overlock'}
                       </td>
                       <td className="py-3.5 px-4">
-                        <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-md border ${stCfg.badgeClass}`}>
+                        <span className={`text-xs px-2.5 py-0.5 rounded-md border ${stCfg.badgeClass}`}>
                           {stCfg.label}
                         </span>
                       </td>
                       <td className="py-3.5 px-4 text-right">
                         <button
                           onClick={() => setDiffPack(pack)}
-                          className="inline-flex items-center gap-1 text-xs font-bold text-[#3A3564] hover:underline cursor-pointer"
+                          className="inline-flex items-center gap-1 text-xs font-semibold text-[#3A3564] hover:underline cursor-pointer"
                         >
                           <GitCompare className="w-3.5 h-3.5" />
                           <span>Diff</span>
@@ -318,11 +342,11 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands }: Tec
           <div className="bg-white rounded-3xl border border-black/15 shadow-2xl max-w-lg w-full overflow-hidden">
             <div className="px-6 py-5 border-b border-black/10 bg-[#FAF7F0] flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#3A3564] text-[#FAF7F0] flex items-center justify-center">
-                  <GitCompare className="w-4 h-4" />
+                <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 text-[#3A3564] flex items-center justify-center shadow-2xs">
+                  <GitCompare className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-slate-900">
+                  <h3 className="text-base font-bold text-slate-900 font-[family-name:var(--font-heading)]">
                     Version Diff Engine • {diffPack.style_number}
                   </h3>
                   <p className="text-xs text-slate-500 font-medium">
@@ -339,29 +363,29 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands }: Tec
             </div>
 
             <div className="p-6 space-y-4">
-              <div className="p-3.5 rounded-xl bg-emerald-50/70 border border-emerald-200 text-xs text-emerald-800 space-y-1">
-                <span className="font-mono font-bold block">✓ AUDIT LOG SIGN-OFF</span>
+              <div className="p-3.5 rounded-xl bg-[#FAF7F0] border border-black/10 text-xs text-slate-700 space-y-1">
+                <span className="font-semibold text-slate-900 block">Audit Log Sign-Off</span>
                 <p>Base pattern released to CAD spreading table. Approved by Lead Technical Designer.</p>
               </div>
 
-              <div className="space-y-2 text-xs">
-                <span className="font-mono font-bold uppercase text-slate-500 block">Measurement Deltas:</span>
+              <div className="space-y-2 text-xs sm:text-sm">
+                <span className="font-semibold uppercase tracking-wider text-slate-500 block">Measurement Deltas:</span>
                 <div className="divide-y divide-black/5 border border-black/10 rounded-xl overflow-hidden">
-                  <div className="p-2.5 flex items-center justify-between bg-slate-50">
+                  <div className="p-3 flex items-center justify-between bg-slate-50">
                     <span className="font-medium text-slate-700">Half Chest Width</span>
-                    <span className="font-mono font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">
+                    <span className="font-mono font-semibold text-slate-800 bg-white border border-black/10 px-2 py-0.5 rounded">
                       +1.5 cm (v1.1)
                     </span>
                   </div>
-                  <div className="p-2.5 flex items-center justify-between">
+                  <div className="p-3 flex items-center justify-between">
                     <span className="font-medium text-slate-700">Body Length from HPS</span>
-                    <span className="font-mono font-bold text-rose-700 bg-rose-100 px-2 py-0.5 rounded">
+                    <span className="font-mono font-semibold text-slate-800 bg-white border border-black/10 px-2 py-0.5 rounded">
                       -0.5 cm (v1.1)
                     </span>
                   </div>
-                  <div className="p-2.5 flex items-center justify-between bg-slate-50">
+                  <div className="p-3 flex items-center justify-between bg-slate-50">
                     <span className="font-medium text-slate-700">Neck Opening Drop</span>
-                    <span className="font-mono font-bold text-slate-700 bg-slate-200 px-2 py-0.5 rounded">
+                    <span className="font-mono font-medium text-slate-600 bg-slate-100 px-2 py-0.5 rounded">
                       0.0 cm (No change)
                     </span>
                   </div>
@@ -369,10 +393,10 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands }: Tec
               </div>
             </div>
 
-            <div className="px-6 py-4 border-t border-black/10 bg-slate-50 flex justify-end">
+            <div className="px-6 py-4 border-t border-black/10 bg-[#FAF7F0]/60 flex justify-end">
               <button
                 onClick={() => setDiffPack(null)}
-                className="px-5 py-2 rounded-xl bg-[#3A3564] text-[#FAF7F0] text-xs font-bold hover:bg-[#2A2649] transition-all cursor-pointer"
+                className="px-5 py-2 rounded-xl bg-[#3A3564] text-[#FAF7F0] text-xs font-bold hover:bg-[#2A2649] transition-all cursor-pointer font-[family-name:var(--font-heading)]"
               >
                 Close Diff Inspector
               </button>

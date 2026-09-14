@@ -169,7 +169,7 @@ export function SubmitStrikeOffModal({ isOpen, onClose, onSuccess }: SubmitStrik
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 mb-1.5">
+              <label className="block text-xs font-mono font-bold text-slate-600 mb-1.5">
                 Spectro Delta E (ΔE ≤ 1.0 to Pass) *
               </label>
               <input
@@ -179,17 +179,13 @@ export function SubmitStrikeOffModal({ isOpen, onClose, onSuccess }: SubmitStrik
                 max="5.00"
                 value={spectroDeltaE}
                 onChange={e => setSpectroDeltaE(e.target.value)}
-                className={`w-full px-3 py-2 rounded-xl text-xs bg-white border font-mono font-bold focus:outline-none focus:ring-1 ${
-                  deltaEVal <= 1.0
-                    ? 'border-black/10 text-emerald-700 focus:ring-emerald-600'
-                    : 'border-rose-300 text-rose-600 focus:ring-rose-500'
-                }`}
+                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/10 font-mono font-bold focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 mb-1.5">
+              <label className="block text-xs font-mono font-bold text-slate-600 mb-1.5">
                 Curing Temperature (°C)
               </label>
               <input

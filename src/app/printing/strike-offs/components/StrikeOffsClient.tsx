@@ -7,16 +7,11 @@ import {
   ChevronLeft,
   Plus,
   Search,
-  CheckCircle2,
-  AlertTriangle,
-  XCircle,
-  RotateCcw,
-  Sparkles,
-  Sliders,
-  ArrowRight
+  CheckCircle2
 } from 'lucide-react'
-import { StrikeOffTest, StrikeOffStatus } from '../../types/printing'
-import { getStrikeOffs, saveStrikeOff, PRINTING_UPDATE_EVENT } from '../../utils/printingStorage'
+import { EmptyState } from '@/components/ui/EmptyState'
+import { StrikeOffTest } from '../../types/printing'
+import { getStrikeOffs, PRINTING_UPDATE_EVENT } from '../../utils/printingStorage'
 import { SubmitStrikeOffModal } from './SubmitStrikeOffModal'
 
 interface StrikeOffsClientProps {
@@ -73,16 +68,19 @@ export function StrikeOffsClient({ initialStrikeOffs }: StrikeOffsClientProps = 
     : '0.00'
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6 max-w-7xl w-full mx-auto text-[#09090b]">
+    <div className="p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6 max-w-7xl w-full mx-auto text-[#09090b] select-none">
       {/* 1. Breadcrumbs */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
-          <Link href="/printing" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs">
+          <Link
+            href="/printing"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs cursor-pointer"
+          >
             <ChevronLeft className="w-3.5 h-3.5" />
             <span>Floor Dashboard</span>
           </Link>
-          <span>/</span>
-          <span className="font-mono font-bold text-slate-900">Strike-Off Lab Approvals</span>
+          <span className="text-slate-400 font-mono text-xs">/</span>
+          <span className="font-mono font-bold text-slate-900 text-xs">Strike-Off Lab Approvals</span>
         </div>
 
         <button
@@ -97,19 +95,19 @@ export function StrikeOffsClient({ initialStrikeOffs }: StrikeOffsClientProps = 
       {/* 2. Top Header Card */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-            <FileCheck2 className="w-5 h-5" />
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+            <FileCheck2 className="w-6 h-6" />
           </div>
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
-              <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
+              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 Strike-Off Color Approvals (Form 1 Gate)
               </h1>
               <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15">
                 Delta E ≤ 1.0 Gate
               </span>
             </div>
-            <p className="text-xs sm:text-sm font-medium text-slate-600 mt-1">
+            <p className="text-xs sm:text-sm font-semibold text-slate-600 mt-1">
               Spectrophotometer colorimetric certification, wash durability (AATCC 61), and 100% stretch elastic crack inspection.
             </p>
           </div>
@@ -119,40 +117,40 @@ export function StrikeOffsClient({ initialStrikeOffs }: StrikeOffsClientProps = 
       {/* 3. Executive KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
-          <span className="text-[11px] font-mono font-bold text-slate-500 uppercase tracking-wider block mb-2">
+          <span className="text-xs font-mono font-bold text-slate-500 block mb-2">
             Total Strike-Offs Audited
           </span>
-          <div className="text-2xl sm:text-[28px] font-bold text-slate-900 font-mono">
+          <div className="text-2xl sm:text-3xl font-black text-slate-900 font-mono">
             {totalTests} Tests
           </div>
           <p className="text-xs text-slate-500 mt-1 font-medium">Pre-bulk laboratory test prints</p>
         </div>
 
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
-          <span className="text-[11px] font-mono font-bold text-slate-500 uppercase tracking-wider block mb-2">
+          <span className="text-xs font-mono font-bold text-slate-500 block mb-2">
             Cleared for Production
           </span>
-          <div className="text-2xl sm:text-[28px] font-bold text-emerald-700 font-mono">
+          <div className="text-2xl sm:text-3xl font-black text-slate-900 font-mono">
             {approvedCount} Approved
           </div>
           <p className="text-xs text-slate-500 mt-1 font-medium">Buyer tech sign-off verified</p>
         </div>
 
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
-          <span className="text-[11px] font-mono font-bold text-slate-500 uppercase tracking-wider block mb-2">
+          <span className="text-xs font-mono font-bold text-slate-500 block mb-2">
             Average Delta E (ΔE)
           </span>
-          <div className="text-2xl sm:text-[28px] font-bold text-[#3A3564] font-mono">
+          <div className="text-2xl sm:text-3xl font-black text-slate-900 font-mono">
             ΔE {avgDeltaE}
           </div>
-          <p className="text-xs text-emerald-700 font-medium font-mono">Within standard target ≤ 1.00</p>
+          <p className="text-xs text-slate-600 font-medium font-mono">Within standard target ≤ 1.00</p>
         </div>
 
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
-          <span className="text-[11px] font-mono font-bold text-slate-500 uppercase tracking-wider block mb-2">
+          <span className="text-xs font-mono font-bold text-slate-500 block mb-2">
             Recipe Adjustments Required
           </span>
-          <div className="text-2xl sm:text-[28px] font-bold text-amber-700 font-mono">
+          <div className="text-2xl sm:text-3xl font-black text-slate-900 font-mono">
             {reviseCount} Tests
           </div>
           <p className="text-xs text-slate-500 mt-1 font-medium">Returned to ink kitchen</p>
@@ -192,7 +190,7 @@ export function StrikeOffsClient({ initialStrikeOffs }: StrikeOffsClientProps = 
 
         {/* Data Table */}
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+          <table className="w-full min-w-[760px] text-left border-collapse">
             <thead>
               <tr className="border-b border-slate-100 bg-[#FAF7F0]/60 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">
                 <th className="py-3 px-4">Test #</th>
@@ -214,45 +212,28 @@ export function StrikeOffsClient({ initialStrikeOffs }: StrikeOffsClientProps = 
                     </td>
                     <td className="py-3 px-4">
                       <div className="font-bold text-slate-900">{test.po_number}</div>
-                      <div className="text-[11px] font-mono text-slate-400">{test.style_ref}</div>
+                      <div className="text-[11px] font-mono text-slate-500">{test.style_ref}</div>
                     </td>
                     <td className="py-3 px-4">
                       <span className="font-mono text-slate-800 font-semibold">{test.pantone_target}</span>
                       <div className="text-[11px] font-mono text-[#3A3564]">{test.technique}</div>
                     </td>
                     <td className="py-3 px-4 font-mono">
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold ${
-                        test.spectro_delta_e <= 1.0
-                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                          : 'bg-rose-50 text-rose-700 border border-rose-200'
-                      }`}>
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-mono font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10">
                         ΔE {test.spectro_delta_e.toFixed(2)}
                       </span>
                     </td>
                     <td className="py-3 px-4 text-center">
-                      {test.stretch_test_pass ? (
-                        <span className="inline-flex items-center gap-1 text-emerald-700 font-bold">
-                          <CheckCircle2 className="w-3.5 h-3.5" />
-                          <span>PASS</span>
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 text-rose-600 font-bold">
-                          <XCircle className="w-3.5 h-3.5" />
-                          <span>FAIL</span>
-                        </span>
-                      )}
+                      <span className="inline-flex items-center gap-1 font-mono text-xs font-bold text-slate-800">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-[#3A3564]" />
+                        <span>{test.stretch_test_pass ? 'PASS' : 'FAIL'}</span>
+                      </span>
                     </td>
                     <td className="py-3 px-4 text-center font-mono font-bold text-slate-800">
                       {test.wash_fastness_rating} / 5.0
                     </td>
                     <td className="py-3 px-4">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase border ${
-                        test.approval_status === 'APPROVED'
-                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                          : test.approval_status === 'REVISE_RECIPE'
-                          ? 'bg-amber-50 text-amber-700 border-amber-200'
-                          : 'bg-rose-50 text-rose-700 border-rose-200'
-                      }`}>
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase bg-[#FAF7F0] text-[#3A3564] border border-black/10">
                         {test.approval_status.replace(/_/g, ' ')}
                       </span>
                     </td>
@@ -264,8 +245,15 @@ export function StrikeOffsClient({ initialStrikeOffs }: StrikeOffsClientProps = 
                 ))
               ) : (
                 <tr>
-                  <td colSpan={8} className="py-8 text-center text-slate-400 italic">
-                    No strike-off test records match the filter criteria.
+                  <td colSpan={8} className="p-0">
+                    <EmptyState
+                      variant="seamless"
+                      icon={FileCheck2}
+                      title="No strike-off test records found"
+                      description="Pre-bulk laboratory test prints and spectrophotometer delta E readings will display once submitted."
+                      actionLabel="Submit Strike-Off Test (Form 1)"
+                      onAction={() => setIsSubmitModalOpen(true)}
+                    />
                   </td>
                 </tr>
               )}

@@ -20,7 +20,8 @@ import {
   SlidersHorizontal,
   FileText,
   Clock,
-  UserCheck
+  UserCheck,
+  X
 } from 'lucide-react'
 import {
   getAlterTickets,
@@ -29,6 +30,7 @@ import {
   ALTER_UPDATE_EVENT
 } from '../utils/alterStorage'
 import { AlterationTicket, AlterationMetrics, ScrapRequisition } from '../types/alter'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 interface ClinicDashboardClientProps {
   userEmail?: string
@@ -116,7 +118,7 @@ export function ClinicDashboardClient({
           <span className="text-[11px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
             Division 10 • Quality Recovery Clinic
           </span>
-          <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
+          <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
             ≥ 95.0% Salvage SLA
           </span>
         </div>
@@ -180,7 +182,7 @@ export function ClinicDashboardClient({
           <p className="text-xs font-semibold text-slate-500 mt-1">
             Current Floor Defect Rate: 0.8% • Low
           </p>
-          <div className="mt-3 text-[11px] font-mono text-amber-800 font-bold bg-amber-50 px-2 py-0.5 rounded border border-amber-200 inline-flex items-center gap-1">
+          <div className="mt-3 text-[11px] font-mono text-[#3A3564] font-bold bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10 inline-flex items-center gap-1">
             <Clock className="w-3 h-3" /> Avg Cycle: 18 min / piece
           </div>
         </div>
@@ -191,17 +193,17 @@ export function ClinicDashboardClient({
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Repaired & Cleared Today
             </span>
-            <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
               <CheckCircle2 className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black font-mono text-emerald-600">
+          <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900">
             {metrics.repairedAndClearedToday} pcs
           </div>
           <p className="text-xs font-semibold text-slate-500 mt-1">
             Passed back to final finishing flow
           </p>
-          <div className="mt-3 text-[11px] font-mono text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200/60 inline-flex items-center gap-1">
+          <div className="mt-3 text-[11px] font-mono text-[#3A3564] font-bold bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10 inline-flex items-center gap-1">
             <Check className="w-3 h-3" /> 100% Secondary AQL Pass
           </div>
         </div>
@@ -212,17 +214,17 @@ export function ClinicDashboardClient({
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Top Defect Root Cause
             </span>
-            <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-700 border border-amber-200 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
               <AlertTriangle className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black font-mono text-amber-600">
+          <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900">
             {metrics.topRecurringDefect}
           </div>
           <p className="text-xs font-semibold text-slate-500 mt-1">
             Line 2 & 4 Needle tension calibration
           </p>
-          <div className="mt-3 text-[11px] font-mono text-slate-600 font-semibold bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10 inline-flex items-center gap-1">
+          <div className="mt-3 text-[11px] font-mono text-[#3A3564] font-semibold bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10 inline-flex items-center gap-1">
             <span>34% of All Clinic Intakes</span>
           </div>
         </div>
@@ -243,7 +245,7 @@ export function ClinicDashboardClient({
           <p className="text-xs font-semibold text-slate-500 mt-1">
             True Scrap Write-Off: 0.04% (High Salvage)
           </p>
-          <div className="mt-3 text-[11px] font-mono text-sky-800 font-bold bg-sky-50 px-2 py-0.5 rounded border border-sky-200 inline-flex items-center gap-1">
+          <div className="mt-3 text-[11px] font-mono text-[#3A3564] font-bold bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10 inline-flex items-center gap-1">
             <UserCheck className="w-3 h-3" /> Lineman Root Tracking
           </div>
         </div>
@@ -309,7 +311,7 @@ export function ClinicDashboardClient({
                 </div>
                 <div>
                   <span className="font-mono text-slate-400 text-[10px] uppercase">Corrective Machine Calibration:</span>
-                  <p className="text-emerald-800 font-semibold text-[11px]">{item.recommendedFix}</p>
+                  <p className="text-slate-800 font-semibold text-[11px]">{item.recommendedFix}</p>
                 </div>
               </div>
             </div>
@@ -330,35 +332,35 @@ export function ClinicDashboardClient({
             href="/alter/defect-intake"
             className="px-3 py-1.5 rounded-lg bg-[#FAF7F0] hover:bg-[#eadecc] text-[#3A3564] text-xs font-bold border border-black/10 transition-colors inline-flex items-center gap-1"
           >
-            <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
+            <AlertTriangle className="w-3.5 h-3.5 text-[#3A3564]" />
             <span>02. Defect Intake & Triage</span>
           </Link>
           <Link
             href="/alter/repair-stations"
             className="px-3 py-1.5 rounded-lg bg-[#FAF7F0] hover:bg-[#eadecc] text-[#3A3564] text-xs font-bold border border-black/10 transition-colors inline-flex items-center gap-1"
           >
-            <Scissors className="w-3.5 h-3.5 text-purple-600" />
+            <Scissors className="w-3.5 h-3.5 text-[#3A3564]" />
             <span>03. Master Mending Stations</span>
           </Link>
           <Link
             href="/alter/spot-cleaning"
             className="px-3 py-1.5 rounded-lg bg-[#FAF7F0] hover:bg-[#eadecc] text-[#3A3564] text-xs font-bold border border-black/10 transition-colors inline-flex items-center gap-1"
           >
-            <Droplets className="w-3.5 h-3.5 text-sky-600" />
+            <Droplets className="w-3.5 h-3.5 text-[#3A3564]" />
             <span>04. Chemical Spotting Table</span>
           </Link>
           <Link
             href="/alter/secondary-qc"
             className="px-3 py-1.5 rounded-lg bg-[#FAF7F0] hover:bg-[#eadecc] text-[#3A3564] text-xs font-bold border border-black/10 transition-colors inline-flex items-center gap-1"
           >
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+            <CheckCircle2 className="w-3.5 h-3.5 text-[#3A3564]" />
             <span>05. Secondary AQL Gate</span>
           </Link>
           <Link
             href="/alter/scrap-salvage"
             className="px-3 py-1.5 rounded-lg bg-[#FAF7F0] hover:bg-[#eadecc] text-[#3A3564] text-xs font-bold border border-black/10 transition-colors inline-flex items-center gap-1"
           >
-            <FileText className="w-3.5 h-3.5 text-rose-600" />
+            <FileText className="w-3.5 h-3.5 text-[#3A3564]" />
             <span>06. Scrap & Re-Cut Ledger</span>
           </Link>
         </div>
@@ -426,7 +428,7 @@ export function ClinicDashboardClient({
 
         {/* Tickets Table */}
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse">
+          <table className="w-full text-left text-xs border-collapse min-w-[760px]">
             <thead>
               <tr className="border-b border-black/10 bg-slate-50/70 text-slate-600 font-mono text-[11px] uppercase tracking-wider">
                 <th className="py-3 px-4">Ticket Voucher</th>
@@ -443,8 +445,15 @@ export function ClinicDashboardClient({
             <tbody className="divide-y divide-black/5">
               {filteredTickets.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="py-8 text-center text-slate-400 font-mono text-xs">
-                    No alteration tickets match the selected filters.
+                  <td colSpan={9} className="p-8">
+                    <EmptyState
+                      icon={Wrench}
+                      title="No alteration tickets in rework queue"
+                      description="All defective garments from sewing and finishing floors have been repaired, cleared, or salvaged."
+                      actionLabel="Log Inward Defect"
+                      onAction={() => { window.location.href = '/alter/defect-intake' }}
+                      variant="seamless"
+                    />
                   </td>
                 </tr>
               ) : (
@@ -468,7 +477,7 @@ export function ClinicDashboardClient({
                       <div className="text-[11px] text-slate-500">{ticket.buyer}</div>
                     </td>
                     <td className="py-3 px-4">
-                      <span className="font-mono font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                      <span className="font-mono font-bold text-[#3A3564] bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
                         {ticket.defectType}
                       </span>
                       <div className="text-[11px] text-slate-600 mt-1 line-clamp-1">
@@ -486,17 +495,17 @@ export function ClinicDashboardClient({
                     </td>
                     <td className="py-3 px-4">
                       {ticket.resolutionStatus === 'IN_REWORK' && (
-                        <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold border border-amber-200">
+                        <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-[#FAF7F0] text-[#3A3564] font-bold border border-black/10">
                           IN REWORK
                         </span>
                       )}
                       {ticket.resolutionStatus === 'REPAIRED_PASSED' && (
-                        <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold border border-emerald-200">
+                        <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-[#FAF7F0] text-[#3A3564] font-bold border border-black/10">
                           REPAIRED PASSED
                         </span>
                       )}
                       {ticket.resolutionStatus === 'DECLARED_SCRAP' && (
-                        <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-rose-100 text-rose-800 font-bold border border-rose-200">
+                        <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-800 font-bold border border-slate-300">
                           SCRAP
                         </span>
                       )}
@@ -543,9 +552,9 @@ export function ClinicDashboardClient({
               </div>
               <button
                 onClick={() => setSelectedTicket(null)}
-                className="text-slate-400 hover:text-slate-700 text-sm font-bold font-mono px-2 py-1 rounded"
+                className="text-slate-400 hover:text-slate-700 p-1 rounded-lg hover:bg-slate-100 transition-colors"
               >
-                ✕
+                <X className="w-4 h-4" />
               </button>
             </div>
 
@@ -572,7 +581,7 @@ export function ClinicDashboardClient({
               </div>
               <div>
                 <span className="text-slate-400 font-mono">Defect Type:</span>
-                <div className="font-mono font-bold text-amber-700">{selectedTicket.defectType}</div>
+                <div className="font-mono font-bold text-[#3A3564]">{selectedTicket.defectType}</div>
               </div>
               <div>
                 <span className="text-slate-400 font-mono">Source Division:</span>
@@ -603,7 +612,7 @@ export function ClinicDashboardClient({
                 </div>
                 <div>
                   <span className="text-slate-400 font-mono">Action Taken:</span>
-                  <div className="font-mono font-bold text-emerald-700">
+                  <div className="font-mono font-bold text-slate-900">
                     {selectedTicket.repairActionTaken || 'REPAIRED'}
                   </div>
                 </div>

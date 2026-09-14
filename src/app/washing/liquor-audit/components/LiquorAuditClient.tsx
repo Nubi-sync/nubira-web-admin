@@ -5,13 +5,10 @@ import {
   Droplets,
   Plus,
   CheckCircle2,
-  AlertTriangle,
-  FileText,
   Activity,
-  Calendar,
-  Sparkles,
   TrendingDown
 } from 'lucide-react'
+import { EmptyState } from '@/components/ui/EmptyState'
 import { WaterAuditLog } from '../../types/washing'
 import { getWaterAuditLogs, WASHING_UPDATE_EVENT } from '../../utils/washingStorage'
 import { LogWaterAuditModal } from './LogWaterAuditModal'
@@ -34,15 +31,14 @@ export function LiquorAuditClient() {
   const totalLiters = audits.reduce((acc, a) => acc + (a.litersConsumed || 0), 0)
   const totalDryKg = audits.reduce((acc, a) => acc + (a.dryWeightProcessedKg || 0), 0)
   const overallRatio = totalDryKg > 0 ? (totalLiters / totalDryKg).toFixed(2) : '5.20'
-  const compliantCount = audits.filter(a => a.complianceStatus === 'COMPLIANT').length
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 select-none">
       {/* 4 Environmental KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
+            <span className="text-xs font-mono font-bold text-slate-500">
               Mean Liquor Ratio
             </span>
             <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
@@ -53,7 +49,7 @@ export function LiquorAuditClient() {
             <span className="text-2xl sm:text-3xl font-black font-mono text-slate-900">
               1 : {overallRatio}
             </span>
-            <span className="text-xs font-bold text-emerald-600 font-mono">Target 1:5.0</span>
+            <span className="text-xs font-bold text-slate-600 font-mono">Target 1:5.0</span>
           </div>
           <p className="text-xs font-medium text-slate-500 mt-1">
             Standard M:L ratio tolerance: &le; 1:5.5
@@ -62,7 +58,7 @@ export function LiquorAuditClient() {
 
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
+            <span className="text-xs font-mono font-bold text-slate-500">
               Total Water Logged
             </span>
             <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
@@ -73,7 +69,7 @@ export function LiquorAuditClient() {
             <span className="text-2xl sm:text-3xl font-black font-mono text-slate-900">
               {totalLiters.toLocaleString()}
             </span>
-            <span className="text-xs font-bold text-slate-600">Liters</span>
+            <span className="text-xs font-bold text-slate-600 font-mono">Liters</span>
           </div>
           <p className="text-xs font-medium text-slate-500 mt-1">
             Across {totalDryKg.toLocaleString()} kg processed
@@ -82,18 +78,18 @@ export function LiquorAuditClient() {
 
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
+            <span className="text-xs font-mono font-bold text-slate-500">
               Effluent pH Standard
             </span>
             <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <CheckCircle2 className="w-4 h-4" />
             </div>
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-2xl sm:text-3xl font-black font-mono text-slate-900">
               7.2 pH
             </span>
-            <span className="text-xs font-bold text-emerald-600">Neutral</span>
+            <span className="text-xs font-bold text-slate-600">Neutral</span>
           </div>
           <p className="text-xs font-medium text-slate-500 mt-1">
             Pollution Board limit: 6.5 - 8.0 pH
@@ -102,18 +98,18 @@ export function LiquorAuditClient() {
 
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
+            <span className="text-xs font-mono font-bold text-slate-500">
               Water Efficiency
             </span>
             <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
-              <TrendingDown className="w-4 h-4 text-emerald-600" />
+              <TrendingDown className="w-4 h-4" />
             </div>
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-2xl sm:text-3xl font-black font-mono text-slate-900">
               -14%
             </span>
-            <span className="text-xs font-bold text-emerald-600">Savings</span>
+            <span className="text-xs font-bold text-slate-600">Savings</span>
           </div>
           <p className="text-xs font-medium text-slate-500 mt-1">
             Optimized bath cycles vs standard 1:8 ratio
@@ -125,17 +121,17 @@ export function LiquorAuditClient() {
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h2 className="text-base font-black text-slate-900">
+            <h2 className="text-base font-black text-slate-900 font-[family-name:var(--font-heading)]">
               Daily Water Consumption & Effluent Discharge Log
             </h2>
             <p className="text-xs text-slate-500 font-medium">
-              Daily meter audits verifying compliance with 1:5.0 liquor ratio and zero hazardous effluent
+              Daily meter audits verifying compliance with 1:5.0 liquor ratio and zero hazardous effluent.
             </p>
           </div>
 
           <button
             onClick={() => setIsModalOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs font-bold transition-all shadow-xs shrink-0"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs font-bold transition-all shadow-xs shrink-0 cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Log Water Audit</span>
@@ -143,66 +139,69 @@ export function LiquorAuditClient() {
         </div>
 
         <div className="overflow-x-auto border border-black/10 rounded-xl">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-[#FAF7F0] border-b border-black/10 text-slate-700 font-mono uppercase text-[10px] tracking-wider">
+          <table className="w-full min-w-[760px] text-left text-xs border-collapse">
+            <thead className="bg-[#FAF7F0]/60 border-b border-black/10 text-slate-600 font-mono uppercase text-[11px] tracking-wider">
               <tr>
-                <th className="p-3">Audit Date</th>
-                <th className="p-3">Meter Readings (Init &rarr; Final)</th>
-                <th className="p-3">Water Consumed</th>
-                <th className="p-3">Dry Garments</th>
-                <th className="p-3">Actual Ratio (M:L)</th>
-                <th className="p-3">Effluent pH & TDS</th>
-                <th className="p-3">Compliance</th>
-                <th className="p-3">Auditor & Remarks</th>
+                <th className="p-3.5">Audit Date</th>
+                <th className="p-3.5">Meter Readings (Init &rarr; Final)</th>
+                <th className="p-3.5">Water Consumed</th>
+                <th className="p-3.5">Dry Garments</th>
+                <th className="p-3.5">Actual Ratio (M:L)</th>
+                <th className="p-3.5">Effluent pH & TDS</th>
+                <th className="p-3.5">Compliance</th>
+                <th className="p-3.5">Auditor & Remarks</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-black/5 font-sans">
-              {audits.map(a => {
-                const isCompliant = a.complianceStatus === 'COMPLIANT'
-                const isWarning = a.complianceStatus === 'WARNING'
-                return (
-                  <tr key={a.id} className="hover:bg-slate-50/70 transition-colors">
-                    <td className="p-3 font-mono font-bold text-slate-900">
+              {audits.length > 0 ? (
+                audits.map(a => (
+                  <tr key={a.id} className="hover:bg-[#FAF7F0]/40 transition-colors">
+                    <td className="p-3.5 font-mono font-bold text-slate-900">
                       {a.auditDate}
                     </td>
-                    <td className="p-3 font-mono text-slate-600 text-[11px]">
+                    <td className="p-3.5 font-mono text-slate-600 text-[11px]">
                       {a.meterReadingInitial.toLocaleString()} &rarr; {a.meterReadingFinal.toLocaleString()} L
                     </td>
-                    <td className="p-3 font-mono font-bold text-[#3A3564]">
+                    <td className="p-3.5 font-mono font-bold text-[#3A3564]">
                       {a.litersConsumed.toLocaleString()} Liters
                     </td>
-                    <td className="p-3 font-mono text-slate-800">
+                    <td className="p-3.5 font-mono text-slate-800">
                       {a.dryWeightProcessedKg.toLocaleString()} kg
                     </td>
-                    <td className="p-3">
+                    <td className="p-3.5">
                       <span className="font-mono font-bold text-slate-900">
                         1 : {a.actualLiquorRatio}
                       </span>
                     </td>
-                    <td className="p-3 font-mono text-xs">
+                    <td className="p-3.5 font-mono text-xs">
                       <div className="font-bold text-slate-800">pH {a.effluentPh}</div>
                       <div className="text-[10px] text-slate-500">{a.effluentTdsPpm} ppm TDS</div>
                     </td>
-                    <td className="p-3">
-                      <span
-                        className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase ${
-                          isCompliant
-                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                            : isWarning
-                            ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                            : 'bg-rose-50 text-rose-700 border border-rose-200'
-                        }`}
-                      >
+                    <td className="p-3.5">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase bg-[#FAF7F0] text-[#3A3564] border border-black/10">
                         {a.complianceStatus}
                       </span>
                     </td>
-                    <td className="p-3 text-slate-600 text-xs max-w-[220px]">
+                    <td className="p-3.5 text-slate-600 text-xs max-w-[220px]">
                       <div className="font-medium text-slate-800">{a.auditorName}</div>
                       {a.notes && <div className="text-[11px] text-slate-500 truncate">{a.notes}</div>}
                     </td>
                   </tr>
-                )
-              })}
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={8} className="p-0">
+                    <EmptyState
+                      variant="seamless"
+                      icon={Droplets}
+                      title="No liquor ratio audits logged"
+                      description="Daily water meter consumption logs, liquor ratio calculations, and effluent pH tracking will display once recorded."
+                      actionLabel="Log Water Audit"
+                      onAction={() => setIsModalOpen(true)}
+                    />
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

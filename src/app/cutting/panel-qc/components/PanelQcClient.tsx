@@ -15,6 +15,7 @@ import {
   Layers,
   ArrowRight
 } from 'lucide-react'
+import { EmptyState } from '@/components/ui/EmptyState'
 import { PanelQcAudit, PanelQcResult, LaySheet } from '../../types/cutting'
 import { getPanelAudits, savePanelAudit, getLaySheets } from '../../utils/cuttingStorage'
 
@@ -145,19 +146,19 @@ export function PanelQcClient() {
 
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
           <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">First-Time Pass Rate</span>
-          <div className="text-2xl sm:text-3xl font-black font-mono text-emerald-600 mt-2">{passRate}%</div>
+          <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 mt-2">{passRate}%</div>
           <p className="text-xs font-semibold text-slate-500 mt-1">Tolerance window &lt;1.0mm</p>
         </div>
 
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
           <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">Avg Top/Bottom Variance</span>
-          <div className="text-2xl sm:text-3xl font-black font-mono text-indigo-600 mt-2">{avgVariance} mm</div>
+          <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 mt-2">{avgVariance} mm</div>
           <p className="text-xs font-semibold text-slate-500 mt-1">Blade deflection tolerance</p>
         </div>
 
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
           <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">Recut Directives</span>
-          <div className="text-2xl sm:text-3xl font-black font-mono text-rose-600 mt-2">{recutOrdersCount} panels</div>
+          <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 mt-2">{recutOrdersCount} panels</div>
           <p className="text-xs font-semibold text-slate-500 mt-1">Routed to end-bit recut rack</p>
         </div>
       </div>
@@ -196,74 +197,88 @@ export function PanelQcClient() {
 
       {/* 5. Audits Table */}
       <div className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-[#FAF7F0] text-[#3A3564] font-mono uppercase text-[10px] tracking-wider border-b border-black/10">
-              <tr>
-                <th className="py-3 px-4 font-bold">Audit Ref</th>
-                <th className="py-3 px-4 font-bold">Lay Sheet</th>
-                <th className="py-3 px-4 font-bold">Component Checked</th>
-                <th className="py-3 px-4 font-bold">Notch Alignment</th>
-                <th className="py-3 px-4 font-bold">Ply Variance (mm)</th>
-                <th className="py-3 px-4 font-bold">Inspector</th>
-                <th className="py-3 px-4 font-bold">Verdict</th>
-                <th className="py-3 px-4 font-bold text-right">Details</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-black/5 font-medium">
-              {filteredAudits.map(audit => {
-                let badge = 'bg-slate-100 text-slate-700'
-                if (audit.result === 'PASSED') badge = 'bg-emerald-100 text-emerald-800'
-                if (audit.result === 'PASSED_WITH_CONDITIONS') badge = 'bg-amber-100 text-amber-800'
-                if (audit.result === 'RECUT_REQUIRED') badge = 'bg-rose-100 text-rose-800'
+        {filteredAudits.length === 0 ? (
+          <div className="p-8">
+            <EmptyState
+              title="No panel QC audits recorded"
+              description="Log a multi-ply tolerance inspection to verify blade precision and notch alignment."
+              actionLabel="Log Panel QC Audit"
+              onAction={() => setIsNewAuditModalOpen(true)}
+            />
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs min-w-[720px]">
+              <thead className="bg-[#FAF7F0] text-[#3A3564] font-mono uppercase text-[10px] tracking-wider border-b border-black/10">
+                <tr>
+                  <th className="py-3 px-4 font-bold">Audit Ref</th>
+                  <th className="py-3 px-4 font-bold">Lay Sheet</th>
+                  <th className="py-3 px-4 font-bold">Component Checked</th>
+                  <th className="py-3 px-4 font-bold">Notch Alignment</th>
+                  <th className="py-3 px-4 font-bold">Ply Variance (mm)</th>
+                  <th className="py-3 px-4 font-bold">Inspector</th>
+                  <th className="py-3 px-4 font-bold">Verdict</th>
+                  <th className="py-3 px-4 font-bold text-right">Details</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-black/5 font-medium">
+                {filteredAudits.map(audit => {
+                  let badge = 'bg-[#FAF7F0] text-[#3A3564] border border-black/10'
+                  if (audit.result === 'RECUT_REQUIRED') {
+                    badge = 'bg-slate-900 text-white border border-slate-900'
+                  }
+                  if (audit.result === 'PASSED_WITH_CONDITIONS') {
+                    badge = 'bg-slate-100 text-slate-700 border border-slate-200'
+                  }
 
-                return (
-                  <tr key={audit.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="py-3.5 px-4 font-mono font-bold text-slate-900">
-                      {audit.audit_number}
-                      <div className="text-[10px] text-slate-400 font-normal">
-                        {new Date(audit.audit_timestamp).toLocaleDateString()}
-                      </div>
-                    </td>
-                    <td className="py-3.5 px-4 font-mono text-[#3A3564] font-bold">
-                      {audit.lay_number}
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <div className="font-bold text-slate-900">{audit.component_name}</div>
-                      <div className="text-[10px] text-slate-500 line-clamp-1">{audit.sampled_plies.join(', ')}</div>
-                    </td>
-                    <td className="py-3.5 px-4 font-mono text-slate-700">
-                      <span className="px-2 py-0.5 rounded bg-[#FAF7F0] border border-black/10 font-bold text-[10px]">
-                        {audit.notch_alignment_check}
-                      </span>
-                    </td>
-                    <td className="py-3.5 px-4 font-mono">
-                      <span className={`font-bold ${audit.top_bottom_ply_variance_mm > 1.0 ? 'text-rose-600' : 'text-slate-900'}`}>
-                        ±{audit.top_bottom_ply_variance_mm} mm
-                      </span>
-                    </td>
-                    <td className="py-3.5 px-4 text-slate-700">
-                      {audit.auditor_name}
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <span className={`text-[10px] font-mono px-2 py-0.5 rounded font-bold uppercase ${badge}`}>
-                        {audit.result.replace(/_/g, ' ')}
-                      </span>
-                    </td>
-                    <td className="py-3.5 px-4 text-right">
-                      <button
-                        onClick={() => setSelectedAudit(audit)}
-                        className="px-2.5 py-1 rounded-lg bg-white hover:bg-[#FAF7F0] border border-black/10 font-mono text-[11px] text-[#3A3564] font-bold shadow-2xs"
-                      >
-                        Findings
-                      </button>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
+                  return (
+                    <tr key={audit.id} className="hover:bg-slate-50 transition-colors">
+                      <td className="py-3.5 px-4 font-mono font-bold text-slate-900">
+                        {audit.audit_number}
+                        <div className="text-[10px] text-slate-400 font-normal">
+                          {new Date(audit.audit_timestamp).toLocaleDateString()}
+                        </div>
+                      </td>
+                      <td className="py-3.5 px-4 font-mono text-[#3A3564] font-bold">
+                        {audit.lay_number}
+                      </td>
+                      <td className="py-3.5 px-4">
+                        <div className="font-bold text-slate-900">{audit.component_name}</div>
+                        <div className="text-[10px] text-slate-500 line-clamp-1">{audit.sampled_plies.join(', ')}</div>
+                      </td>
+                      <td className="py-3.5 px-4 font-mono text-slate-700">
+                        <span className="px-2 py-0.5 rounded bg-[#FAF7F0] border border-black/10 font-bold text-[10px]">
+                          {audit.notch_alignment_check}
+                        </span>
+                      </td>
+                      <td className="py-3.5 px-4 font-mono">
+                        <span className="font-bold text-slate-900">
+                          ±{audit.top_bottom_ply_variance_mm} mm
+                        </span>
+                      </td>
+                      <td className="py-3.5 px-4 text-slate-700">
+                        {audit.auditor_name}
+                      </td>
+                      <td className="py-3.5 px-4">
+                        <span className={`text-[10px] font-mono px-2 py-0.5 rounded font-bold uppercase ${badge}`}>
+                          {audit.result.replace(/_/g, ' ')}
+                        </span>
+                      </td>
+                      <td className="py-3.5 px-4 text-right">
+                        <button
+                          onClick={() => setSelectedAudit(audit)}
+                          className="px-2.5 py-1 rounded-lg bg-white hover:bg-[#FAF7F0] border border-black/10 font-mono text-[11px] text-[#3A3564] font-bold shadow-2xs"
+                        >
+                          Findings
+                        </button>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {/* Log Audit Modal */}

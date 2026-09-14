@@ -23,6 +23,7 @@ import {
 } from '../../utils/alterStorage'
 import { AlterationTicket, RepairStation } from '../../types/alter'
 import { SignOffRepairModal } from './SignOffRepairModal'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 interface RepairStationsClientProps {
   userEmail?: string
@@ -96,7 +97,7 @@ export function RepairStationsClient({ userEmail }: RepairStationsClientProps) {
           }}
           className="px-4 py-2.5 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2c284e] transition-all shadow-2xs inline-flex items-center gap-2 shrink-0 cursor-pointer"
         >
-          <FileCheck2 className="w-4 h-4 text-emerald-300" />
+          <FileCheck2 className="w-4 h-4 text-white" />
           <span>Sign Off Repair (Form 2)</span>
         </button>
       </div>
@@ -104,7 +105,6 @@ export function RepairStationsClient({ userEmail }: RepairStationsClientProps) {
       {/* 4 Mending Station Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {mendingStations.map(stn => {
-          const stationTickets = openTickets.filter(t => t.assignedStation.includes(stn.stationCode.slice(-2)))
           return (
             <div
               key={stn.id}
@@ -114,7 +114,7 @@ export function RepairStationsClient({ userEmail }: RepairStationsClientProps) {
                 <span className="text-xs font-mono font-bold text-[#3A3564]">
                   {stn.stationCode}
                 </span>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold">
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#FAF7F0] text-[#3A3564] border border-black/10 font-bold">
                   {stn.status}
                 </span>
               </div>
@@ -131,13 +131,13 @@ export function RepairStationsClient({ userEmail }: RepairStationsClientProps) {
               <div className="grid grid-cols-2 gap-2 pt-1 text-center font-mono">
                 <div className="bg-slate-50 p-2 rounded-lg border border-black/5">
                   <span className="text-[10px] text-slate-400 uppercase">In Queue</span>
-                  <div className="font-black text-amber-700 text-sm mt-0.5">
+                  <div className="font-black text-slate-900 text-sm mt-0.5">
                     {stn.activeTicketsCount} pcs
                   </div>
                 </div>
                 <div className="bg-slate-50 p-2 rounded-lg border border-black/5">
                   <span className="text-[10px] text-slate-400 uppercase">Cleared</span>
-                  <div className="font-black text-emerald-700 text-sm mt-0.5">
+                  <div className="font-black text-slate-900 text-sm mt-0.5">
                     {stn.repairedTodayCount} pcs
                   </div>
                 </div>
@@ -177,7 +177,7 @@ export function RepairStationsClient({ userEmail }: RepairStationsClientProps) {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse">
+          <table className="w-full text-left text-xs border-collapse min-w-[760px]">
             <thead>
               <tr className="border-b border-black/10 bg-slate-50/70 text-slate-600 font-mono text-[11px] uppercase tracking-wider">
                 <th className="py-3 px-4">Ticket Voucher</th>
@@ -193,8 +193,18 @@ export function RepairStationsClient({ userEmail }: RepairStationsClientProps) {
             <tbody className="divide-y divide-black/5">
               {openTickets.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-8 text-center text-slate-400 font-mono text-xs">
-                    All mending tickets have been cleared! Zero defects currently in queue.
+                  <td colSpan={8} className="p-8">
+                    <EmptyState
+                      icon={Scissors}
+                      title="No garments in mending queue"
+                      description="All precision restitching and reconstructive mending tickets have been signed off."
+                      actionLabel="Sign Off Repair (Form 2)"
+                      onAction={() => {
+                        setSelectedTicketId(undefined)
+                        setIsModalOpen(true)
+                      }}
+                      variant="seamless"
+                    />
                   </td>
                 </tr>
               ) : (
@@ -212,7 +222,7 @@ export function RepairStationsClient({ userEmail }: RepairStationsClientProps) {
                       <div className="text-[10px] text-slate-500">{ticket.buyer}</div>
                     </td>
                     <td className="py-3 px-4">
-                      <span className="font-mono font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                      <span className="font-mono font-bold text-[#3A3564] bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
                         {ticket.defectType}
                       </span>
                       <div className="text-[11px] text-slate-600 mt-1 line-clamp-1">
@@ -226,7 +236,7 @@ export function RepairStationsClient({ userEmail }: RepairStationsClientProps) {
                       {ticket.assignedStation}
                     </td>
                     <td className="py-3 px-4">
-                      <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold border border-amber-200">
+                      <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-[#FAF7F0] text-[#3A3564] font-bold border border-black/10">
                         {ticket.resolutionStatus}
                       </span>
                     </td>

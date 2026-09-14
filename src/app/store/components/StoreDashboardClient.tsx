@@ -628,8 +628,8 @@ export function StoreDashboardClient({
                 </span>
                 <span className="text-xs font-bold text-slate-500 font-mono">pcs</span>
               </div>
-              <p className="text-xs text-emerald-700 font-semibold flex items-center gap-1.5 pt-1.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <p className="text-xs text-slate-600 font-semibold flex items-center gap-1.5 pt-1.5">
+                <CheckCircle2 className="w-4 h-4 text-[#3A3564]" />
                 <span>Ready in Godown Warehouse</span>
               </p>
             </div>
@@ -645,28 +645,26 @@ export function StoreDashboardClient({
                 Lineman BOM Handover
               </span>
               <div className="flex items-baseline gap-2">
-                <span className="text-2xl sm:text-3xl md:text-4xl font-black font-mono text-slate-900">
+                <span className="text-2xl sm:text-3xl md:text-4xl font-black font-mono text-slate-900 tabular-nums">
                   {pendingHandoverCount}
                 </span>
                 <span className="text-xs font-bold text-slate-500 font-mono">active lots</span>
               </div>
-              <p className={`text-xs font-semibold flex items-center gap-1.5 pt-1.5 ${pendingHandoverCount > 0 ? 'text-amber-700' : 'text-emerald-700'}`}>
+              <p className="text-xs font-semibold flex items-center gap-1.5 pt-1.5 text-slate-600">
                 {pendingHandoverCount > 0 ? (
                   <>
-                    <Clock className="w-4 h-4 text-amber-600" />
+                    <Clock className="w-4 h-4 text-slate-500" />
                     <span>Awaiting store raw material issue</span>
                   </>
                 ) : (
                   <>
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                    <CheckCircle2 className="w-4 h-4 text-[#3A3564]" />
                     <span>All active lots issued</span>
                   </>
                 )}
               </p>
             </div>
-            <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs border border-black/10 ${
-              pendingHandoverCount > 0 ? 'bg-amber-50 text-amber-700' : 'bg-[#FAF7F0] text-[#3A3564]'
-            }`}>
+            <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs border border-black/10 bg-[#FAF7F0] text-[#3A3564]">
               <Boxes className="w-5 h-5" />
             </div>
           </div>
@@ -676,25 +674,25 @@ export function StoreDashboardClient({
         <div className="grid grid-cols-2 sm:grid-cols-4 bg-white p-3.5 sm:p-4 rounded-2xl border border-black/10 shadow-2xs divide-y sm:divide-y-0 sm:divide-x divide-slate-100">
           <div className="p-2.5 text-center">
             <p className="text-[11px] font-mono font-bold text-slate-500 uppercase tracking-wider">Godown Stock</p>
-            <p className="text-lg sm:text-xl font-black text-slate-900 font-mono mt-1">
+            <p className="text-lg sm:text-xl font-black text-slate-900 font-mono mt-1 tabular-nums">
               {totalFinishedStock.toLocaleString()} <span className="text-xs font-medium text-slate-500">pcs</span>
             </p>
           </div>
           <div className="p-2.5 text-center">
             <p className="text-[11px] font-mono font-bold text-slate-500 uppercase tracking-wider">Pending Issue</p>
-            <p className={`text-lg sm:text-xl font-black font-mono mt-1 ${pendingHandoverCount > 0 ? 'text-amber-700' : 'text-slate-900'}`}>
+            <p className="text-lg sm:text-xl font-black font-mono mt-1 text-slate-900 tabular-nums">
               {pendingHandoverCount} <span className="text-xs font-medium text-slate-500">lots</span>
             </p>
           </div>
           <div className="p-2.5 text-center">
             <p className="text-[11px] font-mono font-bold text-slate-500 uppercase tracking-wider">Truck Inward (Today)</p>
-            <p className="text-lg sm:text-xl font-black text-emerald-700 font-mono mt-1">
+            <p className="text-lg sm:text-xl font-black text-slate-900 font-mono mt-1 tabular-nums">
               +{todayTruckCount} <span className="text-xs font-medium text-slate-500">slips</span>
             </p>
           </div>
           <div className="p-2.5 text-center">
             <p className="text-[11px] font-mono font-bold text-slate-500 uppercase tracking-wider">Dispatched (Today)</p>
-            <p className="text-lg sm:text-xl font-black text-rose-700 font-mono mt-1">
+            <p className="text-lg sm:text-xl font-black text-slate-900 font-mono mt-1 tabular-nums">
               -{todayOutward} <span className="text-xs font-medium text-slate-500">pcs</span>
             </p>
           </div>
@@ -705,14 +703,14 @@ export function StoreDashboardClient({
       {/* 3. READY FROM QC TABLE QUEUE (HANDSHAKE WITH QC FLOOR)       */}
       {/* ============================================================ */}
       {readyQcAllotments.length > 0 && (
-        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-emerald-200/80 shadow-2xs space-y-4">
+        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs space-y-4">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-xl flex items-center justify-center shrink-0 shadow-2xs">
+              <div className="w-9 h-9 bg-[#FAF7F0] text-[#3A3564] border border-black/10 rounded-xl flex items-center justify-center shrink-0 shadow-2xs">
                 <ShieldCheck className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight">
+                <h3 className="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight font-[family-name:var(--font-heading)]">
                   Ready from QC Finishing Table
                 </h3>
                 <p className="text-xs text-slate-600">
@@ -720,7 +718,7 @@ export function StoreDashboardClient({
                 </p>
               </div>
             </div>
-            <span className="px-3 py-1 text-xs font-bold font-mono bg-emerald-50 text-emerald-800 rounded-xl border border-emerald-200 shadow-2xs">
+            <span className="px-3 py-1 text-xs font-bold font-mono bg-[#FAF7F0] text-[#3A3564] rounded-xl border border-black/10 shadow-2xs">
               {readyQcAllotments.length} lots waiting
             </span>
           </div>
@@ -738,7 +736,7 @@ export function StoreDashboardClient({
               return (
                 <div 
                   key={lot.id}
-                  className="bg-slate-50/70 p-4 sm:p-5 rounded-2xl border border-slate-200/80 hover:border-emerald-300 shadow-2xs hover:shadow-md transition-all space-y-3"
+                  className="bg-[#FAF7F0]/40 p-4 sm:p-5 rounded-2xl border border-black/10 hover:border-black/20 shadow-2xs hover:shadow-md transition-all space-y-3"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div>
@@ -755,7 +753,7 @@ export function StoreDashboardClient({
                       </p>
                     </div>
                     <div className="text-right">
-                      <span className="text-base font-black font-mono text-emerald-700">
+                      <span className="text-base font-black font-mono text-slate-900 tabular-nums">
                         {passedQty} pcs
                       </span>
                       <p className="text-[10px] font-mono text-slate-500">QC Passed</p>
@@ -764,12 +762,12 @@ export function StoreDashboardClient({
 
                   {/* Custody Meta Chips */}
                   <div className="flex flex-wrap gap-1.5 text-xs font-semibold text-slate-600">
-                    <span className="px-2.5 py-1 bg-white border border-slate-200 rounded-lg flex items-center gap-1.5 shadow-2xs">
+                    <span className="px-2.5 py-1 bg-white border border-black/10 rounded-lg flex items-center gap-1.5 shadow-2xs">
                       <User className="w-3.5 h-3.5 text-[#3A3564]" />
                       <span>{linemanName}</span>
                     </span>
-                    <span className="px-2.5 py-1 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-lg flex items-center gap-1.5 shadow-2xs">
-                      <Check className="w-3.5 h-3.5 text-emerald-600" />
+                    <span className="px-2.5 py-1 bg-[#FAF7F0] border border-black/10 text-[#3A3564] rounded-lg flex items-center gap-1.5 shadow-2xs">
+                      <Check className="w-3.5 h-3.5 text-[#3A3564]" />
                       <span>{qcSupervisor}</span>
                     </span>
                   </div>
@@ -964,31 +962,31 @@ export function StoreDashboardClient({
                           </span>
                         )}
                         {isDefective && (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 text-[11px] font-bold font-mono bg-rose-50 text-rose-800 border border-rose-300 rounded-lg">
-                            <AlertCircle className="w-3 h-3 text-rose-700" />
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 text-[11px] font-bold font-mono bg-[#FAF7F0] text-slate-800 border border-black/10 rounded-lg">
+                            <AlertCircle className="w-3 h-3 text-slate-700" />
                             Defective: {totalDefectiveQty} pcs
                           </span>
                         )}
                         {isDue && (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 text-[11px] font-bold font-mono bg-indigo-50 text-indigo-800 border border-indigo-300 rounded-lg">
-                            <Clock className="w-3 h-3 text-indigo-700" />
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 text-[11px] font-bold font-mono bg-[#FAF7F0] text-[#3A3564] border border-black/10 rounded-lg">
+                            <Clock className="w-3 h-3 text-[#3A3564]" />
                             Due: {totalDueQty > 0 ? `${totalDueQty} pcs` : 'Pending'}
                           </span>
                         )}
                         {!isDue && !isShortage && !isDefective && (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 text-[11px] font-bold font-mono bg-emerald-50 text-emerald-800 border border-emerald-300 rounded-lg">
-                            <CheckCircle2 className="w-3 h-3 text-emerald-700" />
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 text-[11px] font-bold font-mono bg-[#FAF7F0] text-[#3A3564] border border-black/10 rounded-lg">
+                            <CheckCircle2 className="w-3 h-3 text-[#3A3564]" />
                             Verified
                           </span>
                         )}
                       </div>
-                      <h4 className="text-base font-extrabold text-slate-900 mt-1.5">
+                      <h4 className="text-base font-extrabold text-slate-900 mt-1.5 font-[family-name:var(--font-heading)]">
                         {grn.party_name}
                       </h4>
                       <p className="text-xs text-slate-500 font-medium flex items-center gap-1.5 flex-wrap mt-0.5">
                         <span>Challan #{grn.challan_no || '-'} • Vehicle: {grn.truck_no || 'Direct Inward'} • Style: {grn.article_no || '-'}</span>
                         {grn.garment_type && (
-                          <span className="px-2 py-0.5 text-[11px] font-bold font-mono bg-purple-50 text-purple-700 border border-purple-200 rounded-md">
+                          <span className="px-2 py-0.5 text-[11px] font-bold font-mono bg-[#FAF7F0] text-slate-700 border border-black/10 rounded-md">
                             {grn.garment_type}
                           </span>
                         )}
@@ -1014,7 +1012,7 @@ export function StoreDashboardClient({
                           title: `GRN Slip: ${grn.grn_no}`,
                           subtitle: `Supplier: ${grn.party_name} (${items.length || grn.total_items} items)`
                         })}
-                        className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer"
+                        className="p-2 text-slate-400 hover:text-slate-800 hover:bg-[#FAF7F0] rounded-xl transition-colors cursor-pointer"
                         title="Delete GRN Entry"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -1026,19 +1024,17 @@ export function StoreDashboardClient({
                   <div className="grid grid-cols-3 gap-2 p-2.5 bg-slate-50 rounded-xl border border-slate-200/70 text-xs">
                     <div>
                       <span className="block text-[10px] font-mono font-bold uppercase text-slate-400">Challan Billed</span>
-                      <span className="font-mono font-extrabold text-slate-800 text-sm">{totalChallanQty}</span>
+                      <span className="font-mono font-extrabold text-slate-800 text-sm tabular-nums">{totalChallanQty}</span>
                     </div>
                     <div>
-                      <span className="block text-[10px] font-mono font-bold uppercase text-emerald-600">In Godown</span>
-                      <span className="font-mono font-extrabold text-emerald-700 text-sm">{totalReceivedQty}</span>
+                      <span className="block text-[10px] font-mono font-bold uppercase text-slate-500">In Godown</span>
+                      <span className="font-mono font-extrabold text-slate-900 text-sm tabular-nums">{totalReceivedQty}</span>
                     </div>
                     <div>
                       <span className="block text-[10px] font-mono font-bold uppercase text-slate-400">
                         {isShortage ? 'Shortage' : isDefective ? 'Defective' : isDue ? 'Due' : 'Variance'}
                       </span>
-                      <span className={`font-mono font-extrabold text-sm ${
-                        (totalShortageQty > 0 || totalDefectiveQty > 0) ? 'text-rose-700' : 'text-slate-500'
-                      }`}>
+                      <span className="font-mono font-extrabold text-sm text-slate-900 tabular-nums">
                         {totalShortageQty > 0 
                           ? `-${totalShortageQty}` 
                           : totalDefectiveQty > 0 
@@ -1049,6 +1045,73 @@ export function StoreDashboardClient({
                       </span>
                     </div>
                   </div>
+
+                  {/* Expandable Items Preview */}
+                  {items.length > 0 && (
+                    <div className="space-y-2 pt-1 border-t border-slate-100">
+                      <button
+                        type="button"
+                        onClick={() => setExpandedGrnId(expandedGrnId === grn.id ? null : grn.id)}
+                        className="w-full flex items-center justify-between text-xs font-mono font-bold text-slate-600 hover:text-[#3A3564] py-1 cursor-pointer transition-colors"
+                      >
+                        <span>Materials Inwarded ({items.length} items)</span>
+                        <span className="flex items-center gap-1 text-[11px] text-slate-400">
+                          {expandedGrnId === grn.id ? 'Collapse' : 'Inspect'}
+                          <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${expandedGrnId === grn.id ? 'rotate-180' : ''}`} />
+                        </span>
+                      </button>
+
+                      {expandedGrnId === grn.id && (
+                        <div className="space-y-2 pt-1">
+                          {items.map((it, idx) => {
+                            const itChallan = it.challan_quantity ?? it.quantity ?? 0
+                            const itReceived = it.received_quantity ?? it.quantity ?? 0
+                            const itShortage = it.shortage_quantity ?? 0
+                            const itStatus = it.status || (itShortage > 0 ? 'SHORTAGE' : 'RECEIVED')
+
+                            return (
+                              <div 
+                                key={idx} 
+                                className="p-3 bg-white rounded-xl border border-slate-200/80 space-y-1.5 text-xs shadow-2xs"
+                              >
+                                <div className="flex items-start justify-between gap-2">
+                                  <div>
+                                    <span className="font-bold text-slate-900 block">
+                                      {it.item_name}
+                                    </span>
+                                    <p className="text-[11px] text-slate-500 font-mono">
+                                      {it.item_type || 'Material'} • {it.color || 'Standard'} {it.size ? `• ${it.size}` : ''}
+                                    </p>
+                                  </div>
+                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md font-mono font-bold uppercase text-[10px] bg-[#FAF7F0] text-slate-800 border border-black/10">
+                                    {itStatus === 'SHORTAGE' ? (
+                                      <><AlertTriangle className="w-3 h-3 text-slate-700" /> Shortage</>
+                                    ) : itStatus === 'DEFECTIVE' ? (
+                                      <><AlertCircle className="w-3 h-3 text-slate-700" /> Defective</>
+                                    ) : itStatus === 'DUE' ? (
+                                      <><Clock className="w-3 h-3 text-[#3A3564]" /> Due</>
+                                    ) : (
+                                      <><CheckCircle2 className="w-3 h-3 text-[#3A3564]" /> Received</>
+                                    )}
+                                  </span>
+                                </div>
+
+                                <div className="flex items-center justify-between text-[11px] font-mono font-semibold text-slate-600 pt-1 border-t border-slate-200/50">
+                                  <span>Challan: <strong className="text-slate-800">{itChallan} {it.unit || 'pcs'}</strong></span>
+                                  <span>Received: <strong className="text-slate-900">{itReceived} {it.unit || 'pcs'}</strong></span>
+                                  {itShortage > 0 && (
+                                    <span className="text-slate-900 font-bold">
+                                      {itStatus}: {itShortage} {it.unit || 'pcs'}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   {/* Summary Bar with Accordion Toggle */}
                   <div className="flex items-center justify-between text-xs font-semibold text-slate-600 pt-1">

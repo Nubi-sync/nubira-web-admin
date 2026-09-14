@@ -6,14 +6,9 @@ import {
   Layers,
   ChevronLeft,
   Plus,
-  Search,
-  CheckCircle2,
-  Sliders,
-  RotateCcw,
-  AlertTriangle,
-  Archive,
-  ArrowRight
+  Search
 } from 'lucide-react'
+import { EmptyState } from '@/components/ui/EmptyState'
 import { PrintingScreen, ScreenStatus } from '../../types/printing'
 import { getScreens, saveScreen, PRINTING_UPDATE_EVENT } from '../../utils/printingStorage'
 import { CreateScreenModal } from './CreateScreenModal'
@@ -59,16 +54,19 @@ export function ScreensClient() {
   const reclamationCount = screens.filter(s => s.status === 'NEEDS_RECLAMATION' || s.status === 'DAMAGED_MESH').length
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6 max-w-7xl w-full mx-auto text-[#09090b]">
+    <div className="p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6 max-w-7xl w-full mx-auto text-[#09090b] select-none">
       {/* 1. Breadcrumbs */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
-          <Link href="/printing" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs">
+          <Link
+            href="/printing"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs cursor-pointer"
+          >
             <ChevronLeft className="w-3.5 h-3.5" />
             <span>Floor Dashboard</span>
           </Link>
-          <span>/</span>
-          <span className="font-mono font-bold text-slate-900">Screen & Stencil Library</span>
+          <span className="text-slate-400 font-mono text-xs">/</span>
+          <span className="font-mono font-bold text-slate-900 text-xs">Screen & Stencil Library</span>
         </div>
 
         <button
@@ -83,19 +81,19 @@ export function ScreensClient() {
       {/* 2. Top Header Card */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-            <Layers className="w-5 h-5" />
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+            <Layers className="w-6 h-6" />
           </div>
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
-              <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
+              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 Screen & Stencil Library
               </h1>
               <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15">
                 Mesh 120–305 Catalog
               </span>
             </div>
-            <p className="text-xs sm:text-sm font-medium text-slate-600 mt-1">
+            <p className="text-xs sm:text-sm font-semibold text-slate-600 mt-1">
               Photo-emulsion exposed frames, pneumatic tension monitoring (Newtons), and physical rack slot indexing.
             </p>
           </div>
@@ -105,40 +103,40 @@ export function ScreensClient() {
       {/* 3. Executive KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
-          <span className="text-[11px] font-mono font-bold text-slate-500 uppercase tracking-wider block mb-2">
+          <span className="text-xs font-mono font-bold text-slate-500 block mb-2">
             Total Inventory
           </span>
-          <div className="text-2xl sm:text-[28px] font-bold text-slate-900 font-mono">
+          <div className="text-2xl sm:text-3xl font-black text-slate-900 font-mono">
             {totalScreens} Screens
           </div>
           <p className="text-xs text-slate-500 mt-1 font-medium">Aluminum tension frames</p>
         </div>
 
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
-          <span className="text-[11px] font-mono font-bold text-slate-500 uppercase tracking-wider block mb-2">
+          <span className="text-xs font-mono font-bold text-slate-500 block mb-2">
             Ready for Table
           </span>
-          <div className="text-2xl sm:text-[28px] font-bold text-emerald-700 font-mono">
+          <div className="text-2xl sm:text-3xl font-black text-slate-900 font-mono">
             {readyCount} Frames
           </div>
           <p className="text-xs text-slate-500 mt-1 font-medium">Pin-hole checked & blocked</p>
         </div>
 
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
-          <span className="text-[11px] font-mono font-bold text-slate-500 uppercase tracking-wider block mb-2">
+          <span className="text-xs font-mono font-bold text-slate-500 block mb-2">
             Currently In-Use
           </span>
-          <div className="text-2xl sm:text-[28px] font-bold text-blue-700 font-mono">
+          <div className="text-2xl sm:text-3xl font-black text-slate-900 font-mono">
             {inUseCount} Frames
           </div>
           <p className="text-xs text-slate-500 mt-1 font-medium">Clamped on 60m tables</p>
         </div>
 
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
-          <span className="text-[11px] font-mono font-bold text-slate-500 uppercase tracking-wider block mb-2">
+          <span className="text-xs font-mono font-bold text-slate-500 block mb-2">
             Needs Reclamation
           </span>
-          <div className="text-2xl sm:text-[28px] font-bold text-amber-700 font-mono">
+          <div className="text-2xl sm:text-3xl font-black text-slate-900 font-mono">
             {reclamationCount} Frames
           </div>
           <p className="text-xs text-slate-500 mt-1 font-medium">Chemical strip / restretch</p>
@@ -178,7 +176,7 @@ export function ScreensClient() {
 
         {/* Data Table */}
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+          <table className="w-full min-w-[760px] text-left border-collapse">
             <thead>
               <tr className="border-b border-slate-100 bg-[#FAF7F0]/60 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">
                 <th className="py-3 px-4">Screen Code</th>
@@ -207,27 +205,17 @@ export function ScreensClient() {
                     <td className="py-3 px-4 font-mono font-bold text-slate-800">
                       {scr.mesh_count} T
                     </td>
-                    <td className="py-3 px-4 font-mono">
-                      <span className={scr.tension_newtons >= 22 ? 'text-emerald-700 font-bold' : 'text-amber-600 font-bold'}>
-                        {scr.tension_newtons} N/cm
-                      </span>
+                    <td className="py-3 px-4 font-mono font-bold text-slate-900">
+                      {scr.tension_newtons} N/cm
                     </td>
                     <td className="py-3 px-4 font-mono text-slate-600">
                       {scr.rack_location}
                     </td>
-                    <td className="py-3 px-4 text-right font-mono text-slate-600">
+                    <td className="py-3 px-4 text-right font-mono text-slate-700">
                       {scr.exposures_count.toLocaleString()}
                     </td>
                     <td className="py-3 px-4">
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase border ${
-                        scr.status === 'READY_FOR_PRINT'
-                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                          : scr.status === 'IN_USE'
-                          ? 'bg-blue-50 text-blue-700 border-blue-200'
-                          : scr.status === 'NEEDS_RECLAMATION'
-                          ? 'bg-amber-50 text-amber-700 border-amber-200'
-                          : 'bg-rose-50 text-rose-700 border-rose-200'
-                      }`}>
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase bg-[#FAF7F0] text-[#3A3564] border border-black/10">
                         {scr.status}
                       </span>
                     </td>
@@ -251,21 +239,28 @@ export function ScreensClient() {
                       {scr.status === 'NEEDS_RECLAMATION' && (
                         <button
                           onClick={() => handleUpdateStatus(scr, 'READY_FOR_PRINT')}
-                          className="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 text-[11px] font-mono font-bold transition-all cursor-pointer"
+                          className="px-2.5 py-1 rounded-lg bg-[#FAF7F0] text-slate-800 border border-black/10 hover:bg-white text-[11px] font-mono font-bold transition-all cursor-pointer shadow-2xs"
                         >
                           Mark Cleaned
                         </button>
                       )}
                       {scr.status === 'DAMAGED_MESH' && (
-                        <span className="text-[11px] font-mono text-rose-600 font-bold">Restretch Frame</span>
+                        <span className="text-[11px] font-mono text-slate-700 font-bold">Restretch Frame</span>
                       )}
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={8} className="py-8 text-center text-slate-400 italic">
-                    No screen stencils match the selected filters.
+                  <td colSpan={8} className="p-0">
+                    <EmptyState
+                      variant="seamless"
+                      icon={Layers}
+                      title="No screen stencils in inventory"
+                      description="Photo-emulsion exposed frames and pneumatic tension measurements will render once registered."
+                      actionLabel="Register New Screen"
+                      onAction={() => setIsCreateModalOpen(true)}
+                    />
                   </td>
                 </tr>
               )}

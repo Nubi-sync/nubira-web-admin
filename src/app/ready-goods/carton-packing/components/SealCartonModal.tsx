@@ -157,9 +157,9 @@ export function SealCartonModal({
           </div>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-700 text-sm font-bold font-mono px-2 py-1 rounded"
+            className="text-slate-400 hover:text-slate-700 p-1 rounded"
           >
-            ✕
+            <X className="w-4 h-4" />
           </button>
         </div>
 
@@ -321,8 +321,8 @@ export function SealCartonModal({
               <span
                 className={`text-[10px] font-mono px-2 py-0.5 rounded font-bold border ${
                   isVarianceOk
-                    ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
-                    : 'bg-rose-100 text-rose-800 border-rose-200'
+                    ? 'bg-[#FAF7F0] text-[#3A3564] border-black/10'
+                    : 'bg-slate-100 text-slate-800 border-black/10'
                 }`}
               >
                 Tolerance (±0.15 kg): {isVarianceOk ? 'PASSED' : 'OUT OF SPEC'}
@@ -348,11 +348,7 @@ export function SealCartonModal({
               </div>
               <div className="bg-white p-2 rounded-lg border border-black/10">
                 <span className="text-[10px] font-mono text-slate-400 uppercase">Scale Variance</span>
-                <div
-                  className={`font-mono font-black text-sm mt-0.5 ${
-                    isVarianceOk ? 'text-emerald-700' : 'text-rose-700'
-                  }`}
-                >
+                <div className="font-mono font-black text-sm mt-0.5 text-slate-900">
                   {weightVariance >= 0 ? '+' : ''}
                   {weightVariance.toFixed(2)} kg
                 </div>
@@ -360,7 +356,7 @@ export function SealCartonModal({
             </div>
 
             {!isVarianceOk && (
-              <p className="text-[11px] text-rose-700 font-medium">
+              <p className="text-[11px] text-slate-700 font-medium">
                 Warning: Variance exceeds ±0.15 kg. Verify garment count to prevent missing or foreign pieces.
               </p>
             )}
@@ -391,7 +387,7 @@ export function SealCartonModal({
               type="submit"
               className="px-4 py-2 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2c284e] transition-all shadow-2xs cursor-pointer inline-flex items-center gap-1.5"
             >
-              <PackageCheck className="w-3.5 h-3.5 text-amber-300" />
+              <PackageCheck className="w-3.5 h-3.5 text-white" />
               <span>Seal & Register Carton (Form 2)</span>
             </button>
           </div>

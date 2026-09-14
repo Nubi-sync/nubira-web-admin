@@ -2,13 +2,13 @@
 
 import { useState, useEffect, useMemo } from 'react'
 import { X, Check, AlertTriangle, ShieldCheck, Scale, Ruler, Sparkles, Layers } from 'lucide-react'
-import { FabricRoll, ShadeGroup } from '../../types/store'
+import { FabricRollInspection, FabricShadeGroup } from '../../types/store'
 import { updateFabricRollInspection, calculate4PointScore } from '../../utils/storeStorage'
 
 interface InspectRollModalProps {
   isOpen: boolean
   onClose: () => void
-  roll: FabricRoll | null
+  roll: FabricRollInspection | null
 }
 
 export function InspectRollModal({ isOpen, onClose, roll }: InspectRollModalProps) {
@@ -18,7 +18,7 @@ export function InspectRollModal({ isOpen, onClose, roll }: InspectRollModalProp
   const [points2, setPoints2] = useState<number>(0)
   const [points3, setPoints3] = useState<number>(0)
   const [points4, setPoints4] = useState<number>(0)
-  const [shadeGroup, setShadeGroup] = useState<ShadeGroup>('SHADE_A')
+  const [shadeGroup, setShadeGroup] = useState<FabricShadeGroup>('SHADE_A')
   const [inspectorName, setInspectorName] = useState<string>('QA Fabric Auditor')
   const [godownRack, setGodownRack] = useState<string>('BAY_1_RACK_01')
   const [notes, setNotes] = useState<string>('')
@@ -87,11 +87,11 @@ export function InspectRollModal({ isOpen, onClose, roll }: InspectRollModalProp
         {/* Modal Header */}
         <div className="flex items-center justify-between border-b border-black/10 pb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#3A3564]/10 text-[#3A3564] flex items-center justify-center font-bold">
+            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center font-bold shadow-2xs">
               <Layers className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-lg font-black text-slate-900">
+              <h2 className="text-lg font-black text-slate-900 font-[family-name:var(--font-heading)]">
                 ASTM D5430 4-Point Roll Audit
               </h2>
               <p className="text-xs font-mono text-slate-500">
@@ -101,38 +101,30 @@ export function InspectRollModal({ isOpen, onClose, roll }: InspectRollModalProp
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-lg border border-black/10 text-slate-400 hover:text-slate-700 hover:bg-slate-50 flex items-center justify-center transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-lg border border-black/10 text-slate-400 hover:text-slate-700 hover:bg-[#FAF7F0] flex items-center justify-center transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Live ASTM Score Banner */}
-        <div className={`p-4 rounded-xl border flex items-center justify-between ${
-          isPassed 
-            ? 'bg-emerald-50 border-emerald-200 text-emerald-950' 
-            : 'bg-rose-50 border-rose-200 text-rose-950'
-        }`}>
+        <div className="p-4 rounded-xl border border-black/10 bg-[#FAF7F0] flex items-center justify-between">
           <div>
-            <span className="text-[11px] font-mono uppercase font-bold tracking-wider opacity-75">
+            <span className="text-[11px] font-mono uppercase font-bold tracking-wider text-slate-500">
               ASTM D5430 Penalty Score (SLA ≤ 28.0 pts/100 sq yd)
             </span>
             <div className="flex items-baseline gap-2 mt-0.5">
-              <span className="text-3xl font-black font-mono">
+              <span className="text-3xl font-black font-mono text-slate-900 tabular-nums">
                 {pointsPer100SqYd}
               </span>
-              <span className="text-xs font-mono text-slate-600">
+              <span className="text-xs font-mono text-slate-500">
                 pts / 100 sq yd (Total: {totalPoints} penalty pts)
               </span>
             </div>
           </div>
-          <div className={`px-3 py-1.5 rounded-xl font-mono text-xs font-black uppercase tracking-wider flex items-center gap-1.5 ${
-            isPassed 
-              ? 'bg-emerald-600 text-white shadow-xs' 
-              : 'bg-rose-600 text-white shadow-xs'
-          }`}>
-            {isPassed ? <ShieldCheck className="w-4 h-4" /> : <AlertTriangle className="w-4 h-4" />}
-            <span>{isPassed ? 'PASS FOR CUTTING' : 'REJECT / RETURN MILL'}</span>
+          <div className="px-3 py-1.5 rounded-xl font-mono text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 bg-white text-[#3A3564] border border-black/10 shadow-2xs">
+            {isPassed ? <ShieldCheck className="w-4 h-4 text-[#3A3564]" /> : <AlertTriangle className="w-4 h-4 text-[#3A3564]" />}
+            <span>{isPassed ? 'PASS FOR CUTTING' : 'REJECT / QUARANTINE'}</span>
           </div>
         </div>
 
@@ -180,102 +172,94 @@ export function InspectRollModal({ isOpen, onClose, roll }: InspectRollModalProp
               </label>
               <select
                 value={shadeGroup}
-                onChange={(e) => setShadeGroup(e.target.value as ShadeGroup)}
+                onChange={(e) => setShadeGroup(e.target.value as FabricShadeGroup)}
                 className="w-full px-3 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564] cursor-pointer"
               >
-                <option value="SHADE_A">SHADE A (Standard Core)</option>
-                <option value="SHADE_B">SHADE B (Slightly Darker)</option>
-                <option value="SHADE_C">SHADE C (Slightly Lighter)</option>
+                <option value="SHADE_A">Shade A (Standard Central)</option>
+                <option value="SHADE_B">Shade B (Slight Darker)</option>
+                <option value="SHADE_C">Shade C (Slight Lighter)</option>
               </select>
             </div>
           </div>
 
-          {/* ASTM 4-Point Penalty Defect Tally */}
-          <div className="bg-[#FAF7F0] p-4 rounded-xl border border-black/10 space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-mono font-black uppercase text-[#3A3564] tracking-wider">
-                Defect Breakdown Matrix
-              </span>
-              <span className="text-[11px] font-mono text-slate-500">
-                Sum: {totalPoints} Penalty Points
-              </span>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-              <div className="bg-white p-2.5 rounded-lg border border-black/5 text-center">
-                <span className="text-[10px] font-mono font-bold text-slate-500 block">
-                  ≤ 3" (1 pt each)
-                </span>
+          {/* ASTM 4-Point Defect Breakdown Matrix */}
+          <div className="p-4 rounded-xl border border-black/10 bg-[#FAF7F0]/60 space-y-3">
+            <span className="text-xs font-mono font-bold text-slate-700 uppercase tracking-wider block">
+              ASTM 4-Point Defect Demerit Counts
+            </span>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div>
+                <label className="block text-[11px] font-mono text-slate-500 mb-1">
+                  1 Pt (&lt;3")
+                </label>
                 <input
                   type="number"
                   min="0"
                   value={points1}
                   onChange={(e) => setPoints1(Math.max(0, parseInt(e.target.value, 10) || 0))}
-                  className="w-full text-center text-sm font-black font-mono text-slate-900 mt-1 focus:outline-none"
+                  className="w-full px-3 py-1.5 bg-white border border-black/10 rounded-lg text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                 />
               </div>
 
-              <div className="bg-white p-2.5 rounded-lg border border-black/5 text-center">
-                <span className="text-[10px] font-mono font-bold text-slate-500 block">
-                  3"–6" (2 pts each)
-                </span>
+              <div>
+                <label className="block text-[11px] font-mono text-slate-500 mb-1">
+                  2 Pts (3"–6")
+                </label>
                 <input
                   type="number"
                   min="0"
                   value={points2}
                   onChange={(e) => setPoints2(Math.max(0, parseInt(e.target.value, 10) || 0))}
-                  className="w-full text-center text-sm font-black font-mono text-slate-900 mt-1 focus:outline-none"
+                  className="w-full px-3 py-1.5 bg-white border border-black/10 rounded-lg text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                 />
               </div>
 
-              <div className="bg-white p-2.5 rounded-lg border border-black/5 text-center">
-                <span className="text-[10px] font-mono font-bold text-slate-500 block">
-                  6"–9" (3 pts each)
-                </span>
+              <div>
+                <label className="block text-[11px] font-mono text-slate-500 mb-1">
+                  3 Pts (6"–9")
+                </label>
                 <input
                   type="number"
                   min="0"
                   value={points3}
                   onChange={(e) => setPoints3(Math.max(0, parseInt(e.target.value, 10) || 0))}
-                  className="w-full text-center text-sm font-black font-mono text-slate-900 mt-1 focus:outline-none"
+                  className="w-full px-3 py-1.5 bg-white border border-black/10 rounded-lg text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                 />
               </div>
 
-              <div className="bg-white p-2.5 rounded-lg border border-black/5 text-center">
-                <span className="text-[10px] font-mono font-bold text-rose-600 block">
-                  &gt; 9" / Holes (4 pts)
-                </span>
+              <div>
+                <label className="block text-[11px] font-mono text-slate-500 mb-1">
+                  4 Pts (&gt;9" or Hole)
+                </label>
                 <input
                   type="number"
                   min="0"
                   value={points4}
                   onChange={(e) => setPoints4(Math.max(0, parseInt(e.target.value, 10) || 0))}
-                  className="w-full text-center text-sm font-black font-mono text-rose-700 mt-1 focus:outline-none"
+                  className="w-full px-3 py-1.5 bg-white border border-black/10 rounded-lg text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                 />
               </div>
             </div>
           </div>
 
-          {/* Inspector FK & Rack Location */}
+          {/* Inspector & Rack Allocation */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-mono font-bold text-slate-600 mb-1">
-                Certified Fabric Inspector
+                Auditor Sign-off Name
               </label>
-              <select
+              <input
+                type="text"
                 value={inspectorName}
                 onChange={(e) => setInspectorName(e.target.value)}
-                className="w-full px-3 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564] cursor-pointer"
-              >
-                <option value="Devrat Sharma (QA-4Pt)">Devrat Sharma (Certified QA-4Pt)</option>
-                <option value="Harish Nair (Sr. Fabric Auditor)">Harish Nair (Sr. Fabric Auditor)</option>
-                <option value="Ananya Roy (Fabric Tech)">Ananya Roy (Fabric Tech)</option>
-              </select>
+                className="w-full px-3 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                required
+              />
             </div>
 
             <div>
               <label className="block text-xs font-mono font-bold text-slate-600 mb-1">
-                Godown Storage Rack
+                Godown Bay & Rack Location
               </label>
               <select
                 value={godownRack}
@@ -310,16 +294,14 @@ export function InspectRollModal({ isOpen, onClose, roll }: InspectRollModalProp
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl border border-black/10 text-xs font-mono font-bold text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
+              className="px-4 py-2 rounded-xl border border-black/10 text-xs font-mono font-bold text-slate-700 hover:bg-[#FAF7F0] transition-colors cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className={`px-5 py-2 rounded-xl text-xs font-mono font-bold text-white shadow-xs flex items-center gap-1.5 cursor-pointer ${
-                isPassed ? 'bg-[#3A3564] hover:bg-[#2e2a52]' : 'bg-rose-700 hover:bg-rose-800'
-              }`}
+              className="px-5 py-2 rounded-xl text-xs font-mono font-bold text-white shadow-2xs flex items-center gap-1.5 cursor-pointer bg-[#3A3564] hover:bg-[#2c284e] transition-all"
             >
               <Check className="w-4 h-4" />
               <span>{isSubmitting ? 'Recording...' : 'Commit Inspection Sign-Off'}</span>

@@ -6,15 +6,9 @@ import {
   Cpu,
   ChevronLeft,
   Plus,
-  Search,
-  CheckCircle2,
-  AlertCircle,
-  Sliders,
-  Layers,
-  ArrowRight,
-  Flame,
-  FileSpreadsheet
+  Search
 } from 'lucide-react'
+import { EmptyState } from '@/components/ui/EmptyState'
 import { PrintingProductionRun, PrintRunStatus } from '../../types/printing'
 import { getProductionRuns, saveProductionRun, PRINTING_UPDATE_EVENT } from '../../utils/printingStorage'
 import { LogProductionModal } from './LogProductionModal'
@@ -87,16 +81,19 @@ export function TableRunsClient({ initialRuns }: TableRunsClientProps = {}) {
   const activeRuns = runs.filter(r => r.status === 'PRINTING' || r.status === 'CURING').length
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6 max-w-7xl w-full mx-auto text-[#09090b]">
+    <div className="p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6 max-w-7xl w-full mx-auto text-[#09090b] select-none">
       {/* 1. Breadcrumbs */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
-          <Link href="/printing" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs">
+          <Link
+            href="/printing"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs cursor-pointer"
+          >
             <ChevronLeft className="w-3.5 h-3.5" />
             <span>Floor Dashboard</span>
           </Link>
-          <span>/</span>
-          <span className="font-mono font-bold text-slate-900">Table Batch Queue & DTG Runs</span>
+          <span className="text-slate-400 font-mono text-xs">/</span>
+          <span className="font-mono font-bold text-slate-900 text-xs">Table Batch Queue & DTG Runs</span>
         </div>
 
         <button
@@ -111,19 +108,19 @@ export function TableRunsClient({ initialRuns }: TableRunsClientProps = {}) {
       {/* 2. Top Header Card */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-            <Cpu className="w-5 h-5" />
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+            <Cpu className="w-6 h-6" />
           </div>
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
-              <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
+              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 Table Batch Queue & DTG Machine Runs
               </h1>
               <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15">
                 Shift Production Ledger
               </span>
             </div>
-            <p className="text-xs sm:text-sm font-medium text-slate-600 mt-1">
+            <p className="text-xs sm:text-sm font-semibold text-slate-600 mt-1">
               Live stroke counts, operator allocation, good panel outputs, and defect rejection logs with curing verification.
             </p>
           </div>
@@ -133,40 +130,40 @@ export function TableRunsClient({ initialRuns }: TableRunsClientProps = {}) {
       {/* 3. Executive KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
-          <span className="text-[11px] font-mono font-bold text-slate-500 uppercase tracking-wider block mb-2">
+          <span className="text-xs font-mono font-bold text-slate-500 block mb-2">
             Active Running Jobs
           </span>
-          <div className="text-2xl sm:text-[28px] font-bold text-slate-900 font-mono">
+          <div className="text-2xl sm:text-3xl font-black text-slate-900 font-mono">
             {activeRuns} Stations
           </div>
           <p className="text-xs text-slate-500 mt-1 font-medium">Table passes & DTG heads</p>
         </div>
 
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
-          <span className="text-[11px] font-mono font-bold text-slate-500 uppercase tracking-wider block mb-2">
+          <span className="text-xs font-mono font-bold text-slate-500 block mb-2">
             Total Cut Panels Issued
           </span>
-          <div className="text-2xl sm:text-[28px] font-bold text-slate-900 font-mono">
+          <div className="text-2xl sm:text-3xl font-black text-slate-900 font-mono">
             {totalIssued.toLocaleString()} Pcs
           </div>
           <p className="text-xs text-slate-500 mt-1 font-medium">From 03. Cutting floor</p>
         </div>
 
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
-          <span className="text-[11px] font-mono font-bold text-slate-500 uppercase tracking-wider block mb-2">
+          <span className="text-xs font-mono font-bold text-slate-500 block mb-2">
             Panels Printed & Cured
           </span>
-          <div className="text-2xl sm:text-[28px] font-bold text-emerald-700 font-mono">
+          <div className="text-2xl sm:text-3xl font-black text-slate-900 font-mono">
             {totalGood.toLocaleString()} Pcs
           </div>
           <p className="text-xs text-slate-500 mt-1 font-medium">Ready for 06. Sewing Floor</p>
         </div>
 
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
-          <span className="text-[11px] font-mono font-bold text-slate-500 uppercase tracking-wider block mb-2">
+          <span className="text-xs font-mono font-bold text-slate-500 block mb-2">
             Total Shift Rejections
           </span>
-          <div className="text-2xl sm:text-[28px] font-bold text-rose-600 font-mono">
+          <div className="text-2xl sm:text-3xl font-black text-slate-900 font-mono">
             {totalRejects} Pcs
           </div>
           <p className="text-xs text-slate-500 mt-1 font-medium">Logged for end-bit recut</p>
@@ -206,7 +203,7 @@ export function TableRunsClient({ initialRuns }: TableRunsClientProps = {}) {
 
         {/* Data Table */}
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+          <table className="w-full min-w-[760px] text-left border-collapse">
             <thead>
               <tr className="border-b border-slate-100 bg-[#FAF7F0]/60 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">
                 <th className="py-3 px-4">Run #</th>
@@ -229,7 +226,7 @@ export function TableRunsClient({ initialRuns }: TableRunsClientProps = {}) {
                     </td>
                     <td className="py-3 px-4">
                       <div className="font-bold text-slate-900">{run.style_name}</div>
-                      <div className="text-[11px] font-mono text-slate-400">
+                      <div className="text-[11px] font-mono text-slate-500">
                         {run.po_number} • {run.style_ref}
                       </div>
                     </td>
@@ -244,29 +241,21 @@ export function TableRunsClient({ initialRuns }: TableRunsClientProps = {}) {
                     <td className="py-3 px-4 text-right font-mono font-bold text-slate-700">
                       {run.total_panels_issued.toLocaleString()}
                     </td>
-                    <td className="py-3 px-4 text-right font-mono font-bold text-emerald-700">
+                    <td className="py-3 px-4 text-right font-mono font-bold text-slate-900">
                       {run.panels_completed.toLocaleString()}
                     </td>
-                    <td className="py-3 px-4 text-right font-mono font-bold text-rose-600">
+                    <td className="py-3 px-4 text-right font-mono font-bold text-slate-700">
                       {run.panels_rejected}
                     </td>
                     <td className="py-3 px-4">
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase border ${
-                        run.status === 'COMPLETED'
-                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                          : run.status === 'PRINTING'
-                          ? 'bg-blue-50 text-blue-700 border-blue-200'
-                          : run.status === 'CURING'
-                          ? 'bg-amber-50 text-amber-700 border-amber-200'
-                          : 'bg-slate-100 text-slate-700 border-slate-200'
-                      }`}>
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase bg-[#FAF7F0] text-[#3A3564] border border-black/10">
                         {run.status}
                       </span>
                     </td>
                     <td className="py-3 px-4 text-right space-x-1.5">
                       <button
                         onClick={() => setSelectedRunForLog(run)}
-                        className="px-2.5 py-1 rounded-lg bg-white border border-black/10 hover:bg-slate-50 text-slate-700 text-[11px] font-mono font-bold transition-all cursor-pointer"
+                        className="px-2.5 py-1 rounded-lg bg-white border border-black/10 hover:bg-[#FAF7F0] text-slate-700 text-[11px] font-mono font-bold transition-all cursor-pointer shadow-2xs"
                       >
                         Log Output
                       </button>
@@ -284,8 +273,15 @@ export function TableRunsClient({ initialRuns }: TableRunsClientProps = {}) {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={9} className="py-8 text-center text-slate-400 italic">
-                    No printing runs match the filter criteria.
+                  <td colSpan={9} className="p-0">
+                    <EmptyState
+                      variant="seamless"
+                      icon={Cpu}
+                      title="No table runs currently scheduled"
+                      description="Continuous table passes, cut bundle reconciliations, and piece output records will render once started."
+                      actionLabel="Schedule New Batch Run"
+                      onAction={() => setIsStartModalOpen(true)}
+                    />
                   </td>
                 </tr>
               )}

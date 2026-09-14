@@ -12,10 +12,9 @@ import {
   Plus,
   Boxes,
   Gauge,
-  ShieldCheck,
-  Check,
-  RotateCcw
+  ShieldCheck
 } from 'lucide-react'
+import { EmptyState } from '@/components/ui/EmptyState'
 import { getScaleLogs, READY_GOODS_UPDATE_EVENT } from '../../utils/readyGoodsStorage'
 import { ScaleWeightLog } from '../../types/readyGoods'
 import { ScaleAuditModal } from './ScaleAuditModal'
@@ -73,7 +72,7 @@ export function CartonWeightClient({ userEmail }: CartonWeightClientProps) {
           </div>
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
-              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
+              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 Scale Weight & Carton Audit Log
               </h1>
               <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 tracking-wider">
@@ -81,7 +80,7 @@ export function CartonWeightClient({ userEmail }: CartonWeightClientProps) {
               </span>
             </div>
             <p className="text-xs sm:text-sm font-medium text-slate-600 mt-1">
-              Real-time load cell telemetry verifying physical export carton weights against mathematical BOM weights (±0.15 kg threshold)
+              Real-time load cell telemetry verifying physical export carton weights against mathematical BOM weights (±0.15 kg threshold).
             </p>
           </div>
         </div>
@@ -102,11 +101,11 @@ export function CartonWeightClient({ userEmail }: CartonWeightClientProps) {
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Weighbridges Online
             </span>
-            <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
               <Gauge className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black font-mono text-emerald-600">
+          <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900">
             3 of 3 Active
           </div>
           <p className="text-xs font-semibold text-slate-500 mt-1">Bays 3, 4, 5 Calibrated</p>
@@ -163,13 +162,13 @@ export function CartonWeightClient({ userEmail }: CartonWeightClientProps) {
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-xs font-mono font-bold text-[#3A3564]">SCALE-BAY-03</span>
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold">
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#FAF7F0] text-[#3A3564] border border-black/10 font-bold">
               CALIBRATED
             </span>
           </div>
           <div className="text-sm font-bold text-slate-900">Hoodie & Heavy Knit Scale</div>
-          <p className="text-xs text-slate-500">Capacity: 100 kg • Resolution: ±5g • Bay 3 Station</p>
-          <div className="pt-2 text-[11px] font-mono text-slate-400 border-t border-black/5">
+          <p className="text-xs text-slate-500 font-mono">Capacity: 100 kg • Resolution: ±5g • Bay 3 Station</p>
+          <div className="pt-2 text-[11px] font-mono text-slate-500 border-t border-black/5">
             Last Test: 2026-09-12 07:00 (20kg standard test pass)
           </div>
         </div>
@@ -177,13 +176,13 @@ export function CartonWeightClient({ userEmail }: CartonWeightClientProps) {
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-xs font-mono font-bold text-[#3A3564]">SCALE-BAY-04</span>
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold">
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#FAF7F0] text-[#3A3564] border border-black/10 font-bold">
               CALIBRATED
             </span>
           </div>
           <div className="text-sm font-bold text-slate-900">Tees & Lightweight Conveyor Scale</div>
-          <p className="text-xs text-slate-500">Capacity: 60 kg • Resolution: ±2g • Bay 4 Station</p>
-          <div className="pt-2 text-[11px] font-mono text-slate-400 border-t border-black/5">
+          <p className="text-xs text-slate-500 font-mono">Capacity: 60 kg • Resolution: ±2g • Bay 4 Station</p>
+          <div className="pt-2 text-[11px] font-mono text-slate-500 border-t border-black/5">
             Last Test: 2026-09-12 07:15 (20kg standard test pass)
           </div>
         </div>
@@ -191,13 +190,13 @@ export function CartonWeightClient({ userEmail }: CartonWeightClientProps) {
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-xs font-mono font-bold text-[#3A3564]">SCALE-BAY-05</span>
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold">
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#FAF7F0] text-[#3A3564] border border-black/10 font-bold">
               CALIBRATED
             </span>
           </div>
           <div className="text-sm font-bold text-slate-900">Cargo & Heavy Woven Scale</div>
-          <p className="text-xs text-slate-500">Capacity: 150 kg • Resolution: ±10g • Bay 5 Station</p>
-          <div className="pt-2 text-[11px] font-mono text-slate-400 border-t border-black/5">
+          <p className="text-xs text-slate-500 font-mono">Capacity: 150 kg • Resolution: ±10g • Bay 5 Station</p>
+          <div className="pt-2 text-[11px] font-mono text-slate-500 border-t border-black/5">
             Last Test: 2026-09-12 07:30 (20kg standard test pass)
           </div>
         </div>
@@ -208,7 +207,7 @@ export function CartonWeightClient({ userEmail }: CartonWeightClientProps) {
         <div className="p-5 sm:p-6 border-b border-black/10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-[#FAF7F0]/30">
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-base sm:text-lg font-black text-slate-900">
+              <h2 className="text-base sm:text-lg font-black text-slate-900 font-[family-name:var(--font-heading)]">
                 Digital Scale Audit & Variance Log
               </h2>
               <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-[#3A3564] text-white font-bold">
@@ -216,7 +215,7 @@ export function CartonWeightClient({ userEmail }: CartonWeightClientProps) {
               </span>
             </div>
             <p className="text-xs text-slate-500 mt-0.5">
-              Verified weight delta between physical weighbridge reading and theoretical BOM calculation
+              Verified weight delta between physical weighbridge reading and theoretical BOM calculation.
             </p>
           </div>
 
@@ -227,82 +226,77 @@ export function CartonWeightClient({ userEmail }: CartonWeightClientProps) {
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               placeholder="Search CTN #, PO, Scale, Auditor..."
-              className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-black/10 bg-white focus:outline-none focus:ring-1 focus:ring-[#3A3564] font-mono"
+              className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-black/10 bg-white focus:outline-none focus:ring-1 focus:ring-[#3A3564] font-mono text-slate-900"
             />
           </div>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse">
+          <table className="w-full min-w-[760px] text-left text-xs border-collapse">
             <thead>
-              <tr className="border-b border-black/10 bg-slate-50/70 text-slate-600 font-mono text-[11px] uppercase tracking-wider">
-                <th className="py-3 px-4">Scale Station</th>
-                <th className="py-3 px-4">Carton Barcode</th>
-                <th className="py-3 px-4">Order PO</th>
-                <th className="py-3 px-4">Style Description</th>
-                <th className="py-3 px-4">Measured Weight</th>
-                <th className="py-3 px-4">Expected BOM Wt</th>
-                <th className="py-3 px-4">Variance</th>
-                <th className="py-3 px-4">Tolerance Status</th>
-                <th className="py-3 px-4">Auditor</th>
-                <th className="py-3 px-4 text-right">Timestamp</th>
+              <tr className="border-b border-black/10 bg-[#FAF7F0]/60 text-slate-600 font-mono text-[11px] uppercase tracking-wider">
+                <th className="py-3.5 px-4">Scale Station</th>
+                <th className="py-3.5 px-4">Carton Barcode</th>
+                <th className="py-3.5 px-4">Order PO</th>
+                <th className="py-3.5 px-4">Style Description</th>
+                <th className="py-3.5 px-4">Measured Weight</th>
+                <th className="py-3.5 px-4">Expected BOM Wt</th>
+                <th className="py-3.5 px-4">Variance</th>
+                <th className="py-3.5 px-4">Tolerance Status</th>
+                <th className="py-3.5 px-4">Auditor</th>
+                <th className="py-3.5 px-4 text-right">Timestamp</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-black/5">
+            <tbody className="divide-y divide-black/5 font-sans">
               {filteredLogs.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="py-8 text-center text-slate-400 font-mono text-xs">
-                    No scale weight records match your search query.
+                  <td colSpan={10} className="p-0">
+                    <EmptyState
+                      variant="seamless"
+                      icon={Scale}
+                      title="No scale weight records found"
+                      description="Weighbridge load cell readings, ±0.15 kg tolerance checks, and BOM weight variance logs will display once recorded."
+                      actionLabel="Log Weighbridge Audit"
+                      onAction={() => setIsModalOpen(true)}
+                    />
                   </td>
                 </tr>
               ) : (
                 filteredLogs.map(log => (
                   <tr key={log.id} className="hover:bg-[#FAF7F0]/40 transition-colors">
-                    <td className="py-3 px-4 font-mono font-bold text-[#3A3564]">
+                    <td className="py-3.5 px-4 font-mono font-bold text-[#3A3564]">
                       {log.scaleId}
                     </td>
-                    <td className="py-3 px-4 font-mono font-bold text-slate-900">
+                    <td className="py-3.5 px-4 font-mono font-bold text-slate-900">
                       {log.cartonNumber}
                     </td>
-                    <td className="py-3 px-4 font-mono text-slate-700">
+                    <td className="py-3.5 px-4 font-mono text-slate-700">
                       {log.orderNumber}
                     </td>
-                    <td className="py-3 px-4 font-medium text-slate-800">
+                    <td className="py-3.5 px-4 font-medium text-slate-800">
                       {log.styleName}
                     </td>
-                    <td className="py-3 px-4 font-mono font-bold text-slate-900">
+                    <td className="py-3.5 px-4 font-mono font-bold text-slate-900">
                       {log.measuredWeightKg.toFixed(2)} kg
                     </td>
-                    <td className="py-3 px-4 font-mono text-slate-600">
+                    <td className="py-3.5 px-4 font-mono text-slate-600">
                       {log.expectedWeightKg.toFixed(2)} kg
                     </td>
-                    <td className="py-3 px-4 font-mono">
-                      <span
-                        className={`px-2 py-0.5 rounded text-[11px] font-bold border ${
-                          log.tolerancePassed
-                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                            : 'bg-rose-50 text-rose-700 border-rose-200'
-                        }`}
-                      >
+                    <td className="py-3.5 px-4 font-mono">
+                      <span className="px-2 py-0.5 rounded text-[11px] font-bold border bg-[#FAF7F0] text-slate-900 border-black/10">
                         {log.varianceKg >= 0 ? '+' : ''}
                         {log.varianceKg.toFixed(2)} kg
                       </span>
                     </td>
-                    <td className="py-3 px-4">
-                      {log.tolerancePassed ? (
-                        <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold border border-emerald-200">
-                          PASSED (±0.15 kg)
-                        </span>
-                      ) : (
-                        <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-rose-100 text-rose-800 font-bold border border-rose-200 flex items-center gap-1 w-fit">
-                          <AlertTriangle className="w-3 h-3" /> OUT OF SPEC
-                        </span>
-                      )}
+                    <td className="py-3.5 px-4">
+                      <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-[#FAF7F0] text-[#3A3564] font-bold border border-black/10">
+                        {log.tolerancePassed ? 'PASSED (±0.15 kg)' : 'OUT OF SPEC'}
+                      </span>
                     </td>
-                    <td className="py-3 px-4 text-slate-700 font-medium">
+                    <td className="py-3.5 px-4 text-slate-700 font-medium">
                       {log.auditorName}
                     </td>
-                    <td className="py-3 px-4 text-right font-mono text-[11px] text-slate-500">
+                    <td className="py-3.5 px-4 text-right font-mono text-[11px] text-slate-500">
                       {log.loggedAt}
                     </td>
                   </tr>

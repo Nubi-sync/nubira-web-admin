@@ -184,9 +184,9 @@ export function AqlAuditModal({
           </div>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-700 text-sm font-bold font-mono px-2 py-1 rounded"
+            className="text-slate-400 hover:text-slate-700 p-1 rounded"
           >
-            ✕
+            <X className="w-4 h-4" />
           </button>
         </div>
 
@@ -308,7 +308,7 @@ export function AqlAuditModal({
           {/* Row 3: Defect Counters */}
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="block text-[11px] font-mono font-bold text-rose-700 uppercase mb-1">
+              <label className="block text-[11px] font-mono font-bold text-slate-700 uppercase mb-1">
                 Critical (0 Allowed)
               </label>
               <input
@@ -318,7 +318,7 @@ export function AqlAuditModal({
                 onChange={e => setCriticalDefects(Math.max(0, Number(e.target.value)))}
                 className={`w-full px-3 py-2 text-xs rounded-xl border font-mono font-black text-center focus:outline-none ${
                   criticalDefects > 0
-                    ? 'border-rose-400 bg-rose-50 text-rose-900'
+                    ? 'border-slate-400 bg-slate-100 text-slate-900'
                     : 'border-black/10 bg-white text-slate-800'
                 }`}
               />
@@ -326,7 +326,7 @@ export function AqlAuditModal({
             </div>
 
             <div>
-              <label className="block text-[11px] font-mono font-bold text-amber-700 uppercase mb-1">
+              <label className="block text-[11px] font-mono font-bold text-slate-700 uppercase mb-1">
                 Major (≤ {isoLimits.maxMajorDefects})
               </label>
               <input
@@ -336,7 +336,7 @@ export function AqlAuditModal({
                 onChange={e => setMajorDefects(Math.max(0, Number(e.target.value)))}
                 className={`w-full px-3 py-2 text-xs rounded-xl border font-mono font-black text-center focus:outline-none ${
                   majorDefects > isoLimits.maxMajorDefects
-                    ? 'border-rose-400 bg-rose-50 text-rose-900'
+                    ? 'border-slate-400 bg-slate-100 text-slate-900'
                     : 'border-black/10 bg-white text-slate-800'
                 }`}
               />
@@ -366,13 +366,7 @@ export function AqlAuditModal({
             <select
               value={auditDecision}
               onChange={e => setAuditDecision(e.target.value as AqlAuditDecision)}
-              className={`w-full px-3 py-2 text-xs rounded-xl border font-mono font-bold focus:outline-none ${
-                auditDecision === 'PASS'
-                  ? 'border-emerald-300 bg-emerald-50 text-emerald-900'
-                  : auditDecision === 'REJECT_QUARANTINE'
-                  ? 'border-rose-300 bg-rose-50 text-rose-900'
-                  : 'border-amber-300 bg-amber-50 text-amber-900'
-              }`}
+              className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-white font-mono font-bold text-slate-900 focus:outline-none focus:ring-1 focus:ring-[#3A3564]"
             >
               <option value="PASS">PASS — Release for Central Godown Handover (AQL_AUDIT_PASSED)</option>
               <option value="RE_AUDIT">RE_AUDIT — Secondary 100-pc Sampling Required</option>

@@ -16,6 +16,7 @@ import {
 import { BomCosting } from '../../types/merchandising'
 import { getBomCostings, MERCHANDISING_UPDATE_EVENT } from '../../utils/merchandisingStorage'
 import { CreateCostingModal } from './CreateCostingModal'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 interface BomCostingClientProps {
   initialCostings?: BomCosting[]
@@ -112,17 +113,12 @@ export function BomCostingClient({ initialCostings }: BomCostingClientProps = {}
         </div>
       </div>
 
-      {/* 3. Executive KPI Metric Cards (Matching 6th Box) */}
+      {/* 3. Executive KPI Metric Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
         {/* Card 1 */}
         <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
-          <div className="flex items-start justify-between gap-2">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
-              <Layers className="w-5 h-5" />
-            </div>
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
-              STAGE 01
-            </span>
+          <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+            <Layers className="w-5 h-5" />
           </div>
           <div className="mt-3">
             <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
@@ -142,13 +138,8 @@ export function BomCostingClient({ initialCostings }: BomCostingClientProps = {}
 
         {/* Card 2 */}
         <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
-          <div className="flex items-start justify-between gap-2">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
-              <DollarSign className="w-5 h-5" />
-            </div>
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
-              STAGE 02
-            </span>
+          <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+            <DollarSign className="w-5 h-5" />
           </div>
           <div className="mt-3">
             <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
@@ -168,13 +159,8 @@ export function BomCostingClient({ initialCostings }: BomCostingClientProps = {}
 
         {/* Card 3 */}
         <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
-          <div className="flex items-start justify-between gap-2">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
-              <AlertTriangle className="w-5 h-5" />
-            </div>
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
-              STAGE 03
-            </span>
+          <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+            <AlertTriangle className="w-5 h-5" />
           </div>
           <div className="mt-3">
             <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
@@ -183,14 +169,10 @@ export function BomCostingClient({ initialCostings }: BomCostingClientProps = {}
             <div className="text-[11px] text-slate-400 font-medium">&gt; 2.0% cost overruns</div>
           </div>
           <div className="pt-2 border-t border-slate-100 flex items-baseline justify-between mt-3">
-            <div className={`text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] ${alertCostingsCount > 0 ? 'text-rose-600' : 'text-slate-900'}`}>
+            <div className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900">
               {alertCostingsCount}
             </div>
-            <span className={`text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full ${
-              alertCostingsCount > 0 
-                ? 'bg-rose-50 text-rose-700 border border-rose-200' 
-                : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-            }`}>
+            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
               {alertCostingsCount > 0 ? 'Review Needed' : 'Zero Overrun'}
             </span>
           </div>
@@ -198,13 +180,8 @@ export function BomCostingClient({ initialCostings }: BomCostingClientProps = {}
 
         {/* Card 4 */}
         <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
-          <div className="flex items-start justify-between gap-2">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
-              <TrendingUp className="w-5 h-5" />
-            </div>
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
-              STAGE 04
-            </span>
+          <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+            <TrendingUp className="w-5 h-5" />
           </div>
           <div className="mt-3">
             <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
@@ -216,7 +193,7 @@ export function BomCostingClient({ initialCostings }: BomCostingClientProps = {}
             <div className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900">
               12.0%
             </div>
-            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
               Standard SLA
             </span>
           </div>
@@ -240,13 +217,13 @@ export function BomCostingClient({ initialCostings }: BomCostingClientProps = {}
         </div>
 
         {alertCostingsCount > 0 ? (
-          <div className="px-3 py-1.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold flex items-center gap-2 shrink-0">
-            <AlertTriangle className="w-4 h-4 text-rose-600" />
+          <div className="px-3 py-1.5 rounded-xl bg-[#FAF7F0] border border-black/10 text-[#3A3564] text-xs font-bold flex items-center gap-2 shrink-0 shadow-2xs">
+            <AlertTriangle className="w-4 h-4 text-[#3A3564]" />
             <span>{alertCostingsCount} Style(s) exceeding &gt; 2.0% variance threshold</span>
           </div>
         ) : (
-          <div className="px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center gap-2 shrink-0">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+          <div className="px-3 py-1.5 rounded-xl bg-[#FAF7F0] border border-black/10 text-slate-700 text-xs font-bold flex items-center gap-2 shrink-0 shadow-2xs">
+            <CheckCircle2 className="w-4 h-4 text-[#3A3564]" />
             <span>All active BOM costings are strictly within tolerance limits</span>
           </div>
         )}
@@ -291,32 +268,39 @@ export function BomCostingClient({ initialCostings }: BomCostingClientProps = {}
           </div>
         </div>
 
-        {/* Costing Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="border-b border-slate-100 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0]">
-                <th className="py-3 px-4">PO Number</th>
-                <th className="py-3 px-4">Style Reference</th>
-                <th className="py-3 px-3 text-right">Fabric</th>
-                <th className="py-3 px-3 text-right">Trims</th>
-                <th className="py-3 px-3 text-right">CMT Sew</th>
-                <th className="py-3 px-3 text-right">Embellish/Wash</th>
-                <th className="py-3 px-3 text-right">Overhead (12%)</th>
-                <th className="py-3 px-4 text-right font-bold text-[#3A3564]">Planned FOB</th>
-                <th className="py-3 px-4 text-right">Actual Cost</th>
-                <th className="py-3 px-4 text-center">Variance</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 text-xs">
-              {filteredCostings.length === 0 ? (
-                <tr>
-                  <td colSpan={10} className="py-10 text-center text-slate-400">
-                    No costing records found matching your search.
-                  </td>
+        {/* Costing Table or Empty State */}
+        {filteredCostings.length === 0 ? (
+          <EmptyState
+            icon={Calculator}
+            title={searchQuery || activeTab !== 'ALL' ? "No matching costings" : "No BOM costing sheets"}
+            description={searchQuery || activeTab !== 'ALL' ? "Try adjusting your search query or variance tab filter." : "Create your first pre-costing BOM sheet to analyze FOB margins."}
+            actionLabel="Create Costing Sheet"
+            onAction={() => setIsModalOpen(true)}
+            secondaryActionLabel={searchQuery || activeTab !== 'ALL' ? "Reset Filters" : undefined}
+            onSecondaryAction={searchQuery || activeTab !== 'ALL' ? () => {
+              setSearchQuery('')
+              setActiveTab('ALL')
+            } : undefined}
+          />
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead>
+                <tr className="border-b border-slate-100 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0]">
+                  <th className="py-3 px-4">PO Number</th>
+                  <th className="py-3 px-4">Style Reference</th>
+                  <th className="py-3 px-3 text-right">Fabric</th>
+                  <th className="py-3 px-3 text-right">Trims</th>
+                  <th className="py-3 px-3 text-right">CMT Sew</th>
+                  <th className="py-3 px-3 text-right">Embellish/Wash</th>
+                  <th className="py-3 px-3 text-right">Overhead (12%)</th>
+                  <th className="py-3 px-4 text-right font-bold text-[#3A3564]">Planned FOB</th>
+                  <th className="py-3 px-4 text-right">Actual Cost</th>
+                  <th className="py-3 px-4 text-center">Variance</th>
                 </tr>
-              ) : (
-                filteredCostings.map(costing => {
+              </thead>
+              <tbody className="divide-y divide-slate-100 text-xs">
+                {filteredCostings.map(costing => {
                   const embellishWashTotal = costing.embellishment_cost + costing.washing_finishing_cost
                   const directSub = 
                     costing.fabric_cost + 
@@ -361,10 +345,10 @@ export function BomCostingClient({ initialCostings }: BomCostingClientProps = {}
                         <span
                           className={`inline-block px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
                             isExceeded
-                              ? 'bg-rose-50 text-rose-700 border border-rose-200'
+                              ? 'bg-slate-100 text-slate-900 border border-slate-300 font-bold'
                               : costing.variance_percent < 0
-                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                              : 'bg-slate-100 text-slate-700'
+                              ? 'bg-[#FAF7F0] text-[#3A3564] border border-black/10 font-semibold'
+                              : 'bg-slate-50 text-slate-600 border border-slate-200'
                           }`}
                         >
                           {costing.variance_percent > 0 ? `+${costing.variance_percent.toFixed(2)}%` : `${costing.variance_percent.toFixed(2)}%`}
@@ -372,11 +356,11 @@ export function BomCostingClient({ initialCostings }: BomCostingClientProps = {}
                       </td>
                     </tr>
                   )
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {/* Modal: Form 2 BOM Costing Sheet */}

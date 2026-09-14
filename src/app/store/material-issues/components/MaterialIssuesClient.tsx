@@ -11,13 +11,14 @@ import {
   Tag, 
   CheckCircle2, 
   Clock, 
-  FileText, 
-  QrCode,
-  UserCheck
+  UserCheck, 
+  FileText,
+  QrCode
 } from 'lucide-react'
 import { MaterialFloorIssueChallan, MaterialDestination } from '../../types/store'
-import { getMaterialIssues, acceptMaterialIssue, STORE_UPDATE_EVENT } from '../../utils/storeStorage'
+import { getMaterialIssueChallans, updateMaterialIssueChallanStatus, STORE_UPDATE_EVENT } from '../../utils/storeStorage'
 import { IssueMaterialChallanModal } from './IssueMaterialChallanModal'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 export function MaterialIssuesClient() {
   const [challans, setChallans] = useState<MaterialFloorIssueChallan[]>([])
@@ -26,7 +27,7 @@ export function MaterialIssuesClient() {
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   const loadChallans = () => {
-    setChallans(getMaterialIssues())
+    setChallans(getMaterialIssueChallans())
   }
 
   useEffect(() => {
@@ -37,32 +38,32 @@ export function MaterialIssuesClient() {
   }, [])
 
   // Metrics
-  const totalChallans = challans.length
-  const todayStr = new Date().toISOString().split('T')[0]
-  const todayChallans = challans.filter(c => c.issuedAt.startsWith(todayStr)).length
+  const todayChallans = challans.length
   const cuttingMeters = challans
     .filter(c => c.destinationDivision === 'CUTTING_FLOOR')
     .reduce((acc, c) => acc + c.quantityIssued, 0)
   const sewingSets = challans
     .filter(c => c.destinationDivision === 'SEWING_FLOOR')
     .reduce((acc, c) => acc + c.quantityIssued, 0)
+  const acceptedCount = challans.filter(c => c.status === 'ACCEPTED_BY_FLOOR').length
 
   const filteredChallans = challans.filter(c => {
-    const matchesSearch = 
+    const matchesSearch =
       c.issueChallanNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
       c.orderId.toLowerCase().includes(searchQuery.toLowerCase()) ||
       c.articleNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
       c.buyerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.receiverName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      c.materialSummary.toLowerCase().includes(searchQuery.toLowerCase()) ||
       c.scannedBarcodes.some(b => b.toLowerCase().includes(searchQuery.toLowerCase()))
 
     if (!matchesSearch) return false
+
     if (destFilter === 'ALL') return true
     return c.destinationDivision === destFilter
   })
 
   const handleAccept = (id: string) => {
-    acceptMaterialIssue(id)
+    updateMaterialIssueChallanStatus(id, 'ACCEPTED_BY_FLOOR')
   }
 
   return (
@@ -85,15 +86,15 @@ export function MaterialIssuesClient() {
       {/* Header Banner */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#3A3564]/10 text-[#3A3564] border border-[#3A3564]/20">
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
             <ArrowRight className="w-6 h-6" />
           </div>
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
-              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
+              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 Material Issues to Floor
               </h1>
-              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-200 tracking-wider">
+              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 tracking-wider">
                 Barcode Verified Dispatch
               </span>
             </div>
@@ -112,18 +113,18 @@ export function MaterialIssuesClient() {
         </button>
       </div>
 
-      {/* 4 Metric KPI Cards */}
+      {/* 4 Metric KPI Cards - Unified Icon & Neutral Typography */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Challans Issued Today
             </span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] flex items-center justify-center">
+            <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
               <FileText className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900">
+          <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 tabular-nums">
             {todayChallans > 0 ? todayChallans : 18} <span className="text-sm font-normal text-slate-500">Challans</span>
           </div>
           <p className="text-[11px] font-mono text-slate-500 mt-1">
@@ -136,11 +137,11 @@ export function MaterialIssuesClient() {
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Fabric Issued to Cutting
             </span>
-            <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-700 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
               <Layers className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black font-mono text-indigo-700">
+          <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 tabular-nums">
             {cuttingMeters.toLocaleString()} <span className="text-sm font-normal text-slate-500">Meters</span>
           </div>
           <p className="text-[11px] font-mono text-slate-500 mt-1">
@@ -153,11 +154,11 @@ export function MaterialIssuesClient() {
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Trims Issued to Sewing
             </span>
-            <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
               <Tag className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black font-mono text-emerald-600">
+          <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 tabular-nums">
             {sewingSets.toLocaleString()} <span className="text-sm font-normal text-slate-500">BOM Sets</span>
           </div>
           <p className="text-[11px] font-mono text-slate-500 mt-1">
@@ -170,14 +171,14 @@ export function MaterialIssuesClient() {
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Handover Acceptance Rate
             </span>
-            <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
               <UserCheck className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black font-mono text-blue-600">
+          <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 tabular-nums">
             98.5%
           </div>
-          <p className="text-[11px] font-mono text-blue-700 mt-1">
+          <p className="text-[11px] font-mono text-slate-500 mt-1">
             Zero Ghost Piece Handshake Integrity
           </p>
         </div>
@@ -192,7 +193,7 @@ export function MaterialIssuesClient() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by challan no, order id, article, buyer, or barcode..."
-            className="w-full pl-9 pr-4 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-mono font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+            className="w-full pl-9 pr-4 py-2.5 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-mono font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
           />
         </div>
 
@@ -208,7 +209,7 @@ export function MaterialIssuesClient() {
                 className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold whitespace-nowrap transition-all cursor-pointer ${
                   active 
                     ? 'bg-[#3A3564] text-white shadow-2xs' 
-                    : 'bg-[#FAF7F0] text-slate-600 hover:text-slate-900 border border-black/10'
+                    : 'bg-[#FAF7F0] text-slate-600 hover:text-slate-900 hover:bg-[#F2ECE1] border border-black/10'
                 }`}
               >
                 {label}
@@ -221,7 +222,7 @@ export function MaterialIssuesClient() {
       {/* Challans Table */}
       <div className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse">
+          <table className="w-full text-left text-xs border-collapse min-w-[760px]">
             <thead>
               <tr className="bg-[#FAF7F0] border-b border-black/10 font-mono text-[11px] font-bold text-slate-500 uppercase tracking-wider">
                 <th className="py-3 px-4">Challan No & Time</th>
@@ -237,15 +238,25 @@ export function MaterialIssuesClient() {
             <tbody className="divide-y divide-black/5 font-medium text-slate-800">
               {filteredChallans.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-8 text-center text-slate-400 font-mono text-xs">
-                    No material issue challans matching your criteria.
+                  <td colSpan={8} className="py-6">
+                    <EmptyState
+                      variant="seamless"
+                      icon={ArrowRight}
+                      title="No Material Challans Found"
+                      description="No shop floor dispatches match your search criteria or floor destination filter."
+                      actionLabel="Reset Filters"
+                      onAction={() => {
+                        setSearchQuery('')
+                        setDestFilter('ALL')
+                      }}
+                    />
                   </td>
                 </tr>
               ) : (
                 filteredChallans.map(c => {
                   const isAccepted = c.status === 'ACCEPTED_BY_FLOOR'
                   return (
-                    <tr key={c.id} className="hover:bg-slate-50 transition-colors">
+                    <tr key={c.id} className="hover:bg-[#FAF7F0]/40 transition-colors">
                       <td className="py-3 px-4">
                         <div className="font-mono font-black text-slate-900">
                           {c.issueChallanNo}
@@ -256,11 +267,7 @@ export function MaterialIssuesClient() {
                       </td>
 
                       <td className="py-3 px-4">
-                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full font-mono text-[10px] font-bold uppercase border ${
-                          c.destinationDivision === 'CUTTING_FLOOR'
-                            ? 'bg-blue-50 text-blue-700 border-blue-200'
-                            : 'bg-purple-50 text-purple-700 border-purple-200'
-                        }`}>
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md font-mono text-[10px] font-bold uppercase bg-[#FAF7F0] text-[#3A3564] border border-black/10">
                           {c.destinationDivision === 'CUTTING_FLOOR' ? <Layers className="w-3 h-3" /> : <Tag className="w-3 h-3" />}
                           <span>{c.destinationDivision.replace('_', ' ')}</span>
                         </span>
@@ -286,7 +293,7 @@ export function MaterialIssuesClient() {
                       </td>
 
                       <td className="py-3 px-4 font-mono">
-                        <span className="text-sm font-bold text-slate-900">
+                        <span className="text-sm font-bold text-slate-900 tabular-nums">
                           {c.quantityIssued.toLocaleString()}
                         </span>
                         <span className="text-[11px] text-slate-500 ml-1">
@@ -305,13 +312,13 @@ export function MaterialIssuesClient() {
 
                       <td className="py-3 px-4">
                         {isAccepted ? (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-mono font-bold uppercase border border-emerald-200">
-                            <CheckCircle2 className="w-3 h-3" />
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-[#FAF7F0] text-[#3A3564] text-[10px] font-mono font-bold uppercase border border-black/15 shadow-2xs">
+                            <CheckCircle2 className="w-3 h-3 text-[#3A3564]" />
                             Accepted by Floor
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-mono font-bold uppercase border border-amber-200">
-                            <Clock className="w-3 h-3" />
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-[#FAF7F0] text-slate-700 text-[10px] font-mono font-bold uppercase border border-black/10">
+                            <Clock className="w-3 h-3 text-slate-500" />
                             In Transit to Floor
                           </span>
                         )}
@@ -321,7 +328,7 @@ export function MaterialIssuesClient() {
                         {!isAccepted ? (
                           <button
                             onClick={() => handleAccept(c.id)}
-                            className="px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 hover:bg-emerald-600 hover:text-white text-xs font-mono font-bold transition-colors shadow-2xs cursor-pointer inline-flex items-center gap-1"
+                            className="px-3 py-1.5 rounded-xl bg-[#FAF7F0] border border-black/10 text-[#3A3564] hover:bg-[#3A3564] hover:text-white text-xs font-mono font-bold transition-all shadow-2xs cursor-pointer inline-flex items-center gap-1"
                           >
                             <CheckCircle2 className="w-3.5 h-3.5" />
                             <span>Confirm Receipt</span>

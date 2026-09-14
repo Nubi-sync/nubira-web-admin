@@ -105,7 +105,7 @@ export function DeclareScrapModal({
       >
         <div className="flex items-center justify-between border-b border-black/10 pb-3.5">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-rose-50 text-rose-700 border border-rose-200 flex items-center justify-center shadow-2xs">
+            <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
               <Trash2 className="w-5 h-5" />
             </div>
             <div>
@@ -119,15 +119,15 @@ export function DeclareScrapModal({
           </div>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-700 text-sm font-bold font-mono px-2 py-1 rounded"
+            className="text-slate-400 hover:text-slate-700 p-1 rounded-lg hover:bg-slate-100 transition-colors"
           >
-            ✕
+            <X className="w-4 h-4" />
           </button>
         </div>
 
         {error && (
-          <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-800 font-medium flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4 shrink-0 text-rose-600" />
+          <div className="p-3 rounded-xl bg-[#FAF7F0] border border-black/10 text-xs text-slate-800 font-medium flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 shrink-0 text-[#3A3564]" />
             <span>{error}</span>
           </div>
         )}
@@ -162,7 +162,7 @@ export function DeclareScrapModal({
               <select
                 value={scrapReason}
                 onChange={e => setScrapReason(e.target.value as ScrapReason)}
-                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-white font-mono font-bold text-rose-800"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-white font-mono font-bold text-slate-800"
               >
                 <option value="HOLE_IN_SHELL">HOLE_IN_SHELL (Needle cut / fabric hole)</option>
                 <option value="FABRIC_TORN">FABRIC_TORN (Severe seam tear / rip)</option>
@@ -185,19 +185,19 @@ export function DeclareScrapModal({
             </div>
           </div>
 
-          <div className="p-3.5 rounded-xl border border-rose-200 bg-rose-50 space-y-2 text-xs">
+          <div className="p-3.5 rounded-xl border border-black/10 bg-[#FAF7F0] space-y-2 text-xs">
             <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
                 checked={reCutAuthorized}
                 onChange={e => setReCutAuthorized(e.target.checked)}
-                className="rounded text-rose-600"
+                className="rounded text-[#3A3564]"
               />
-              <span className="text-rose-900 font-bold">
+              <span className="text-slate-900 font-bold">
                 Authorize Immediate Single-Piece Replacement Re-Cut to 03. Cutting Floor
               </span>
             </label>
-            <p className="text-[11px] text-rose-700">
+            <p className="text-[11px] text-slate-600">
               Preserves Zero Ghost Piece count: issues replacement cut order for exact size {selectedTicket?.size || 'M'} and color {selectedTicket?.color || 'Washed Charcoal'}.
             </p>
           </div>
@@ -225,7 +225,7 @@ export function DeclareScrapModal({
             </button>
             <button
               type="submit"
-              className="px-4 py-2 rounded-xl bg-rose-700 text-white text-xs font-bold hover:bg-rose-800 transition-all shadow-2xs cursor-pointer inline-flex items-center gap-1.5"
+              className="px-4 py-2 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2c284e] transition-all shadow-2xs cursor-pointer inline-flex items-center gap-1.5"
             >
               <Trash2 className="w-3.5 h-3.5" />
               <span>Confirm Scrap & Issue Re-Cut</span>

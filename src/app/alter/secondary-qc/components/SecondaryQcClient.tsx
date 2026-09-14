@@ -14,10 +14,12 @@ import {
   Layers,
   Wrench,
   AlertTriangle,
-  Scissors
+  Scissors,
+  X
 } from 'lucide-react'
 import { getAlterTickets, ALTER_UPDATE_EVENT } from '../../utils/alterStorage'
 import { AlterationTicket } from '../../types/alter'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 interface SecondaryQcClientProps {
   userEmail?: string
@@ -70,7 +72,7 @@ export function SecondaryQcClient({ userEmail }: SecondaryQcClientProps) {
       {/* Header Banner */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-emerald-50 text-emerald-700 border border-emerald-200">
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
             <CheckCircle2 className="w-6 h-6" />
           </div>
           <div>
@@ -78,7 +80,7 @@ export function SecondaryQcClient({ userEmail }: SecondaryQcClientProps) {
               <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
                 Secondary AQL Re-Inspection Station
               </h1>
-              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 tracking-wider">
+              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 tracking-wider">
                 100% Repaired Clearance
               </span>
             </div>
@@ -104,11 +106,11 @@ export function SecondaryQcClient({ userEmail }: SecondaryQcClientProps) {
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Repaired & Cleared
             </span>
-            <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
               <CheckCircle2 className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black font-mono text-emerald-600">
+          <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900">
             {clearedTickets.length} Garments
           </div>
           <p className="text-xs font-semibold text-slate-500 mt-1">Approved for Re-Injection</p>
@@ -168,7 +170,7 @@ export function SecondaryQcClient({ userEmail }: SecondaryQcClientProps) {
               <h2 className="text-base sm:text-lg font-black text-slate-900">
                 Secondary Quality Assurance Clearance Manifest
               </h2>
-              <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-emerald-700 text-white font-bold">
+              <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-[#3A3564] text-white font-bold">
                 {filteredTickets.length} Cleared Lots
               </span>
             </div>
@@ -190,7 +192,7 @@ export function SecondaryQcClient({ userEmail }: SecondaryQcClientProps) {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse">
+          <table className="w-full text-left text-xs border-collapse min-w-[760px]">
             <thead>
               <tr className="border-b border-black/10 bg-slate-50/70 text-slate-600 font-mono text-[11px] uppercase tracking-wider">
                 <th className="py-3 px-4">Ticket Voucher</th>
@@ -207,8 +209,15 @@ export function SecondaryQcClient({ userEmail }: SecondaryQcClientProps) {
             <tbody className="divide-y divide-black/5">
               {filteredTickets.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="py-8 text-center text-slate-400 font-mono text-xs">
-                    No cleared tickets match your query.
+                  <td colSpan={9} className="p-8">
+                    <EmptyState
+                      icon={ShieldCheck}
+                      title="No cleared tickets found"
+                      description="No garments are currently marked as cleared by secondary quality assurance inspection."
+                      actionLabel="View Active Mending"
+                      onAction={() => { window.location.href = '/alter/repair-stations' }}
+                      variant="seamless"
+                    />
                   </td>
                 </tr>
               ) : (
@@ -230,7 +239,7 @@ export function SecondaryQcClient({ userEmail }: SecondaryQcClientProps) {
                       <div className="text-[10px] text-slate-500">{ticket.buyer}</div>
                     </td>
                     <td className="py-3 px-4">
-                      <span className="font-mono font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                      <span className="font-mono font-bold text-[#3A3564] bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
                         {ticket.defectType}
                       </span>
                     </td>
@@ -244,7 +253,7 @@ export function SecondaryQcClient({ userEmail }: SecondaryQcClientProps) {
                       {ticket.inspectorName || 'Devendra Patel'}
                     </td>
                     <td className="py-3 px-4">
-                      <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold border border-emerald-200 inline-flex items-center gap-1">
+                      <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-[#FAF7F0] text-[#3A3564] font-bold border border-black/10 inline-flex items-center gap-1">
                         <Check className="w-3 h-3" /> AQL CLEARED
                       </span>
                     </td>
@@ -271,16 +280,16 @@ export function SecondaryQcClient({ userEmail }: SecondaryQcClientProps) {
           >
             <div className="flex items-center justify-between border-b border-black/10 pb-3">
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                <CheckCircle2 className="w-5 h-5 text-[#3A3564]" />
                 <h3 className="text-lg font-black text-slate-900">
                   AQL Clearance Certificate: {selectedTicket.ticketNumber}
                 </h3>
               </div>
               <button
                 onClick={() => setSelectedTicket(null)}
-                className="text-slate-400 hover:text-slate-700 text-sm font-bold font-mono px-2 py-1 rounded"
+                className="text-slate-400 hover:text-slate-700 p-1 rounded-lg hover:bg-slate-100 transition-colors"
               >
-                ✕
+                <X className="w-4 h-4" />
               </button>
             </div>
 
@@ -295,11 +304,11 @@ export function SecondaryQcClient({ userEmail }: SecondaryQcClientProps) {
               </div>
               <div>
                 <span className="text-slate-400 font-mono">Original Defect:</span>
-                <div className="font-mono font-bold text-amber-800">{selectedTicket.defectType}</div>
+                <div className="font-mono font-bold text-[#3A3564]">{selectedTicket.defectType}</div>
               </div>
               <div>
                 <span className="text-slate-400 font-mono">Action Performed:</span>
-                <div className="font-mono font-bold text-emerald-700">{selectedTicket.repairActionTaken}</div>
+                <div className="font-mono font-bold text-slate-900">{selectedTicket.repairActionTaken}</div>
               </div>
               <div>
                 <span className="text-slate-400 font-mono">Mender / Tailor:</span>
@@ -311,12 +320,12 @@ export function SecondaryQcClient({ userEmail }: SecondaryQcClientProps) {
               </div>
             </div>
 
-            <div className="p-3 rounded-xl border border-emerald-200 bg-emerald-50 text-xs space-y-1">
-              <div className="font-mono font-bold text-emerald-900 flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4 text-emerald-700" />
+            <div className="p-3 rounded-xl border border-black/10 bg-[#FAF7F0] text-xs space-y-1">
+              <div className="font-mono font-bold text-[#3A3564] flex items-center gap-1.5">
+                <ShieldCheck className="w-4 h-4 text-[#3A3564]" />
                 Authorized for Production Stream Re-Injection
               </div>
-              <p className="text-emerald-800 text-[11px]">
+              <p className="text-slate-700 text-[11px]">
                 Garment inspected under 1000-lux daylight luminaire. Zero seam puckering, zero tension imbalance, and zero fabric shine detected.
               </p>
             </div>

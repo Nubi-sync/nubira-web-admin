@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import {
   Printer,
   ChevronLeft,
@@ -14,15 +15,11 @@ import {
   Search,
   ArrowRight,
   CheckCircle2,
-  Clock,
-  AlertTriangle,
-  RotateCcw,
-  Sparkles,
   Sliders,
-  Maximize2,
-  TrendingUp,
+  Sparkles,
   Thermometer
 } from 'lucide-react'
+import { EmptyState } from '@/components/ui/EmptyState'
 import {
   PrintingProductionRun,
   PrintingScreen,
@@ -52,6 +49,7 @@ export function PrintingDashboardClient({
   initialCuringLogs,
   liveKpis
 }: PrintingDashboardClientProps = {}) {
+  const router = useRouter()
   const [runs, setRuns] = useState<PrintingProductionRun[]>(() => {
     if (initialRuns && initialRuns.length > 0) return initialRuns
     return []
@@ -153,22 +151,24 @@ export function PrintingDashboardClient({
   ]
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6 max-w-7xl w-full mx-auto text-[#09090b]">
+    <div className="p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6 max-w-7xl w-full mx-auto text-[#09090b] select-none">
       {/* 1. Breadcrumb Hierarchy Trail */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
-        <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
-          <Link href="/modules" className="hover:text-[#3A3564] transition-colors">
-            Workspace Hub
+        <div className="flex items-center gap-2">
+          <Link
+            href="/modules"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs cursor-pointer"
+          >
+            <ChevronLeft className="w-3.5 h-3.5" />
+            <span>Workspace Hub</span>
           </Link>
-          <span>/</span>
-          <span>Surface Art</span>
-          <span>/</span>
-          <span className="font-bold text-slate-900 font-mono">04. Screen & Digital Printing</span>
+          <span className="text-slate-400 font-mono text-xs">/</span>
+          <span className="text-xs font-mono font-bold text-slate-900">Division 04 • Screen & Digital Printing</span>
         </div>
 
-        <div className="flex items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-mono font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#3A3564]" />
             Curing Tunnel: 160°C Verified
           </span>
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-mono font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10">
@@ -185,14 +185,14 @@ export function PrintingDashboardClient({
           </div>
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
-              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
+              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 Screen & Digital Printing Floor
               </h1>
               <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15">
                 Division 04
               </span>
             </div>
-            <p className="text-xs sm:text-sm font-medium text-slate-600 mt-1">
+            <p className="text-xs sm:text-sm font-semibold text-slate-600 mt-1">
               Automated conveyor screen printing, industrial Kornit DTG digital queues, spectrophotometer strike-off delta E matching, and 160°C thermal curing.
             </p>
           </div>
@@ -201,14 +201,14 @@ export function PrintingDashboardClient({
         <div className="flex items-center gap-2 flex-wrap w-full md:w-auto">
           <Link
             href="/printing/strike-offs"
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-black/10 text-xs font-bold text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-black/10 text-xs font-bold text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs cursor-pointer"
           >
             <FileCheck2 className="w-3.5 h-3.5 text-[#3A3564]" />
             <span>Strike-Off Approvals</span>
           </Link>
           <Link
             href="/printing/table-runs"
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold transition-all shadow-xs"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Table Runs & DTG</span>
@@ -221,16 +221,16 @@ export function PrintingDashboardClient({
         {/* Metric 1 */}
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-[11px] font-mono font-bold text-slate-500 uppercase tracking-wider">Active Table Lots</span>
+            <span className="text-xs font-mono font-bold text-slate-500">Active Table Lots</span>
             <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
               <Layers className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl sm:text-[28px] font-bold text-slate-900 font-mono">
+          <div className="text-2xl sm:text-3xl font-black text-slate-900 font-mono">
             {activeRunsCount} Active Runs
           </div>
           <div className="flex items-center gap-1.5 mt-2 text-xs font-medium text-slate-500">
-            <span className="text-emerald-700 font-mono font-bold">8 Conveyor Tables</span>
+            <span className="text-slate-800 font-mono font-bold">8 Conveyor Tables</span>
             <span>running continuous passes</span>
           </div>
         </div>
@@ -238,16 +238,16 @@ export function PrintingDashboardClient({
         {/* Metric 2 */}
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-[11px] font-mono font-bold text-slate-500 uppercase tracking-wider">Panels Printed Today</span>
-            <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center">
+            <span className="text-xs font-mono font-bold text-slate-500">Panels Printed Today</span>
+            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
               <CheckCircle2 className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl sm:text-[28px] font-bold text-slate-900 font-mono">
+          <div className="text-2xl sm:text-3xl font-black text-slate-900 font-mono">
             {totalCompletedPanels.toLocaleString()} Pcs
           </div>
           <div className="flex items-center gap-1.5 mt-2 text-xs font-medium text-slate-500">
-            <span className="text-slate-700 font-mono font-bold">{totalIssuedPanels.toLocaleString()} planned</span>
+            <span className="text-slate-800 font-mono font-bold">{totalIssuedPanels.toLocaleString()} planned</span>
             <span>• {rejectionRate}% scrap rate</span>
           </div>
         </div>
@@ -255,16 +255,16 @@ export function PrintingDashboardClient({
         {/* Metric 3 */}
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-[11px] font-mono font-bold text-slate-500 uppercase tracking-wider">Strike-Off Approval Rate</span>
+            <span className="text-xs font-mono font-bold text-slate-500">Strike-Off Approval Rate</span>
             <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
               <Sparkles className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl sm:text-[28px] font-bold text-slate-900 font-mono">
+          <div className="text-2xl sm:text-3xl font-black text-slate-900 font-mono">
             {strikeOffs.length > 0 ? Math.round((approvedStrikeOffs / strikeOffs.length) * 100) : 100}% Passed
           </div>
           <div className="flex items-center gap-1.5 mt-2 text-xs font-medium text-slate-500">
-            <span className="text-emerald-700 font-mono font-bold">ΔE ≤ 0.85 avg</span>
+            <span className="text-slate-800 font-mono font-bold">ΔE ≤ 0.85 avg</span>
             <span>against Pantone TCX target</span>
           </div>
         </div>
@@ -272,16 +272,16 @@ export function PrintingDashboardClient({
         {/* Metric 4 */}
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-[11px] font-mono font-bold text-slate-500 uppercase tracking-wider">Screen Stencil Ready</span>
-            <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-700 border border-blue-200 flex items-center justify-center">
+            <span className="text-xs font-mono font-bold text-slate-500">Screen Stencils Ready</span>
+            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
               <Sliders className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl sm:text-[28px] font-bold text-slate-900 font-mono">
+          <div className="text-2xl sm:text-3xl font-black text-slate-900 font-mono">
             {readyScreensCount} / {screens.length} Screens
           </div>
           <div className="flex items-center gap-1.5 mt-2 text-xs font-medium text-slate-500">
-            <span className="text-slate-700 font-mono font-bold">120–305 mesh</span>
+            <span className="text-slate-800 font-mono font-bold">120–305 mesh</span>
             <span>exposed & tension checked</span>
           </div>
         </div>
@@ -300,7 +300,7 @@ export function PrintingDashboardClient({
           </div>
           <Link
             href="/printing/curing-qc"
-            className="inline-flex items-center gap-1 text-xs font-mono font-bold text-[#3A3564] hover:underline"
+            className="inline-flex items-center gap-1 text-xs font-mono font-bold text-[#3A3564] hover:underline cursor-pointer"
           >
             <span>Oven Temperature Logs</span>
             <ArrowRight className="w-3 h-3" />
@@ -315,18 +315,12 @@ export function PrintingDashboardClient({
             >
               <div className="flex items-start justify-between">
                 <div>
-                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400">
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500">
                     Station 0{idx + 1} • {st.type}
                   </span>
                   <h3 className="text-sm font-bold text-slate-900 mt-0.5">{st.name}</h3>
                 </div>
-                <span className={`text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full border ${
-                  st.status === 'RUNNING'
-                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                    : st.status === 'COMPLETED'
-                    ? 'bg-blue-50 text-blue-700 border-blue-200'
-                    : 'bg-amber-50 text-amber-700 border-amber-200'
-                }`}>
+                <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
                   {st.status}
                 </span>
               </div>
@@ -360,28 +354,28 @@ export function PrintingDashboardClient({
                   </div>
                 </div>
               ) : (
-                <div className="pt-4 pb-2 text-center text-xs text-slate-400 italic">
+                <div className="pt-4 pb-2 text-center text-xs text-slate-400 font-medium">
                   Station currently idle / scheduled
                 </div>
               )}
 
-              <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-[11px] font-mono text-slate-500">
+              <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-[11px] font-mono text-slate-600">
                 <span className="flex items-center gap-1">
-                  <Thermometer className="w-3.5 h-3.5 text-amber-600" />
+                  <Thermometer className="w-3.5 h-3.5 text-[#3A3564]" />
                   <span>Oven: {st.temp}°C</span>
                 </span>
-                <span className="text-emerald-700 font-bold">160°C Target</span>
+                <span className="text-slate-800 font-bold">160°C Target</span>
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* 5. Quick Functional Workflows Carousel / Cards */}
+      {/* 5. Quick Functional Workflows Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Link
           href="/printing/screens"
-          className="p-4 rounded-2xl bg-white border border-black/10 shadow-2xs hover:border-[#3A3564]/40 hover:shadow-xs transition-all group"
+          className="p-4 rounded-2xl bg-white border border-black/10 shadow-2xs hover:border-[#3A3564]/40 hover:shadow-xs transition-all group cursor-pointer"
         >
           <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
             <Layers className="w-4.5 h-4.5" />
@@ -396,7 +390,7 @@ export function PrintingDashboardClient({
 
         <Link
           href="/printing/table-runs"
-          className="p-4 rounded-2xl bg-white border border-black/10 shadow-2xs hover:border-[#3A3564]/40 hover:shadow-xs transition-all group"
+          className="p-4 rounded-2xl bg-white border border-black/10 shadow-2xs hover:border-[#3A3564]/40 hover:shadow-xs transition-all group cursor-pointer"
         >
           <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
             <Cpu className="w-4.5 h-4.5" />
@@ -411,7 +405,7 @@ export function PrintingDashboardClient({
 
         <Link
           href="/printing/ink-kitchen"
-          className="p-4 rounded-2xl bg-white border border-black/10 shadow-2xs hover:border-[#3A3564]/40 hover:shadow-xs transition-all group"
+          className="p-4 rounded-2xl bg-white border border-black/10 shadow-2xs hover:border-[#3A3564]/40 hover:shadow-xs transition-all group cursor-pointer"
         >
           <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
             <Palette className="w-4.5 h-4.5" />
@@ -426,7 +420,7 @@ export function PrintingDashboardClient({
 
         <Link
           href="/printing/curing-qc"
-          className="p-4 rounded-2xl bg-white border border-black/10 shadow-2xs hover:border-[#3A3564]/40 hover:shadow-xs transition-all group"
+          className="p-4 rounded-2xl bg-white border border-black/10 shadow-2xs hover:border-[#3A3564]/40 hover:shadow-xs transition-all group cursor-pointer"
         >
           <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
             <Flame className="w-4.5 h-4.5" />
@@ -474,7 +468,7 @@ export function PrintingDashboardClient({
 
         {/* High-Density Table */}
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+          <table className="w-full min-w-[760px] text-left border-collapse">
             <thead>
               <tr className="border-b border-slate-100 bg-[#FAF7F0]/60 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">
                 <th className="py-3 px-4">Run Number</th>
@@ -496,8 +490,8 @@ export function PrintingDashboardClient({
                       {run.run_number}
                     </td>
                     <td className="py-3 px-4">
-                      <div className="font-medium text-slate-900">{run.style_name}</div>
-                      <div className="text-[11px] font-mono text-slate-400">
+                      <div className="font-bold text-slate-900">{run.style_name}</div>
+                      <div className="text-[11px] font-mono text-slate-500">
                         {run.po_number} • {run.style_ref}
                       </div>
                     </td>
@@ -512,27 +506,17 @@ export function PrintingDashboardClient({
                     <td className="py-3 px-4 text-right font-mono font-bold text-slate-700">
                       {run.total_panels_issued.toLocaleString()}
                     </td>
-                    <td className="py-3 px-4 text-right font-mono font-bold text-emerald-700">
+                    <td className="py-3 px-4 text-right font-mono font-bold text-slate-900">
                       {run.panels_completed.toLocaleString()}
                     </td>
-                    <td className="py-3 px-4 text-right font-mono font-bold text-rose-600">
+                    <td className="py-3 px-4 text-right font-mono font-bold text-slate-700">
                       {run.panels_rejected}
                     </td>
-                    <td className="py-3 px-4 font-mono text-slate-600">
-                      <span className={run.curing_temp_verified ? 'text-emerald-700 font-bold' : 'text-amber-600'}>
-                        {run.curing_temp_c}°C
-                      </span>
+                    <td className="py-3 px-4 font-mono text-slate-700 font-bold">
+                      {run.curing_temp_c}°C
                     </td>
                     <td className="py-3 px-4 text-center">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase border ${
-                        run.status === 'COMPLETED'
-                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                          : run.status === 'PRINTING'
-                          ? 'bg-blue-50 text-blue-700 border-blue-200'
-                          : run.status === 'CURING'
-                          ? 'bg-amber-50 text-amber-700 border-amber-200'
-                          : 'bg-slate-100 text-slate-700 border-slate-200'
-                      }`}>
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase bg-[#FAF7F0] text-[#3A3564] border border-black/10">
                         {run.status}
                       </span>
                     </td>
@@ -540,8 +524,15 @@ export function PrintingDashboardClient({
                 ))
               ) : (
                 <tr>
-                  <td colSpan={9} className="py-8 text-center text-slate-400 italic">
-                    No printing production runs match the filter criteria.
+                  <td colSpan={9} className="p-0">
+                    <EmptyState
+                      variant="seamless"
+                      icon={Printer}
+                      title="No active printing runs found"
+                      description="Live batch queues, continuous spreading passes, and DTG cycles will appear once dispatched."
+                      actionLabel="Schedule Batch Run"
+                      onAction={() => router.push('/printing/table-runs')}
+                    />
                   </td>
                 </tr>
               )}

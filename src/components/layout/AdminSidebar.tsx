@@ -57,7 +57,6 @@ type NavItem = {
   label: string
   href: string
   icon: React.ComponentType<{ className?: string }>
-  badge?: string
 }
 
 type NavSection = {
@@ -69,14 +68,14 @@ const navSections: NavSection[] = [
   {
     section: 'Workspace Hub',
     items: [
-      { label: 'All Modules', href: '/modules', icon: LayoutGrid, badge: '11 Units' },
+      { label: 'All Modules', href: '/modules', icon: LayoutGrid },
     ],
   },
   {
     section: 'Sewing Floor',
     items: [
       { label: 'Dashboard', href: '/stitching-sewing/dashboard', icon: LayoutDashboard },
-      { label: 'Supervisor Desk', href: '/modules/supervisor-desk', icon: Wrench, badge: 'Override' },
+      { label: 'Supervisor Desk', href: '/modules/supervisor-desk', icon: Wrench },
       { label: 'Store Dashboard', href: '/stitching-sewing/store', icon: Store },
       { label: 'Zigza AI', href: '/stitching-sewing/zigza-ai', icon: Bot },
     ],
@@ -168,9 +167,9 @@ export function AdminSidebar({
       {
         section: 'Workspace Hub',
         items: [
-          { label: 'All Modules', href: '/modules', icon: LayoutGrid, badge: '12 Units' },
+          { label: 'All Modules', href: '/modules', icon: LayoutGrid },
           { label: 'Department Heads', href: '/modules/access-control', icon: ShieldCheck },
-          { label: 'Supervisor Operations', href: '/modules/supervisor-desk', icon: Wrench, badge: 'Override' },
+          { label: 'Supervisor Operations', href: '/modules/supervisor-desk', icon: Wrench },
           { label: 'Company Profile', href: '/modules/profile', icon: Building2 },
           { label: 'Zigza AI', href: '/modules/zigza-ai', icon: Bot },
         ],
@@ -318,7 +317,7 @@ export function AdminSidebar({
       {
         section: 'Workspace Hub',
         items: [
-          { label: 'All Modules', href: '/modules', icon: LayoutGrid, badge: '11 Units' },
+          { label: 'All Modules', href: '/modules', icon: LayoutGrid },
         ],
       },
       {
@@ -415,10 +414,10 @@ export function AdminSidebar({
         section: '9. Ready Goods & Packing',
         items: [
           { label: 'Packing Dashboard', href: '/ready-goods', icon: Boxes },
-          { label: 'AQL 2.5 Inspection', href: '/ready-goods/aql-inspection', icon: CheckCircle2, badge: 'AQL 2.5' },
+          { label: 'AQL 2.5 Inspection', href: '/ready-goods/aql-inspection', icon: CheckCircle2 },
           { label: 'Hangtag & Polybag', href: '/ready-goods/tagging-polybag', icon: Tag },
           { label: 'Carton Packing Manifest', href: '/ready-goods/carton-packing', icon: PackageCheck },
-          { label: 'Scale Weight & Audit', href: '/ready-goods/carton-weight', icon: Gauge, badge: '±0.15kg' },
+          { label: 'Scale Weight & Audit', href: '/ready-goods/carton-weight', icon: Gauge },
           { label: 'Central Godown Handover', href: '/ready-goods/handover', icon: Warehouse },
           { label: 'Zigza AI', href: '/ready-goods/zigza-ai', icon: Bot },
         ],
@@ -442,10 +441,10 @@ export function AdminSidebar({
         section: '10. Alteration & Quality Recovery',
         items: [
           { label: 'Clinic Dashboard', href: '/alter', icon: Wrench },
-          { label: 'Defect Intake & Pareto', href: '/alter/defect-intake', icon: AlertTriangle, badge: 'Pareto' },
+          { label: 'Defect Intake & Pareto', href: '/alter/defect-intake', icon: AlertTriangle },
           { label: 'Master Mending Stations', href: '/alter/repair-stations', icon: Scissors },
-          { label: 'Chemical Spotting & Clean', href: '/alter/spot-cleaning', icon: Droplets, badge: 'Eco-Gun' },
-          { label: 'Secondary AQL Re-Audit', href: '/alter/secondary-qc', icon: CheckCircle2, badge: 'QC Pass' },
+          { label: 'Chemical Spotting & Clean', href: '/alter/spot-cleaning', icon: Droplets },
+          { label: 'Secondary AQL Re-Audit', href: '/alter/secondary-qc', icon: CheckCircle2 },
           { label: 'Scrap Salvage & Write-Off', href: '/alter/scrap-salvage', icon: FileText },
           { label: 'Zigza AI', href: '/alter/zigza-ai', icon: Bot },
         ],
@@ -469,11 +468,11 @@ export function AdminSidebar({
         section: '11. Central Store & Godown',
         items: [
           { label: 'Store Dashboard', href: '/store', icon: Store },
-          { label: 'Fabric Godown & 4-Point QC', href: '/store/fabric-godown', icon: Layers, badge: '4-Point' },
-          { label: 'Trims & Accessories Whse', href: '/store/trims-warehouse', icon: Tag, badge: 'ROL' },
-          { label: 'Truck Inward Gate (GRN)', href: '/store/truck-inwards', icon: Truck, badge: 'GRN' },
+          { label: 'Fabric Godown & 4-Point QC', href: '/store/fabric-godown', icon: Layers },
+          { label: 'Trims & Accessories Whse', href: '/store/trims-warehouse', icon: Tag },
+          { label: 'Truck Inward Gate (GRN)', href: '/store/truck-inwards', icon: Truck },
           { label: 'Material Issues to Floor', href: '/store/material-issues', icon: ArrowRight },
-          { label: 'Finished Export Bay 3-5', href: '/store/finished-godown', icon: Warehouse, badge: 'Bay 3-5' },
+          { label: 'Finished Export Bay 3-5', href: '/store/finished-godown', icon: Warehouse },
           { label: 'Zigza AI Copilot', href: '/store/zigza-ai', icon: Bot },
         ],
       },
@@ -490,7 +489,7 @@ export function AdminSidebar({
         {
           section: 'Workspace Hub',
           items: [
-            { label: 'All Modules', href: '/modules', icon: LayoutGrid, badge: '12 Units' },
+            { label: 'All Modules', href: '/modules', icon: LayoutGrid },
           ],
         },
       ] : []),
@@ -655,22 +654,16 @@ export function AdminSidebar({
           </span>
         </div>
 
-        {/* Pill indicator */}
-        <div className={`overflow-hidden transition-all shrink-0 ${
-          isExpanded 
-            ? 'max-w-[90px] opacity-100 duration-200 ease-out' 
-            : 'max-w-0 opacity-0 duration-400 ease-in-out'
-        }`}>
-          {isLoading ? (
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#3A3564] bg-white px-2 py-0.5 rounded-md border border-black/10 animate-pulse whitespace-nowrap">
-              Opening...
-            </span>
-          ) : item.badge ? (
-            <span className="text-[10px] font-mono font-extrabold uppercase tracking-wider text-[#3A3564] bg-[#FAF7F0] border border-black/15 px-2 py-0.5 rounded-md shadow-2xs whitespace-nowrap">
-              {item.badge}
-            </span>
-          ) : null}
-        </div>
+        {/* Loading Spinner only (pill boxes completely removed) */}
+        {isLoading && (
+          <div className={`overflow-hidden transition-all shrink-0 ${
+            isExpanded 
+              ? 'opacity-100 duration-200 ease-out' 
+              : 'opacity-0 duration-400 ease-in-out'
+          }`}>
+            <Loader2 className="w-3.5 h-3.5 animate-spin text-[#3A3564]" />
+          </div>
+        )}
       </Link>
     )
   }
