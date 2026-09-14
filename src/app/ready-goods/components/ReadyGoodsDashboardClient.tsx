@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import {
   Boxes,
   ChevronLeft,
@@ -15,22 +16,19 @@ import {
   Search,
   Scale,
   ShieldCheck,
-  Layers,
-  Sparkles,
   QrCode,
   Check,
-  RefreshCw,
   Eye,
-  SlidersHorizontal,
-  ExternalLink
+  SlidersHorizontal
 } from 'lucide-react'
+import { EmptyState } from '@/components/ui/EmptyState'
 import {
   getReadyGoodsCartons,
   getAqlAudits,
   getReadyGoodsMetrics,
   READY_GOODS_UPDATE_EVENT
 } from '../utils/readyGoodsStorage'
-import { ReadyGoodsCarton, AqlAudit, CartonStatus, ReadyGoodsMetrics } from '../types/readyGoods'
+import { ReadyGoodsCarton, AqlAudit, ReadyGoodsMetrics } from '../types/readyGoods'
 
 interface ReadyGoodsDashboardClientProps {
   userEmail?: string
@@ -43,6 +41,7 @@ export function ReadyGoodsDashboardClient({
   initialCartons,
   initialAqlAudits
 }: ReadyGoodsDashboardClientProps) {
+  const router = useRouter()
   const [cartons, setCartons] = useState<ReadyGoodsCarton[]>(initialCartons !== undefined ? initialCartons : [])
   const [aqlAudits, setAqlAudits] = useState<AqlAudit[]>(initialAqlAudits !== undefined ? initialAqlAudits : [])
   const [metrics, setMetrics] = useState(getReadyGoodsMetrics())
@@ -126,7 +125,7 @@ export function ReadyGoodsDashboardClient({
           <span className="text-[11px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
             Division 09 • Ready Goods & Packing
           </span>
-          <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
+          <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
             ISO 2859-1 (AQL 2.5)
           </span>
         </div>
@@ -140,7 +139,7 @@ export function ReadyGoodsDashboardClient({
           </div>
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
-              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
+              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 Ready Goods & Export Carton Packing
               </h1>
               <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 tracking-wider">
@@ -148,7 +147,7 @@ export function ReadyGoodsDashboardClient({
               </span>
             </div>
             <p className="text-xs sm:text-sm font-medium text-slate-600 mt-1">
-              AQL 2.5 Normal Level II statistical inspection, barcode hangtag scan matching, moisture-barrier polybag sealing, and master carton manifests
+              AQL 2.5 Normal Level II statistical inspection, barcode hangtag scan matching, moisture-barrier polybag sealing, and master carton manifests.
             </p>
           </div>
         </div>
@@ -157,14 +156,14 @@ export function ReadyGoodsDashboardClient({
         <div className="flex items-center gap-2 flex-wrap">
           <Link
             href="/ready-goods/aql-inspection"
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2c284e] transition-all shadow-2xs"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2c284e] transition-all shadow-2xs cursor-pointer"
           >
-            <ShieldCheck className="w-3.5 h-3.5 text-amber-300" />
+            <ShieldCheck className="w-3.5 h-3.5 text-white" />
             <span>AQL 2.5 Station</span>
           </Link>
           <Link
             href="/ready-goods/carton-packing"
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-black/10 text-xs font-bold text-slate-700 hover:bg-[#FAF7F0] hover:text-[#3A3564] transition-all shadow-2xs"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-black/10 text-xs font-bold text-slate-700 hover:bg-[#FAF7F0] hover:text-[#3A3564] transition-all shadow-2xs cursor-pointer"
           >
             <PackageCheck className="w-3.5 h-3.5 text-[#3A3564]" />
             <span>Pack Carton</span>
@@ -190,8 +189,8 @@ export function ReadyGoodsDashboardClient({
           <p className="text-xs font-semibold text-slate-500 mt-1">
             {metrics.totalGarmentsPackedToday.toLocaleString()} Finished Export Garments
           </p>
-          <div className="mt-3 text-[11px] font-mono text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200/60 inline-flex items-center gap-1">
-            <Check className="w-3 h-3" /> 100% Solid & Ratio Validated
+          <div className="mt-3 text-[11px] font-mono text-slate-700 font-bold bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10 inline-flex items-center gap-1">
+            <Check className="w-3 h-3 text-[#3A3564]" /> 100% Solid & Ratio Validated
           </div>
         </div>
 
@@ -201,11 +200,11 @@ export function ReadyGoodsDashboardClient({
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               AQL 2.5 Audit Score
             </span>
-            <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
               <CheckCircle2 className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black font-mono text-emerald-600">
+          <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900">
             PASS (0.4%)
           </div>
           <p className="text-xs font-semibold text-slate-500 mt-1">
@@ -232,8 +231,8 @@ export function ReadyGoodsDashboardClient({
           <p className="text-xs font-semibold text-slate-500 mt-1">
             Zero EAN-13 or SKU mismatch errors detected
           </p>
-          <div className="mt-3 text-[11px] font-mono text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200/60 inline-flex items-center gap-1">
-            <Check className="w-3 h-3" /> Micro-Tach & Silica Inserted
+          <div className="mt-3 text-[11px] font-mono text-slate-700 font-bold bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10 inline-flex items-center gap-1">
+            <Check className="w-3 h-3 text-[#3A3564]" /> Micro-Tach & Silica Inserted
           </div>
         </div>
 
@@ -253,8 +252,8 @@ export function ReadyGoodsDashboardClient({
           <p className="text-xs font-semibold text-slate-500 mt-1">
             Stored in Central Godown Bay 3–5
           </p>
-          <div className="mt-3 text-[11px] font-mono text-sky-800 font-bold bg-sky-50 px-2 py-0.5 rounded border border-sky-200 inline-flex items-center gap-1">
-            <Truck className="w-3 h-3" /> Dock Gate 01–03 Ready
+          <div className="mt-3 text-[11px] font-mono text-slate-700 font-bold bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10 inline-flex items-center gap-1">
+            <Truck className="w-3 h-3 text-[#3A3564]" /> Dock Gate 01–03 Ready
           </div>
         </div>
       </div>
@@ -270,37 +269,37 @@ export function ReadyGoodsDashboardClient({
         <div className="flex items-center gap-2 flex-wrap">
           <Link
             href="/ready-goods/aql-inspection"
-            className="px-3 py-1.5 rounded-lg bg-[#FAF7F0] hover:bg-[#eadecc] text-[#3A3564] text-xs font-bold border border-black/10 transition-colors inline-flex items-center gap-1"
+            className="px-3 py-1.5 rounded-lg bg-[#FAF7F0] hover:bg-white text-[#3A3564] text-xs font-bold border border-black/10 transition-colors inline-flex items-center gap-1 cursor-pointer"
           >
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+            <CheckCircle2 className="w-3.5 h-3.5 text-[#3A3564]" />
             <span>02. AQL 2.5 Sampling</span>
           </Link>
           <Link
             href="/ready-goods/tagging-polybag"
-            className="px-3 py-1.5 rounded-lg bg-[#FAF7F0] hover:bg-[#eadecc] text-[#3A3564] text-xs font-bold border border-black/10 transition-colors inline-flex items-center gap-1"
+            className="px-3 py-1.5 rounded-lg bg-[#FAF7F0] hover:bg-white text-[#3A3564] text-xs font-bold border border-black/10 transition-colors inline-flex items-center gap-1 cursor-pointer"
           >
-            <Tag className="w-3.5 h-3.5 text-sky-600" />
+            <Tag className="w-3.5 h-3.5 text-[#3A3564]" />
             <span>03. Hangtag & Polybag</span>
           </Link>
           <Link
             href="/ready-goods/carton-packing"
-            className="px-3 py-1.5 rounded-lg bg-[#FAF7F0] hover:bg-[#eadecc] text-[#3A3564] text-xs font-bold border border-black/10 transition-colors inline-flex items-center gap-1"
+            className="px-3 py-1.5 rounded-lg bg-[#FAF7F0] hover:bg-white text-[#3A3564] text-xs font-bold border border-black/10 transition-colors inline-flex items-center gap-1 cursor-pointer"
           >
-            <PackageCheck className="w-3.5 h-3.5 text-amber-600" />
+            <PackageCheck className="w-3.5 h-3.5 text-[#3A3564]" />
             <span>04. Carton Packing Manifest</span>
           </Link>
           <Link
             href="/ready-goods/carton-weight"
-            className="px-3 py-1.5 rounded-lg bg-[#FAF7F0] hover:bg-[#eadecc] text-[#3A3564] text-xs font-bold border border-black/10 transition-colors inline-flex items-center gap-1"
+            className="px-3 py-1.5 rounded-lg bg-[#FAF7F0] hover:bg-white text-[#3A3564] text-xs font-bold border border-black/10 transition-colors inline-flex items-center gap-1 cursor-pointer"
           >
-            <Scale className="w-3.5 h-3.5 text-purple-600" />
+            <Scale className="w-3.5 h-3.5 text-[#3A3564]" />
             <span>05. Scale Weight & Audit</span>
           </Link>
           <Link
             href="/ready-goods/handover"
-            className="px-3 py-1.5 rounded-lg bg-[#FAF7F0] hover:bg-[#eadecc] text-[#3A3564] text-xs font-bold border border-black/10 transition-colors inline-flex items-center gap-1"
+            className="px-3 py-1.5 rounded-lg bg-[#FAF7F0] hover:bg-white text-[#3A3564] text-xs font-bold border border-black/10 transition-colors inline-flex items-center gap-1 cursor-pointer"
           >
-            <Warehouse className="w-3.5 h-3.5 text-indigo-600" />
+            <Warehouse className="w-3.5 h-3.5 text-[#3A3564]" />
             <span>06. Central Godown Handover</span>
           </Link>
         </div>
@@ -311,7 +310,7 @@ export function ReadyGoodsDashboardClient({
         <div className="p-5 sm:p-6 border-b border-black/10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-[#FAF7F0]/30">
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-base sm:text-lg font-black text-slate-900">
+              <h2 className="text-base sm:text-lg font-black text-slate-900 font-[family-name:var(--font-heading)]">
                 Live Master Export Carton Manifest
               </h2>
               <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-[#3A3564] text-white font-bold">
@@ -319,12 +318,11 @@ export function ReadyGoodsDashboardClient({
               </span>
             </div>
             <p className="text-xs text-slate-500 mt-0.5">
-              Individual master cartons registered with physical gross scale weight, bundle bindings, and AQL status
+              Individual master cartons registered with physical gross scale weight, bundle bindings, and AQL status.
             </p>
           </div>
 
           <div className="flex items-center gap-3 w-full md:w-auto">
-            {/* Search Input */}
             <div className="relative flex-1 md:w-64">
               <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
@@ -332,12 +330,12 @@ export function ReadyGoodsDashboardClient({
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 placeholder="Search CTN #, PO, Buyer, Bay..."
-                className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-black/10 bg-white focus:outline-none focus:ring-1 focus:ring-[#3A3564] font-mono"
+                className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-black/10 bg-white focus:outline-none focus:ring-1 focus:ring-[#3A3564] font-mono text-slate-900"
               />
             </div>
             <Link
               href="/ready-goods/carton-packing"
-              className="px-3 py-1.5 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2c284e] transition-all shrink-0 inline-flex items-center gap-1"
+              className="px-3 py-1.5 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2c284e] transition-all shrink-0 inline-flex items-center gap-1 cursor-pointer"
             >
               <span>Manage Manifest</span>
               <ArrowRight className="w-3 h-3" />
@@ -370,113 +368,96 @@ export function ReadyGoodsDashboardClient({
 
         {/* Cartons Table */}
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse">
+          <table className="w-full min-w-[760px] text-left text-xs border-collapse">
             <thead>
-              <tr className="border-b border-black/10 bg-slate-50/70 text-slate-600 font-mono text-[11px] uppercase tracking-wider">
-                <th className="py-3 px-4">Carton Barcode</th>
-                <th className="py-3 px-4">Order & Buyer</th>
-                <th className="py-3 px-4">Style & Color</th>
-                <th className="py-3 px-4">Pieces & Ratio</th>
-                <th className="py-3 px-4">Gross Wt (kg)</th>
-                <th className="py-3 px-4">Variance</th>
-                <th className="py-3 px-4">Godown Bay</th>
-                <th className="py-3 px-4">Status</th>
-                <th className="py-3 px-4 text-right">Actions</th>
+              <tr className="border-b border-black/10 bg-[#FAF7F0]/60 text-slate-600 font-mono text-[11px] uppercase tracking-wider">
+                <th className="py-3.5 px-4">Carton Barcode</th>
+                <th className="py-3.5 px-4">Order & Buyer</th>
+                <th className="py-3.5 px-4">Style & Color</th>
+                <th className="py-3.5 px-4">Pieces & Ratio</th>
+                <th className="py-3.5 px-4">Gross Wt (kg)</th>
+                <th className="py-3.5 px-4">Variance</th>
+                <th className="py-3.5 px-4">Godown Bay</th>
+                <th className="py-3.5 px-4">Status</th>
+                <th className="py-3.5 px-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-black/5">
+            <tbody className="divide-y divide-black/5 font-sans">
               {filteredCartons.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="py-8 text-center text-slate-400 font-mono text-xs">
-                    No cartons match the selected filters.
+                  <td colSpan={9} className="p-0">
+                    <EmptyState
+                      variant="seamless"
+                      icon={Boxes}
+                      title="No export cartons found"
+                      description="Master corrugated cartons with barcode hangtags, ratio packing, and AQL audit gates will appear once packed."
+                      actionLabel="Pack Master Carton"
+                      onAction={() => router.push('/ready-goods/carton-packing')}
+                    />
                   </td>
                 </tr>
               ) : (
                 filteredCartons.map(carton => {
-                  const variancePassed = Math.abs(carton.weightVarianceKg) <= 0.15
                   return (
                     <tr
                       key={carton.id}
                       className="hover:bg-[#FAF7F0]/40 transition-colors cursor-pointer"
                       onClick={() => setSelectedCarton(carton)}
                     >
-                      <td className="py-3 px-4 font-mono font-black text-[#3A3564] flex items-center gap-2">
+                      <td className="py-3.5 px-4 font-mono font-black text-[#3A3564] flex items-center gap-2">
                         <QrCode className="w-3.5 h-3.5 text-slate-400" />
                         <span>{carton.cartonNumber}</span>
                       </td>
-                      <td className="py-3 px-4">
+                      <td className="py-3.5 px-4">
                         <span className="font-mono font-bold text-slate-900">{carton.orderNumber}</span>
                         <div className="text-[11px] text-slate-500">{carton.buyer}</div>
                       </td>
-                      <td className="py-3 px-4">
+                      <td className="py-3.5 px-4">
                         <div className="font-bold text-slate-800">{carton.styleName}</div>
                         <div className="text-[11px] text-slate-500">{carton.color}</div>
                       </td>
-                      <td className="py-3 px-4">
+                      <td className="py-3.5 px-4">
                         <div className="font-mono font-bold text-slate-900">{carton.totalPieces} pcs</div>
                         <div className="flex gap-1 mt-0.5 flex-wrap">
                           {Object.entries(carton.sizeBreakdown).map(([sz, qty]) => (
                             <span
                               key={sz}
-                              className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-slate-100 text-slate-700 border border-slate-200"
+                              className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-[#FAF7F0] text-[#3A3564] border border-black/10"
                             >
                               {sz}:{qty}
                             </span>
                           ))}
                         </div>
                       </td>
-                      <td className="py-3 px-4 font-mono font-bold text-slate-900">
+                      <td className="py-3.5 px-4 font-mono font-bold text-slate-900">
                         {carton.measuredGrossWeightKg.toFixed(2)} kg
                         <div className="text-[10px] text-slate-400">Exp: {carton.expectedGrossWeightKg.toFixed(2)}</div>
                       </td>
-                      <td className="py-3 px-4 font-mono">
-                        <span
-                          className={`px-2 py-0.5 rounded text-[11px] font-bold border ${
-                            variancePassed
-                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                              : 'bg-rose-50 text-rose-700 border-rose-200'
-                          }`}
-                        >
+                      <td className="py-3.5 px-4 font-mono">
+                        <span className="px-2 py-0.5 rounded text-[11px] font-bold border bg-[#FAF7F0] text-slate-900 border-black/10">
                           {carton.weightVarianceKg >= 0 ? '+' : ''}
                           {carton.weightVarianceKg.toFixed(2)} kg
                         </span>
                       </td>
-                      <td className="py-3 px-4">
+                      <td className="py-3.5 px-4">
                         <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-[#FAF7F0] text-[#3A3564] border border-black/10">
                           {carton.godownBay}
                         </span>
                       </td>
-                      <td className="py-3 px-4">
-                        {carton.status === 'AQL_AUDIT_PASSED' && (
-                          <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold border border-emerald-200">
-                            AQL PASSED
-                          </span>
-                        )}
-                        {carton.status === 'QUARANTINED_AQL_FAILED' && (
-                          <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-rose-100 text-rose-800 font-bold border border-rose-200 flex items-center gap-1 w-fit">
-                            <AlertTriangle className="w-3 h-3" /> QUARANTINED
-                          </span>
-                        )}
-                        {carton.status === 'PACKED' && (
-                          <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold border border-amber-200">
-                            PACKED
-                          </span>
-                        )}
-                        {carton.status === 'SHIPPED' && (
-                          <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-sky-100 text-sky-800 font-bold border border-sky-200">
-                            SHIPPED
-                          </span>
-                        )}
+                      <td className="py-3.5 px-4">
+                        <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-[#FAF7F0] text-[#3A3564] font-bold border border-black/10">
+                          {carton.status.replace(/_/g, ' ')}
+                        </span>
                       </td>
-                      <td className="py-3 px-4 text-right">
+                      <td className="py-3.5 px-4 text-right">
                         <button
                           onClick={e => {
                             e.stopPropagation()
                             setSelectedCarton(carton)
                           }}
-                          className="px-2.5 py-1 rounded bg-white hover:bg-slate-100 border border-black/10 text-slate-700 text-xs font-mono font-semibold transition-colors inline-flex items-center gap-1"
+                          className="px-2.5 py-1 rounded bg-white hover:bg-[#FAF7F0] border border-black/10 text-slate-700 text-xs font-mono font-semibold transition-colors inline-flex items-center gap-1 cursor-pointer"
                         >
-                          <Eye className="w-3 h-3" />
+                          <Eye className="w-3 h-3 text-[#3A3564]" />
                           <span>Inspect</span>
                         </button>
                       </td>
@@ -496,11 +477,11 @@ export function ReadyGoodsDashboardClient({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-[#3A3564]" />
-              <h3 className="text-sm font-black text-slate-900">Recent AQL 2.5 Sampling Audits</h3>
+              <h3 className="text-sm font-black text-slate-900 font-[family-name:var(--font-heading)]">Recent AQL 2.5 Sampling Audits</h3>
             </div>
             <Link
               href="/ready-goods/aql-inspection"
-              className="text-xs font-bold text-[#3A3564] hover:underline inline-flex items-center gap-1"
+              className="text-xs font-bold text-[#3A3564] hover:underline inline-flex items-center gap-1 cursor-pointer"
             >
               <span>View Full QA Log</span>
               <ArrowRight className="w-3 h-3" />
@@ -522,25 +503,19 @@ export function ReadyGoodsDashboardClient({
                       • Carton {audit.cartonNumber}
                     </span>
                   </div>
-                  <span
-                    className={`text-[10px] font-mono px-2 py-0.5 rounded font-bold border ${
-                      audit.auditDecision === 'PASS'
-                        ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
-                        : 'bg-rose-100 text-rose-800 border-rose-200'
-                    }`}
-                  >
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded font-bold border bg-[#FAF7F0] text-[#3A3564] border-black/10">
                     {audit.auditDecision}
                   </span>
                 </div>
                 <div className="text-xs text-slate-700 font-medium">
                   Auditor: <span className="font-semibold">{audit.inspectorName}</span> • Sample Size: {audit.sampleSizeAudited} pcs
                 </div>
-                <div className="flex items-center gap-2 text-[11px] font-mono">
-                  <span className="text-rose-700 font-bold">Crit: {audit.criticalDefects}</span>
+                <div className="flex items-center gap-2 text-[11px] font-mono text-slate-600">
+                  <span className="font-bold">Crit: {audit.criticalDefects}</span>
                   <span className="text-slate-400">|</span>
-                  <span className="text-amber-700 font-bold">Maj: {audit.majorDefects}</span>
+                  <span className="font-bold">Maj: {audit.majorDefects}</span>
                   <span className="text-slate-400">|</span>
-                  <span className="text-slate-600">Min: {audit.minorDefects}</span>
+                  <span>Min: {audit.minorDefects}</span>
                   <span className="ml-auto text-slate-400 text-[10px]">{audit.auditDate}</span>
                 </div>
               </div>
@@ -553,11 +528,11 @@ export function ReadyGoodsDashboardClient({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Warehouse className="w-4 h-4 text-[#3A3564]" />
-              <h3 className="text-sm font-black text-slate-900">Central Godown Stacking & Scale Telemetry</h3>
+              <h3 className="text-sm font-black text-slate-900 font-[family-name:var(--font-heading)]">Central Godown Stacking & Scale Telemetry</h3>
             </div>
             <Link
               href="/ready-goods/carton-weight"
-              className="text-xs font-bold text-[#3A3564] hover:underline inline-flex items-center gap-1"
+              className="text-xs font-bold text-[#3A3564] hover:underline inline-flex items-center gap-1 cursor-pointer"
             >
               <span>Scale Logs</span>
               <ArrowRight className="w-3 h-3" />
@@ -568,24 +543,24 @@ export function ReadyGoodsDashboardClient({
             <div className="p-3 rounded-xl border border-black/10 bg-[#FAF7F0]/40 text-center">
               <span className="text-[11px] font-mono font-bold text-slate-500 uppercase">Bay 3 (Hoodies)</span>
               <div className="text-lg font-black font-mono text-slate-900 mt-1">16,200 pcs</div>
-              <div className="text-[10px] text-emerald-700 font-bold mt-0.5">Weighbridge 1 OK</div>
+              <div className="text-[10px] text-slate-700 font-bold mt-0.5">Weighbridge 1 OK</div>
             </div>
             <div className="p-3 rounded-xl border border-black/10 bg-[#FAF7F0]/40 text-center">
               <span className="text-[11px] font-mono font-bold text-slate-500 uppercase">Bay 4 (Tees)</span>
               <div className="text-lg font-black font-mono text-slate-900 mt-1">14,800 pcs</div>
-              <div className="text-[10px] text-emerald-700 font-bold mt-0.5">Weighbridge 2 OK</div>
+              <div className="text-[10px] text-slate-700 font-bold mt-0.5">Weighbridge 2 OK</div>
             </div>
             <div className="p-3 rounded-xl border border-black/10 bg-[#FAF7F0]/40 text-center">
               <span className="text-[11px] font-mono font-bold text-slate-500 uppercase">Bay 5 (Bottoms)</span>
               <div className="text-lg font-black font-mono text-slate-900 mt-1">11,500 pcs</div>
-              <div className="text-[10px] text-amber-700 font-bold mt-0.5">Quarantine Area Active</div>
+              <div className="text-[10px] text-slate-700 font-bold mt-0.5">Quarantine Area Active</div>
             </div>
           </div>
 
-          <div className="p-3.5 rounded-xl border border-black/10 bg-slate-50 space-y-1.5 text-xs text-slate-600">
+          <div className="p-3.5 rounded-xl border border-black/10 bg-[#FAF7F0]/60 space-y-1.5 text-xs text-slate-600">
             <div className="flex items-center justify-between font-mono text-[11px]">
               <span className="font-bold text-slate-700">Digital Scale Tolerance Standard</span>
-              <span className="text-purple-700 font-bold">±0.15 kg BOM Target</span>
+              <span className="text-[#3A3564] font-bold">±0.15 kg BOM Target</span>
             </div>
             <p className="text-[11px] text-slate-500">
               Discrepancies &gt; 0.15 kg trigger automated carton lockouts to prevent accidental shipment of empty or extra garments (Zero Ghost Piece compliance).
@@ -613,7 +588,7 @@ export function ReadyGoodsDashboardClient({
               </div>
               <button
                 onClick={() => setSelectedCarton(null)}
-                className="text-slate-400 hover:text-slate-700 text-sm font-bold font-mono px-2 py-1 rounded"
+                className="text-slate-400 hover:text-slate-700 text-sm font-bold font-mono px-2 py-1 rounded cursor-pointer"
               >
                 ✕
               </button>
@@ -652,7 +627,7 @@ export function ReadyGoodsDashboardClient({
               </div>
               <div>
                 <span className="text-slate-400 font-mono">Status:</span>
-                <div className="font-mono font-bold text-emerald-700">{selectedCarton.status}</div>
+                <div className="font-mono font-bold text-[#3A3564]">{selectedCarton.status}</div>
               </div>
             </div>
 
@@ -692,7 +667,7 @@ export function ReadyGoodsDashboardClient({
             <div className="pt-2 flex justify-end gap-2">
               <Link
                 href="/ready-goods/aql-inspection"
-                className="px-3 py-1.5 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2c284e] transition-all"
+                className="px-3 py-1.5 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2c284e] transition-all cursor-pointer"
               >
                 Perform AQL Audit on Carton
               </Link>
