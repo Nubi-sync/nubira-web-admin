@@ -28,13 +28,10 @@ export async function createRazorpayPaymentLink(params: CreatePaymentLinkParams)
   const { keyId, keySecret } = getRazorpayCredentials()
 
   if (!keyId || !keySecret) {
-    console.warn('[Razorpay] Keys not configured. Generating simulated payment link.')
-    const simId = `plink_sim_${Date.now().toString().slice(-6)}`
+    console.error('[Razorpay] Keys not loaded in environment (RAZORPAY_KEY_ID / RAZORPAY_KEY_SECRET). Restart your Next.js dev server.')
     return {
-      success: true,
-      simulated: true,
-      linkId: simId,
-      shortUrl: `https://rzp.io/l/sim-${Date.now().toString().slice(-6)}`
+      success: false,
+      error: 'Razorpay keys not loaded in server environment. Please restart Next.js server.'
     }
   }
 
