@@ -33,6 +33,7 @@ export default async function CuttingModulePage() {
     <AdminShell userEmail={tenant.userEmail} userRole={tenant.role}>
       <CuttingDashboardClient 
         userEmail={tenant.userEmail} 
+        isSuperAdmin={tenant.isSuperAdmin}
         initialLays={initialLays}
         initialBundles={initialBundles}
         liveKpis={liveKpis}

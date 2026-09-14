@@ -132,16 +132,14 @@ export function AdminSidebar({
   const isAdmin = (
     userEmail?.toLowerCase() === 'admin@zigza.in' ||
     userEmail?.toLowerCase() === 'team.anga9@gmail.com' ||
-    userRole?.toUpperCase() === 'ADMIN' ||
     userRole?.toUpperCase() === 'SUPERADMIN' ||
-    userRole?.toUpperCase() === 'PLATFORM_SUPERADMIN' ||
-    userRole?.toUpperCase() === 'ADMINISTRATOR'
+    userRole?.toUpperCase() === 'PLATFORM_SUPERADMIN'
   )
 
   const roleLabel = isAdmin 
     ? 'Super Admin' 
-    : (userRole 
-        ? userRole.toLowerCase().split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+    : (userRole && userRole.toUpperCase() !== 'ADMIN'
+        ? userRole.split('/')[0].trim().replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
         : (isStoreUser ? 'Store Supervisor' : 'Department Head'))
 
   // Module-specific unique side navigation

@@ -36,6 +36,7 @@ import {
 
 interface CuttingDashboardClientProps {
   userEmail?: string
+  isSuperAdmin?: boolean
   initialLays?: LaySheet[]
   initialBundles?: CutBundle[]
   liveKpis?: any
@@ -43,6 +44,7 @@ interface CuttingDashboardClientProps {
 
 export function CuttingDashboardClient({ 
   userEmail,
+  isSuperAdmin = false,
   initialLays,
   initialBundles,
   liveKpis
@@ -152,14 +154,18 @@ export function CuttingDashboardClient({
       {/* Navigation Breadcrumb */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-2">
-          <Link
-            href="/modules"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs cursor-pointer"
-          >
-            <ChevronLeft className="w-3.5 h-3.5" />
-            <span>Workspace Hub</span>
-          </Link>
-          <span className="text-slate-400 font-mono text-xs">/</span>
+          {isSuperAdmin && (
+            <>
+              <Link
+                href="/modules"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs cursor-pointer"
+              >
+                <ChevronLeft className="w-3.5 h-3.5" />
+                <span>Workspace Hub</span>
+              </Link>
+              <span className="text-slate-400 font-mono text-xs">/</span>
+            </>
+          )}
           <span className="text-xs font-mono font-bold text-slate-900">Division 03 • Cutting Floor</span>
         </div>
         
