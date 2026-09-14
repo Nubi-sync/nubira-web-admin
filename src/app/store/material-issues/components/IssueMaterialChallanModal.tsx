@@ -83,11 +83,11 @@ export function IssueMaterialChallanModal({ isOpen, onClose }: IssueMaterialChal
         {/* Modal Header */}
         <div className="flex items-center justify-between border-b border-black/10 pb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#3A3564]/10 text-[#3A3564] flex items-center justify-center font-bold">
+            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center font-bold shadow-2xs">
               <ArrowRight className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-lg font-black text-slate-900">
+              <h2 className="text-lg font-black text-slate-900 font-[family-name:var(--font-heading)]">
                 Issue Material to Production Floor
               </h2>
               <p className="text-xs font-mono text-slate-500">
@@ -97,7 +97,7 @@ export function IssueMaterialChallanModal({ isOpen, onClose }: IssueMaterialChal
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-lg border border-black/10 text-slate-400 hover:text-slate-700 hover:bg-slate-50 flex items-center justify-center transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-lg border border-black/10 text-slate-400 hover:text-slate-700 hover:bg-[#FAF7F0] flex items-center justify-center transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -276,14 +276,14 @@ export function IssueMaterialChallanModal({ isOpen, onClose }: IssueMaterialChal
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl border border-black/10 text-xs font-mono font-bold text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
+              className="px-4 py-2 rounded-xl border border-black/10 text-xs font-mono font-bold text-slate-700 hover:bg-[#FAF7F0] transition-colors cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-5 py-2 rounded-xl bg-[#3A3564] text-white text-xs font-mono font-bold hover:bg-[#2e2a52] transition-colors shadow-xs flex items-center gap-1.5 cursor-pointer"
+              className="px-5 py-2 rounded-xl bg-[#3A3564] text-white text-xs font-mono font-bold hover:bg-[#2c284e] transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer"
             >
               <Check className="w-4 h-4" />
               <span>{isSubmitting ? 'Dispatching...' : 'Authorize Challan Dispatch'}</span>

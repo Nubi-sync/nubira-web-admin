@@ -6,27 +6,24 @@ import {
   Layers, 
   ChevronLeft, 
   Search, 
+  Scale, 
+  ShieldCheck, 
+  Clock, 
   CheckCircle2, 
   AlertTriangle, 
-  Clock, 
-  ShieldCheck, 
-  Ruler, 
-  Scale, 
-  Tag, 
-  QrCode,
-  SlidersHorizontal,
   ArrowRight,
   Filter
 } from 'lucide-react'
-import { FabricRoll, ShadeGroup, FabricInspectionStatus } from '../../types/store'
+import { FabricRollInspection, FabricShadeGroup } from '../../types/store'
 import { getFabricRolls, STORE_UPDATE_EVENT } from '../../utils/storeStorage'
 import { InspectRollModal } from './InspectRollModal'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 export function FabricGodownClient() {
-  const [rolls, setRolls] = useState<FabricRoll[]>([])
+  const [rolls, setRolls] = useState<FabricRollInspection[]>([])
   const [searchQuery, setSearchQuery] = useState('')
-  const [shadeFilter, setShadeFilter] = useState<'ALL' | ShadeGroup | 'REJECTED' | 'PENDING'>('ALL')
-  const [selectedRoll, setSelectedRoll] = useState<FabricRoll | null>(null)
+  const [shadeFilter, setShadeFilter] = useState<'ALL' | FabricShadeGroup | 'PENDING' | 'REJECTED'>('ALL')
+  const [selectedRoll, setSelectedRoll] = useState<FabricRollInspection | null>(null)
   const [isInspectModalOpen, setIsInspectModalOpen] = useState(false)
 
   const loadRolls = () => {
@@ -42,30 +39,29 @@ export function FabricGodownClient() {
 
   // Metrics
   const totalRolls = rolls.length
-  const totalWeightKg = rolls.reduce((acc, r) => acc + (r.grossWeightKg || 0), 0)
-  const weightTons = Math.round((totalWeightKg / 1000) * 10) / 10
+  const totalWeightKg = rolls.reduce((acc, r) => acc + r.grossWeightKg, 0)
+  const weightTons = (totalWeightKg / 1000).toFixed(1)
+  const passedRolls = rolls.filter(r => r.inspectionStatus === 'PASSED').length
+  const passRate = totalRolls > 0 ? Math.round((passedRolls / totalRolls) * 100) : 0
   const pendingCount = rolls.filter(r => r.inspectionStatus === 'PENDING_INSPECTION').length
-  const passedCount = rolls.filter(r => r.inspectionStatus === 'PASSED').length
-  const inspectedCount = rolls.filter(r => r.inspectionStatus !== 'PENDING_INSPECTION').length
-  const passRate = inspectedCount > 0 ? Math.round((passedCount / inspectedCount) * 1000) / 10 : 96.4
 
-  const filteredRolls = rolls.filter(r => {
+  const filteredRolls = rolls.filter(roll => {
     const matchesSearch = 
-      r.rollBarcode.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      r.supplierName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      r.fabricType.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      r.colorShade.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      r.godownRackLocation.toLowerCase().includes(searchQuery.toLowerCase())
+      roll.rollBarcode.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      roll.supplierName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      roll.fabricType.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      roll.colorShade.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      roll.godownRackLocation.toLowerCase().includes(searchQuery.toLowerCase())
 
     if (!matchesSearch) return false
 
     if (shadeFilter === 'ALL') return true
-    if (shadeFilter === 'REJECTED') return r.inspectionStatus === 'REJECTED'
-    if (shadeFilter === 'PENDING') return r.inspectionStatus === 'PENDING_INSPECTION'
-    return r.shadeGroup === shadeFilter && r.inspectionStatus !== 'REJECTED'
+    if (shadeFilter === 'PENDING') return roll.inspectionStatus === 'PENDING_INSPECTION'
+    if (shadeFilter === 'REJECTED') return roll.inspectionStatus === 'REJECTED'
+    return roll.shadeGroup === shadeFilter
   })
 
-  const openInspectModal = (roll: FabricRoll) => {
+  const openInspectModal = (roll: FabricRollInspection) => {
     setSelectedRoll(roll)
     setIsInspectModalOpen(true)
   }
@@ -90,15 +86,15 @@ export function FabricGodownClient() {
       {/* Header Banner */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#3A3564]/10 text-[#3A3564] border border-[#3A3564]/20">
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
             <Layers className="w-6 h-6" />
           </div>
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
-              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
+              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 Fabric Godown & 4-Point QC
               </h1>
-              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 tracking-wider">
+              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 tracking-wider">
                 ASTM D5430 SLA ≤ 28 Pts
               </span>
             </div>
@@ -117,18 +113,18 @@ export function FabricGodownClient() {
         </Link>
       </div>
 
-      {/* 4 Metric KPI Cards */}
+      {/* 4 Metric KPI Cards - Unified Icon & Neutral Typography */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Total Rolls in Godown
             </span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] flex items-center justify-center">
+            <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
               <Layers className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900">
+          <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 tabular-nums">
             {totalRolls} <span className="text-sm font-normal text-slate-500">Rolls</span>
           </div>
           <p className="text-[11px] font-mono text-slate-500 mt-1">
@@ -141,11 +137,11 @@ export function FabricGodownClient() {
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Fabric Weight in Stock
             </span>
-            <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-700 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
               <Scale className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black font-mono text-indigo-700">
+          <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 tabular-nums">
             {weightTons} <span className="text-sm font-normal text-slate-500">Tons</span>
           </div>
           <p className="text-[11px] font-mono text-slate-500 mt-1">
@@ -158,14 +154,14 @@ export function FabricGodownClient() {
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               ASTM 4-Point Pass Rate
             </span>
-            <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
               <ShieldCheck className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black font-mono text-emerald-600">
+          <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 tabular-nums">
             {passRate}%
           </div>
-          <p className="text-[11px] font-mono text-emerald-700 mt-1">
+          <p className="text-[11px] font-mono text-slate-500 mt-1">
             SLA Compliance Target: ≥ 95.0%
           </p>
         </div>
@@ -175,11 +171,11 @@ export function FabricGodownClient() {
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Pending Audit Queue
             </span>
-            <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
               <Clock className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black font-mono text-amber-600">
+          <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 tabular-nums">
             {pendingCount} <span className="text-sm font-normal text-slate-500">Rolls</span>
           </div>
           <p className="text-[11px] font-mono text-slate-500 mt-1">
@@ -197,7 +193,7 @@ export function FabricGodownClient() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by roll barcode, mill supplier, fabric type, shade, or rack..."
-            className="w-full pl-9 pr-4 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-mono font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+            className="w-full pl-9 pr-4 py-2.5 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-mono font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
           />
         </div>
 
@@ -213,7 +209,7 @@ export function FabricGodownClient() {
                 className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold whitespace-nowrap transition-all cursor-pointer ${
                   active 
                     ? 'bg-[#3A3564] text-white shadow-2xs' 
-                    : 'bg-[#FAF7F0] text-slate-600 hover:text-slate-900 border border-black/10'
+                    : 'bg-[#FAF7F0] text-slate-600 hover:text-slate-900 hover:bg-[#F2ECE1] border border-black/10'
                 }`}
               >
                 {label}
@@ -226,7 +222,7 @@ export function FabricGodownClient() {
       {/* Rolls Table */}
       <div className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse">
+          <table className="w-full text-left text-xs border-collapse min-w-[760px]">
             <thead>
               <tr className="bg-[#FAF7F0] border-b border-black/10 font-mono text-[11px] font-bold text-slate-500 uppercase tracking-wider">
                 <th className="py-3 px-4">Roll Barcode</th>
@@ -242,8 +238,18 @@ export function FabricGodownClient() {
             <tbody className="divide-y divide-black/5 font-medium text-slate-800">
               {filteredRolls.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-8 text-center text-slate-400 font-mono text-xs">
-                    No fabric rolls matching the selected filter.
+                  <td colSpan={8} className="py-6">
+                    <EmptyState
+                      variant="seamless"
+                      icon={Layers}
+                      title="No Fabric Rolls Found"
+                      description="No fabric rolls match your current search query or shade inspection filter."
+                      actionLabel="Reset Filters"
+                      onAction={() => {
+                        setSearchQuery('')
+                        setShadeFilter('ALL')
+                      }}
+                    />
                   </td>
                 </tr>
               ) : (
@@ -253,7 +259,7 @@ export function FabricGodownClient() {
                   const isPending = roll.inspectionStatus === 'PENDING_INSPECTION'
 
                   return (
-                    <tr key={roll.id} className="hover:bg-slate-50 transition-colors">
+                    <tr key={roll.id} className="hover:bg-[#FAF7F0]/40 transition-colors">
                       <td className="py-3 px-4">
                         <div className="font-mono font-black text-slate-900">
                           {roll.rollBarcode}
@@ -273,13 +279,7 @@ export function FabricGodownClient() {
                       </td>
 
                       <td className="py-3 px-4">
-                        <span className={`px-2.5 py-0.5 rounded-full font-mono text-[10px] font-bold uppercase border ${
-                          roll.shadeGroup === 'SHADE_A'
-                            ? 'bg-blue-50 text-blue-700 border-blue-200'
-                            : roll.shadeGroup === 'SHADE_B'
-                            ? 'bg-purple-50 text-purple-700 border-purple-200'
-                            : 'bg-amber-50 text-amber-700 border-amber-200'
-                        }`}>
+                        <span className="px-2.5 py-0.5 rounded-md font-mono text-[10px] font-bold uppercase bg-[#FAF7F0] text-[#3A3564] border border-black/10">
                           {roll.shadeGroup.replace('_', ' ')}
                         </span>
                       </td>
@@ -300,9 +300,7 @@ export function FabricGodownClient() {
                           </span>
                         ) : (
                           <div>
-                            <span className={`font-mono font-black text-sm ${
-                              isPassed ? 'text-emerald-700' : 'text-rose-700'
-                            }`}>
+                            <span className="font-mono font-black text-sm text-slate-900 tabular-nums">
                               {roll.pointsPer100SqYd} pts
                             </span>
                             <span className="text-[10px] font-mono text-slate-400 block">
@@ -313,11 +311,11 @@ export function FabricGodownClient() {
                       </td>
 
                       <td className="py-3 px-4 font-mono">
-                        <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200 font-bold text-[11px]">
+                        <span className="px-2 py-0.5 rounded-md bg-[#FAF7F0] text-slate-700 border border-black/10 font-bold text-[11px]">
                           {roll.godownRackLocation}
                         </span>
                         {roll.isIssuedToCutting && (
-                          <span className="block text-[10px] text-emerald-700 font-bold mt-0.5">
+                          <span className="block text-[10px] text-slate-600 font-bold mt-0.5">
                             ✓ Issued to Cut
                           </span>
                         )}
@@ -325,20 +323,20 @@ export function FabricGodownClient() {
 
                       <td className="py-3 px-4">
                         {isPassed && (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-mono font-bold uppercase border border-emerald-200">
-                            <CheckCircle2 className="w-3 h-3" />
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-[#FAF7F0] text-[#3A3564] text-[10px] font-mono font-bold uppercase border border-black/15 shadow-2xs">
+                            <CheckCircle2 className="w-3 h-3 text-[#3A3564]" />
                             Pass (Cut Approved)
                           </span>
                         )}
                         {isRejected && (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 text-[10px] font-mono font-bold uppercase border border-rose-200">
-                            <AlertTriangle className="w-3 h-3" />
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-[#FAF7F0] text-slate-800 text-[10px] font-mono font-bold uppercase border border-black/15 shadow-2xs">
+                            <AlertTriangle className="w-3 h-3 text-[#3A3564]" />
                             Reject (&gt; 28 Pts)
                           </span>
                         )}
                         {isPending && (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-mono font-bold uppercase border border-amber-200">
-                            <Clock className="w-3 h-3" />
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-[#FAF7F0] text-slate-700 text-[10px] font-mono font-bold uppercase border border-black/10">
+                            <Clock className="w-3 h-3 text-slate-500" />
                             Pending QC
                           </span>
                         )}
