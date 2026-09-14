@@ -1,14 +1,17 @@
 import { AdminShell } from '@/components/layout/AdminShell'
 import { createClient } from '@/utils/supabase/server'
+import { supabaseAdmin } from '@/utils/supabase/admin'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Building2 } from 'lucide-react'
 import { CompanyProfileCard } from '@/app/profile/components/CompanyProfileCard'
 import { AdminIdentityCard } from '@/app/profile/components/AdminIdentityCard'
 import { SupervisorTeamOverview, ProfileUser } from '@/app/profile/components/SupervisorTeamOverview'
+import { SubscribedModulesSection, SubscribedModuleItem } from '@/app/profile/components/SubscribedModulesSection'
 import { AccountDeletionDangerZone } from '@/app/profile/components/AccountDeletionDangerZone'
 import { StaffProfileView } from '@/app/profile/components/StaffProfileView'
 import { resolveUserTenant } from '@/lib/tenant-context'
+import { DEPARTMENT_HEADS_CATALOG, ROLE_MODULE_MAPPING } from '@/lib/access-control'
 
 export const dynamic = 'force-dynamic'
 
@@ -58,43 +61,115 @@ export default async function ModuleCompanyProfilePage() {
 
   // Master Admin Company Profile view for Enterprise Masters and SuperAdmins
   let companyData: any = null
-  if (!tenant.isProvisionedTenant) {
-    try {
-      const { data } = await supabase
-        .from('company_profile')
-        .select('*')
-        .eq('id', 'default')
-        .maybeSingle()
-      companyData = data
-    } catch (err) {
-      console.warn('company_profile fetch fallback:', err)
-    }
+  try {
+    const { data } = await supabaseAdmin
+      .from('company_profile')
+      .select('*')
+      .or(`id.eq.default,company_name.ilike.%${tenant.companyName}%`)
+      .limit(1)
+      .maybeSingle()
+    companyData = data
+  } catch (err) {
+    console.warn('company_profile fetch notice:', err)
   }
 
-  // Fetch staff & supervisor profiles
-  let staffList: ProfileUser[] = []
-  if (!tenant.isProvisionedTenant) {
-    try {
-      const { data: profiles } = await supabase
-        .from('profiles')
-        .select('id, username, role, is_active, created_at')
-        .order('created_at', { ascending: false })
-      staffList = (profiles as ProfileUser[]) || []
-    } catch (err) {
-      console.warn('profiles fetch fallback:', err)
+  // Fetch staff & supervisor profiles using supabaseAdmin for reliable cross-tenant scoping
+  let rawProfiles: any[] = []
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('profiles')
+      .select('id, username, role, is_active, created_at, allowed_modules, is_head, designation, company_name')
+      .order('created_at', { ascending: false })
+    if (!error && data) {
+      rawProfiles = data
     }
+  } catch (err) {
+    console.warn('profiles fetch notice:', err)
   }
+
+  const isNubira = !tenant.companyName || tenant.companyName.toLowerCase().includes('nubira')
+
+  // Scoped staff list for this tenant and active modules
+  const staffList: ProfileUser[] = rawProfiles.filter((p) => {
+    if (p.id === user.id) return false // exclude logged-in admin
+    if (p.role === 'PLATFORM_SUPERADMIN') return false
+
+    // Company scoping check
+    if (isNubira) {
+      const pComp = (p.company_name || '').toLowerCase()
+      if (pComp && !pComp.includes('nubira')) return false
+    } else {
+      const pComp = (p.company_name || '').toLowerCase()
+      if (!pComp.includes(tenant.companyName.toLowerCase())) return false
+    }
+
+    // Module scoping check: only show staff assigned to this company's purchased modules
+    const userModules = Array.isArray(p.allowed_modules) && p.allowed_modules.length > 0
+      ? p.allowed_modules
+      : (ROLE_MODULE_MAPPING[p.role?.toUpperCase() || ''] || [])
+
+    return userModules.some((m: string) => tenant.allowedDivisions.includes(m))
+  })
+
+  // Build dynamic Subscribed Modules array based on tenant.allowedDivisions
+  const activeDivisions = tenant.allowedDivisions || []
+  const activeCatalogs = DEPARTMENT_HEADS_CATALOG.filter((d) => activeDivisions.includes(d.route))
+
+  const subscribedModules: SubscribedModuleItem[] = activeCatalogs.map((dept) => {
+    // Find appointed head for this module
+    const headUser = rawProfiles.find((p) => {
+      if (!p.is_head) return false
+      if (isNubira) {
+        const pComp = (p.company_name || '').toLowerCase()
+        if (pComp && !pComp.includes('nubira')) return false
+      } else {
+        const pComp = (p.company_name || '').toLowerCase()
+        if (!pComp.includes(tenant.companyName.toLowerCase())) return false
+      }
+      const pMods = Array.isArray(p.allowed_modules) ? p.allowed_modules : []
+      return pMods.includes(dept.route)
+    })
+
+    // Count staff for this module
+    const staffInModule = staffList.filter((p) => {
+      if (Array.isArray(p.allowed_modules) && p.allowed_modules.includes(dept.route)) return true
+      const roleRoutes = ROLE_MODULE_MAPPING[p.role?.toUpperCase() || ''] || []
+      return roleRoutes.includes(dept.route as any)
+    }).length
+
+    return {
+      id: dept.id,
+      code: dept.code,
+      name: dept.name,
+      route: dept.route,
+      defaultDesignation: dept.defaultDesignation,
+      iconName: dept.iconName,
+      description: dept.description,
+      appointedHead: headUser
+        ? {
+            name: headUser.username,
+            designation: headUser.designation || dept.defaultDesignation,
+            email: headUser.email || undefined,
+          }
+        : null,
+      staffCount: staffInModule,
+    }
+  })
 
   const company = {
     company_name: tenant.companyName,
-    factory_address: tenant.isProvisionedTenant
-      ? (tenant.cityState || 'Industrial Sector, India')
-      : (companyData?.factory_address || 'Rafi Ahmed Kidwai Road, Kolkata 700055, West Bengal'),
-    gstin: tenant.isProvisionedTenant
-      ? 'Pending Tenant GST Registration'
-      : (companyData?.gstin || '19AADCO1064C1ZK'),
-    contact_phone: tenant.phone || companyData?.contact_phone || '+91 98765 43210',
-    contact_email: tenant.userEmail || companyData?.contact_email || user.email || 'contact@factory.in',
+    factory_address:
+      companyData?.factory_address ||
+      (tenant.isProvisionedTenant
+        ? tenant.cityState || 'Industrial Sector, India'
+        : 'Rafi Ahmed Kidwai Road, Kolkata 700055, West Bengal'),
+    gstin:
+      companyData?.gstin ||
+      (tenant.isProvisionedTenant
+        ? 'Pending Tenant GST Registration'
+        : '19AADCO1064C1ZK'),
+    contact_phone: companyData?.contact_phone || tenant.phone || '+91 98765 43210',
+    contact_email: companyData?.contact_email || tenant.userEmail || user.email || 'contact@factory.in',
   }
 
   const adminDisplayName = tenant.adminDisplayName || tenant.customUsername || 'Enterprise Admin'
@@ -112,7 +187,7 @@ export default async function ModuleCompanyProfilePage() {
           <span className="font-bold text-slate-900">Company Profile</span>
         </div>
 
-        {/* 2. Page Header */}
+        {/* 2. Page Header Card */}
         <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all">
           <div className="flex items-center gap-3.5">
             <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
@@ -120,7 +195,7 @@ export default async function ModuleCompanyProfilePage() {
             </div>
             <div>
               <div className="flex items-center gap-2.5 flex-wrap">
-                <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900">
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                   {tenant.companyName}
                 </h1>
                 <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
@@ -148,10 +223,19 @@ export default async function ModuleCompanyProfilePage() {
           />
         </div>
 
-        {/* 4. Supervisors & Team Floor Distribution (Scoped to tenant) */}
-        <SupervisorTeamOverview staff={staffList} />
+        {/* 4. Active Subscribed Modules Grid (Only modules this company purchased) */}
+        <SubscribedModulesSection
+          modules={subscribedModules}
+          companyName={tenant.companyName}
+        />
 
-        {/* 5. Account Deletion Request Danger Zone */}
+        {/* 5. Supervisors & Team Floor Distribution (Dynamically filtered by active modules) */}
+        <SupervisorTeamOverview
+          staff={staffList}
+          allowedDivisions={tenant.allowedDivisions}
+        />
+
+        {/* 6. Account Deletion Request Danger Zone */}
         <AccountDeletionDangerZone
           companyName={tenant.companyName}
           adminName={adminDisplayName}

@@ -1,8 +1,10 @@
 import { AdminShell } from '@/components/layout/AdminShell'
 import { createClient } from '@/utils/supabase/server'
+import { supabaseAdmin } from '@/utils/supabase/admin'
 import { redirect } from 'next/navigation'
 import { DivisionProfileView } from '@/components/profile/DivisionProfileView'
-import { Wrench } from 'lucide-react'
+import { resolveUserTenant } from '@/lib/tenant-context'
+import { ROLE_MODULE_MAPPING } from '@/lib/access-control'
 
 export const dynamic = 'force-dynamic'
 
@@ -17,25 +19,73 @@ export default async function AlterProfilePage() {
     redirect('/login')
   }
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('id, username, role')
-    .eq('id', user.id)
-    .single()
+  const tenant = await resolveUserTenant(user)
+
+  let staffList: any[] = []
+  let headUser: any = null
+
+  try {
+    const { data: profiles } = await supabaseAdmin
+      .from('profiles')
+      .select('id, username, role, is_active, created_at, allowed_modules, is_head, designation, company_name')
+      .order('created_at', { ascending: false })
+
+    if (profiles) {
+      const isNubira = !tenant.companyName || tenant.companyName.toLowerCase().includes('nubira')
+
+      staffList = profiles.filter((p) => {
+        if (p.role === 'PLATFORM_SUPERADMIN') return false
+
+        if (isNubira) {
+          const pComp = (p.company_name || '').toLowerCase()
+          if (pComp && !pComp.includes('nubira')) return false
+        } else {
+          const pComp = (p.company_name || '').toLowerCase()
+          if (!pComp.includes(tenant.companyName.toLowerCase())) return false
+        }
+
+        const mods = Array.isArray(p.allowed_modules) && p.allowed_modules.length > 0
+          ? p.allowed_modules
+          : (ROLE_MODULE_MAPPING[p.role?.toUpperCase() || ''] || [])
+
+        return mods.includes('/alter')
+      })
+
+      headUser = staffList.find((p) => p.is_head) || staffList.find((p) => p.role === 'MENDING' || p.role === 'ALTERATION')
+    }
+  } catch (err) {
+    console.warn('Alter profile fetch notice:', err)
+  }
 
   return (
-    <AdminShell userEmail={user.email} userRole={profile?.role}>
+    <AdminShell userEmail={user.email} userRole={tenant.role}>
       <DivisionProfileView
-        divisionName="Alteration & Quality Rework"
+        divisionName="Alteration & Reclamation Clinic"
         divisionSlug="/alter"
-        categoryBadge="QUALITY RECOVERY"
+        divisionCode="10"
+        categoryBadge="QUALITY RECOVERY & REWORK"
+        companyName={tenant.companyName}
         userEmail={user.email || ''}
-        userName={profile?.username || user.email?.split('@')[0] || 'Mending Master'}
-        userRole={profile?.role || 'ALTERATION_SUPERVISOR'}
-        icon={Wrench}
-        supervisorName="Head of Quality Recovery"
-        capacityInfo="6 Master Mending Stations • Inline Seam Repair"
-        qualityStandard="95%+ Rework Recovery Clearance • Zero Recurring Defects"
+        userName={headUser?.username || tenant.adminDisplayName || 'Mending Master'}
+        userRole={headUser?.designation || headUser?.role || 'ALTERATION_HEAD'}
+        iconName="Wrench"
+        supervisorName="Rework Operations Head"
+        departmentHead={headUser ? {
+          name: headUser.username,
+          designation: headUser.designation || 'Alteration Incharge / Rework Master',
+          email: headUser.email,
+          authorityScope: 'Defect Categorization, Re-Inspection Clearance & Scrap Salvage Release',
+          appointmentDate: headUser.created_at ? new Date(headUser.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'Active',
+        } : null}
+        operationalSpecs={[
+          { label: 'Master Mending Stations', value: '6 Dedicated Single/Overlock Rework Stations', iconName: 'Scissors' },
+          { label: 'Spot Cleaning Station', value: 'High-Pressure Stain & Oil Removal Gun', iconName: 'Sparkles' },
+          { label: 'Defect Intake Desk', value: 'Seam, Broken Stitch & Oil Stain Sorting', iconName: 'ShieldAlert' },
+          { label: 'Re-Inspection Desk', value: '100% Secondary Audit Before Re-Pack', iconName: 'CheckCircle2' },
+        ]}
+        staff={staffList}
+        shiftDetails="Shift A (08:30 AM - 05:30 PM)"
+        qualityStandard="95%+ Rework Recovery Clearance • Zero Recurring Defects Allowed"
       />
     </AdminShell>
   )
