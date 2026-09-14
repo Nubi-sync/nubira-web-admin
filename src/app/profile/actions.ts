@@ -1,6 +1,8 @@
 'use server'
 
 import { createClient } from '@/utils/supabase/server'
+import { supabaseAdmin } from '@/utils/supabase/admin'
+import { resolveUserTenant } from '@/lib/tenant-context'
 import { revalidatePath } from 'next/cache'
 
 export async function updateCompanySettings(formData: FormData) {
@@ -14,29 +16,55 @@ export async function updateCompanySettings(formData: FormData) {
     throw new Error('Unauthorized')
   }
 
-  const companyName = (formData.get('company_name') as string)?.trim() || 'Nubira Creation'
+  const tenant = await resolveUserTenant(user)
+
+  const companyName = (formData.get('company_name') as string)?.trim() || tenant.companyName || 'Company Profile'
   const factoryAddress = (formData.get('factory_address') as string)?.trim() || ''
   const gstin = (formData.get('gstin') as string)?.trim() || ''
   const contactPhone = (formData.get('contact_phone') as string)?.trim() || ''
   const contactEmail = (formData.get('contact_email') as string)?.trim() || ''
 
   try {
-    const { error } = await supabase
+    // Find existing company_profile id for this tenant
+    const { data: existing } = await supabaseAdmin
       .from('company_profile')
-      .upsert({
-        id: 'default',
-        company_name: companyName,
-        factory_address: factoryAddress,
-        gstin: gstin,
-        contact_phone: contactPhone,
-        contact_email: contactEmail,
-        updated_at: new Date().toISOString(),
-      })
+      .select('id')
+      .ilike('company_name', tenant.companyName)
+      .limit(1)
+      .maybeSingle()
+
+    const isNubira = !tenant.companyName || tenant.companyName.toLowerCase().includes('nubira')
+    const targetId = existing?.id || (isNubira ? 'default' : crypto.randomUUID())
+
+    const updatePayload: Record<string, any> = {
+      id: targetId,
+      company_name: companyName,
+      factory_address: factoryAddress,
+      gstin: gstin,
+      updated_at: new Date().toISOString(),
+    }
+    if (contactPhone) updatePayload.contact_phone = contactPhone
+    if (contactEmail) updatePayload.contact_email = contactEmail
+
+    const { error } = await supabaseAdmin
+      .from('company_profile')
+      .upsert(updatePayload)
 
     if (error) {
       throw error
     }
 
+    // Sync phone to platform_tenant_factories if matching tenant exists
+    try {
+      await supabaseAdmin
+        .from('platform_tenant_factories')
+        .update({
+          phone: contactPhone || undefined,
+        })
+        .ilike('admin_email', user.email || '')
+    } catch (_) {}
+
+    revalidatePath('/modules/profile')
     revalidatePath('/profile')
     return { success: true }
   } catch (error: any) {
@@ -56,14 +84,26 @@ export async function updateAdminContact(formData: FormData) {
     throw new Error('Unauthorized')
   }
 
+  const tenant = await resolveUserTenant(user)
+
   const adminDisplayName = (formData.get('admin_display_name') as string)?.trim() || 'Admin'
   const adminPhone = (formData.get('admin_phone') as string)?.trim() || ''
 
   try {
-    const { error } = await supabase
+    const { data: existing } = await supabaseAdmin
+      .from('company_profile')
+      .select('id')
+      .ilike('company_name', tenant.companyName)
+      .limit(1)
+      .maybeSingle()
+
+    const isNubira = !tenant.companyName || tenant.companyName.toLowerCase().includes('nubira')
+    const targetId = existing?.id || (isNubira ? 'default' : crypto.randomUUID())
+
+    const { error } = await supabaseAdmin
       .from('company_profile')
       .upsert({
-        id: 'default',
+        id: targetId,
         admin_display_name: adminDisplayName,
         admin_phone: adminPhone,
         updated_at: new Date().toISOString(),
@@ -73,6 +113,23 @@ export async function updateAdminContact(formData: FormData) {
       throw error
     }
 
+    // Sync admin username to profiles and admin_name to platform_tenant_factories
+    try {
+      await supabaseAdmin
+        .from('profiles')
+        .update({ username: adminDisplayName })
+        .eq('id', user.id)
+
+      await supabaseAdmin
+        .from('platform_tenant_factories')
+        .update({
+          admin_name: adminDisplayName,
+          phone: adminPhone || undefined,
+        })
+        .ilike('admin_email', user.email || '')
+    } catch (_) {}
+
+    revalidatePath('/modules/profile')
     revalidatePath('/profile')
     return { success: true }
   } catch (error: any) {

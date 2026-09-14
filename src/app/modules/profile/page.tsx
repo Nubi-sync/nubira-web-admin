@@ -4,14 +4,12 @@ import { supabaseAdmin } from '@/utils/supabase/admin'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Building2 } from 'lucide-react'
-import { CompanyProfileCard } from '@/app/profile/components/CompanyProfileCard'
 import { AdminIdentityCard } from '@/app/profile/components/AdminIdentityCard'
 import { SupervisorTeamOverview, ProfileUser } from '@/app/profile/components/SupervisorTeamOverview'
-import { SubscribedModulesSection, SubscribedModuleItem } from '@/app/profile/components/SubscribedModulesSection'
 import { AccountDeletionDangerZone } from '@/app/profile/components/AccountDeletionDangerZone'
 import { StaffProfileView } from '@/app/profile/components/StaffProfileView'
 import { resolveUserTenant } from '@/lib/tenant-context'
-import { DEPARTMENT_HEADS_CATALOG, ROLE_MODULE_MAPPING } from '@/lib/access-control'
+import { ROLE_MODULE_MAPPING } from '@/lib/access-control'
 
 export const dynamic = 'force-dynamic'
 
@@ -62,12 +60,24 @@ export default async function ModuleCompanyProfilePage() {
   // Master Admin Company Profile view for Enterprise Masters and SuperAdmins
   let companyData: any = null
   try {
-    const { data } = await supabaseAdmin
+    // 1. Try finding by matching company_name
+    let { data } = await supabaseAdmin
       .from('company_profile')
       .select('*')
-      .or(`id.eq.default,company_name.ilike.%${tenant.companyName}%`)
+      .ilike('company_name', tenant.companyName)
       .limit(1)
       .maybeSingle()
+
+    // 2. If not found and tenant is Nubira, check legacy default record
+    if (!data && (!tenant.companyName || tenant.companyName.toLowerCase().includes('nubira'))) {
+      const { data: defaultData } = await supabaseAdmin
+        .from('company_profile')
+        .select('*')
+        .eq('id', 'default')
+        .maybeSingle()
+      data = defaultData
+    }
+
     companyData = data
   } catch (err) {
     console.warn('company_profile fetch notice:', err)
@@ -111,69 +121,9 @@ export default async function ModuleCompanyProfilePage() {
     return userModules.some((m: string) => tenant.allowedDivisions.includes(m))
   })
 
-  // Build dynamic Subscribed Modules array based on tenant.allowedDivisions
-  const activeDivisions = tenant.allowedDivisions || []
-  const activeCatalogs = DEPARTMENT_HEADS_CATALOG.filter((d) => activeDivisions.includes(d.route))
-
-  const subscribedModules: SubscribedModuleItem[] = activeCatalogs.map((dept) => {
-    // Find appointed head for this module
-    const headUser = rawProfiles.find((p) => {
-      if (!p.is_head) return false
-      if (isNubira) {
-        const pComp = (p.company_name || '').toLowerCase()
-        if (pComp && !pComp.includes('nubira')) return false
-      } else {
-        const pComp = (p.company_name || '').toLowerCase()
-        if (!pComp.includes(tenant.companyName.toLowerCase())) return false
-      }
-      const pMods = Array.isArray(p.allowed_modules) ? p.allowed_modules : []
-      return pMods.includes(dept.route)
-    })
-
-    // Count staff for this module
-    const staffInModule = staffList.filter((p) => {
-      if (Array.isArray(p.allowed_modules) && p.allowed_modules.includes(dept.route)) return true
-      const roleRoutes = ROLE_MODULE_MAPPING[p.role?.toUpperCase() || ''] || []
-      return roleRoutes.includes(dept.route as any)
-    }).length
-
-    return {
-      id: dept.id,
-      code: dept.code,
-      name: dept.name,
-      route: dept.route,
-      defaultDesignation: dept.defaultDesignation,
-      iconName: dept.iconName,
-      description: dept.description,
-      appointedHead: headUser
-        ? {
-            name: headUser.username,
-            designation: headUser.designation || dept.defaultDesignation,
-            email: headUser.email || undefined,
-          }
-        : null,
-      staffCount: staffInModule,
-    }
-  })
-
-  const company = {
-    company_name: tenant.companyName,
-    factory_address:
-      companyData?.factory_address ||
-      (tenant.isProvisionedTenant
-        ? tenant.cityState || 'Industrial Sector, India'
-        : 'Rafi Ahmed Kidwai Road, Kolkata 700055, West Bengal'),
-    gstin:
-      companyData?.gstin ||
-      (tenant.isProvisionedTenant
-        ? 'Pending Tenant GST Registration'
-        : '19AADCO1064C1ZK'),
-    contact_phone: companyData?.contact_phone || tenant.phone || '+91 98765 43210',
-    contact_email: companyData?.contact_email || tenant.userEmail || user.email || 'contact@factory.in',
-  }
 
   const adminDisplayName = tenant.adminDisplayName || tenant.customUsername || 'Enterprise Admin'
-  const adminPhone = tenant.phone || companyData?.admin_phone || '+91 98765 43210'
+  const adminPhone = tenant.phone || companyData?.admin_phone || ''
 
   return (
     <AdminShell userEmail={user.email} userRole={userRole}>
@@ -201,9 +151,6 @@ export default async function ModuleCompanyProfilePage() {
                 <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
                   Enterprise Master
                 </span>
-                <span className="text-xs font-mono font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200">
-                  {tenant.subscriptionTier}
-                </span>
               </div>
               <p className="text-xs sm:text-sm md:text-base text-slate-600 mt-1">
                 Manage factory identification, master admin credentials, and live supervisor operations
@@ -212,21 +159,12 @@ export default async function ModuleCompanyProfilePage() {
           </div>
         </div>
 
-        {/* 3. Identity Cards Grid (Company & Admin Cards side-by-side) */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-          <CompanyProfileCard company={company} />
-          <AdminIdentityCard
-            userEmail={tenant.userEmail}
-            adminDisplayName={adminDisplayName}
-            adminPhone={adminPhone}
-            createdAt={user.created_at}
-          />
-        </div>
-
-        {/* 4. Active Subscribed Modules Grid (Only modules this company purchased) */}
-        <SubscribedModulesSection
-          modules={subscribedModules}
-          companyName={tenant.companyName}
+        {/* 3. Executive Administrator Credentials Card (Full Width) */}
+        <AdminIdentityCard
+          userEmail={tenant.userEmail}
+          adminDisplayName={adminDisplayName}
+          adminPhone={adminPhone}
+          createdAt={user.created_at}
         />
 
         {/* 5. Supervisors & Team Floor Distribution (Dynamically filtered by active modules) */}

@@ -1,11 +1,9 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import Link from 'next/link'
 import {
   Users,
   Search,
-  ExternalLink,
   ShieldCheck,
   Boxes,
   Palette,
@@ -66,25 +64,13 @@ export function SupervisorTeamOverview({
   const [selectedModule, setSelectedModule] = useState<string>('ALL')
 
   // STRICT EXECUTIVE FILTER:
-  // Shop-floor workers (Linemen, Tailors, Helpers, Operators) must NEVER be shown on Master Company Profile.
-  // They belong exclusively in their specific module profiles (e.g. /stitching-sewing/profile).
+  // Only officially appointed Department Heads (is_head === true) must be displayed on Master Company Profile.
+  // Floor workers, helpers, and unappointed staff belong exclusively in their specific module profiles.
   const executiveHeads = useMemo(() => {
     return staff.filter((u) => {
       const roleUpper = (u.role || '').toUpperCase()
       if (roleUpper === 'PLATFORM_SUPERADMIN') return false
-      if (roleUpper === 'SUPERADMIN' && !u.is_head) return false
-
-      const isFloorWorker =
-        roleUpper === 'LINEMAN' ||
-        roleUpper === 'TAILOR' ||
-        roleUpper === 'HELPER' ||
-        roleUpper === 'OPERATOR' ||
-        roleUpper === 'WORKER'
-
-      // Exclude regular floor workers unless explicitly appointed as an Executive Head
-      if (isFloorWorker && !u.is_head) return false
-
-      return true
+      return Boolean(u.is_head)
     })
   }, [staff])
 
@@ -151,14 +137,6 @@ export function SupervisorTeamOverview({
             </p>
           </div>
         </div>
-
-        <Link
-          href="/modules/access-control"
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-[#3A3564] bg-[#FAF7F0] hover:bg-[#F2ECE1] border border-black/10 shadow-2xs transition-all w-fit cursor-pointer"
-        >
-          <span>Appoint & Manage Heads</span>
-          <ExternalLink className="w-3.5 h-3.5" />
-        </Link>
       </div>
 
       {/* Active Division Breakdown Cards */}

@@ -179,7 +179,7 @@ export function DivisionProfileView({
   const headName = departmentHead?.name || userName || supervisorName
   const headDesignation = departmentHead?.designation || userRole
   const headEmail = departmentHead?.email || userEmail
-  const headPhone = departmentHead?.phone || '+91 98765 43210'
+  const headPhone = departmentHead?.phone || 'Floor Direct Intercom'
   const headAppointment = departmentHead?.appointmentDate || 'Provisioned Facility'
   const headAuthority = departmentHead?.authorityScope || 'Full Floor Authority & Challan Clearance'
 

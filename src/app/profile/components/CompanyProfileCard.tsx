@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { Building2, MapPin, Phone, Mail, FileText, CheckCircle2, Edit3, X, Loader2 } from 'lucide-react'
+import { Building2, MapPin, FileText, CheckCircle2, Edit3, X, Loader2 } from 'lucide-react'
 import { updateCompanySettings } from '../actions'
 
 interface CompanyProfileCardProps {
@@ -20,11 +20,9 @@ export function CompanyProfileCard({ company }: CompanyProfileCardProps) {
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [successMsg, setSuccessMsg] = useState<string | null>(null)
 
-  const companyName = company.company_name || 'Nubira Creation'
-  const factoryAddress = company.factory_address || 'Rafi Ahmed Kidwai Road, Kolkata 700055, West Bengal'
-  const gstin = company.gstin || '19AADCO1064C1ZK'
-  const contactPhone = company.contact_phone || '+91 98765 43210'
-  const contactEmail = company.contact_email || 'creationnubira@gmail.com'
+  const companyName = company.company_name || 'Company Profile'
+  const factoryAddress = company.factory_address || 'Address not configured'
+  const gstin = company.gstin || 'Not configured'
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -83,7 +81,7 @@ export function CompanyProfileCard({ company }: CompanyProfileCardProps) {
             </button>
           </div>
 
-          {/* Details Grid */}
+          {/* Details Grid (Factory Address & GSTIN) */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 pt-5">
             {/* Factory Address */}
             <div className="flex items-start gap-3 p-3.5 sm:p-4 rounded-xl bg-slate-50/70 hover:bg-white border border-slate-200/80 transition-all shadow-2xs">
@@ -111,36 +109,6 @@ export function CompanyProfileCard({ company }: CompanyProfileCardProps) {
                 </span>
                 <span className="text-xs sm:text-sm font-mono font-extrabold text-slate-900 mt-1 block">
                   {gstin}
-                </span>
-              </div>
-            </div>
-
-            {/* Official Phone */}
-            <div className="flex items-start gap-3 p-3.5 sm:p-4 rounded-xl bg-slate-50/70 hover:bg-white border border-slate-200/80 transition-all shadow-2xs">
-              <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center shrink-0 text-[#3A3564] border border-slate-200 shadow-2xs">
-                <Phone className="w-4 h-4" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500 block">
-                  Contact Phone
-                </span>
-                <span className="text-xs sm:text-sm font-bold text-slate-900 mt-1 block">
-                  {contactPhone}
-                </span>
-              </div>
-            </div>
-
-            {/* Official Email */}
-            <div className="flex items-start gap-3 p-3.5 sm:p-4 rounded-xl bg-slate-50/70 hover:bg-white border border-slate-200/80 transition-all shadow-2xs">
-              <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center shrink-0 text-[#3A3564] border border-slate-200 shadow-2xs">
-                <Mail className="w-4 h-4" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500 block">
-                  Official Email
-                </span>
-                <span className="text-xs sm:text-sm font-bold text-slate-900 mt-1 block truncate" title={contactEmail}>
-                  {contactEmail}
                 </span>
               </div>
             </div>
@@ -199,7 +167,7 @@ export function CompanyProfileCard({ company }: CompanyProfileCardProps) {
                   required
                   defaultValue={companyName}
                   className="w-full px-3.5 py-2.5 rounded-xl text-base sm:text-sm font-medium border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] transition-all"
-                  placeholder="e.g. Nubira Creation"
+                  placeholder="e.g. Factory or Company Name"
                 />
               </div>
 
@@ -210,50 +178,22 @@ export function CompanyProfileCard({ company }: CompanyProfileCardProps) {
                 <textarea
                   name="factory_address"
                   rows={2}
-                  defaultValue={factoryAddress}
+                  defaultValue={factoryAddress === 'Address not configured' ? '' : factoryAddress}
                   className="w-full px-3.5 py-2.5 rounded-xl text-base sm:text-sm font-medium border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] transition-all resize-none"
                   placeholder="Factory premises, street, city, pin code..."
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                <div>
-                  <label className="block text-xs font-bold font-mono uppercase tracking-wider text-slate-700 mb-1.5">
-                    GSTIN / Tax ID
-                  </label>
-                  <input
-                    type="text"
-                    name="gstin"
-                    defaultValue={gstin}
-                    className="w-full px-3.5 py-2.5 rounded-xl text-base sm:text-sm font-mono border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] transition-all"
-                    placeholder="19AADCO1064C1ZK"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold font-mono uppercase tracking-wider text-slate-700 mb-1.5">
-                    Contact Phone
-                  </label>
-                  <input
-                    type="text"
-                    name="contact_phone"
-                    defaultValue={contactPhone}
-                    className="w-full px-3.5 py-2.5 rounded-xl text-base sm:text-sm font-medium border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] transition-all"
-                    placeholder="+91 98765 43210"
-                  />
-                </div>
-              </div>
-
               <div>
                 <label className="block text-xs font-bold font-mono uppercase tracking-wider text-slate-700 mb-1.5">
-                  Official Email
+                  GSTIN / Tax ID
                 </label>
                 <input
-                  type="email"
-                  name="contact_email"
-                  defaultValue={contactEmail}
-                  className="w-full px-3.5 py-2.5 rounded-xl text-base sm:text-sm font-medium border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] transition-all"
-                  placeholder="contact@company.com"
+                  type="text"
+                  name="gstin"
+                  defaultValue={gstin === 'Not configured' ? '' : gstin}
+                  className="w-full px-3.5 py-2.5 rounded-xl text-base sm:text-sm font-mono border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] transition-all"
+                  placeholder="e.g. 19AADCO1064C1ZK"
                 />
               </div>
 
