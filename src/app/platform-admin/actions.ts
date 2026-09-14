@@ -14,7 +14,9 @@ import {
   ProvisionTenantPayload,
   PlatformMetrics,
   SubscriptionPlanTier,
-  AccessType
+  AccessType,
+  PaymentLinkRecord,
+  PaymentDashboardMetrics
 } from './types/platform'
 import {
   INITIAL_DEMO_REQUESTS,
@@ -27,6 +29,7 @@ import {
   TenantActivationEmailParams,
   PaymentReminderEmailParams
 } from '@/lib/resend'
+import { createRazorpayPaymentLink } from '@/lib/razorpay'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -561,9 +564,38 @@ export async function provisionTenantFactoryAction(
       }])
     } catch (_) {}
 
-    // Step F: Dispatch Welcome & Activation Credentials Email via Resend
+    // Step F: Dispatch Welcome & Activation Credentials Email via Resend & Razorpay Link
     let emailStatus = { sent: false, simulated: false, error: undefined as string | undefined }
+    let paymentLinkUrl: string | undefined
     try {
+      const plinkRes = await createRazorpayPaymentLink({
+        amountInr: payload.monthlyBillingInr || (payload.subscriptionTier === 'FULL_PLANT_AI' ? 4999 : 1999),
+        companyName: payload.companyName,
+        adminName: payload.adminName,
+        adminEmail: payload.adminEmail,
+        phone: payload.phone,
+        tenantId: tenantData?.id,
+        planTier: payload.subscriptionTier,
+        description: `Zigza Enterprise MES - Initial Setup for ${payload.companyName}`
+      })
+
+      if (plinkRes.success && plinkRes.linkId && plinkRes.shortUrl) {
+        paymentLinkUrl = plinkRes.shortUrl
+        try {
+          await supabaseAdmin.from('platform_payment_links').insert([{
+            tenant_id: tenantData?.id || null,
+            company_name: payload.companyName,
+            admin_email: payload.adminEmail,
+            razorpay_link_id: plinkRes.linkId,
+            short_url: plinkRes.shortUrl,
+            amount_inr: payload.monthlyBillingInr || 4999,
+            subscription_tier: payload.subscriptionTier,
+            status: 'ISSUED',
+            description: `Onboarding payment link for ${payload.companyName}`
+          }])
+        } catch (_) {}
+      }
+
       const emailRes = await sendTenantActivationEmail({
         to: payload.adminEmail,
         companyName: payload.companyName,
@@ -572,7 +604,9 @@ export async function provisionTenantFactoryAction(
         customUsername: customUsername,
         initialPassword: payload.initialPassword,
         subscriptionTier: payload.subscriptionTier,
-        divisionsCount: payload.selectedDivisions.length
+        divisionsCount: payload.selectedDivisions.length,
+        accessType: accessType,
+        paymentLinkUrl: paymentLinkUrl
       })
       emailStatus = {
         sent: !emailRes.simulated && !!emailRes.success,
@@ -587,6 +621,7 @@ export async function provisionTenantFactoryAction(
     revalidatePath('/platform-admin')
     revalidatePath('/platform-admin/tenants')
     revalidatePath('/platform-admin/provisioning')
+    revalidatePath('/platform-admin/payments')
     return {
       success: true,
       tenantId: tenantData?.id || `tenant-${Date.now()}`,
@@ -703,7 +738,7 @@ export async function reactivateTenantAccessAction(
 
 export async function sendPaymentReminderAction(
   tenantId: string
-): Promise<{ success: boolean; simulated?: boolean; error?: string }> {
+): Promise<{ success: boolean; simulated?: boolean; error?: string; paymentLinkUrl?: string }> {
   try {
     const { data: tenant, error: fetchErr } = await supabaseAdmin
       .from('platform_tenant_factories')
@@ -715,6 +750,36 @@ export async function sendPaymentReminderAction(
       return { success: false, error: fetchErr?.message || 'Tenant record not found' }
     }
 
+    // Generate Razorpay Payment Link
+    const plinkRes = await createRazorpayPaymentLink({
+      amountInr: Number(tenant.monthly_billing_inr || 4999),
+      companyName: tenant.company_name,
+      adminName: tenant.admin_name,
+      adminEmail: tenant.admin_email,
+      phone: tenant.phone,
+      tenantId: tenant.id,
+      planTier: tenant.subscription_tier || 'FULL_PLANT_AI',
+      description: `Zigza Enterprise MES - Subscription Payment for ${tenant.company_name}`
+    })
+
+    let paymentLinkUrl = plinkRes.shortUrl
+
+    if (plinkRes.success && plinkRes.linkId && plinkRes.shortUrl) {
+      try {
+        await supabaseAdmin.from('platform_payment_links').insert([{
+          tenant_id: tenant.id,
+          company_name: tenant.company_name,
+          admin_email: tenant.admin_email,
+          razorpay_link_id: plinkRes.linkId,
+          short_url: plinkRes.shortUrl,
+          amount_inr: Number(tenant.monthly_billing_inr || 4999),
+          subscription_tier: tenant.subscription_tier || 'FULL_PLANT_AI',
+          status: 'ISSUED',
+          description: `Payment reminder link for ${tenant.company_name}`
+        }])
+      } catch (_) {}
+    }
+
     const emailRes = await sendPaymentReminderEmail({
       to: tenant.admin_email,
       companyName: tenant.company_name,
@@ -722,7 +787,8 @@ export async function sendPaymentReminderAction(
       accessType: tenant.access_type || 'FULL_ACCESS',
       planTier: tenant.subscription_tier || 'FULL_PLANT_AI',
       monthlyBillingInr: Number(tenant.monthly_billing_inr || 4999),
-      expiresAt: tenant.expires_at || undefined
+      expiresAt: tenant.expires_at || undefined,
+      paymentLinkUrl: paymentLinkUrl
     })
 
     if (!emailRes.success) {
@@ -740,9 +806,9 @@ export async function sendPaymentReminderAction(
       await supabaseAdmin.from('platform_audit_logs').insert([{
         log_code: `REMIND-${Date.now().toString().slice(-4)}`,
         actor: 'admin@zigza.in',
-        action: 'Payment Reminder Sent',
+        action: 'Payment Reminder & Link Sent',
         category: 'CONFIG_CHANGE',
-        details: `Dispatched payment & subscription notice from noreply@zigza.in to ${tenant.company_name} (${tenant.admin_email})`,
+        details: `Dispatched payment link (${paymentLinkUrl || 'Online'}) from noreply@zigza.in to ${tenant.company_name} (${tenant.admin_email})`,
         ip_address: '103.24.12.89',
         location: 'India',
         status: 'SUCCESS'
@@ -751,16 +817,204 @@ export async function sendPaymentReminderAction(
 
     revalidatePath('/platform-admin')
     revalidatePath('/platform-admin/tenants')
+    revalidatePath('/platform-admin/payments')
 
     return {
       success: true,
-      simulated: !!emailRes.simulated
+      simulated: !!emailRes.simulated,
+      paymentLinkUrl
     }
   } catch (err: any) {
     console.error('[sendPaymentReminderAction] Fatal:', err)
     return { success: false, error: err?.message || 'Failed to dispatch payment reminder' }
   }
 }
+
+// -----------------------------------------------------------------------------
+// 3. PAYMENT LINKS & RECEIVABLES MANAGEMENT
+// -----------------------------------------------------------------------------
+
+export async function fetchPaymentLinksAction(): Promise<{
+  data: PaymentLinkRecord[]
+  metrics: PaymentDashboardMetrics
+  isLiveDatabase: boolean
+  error?: string
+}> {
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('platform_payment_links')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.warn('[fetchPaymentLinksAction] Notice:', error.message)
+      return {
+        data: [],
+        metrics: {
+          totalCollectedInr: 0,
+          pendingReceivablesInr: 0,
+          totalLinksIssued: 0,
+          paidLinksCount: 0,
+          pendingLinksCount: 0
+        },
+        isLiveDatabase: false,
+        error: error.message
+      }
+    }
+
+    const mapped: PaymentLinkRecord[] = (data || []).map((row: any) => ({
+      id: row.id,
+      tenantId: row.tenant_id || undefined,
+      companyName: row.company_name,
+      adminEmail: row.admin_email,
+      razorpayLinkId: row.razorpay_link_id,
+      shortUrl: row.short_url,
+      amountInr: Number(row.amount_inr || 0),
+      subscriptionTier: (row.subscription_tier || 'FULL_PLANT_AI') as SubscriptionPlanTier,
+      status: row.status || 'ISSUED',
+      paymentId: row.payment_id || undefined,
+      paymentMethod: row.payment_method || undefined,
+      description: row.description || undefined,
+      paidAt: row.paid_at || undefined,
+      createdAt: row.created_at || new Date().toISOString()
+    }))
+
+    const totalCollected = mapped
+      .filter(l => l.status === 'PAID')
+      .reduce((acc, l) => acc + l.amountInr, 0)
+
+    const pendingReceivables = mapped
+      .filter(l => l.status === 'ISSUED')
+      .reduce((acc, l) => acc + l.amountInr, 0)
+
+    const metrics: PaymentDashboardMetrics = {
+      totalCollectedInr: totalCollected,
+      pendingReceivablesInr: pendingReceivables,
+      totalLinksIssued: mapped.length,
+      paidLinksCount: mapped.filter(l => l.status === 'PAID').length,
+      pendingLinksCount: mapped.filter(l => l.status === 'ISSUED').length
+    }
+
+    return { data: mapped, metrics, isLiveDatabase: true }
+  } catch (err: any) {
+    console.error('[fetchPaymentLinksAction] Fatal:', err)
+    return {
+      data: [],
+      metrics: {
+        totalCollectedInr: 0,
+        pendingReceivablesInr: 0,
+        totalLinksIssued: 0,
+        paidLinksCount: 0,
+        pendingLinksCount: 0
+      },
+      isLiveDatabase: false,
+      error: err?.message
+    }
+  }
+}
+
+export async function createCustomPaymentLinkAction(payload: {
+  tenantId?: string
+  companyName: string
+  adminEmail: string
+  adminName?: string
+  phone?: string
+  amountInr: number
+  subscriptionTier: SubscriptionPlanTier
+  description?: string
+  sendEmail?: boolean
+}): Promise<{
+  success: boolean
+  paymentLink?: PaymentLinkRecord
+  error?: string
+}> {
+  try {
+    const plinkRes = await createRazorpayPaymentLink({
+      amountInr: payload.amountInr,
+      companyName: payload.companyName,
+      adminName: payload.adminName || payload.companyName,
+      adminEmail: payload.adminEmail,
+      phone: payload.phone,
+      tenantId: payload.tenantId,
+      planTier: payload.subscriptionTier,
+      description: payload.description || `Custom Retainer Payment for ${payload.companyName}`
+    })
+
+    if (!plinkRes.success || !plinkRes.linkId || !plinkRes.shortUrl) {
+      return { success: false, error: plinkRes.error || 'Failed to create Razorpay link' }
+    }
+
+    const newRecord = {
+      tenant_id: payload.tenantId || null,
+      company_name: payload.companyName,
+      admin_email: payload.adminEmail,
+      razorpay_link_id: plinkRes.linkId,
+      short_url: plinkRes.shortUrl,
+      amount_inr: payload.amountInr,
+      subscription_tier: payload.subscriptionTier,
+      status: 'ISSUED',
+      description: payload.description || 'On-demand custom payment link',
+      created_at: new Date().toISOString()
+    }
+
+    const { data: inserted, error: insertErr } = await supabaseAdmin
+      .from('platform_payment_links')
+      .insert([newRecord])
+      .select('*')
+      .single()
+
+    if (insertErr) {
+      console.warn('[createCustomPaymentLinkAction] DB Insert Notice:', insertErr.message)
+    }
+
+    // Optional email dispatch
+    if (payload.sendEmail) {
+      try {
+        await sendPaymentReminderEmail({
+          to: payload.adminEmail,
+          companyName: payload.companyName,
+          adminName: payload.adminName || payload.companyName,
+          accessType: 'FULL_ACCESS',
+          planTier: payload.subscriptionTier,
+          monthlyBillingInr: payload.amountInr,
+          paymentLinkUrl: plinkRes.shortUrl
+        })
+      } catch (_) {}
+    }
+
+    revalidatePath('/platform-admin/payments')
+    return {
+      success: true,
+      paymentLink: inserted ? {
+        id: inserted.id,
+        tenantId: inserted.tenant_id,
+        companyName: inserted.company_name,
+        adminEmail: inserted.admin_email,
+        razorpayLinkId: inserted.razorpay_link_id,
+        shortUrl: inserted.short_url,
+        amountInr: Number(inserted.amount_inr),
+        subscriptionTier: inserted.subscription_tier as SubscriptionPlanTier,
+        status: inserted.status,
+        createdAt: inserted.created_at
+      } : {
+        id: `pl-${Date.now()}`,
+        tenantId: payload.tenantId,
+        companyName: payload.companyName,
+        adminEmail: payload.adminEmail,
+        razorpayLinkId: plinkRes.linkId,
+        shortUrl: plinkRes.shortUrl,
+        amountInr: payload.amountInr,
+        subscriptionTier: payload.subscriptionTier,
+        status: 'ISSUED',
+        createdAt: new Date().toISOString()
+      }
+    }
+  } catch (err: any) {
+    console.error('[createCustomPaymentLinkAction] Fatal:', err)
+    return { success: false, error: err?.message || 'Failed to create payment link' }
+  }
+}
+
 
 export async function updateTenantAllowedDivisionsAction(
   tenantId: string,

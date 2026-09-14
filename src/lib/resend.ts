@@ -16,6 +16,8 @@ export interface TenantActivationEmailParams {
   initialPassword: string
   subscriptionTier: string
   divisionsCount: number
+  accessType?: string
+  paymentLinkUrl?: string
 }
 
 export async function sendTenantActivationEmail(params: TenantActivationEmailParams) {
@@ -27,7 +29,9 @@ export async function sendTenantActivationEmail(params: TenantActivationEmailPar
     customUsername,
     initialPassword,
     subscriptionTier,
-    divisionsCount
+    divisionsCount,
+    accessType,
+    paymentLinkUrl
   } = params
 
   const client = getResendClient()
@@ -43,6 +47,8 @@ export async function sendTenantActivationEmail(params: TenantActivationEmailPar
   }
 
   try {
+    const isTrial = accessType === 'DEMO_TRIAL'
+
     const htmlContent = `
       <!DOCTYPE html>
       <html>
@@ -63,8 +69,12 @@ export async function sendTenantActivationEmail(params: TenantActivationEmailPar
           .cred-label { color: #64748b; font-weight: 600; }
           .cred-val { color: #0f172a; font-weight: 700; }
           .cred-highlight { color: #3A3564; font-weight: 800; }
-          .button-wrap { text-align: center; margin: 28px 0; }
-          .btn-login { display: inline-block; background: #3A3564; color: #ffffff !important; padding: 14px 32px; border-radius: 10px; font-size: 14px; font-weight: 700; text-decoration: none; box-shadow: 0 2px 8px rgba(58,53,100,0.25); }
+          .button-wrap { text-align: center; margin: 24px 0; }
+          .btn-login { display: inline-block; background: #3A3564; color: #ffffff !important; padding: 14px 28px; border-radius: 10px; font-size: 14px; font-weight: 700; text-decoration: none; box-shadow: 0 2px 8px rgba(58,53,100,0.25); margin: 6px 4px; }
+          .btn-pay { display: inline-block; background: #059669; color: #ffffff !important; padding: 14px 28px; border-radius: 10px; font-size: 14px; font-weight: 700; text-decoration: none; box-shadow: 0 2px 8px rgba(5,150,105,0.25); margin: 6px 4px; }
+          .payment-box { background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 12px; padding: 16px 20px; margin: 20px 0; text-align: left; }
+          .payment-title { font-size: 13px; font-weight: 800; color: #065F46; text-transform: uppercase; margin-bottom: 6px; }
+          .payment-desc { font-size: 12px; color: #047857; line-height: 1.5; margin-bottom: 12px; }
           .security-note { font-size: 12px; color: #64748b; line-height: 1.5; border-top: 1px solid #e2e8f0; padding-top: 20px; }
           .footer { background: #f8fafc; padding: 20px 28px; text-align: center; font-size: 11px; color: #94a3b8; border-top: 1px solid #e2e8f0; }
         </style>
@@ -78,7 +88,7 @@ export async function sendTenantActivationEmail(params: TenantActivationEmailPar
           <div class="content">
             <div class="greeting">Welcome, ${adminName}</div>
             <p class="message">
-              Your factory client workspace for <strong>${companyName}</strong> has been provisioned on Zigza MES with <strong>${divisionsCount} operational manufacturing divisions</strong> under the <strong>${subscriptionTier.replace(/_/g, ' ')}</strong> tier.
+              Your factory client workspace for <strong>${companyName}</strong> has been provisioned on Zigza MES with <strong>${divisionsCount} operational manufacturing divisions</strong> under the <strong>${subscriptionTier.replace(/_/g, ' ')}</strong> tier (${isTrial ? '7-Day Demo Evaluation' : 'Full Enterprise Contract'}).
             </p>
             
             <div class="credentials-box">
@@ -103,14 +113,28 @@ export async function sendTenantActivationEmail(params: TenantActivationEmailPar
                 <span class="cred-label">Plan Tier:</span>
                 <span class="cred-val">${subscriptionTier.replace(/_/g, ' ')}</span>
               </div>
+              <div class="cred-row">
+                <span class="cred-label">Access Model:</span>
+                <span class="cred-highlight">${isTrial ? '7-Day Demo Trial (Revocable)' : 'Full Access'}</span>
+              </div>
             </div>
+
+            ${paymentLinkUrl ? `
+            <div class="payment-box">
+              <div class="payment-title">Settle Subscription & Activate Full Access</div>
+              <div class="payment-desc">
+                Click below to pay via Razorpay (UPI, NetBanking, Credit/Debit Cards). Upon settlement, your workspace is automatically upgraded to permanent Full Access.
+              </div>
+              <a href="${paymentLinkUrl}" class="btn-pay" target="_blank">Pay via Razorpay & Upgrade</a>
+            </div>
+            ` : ''}
 
             <div class="button-wrap">
               <a href="https://app.zigza.in/login" class="btn-login" target="_blank">Access Factory Workspace</a>
             </div>
 
             <div class="security-note">
-              <strong>Security Protocol:</strong> Please change your password upon your first administrative login. This is an automated notification from Zigza Infrastructure Services. Please do not reply directly to this email.
+              <strong>Security Protocol:</strong> Please change your password upon your first administrative login. This is an automated notification from Zigza Infrastructure Services.
             </div>
           </div>
           <div class="footer">
@@ -211,6 +235,7 @@ export interface PaymentReminderEmailParams {
   planTier: string
   monthlyBillingInr: number
   expiresAt?: string
+  paymentLinkUrl?: string
 }
 
 export async function sendPaymentReminderEmail(params: PaymentReminderEmailParams) {
@@ -221,7 +246,8 @@ export async function sendPaymentReminderEmail(params: PaymentReminderEmailParam
     accessType,
     planTier,
     monthlyBillingInr,
-    expiresAt
+    expiresAt,
+    paymentLinkUrl
   } = params
 
   const client = getResendClient()
@@ -266,7 +292,8 @@ export async function sendPaymentReminderEmail(params: PaymentReminderEmailParam
           .detail-val { color: #0f172a; font-weight: 700; }
           .detail-highlight { color: #3A3564; font-weight: 800; }
           .button-wrap { text-align: center; margin: 28px 0; }
-          .btn-action { display: inline-block; background: #3A3564; color: #ffffff !important; padding: 14px 32px; border-radius: 10px; font-size: 14px; font-weight: 700; text-decoration: none; box-shadow: 0 2px 8px rgba(58,53,100,0.25); }
+          .btn-action { display: inline-block; background: #059669; color: #ffffff !important; padding: 15px 36px; border-radius: 10px; font-size: 15px; font-weight: 700; text-decoration: none; box-shadow: 0 4px 12px rgba(5,150,105,0.3); }
+          .btn-login { display: inline-block; background: #3A3564; color: #ffffff !important; padding: 12px 24px; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none; margin-top: 10px; }
           .note { font-size: 12px; color: #64748b; line-height: 1.5; border-top: 1px solid #e2e8f0; padding-top: 20px; }
           .footer { background: #f8fafc; padding: 20px 28px; text-align: center; font-size: 11px; color: #94a3b8; border-top: 1px solid #e2e8f0; }
         </style>
@@ -310,7 +337,13 @@ export async function sendPaymentReminderEmail(params: PaymentReminderEmailParam
             </div>
 
             <div class="button-wrap">
-              <a href="https://app.zigza.in/login" class="btn-action" target="_blank">Review & Settle Subscription</a>
+              ${paymentLinkUrl ? `
+                <a href="${paymentLinkUrl}" class="btn-action" target="_blank">Pay ₹${monthlyBillingInr.toLocaleString('en-IN')} via Razorpay</a>
+                <br/>
+                <a href="https://app.zigza.in/login" class="btn-login" target="_blank">Or Log in to Factory Portal</a>
+              ` : `
+                <a href="https://app.zigza.in/login" class="btn-action" target="_blank">Review & Settle Subscription</a>
+              `}
             </div>
 
             <div class="note">
@@ -343,3 +376,4 @@ export async function sendPaymentReminderEmail(params: PaymentReminderEmailParam
     return { success: false, error: error?.message || 'Failed to send payment reminder email' }
   }
 }
+
