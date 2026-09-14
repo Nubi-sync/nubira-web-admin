@@ -128,7 +128,7 @@ export function LogProductionModal({ isOpen, onClose, run, onSuccess }: LogProdu
                 type="number"
                 value={rejectedCount}
                 onChange={e => setRejectedCount(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/10 focus:outline-none focus:ring-1 focus:ring-rose-500 text-rose-600 font-mono font-bold"
+                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/10 focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900 font-mono font-bold"
               />
             </div>
           </div>
