@@ -11,13 +11,14 @@ import {
   CheckCircle2, 
   Package, 
   Clock, 
-  Boxes,
-  RotateCw,
-  ArrowRight
+  Boxes, 
+  RotateCw, 
+  ArrowRight 
 } from 'lucide-react'
 import { TrimsInventoryItem, TrimCategory } from '../../types/store'
 import { getTrimsInventory, STORE_UPDATE_EVENT } from '../../utils/storeStorage'
 import { AdjustTrimStockModal } from './AdjustTrimStockModal'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 export function TrimsWarehouseClient() {
   const [trims, setTrims] = useState<TrimsInventoryItem[]>([])
@@ -86,15 +87,15 @@ export function TrimsWarehouseClient() {
       {/* Header Banner */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#3A3564]/10 text-[#3A3564] border border-[#3A3564]/20">
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
             <Tag className="w-6 h-6" />
           </div>
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
-              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
+              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 Trims & Accessories Warehouse
               </h1>
-              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-200 tracking-wider">
+              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 tracking-wider">
                 Bin Inventory Matrix
               </span>
             </div>
@@ -113,18 +114,18 @@ export function TrimsWarehouseClient() {
         </Link>
       </div>
 
-      {/* 4 Metric KPI Cards */}
+      {/* 4 Metric KPI Cards - Unified Icon & Neutral Typography */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Total Active SKU Lines
             </span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] flex items-center justify-center">
+            <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
               <Boxes className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900">
+          <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 tabular-nums">
             {totalSku} <span className="text-sm font-normal text-slate-500">SKUs</span>
           </div>
           <p className="text-[11px] font-mono text-slate-500 mt-1">
@@ -137,16 +138,14 @@ export function TrimsWarehouseClient() {
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Below Re-Order Level (ROL)
             </span>
-            <div className="w-8 h-8 rounded-lg bg-rose-50 text-rose-700 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
               <AlertTriangle className="w-4 h-4" />
             </div>
           </div>
-          <div className={`text-2xl sm:text-3xl font-black font-mono ${
-            lowStockCount > 0 ? 'text-rose-600' : 'text-slate-900'
-          }`}>
+          <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 tabular-nums">
             {lowStockCount} <span className="text-sm font-normal text-slate-500">Items</span>
           </div>
-          <p className="text-[11px] font-mono text-rose-600 mt-1">
+          <p className="text-[11px] font-mono text-slate-500 mt-1">
             Immediate PR / PO Procurement Required
           </p>
         </div>
@@ -156,12 +155,12 @@ export function TrimsWarehouseClient() {
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Sewing Thread Stock
             </span>
-            <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-700 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
               <RotateCw className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black font-mono text-indigo-700">
-            {threadCount} <span className="text-sm font-normal text-slate-500">Cones</span>
+          <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 tabular-nums">
+            {threadCount.toLocaleString()} <span className="text-sm font-normal text-slate-500">Cones</span>
           </div>
           <p className="text-[11px] font-mono text-slate-500 mt-1">
             5,000m Spun Poly Sewing Cones
@@ -173,11 +172,11 @@ export function TrimsWarehouseClient() {
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Polybags & Packaging
             </span>
-            <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
               <Package className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black font-mono text-emerald-600">
+          <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 tabular-nums">
             {polybagCount.toLocaleString()} <span className="text-sm font-normal text-slate-500">Pcs</span>
           </div>
           <p className="text-[11px] font-mono text-slate-500 mt-1">
@@ -195,7 +194,7 @@ export function TrimsWarehouseClient() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by trim code, item name, bin location, or mill supplier..."
-            className="w-full pl-9 pr-4 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-mono font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+            className="w-full pl-9 pr-4 py-2.5 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-mono font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
           />
         </div>
 
@@ -210,10 +209,8 @@ export function TrimsWarehouseClient() {
                 onClick={() => setCategoryFilter(tab)}
                 className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold whitespace-nowrap transition-all cursor-pointer ${
                   active 
-                    ? tab === 'LOW_STOCK'
-                      ? 'bg-rose-600 text-white shadow-2xs'
-                      : 'bg-[#3A3564] text-white shadow-2xs' 
-                    : 'bg-[#FAF7F0] text-slate-600 hover:text-slate-900 border border-black/10'
+                    ? 'bg-[#3A3564] text-white shadow-2xs' 
+                    : 'bg-[#FAF7F0] text-slate-600 hover:text-slate-900 hover:bg-[#F2ECE1] border border-black/10'
                 }`}
               >
                 {label}
@@ -226,7 +223,7 @@ export function TrimsWarehouseClient() {
       {/* Trims Inventory Table */}
       <div className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse">
+          <table className="w-full text-left text-xs border-collapse min-w-[760px]">
             <thead>
               <tr className="bg-[#FAF7F0] border-b border-black/10 font-mono text-[11px] font-bold text-slate-500 uppercase tracking-wider">
                 <th className="py-3 px-4">Item Code</th>
@@ -242,8 +239,18 @@ export function TrimsWarehouseClient() {
             <tbody className="divide-y divide-black/5 font-medium text-slate-800">
               {filteredTrims.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-8 text-center text-slate-400 font-mono text-xs">
-                    No trim items found matching your filter criteria.
+                  <td colSpan={8} className="py-6">
+                    <EmptyState
+                      variant="seamless"
+                      icon={Tag}
+                      title="No Trims or Accessories Found"
+                      description="No trim items match your search filter criteria. You can clear filters or adjust bin stock."
+                      actionLabel="Reset Filters"
+                      onAction={() => {
+                        setSearchQuery('')
+                        setCategoryFilter('ALL')
+                      }}
+                    />
                   </td>
                 </tr>
               ) : (
@@ -251,7 +258,7 @@ export function TrimsWarehouseClient() {
                   const isLow = item.currentStock <= item.reorderLevel
 
                   return (
-                    <tr key={item.id} className="hover:bg-slate-50 transition-colors">
+                    <tr key={item.id} className="hover:bg-[#FAF7F0]/40 transition-colors">
                       <td className="py-3 px-4">
                         <div className="font-mono font-black text-slate-900">
                           {item.itemCode}
@@ -273,7 +280,7 @@ export function TrimsWarehouseClient() {
                       </td>
 
                       <td className="py-3 px-4 font-mono">
-                        <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold uppercase border border-slate-200">
+                        <span className="px-2 py-0.5 rounded-md bg-[#FAF7F0] text-slate-700 text-[10px] font-bold uppercase border border-black/10">
                           {item.category.replace('_', ' ')}
                         </span>
                       </td>
@@ -285,12 +292,10 @@ export function TrimsWarehouseClient() {
                       </td>
 
                       <td className="py-3 px-4 font-mono">
-                        <span className={`text-sm font-black ${
-                          isLow ? 'text-rose-600' : 'text-slate-900'
-                        }`}>
+                        <span className="text-sm font-black text-slate-900 tabular-nums">
                           {item.currentStock.toLocaleString()}
                         </span>
-                        <span className="text-[11px] text-slate-500 ml-1">
+                        <span className="text-[11px] text-slate-500 ml-1 font-mono">
                           {item.unit}
                         </span>
                       </td>
@@ -301,13 +306,13 @@ export function TrimsWarehouseClient() {
 
                       <td className="py-3 px-4">
                         {isLow ? (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 text-[10px] font-mono font-bold uppercase border border-rose-200">
-                            <AlertTriangle className="w-3 h-3" />
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-[#FAF7F0] text-[#3A3564] text-[10px] font-mono font-bold uppercase border border-black/15 shadow-2xs">
+                            <AlertTriangle className="w-3 h-3 text-[#3A3564]" />
                             Low Stock (Re-Order)
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-mono font-bold uppercase border border-emerald-200">
-                            <CheckCircle2 className="w-3 h-3" />
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-[#FAF7F0] text-slate-700 text-[10px] font-mono font-bold uppercase border border-black/10">
+                            <CheckCircle2 className="w-3 h-3 text-slate-600" />
                             Healthy Stock
                           </span>
                         )}

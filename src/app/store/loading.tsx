@@ -1,12 +1,10 @@
-import { AdminPageSkeleton } from '@/components/layout/AdminPageSkeleton'
+import { AdminShell } from '@/components/layout/AdminShell'
+import { StorePageSkeleton } from './components/StoreSkeleton'
 
 export default function StoreLoading() {
   return (
-    <AdminPageSkeleton
-      title="Store Godown & Inward Ledger"
-      subtitle="Loading truck shipments, roll inventories, and floor accessory allocations..."
-      cardsCount={4}
-      hasTable={true}
-    />
+    <AdminShell>
+      <StorePageSkeleton variant="dashboard" />
+    </AdminShell>
   )
 }
