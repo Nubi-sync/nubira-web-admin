@@ -173,11 +173,7 @@ export function ScaleAuditModal({
               </div>
               <div className="bg-white p-2 rounded-lg border border-black/10">
                 <span className="text-[10px] font-mono text-slate-500 uppercase">Weight Delta</span>
-                <div
-                  className={`font-mono font-black text-sm mt-0.5 ${
-                    isTolerancePassed ? 'text-emerald-700' : 'text-rose-700'
-                  }`}
-                >
+                <div className="font-mono font-black text-sm mt-0.5 text-slate-900">
                   {varianceKg >= 0 ? '+' : ''}
                   {varianceKg.toFixed(2)} kg
                 </div>
@@ -187,8 +183,8 @@ export function ScaleAuditModal({
             <div className="text-[11px] font-mono text-slate-600 flex items-center justify-between pt-1">
               <span>Standard Tolerance: ±0.15 kg</span>
               <span
-                className={`px-2 py-0.5 rounded font-bold ${
-                  isTolerancePassed ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
+                className={`px-2 py-0.5 rounded font-bold border ${
+                  isTolerancePassed ? 'bg-[#FAF7F0] text-[#3A3564] border-black/10' : 'bg-slate-100 text-slate-800 border-slate-300'
                 }`}
               >
                 {isTolerancePassed ? 'COMPLIANT (ZERO GHOST PASS)' : 'VARIANCE ALERT (QUARANTINE)'}
@@ -221,7 +217,7 @@ export function ScaleAuditModal({
               type="submit"
               className="px-4 py-2 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2c284e] transition-all shadow-2xs cursor-pointer inline-flex items-center gap-1.5"
             >
-              <Scale className="w-3.5 h-3.5 text-amber-300" />
+              <Scale className="w-3.5 h-3.5 text-white" />
               <span>Log Scale Weight Audit</span>
             </button>
           </div>

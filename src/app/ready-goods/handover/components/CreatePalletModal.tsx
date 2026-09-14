@@ -240,7 +240,7 @@ export function CreatePalletModal({
                       <span>{c.totalPieces} pcs</span>
                       <span className="text-slate-400">|</span>
                       <span>{c.measuredGrossWeightKg} kg</span>
-                      <span className="px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 text-[10px]">
+                      <span className="px-1.5 py-0.5 rounded bg-[#FAF7F0] text-[#3A3564] border border-black/10 text-[10px] font-mono">
                         {c.status}
                       </span>
                     </div>
@@ -266,7 +266,7 @@ export function CreatePalletModal({
               </div>
               <div className="bg-white p-2 rounded-lg border border-black/10">
                 <span className="text-[10px] font-mono text-slate-400 uppercase">Gross Weight</span>
-                <div className="font-mono font-black text-[#3A3564] text-sm mt-0.5">
+                <div className="font-mono font-black text-slate-900 text-sm mt-0.5">
                   {totalGrossWeight.toFixed(2)} kg
                 </div>
               </div>
@@ -304,7 +304,7 @@ export function CreatePalletModal({
               type="submit"
               className="px-4 py-2 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2c284e] transition-all shadow-2xs cursor-pointer inline-flex items-center gap-1.5"
             >
-              <Truck className="w-3.5 h-3.5 text-amber-300" />
+              <Truck className="w-3.5 h-3.5 text-white" />
               <span>Generate Pallet Gate Pass</span>
             </button>
           </div>
