@@ -10,7 +10,7 @@ import {
   ArrowRight
 } from 'lucide-react'
 import { PlatformAdminShell } from '../components/PlatformAdminShell'
-import { SubscriptionPlanTier } from '../types/platform'
+import { SubscriptionPlanTier, AccessType } from '../types/platform'
 import { ENTERPRISE_DIVISIONS_CATALOG } from '../data/initialPlatformData'
 import { provisionTenantFactoryAction } from '../actions'
 
@@ -22,6 +22,7 @@ export default function ProvisioningConsolePage() {
   const [initialPassword, setInitialPassword] = useState('@Factory2026!')
   const [phone, setPhone] = useState('')
   const [cityState, setCityState] = useState('Tirupur, Tamil Nadu')
+  const [accessType, setAccessType] = useState<AccessType>('FULL_ACCESS')
   const [subscriptionTier, setSubscriptionTier] = useState<SubscriptionPlanTier>('FULL_PLANT_AI')
   const [monthlyBillingInr, setMonthlyBillingInr] = useState(4999)
   const [selectedDivisions, setSelectedDivisions] = useState<string[]>(
@@ -82,6 +83,7 @@ export default function ProvisioningConsolePage() {
         initialPassword,
         phone,
         cityState,
+        accessType,
         subscriptionTier,
         monthlyBillingInr,
         selectedDivisions
@@ -100,11 +102,18 @@ export default function ProvisioningConsolePage() {
     }
   }
 
+  const trialExpiryDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString('en-IN', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric'
+  })
+
   const activationSlipText = `===========================================
 ZIGZA MES - CLIENT SUPER ADMIN ACTIVATION
 ===========================================
 Factory / Company : ${companyName}
 Super Admin Name  : ${adminName}
+Access Model      : ${accessType === 'DEMO_TRIAL' ? `7-Day Demo Trial (Expires: ${trialExpiryDate})` : 'Full Enterprise Access'}
 Custom Username   : ${customUsername}
 Login Portal URL  : https://app.zigza.in/login
 Login Email       : ${adminEmail}
@@ -200,6 +209,7 @@ Allocated Units   : ${selectedDivisions.length} of ${ENTERPRISE_DIVISIONS_CATALO
 
               <div><strong>Company / Factory Name :</strong> {companyName}</div>
               <div><strong>Designated Plant Head  :</strong> {adminName}</div>
+              <div><strong>Access Model           :</strong> <span className={accessType === 'DEMO_TRIAL' ? 'text-amber-800 font-bold bg-amber-50 px-2 py-0.5 rounded border border-amber-200' : 'text-emerald-800 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200'}>{accessType === 'DEMO_TRIAL' ? `7-Day Demo Trial (Expires: ${trialExpiryDate})` : 'Full Enterprise Access'}</span></div>
               <div><strong>Custom Username        :</strong> <span className="text-[#3A3564] font-bold bg-white px-2 py-0.5 rounded border border-black/15">{customUsername}</span></div>
               <div><strong>Sign-In Web Portal     :</strong> <span className="text-[#3A3564] font-bold">https://app.zigza.in/login</span></div>
               <div><strong>Registered Admin Email :</strong> <span className="text-slate-900 font-bold">{adminEmail}</span></div>
@@ -254,7 +264,7 @@ Allocated Units   : ${selectedDivisions.length} of ${ENTERPRISE_DIVISIONS_CATALO
                   required
                   value={companyName}
                   onChange={(e) => handleCompanyNameChange(e.target.value)}
-                  placeholder="e.g. Vardhman Textiles Garment Division"
+                  placeholder="Vardhman Textiles Garment Division"
                   className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
                 />
               </div>
@@ -268,7 +278,7 @@ Allocated Units   : ${selectedDivisions.length} of ${ENTERPRISE_DIVISIONS_CATALO
                   required
                   value={adminName}
                   onChange={(e) => setAdminName(e.target.value)}
-                  placeholder="e.g. Ashok Singhania"
+                  placeholder="Ashok Singhania"
                   className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
                 />
               </div>
@@ -284,7 +294,7 @@ Allocated Units   : ${selectedDivisions.length} of ${ENTERPRISE_DIVISIONS_CATALO
                   required
                   value={customUsername}
                   onChange={(e) => setCustomUsername(e.target.value)}
-                  placeholder="e.g. vardhman_admin"
+                  placeholder="vardhman_admin"
                   className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-mono font-bold text-[#3A3564] outline-none shadow-2xs transition-all"
                 />
               </div>
@@ -341,15 +351,71 @@ Allocated Units   : ${selectedDivisions.length} of ${ENTERPRISE_DIVISIONS_CATALO
                 type="text"
                 value={cityState}
                 onChange={(e) => setCityState(e.target.value)}
-                placeholder="e.g. Baddi, Himachal Pradesh"
+                placeholder="Baddi, Himachal Pradesh"
                 className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
               />
+            </div>
+
+            {/* Access Tier Model Selection */}
+            <div className="border-t border-slate-100 pt-4">
+              <label className="block text-sm font-semibold text-slate-800 mb-2">
+                2. Select Access Tier Model
+              </label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div
+                  onClick={() => setAccessType('DEMO_TRIAL')}
+                  className={`p-4 rounded-xl border text-left cursor-pointer transition-all ${
+                    accessType === 'DEMO_TRIAL'
+                      ? 'bg-amber-50/70 border-amber-400 ring-2 ring-amber-400/20 shadow-2xs'
+                      : 'bg-white border-black/10 hover:border-black/30'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-bold text-amber-950 font-[family-name:var(--font-heading)]">
+                      7-Day Demo Trial
+                    </span>
+                    <span className="text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded bg-amber-100 text-amber-800 border border-amber-300">
+                      Revocable
+                    </span>
+                  </div>
+                  <p className="text-xs text-amber-900/80 mt-1 leading-relaxed">
+                    Temporary 7-day evaluation. Fully revocable by platform admin anytime if unpaid.
+                  </p>
+                  <span className="text-[11px] font-mono font-bold text-amber-800 block mt-2">
+                    Auto-expires in 7 days ({trialExpiryDate})
+                  </span>
+                </div>
+
+                <div
+                  onClick={() => setAccessType('FULL_ACCESS')}
+                  className={`p-4 rounded-xl border text-left cursor-pointer transition-all ${
+                    accessType === 'FULL_ACCESS'
+                      ? 'bg-emerald-50/70 border-emerald-500 ring-2 ring-emerald-500/20 shadow-2xs'
+                      : 'bg-white border-black/10 hover:border-black/30'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-bold text-emerald-950 font-[family-name:var(--font-heading)]">
+                      Full Access (Paid)
+                    </span>
+                    <span className="text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-300">
+                      Contracted
+                    </span>
+                  </div>
+                  <p className="text-xs text-emerald-900/80 mt-1 leading-relaxed">
+                    Unrestricted production manufacturing access. Regular billing subscription active.
+                  </p>
+                  <span className="text-[11px] font-mono font-bold text-emerald-800 block mt-2">
+                    Active Enterprise Contract
+                  </span>
+                </div>
+              </div>
             </div>
 
             {/* Plan Tier Selection */}
             <div className="border-t border-slate-100 pt-4">
               <label className="block text-sm font-semibold text-slate-800 mb-2">
-                2. Select Subscription Package
+                3. Select Subscription Package
               </label>
               
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
