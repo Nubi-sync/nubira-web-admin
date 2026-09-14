@@ -5,16 +5,11 @@ import {
   Layers,
   Plus,
   Search,
-  Filter,
   User,
   Calculator,
-  Thermometer,
-  Zap,
-  CheckCircle2,
-  Clock,
-  Flame,
-  ShieldCheck
+  Thermometer
 } from 'lucide-react'
+import { EmptyState } from '@/components/ui/EmptyState'
 import { IronTable } from '../../types/iron'
 import { getIronTables, IRON_UPDATE_EVENT } from '../../utils/ironStorage'
 import { AllotTableModal } from './AllotTableModal'
@@ -63,7 +58,7 @@ export function TablesClient() {
   const idleCount = tables.filter(t => t.status === 'IDLE').length
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 select-none">
       {/* Top Action & Filter Bar */}
       <div className="bg-white p-4 sm:p-5 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         <div className="flex items-center gap-2 flex-1 max-w-md">
@@ -74,7 +69,7 @@ export function TablesClient() {
               placeholder="Search table, operator, challan..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-black/10 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-black/10 bg-slate-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900 placeholder:text-slate-400 font-medium"
             />
           </div>
         </div>
@@ -85,7 +80,7 @@ export function TablesClient() {
               <button
                 key={st}
                 onClick={() => setStatusFilter(st)}
-                className={`px-3 py-1 rounded-lg transition-all ${
+                className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
                   statusFilter === st
                     ? 'bg-[#3A3564] text-white shadow-xs'
                     : 'text-slate-600 hover:text-slate-900'
@@ -98,7 +93,7 @@ export function TablesClient() {
 
           <button
             onClick={() => handleOpenAllot()}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#FAF7F0] hover:bg-white text-[#3A3564] border border-black/10 rounded-xl text-xs font-bold transition-all shadow-2xs"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#FAF7F0] hover:bg-white text-[#3A3564] border border-black/10 rounded-xl text-xs font-bold transition-all shadow-2xs cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Allot Table (Form 1)</span>
@@ -106,7 +101,7 @@ export function TablesClient() {
 
           <button
             onClick={() => handleOpenLog()}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs font-bold transition-all shadow-xs"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
           >
             <Calculator className="w-4 h-4" />
             <span>Log Production (Form 2)</span>
@@ -116,104 +111,114 @@ export function TablesClient() {
 
       {/* 12-Station Vacuum Buck Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {filtered.map(t => {
-          const isActive = t.status === 'ACTIVE'
-          return (
-            <div
-              key={t.id}
-              className={`p-5 rounded-2xl border transition-all flex flex-col justify-between ${
-                isActive
-                  ? 'bg-white border-[#3A3564]/20 shadow-2xs ring-1 ring-[#3A3564]/10'
-                  : 'bg-slate-50/70 border-slate-200 text-slate-600'
-              }`}
-            >
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-                    <h3 className="text-base font-black text-slate-900 font-mono">
-                      {t.tableNumber}
-                    </h3>
+        {filtered.length > 0 ? (
+          filtered.map(t => {
+            const isActive = t.status === 'ACTIVE'
+
+            return (
+              <div
+                key={t.id}
+                className={`p-5 rounded-2xl border transition-all flex flex-col justify-between ${
+                  isActive
+                    ? 'bg-white border-[#3A3564]/20 shadow-2xs ring-1 ring-[#3A3564]/10'
+                    : 'bg-slate-50/70 border-slate-200 text-slate-600'
+                }`}
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-[#3A3564]" />
+                      <h3 className="text-base font-black text-slate-900 font-mono">
+                        {t.tableNumber}
+                      </h3>
+                    </div>
+                    <span
+                      className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10"
+                    >
+                      {t.status}
+                    </span>
                   </div>
-                  <span
-                    className={`text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full ${
-                      isActive
-                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                        : 'bg-slate-100 text-slate-600 border border-slate-200'
-                    }`}
+
+                  <div className="space-y-2 text-xs">
+                    <div className="flex items-center justify-between text-slate-700">
+                      <span className="text-slate-500 flex items-center gap-1">
+                        <User className="w-3.5 h-3.5 text-slate-400" />
+                        <span>Operator:</span>
+                      </span>
+                      <strong className="text-slate-900 font-semibold truncate max-w-[140px]">
+                        {t.operatorName}
+                      </strong>
+                    </div>
+
+                    <div className="flex items-center justify-between text-slate-700">
+                      <span className="text-slate-500">Inward Challan:</span>
+                      <span className="font-mono font-bold text-[#3A3564]">
+                        {t.challanId}
+                      </span>
+                    </div>
+
+                    <div className="p-2.5 bg-[#FAF7F0] rounded-xl border border-black/5 space-y-1">
+                      <div className="font-bold text-slate-900 truncate">{t.articleName}</div>
+                      <div className="flex items-center justify-between text-[11px] font-mono text-slate-600">
+                        <span>Rate: <strong>₹{t.pieceRate.toFixed(2)}/pc</strong></span>
+                        <span>Target: <strong>{t.targetHourlyPcs} pcs/hr</strong></span>
+                      </div>
+                    </div>
+
+                    {isActive ? (
+                      <div className="pt-2 border-t border-black/5 space-y-1.5">
+                        <div className="flex justify-between items-baseline font-mono text-xs">
+                          <span className="text-slate-500">Pressed Today:</span>
+                          <strong className="text-slate-900 text-sm">
+                            {t.currentPiecesPressed.toLocaleString()} pcs
+                          </strong>
+                        </div>
+                        <div className="flex items-center justify-between text-[11px] font-mono text-slate-500">
+                          <span className="flex items-center gap-1 text-slate-800 font-bold">
+                            <Thermometer className="w-3 h-3 text-[#3A3564]" />
+                            {t.ironTempC}°C
+                          </span>
+                          <span className="text-slate-700 font-bold">Vacuum Suction OK</span>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="py-4 text-center text-xs text-slate-400 italic">
+                        Table ready for allocation
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Station Action Buttons */}
+                <div className="pt-4 mt-3 border-t border-black/5 flex items-center gap-2">
+                  <button
+                    onClick={() => handleOpenAllot(t.tableNumber)}
+                    className="flex-1 py-1.5 px-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-all text-center cursor-pointer"
                   >
-                    {t.status}
-                  </span>
-                </div>
-
-                <div className="space-y-2 text-xs">
-                  <div className="flex items-center justify-between text-slate-700">
-                    <span className="text-slate-500 flex items-center gap-1">
-                      <User className="w-3.5 h-3.5 text-slate-400" />
-                      <span>Operator:</span>
-                    </span>
-                    <strong className="text-slate-900 font-semibold truncate max-w-[140px]">
-                      {t.operatorName}
-                    </strong>
-                  </div>
-
-                  <div className="flex items-center justify-between text-slate-700">
-                    <span className="text-slate-500">Inward Challan:</span>
-                    <span className="font-mono font-bold text-[#3A3564]">
-                      {t.challanId}
-                    </span>
-                  </div>
-
-                  <div className="p-2.5 bg-[#FAF7F0] rounded-xl border border-black/5 space-y-1">
-                    <div className="font-bold text-slate-900 truncate">{t.articleName}</div>
-                    <div className="flex items-center justify-between text-[11px] font-mono text-slate-600">
-                      <span>Rate: <strong>₹{t.pieceRate.toFixed(2)}/pc</strong></span>
-                      <span>Target: <strong>{t.targetHourlyPcs} pcs/hr</strong></span>
-                    </div>
-                  </div>
-
-                  {isActive ? (
-                    <div className="pt-2 border-t border-black/5 space-y-1.5">
-                      <div className="flex justify-between items-baseline font-mono text-xs">
-                        <span className="text-slate-500">Pressed Today:</span>
-                        <strong className="text-slate-900 text-sm">
-                          {t.currentPiecesPressed.toLocaleString()} pcs
-                        </strong>
-                      </div>
-                      <div className="flex items-center justify-between text-[11px] font-mono text-slate-500">
-                        <span className="flex items-center gap-1 text-amber-700 font-bold">
-                          <Thermometer className="w-3 h-3" />
-                          {t.ironTempC}°C
-                        </span>
-                        <span className="text-emerald-700 font-bold">Vacuum Suction OK</span>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="py-4 text-center text-xs text-slate-400 italic">
-                      Table ready for allocation
-                    </div>
-                  )}
+                    Re-Allot
+                  </button>
+                  <button
+                    onClick={() => handleOpenLog(t.tableNumber)}
+                    className="flex-1 py-1.5 px-2 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold transition-all shadow-xs text-center cursor-pointer"
+                  >
+                    Log Output
+                  </button>
                 </div>
               </div>
-
-              {/* Station Action Buttons */}
-              <div className="pt-4 mt-3 border-t border-black/5 flex items-center gap-2">
-                <button
-                  onClick={() => handleOpenAllot(t.tableNumber)}
-                  className="flex-1 py-1.5 px-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-all text-center"
-                >
-                  Re-Allot
-                </button>
-                <button
-                  onClick={() => handleOpenLog(t.tableNumber)}
-                  className="flex-1 py-1.5 px-2 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold transition-all shadow-xs text-center"
-                >
-                  Log Output
-                </button>
-              </div>
-            </div>
-          )
-        })}
+            )
+          })
+        ) : (
+          <div className="col-span-full">
+            <EmptyState
+              variant="seamless"
+              icon={Layers}
+              title="No vacuum buck tables found"
+              description="Station assignments, operator allocations, and hourly piece-rate telemetry will appear once created."
+              actionLabel="Allot Table (Form 1)"
+              onAction={() => handleOpenAllot()}
+            />
+          </div>
+        )}
       </div>
 
       <AllotTableModal

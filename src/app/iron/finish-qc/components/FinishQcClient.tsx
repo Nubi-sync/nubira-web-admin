@@ -3,15 +3,13 @@
 import { useState, useEffect } from 'react'
 import {
   CheckCircle2,
-  AlertTriangle,
   Plus,
   Search,
-  Filter,
   ShieldCheck,
-  Zap,
-  Layers,
-  Sparkles
+  Sparkles,
+  AlertTriangle
 } from 'lucide-react'
+import { EmptyState } from '@/components/ui/EmptyState'
 import { FinishQcAudit } from '../../types/iron'
 import { getFinishQcAudits, IRON_UPDATE_EVENT } from '../../utils/ironStorage'
 import { RecordQcModal } from './RecordQcModal'
@@ -50,23 +48,23 @@ export function FinishQcClient() {
   })
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 select-none">
       {/* 4 Quality Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
+            <span className="text-xs font-mono font-bold text-slate-500">
               Finishing Pass Rate
             </span>
             <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <CheckCircle2 className="w-4 h-4" />
             </div>
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-2xl sm:text-3xl font-black font-mono text-slate-900">
               {passRate}%
             </span>
-            <span className="text-xs font-bold text-emerald-600 font-mono">
+            <span className="text-xs font-bold text-slate-600 font-mono">
               {passedAudits} / {totalAudits} Lots
             </span>
           </div>
@@ -77,11 +75,11 @@ export function FinishQcClient() {
 
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
+            <span className="text-xs font-mono font-bold text-slate-500">
               1000-Lux Inspections
             </span>
             <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-amber-500" />
+              <Sparkles className="w-4 h-4" />
             </div>
           </div>
           <div className="flex items-baseline gap-2">
@@ -97,18 +95,18 @@ export function FinishQcClient() {
 
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
+            <span className="text-xs font-mono font-bold text-slate-500">
               Quarantine to Alteration
             </span>
             <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
-              <AlertTriangle className="w-4 h-4 text-rose-500" />
+              <AlertTriangle className="w-4 h-4" />
             </div>
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-2xl sm:text-3xl font-black font-mono text-rose-600">
+            <span className="text-2xl sm:text-3xl font-black font-mono text-slate-900">
               {reworkAudits}
             </span>
-            <span className="text-xs font-bold text-rose-700 font-mono">Quarantined</span>
+            <span className="text-xs font-bold text-slate-600 font-mono">Quarantined</span>
           </div>
           <p className="text-xs font-medium text-slate-500 mt-1">
             Re-steamed & deburred in clinic
@@ -117,18 +115,18 @@ export function FinishQcClient() {
 
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
+            <span className="text-xs font-mono font-bold text-slate-500">
               Teflon Shoe Protection
             </span>
             <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
-              <ShieldCheck className="w-4 h-4 text-emerald-600" />
+              <ShieldCheck className="w-4 h-4" />
             </div>
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-2xl sm:text-3xl font-black font-mono text-slate-900">
               100%
             </span>
-            <span className="text-xs font-bold text-emerald-600 font-mono">Fitted</span>
+            <span className="text-xs font-bold text-slate-600 font-mono">Fitted</span>
           </div>
           <p className="text-xs font-medium text-slate-500 mt-1">
             Prevents synthetic fiber scorching
@@ -147,7 +145,7 @@ export function FinishQcClient() {
                 placeholder="Search audit code, table, operator, lot..."
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-black/10 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-black/10 bg-slate-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900 placeholder:text-slate-400 font-medium"
               />
             </div>
           </div>
@@ -158,20 +156,20 @@ export function FinishQcClient() {
                 <button
                   key={st}
                   onClick={() => setStatusFilter(st)}
-                  className={`px-3 py-1 rounded-lg transition-all ${
+                  className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
                     statusFilter === st
                       ? 'bg-[#3A3564] text-white shadow-xs'
                       : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
-                  {st.replace('_', ' ')}
+                  {st.replace(/_/g, ' ')}
                 </button>
               ))}
             </div>
 
             <button
               onClick={() => setIsModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs font-bold transition-all shadow-xs shrink-0"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs font-bold transition-all shadow-xs shrink-0 cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>Record QC Audit</span>
@@ -180,74 +178,73 @@ export function FinishQcClient() {
         </div>
 
         <div className="overflow-x-auto border border-black/10 rounded-xl">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-[#FAF7F0] border-b border-black/10 text-slate-700 font-mono uppercase text-[10px] tracking-wider">
+          <table className="w-full min-w-[760px] text-left text-xs border-collapse">
+            <thead className="bg-[#FAF7F0]/60 border-b border-black/10 text-slate-600 font-mono uppercase text-[11px] tracking-wider">
               <tr>
-                <th className="p-3">Audit Code & Time</th>
-                <th className="p-3">Table & Operator</th>
-                <th className="p-3">Challan & Article</th>
-                <th className="p-3">Sample Pieces</th>
-                <th className="p-3">Glaze / Shine</th>
-                <th className="p-3">Water Spots</th>
-                <th className="p-3">QC Status</th>
-                <th className="p-3">Auditor & Action Taken</th>
+                <th className="p-3.5">Audit Code & Time</th>
+                <th className="p-3.5">Table & Operator</th>
+                <th className="p-3.5">Challan & Article</th>
+                <th className="p-3.5">Sample Pieces</th>
+                <th className="p-3.5">Glaze / Shine</th>
+                <th className="p-3.5">Water Spots</th>
+                <th className="p-3.5">QC Status</th>
+                <th className="p-3.5">Auditor & Action Taken</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-black/5 font-sans">
-              {filtered.map(a => {
-                const isPass = a.qcStatus === 'PASS'
-
-                return (
-                  <tr key={a.id} className="hover:bg-slate-50/70 transition-colors">
-                    <td className="p-3 font-mono">
+              {filtered.length > 0 ? (
+                filtered.map(a => (
+                  <tr key={a.id} className="hover:bg-[#FAF7F0]/40 transition-colors">
+                    <td className="p-3.5 font-mono">
                       <div className="font-bold text-[#3A3564]">{a.auditCode}</div>
                       <div className="text-[11px] text-slate-500">{a.timestamp}</div>
                     </td>
-                    <td className="p-3">
+                    <td className="p-3.5">
                       <div className="font-bold text-slate-900">{a.operatorName}</div>
                       <div className="text-[11px] font-mono text-slate-500">{a.tableNumber}</div>
                     </td>
-                    <td className="p-3">
+                    <td className="p-3.5">
                       <div className="font-mono text-slate-700">{a.challanId}</div>
                       <div className="text-[11px] text-slate-500 truncate max-w-[180px]">{a.articleName}</div>
                     </td>
-                    <td className="p-3 font-mono font-bold text-slate-800">
+                    <td className="p-3.5 font-mono font-bold text-slate-900">
                       {a.samplePcs} pcs
                     </td>
-                    <td className="p-3 font-mono">
-                      {a.glazeDefects > 0 ? (
-                        <span className="text-rose-600 font-bold">{a.glazeDefects} pcs</span>
-                      ) : (
-                        <span className="text-emerald-700 font-semibold">0</span>
-                      )}
+                    <td className="p-3.5 font-mono">
+                      <span className="text-slate-900 font-bold">{a.glazeDefects} pcs</span>
                     </td>
-                    <td className="p-3 font-mono">
-                      {a.waterSpots > 0 ? (
-                        <span className="text-amber-600 font-bold">{a.waterSpots} pcs</span>
-                      ) : (
-                        <span className="text-emerald-700 font-semibold">0</span>
-                      )}
+                    <td className="p-3.5 font-mono">
+                      <span className="text-slate-900 font-bold">{a.waterSpots} pcs</span>
                     </td>
-                    <td className="p-3">
+                    <td className="p-3.5">
                       <span
-                        className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase ${
-                          isPass
-                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                            : 'bg-rose-50 text-rose-700 border border-rose-200'
-                        }`}
+                        className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase bg-[#FAF7F0] text-[#3A3564] border border-black/10"
                       >
-                        {a.qcStatus.replace('_', ' ')}
+                        {a.qcStatus.replace(/_/g, ' ')}
                       </span>
                     </td>
-                    <td className="p-3 max-w-[240px]">
+                    <td className="p-3.5 max-w-[240px]">
                       <div className="font-medium text-slate-900">{a.auditorName}</div>
                       {a.actionTaken && (
                         <div className="text-[11px] text-slate-500 truncate mt-0.5">{a.actionTaken}</div>
                       )}
                     </td>
                   </tr>
-                )
-              })}
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={8} className="p-0">
+                    <EmptyState
+                      variant="seamless"
+                      icon={ShieldCheck}
+                      title="No finish QC audits recorded"
+                      description="1000-lux shadowless lamp audits, thermal glaze/shine inspections, and water-spot checks will appear once logged."
+                      actionLabel="Record QC Audit"
+                      onAction={() => setIsModalOpen(true)}
+                    />
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

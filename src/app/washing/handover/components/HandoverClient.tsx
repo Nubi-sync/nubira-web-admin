@@ -6,12 +6,10 @@ import {
   Plus,
   Search,
   CheckCircle2,
-  ArrowRight,
   ShieldCheck,
-  Calendar,
-  Layers,
   Sparkles
 } from 'lucide-react'
+import { EmptyState } from '@/components/ui/EmptyState'
 import { FinishingHandover } from '../../types/washing'
 import { getFinishingHandovers, WASHING_UPDATE_EVENT } from '../../utils/washingStorage'
 import { CreateHandoverModal } from './CreateHandoverModal'
@@ -42,12 +40,12 @@ export function HandoverClient() {
   )
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 select-none">
       {/* 4 KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
+            <span className="text-xs font-mono font-bold text-slate-500">
               Dispatched to Ironing
             </span>
             <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
@@ -67,18 +65,18 @@ export function HandoverClient() {
 
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
+            <span className="text-xs font-mono font-bold text-slate-500">
               Zero Dampness
             </span>
             <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <CheckCircle2 className="w-4 h-4" />
             </div>
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-2xl sm:text-3xl font-black font-mono text-slate-900">
               100%
             </span>
-            <span className="text-xs font-bold text-emerald-600">Verified</span>
+            <span className="text-xs font-bold text-slate-600">Verified</span>
           </div>
           <p className="text-xs font-medium text-slate-500 mt-1">
             Zero residual moisture verified
@@ -87,18 +85,18 @@ export function HandoverClient() {
 
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
+            <span className="text-xs font-mono font-bold text-slate-500">
               Odor Neutrality
             </span>
             <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-emerald-600" />
+              <Sparkles className="w-4 h-4" />
             </div>
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-2xl sm:text-3xl font-black font-mono text-slate-900">
               100%
             </span>
-            <span className="text-xs font-bold text-emerald-600">Fresh Peach</span>
+            <span className="text-xs font-bold text-slate-600">Fresh Peach</span>
           </div>
           <p className="text-xs font-medium text-slate-500 mt-1">
             Zero chemical acid aroma
@@ -107,18 +105,18 @@ export function HandoverClient() {
 
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
+            <span className="text-xs font-mono font-bold text-slate-500">
               Piece Match Rate
             </span>
             <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
-              <ShieldCheck className="w-4 h-4 text-emerald-600" />
+              <ShieldCheck className="w-4 h-4" />
             </div>
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-2xl sm:text-3xl font-black font-mono text-slate-900">
               100%
             </span>
-            <span className="text-xs font-bold text-emerald-600 font-mono">Zero Loss</span>
+            <span className="text-xs font-bold text-slate-600 font-mono">Zero Loss</span>
           </div>
           <p className="text-xs font-medium text-slate-500 mt-1">
             Matches sewing inward challan
@@ -137,14 +135,14 @@ export function HandoverClient() {
                 placeholder="Search gate pass, batch, challan..."
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-black/10 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-black/10 bg-slate-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900 placeholder:text-slate-400 font-medium"
               />
             </div>
           </div>
 
           <button
             onClick={() => setIsModalOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs font-bold transition-all shadow-xs shrink-0"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs font-bold transition-all shadow-xs shrink-0 cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Generate Handover Gate Pass</span>
@@ -152,54 +150,69 @@ export function HandoverClient() {
         </div>
 
         <div className="overflow-x-auto border border-black/10 rounded-xl">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-[#FAF7F0] border-b border-black/10 text-slate-700 font-mono uppercase text-[10px] tracking-wider">
+          <table className="w-full min-w-[760px] text-left text-xs border-collapse">
+            <thead className="bg-[#FAF7F0]/60 border-b border-black/10 text-slate-600 font-mono uppercase text-[11px] tracking-wider">
               <tr>
-                <th className="p-3">Gate Pass ID</th>
-                <th className="p-3">Batch & Challan</th>
-                <th className="p-3">Garment Article</th>
-                <th className="p-3">Pieces Transferred</th>
-                <th className="p-3">Destination Unit</th>
-                <th className="p-3">Condition Verification</th>
-                <th className="p-3">Supervisor Sign-off</th>
-                <th className="p-3">Handover Date</th>
+                <th className="p-3.5">Gate Pass ID</th>
+                <th className="p-3.5">Batch & Challan</th>
+                <th className="p-3.5">Garment Article</th>
+                <th className="p-3.5">Pieces Transferred</th>
+                <th className="p-3.5">Destination Unit</th>
+                <th className="p-3.5">Condition Verification</th>
+                <th className="p-3.5">Supervisor Sign-off</th>
+                <th className="p-3.5">Handover Date</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-black/5 font-sans">
-              {filtered.map(h => (
-                <tr key={h.id} className="hover:bg-slate-50/70 transition-colors">
-                  <td className="p-3 font-mono font-bold text-[#3A3564]">
-                    {h.handoverCode}
-                  </td>
-                  <td className="p-3">
-                    <div className="font-mono font-bold text-slate-900">{h.batchNumber}</div>
-                    <div className="text-[11px] font-mono text-slate-500">{h.challanId}</div>
-                  </td>
-                  <td className="p-3 font-semibold text-slate-800">
-                    {h.articleName}
-                  </td>
-                  <td className="p-3 font-mono font-bold text-slate-900">
-                    {h.piecesTransferred.toLocaleString()} pcs
-                  </td>
-                  <td className="p-3">
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-                      {h.transferredTo}
-                    </span>
-                  </td>
-                  <td className="p-3">
-                    <div className="flex items-center gap-1.5 text-emerald-700 font-semibold text-[11px]">
-                      <CheckCircle2 className="w-3.5 h-3.5" />
-                      <span>Dry • Odorless • Count Match</span>
-                    </div>
-                  </td>
-                  <td className="p-3 text-slate-700 font-medium">
-                    {h.supervisorSignoff}
-                  </td>
-                  <td className="p-3 font-mono text-slate-500 text-[11px]">
-                    {h.handoverDate}
+              {filtered.length > 0 ? (
+                filtered.map(h => (
+                  <tr key={h.id} className="hover:bg-[#FAF7F0]/40 transition-colors">
+                    <td className="p-3.5 font-mono font-bold text-[#3A3564]">
+                      {h.handoverCode}
+                    </td>
+                    <td className="p-3.5">
+                      <div className="font-mono font-bold text-slate-900">{h.batchNumber}</div>
+                      <div className="text-[11px] font-mono text-slate-500">{h.challanId}</div>
+                    </td>
+                    <td className="p-3.5 font-semibold text-slate-800">
+                      {h.articleName}
+                    </td>
+                    <td className="p-3.5 font-mono font-bold text-slate-900">
+                      {h.piecesTransferred.toLocaleString()} pcs
+                    </td>
+                    <td className="p-3.5">
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                        {h.transferredTo}
+                      </span>
+                    </td>
+                    <td className="p-3.5">
+                      <div className="flex items-center gap-1.5 text-slate-800 font-semibold text-[11px] font-mono">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-[#3A3564]" />
+                        <span>Dry • Odorless • Count Match</span>
+                      </div>
+                    </td>
+                    <td className="p-3.5 text-slate-700 font-medium">
+                      {h.supervisorSignoff}
+                    </td>
+                    <td className="p-3.5 font-mono text-slate-500 text-[11px]">
+                      {h.handoverDate}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={8} className="p-0">
+                    <EmptyState
+                      variant="seamless"
+                      icon={Truck}
+                      title="No drying handovers recorded"
+                      description="Gate passes transferring moisture-verified dried garments to steam ironing tables will appear once created."
+                      actionLabel="Generate Handover Gate Pass"
+                      onAction={() => setIsModalOpen(true)}
+                    />
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>

@@ -5,16 +5,11 @@ import {
   Calculator,
   Plus,
   Search,
-  Filter,
-  DollarSign,
   TrendingUp,
-  User,
   CheckCircle2,
-  AlertTriangle,
-  Award,
-  Layers,
-  Calendar
+  Award
 } from 'lucide-react'
+import { EmptyState } from '@/components/ui/EmptyState'
 import { IronProductionLog } from '../../types/iron'
 import { getIronProductionLogs, IRON_UPDATE_EVENT } from '../../utils/ironStorage'
 import { LogProductionModal } from '../../tables/components/LogProductionModal'
@@ -61,12 +56,12 @@ export function WagesClient() {
   )
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 select-none">
       {/* 4 Financial & Productivity Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
+            <span className="text-xs font-mono font-bold text-slate-500">
               Total Shift Wages
             </span>
             <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
@@ -74,7 +69,7 @@ export function WagesClient() {
             </div>
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-2xl sm:text-3xl font-black font-mono text-[#3A3564]">
+            <span className="text-2xl sm:text-3xl font-black font-mono text-slate-900">
               ₹{totalWages.toLocaleString()}
             </span>
           </div>
@@ -85,18 +80,18 @@ export function WagesClient() {
 
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
+            <span className="text-xs font-mono font-bold text-slate-500">
               Verified Pieces Pressed
             </span>
             <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <CheckCircle2 className="w-4 h-4" />
             </div>
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-2xl sm:text-3xl font-black font-mono text-slate-900">
               {totalPressed.toLocaleString()}
             </span>
-            <span className="text-xs font-bold text-slate-600">Pcs</span>
+            <span className="text-xs font-bold text-slate-600 font-mono">Pcs</span>
           </div>
           <p className="text-xs font-medium text-slate-500 mt-1">
             100% Zero-wrinkle passed pieces
@@ -105,18 +100,18 @@ export function WagesClient() {
 
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
+            <span className="text-xs font-mono font-bold text-slate-500">
               Avg Finishing Piece Rate
             </span>
             <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
-              <TrendingUp className="w-4 h-4 text-blue-600" />
+              <TrendingUp className="w-4 h-4" />
             </div>
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-2xl sm:text-3xl font-black font-mono text-slate-900">
               ₹{avgRatePerPc}
             </span>
-            <span className="text-xs font-bold text-slate-600">/ Piece</span>
+            <span className="text-xs font-bold text-slate-600 font-mono">/ Piece</span>
           </div>
           <p className="text-xs font-medium text-slate-500 mt-1">
             Range: ₹1.80 (Tees) – ₹2.50 (Hoodies)
@@ -125,11 +120,11 @@ export function WagesClient() {
 
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
+            <span className="text-xs font-mono font-bold text-slate-500">
               Top Finishing Earner
             </span>
             <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
-              <Award className="w-4 h-4 text-amber-500" />
+              <Award className="w-4 h-4" />
             </div>
           </div>
           <div className="flex items-baseline gap-2">
@@ -137,7 +132,7 @@ export function WagesClient() {
               {topOperator ? topOperator[0] : 'Rajesh Halder'}
             </span>
           </div>
-          <p className="text-xs font-medium text-emerald-700 font-mono mt-1">
+          <p className="text-xs font-medium text-slate-700 font-mono mt-1">
             ₹{topOperator ? topOperator[1].wages.toLocaleString() : '1,150'} • {topOperator ? topOperator[1].pieces : '460'} pcs
           </p>
         </div>
@@ -154,14 +149,14 @@ export function WagesClient() {
                 placeholder="Search operator name, table, challan..."
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-black/10 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-black/10 bg-slate-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900 placeholder:text-slate-400 font-medium"
               />
             </div>
           </div>
 
           <button
             onClick={() => setIsLogModalOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs font-bold transition-all shadow-xs shrink-0"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs font-bold transition-all shadow-xs shrink-0 cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Log Shift Production (Form 2)</span>
@@ -170,63 +165,78 @@ export function WagesClient() {
 
         {/* Ledger Table */}
         <div className="overflow-x-auto border border-black/10 rounded-xl">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-[#FAF7F0] border-b border-black/10 text-slate-700 font-mono uppercase text-[10px] tracking-wider">
+          <table className="w-full min-w-[760px] text-left text-xs border-collapse">
+            <thead className="bg-[#FAF7F0]/60 border-b border-black/10 text-slate-600 font-mono uppercase text-[11px] tracking-wider">
               <tr>
-                <th className="p-3">Shift Date & Table</th>
-                <th className="p-3">Operator Name</th>
-                <th className="p-3">Challan Lot & Article</th>
-                <th className="p-3">Pieces Pressed</th>
-                <th className="p-3">Defect Deductions</th>
-                <th className="p-3">Piece Rate</th>
-                <th className="p-3 font-mono font-bold text-slate-900">Total Earned Wages</th>
-                <th className="p-3">QC Status</th>
+                <th className="p-3.5">Shift Date & Table</th>
+                <th className="p-3.5">Operator Name</th>
+                <th className="p-3.5">Challan Lot & Article</th>
+                <th className="p-3.5">Pieces Pressed</th>
+                <th className="p-3.5">Defect Deductions</th>
+                <th className="p-3.5">Piece Rate</th>
+                <th className="p-3.5 font-mono font-bold text-slate-900">Total Earned Wages</th>
+                <th className="p-3.5">QC Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-black/5 font-sans">
-              {filteredLogs.map(log => (
-                <tr key={log.id} className="hover:bg-slate-50/70 transition-colors">
-                  <td className="p-3 font-mono">
-                    <div className="font-bold text-[#3A3564]">{log.tableNumber}</div>
-                    <div className="text-[11px] text-slate-500">{log.shiftDate}</div>
-                  </td>
-                  <td className="p-3 font-bold text-slate-900">
-                    {log.operatorName}
-                  </td>
-                  <td className="p-3">
-                    <div className="font-mono text-slate-700">{log.challanId}</div>
-                    <div className="text-[11px] text-slate-500 truncate max-w-[200px]">
-                      {log.articleName || 'Running Lot'}
-                    </div>
-                  </td>
-                  <td className="p-3 font-mono font-bold text-slate-900">
-                    {log.piecesPressed.toLocaleString()} pcs
-                  </td>
-                  <td className="p-3">
-                    {log.defectShineCount > 0 || log.waterStainCount > 0 ? (
-                      <span className="text-amber-700 font-mono font-bold text-[11px]">
-                        Shine: {log.defectShineCount} • Water: {log.waterStainCount}
+              {filteredLogs.length > 0 ? (
+                filteredLogs.map(log => (
+                  <tr key={log.id} className="hover:bg-[#FAF7F0]/40 transition-colors">
+                    <td className="p-3.5 font-mono">
+                      <div className="font-bold text-[#3A3564]">{log.tableNumber}</div>
+                      <div className="text-[11px] text-slate-500">{log.shiftDate}</div>
+                    </td>
+                    <td className="p-3.5 font-bold text-slate-900">
+                      {log.operatorName}
+                    </td>
+                    <td className="p-3.5">
+                      <div className="font-mono text-slate-700">{log.challanId}</div>
+                      <div className="text-[11px] text-slate-500 truncate max-w-[200px]">
+                        {log.articleName || 'Running Lot'}
+                      </div>
+                    </td>
+                    <td className="p-3.5 font-mono font-bold text-slate-900">
+                      {log.piecesPressed.toLocaleString()} pcs
+                    </td>
+                    <td className="p-3.5">
+                      {log.defectShineCount > 0 || log.waterStainCount > 0 ? (
+                        <span className="text-slate-800 font-mono font-bold text-[11px]">
+                          Shine: {log.defectShineCount} • Water: {log.waterStainCount}
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 text-slate-800 font-semibold text-[11px] font-mono">
+                          <CheckCircle2 className="w-3 h-3 text-[#3A3564]" />
+                          <span>Zero Defects</span>
+                        </span>
+                      )}
+                    </td>
+                    <td className="p-3.5 font-mono text-slate-700">
+                      ₹{log.pieceRate.toFixed(2)}
+                    </td>
+                    <td className="p-3.5 font-mono font-bold text-[#3A3564] text-sm">
+                      ₹{log.totalEarnedWages.toLocaleString()}
+                    </td>
+                    <td className="p-3.5">
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10 uppercase">
+                        VERIFIED
                       </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 text-emerald-700 font-semibold text-[11px]">
-                        <CheckCircle2 className="w-3 h-3" />
-                        <span>Zero Defects</span>
-                      </span>
-                    )}
-                  </td>
-                  <td className="p-3 font-mono text-slate-700">
-                    ₹{log.pieceRate.toFixed(2)}
-                  </td>
-                  <td className="p-3 font-mono font-bold text-[#3A3564] text-sm">
-                    ₹{log.totalEarnedWages.toLocaleString()}
-                  </td>
-                  <td className="p-3">
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 uppercase">
-                      VERIFIED
-                    </span>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={8} className="p-0">
+                    <EmptyState
+                      variant="seamless"
+                      icon={Calculator}
+                      title="No shift wage ledgers recorded"
+                      description="Daily piece-rate earnings per operator, piece volume counts, and quality verified totals will display once logged."
+                      actionLabel="Log Shift Production (Form 2)"
+                      onAction={() => setIsLogModalOpen(true)}
+                    />
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
