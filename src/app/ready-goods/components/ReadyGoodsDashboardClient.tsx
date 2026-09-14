@@ -19,7 +19,8 @@ import {
   QrCode,
   Check,
   Eye,
-  SlidersHorizontal
+  SlidersHorizontal,
+  X
 } from 'lucide-react'
 import { EmptyState } from '@/components/ui/EmptyState'
 import {

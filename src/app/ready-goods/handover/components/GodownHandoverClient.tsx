@@ -10,7 +10,8 @@ import {
   Search,
   Plus,
   Truck,
-  Boxes
+  Boxes,
+  X
 } from 'lucide-react'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { getHandoverPallets, READY_GOODS_UPDATE_EVENT } from '../../utils/readyGoodsStorage'
@@ -298,9 +299,9 @@ export function GodownHandoverClient({ userEmail }: GodownHandoverClientProps) {
               </div>
               <button
                 onClick={() => setSelectedPallet(null)}
-                className="text-slate-400 hover:text-slate-700 text-sm font-bold font-mono px-2 py-1 rounded cursor-pointer"
+                className="text-slate-400 hover:text-slate-700 p-1 rounded cursor-pointer"
               >
-                ✕
+                <X className="w-4 h-4" />
               </button>
             </div>
 

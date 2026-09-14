@@ -45,6 +45,7 @@ export type PalletShippingStatus =
   | 'STAGED_IN_BAY' 
   | 'STUFFED_IN_CONTAINER' 
   | 'EXPORT_DISPATCHED'
+  | 'SHIPPED_EXPORTED'
 
 export interface FabricRollDefects {
   points1: number // defects up to 3 inches (1 pt)
@@ -78,6 +79,9 @@ export interface FabricRoll {
   defectBreakdown?: FabricRollDefects
   notes?: string
 }
+
+export type FabricShadeGroup = ShadeGroup
+export type FabricRollInspection = FabricRoll
 
 export interface TrimsInventoryItem {
   id: string

@@ -297,6 +297,31 @@ export function acceptMaterialIssue(challanId: string): MaterialFloorIssueChalla
   return updated
 }
 
+export function updateMaterialIssueChallanStatus(
+  challanId: string,
+  status: MaterialFloorIssueChallan['status']
+): MaterialFloorIssueChallan | null {
+  const current = getMaterialIssues()
+  const challan = current.find(c => c.id === challanId)
+  if (!challan) return null
+
+  const updated: MaterialFloorIssueChallan = {
+    ...challan,
+    status,
+    acceptedAt: status === 'ACCEPTED_BY_FLOOR' ? new Date().toISOString() : challan.acceptedAt
+  }
+
+  const list = current.map(c => (c.id === challanId ? updated : c))
+  try {
+    localStorage.setItem(STORAGE_KEYS.MATERIAL_ISSUES, JSON.stringify(list))
+    broadcastUpdate()
+  } catch (_) {}
+
+  return updated
+}
+
+export const getMaterialIssueChallans = getMaterialIssues
+
 // ----------------------------------------------------------------------------
 // 5. FINISHED GOODS EXPORT PALLETS & CONTAINER STUFFING
 // ----------------------------------------------------------------------------
@@ -314,6 +339,8 @@ export function getExportPallets(): FinishedExportPallet[] {
     return INITIAL_EXPORT_PALLETS
   }
 }
+
+export const getFinishedExportPallets = getExportPallets
 
 export function saveExportPallet(pallet: FinishedExportPallet): FinishedExportPallet[] {
   const current = getExportPallets()
