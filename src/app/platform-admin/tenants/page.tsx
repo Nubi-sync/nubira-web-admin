@@ -352,9 +352,18 @@ export default function TenantFactoriesPage() {
 
                       {/* 3. Plan & Tier */}
                       <td className="py-3.5 px-4">
-                        <span className="inline-block font-semibold text-xs text-[#3A3564] bg-[#FAF7F0] border border-black/10 px-2 py-0.5 rounded-md">
-                          {t.subscriptionTier.replace(/_/g, ' ')}
-                        </span>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="inline-block font-semibold text-xs text-[#3A3564] bg-[#FAF7F0] border border-black/10 px-2 py-0.5 rounded-md">
+                            {t.subscriptionTier.replace(/_/g, ' ')}
+                          </span>
+                          <span className={`inline-block text-[11px] font-semibold px-2 py-0.5 rounded-md border ${
+                            t.accessType === 'DEMO_TRIAL'
+                              ? 'bg-amber-50 text-amber-800 border-amber-300'
+                              : 'bg-indigo-50 text-indigo-800 border-indigo-200'
+                          }`}>
+                            {t.accessType === 'DEMO_TRIAL' ? '7-Day Trial' : 'Full Access'}
+                          </span>
+                        </div>
                         <div className="text-xs text-slate-500 mt-1 font-mono">
                           ₹{t.monthlyBillingInr.toLocaleString()}/mo
                         </div>
@@ -380,8 +389,8 @@ export default function TenantFactoriesPage() {
                             Pending Setup
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 text-xs font-medium border border-slate-200">
-                            Suspended
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-rose-50 text-rose-800 text-xs font-medium border border-rose-200">
+                            Revoked
                           </span>
                         )}
                       </td>

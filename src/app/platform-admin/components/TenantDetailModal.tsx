@@ -32,12 +32,26 @@ import {
   CheckSquare,
   Square,
   Save,
-  Loader2
+  Loader2,
+  Send,
+  AlertTriangle,
+  ShieldAlert,
+  RefreshCw
 } from 'lucide-react'
-import { TenantFactory } from '../types/platform'
+import { TenantFactory, AccessType } from '../types/platform'
 import { ENTERPRISE_DIVISIONS_CATALOG } from '../data/initialPlatformData'
-import { updateTenantAllowedDivisionsAction } from '../actions'
-import { updateTenantDivisions } from '../utils/platformStorage'
+import {
+  updateTenantAllowedDivisionsAction,
+  revokeTenantAccessAction,
+  reactivateTenantAccessAction,
+  sendPaymentReminderAction
+} from '../actions'
+import {
+  updateTenantDivisions,
+  revokeTenantAccess,
+  reactivateTenantAccess,
+  recordPaymentReminder
+} from '../utils/platformStorage'
 
 interface TenantDetailModalProps {
   isOpen: boolean
@@ -69,11 +83,23 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
   const [isSaving, setIsSaving] = useState(false)
   const [saveSuccess, setSaveSuccess] = useState(false)
 
+  // Reminder, Revoke & Reactivate state
+  const [isSendingReminder, setIsSendingReminder] = useState(false)
+  const [reminderMessage, setReminderMessage] = useState<{ text: string; isError?: boolean } | null>(null)
+  const [showRevokeConfirm, setShowRevokeConfirm] = useState(false)
+  const [isRevoking, setIsRevoking] = useState(false)
+  const [showReactivateModal, setShowReactivateModal] = useState(false)
+  const [reactivateType, setReactivateType] = useState<AccessType>('FULL_ACCESS')
+  const [isReactivating, setIsReactivating] = useState(false)
+
   useEffect(() => {
     setTenantState(propTenant)
     setSelectedDivisions(Array.isArray(propTenant?.allowedDivisions) ? propTenant!.allowedDivisions : [])
     setIsEditingDivisions(false)
     setSaveSuccess(false)
+    setReminderMessage(null)
+    setShowRevokeConfirm(false)
+    setShowReactivateModal(false)
   }, [propTenant, isOpen])
 
   if (!isOpen || !propTenant) return null
@@ -128,17 +154,99 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
     }
   }
 
+  const handleSendPaymentReminder = async () => {
+    setIsSendingReminder(true)
+    setReminderMessage(null)
+    try {
+      const res = await sendPaymentReminderAction(tenant.id)
+      if (res.success) {
+        recordPaymentReminder(tenant.id)
+        const updated: TenantFactory = {
+          ...tenant,
+          lastPaymentReminderAt: new Date().toISOString()
+        }
+        setTenantState(updated)
+        onTenantUpdated?.(updated)
+        setReminderMessage({
+          text: res.simulated
+            ? `Reminder email simulated for ${tenant.adminEmail} (RESEND_API_KEY not configured).`
+            : `Payment reminder email successfully dispatched to ${tenant.adminEmail} from noreply@zigza.in.`
+        })
+      } else {
+        setReminderMessage({ text: res.error || 'Failed to send payment reminder email', isError: true })
+      }
+    } catch (err: any) {
+      setReminderMessage({ text: err?.message || 'Error dispatching payment reminder', isError: true })
+    } finally {
+      setIsSendingReminder(false)
+    }
+  }
+
+  const handleRevokeAccess = async () => {
+    setIsRevoking(true)
+    try {
+      const res = await revokeTenantAccessAction(tenant.id)
+      if (res.success) {
+        revokeTenantAccess(tenant.id)
+        const updated: TenantFactory = {
+          ...tenant,
+          status: 'SUSPENDED',
+          revokedAt: new Date().toISOString(),
+          lastActiveAt: new Date().toISOString()
+        }
+        setTenantState(updated)
+        setShowRevokeConfirm(false)
+        onTenantUpdated?.(updated)
+      } else {
+        alert(res.error || 'Failed to revoke tenant access.')
+      }
+    } catch (err: any) {
+      alert(err?.message || 'Error revoking access')
+    } finally {
+      setIsRevoking(false)
+    }
+  }
+
+  const handleReactivateAccess = async () => {
+    setIsReactivating(true)
+    try {
+      const res = await reactivateTenantAccessAction(tenant.id, reactivateType)
+      if (res.success) {
+        reactivateTenantAccess(tenant.id, reactivateType)
+        const expiresAt = reactivateType === 'DEMO_TRIAL'
+          ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+          : undefined
+        const updated: TenantFactory = {
+          ...tenant,
+          status: 'ACTIVE',
+          accessType: reactivateType,
+          revokedAt: undefined,
+          expiresAt,
+          lastActiveAt: new Date().toISOString()
+        }
+        setTenantState(updated)
+        setShowReactivateModal(false)
+        onTenantUpdated?.(updated)
+      } else {
+        alert(res.error || 'Failed to reactivate tenant workspace.')
+      }
+    } catch (err: any) {
+      alert(err?.message || 'Error reactivating workspace')
+    } finally {
+      setIsReactivating(false)
+    }
+  }
+
   // Calculate subscription dates
   const provisionDate = new Date(tenant.provisionedAt)
-  const expiryDate = tenant.expiresAt
-    ? new Date(tenant.expiresAt)
-    : new Date(new Date(provisionDate).setFullYear(provisionDate.getFullYear() + 1))
+  const isTrial = tenant.accessType === 'DEMO_TRIAL'
+  const isSuspended = tenant.status === 'SUSPENDED'
 
+  const expiryDate = tenant.expiresAt ? new Date(tenant.expiresAt) : null
   const today = new Date()
-  const daysRemaining = Math.max(
-    0,
-    Math.ceil((expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
-  )
+  const daysRemaining = expiryDate
+    ? Math.max(0, Math.ceil((expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)))
+    : null
 
   const allowedRoutes = Array.isArray(tenant.allowedDivisions) ? tenant.allowedDivisions : []
 
@@ -162,13 +270,27 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
                 <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight font-[family-name:var(--font-heading)]">
                   {tenant.companyName}
                 </h2>
-                <span className={`text-xs font-medium px-2.5 py-0.5 rounded-md border ${
-                  tenant.status === 'ACTIVE'
+                
+                {/* Status Badge */}
+                <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-md border ${
+                  isSuspended
+                    ? 'bg-rose-50 text-rose-800 border-rose-200'
+                    : tenant.status === 'ACTIVE'
                     ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
                     : 'bg-amber-50 text-amber-800 border-amber-200'
                 }`}>
-                  {tenant.status === 'ACTIVE' ? 'Active Factory' : 'Pending Setup'}
+                  {isSuspended ? 'Access Revoked' : tenant.status === 'ACTIVE' ? 'Active Workspace' : 'Pending Setup'}
                 </span>
+
+                {/* Access Model Badge */}
+                <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-md border ${
+                  isTrial
+                    ? 'bg-amber-50 text-amber-900 border-amber-300'
+                    : 'bg-indigo-50 text-indigo-900 border-indigo-200'
+                }`}>
+                  {isTrial ? '7-Day Demo Trial' : 'Full Enterprise Access'}
+                </span>
+
                 <span className="text-xs font-medium px-2.5 py-0.5 rounded-md bg-white text-slate-700 border border-black/10">
                   {tenant.subscriptionTier.replace(/_/g, ' ')}
                 </span>
@@ -197,6 +319,53 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
         {/* 2. Modal Body Scrollable Content */}
         <div className="overflow-y-auto p-5 sm:p-6 space-y-6">
 
+          {/* Alert / Notice Banner if reminder was sent */}
+          {reminderMessage && (
+            <div className={`p-3.5 rounded-xl border flex items-start gap-3 text-xs transition-all ${
+              reminderMessage.isError
+                ? 'bg-rose-50 border-rose-200 text-rose-900'
+                : 'bg-emerald-50 border-emerald-200 text-emerald-900'
+            }`}>
+              <div className={`w-6 h-6 rounded-lg flex items-center justify-center shrink-0 ${
+                reminderMessage.isError ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700'
+              }`}>
+                {reminderMessage.isError ? <AlertTriangle className="w-3.5 h-3.5" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
+              </div>
+              <div className="flex-1 min-w-0 font-medium leading-relaxed">
+                {reminderMessage.text}
+              </div>
+              <button
+                type="button"
+                onClick={() => setReminderMessage(null)}
+                className="text-slate-400 hover:text-slate-700 cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+
+          {/* Suspended Alert Banner */}
+          {isSuspended && (
+            <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 flex items-center justify-between gap-3 text-xs text-rose-900">
+              <div className="flex items-center gap-2.5">
+                <ShieldAlert className="w-5 h-5 text-rose-600 shrink-0" />
+                <div>
+                  <span className="font-bold">Plant Workspace Access is Suspended</span>
+                  <span className="block text-rose-700 mt-0.5">
+                    User and factory employees cannot log into production modules until reactivated.
+                  </span>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowReactivateModal(true)}
+                className="px-3.5 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shrink-0 shadow-2xs cursor-pointer"
+              >
+                Reactivate Workspace
+              </button>
+            </div>
+          )}
+
           {/* Section A: Plan, Billing & License Expiry Cards */}
           <div>
             <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-1.5">
@@ -205,15 +374,15 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-              {/* Card 1: Subscription Tier */}
+              {/* Card 1: Subscription Tier & Access Model */}
               <div className="bg-slate-50/70 p-4 rounded-xl border border-slate-200/80">
                 <span className="text-xs text-slate-500 font-medium block">
-                  Current Plan
+                  Access Model & Tier
                 </span>
                 <span className="text-base font-bold text-slate-900 mt-1 block">
                   {tenant.subscriptionTier.replace(/_/g, ' ')}
                 </span>
-                <span className="text-xs text-slate-500 mt-0.5 block font-mono">
+                <span className="text-xs text-slate-600 mt-0.5 block font-mono font-semibold">
                   ₹{tenant.monthlyBillingInr.toLocaleString()} / month
                 </span>
               </div>
@@ -227,23 +396,51 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
                   {provisionDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
                 </span>
                 <span className="text-xs text-slate-500 mt-0.5 block">
-                  Initial launch cycle
+                  Initial workspace setup
                 </span>
               </div>
 
-              {/* Card 3: License Expiry Date */}
-              <div className="bg-white p-4 rounded-xl border border-slate-200">
+              {/* Card 3: License Expiry / Contract Status */}
+              <div className={`p-4 rounded-xl border ${
+                isSuspended
+                  ? 'bg-rose-50/70 border-rose-200'
+                  : isTrial
+                  ? 'bg-amber-50/70 border-amber-200'
+                  : 'bg-white border-slate-200'
+              }`}>
                 <span className="text-xs text-slate-500 font-medium block">
-                  License Expiry Date
+                  {isSuspended ? 'Access Status' : isTrial ? 'Trial Expiry Date' : 'Contract Status'}
                 </span>
-                <span className="text-base font-bold text-slate-900 mt-1 block">
-                  {expiryDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                <span className={`text-base font-bold mt-1 block ${
+                  isSuspended ? 'text-rose-700' : isTrial ? 'text-amber-900' : 'text-slate-900'
+                }`}>
+                  {isSuspended
+                    ? 'Access Suspended'
+                    : isTrial && expiryDate
+                    ? expiryDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+                    : 'Active Enterprise'}
                 </span>
-                <span className="text-xs text-slate-600 mt-0.5 block">
-                  {daysRemaining} days remaining
+                <span className={`text-xs mt-0.5 block ${
+                  isSuspended ? 'text-rose-600' : isTrial ? 'text-amber-800 font-semibold' : 'text-emerald-700'
+                }`}>
+                  {isSuspended
+                    ? (tenant.revokedAt ? `Revoked ${new Date(tenant.revokedAt).toLocaleDateString('en-GB')}` : 'Access Locked')
+                    : isTrial
+                    ? (daysRemaining !== null ? `${daysRemaining} days remaining (Revocable)` : '7-Day Trial')
+                    : 'Unrestricted Production Access'}
                 </span>
               </div>
             </div>
+
+            {/* Last payment reminder tracker */}
+            {tenant.lastPaymentReminderAt && (
+              <div className="mt-2.5 px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200/80 text-[11px] text-slate-600 flex items-center justify-between">
+                <span>Last Payment Reminder Email:</span>
+                <span className="font-mono font-semibold text-slate-800">
+                  {new Date(tenant.lastPaymentReminderAt).toLocaleString()} (via noreply@zigza.in)
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Section B: Super Admin Contact & Credentials */}
@@ -471,33 +668,199 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
         </div>
 
         {/* 3. Modal Footer Actions */}
-        <div className="bg-[#FAF7F0] border-t border-black/10 p-4 sm:p-5 flex items-center justify-between gap-3">
-          <button
-            type="button"
-            onClick={() => handleCopy(`Factory: ${tenant.companyName}\nAdmin: ${tenant.adminEmail}\nPlan: ${tenant.subscriptionTier}\nExpires: ${expiryDate.toLocaleDateString()}`, 'summary')}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-all cursor-pointer shadow-2xs"
-          >
-            {copiedField === 'summary' ? (
-              <>
-                <Check className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Summary Copied</span>
-              </>
-            ) : (
-              <>
-                <Copy className="w-3.5 h-3.5" />
-                <span>Copy Summary</span>
-              </>
-            )}
-          </button>
+        <div className="bg-[#FAF7F0] border-t border-black/10 p-4 sm:p-5 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => handleCopy(`Factory: ${tenant.companyName}\nAdmin: ${tenant.adminEmail}\nAccess Model: ${isTrial ? '7-Day Demo Trial' : 'Full Access'}\nPlan: ${tenant.subscriptionTier}\nStatus: ${tenant.status}`, 'summary')}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-all cursor-pointer shadow-2xs"
+            >
+              {copiedField === 'summary' ? (
+                <>
+                  <Check className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Summary Copied</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-3.5 h-3.5" />
+                  <span>Copy Summary</span>
+                </>
+              )}
+            </button>
+          </div>
 
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] transition-all cursor-pointer shadow-xs"
-          >
-            Close Details
-          </button>
+          <div className="flex items-center gap-2.5 flex-wrap justify-end">
+            {/* Send Payment Reminder Button */}
+            <button
+              type="button"
+              disabled={isSendingReminder}
+              onClick={handleSendPaymentReminder}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-[#3A3564] bg-white border border-[#3A3564]/30 hover:bg-[#3A3564]/5 transition-all cursor-pointer shadow-2xs disabled:opacity-50"
+              title="Dispatches official payment reminder from noreply@zigza.in"
+            >
+              {isSendingReminder ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+              <span>Send Payment Reminder</span>
+            </button>
+
+            {/* Revoke Access Button (When Active) */}
+            {!isSuspended ? (
+              <button
+                type="button"
+                onClick={() => setShowRevokeConfirm(true)}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-rose-700 bg-rose-50 border border-rose-200 hover:bg-rose-100 transition-all cursor-pointer shadow-2xs"
+              >
+                <ShieldAlert className="w-3.5 h-3.5" />
+                <span>Revoke Access</span>
+              </button>
+            ) : (
+              /* Reactivate Button (When Suspended) */
+              <button
+                type="button"
+                onClick={() => setShowReactivateModal(true)}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-all cursor-pointer shadow-2xs"
+              >
+                <RefreshCw className="w-3.5 h-3.5" />
+                <span>Reactivate Workspace</span>
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] transition-all cursor-pointer shadow-xs"
+            >
+              Close Details
+            </button>
+          </div>
         </div>
+
+        {/* Confirmation Modal: Revoke Access */}
+        {showRevokeConfirm && (
+          <div className="fixed inset-0 z-60 bg-black/50 flex items-center justify-center p-4 animate-in fade-in duration-150">
+            <div className="bg-white rounded-2xl border border-rose-200 p-6 max-w-md w-full shadow-2xl space-y-4">
+              <div className="flex items-center gap-3 text-rose-600">
+                <div className="w-10 h-10 rounded-xl bg-rose-100 flex items-center justify-center shrink-0">
+                  <ShieldAlert className="w-6 h-6 text-rose-600" />
+                </div>
+                <div>
+                  <h4 className="text-base font-bold text-slate-900">Revoke Tenant Factory Access?</h4>
+                  <p className="text-xs text-slate-500">Immediate workspace suspension</p>
+                </div>
+              </div>
+
+              <p className="text-xs text-slate-600 leading-relaxed">
+                This will immediately suspend plant access for <strong className="text-slate-900">{tenant.companyName}</strong> ({tenant.adminEmail}). All factory floor divisions will be locked until an admin reactivates the account.
+              </p>
+
+              <div className="flex items-center justify-end gap-2.5 pt-2">
+                <button
+                  type="button"
+                  disabled={isRevoking}
+                  onClick={() => setShowRevokeConfirm(false)}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  disabled={isRevoking}
+                  onClick={handleRevokeAccess}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 shadow-xs cursor-pointer disabled:opacity-50"
+                >
+                  {isRevoking ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ShieldAlert className="w-3.5 h-3.5" />}
+                  <span>Confirm Revocation</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modal: Reactivate Access with Model Selection */}
+        {showReactivateModal && (
+          <div className="fixed inset-0 z-60 bg-black/50 flex items-center justify-center p-4 animate-in fade-in duration-150">
+            <div className="bg-white rounded-2xl border border-slate-200 p-6 max-w-md w-full shadow-2xl space-y-4">
+              <div className="flex items-center gap-3 text-emerald-600">
+                <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center shrink-0">
+                  <RefreshCw className="w-5 h-5 text-emerald-700" />
+                </div>
+                <div>
+                  <h4 className="text-base font-bold text-slate-900">Reactivate Factory Workspace</h4>
+                  <p className="text-xs text-slate-500">Restore client portal & division access</p>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                  Select Reactivation Access Model:
+                </label>
+                
+                <div className="space-y-2">
+                  <label
+                    onClick={() => setReactivateType('FULL_ACCESS')}
+                    className={`flex items-start gap-3 p-3 rounded-xl border text-xs cursor-pointer transition-all ${
+                      reactivateType === 'FULL_ACCESS'
+                        ? 'bg-emerald-50/70 border-emerald-500 ring-2 ring-emerald-500/20'
+                        : 'bg-white border-slate-200 hover:bg-slate-50'
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="reactivateType"
+                      checked={reactivateType === 'FULL_ACCESS'}
+                      onChange={() => setReactivateType('FULL_ACCESS')}
+                      className="mt-0.5"
+                    />
+                    <div>
+                      <span className="font-bold text-slate-900 block">Full Access (Paid Contract)</span>
+                      <span className="text-slate-500 block mt-0.5">Unrestricted enterprise access. Monthly billing active.</span>
+                    </div>
+                  </label>
+
+                  <label
+                    onClick={() => setReactivateType('DEMO_TRIAL')}
+                    className={`flex items-start gap-3 p-3 rounded-xl border text-xs cursor-pointer transition-all ${
+                      reactivateType === 'DEMO_TRIAL'
+                        ? 'bg-amber-50/70 border-amber-400 ring-2 ring-amber-400/20'
+                        : 'bg-white border-slate-200 hover:bg-slate-50'
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="reactivateType"
+                      checked={reactivateType === 'DEMO_TRIAL'}
+                      onChange={() => setReactivateType('DEMO_TRIAL')}
+                      className="mt-0.5"
+                    />
+                    <div>
+                      <span className="font-bold text-amber-950 block">7-Day Demo Trial (Revocable)</span>
+                      <span className="text-amber-800 block mt-0.5">Extend evaluation for 7 more days. Revocable anytime.</span>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-2.5 pt-2">
+                <button
+                  type="button"
+                  disabled={isReactivating}
+                  onClick={() => setShowReactivateModal(false)}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  disabled={isReactivating}
+                  onClick={handleReactivateAccess}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow-xs cursor-pointer disabled:opacity-50"
+                >
+                  {isReactivating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
+                  <span>Confirm Reactivation</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
