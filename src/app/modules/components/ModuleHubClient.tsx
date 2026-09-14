@@ -19,7 +19,8 @@ import {
   LogOut,
   LayoutGrid,
   CheckCircle2,
-  Loader2
+  Loader2,
+  ShieldCheck
 } from 'lucide-react'
 
 interface ModuleHubClientProps {
@@ -212,6 +213,16 @@ export function ModuleHubClient({ userEmail, userName, userRole, allowedModules 
         </div>
 
         <div className="flex items-center gap-2.5 flex-wrap">
+          {/* Department Heads & Incharges RBAC Button (For Company SuperAdmin) */}
+          <Link
+            href="/modules/access-control"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs sm:text-sm font-bold transition-all shadow-xs cursor-pointer active:scale-[0.98]"
+            title="Appoint and manage Division Heads across all 12 manufacturing units"
+          >
+            <ShieldCheck className="w-4 h-4" />
+            <span>Department Heads</span>
+          </Link>
+
           <Link
             href="/modules/profile"
             className="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-[#3A3564] border border-black/10 rounded-xl text-xs sm:text-sm font-bold transition-all shadow-2xs cursor-pointer"

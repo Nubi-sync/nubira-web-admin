@@ -46,6 +46,7 @@ import {
   FlaskConical,
   Droplets,
   ShieldAlert,
+  ShieldCheck,
   ArrowRight,
   Gauge,
   PackageCheck,
@@ -168,6 +169,7 @@ export function AdminSidebar({
         section: 'Workspace Hub',
         items: [
           { label: 'All Modules', href: '/modules', icon: LayoutGrid, badge: '12 Units' },
+          { label: 'Department Heads', href: '/modules/access-control', icon: ShieldCheck },
           { label: 'Supervisor Operations', href: '/modules/supervisor-desk', icon: Wrench, badge: 'Override' },
           { label: 'Company Profile', href: '/modules/profile', icon: Building2 },
           { label: 'Zigza AI', href: '/modules/zigza-ai', icon: Bot },

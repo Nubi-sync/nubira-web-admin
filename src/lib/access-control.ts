@@ -74,12 +74,37 @@ export const ROLE_MODULE_MAPPING: Record<string, DivisionRoute[]> = {
   LOGISTICS: ['/dispatch'],
 }
 
+export interface DepartmentHeadDefinition {
+  id: string
+  code: string
+  name: string
+  route: string
+  defaultDesignation: string
+  iconName: string
+  description: string
+}
+
+export const DEPARTMENT_HEADS_CATALOG: DepartmentHeadDefinition[] = [
+  { id: 'div-01', code: '01', name: 'Design & Tech-Pack Studio', route: '/design', defaultDesignation: 'Design Studio Head / CAD Master', iconName: 'Palette', description: 'CAD sketches, tech-pack specs, sample iterations & grading approvals' },
+  { id: 'div-02', code: '02', name: 'Merchandising & Sourcing Desk', route: '/merchandising', defaultDesignation: 'Senior Merchandiser / Sourcing Head', iconName: 'Briefcase', description: 'Buyer PO allocation, BOM costing, trim procurement & shipment schedules' },
+  { id: 'div-03', code: '03', name: 'Cutting Floor & Spreading CAD', route: '/cutting', defaultDesignation: 'Cutting Master / Cutting Floor Head', iconName: 'Scissors', description: 'Fabric roll lay planning, marker efficiency, auto-cutters & bundle tickets' },
+  { id: 'div-04', code: '04', name: 'Screen & Digital Printing Studio', route: '/printing', defaultDesignation: 'Printing Master / Print Unit Head', iconName: 'Printer', description: 'Screen print tables, industrial DTG curing & strike-off color approvals' },
+  { id: 'div-05', code: '05', name: 'Multi-Head Embroidery Studio', route: '/embroidery', defaultDesignation: 'Embroidery Master / Unit Head', iconName: 'Sparkles', description: 'Multi-head computerized machines, punch digitizing & stitch billing' },
+  { id: 'div-06', code: '06', name: 'Stitching & Sewing Assembly Line', route: '/stitching-sewing', defaultDesignation: 'Production Manager / Sewing Floor Head', iconName: 'Layers', description: 'Live cutting lots, lineman bundle allocations, 3-stage QC & store sync' },
+  { id: 'div-07', code: '07', name: 'Industrial Washing & Dyeing', route: '/washing', defaultDesignation: 'Washing Master / Wet Processing Head', iconName: 'Waves', description: 'Garment enzyme wash, silicon softeners & liquor ratio batch tracking' },
+  { id: 'div-08', code: '08', name: 'Steam Pressing & Ironing Floor', route: '/iron', defaultDesignation: 'Finishing & Ironing Incharge', iconName: 'Flame', description: 'Industrial steam irons, vacuum pressing boards & inline finish inspection' },
+  { id: 'div-09', code: '09', name: 'Ready Goods & Carton Packing', route: '/ready-goods', defaultDesignation: 'Quality Assurance Head / AQL Manager', iconName: 'Boxes', description: 'AQL 2.5 final inspection, barcode hangtags, polybag sealing & cartons' },
+  { id: 'div-10', code: '10', name: 'Alteration & Reclamation Clinic', route: '/alter', defaultDesignation: 'Alteration Incharge / Rework Master', iconName: 'Wrench', description: 'Defect categorization, seam rework, broken stitch alterations & re-inspection' },
+  { id: 'div-11', code: '11', name: 'Central Store Godown & Vault', route: '/store', defaultDesignation: 'Store Manager / Chief Godown Keeper', iconName: 'Store', description: 'Raw fabric rolls, trims inventory, cutting challan issue & finished carton storage' },
+  { id: 'div-12', code: '12', name: 'Dispatch & Delivery Logistics', route: '/dispatch', defaultDesignation: 'Dispatch Manager / Logistics Head', iconName: 'Truck', description: 'Delivery challans, physical counting audits, vehicle gate-out & logistics passes' },
+]
+
 /**
  * Resolves the complete list of authorized routes for a user based on their email, metadata, and database profile.
  */
 export function getUserAllowedModules(
   user?: { email?: string | null; user_metadata?: Record<string, any> } | null,
-  profile?: { role?: string | null } | null
+  profile?: { role?: string | null; allowed_modules?: string[] | null } | null
 ): string[] {
   if (!user) return []
 
@@ -96,7 +121,12 @@ export function getUserAllowedModules(
     return [...ALL_DIVISION_ROUTES, '/modules']
   }
 
-  // 3. Explicitly assigned modules in user_metadata or profile
+  // 3. Explicitly assigned modules in profile (source of truth) or user_metadata
+  const profileModules = profile?.allowed_modules
+  if (Array.isArray(profileModules) && profileModules.length > 0) {
+    return profileModules
+  }
+
   const explicitModules = user.user_metadata?.allowed_modules
   if (Array.isArray(explicitModules) && explicitModules.length > 0) {
     return explicitModules

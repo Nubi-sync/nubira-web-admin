@@ -18,12 +18,16 @@ import {
   Users
 } from 'lucide-react'
 
+import { DEPARTMENT_HEADS_CATALOG, ROLE_MODULE_MAPPING } from '@/lib/access-control'
+
 type Profile = {
   id: string
   username: string
   role: string
   is_active: boolean
   created_at: string
+  allowed_modules?: string[]
+  is_head?: boolean
 }
 
 // Role Badge Styling Lookup
@@ -72,12 +76,26 @@ const ROLE_BADGE_STYLES: Record<string, { bg: string; text: string; label: strin
 
 type SortOrder = 'asc' | 'desc'
 
-export function EmployeeList({ employees }: { employees: Profile[] }) {
+interface EmployeeListProps {
+  employees: Profile[]
+  forcedModule?: string
+  moduleTitle?: string
+  allowedDivisions?: string[]
+}
+
+export function EmployeeList({ employees, forcedModule, moduleTitle, allowedDivisions }: EmployeeListProps) {
   const router = useRouter()
   const [localEmployees, setLocalEmployees] = useState<Profile[]>(employees)
   const [searchTerm, setSearchTerm] = useState('')
+  const [selectedDivision, setSelectedDivision] = useState<string>('ALL')
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc')
   const [loadingId, setLoadingId] = useState<string | null>(null)
+
+  // Subscribed divisions filter
+  const visibleDivisions = useMemo(() => {
+    if (!allowedDivisions || allowedDivisions.length === 0) return DEPARTMENT_HEADS_CATALOG
+    return DEPARTMENT_HEADS_CATALOG.filter(div => allowedDivisions.includes(div.route))
+  }, [allowedDivisions])
 
   // Professional Dialog States
   const [toggleDialog, setToggleDialog] = useState<{ isOpen: boolean; employee: Profile | null }>({ isOpen: false, employee: null })
@@ -88,6 +106,21 @@ export function EmployeeList({ employees }: { employees: Profile[] }) {
     setLocalEmployees(employees)
   }, [employees])
 
+  // Count employees per module division for admin tab badges
+  const divisionCounts = useMemo(() => {
+    const counts: Record<string, number> = { ALL: localEmployees.length }
+    visibleDivisions.forEach(div => {
+      counts[div.route] = 0
+    })
+    localEmployees.forEach(emp => {
+      const route = emp.allowed_modules?.[0] || ROLE_MODULE_MAPPING[emp.role]?.[0]
+      if (route && counts[route] !== undefined) {
+        counts[route] += 1
+      }
+    })
+    return counts
+  }, [localEmployees, visibleDivisions])
+
   // Reset Password Modal State
   const [selectedEmp, setSelectedEmp] = useState<Profile | null>(null)
   const [newPassword, setNewPassword] = useState('')
@@ -95,14 +128,29 @@ export function EmployeeList({ employees }: { employees: Profile[] }) {
   const [resetError, setResetError] = useState<string | null>(null)
   const [isResetting, setIsResetting] = useState(false)
 
-  // Filtered & Sorted Employees
-  // Note: Client-side search is fast and responsive for factory staff.
-  // If staff list grows beyond ~100 rows, this can be hooked to a Supabase ilike query.
+  // Filtered & Sorted Employees (isolated by module)
   const filteredEmployees = useMemo(() => {
     let list = localEmployees.filter(emp => {
-      if (!searchTerm.trim()) return true
-      return emp.username.toLowerCase().includes(searchTerm.toLowerCase().trim())
+      // 1. If forced to a specific module (e.g. Stitching Floor), strictly isolate
+      if (forcedModule) {
+        const allowed = emp.allowed_modules || []
+        const mapped = ROLE_MODULE_MAPPING[emp.role] || []
+        return allowed.includes(forcedModule) || mapped.includes(forcedModule as any)
+      }
+
+      // 2. If filtering by division tab in Admin view
+      if (selectedDivision !== 'ALL') {
+        const allowed = emp.allowed_modules || []
+        const mapped = ROLE_MODULE_MAPPING[emp.role] || []
+        return allowed.includes(selectedDivision) || mapped.includes(selectedDivision as any)
+      }
+
+      return true
     })
+
+    if (searchTerm.trim()) {
+      list = list.filter(emp => emp.username.toLowerCase().includes(searchTerm.toLowerCase().trim()))
+    }
 
     list.sort((a, b) => {
       const uA = a.username.toLowerCase()
@@ -111,7 +159,7 @@ export function EmployeeList({ employees }: { employees: Profile[] }) {
     })
 
     return list
-  }, [localEmployees, searchTerm, sortOrder])
+  }, [localEmployees, searchTerm, sortOrder, selectedDivision, forcedModule])
 
   const toggleSort = () => {
     setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')
@@ -241,6 +289,48 @@ export function EmployeeList({ employees }: { employees: Profile[] }) {
         </div>
       </div>
 
+      {/* Module Filter Tabs (Admin multi-module view) */}
+      {!forcedModule && (
+        <div className="flex items-center gap-1.5 p-2.5 bg-slate-100/80 border-b border-black/5 overflow-x-auto text-xs">
+          <button
+            type="button"
+            onClick={() => setSelectedDivision('ALL')}
+            className={`px-3 py-1.5 rounded-xl font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
+              selectedDivision === 'ALL'
+                ? 'bg-white text-[#3A3564] shadow-xs border border-slate-200 ring-1 ring-black/5'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+            }`}
+          >
+            <span>All Factory Staff</span>
+            <span className="text-[10px] px-1.5 py-0.5 rounded-full font-mono bg-slate-200 text-slate-700">
+              {divisionCounts['ALL'] || 0}
+            </span>
+          </button>
+          {visibleDivisions.map(div => {
+            const count = divisionCounts[div.route] || 0
+            return (
+              <button
+                key={div.id}
+                type="button"
+                onClick={() => setSelectedDivision(div.route)}
+                className={`px-3 py-1.5 rounded-xl font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
+                  selectedDivision === div.route
+                    ? 'bg-[#3A3564] text-white shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+                }`}
+              >
+                <span>Unit {div.code}: {div.name.split('&')[0].trim()}</span>
+                <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
+                  selectedDivision === div.route ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
+                }`}>
+                  {count}
+                </span>
+              </button>
+            )
+          })}
+        </div>
+      )}
+
       {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse text-xs sm:text-[13px] min-w-[660px]">
@@ -262,7 +352,10 @@ export function EmployeeList({ employees }: { employees: Profile[] }) {
                 </div>
               </th>
 
-              <th className="px-4 py-3.5 font-bold whitespace-nowrap min-w-[190px]">Role Assignment</th>
+              {!forcedModule && (
+                <th className="px-4 py-3.5 font-bold whitespace-nowrap min-w-[170px]">Manufacturing Unit</th>
+              )}
+              <th className="px-4 py-3.5 font-bold whitespace-nowrap min-w-[190px]">Floor Role</th>
               <th className="px-4 py-3.5 font-bold whitespace-nowrap min-w-[100px]">Status</th>
               <th className="px-5 py-3.5 font-bold text-right whitespace-nowrap min-w-[220px]">Actions</th>
             </tr>
@@ -270,7 +363,7 @@ export function EmployeeList({ employees }: { employees: Profile[] }) {
           <tbody className="divide-y divide-slate-100">
             {filteredEmployees.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-6 py-12 text-center text-slate-500">
+                <td colSpan={forcedModule ? 4 : 5} className="px-6 py-12 text-center text-slate-500">
                   <div className="flex flex-col items-center justify-center space-y-2">
                     <Users className="w-8 h-8 text-slate-300" />
                     <p className="text-sm font-semibold text-slate-700">No staff members found matching "{searchTerm}"</p>
@@ -306,6 +399,25 @@ export function EmployeeList({ employees }: { employees: Profile[] }) {
                         Created {emp.created_at?.split('T')[0]}
                       </div>
                     </td>
+
+                    {/* Manufacturing Unit */}
+                    {!forcedModule && (
+                      <td className="px-4 py-3.5 whitespace-nowrap">
+                        {(() => {
+                          const modRoute = emp.allowed_modules?.[0] || ROLE_MODULE_MAPPING[emp.role]?.[0]
+                          const divDef = DEPARTMENT_HEADS_CATALOG.find(d => d.route === modRoute)
+                          if (!divDef) {
+                            return <span className="text-xs text-slate-400 font-mono">Factory General</span>
+                          }
+                          return (
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200 text-xs font-bold text-slate-800">
+                              <span className="w-1.5 h-1.5 rounded-full bg-[#3A3564]" />
+                              <span>Unit {divDef.code}: {divDef.name.split('&')[0].trim()}</span>
+                            </span>
+                          )
+                        })()}
+                      </td>
+                    )}
 
                     {/* Role Dropdown / Badge */}
                     <td className="px-4 py-3.5 whitespace-nowrap">

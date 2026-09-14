@@ -299,4 +299,74 @@ Jab aap kal is file ko implement karne ko kahenge:
 5. **Auto-Lock Engine**: 6 din baad dashboard-only read-only lock screen enable kar denge.
 
 ---
-*Manual compiled and verified for direct execution.*
+
+## 8. Enhanced WhatsApp 1-Click Approval & 7-Day Demo Trial Architecture (Kal Discuss Karne Ka Blueprint)
+
+Yeh section humne discuss kiya hai aur kal detail me execute karenge:
+
+### 8.1 Core End-to-End Workflow
+
+```
+[1. Visitor Fills Demo Form on Landing Page]
+   (Company, Contact Person, Phone, Email, Machines, Plan)
+                        │
+                        ├─────────────────────────────────────────────────┐
+                        ▼                                                 ▼
+        [Supabase PostgreSQL DB]                             [Meta WhatsApp Cloud API]
+   Status: 'PENDING_APPROVAL'                            Sends Instant Alert to Admin (+91 79998 76210)
+   Audit log entry logged                                With Lead Details + 1-Tap Action Buttons
+                        │                                                 │
+                        │                                                 ▼
+                        │                               [2. Admin Approves via WhatsApp]
+                        │                               Admin taps "[✅ Approve 7-Day Trial]" button
+                        │                                                 │
+                        ▼                                                 ▼
+        [3. Automated Provisioning & Real-Time Sync] ◄────────────────────┘
+        ├── Meta Webhook / Secure API Endpoint triggers provisioning
+        ├── System generates secure temporary password (e.g. Zigza#Demo7821)
+        ├── Supabase Auth user created (`profiles.role` = 'SUPERADMIN' for factory)
+        ├── Trial timer starts: `trial_start_at = NOW()`, `trial_expires_at = NOW() + 7 DAYS`
+        ├── `must_change_password = true`
+        ├── Admin Portal (`/platform-admin`) live sync: status auto-changes to "APPROVED" without page refresh
+        │
+                        ▼
+        [4. Dual Credentials Dispatch (Email + WhatsApp)]
+        ├── Email via Resend: Login URL, Username/Email, Temporary Password, 7-day expiry date
+        └── WhatsApp Message to Client (+91 User Phone): Instant welcome message + login link + password
+        │
+                        ▼
+        [5. Client First Login]
+        ├── User logs in using system-generated temporary password
+        ├── Mandatory Password Change Modal pops up immediately
+        ├── User sets their private secret password (`must_change_password` = false)
+        ├── Top banner displays: "7-Day Free Trial: 7 Days Left | Upgrade Plan"
+        │
+                        ▼
+        [6. Day 7 Auto-Lock Engine]
+        ├── 7 din pure hote hi operational modules (Cutting, Stitching, QC, Store) auto-lock
+        └── Dashboard read-only metrics visible + "Upgrade to Full Plan" modal
+```
+
+### 8.2 Additional High-Value Enhancements (Discussed & Planned)
+
+1. **WhatsApp 1-Tap Interactive Buttons for Admin:**
+   - Message me 2 quick action buttons: `[✅ Approve 7-Day Trial]` aur `[❌ Reject / Spam]`.
+   - Admin ko koi text type nahi karna padega — single click se execute hoga.
+   - Approval ke baad Admin ko instant confirmation WhatsApp reply: *"✅ Done! [Company Name] ko credentials dispatch ho chuke hain."*
+
+2. **Dual Delivery (Client WhatsApp + Email):**
+   - India me garment factory owners email se pehle WhatsApp check karte hain. Email aur WhatsApp dono par credentials instant dispatch honge.
+
+3. **Pre-Loaded Sample Factory Demo Data:**
+   - Trial user ko login par prompt milega: *"Explore with Sample Apparel Order (1,000 pcs Polo T-Shirt)"* ya *"Start Fresh"*.
+   - Isse client pehle 5 minute me cutting, stitching aur inventory ka real flow bina manual data entry ke test kar sakega.
+
+4. **Day 5 & Day 7 Automated WhatsApp Nudges:**
+   - **Day 5:** *"Aapke Zigza MES trial ke 2 din bache hain. Kya aapko setup me koi assistance chahiye ya full plan upgrade karna hai?"*
+   - **Day 7:** Auto-lock notice + special renewal/upgrade offer.
+
+5. **Real-Time Supabase Sync on Web Admin:**
+   - Mobile WhatsApp se approve hote hi laptop/PC par khula hua `/platform-admin` dashboard bina refresh kiye instant "Approved" show karega.
+
+---
+*Blueprint saved. Kal is pure flow ko step-by-step implement karenge.*

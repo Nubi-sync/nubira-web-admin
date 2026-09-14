@@ -101,6 +101,16 @@ export async function resolveUserTenant(user: {
       tenant = shawTenant
     }
 
+    if (!tenant && (userEmail.includes('nubira') || userEmail === 'team.anga9@gmail.com')) {
+      const { data: nubiraTenant } = await supabaseAdmin
+        .from('platform_tenant_factories')
+        .select('*')
+        .or('plant_slug.ilike.%nubira%,company_name.ilike.%nubira%')
+        .limit(1)
+        .maybeSingle()
+      tenant = nubiraTenant
+    }
+
     if (tenant) {
       const divisions = Array.isArray(tenant.allowed_divisions) && tenant.allowed_divisions.length > 0
         ? tenant.allowed_divisions
@@ -184,7 +194,7 @@ export async function resolveUserTenant(user: {
       phone: '+91 98765 43210',
       cityState: 'Kolkata, West Bengal',
       subscriptionTier: 'FULL_PLANT_AI',
-      allowedDivisions: ALL_DEFAULT_DIVISIONS,
+      allowedDivisions: ['/stitching-sewing', '/store'],
       isProvisionedTenant: false
     }
   }

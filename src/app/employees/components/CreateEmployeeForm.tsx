@@ -4,13 +4,96 @@ import { useState } from 'react'
 import { createEmployee } from '../actions'
 import { UserPlus, Loader2, CheckCircle2, AlertCircle } from 'lucide-react'
 
-export function CreateEmployeeForm() {
+interface CreateEmployeeFormProps {
+  forcedModule?: string
+  moduleTitle?: string
+  allowedDivisions?: string[]
+}
+
+const MODULE_ROLE_OPTIONS: Record<string, Array<{ value: string; label: string }>> = {
+  '/design': [
+    { value: 'DESIGN', label: 'Design Studio Specialist' },
+    { value: 'DESIGNER', label: 'CAD Pattern Designer' },
+    { value: 'CAD_MASTER', label: 'CAD Master / Grading Technician' },
+  ],
+  '/merchandising': [
+    { value: 'MERCHANDISING', label: 'Merchandiser (Buyer POs & Specs)' },
+    { value: 'MERCHANDISER', label: 'Sampling & Sourcing Assistant' },
+    { value: 'SOURCING_HEAD', label: 'Trim & Sourcing Officer' },
+  ],
+  '/cutting': [
+    { value: 'CUTTING', label: 'Cutting Floor Operator' },
+    { value: 'CUTTING_MASTER', label: 'Cutting Master / Marker Specialist' },
+    { value: 'SPREADER_OPERATOR', label: 'Spreader Operator / Lay Specialist' },
+  ],
+  '/printing': [
+    { value: 'PRINTING', label: 'Screen Print Operator' },
+    { value: 'PRINTING_MASTER', label: 'Printing Master / Color Matcher' },
+  ],
+  '/embroidery': [
+    { value: 'EMBROIDERY', label: 'Embroidery Machine Operator' },
+    { value: 'EMBROIDERY_MASTER', label: 'Punch Digitizer / Unit Master' },
+  ],
+  '/stitching-sewing': [
+    { value: 'LINEMAN', label: 'Lineman (Floor Allotment & Machine Line)' },
+    { value: 'PRODUCTION_MANAGER', label: 'Stitching Supervisor (Floor & Line Balancing)' },
+    { value: 'STITCHING', label: 'Tailor / Stitching Operator' },
+  ],
+  '/washing': [
+    { value: 'WASHING', label: 'Washing Tumbler Operator' },
+    { value: 'WASHING_MASTER', label: 'Washing Master / Wet Processing' },
+  ],
+  '/iron': [
+    { value: 'IRON', label: 'Steam Ironing Operator' },
+    { value: 'IRONING_MASTER', label: 'Finishing Table Incharge' },
+  ],
+  '/ready-goods': [
+    { value: 'QC', label: 'QC Inspector (End-Line & AQL)' },
+    { value: 'PACKING', label: 'Packing Staff (Barcode, Polybag & Box)' },
+    { value: 'AQL_INSPECTOR', label: 'AQL Quality Auditor' },
+  ],
+  '/alter': [
+    { value: 'MENDING', label: 'Mending Operator (Stitch Repair)' },
+    { value: 'ALTERATION', label: 'Alteration Tailor (Seam Re-stitching)' },
+    { value: 'REPAIR_TAILOR', label: 'Specialist Repair Tailor' },
+  ],
+  '/store': [
+    { value: 'STORE', label: 'Store Keeper (Roll & Trim Receiving)' },
+    { value: 'STORE_SUPERVISOR', label: 'Godown Assistant / Bin Manager' },
+    { value: 'GODOWN', label: 'Fabric Vault Keeper' },
+  ],
+  '/dispatch': [
+    { value: 'DISPATCH', label: 'Dispatch Clerk (Challans & Gate-Out)' },
+    { value: 'LOGISTICS', label: 'Logistics & Cargo Handler' },
+  ],
+}
+
+const DIVISION_LABELS: Record<string, string> = {
+  '/design': '01. Design Studio',
+  '/merchandising': '02. Merchandising',
+  '/cutting': '03. Cutting Floor',
+  '/printing': '04. Printing Unit',
+  '/embroidery': '05. Embroidery Unit',
+  '/stitching-sewing': '06. Stitching Floor',
+  '/washing': '07. Washing Unit',
+  '/iron': '08. Steam Pressing',
+  '/ready-goods': '09. Ready Goods & QC',
+  '/alter': '10. Alteration Clinic',
+  '/store': '11. Central Store',
+  '/dispatch': '12. Dispatch Hub',
+}
+
+export function CreateEmployeeForm({ forcedModule, moduleTitle, allowedDivisions }: CreateEmployeeFormProps = {}) {
+  const defaultInitialRole = forcedModule && MODULE_ROLE_OPTIONS[forcedModule]
+    ? MODULE_ROLE_OPTIONS[forcedModule][0].value
+    : 'LINEMAN'
+
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [isPending, setIsPending] = useState(false)
   const [success, setSuccess] = useState(false)
-  const [selectedRole, setSelectedRole] = useState('LINEMAN')
+  const [selectedRole, setSelectedRole] = useState(defaultInitialRole)
   const [touchedRole, setTouchedRole] = useState(false)
 
   async function handleSubmit(formData: FormData) {
@@ -58,10 +141,10 @@ export function CreateEmployeeForm() {
           <h2 
             className="text-base font-extrabold text-slate-900 font-[family-name:var(--font-heading)]"
           >
-            Add New Employee
+            {moduleTitle ? `Add ${moduleTitle} Staff` : 'Add New Employee'}
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            Create floor staff login credentials
+            {moduleTitle ? `Create floor login for ${moduleTitle}` : 'Create floor staff login credentials'}
           </p>
         </div>
       </div>
@@ -133,20 +216,28 @@ export function CreateEmployeeForm() {
                   : 'border-slate-200'
               }`}
             >
-              <option value="ADMIN">Admin (Executive Full Access - All Divisions)</option>
-              <option value="DESIGN">Design Studio (Tech-Packs & CAD Sampling)</option>
-              <option value="MERCHANDISING">Merchandising (Buyer POs & Sourcing)</option>
-              <option value="CUTTING">Cutting Floor (Lay Sheets & Spreading)</option>
-              <option value="PRINTING">Printing Unit (Screen & Digital Runs)</option>
-              <option value="EMBROIDERY">Embroidery Unit (Multi-Head Runs)</option>
-              <option value="PRODUCTION_MANAGER">Stitching Supervisor (Sewing Floor & Allotments)</option>
-              <option value="LINEMAN">Lineman (Floor Allotment & Machine Line)</option>
-              <option value="WASHING">Washing Unit (Enzyme Batch & Tumblers)</option>
-              <option value="IRON">Ironing Floor (Steam Tables & Finishing)</option>
-              <option value="QC">Ready Goods & Packing (AQL Inspection & Cartons)</option>
-              <option value="MENDING">Alteration Clinic (Mending & Rework)</option>
-              <option value="STORE">Central Store (Raw Godown & Roll QC)</option>
-              <option value="DISPATCH">Dispatch Hub (Delivery Challans & Gate-Out)</option>
+              {forcedModule && MODULE_ROLE_OPTIONS[forcedModule] ? (
+                MODULE_ROLE_OPTIONS[forcedModule].map(opt => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))
+              ) : (
+                <>
+                  <option value="ADMIN">Admin (Executive Full Access - All Divisions)</option>
+                  {Object.keys(MODULE_ROLE_OPTIONS)
+                    .filter(route => !allowedDivisions || allowedDivisions.length === 0 || allowedDivisions.includes(route))
+                    .map(route => (
+                      <optgroup key={route} label={DIVISION_LABELS[route] || route}>
+                        {MODULE_ROLE_OPTIONS[route].map(opt => (
+                          <option key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </option>
+                        ))}
+                      </optgroup>
+                    ))}
+                </>
+              )}
             </select>
           </div>
           {touchedRole && !isRoleValid && (

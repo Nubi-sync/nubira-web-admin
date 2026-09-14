@@ -89,6 +89,8 @@ export async function createEmployee(formData: FormData) {
       id: authUserId,
       username: displayName,
       role: role,
+      allowed_modules: allowedModules,
+      is_head: false, // Explicitly false: this is a floor worker, NOT a Department Head
       is_active: true
     })
 
@@ -98,6 +100,7 @@ export async function createEmployee(formData: FormData) {
     }
 
     revalidatePath('/employees')
+    revalidatePath('/stitching-sewing/employees')
     revalidatePath('/')
     return { success: true, username: displayName }
   } catch (err: any) {
@@ -117,20 +120,35 @@ export async function toggleEmployeeStatus(userId: string, currentStatus: boolea
   }
   
   revalidatePath('/employees')
+  revalidatePath('/stitching-sewing/employees')
   return { success: true }
 }
 
 export async function updateEmployeeRole(userId: string, newRole: string) {
+  const { ROLE_MODULE_MAPPING } = await import('@/lib/access-control')
+  const allowedModules = ROLE_MODULE_MAPPING[newRole] || ['/stitching-sewing']
+
   const { error } = await supabaseAdmin
     .from('profiles')
-    .update({ role: newRole })
+    .update({ 
+      role: newRole,
+      allowed_modules: allowedModules,
+      is_head: false
+    })
     .eq('id', userId)
 
   if (error) {
     return { error: error.message }
   }
+
+  try {
+    await supabaseAdmin.auth.admin.updateUserById(userId, {
+      user_metadata: { role: newRole, allowed_modules: allowedModules }
+    })
+  } catch (_) {}
   
   revalidatePath('/employees')
+  revalidatePath('/stitching-sewing/employees')
   return { success: true }
 }
 
