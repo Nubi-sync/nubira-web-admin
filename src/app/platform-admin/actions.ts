@@ -404,10 +404,6 @@ export async function fetchTenantFactoriesAction(): Promise<{
     }
 
     const mapped: TenantFactory[] = data.map((row: any) => {
-      const provisionDate = new Date(row.provisioned_at || Date.now())
-      const calculatedExpiry = new Date(provisionDate)
-      calculatedExpiry.setFullYear(calculatedExpiry.getFullYear() + 1)
-
       return {
         id: row.id,
         companyName: row.company_name,
@@ -417,12 +413,15 @@ export async function fetchTenantFactoriesAction(): Promise<{
         phone: row.phone,
         cityState: row.city_state,
         subscriptionTier: (row.subscription_tier || 'FULL_PLANT_AI') as SubscriptionPlanTier,
+        accessType: (row.access_type || 'FULL_ACCESS') as AccessType,
         monthlyBillingInr: Number(row.monthly_billing_inr || 4999),
         activeDivisionsCount: row.active_divisions_count || (Array.isArray(row.allowed_divisions) ? row.allowed_divisions.length : 12),
         status: row.status || 'ACTIVE',
         allowedDivisions: Array.isArray(row.allowed_divisions) ? row.allowed_divisions : [],
         provisionedAt: row.provisioned_at || new Date().toISOString(),
-        expiresAt: row.expires_at || calculatedExpiry.toISOString(),
+        expiresAt: row.expires_at || undefined,
+        revokedAt: row.revoked_at || undefined,
+        lastPaymentReminderAt: row.last_payment_reminder_at || undefined,
         lastActiveAt: row.last_active_at || undefined
       }
     })
@@ -451,6 +450,11 @@ export async function provisionTenantFactoryAction(
 
     const customUsername = payload.customUsername?.trim() || 
       `${payload.companyName.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '') || 'tenant'}_admin`
+
+    const accessType = payload.accessType || 'FULL_ACCESS'
+    const expiresAt = accessType === 'DEMO_TRIAL'
+      ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+      : null
 
     // Step A: Create User in Supabase Auth via Service Role
     let authUserId: string | undefined
@@ -506,12 +510,16 @@ export async function provisionTenantFactoryAction(
       phone: payload.phone,
       city_state: payload.cityState,
       subscription_tier: payload.subscriptionTier,
+      access_type: accessType,
       monthly_billing_inr: payload.monthlyBillingInr,
       active_divisions_count: payload.selectedDivisions.length,
       status: 'ACTIVE',
       allowed_divisions: payload.selectedDivisions,
       demo_request_id: payload.demoRequestId || null,
       provisioned_at: new Date().toISOString(),
+      expires_at: expiresAt,
+      revoked_at: null,
+      last_payment_reminder_at: null,
       last_active_at: new Date().toISOString()
     }
 
@@ -546,7 +554,7 @@ export async function provisionTenantFactoryAction(
         actor: 'admin@zigza.in',
         action: 'Tenant Provisioning Completed',
         category: 'PROVISIONING',
-        details: `Generated credentials (Username: ${customUsername}) and allotted ${payload.selectedDivisions.length} divisions for ${payload.companyName}`,
+        details: `Generated credentials (Username: ${customUsername}) and allotted ${payload.selectedDivisions.length} divisions for ${payload.companyName} [Access: ${accessType === 'DEMO_TRIAL' ? '7-Day Trial' : 'Full Access'}]`,
         ip_address: '103.24.12.89',
         location: payload.cityState || 'India',
         status: 'SUCCESS'
@@ -592,6 +600,166 @@ export async function provisionTenantFactoryAction(
 
 export async function sendActivationEmailAction(params: TenantActivationEmailParams) {
   return sendTenantActivationEmail(params)
+}
+
+export async function revokeTenantAccessAction(
+  tenantId: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const { data: tenant } = await supabaseAdmin
+      .from('platform_tenant_factories')
+      .select('company_name, admin_email')
+      .eq('id', tenantId)
+      .maybeSingle()
+
+    const { error: updateErr } = await supabaseAdmin
+      .from('platform_tenant_factories')
+      .update({
+        status: 'SUSPENDED',
+        revoked_at: new Date().toISOString(),
+        last_active_at: new Date().toISOString()
+      })
+      .eq('id', tenantId)
+
+    if (updateErr) {
+      console.error('[revokeTenantAccessAction] DB error:', updateErr)
+      return { success: false, error: updateErr.message }
+    }
+
+    try {
+      await supabaseAdmin.from('platform_audit_logs').insert([{
+        log_code: `REVOKE-${Date.now().toString().slice(-4)}`,
+        actor: 'admin@zigza.in',
+        action: 'Tenant Access Revoked',
+        category: 'SECURITY_ALERT',
+        details: `Revoked plant access and suspended workspace for ${tenant?.company_name || tenantId} (${tenant?.admin_email || ''})`,
+        ip_address: '103.24.12.89',
+        location: 'India',
+        status: 'SUCCESS'
+      }])
+    } catch (_) {}
+
+    revalidatePath('/platform-admin')
+    revalidatePath('/platform-admin/tenants')
+    return { success: true }
+  } catch (err: any) {
+    console.error('[revokeTenantAccessAction] Fatal:', err)
+    return { success: false, error: err?.message || 'Failed to revoke access' }
+  }
+}
+
+export async function reactivateTenantAccessAction(
+  tenantId: string,
+  accessType: AccessType = 'FULL_ACCESS'
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const { data: tenant } = await supabaseAdmin
+      .from('platform_tenant_factories')
+      .select('company_name, admin_email')
+      .eq('id', tenantId)
+      .maybeSingle()
+
+    const expiresAt = accessType === 'DEMO_TRIAL'
+      ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+      : null
+
+    const { error: updateErr } = await supabaseAdmin
+      .from('platform_tenant_factories')
+      .update({
+        status: 'ACTIVE',
+        access_type: accessType,
+        revoked_at: null,
+        expires_at: expiresAt,
+        last_active_at: new Date().toISOString()
+      })
+      .eq('id', tenantId)
+
+    if (updateErr) {
+      console.error('[reactivateTenantAccessAction] DB error:', updateErr)
+      return { success: false, error: updateErr.message }
+    }
+
+    try {
+      await supabaseAdmin.from('platform_audit_logs').insert([{
+        log_code: `REACT-${Date.now().toString().slice(-4)}`,
+        actor: 'admin@zigza.in',
+        action: 'Tenant Access Reactivated',
+        category: 'PROVISIONING',
+        details: `Restored workspace access for ${tenant?.company_name || tenantId} with ${accessType === 'DEMO_TRIAL' ? '7-Day Trial' : 'Full Access'}`,
+        ip_address: '103.24.12.89',
+        location: 'India',
+        status: 'SUCCESS'
+      }])
+    } catch (_) {}
+
+    revalidatePath('/platform-admin')
+    revalidatePath('/platform-admin/tenants')
+    return { success: true }
+  } catch (err: any) {
+    console.error('[reactivateTenantAccessAction] Fatal:', err)
+    return { success: false, error: err?.message || 'Failed to reactivate tenant' }
+  }
+}
+
+export async function sendPaymentReminderAction(
+  tenantId: string
+): Promise<{ success: boolean; simulated?: boolean; error?: string }> {
+  try {
+    const { data: tenant, error: fetchErr } = await supabaseAdmin
+      .from('platform_tenant_factories')
+      .select('*')
+      .eq('id', tenantId)
+      .single()
+
+    if (fetchErr || !tenant) {
+      return { success: false, error: fetchErr?.message || 'Tenant record not found' }
+    }
+
+    const emailRes = await sendPaymentReminderEmail({
+      to: tenant.admin_email,
+      companyName: tenant.company_name,
+      adminName: tenant.admin_name,
+      accessType: tenant.access_type || 'FULL_ACCESS',
+      planTier: tenant.subscription_tier || 'FULL_PLANT_AI',
+      monthlyBillingInr: Number(tenant.monthly_billing_inr || 4999),
+      expiresAt: tenant.expires_at || undefined
+    })
+
+    if (!emailRes.success) {
+      return { success: false, error: emailRes.error }
+    }
+
+    // Update last_payment_reminder_at timestamp in DB
+    const nowIso = new Date().toISOString()
+    await supabaseAdmin
+      .from('platform_tenant_factories')
+      .update({ last_payment_reminder_at: nowIso })
+      .eq('id', tenantId)
+
+    try {
+      await supabaseAdmin.from('platform_audit_logs').insert([{
+        log_code: `REMIND-${Date.now().toString().slice(-4)}`,
+        actor: 'admin@zigza.in',
+        action: 'Payment Reminder Sent',
+        category: 'CONFIG_CHANGE',
+        details: `Dispatched payment & subscription notice from noreply@zigza.in to ${tenant.company_name} (${tenant.admin_email})`,
+        ip_address: '103.24.12.89',
+        location: 'India',
+        status: 'SUCCESS'
+      }])
+    } catch (_) {}
+
+    revalidatePath('/platform-admin')
+    revalidatePath('/platform-admin/tenants')
+
+    return {
+      success: true,
+      simulated: !!emailRes.simulated
+    }
+  } catch (err: any) {
+    console.error('[sendPaymentReminderAction] Fatal:', err)
+    return { success: false, error: err?.message || 'Failed to dispatch payment reminder' }
+  }
 }
 
 export async function updateTenantAllowedDivisionsAction(

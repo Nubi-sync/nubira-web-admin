@@ -15,7 +15,7 @@ import {
   Mail,
   AlertTriangle
 } from 'lucide-react'
-import { DemoRequestInquiry, SubscriptionPlanTier } from '../types/platform'
+import { DemoRequestInquiry, SubscriptionPlanTier, AccessType } from '../types/platform'
 import { ENTERPRISE_DIVISIONS_CATALOG } from '../data/initialPlatformData'
 import { provisionTenantFactoryAction } from '../actions'
 
@@ -53,6 +53,7 @@ export function ProvisionTenantModal({
   const [initialPassword, setInitialPassword] = useState('')
   const [phone, setPhone] = useState('')
   const [cityState, setCityState] = useState('')
+  const [accessType, setAccessType] = useState<AccessType>('DEMO_TRIAL')
   const [subscriptionTier, setSubscriptionTier] = useState<SubscriptionPlanTier>('FULL_PLANT_AI')
   const [monthlyBillingInr, setMonthlyBillingInr] = useState(4999)
   const [selectedDivisions, setSelectedDivisions] = useState<string[]>(
@@ -76,6 +77,7 @@ export function ProvisionTenantModal({
       setAdminEmail(inquiry.email)
       setPhone(inquiry.phone)
       setCityState(inquiry.cityState || 'India')
+      setAccessType('DEMO_TRIAL')
       setSubscriptionTier(inquiry.preferredPlan || 'FULL_PLANT_AI')
       setMonthlyBillingInr(inquiry.preferredPlan === 'MODULAR' ? 1999 : 4999)
       setInitialPassword(deriveInitialPassword(inquiry.companyName))
@@ -90,6 +92,7 @@ export function ProvisionTenantModal({
       setInitialPassword(`@Zigza${Math.floor(1000 + Math.random() * 9000)}!`)
       setPhone('')
       setCityState('')
+      setAccessType('FULL_ACCESS')
       setSubscriptionTier('FULL_PLANT_AI')
       setMonthlyBillingInr(4999)
       setSelectedDivisions(ENTERPRISE_DIVISIONS_CATALOG.map(d => d.route))
@@ -153,6 +156,7 @@ export function ProvisionTenantModal({
         initialPassword,
         phone,
         cityState,
+        accessType,
         subscriptionTier,
         monthlyBillingInr,
         selectedDivisions
@@ -175,11 +179,18 @@ export function ProvisionTenantModal({
     }
   }
 
+  const trialExpiryDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString('en-IN', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric'
+  })
+
   const activationSlipText = `===========================================
 ZIGZA MES - CLIENT SUPER ADMIN ACTIVATION
 ===========================================
 Factory / Company : ${companyName}
 Super Admin Name  : ${adminName}
+Access Model      : ${accessType === 'DEMO_TRIAL' ? `7-Day Demo Trial (Expires: ${trialExpiryDate})` : 'Full Enterprise Access'}
 Custom Username   : ${customUsername}
 Login Email       : ${adminEmail}
 Initial Password  : ${initialPassword}

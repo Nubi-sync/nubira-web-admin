@@ -162,6 +162,11 @@ export function provisionNewTenant(payload: ProvisionTenantPayload): TenantFacto
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-|-$)/g, '')
 
+  const accessType = payload.accessType || 'FULL_ACCESS'
+  const expiresAt = accessType === 'DEMO_TRIAL'
+    ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+    : undefined
+
   const newTenant: TenantFactory = {
     id: `ten-${Date.now().toString().slice(-4)}`,
     companyName: payload.companyName,
@@ -171,9 +176,11 @@ export function provisionNewTenant(payload: ProvisionTenantPayload): TenantFacto
     phone: payload.phone,
     cityState: payload.cityState || 'India',
     subscriptionTier: payload.subscriptionTier,
+    accessType,
     monthlyBillingInr: payload.monthlyBillingInr || (payload.subscriptionTier === 'FULL_PLANT_AI' ? 4999 : 1999),
     activeDivisionsCount: payload.selectedDivisions.length,
     provisionedAt: new Date().toISOString(),
+    expiresAt,
     status: 'ACTIVE',
     allowedDivisions: payload.selectedDivisions,
     lastActiveAt: new Date().toISOString()
@@ -207,6 +214,75 @@ export function provisionNewTenant(payload: ProvisionTenantPayload): TenantFacto
 
   broadcastUpdate()
   return newTenant
+}
+
+export function revokeTenantAccess(tenantId: string): TenantFactory | null {
+  if (typeof window === 'undefined') return null
+  const current = getTenantFactories()
+  const idx = current.findIndex(t => t.id === tenantId)
+  if (idx < 0) return null
+  const updatedTenant: TenantFactory = {
+    ...current[idx],
+    status: 'SUSPENDED',
+    revokedAt: new Date().toISOString(),
+    lastActiveAt: new Date().toISOString()
+  }
+  const updatedList = [...current]
+  updatedList[idx] = updatedTenant
+  try {
+    localStorage.setItem(STORAGE_KEYS.TENANTS, JSON.stringify(updatedList))
+  } catch (e) {
+    console.error('Failed to revoke tenant in storage:', e)
+  }
+  broadcastUpdate()
+  return updatedTenant
+}
+
+export function reactivateTenantAccess(tenantId: string, accessType: 'FULL_ACCESS' | 'DEMO_TRIAL' = 'FULL_ACCESS'): TenantFactory | null {
+  if (typeof window === 'undefined') return null
+  const current = getTenantFactories()
+  const idx = current.findIndex(t => t.id === tenantId)
+  if (idx < 0) return null
+  const expiresAt = accessType === 'DEMO_TRIAL'
+    ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+    : undefined
+  const updatedTenant: TenantFactory = {
+    ...current[idx],
+    status: 'ACTIVE',
+    accessType,
+    revokedAt: undefined,
+    expiresAt,
+    lastActiveAt: new Date().toISOString()
+  }
+  const updatedList = [...current]
+  updatedList[idx] = updatedTenant
+  try {
+    localStorage.setItem(STORAGE_KEYS.TENANTS, JSON.stringify(updatedList))
+  } catch (e) {
+    console.error('Failed to reactivate tenant in storage:', e)
+  }
+  broadcastUpdate()
+  return updatedTenant
+}
+
+export function recordPaymentReminder(tenantId: string): TenantFactory | null {
+  if (typeof window === 'undefined') return null
+  const current = getTenantFactories()
+  const idx = current.findIndex(t => t.id === tenantId)
+  if (idx < 0) return null
+  const updatedTenant: TenantFactory = {
+    ...current[idx],
+    lastPaymentReminderAt: new Date().toISOString()
+  }
+  const updatedList = [...current]
+  updatedList[idx] = updatedTenant
+  try {
+    localStorage.setItem(STORAGE_KEYS.TENANTS, JSON.stringify(updatedList))
+  } catch (e) {
+    console.error('Failed to record reminder timestamp in storage:', e)
+  }
+  broadcastUpdate()
+  return updatedTenant
 }
 
 export function updateTenantDivisions(tenantId: string, allowedDivisions: string[]): TenantFactory | null {
