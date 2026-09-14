@@ -79,3 +79,31 @@ export interface PlatformMetrics {
   conversionRatePercent: number
   totalProjectedMrrInr: number
 }
+
+export type PaymentLinkStatus = 'ISSUED' | 'PAID' | 'CANCELLED' | 'EXPIRED'
+
+export interface PaymentLinkRecord {
+  id: string
+  tenantId?: string
+  companyName: string
+  adminEmail: string
+  razorpayLinkId: string
+  shortUrl: string
+  amountInr: number
+  subscriptionTier: SubscriptionPlanTier
+  status: PaymentLinkStatus
+  paymentId?: string
+  paymentMethod?: string
+  description?: string
+  paidAt?: string
+  createdAt: string
+}
+
+export interface PaymentDashboardMetrics {
+  totalCollectedInr: number
+  pendingReceivablesInr: number
+  totalLinksIssued: number
+  paidLinksCount: number
+  pendingLinksCount: number
+}
+
