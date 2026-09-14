@@ -589,9 +589,9 @@ export function ReadyGoodsDashboardClient({
               </div>
               <button
                 onClick={() => setSelectedCarton(null)}
-                className="text-slate-400 hover:text-slate-700 text-sm font-bold font-mono px-2 py-1 rounded cursor-pointer"
+                className="text-slate-400 hover:text-slate-700 p-1 rounded cursor-pointer"
               >
-                ✕
+                <X className="w-4 h-4" />
               </button>
             </div>
 
