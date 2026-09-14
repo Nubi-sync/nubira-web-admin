@@ -13,7 +13,8 @@ import {
   TenantFactory,
   ProvisionTenantPayload,
   PlatformMetrics,
-  SubscriptionPlanTier
+  SubscriptionPlanTier,
+  AccessType
 } from './types/platform'
 import {
   INITIAL_DEMO_REQUESTS,
@@ -22,7 +23,9 @@ import {
 import {
   sendTenantActivationEmail,
   sendCustomInquiryNotificationEmail,
-  TenantActivationEmailParams
+  sendPaymentReminderEmail,
+  TenantActivationEmailParams,
+  PaymentReminderEmailParams
 } from '@/lib/resend'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!

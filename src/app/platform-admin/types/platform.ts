@@ -7,6 +7,8 @@ export type DemoRequestStatus = 'NEW_LEAD' | 'CONTACTED' | 'DEMO_SCHEDULED' | 'P
 
 export type SubscriptionPlanTier = 'MODULAR' | 'FULL_PLANT_AI' | 'CUSTOM'
 
+export type AccessType = 'FULL_ACCESS' | 'DEMO_TRIAL'
+
 export type TenantStatus = 'ACTIVE' | 'PENDING_SETUP' | 'SUSPENDED'
 
 export interface DemoRequestInquiry {
@@ -42,10 +44,13 @@ export interface TenantFactory {
   phone: string
   cityState: string
   subscriptionTier: SubscriptionPlanTier
+  accessType: AccessType
   monthlyBillingInr: number
   activeDivisionsCount: number
   provisionedAt: string
   expiresAt?: string
+  revokedAt?: string
+  lastPaymentReminderAt?: string
   status: TenantStatus
   allowedDivisions: string[] // division routes e.g. ['/design', '/merchandising', '/cutting', ...]
   lastActiveAt?: string
@@ -60,6 +65,7 @@ export interface ProvisionTenantPayload {
   phone: string
   cityState: string
   subscriptionTier: SubscriptionPlanTier
+  accessType?: AccessType
   monthlyBillingInr: number
   selectedDivisions: string[]
   demoRequestId?: string
