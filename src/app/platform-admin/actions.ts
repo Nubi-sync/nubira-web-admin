@@ -750,34 +750,49 @@ export async function sendPaymentReminderAction(
       return { success: false, error: fetchErr?.message || 'Tenant record not found' }
     }
 
-    // Generate Razorpay Payment Link
-    const plinkRes = await createRazorpayPaymentLink({
-      amountInr: Number(tenant.monthly_billing_inr || 4999),
-      companyName: tenant.company_name,
-      adminName: tenant.admin_name,
-      adminEmail: tenant.admin_email,
-      phone: tenant.phone,
-      tenantId: tenant.id,
-      planTier: tenant.subscription_tier || 'FULL_PLANT_AI',
-      description: `Zigza Enterprise MES - Subscription Payment for ${tenant.company_name}`
-    })
+    // 1. Check if there is ALREADY an active ISSUED payment link for this tenant
+    const { data: existingLinks } = await supabaseAdmin
+      .from('platform_payment_links')
+      .select('*')
+      .eq('tenant_id', tenantId)
+      .eq('status', 'ISSUED')
+      .order('created_at', { ascending: false })
+      .limit(1)
 
-    let paymentLinkUrl = plinkRes.shortUrl
+    let paymentLinkUrl: string | undefined
 
-    if (plinkRes.success && plinkRes.linkId && plinkRes.shortUrl) {
-      try {
-        await supabaseAdmin.from('platform_payment_links').insert([{
-          tenant_id: tenant.id,
-          company_name: tenant.company_name,
-          admin_email: tenant.admin_email,
-          razorpay_link_id: plinkRes.linkId,
-          short_url: plinkRes.shortUrl,
-          amount_inr: Number(tenant.monthly_billing_inr || 4999),
-          subscription_tier: tenant.subscription_tier || 'FULL_PLANT_AI',
-          status: 'ISSUED',
-          description: `Payment reminder link for ${tenant.company_name}`
-        }])
-      } catch (_) {}
+    if (existingLinks && existingLinks.length > 0 && existingLinks[0].short_url) {
+      // Reuse existing active link so we do not issue multiple bills or inflate pending receivables!
+      paymentLinkUrl = existingLinks[0].short_url
+    } else {
+      // Generate fresh Razorpay Payment Link if none exists
+      const plinkRes = await createRazorpayPaymentLink({
+        amountInr: Number(tenant.monthly_billing_inr || 4999),
+        companyName: tenant.company_name,
+        adminName: tenant.admin_name,
+        adminEmail: tenant.admin_email,
+        phone: tenant.phone,
+        tenantId: tenant.id,
+        planTier: tenant.subscription_tier || 'FULL_PLANT_AI',
+        description: `Zigza Enterprise MES - Subscription Payment for ${tenant.company_name}`
+      })
+
+      if (plinkRes.success && plinkRes.linkId && plinkRes.shortUrl) {
+        paymentLinkUrl = plinkRes.shortUrl
+        try {
+          await supabaseAdmin.from('platform_payment_links').insert([{
+            tenant_id: tenant.id,
+            company_name: tenant.company_name,
+            admin_email: tenant.admin_email,
+            razorpay_link_id: plinkRes.linkId,
+            short_url: plinkRes.shortUrl,
+            amount_inr: Number(tenant.monthly_billing_inr || 4999),
+            subscription_tier: tenant.subscription_tier || 'FULL_PLANT_AI',
+            status: 'ISSUED',
+            description: `Payment reminder link for ${tenant.company_name}`
+          }])
+        } catch (_) {}
+      }
     }
 
     const emailRes = await sendPaymentReminderEmail({
