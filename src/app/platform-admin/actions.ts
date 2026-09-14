@@ -101,28 +101,32 @@ export async function checkContactInUseAction(email?: string, phone?: string): P
     let emailCompany = ''
     let emailIsTenant = false
 
-    // 1. Check Phone in leads and provisioned tenant accounts
+    // 1. Check Phone in leads and provisioned tenant accounts (matching with/without spaces/hyphens)
     if (phoneLast10 && phoneLast10.length === 10) {
-      const { data: phoneLead } = await supabaseAdmin
-        .from('platform_demo_requests')
-        .select('company_name')
-        .ilike('phone', `%${phoneLast10}%`)
-        .limit(1)
+      const phoneOrFilter = `phone.ilike.%${phoneLast10}%,phone.ilike.%${phoneLast10.slice(0, 5)}%${phoneLast10.slice(5)}%`
 
-      if (phoneLead && phoneLead.length > 0) {
+      const { data: phoneLeads } = await supabaseAdmin
+        .from('platform_demo_requests')
+        .select('company_name, phone')
+        .or(phoneOrFilter)
+        .limit(5)
+
+      const matchedLead = phoneLeads?.find(l => (l.phone || '').replace(/\D/g, '').endsWith(phoneLast10))
+      if (matchedLead) {
         phoneInUse = true
-        phoneCompany = phoneLead[0].company_name
+        phoneCompany = matchedLead.company_name
         phoneIsTenant = false
       } else {
-        const { data: phoneTenant } = await supabaseAdmin
+        const { data: phoneTenants } = await supabaseAdmin
           .from('platform_tenant_factories')
-          .select('company_name')
-          .ilike('phone', `%${phoneLast10}%`)
-          .limit(1)
+          .select('company_name, phone')
+          .or(phoneOrFilter)
+          .limit(5)
 
-        if (phoneTenant && phoneTenant.length > 0) {
+        const matchedTenant = phoneTenants?.find(t => (t.phone || '').replace(/\D/g, '').endsWith(phoneLast10))
+        if (matchedTenant) {
           phoneInUse = true
-          phoneCompany = phoneTenant[0].company_name
+          phoneCompany = matchedTenant.company_name
           phoneIsTenant = true
         }
       }
@@ -198,32 +202,52 @@ export async function submitDemoRequestAction(payload: {
     const cleanPhoneDigits = payload.phone.replace(/\D/g, '')
     const phoneLast10 = cleanPhoneDigits.slice(-10)
 
+    const phoneFilters = phoneLast10.length === 10
+      ? [`phone.ilike.%${phoneLast10}%`, `phone.ilike.%${phoneLast10.slice(0, 5)}%${phoneLast10.slice(5)}%`]
+      : [`phone.ilike.%${phoneLast10}%`]
+
+    const queryFilters = cleanEmail
+      ? [`email.ilike.${cleanEmail}`, ...phoneFilters].join(',')
+      : phoneFilters.join(',')
+
     // Check if email or phone already exists in platform_demo_requests
     try {
       const { data: existingLeads } = await supabaseAdmin
         .from('platform_demo_requests')
         .select('id, email, phone, company_name, status')
-        .or(`email.ilike.${cleanEmail},phone.ilike.%${phoneLast10}%`)
-        .limit(1)
+        .or(queryFilters)
+        .limit(10)
 
       if (existingLeads && existingLeads.length > 0) {
-        const matched = existingLeads[0]
-        const isEmailMatch = matched.email?.toLowerCase() === cleanEmail
-        const isPhoneMatch = matched.phone?.replace(/\D/g, '').endsWith(phoneLast10)
-        let specificMsg = `An inquiry is already registered for ${matched.company_name} with this contact information.`
-        if (isEmailMatch && isPhoneMatch) {
-          specificMsg = `Both this phone number and email address are already registered with an active inquiry for "${matched.company_name}". Kindly provide alternate contact details if registering for another unit.`
-        } else if (isPhoneMatch) {
-          specificMsg = `This phone number is already booked with us for "${matched.company_name}". Kindly provide another phone number.`
-        } else if (isEmailMatch) {
-          specificMsg = `This email address is already registered with us for "${matched.company_name}". Kindly provide an alternate email ID.`
-        }
+        const matched = existingLeads.find(lead => {
+          const lEmail = lead.email?.trim().toLowerCase()
+          const lPhoneDigits = (lead.phone || '').replace(/\D/g, '')
+          const isEmail = Boolean(cleanEmail && lEmail === cleanEmail)
+          const isPhone = Boolean(phoneLast10 && lPhoneDigits.endsWith(phoneLast10))
+          return isEmail || isPhone
+        })
 
-        return {
-          success: false,
-          alreadyExists: true,
-          existingCompany: matched.company_name,
-          error: specificMsg
+        if (matched) {
+          const lEmail = matched.email?.trim().toLowerCase()
+          const lPhoneDigits = (matched.phone || '').replace(/\D/g, '')
+          const isEmailMatch = Boolean(cleanEmail && lEmail === cleanEmail)
+          const isPhoneMatch = Boolean(phoneLast10 && lPhoneDigits.endsWith(phoneLast10))
+
+          let specificMsg = `An inquiry is already registered for "${matched.company_name}" with this contact information.`
+          if (isEmailMatch && isPhoneMatch) {
+            specificMsg = `Both this phone number and email address are already registered with an active inquiry for "${matched.company_name}". Kindly provide alternate contact details if registering for another unit.`
+          } else if (isPhoneMatch) {
+            specificMsg = `This phone number (+91 ${phoneLast10.slice(0, 5)} ${phoneLast10.slice(5)}) is already booked with us for "${matched.company_name}". Kindly provide another phone number.`
+          } else if (isEmailMatch) {
+            specificMsg = `This email address (${cleanEmail}) is already registered with us for "${matched.company_name}". Kindly provide an alternate email address.`
+          }
+
+          return {
+            success: false,
+            alreadyExists: true,
+            existingCompany: matched.company_name,
+            error: specificMsg
+          }
         }
       }
 
@@ -231,16 +255,25 @@ export async function submitDemoRequestAction(payload: {
       const { data: existingTenants } = await supabaseAdmin
         .from('platform_tenant_factories')
         .select('id, company_name, admin_email, phone')
-        .or(`admin_email.ilike.${cleanEmail},phone.ilike.%${phoneLast10}%`)
-        .limit(1)
+        .or(queryFilters)
+        .limit(10)
 
       if (existingTenants && existingTenants.length > 0) {
-        const tenant = existingTenants[0]
-        return {
-          success: false,
-          alreadyExists: true,
-          existingCompany: tenant.company_name,
-          error: `Factory account "${tenant.company_name}" is already provisioned with this phone/email. Please sign in to your staff portal.`
+        const tenant = existingTenants.find(t => {
+          const tEmail = t.admin_email?.trim().toLowerCase()
+          const tPhoneDigits = (t.phone || '').replace(/\D/g, '')
+          const isEmail = Boolean(cleanEmail && tEmail === cleanEmail)
+          const isPhone = Boolean(phoneLast10 && tPhoneDigits.endsWith(phoneLast10))
+          return isEmail || isPhone
+        })
+
+        if (tenant) {
+          return {
+            success: false,
+            alreadyExists: true,
+            existingCompany: tenant.company_name,
+            error: `Factory account "${tenant.company_name}" is already provisioned with this contact. Please sign in to your staff portal.`
+          }
         }
       }
     } catch (checkErr) {

@@ -37,7 +37,6 @@ import {
   Settings,
   Zap,
   Building2,
-  MapPin,
   Loader2
 } from 'lucide-react'
 import { saveDemoRequest } from '../platform-admin/utils/platformStorage'
@@ -122,7 +121,7 @@ export function ZigzaLandingPageClient({
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [submitAlreadyExists, setSubmitAlreadyExists] = useState(false)
 
-  // Real-time debounced duplicate check state
+  // Duplicate check state — only shown after form submit attempt
   const [isCheckingDuplicate, setIsCheckingDuplicate] = useState(false)
   const [phoneDuplicate, setPhoneDuplicate] = useState<{ inUse: boolean; message?: string } | null>(null)
   const [emailDuplicate, setEmailDuplicate] = useState<{ inUse: boolean; message?: string } | null>(null)
@@ -141,75 +140,28 @@ export function ZigzaLandingPageClient({
     // Limit to 10 digits
     digits = digits.slice(0, 10)
     
-    // Format nicely as 5 digits + space + 5 digits (e.g. 98765 43210)
+    // Format nicely as 5 digits + space + 5 digits
     let formatted = digits
     if (digits.length > 5) {
       formatted = `${digits.slice(0, 5)} ${digits.slice(5)}`
     }
     setDemoForm(prev => ({ ...prev, phone: formatted }))
+    // Clear duplicate errors when user edits phone (they'll re-check on submit)
+    if (phoneDuplicate) setPhoneDuplicate(null)
   }
 
-  // Real-time debounced duplicate check
-  useEffect(() => {
-    const rawDigits = demoForm.phone.replace(/\D/g, '')
-    const has10Phone = rawDigits.length === 10
-    const cleanEmail = demoForm.email.trim().toLowerCase()
-    const hasValidEmail = cleanEmail.includes('@') && cleanEmail.includes('.')
-
-    if (!has10Phone && !hasValidEmail) {
-      setPhoneDuplicate(null)
-      setEmailDuplicate(null)
-      return
-    }
-
-    const timer = setTimeout(async () => {
-      setIsCheckingDuplicate(true)
-      try {
-        const res = await checkContactInUseAction(
-          hasValidEmail ? cleanEmail : '',
-          has10Phone ? demoForm.phone : ''
-        )
-
-        if (has10Phone) {
-          if (res.phoneInUse) {
-            const org = res.phoneCompany ? ` for "${res.phoneCompany}"` : ''
-            setPhoneDuplicate({
-              inUse: true,
-              message: `This phone number (+91 ${demoForm.phone}) is already booked with us${org}. Kindly provide another phone number, or sign in to your portal.`
-            })
-          } else {
-            setPhoneDuplicate({ inUse: false })
-          }
-        } else {
-          setPhoneDuplicate(null)
-        }
-
-        if (hasValidEmail) {
-          if (res.emailInUse) {
-            const org = res.emailCompany ? ` for "${res.emailCompany}"` : ''
-            setEmailDuplicate({
-              inUse: true,
-              message: `This email address (${cleanEmail}) is already registered with us${org}. Kindly provide an alternate business email, or sign in.`
-            })
-          } else {
-            setEmailDuplicate({ inUse: false })
-          }
-        } else {
-          setEmailDuplicate(null)
-        }
-      } catch (_) {
-      } finally {
-        setIsCheckingDuplicate(false)
-      }
-    }, 350)
-
-    return () => clearTimeout(timer)
-  }, [demoForm.phone, demoForm.email])
+  const handleEmailChange = (val: string) => {
+    setDemoForm(prev => ({ ...prev, email: val }))
+    // Clear duplicate errors when user edits email (they'll re-check on submit)
+    if (emailDuplicate) setEmailDuplicate(null)
+  }
 
   const handleDemoSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setSubmitError(null)
     setSubmitAlreadyExists(false)
+    setPhoneDuplicate(null)
+    setEmailDuplicate(null)
 
     const rawDigits = demoForm.phone.replace(/\D/g, '')
     if (rawDigits.length !== 10) {
@@ -217,13 +169,49 @@ export function ZigzaLandingPageClient({
       return
     }
 
-    if (phoneDuplicate?.inUse || emailDuplicate?.inUse) {
-      setSubmitError('Please provide an unregistered phone number and email address before submitting.')
-      return
+    // Run duplicate check on submit
+    setIsCheckingDuplicate(true)
+    const cleanEmail = demoForm.email.trim().toLowerCase()
+    const hasValidEmail = cleanEmail.includes('@') && cleanEmail.includes('.')
+
+    try {
+      const dupRes = await checkContactInUseAction(
+        hasValidEmail ? cleanEmail : '',
+        rawDigits
+      )
+
+      let hasDuplicate = false
+
+      if (dupRes.phoneInUse) {
+        const org = dupRes.phoneCompany ? ` for "${dupRes.phoneCompany}"` : ''
+        setPhoneDuplicate({
+          inUse: true,
+          message: `This phone number (+91 ${demoForm.phone}) is already booked with us${org}. Kindly provide another phone number, or sign in to your portal.`
+        })
+        hasDuplicate = true
+      }
+
+      if (dupRes.emailInUse) {
+        const org = dupRes.emailCompany ? ` for "${dupRes.emailCompany}"` : ''
+        setEmailDuplicate({
+          inUse: true,
+          message: `This email address (${cleanEmail}) is already registered with us${org}. Kindly provide an alternate business email, or sign in.`
+        })
+        hasDuplicate = true
+      }
+
+      if (hasDuplicate) {
+        setIsCheckingDuplicate(false)
+        return
+      }
+    } catch (_) {
+      // If duplicate check fails, proceed with submission anyway
+    } finally {
+      setIsCheckingDuplicate(false)
     }
 
     setIsSubmittingDemo(true)
-    const formattedPhone = `+91 ${demoForm.phone.trim()}`
+    const formattedPhone = `+91 ${rawDigits.slice(0, 5)} ${rawDigits.slice(5)}`
     const cityStateValue = demoForm.cityState.trim() || 'Surat, Gujarat'
 
     try {
@@ -2046,7 +2034,7 @@ export function ZigzaLandingPageClient({
                       <input
                         type="text"
                         required
-                        placeholder="e.g. Shaw Industries / Bala Mills"
+                        placeholder="Enter company / factory name"
                         value={demoForm.companyName}
                         onChange={e => setDemoForm({ ...demoForm, companyName: e.target.value })}
                         className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
@@ -2061,23 +2049,17 @@ export function ZigzaLandingPageClient({
 
                   {/* Plant Location / City */}
                   <div>
-                    <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1.5 flex items-center justify-between">
-                      <span>Plant Location / City & State *</span>
-                      <span className="text-[11px] font-medium text-slate-500">e.g. Surat, Tirupur, Ludhiana, Noida</span>
+                    <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1.5">
+                      Plant Location / City & State *
                     </label>
-                    <div className="relative flex rounded-xl border border-slate-300 focus-within:ring-2 focus-within:ring-[#3A3564] focus-within:border-transparent transition-all overflow-hidden bg-white shadow-2xs">
-                      <div className="flex items-center justify-center px-3.5 bg-slate-50 border-r border-slate-200 text-slate-400 select-none shrink-0">
-                        <MapPin className="w-4 h-4 text-[#3A3564]" />
-                      </div>
-                      <input
-                        type="text"
-                        required
-                        placeholder="e.g. Surat, Gujarat"
-                        value={demoForm.cityState}
-                        onChange={e => setDemoForm({ ...demoForm, cityState: e.target.value })}
-                        className="w-full px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none bg-transparent"
-                      />
-                    </div>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Enter plant location / city & state"
+                      value={demoForm.cityState}
+                      onChange={e => setDemoForm({ ...demoForm, cityState: e.target.value })}
+                      className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
+                    />
                   </div>
 
                   <div>
@@ -2107,7 +2089,7 @@ export function ZigzaLandingPageClient({
                     </label>
                     <div className={`relative flex rounded-xl border transition-all overflow-hidden bg-white shadow-2xs ${
                       phoneDuplicate?.inUse 
-                        ? 'border-amber-400 bg-amber-50/20 ring-1 ring-amber-400' 
+                        ? 'border-rose-300 bg-rose-50/30 ring-1 ring-rose-300' 
                         : 'border-slate-300 focus-within:ring-2 focus-within:ring-[#3A3564] focus-within:border-transparent'
                     }`}>
                       <div className="flex items-center justify-center px-3.5 bg-slate-50 border-r border-slate-200 text-slate-700 font-mono font-bold text-sm select-none shrink-0">
@@ -2116,29 +2098,21 @@ export function ZigzaLandingPageClient({
                       <input
                         type="tel"
                         required
-                        placeholder="98765 43210"
+                        placeholder="Enter 10-digit mobile number"
                         value={demoForm.phone}
                         onChange={e => handlePhoneChange(e.target.value)}
                         maxLength={11}
                         className="w-full px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none bg-transparent font-mono"
                       />
-                      {demoForm.phone.replace(/\D/g, '').length === 10 && (
+                      {phoneDuplicate?.inUse && (
                         <div className="absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center">
-                          {isCheckingDuplicate ? (
-                            <Loader2 className="w-4 h-4 animate-spin text-slate-400" />
-                          ) : phoneDuplicate?.inUse ? (
-                            <AlertTriangle className="w-4 h-4 text-amber-600" />
-                          ) : (
-                            <div className="text-emerald-600">
-                              <Check className="w-4 h-4 stroke-[2.5]" />
-                            </div>
-                          )}
+                          <AlertTriangle className="w-4 h-4 text-rose-600" />
                         </div>
                       )}
                     </div>
                     {phoneDuplicate?.inUse && (
-                      <div className="mt-2 p-3 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-2.5 text-xs text-amber-900 animate-in fade-in duration-150">
-                        <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                      <div className="mt-2 p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-start gap-2.5 text-xs text-rose-700 transition-all">
+                        <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
                         <div className="leading-relaxed">
                           <span>{phoneDuplicate.message}</span>
                         </div>
@@ -2154,24 +2128,24 @@ export function ZigzaLandingPageClient({
                       <input
                         type="email"
                         required
-                        placeholder="owner@factory.com"
+                        placeholder="Enter business email ID"
                         value={demoForm.email}
-                        onChange={e => setDemoForm({ ...demoForm, email: e.target.value })}
+                        onChange={e => handleEmailChange(e.target.value)}
                         className={`w-full px-4 py-3 border rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none transition-all ${
                           emailDuplicate?.inUse
-                            ? 'border-amber-400 bg-amber-50/20 ring-1 ring-amber-400'
+                            ? 'border-rose-300 bg-rose-50/30 ring-1 ring-rose-300'
                             : 'border-slate-300 focus:ring-2 focus:ring-[#3A3564] focus:border-transparent'
                         }`}
                       />
                       {emailDuplicate?.inUse && (
                         <div className="absolute right-3.5 top-1/2 -translate-y-1/2">
-                          <AlertTriangle className="w-4 h-4 text-amber-600" />
+                          <AlertTriangle className="w-4 h-4 text-rose-600" />
                         </div>
                       )}
                     </div>
                     {emailDuplicate?.inUse && (
-                      <div className="mt-2 p-3 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-2.5 text-xs text-amber-900 animate-in fade-in duration-150">
-                        <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                      <div className="mt-2 p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-start gap-2.5 text-xs text-rose-700 transition-all">
+                        <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
                         <div className="leading-relaxed">
                           <span>{emailDuplicate.message}</span>
                         </div>
@@ -2188,7 +2162,7 @@ export function ZigzaLandingPageClient({
                         <textarea
                           rows={3}
                           required
-                          placeholder="Tell us what all requirements you have with us (e.g. machinery sensors, custom division workflows, ERP integrations)..."
+                          placeholder="Describe your custom engineering requirements and scope..."
                           value={demoForm.customRequirements}
                           onChange={e => setDemoForm({ ...demoForm, customRequirements: e.target.value })}
                           className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all resize-none"
@@ -2201,7 +2175,7 @@ export function ZigzaLandingPageClient({
                         </label>
                         <input
                           type="number"
-                          placeholder="e.g. 150 sewing machines"
+                          placeholder="Enter estimated machines / capacity"
                           value={demoForm.estimatedMachines}
                           onChange={e => setDemoForm({ ...demoForm, estimatedMachines: e.target.value })}
                           className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
@@ -2219,7 +2193,7 @@ export function ZigzaLandingPageClient({
 
                   <button
                     type="submit"
-                    disabled={isSubmittingDemo || isCheckingDuplicate || phoneDuplicate?.inUse || emailDuplicate?.inUse}
+                    disabled={isSubmittingDemo || isCheckingDuplicate}
                     className="w-full py-3.5 bg-[#3A3564] hover:bg-[#2A2649] disabled:opacity-60 disabled:cursor-not-allowed md:hover:-translate-y-0.5 text-white rounded-xl text-sm font-bold transition-all shadow-sm hover:shadow-md cursor-pointer flex items-center justify-center gap-2 mt-5"
                   >
                     {isSubmittingDemo ? (
@@ -2227,10 +2201,10 @@ export function ZigzaLandingPageClient({
                         <Loader2 className="w-4 h-4 animate-spin shrink-0" />
                         <span>Submitting Request...</span>
                       </>
-                    ) : phoneDuplicate?.inUse || emailDuplicate?.inUse ? (
+                    ) : isCheckingDuplicate ? (
                       <>
-                        <AlertTriangle className="w-4 h-4 shrink-0 text-amber-300" />
-                        <span>Please Provide Alternate Contact Info</span>
+                        <Loader2 className="w-4 h-4 animate-spin shrink-0" />
+                        <span>Verifying Contact Details...</span>
                       </>
                     ) : (
                       <>
@@ -2615,7 +2589,7 @@ export function ZigzaLandingPageClient({
                   <input
                     type="text"
                     required
-                    placeholder="e.g. Shaw Industries / Bala Mills"
+                    placeholder="Enter company / factory name"
                     value={demoForm.companyName}
                     onChange={e => setDemoForm({ ...demoForm, companyName: e.target.value })}
                     className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
@@ -2624,23 +2598,17 @@ export function ZigzaLandingPageClient({
 
                 {/* Field 3: Plant Location (City & State) */}
                 <div>
-                  <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1.5 flex items-center justify-between">
-                    <span>Plant Location / City & State *</span>
-                    <span className="text-[11px] font-medium text-slate-500">e.g. Surat, Tirupur, Ludhiana, Noida</span>
+                  <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1.5">
+                    Plant Location / City & State *
                   </label>
-                  <div className="relative flex rounded-xl border border-slate-300 focus-within:ring-2 focus-within:ring-[#3A3564] focus-within:border-transparent transition-all overflow-hidden bg-white shadow-2xs">
-                    <div className="flex items-center justify-center px-3.5 bg-slate-50 border-r border-slate-200 text-slate-400 select-none shrink-0">
-                      <MapPin className="w-4 h-4 text-[#3A3564]" />
-                    </div>
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. Surat, Gujarat"
-                      value={demoForm.cityState}
-                      onChange={e => setDemoForm({ ...demoForm, cityState: e.target.value })}
-                      className="w-full px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none bg-transparent"
-                    />
-                  </div>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Enter plant location / city & state"
+                    value={demoForm.cityState}
+                    onChange={e => setDemoForm({ ...demoForm, cityState: e.target.value })}
+                    className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
+                  />
                 </div>
 
                 {/* Field 4: Owner / Plant Head Name */}
@@ -2665,7 +2633,7 @@ export function ZigzaLandingPageClient({
                   </label>
                   <div className={`relative flex rounded-xl border transition-all overflow-hidden bg-white shadow-2xs ${
                     phoneDuplicate?.inUse 
-                      ? 'border-amber-400 bg-amber-50/20 ring-1 ring-amber-400' 
+                      ? 'border-rose-300 bg-rose-50/30 ring-1 ring-rose-300' 
                       : 'border-slate-300 focus-within:ring-2 focus-within:ring-[#3A3564] focus-within:border-transparent'
                   }`}>
                     <div className="flex items-center justify-center px-3.5 bg-slate-50 border-r border-slate-200 text-slate-700 font-mono font-bold text-sm select-none shrink-0">
@@ -2674,29 +2642,21 @@ export function ZigzaLandingPageClient({
                     <input
                       type="tel"
                       required
-                      placeholder="98765 43210"
+                      placeholder="Enter 10-digit mobile number"
                       value={demoForm.phone}
                       onChange={e => handlePhoneChange(e.target.value)}
                       maxLength={11}
                       className="w-full px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none bg-transparent font-mono"
                     />
-                    {demoForm.phone.replace(/\D/g, '').length === 10 && (
+                    {phoneDuplicate?.inUse && (
                       <div className="absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center">
-                        {isCheckingDuplicate ? (
-                          <Loader2 className="w-4 h-4 animate-spin text-slate-400" />
-                        ) : phoneDuplicate?.inUse ? (
-                          <AlertTriangle className="w-4 h-4 text-amber-600" />
-                        ) : (
-                          <div className="text-emerald-600">
-                            <Check className="w-4 h-4 stroke-[2.5]" />
-                          </div>
-                        )}
+                        <AlertTriangle className="w-4 h-4 text-rose-600" />
                       </div>
                     )}
                   </div>
                   {phoneDuplicate?.inUse && (
-                    <div className="mt-2 p-3 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-2.5 text-xs text-amber-900 animate-in fade-in duration-150">
-                      <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                    <div className="mt-2 p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-start gap-2.5 text-xs text-rose-700 transition-all">
+                      <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
                       <div className="leading-relaxed">
                         <span>{phoneDuplicate.message}</span>
                       </div>
@@ -2713,24 +2673,24 @@ export function ZigzaLandingPageClient({
                     <input
                       type="email"
                       required
-                      placeholder="owner@factory.com"
+                      placeholder="Enter business email ID"
                       value={demoForm.email}
-                      onChange={e => setDemoForm({ ...demoForm, email: e.target.value })}
+                      onChange={e => handleEmailChange(e.target.value)}
                       className={`w-full px-4 py-3 border rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none transition-all ${
                         emailDuplicate?.inUse
-                          ? 'border-amber-400 bg-amber-50/20 ring-1 ring-amber-400'
+                          ? 'border-rose-300 bg-rose-50/30 ring-1 ring-rose-300'
                           : 'border-slate-300 focus:ring-2 focus:ring-[#3A3564] focus:border-transparent'
                       }`}
                     />
                     {emailDuplicate?.inUse && (
                       <div className="absolute right-3.5 top-1/2 -translate-y-1/2">
-                        <AlertTriangle className="w-4 h-4 text-amber-600" />
+                        <AlertTriangle className="w-4 h-4 text-rose-600" />
                       </div>
                     )}
                   </div>
                   {emailDuplicate?.inUse && (
-                    <div className="mt-2 p-3 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-2.5 text-xs text-amber-900 animate-in fade-in duration-150">
-                      <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                    <div className="mt-2 p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-start gap-2.5 text-xs text-rose-700 transition-all">
+                      <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
                       <div className="leading-relaxed">
                         <span>{emailDuplicate.message}</span>
                       </div>
@@ -2747,7 +2707,7 @@ export function ZigzaLandingPageClient({
                       <textarea
                         rows={3}
                         required
-                        placeholder="Tell us what all requirements you have with us (e.g. machinery sensors, custom division workflows, ERP integrations)..."
+                        placeholder="Enter custom engineering requirements & scope..."
                         value={demoForm.customRequirements}
                         onChange={e => setDemoForm({ ...demoForm, customRequirements: e.target.value })}
                         className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all resize-none"
@@ -2760,7 +2720,7 @@ export function ZigzaLandingPageClient({
                       </label>
                       <input
                         type="number"
-                        placeholder="e.g. 150 sewing machines"
+                        placeholder="Enter estimated machines / capacity"
                         value={demoForm.estimatedMachines}
                         onChange={e => setDemoForm({ ...demoForm, estimatedMachines: e.target.value })}
                         className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
@@ -2778,7 +2738,7 @@ export function ZigzaLandingPageClient({
 
                 <button
                   type="submit"
-                  disabled={isSubmittingDemo || isCheckingDuplicate || phoneDuplicate?.inUse || emailDuplicate?.inUse}
+                  disabled={isSubmittingDemo || isCheckingDuplicate}
                   className="w-full py-3.5 bg-[#3A3564] hover:bg-[#2A2649] disabled:opacity-60 disabled:cursor-not-allowed text-white rounded-xl text-sm font-bold transition-all shadow-sm hover:shadow-md cursor-pointer flex items-center justify-center gap-2 mt-5"
                 >
                   {isSubmittingDemo ? (
@@ -2786,10 +2746,10 @@ export function ZigzaLandingPageClient({
                       <Loader2 className="w-4 h-4 animate-spin shrink-0" />
                       <span>Submitting Request...</span>
                     </>
-                  ) : phoneDuplicate?.inUse || emailDuplicate?.inUse ? (
+                  ) : isCheckingDuplicate ? (
                     <>
-                      <AlertTriangle className="w-4 h-4 shrink-0 text-amber-300" />
-                      <span>Please Provide Alternate Contact Info</span>
+                      <Loader2 className="w-4 h-4 animate-spin shrink-0" />
+                      <span>Verifying Contact Details...</span>
                     </>
                   ) : (
                     <>
