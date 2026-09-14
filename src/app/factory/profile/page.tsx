@@ -32,7 +32,7 @@ export default async function FactoryProfilePage() {
         userEmail={user.email || ''}
         userName={profile?.username || user.email?.split('@')[0] || 'Factory Manager'}
         userRole={profile?.role || 'PLANT_HEAD'}
-        icon={Factory}
+        iconName="Factory"
         supervisorName="Plant Head"
         capacityInfo="Unit 1 Central Plant Floor (12 Lines)"
         qualityStandard="OEE Target: 90% • Zero Downtime Policy"

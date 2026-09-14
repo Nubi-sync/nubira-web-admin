@@ -32,7 +32,7 @@ export default async function BrandsProfilePage() {
         userEmail={user.email || ''}
         userName={profile?.username || user.email?.split('@')[0] || 'Merchant Manager'}
         userRole={profile?.role || 'MERCHANDISER'}
-        icon={Briefcase}
+        iconName="Briefcase"
         supervisorName="Merchandising Head"
         capacityInfo="Direct Buyer Accounts & PO Contract Management"
         qualityStandard="AQL 1.5 Export Spec Standard"

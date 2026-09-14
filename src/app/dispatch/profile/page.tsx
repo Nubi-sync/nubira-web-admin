@@ -8,7 +8,7 @@ import { ROLE_MODULE_MAPPING } from '@/lib/access-control'
 
 export const dynamic = 'force-dynamic'
 
-export default async function DesignProfilePage() {
+export default async function DispatchProfilePage() {
   const supabase = await createClient()
 
   const {
@@ -21,6 +21,7 @@ export default async function DesignProfilePage() {
 
   const tenant = await resolveUserTenant(user)
 
+  // Fetch real profiles belonging to dispatch for this company
   let staffList: any[] = []
   let headUser: any = null
 
@@ -48,44 +49,44 @@ export default async function DesignProfilePage() {
           ? p.allowed_modules
           : (ROLE_MODULE_MAPPING[p.role?.toUpperCase() || ''] || [])
 
-        return mods.includes('/design')
+        return mods.includes('/dispatch')
       })
 
-      headUser = staffList.find((p) => p.is_head) || staffList.find((p) => p.role === 'DESIGN' || p.role === 'DESIGNER')
+      headUser = staffList.find((p) => p.is_head) || staffList.find((p) => p.role === 'DISPATCH_MANAGER' || p.role === 'DISPATCH')
     }
   } catch (err) {
-    console.warn('Design profile fetch notice:', err)
+    console.warn('Dispatch profile fetch notice:', err)
   }
 
   return (
     <AdminShell userEmail={user.email} userRole={tenant.role}>
       <DivisionProfileView
-        divisionName="Design & Tech-Pack Studio"
-        divisionSlug="/design"
-        divisionCode="01"
-        categoryBadge="CREATIVE STUDIO & CAD"
+        divisionName="Dispatch & Logistics Bay"
+        divisionSlug="/dispatch"
+        divisionCode="12"
+        categoryBadge="OUTWARD LOGISTICS"
         companyName={tenant.companyName}
         userEmail={user.email || ''}
-        userName={headUser?.username || tenant.adminDisplayName || 'Design Lead'}
-        userRole={headUser?.designation || headUser?.role || 'DESIGN_HEAD'}
-        iconName="Palette"
-        supervisorName="Chief Creative Lead"
+        userName={headUser?.username || tenant.adminDisplayName || 'Dispatch Head'}
+        userRole={headUser?.designation || headUser?.role || 'DISPATCH_MANAGER'}
+        iconName="Truck"
+        supervisorName="Chief Dispatch Officer"
         departmentHead={headUser ? {
           name: headUser.username,
-          designation: headUser.designation || 'Design Studio Head / CAD Master',
+          designation: headUser.designation || 'Dispatch Manager / Logistics Head',
           email: headUser.email,
-          authorityScope: 'Pattern Grading Approval, 3D Tech-Pack Sign-off & Sample Release',
+          authorityScope: 'Vehicle Gate-Out Clearance & Container Seal Sign-off',
           appointmentDate: headUser.created_at ? new Date(headUser.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'Active',
         } : null}
         operationalSpecs={[
-          { label: 'CAD Workstations', value: '6 High-Performance CAD Stations', iconName: 'Monitor' },
-          { label: 'Sample Iteration Suite', value: 'Physical & 3D Virtual Fit Prototyping', iconName: 'Sparkles' },
-          { label: 'Digitizing & Plotting', value: 'Wide-Format Industrial Gerber Plotters', iconName: 'Cpu' },
-          { label: 'Pattern Spec Standard', value: 'AAMA / ASTM D5586 Grading Compliance', iconName: 'FileText' },
+          { label: 'Export Loading Bays', value: '3 Dedicated High-Clearance Bays', iconName: 'Container' },
+          { label: 'Carton Packing Check', value: '100% Barcode Verified Scan', iconName: 'Box' },
+          { label: 'Weighbridge Gate Pass', value: 'Automated Gross/Tare Ledger', iconName: 'Scale' },
+          { label: 'Container Stuffing', value: '20ft & 40ft High-Cube Compatible', iconName: 'Truck' },
         ]}
         staff={staffList}
-        shiftDetails="General Shift (09:00 AM - 06:00 PM)"
-        qualityStandard="Zero Tolerance Tech-Pack Specs • ISO 8559 Sizing Compliance"
+        shiftDetails="Shift A (08:30 AM - 06:00 PM)"
+        qualityStandard="100% Physical Count Audit • Zero Shortage Variance"
       />
     </AdminShell>
   )

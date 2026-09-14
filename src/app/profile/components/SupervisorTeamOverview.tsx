@@ -1,18 +1,30 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import {
   Users,
-  Scissors,
-  Layers,
-  CheckCircle2,
-  Package,
-  Truck,
-  Briefcase,
   Search,
   ExternalLink,
+  ShieldCheck,
+  Boxes,
+  Palette,
+  Briefcase,
+  Scissors,
+  Printer,
+  Sparkles,
+  Layers,
+  Waves,
+  Flame,
+  Wrench,
+  Store,
+  Truck,
+  UserCheck
 } from 'lucide-react'
+import {
+  DEPARTMENT_HEADS_CATALOG,
+  ROLE_MODULE_MAPPING,
+} from '@/lib/access-control'
 
 export interface ProfileUser {
   id: string
@@ -20,114 +32,102 @@ export interface ProfileUser {
   role: string
   is_active?: boolean
   created_at?: string
+  allowed_modules?: string[]
+  is_head?: boolean
+  designation?: string
+  company_name?: string
 }
 
 interface SupervisorTeamOverviewProps {
   staff: ProfileUser[]
+  allowedDivisions?: string[]
 }
 
-const ROLE_META: Record<
-  string,
-  { label: string; department: string; icon: React.ComponentType<{ className?: string }> }
-> = {
-  LINEMAN: {
-    label: 'Lineman',
-    department: 'Stitching Department',
-    icon: Scissors,
-  },
-  MENDING: {
-    label: 'Mending',
-    department: 'Matrix / Mending Floor',
-    icon: Layers,
-  },
-  PRODUCTION: {
-    label: 'QC / Finishing',
-    department: 'Finishing & QC Floor',
-    icon: CheckCircle2,
-  },
-  STORE: {
-    label: 'Store / Godown',
-    department: 'Godown & Raw Materials',
-    icon: Package,
-  },
-  DISPATCH: {
-    label: 'Dispatch / Packing',
-    department: 'Final Packing & Dispatch',
-    icon: Truck,
-  },
-  PRODUCTION_MANAGER: {
-    label: 'Prod Manager',
-    department: 'Plant Operations Management',
-    icon: Briefcase,
-  },
+const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
+  Palette,
+  Briefcase,
+  Scissors,
+  Printer,
+  Sparkles,
+  Layers,
+  Waves,
+  Flame,
+  Boxes,
+  Wrench,
+  Store,
+  Truck,
 }
 
-export function SupervisorTeamOverview({ staff }: SupervisorTeamOverviewProps) {
+export function SupervisorTeamOverview({
+  staff = [],
+  allowedDivisions = [],
+}: SupervisorTeamOverviewProps) {
   const [searchTerm, setSearchTerm] = useState('')
-  const [selectedRole, setSelectedRole] = useState<string>('ALL')
+  const [selectedModule, setSelectedModule] = useState<string>('ALL')
 
-  // Filter out ADMIN from the supervisor listing
-  const supervisors = staff.filter(
-    (u) => (u.role || '').toUpperCase() !== 'ADMIN'
-  )
+  // STRICT EXECUTIVE FILTER:
+  // Shop-floor workers (Linemen, Tailors, Helpers, Operators) must NEVER be shown on Master Company Profile.
+  // They belong exclusively in their specific module profiles (e.g. /stitching-sewing/profile).
+  const executiveHeads = useMemo(() => {
+    return staff.filter((u) => {
+      const roleUpper = (u.role || '').toUpperCase()
+      if (roleUpper === 'PLATFORM_SUPERADMIN') return false
+      if (roleUpper === 'SUPERADMIN' && !u.is_head) return false
 
-  const counts = {
-    total: supervisors.length,
-    lineman: supervisors.filter((u) => u.role?.toUpperCase() === 'LINEMAN').length,
-    mending: supervisors.filter((u) => u.role?.toUpperCase() === 'MENDING').length,
-    qc: supervisors.filter((u) => u.role?.toUpperCase() === 'PRODUCTION').length,
-    store: supervisors.filter((u) => u.role?.toUpperCase() === 'STORE').length,
-    dispatch: supervisors.filter((u) => u.role?.toUpperCase() === 'DISPATCH').length,
-    prodManager: supervisors.filter((u) => u.role?.toUpperCase() === 'PRODUCTION_MANAGER').length,
+      const isFloorWorker =
+        roleUpper === 'LINEMAN' ||
+        roleUpper === 'TAILOR' ||
+        roleUpper === 'HELPER' ||
+        roleUpper === 'OPERATOR' ||
+        roleUpper === 'WORKER'
+
+      // Exclude regular floor workers unless explicitly appointed as an Executive Head
+      if (isFloorWorker && !u.is_head) return false
+
+      return true
+    })
+  }, [staff])
+
+  // Resolve which active modules to display based on company subscription
+  const activeModules = useMemo(() => {
+    if (allowedDivisions.length > 0) {
+      return DEPARTMENT_HEADS_CATALOG.filter((d) => allowedDivisions.includes(d.route))
+    }
+    return DEPARTMENT_HEADS_CATALOG.slice(0, 6)
+  }, [allowedDivisions])
+
+  // Helper to test if a user belongs to a specific module route
+  const isUserInModule = (user: ProfileUser, route: string) => {
+    if (Array.isArray(user.allowed_modules) && user.allowed_modules.includes(route)) {
+      return true
+    }
+    const roleRoutes = ROLE_MODULE_MAPPING[user.role?.toUpperCase() || ''] || []
+    return roleRoutes.includes(route as any)
   }
 
-  const filteredSupervisors = supervisors.filter((s) => {
-    const matchesSearch =
-      s.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (s.role || '').toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesRole =
-      selectedRole === 'ALL' || s.role?.toUpperCase() === selectedRole
-    return matchesSearch && matchesRole
-  })
+  // Calculate executive head counts per active module
+  const moduleCounts = useMemo(() => {
+    const counts: Record<string, number> = {}
+    activeModules.forEach((mod) => {
+      counts[mod.route] = executiveHeads.filter((u) => isUserInModule(u, mod.route)).length
+    })
+    return counts
+  }, [activeModules, executiveHeads])
 
-  const departmentCards = [
-    {
-      key: 'LINEMAN',
-      title: 'Stitching (Lineman)',
-      count: counts.lineman,
-      icon: Scissors,
-    },
-    {
-      key: 'MENDING',
-      title: 'Mending (Matrix)',
-      count: counts.mending,
-      icon: Layers,
-    },
-    {
-      key: 'PRODUCTION',
-      title: 'QC & Finishing',
-      count: counts.qc,
-      icon: CheckCircle2,
-    },
-    {
-      key: 'STORE',
-      title: 'Store & Godown',
-      count: counts.store,
-      icon: Package,
-    },
-    {
-      key: 'DISPATCH',
-      title: 'Dispatch & Packing',
-      count: counts.dispatch,
-      icon: Truck,
-    },
-    {
-      key: 'PRODUCTION_MANAGER',
-      title: 'Prod Managers',
-      count: counts.prodManager,
-      icon: Briefcase,
-    },
-  ]
+  // Filtered executive leadership directory
+  const filteredExecutives = useMemo(() => {
+    return executiveHeads.filter((s) => {
+      const matchesSearch =
+        s.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (s.role || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (s.designation || '').toLowerCase().includes(searchTerm.toLowerCase())
+
+      const matchesModule =
+        selectedModule === 'ALL' || isUserInModule(s, selectedModule)
+
+      return matchesSearch && matchesModule
+    })
+  }, [executiveHeads, searchTerm, selectedModule])
 
   return (
     <div className="bg-white rounded-2xl border border-black/10 shadow-2xs p-5 sm:p-7 space-y-6">
@@ -135,42 +135,45 @@ export function SupervisorTeamOverview({ staff }: SupervisorTeamOverviewProps) {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-100">
         <div className="flex items-center gap-3.5">
           <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
-            <Users className="w-5 h-5 sm:w-6 sm:h-6" />
+            <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
-              <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
-                Supervisors & Factory Team
+              <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight font-[family-name:var(--font-heading)]">
+                Department Heads & Division Leadership
               </h2>
               <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs">
-                {counts.total} Active
+                {executiveHeads.length} {executiveHeads.length === 1 ? 'Division Head' : 'Division Heads'}
               </span>
             </div>
             <p className="text-xs sm:text-sm text-slate-600 mt-1">
-              Live floor distribution and supervisor personnel directory
+              Executive department heads and division leadership appointed across your factory&apos;s active modules
             </p>
           </div>
         </div>
 
         <Link
-          href="/employees"
+          href="/modules/access-control"
           className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-[#3A3564] bg-[#FAF7F0] hover:bg-[#F2ECE1] border border-black/10 shadow-2xs transition-all w-fit cursor-pointer"
         >
-          <span>Manage Staff & Logins</span>
+          <span>Appoint & Manage Heads</span>
           <ExternalLink className="w-3.5 h-3.5" />
         </Link>
       </div>
 
-      {/* Department Breakdown Cards (Unified Minimal Palette, Zero Rainbow Colors) */}
+      {/* Active Division Breakdown Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-3.5">
-        {departmentCards.map((dept) => {
-          const Icon = dept.icon
-          const isSelected = selectedRole === dept.key
+        {activeModules.map((dept) => {
+          const Icon = ICON_MAP[dept.iconName] || Boxes
+          const isSelected = selectedModule === dept.route
+          const count = moduleCounts[dept.route] || 0
+          const hasHead = count > 0
+
           return (
             <button
-              key={dept.key}
+              key={dept.id}
               type="button"
-              onClick={() => setSelectedRole(isSelected ? 'ALL' : dept.key)}
+              onClick={() => setSelectedModule(isSelected ? 'ALL' : dept.route)}
               className={`p-3.5 sm:p-4 rounded-xl border text-left transition-all cursor-pointer relative overflow-hidden flex flex-col justify-between gap-3 ${
                 isSelected
                   ? 'bg-[#3A3564] border-[#3A3564] text-white shadow-md ring-2 ring-[#3A3564]/30'
@@ -188,27 +191,32 @@ export function SupervisorTeamOverview({ staff }: SupervisorTeamOverviewProps) {
                   <Icon className="w-4 h-4" />
                 </div>
                 <span
-                  className={`text-xl sm:text-2xl font-black font-mono tracking-tight ${
-                    isSelected ? 'text-white' : 'text-slate-900'
+                  className={`text-xs font-mono font-bold px-2 py-0.5 rounded-md ${
+                    isSelected
+                      ? 'bg-white/20 text-white'
+                      : hasHead
+                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                      : 'bg-slate-100 text-slate-500'
                   }`}
                 >
-                  {dept.count}
+                  {hasHead ? 'Appointed' : 'Pending'}
                 </span>
               </div>
               <div>
                 <p
-                  className={`text-xs font-bold leading-tight truncate ${
+                  className={`text-xs font-bold leading-tight line-clamp-1 ${
                     isSelected ? 'text-white' : 'text-slate-900'
                   }`}
+                  title={dept.name}
                 >
-                  {dept.title}
+                  {dept.name.split('&')[0].trim()}
                 </p>
                 <p
                   className={`text-[11px] font-mono mt-1 ${
                     isSelected ? 'text-slate-200' : 'text-slate-500'
                   }`}
                 >
-                  {dept.count === 1 ? '1 supervisor' : `${dept.count} supervisors`}
+                  {count === 1 ? '1 Division Head' : `${count} Division Heads`}
                 </p>
               </div>
             </button>
@@ -216,81 +224,88 @@ export function SupervisorTeamOverview({ staff }: SupervisorTeamOverviewProps) {
         })}
       </div>
 
-      {/* Supervisors Search & Filter Bar */}
+      {/* Search & Filter Bar */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2">
         <div className="relative w-full sm:max-w-xs">
           <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
-            placeholder="Search by name or department..."
+            placeholder="Search by name, role, or designation..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-9 pr-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] bg-slate-50/50 font-medium text-slate-900 placeholder:text-slate-400"
           />
         </div>
 
+        {/* Dynamic Division Filter Tabs */}
         <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 no-scrollbar">
           <button
             type="button"
-            onClick={() => setSelectedRole('ALL')}
+            onClick={() => setSelectedModule('ALL')}
             className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shadow-2xs ${
-              selectedRole === 'ALL'
+              selectedModule === 'ALL'
                 ? 'bg-[#3A3564] text-white shadow-xs'
                 : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200/60'
             }`}
           >
-            All ({supervisors.length})
+            All ({executiveHeads.length})
           </button>
-          {['LINEMAN', 'MENDING', 'PRODUCTION', 'STORE', 'DISPATCH', 'PRODUCTION_MANAGER'].map((role) => (
-            <button
-              key={role}
-              type="button"
-              onClick={() => setSelectedRole(role)}
-              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shadow-2xs ${
-                selectedRole === role
-                  ? 'bg-[#3A3564] text-white shadow-xs'
-                  : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200/60'
-              }`}
-            >
-              {ROLE_META[role]?.label || role}
-            </button>
-          ))}
+          {activeModules.map((dept) => {
+            const count = moduleCounts[dept.route] || 0
+            return (
+              <button
+                key={dept.id}
+                type="button"
+                onClick={() => setSelectedModule(dept.route)}
+                className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shadow-2xs ${
+                  selectedModule === dept.route
+                    ? 'bg-[#3A3564] text-white shadow-xs'
+                    : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200/60'
+                }`}
+              >
+                {dept.name.split('&')[0].trim()} ({count})
+              </button>
+            )
+          })}
         </div>
       </div>
 
-      {/* Supervisor Directory Table */}
+      {/* Executive Directory Table */}
       <div className="border border-slate-200 rounded-xl overflow-hidden shadow-2xs">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse min-w-[680px]">
             <thead>
               <tr className="bg-[#FAF7F0] border-b border-black/10 text-slate-600 font-mono font-bold uppercase tracking-wider text-xs">
-                <th className="py-3.5 px-4">Supervisor User</th>
-                <th className="py-3.5 px-4">Department / Module</th>
-                <th className="py-3.5 px-4">Access Role</th>
-                <th className="py-3.5 px-4">Account Status</th>
-                <th className="py-3.5 px-4 text-right">Created Date</th>
+                <th className="py-3.5 px-4">Department Head / In-Charge</th>
+                <th className="py-3.5 px-4">Assigned Division</th>
+                <th className="py-3.5 px-4">Official Executive Designation</th>
+                <th className="py-3.5 px-4">Authority Status</th>
+                <th className="py-3.5 px-4 text-right">Appointed Date</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-xs sm:text-sm">
-              {filteredSupervisors.length === 0 ? (
+              {filteredExecutives.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="py-12 text-center text-slate-400">
-                    <Users className="w-9 h-9 mx-auto mb-2 text-slate-300" />
-                    <p className="font-semibold text-slate-600">No supervisor records found</p>
+                    <UserCheck className="w-9 h-9 mx-auto mb-2 text-slate-300" />
+                    <p className="font-semibold text-slate-600">No Department Heads appointed for this module yet</p>
                     <p className="text-xs text-slate-400 mt-0.5">
-                      Try searching with different terms or selecting another role filter.
+                      Use the &quot;Appoint &amp; Manage Heads&quot; action above to designate a Department Head.
                     </p>
                   </td>
                 </tr>
               ) : (
-                filteredSupervisors.map((user) => {
-                  const roleUpper = (user.role || '').toUpperCase()
-                  const meta = ROLE_META[roleUpper] || {
-                    label: user.role || 'Staff',
-                    department: 'General Operations',
-                    icon: Users,
-                  }
-                  const RoleIcon = meta.icon
+                filteredExecutives.map((user) => {
+                  // Resolve user's primary assigned module
+                  const assignedRoute =
+                    user.allowed_modules?.[0] ||
+                    ROLE_MODULE_MAPPING[user.role?.toUpperCase() || '']?.[0] ||
+                    '/stitching-sewing'
+
+                  const divisionDef = DEPARTMENT_HEADS_CATALOG.find((d) => d.route === assignedRoute)
+                  const deptTitle = divisionDef?.name || 'General Manufacturing'
+                  const DeptIcon = divisionDef ? ICON_MAP[divisionDef.iconName] || Boxes : Boxes
+
                   const formattedDate = user.created_at
                     ? new Date(user.created_at).toLocaleDateString('en-US', {
                         day: '2-digit',
@@ -306,7 +321,7 @@ export function SupervisorTeamOverview({ staff }: SupervisorTeamOverviewProps) {
                     >
                       <td className="py-3.5 px-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] border border-black/10 text-[#3A3564] font-bold flex items-center justify-center shrink-0 text-xs uppercase shadow-2xs">
+                          <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] border border-black/10 text-[#3A3564] font-bold flex items-center justify-center shrink-0 text-xs uppercase shadow-2xs font-mono">
                             {user.username.substring(0, 2)}
                           </div>
                           <div>
@@ -321,23 +336,29 @@ export function SupervisorTeamOverview({ staff }: SupervisorTeamOverviewProps) {
                       </td>
 
                       <td className="py-3.5 px-4">
-                        <span className="text-slate-800 font-semibold text-xs sm:text-sm">
-                          {meta.department}
+                        <span className="text-slate-800 font-semibold text-xs sm:text-sm flex items-center gap-1.5">
+                          <DeptIcon className="w-3.5 h-3.5 text-[#3A3564] shrink-0" />
+                          <span>{deptTitle}</span>
                         </span>
                       </td>
 
                       <td className="py-3.5 px-4">
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs font-mono">
-                          <RoleIcon className="w-3.5 h-3.5 text-[#3A3564]" />
-                          {meta.label}
-                        </span>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs font-mono">
+                            {user.designation || user.role}
+                          </span>
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-mono font-extrabold uppercase bg-emerald-100 text-emerald-800 border border-emerald-300">
+                            <ShieldCheck className="w-3 h-3" />
+                            Head
+                          </span>
+                        </div>
                       </td>
 
                       <td className="py-3.5 px-4">
                         {user.is_active !== false ? (
                           <span className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-900 font-mono">
                             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                            Active
+                            Authorized In-Charge
                           </span>
                         ) : (
                           <span className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 font-mono">
