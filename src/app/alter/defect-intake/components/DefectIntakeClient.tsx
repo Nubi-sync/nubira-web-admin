@@ -18,6 +18,7 @@ import {
 import { getAlterTickets, ALTER_UPDATE_EVENT } from '../../utils/alterStorage'
 import { AlterationTicket } from '../../types/alter'
 import { LogDefectModal } from './LogDefectModal'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 interface DefectIntakeClientProps {
   userEmail?: string
@@ -73,7 +74,7 @@ export function DefectIntakeClient({ userEmail }: DefectIntakeClientProps) {
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-3.5">
           <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-            <AlertTriangle className="w-6 h-6 text-amber-600" />
+            <AlertTriangle className="w-6 h-6 text-[#3A3564]" />
           </div>
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
@@ -107,7 +108,7 @@ export function DefectIntakeClient({ userEmail }: DefectIntakeClientProps) {
               Total Intake Today
             </span>
             <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
-              <AlertTriangle className="w-4 h-4 text-amber-600" />
+              <AlertTriangle className="w-4 h-4 text-[#3A3564]" />
             </div>
           </div>
           <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900">
@@ -121,11 +122,11 @@ export function DefectIntakeClient({ userEmail }: DefectIntakeClientProps) {
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Lineman Traceability
             </span>
-            <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
               <CheckCircle2 className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black font-mono text-emerald-600">
+          <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900">
             100.0%
           </div>
           <p className="text-xs font-semibold text-slate-500 mt-1">Direct FK Attribution to Operator</p>
@@ -151,7 +152,7 @@ export function DefectIntakeClient({ userEmail }: DefectIntakeClientProps) {
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Secondary Quality Gate
             </span>
-            <div className="w-8 h-8 rounded-lg bg-sky-50 text-sky-700 border border-sky-200 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
               <Wrench className="w-4 h-4" />
             </div>
           </div>
@@ -215,7 +216,7 @@ export function DefectIntakeClient({ userEmail }: DefectIntakeClientProps) {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse">
+          <table className="w-full text-left text-xs border-collapse min-w-[760px]">
             <thead>
               <tr className="border-b border-black/10 bg-slate-50/70 text-slate-600 font-mono text-[11px] uppercase tracking-wider">
                 <th className="py-3 px-4">Ticket Voucher</th>
@@ -232,8 +233,15 @@ export function DefectIntakeClient({ userEmail }: DefectIntakeClientProps) {
             <tbody className="divide-y divide-black/5">
               {filteredTickets.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="py-8 text-center text-slate-400 font-mono text-xs">
-                    No inward defects recorded matching your search.
+                  <td colSpan={9} className="p-8">
+                    <EmptyState
+                      icon={AlertTriangle}
+                      title="No inward defects recorded"
+                      description="No quarantined garments are currently logged for defect intake triage."
+                      actionLabel="Log Inward Defect (Form 1)"
+                      onAction={() => setIsModalOpen(true)}
+                      variant="seamless"
+                    />
                   </td>
                 </tr>
               ) : (
@@ -253,7 +261,7 @@ export function DefectIntakeClient({ userEmail }: DefectIntakeClientProps) {
                       {ticket.sourceDivision}
                     </td>
                     <td className="py-3 px-4">
-                      <span className="font-mono font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                      <span className="font-mono font-bold text-[#3A3564] bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
                         {ticket.defectType}
                       </span>
                     </td>
@@ -264,7 +272,7 @@ export function DefectIntakeClient({ userEmail }: DefectIntakeClientProps) {
                       {ticket.assignedStation}
                     </td>
                     <td className="py-3 px-4">
-                      <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold border border-amber-200">
+                      <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-[#FAF7F0] text-[#3A3564] font-bold border border-black/10">
                         {ticket.resolutionStatus}
                       </span>
                     </td>
