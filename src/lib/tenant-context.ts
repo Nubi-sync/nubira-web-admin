@@ -112,20 +112,52 @@ export async function resolveUserTenant(user: {
     }
 
     if (tenant) {
-      const divisions = Array.isArray(tenant.allowed_divisions) && tenant.allowed_divisions.length > 0
-        ? tenant.allowed_divisions
-        : ALL_DEFAULT_DIVISIONS
+      // Check if user is the tenant's primary factory admin
+      const isTenantAdmin = Boolean(tenant.admin_email && tenant.admin_email.toLowerCase() === userEmail.toLowerCase())
+
+      // Fetch user's profile to check if they are a department head or employee
+      let profileRole = ''
+      let profileUsername = ''
+      let profileAllowedModules: string[] = []
+      try {
+        const { data: prof } = await supabaseAdmin
+          .from('profiles')
+          .select('username, role, allowed_modules, is_head, designation')
+          .eq('id', user.id)
+          .maybeSingle()
+        if (prof) {
+          profileRole = prof.role || ''
+          profileUsername = prof.username || ''
+          profileAllowedModules = Array.isArray(prof.allowed_modules) ? prof.allowed_modules : []
+        }
+      } catch (_) {}
+
+      // If user is not the factory admin, determine their role & scope
+      const effectiveRole = (profileRole || metadata.role || (isTenantAdmin ? 'SUPERADMIN' : 'STAFF')).toUpperCase()
+      const isSuperAdmin = isTenantAdmin || effectiveRole === 'SUPERADMIN' || effectiveRole === 'ADMIN'
+
+      const userAllowedModules = profileAllowedModules.length > 0
+        ? profileAllowedModules
+        : (Array.isArray(metadata.allowed_modules) && metadata.allowed_modules.length > 0 ? metadata.allowed_modules : [])
+
+      const divisions = isSuperAdmin
+        ? (Array.isArray(tenant.allowed_divisions) && tenant.allowed_divisions.length > 0 ? tenant.allowed_divisions : ALL_DEFAULT_DIVISIONS)
+        : (userAllowedModules.length > 0 ? userAllowedModules : ['/stitching-sewing'])
+
+      const displayName = isTenantAdmin
+        ? (tenant.admin_name || metadata.displayName || 'Plant Head')
+        : (metadata.display_name || metadata.displayName || profileUsername || 'Department Head')
 
       return {
         userId: user.id,
         userEmail,
-        role: 'SUPERADMIN',
-        isSuperAdmin: true,
+        role: effectiveRole,
+        isSuperAdmin,
         isPlatformAdmin: false,
         companyName: tenant.company_name,
-        adminDisplayName: tenant.admin_name || metadata.displayName || 'Plant Head',
-        customUsername: metadata.username || `${tenant.plant_slug}_admin`,
-        phone: tenant.phone || '',
+        adminDisplayName: displayName,
+        customUsername: metadata.username || profileUsername || `${userEmail.split('@')[0]}`,
+        phone: isTenantAdmin ? (tenant.phone || '') : (metadata.phone || ''),
         cityState: tenant.city_state || 'India',
         subscriptionTier: tenant.subscription_tier || 'FULL_PLANT_AI',
         allowedDivisions: divisions,

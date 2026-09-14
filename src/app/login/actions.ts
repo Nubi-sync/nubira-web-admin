@@ -55,15 +55,25 @@ export async function login(formData: FormData) {
             email = authUser.user.email
           }
         } else {
-          // 2. Check platform_tenant_factories by plant_slug or admin_name
-          const { data: matchedTenant } = await adminClient
-            .from('platform_tenant_factories')
-            .select('admin_email')
-            .or(`plant_slug.eq.${cleanEmailKey},admin_name.ilike.${rawInput.trim()}`)
-            .maybeSingle()
+          // 2. Check auth users by metadata username or email prefix
+          const { data: userList } = await adminClient.auth.admin.listUsers({ perPage: 200 })
+          const matchedAuth = userList?.users?.find(u =>
+            u.user_metadata?.username?.toLowerCase() === cleanEmailKey ||
+            u.email?.toLowerCase().startsWith(`${cleanEmailKey}@`)
+          )
+          if (matchedAuth?.email) {
+            email = matchedAuth.email
+          } else {
+            // 3. Check platform_tenant_factories by plant_slug or admin_name
+            const { data: matchedTenant } = await adminClient
+              .from('platform_tenant_factories')
+              .select('admin_email')
+              .or(`plant_slug.eq.${cleanEmailKey},admin_name.ilike.${rawInput.trim()}`)
+              .maybeSingle()
 
-          if (matchedTenant?.admin_email) {
-            email = matchedTenant.admin_email
+            if (matchedTenant?.admin_email) {
+              email = matchedTenant.admin_email
+            }
           }
         }
       } catch (lookupErr) {
