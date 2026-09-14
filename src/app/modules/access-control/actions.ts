@@ -96,24 +96,37 @@ export async function fetchCompanyDepartmentHeadsAction(): Promise<{
       return !p.company_name && p.role !== 'PLATFORM_SUPERADMIN'
     })
 
+    // Fetch auth metadata to get true login username and display name
+    const authUserMap = new Map<string, any>()
+    try {
+      const { data: authUsers } = await supabaseAdmin.auth.admin.listUsers({ perPage: 200 })
+      if (authUsers?.users) {
+        authUsers.users.forEach(u => authUserMap.set(u.id, u))
+      }
+    } catch (_) {}
+
     // Map profiles into clean DepartmentHeadItem objects
     const mappedHeads: DepartmentHeadItem[] = companyProfiles.map(p => {
+      const authUser = authUserMap.get(p.id)
       const rawModules = Array.isArray(p.allowed_modules) ? p.allowed_modules : []
       // If allowed_modules is empty, infer from role
       const inferredModules = rawModules.length > 0 
         ? rawModules 
         : (p.role === 'ADMIN' ? [...ALL_DIVISION_ROUTES] : [`/${(p.role || '').toLowerCase().replace(/_/g, '-')}`])
 
+      const loginUsername = authUser?.user_metadata?.username || p.username || 'staff_user'
+      const displayName = authUser?.user_metadata?.display_name || p.username || 'Department Lead'
+
       return {
         id: p.id,
-        displayName: p.username || 'Department Lead',
-        username: p.username || 'staff_user',
-        email: p.email || `${(p.username || 'head').toLowerCase().replace(/\s+/g, '_')}@${company.toLowerCase().replace(/[^a-z0-9]/g, '') || 'factory'}.local`,
+        displayName: displayName,
+        username: loginUsername,
+        email: authUser?.email || p.email || `${loginUsername.toLowerCase().replace(/\s+/g, '_')}@${company.toLowerCase().replace(/[^a-z0-9]/g, '') || 'factory'}.local`,
         role: p.role || 'OPERATIONS_HEAD',
         designation: p.designation || deriveDesignation(p.role, inferredModules),
         allowedModules: inferredModules,
         isActive: p.is_active !== false,
-        phone: p.phone || undefined,
+        phone: p.phone || authUser?.user_metadata?.phone || undefined,
         createdAt: p.created_at
       }
     })
@@ -208,6 +221,7 @@ export async function appointOrUpdateDepartmentHeadAction(payload: {
       // 1. Update public.profiles
       const updateData: any = {
         username: cleanName,
+        role: deriveProfileRole(modulesToAssign),
         designation: defaultDesignation,
         allowed_modules: modulesToAssign,
         company_name: tenant.companyName,
@@ -222,7 +236,8 @@ export async function appointOrUpdateDepartmentHeadAction(payload: {
         .eq('id', payload.headId)
 
       if (profErr) {
-        console.warn('[appointOrUpdateDepartmentHeadAction] Profile update warning:', profErr.message)
+        console.error('[appointOrUpdateDepartmentHeadAction] Profile update error:', profErr.message)
+        return { success: false, error: `Failed to update profile: ${profErr.message}` }
       }
 
       // 2. If password provided, update auth
@@ -324,7 +339,7 @@ export async function appointOrUpdateDepartmentHeadAction(payload: {
     const profileRow = {
       id: authUserId,
       username: cleanName,
-      role: 'DEPARTMENT_HEAD',
+      role: deriveProfileRole(modulesToAssign),
       designation: defaultDesignation,
       allowed_modules: modulesToAssign,
       company_name: tenant.companyName,
@@ -338,7 +353,8 @@ export async function appointOrUpdateDepartmentHeadAction(payload: {
       .upsert(profileRow)
 
     if (insertErr) {
-      console.warn('[appointOrUpdateDepartmentHeadAction] Profiles insert warning:', insertErr.message)
+      console.error('[appointOrUpdateDepartmentHeadAction] Profiles insert error:', insertErr.message)
+      return { success: false, error: `Failed to save profile: ${insertErr.message}` }
     }
 
     revalidatePath('/modules/access-control')
@@ -469,4 +485,17 @@ function deriveDesignation(role: string, modules: string[]): string {
   if (modules.includes('/embroidery')) return 'Embroidery Head'
   if (modules.includes('/dispatch')) return 'Dispatch & Logistics Manager'
   return 'Department Incharge'
+}
+
+/**
+ * Maps operational modules to a valid PostgreSQL profiles_role_check constraint role.
+ * Valid database roles: ADMIN, PRODUCTION_MANAGER, QC, MENDING, LINEMAN, PRODUCTION, STORE, DISPATCH
+ */
+function deriveProfileRole(modules: string[]): string {
+  if (modules.includes('/stitching-sewing')) return 'PRODUCTION_MANAGER'
+  if (modules.includes('/store')) return 'STORE'
+  if (modules.includes('/ready-goods')) return 'QC'
+  if (modules.includes('/alter')) return 'MENDING'
+  if (modules.includes('/dispatch')) return 'DISPATCH'
+  return 'ADMIN'
 }
