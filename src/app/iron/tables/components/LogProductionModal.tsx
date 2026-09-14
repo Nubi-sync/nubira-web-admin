@@ -178,16 +178,16 @@ export function LogProductionModal({ isOpen, onClose, defaultTable }: LogProduct
           </div>
 
           {/* Auto-Calculated Wages Banner */}
-          <div className="p-3.5 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-950 flex items-center justify-between">
+          <div className="p-3.5 rounded-xl border border-black/10 bg-[#FAF7F0] text-slate-900 flex items-center justify-between">
             <div>
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-800 block">
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 block">
                 Calculated Shift Earnings
               </span>
-              <div className="text-xs text-emerald-900 font-mono">
+              <div className="text-xs text-slate-700 font-mono">
                 {piecesPressed} pcs &times; ₹{rate.toFixed(2)}/pc
               </div>
             </div>
-            <div className="text-xl font-black font-mono text-emerald-700">
+            <div className="text-xl font-black font-mono text-slate-900">
               ₹{earnedWages.toLocaleString()}
             </div>
           </div>

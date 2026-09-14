@@ -178,21 +178,21 @@ export function RecordQcModal({ isOpen, onClose }: RecordQcModalProps) {
           <div
             className={`p-3.5 rounded-xl border flex items-center justify-between ${
               autoStatus === 'PASS'
-                ? 'bg-emerald-50 border-emerald-200 text-emerald-950'
-                : 'bg-rose-50 border-rose-200 text-rose-950 animate-pulse'
+                ? 'bg-[#FAF7F0] border-black/10 text-slate-900'
+                : 'bg-rose-50 border-rose-200 text-rose-950'
             }`}
           >
             <div className="flex items-center gap-2">
               {autoStatus === 'PASS' ? (
-                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                <CheckCircle2 className="w-4 h-4 text-[#3A3564]" />
               ) : (
-                <AlertTriangle className="w-4 h-4 text-rose-600" />
+                <AlertTriangle className="w-4 h-4 text-rose-700" />
               )}
               <span className="text-xs font-bold font-mono uppercase">
                 Audit Verdict: {autoStatus === 'PASS' ? 'CLEAN PASS' : 'REWORK QUARANTINE'}
               </span>
             </div>
-            <span className="text-xs font-mono font-bold">
+            <span className="text-xs font-mono font-bold text-slate-900">
               {totalDefects} Defects Found
             </span>
           </div>
