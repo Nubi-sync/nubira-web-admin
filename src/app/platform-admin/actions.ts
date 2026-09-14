@@ -77,38 +77,31 @@ export async function fetchDemoRequestsAction(): Promise<{
   }
 }
 
-export async function checkContactInUseAction(email: string, phone: string): Promise<{
+export async function checkContactInUseAction(email?: string, phone?: string): Promise<{
   inUse: boolean
-  field?: 'email' | 'phone'
+  phoneInUse?: boolean
+  emailInUse?: boolean
+  phoneCompany?: string
+  emailCompany?: string
+  phoneIsTenant?: boolean
+  emailIsTenant?: boolean
+  field?: 'email' | 'phone' | 'both'
   companyName?: string
 }> {
   try {
-    const cleanEmail = email.trim().toLowerCase()
-    const cleanPhoneDigits = phone.replace(/\D/g, '')
+    const cleanEmail = email ? email.trim().toLowerCase() : ''
+    const cleanPhoneDigits = phone ? phone.replace(/\D/g, '') : ''
     const phoneLast10 = cleanPhoneDigits.slice(-10)
 
-    if (cleanEmail) {
-      const { data: emailLead } = await supabaseAdmin
-        .from('platform_demo_requests')
-        .select('company_name')
-        .ilike('email', cleanEmail)
-        .limit(1)
+    let phoneInUse = false
+    let phoneCompany = ''
+    let phoneIsTenant = false
 
-      if (emailLead && emailLead.length > 0) {
-        return { inUse: true, field: 'email', companyName: emailLead[0].company_name }
-      }
+    let emailInUse = false
+    let emailCompany = ''
+    let emailIsTenant = false
 
-      const { data: emailTenant } = await supabaseAdmin
-        .from('platform_tenant_factories')
-        .select('company_name')
-        .ilike('admin_email', cleanEmail)
-        .limit(1)
-
-      if (emailTenant && emailTenant.length > 0) {
-        return { inUse: true, field: 'email', companyName: emailTenant[0].company_name }
-      }
-    }
-
+    // 1. Check Phone in leads and provisioned tenant accounts
     if (phoneLast10 && phoneLast10.length === 10) {
       const { data: phoneLead } = await supabaseAdmin
         .from('platform_demo_requests')
@@ -117,21 +110,68 @@ export async function checkContactInUseAction(email: string, phone: string): Pro
         .limit(1)
 
       if (phoneLead && phoneLead.length > 0) {
-        return { inUse: true, field: 'phone', companyName: phoneLead[0].company_name }
-      }
+        phoneInUse = true
+        phoneCompany = phoneLead[0].company_name
+        phoneIsTenant = false
+      } else {
+        const { data: phoneTenant } = await supabaseAdmin
+          .from('platform_tenant_factories')
+          .select('company_name')
+          .ilike('phone', `%${phoneLast10}%`)
+          .limit(1)
 
-      const { data: phoneTenant } = await supabaseAdmin
-        .from('platform_tenant_factories')
-        .select('company_name')
-        .ilike('phone', `%${phoneLast10}%`)
-        .limit(1)
-
-      if (phoneTenant && phoneTenant.length > 0) {
-        return { inUse: true, field: 'phone', companyName: phoneTenant[0].company_name }
+        if (phoneTenant && phoneTenant.length > 0) {
+          phoneInUse = true
+          phoneCompany = phoneTenant[0].company_name
+          phoneIsTenant = true
+        }
       }
     }
 
-    return { inUse: false }
+    // 2. Check Email in leads and provisioned tenant accounts
+    if (cleanEmail && cleanEmail.includes('@') && cleanEmail.includes('.')) {
+      const { data: emailLead } = await supabaseAdmin
+        .from('platform_demo_requests')
+        .select('company_name')
+        .ilike('email', cleanEmail)
+        .limit(1)
+
+      if (emailLead && emailLead.length > 0) {
+        emailInUse = true
+        emailCompany = emailLead[0].company_name
+        emailIsTenant = false
+      } else {
+        const { data: emailTenant } = await supabaseAdmin
+          .from('platform_tenant_factories')
+          .select('company_name')
+          .ilike('admin_email', cleanEmail)
+          .limit(1)
+
+        if (emailTenant && emailTenant.length > 0) {
+          emailInUse = true
+          emailCompany = emailTenant[0].company_name
+          emailIsTenant = true
+        }
+      }
+    }
+
+    const inUse = phoneInUse || emailInUse
+    let field: 'email' | 'phone' | 'both' | undefined = undefined
+    if (phoneInUse && emailInUse) field = 'both'
+    else if (phoneInUse) field = 'phone'
+    else if (emailInUse) field = 'email'
+
+    return {
+      inUse,
+      phoneInUse,
+      emailInUse,
+      phoneCompany,
+      emailCompany,
+      phoneIsTenant,
+      emailIsTenant,
+      field,
+      companyName: phoneCompany || emailCompany
+    }
   } catch {
     return { inUse: false }
   }
@@ -167,11 +207,23 @@ export async function submitDemoRequestAction(payload: {
         .limit(1)
 
       if (existingLeads && existingLeads.length > 0) {
+        const matched = existingLeads[0]
+        const isEmailMatch = matched.email?.toLowerCase() === cleanEmail
+        const isPhoneMatch = matched.phone?.replace(/\D/g, '').endsWith(phoneLast10)
+        let specificMsg = `An inquiry is already registered for ${matched.company_name} with this contact information.`
+        if (isEmailMatch && isPhoneMatch) {
+          specificMsg = `Both this phone number and email address are already registered with an active inquiry for "${matched.company_name}". Kindly provide alternate contact details if registering for another unit.`
+        } else if (isPhoneMatch) {
+          specificMsg = `This phone number is already booked with us for "${matched.company_name}". Kindly provide another phone number.`
+        } else if (isEmailMatch) {
+          specificMsg = `This email address is already registered with us for "${matched.company_name}". Kindly provide an alternate email ID.`
+        }
+
         return {
           success: false,
           alreadyExists: true,
-          existingCompany: existingLeads[0].company_name,
-          error: `An inquiry is already registered for ${existingLeads[0].company_name} with this email or phone number. Our team is already reviewing your request.`
+          existingCompany: matched.company_name,
+          error: specificMsg
         }
       }
 
@@ -183,11 +235,12 @@ export async function submitDemoRequestAction(payload: {
         .limit(1)
 
       if (existingTenants && existingTenants.length > 0) {
+        const tenant = existingTenants[0]
         return {
           success: false,
           alreadyExists: true,
-          existingCompany: existingTenants[0].company_name,
-          error: `Factory account ${existingTenants[0].company_name} is already provisioned with this email or phone. Please sign in to your staff portal.`
+          existingCompany: tenant.company_name,
+          error: `Factory account "${tenant.company_name}" is already provisioned with this phone/email. Please sign in to your staff portal.`
         }
       }
     } catch (checkErr) {
@@ -200,7 +253,7 @@ export async function submitDemoRequestAction(payload: {
       phone: payload.phone.trim(),
       email: cleanEmail,
       preferred_plan: payload.preferredPlan || 'FULL_PLANT_AI',
-      city_state: payload.cityState || 'India',
+      city_state: payload.cityState?.trim() || 'India',
       estimated_machines: payload.estimatedMachines || 0,
       status: 'NEW_LEAD',
       notes: payload.notes || 'Inquiry submitted via introductory site live demo modal',
