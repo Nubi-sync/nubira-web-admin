@@ -18,6 +18,7 @@ import {
 } from 'lucide-react'
 import { getAlterTickets, ALTER_UPDATE_EVENT } from '../../utils/alterStorage'
 import { AlterationTicket } from '../../types/alter'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 interface SecondaryQcClientProps {
   userEmail?: string
@@ -70,7 +71,7 @@ export function SecondaryQcClient({ userEmail }: SecondaryQcClientProps) {
       {/* Header Banner */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-emerald-50 text-emerald-700 border border-emerald-200">
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
             <CheckCircle2 className="w-6 h-6" />
           </div>
           <div>
@@ -78,7 +79,7 @@ export function SecondaryQcClient({ userEmail }: SecondaryQcClientProps) {
               <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
                 Secondary AQL Re-Inspection Station
               </h1>
-              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 tracking-wider">
+              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 tracking-wider">
                 100% Repaired Clearance
               </span>
             </div>
@@ -104,11 +105,11 @@ export function SecondaryQcClient({ userEmail }: SecondaryQcClientProps) {
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Repaired & Cleared
             </span>
-            <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
               <CheckCircle2 className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black font-mono text-emerald-600">
+          <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900">
             {clearedTickets.length} Garments
           </div>
           <p className="text-xs font-semibold text-slate-500 mt-1">Approved for Re-Injection</p>

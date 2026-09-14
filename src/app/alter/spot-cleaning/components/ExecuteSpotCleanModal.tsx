@@ -103,7 +103,7 @@ export function ExecuteSpotCleanModal({
         <div className="flex items-center justify-between border-b border-black/10 pb-3.5">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
-              <Droplets className="w-5 h-5 text-sky-600" />
+              <Droplets className="w-5 h-5 text-[#3A3564]" />
             </div>
             <div>
               <h2 className="text-lg font-black text-slate-900">
@@ -123,8 +123,8 @@ export function ExecuteSpotCleanModal({
         </div>
 
         {error && (
-          <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-800 font-medium flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4 shrink-0 text-rose-600" />
+          <div className="p-3 rounded-xl bg-[#FAF7F0] border border-black/10 text-xs text-slate-800 font-medium flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 shrink-0 text-[#3A3564]" />
             <span>{error}</span>
           </div>
         )}
@@ -260,7 +260,7 @@ export function ExecuteSpotCleanModal({
               type="submit"
               className="px-4 py-2 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2c284e] transition-all shadow-2xs cursor-pointer inline-flex items-center gap-1.5"
             >
-              <Droplets className="w-3.5 h-3.5 text-sky-300" />
+              <Droplets className="w-3.5 h-3.5 text-white" />
               <span>Log Chemical Spotting</span>
             </button>
           </div>
