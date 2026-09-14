@@ -162,7 +162,7 @@ export function AdminSidebar({
         ],
       },
     ]
-  } else if (pathname === '/modules' || pathname?.startsWith('/modules')) {
+  } else if (pathname === '/modules' || pathname?.startsWith('/modules') || pathname === '/access-control' || pathname?.startsWith('/access-control')) {
     activeNavSections = [
       {
         section: 'Workspace Hub',
@@ -564,6 +564,12 @@ export function AdminSidebar({
     if (
       (href === '/stitching-sewing/dashboard' || href === '/dashboard') &&
       (currentPath === '/' || currentPath === '/dashboard' || currentPath === '/stitching-sewing/dashboard')
+    ) {
+      return true
+    }
+    if (
+      (href === '/modules/access-control' || href === '/access-control') &&
+      (currentPath === '/modules/access-control' || currentPath === '/access-control')
     ) {
       return true
     }
