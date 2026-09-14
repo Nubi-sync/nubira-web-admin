@@ -237,7 +237,7 @@ export function LogDefectModal({
               <select
                 value={defectType}
                 onChange={e => setDefectType(e.target.value as DefectType)}
-                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-white font-mono font-bold text-amber-800"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-white font-mono font-bold text-slate-800"
               >
                 <option value="SKIP_STITCH">SKIP_STITCH (Skipped Stitches)</option>
                 <option value="SEAM_OPEN">SEAM_OPEN (Open Seam / Low SPI)</option>
@@ -314,7 +314,7 @@ export function LogDefectModal({
               type="submit"
               className="px-4 py-2 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2c284e] transition-all shadow-2xs cursor-pointer inline-flex items-center gap-1.5"
             >
-              <AlertTriangle className="w-3.5 h-3.5 text-amber-300" />
+              <AlertTriangle className="w-3.5 h-3.5 text-white" />
               <span>Register Inward Defect (Form 1)</span>
             </button>
           </div>

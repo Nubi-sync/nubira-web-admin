@@ -119,8 +119,8 @@ export function SignOffRepairModal({
         </div>
 
         {error && (
-          <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-800 font-medium flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4 shrink-0 text-rose-600" />
+          <div className="p-3 rounded-xl bg-[#FAF7F0] border border-black/10 text-xs text-slate-800 font-medium flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 shrink-0 text-[#3A3564]" />
             <span>{error}</span>
           </div>
         )}
@@ -235,11 +235,7 @@ export function SignOffRepairModal({
             <select
               value={resolutionStatus}
               onChange={e => setResolutionStatus(e.target.value as ResolutionStatus)}
-              className={`w-full px-3 py-2 text-xs rounded-xl border font-mono font-bold focus:outline-none ${
-                resolutionStatus === 'REPAIRED_PASSED'
-                  ? 'border-emerald-300 bg-emerald-50 text-emerald-900'
-                  : 'border-rose-300 bg-rose-50 text-rose-900'
-              }`}
+              className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 font-mono font-bold focus:outline-none bg-[#FAF7F0] text-[#3A3564]"
             >
               <option value="REPAIRED_PASSED">
                 REPAIRED_PASSED — Secondary AQL Pass (Return to Ironing/Packing Floor)
@@ -251,14 +247,14 @@ export function SignOffRepairModal({
           </div>
 
           {resolutionStatus === 'DECLARED_SCRAP' && (
-            <div className="p-3.5 rounded-xl border border-rose-200 bg-rose-50 space-y-2">
-              <label className="block text-[11px] font-mono font-bold uppercase tracking-wider text-rose-900">
+            <div className="p-3.5 rounded-xl border border-black/10 bg-[#FAF7F0] space-y-2">
+              <label className="block text-[11px] font-mono font-bold uppercase tracking-wider text-slate-800">
                 Scrap Write-Off Reason *
               </label>
               <select
                 value={scrapReason}
                 onChange={e => setScrapReason(e.target.value as ScrapReason)}
-                className="w-full px-3 py-2 text-xs rounded-xl border border-rose-300 bg-white font-mono font-bold text-rose-800"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-white font-mono font-bold text-slate-800"
               >
                 <option value="HOLE_IN_SHELL">HOLE_IN_SHELL (Unrecoverable needle cut)</option>
                 <option value="FABRIC_TORN">FABRIC_TORN (Severe seam tear / fabric rip)</option>
@@ -266,7 +262,7 @@ export function SignOffRepairModal({
                 <option value="PERMANENT_STAIN">PERMANENT_STAIN (Insoluble chemical tint)</option>
                 <option value="UNSALVAGEABLE_COLOR_BLEED">UNSALVAGEABLE_COLOR_BLEED (Dye migration)</option>
               </select>
-              <p className="text-[11px] text-rose-700">
+              <p className="text-[11px] text-slate-600">
                 Declaring scrap will automatically generate a replacement re-cut requisition to Division 03 (Cutting Floor).
               </p>
             </div>
@@ -284,7 +280,7 @@ export function SignOffRepairModal({
               type="submit"
               className="px-4 py-2 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2c284e] transition-all shadow-2xs cursor-pointer inline-flex items-center gap-1.5"
             >
-              <FileCheck2 className="w-3.5 h-3.5 text-emerald-300" />
+              <FileCheck2 className="w-3.5 h-3.5 text-white" />
               <span>Sign Off & Clear Ticket (Form 2)</span>
             </button>
           </div>
