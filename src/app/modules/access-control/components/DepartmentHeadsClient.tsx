@@ -23,8 +23,7 @@ import {
   Briefcase,
   Palette,
   PowerOff,
-  Trash2,
-  ExternalLink
+  Trash2
 } from 'lucide-react'
 import {
   DivisionWithHeadStatus,
@@ -35,6 +34,7 @@ import {
 import { AppointHeadModal } from './AppointHeadModal'
 import { ResetPasswordModal } from './ResetPasswordModal'
 import { DEPARTMENT_HEADS_CATALOG } from '@/lib/access-control'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 interface DepartmentHeadsClientProps {
   initialDivisions: DivisionWithHeadStatus[]
@@ -191,32 +191,35 @@ export function DepartmentHeadsClient({
     } catch (_) {}
   }
 
+  const activeCount = appointedHeads.filter(h => h.isActive).length
+  const suspendedCount = appointedHeads.filter(h => !h.isActive).length
+
   return (
     <div className="flex-1 p-4 sm:p-6 md:p-8 max-w-7xl w-full mx-auto space-y-6 text-[#14140F]">
       
       {/* 1. Breadcrumb Hierarchy */}
-      <div className="flex items-center justify-between gap-2 text-xs font-medium text-slate-400">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-medium text-slate-500">
         <div className="flex items-center gap-2">
-          <Link href="/modules" className="hover:text-[#3A3564] transition-colors">
+          <Link href="/modules" className="hover:text-[#3A3564] transition-colors font-medium">
             Workspace Hub
           </Link>
-          <span>/</span>
+          <span className="text-slate-300">/</span>
           <span className="font-bold text-slate-900">
             Department Heads & Incharges (RBAC)
           </span>
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-[#3A3564]/10 text-[#3A3564] border border-[#3A3564]/20">
+          <span className="text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs">
             {tenantName}
           </span>
-          <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+          <span className="text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs">
             Executive RBAC
           </span>
         </div>
       </div>
 
-      {/* 2. Page Top Header: Clean & Focused */}
+      {/* 2. Page Top Header */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-start gap-4">
           <div className="w-12 h-12 rounded-2xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
@@ -226,18 +229,18 @@ export function DepartmentHeadsClient({
             <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 font-[family-name:var(--font-heading)] tracking-tight">
               Department Heads & Incharges
             </h1>
-            <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-2xl leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-2xl leading-relaxed">
               Official division incharges and department heads appointed by company admin.
             </p>
           </div>
         </div>
 
-        {/* The Prominent Top Action Button */}
+        {/* Action Button */}
         <div className="shrink-0 flex items-center gap-2.5">
           <button
             type="button"
             onClick={() => handleOpenAppointModal(null)}
-            className="px-5 py-3 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs sm:text-sm font-bold transition-all shadow-sm hover:shadow-md flex items-center gap-2 cursor-pointer active:scale-[0.98]"
+            className="px-5 py-2.5 sm:py-3 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs sm:text-sm font-bold transition-all shadow-xs hover:shadow-md flex items-center gap-2 cursor-pointer active:scale-[0.98]"
           >
             <UserPlus className="w-4 h-4" />
             <span>+ Appoint Department Head</span>
@@ -248,43 +251,43 @@ export function DepartmentHeadsClient({
       {/* 3. Executive Metrics Ribbon */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
         <div className="bg-white p-4 rounded-xl border border-black/10 shadow-2xs flex items-center justify-between">
-          <div>
-            <span className="text-xs font-bold font-mono uppercase tracking-wider text-emerald-700">
+          <div className="space-y-0.5">
+            <span className="text-xs font-bold font-mono uppercase tracking-wider text-slate-500">
               Appointed Heads
             </span>
-            <div className="text-2xl font-extrabold text-emerald-800 font-[family-name:var(--font-heading)] mt-0.5">
-              {appointedHeads.length} Incharges Assigned
+            <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 tracking-tight">
+              {appointedHeads.length} Assigned
             </div>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center border border-emerald-200">
+          <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] flex items-center justify-center border border-black/10 shadow-2xs shrink-0">
             <UserCheck className="w-5 h-5" />
           </div>
         </div>
 
         <div className="bg-white p-4 rounded-xl border border-black/10 shadow-2xs flex items-center justify-between">
-          <div>
+          <div className="space-y-0.5">
             <span className="text-xs font-bold font-mono uppercase tracking-wider text-slate-500">
               Divisions Covered
             </span>
-            <div className="text-2xl font-extrabold text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
-              {coveredDivisionsCount} of {divisions.length} Divisions Active
+            <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 tracking-tight">
+              {coveredDivisionsCount} of {divisions.length} Units
             </div>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] flex items-center justify-center border border-black/10 shadow-2xs shrink-0">
             <Layers className="w-5 h-5" />
           </div>
         </div>
 
         <div className="bg-white p-4 rounded-xl border border-black/10 shadow-2xs flex items-center justify-between">
-          <div>
-            <span className="text-xs font-bold font-mono uppercase tracking-wider text-amber-700">
+          <div className="space-y-0.5">
+            <span className="text-xs font-bold font-mono uppercase tracking-wider text-slate-500">
               Unassigned Divisions
             </span>
-            <div className="text-2xl font-extrabold text-amber-800 font-[family-name:var(--font-heading)] mt-0.5">
-              {Math.max(0, divisions.length - coveredDivisionsCount)} Units Unassigned
+            <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 tracking-tight">
+              {Math.max(0, divisions.length - coveredDivisionsCount)} Units Pending
             </div>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center border border-amber-200">
+          <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] flex items-center justify-center border border-black/10 shadow-2xs shrink-0">
             <AlertCircle className="w-5 h-5" />
           </div>
         </div>
@@ -298,8 +301,8 @@ export function DepartmentHeadsClient({
             onClick={() => setFilterStatus('ALL')}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
               filterStatus === 'ALL'
-                ? 'bg-white text-slate-900 shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-white text-slate-900 shadow-xs border border-black/10'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
             }`}
           >
             All Appointed ({appointedHeads.length})
@@ -309,22 +312,22 @@ export function DepartmentHeadsClient({
             onClick={() => setFilterStatus('ACTIVE')}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
               filterStatus === 'ACTIVE'
-                ? 'bg-white text-emerald-800 shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-white text-slate-900 shadow-xs border border-black/10'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
             }`}
           >
-            Active ({appointedHeads.filter(h => h.isActive).length})
+            Active ({activeCount})
           </button>
           <button
             type="button"
             onClick={() => setFilterStatus('SUSPENDED')}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
               filterStatus === 'SUSPENDED'
-                ? 'bg-white text-rose-800 shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-white text-slate-900 shadow-xs border border-black/10'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
             }`}
           >
-            Suspended ({appointedHeads.filter(h => !h.isActive).length})
+            Suspended ({suspendedCount})
           </button>
         </div>
 
@@ -335,42 +338,28 @@ export function DepartmentHeadsClient({
             placeholder="Search appointed head or designation..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs font-medium text-slate-900 placeholder-slate-400 outline-none transition-all"
+            className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 placeholder-slate-400 outline-none transition-all"
           />
         </div>
       </div>
 
-      {/* 5. ONLY APPOINTED HEADS VIEW */}
+      {/* 5. Appointed Heads Cards Grid / Empty State */}
       {filteredHeads.length === 0 ? (
-        <div className="p-10 bg-white rounded-2xl border border-dashed border-slate-300 text-center space-y-3 shadow-2xs">
-          <div className="w-14 h-14 rounded-2xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center mx-auto shadow-2xs">
-            <UserCheck className="w-7 h-7 stroke-[1.8]" />
-          </div>
-          <div>
-            <h3 className="text-base font-bold text-slate-900">
-              {searchTerm ? 'No matching Department Heads found' : 'No Department Heads Appointed Yet'}
-            </h3>
-            <p className="text-xs text-slate-500 max-w-md mx-auto mt-1">
-              {searchTerm
-                ? 'Try adjusting your search query or status filter.'
-                : 'Use the button below to appoint your first division incharge (e.g. Cutting Master, Store Manager, Sewing Head).'}
-            </p>
-          </div>
-          {!searchTerm && (
-            <button
-              type="button"
-              onClick={() => handleOpenAppointModal(null)}
-              className="px-5 py-2.5 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs font-bold transition-all shadow-xs inline-flex items-center gap-2 cursor-pointer mt-2"
-            >
-              <UserPlus className="w-4 h-4" />
-              <span>+ Appoint First Department Head</span>
-            </button>
-          )}
-        </div>
+        <EmptyState
+          variant="seamless"
+          icon={ShieldCheck}
+          title={searchTerm ? 'No matching department heads found' : 'No department heads appointed yet'}
+          description={
+            searchTerm
+              ? 'Try adjusting your search query or switching active status filters.'
+              : 'Appoint official division incharges to assign leadership authority across your manufacturing units.'
+          }
+          actionLabel={searchTerm ? undefined : '+ Appoint Department Head'}
+          onAction={searchTerm ? undefined : () => handleOpenAppointModal(null)}
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
           {filteredHeads.map(head => {
-            // Find full division definitions for this head's allowed modules
             const assignedDivisions = head.allowedModules
               .map(route => DEPARTMENT_HEADS_CATALOG.find(d => d.route === route))
               .filter(Boolean)
@@ -378,39 +367,37 @@ export function DepartmentHeadsClient({
             return (
               <div
                 key={head.id}
-                className={`bg-white rounded-2xl border transition-all shadow-2xs hover:shadow-xs flex flex-col justify-between overflow-hidden ${
-                  head.isActive ? 'border-black/10' : 'border-rose-200 bg-rose-50/10'
-                }`}
+                className="bg-white rounded-2xl border border-black/10 shadow-2xs hover:shadow-xs transition-all flex flex-col justify-between overflow-hidden"
               >
                 {/* Card Top: Head Name, Designation, Status */}
                 <div className="p-5 pb-3.5 space-y-3.5">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-11 h-11 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 font-extrabold text-sm shadow-2xs">
+                      <div className="w-11 h-11 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 font-mono font-extrabold text-sm shadow-2xs">
                         {head.displayName.slice(0, 2).toUpperCase()}
                       </div>
-                      <div>
+                      <div className="min-w-0">
                         <div className="flex items-center gap-1.5">
-                          <h3 className="text-sm font-extrabold text-slate-900 font-[family-name:var(--font-heading)] leading-tight">
+                          <h3 className="text-base font-extrabold text-slate-900 font-[family-name:var(--font-heading)] leading-snug truncate">
                             {head.displayName}
                           </h3>
                           <span
-                            className={`w-2 h-2 rounded-full ${
-                              head.isActive ? 'bg-emerald-500' : 'bg-rose-500'
+                            className={`w-2 h-2 rounded-full shrink-0 ${
+                              head.isActive ? 'bg-[#3A3564]' : 'bg-slate-400'
                             }`}
                           />
                         </div>
-                        <span className="text-[11px] font-bold text-[#3A3564] block mt-0.5">
+                        <span className="text-xs font-semibold text-[#3A3564] block mt-0.5 truncate">
                           {head.designation}
                         </span>
                       </div>
                     </div>
 
                     <span
-                      className={`text-[9px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full shrink-0 ${
+                      className={`text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full shrink-0 ${
                         head.isActive
-                          ? 'bg-emerald-100 text-emerald-800'
-                          : 'bg-rose-100 text-rose-800'
+                          ? 'bg-[#FAF7F0] text-[#3A3564] border border-black/10'
+                          : 'bg-slate-100 text-slate-600 border border-slate-200'
                       }`}
                     >
                       {head.isActive ? 'Active' : 'Suspended'}
@@ -418,14 +405,14 @@ export function DepartmentHeadsClient({
                   </div>
 
                   {/* Credentials / Login Info */}
-                  <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl text-[11px] font-mono space-y-1">
+                  <div className="p-3 bg-[#FAF7F0]/60 border border-black/10 rounded-xl text-xs font-mono space-y-1.5">
                     <div className="flex items-center justify-between text-slate-600">
-                      <span>Login User:</span>
-                      <strong className="text-slate-900">{head.username}</strong>
+                      <span className="text-[11px] uppercase tracking-wider text-slate-500">Login User:</span>
+                      <strong className="text-slate-900 font-bold">{head.username}</strong>
                     </div>
                     {head.phone && (
                       <div className="flex items-center justify-between text-slate-600">
-                        <span>Phone:</span>
+                        <span className="text-[11px] uppercase tracking-wider text-slate-500">Phone:</span>
                         <strong className="text-slate-800">+91 {head.phone}</strong>
                       </div>
                     )}
@@ -433,7 +420,7 @@ export function DepartmentHeadsClient({
 
                   {/* Assigned Department Divisions Badges */}
                   <div>
-                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 block mb-1.5">
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 block mb-1.5">
                       Assigned Department Authority ({head.allowedModules.length} Units)
                     </span>
                     <div className="flex flex-wrap gap-1.5">
@@ -444,9 +431,9 @@ export function DepartmentHeadsClient({
                         return (
                           <span
                             key={div.id}
-                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200/70 border border-slate-200 text-[11px] font-semibold text-slate-800 transition-colors"
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#FAF7F0] hover:bg-[#F2ECE1] border border-black/10 text-xs font-semibold text-slate-900 transition-colors shadow-2xs"
                           >
-                            <IconComp className="w-3 h-3 text-slate-500" />
+                            <IconComp className="w-3.5 h-3.5 text-[#3A3564]" />
                             <span>Unit {div.code}: {div.name.split('&')[0].trim()}</span>
                           </span>
                         )
@@ -456,45 +443,48 @@ export function DepartmentHeadsClient({
                 </div>
 
                 {/* Card Footer Actions */}
-                <div className="px-5 py-3 bg-slate-50/80 border-t border-slate-100 flex items-center justify-between gap-1">
+                <div className="px-5 py-3 bg-[#FAFAF8] border-t border-slate-100 flex items-center justify-between gap-1">
                   <button
                     type="button"
                     onClick={() => handleOpenAppointModal(head)}
-                    className="text-xs font-bold text-[#3A3564] hover:underline px-2 py-1 rounded hover:bg-slate-200/60 transition-colors cursor-pointer"
+                    className="text-xs font-bold text-[#3A3564] hover:underline px-2.5 py-1.5 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
                   >
                     Edit Permissions
                   </button>
 
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1">
                     <button
                       type="button"
                       onClick={() => handleOpenPasswordModal(head)}
-                      className="p-1.5 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-200/70 transition-colors cursor-pointer"
+                      className="p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-200/70 transition-colors cursor-pointer"
                       title="Reset Password"
+                      aria-label="Reset Password"
                     >
-                      <KeyRound className="w-3.5 h-3.5" />
+                      <KeyRound className="w-4 h-4" />
                     </button>
 
                     <button
                       type="button"
                       onClick={() => handleToggleStatus(head)}
-                      className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+                      className={`p-2 rounded-lg transition-colors cursor-pointer ${
                         head.isActive
-                          ? 'text-slate-400 hover:text-rose-600 hover:bg-rose-50'
-                          : 'text-rose-600 hover:text-emerald-700 hover:bg-emerald-50'
+                          ? 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/70'
+                          : 'text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0]'
                       }`}
                       title={head.isActive ? 'Suspend Head' : 'Activate Head'}
+                      aria-label={head.isActive ? 'Suspend Head' : 'Activate Head'}
                     >
-                      <PowerOff className="w-3.5 h-3.5" />
+                      <PowerOff className="w-4 h-4" />
                     </button>
 
                     <button
                       type="button"
                       onClick={() => handleDeleteHead(head)}
-                      className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                      className="p-2 rounded-lg text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
                       title="Remove Head"
+                      aria-label="Remove Head"
                     >
-                      <Trash2 className="w-3.5 h-3.5" />
+                      <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
@@ -514,7 +504,7 @@ export function DepartmentHeadsClient({
         allowedDivisions={allowedDivisions || divisions.map(d => d.route)}
         tenantName={tenantName}
         onSuccess={() => {
-          showToast('Department Head saved successfully!')
+          showToast('Department Head saved successfully')
           window.location.reload()
         }}
       />
@@ -527,13 +517,13 @@ export function DepartmentHeadsClient({
         headName={passwordModalData.headName}
         username={passwordModalData.username}
         onSuccess={() => {
-          showToast('Password reset successfully!')
+          showToast('Password reset successfully')
         }}
       />
 
       {/* Floating Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 p-3.5 px-4 bg-slate-900 text-white text-xs font-bold rounded-xl shadow-2xl flex items-center gap-2 animate-in slide-in-from-bottom-2 duration-200">
+        <div className="fixed bottom-6 right-6 z-50 p-3.5 px-4 bg-slate-900 text-white text-xs sm:text-sm font-bold rounded-xl shadow-2xl flex items-center gap-2.5 animate-in slide-in-from-bottom-2 duration-200">
           <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
           <span>{toastMessage}</span>
         </div>

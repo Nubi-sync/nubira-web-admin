@@ -103,7 +103,7 @@ export function AppointHeadModal({
       setDesignation('')
       setPhone('')
       setAllowedModules([])
-      generateRandomPassword('Zigza')
+      generateRandomPassword('Factory')
     }
     setError(null)
     setSuccess(false)
@@ -111,8 +111,8 @@ export function AppointHeadModal({
 
   if (!isOpen) return null
 
-  function generateRandomPassword(prefix = 'Zigza') {
-    const slug = prefix.split(' ')[0].replace(/[^a-zA-Z]/g, '') || 'Zigza'
+  function generateRandomPassword(prefix = 'Factory') {
+    const slug = prefix.split(' ')[0].replace(/[^a-zA-Z]/g, '') || 'Factory'
     const cap = slug.charAt(0).toUpperCase() + slug.slice(1).toLowerCase()
     const num = Math.floor(1000 + Math.random() * 9000)
     setPassword(`@${cap}${num}!`)
@@ -197,13 +197,14 @@ export function AppointHeadModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs overflow-y-auto animate-in fade-in duration-150">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-6 sm:p-7 border border-slate-200 relative my-auto max-h-[92vh] flex flex-col">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-6 sm:p-7 border border-black/10 relative my-auto max-h-[92vh] flex flex-col">
         
         {/* Close Button */}
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-5 right-5 p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+          className="absolute top-5 right-5 p-2 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+          aria-label="Close"
         >
           <X className="w-5 h-5" />
         </button>
@@ -215,7 +216,7 @@ export function AppointHeadModal({
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs">
                 {isEditing ? 'EDIT HEAD' : division ? `DIVISION ${division.code}` : 'APPOINT HEAD'}
               </span>
               <span className="text-xs font-mono font-medium text-slate-400">•</span>
@@ -282,7 +283,7 @@ export function AppointHeadModal({
                 Phone / WhatsApp (Optional)
               </label>
               <div className="relative flex rounded-xl border border-slate-200 bg-slate-50 focus-within:bg-white focus-within:border-[#3A3564] focus-within:ring-2 focus-within:ring-[#3A3564]/10 transition-all overflow-hidden">
-                <div className="flex items-center px-3 bg-slate-100 text-slate-500 font-mono text-xs border-r border-slate-200 select-none">
+                <div className="flex items-center px-3 bg-slate-100 text-slate-600 font-mono text-xs border-r border-slate-200 select-none">
                   +91
                 </div>
                 <input
@@ -304,7 +305,7 @@ export function AppointHeadModal({
               </label>
               <button
                 type="button"
-                onClick={() => generateRandomPassword(displayName || (division ? division.name : 'Zigza'))}
+                onClick={() => generateRandomPassword(displayName || (division ? division.name : 'Factory'))}
                 className="text-[11px] text-[#3A3564] hover:underline font-bold"
               >
                 Auto-Generate Strong
@@ -347,7 +348,7 @@ export function AppointHeadModal({
               )}
             </div>
 
-            <div className={`grid ${availableDivisions.length <= 2 ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1 sm:grid-cols-2'} gap-2 max-h-56 overflow-y-auto p-1 bg-slate-50/70 rounded-xl border border-slate-200`}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-56 overflow-y-auto p-1 bg-slate-50/70 rounded-xl border border-slate-200">
               {availableDivisions.map(div => {
                 const isChecked = allowedModules.includes(div.route)
                 const IconComponent = DIVISION_ICON_LOOKUP[div.iconName] || Layers
@@ -366,8 +367,8 @@ export function AppointHeadModal({
                     }}
                     className={`flex items-center gap-2.5 p-2 rounded-xl border cursor-pointer select-none transition-all ${
                       isChecked
-                        ? 'bg-white border-[#3A3564] text-slate-900 shadow-2xs ring-1 ring-[#3A3564]/20'
-                        : 'bg-white/60 border-slate-200 text-slate-500 hover:border-slate-300'
+                        ? 'bg-[#FAF7F0] border-[#3A3564] text-slate-900 shadow-2xs ring-1 ring-[#3A3564]/30'
+                        : 'bg-white/60 border-slate-200 text-slate-600 hover:border-slate-300'
                     }`}
                   >
                     <div
@@ -380,15 +381,15 @@ export function AppointHeadModal({
                       {isChecked && <div className="w-2 h-2 rounded-full bg-[#3A3564]" />}
                     </div>
 
-                    <div className="w-6 h-6 rounded-md bg-slate-100 text-slate-700 flex items-center justify-center shrink-0">
+                    <div className="w-7 h-7 rounded-lg bg-white border border-black/10 text-[#3A3564] flex items-center justify-center shrink-0 shadow-2xs">
                       <IconComponent className="w-3.5 h-3.5" />
                     </div>
 
                     <div className="min-w-0 flex-1">
-                      <div className="text-[11px] font-bold truncate leading-tight">
+                      <div className="text-xs font-bold truncate leading-tight text-slate-900">
                         {div.code}. {div.name.split('&')[0].trim()}
                       </div>
-                      <div className="text-[9px] font-mono text-slate-400 truncate">
+                      <div className="text-[10px] font-mono text-slate-400 truncate">
                         {div.route}
                       </div>
                     </div>
@@ -400,7 +401,7 @@ export function AppointHeadModal({
 
           {/* Error Message */}
           {error && (
-            <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700 font-medium flex items-center gap-2">
+            <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-800 font-medium flex items-center gap-2">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{error}</span>
             </div>
@@ -408,8 +409,8 @@ export function AppointHeadModal({
 
           {/* Success Notification */}
           {success && (
-            <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 font-bold flex items-center gap-2">
-              <Check className="w-4 h-4 text-emerald-600 shrink-0" />
+            <div className="p-3 bg-[#FAF7F0] border border-black/15 rounded-xl text-xs text-[#3A3564] font-bold flex items-center gap-2">
+              <Check className="w-4 h-4 text-[#3A3564] shrink-0" />
               <span>Department Head Appointed & Credentials Saved!</span>
             </div>
           )}
@@ -427,7 +428,7 @@ export function AppointHeadModal({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-5 py-2.5 bg-[#3A3564] hover:bg-[#2A2649] disabled:opacity-60 text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+              className="px-5 py-2.5 bg-[#3A3564] hover:bg-[#2A2649] disabled:opacity-60 text-white rounded-xl text-xs sm:text-sm font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
             >
               {isSubmitting ? (
                 <>
