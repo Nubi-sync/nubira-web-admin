@@ -71,25 +71,26 @@ export function ResetPasswordModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-150">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-slate-200 relative">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-black/10 relative">
         <button
           type="button"
           onClick={onClose}
           className="absolute top-4 right-4 p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+          aria-label="Close"
         >
           <X className="w-5 h-5" />
         </button>
 
         <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center border border-amber-200 shadow-2xs">
-            <KeyRound className="w-5 h-5" />
+          <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+            <KeyRound className="w-5 h-5 stroke-[2.2]" />
           </div>
           <div>
             <h3 className="text-lg font-bold text-slate-900 font-[family-name:var(--font-heading)]">
               Reset Head Password
             </h3>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-500 font-mono">
               {headName} ({username})
             </p>
           </div>
@@ -97,7 +98,7 @@ export function ResetPasswordModal({
 
         {success ? (
           <div className="py-6 text-center space-y-2">
-            <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto">
+            <div className="w-12 h-12 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center mx-auto shadow-2xs">
               <Check className="w-6 h-6 stroke-[2.5]" />
             </div>
             <p className="text-sm font-bold text-slate-900">Password Updated Successfully!</p>
@@ -113,12 +114,12 @@ export function ResetPasswordModal({
                 <button
                   type="button"
                   onClick={generateRandomPassword}
-                  className="text-[11px] text-[#3A3564] hover:underline font-bold"
+                  className="text-[11px] text-[#3A3564] hover:underline font-bold cursor-pointer"
                 >
                   Generate Strong
                 </button>
               </div>
-              <div className="relative flex rounded-xl border border-slate-300 focus-within:ring-2 focus-within:ring-[#3A3564] overflow-hidden bg-white shadow-2xs">
+              <div className="relative flex rounded-xl border border-slate-300 focus-within:ring-2 focus-within:ring-[#3A3564] focus-within:border-[#3A3564] overflow-hidden bg-white shadow-2xs">
                 <input
                   type="text"
                   required
@@ -131,10 +132,10 @@ export function ResetPasswordModal({
                   <button
                     type="button"
                     onClick={handleCopy}
-                    className="px-3 border-l border-slate-200 text-slate-500 hover:text-slate-900 text-xs flex items-center gap-1"
+                    className="px-3 border-l border-slate-200 text-slate-500 hover:text-slate-900 text-xs flex items-center gap-1 cursor-pointer"
                     title="Copy to clipboard"
                   >
-                    {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                    {copied ? <Check className="w-3.5 h-3.5 text-[#3A3564]" /> : <Copy className="w-3.5 h-3.5" />}
                   </button>
                 )}
               </div>

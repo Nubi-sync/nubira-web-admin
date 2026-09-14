@@ -214,7 +214,7 @@ export function AllotTableModal({ isOpen, onClose, defaultTable }: AllotTableMod
               />
               <span>Foot-Pedal Vacuum Extraction Active</span>
             </label>
-            <span className="text-[10px] font-mono font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+            <span className="text-[10px] font-mono font-bold text-[#3A3564] bg-[#FAF7F0] px-2 py-0.5 rounded-md border border-black/10">
               Teflon Shoe Verified
             </span>
           </div>

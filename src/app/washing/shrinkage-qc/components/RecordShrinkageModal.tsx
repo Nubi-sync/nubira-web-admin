@@ -238,29 +238,29 @@ export function RecordShrinkageModal({ isOpen, onClose }: RecordShrinkageModalPr
           <div
             className={`p-3.5 rounded-xl border flex items-center justify-between ${
               autoStatus === 'PASS'
-                ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
+                ? 'bg-[#FAF7F0] border-black/10 text-slate-900'
                 : autoStatus === 'MARGINAL_WARN'
                 ? 'bg-amber-50 border-amber-200 text-amber-900'
-                : 'bg-rose-50 border-rose-200 text-rose-900 animate-pulse'
+                : 'bg-rose-50 border-rose-200 text-rose-900'
             }`}
           >
             <div className="flex items-center gap-2">
               {autoStatus === 'PASS' ? (
-                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                <CheckCircle2 className="w-4 h-4 text-[#3A3564]" />
               ) : (
-                <AlertTriangle className="w-4 h-4 text-rose-600" />
+                <AlertTriangle className="w-4 h-4 text-rose-700" />
               )}
               <span className="text-xs font-bold font-mono uppercase">
                 QC Status Verdict: {autoStatus.replace('_', ' ')}
               </span>
             </div>
-            <span className="text-xs font-mono font-bold">
+            <span className="text-xs font-mono font-bold text-slate-900">
               Max Shrink: {maxShrink.toFixed(2)}% (Limit &le; 1.5%)
             </span>
           </div>
 
           {isCritical && (
-            <div className="p-3 bg-rose-100/70 border border-rose-300 rounded-xl text-xs text-rose-900 space-y-1">
+            <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-900 space-y-1">
               <div className="font-bold flex items-center gap-1.5">
                 <ShieldAlert className="w-4 h-4 text-rose-700" />
                 <span>Auto-Escalation Engine Triggered (&gt; 2.5% Shrinkage)</span>

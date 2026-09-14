@@ -245,7 +245,7 @@ export function LoadBatchModal({ isOpen, onClose }: LoadBatchModalProps) {
             <div>
               <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1 flex items-center justify-between">
                 <span>Water Volume (Liters)</span>
-                <span className="text-[10px] font-bold text-emerald-700">1:5.0 Auto-calc</span>
+                <span className="text-[10px] font-bold text-[#3A3564]">1:5.0 Auto-calc</span>
               </label>
               <div className="relative">
                 <input
@@ -254,7 +254,7 @@ export function LoadBatchModal({ isOpen, onClose }: LoadBatchModalProps) {
                   value={autoWaterLiters}
                   className="w-full px-3 py-2 text-xs font-mono font-bold text-[#3A3564] rounded-lg border border-black/10 bg-white/70 cursor-not-allowed"
                 />
-                <Droplets className="w-3.5 h-3.5 text-blue-600 absolute right-3 top-1/2 -translate-y-1/2" />
+                <Droplets className="w-3.5 h-3.5 text-[#3A3564] absolute right-3 top-1/2 -translate-y-1/2" />
               </div>
               <span className="text-[10px] text-slate-500 font-mono">
                 {dryWeightKg} kg × 5.0 = {autoWaterLiters} L water
