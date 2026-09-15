@@ -24,7 +24,11 @@ import {
   Info,
   Shirt,
   Tag,
-  Phone
+  Phone,
+  Upload,
+  Link2,
+  RefreshCw,
+  X
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { 
@@ -75,6 +79,234 @@ function getColorSwatchInfo(colorName: string): { bg: string; border: string; is
   if (norm.includes('brown') || norm.includes('tan') || norm.includes('chocolate')) return { bg: '#7B341E', border: '#7B341E', isLight: false }
   if (norm.includes('purple') || norm.includes('violet') || norm.includes('lavender')) return { bg: '#6B46C1', border: '#6B46C1', isLight: false }
   return { bg: '#3A3564', border: '#3A3564', isLight: false }
+}
+
+interface MockupDropzoneProps {
+  label: string
+  isRequired?: boolean
+  photoUrl?: string
+  colorwayName: string
+  slotType: 'front' | 'back'
+  onPhotoChange: (url: string) => void
+  onPreview: (url: string) => void
+  disabled?: boolean
+}
+
+function ColorwayMockupDropzone({
+  label,
+  isRequired,
+  photoUrl,
+  colorwayName,
+  slotType,
+  onPhotoChange,
+  onPreview,
+  disabled
+}: MockupDropzoneProps) {
+  const [isUploading, setIsUploading] = useState(false)
+  const [isDragging, setIsDragging] = useState(false)
+  const [showUrlInput, setShowUrlInput] = useState(false)
+  const [urlValue, setUrlValue] = useState(photoUrl || '')
+
+  useEffect(() => {
+    setUrlValue(photoUrl || '')
+  }, [photoUrl])
+
+  const processFile = (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file (PNG, JPG, WEBP, SVG)')
+      return
+    }
+    if (file.size > 15 * 1024 * 1024) {
+      toast.error('Image size exceeds 15MB limit.')
+      return
+    }
+    setIsUploading(true)
+    const reader = new FileReader()
+    reader.onload = () => {
+      const dataUrl = reader.result as string
+      onPhotoChange(dataUrl)
+      setIsUploading(false)
+      toast.success(`${slotType === 'front' ? 'Front' : 'Back'} mockup loaded!`)
+    }
+    reader.onerror = () => {
+      setIsUploading(false)
+      toast.error('Failed to read image file.')
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) processFile(file)
+  }
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    if (!disabled) setIsDragging(true)
+  }
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(false)
+  }
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(false)
+    if (disabled) return
+    const file = e.dataTransfer.files?.[0]
+    if (file) processFile(file)
+  }
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    if (disabled) return
+    const items = e.clipboardData?.items
+    if (!items) return
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.indexOf('image') !== -1) {
+        const file = items[i].getAsFile()
+        if (file) {
+          processFile(file)
+          return
+        }
+      }
+    }
+  }
+
+  const handleApplyUrl = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (urlValue.trim()) {
+      onPhotoChange(urlValue.trim())
+      toast.success('Image URL applied!')
+    }
+  }
+
+  return (
+    <div className="space-y-1.5" onPaste={handlePaste}>
+      <div className="flex items-center justify-between">
+        <label className="block font-semibold text-slate-700 text-xs">
+          {label} {isRequired && <span className="text-rose-600">*</span>}
+        </label>
+        {!disabled && (
+          <button
+            type="button"
+            onClick={() => setShowUrlInput(!showUrlInput)}
+            className="text-[11px] font-mono font-medium text-slate-500 hover:text-[#3A3564] inline-flex items-center gap-1 cursor-pointer transition-colors"
+          >
+            <Link2 className="w-3 h-3" />
+            <span>{showUrlInput ? 'Hide URL' : 'Paste URL'}</span>
+          </button>
+        )}
+      </div>
+
+      {showUrlInput && !disabled && (
+        <form onSubmit={handleApplyUrl} className="flex gap-1.5 mb-1.5 animate-in fade-in duration-150">
+          <input
+            type="url"
+            placeholder="https://images.unsplash.com/..."
+            value={urlValue}
+            onChange={e => setUrlValue(e.target.value)}
+            className="flex-1 px-3 py-1.5 rounded-xl border border-black/10 bg-white text-slate-900 font-medium text-xs focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+          />
+          <button
+            type="submit"
+            className="px-3 py-1.5 bg-[#3A3564] text-[#FAF7F0] rounded-xl text-xs font-bold hover:bg-[#2A2649] cursor-pointer"
+          >
+            Apply
+          </button>
+        </form>
+      )}
+
+      {photoUrl ? (
+        <div className="space-y-1.5">
+          <div className="aspect-video w-full rounded-xl border border-black/10 overflow-hidden bg-slate-100 relative group">
+            <img
+              src={photoUrl}
+              alt={`${colorwayName} ${label}`}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+            />
+            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 p-2">
+              <button
+                type="button"
+                onClick={() => onPreview(photoUrl)}
+                className="px-2.5 py-1.5 rounded-lg bg-white/95 hover:bg-white text-slate-900 text-xs font-bold flex items-center gap-1 shadow-md cursor-pointer transition-all"
+                title="Full Lightbox Zoom"
+              >
+                <Eye className="w-3.5 h-3.5" />
+                <span>Zoom</span>
+              </button>
+              {!disabled && (
+                <label className="px-2.5 py-1.5 rounded-lg bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold flex items-center gap-1 shadow-md cursor-pointer transition-all">
+                  <RefreshCw className="w-3.5 h-3.5" />
+                  <span>Replace</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                </label>
+              )}
+            </div>
+          </div>
+
+          {!disabled && (
+            <div className="flex items-center justify-between text-[11px] px-1">
+              <span className="text-emerald-700 font-medium inline-flex items-center gap-1">
+                <CheckCircle2 className="w-3 h-3" /> Image attached
+              </span>
+              <button
+                type="button"
+                onClick={() => onPhotoChange('')}
+                className="text-rose-600 hover:text-rose-800 font-bold hover:underline inline-flex items-center gap-0.5 cursor-pointer"
+              >
+                <Trash2 className="w-3 h-3" /> Remove
+              </button>
+            </div>
+          )}
+        </div>
+      ) : (
+        <label
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+          className={`aspect-video w-full rounded-xl border-2 border-dashed transition-all flex flex-col items-center justify-center p-4 text-center cursor-pointer select-none ${
+            disabled
+              ? 'border-black/10 bg-slate-50 text-slate-400 cursor-not-allowed'
+              : isDragging
+              ? 'border-[#3A3564] bg-[#FAF7F0] text-[#3A3564] scale-[1.01]'
+              : 'border-black/15 bg-slate-50 hover:bg-[#FAF7F0]/60 hover:border-[#3A3564] text-slate-600'
+          }`}
+        >
+          {isUploading ? (
+            <div className="flex flex-col items-center gap-1.5 text-[#3A3564]">
+              <Loader2 className="w-6 h-6 animate-spin" />
+              <span className="text-xs font-bold">Loading Image...</span>
+            </div>
+          ) : (
+            <>
+              <div className="w-10 h-10 rounded-xl bg-white border border-black/10 shadow-2xs flex items-center justify-center mb-2 text-[#3A3564] group-hover:scale-110 transition-transform">
+                <UploadCloud className="w-5 h-5" />
+              </div>
+              <span className="text-xs font-bold text-slate-800 block">
+                {isDragging ? 'Drop Image Here' : 'Click to Upload Mockup'}
+              </span>
+              <span className="text-[11px] text-slate-400 mt-0.5 block">
+                PNG, JPG, WEBP, SVG • Or Drag &amp; Drop / Paste
+              </span>
+            </>
+          )}
+          <input
+            type="file"
+            accept="image/*"
+            disabled={disabled || isUploading}
+            onChange={handleFileChange}
+            className="hidden"
+          />
+        </label>
+      )}
+    </div>
+  )
 }
 
 interface ConceptFormState {
@@ -677,81 +909,34 @@ export function DesignerDashboardClient({
                       </span>
                       {currentColorwayData.photo_front && (
                         <span className="text-emerald-700 font-semibold inline-flex items-center gap-1">
-                          <CheckCircle2 className="w-3 h-3" /> Ready
+                          <CheckCircle2 className="w-3 h-3" /> Front Mockup Ready
                         </span>
                       )}
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {/* Photo 1: Front / Primary */}
-                      <div className="space-y-1.5">
-                        <label className="block font-semibold text-slate-700 text-xs">
-                          Front Artwork / Primary Mockup <span className="text-rose-600">*</span>
-                        </label>
-                        <input
-                          type="url"
-                          disabled={!isEditable}
-                          placeholder="https://images.unsplash.com/..."
-                          value={currentColorwayData.photo_front}
-                          onChange={e => handleUpdateColorwayPhoto(activeConceptTab, activeColorwayTab, 'photo_front', e.target.value)}
-                          className="w-full px-3 py-2 rounded-xl border border-black/10 bg-white text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-[#3A3564] text-xs"
-                        />
-                        {currentColorwayData.photo_front ? (
-                          <div 
-                            onClick={() => setPreviewPhoto(currentColorwayData.photo_front)}
-                            className="aspect-video w-full rounded-xl border border-black/10 overflow-hidden bg-slate-100 relative group cursor-pointer mt-1.5"
-                          >
-                            <img 
-                              src={currentColorwayData.photo_front} 
-                              alt="Front Mockup" 
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                            />
-                            <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold">
-                              <Eye className="w-4 h-4 mr-1" /> Zoom Preview
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="aspect-video w-full rounded-xl border border-dashed border-black/15 bg-slate-50 flex flex-col items-center justify-center text-slate-400 text-xs p-3 text-center mt-1.5">
-                            <UploadCloud className="w-5 h-5 mb-1 text-slate-400" />
-                            <span>Paste image URL above to preview Front View</span>
-                          </div>
-                        )}
-                      </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {/* Photo 1: Front / Primary Mockup */}
+                      <ColorwayMockupDropzone
+                        label="Front Artwork / Primary Mockup"
+                        isRequired
+                        photoUrl={currentColorwayData.photo_front}
+                        colorwayName={activeColorwayTab}
+                        slotType="front"
+                        onPhotoChange={(url) => handleUpdateColorwayPhoto(activeConceptTab, activeColorwayTab, 'photo_front', url)}
+                        onPreview={(url) => setPreviewPhoto(url)}
+                        disabled={!isEditable}
+                      />
 
-                      {/* Photo 2: Back / Detail View */}
-                      <div className="space-y-1.5">
-                        <label className="block font-semibold text-slate-700 text-xs">
-                          Back View / Detail Artwork (Optional)
-                        </label>
-                        <input
-                          type="url"
-                          disabled={!isEditable}
-                          placeholder="https://images.unsplash.com/..."
-                          value={currentColorwayData.photo_back || ''}
-                          onChange={e => handleUpdateColorwayPhoto(activeConceptTab, activeColorwayTab, 'photo_back', e.target.value)}
-                          className="w-full px-3 py-2 rounded-xl border border-black/10 bg-white text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-[#3A3564] text-xs"
-                        />
-                        {currentColorwayData.photo_back ? (
-                          <div 
-                            onClick={() => setPreviewPhoto(currentColorwayData.photo_back)}
-                            className="aspect-video w-full rounded-xl border border-black/10 overflow-hidden bg-slate-100 relative group cursor-pointer mt-1.5"
-                          >
-                            <img 
-                              src={currentColorwayData.photo_back} 
-                              alt="Back Mockup" 
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                            />
-                            <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold">
-                              <Eye className="w-4 h-4 mr-1" /> Zoom Preview
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="aspect-video w-full rounded-xl border border-dashed border-black/15 bg-slate-50 flex flex-col items-center justify-center text-slate-400 text-xs p-3 text-center mt-1.5">
-                            <UploadCloud className="w-5 h-5 mb-1 text-slate-400" />
-                            <span>Optional: Paste back view or close-up detail URL</span>
-                          </div>
-                        )}
-                      </div>
+                      {/* Photo 2: Back / Detail Mockup */}
+                      <ColorwayMockupDropzone
+                        label="Back View / Detail Artwork (Optional)"
+                        photoUrl={currentColorwayData.photo_back || ''}
+                        colorwayName={activeColorwayTab}
+                        slotType="back"
+                        onPhotoChange={(url) => handleUpdateColorwayPhoto(activeConceptTab, activeColorwayTab, 'photo_back', url)}
+                        onPreview={(url) => setPreviewPhoto(url)}
+                        disabled={!isEditable}
+                      />
                     </div>
                   </div>
 
