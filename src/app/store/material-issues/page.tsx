@@ -2,6 +2,7 @@ import { AdminShell } from '@/components/layout/AdminShell'
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { MaterialIssuesClient } from './components/MaterialIssuesClient'
+import { resolveUserTenant, isLegacyNubiraTenant } from '@/lib/tenant-context'
 
 export const dynamic = 'force-dynamic'
 
@@ -15,6 +16,10 @@ export default async function MaterialIssuesPage() {
   if (!user) {
     redirect('/login')
   }
+
+  // Centrally resolve tenant identity
+  const tenant = await resolveUserTenant(user)
+  const isLegacy = isLegacyNubiraTenant(tenant)
 
   const [
     { data: profile },
@@ -75,11 +80,27 @@ export default async function MaterialIssuesPage() {
       .limit(80),
   ])
 
+  // Multi-tenant scoping: Client factories only view records tagged for their company
+  const targetCompany = tenant.companyName.toUpperCase()
+
+  const filteredTruckInwards = isLegacy
+    ? (truckInwardsData || [])
+    : (truckInwardsData || []).filter((t: any) =>
+        (t.supplier_name || '').toUpperCase().includes(targetCompany) ||
+        (t.receiver_name || '').toUpperCase().includes(targetCompany)
+      )
+
+  const filteredActiveAllotments = isLegacy
+    ? (activeAllotmentsData || [])
+    : (activeAllotmentsData || []).filter((al: any) =>
+        ((al.challans as any)?.brand || '').toUpperCase().includes(targetCompany)
+      )
+
   return (
-    <AdminShell userEmail={user.email} userRole={profile?.role}>
+    <AdminShell userEmail={tenant.userEmail} userRole={tenant.role}>
       <MaterialIssuesClient 
-        activeAllotments={activeAllotmentsData as any || []}
-        truckInwards={truckInwardsData as any || []}
+        activeAllotments={filteredActiveAllotments as any || []}
+        truckInwards={filteredTruckInwards as any || []}
       />
     </AdminShell>
   )

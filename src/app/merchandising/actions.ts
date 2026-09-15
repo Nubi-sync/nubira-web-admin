@@ -138,12 +138,24 @@ export async function createBuyerOrderAction(payload: {
       .select('id')
       .ilike('brand_name', payload.brand_name)
       .limit(1)
-      .single()
+      .maybeSingle()
     
     if (brand) {
       brandId = brand.id
     } else {
-      const { data: anyBrand } = await supabaseAdmin.from('brands').select('id').limit(1).single()
+      const { data: newBrand } = await supabaseAdmin
+        .from('brands')
+        .insert({
+          brand_name: payload.brand_name.trim(),
+          brand_code: payload.brand_name.trim().replace(/[^a-zA-Z0-9]/g, '').substring(0, 8).toUpperCase() || 'BRAND'
+        })
+        .select('id')
+        .maybeSingle()
+      brandId = newBrand?.id
+    }
+
+    if (!brandId) {
+      const { data: anyBrand } = await supabaseAdmin.from('brands').select('id').limit(1).maybeSingle()
       brandId = anyBrand?.id
     }
 
@@ -156,12 +168,28 @@ export async function createBuyerOrderAction(payload: {
       .select('id')
       .ilike('style_number', payload.style_ref)
       .limit(1)
-      .single()
+      .maybeSingle()
 
     if (tp) {
       techPackId = tp.id
     } else {
-      const { data: anyTp } = await supabaseAdmin.from('design_tech_packs').select('id').limit(1).single()
+      const { data: newTp } = await supabaseAdmin
+        .from('design_tech_packs')
+        .insert({
+          style_number: payload.style_ref.trim().toUpperCase(),
+          brand_id: brandId,
+          category: 'HOODIE',
+          fabric_composition: '100% Cotton',
+          target_gsm: 300,
+          status: 'DRAFT'
+        })
+        .select('id')
+        .maybeSingle()
+      techPackId = newTp?.id
+    }
+
+    if (!techPackId) {
+      const { data: anyTp } = await supabaseAdmin.from('design_tech_packs').select('id').limit(1).maybeSingle()
       techPackId = anyTp?.id
     }
 

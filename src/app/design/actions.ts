@@ -106,19 +106,47 @@ export async function createTechPackAction(payload: {
   cad_back_url?: string
 }): Promise<{ success: boolean; data?: TechPack; error?: string }> {
   try {
-    // 1. Resolve Brand
+    // 1. Resolve Brand with robust UUID validation and auto-creation
     let brandId = payload.brand_id
-    if (!brandId) {
-      const { data: brand } = await supabaseAdmin
+    const isUUID = brandId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(brandId)
+    
+    if (!isUUID) {
+      const brandToFind = (payload.brand_name && payload.brand_name !== 'inhouse' ? payload.brand_name : 'Inhouse').trim()
+      
+      const { data: existingBrand } = await supabaseAdmin
         .from('brands')
         .select('id')
-        .limit(1)
-        .single()
-      brandId = brand?.id
+        .ilike('brand_name', brandToFind)
+        .maybeSingle()
+
+      if (existingBrand) {
+        brandId = existingBrand.id
+      } else {
+        const { data: newBrand, error: insertErr } = await supabaseAdmin
+          .from('brands')
+          .insert({
+            brand_name: brandToFind,
+            brand_code: brandToFind.replace(/[^a-zA-Z0-9]/g, '').substring(0, 8).toUpperCase() || 'BRAND'
+          })
+          .select('id')
+          .single()
+
+        if (!insertErr && newBrand) {
+          brandId = newBrand.id
+        } else {
+          // Fallback to any active brand in database
+          const { data: anyBrand } = await supabaseAdmin
+            .from('brands')
+            .select('id')
+            .limit(1)
+            .maybeSingle()
+          brandId = anyBrand?.id
+        }
+      }
     }
 
     if (!brandId) {
-      return { success: false, error: 'No active brand found in database.' }
+      return { success: false, error: 'Failed to resolve or create a valid brand entity in database.' }
     }
 
     const categoryDB = payload.category.toUpperCase().replace(/\s+/g, '_').replace(/-/g, '')

@@ -409,7 +409,9 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands }: Tec
       <CreateTechPackModal
         isOpen={isCreateOpen}
         onClose={() => setIsCreateOpen(false)}
-        onCreated={loadPacks}
+        onCreated={(newTp) => {
+          setTechPacks(prev => [newTp, ...prev.filter(t => t.id !== newTp.id)])
+        }}
         availableBrands={availableBrands}
       />
     </div>
