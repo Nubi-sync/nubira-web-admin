@@ -14,11 +14,11 @@ import {
 } from '../data/initialData'
 
 const STORAGE_KEYS = {
-  ORDERS: 'zigza_merchandising_orders_v1',
-  BOM_COSTINGS: 'zigza_merchandising_bom_costings_v1',
-  TNA_MILESTONES: 'zigza_merchandising_tna_milestones_v1',
-  SOURCING_PR: 'zigza_merchandising_sourcing_pr_v1',
-  SHIPMENTS: 'zigza_merchandising_shipments_v1'
+  ORDERS: 'zigza_merchandising_orders_v2',
+  BOM_COSTINGS: 'zigza_merchandising_bom_costings_v2',
+  TNA_MILESTONES: 'zigza_merchandising_tna_milestones_v2',
+  SOURCING_PR: 'zigza_merchandising_sourcing_pr_v2',
+  SHIPMENTS: 'zigza_merchandising_shipments_v2'
 }
 
 export const MERCHANDISING_UPDATE_EVENT = 'zigza:merchandising_updated'

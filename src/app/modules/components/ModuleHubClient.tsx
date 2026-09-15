@@ -50,7 +50,7 @@ const MODULES: ModuleCardData[] = [
     statusText: 'SAMPLE DEVELOPMENT',
     icon: Palette,
     href: '/design',
-    features: ['Tech-Pack Spec Sheets', 'CAD Sampling Approvals', 'Size & Fit Grading Matrix'],
+    features: ['Tech-Pack Spec Sheets', 'CAD Sampling Approvals'],
   },
   {
     id: 'merchandising',
@@ -60,7 +60,7 @@ const MODULES: ModuleCardData[] = [
     statusText: 'COMMERCIAL OPS',
     icon: Briefcase,
     href: '/merchandising',
-    features: ['Buyer PO & BOM Costing', 'Trim Procurement Ledger', 'Production Milestone Gantt'],
+    features: ['Buyer PO & BOM Costing', 'Trim Procurement Ledger'],
   },
   {
     id: 'cutting',
@@ -70,7 +70,7 @@ const MODULES: ModuleCardData[] = [
     statusText: 'LAY EXECUTION',
     icon: Scissors,
     href: '/cutting',
-    features: ['Lay Sheet & Marker Ratio', 'Fabric Roll Consumption', 'Bundle QR Ticket Generation'],
+    features: ['Lay Sheet & Marker Ratio', 'Fabric Roll Consumption'],
   },
   {
     id: 'printing',
@@ -80,7 +80,7 @@ const MODULES: ModuleCardData[] = [
     statusText: 'PRINT DIVISION',
     icon: Printer,
     href: '/printing',
-    features: ['Screen Table Lots', 'Strike-Off Approvals', 'DTG & Sublimation Flow'],
+    features: ['Screen Table Lots', 'Strike-Off Approvals'],
   },
   {
     id: 'embroidery',
@@ -90,7 +90,7 @@ const MODULES: ModuleCardData[] = [
     statusText: 'EMBROIDERY UNIT',
     icon: Sparkles,
     href: '/embroidery',
-    features: ['Multi-Head Machine Runs', 'Punch File Library', 'Stitch Rate Billing'],
+    features: ['Multi-Head Machine Runs', 'Punch File Library'],
   },
   {
     id: 'stitching-sewing',
@@ -100,7 +100,7 @@ const MODULES: ModuleCardData[] = [
     statusText: 'FLOOR EXECUTION',
     icon: Layers,
     href: '/stitching-sewing/dashboard',
-    features: ['Live Cutting Challans', 'Lineman Bundle Allocations', '3-Stage QC & Store Sync'],
+    features: ['Live Cutting Challans', 'Lineman Bundle Allocations'],
   },
   {
     id: 'washing',
@@ -110,7 +110,7 @@ const MODULES: ModuleCardData[] = [
     statusText: 'WASH FLOOR',
     icon: Waves,
     href: '/washing',
-    features: ['Enzyme & Silicone Cycles', 'Batch Liquor Tracker', 'Hydro & Tumbler Logs'],
+    features: ['Enzyme & Silicone Cycles', 'Batch Liquor Tracker'],
   },
   {
     id: 'iron',
@@ -120,7 +120,7 @@ const MODULES: ModuleCardData[] = [
     statusText: 'STEAM PRESSING',
     icon: Flame,
     href: '/iron',
-    features: ['Steam Vacuum Tables', 'Inline Finish Inspection', 'Ironing Piece-Rate Logs'],
+    features: ['Steam Vacuum Tables', 'Inline Finish Inspection'],
   },
   {
     id: 'ready-goods',
@@ -130,7 +130,7 @@ const MODULES: ModuleCardData[] = [
     statusText: 'CARTON READY',
     icon: Boxes,
     href: '/ready-goods',
-    features: ['AQL Final Audit', 'Hangtag & Polybag Packing', 'Master Carton Manifest'],
+    features: ['AQL Final Audit', 'Hangtag & Polybag Packing'],
   },
   {
     id: 'alter',
@@ -140,7 +140,7 @@ const MODULES: ModuleCardData[] = [
     statusText: 'QUALITY RECOVERY',
     icon: Wrench,
     href: '/alter',
-    features: ['Defect Root-Cause Tagging', 'Line-Wise Rework Queue', 'Post-Repair AQL Clearance'],
+    features: ['Defect Root-Cause Tagging', 'Line-Wise Rework Queue'],
   },
   {
     id: 'store',
@@ -150,7 +150,7 @@ const MODULES: ModuleCardData[] = [
     statusText: 'STORE OPS',
     icon: Store,
     href: '/store',
-    features: ['Raw Material & Trim Godown', 'Cutting Challan Issues', 'Finished Carton Stock Ledger'],
+    features: ['Raw Material & Trim Godown', 'Cutting Challan Issues'],
   },
   {
     id: 'dispatch',
@@ -160,7 +160,7 @@ const MODULES: ModuleCardData[] = [
     statusText: 'GATE DISPATCH',
     icon: Truck,
     href: '/dispatch',
-    features: ['Pre-Loading Counting Audit', 'GST Delivery Challans', 'Factory Gate-Out Authorization'],
+    features: ['Pre-Loading Counting Audit', 'GST Delivery Challans'],
   },
 ]
 
@@ -199,14 +199,14 @@ export function ModuleHubClient({ userEmail, userName, userRole, allowedModules 
           </div>
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
-              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
+              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 Enterprise Workspace Hub
               </h1>
-              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-1 rounded-md bg-[#FAF7F0] text-[#3A3564] shadow-2xs tracking-wider">
+              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs tracking-wider">
                 {visibleModules.length} Operating Units
               </span>
             </div>
-            <p className="text-sm sm:text-base text-slate-600 mt-1">
+            <p className="text-sm sm:text-base text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)]">
               Central manufacturing execution hub across {visibleModules.length === MODULES.length ? 'all 12 apparel production divisions' : 'your authorized division modules'}
             </p>
           </div>
@@ -253,7 +253,7 @@ export function ModuleHubClient({ userEmail, userName, userRole, allowedModules 
               <h2 className="text-base sm:text-lg font-bold tracking-tight text-[#14140F]">
                 Floor Supervisor Operations & Absentee Override Hub
               </h2>
-              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-md bg-[#FAF7F0] text-[#3A3564] border border-black/10 tracking-wider">
+              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 tracking-wider">
                 Executive Control
               </span>
             </div>
@@ -285,45 +285,38 @@ export function ModuleHubClient({ userEmail, userName, userRole, allowedModules 
               href={mod.href}
               onClick={(e) => handleCardClick(e, mod)}
               aria-disabled={isOtherLaunching}
-              className={`group relative flex flex-col justify-between p-6 sm:p-7 rounded-2xl bg-white border shadow-2xs transition-all duration-200 cursor-pointer ${
+              className={`group relative flex flex-col justify-between p-6 sm:p-7 rounded-3xl bg-white border shadow-2xs transition-all duration-200 cursor-pointer ${
                 isLaunching
-                  ? 'border-2 border-[#3A3564] ring-2 ring-[#3A3564]/20 shadow-md bg-[#FAF7F0]/40'
+                  ? 'border-2 border-[#3A3564] ring-2 ring-[#3A3564]/20 shadow-md bg-[#FAF7F0]/40 -translate-y-0.5'
                   : isOtherLaunching
-                    ? 'border-black/20 opacity-50 pointer-events-none'
-                    : 'border-black/80 hover:border-black hover:shadow-md hover:-translate-y-0.5'
+                    ? 'border-black/30 opacity-50 pointer-events-none'
+                    : 'border-black hover:border-black hover:shadow-lg hover:-translate-y-1'
               }`}
             >
               {/* Top animated progress bar when launching */}
               {isLaunching && (
-                <div className="absolute top-0 left-0 right-0 h-1.5 bg-[#3A3564] overflow-hidden rounded-t-2xl z-20">
+                <div className="absolute top-0 left-0 right-0 h-1.5 bg-[#3A3564] overflow-hidden rounded-t-3xl z-20">
                   <div className="w-full h-full bg-gradient-to-r from-[#3A3564] via-[#FAF7F0] to-[#3A3564] animate-pulse" />
                 </div>
               )}
 
-              {/* Top Row: Icon Container + Category Badge */}
+              {/* Top Section: Icon Glyph + Category Tag, Title, Subtitle, 2 Bullets */}
               <div>
+                {/* Row 1: Bare Outline Icon + Category Tag */}
                 <div className="flex items-start justify-between gap-3 mb-4">
-                  {/* Icon Container */}
-                  <div
-                    className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-2xs transition-all duration-200 ${
-                      isLaunching
-                        ? 'bg-[#3A3564] text-white'
-                        : 'bg-[#FAF7F0] text-[#3A3564] group-hover:scale-105'
-                    }`}
-                  >
-                    {isLaunching ? (
-                      <Loader2 className="w-6 h-6 stroke-[2.2] animate-spin" />
-                    ) : (
-                      <Icon className="w-6 h-6 stroke-[2]" />
-                    )}
-                  </div>
+                  {/* Icon: Plain outline glyph directly on card background */}
+                  {isLaunching ? (
+                    <Loader2 className="w-7 h-7 text-[#3A3564] stroke-[2] animate-spin" />
+                  ) : (
+                    <Icon className="w-7 h-7 text-[#3A3564] stroke-[1.75] transition-transform duration-200 group-hover:scale-105" />
+                  )}
 
-                  {/* Category Badge: Rectangular with subtle rounded corners */}
+                  {/* Single Top-Right Category Tag */}
                   <span
-                    className={`text-[10px] font-mono font-bold px-2.5 py-1 rounded-md uppercase tracking-wider transition-colors ${
+                    className={`text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-md uppercase tracking-wider transition-colors ${
                       isLaunching
                         ? 'bg-[#3A3564] text-white'
-                        : 'bg-[#FAF7F0] text-slate-700'
+                        : 'bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs'
                     }`}
                   >
                     {isLaunching ? 'OPENING...' : mod.badge}
@@ -332,7 +325,7 @@ export function ModuleHubClient({ userEmail, userName, userRole, allowedModules 
 
                 {/* Card Title */}
                 <h2
-                  className={`text-lg sm:text-xl font-bold tracking-tight transition-colors ${
+                  className={`text-lg sm:text-xl font-extrabold tracking-tight transition-colors font-[family-name:var(--font-heading)] ${
                     isLaunching ? 'text-[#3A3564]' : 'text-slate-900 group-hover:text-[#3A3564]'
                   }`}
                 >
@@ -340,47 +333,34 @@ export function ModuleHubClient({ userEmail, userName, userRole, allowedModules 
                 </h2>
 
                 {/* Card Description */}
-                <p className="mt-2 text-xs sm:text-sm font-medium text-slate-600 leading-relaxed">
+                <p className="mt-2 text-xs sm:text-sm font-medium text-slate-600 leading-relaxed font-[family-name:var(--font-public-sans)]">
                   {mod.subtitle}
                 </p>
 
-                {/* 3 Checkpoint Features */}
-                <div className="mt-4 pt-4 border-t border-slate-100 flex flex-col gap-1.5">
-                  {mod.features.map((feat, idx) => (
-                    <div key={idx} className="flex items-center gap-2 text-xs font-semibold text-slate-700">
-                      <CheckCircle2
-                        className={`w-3.5 h-3.5 shrink-0 ${
-                          isLaunching ? 'text-[#3A3564]' : 'text-slate-400'
-                        }`}
-                      />
+                {/* 2 Feature Bullets with Simple Flat Dot (Whitespace separation, no divider line) */}
+                <div className="mt-4 flex flex-col gap-2">
+                  {mod.features.slice(0, 2).map((feat, idx) => (
+                    <div key={idx} className="flex items-center gap-2.5 text-xs font-semibold text-slate-700">
+                      <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                        isLaunching ? 'bg-[#3A3564]' : 'bg-[#3A3564]/50 group-hover:bg-[#3A3564]'
+                      }`} />
                       <span>{feat}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* Bottom Row: Status Tag + Launch Button */}
-              <div className="mt-6 pt-4 border-t border-black/5 flex items-center justify-between">
+              {/* Bottom Section: Solid Filled Indigo Launch Button (Rounded Rectangle) */}
+              <div className="mt-6 flex items-center justify-end">
                 {isLaunching ? (
-                  <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#3A3564] uppercase tracking-wider">
-                    <span className="w-2 h-2 rounded-full bg-[#3A3564] animate-ping" />
-                    <span>Opening Portal...</span>
-                  </div>
-                ) : (
-                  <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
-                    {mod.statusText}
-                  </span>
-                )}
-
-                {isLaunching ? (
-                  <div className="inline-flex items-center gap-2 px-4.5 py-2 rounded-lg text-xs sm:text-sm font-bold bg-[#3A3564] text-white border border-black shadow-xs">
-                    <Loader2 className="w-4 h-4 animate-spin" />
+                  <div className="inline-flex items-center gap-2 px-4.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-[#3A3564] text-white shadow-xs">
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
                     <span>Opening...</span>
                   </div>
                 ) : (
-                  <div className="inline-flex items-center gap-1.5 px-4.5 py-2 rounded-lg text-xs sm:text-sm font-bold bg-[#FAF7F0] text-slate-900 group-hover:bg-[#3A3564] group-hover:text-white border border-black transition-all shadow-2xs">
+                  <div className="inline-flex items-center gap-1.5 px-4.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-[#3A3564] text-white shadow-xs group-hover:bg-[#2A2649] transition-all cursor-pointer">
                     <span>Launch</span>
-                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                    <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
                   </div>
                 )}
               </div>
