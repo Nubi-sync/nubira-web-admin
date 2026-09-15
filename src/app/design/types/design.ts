@@ -173,7 +173,7 @@ export interface DesignBrief {
 }
 
 export type PHVerdict = 'PENDING' | 'APPROVED' | 'REJECTED'
-export type SAVerdict = 'APPROVED' | 'SAVED_FOR_LATER' | 'REJECTED'
+export type SAVerdict = 'PENDING' | 'APPROVED' | 'SAVED_FOR_LATER' | 'REJECTED'
 
 export interface DesignSubmission {
   id: string
