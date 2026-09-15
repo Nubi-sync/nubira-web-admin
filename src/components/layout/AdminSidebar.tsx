@@ -209,17 +209,10 @@ export function AdminSidebar({
         section: '1. Design Studio',
         items: [
           { label: 'Studio Dashboard', href: '/design', icon: Palette },
+          { label: 'Design Briefs & Reviews', href: '/design/briefs', icon: ClipboardList },
           { label: 'Tech-Pack Catalog', href: '/design/tech-packs', icon: FileCheck2 },
           { label: 'Team Management', href: '/design/team', icon: Users },
-          { label: 'Design Briefs Queue', href: '/design/briefs', icon: ClipboardList },
-          ...(isAdmin ? [
-            { label: 'SA Design Approvals', href: '/design/sa-approvals', icon: ShieldCheck },
-          ] : []),
-          { label: 'Sample Approvals (PPS)', href: '/design/sample-approvals', icon: Sparkles },
-          { label: 'Size Grading Matrix', href: '/design/grading-matrix', icon: Ruler },
-          { label: 'Fabric & Trims Library', href: '/design/materials-library', icon: Layers },
           { label: 'PH Settings', href: '/design/settings', icon: Settings },
-          { label: 'Zigza AI', href: '/design/zigza-ai', icon: Bot },
         ],
       },
       {

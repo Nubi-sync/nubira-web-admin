@@ -18,7 +18,11 @@ import {
   Trash2, 
   Loader2,
   Eye,
-  AlertCircle
+  AlertCircle,
+  ShieldCheck,
+  Bookmark,
+  Users,
+  Settings
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { 
@@ -31,7 +35,8 @@ import {
 import { 
   createDesignBriefAction, 
   deleteDesignBriefAction, 
-  reviewDesignSubmissionAction 
+  reviewDesignSubmissionAction, 
+  saReviewDesignSubmissionAction 
 } from '../../actions'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
@@ -47,10 +52,10 @@ interface DesignBriefsClientProps {
 const STATUS_CONFIG: Record<BriefStatus, { label: string; badgeClass: string }> = {
   ALLOCATED: { label: 'Allocated', badgeClass: 'bg-slate-100 text-slate-700 border-slate-200' },
   SUBMITTED: { label: 'Submitted (Review)', badgeClass: 'bg-amber-50 text-amber-800 border-amber-200 font-semibold' },
-  PH_APPROVED: { label: 'PH Approved', badgeClass: 'bg-sky-50 text-sky-800 border-sky-200 font-semibold' },
+  PH_APPROVED: { label: 'PH Approved (Pending SA)', badgeClass: 'bg-sky-50 text-sky-800 border-sky-200 font-semibold' },
   PH_REJECTED: { label: 'PH Rejected', badgeClass: 'bg-rose-50 text-rose-700 border-rose-200' },
-  SA_APPROVED: { label: 'SA Approved', badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200 font-bold' },
-  SA_SAVED_FOR_LATER: { label: 'Saved for Later', badgeClass: 'bg-[#FAF7F0] text-[#3A3564] border-black/10 font-semibold' },
+  SA_APPROVED: { label: 'SA Greenlit (Tech-Pack Ready)', badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200 font-bold' },
+  SA_SAVED_FOR_LATER: { label: 'Saved for Later (Archive)', badgeClass: 'bg-[#FAF7F0] text-[#3A3564] border-black/10 font-semibold' },
   TECH_PACK_CREATED: { label: 'Tech-Pack Created', badgeClass: 'bg-[#FAF7F0] text-slate-900 border-black/15 font-bold' }
 }
 
@@ -61,13 +66,13 @@ export function DesignBriefsClient({
   currentUserId,
   userRole
 }: DesignBriefsClientProps) {
-  const [briefs, setBriefs] = useState<DesignBrief[]>(initialBriefs)
+  const [briefs, setBriefs] = useState<DesignBrief[]>(initialBriefs || [])
   const [statusFilter, setStatusFilter] = useState<string>('ALL')
   const [searchQuery, setSearchQuery] = useState('')
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // Review Modal State
+  // PH Review Modal State
   const [reviewingSubmission, setReviewingSubmission] = useState<{
     submission: DesignSubmission
     brief: DesignBrief
@@ -75,7 +80,15 @@ export function DesignBriefsClient({
   const [phFeedback, setPhFeedback] = useState('')
   const [isReviewing, setIsReviewing] = useState(false)
 
-  // Photo Preview State
+  // SA Review Modal State
+  const [saReviewingSubmission, setSaReviewingSubmission] = useState<{
+    submission: DesignSubmission
+    brief: DesignBrief
+  } | null>(null)
+  const [saNotes, setSaNotes] = useState('')
+  const [isSaReviewing, setIsSaReviewing] = useState(false)
+
+  // Photo Preview Lightbox
   const [previewPhoto, setPreviewPhoto] = useState<string | null>(null)
 
   // Delete State
@@ -89,7 +102,7 @@ export function DesignBriefsClient({
   const [maxColors, setMaxColors] = useState(3)
   const [instructions, setInstructions] = useState('')
 
-  const activeTeamMembers = teamMembers.filter(m => m.status === 'ACTIVE')
+  const activeTeamMembers = (teamMembers || []).filter(m => m.status === 'ACTIVE')
 
   const filteredBriefs = briefs.filter(b => {
     const matchesStatus = statusFilter === 'ALL' || b.status === statusFilter
@@ -103,7 +116,9 @@ export function DesignBriefsClient({
   })
 
   const pendingReviewCount = briefs.filter(b => b.status === 'SUBMITTED').length
+  const pendingSACount = briefs.filter(b => b.status === 'PH_APPROVED').length
   const saApprovedCount = briefs.filter(b => b.status === 'SA_APPROVED').length
+  const savedForLaterCount = briefs.filter(b => b.status === 'SA_SAVED_FOR_LATER').length
 
   async function handleCreateBrief(e: React.FormEvent) {
     e.preventDefault()
@@ -135,7 +150,7 @@ export function DesignBriefsClient({
     }
   }
 
-  async function handleReviewSubmit(verdict: 'APPROVED' | 'REJECTED') {
+  async function handlePHReviewSubmit(verdict: 'APPROVED' | 'REJECTED') {
     if (!reviewingSubmission) return
     setIsReviewing(true)
     try {
@@ -147,17 +162,53 @@ export function DesignBriefsClient({
 
       if (res.success) {
         const nextStatus: BriefStatus = verdict === 'APPROVED' ? 'PH_APPROVED' : 'PH_REJECTED'
-        toast.success(verdict === 'APPROVED' ? 'Concept approved and forwarded to Super Admin!' : 'Submission rejected with feedback sent to designer.')
+        toast.success(verdict === 'APPROVED' ? 'Concept approved and forwarded to Super Admin!' : 'Submission returned with feedback sent to designer.')
         setBriefs(prev => prev.map(b => b.id === reviewingSubmission.brief.id ? { ...b, status: nextStatus } : b))
         setReviewingSubmission(null)
         setPhFeedback('')
       } else {
-        toast.error(res.error || 'Failed to submit review.')
+        toast.error(res.error || 'Failed to submit PH review.')
       }
     } catch (err: any) {
       toast.error(err.message || 'Error occurred during review.')
     } finally {
       setIsReviewing(false)
+    }
+  }
+
+  async function handleSAReviewSubmit(verdict: 'APPROVED' | 'SAVED_FOR_LATER' | 'REJECTED') {
+    if (!saReviewingSubmission) return
+    setIsSaReviewing(true)
+    try {
+      const res = await saReviewDesignSubmissionAction({
+        submission_id: saReviewingSubmission.submission.id,
+        sa_verdict: verdict,
+        sa_notes: saNotes.trim() || undefined
+      })
+
+      if (res.success) {
+        let nextStatus: BriefStatus = 'SA_APPROVED'
+        if (verdict === 'SAVED_FOR_LATER') nextStatus = 'SA_SAVED_FOR_LATER'
+        if (verdict === 'REJECTED') nextStatus = 'PH_REJECTED'
+
+        toast.success(
+          verdict === 'APPROVED' 
+            ? 'Design greenlit for Tech-Pack creation!' 
+            : verdict === 'SAVED_FOR_LATER'
+              ? 'Design saved in Seasonal Archive for future drop.'
+              : 'Design rejected.'
+        )
+
+        setBriefs(prev => prev.map(b => b.id === saReviewingSubmission.brief.id ? { ...b, status: nextStatus } : b))
+        setSaReviewingSubmission(null)
+        setSaNotes('')
+      } else {
+        toast.error(res.error || 'Failed to update SA verdict.')
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'Error occurred during SA review.')
+    } finally {
+      setIsSaReviewing(false)
     }
   }
 
@@ -192,7 +243,7 @@ export function DesignBriefsClient({
           <span>Design Studio</span>
         </Link>
         <span className="text-xs font-mono font-medium text-slate-500">
-          Design Briefs & Submissions Queue
+          Design Briefs &amp; Submissions Verification
         </span>
       </div>
 
@@ -204,20 +255,29 @@ export function DesignBriefsClient({
           </div>
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
-              Design Briefs Queue
+              Design Briefs &amp; Reviews
             </h1>
             <p className="text-xs sm:text-sm text-slate-600 mt-1">
-              Allocate apparel concepts to designers, review submitted sample photos, and forward approved designs to Super Admin
+              Allocate apparel briefs to designers, review submitted sample photos, and verify through Super Admin
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5 w-full sm:w-auto">
+        <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
           <Link
             href="/design/team"
             className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-white border border-black/10 text-xs font-semibold text-slate-700 hover:bg-[#FAF7F0] hover:text-[#3A3564] transition-all shadow-2xs"
           >
-            <span>Team Management</span>
+            <Users className="w-3.5 h-3.5" />
+            <span>Team</span>
+          </Link>
+
+          <Link
+            href="/design/settings"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-white border border-black/10 text-xs font-semibold text-slate-700 hover:bg-[#FAF7F0] hover:text-[#3A3564] transition-all shadow-2xs"
+          >
+            <Settings className="w-3.5 h-3.5" />
+            <span>Settings</span>
           </Link>
 
           <button
@@ -225,46 +285,58 @@ export function DesignBriefsClient({
             className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#3A3564] text-[#FAF7F0] text-xs font-bold hover:bg-[#2A2649] transition-all shadow-2xs cursor-pointer"
           >
             <Plus className="w-4 h-4" />
-            <span>New Design Brief</span>
+            <span>New Brief</span>
           </button>
         </div>
       </div>
 
       {/* Metric Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
           <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
             Pending PH Reviews
           </span>
-          <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-2">
+          <div className="text-2xl sm:text-3xl font-bold font-mono text-amber-800 font-[family-name:var(--font-heading)] mt-2">
             {pendingReviewCount} Awaiting
           </div>
           <div className="text-xs text-slate-500 mt-1">
-            Submitted designer photos awaiting your review
+            Submitted designer photos
           </div>
         </div>
 
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
           <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-            SA Approved Ready for Tech-Pack
+            Pending SA Approvals
           </span>
-          <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-2">
+          <div className="text-2xl sm:text-3xl font-bold font-mono text-sky-800 font-[family-name:var(--font-heading)] mt-2">
+            {pendingSACount} Pending
+          </div>
+          <div className="text-xs text-slate-500 mt-1">
+            Awaiting SA Greenlight
+          </div>
+        </div>
+
+        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+          <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+            Saved for Later
+          </span>
+          <div className="text-2xl sm:text-3xl font-bold font-mono text-[#3A3564] font-[family-name:var(--font-heading)] mt-2">
+            {savedForLaterCount} Archived
+          </div>
+          <div className="text-xs text-slate-500 mt-1">
+            Seasonal Archive Collection
+          </div>
+        </div>
+
+        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+          <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+            SA Greenlit Ready
+          </span>
+          <div className="text-2xl sm:text-3xl font-bold font-mono text-emerald-800 font-[family-name:var(--font-heading)] mt-2">
             {saApprovedCount} Ready
           </div>
           <div className="text-xs text-slate-500 mt-1">
-            Greenlit by Super Admin for Tech-Pack creation
-          </div>
-        </div>
-
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
-          <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-            Total Pipeline Volume
-          </span>
-          <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-2">
-            {briefs.length} Briefs
-          </div>
-          <div className="text-xs text-slate-500 mt-1">
-            Across active garment categories
+            Ready for Tech-Pack creation
           </div>
         </div>
       </div>
@@ -320,10 +392,10 @@ export function DesignBriefsClient({
                   <th className="py-3 px-4">Garment / Category</th>
                   <th className="py-3 px-4">Assigned Designer</th>
                   <th className="py-3 px-4">Colors Limit</th>
-                  <th className="py-3 px-4">Status</th>
                   <th className="py-3 px-4">Photos</th>
+                  <th className="py-3 px-4">Status</th>
                   <th className="py-3 px-4">Instructions</th>
-                  <th className="py-3 px-4 text-right">Actions</th>
+                  <th className="py-3 px-4 text-right">Verification Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-black/5 text-slate-700">
@@ -356,12 +428,6 @@ export function DesignBriefsClient({
                       </td>
 
                       <td className="py-3.5 px-4">
-                        <span className={`text-xs px-2.5 py-0.5 rounded-md border ${stCfg.badgeClass}`}>
-                          {stCfg.label}
-                        </span>
-                      </td>
-
-                      <td className="py-3.5 px-4">
                         {hasPhotos ? (
                           <div className="flex items-center gap-1.5">
                             <button
@@ -390,33 +456,67 @@ export function DesignBriefsClient({
                             )}
                           </div>
                         ) : (
-                          <span className="text-xs text-slate-400">No photos yet</span>
+                          <span className="text-xs text-slate-400 italic">No photos yet</span>
                         )}
                       </td>
 
+                      <td className="py-3.5 px-4">
+                        <span className={`text-xs px-2.5 py-0.5 rounded-md border ${stCfg.badgeClass}`}>
+                          {stCfg.label}
+                        </span>
+                      </td>
+
                       <td className="py-3.5 px-4 text-xs text-slate-600 max-w-xs truncate">
-                        {brief.instructions || '—'}
+                        {brief.latest_submission?.designer_notes || brief.instructions || '—'}
                       </td>
 
                       <td className="py-3.5 px-4 text-right">
                         <div className="flex items-center justify-end gap-1.5">
+                          {/* 1. PH Review Button */}
                           {brief.status === 'SUBMITTED' && brief.latest_submission && (
                             <button
                               onClick={() => setReviewingSubmission({ submission: brief.latest_submission!, brief })}
                               className="inline-flex items-center gap-1 text-xs font-bold text-[#FAF7F0] bg-[#3A3564] hover:bg-[#2A2649] px-2.5 py-1.5 rounded-lg transition-all cursor-pointer shadow-2xs"
+                              title="Provisional Head Review"
                             >
                               <Eye className="w-3.5 h-3.5" />
-                              <span>Review</span>
+                              <span>PH Review</span>
                             </button>
                           )}
 
+                          {/* 2. SA Review Button */}
+                          {brief.status === 'PH_APPROVED' && brief.latest_submission && (
+                            <button
+                              onClick={() => setSaReviewingSubmission({ submission: brief.latest_submission!, brief })}
+                              className="inline-flex items-center gap-1 text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 px-2.5 py-1.5 rounded-lg transition-all cursor-pointer shadow-2xs"
+                              title="Super Admin Greenlight / Seasonal Archive"
+                            >
+                              <ShieldCheck className="w-3.5 h-3.5" />
+                              <span>SA Review</span>
+                            </button>
+                          )}
+
+                          {/* 3. Revive Archive Button */}
+                          {brief.status === 'SA_SAVED_FOR_LATER' && brief.latest_submission && (
+                            <button
+                              onClick={() => setSaReviewingSubmission({ submission: brief.latest_submission!, brief })}
+                              className="inline-flex items-center gap-1 text-xs font-bold text-[#3A3564] bg-[#FAF7F0] hover:bg-[#F2ECE1] border border-black/10 px-2.5 py-1.5 rounded-lg transition-all cursor-pointer shadow-2xs"
+                              title="Revive from Seasonal Archive"
+                            >
+                              <Bookmark className="w-3.5 h-3.5" />
+                              <span>Revive</span>
+                            </button>
+                          )}
+
+                          {/* 4. Generate Tech-Pack */}
                           {brief.status === 'SA_APPROVED' && (
                             <Link
                               href={`/design/tech-packs?createFromSubmission=${brief.latest_submission?.id || ''}&garment=${brief.garment_type}`}
                               className="inline-flex items-center gap-1 text-xs font-bold text-[#3A3564] bg-[#FAF7F0] hover:bg-[#F2ECE1] border border-black/10 px-2.5 py-1.5 rounded-lg transition-all shadow-2xs"
+                              title="Generate Tech-Pack"
                             >
                               <FileCheck2 className="w-3.5 h-3.5" />
-                              <span>Create Tech-Pack</span>
+                              <span>Tech-Pack</span>
                             </Link>
                           )}
 
@@ -541,7 +641,7 @@ export function DesignBriefsClient({
 
               <div>
                 <label className="block font-bold text-slate-800 mb-1">
-                  Design Instructions & Creative Guidelines
+                  Design Instructions &amp; Creative Guidelines
                 </label>
                 <textarea
                   rows={3}
@@ -574,7 +674,7 @@ export function DesignBriefsClient({
         </div>
       )}
 
-      {/* Review Submission Modal (PH Review) */}
+      {/* PH Review Submission Modal */}
       {reviewingSubmission && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs">
           <div className="bg-white rounded-2xl border border-black/10 shadow-xl max-w-xl w-full p-6 space-y-5 animate-in fade-in zoom-in duration-150">
@@ -601,7 +701,6 @@ export function DesignBriefsClient({
             </div>
 
             <div className="space-y-4">
-              {/* Photo Previews */}
               <div>
                 <label className="block font-bold text-slate-800 mb-2 text-xs">
                   Submitted Concept Photos (Max 2):
@@ -643,7 +742,6 @@ export function DesignBriefsClient({
                 </div>
               </div>
 
-              {/* Designer Notes */}
               {reviewingSubmission.submission.designer_notes && (
                 <div className="bg-[#FAF7F0] p-3.5 rounded-xl border border-black/10 text-xs">
                   <span className="font-bold text-[#3A3564] block mb-1">Designer&apos;s Creative Notes:</span>
@@ -651,7 +749,6 @@ export function DesignBriefsClient({
                 </div>
               )}
 
-              {/* PH Feedback / Decision Notes */}
               <div>
                 <label className="block font-bold text-slate-800 mb-1 text-xs">
                   Provisional Head Feedback / Revision Notes:
@@ -665,7 +762,6 @@ export function DesignBriefsClient({
                 />
               </div>
 
-              {/* Action Buttons */}
               <div className="flex items-center justify-between pt-3 border-t border-black/5">
                 <button
                   type="button"
@@ -679,7 +775,7 @@ export function DesignBriefsClient({
                   <button
                     type="button"
                     disabled={isReviewing}
-                    onClick={() => handleReviewSubmit('REJECTED')}
+                    onClick={() => handlePHReviewSubmit('REJECTED')}
                     className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 text-xs font-bold transition-all shadow-2xs cursor-pointer disabled:opacity-50"
                   >
                     <XCircle className="w-4 h-4" />
@@ -689,11 +785,138 @@ export function DesignBriefsClient({
                   <button
                     type="button"
                     disabled={isReviewing}
-                    onClick={() => handleReviewSubmit('APPROVED')}
+                    onClick={() => handlePHReviewSubmit('APPROVED')}
                     className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#3A3564] text-[#FAF7F0] text-xs font-bold hover:bg-[#2A2649] transition-all shadow-2xs cursor-pointer disabled:opacity-50"
                   >
                     {isReviewing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
-                    <span>Approve & Forward to SA</span>
+                    <span>Approve &amp; Forward to SA</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* SA Review Submission Modal (Greenlight vs Save for Later) */}
+      {saReviewingSubmission && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs">
+          <div className="bg-white rounded-2xl border border-black/10 shadow-xl max-w-xl w-full p-6 space-y-5 animate-in fade-in zoom-in duration-150">
+            <div className="flex items-center justify-between border-b border-black/5 pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-center justify-center">
+                  <ShieldCheck className="w-4 h-4" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold text-slate-900 font-[family-name:var(--font-heading)]">
+                    Super Admin Executive Review
+                  </h2>
+                  <p className="text-xs text-slate-500">
+                    {saReviewingSubmission.brief.garment_type} ({saReviewingSubmission.brief.category}) &bull; Provisional Head Approved
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setSaReviewingSubmission(null)}
+                className="text-slate-400 hover:text-slate-700 text-lg font-bold p-1 cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block font-bold text-slate-800 mb-2 text-xs">
+                  Submitted Concept Photos:
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  <div 
+                    onClick={() => setPreviewPhoto(saReviewingSubmission.submission.photo_url_1)}
+                    className="aspect-square rounded-xl border border-black/10 overflow-hidden bg-slate-100 relative group cursor-pointer"
+                  >
+                    <img
+                      src={saReviewingSubmission.submission.photo_url_1}
+                      alt="Concept 1"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                    />
+                    <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-semibold">
+                      <Eye className="w-4 h-4 mr-1" /> Full View
+                    </div>
+                  </div>
+
+                  {saReviewingSubmission.submission.photo_url_2 && (
+                    <div 
+                      onClick={() => setPreviewPhoto(saReviewingSubmission.submission.photo_url_2!)}
+                      className="aspect-square rounded-xl border border-black/10 overflow-hidden bg-slate-100 relative group cursor-pointer"
+                    >
+                      <img
+                        src={saReviewingSubmission.submission.photo_url_2}
+                        alt="Concept 2"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                      />
+                      <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-semibold">
+                        <Eye className="w-4 h-4 mr-1" /> Full View
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {saReviewingSubmission.submission.designer_notes && (
+                <div className="bg-[#FAF7F0] p-3 rounded-xl border border-black/10 text-xs">
+                  <span className="font-bold text-[#3A3564] block mb-0.5">Designer Notes:</span>
+                  <p className="text-slate-700 italic">&ldquo;{saReviewingSubmission.submission.designer_notes}&rdquo;</p>
+                </div>
+              )}
+
+              {saReviewingSubmission.submission.ph_feedback && (
+                <div className="bg-sky-50 p-3 rounded-xl border border-sky-200 text-xs">
+                  <span className="font-bold text-sky-900 block mb-0.5">PH Review Comments:</span>
+                  <p className="text-sky-800">&ldquo;{saReviewingSubmission.submission.ph_feedback}&rdquo;</p>
+                </div>
+              )}
+
+              <div>
+                <label className="block font-bold text-slate-800 mb-1 text-xs">
+                  Super Admin Decision Notes:
+                </label>
+                <textarea
+                  rows={2}
+                  placeholder="Optional strategic notes or collection assignment..."
+                  value={saNotes}
+                  onChange={e => setSaNotes(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-black/10 text-xs bg-white text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                />
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 pt-3 border-t border-black/5">
+                <button
+                  type="button"
+                  onClick={() => setSaReviewingSubmission(null)}
+                  className="px-4 py-2 rounded-xl border border-black/10 text-xs font-semibold text-slate-700 hover:bg-slate-100 cursor-pointer text-center"
+                >
+                  Cancel
+                </button>
+
+                <div className="flex flex-wrap items-center gap-2 justify-end">
+                  <button
+                    type="button"
+                    disabled={isSaReviewing}
+                    onClick={() => handleSAReviewSubmit('SAVED_FOR_LATER')}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#FAF7F0] text-[#3A3564] hover:bg-[#F2ECE1] border border-black/15 text-xs font-bold transition-all shadow-2xs cursor-pointer disabled:opacity-50"
+                  >
+                    <Bookmark className="w-4 h-4" />
+                    <span>Save for Later Archive</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled={isSaReviewing}
+                    onClick={() => handleSAReviewSubmit('APPROVED')}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 text-xs font-bold transition-all shadow-2xs cursor-pointer disabled:opacity-50"
+                  >
+                    {isSaReviewing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+                    <span>Greenlight for Tech-Pack</span>
                   </button>
                 </div>
               </div>
