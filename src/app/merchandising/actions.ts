@@ -47,7 +47,7 @@ function mapDbTnaStatusToUI(st: string): TnaStatus {
 // 1. ORDERS
 // -----------------------------------------------------------------------------
 
-export async function fetchMerchandisingOrdersAction(companyName?: string): Promise<MerchandisingOrder[]> {
+export async function fetchMerchandisingOrdersAction(_companyName?: string): Promise<MerchandisingOrder[]> {
   try {
     const { data, error } = await supabaseAdmin
       .from('merchandising_orders')
@@ -66,17 +66,7 @@ export async function fetchMerchandisingOrdersAction(companyName?: string): Prom
 
     if (!data || data.length === 0) return []
 
-    let filteredData = data
-    if (companyName) {
-      const cNorm = companyName.toLowerCase().trim()
-      filteredData = data.filter((row: any) => {
-        const bName = (row.brands?.brand_name || '').toLowerCase().trim()
-        const bBuyer = (row.brand_buyer || '').toLowerCase().trim()
-        return bName.includes(cNorm) || cNorm.includes(bName) || bBuyer.includes(cNorm)
-      })
-    }
-
-    return filteredData.map((row: any) => {
+    return data.map((row: any) => {
       // Group ratios by color_name
       const colorGroups: Record<string, { sizes: Record<string, number>; total: number }> = {}
       ;(row.merchandising_order_ratios || []).forEach((r: any) => {

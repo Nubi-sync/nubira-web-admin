@@ -38,7 +38,7 @@ function mapCategoryToUI(cat: string): GarmentCategory {
 // 1. TECH PACKS
 // -----------------------------------------------------------------------------
 
-export async function fetchTechPacksAction(companyName?: string): Promise<TechPack[]> {
+export async function fetchTechPacksAction(_companyName?: string): Promise<TechPack[]> {
   try {
     const { data, error } = await supabaseAdmin
       .from('design_tech_packs')
@@ -52,17 +52,7 @@ export async function fetchTechPacksAction(companyName?: string): Promise<TechPa
 
     if (!data || data.length === 0) return []
 
-    let filteredData = data
-    if (companyName) {
-      const cNorm = companyName.toLowerCase().trim()
-      filteredData = data.filter((row: any) => {
-        const bName = (row.brands?.brand_name || '').toLowerCase().trim()
-        const bCode = (row.brands?.brand_code || '').toLowerCase().trim()
-        return bName.includes(cNorm) || cNorm.includes(bName) || (bCode && cNorm.includes(bCode))
-      })
-    }
-
-    return filteredData.map((row: any) => ({
+    return data.map((row: any) => ({
       id: row.id,
       style_number: row.style_number,
       style_name: `${row.category} Style ${row.style_number}`,
@@ -439,7 +429,7 @@ export async function deleteTechPackAction(id: string): Promise<{ success: boole
 // 2. SAMPLE APPROVALS
 // -----------------------------------------------------------------------------
 
-export async function fetchSampleApprovalsAction(companyName?: string): Promise<SampleApproval[]> {
+export async function fetchSampleApprovalsAction(_companyName?: string): Promise<SampleApproval[]> {
   try {
     const { data, error } = await supabaseAdmin
       .from('design_sample_audits')
@@ -453,16 +443,7 @@ export async function fetchSampleApprovalsAction(companyName?: string): Promise<
 
     if (!data || data.length === 0) return []
 
-    let filteredData = data
-    if (companyName) {
-      const cNorm = companyName.toLowerCase().trim()
-      filteredData = data.filter((row: any) => {
-        const bName = (row.design_tech_packs?.brands?.brand_name || '').toLowerCase().trim()
-        return bName.includes(cNorm) || cNorm.includes(bName)
-      })
-    }
-
-    return filteredData.map((row: any) => ({
+    return data.map((row: any) => ({
       id: row.id,
       tech_pack_id: row.tech_pack_id,
       style_number: row.design_tech_packs?.style_number || 'UNKNOWN',
