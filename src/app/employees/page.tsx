@@ -44,8 +44,22 @@ export default async function EmployeesPage({ forcedModule, moduleName }: Employ
 
   const { ROLE_MODULE_MAPPING } = await import('@/lib/access-control')
 
-  // Filter out the current user and platform superadmin
-  let employees = (rawEmployees || []).filter(e => e.id !== user.id && e.role !== 'PLATFORM_SUPERADMIN')
+  // Filter out current user, platform superadmin, and staff from other tenants
+  let employees = (rawEmployees || []).filter(e => {
+    if (e.id === user.id || e.role === 'PLATFORM_SUPERADMIN') return false
+    const pCompany = (e.company_name || '').trim().toLowerCase()
+    const currentCompany = (tenant.companyName || '').trim().toLowerCase()
+    if (pCompany) {
+      if (pCompany !== currentCompany && !(currentCompany.includes('nubira') && pCompany.includes('nubira'))) {
+        return false
+      }
+    } else {
+      if (tenant.isProvisionedTenant && !currentCompany.includes('nubira')) {
+        return false
+      }
+    }
+    return true
+  })
 
   // If effectiveModule is active, isolate strictly to that module's staff
   if (effectiveModule) {

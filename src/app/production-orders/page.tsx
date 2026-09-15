@@ -45,7 +45,7 @@ export default async function ProductionOrdersPage() {
       .order('art_no'),
     supabase
       .from('profiles')
-      .select('id, username, role')
+      .select('id, username, role, company_name, allowed_modules')
       .eq('role', 'LINEMAN')
       .order('username'),
     getProductionOrders(),
@@ -66,7 +66,22 @@ export default async function ProductionOrdersPage() {
     ? (allVendors || []).filter(v => v.brand_name.toUpperCase().includes(tenant.companyName.toUpperCase()))
     : (allVendors || [])
 
-  const filteredLinemen = isProvisionedTenant ? [] : (rawLinemen || [])
+  const isCompanyProfileMatch = (p: any) => {
+    const pCompany = (p.company_name || '').trim().toLowerCase()
+    const currentCompany = (tenant.companyName || '').trim().toLowerCase()
+    if (pCompany) {
+      return pCompany === currentCompany || (currentCompany.includes('nubira') && pCompany.includes('nubira'))
+    }
+    return !isProvisionedTenant || currentCompany.includes('nubira')
+  }
+
+  const filteredLinemen = (rawLinemen || []).filter(l => {
+    if (!isCompanyProfileMatch(l)) return false
+    if (Array.isArray(l.allowed_modules) && l.allowed_modules.length > 0) {
+      if (!l.allowed_modules.includes('/stitching-sewing')) return false
+    }
+    return true
+  })
   const filteredArticles = isProvisionedTenant ? [] : (rawArticles || [])
 
   return (

@@ -93,7 +93,8 @@ export async function fetchCompanyDepartmentHeadsAction(): Promise<{
 
       if (p.company_name && p.company_name.toLowerCase() === company.toLowerCase()) return true
       if (tenant.isProvisionedTenant && p.username && p.username.toLowerCase().includes(tenant.companyName.toLowerCase())) return true
-      return !p.company_name && p.role !== 'PLATFORM_SUPERADMIN'
+      if (!p.company_name && !tenant.isProvisionedTenant && p.role !== 'PLATFORM_SUPERADMIN') return true
+      return false
     })
 
     // Fetch auth metadata to get true login username and display name

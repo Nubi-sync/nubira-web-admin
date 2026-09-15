@@ -42,14 +42,14 @@ export default async function AllotmentsPage() {
   ] = await Promise.all([
     supabaseAdmin
       .from('profiles')
-      .select('id, username')
+      .select('id, username, role, company_name, allowed_modules')
       .eq('role', 'LINEMAN')
       .eq('is_active', true)
       .order('username'),
 
     supabaseAdmin
       .from('profiles')
-      .select('id, username, role')
+      .select('id, username, role, company_name, allowed_modules')
       .in('role', ['PRODUCTION_MANAGER', 'ADMIN'])
       .eq('is_active', true)
       .order('username'),
@@ -102,8 +102,34 @@ export default async function AllotmentsPage() {
     ? (allProductionOrders || []).filter(o => o.brand?.toUpperCase().includes(tenant.companyName.toUpperCase()))
     : (allProductionOrders || [])
 
-  const linemen = isProvisionedTenant ? [] : (rawLinemen || [])
-  const managers = isProvisionedTenant ? [] : (rawManagers || [])
+  const isCompanyProfileMatch = (p: any) => {
+    const pCompany = (p.company_name || '').trim().toLowerCase()
+    const currentCompany = (tenant.companyName || '').trim().toLowerCase()
+    if (pCompany) {
+      return pCompany === currentCompany || (currentCompany.includes('nubira') && pCompany.includes('nubira'))
+    }
+    // Profiles without explicit company_name belong to legacy Nubira Creation only
+    return !isProvisionedTenant || currentCompany.includes('nubira')
+  }
+
+  const linemen = (rawLinemen || []).filter(l => {
+    if (!isCompanyProfileMatch(l)) return false
+    if (Array.isArray(l.allowed_modules) && l.allowed_modules.length > 0) {
+      if (!l.allowed_modules.includes('/stitching-sewing')) return false
+    }
+    return true
+  })
+
+  const managers = (rawManagers || []).filter(m => {
+    if (!isCompanyProfileMatch(m)) return false
+    // Exclude users whose assigned modules strictly exclude stitching (e.g. cutting master from other tenant)
+    if (Array.isArray(m.allowed_modules) && m.allowed_modules.length > 0) {
+      const hasStitching = m.allowed_modules.includes('/stitching-sewing') || m.allowed_modules.includes('/modules')
+      if (!hasStitching) return false
+    }
+    return true
+  })
+
   const articles = isProvisionedTenant ? [] : (rawArticles || [])
 
   // Extract unique allotment IDs and dates for parallel child queries
