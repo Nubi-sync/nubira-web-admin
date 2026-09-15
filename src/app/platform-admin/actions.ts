@@ -564,38 +564,9 @@ export async function provisionTenantFactoryAction(
       }])
     } catch (_) {}
 
-    // Step F: Dispatch Welcome & Activation Credentials Email via Resend & Razorpay Link
+    // Step F: Dispatch Welcome & Activation Credentials Email via Resend
     let emailStatus = { sent: false, simulated: false, error: undefined as string | undefined }
-    let paymentLinkUrl: string | undefined
     try {
-      const plinkRes = await createRazorpayPaymentLink({
-        amountInr: payload.monthlyBillingInr || (payload.subscriptionTier === 'FULL_PLANT_AI' ? 4999 : 1999),
-        companyName: payload.companyName,
-        adminName: payload.adminName,
-        adminEmail: payload.adminEmail,
-        phone: payload.phone,
-        tenantId: tenantData?.id,
-        planTier: payload.subscriptionTier,
-        description: `Zigza Enterprise MES - Initial Setup for ${payload.companyName}`
-      })
-
-      if (plinkRes.success && plinkRes.linkId && plinkRes.shortUrl) {
-        paymentLinkUrl = plinkRes.shortUrl
-        try {
-          await supabaseAdmin.from('platform_payment_links').insert([{
-            tenant_id: tenantData?.id || null,
-            company_name: payload.companyName,
-            admin_email: payload.adminEmail,
-            razorpay_link_id: plinkRes.linkId,
-            short_url: plinkRes.shortUrl,
-            amount_inr: payload.monthlyBillingInr || 4999,
-            subscription_tier: payload.subscriptionTier,
-            status: 'ISSUED',
-            description: `Onboarding payment link for ${payload.companyName}`
-          }])
-        } catch (_) {}
-      }
-
       const emailRes = await sendTenantActivationEmail({
         to: payload.adminEmail,
         companyName: payload.companyName,
@@ -605,8 +576,7 @@ export async function provisionTenantFactoryAction(
         initialPassword: payload.initialPassword,
         subscriptionTier: payload.subscriptionTier,
         divisionsCount: payload.selectedDivisions.length,
-        accessType: accessType,
-        paymentLinkUrl: paymentLinkUrl
+        accessType: accessType
       })
       emailStatus = {
         sent: !emailRes.simulated && !!emailRes.success,
@@ -738,7 +708,7 @@ export async function reactivateTenantAccessAction(
 
 export async function sendPaymentReminderAction(
   tenantId: string
-): Promise<{ success: boolean; simulated?: boolean; error?: string; paymentLinkUrl?: string }> {
+): Promise<{ success: boolean; simulated?: boolean; error?: string }> {
   try {
     const { data: tenant, error: fetchErr } = await supabaseAdmin
       .from('platform_tenant_factories')
@@ -750,51 +720,6 @@ export async function sendPaymentReminderAction(
       return { success: false, error: fetchErr?.message || 'Tenant record not found' }
     }
 
-    // 1. Check if there is ALREADY an active ISSUED payment link for this tenant
-    const { data: existingLinks } = await supabaseAdmin
-      .from('platform_payment_links')
-      .select('*')
-      .eq('tenant_id', tenantId)
-      .eq('status', 'ISSUED')
-      .order('created_at', { ascending: false })
-      .limit(1)
-
-    let paymentLinkUrl: string | undefined
-
-    if (existingLinks && existingLinks.length > 0 && existingLinks[0].short_url) {
-      // Reuse existing active link so we do not issue multiple bills or inflate pending receivables!
-      paymentLinkUrl = existingLinks[0].short_url
-    } else {
-      // Generate fresh Razorpay Payment Link if none exists
-      const plinkRes = await createRazorpayPaymentLink({
-        amountInr: Number(tenant.monthly_billing_inr || 4999),
-        companyName: tenant.company_name,
-        adminName: tenant.admin_name,
-        adminEmail: tenant.admin_email,
-        phone: tenant.phone,
-        tenantId: tenant.id,
-        planTier: tenant.subscription_tier || 'FULL_PLANT_AI',
-        description: `Zigza Enterprise MES - Subscription Payment for ${tenant.company_name}`
-      })
-
-      if (plinkRes.success && plinkRes.linkId && plinkRes.shortUrl) {
-        paymentLinkUrl = plinkRes.shortUrl
-        try {
-          await supabaseAdmin.from('platform_payment_links').insert([{
-            tenant_id: tenant.id,
-            company_name: tenant.company_name,
-            admin_email: tenant.admin_email,
-            razorpay_link_id: plinkRes.linkId,
-            short_url: plinkRes.shortUrl,
-            amount_inr: Number(tenant.monthly_billing_inr || 4999),
-            subscription_tier: tenant.subscription_tier || 'FULL_PLANT_AI',
-            status: 'ISSUED',
-            description: `Payment reminder link for ${tenant.company_name}`
-          }])
-        } catch (_) {}
-      }
-    }
-
     const emailRes = await sendPaymentReminderEmail({
       to: tenant.admin_email,
       companyName: tenant.company_name,
@@ -802,8 +727,7 @@ export async function sendPaymentReminderAction(
       accessType: tenant.access_type || 'FULL_ACCESS',
       planTier: tenant.subscription_tier || 'FULL_PLANT_AI',
       monthlyBillingInr: Number(tenant.monthly_billing_inr || 4999),
-      expiresAt: tenant.expires_at || undefined,
-      paymentLinkUrl: paymentLinkUrl
+      expiresAt: tenant.expires_at || undefined
     })
 
     if (!emailRes.success) {
@@ -821,9 +745,9 @@ export async function sendPaymentReminderAction(
       await supabaseAdmin.from('platform_audit_logs').insert([{
         log_code: `REMIND-${Date.now().toString().slice(-4)}`,
         actor: 'admin@zigza.in',
-        action: 'Payment Reminder & Link Sent',
+        action: 'Payment / Expiry Reminder Sent',
         category: 'CONFIG_CHANGE',
-        details: `Dispatched payment link (${paymentLinkUrl || 'Online'}) from noreply@zigza.in to ${tenant.company_name} (${tenant.admin_email})`,
+        details: `Dispatched subscription reminder notice from noreply@zigza.in to ${tenant.company_name} (${tenant.admin_email})`,
         ip_address: '103.24.12.89',
         location: 'India',
         status: 'SUCCESS'
@@ -836,12 +760,130 @@ export async function sendPaymentReminderAction(
 
     return {
       success: true,
-      simulated: !!emailRes.simulated,
-      paymentLinkUrl
+      simulated: !!emailRes.simulated
     }
   } catch (err: any) {
     console.error('[sendPaymentReminderAction] Fatal:', err)
     return { success: false, error: err?.message || 'Failed to dispatch payment reminder' }
+  }
+}
+
+export async function extendTenantExpiryAction(
+  tenantId: string,
+  daysToAdd: number
+): Promise<{ success: boolean; newExpiresAt?: string; error?: string }> {
+  try {
+    const { data: tenant, error: fetchErr } = await supabaseAdmin
+      .from('platform_tenant_factories')
+      .select('*')
+      .eq('id', tenantId)
+      .single()
+
+    if (fetchErr || !tenant) {
+      return { success: false, error: fetchErr?.message || 'Tenant not found' }
+    }
+
+    const currentExpiry = tenant.expires_at ? new Date(tenant.expires_at).getTime() : Date.now()
+    const baseTime = Math.max(Date.now(), currentExpiry)
+    const newExpiry = new Date(baseTime + daysToAdd * 24 * 60 * 60 * 1000).toISOString()
+
+    const { error: updateErr } = await supabaseAdmin
+      .from('platform_tenant_factories')
+      .update({
+        expires_at: newExpiry,
+        status: 'ACTIVE',
+        revoked_at: null,
+        last_active_at: new Date().toISOString()
+      })
+      .eq('id', tenantId)
+
+    if (updateErr) {
+      return { success: false, error: updateErr.message }
+    }
+
+    try {
+      await supabaseAdmin.from('platform_audit_logs').insert([{
+        log_code: `EXT-${Date.now().toString().slice(-4)}`,
+        actor: 'admin@zigza.in',
+        action: 'Tenant Expiry Extended',
+        category: 'CONFIG_CHANGE',
+        details: `Extended ${tenant.company_name} validity by +${daysToAdd} days until ${new Date(newExpiry).toLocaleDateString('en-IN')}`,
+        ip_address: '103.24.12.89',
+        location: 'India',
+        status: 'SUCCESS'
+      }])
+    } catch (_) {}
+
+    revalidatePath('/platform-admin')
+    revalidatePath('/platform-admin/tenants')
+    revalidatePath('/platform-admin/payments')
+    revalidatePath('/modules/profile')
+
+    return { success: true, newExpiresAt: newExpiry }
+  } catch (err: any) {
+    console.error('[extendTenantExpiryAction] Error:', err)
+    return { success: false, error: err?.message || 'Failed to extend expiry' }
+  }
+}
+
+export async function upgradeTenantToFullAccessAction(
+  tenantId: string,
+  subscriptionTier: SubscriptionPlanTier = 'FULL_PLANT_AI',
+  months: number = 1
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const { data: tenant, error: fetchErr } = await supabaseAdmin
+      .from('platform_tenant_factories')
+      .select('*')
+      .eq('id', tenantId)
+      .single()
+
+    if (fetchErr || !tenant) {
+      return { success: false, error: fetchErr?.message || 'Tenant not found' }
+    }
+
+    const newExpiry = new Date(Date.now() + months * 30 * 24 * 60 * 60 * 1000).toISOString()
+    const monthlyRate = subscriptionTier === 'MODULAR' ? 1999 : (subscriptionTier === 'FULL_PLANT_AI' ? 4999 : 9999)
+
+    const { error: updateErr } = await supabaseAdmin
+      .from('platform_tenant_factories')
+      .update({
+        access_type: 'FULL_ACCESS',
+        subscription_tier: subscriptionTier,
+        monthly_billing_inr: monthlyRate,
+        status: 'ACTIVE',
+        expires_at: newExpiry,
+        revoked_at: null,
+        last_active_at: new Date().toISOString()
+      })
+      .eq('id', tenantId)
+
+    if (updateErr) {
+      return { success: false, error: updateErr.message }
+    }
+
+    try {
+      await supabaseAdmin.from('platform_audit_logs').insert([{
+        log_code: `UPG-${Date.now().toString().slice(-4)}`,
+        actor: 'admin@zigza.in',
+        action: 'Tenant Upgraded to Full Access',
+        category: 'CONFIG_CHANGE',
+        details: `Upgraded ${tenant.company_name} to Full Access (${subscriptionTier}) for ${months} month(s). Expiry: ${new Date(newExpiry).toLocaleDateString('en-IN')}`,
+        ip_address: '103.24.12.89',
+        location: 'India',
+        status: 'SUCCESS'
+      }])
+    } catch (_) {}
+
+    revalidatePath('/platform-admin')
+    revalidatePath('/platform-admin/tenants')
+    revalidatePath('/platform-admin/payments')
+    revalidatePath('/modules/profile')
+
+    return { success: true }
+  } catch (err: any) {
+    console.error('[upgradeTenantToFullAccessAction] Error:', err)
+    return { success: false, error: err?.message || 'Failed to upgrade tenant' }
   }
 }
 

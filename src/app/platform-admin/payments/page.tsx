@@ -1,16 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useTransition } from 'react'
 import Link from 'next/link'
 import {
   CreditCard,
   Search,
   CheckCircle2,
   Clock,
-  Plus,
-  Copy,
-  Check,
-  ExternalLink,
   Send,
   Building2,
   RefreshCw,
@@ -18,57 +14,56 @@ import {
   Loader2,
   X,
   ShieldCheck,
-  AlertCircle
+  AlertTriangle,
+  Calendar,
+  Sparkles,
+  Zap,
+  Lock,
+  ArrowRight,
+  Plus
 } from 'lucide-react'
 import { PlatformAdminShell } from '../components/PlatformAdminShell'
-import { PaymentLinkRecord, PaymentDashboardMetrics, SubscriptionPlanTier, TenantFactory } from '../types/platform'
-import { fetchPaymentLinksAction, createCustomPaymentLinkAction, fetchTenantFactoriesAction } from '../actions'
+import { TenantFactory, SubscriptionPlanTier, AccessType } from '../types/platform'
+import {
+  fetchTenantFactoriesAction,
+  sendPaymentReminderAction,
+  extendTenantExpiryAction,
+  upgradeTenantToFullAccessAction,
+  revokeTenantAccessAction,
+  reactivateTenantAccessAction
+} from '../actions'
 
-export default function PaymentLinksPage() {
-  const [links, setLinks] = useState<PaymentLinkRecord[]>([])
+export default function SubscriptionsAndExpiryPage() {
   const [tenants, setTenants] = useState<TenantFactory[]>([])
-  const [metrics, setMetrics] = useState<PaymentDashboardMetrics>({
-    totalCollectedInr: 0,
-    pendingReceivablesInr: 0,
-    totalLinksIssued: 0,
-    paidLinksCount: 0,
-    pendingLinksCount: 0
-  })
   const [isLoading, setIsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
-  const [statusFilter, setStatusFilter] = useState<'ALL' | 'PAID' | 'ISSUED'>('ALL')
-  const [copiedId, setCopiedId] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState<'ALL' | 'DEMO_TRIAL' | 'EXPIRING_SOON' | 'EXPIRED' | 'FULL_ACCESS'>('ALL')
+  const [isPending, startTransition] = useTransition()
+  
+  // Feedback alerts
+  const [toastMsg, setToastMsg] = useState<{ text: string; type: 'success' | 'error' } | null>(null)
 
-  // Create link modal state
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [selectedTenantId, setSelectedTenantId] = useState<string>('')
-  const [modalCompany, setModalCompany] = useState('')
-  const [modalEmail, setModalEmail] = useState('')
-  const [modalName, setModalName] = useState('')
-  const [modalPhone, setModalPhone] = useState('')
-  const [modalAmount, setModalAmount] = useState(4999)
-  const [modalTier, setModalTier] = useState<SubscriptionPlanTier>('FULL_PLANT_AI')
-  const [modalDescription, setModalDescription] = useState('')
-  const [modalSendEmail, setModalSendEmail] = useState(true)
-  const [isCreatingLink, setIsCreatingLink] = useState(false)
+  // Extension modal state
+  const [selectedTenant, setSelectedTenant] = useState<TenantFactory | null>(null)
+  const [isExtendModalOpen, setIsExtendModalOpen] = useState(false)
+  const [daysToAdd, setDaysToAdd] = useState(30)
+  const [upgradeTier, setUpgradeTier] = useState<SubscriptionPlanTier>('FULL_PLANT_AI')
+  const [upgradeDurationMonths, setUpgradeDurationMonths] = useState(1)
+
+  const showToast = (text: string, type: 'success' | 'error' = 'success') => {
+    setToastMsg({ text, type })
+    setTimeout(() => setToastMsg(null), 4000)
+  }
 
   const loadData = async () => {
     setIsLoading(true)
     try {
-      const [linksRes, tenantsRes] = await Promise.all([
-        fetchPaymentLinksAction(),
-        fetchTenantFactoriesAction()
-      ])
-
-      if (linksRes.data) {
-        setLinks(linksRes.data)
-        setMetrics(linksRes.metrics)
-      }
-      if (tenantsRes.data) {
-        setTenants(tenantsRes.data)
+      const res = await fetchTenantFactoriesAction()
+      if (res.data) {
+        setTenants(res.data)
       }
     } catch (err) {
-      console.warn('Failed to fetch payment links & tenants:', err)
+      console.warn('Failed to fetch tenant factories:', err)
     } finally {
       setIsLoading(false)
     }
@@ -78,645 +73,656 @@ export default function PaymentLinksPage() {
     loadData()
   }, [])
 
-  const handleCopy = (text: string, id: string) => {
-    navigator.clipboard.writeText(text)
-    setCopiedId(id)
-    setTimeout(() => setCopiedId(null), 2500)
+  // Helper calculations
+  const now = Date.now()
+
+  const getDaysLeft = (tenant: TenantFactory) => {
+    if (!tenant.expiresAt) return null
+    const expTime = new Date(tenant.expiresAt).getTime()
+    return Math.ceil((expTime - now) / (1000 * 60 * 60 * 24))
   }
 
-  // Handle dropdown selection of existing tenant
-  const handleSelectTenant = (tenantId: string) => {
-    setSelectedTenantId(tenantId)
-    if (!tenantId) {
-      setModalCompany('')
-      setModalEmail('')
-      setModalName('')
-      setModalPhone('')
-      setModalAmount(4999)
-      setModalTier('FULL_PLANT_AI')
-      setModalDescription('')
-      return
-    }
-
-    const tenant = tenants.find(t => t.id === tenantId)
-    if (tenant) {
-      setModalCompany(tenant.companyName)
-      setModalEmail(tenant.adminEmail)
-      setModalName(tenant.adminName || '')
-      setModalPhone(tenant.phone || '')
-      setModalAmount(tenant.monthlyBillingInr || 4999)
-      setModalTier(tenant.subscriptionTier || 'FULL_PLANT_AI')
-      setModalDescription(`Subscription retainer for ${tenant.companyName}`)
-    }
+  const isTenantExpired = (tenant: TenantFactory) => {
+    if (tenant.status === 'SUSPENDED') return true
+    if (!tenant.expiresAt) return false
+    return new Date(tenant.expiresAt).getTime() < now
   }
 
-  // Check if selected tenant has an existing unpaid active link
-  const existingActiveLink = selectedTenantId
-    ? links.find(l => (l.tenantId === selectedTenantId || l.adminEmail.toLowerCase() === modalEmail.toLowerCase()) && l.status === 'ISSUED')
-    : null
+  // Metrics
+  const totalTenantsCount = tenants.length
+  const demoTrialsCount = tenants.filter(t => t.accessType === 'DEMO_TRIAL').length
+  const expiringSoonCount = tenants.filter(t => {
+    const days = getDaysLeft(t)
+    return days !== null && days >= 0 && days <= 3 && !isTenantExpired(t)
+  }).length
+  const expiredCount = tenants.filter(t => isTenantExpired(t)).length
+  const totalMrrInr = tenants
+    .filter(t => t.status === 'ACTIVE' && t.accessType === 'FULL_ACCESS')
+    .reduce((acc, t) => acc + (t.monthlyBillingInr || 4999), 0)
 
-  const handleCreatePaymentLink = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!modalCompany || !modalEmail || !modalAmount) {
-      alert('Please fill in company, email, and amount.')
-      return
+  // Filtered tenants
+  const filteredTenants = tenants.filter(tenant => {
+    // Tab filtering
+    if (activeTab === 'DEMO_TRIAL' && tenant.accessType !== 'DEMO_TRIAL') return false
+    if (activeTab === 'FULL_ACCESS' && tenant.accessType !== 'FULL_ACCESS') return false
+    if (activeTab === 'EXPIRED' && !isTenantExpired(tenant)) return false
+    if (activeTab === 'EXPIRING_SOON') {
+      const days = getDaysLeft(tenant)
+      if (days === null || days < 0 || days > 3 || isTenantExpired(tenant)) return false
     }
 
-    setIsCreatingLink(true)
-    try {
-      const res = await createCustomPaymentLinkAction({
-        tenantId: selectedTenantId || undefined,
-        companyName: modalCompany,
-        adminEmail: modalEmail,
-        adminName: modalName || modalCompany,
-        phone: modalPhone,
-        amountInr: Number(modalAmount),
-        subscriptionTier: modalTier,
-        description: modalDescription || `Subscription Retainer for ${modalCompany}`,
-        sendEmail: modalSendEmail
-      })
-
-      if (res.success && res.paymentLink) {
-        setIsModalOpen(false)
-        setSelectedTenantId('')
-        setModalCompany('')
-        setModalEmail('')
-        setModalName('')
-        setModalPhone('')
-        setModalAmount(4999)
-        setModalDescription('')
-        loadData()
-      } else {
-        alert(res.error || 'Failed to issue Razorpay link.')
-      }
-    } catch (err: any) {
-      alert(err?.message || 'Error generating payment link')
-    } finally {
-      setIsCreatingLink(false)
-    }
-  }
-
-  const filteredLinks = links.filter(l => {
-    const matchesSearch =
-      l.companyName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      l.adminEmail.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      l.razorpayLinkId.toLowerCase().includes(searchQuery.toLowerCase())
-
-    if (!matchesSearch) return false
-    if (statusFilter === 'ALL') return true
-    return l.status === statusFilter
+    // Search query filtering
+    if (!searchQuery.trim()) return true
+    const q = searchQuery.toLowerCase().trim()
+    return (
+      tenant.companyName?.toLowerCase().includes(q) ||
+      tenant.adminEmail?.toLowerCase().includes(q) ||
+      tenant.adminName?.toLowerCase().includes(q) ||
+      tenant.phone?.toLowerCase().includes(q) ||
+      tenant.cityState?.toLowerCase().includes(q)
+    )
   })
 
+  // Action Handlers
+  const handleSendReminder = (tenant: TenantFactory) => {
+    startTransition(async () => {
+      const res = await sendPaymentReminderAction(tenant.id)
+      if (res.success) {
+        showToast(
+          res.simulated
+            ? `Reminder email simulated for ${tenant.companyName} (API Key not set).`
+            : `Reminder email successfully dispatched to ${tenant.adminEmail}!`
+        )
+        loadData()
+      } else {
+        showToast(res.error || 'Failed to dispatch reminder email.', 'error')
+      }
+    })
+  }
+
+  const handleQuickExtend = (tenantId: string, days: number) => {
+    startTransition(async () => {
+      const res = await extendTenantExpiryAction(tenantId, days)
+      if (res.success) {
+        showToast(`Extended tenant validity by +${days} days!`)
+        loadData()
+      } else {
+        showToast(res.error || 'Failed to extend expiry.', 'error')
+      }
+    })
+  }
+
+  const handleConfirmCustomExtend = () => {
+    if (!selectedTenant) return
+    startTransition(async () => {
+      const res = await extendTenantExpiryAction(selectedTenant.id, daysToAdd)
+      if (res.success) {
+        showToast(`Added +${daysToAdd} days to ${selectedTenant.companyName}!`)
+        setIsExtendModalOpen(false)
+        loadData()
+      } else {
+        showToast(res.error || 'Failed to update validity.', 'error')
+      }
+    })
+  }
+
+  const handleConfirmUpgrade = () => {
+    if (!selectedTenant) return
+    startTransition(async () => {
+      const res = await upgradeTenantToFullAccessAction(
+        selectedTenant.id,
+        upgradeTier,
+        upgradeDurationMonths
+      )
+      if (res.success) {
+        showToast(`Upgraded ${selectedTenant.companyName} to Full Access (${upgradeTier})!`)
+        setIsExtendModalOpen(false)
+        loadData()
+      } else {
+        showToast(res.error || 'Failed to upgrade account.', 'error')
+      }
+    })
+  }
+
+  const handleToggleRevoke = (tenant: TenantFactory) => {
+    const isSuspended = tenant.status === 'SUSPENDED'
+    startTransition(async () => {
+      const res = isSuspended
+        ? await reactivateTenantAccessAction(tenant.id, tenant.accessType)
+        : await revokeTenantAccessAction(tenant.id)
+
+      if (res.success) {
+        showToast(isSuspended ? `Reactivated ${tenant.companyName}` : `Suspended ${tenant.companyName}`)
+        loadData()
+      } else {
+        showToast(res.error || 'Failed to update access standing', 'error')
+      }
+    })
+  }
+
   return (
-    <PlatformAdminShell userEmail="admin@zigza.in">
-      <div className="p-3 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto text-[#09090b]">
-        
-        {/* Layer 1: Breadcrumb Trail */}
-        <div className="flex items-center gap-2 text-xs font-medium text-slate-500 overflow-x-auto whitespace-nowrap">
-          <Link href="/platform-admin" className="hover:text-[#3A3564] transition-colors">
-            Platform Root
-          </Link>
-          <span>/</span>
-          <span>Financial Engine</span>
-          <span>/</span>
-          <span className="font-bold text-slate-900">Payment Links & Billing</span>
-        </div>
-
-        {/* Layer 2: Top Header Card */}
-        <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all">
-          <div className="flex items-start sm:items-center gap-3.5">
-            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-              <CreditCard className="w-5 h-5 sm:w-6 sm:h-6" />
+    <PlatformAdminShell
+      headerTitle="Subscriptions & Expiry Management"
+      headerSubtitle="Real-time license validity, trial tracking, automated reminder dispatch, and manual contract renewals."
+    >
+      <div className="space-y-6">
+        {/* Toast Alert */}
+        {toastMsg && (
+          <div className={`p-4 rounded-xl border flex items-center justify-between gap-3 shadow-sm animate-in fade-in duration-200 ${
+            toastMsg.type === 'success'
+              ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
+              : 'bg-rose-50 border-rose-200 text-rose-900'
+          }`}>
+            <div className="flex items-center gap-2.5">
+              {toastMsg.type === 'success' ? (
+                <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+              ) : (
+                <AlertTriangle className="w-5 h-5 text-rose-600 shrink-0" />
+              )}
+              <span className="text-xs sm:text-sm font-bold">{toastMsg.text}</span>
             </div>
-            <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
-                  Payment Links & Billing
-                </h1>
-                <span className="text-[11px] sm:text-xs font-semibold px-2 py-0.5 rounded-md bg-[#FAF7F0] text-slate-700 border border-black/10">
-                  Razorpay Live Gateway
-                </span>
-              </div>
-              <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)]">
-                Manage subscription payment links, collect UPI/Card retainers, and track client receivables
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
             <button
-              type="button"
-              onClick={() => loadData()}
-              className="p-2.5 rounded-xl border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-all cursor-pointer shadow-2xs shrink-0"
-              title="Refresh payment links data"
+              onClick={() => setToastMsg(null)}
+              className="text-slate-400 hover:text-slate-600 cursor-pointer"
             >
-              <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                setSelectedTenantId('')
-                setIsModalOpen(true)
-              }}
-              className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] transition-all shadow-xs cursor-pointer active:scale-[0.98]"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Issue Payment Link</span>
+              <X className="w-4 h-4" />
             </button>
           </div>
+        )}
+
+        {/* 1. Metric Overview Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 sm:gap-4">
+          {/* Card 1: Total Tenants */}
+          <div className="bg-white p-4 sm:p-5 rounded-2xl border border-black/10 shadow-2xs">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-mono font-bold uppercase text-slate-500">
+                Total Factories
+              </span>
+              <Building2 className="w-4 h-4 text-slate-400" />
+            </div>
+            <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-2 font-mono">
+              {totalTenantsCount}
+            </div>
+            <span className="text-[11px] text-slate-500 mt-1 block">
+              Provisioned tenant organizations
+            </span>
+          </div>
+
+          {/* Card 2: Demo Trials */}
+          <div className="bg-white p-4 sm:p-5 rounded-2xl border border-black/10 shadow-2xs">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-mono font-bold uppercase text-amber-700">
+                7-Day Trials
+              </span>
+              <Clock className="w-4 h-4 text-amber-500" />
+            </div>
+            <div className="text-2xl sm:text-3xl font-extrabold text-amber-900 mt-2 font-mono">
+              {demoTrialsCount}
+            </div>
+            <span className="text-[11px] text-amber-700 mt-1 block font-medium">
+              Evaluating accounts
+            </span>
+          </div>
+
+          {/* Card 3: Expiring Soon */}
+          <div className="bg-white p-4 sm:p-5 rounded-2xl border border-black/10 shadow-2xs">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-mono font-bold uppercase text-orange-700">
+                Expiring Soon
+              </span>
+              <AlertTriangle className="w-4 h-4 text-orange-500" />
+            </div>
+            <div className="text-2xl sm:text-3xl font-extrabold text-orange-900 mt-2 font-mono">
+              {expiringSoonCount}
+            </div>
+            <span className="text-[11px] text-orange-700 mt-1 block font-medium">
+              Within next 3 days
+            </span>
+          </div>
+
+          {/* Card 4: Expired / Locked */}
+          <div className="bg-white p-4 sm:p-5 rounded-2xl border border-black/10 shadow-2xs">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-mono font-bold uppercase text-rose-700">
+                Expired / Locked
+              </span>
+              <Lock className="w-4 h-4 text-rose-500" />
+            </div>
+            <div className="text-2xl sm:text-3xl font-extrabold text-rose-900 mt-2 font-mono">
+              {expiredCount}
+            </div>
+            <span className="text-[11px] text-rose-700 mt-1 block font-medium">
+              Isolated to Profile only
+            </span>
+          </div>
+
+          {/* Card 5: Projected MRR */}
+          <div className="bg-[#FAF7F0] p-4 sm:p-5 rounded-2xl border border-black/15 shadow-2xs">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-mono font-bold uppercase text-[#3A3564]">
+                Projected MRR
+              </span>
+              <CreditCard className="w-4 h-4 text-[#3A3564]" />
+            </div>
+            <div className="text-2xl sm:text-3xl font-extrabold text-[#3A3564] mt-2 font-mono">
+              ₹{totalMrrInr.toLocaleString('en-IN')}
+            </div>
+            <span className="text-[11px] text-slate-600 mt-1 block">
+              Active full paid retainers
+            </span>
+          </div>
         </div>
 
-        {/* Layer 3: Financial KPI Metric Cards (Grid of 4) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
-          
-          {/* Card 1: Total Realized Collections */}
-          <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs flex flex-col justify-between">
-            <div className="flex items-center justify-between">
-              <div className="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700">
-                <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5" />
-              </div>
-              <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">
-                Settled
-              </span>
-            </div>
-            <div className="mt-3.5">
-              <div className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                Total Realized Revenue
-              </div>
-              <div className="text-2xl sm:text-3xl font-bold font-[family-name:var(--font-heading)] text-emerald-950 mt-1 font-mono">
-                ₹{metrics.totalCollectedInr.toLocaleString('en-IN')}
-              </div>
-            </div>
-            <div className="pt-2.5 border-t border-slate-100 mt-3 text-xs text-slate-500">
-              {metrics.paidLinksCount} invoices paid via Razorpay
-            </div>
-          </div>
-
-          {/* Card 2: Pending Receivables */}
-          <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs flex flex-col justify-between">
-            <div className="flex items-center justify-between">
-              <div className="w-9 h-9 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-700">
-                <Clock className="w-4 h-4 sm:w-5 sm:h-5" />
-              </div>
-              <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800">
-                Pending
-              </span>
-            </div>
-            <div className="mt-3.5">
-              <div className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                Pending Receivables
-              </div>
-              <div className="text-2xl sm:text-3xl font-bold font-[family-name:var(--font-heading)] text-amber-950 mt-1 font-mono">
-                ₹{metrics.pendingReceivablesInr.toLocaleString('en-IN')}
-              </div>
-            </div>
-            <div className="pt-2.5 border-t border-slate-100 mt-3 text-xs text-slate-500">
-              {metrics.pendingLinksCount} active links awaiting settlement
-            </div>
-          </div>
-
-          {/* Card 3: Total Links Issued */}
-          <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs flex flex-col justify-between">
-            <div className="flex items-center justify-between">
-              <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564]">
-                <CreditCard className="w-4 h-4 sm:w-5 sm:h-5" />
-              </div>
-              <span className="text-xs text-slate-500 font-semibold">Links</span>
-            </div>
-            <div className="mt-3.5">
-              <div className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                Total Links Generated
-              </div>
-              <div className="text-2xl sm:text-3xl font-bold font-[family-name:var(--font-heading)] text-slate-900 mt-1 font-mono">
-                {metrics.totalLinksIssued}
-              </div>
-            </div>
-            <div className="pt-2.5 border-t border-slate-100 mt-3 text-xs text-slate-500">
-              Automated onboarding & custom links
-            </div>
-          </div>
-
-          {/* Card 4: Webhook Integration Status */}
-          <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs flex flex-col justify-between">
-            <div className="flex items-center justify-between">
-              <div className="w-9 h-9 rounded-xl bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-700">
-                <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5" />
-              </div>
-              <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-indigo-100 text-indigo-800">
-                Active
-              </span>
-            </div>
-            <div className="mt-3.5">
-              <div className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                Webhook Auto-Upgrade
-              </div>
-              <div className="text-sm sm:text-base font-bold text-indigo-950 mt-1">
-                Instant Promotion Active
-              </div>
-            </div>
-            <div className="pt-2.5 border-t border-slate-100 mt-3 text-xs text-slate-500">
-              payment_link.paid event verified
-            </div>
-          </div>
-
-        </div>
-
-        {/* Layer 4: Interactive Control Bar & Search Filter */}
+        {/* 2. Filter Tabs & Search Command */}
         <div className="bg-white p-4 sm:p-5 rounded-2xl border border-black/10 shadow-2xs space-y-4">
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-            
-            {/* Filter Tabs */}
-            <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl overflow-x-auto whitespace-nowrap">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+            {/* Tabs */}
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0">
               <button
-                type="button"
-                onClick={() => setStatusFilter('ALL')}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                  statusFilter === 'ALL'
-                    ? 'bg-white text-[#3A3564] shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
+                onClick={() => setActiveTab('ALL')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+                  activeTab === 'ALL'
+                    ? 'bg-[#3A3564] text-white shadow-2xs'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
-                All Invoices ({links.length})
+                All Tenants ({tenants.length})
               </button>
               <button
-                type="button"
-                onClick={() => setStatusFilter('PAID')}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                  statusFilter === 'PAID'
-                    ? 'bg-white text-emerald-700 shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
+                onClick={() => setActiveTab('DEMO_TRIAL')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+                  activeTab === 'DEMO_TRIAL'
+                    ? 'bg-[#3A3564] text-white shadow-2xs'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
-                Settled ({metrics.paidLinksCount})
+                Demo Trials ({demoTrialsCount})
               </button>
               <button
-                type="button"
-                onClick={() => setStatusFilter('ISSUED')}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                  statusFilter === 'ISSUED'
-                    ? 'bg-white text-amber-700 shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
+                onClick={() => setActiveTab('EXPIRING_SOON')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+                  activeTab === 'EXPIRING_SOON'
+                    ? 'bg-[#3A3564] text-white shadow-2xs'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
-                Pending ({metrics.pendingLinksCount})
+                Expiring Soon ({expiringSoonCount})
+              </button>
+              <button
+                onClick={() => setActiveTab('EXPIRED')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+                  activeTab === 'EXPIRED'
+                    ? 'bg-[#3A3564] text-white shadow-2xs'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                }`}
+              >
+                Expired / Locked ({expiredCount})
+              </button>
+              <button
+                onClick={() => setActiveTab('FULL_ACCESS')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+                  activeTab === 'FULL_ACCESS'
+                    ? 'bg-[#3A3564] text-white shadow-2xs'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                }`}
+              >
+                Full Access Paid ({tenants.filter(t => t.accessType === 'FULL_ACCESS').length})
               </button>
             </div>
 
-            {/* Search Input */}
-            <div className="relative flex-1 sm:max-w-xs">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search factory, email, link ID..."
-                className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] text-slate-900"
-              />
-            </div>
+            {/* Refresh Button */}
+            <button
+              onClick={loadData}
+              disabled={isLoading || isPending}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors cursor-pointer w-fit self-end md:self-center"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
+              <span>Refresh</span>
+            </button>
           </div>
 
-          {/* Table Element */}
-          <div className="overflow-x-auto -mx-4 sm:mx-0">
-            <div className="inline-block min-w-full align-middle px-4 sm:px-0">
-              <table className="min-w-full text-left text-sm">
-                <thead>
-                  <tr className="border-b border-slate-200 text-xs font-semibold text-slate-600 uppercase tracking-wider bg-[#FAF7F0]">
-                    <th className="py-3 px-3.5">Factory Client</th>
-                    <th className="py-3 px-3.5">Amount & Tier</th>
-                    <th className="py-3 px-3.5">Hosted Link</th>
-                    <th className="py-3 px-3.5">Payment Status</th>
-                    <th className="py-3 px-3.5">Issued On</th>
-                    <th className="py-3 px-3.5 text-right">Actions</th>
+          {/* Search Bar */}
+          <div className="relative">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search by factory name, admin email, phone, city..."
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+            />
+          </div>
+        </div>
+
+        {/* 3. Subscriptions & Expiry Table */}
+        <div className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-slate-50/75 border-b border-slate-200 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">
+                  <th className="py-3.5 px-4 sm:px-6">Factory / Organization</th>
+                  <th className="py-3.5 px-4">Model & Tier</th>
+                  <th className="py-3.5 px-4">Start / Issue Date</th>
+                  <th className="py-3.5 px-4">Expiry Date</th>
+                  <th className="py-3.5 px-4">Health Status</th>
+                  <th className="py-3.5 px-4 sm:px-6 text-right">Actions & Management</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 text-xs sm:text-sm">
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={6} className="py-12 text-center text-slate-400">
+                      <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2 text-[#3A3564]" />
+                      Loading tenant subscriptions...
+                    </td>
                   </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 text-sm">
-                  {isLoading ? (
-                    Array.from({ length: 4 }).map((_, i) => (
-                      <tr key={i} className="animate-pulse">
-                        <td className="py-3.5 px-3.5"><div className="h-4 w-32 bg-slate-200 rounded" /></td>
-                        <td className="py-3.5 px-3.5"><div className="h-4 w-20 bg-slate-200 rounded" /></td>
-                        <td className="py-3.5 px-3.5"><div className="h-4 w-36 bg-slate-200 rounded" /></td>
-                        <td className="py-3.5 px-3.5"><div className="h-5 w-20 bg-slate-200 rounded-md" /></td>
-                        <td className="py-3.5 px-3.5"><div className="h-4 w-20 bg-slate-200 rounded" /></td>
-                        <td className="py-3.5 px-3.5 text-right"><div className="h-7 w-16 bg-slate-200 rounded-xl ml-auto" /></td>
-                      </tr>
-                    ))
-                  ) : filteredLinks.length === 0 ? (
-                    <tr>
-                      <td colSpan={6} className="py-12 sm:py-16 text-center">
-                        <div className="flex flex-col items-center justify-center max-w-md mx-auto space-y-3 px-4">
-                          <div className="w-12 h-12 rounded-2xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
-                            <CreditCard className="w-6 h-6 text-[#3A3564]" />
+                ) : filteredTenants.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="py-12 text-center text-slate-500">
+                      No tenant subscriptions matching criteria.
+                    </td>
+                  </tr>
+                ) : (
+                  filteredTenants.map((tenant) => {
+                    const daysLeft = getDaysLeft(tenant)
+                    const isExpired = isTenantExpired(tenant)
+                    const isTrial = tenant.accessType === 'DEMO_TRIAL'
+
+                    const issueDateStr = tenant.provisionedAt
+                      ? new Date(tenant.provisionedAt).toLocaleDateString('en-IN', {
+                          day: '2-digit',
+                          month: 'short',
+                          year: 'numeric'
+                        })
+                      : '15-Sep-2026'
+
+                    const expiryDateStr = tenant.expiresAt
+                      ? new Date(tenant.expiresAt).toLocaleDateString('en-IN', {
+                          day: '2-digit',
+                          month: 'short',
+                          year: 'numeric'
+                        })
+                      : 'Continuous'
+
+                    return (
+                      <tr key={tenant.id} className="hover:bg-slate-50/60 transition-colors">
+                        {/* 1. Factory & Admin Info */}
+                        <td className="py-4 px-4 sm:px-6">
+                          <div className="font-extrabold text-slate-900">{tenant.companyName}</div>
+                          <div className="text-xs text-slate-500 mt-0.5 flex items-center gap-1.5 flex-wrap">
+                            <span>{tenant.adminName || 'Admin'}</span>
+                            <span>•</span>
+                            <span className="font-mono">{tenant.adminEmail}</span>
+                            {tenant.phone && (
+                              <>
+                                <span>•</span>
+                                <span className="font-mono">{tenant.phone}</span>
+                              </>
+                            )}
                           </div>
-                          <div className="space-y-1">
-                            <h4 className="text-base font-bold text-slate-900 font-[family-name:var(--font-heading)]">
-                              {searchQuery || statusFilter !== 'ALL' ? 'No Matching Payment Links' : 'No Payment Links Generated Yet'}
-                            </h4>
-                            <p className="text-xs sm:text-sm text-slate-500 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
-                              {searchQuery || statusFilter !== 'ALL'
-                                ? 'Try refining your search query or reset the status filter tabs above.'
-                                : 'When you provision a tenant with demo access or send a payment reminder, payment links will appear here automatically.'}
-                            </p>
+                          <div className="text-[11px] text-slate-400 mt-0.5">{tenant.cityState}</div>
+                        </td>
+
+                        {/* 2. Access Model & Tier */}
+                        <td className="py-4 px-4">
+                          <div className="flex flex-col gap-1 items-start">
+                            {isTrial ? (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-mono font-bold bg-amber-50 text-amber-900 border border-amber-200">
+                                <Clock className="w-3 h-3 text-amber-600" />
+                                7-Day Demo
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-mono font-bold bg-emerald-50 text-emerald-900 border border-emerald-200">
+                                <ShieldCheck className="w-3 h-3 text-emerald-600" />
+                                Full Access
+                              </span>
+                            )}
+                            <span className="text-xs font-bold text-slate-700">
+                              {tenant.subscriptionTier === 'FULL_PLANT_AI'
+                                ? 'Full Plant AI'
+                                : (tenant.subscriptionTier === 'MODULAR' ? 'Modular' : 'Custom')}
+                            </span>
+                            <span className="text-[11px] font-mono text-slate-500">
+                              ₹{(tenant.monthlyBillingInr || 4999).toLocaleString('en-IN')}/mo
+                            </span>
                           </div>
-                          {!searchQuery && statusFilter === 'ALL' && (
+                        </td>
+
+                        {/* 3. Start / Issue Date */}
+                        <td className="py-4 px-4 font-mono text-xs text-slate-700">
+                          <div className="flex items-center gap-1.5">
+                            <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                            <span>{issueDateStr}</span>
+                          </div>
+                        </td>
+
+                        {/* 4. Expiry Date */}
+                        <td className="py-4 px-4 font-mono text-xs">
+                          <div className={`flex items-center gap-1.5 ${isExpired ? 'text-rose-600 font-bold' : 'text-slate-800'}`}>
+                            <Clock className="w-3.5 h-3.5 text-slate-400" />
+                            <span>{expiryDateStr}</span>
+                          </div>
+                        </td>
+
+                        {/* 5. Health Status Badge */}
+                        <td className="py-4 px-4">
+                          {isExpired ? (
+                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-bold bg-rose-100 text-rose-800 border border-rose-200">
+                              <Lock className="w-3 h-3" />
+                              Expired (Locked)
+                            </span>
+                          ) : daysLeft !== null && daysLeft <= 3 ? (
+                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-bold bg-amber-100 text-amber-900 border border-amber-200">
+                              <AlertTriangle className="w-3 h-3 text-amber-600" />
+                              {daysLeft} {daysLeft === 1 ? 'Day Left' : 'Days Left'}
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                              <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                              {daysLeft !== null ? `${daysLeft} Days Active` : 'Permanent Active'}
+                            </span>
+                          )}
+
+                          {tenant.lastPaymentReminderAt && (
+                            <span className="text-[10px] text-slate-400 block mt-1">
+                              Reminded: {new Date(tenant.lastPaymentReminderAt).toLocaleDateString('en-IN')}
+                            </span>
+                          )}
+                        </td>
+
+                        {/* 6. Management Action Buttons */}
+                        <td className="py-4 px-4 sm:px-6 text-right">
+                          <div className="flex items-center justify-end gap-1.5 flex-wrap">
+                            {/* Send Reminder Email */}
+                            <button
+                              type="button"
+                              onClick={() => handleSendReminder(tenant)}
+                              disabled={isPending}
+                              title="Send Expiry Reminder Email from noreply@zigza.in"
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold text-[#3A3564] bg-[#FAF7F0] hover:bg-[#F2ECE1] border border-black/10 shadow-2xs transition-colors cursor-pointer"
+                            >
+                              <Send className="w-3 h-3" />
+                              <span>Remind</span>
+                            </button>
+
+                            {/* Quick +7d */}
+                            <button
+                              type="button"
+                              onClick={() => handleQuickExtend(tenant.id, 7)}
+                              disabled={isPending}
+                              title="Add +7 days validity"
+                              className="px-2 py-1.5 rounded-lg text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-colors cursor-pointer"
+                            >
+                              +7d
+                            </button>
+
+                            {/* Quick +30d */}
+                            <button
+                              type="button"
+                              onClick={() => handleQuickExtend(tenant.id, 30)}
+                              disabled={isPending}
+                              title="Add +30 days validity"
+                              className="px-2 py-1.5 rounded-lg text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-colors cursor-pointer"
+                            >
+                              +30d
+                            </button>
+
+                            {/* Custom Extend / Upgrade Modal Trigger */}
                             <button
                               type="button"
                               onClick={() => {
-                                setSelectedTenantId('')
-                                setIsModalOpen(true)
+                                setSelectedTenant(tenant)
+                                setIsExtendModalOpen(true)
                               }}
-                              className="mt-2 inline-flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] rounded-xl shadow-xs cursor-pointer"
+                              disabled={isPending}
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] shadow-2xs transition-colors cursor-pointer"
                             >
-                              <Plus className="w-4 h-4" />
-                              <span>Issue First Payment Link</span>
+                              <Sparkles className="w-3 h-3 text-amber-400" />
+                              <span>Manage Plan</span>
                             </button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ) : (
-                    filteredLinks.map((link) => (
-                      <tr key={link.id} className="hover:bg-slate-50/80 transition-colors">
-                        {/* Factory Name & Email */}
-                        <td className="py-3 px-3.5">
-                          <div className="font-bold text-slate-900 text-xs sm:text-sm font-[family-name:var(--font-heading)]">
-                            {link.companyName}
-                          </div>
-                          <div className="text-[11px] sm:text-xs font-mono text-slate-500 mt-0.5">
-                            {link.adminEmail}
-                          </div>
-                        </td>
 
-                        {/* Amount & Plan */}
-                        <td className="py-3 px-3.5">
-                          <div className="font-bold text-slate-900 font-mono text-xs sm:text-sm">
-                            ₹{link.amountInr.toLocaleString('en-IN')}
-                          </div>
-                          <div className="text-[11px] text-slate-500 mt-0.5">
-                            {link.subscriptionTier.replace(/_/g, ' ')}
-                          </div>
-                        </td>
-
-                        {/* Razorpay Short URL */}
-                        <td className="py-3 px-3.5">
-                          <div className="flex items-center gap-1.5">
-                            <span className="font-mono text-xs font-semibold text-[#3A3564] bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10 max-w-[160px] sm:max-w-[200px] truncate">
-                              {link.shortUrl}
-                            </span>
+                            {/* Suspend / Reactivate */}
                             <button
                               type="button"
-                              onClick={() => handleCopy(link.shortUrl, link.id)}
-                              className="p-1 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-md cursor-pointer"
-                              title="Copy payment link URL"
+                              onClick={() => handleToggleRevoke(tenant)}
+                              disabled={isPending}
+                              className={`px-2 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
+                                tenant.status === 'SUSPENDED'
+                                  ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200'
+                                  : 'bg-rose-50 text-rose-700 hover:bg-rose-100'
+                              }`}
                             >
-                              {copiedId === link.id ? (
-                                <Check className="w-3.5 h-3.5 text-emerald-600" />
-                              ) : (
-                                <Copy className="w-3.5 h-3.5" />
-                              )}
+                              {tenant.status === 'SUSPENDED' ? 'Unsuspend' : 'Suspend'}
                             </button>
-                            <a
-                              href={link.shortUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="p-1 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-md"
-                              title="Open Razorpay hosted payment page"
-                            >
-                              <ExternalLink className="w-3.5 h-3.5" />
-                            </a>
                           </div>
-                          <div className="text-[10px] font-mono text-slate-400 mt-0.5">
-                            ID: {link.razorpayLinkId}
-                          </div>
-                        </td>
-
-                        {/* Status */}
-                        <td className="py-3 px-3.5">
-                          {link.status === 'PAID' ? (
-                            <div>
-                              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-800 text-xs font-semibold border border-emerald-200">
-                                <CheckCircle2 className="w-3.5 h-3.5" />
-                                Settled
-                              </span>
-                              {link.paidAt && (
-                                <div className="text-[10px] text-slate-500 font-mono mt-0.5">
-                                  {new Date(link.paidAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
-                                  {link.paymentMethod ? ` via ${link.paymentMethod.toUpperCase()}` : ''}
-                                </div>
-                              )}
-                            </div>
-                          ) : (
-                            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 text-xs font-semibold border border-amber-300">
-                              <Clock className="w-3.5 h-3.5" />
-                              Pending
-                            </span>
-                          )}
-                        </td>
-
-                        {/* Issued Date */}
-                        <td className="py-3 px-3.5 text-xs font-mono text-slate-600 whitespace-nowrap">
-                          {new Date(link.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
-                        </td>
-
-                        {/* Actions */}
-                        <td className="py-3 px-3.5 text-right">
-                          <button
-                            type="button"
-                            onClick={() => handleCopy(link.shortUrl, link.id)}
-                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold text-[#3A3564] bg-[#FAF7F0] hover:bg-[#3A3564] hover:text-white border border-black/10 transition-all cursor-pointer shadow-2xs"
-                          >
-                            {copiedId === link.id ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
-                            <span>{copiedId === link.id ? 'Copied' : 'Copy'}</span>
-                          </button>
                         </td>
                       </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
+                    )
+                  })
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
+      </div>
 
-        {/* Modal: Create Custom Payment Link */}
-        {isModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
-            <div className="bg-white rounded-2xl sm:rounded-3xl border border-black/10 shadow-2xl max-w-lg w-full max-h-[90vh] flex flex-col overflow-hidden">
-              
-              <div className="px-5 sm:px-6 py-4 sm:py-5 bg-[#FAF7F0] border-b border-black/10 flex items-center justify-between shrink-0">
+      {/* Manual Extend / Upgrade Modal */}
+      {isExtendModalOpen && selectedTenant && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200 overflow-y-auto">
+          <div
+            className="bg-white rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-2xl border border-black/10 my-auto animate-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0">
+                  <CreditCard className="w-5 h-5" />
+                </div>
                 <div>
-                  <span className="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-white text-[#3A3564] border border-black/10">
-                    Razorpay Live Engine
-                  </span>
-                  <h3 className="text-base sm:text-lg font-bold text-slate-900 mt-1 font-[family-name:var(--font-heading)]">
-                    Issue Hosted Payment Link
+                  <h3 className="text-base sm:text-lg font-extrabold text-slate-900">
+                    Manage Tenant License & Expiry
                   </h3>
+                  <p className="text-xs text-slate-500">
+                    Manual override for {selectedTenant.companyName}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsExtendModalOpen(false)}
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="space-y-4 pt-4">
+              {/* Option A: Extend Expiry */}
+              <div className="p-4 rounded-xl bg-[#FAF7F0] border border-black/10 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#3A3564]">
+                    Option 1 • Extend Current Validity
+                  </span>
+                  <Clock className="w-4 h-4 text-[#3A3564]" />
+                </div>
+                <div className="flex items-center gap-2">
+                  {[7, 14, 30, 90, 365].map((d) => (
+                    <button
+                      key={d}
+                      type="button"
+                      onClick={() => setDaysToAdd(d)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                        daysToAdd === d
+                          ? 'bg-[#3A3564] text-white shadow-2xs'
+                          : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
+                      }`}
+                    >
+                      +{d}d
+                    </button>
+                  ))}
                 </div>
                 <button
                   type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="p-1.5 sm:p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-black/5 cursor-pointer"
+                  onClick={handleConfirmCustomExtend}
+                  disabled={isPending}
+                  className="w-full py-2 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2A2649] transition-colors cursor-pointer shadow-2xs"
                 >
-                  <X className="w-5 h-5" />
+                  Apply +{daysToAdd} Days Extension
                 </button>
               </div>
 
-              <form onSubmit={handleCreatePaymentLink} className="p-5 sm:p-6 space-y-4 text-xs sm:text-sm overflow-y-auto flex-1">
+              {/* Option B: Upgrade to Full Plan */}
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-700">
+                    Option 2 • Mark Paid & Switch to Full Access
+                  </span>
+                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                </div>
                 
-                {/* Existing Tenant Dropdown */}
-                <div>
-                  <label className="block text-xs sm:text-sm font-semibold text-slate-800 mb-1.5">
-                    Select Registered Factory / Tenant (Auto-Fill)
-                  </label>
-                  <select
-                    value={selectedTenantId}
-                    onChange={(e) => handleSelectTenant(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 focus:border-[#3A3564] rounded-xl text-xs sm:text-sm outline-none font-medium text-slate-900"
-                  >
-                    <option value="">-- Custom / Unregistered Client --</option>
-                    {tenants.map(t => (
-                      <option key={t.id} value={t.id}>
-                        {t.companyName} ({t.adminEmail}) • ₹{t.monthlyBillingInr || 4999}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Existing Link Notice */}
-                {existingActiveLink && (
-                  <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 flex items-start gap-2.5 text-amber-900 text-xs">
-                    <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                    <div>
-                      <span className="font-bold">Active link already exists: </span>
-                      This tenant already has an active pending link (₹{existingActiveLink.amountInr.toLocaleString('en-IN')}). Issuing a new link will generate a fresh billing record.
-                    </div>
-                  </div>
-                )}
-
-                <div>
-                  <label className="block text-xs sm:text-sm font-semibold text-slate-800 mb-1.5">
-                    Factory / Company Name <span className="text-rose-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={modalCompany}
-                    onChange={(e) => setModalCompany(e.target.value)}
-                    placeholder="Enter factory name"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 focus:border-[#3A3564] rounded-xl text-xs sm:text-sm outline-none"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <label className="block text-xs sm:text-sm font-semibold text-slate-800 mb-1.5">
-                      Recipient Email <span className="text-rose-500">*</span>
-                    </label>
-                    <input
-                      type="email"
-                      required
-                      value={modalEmail}
-                      onChange={(e) => setModalEmail(e.target.value)}
-                      placeholder="Enter recipient email"
-                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 focus:border-[#3A3564] rounded-xl text-xs sm:text-sm outline-none"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs sm:text-sm font-semibold text-slate-800 mb-1.5">
-                      Admin Contact Name
-                    </label>
-                    <input
-                      type="text"
-                      value={modalName}
-                      onChange={(e) => setModalName(e.target.value)}
-                      placeholder="Enter contact name"
-                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 focus:border-[#3A3564] rounded-xl text-xs sm:text-sm outline-none"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs sm:text-sm font-semibold text-slate-800 mb-1.5">
-                      Amount (INR ₹) <span className="text-rose-500">*</span>
-                    </label>
-                    <input
-                      type="number"
-                      required
-                      min={100}
-                      value={modalAmount}
-                      onChange={(e) => setModalAmount(Number(e.target.value))}
-                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 focus:border-[#3A3564] rounded-xl text-xs sm:text-sm font-mono font-bold outline-none"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs sm:text-sm font-semibold text-slate-800 mb-1.5">
-                      Subscription Plan Tier
-                    </label>
+                    <label className="text-[11px] font-bold text-slate-600 block mb-1">Plan Tier</label>
                     <select
-                      value={modalTier}
-                      onChange={(e) => setModalTier(e.target.value as SubscriptionPlanTier)}
-                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 focus:border-[#3A3564] rounded-xl text-xs sm:text-sm outline-none"
+                      value={upgradeTier}
+                      onChange={(e) => setUpgradeTier(e.target.value as SubscriptionPlanTier)}
+                      className="w-full p-2 text-xs rounded-lg border border-slate-200 bg-white"
                     >
-                      <option value="FULL_PLANT_AI">Full Access + AI (₹4,999)</option>
-                      <option value="MODULAR">Modular Floor (₹1,999)</option>
-                      <option value="CUSTOM">Custom Enterprise (₹9,999)</option>
+                      <option value="FULL_PLANT_AI">Full Plant AI (₹4,999/mo)</option>
+                      <option value="MODULAR">Modular Plan (₹1,999/mo)</option>
+                      <option value="CUSTOM">Custom Enterprise (₹9,999/mo)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-600 block mb-1">Duration</label>
+                    <select
+                      value={upgradeDurationMonths}
+                      onChange={(e) => setUpgradeDurationMonths(Number(e.target.value))}
+                      className="w-full p-2 text-xs rounded-lg border border-slate-200 bg-white"
+                    >
+                      <option value={1}>1 Month</option>
+                      <option value={3}>3 Months</option>
+                      <option value={6}>6 Months</option>
+                      <option value={12}>1 Year (12 Mo)</option>
                     </select>
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-xs sm:text-sm font-semibold text-slate-800 mb-1.5">
-                    Purpose / Invoice Description
-                  </label>
-                  <input
-                    type="text"
-                    value={modalDescription}
-                    onChange={(e) => setModalDescription(e.target.value)}
-                    placeholder="Monthly subscription retainer for factory operations"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 focus:border-[#3A3564] rounded-xl text-xs sm:text-sm outline-none"
-                  />
-                </div>
-
-                <label className="flex items-center gap-2.5 pt-1 cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    checked={modalSendEmail}
-                    onChange={(e) => setModalSendEmail(e.target.checked)}
-                    className="w-4 h-4 rounded text-[#3A3564] focus:ring-[#3A3564]"
-                  />
-                  <span className="text-xs font-semibold text-slate-700">
-                    Dispatch email notification with Razorpay link from noreply@zigza.in
-                  </span>
-                </label>
-
-                <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
-                  <button
-                    type="button"
-                    disabled={isCreatingLink}
-                    onClick={() => setIsModalOpen(false)}
-                    className="px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 cursor-pointer"
-                  >
-                    Cancel
-                  </button>
-
-                  <button
-                    type="submit"
-                    disabled={isCreatingLink}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] shadow-xs cursor-pointer disabled:opacity-50"
-                  >
-                    {isCreatingLink ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                    <span>Generate Razorpay Link</span>
-                  </button>
-                </div>
-              </form>
+                <button
+                  type="button"
+                  onClick={handleConfirmUpgrade}
+                  disabled={isPending}
+                  className="w-full py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition-colors cursor-pointer shadow-2xs"
+                >
+                  Convert & Mark Full Access
+                </button>
+              </div>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </PlatformAdminShell>
   )
 }

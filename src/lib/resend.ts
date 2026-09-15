@@ -218,10 +218,7 @@ export async function sendCustomInquiryNotificationEmail(params: CustomInquiryNo
   } catch (error: any) {
     console.error('[sendCustomInquiryNotificationEmail] Error:', error)
     return { success: false, error: error?.message }
-  }
-}
-
-export interface PaymentReminderEmailParams {
+  }export interface PaymentReminderEmailParams {
   to: string
   companyName: string
   adminName: string
@@ -229,7 +226,6 @@ export interface PaymentReminderEmailParams {
   planTier: string
   monthlyBillingInr: number
   expiresAt?: string
-  paymentLinkUrl?: string
 }
 
 export async function sendPaymentReminderEmail(params: PaymentReminderEmailParams) {
@@ -240,8 +236,7 @@ export async function sendPaymentReminderEmail(params: PaymentReminderEmailParam
     accessType,
     planTier,
     monthlyBillingInr,
-    expiresAt,
-    paymentLinkUrl
+    expiresAt
   } = params
 
   const client = getResendClient()
@@ -286,8 +281,7 @@ export async function sendPaymentReminderEmail(params: PaymentReminderEmailParam
           .detail-val { color: #0f172a; font-weight: 700; }
           .detail-highlight { color: #3A3564; font-weight: 800; }
           .button-wrap { text-align: center; margin: 28px 0; }
-          .btn-action { display: inline-block; background: #059669; color: #ffffff !important; padding: 15px 36px; border-radius: 10px; font-size: 15px; font-weight: 700; text-decoration: none; box-shadow: 0 4px 12px rgba(5,150,105,0.3); }
-          .btn-login { display: inline-block; background: #3A3564; color: #ffffff !important; padding: 12px 24px; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none; margin-top: 10px; }
+          .btn-action { display: inline-block; background: #3A3564; color: #ffffff !important; padding: 15px 36px; border-radius: 10px; font-size: 15px; font-weight: 700; text-decoration: none; box-shadow: 0 4px 12px rgba(58,53,100,0.3); }
           .note { font-size: 12px; color: #64748b; line-height: 1.5; border-top: 1px solid #e2e8f0; padding-top: 20px; }
           .footer { background: #f8fafc; padding: 20px 28px; text-align: center; font-size: 11px; color: #94a3b8; border-top: 1px solid #e2e8f0; }
         </style>
@@ -296,13 +290,13 @@ export async function sendPaymentReminderEmail(params: PaymentReminderEmailParam
         <div class="container">
           <div class="header">
             <h1 class="brand-title">Zigza Enterprise MES</h1>
-            <div class="brand-subtitle">Subscription & Invoice Billing Management</div>
+            <div class="brand-subtitle">Subscription & License Validity Notice</div>
           </div>
           <div class="content">
             <div class="greeting">Dear ${adminName},</div>
             <p class="message">
-              This is a friendly reminder regarding your <strong>${companyName}</strong> workspace subscription on the Zigza MES platform.
-              ${isTrial ? 'Your temporary 7-day trial period is nearing completion or requires subscription confirmation to retain continuous production manufacturing access.' : 'Your monthly subscription billing cycle is due for payment to ensure uninterrupted plant operational execution.'}
+              This is a notification regarding your <strong>${companyName}</strong> factory workspace license on the Zigza MES platform.
+              ${isTrial ? 'Your temporary 7-day demo trial period is nearing completion. To ensure continuous access to your manufacturing divisions without interruption, please activate your plan.' : 'Your monthly subscription period is due for renewal to maintain active operational execution across your plant.'}
             </p>
             
             <div class="notice-box">
@@ -325,23 +319,17 @@ export async function sendPaymentReminderEmail(params: PaymentReminderEmailParam
               </div>
               ${isTrial && expiresAt ? `
               <div class="detail-row">
-                <span class="detail-label">Trial Expiration:</span>
-                <span class="detail-val" style="color: #DC2626;">${expiryFormatted}</span>
+                <span class="detail-label">Trial Expiry Date:</span>
+                <span class="detail-val" style="color: #DC2626; font-weight: 800;">${expiryFormatted}</span>
               </div>` : ''}
             </div>
 
             <div class="button-wrap">
-              ${paymentLinkUrl ? `
-                <a href="${paymentLinkUrl}" class="btn-action" target="_blank">Pay ₹${monthlyBillingInr.toLocaleString('en-IN')} via Razorpay</a>
-                <br/>
-                <a href="https://app.zigza.in/login" class="btn-login" target="_blank">Or Log in to Factory Portal</a>
-              ` : `
-                <a href="https://app.zigza.in/login" class="btn-action" target="_blank">Review & Settle Subscription</a>
-              `}
+              <a href="https://app.zigza.in/modules/profile" class="btn-action" target="_blank">Manage & Renew in Company Profile</a>
             </div>
 
             <div class="note">
-              <strong>Need assistance?</strong> For banking wire transfer instructions, GST invoices, or subscription upgrades, please contact our enterprise relations team at <a href="mailto:billing@zigza.in" style="color: #3A3564; font-weight: 600;">billing@zigza.in</a>.
+              <strong>Need assistance?</strong> For banking wire transfer instructions, customized enterprise agreements, or subscription changes, please reach out directly to <a href="mailto:billing@zigza.in" style="color: #3A3564; font-weight: 600;">billing@zigza.in</a>.
             </div>
           </div>
           <div class="footer">
@@ -355,7 +343,7 @@ export async function sendPaymentReminderEmail(params: PaymentReminderEmailParam
     const result = await client.emails.send({
       from: fromEmail,
       to,
-      subject: `Subscription & Payment Notice - ${companyName} (${isTrial ? 'Demo Trial Conversion' : 'Monthly Retainer'})`,
+      subject: `Subscription & License Notice - ${companyName} (${isTrial ? 'Demo Trial Review' : 'Monthly Renewal'})`,
       html: htmlContent,
     })
 
