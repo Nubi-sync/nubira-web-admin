@@ -28,6 +28,7 @@ import { CreateTechPackModal } from './CreateTechPackModal'
 import { EditTechPackModal } from './EditTechPackModal'
 import { deleteTechPackAction } from '../../actions'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 
 const STATUS_CONFIG: Record<string, { label: string; badgeClass: string }> = {
   DRAFT: { label: 'Draft', badgeClass: 'bg-slate-100 text-slate-700 border-slate-200' },
@@ -53,7 +54,8 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands }: Tec
   const [searchQuery, setSearchQuery] = useState('')
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [editingPack, setEditingPack] = useState<TechPack | null>(null)
-  const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [packToDelete, setPackToDelete] = useState<TechPack | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
   const [diffPack, setDiffPack] = useState<TechPack | null>(null)
 
   function loadPacks() {
@@ -77,23 +79,22 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands }: Tec
     return () => window.removeEventListener('zigza_tech_packs_updated', handler)
   }, [initialTechPacks])
 
-  async function handleDelete(tp: TechPack) {
-    if (!window.confirm(`Are you sure you want to delete Tech-Pack "${tp.style_number}" (${tp.style_name})? This will delete all associated grading points, materials, and sampling audits.`)) {
-      return
-    }
-    setDeletingId(tp.id)
+  async function handleConfirmDelete() {
+    if (!packToDelete) return
+    setIsDeleting(true)
     try {
-      const res = await deleteTechPackAction(tp.id)
+      const res = await deleteTechPackAction(packToDelete.id)
       if (res.success) {
-        toast.success(`Tech-Pack ${tp.style_number} deleted successfully`)
-        setTechPacks(prev => prev.filter(p => p.id !== tp.id))
+        toast.success(`Tech-Pack ${packToDelete.style_number} deleted successfully`)
+        setTechPacks(prev => prev.filter(p => p.id !== packToDelete.id))
+        setPackToDelete(null)
       } else {
         toast.error(res.error || 'Failed to delete Tech-Pack')
       }
     } catch (err: any) {
       toast.error(err.message || 'An error occurred during deletion')
     } finally {
-      setDeletingId(null)
+      setIsDeleting(false)
     }
   }
 
@@ -298,16 +299,11 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands }: Tec
                       <Pencil className="w-3.5 h-3.5" />
                     </button>
                     <button
-                      onClick={() => handleDelete(pack)}
-                      disabled={deletingId === pack.id}
-                      className="p-1.5 rounded-lg bg-white border border-black/10 text-rose-600 hover:bg-rose-50 hover:border-rose-200 transition-all cursor-pointer disabled:opacity-50 shadow-2xs"
+                      onClick={() => setPackToDelete(pack)}
+                      className="p-1.5 rounded-lg bg-white border border-black/10 text-rose-600 hover:bg-rose-50 hover:border-rose-200 transition-all cursor-pointer shadow-2xs"
                       title="Delete Tech-Pack"
                     >
-                      {deletingId === pack.id ? (
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      ) : (
-                        <Trash2 className="w-3.5 h-3.5" />
-                      )}
+                      <Trash2 className="w-3.5 h-3.5" />
                     </button>
                     <button
                       onClick={() => setDiffPack(pack)}
@@ -378,16 +374,11 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands }: Tec
                             <span className="hidden md:inline">Edit</span>
                           </button>
                           <button
-                            onClick={() => handleDelete(pack)}
-                            disabled={deletingId === pack.id}
-                            className="inline-flex items-center gap-1 text-xs font-semibold text-rose-600 hover:text-rose-700 p-1.5 rounded-lg hover:bg-rose-50 border border-black/5 hover:border-rose-200 transition-all cursor-pointer disabled:opacity-50 shadow-2xs"
+                            onClick={() => setPackToDelete(pack)}
+                            className="inline-flex items-center gap-1 text-xs font-semibold text-rose-600 hover:text-rose-700 p-1.5 rounded-lg hover:bg-rose-50 border border-black/5 hover:border-rose-200 transition-all cursor-pointer shadow-2xs"
                             title="Delete Tech-Pack"
                           >
-                            {deletingId === pack.id ? (
-                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                            ) : (
-                              <Trash2 className="w-3.5 h-3.5" />
-                            )}
+                            <Trash2 className="w-3.5 h-3.5" />
                             <span className="hidden md:inline">Delete</span>
                           </button>
                           <button
@@ -494,6 +485,21 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands }: Tec
         techPack={editingPack}
         onUpdated={(updatedTp) => {
           setTechPacks(prev => prev.map(p => p.id === updatedTp.id ? updatedTp : p))
+        }}
+      />
+
+      {/* Custom Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={!!packToDelete}
+        title={`Delete Tech-Pack "${packToDelete?.style_number}"?`}
+        description={`Are you sure you want to delete "${packToDelete?.style_name || packToDelete?.style_number}" (${packToDelete?.brand_name})? This will delete all associated grading points, materials, and sampling audits.`}
+        confirmText="Yes, Delete Tech-Pack"
+        cancelText="Cancel"
+        variant="danger"
+        isLoading={isDeleting}
+        onConfirm={handleConfirmDelete}
+        onClose={() => {
+          if (!isDeleting) setPackToDelete(null)
         }}
       />
     </div>
