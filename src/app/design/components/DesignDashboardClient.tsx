@@ -1011,46 +1011,105 @@ export function DesignDashboardClient({
             </div>
 
             <div className="space-y-4">
-              <div>
-                <label className="block font-bold text-slate-800 mb-2 text-xs">
-                  Submitted Concept Photos (Max 2):
-                </label>
-                <div className="grid grid-cols-2 gap-3">
-                  <div 
-                    onClick={() => setPreviewPhoto(reviewingSubmission.submission.photo_url_1)}
-                    className="aspect-square rounded-xl border border-black/10 overflow-hidden bg-slate-100 relative group cursor-pointer"
-                  >
-                    <img
-                      src={reviewingSubmission.submission.photo_url_1}
-                      alt="Concept 1"
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                    />
-                    <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-semibold">
-                      <Eye className="w-4 h-4 mr-1" /> Full View
-                    </div>
-                  </div>
+              {reviewingSubmission.submission.concepts && reviewingSubmission.submission.concepts.length > 0 ? (
+                <div className="space-y-3 max-h-[50vh] overflow-y-auto pr-1">
+                  <label className="block font-bold text-slate-800 text-xs">
+                    Submitted Design Concepts ({reviewingSubmission.submission.concepts.length} Designs):
+                  </label>
+                  {reviewingSubmission.submission.concepts.map((concept) => (
+                    <div key={concept.concept_number} className="p-3.5 rounded-xl bg-slate-50 border border-black/10 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-slate-900 text-xs flex items-center gap-1.5">
+                          <span className="w-5 h-5 rounded-full bg-[#3A3564] text-[#FAF7F0] flex items-center justify-center text-[10px] font-mono">
+                            {concept.concept_number}
+                          </span>
+                          <span>{concept.title || `Design Concept #${concept.concept_number}`}</span>
+                        </span>
+                        <span className="text-[10px] font-mono text-slate-500 font-bold">
+                          {concept.colorways.length} Colorway(s)
+                        </span>
+                      </div>
+                      
+                      {concept.notes && (
+                        <p className="text-[11px] text-slate-600 italic bg-white p-2 rounded-lg border border-black/5">
+                          &ldquo;{concept.notes}&rdquo;
+                        </p>
+                      )}
 
-                  {reviewingSubmission.submission.photo_url_2 ? (
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-1">
+                        {concept.colorways.map((cw, cwIdx) => (
+                          <div key={cwIdx} className="space-y-1">
+                            <span className="text-[10px] font-bold text-slate-700 block truncate">
+                              {cw.color_name} Colorway
+                            </span>
+                            <div 
+                              onClick={() => setPreviewPhoto(cw.photo_front)}
+                              className="aspect-video rounded-lg border border-black/10 overflow-hidden bg-white relative group cursor-pointer"
+                            >
+                              <img src={cw.photo_front} alt={cw.color_name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                              <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[10px] font-bold">
+                                <Eye className="w-3.5 h-3.5 mr-1" /> View Front
+                              </div>
+                            </div>
+                            {cw.photo_back && (
+                              <div 
+                                onClick={() => setPreviewPhoto(cw.photo_back!)}
+                                className="aspect-video rounded-lg border border-black/10 overflow-hidden bg-white relative group cursor-pointer mt-1"
+                              >
+                                <img src={cw.photo_back} alt={`${cw.color_name} Back`} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                                <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[10px] font-bold">
+                                  <Eye className="w-3.5 h-3.5 mr-1" /> View Back
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div>
+                  <label className="block font-bold text-slate-800 mb-2 text-xs">
+                    Submitted Concept Photos:
+                  </label>
+                  <div className="grid grid-cols-2 gap-3">
                     <div 
-                      onClick={() => setPreviewPhoto(reviewingSubmission.submission.photo_url_2!)}
+                      onClick={() => setPreviewPhoto(reviewingSubmission.submission.photo_url_1)}
                       className="aspect-square rounded-xl border border-black/10 overflow-hidden bg-slate-100 relative group cursor-pointer"
                     >
                       <img
-                        src={reviewingSubmission.submission.photo_url_2}
-                        alt="Concept 2"
+                        src={reviewingSubmission.submission.photo_url_1}
+                        alt="Concept 1"
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                       />
                       <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-semibold">
                         <Eye className="w-4 h-4 mr-1" /> Full View
                       </div>
                     </div>
-                  ) : (
-                    <div className="aspect-square rounded-xl border border-dashed border-black/15 bg-slate-50 flex items-center justify-center text-xs text-slate-400">
-                      Single photo submitted
-                    </div>
-                  )}
+
+                    {reviewingSubmission.submission.photo_url_2 ? (
+                      <div 
+                        onClick={() => setPreviewPhoto(reviewingSubmission.submission.photo_url_2!)}
+                        className="aspect-square rounded-xl border border-black/10 overflow-hidden bg-slate-100 relative group cursor-pointer"
+                      >
+                        <img
+                          src={reviewingSubmission.submission.photo_url_2}
+                          alt="Concept 2"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                        />
+                        <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-semibold">
+                          <Eye className="w-4 h-4 mr-1" /> Full View
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="aspect-square rounded-xl border border-dashed border-black/15 bg-slate-50 flex items-center justify-center text-xs text-slate-400">
+                        Single photo submitted
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {reviewingSubmission.submission.designer_notes && (
                 <div className="bg-[#FAF7F0] p-3.5 rounded-xl border border-black/10 text-xs">
@@ -1135,42 +1194,101 @@ export function DesignDashboardClient({
             </div>
 
             <div className="space-y-4">
-              <div>
-                <label className="block font-bold text-slate-800 mb-2 text-xs">
-                  Submitted Concept Photos:
-                </label>
-                <div className="grid grid-cols-2 gap-3">
-                  <div 
-                    onClick={() => setPreviewPhoto(saReviewingSubmission.submission.photo_url_1)}
-                    className="aspect-square rounded-xl border border-black/10 overflow-hidden bg-slate-100 relative group cursor-pointer"
-                  >
-                    <img
-                      src={saReviewingSubmission.submission.photo_url_1}
-                      alt="Concept 1"
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                    />
-                    <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-semibold">
-                      <Eye className="w-4 h-4 mr-1" /> Full View
-                    </div>
-                  </div>
+              {saReviewingSubmission.submission.concepts && saReviewingSubmission.submission.concepts.length > 0 ? (
+                <div className="space-y-3 max-h-[50vh] overflow-y-auto pr-1">
+                  <label className="block font-bold text-slate-800 text-xs">
+                    Submitted Design Concepts ({saReviewingSubmission.submission.concepts.length} Designs):
+                  </label>
+                  {saReviewingSubmission.submission.concepts.map((concept) => (
+                    <div key={concept.concept_number} className="p-3.5 rounded-xl bg-slate-50 border border-black/10 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-slate-900 text-xs flex items-center gap-1.5">
+                          <span className="w-5 h-5 rounded-full bg-[#3A3564] text-[#FAF7F0] flex items-center justify-center text-[10px] font-mono">
+                            {concept.concept_number}
+                          </span>
+                          <span>{concept.title || `Design Concept #${concept.concept_number}`}</span>
+                        </span>
+                        <span className="text-[10px] font-mono text-slate-500 font-bold">
+                          {concept.colorways.length} Colorway(s)
+                        </span>
+                      </div>
+                      
+                      {concept.notes && (
+                        <p className="text-[11px] text-slate-600 italic bg-white p-2 rounded-lg border border-black/5">
+                          &ldquo;{concept.notes}&rdquo;
+                        </p>
+                      )}
 
-                  {saReviewingSubmission.submission.photo_url_2 && (
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-1">
+                        {concept.colorways.map((cw, cwIdx) => (
+                          <div key={cwIdx} className="space-y-1">
+                            <span className="text-[10px] font-bold text-slate-700 block truncate">
+                              {cw.color_name} Colorway
+                            </span>
+                            <div 
+                              onClick={() => setPreviewPhoto(cw.photo_front)}
+                              className="aspect-video rounded-lg border border-black/10 overflow-hidden bg-white relative group cursor-pointer"
+                            >
+                              <img src={cw.photo_front} alt={cw.color_name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                              <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[10px] font-bold">
+                                <Eye className="w-3.5 h-3.5 mr-1" /> View Front
+                              </div>
+                            </div>
+                            {cw.photo_back && (
+                              <div 
+                                onClick={() => setPreviewPhoto(cw.photo_back!)}
+                                className="aspect-video rounded-lg border border-black/10 overflow-hidden bg-white relative group cursor-pointer mt-1"
+                              >
+                                <img src={cw.photo_back} alt={`${cw.color_name} Back`} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                                <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[10px] font-bold">
+                                  <Eye className="w-3.5 h-3.5 mr-1" /> View Back
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div>
+                  <label className="block font-bold text-slate-800 mb-2 text-xs">
+                    Submitted Concept Photos:
+                  </label>
+                  <div className="grid grid-cols-2 gap-3">
                     <div 
-                      onClick={() => setPreviewPhoto(saReviewingSubmission.submission.photo_url_2!)}
+                      onClick={() => setPreviewPhoto(saReviewingSubmission.submission.photo_url_1)}
                       className="aspect-square rounded-xl border border-black/10 overflow-hidden bg-slate-100 relative group cursor-pointer"
                     >
                       <img
-                        src={saReviewingSubmission.submission.photo_url_2}
-                        alt="Concept 2"
+                        src={saReviewingSubmission.submission.photo_url_1}
+                        alt="Concept 1"
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                       />
                       <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-semibold">
                         <Eye className="w-4 h-4 mr-1" /> Full View
                       </div>
                     </div>
-                  )}
+
+                    {saReviewingSubmission.submission.photo_url_2 && (
+                      <div 
+                        onClick={() => setPreviewPhoto(saReviewingSubmission.submission.photo_url_2!)}
+                        className="aspect-square rounded-xl border border-black/10 overflow-hidden bg-slate-100 relative group cursor-pointer"
+                      >
+                        <img
+                          src={saReviewingSubmission.submission.photo_url_2}
+                          alt="Concept 2"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                        />
+                        <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-semibold">
+                          <Eye className="w-4 h-4 mr-1" /> Full View
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {saReviewingSubmission.submission.designer_notes && (
                 <div className="bg-[#FAF7F0] p-3 rounded-xl border border-black/10 text-xs">

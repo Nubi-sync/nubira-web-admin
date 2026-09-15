@@ -24,7 +24,9 @@ import {
   BriefCategory,
   BriefStatus,
   PHVerdict,
-  SAVerdict
+  SAVerdict,
+  DesignConceptItem,
+  DesignConceptColorway
 } from './types/design'
 
 const supabaseAdmin = createAdminClient(
@@ -810,21 +812,25 @@ export async function fetchDesignBriefsAction(filters?: {
         company_name: row.company_name,
         created_at: row.created_at,
         updated_at: row.updated_at,
-        latest_submission: latestSub ? {
-          id: latestSub.id,
-          brief_id: latestSub.brief_id,
-          designer_member_id: latestSub.designer_member_id || undefined,
-          photo_url_1: latestSub.photo_url_1,
-          photo_url_2: latestSub.photo_url_2 || undefined,
-          designer_notes: latestSub.designer_notes || undefined,
-          ph_verdict: latestSub.ph_verdict as PHVerdict,
-          ph_feedback: latestSub.ph_feedback || undefined,
-          sa_verdict: latestSub.sa_verdict as SAVerdict || undefined,
-          sa_notes: latestSub.sa_notes || undefined,
-          company_name: latestSub.company_name,
-          submitted_at: latestSub.submitted_at,
-          reviewed_at: latestSub.reviewed_at || undefined
-        } : undefined
+        latest_submission: latestSub ? (() => {
+          const parsedSub = parseConceptsFromNotes(latestSub.designer_notes)
+          return {
+            id: latestSub.id,
+            brief_id: latestSub.brief_id,
+            designer_member_id: latestSub.designer_member_id || undefined,
+            photo_url_1: latestSub.photo_url_1,
+            photo_url_2: latestSub.photo_url_2 || undefined,
+            concepts: parsedSub.concepts,
+            designer_notes: parsedSub.cleanNotes,
+            ph_verdict: latestSub.ph_verdict as PHVerdict,
+            ph_feedback: latestSub.ph_feedback || undefined,
+            sa_verdict: latestSub.sa_verdict as SAVerdict || undefined,
+            sa_notes: latestSub.sa_notes || undefined,
+            company_name: latestSub.company_name,
+            submitted_at: latestSub.submitted_at,
+            reviewed_at: latestSub.reviewed_at || undefined
+          }
+        })() : undefined
       }
     })
   } catch (err) {
@@ -854,17 +860,53 @@ export async function deleteDesignBriefAction(briefId: string): Promise<{ succes
 // 4. DESIGN SUBMISSIONS & 3-TIER VERIFICATION
 // -----------------------------------------------------------------------------
 
+function parseConceptsFromNotes(designerNotes?: string | null): { concepts?: DesignConceptItem[]; cleanNotes?: string } {
+  if (!designerNotes) return { cleanNotes: undefined }
+  const match = designerNotes.match(/\[CONCEPTS_JSON:\s*(\{[\s\S]*?\}|\[[\s\S]*?\])\s*\]/)
+  if (match && match[1]) {
+    try {
+      const parsed = JSON.parse(match[1])
+      const clean = designerNotes.replace(/\[CONCEPTS_JSON:\s*(\{[\s\S]*?\}|\[[\s\S]*?\])\s*\]\s*/, '').trim() || undefined
+      return { concepts: Array.isArray(parsed) ? parsed : [parsed], cleanNotes: clean }
+    } catch {
+      return { cleanNotes: designerNotes }
+    }
+  }
+  return { cleanNotes: designerNotes }
+}
+
 export async function submitDesignPhotosAction(payload: {
   brief_id: string
   designer_member_id?: string
-  photo_url_1: string
+  photo_url_1?: string
   photo_url_2?: string
   designer_notes?: string
+  concepts?: DesignConceptItem[]
   company_name: string
 }): Promise<{ success: boolean; data?: DesignSubmission; error?: string }> {
   try {
-    if (!payload.photo_url_1) {
-      return { success: false, error: 'At least 1 photo is required.' }
+    let p1 = payload.photo_url_1?.trim() || ''
+    let p2 = payload.photo_url_2?.trim() || ''
+
+    if (payload.concepts && payload.concepts.length > 0) {
+      // Pick first colorway photos as primary if not provided
+      for (const c of payload.concepts) {
+        for (const cw of c.colorways) {
+          if (!p1 && cw.photo_front) p1 = cw.photo_front
+          if (!p2 && cw.photo_back) p2 = cw.photo_back
+          if (p1 && p2) break
+        }
+        if (p1 && p2) break
+      }
+    }
+
+    if (!p1) {
+      return { success: false, error: 'At least 1 concept photo or mockup is required.' }
+    }
+
+    let rawNotes = payload.designer_notes?.trim() || ''
+    if (payload.concepts && payload.concepts.length > 0) {
+      rawNotes = `[CONCEPTS_JSON: ${JSON.stringify(payload.concepts)}] ${rawNotes}`.trim()
     }
 
     const { data: subData, error: subErr } = await supabaseAdmin
@@ -872,9 +914,9 @@ export async function submitDesignPhotosAction(payload: {
       .insert({
         brief_id: payload.brief_id,
         designer_member_id: payload.designer_member_id || null,
-        photo_url_1: payload.photo_url_1,
-        photo_url_2: payload.photo_url_2 || null,
-        designer_notes: payload.designer_notes?.trim() || null,
+        photo_url_1: p1,
+        photo_url_2: p2 || null,
+        designer_notes: rawNotes || null,
         ph_verdict: 'PENDING',
         company_name: payload.company_name
       })
@@ -896,7 +938,14 @@ export async function submitDesignPhotosAction(payload: {
     revalidatePath('/design/briefs')
     revalidatePath('/design/designer')
 
-    return { success: true, data: subData }
+    const parsed = parseConceptsFromNotes(subData.designer_notes)
+    const formatted: DesignSubmission = {
+      ...subData,
+      concepts: parsed.concepts || payload.concepts,
+      designer_notes: parsed.cleanNotes
+    }
+
+    return { success: true, data: formatted }
   } catch (err: any) {
     console.error('[submitDesignPhotosAction] Unexpected error:', err)
     return { success: false, error: err?.message || 'Failed to submit photos.' }
@@ -935,34 +984,38 @@ export async function fetchDesignSubmissionsAction(filters?: {
       return []
     }
 
-    return (data || []).map((row: any) => ({
-      id: row.id,
-      brief_id: row.brief_id,
-      designer_member_id: row.designer_member_id || undefined,
-      designer_name: row.design_team_members?.designer_name || row.design_briefs?.design_team_members?.designer_name || 'Designer',
-      photo_url_1: row.photo_url_1,
-      photo_url_2: row.photo_url_2 || undefined,
-      designer_notes: row.designer_notes || undefined,
-      ph_verdict: row.ph_verdict as PHVerdict,
-      ph_feedback: row.ph_feedback || undefined,
-      sa_verdict: row.sa_verdict as SAVerdict || undefined,
-      sa_notes: row.sa_notes || undefined,
-      company_name: row.company_name,
-      submitted_at: row.submitted_at,
-      reviewed_at: row.reviewed_at || undefined,
-      brief: row.design_briefs ? {
-        id: row.design_briefs.id,
-        ph_user_id: row.design_briefs.ph_user_id,
-        garment_type: row.design_briefs.garment_type,
-        category: row.design_briefs.category,
-        max_colors: row.design_briefs.max_colors,
-        instructions: row.design_briefs.instructions || undefined,
-        status: row.design_briefs.status as BriefStatus,
-        company_name: row.design_briefs.company_name,
-        created_at: row.design_briefs.created_at,
-        updated_at: row.design_briefs.updated_at
-      } : undefined
-    }))
+    return (data || []).map((row: any) => {
+      const parsed = parseConceptsFromNotes(row.designer_notes)
+      return {
+        id: row.id,
+        brief_id: row.brief_id,
+        designer_member_id: row.designer_member_id || undefined,
+        designer_name: row.design_team_members?.designer_name || row.design_briefs?.design_team_members?.designer_name || 'Designer',
+        photo_url_1: row.photo_url_1,
+        photo_url_2: row.photo_url_2 || undefined,
+        concepts: parsed.concepts,
+        designer_notes: parsed.cleanNotes,
+        ph_verdict: row.ph_verdict as PHVerdict,
+        ph_feedback: row.ph_feedback || undefined,
+        sa_verdict: row.sa_verdict as SAVerdict || undefined,
+        sa_notes: row.sa_notes || undefined,
+        company_name: row.company_name,
+        submitted_at: row.submitted_at,
+        reviewed_at: row.reviewed_at || undefined,
+        brief: row.design_briefs ? {
+          id: row.design_briefs.id,
+          ph_user_id: row.design_briefs.ph_user_id,
+          garment_type: row.design_briefs.garment_type,
+          category: row.design_briefs.category,
+          max_colors: row.design_briefs.max_colors,
+          instructions: row.design_briefs.instructions || undefined,
+          status: row.design_briefs.status as BriefStatus,
+          company_name: row.design_briefs.company_name,
+          created_at: row.design_briefs.created_at,
+          updated_at: row.design_briefs.updated_at
+        } : undefined
+      }
+    })
   } catch (err) {
     console.error('[fetchDesignSubmissionsAction] Unexpected error:', err)
     return []

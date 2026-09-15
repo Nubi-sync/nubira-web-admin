@@ -172,6 +172,19 @@ export interface DesignBrief {
 export type PHVerdict = 'PENDING' | 'APPROVED' | 'REJECTED'
 export type SAVerdict = 'PENDING' | 'APPROVED' | 'SAVED_FOR_LATER' | 'REJECTED'
 
+export interface DesignConceptColorway {
+  color_name: string
+  photo_front: string
+  photo_back?: string
+}
+
+export interface DesignConceptItem {
+  concept_number: number
+  title?: string
+  notes?: string
+  colorways: DesignConceptColorway[]
+}
+
 export interface DesignSubmission {
   id: string
   brief_id: string
@@ -180,6 +193,7 @@ export interface DesignSubmission {
   photo_url_1: string
   photo_url_2?: string
   designer_notes?: string
+  concepts?: DesignConceptItem[]
   ph_verdict: PHVerdict
   ph_feedback?: string
   sa_verdict?: SAVerdict
