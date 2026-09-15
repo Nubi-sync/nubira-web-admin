@@ -15,15 +15,15 @@ export function CreateCostingModal({ isOpen, onClose, onSuccess }: CreateCosting
   const [orders] = useState<MerchandisingOrder[]>(getOrders())
   const [selectedPo, setSelectedPo] = useState(orders[0]?.po_number || '')
   
-  // Costing line items
-  const [fabricCost, setFabricCost] = useState('6.50')
-  const [trimsCost, setTrimsCost] = useState('1.20')
-  const [embellishmentCost, setEmbellishmentCost] = useState('0.75')
-  const [cmtSewingRate, setCmtSewingRate] = useState('2.00')
-  const [washingCost, setWashingCost] = useState('0.50')
-  const [packagingCost, setPackagingCost] = useState('0.40')
+  // Costing line items (INR ₹)
+  const [fabricCost, setFabricCost] = useState('550.00')
+  const [trimsCost, setTrimsCost] = useState('85.00')
+  const [embellishmentCost, setEmbellishmentCost] = useState('65.00')
+  const [cmtSewingRate, setCmtSewingRate] = useState('180.00')
+  const [washingCost, setWashingCost] = useState('45.00')
+  const [packagingCost, setPackagingCost] = useState('35.00')
   const [targetMargin, setTargetMargin] = useState('18.0')
-  const [actualRealized, setActualRealized] = useState('13.20')
+  const [actualRealized, setActualRealized] = useState('1080.00')
 
   const [error, setError] = useState<string | null>(null)
 
@@ -130,7 +130,7 @@ export function CreateCostingModal({ isOpen, onClose, onSuccess }: CreateCosting
           {/* Cost Line Items Grid */}
           <div className="p-4 rounded-2xl bg-slate-50 border border-black/5 space-y-3">
             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600">
-              Direct Production Cost Breakdown (Per Garment)
+              Direct Production Cost Breakdown (Per Garment in ₹ INR)
             </h3>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -207,15 +207,15 @@ export function CreateCostingModal({ isOpen, onClose, onSuccess }: CreateCosting
           <div className="p-4 rounded-2xl bg-[#FAF7F0] border border-black/10 space-y-2 font-mono">
             <div className="flex items-center justify-between text-slate-600">
               <span>Direct Manufacturing Subtotal:</span>
-              <span>{directSubtotal.toFixed(2)}</span>
+              <span>₹{directSubtotal.toFixed(2)}</span>
             </div>
             <div className="flex items-center justify-between text-slate-600">
               <span>Factory Overhead (Fixed 12%):</span>
-              <span>+{overhead.toFixed(2)}</span>
+              <span>+₹{overhead.toFixed(2)}</span>
             </div>
             <div className="flex items-center justify-between font-bold text-slate-900 pt-1 border-t border-black/10 text-sm">
               <span>Planned Net FOB Cost:</span>
-              <span className="text-[#3A3564]">{netFobCost.toFixed(2)}</span>
+              <span className="text-[#3A3564]">₹{netFobCost.toFixed(2)}</span>
             </div>
           </div>
 
@@ -223,7 +223,7 @@ export function CreateCostingModal({ isOpen, onClose, onSuccess }: CreateCosting
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block font-semibold text-slate-700 mb-1">
-                Actual Realized Post-Cost
+                Actual Realized Post-Cost (₹)
               </label>
               <input
                 type="number"

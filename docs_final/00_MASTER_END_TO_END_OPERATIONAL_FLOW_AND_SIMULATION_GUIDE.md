@@ -10,7 +10,7 @@
 > - **Purchase Order**: `PO-2026-9901`  
 > - **Order Quantity**: `1,000 pcs` (Black: 500 pcs [S:100, M:200, L:150, XL:50], Sage Olive: 500 pcs [S:100, M:200, L:150, XL:50])  
 > - **Fabric Spec**: `100% Combed Cotton French Terry (380 GSM)`  
-> - **FOB Price**: `$18.50 / pc` | **Total Contract Value**: `$18,500.00`
+> - **FOB Price**: `₹1,450.00 / pc` | **Total Contract Value**: `₹14,50,000.00`
 
 ---
 
@@ -122,15 +122,15 @@ Book the official buyer commercial contract, construct the Bill of Materials (BO
   3. **Brand / Buyer**: Select `ZARA INTERNATIONAL`
   4. **Approved Style**: Select `TP-2026-8801 (Heavyweight Relaxed French Terry Hoodie)`
   5. **Total Order Quantity**: Type `1000`
-  6. **FOB Price per Piece ($)**: Type `18.50`
-  7. **Currency**: Select `USD`
+  6. **FOB Price per Piece (₹)**: Type `1450`
+  7. **Currency**: Select `INR`
   8. **Ex-Factory Shipping Date**: Set date to 25 days from today
   9. **Color & Size Matrix**:
      - Row 1: Color `Obsidian Black` | S: `100`, M: `200`, L: `150`, XL: `50` (Subtotal: `500 pcs`)
      - Row 2: Color `Sage Olive` | S: `100`, M: `200`, L: `150`, XL: `50` (Subtotal: `500 pcs`)
   10. Click **`Book Commercial Contract`**.
 - **Expected Result**:
-  - `PO-2026-9901` is confirmed in database with total revenue `$18,500.00`.
+  - `PO-2026-9901` is confirmed in database with total revenue `₹14,50,000.00`.
   - The order status pill displays `BOOKED` with `1,000 pcs contracted`.
 
 ---
@@ -140,12 +140,12 @@ Book the official buyer commercial contract, construct the Bill of Materials (BO
 - **Action / What to Click**:
   1. Click **`+ Generate BOM Costing Sheet`**.
   2. Link PO: Select `PO-2026-9901`.
-  3. **Fabric Yield**: `0.85 meters / piece` @ `$8.20 / meter` (Cost: `$6.97`)
-  4. **Trims & Packaging (BOM)**: `$1.85 / piece` (Thread, eyelets, 15mm drawcord, main woven label, polybag)
-  5. **Printing & Embroidery Cost**: `$1.20 / piece`
-  6. **CMT Sewing Cost**: `$3.50 / piece`
-  7. **Washing & Finishing**: `$0.90 / piece`
-  8. **Factory Target Margin**: `21.8%` (Profit: `$4.08 / pc`)
+  3. **Fabric Yield**: `0.85 meters / piece` @ `₹680.00 / meter` (Cost: `₹578.00`)
+  4. **Trims & Packaging (BOM)**: `₹145.00 / piece` (Thread, eyelets, 15mm drawcord, main woven label, polybag)
+  5. **Printing & Embroidery Cost**: `₹95.00 / piece`
+  6. **CMT Sewing Cost**: `₹280.00 / piece`
+  7. **Washing & Finishing**: `₹75.00 / piece`
+  8. **Factory Target Margin**: `19.1%` (Profit: `₹277.00 / pc`)
   9. Click **`Lock & Authorize BOM Costing`**.
 - **Expected Result**:
   - BOM costing status updates to `LOCKED & APPROVED`.
@@ -658,7 +658,7 @@ Stage cartons on wooden export pallets, generate delivery gate passes, stuff 20f
 | Stage # | Division & Route | Primary Action | Key Data Input | Expected Visual Output |
 | :--- | :--- | :--- | :--- | :--- |
 | **01** | `Design Studio`<br/>[`/design/tech-packs`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/design/tech-packs) | Click `+ New Tech-Pack` | Style: `TP-2026-8801`<br/>Fabric: `380 GSM Cotton` | Tech-pack catalog card created with `DRAFT` status |
-| **02** | `Merchandising`<br/>[`/merchandising/orders`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/merchandising/orders) | Click `+ Book New Buyer PO` | PO: `PO-2026-9901`<br/>Qty: `1,000 pcs` @ `$18.50` | Commercial contract created with `$18,500.00` revenue |
+| **02** | `Merchandising`<br/>[`/merchandising/orders`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/merchandising/orders) | Click `+ Book New Buyer PO` | PO: `PO-2026-9901`<br/>Qty: `1,000 pcs` @ `₹1,450.00` | Commercial contract created with `₹14,50,000.00` revenue |
 | **03** | `Central Store`<br/>[`/store/fabric-godown`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/store/fabric-godown) | Click `+ Inward Fabric Rolls` | Roll: `ROL-2026-9901`<br/>Length: `900.0m` (Passed) | Total fabric inventory increases by `900.0m` |
 | **04** | `Central Store`<br/>[`/store/material-issues`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/store/material-issues) | Click `Issue Material to Floor` | Challan: `CHL-FLR-2026-101`<br/>Dest: `Cutting Floor` | Delivery Challan created & accepted by shop floor |
 | **05** | `Cutting Floor`<br/>[`/cutting/orders`](file:///c:/Users/shaws/NubiSync/nubira-web-admin/src/app/cutting/orders) | Click `+ Dispatch Cut Work Order` | Order: `CO-2026-088`<br/>Table: `Table 01 Gerber` | Work order dispatched to CNC cutting queue |

@@ -253,6 +253,21 @@ npm run start
 
 ---
 
+## Subscription Plans & Plant Deployment Pricing (INR ₹)
+
+Zigza MES provides transparent, predictable pricing models tailored for Indian and global textile manufacturers:
+
+| Plan Tier | Pricing (INR) | Best For | Core Inclusions |
+| :--- | :--- | :--- | :--- |
+| **Tier 1: Modular Floor** | **₹1,999** / module / mo<br/>*(Regular ₹3,999)* | Standalone units wanting rapid floor digitization | • 1 to 3 production units of choice<br/>• Operator bundle QR & barcode tracking<br/>• Daily cutting lots & piece-rate wage ledgers<br/>• Mobile floor app with real-time sync<br/>• Standard email support |
+| **Tier 2: Full Access + Zigza AI** *(Recommended)* | **₹4,999** / plant / mo<br/>*(Regular ₹8,999)* | Full-scale manufacturing plants needing complete synchronization | • **All 12 production divisions unlocked**<br/>• Built-in Zigza AI floor assistant & audit intelligence<br/>• Zero Ghost Piece guarantee (100% matched reconciliation)<br/>• Cross-division automatic pipeline synchronization<br/>• Real-time line velocity & bottleneck alerts<br/>• Live floor TV kiosk & analytics displays<br/>• Unlimited operators & daily piece-rate payroll exports |
+| **Tier 3: Custom Enterprise & Hardware** | **Custom Quote** (INR ₹) | Industrial garment exporters with custom machinery & ERP systems | • Bespoke machinery telemetry (RS-485 / Modbus / IoT)<br/>• Custom ERP / SAP bidirectional integration<br/>• Dedicated on-premise cloud infrastructure<br/>• Multi-plant unified governance & custom SLA |
+
+> [!NOTE]
+> All subscription plans and billing cycles are calculated and processed in **Indian Rupees (₹ / INR)** via Razorpay with instant GST invoicing compliance.
+
+---
+
 ## Production Deployment Guidelines
 
 1. **Vercel / Node.js Host**: Deploy as a standard Next.js application. Ensure environment variables (`NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`) are assigned in the project settings.
@@ -263,5 +278,6 @@ npm run start
 
 ## License & Intellectual Property
 
-Proprietary software. All rights reserved by Zigza / NubiSync.
+Proprietary software. All rights reserved by Zigza / NubiSync.  
 Proudly Made in India.
+
