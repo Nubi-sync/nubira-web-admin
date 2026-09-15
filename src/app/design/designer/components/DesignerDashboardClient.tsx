@@ -527,7 +527,11 @@ export function DesignerDashboardClient({
     }
   }
 
-  const activeBriefsCount = briefs.filter(b => b.status === 'ALLOCATED' || b.status === 'PH_REJECTED').length
+  const isFinalApproved = activeBrief?.status === 'SA_APPROVED' || activeBrief?.status === 'TECH_PACK_CREATED'
+  const isEditable = !isFinalApproved
+  const isSubmitted = activeBrief?.status === 'SUBMITTED' || activeBrief?.status === 'PH_APPROVED'
+
+  const activeBriefsCount = briefs.filter(b => b.status === 'ALLOCATED' || b.status === 'PH_REJECTED' || (b.status === 'SUBMITTED' && (b.submissions_count || 0) < (b.target_designs || 1))).length
   const submittedBriefsCount = briefs.filter(b => b.status === 'SUBMITTED' || b.status === 'PH_APPROVED').length
   const approvedBriefsCount = briefs.filter(b => b.status === 'SA_APPROVED' || b.status === 'TECH_PACK_CREATED').length
 
@@ -537,8 +541,6 @@ export function DesignerDashboardClient({
     colorways: {}
   }
   const currentColorwayData = currentConcept.colorways[activeColorwayTab] || { photo_front: '', photo_back: '' }
-
-  const isEditable = activeBrief?.status === 'ALLOCATED' || activeBrief?.status === 'PH_REJECTED'
 
   return (
     <div className="space-y-6">
@@ -956,29 +958,59 @@ export function DesignerDashboardClient({
                   </div>
                 </div>
 
-                {/* Final Submission Button */}
+                {/* Submission & Action Section */}
                 {isEditable ? (
-                  <form onSubmit={handleSubmitAllConcepts} className="pt-2">
-                    <button
-                      type="submit"
-                      disabled={isSubmitting || readySlotsCount === 0}
-                      className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-[#3A3564] text-[#FAF7F0] text-sm font-bold hover:bg-[#2A2649] transition-all shadow-md cursor-pointer disabled:opacity-50"
-                    >
-                      {isSubmitting ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      ) : (
-                        <UploadCloud className="w-4 h-4" />
-                      )}
-                      <span>Submit All {targetDesignsCount} Designs ({readySlotsCount}/{totalSlots} Mockups) to Provisional Head</span>
-                    </button>
-                    <p className="text-[11px] text-center text-slate-400 mt-2">
-                      Provisional Head will review all design concepts and colorways in high resolution.
-                    </p>
-                  </form>
+                  <div className="space-y-3 pt-2">
+                    {isSubmitted && (
+                      <div className="p-3.5 rounded-xl bg-sky-50 border border-sky-200 text-xs text-sky-900 flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-2">
+                          <Clock className="w-4 h-4 text-sky-600 shrink-0" />
+                          <span>
+                            <strong>Review Pipeline Active:</strong> {readySlotsCount} of {totalSlots} mockups uploaded. You can continue uploading the remaining colorways and click <em>&ldquo;Save &amp; Sync to Head&rdquo;</em> anytime.
+                          </span>
+                        </div>
+                        <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded-md bg-white border border-sky-200 text-sky-800 shrink-0">
+                          {readySlotsCount}/{totalSlots} Ready
+                        </span>
+                      </div>
+                    )}
+
+                    <form onSubmit={handleSubmitAllConcepts}>
+                      <button
+                        type="submit"
+                        disabled={isSubmitting || readySlotsCount === 0}
+                        className={`w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-sm font-bold transition-all shadow-md cursor-pointer disabled:opacity-50 ${
+                          readySlotsCount >= totalSlots
+                            ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                            : isSubmitted
+                            ? 'bg-[#3A3564] hover:bg-[#2A2649] text-[#FAF7F0]'
+                            : 'bg-[#3A3564] hover:bg-[#2A2649] text-[#FAF7F0]'
+                        }`}
+                      >
+                        {isSubmitting ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <UploadCloud className="w-4 h-4" />
+                        )}
+                        <span>
+                          {readySlotsCount >= totalSlots
+                            ? `Submit Complete Studio Deck (${readySlotsCount}/${totalSlots} Mockups) to Provisional Head`
+                            : isSubmitted
+                            ? `Save & Sync Updated Mockups (${readySlotsCount}/${totalSlots} Ready) to Provisional Head`
+                            : `Submit Ready Mockups (${readySlotsCount}/${totalSlots}) to Provisional Head`}
+                        </span>
+                      </button>
+                      <p className="text-[11px] text-center text-slate-400 mt-2">
+                        {readySlotsCount >= totalSlots
+                          ? 'All required design concepts and colorways are attached and ready for provisional review.'
+                          : `You can submit individual colorways as you finish them (${readySlotsCount} of ${totalSlots} completed so far).`}
+                      </p>
+                    </form>
+                  </div>
                 ) : (
                   <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 flex items-center gap-2.5 font-medium">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>This brief has been submitted and is currently in the 3-Tier Studio Verification pipeline.</span>
+                    <span>This style has been officially greenlit by Super Admin and moved to Tech-Pack generation.</span>
                   </div>
                 )}
               </div>
