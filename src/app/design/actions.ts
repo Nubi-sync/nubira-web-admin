@@ -340,6 +340,22 @@ export async function updateTechPackStatusAction(id: string, status: TechPackSta
   }
 }
 
+export async function deleteTechPackAction(id: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const { error } = await supabaseAdmin
+      .from('design_tech_packs')
+      .delete()
+      .eq('id', id)
+
+    if (error) return { success: false, error: error.message }
+    revalidatePath('/design')
+    revalidatePath('/design/tech-packs')
+    return { success: true }
+  } catch (err: any) {
+    return { success: false, error: err?.message || 'Failed to delete tech pack.' }
+  }
+}
+
 // -----------------------------------------------------------------------------
 // 2. TEAM MANAGEMENT (PH adds/manages designers)
 // -----------------------------------------------------------------------------
@@ -997,7 +1013,7 @@ export async function deleteBOMComponentCodeAction(id: string): Promise<{ succes
   }
 }
 
-export async function fetchGarmentTemplatesAction(companyName?: string): Promise<GarmentTemplate[]> {
+export async function fetchGarmentTemplatesAction(_companyName?: string): Promise<GarmentTemplate[]> {
   try {
     const { data, error } = await supabaseAdmin
       .from('design_garment_templates')
@@ -1214,7 +1230,7 @@ export async function fetchDesignStudioMetricsAction(companyName?: string): Prom
 // 8. SAMPLE APPROVALS (PPS & Fit Audit)
 // -----------------------------------------------------------------------------
 
-export async function fetchSampleApprovalsAction(): Promise<SampleApproval[]> {
+export async function fetchSampleApprovalsAction(_companyName?: string): Promise<SampleApproval[]> {
   try {
     const { data, error } = await supabaseAdmin
       .from('design_sample_approvals')
@@ -1258,32 +1274,39 @@ export async function createSampleApprovalAction(payload: {
   tech_pack_id: string
   sample_stage: SampleStage
   measured_chest: number
-  target_chest: number
+  target_chest?: number
   measured_length: number
-  target_length: number
+  target_length?: number
   measured_sleeve: number
-  target_sleeve: number
-  variance_status: 'WITHIN_TOLERANCE' | 'OUT_OF_TOLERANCE'
+  target_sleeve?: number
+  variance_status?: 'WITHIN_TOLERANCE' | 'OUT_OF_TOLERANCE'
+  within_tolerance?: boolean
+  variance_max_cm?: number
   fit_comments: string
+  buyer_reviewer_name?: string
   buyer_reviewer_email: string
-  approval_status: SampleApprovalStatus
+  approval_status?: SampleApprovalStatus
+  verdict?: 'APPROVED' | 'REJECTED' | 'REVISE_SAMPLE' | 'PENDING'
 }): Promise<{ success: boolean; data?: SampleApproval; error?: string }> {
   try {
+    const varianceStatus = payload.variance_status || (payload.within_tolerance === false ? 'OUT_OF_TOLERANCE' : 'WITHIN_TOLERANCE')
+    const approvalStatus = payload.approval_status || (payload.verdict as SampleApprovalStatus) || 'PENDING'
+
     const { data, error } = await supabaseAdmin
       .from('design_sample_approvals')
       .insert({
         tech_pack_id: payload.tech_pack_id,
         sample_stage: payload.sample_stage,
         measured_chest: Number(payload.measured_chest),
-        target_chest: Number(payload.target_chest),
+        target_chest: Number(payload.target_chest || payload.measured_chest),
         measured_length: Number(payload.measured_length),
-        target_length: Number(payload.target_length),
+        target_length: Number(payload.target_length || payload.measured_length),
         measured_sleeve: Number(payload.measured_sleeve),
-        target_sleeve: Number(payload.target_sleeve),
-        variance_status: payload.variance_status,
+        target_sleeve: Number(payload.target_sleeve || payload.measured_sleeve),
+        variance_status: varianceStatus,
         fit_comments: payload.fit_comments,
         buyer_reviewer_email: payload.buyer_reviewer_email,
-        approval_status: payload.approval_status,
+        approval_status: approvalStatus,
         submitted_date: new Date().toISOString().split('T')[0],
         audit_date: new Date().toISOString()
       })
@@ -1362,7 +1385,7 @@ export async function auditSampleApprovalAction(
 // 9. GRADING SCHEMES
 // -----------------------------------------------------------------------------
 
-export async function fetchGradingSchemesAction(): Promise<GradingScheme[]> {
+export async function fetchGradingSchemesAction(_companyName?: string): Promise<GradingScheme[]> {
   try {
     const { data: techPacks, error: tpErr } = await supabaseAdmin
       .from('design_tech_packs')
@@ -1425,7 +1448,9 @@ export async function createGradingSchemeAction(payload: {
   tolerance_cm: number
   grade_step_cm: number
   base_value_cm: number
-}): Promise<{ success: boolean; error?: string }> {
+  base_size?: string
+  sizes?: string[]
+}): Promise<{ success: boolean; data?: PointOfMeasure; error?: string }> {
   try {
     const { data: pom, error: pomErr } = await supabaseAdmin
       .from('design_poms')
@@ -1444,27 +1469,43 @@ export async function createGradingSchemeAction(payload: {
       return { success: false, error: pomErr?.message || 'Failed to insert POM.' }
     }
 
-    const sizes = ['XS', 'S', 'M', 'L', 'XL', '2XL']
-    const baseIndex = 2
+    const sizes = payload.sizes && payload.sizes.length > 0 ? payload.sizes : ['XS', 'S', 'M', 'L', 'XL', '2XL']
+    const baseIndex = payload.base_size ? Math.max(0, sizes.indexOf(payload.base_size)) : 2
     const step = Number(payload.grade_step_cm)
     const baseVal = Number(payload.base_value_cm)
 
-    const valuesToInsert = sizes.map((size, idx) => ({
-      pom_id: pom.id,
-      size_code: size,
-      value_cm: baseVal + (idx - baseIndex) * step
-    }))
+    const sizesMap: Record<string, number> = {}
+    const valuesToInsert = sizes.map((size, idx) => {
+      const val = baseVal + (idx - (baseIndex >= 0 ? baseIndex : 0)) * step
+      sizesMap[size] = val
+      return {
+        pom_id: pom.id,
+        size_code: size,
+        value_cm: val
+      }
+    })
 
     await supabaseAdmin.from('design_measurement_values').insert(valuesToInsert)
 
     revalidatePath('/design')
     revalidatePath('/design/grading-matrix')
 
-    return { success: true }
+    const createdPom: PointOfMeasure = {
+      pom_code: payload.pom_code.trim().toUpperCase(),
+      pom_name: payload.pom_name.trim(),
+      tolerance_cm: Number(payload.tolerance_cm),
+      grade_step_cm: Number(payload.grade_step_cm),
+      base_value_cm: Number(payload.base_value_cm),
+      sizes: sizesMap
+    }
+
+    return { success: true, data: createdPom }
   } catch (err: any) {
     return { success: false, error: err?.message || 'Failed to create grading POM.' }
   }
 }
+
+export const createPomAction = createGradingSchemeAction
 
 export async function updateGradingSchemeAction(
   pomId: string,
@@ -1497,11 +1538,38 @@ export async function updateGradingSchemeAction(
   }
 }
 
+export async function deletePomAction(pomIdOrTechPackId: string, pomCode?: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    if (pomCode) {
+      const { data: pom } = await supabaseAdmin
+        .from('design_poms')
+        .select('id')
+        .eq('tech_pack_id', pomIdOrTechPackId)
+        .eq('pom_code', pomCode)
+        .maybeSingle()
+
+      if (pom) {
+        await supabaseAdmin.from('design_measurement_values').delete().eq('pom_id', pom.id)
+        await supabaseAdmin.from('design_poms').delete().eq('id', pom.id)
+      }
+    } else {
+      await supabaseAdmin.from('design_measurement_values').delete().eq('pom_id', pomIdOrTechPackId)
+      const { error } = await supabaseAdmin.from('design_poms').delete().eq('id', pomIdOrTechPackId)
+      if (error) return { success: false, error: error.message }
+    }
+    revalidatePath('/design')
+    revalidatePath('/design/grading-matrix')
+    return { success: true }
+  } catch (err: any) {
+    return { success: false, error: err?.message || 'Failed to delete POM.' }
+  }
+}
+
 // -----------------------------------------------------------------------------
 // 10. MATERIALS & FABRICS LIBRARY
 // -----------------------------------------------------------------------------
 
-export async function fetchMaterialsLibraryAction(): Promise<MaterialItem[]> {
+export async function fetchMaterialsLibraryAction(_companyName?: string): Promise<MaterialItem[]> {
   try {
     const { data, error } = await supabaseAdmin
       .from('design_materials_library')
