@@ -82,14 +82,51 @@ export function getFabricRolls(): FabricRoll[] {
 
 export function saveFabricRoll(roll: FabricRoll): FabricRoll[] {
   const current = getFabricRolls()
-  const exists = current.some(r => r.id === roll.id)
-  const updated = exists ? current.map(r => (r.id === roll.id ? roll : r)) : [roll, ...current]
+  const existsIndex = current.findIndex(r => r.id === roll.id || r.rollBarcode.trim().toLowerCase() === roll.rollBarcode.trim().toLowerCase())
+  let updated: FabricRoll[]
+  if (existsIndex >= 0) {
+    updated = [...current]
+    updated[existsIndex] = { ...current[existsIndex], ...roll }
+  } else {
+    updated = [roll, ...current]
+  }
 
   try {
     localStorage.setItem(STORAGE_KEYS.FABRIC_ROLLS, JSON.stringify(updated))
     broadcastUpdate()
   } catch (e) {
     console.error('Failed to save fabric roll:', e)
+  }
+  return updated
+}
+
+export function batchSaveFabricRolls(rolls: FabricRoll[]): FabricRoll[] {
+  let current = getFabricRolls()
+  for (const roll of rolls) {
+    const existsIndex = current.findIndex(r => r.id === roll.id || r.rollBarcode.trim().toLowerCase() === roll.rollBarcode.trim().toLowerCase())
+    if (existsIndex >= 0) {
+      current[existsIndex] = { ...current[existsIndex], ...roll }
+    } else {
+      current = [roll, ...current]
+    }
+  }
+  try {
+    localStorage.setItem(STORAGE_KEYS.FABRIC_ROLLS, JSON.stringify(current))
+    broadcastUpdate()
+  } catch (e) {
+    console.error('Failed to batch save fabric rolls:', e)
+  }
+  return current
+}
+
+export function deleteFabricRoll(rollId: string): FabricRoll[] {
+  const current = getFabricRolls()
+  const updated = current.filter(r => r.id !== rollId)
+  try {
+    localStorage.setItem(STORAGE_KEYS.FABRIC_ROLLS, JSON.stringify(updated))
+    broadcastUpdate()
+  } catch (e) {
+    console.error('Failed to delete fabric roll:', e)
   }
   return updated
 }

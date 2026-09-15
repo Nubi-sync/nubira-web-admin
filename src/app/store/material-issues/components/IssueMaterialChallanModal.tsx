@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
-import { X, Check, ArrowRight, Layers, Tag, QrCode, UserCheck } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { X, Check, ArrowRight, Layers, Tag, QrCode, UserCheck, Sparkles } from 'lucide-react'
 import { MaterialFloorIssueChallan, MaterialDestination } from '../../types/store'
-import { createMaterialIssueChallan } from '../../utils/storeStorage'
+import { createMaterialIssueChallan, getFabricRolls } from '../../utils/storeStorage'
+import { getOrders } from '@/app/merchandising/utils/merchandisingStorage'
 
 interface IssueMaterialChallanModalProps {
   isOpen: boolean
@@ -13,17 +14,40 @@ interface IssueMaterialChallanModalProps {
 export function IssueMaterialChallanModal({ isOpen, onClose }: IssueMaterialChallanModalProps) {
   const [issueChallanNo, setIssueChallanNo] = useState(`CHL-FLR-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`)
   const [destinationDivision, setDestinationDivision] = useState<MaterialDestination>('CUTTING_FLOOR')
-  const [orderId, setOrderId] = useState('')
-  const [articleNo, setArticleNo] = useState('')
-  const [buyerName, setBuyerName] = useState('')
-  const [receiverName, setReceiverName] = useState('Floor Supervisor')
-  const [issuedBy, setIssuedBy] = useState('Store Supervisor')
-  const [barcodesRaw, setBarcodesRaw] = useState('')
-  const [materialSummary, setMaterialSummary] = useState('')
-  const [quantityIssued, setQuantityIssued] = useState<number>(0)
+  const [orderId, setOrderId] = useState('PO-2026-9901')
+  const [articleNo, setArticleNo] = useState('TP-2026-8801')
+  const [buyerName, setBuyerName] = useState('ZARA INTERNATIONAL')
+  const [receiverName, setReceiverName] = useState('Cutting Master R. Veerappan')
+  const [issuedBy, setIssuedBy] = useState('Store Incharge Suresh Kumar')
+  const [barcodesRaw, setBarcodesRaw] = useState('ROL-2026-9901, ROL-2026-9902')
+  const [materialSummary, setMaterialSummary] = useState('100% Cotton French Terry 380 GSM (Orange & Green)')
+  const [quantityIssued, setQuantityIssued] = useState<number>(900)
   const [unit, setUnit] = useState<string>('meters')
   const [notes, setNotes] = useState<string>('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  useEffect(() => {
+    if (!isOpen || typeof window === 'undefined') return
+    const orders = getOrders()
+    const rolls = getFabricRolls()
+
+    const latestPo = orders.find(o => o.po_number === 'PO-2026-9901') || orders[0]
+    if (latestPo) {
+      setOrderId(latestPo.po_number)
+      setBuyerName(latestPo.brand_name || 'ZARA INTERNATIONAL')
+      setArticleNo(latestPo.style_ref || 'TP-2026-8801')
+
+      const colorsList = latestPo.color_matrix?.map((c: any) => c.color).join(' & ') || 'Orange & Green'
+      setMaterialSummary(`100% Cotton French Terry 380 GSM (${colorsList})`)
+    }
+
+    if (rolls && rolls.length > 0) {
+      const activeBarcodes = rolls.map(r => r.rollBarcode).join(', ')
+      setBarcodesRaw(activeBarcodes)
+      const totalMeters = rolls.reduce((acc, r) => acc + (r.netMeterage || 0), 0)
+      if (totalMeters > 0) setQuantityIssued(totalMeters)
+    }
+  }, [isOpen])
 
   if (!isOpen) return null
 
