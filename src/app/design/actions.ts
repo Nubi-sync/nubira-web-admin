@@ -386,8 +386,10 @@ export async function fetchDesignTeamMembersAction(companyName?: string, phUserI
       ph_user_id: row.ph_user_id,
       designer_user_id: row.designer_user_id || undefined,
       designer_name: row.designer_name,
+      phone_number: row.phone_number || row.designer_phone || undefined,
+      username: row.username || undefined,
       designer_email: row.designer_email,
-      designer_phone: row.designer_phone || undefined,
+      designer_phone: row.designer_phone || row.phone_number || undefined,
       company_name: row.company_name,
       status: row.status,
       created_at: row.created_at,
@@ -402,51 +404,148 @@ export async function fetchDesignTeamMembersAction(companyName?: string, phUserI
 export async function addDesignTeamMemberAction(payload: {
   ph_user_id: string
   designer_name: string
-  designer_email: string
+  phone_number: string
+  password?: string
+  designer_email?: string
   designer_phone?: string
   company_name: string
 }): Promise<{ success: boolean; data?: DesignTeamMember; error?: string }> {
   try {
-    const emailNorm = payload.designer_email.trim().toLowerCase()
-    
-    // Check if member already exists for this company
-    const { data: existing } = await supabaseAdmin
+    const rawPhone = (payload.phone_number || payload.designer_phone || '').replace(/\D/g, '')
+    const phone10 = rawPhone.length >= 10 ? rawPhone.slice(-10) : rawPhone
+    if (phone10.length !== 10) {
+      return { success: false, error: 'Please enter a valid 10-digit mobile number.' }
+    }
+
+    const nameClean = payload.designer_name.trim()
+    const companyClean = payload.company_name.trim()
+    const password = payload.password?.trim() || 'Designer@123'
+
+    // Generate creative unique username: e.g. rahul_nubira or rahul_nubira_2
+    const nameSlug = nameClean.toLowerCase().replace(/[^a-z0-9]/g, '_').split('_')[0] || 'designer'
+    const companySlug = companyClean.toLowerCase().replace(/[^a-z0-9]/g, '_').split('_')[0] || 'nubira'
+    const baseUsername = `${nameSlug}_${companySlug}`
+
+    const { data: existingMembers } = await supabaseAdmin
+      .from('design_team_members')
+      .select('username')
+      .ilike('username', `${baseUsername}%`)
+
+    let finalUsername = baseUsername
+    if (existingMembers && existingMembers.length > 0) {
+      const existingUsernames = new Set(existingMembers.map((m: any) => m.username?.toLowerCase()))
+      if (existingUsernames.has(finalUsername.toLowerCase())) {
+        let counter = 2
+        while (existingUsernames.has(`${baseUsername}_${counter}`.toLowerCase())) {
+          counter++
+        }
+        finalUsername = `${baseUsername}_${counter}`
+      }
+    }
+
+    const internalEmail = payload.designer_email?.trim().toLowerCase() || `${phone10}@designer.nubira.local`
+
+    // Check if phone number already registered for this company
+    const { data: existingPhone } = await supabaseAdmin
       .from('design_team_members')
       .select('*')
-      .eq('company_name', payload.company_name)
-      .eq('designer_email', emailNorm)
+      .eq('company_name', companyClean)
+      .or(`phone_number.eq.${phone10},designer_phone.eq.${phone10},designer_email.eq.${internalEmail}`)
       .maybeSingle()
 
-    if (existing) {
-      if (existing.status === 'REMOVED') {
+    if (existingPhone) {
+      if (existingPhone.status === 'REMOVED') {
         const { data: revived, error: reviveErr } = await supabaseAdmin
           .from('design_team_members')
           .update({
             status: 'ACTIVE',
-            designer_name: payload.designer_name.trim(),
-            designer_phone: payload.designer_phone?.trim() || null,
+            designer_name: nameClean,
+            phone_number: phone10,
+            designer_phone: phone10,
+            username: finalUsername,
+            designer_email: internalEmail,
             updated_at: new Date().toISOString()
           })
-          .eq('id', existing.id)
+          .eq('id', existingPhone.id)
           .select('*')
           .single()
 
         if (reviveErr) return { success: false, error: reviveErr.message }
         revalidatePath('/design/team')
-        return { success: true, data: revived }
+        return { 
+          success: true, 
+          data: {
+            id: revived.id,
+            ph_user_id: revived.ph_user_id,
+            designer_name: revived.designer_name,
+            phone_number: revived.phone_number || phone10,
+            username: revived.username || finalUsername,
+            designer_email: revived.designer_email || internalEmail,
+            designer_phone: revived.designer_phone || phone10,
+            company_name: revived.company_name,
+            status: revived.status,
+            created_at: revived.created_at,
+            updated_at: revived.updated_at
+          }
+        }
       }
-      return { success: false, error: 'A team member with this email already exists in this company.' }
+      return { success: false, error: `A team member with mobile number ${phone10} is already registered in this company.` }
     }
 
-    // Insert new member
+    // Create / Update Supabase Auth User with metadata so they can log in directly
+    let authUserId: string | undefined
+    try {
+      const { data: userList } = await supabaseAdmin.auth.admin.listUsers()
+      const foundUser = userList?.users?.find(
+        u => u.email?.toLowerCase() === internalEmail.toLowerCase() ||
+             u.user_metadata?.phone_number === phone10
+      )
+
+      if (foundUser) {
+        authUserId = foundUser.id
+        await supabaseAdmin.auth.admin.updateUserById(foundUser.id, {
+          password: password,
+          user_metadata: {
+            role: 'DESIGNER',
+            company_name: companyClean,
+            full_name: nameClean,
+            phone_number: phone10,
+            username: finalUsername
+          }
+        })
+      } else {
+        const { data: newUser, error: authErr } = await supabaseAdmin.auth.admin.createUser({
+          email: internalEmail,
+          password: password,
+          email_confirm: true,
+          user_metadata: {
+            role: 'DESIGNER',
+            company_name: companyClean,
+            full_name: nameClean,
+            phone_number: phone10,
+            username: finalUsername
+          }
+        })
+        if (!authErr && newUser?.user) {
+          authUserId = newUser.user.id
+        }
+      }
+    } catch (authCreateErr) {
+      console.warn('Supabase auth user create notice:', authCreateErr)
+    }
+
+    // Insert into design_team_members
     const { data, error } = await supabaseAdmin
       .from('design_team_members')
       .insert({
         ph_user_id: payload.ph_user_id,
-        designer_name: payload.designer_name.trim(),
-        designer_email: emailNorm,
-        designer_phone: payload.designer_phone?.trim() || null,
-        company_name: payload.company_name,
+        designer_user_id: authUserId || null,
+        designer_name: nameClean,
+        phone_number: phone10,
+        username: finalUsername,
+        designer_email: internalEmail,
+        designer_phone: phone10,
+        company_name: companyClean,
         status: 'ACTIVE'
       })
       .select('*')
@@ -458,7 +557,23 @@ export async function addDesignTeamMemberAction(payload: {
     }
 
     revalidatePath('/design/team')
-    return { success: true, data }
+    return {
+      success: true,
+      data: {
+        id: data.id,
+        ph_user_id: data.ph_user_id,
+        designer_user_id: data.designer_user_id,
+        designer_name: data.designer_name,
+        phone_number: data.phone_number || phone10,
+        username: data.username || finalUsername,
+        designer_email: data.designer_email || internalEmail,
+        designer_phone: data.designer_phone || phone10,
+        company_name: data.company_name,
+        status: data.status,
+        created_at: data.created_at,
+        updated_at: data.updated_at
+      }
+    }
   } catch (err: any) {
     console.error('[addDesignTeamMemberAction] Unexpected error:', err)
     return { success: false, error: err?.message || 'Failed to add team member.' }

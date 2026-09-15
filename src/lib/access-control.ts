@@ -23,7 +23,7 @@ export type DivisionRoute = typeof ALL_DIVISION_ROUTES[number]
 export const ROLE_MODULE_MAPPING: Record<string, DivisionRoute[]> = {
   // Pre-Production & CAD
   DESIGN: ['/design'],
-  DESIGNER: ['/design'],
+  DESIGNER: ['/design/designer' as any],
   CAD_MASTER: ['/design'],
   
   // Sourcing & Commercial

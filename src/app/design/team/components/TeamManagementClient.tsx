@@ -8,16 +8,18 @@ import {
   Plus, 
   Search, 
   UserPlus, 
-  Mail, 
   Phone, 
   Building2, 
   CheckCircle2, 
   XCircle, 
-  MoreVertical, 
   ClipboardList, 
   Trash2, 
   Loader2,
-  ShieldCheck
+  Lock,
+  Eye,
+  EyeOff,
+  Sparkles,
+  Tag
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { DesignTeamMember, BriefCategory } from '../../types/design'
@@ -43,15 +45,16 @@ export function TeamManagementClient({
   currentUserId,
   userRole
 }: TeamManagementClientProps) {
-  const [members, setMembers] = useState<DesignTeamMember[]>(initialMembers)
+  const [members, setMembers] = useState<DesignTeamMember[]>(initialMembers || [])
   const [searchQuery, setSearchQuery] = useState('')
   const [isAddOpen, setIsAddOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // Form State for Add Member
+  // Form State for Add Designer
   const [newName, setNewName] = useState('')
-  const [newEmail, setNewEmail] = useState('')
   const [newPhone, setNewPhone] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
 
   // Quick Allocate Brief State
   const [allocateMember, setAllocateMember] = useState<DesignTeamMember | null>(null)
@@ -70,17 +73,29 @@ export function TeamManagementClient({
 
   const filteredMembers = members.filter(m => {
     const q = searchQuery.toLowerCase()
-    return (
-      m.designer_name.toLowerCase().includes(q) ||
-      m.designer_email.toLowerCase().includes(q) ||
-      (m.designer_phone && m.designer_phone.includes(q))
-    )
+    const name = m.designer_name?.toLowerCase() || ''
+    const username = m.username?.toLowerCase() || ''
+    const phone = m.phone_number || m.designer_phone || ''
+    return name.includes(q) || username.includes(q) || phone.includes(q)
   })
 
   async function handleAddMember(e: React.FormEvent) {
     e.preventDefault()
-    if (!newName.trim() || !newEmail.trim()) {
-      toast.error('Name and email are required.')
+    const cleanedPhone = newPhone.replace(/\D/g, '')
+    const phone10 = cleanedPhone.length >= 10 ? cleanedPhone.slice(-10) : cleanedPhone
+
+    if (!newName.trim()) {
+      toast.error('Designer full name is required.')
+      return
+    }
+
+    if (phone10.length !== 10) {
+      toast.error('Please enter a valid 10-digit mobile number.')
+      return
+    }
+
+    if (!newPassword.trim() || newPassword.length < 6) {
+      toast.error('Password must be at least 6 characters.')
       return
     }
 
@@ -89,17 +104,17 @@ export function TeamManagementClient({
       const res = await addDesignTeamMemberAction({
         ph_user_id: currentUserId,
         designer_name: newName.trim(),
-        designer_email: newEmail.trim(),
-        designer_phone: newPhone.trim() || undefined,
+        phone_number: phone10,
+        password: newPassword.trim(),
         company_name: companyName
       })
 
       if (res.success && res.data) {
-        toast.success(`Designer ${newName} added to team successfully.`)
+        toast.success(`Designer ${newName.trim()} onboarded successfully! Login: ${phone10}`)
         setMembers(prev => [res.data!, ...prev])
         setNewName('')
-        setNewEmail('')
         setNewPhone('')
+        setNewPassword('')
         setIsAddOpen(false)
       } else {
         toast.error(res.error || 'Failed to add team member.')
@@ -186,7 +201,7 @@ export function TeamManagementClient({
           <span>Design Studio</span>
         </Link>
         <span className="text-xs font-mono font-medium text-slate-500">
-          Team Management Portal
+          Provisional Head &bull; Team Management
         </span>
       </div>
 
@@ -201,7 +216,7 @@ export function TeamManagementClient({
               Design Team Management
             </h1>
             <p className="text-xs sm:text-sm text-slate-600 mt-1">
-              Provisional Head controls for onboarding creative designers and delegating apparel concepts
+              Onboard creative designers with 10-digit phone login and allocate apparel briefs
             </p>
           </div>
         </div>
@@ -211,7 +226,7 @@ export function TeamManagementClient({
           className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#3A3564] text-[#FAF7F0] text-xs font-bold hover:bg-[#2A2649] transition-all shadow-2xs cursor-pointer shrink-0"
         >
           <UserPlus className="w-4 h-4" />
-          <span>Add Designer</span>
+          <span>Onboard Designer</span>
         </button>
       </div>
 
@@ -219,10 +234,10 @@ export function TeamManagementClient({
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
           <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-            Active Team Members
+            Active Creative Designers
           </span>
           <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-2">
-            {activeMembers.length} Designers
+            {activeMembers.length} Active
           </div>
           <div className="text-xs text-slate-500 mt-1">
             Registered under {companyName}
@@ -237,19 +252,19 @@ export function TeamManagementClient({
             {suspendedMembers.length}
           </div>
           <div className="text-xs text-slate-500 mt-1">
-            Temporary pause on task allocations
+            Temporary pause on brief allocations
           </div>
         </div>
 
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
           <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-            Verification Chain
+            Login Credentials
           </span>
-          <div className="text-base font-bold text-slate-900 font-[family-name:var(--font-heading)] mt-2">
-            Designer → PH → SA
+          <div className="text-base font-bold text-[#3A3564] font-mono mt-2">
+            10-Digit Mobile + Password
           </div>
           <div className="text-xs text-slate-500 mt-1">
-            3-Tier Approval Pipeline Enforced
+            Direct access to restricted Designer Studio
           </div>
         </div>
       </div>
@@ -261,7 +276,7 @@ export function TeamManagementClient({
             <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
             <input
               type="text"
-              placeholder="Search by name, email, phone..."
+              placeholder="Search by name, username, phone..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               className="w-full pl-9 pr-3 py-1.5 rounded-xl border border-black/10 text-xs sm:text-sm font-medium bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
@@ -273,7 +288,7 @@ export function TeamManagementClient({
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] border border-black/10 text-xs font-bold text-[#3A3564] hover:bg-[#F2ECE1] transition-all shadow-2xs"
           >
             <ClipboardList className="w-3.5 h-3.5" />
-            <span>View Design Briefs Queue</span>
+            <span>View Briefs Queue</span>
           </Link>
         </div>
 
@@ -284,9 +299,9 @@ export function TeamManagementClient({
             description={
               searchQuery
                 ? "Try adjusting your search query."
-                : "Add your first creative apparel designer to begin allocating design briefs."
+                : "Add your first creative apparel designer with their phone number and password."
             }
-            actionLabel="Add Designer"
+            actionLabel="Onboard Designer"
             onAction={() => setIsAddOpen(true)}
           />
         ) : (
@@ -295,10 +310,10 @@ export function TeamManagementClient({
               <thead>
                 <tr className="border-b border-black/10 bg-[#FAF7F0] text-slate-600 text-xs font-semibold uppercase tracking-wider">
                   <th className="py-3 px-4">Designer Name</th>
-                  <th className="py-3 px-4">Email Address</th>
-                  <th className="py-3 px-4">Phone / WhatsApp</th>
+                  <th className="py-3 px-4">Username</th>
+                  <th className="py-3 px-4">Login Mobile Number</th>
                   <th className="py-3 px-4">Status</th>
-                  <th className="py-3 px-4">Joined Date</th>
+                  <th className="py-3 px-4">Onboarded Date</th>
                   <th className="py-3 px-4 text-right">Actions</th>
                 </tr>
               </thead>
@@ -313,34 +328,35 @@ export function TeamManagementClient({
                         <span>{member.designer_name}</span>
                       </div>
                     </td>
-                    <td className="py-3.5 px-4 font-mono text-xs text-slate-600">
-                      <div className="flex items-center gap-1.5">
-                        <Mail className="w-3 h-3 text-slate-400" />
-                        <span>{member.designer_email}</span>
+
+                    <td className="py-3.5 px-4 font-mono text-xs text-[#3A3564] font-bold">
+                      <div className="inline-flex items-center gap-1 bg-[#FAF7F0] px-2 py-0.5 rounded-md border border-black/5">
+                        <Tag className="w-3 h-3 opacity-60" />
+                        <span>{member.username || `${member.designer_name.toLowerCase().replace(/\s+/g, '_')}_nubira`}</span>
                       </div>
                     </td>
-                    <td className="py-3.5 px-4 font-mono text-xs text-slate-600">
-                      {member.designer_phone ? (
-                        <div className="flex items-center gap-1.5">
-                          <Phone className="w-3 h-3 text-slate-400" />
-                          <span>{member.designer_phone}</span>
-                        </div>
-                      ) : (
-                        <span className="text-slate-400">—</span>
-                      )}
+
+                    <td className="py-3.5 px-4 font-mono text-xs text-slate-800 font-semibold">
+                      <div className="flex items-center gap-1.5">
+                        <Phone className="w-3.5 h-3.5 text-slate-400" />
+                        <span>+91 {member.phone_number || member.designer_phone || '—'}</span>
+                      </div>
                     </td>
+
                     <td className="py-3.5 px-4">
                       <span className={`text-xs px-2.5 py-0.5 rounded-md border font-semibold ${
                         member.status === 'ACTIVE'
-                          ? 'bg-[#FAF7F0] text-[#3A3564] border-black/10'
+                          ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
                           : 'bg-slate-100 text-slate-600 border-slate-200'
                       }`}>
                         {member.status}
                       </span>
                     </td>
+
                     <td className="py-3.5 px-4 text-xs font-mono text-slate-500">
                       {new Date(member.created_at).toLocaleDateString()}
                     </td>
+
                     <td className="py-3.5 px-4 text-right">
                       <div className="flex items-center justify-end gap-1.5">
                         <button
@@ -351,6 +367,7 @@ export function TeamManagementClient({
                           <ClipboardList className="w-3.5 h-3.5" />
                           <span>Allocate Brief</span>
                         </button>
+
                         <button
                           onClick={() => handleToggleStatus(member)}
                           className={`text-xs font-semibold px-2 py-1.5 rounded-lg border transition-all cursor-pointer shadow-2xs ${
@@ -361,10 +378,11 @@ export function TeamManagementClient({
                         >
                           {member.status === 'ACTIVE' ? 'Suspend' : 'Activate'}
                         </button>
+
                         <button
                           onClick={() => setMemberToDelete(member)}
                           className="text-xs font-semibold text-rose-600 hover:text-rose-700 p-1.5 rounded-lg hover:bg-rose-50 border border-black/5 transition-all cursor-pointer shadow-2xs"
-                          title="Remove Member"
+                          title="Remove Designer"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -387,9 +405,14 @@ export function TeamManagementClient({
                 <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
                   <UserPlus className="w-4 h-4" />
                 </div>
-                <h2 className="text-lg font-bold text-slate-900 font-[family-name:var(--font-heading)]">
-                  Onboard Creative Designer
-                </h2>
+                <div>
+                  <h2 className="text-lg font-bold text-slate-900 font-[family-name:var(--font-heading)]">
+                    Onboard Creative Designer
+                  </h2>
+                  <p className="text-xs text-slate-500">
+                    Creates credentials for Web &amp; Mobile designer portal login
+                  </p>
+                </div>
               </div>
               <button
                 onClick={() => setIsAddOpen(false)}
@@ -400,50 +423,76 @@ export function TeamManagementClient({
             </div>
 
             <form onSubmit={handleAddMember} className="space-y-4 text-xs sm:text-sm">
+              {/* 1. Designer Name */}
               <div>
                 <label className="block font-bold text-slate-800 mb-1">
-                  Full Name <span className="text-rose-600">*</span>
+                  Designer Full Name <span className="text-rose-600">*</span>
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Priya Sharma"
+                  placeholder="e.g. Rahul Sharma"
                   value={newName}
                   onChange={e => setNewName(e.target.value)}
                   className="w-full px-3 py-2 rounded-xl border border-black/10 bg-white text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                 />
               </div>
 
+              {/* 2. Phone Number (10 digits without +91) */}
               <div>
                 <label className="block font-bold text-slate-800 mb-1">
-                  Email Address <span className="text-rose-600">*</span>
+                  Mobile Number (Login ID) <span className="text-rose-600">*</span>
                 </label>
-                <input
-                  type="email"
-                  required
-                  placeholder="designer@brand.com"
-                  value={newEmail}
-                  onChange={e => setNewEmail(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-black/10 bg-white text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
-                />
+                <div className="flex items-center rounded-xl border border-black/10 bg-white overflow-hidden focus-within:ring-2 focus-within:ring-[#3A3564]">
+                  <div className="px-3 py-2 bg-[#FAF7F0] border-r border-black/10 text-xs font-mono font-bold text-[#3A3564] select-none flex items-center gap-1.5">
+                    <span>🇮🇳</span>
+                    <span>+91</span>
+                  </div>
+                  <input
+                    type="tel"
+                    required
+                    maxLength={10}
+                    placeholder="8010993993"
+                    value={newPhone}
+                    onChange={e => setNewPhone(e.target.value.replace(/\D/g, ''))}
+                    className="w-full px-3 py-2 bg-transparent text-slate-900 font-mono text-sm focus:outline-none placeholder:text-slate-400 font-medium"
+                  />
+                </div>
+                <p className="text-[11px] text-slate-500 mt-1">
+                  Enter 10 digits without +91. The designer will log in with this 10-digit number.
+                </p>
               </div>
 
+              {/* 3. Password */}
               <div>
                 <label className="block font-bold text-slate-800 mb-1">
-                  Phone / WhatsApp (Optional)
+                  Login Password <span className="text-rose-600">*</span>
                 </label>
-                <input
-                  type="tel"
-                  placeholder="+91 98765 43210"
-                  value={newPhone}
-                  onChange={e => setNewPhone(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-black/10 bg-white text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
-                />
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    minLength={6}
+                    placeholder="Set designer password"
+                    value={newPassword}
+                    onChange={e => setNewPassword(e.target.value)}
+                    className="w-full pl-3 pr-10 py-2 rounded-xl border border-black/10 bg-white text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-700 cursor-pointer"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
 
-              <div className="bg-[#FAF7F0] p-3 rounded-xl border border-black/10 text-xs text-slate-600">
-                <span className="font-bold text-[#3A3564] block mb-0.5">Role & Access Scope:</span>
-                The designer will have restricted portal access to view only their assigned design briefs and submit up to 2 concept photos per brief.
+              <div className="bg-[#FAF7F0] p-3 rounded-xl border border-black/10 text-xs text-slate-600 space-y-1">
+                <span className="font-bold text-[#3A3564] block">Automatic Username Generation:</span>
+                <p className="text-slate-700">
+                  A unique handle like <code className="bg-white px-1.5 py-0.5 rounded text-[#3A3564] font-bold border border-black/5 font-mono">{newName.trim() ? `${newName.trim().toLowerCase().replace(/[^a-z0-9]/g, '_').split('_')[0]}_${companyName.toLowerCase().replace(/[^a-z0-9]/g, '_').split('_')[0]}` : 'name_company'}</code> will be automatically assigned to avoid collisions.
+                </p>
               </div>
 
               <div className="flex items-center justify-end gap-2 pt-2 border-t border-black/5">
@@ -456,11 +505,11 @@ export function TeamManagementClient({
                 </button>
                 <button
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || !newName.trim() || newPhone.replace(/\D/g, '').length !== 10 || !newPassword.trim()}
                   className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#3A3564] text-[#FAF7F0] text-xs font-bold hover:bg-[#2A2649] transition-all shadow-2xs cursor-pointer disabled:opacity-50"
                 >
                   {isSubmitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                  <span>Save & Onboard</span>
+                  <span>Create Designer Account</span>
                 </button>
               </div>
             </form>
@@ -468,7 +517,7 @@ export function TeamManagementClient({
         </div>
       )}
 
-      {/* Allocate Brief Modal */}
+      {/* Quick Allocate Brief Modal */}
       {allocateMember && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs">
           <div className="bg-white rounded-2xl border border-black/10 shadow-xl max-w-lg w-full p-6 space-y-5 animate-in fade-in zoom-in duration-150">
@@ -482,7 +531,7 @@ export function TeamManagementClient({
                     Allocate Design Brief
                   </h2>
                   <p className="text-xs text-slate-500">
-                    Assigning to <span className="font-semibold text-[#3A3564]">{allocateMember.designer_name}</span>
+                    Assigning to {allocateMember.designer_name} ({allocateMember.username || allocateMember.phone_number})
                   </p>
                 </div>
               </div>
@@ -552,11 +601,11 @@ export function TeamManagementClient({
 
               <div>
                 <label className="block font-bold text-slate-800 mb-1">
-                  Design Instructions & Creative Guidelines
+                  Design Instructions &amp; Creative Guidelines
                 </label>
                 <textarea
                   rows={3}
-                  placeholder="e.g. Oversized drop-shoulder fit, minimal chest branding, organic earth tones..."
+                  placeholder="e.g. Minimal branding on chest, drop shoulder cut, contrast collar..."
                   value={instructions}
                   onChange={e => setInstructions(e.target.value)}
                   className="w-full px-3 py-2 rounded-xl border border-black/10 bg-white text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
@@ -577,7 +626,7 @@ export function TeamManagementClient({
                   className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#3A3564] text-[#FAF7F0] text-xs font-bold hover:bg-[#2A2649] transition-all shadow-2xs cursor-pointer disabled:opacity-50"
                 >
                   {isAllocating && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                  <span>Allocate to Designer</span>
+                  <span>Allocate Brief</span>
                 </button>
               </div>
             </form>
@@ -585,12 +634,12 @@ export function TeamManagementClient({
         </div>
       )}
 
-      {/* Delete Confirmation */}
+      {/* Delete Member Confirmation */}
       <ConfirmDialog
         isOpen={!!memberToDelete}
         title={`Remove Designer "${memberToDelete?.designer_name}"?`}
-        description={`Are you sure you want to remove ${memberToDelete?.designer_name} from your team? They will no longer have access to allocated briefs.`}
-        confirmText="Yes, Remove Member"
+        description={`Are you sure you want to remove this designer from ${companyName}? They will no longer be able to log in or access allocated briefs.`}
+        confirmText="Yes, Remove"
         cancelText="Cancel"
         variant="danger"
         isLoading={isDeleting}

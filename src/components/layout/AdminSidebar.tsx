@@ -169,7 +169,13 @@ export function AdminSidebar({
         ],
       },
     ]
-  } else if (pathname === '/modules' || pathname?.startsWith('/modules') || pathname === '/access-control' || pathname?.startsWith('/access-control')) {
+  } else if (
+    pathname === '/modules' || 
+    pathname?.startsWith('/modules') || 
+    pathname === '/access-control' || 
+    pathname?.startsWith('/access-control') ||
+    pathname?.startsWith('/design/sa-approvals')
+  ) {
     activeNavSections = [
       {
         section: 'Workspace Hub',
@@ -177,6 +183,7 @@ export function AdminSidebar({
           { label: 'All Modules', href: '/modules', icon: LayoutGrid },
           { label: 'Department Heads', href: '/modules/access-control', icon: ShieldCheck },
           { label: 'Supervisor Operations', href: '/modules/supervisor-desk', icon: Wrench },
+          { label: 'SA Design Approvals', href: '/design/sa-approvals', icon: Sparkles },
           { label: 'Company Profile', href: '/modules/profile', icon: Building2 },
           { label: 'Zigza AI', href: '/modules/zigza-ai', icon: Bot },
         ],

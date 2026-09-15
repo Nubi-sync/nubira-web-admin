@@ -133,6 +133,8 @@ export interface DesignTeamMember {
   ph_user_id: string
   designer_user_id?: string
   designer_name: string
+  phone_number?: string
+  username?: string
   designer_email: string
   designer_phone?: string
   company_name: string

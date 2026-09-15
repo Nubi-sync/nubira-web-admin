@@ -31,18 +31,47 @@ export async function login(formData: FormData) {
     return { error: 'Username/email and password are required' }
   }
 
-  // Format email: If user enters a custom username without @, check if it matches a registered username in profiles or tenant factories
+  // Format email: If user enters a 10-digit phone number or custom username without @, resolve their login email
   const cleanEmailKey = rawInput.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_.-]/g, '')
-  let email = rawInput.includes('@') ? rawInput : `${cleanEmailKey}@nubira.local`
+  const rawDigits = rawInput.replace(/\D/g, '')
+  const phone10 = (rawDigits.length === 10 || (rawDigits.length === 12 && rawDigits.startsWith('91')))
+    ? rawDigits.slice(-10)
+    : null
 
-  // If user entered a custom username without @ (e.g. vardhman_admin or Vardhman), resolve their real login email
+  let email = rawInput.includes('@') ? rawInput : (phone10 ? `${phone10}@designer.nubira.local` : `${cleanEmailKey}@nubira.local`)
+
+  // If user entered a custom username or phone without @, resolve their real login email
   if (!rawInput.includes('@')) {
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     if (serviceRoleKey && supabaseUrl) {
       try {
         const adminClient = createAdminClient(supabaseUrl, serviceRoleKey)
-        // 1. Check profiles by username
+
+        // 1. Check design_team_members by 10-digit phone number or username
+        if (phone10) {
+          const { data: matchedDesignerPhone } = await adminClient
+            .from('design_team_members')
+            .select('designer_email, phone_number')
+            .or(`phone_number.eq.${phone10},designer_phone.eq.${phone10}`)
+            .maybeSingle()
+
+          if (matchedDesignerPhone) {
+            email = matchedDesignerPhone.designer_email || `${phone10}@designer.nubira.local`
+          }
+        }
+
+        const { data: matchedDesignerUser } = await adminClient
+          .from('design_team_members')
+          .select('designer_email, phone_number')
+          .ilike('username', rawInput.trim())
+          .maybeSingle()
+
+        if (matchedDesignerUser) {
+          email = matchedDesignerUser.designer_email || (matchedDesignerUser.phone_number ? `${matchedDesignerUser.phone_number}@designer.nubira.local` : email)
+        }
+
+        // 2. Check profiles by username
         const { data: matchedProfile } = await adminClient
           .from('profiles')
           .select('id')
@@ -55,16 +84,18 @@ export async function login(formData: FormData) {
             email = authUser.user.email
           }
         } else {
-          // 2. Check auth users by metadata username or email prefix
+          // 3. Check auth users by metadata username, phone_number, or email prefix
           const { data: userList } = await adminClient.auth.admin.listUsers({ perPage: 200 })
           const matchedAuth = userList?.users?.find(u =>
+            (phone10 && u.user_metadata?.phone_number === phone10) ||
             u.user_metadata?.username?.toLowerCase() === cleanEmailKey ||
-            u.email?.toLowerCase().startsWith(`${cleanEmailKey}@`)
+            u.email?.toLowerCase().startsWith(`${cleanEmailKey}@`) ||
+            (phone10 && u.email?.toLowerCase().startsWith(`${phone10}@`))
           )
           if (matchedAuth?.email) {
             email = matchedAuth.email
           } else {
-            // 3. Check platform_tenant_factories by plant_slug or admin_name
+            // 4. Check platform_tenant_factories by plant_slug or admin_name
             const { data: matchedTenant } = await adminClient
               .from('platform_tenant_factories')
               .select('admin_email')
@@ -77,7 +108,7 @@ export async function login(formData: FormData) {
           }
         }
       } catch (lookupErr) {
-        console.warn('Username lookup notice:', lookupErr)
+        console.warn('Username/phone lookup notice:', lookupErr)
       }
     }
   }
