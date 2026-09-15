@@ -88,36 +88,21 @@ export function MerchandisingDashboardClient({
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
 
   const reloadData = () => {
-    setOrders(getOrders())
-    setCostings(getBomCostings())
-    setMilestones(getTnaMilestones())
-    setShipments(getShipments())
-    setSourcingPrs(getSourcingRequisitions())
+    const localOrders = getOrders()
+    const localCostings = getBomCostings()
+    const localMilestones = getTnaMilestones()
+    const localShipments = getShipments()
+    const localSourcing = getSourcingRequisitions()
+
+    setOrders(localOrders && localOrders.length > 0 ? localOrders : (initialOrders || []))
+    setCostings(localCostings && localCostings.length > 0 ? localCostings : (initialBomCostings || []))
+    setMilestones(localMilestones && localMilestones.length > 0 ? localMilestones : (initialMilestones || []))
+    setShipments(localShipments && localShipments.length > 0 ? localShipments : (initialShipments || []))
+    setSourcingPrs(localSourcing || [])
   }
 
   useEffect(() => {
-    if (initialOrders !== undefined) {
-      setOrders(initialOrders)
-    } else {
-      setOrders(getOrders())
-    }
-    if (initialBomCostings !== undefined) {
-      setCostings(initialBomCostings)
-    } else {
-      setCostings(getBomCostings())
-    }
-    if (initialMilestones !== undefined) {
-      setMilestones(initialMilestones)
-    } else {
-      setMilestones(getTnaMilestones())
-    }
-    if (initialShipments !== undefined) {
-      setShipments(initialShipments)
-    } else {
-      setShipments(getShipments())
-    }
-    setSourcingPrs(getSourcingRequisitions())
-
+    reloadData()
     window.addEventListener(MERCHANDISING_UPDATE_EVENT, reloadData)
     return () => window.removeEventListener(MERCHANDISING_UPDATE_EVENT, reloadData)
   }, [initialOrders, initialBomCostings, initialMilestones, initialShipments])

@@ -229,6 +229,43 @@ export async function createBuyerOrderAction(payload: {
       await supabaseAdmin.from('merchandising_order_ratios').insert(ratioInserts)
     }
 
+    // 5. Generate Forward-Scheduled T&A Critical Path Milestones (Day 0 to Ex-Factory Day)
+    try {
+      const orderStartDate = new Date(order.order_date || new Date())
+      const exDate = new Date(payload.ex_factory_date)
+      const diffTime = Math.max(1, exDate.getTime() - orderStartDate.getTime())
+      const totalDays = Math.max(1, Math.round(diffTime / (1000 * 60 * 60 * 24)))
+
+      const addDays = (startDate: Date, daysToAdd: number): string => {
+        const d = new Date(startDate)
+        d.setDate(d.getDate() + daysToAdd)
+        return d.toISOString().split('T')[0]
+      }
+
+      const standardGates = [
+        { name: 'LAB_DIP_APPROVAL', daysPct: 0.12 },
+        { name: 'FABRIC_INWARD', daysPct: 0.28 },
+        { name: 'PPS_APPROVAL', daysPct: 0.40 },
+        { name: 'CUTTING_START', daysPct: 0.52 },
+        { name: 'SEWING_COMPLETE', daysPct: 0.72 },
+        { name: 'WASHING_COMPLETE', daysPct: 0.84 },
+        { name: 'FINAL_AQL_AUDIT', daysPct: 0.92 },
+        { name: 'EX_FACTORY', daysPct: 1.00 }
+      ]
+
+      const milestoneInserts = standardGates.map((g, idx) => ({
+        order_id: order.id,
+        gate_name: g.name,
+        target_date: g.daysPct === 1.00 ? payload.ex_factory_date : addDays(orderStartDate, Math.max(idx + 1, Math.round(totalDays * g.daysPct))),
+        status: 'ON_SCHEDULE'
+      }))
+
+      await supabaseAdmin.from('merchandising_tna_milestones').delete().eq('order_id', order.id)
+      await supabaseAdmin.from('merchandising_tna_milestones').insert(milestoneInserts)
+    } catch (milestoneErr) {
+      console.warn('[createBuyerOrderAction] Milestone auto-scheduling notice:', milestoneErr)
+    }
+
     revalidatePath('/merchandising')
     revalidatePath('/merchandising/orders')
     revalidatePath('/merchandising/tna-calendar')
@@ -349,6 +386,8 @@ export async function fetchTnaMilestonesAction(companyName?: string): Promise<Tn
         merchandising_orders (
           id,
           order_number,
+          order_date,
+          ex_factory_date,
           design_tech_packs ( style_number )
         )
       `)
@@ -361,18 +400,49 @@ export async function fetchTnaMilestonesAction(companyName?: string): Promise<Tn
 
     if (!data || data.length === 0) return []
 
-    return data.map((row: any, idx: number) => ({
-      id: row.id,
-      order_id: row.order_id,
-      po_number: row.merchandising_orders?.order_number || 'N/A',
-      style_ref: row.merchandising_orders?.design_tech_packs?.style_number || 'Standard Style',
-      milestone_name: row.gate_name.replace(/_/g, ' '),
-      planned_date: row.target_date,
-      actual_date: row.actual_date || null,
-      status: mapDbTnaStatusToUI(row.status),
-      delay_reason: row.delay_reason || null,
-      sort_order: idx + 1
-    }))
+    const gateRatios: Record<string, number> = {
+      'LAB_DIP_APPROVAL': 0.12,
+      'FABRIC_INWARD': 0.28,
+      'PPS_APPROVAL': 0.40,
+      'CUTTING_START': 0.52,
+      'SEWING_COMPLETE': 0.72,
+      'WASHING_COMPLETE': 0.84,
+      'FINAL_AQL_AUDIT': 0.92,
+      'EX_FACTORY': 1.00
+    }
+
+    const addDays = (startDateStr: string, daysToAdd: number): string => {
+      const d = new Date(startDateStr)
+      d.setDate(d.getDate() + daysToAdd)
+      return d.toISOString().split('T')[0]
+    }
+
+    return data.map((row: any, idx: number) => {
+      const orderDate = row.merchandising_orders?.order_date || new Date().toISOString().split('T')[0]
+      const exFactoryDate = row.merchandising_orders?.ex_factory_date || addDays(orderDate, 25)
+      
+      let plannedDate = row.target_date
+      // If the target date was seeded in the past before the order was created, forward-schedule it properly
+      if (plannedDate && plannedDate < orderDate) {
+        const diffTime = Math.max(1, new Date(exFactoryDate).getTime() - new Date(orderDate).getTime())
+        const totalDays = Math.max(1, Math.round(diffTime / (1000 * 60 * 60 * 24)))
+        const ratio = gateRatios[row.gate_name] ?? ((idx + 1) / data.length)
+        plannedDate = ratio === 1.00 ? exFactoryDate : addDays(orderDate, Math.max(idx + 1, Math.round(totalDays * ratio)))
+      }
+
+      return {
+        id: row.id,
+        order_id: row.order_id,
+        po_number: row.merchandising_orders?.order_number || 'N/A',
+        style_ref: row.merchandising_orders?.design_tech_packs?.style_number || 'Standard Style',
+        milestone_name: row.gate_name.replace(/_/g, ' '),
+        planned_date: plannedDate,
+        actual_date: row.actual_date || null,
+        status: mapDbTnaStatusToUI(row.status),
+        delay_reason: row.delay_reason || null,
+        sort_order: idx + 1
+      }
+    })
   } catch (err) {
     console.error('[fetchTnaMilestonesAction] Unexpected error:', err)
     return []

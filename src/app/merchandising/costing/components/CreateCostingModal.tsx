@@ -281,6 +281,40 @@ export function CreateCostingModal({ isOpen, onClose, onSuccess }: CreateCosting
             </div>
           </div>
 
+          {/* Commercial Profit Realization vs Buyer Contract FOB */}
+          {selectedOrder && (
+            <div className="p-4 rounded-2xl bg-[#FAF7F0] border border-black/10 shadow-2xs space-y-2">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-slate-600 font-medium">Buyer Contract FOB Price:</span>
+                <span className="font-mono font-bold text-slate-900">
+                  ₹{selectedOrder.unit_fob_price.toLocaleString('en-IN', { minimumFractionDigits: 2 })} / pc
+                </span>
+              </div>
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-slate-600 font-medium">Planned Factory Cost:</span>
+                <span className="font-mono font-bold text-slate-700">
+                  -₹{netFobCost.toFixed(2)} / pc
+                </span>
+              </div>
+              <div className="pt-2 border-t border-black/10 flex items-center justify-between">
+                <div>
+                  <span className="text-xs font-bold text-slate-900 block">Gross Commercial Profit:</span>
+                  <span className="text-[11px] text-slate-500">Realized gross profit margin per piece</span>
+                </div>
+                <div className="text-right">
+                  <span className={`text-sm font-bold font-mono block ${
+                    selectedOrder.unit_fob_price - netFobCost >= 0 ? 'text-emerald-700' : 'text-rose-600'
+                  }`}>
+                    {selectedOrder.unit_fob_price - netFobCost >= 0 ? '+' : ''}₹{(selectedOrder.unit_fob_price - netFobCost).toFixed(2)} / pc
+                  </span>
+                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
+                    {(((selectedOrder.unit_fob_price - netFobCost) / selectedOrder.unit_fob_price) * 100).toFixed(1)}% Gross Margin
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Actions */}
           <div className="pt-3 border-t border-black/10 flex items-center justify-end gap-3">
             <button
