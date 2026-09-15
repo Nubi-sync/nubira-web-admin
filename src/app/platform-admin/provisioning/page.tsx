@@ -23,6 +23,7 @@ export default function ProvisioningConsolePage() {
   const [phone, setPhone] = useState('')
   const [cityState, setCityState] = useState('Tirupur, Tamil Nadu')
   const [accessType, setAccessType] = useState<AccessType>('FULL_ACCESS')
+  const [validityDurationMonths, setValidityDurationMonths] = useState<number>(1)
   const [subscriptionTier, setSubscriptionTier] = useState<SubscriptionPlanTier>('FULL_PLANT_AI')
   const [monthlyBillingInr, setMonthlyBillingInr] = useState(4999)
   const [selectedDivisions, setSelectedDivisions] = useState<string[]>(
@@ -84,6 +85,7 @@ export default function ProvisioningConsolePage() {
         phone,
         cityState,
         accessType,
+        validityDurationMonths,
         subscriptionTier,
         monthlyBillingInr,
         selectedDivisions
@@ -108,12 +110,18 @@ export default function ProvisioningConsolePage() {
     year: 'numeric'
   })
 
+  const fullAccessExpiryDate = new Date(Date.now() + validityDurationMonths * 30 * 24 * 60 * 60 * 1000).toLocaleDateString('en-IN', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric'
+  })
+
   const activationSlipText = `===========================================
 ZIGZA MES - CLIENT SUPER ADMIN ACTIVATION
 ===========================================
 Factory / Company : ${companyName}
 Super Admin Name  : ${adminName}
-Access Model      : ${accessType === 'DEMO_TRIAL' ? `7-Day Demo Trial (Expires: ${trialExpiryDate})` : 'Full Enterprise Access'}
+Access Model      : ${accessType === 'DEMO_TRIAL' ? `7-Day Demo Trial (Expires: ${trialExpiryDate})` : `Full Enterprise Access (Valid Until: ${fullAccessExpiryDate})`}
 Custom Username   : ${customUsername}
 Login Portal URL  : https://app.zigza.in/login
 Login Email       : ${adminEmail}
@@ -209,7 +217,7 @@ Allocated Units   : ${selectedDivisions.length} of ${ENTERPRISE_DIVISIONS_CATALO
 
               <div><strong>Company / Factory Name :</strong> {companyName}</div>
               <div><strong>Designated Plant Head  :</strong> {adminName}</div>
-              <div><strong>Access Model           :</strong> <span className={accessType === 'DEMO_TRIAL' ? 'text-amber-800 font-bold bg-amber-50 px-2 py-0.5 rounded border border-amber-200' : 'text-emerald-800 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200'}>{accessType === 'DEMO_TRIAL' ? `7-Day Demo Trial (Expires: ${trialExpiryDate})` : 'Full Enterprise Access'}</span></div>
+              <div><strong>Access Model           :</strong> <span className={accessType === 'DEMO_TRIAL' ? 'text-amber-800 font-bold bg-amber-50 px-2 py-0.5 rounded border border-amber-200' : 'text-emerald-800 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200'}>{accessType === 'DEMO_TRIAL' ? `7-Day Demo Trial (Expires: ${trialExpiryDate})` : `Full Enterprise Access (${validityDurationMonths} Mo • Valid Until: ${fullAccessExpiryDate})`}</span></div>
               <div><strong>Custom Username        :</strong> <span className="text-[#3A3564] font-bold bg-white px-2 py-0.5 rounded border border-black/15">{customUsername}</span></div>
               <div><strong>Sign-In Web Portal     :</strong> <span className="text-[#3A3564] font-bold">https://app.zigza.in/login</span></div>
               <div><strong>Registered Admin Email :</strong> <span className="text-slate-900 font-bold">{adminEmail}</span></div>
@@ -425,10 +433,42 @@ Allocated Units   : ${selectedDivisions.length} of ${ENTERPRISE_DIVISIONS_CATALO
                     Unrestricted production manufacturing access. Regular billing subscription active.
                   </p>
                   <span className="text-[11px] font-mono font-bold text-emerald-800 block mt-2.5">
-                    Active Enterprise Contract
+                    Valid for {validityDurationMonths} Month{validityDurationMonths > 1 ? 's' : ''} ({fullAccessExpiryDate})
                   </span>
                 </div>
               </div>
+
+              {/* Validity duration for full access */}
+              {accessType === 'FULL_ACCESS' && (
+                <div className="mt-3 p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-mono font-bold uppercase text-slate-700">Initial Subscription Duration:</span>
+                    <span className="text-xs font-mono font-bold text-emerald-700">Valid until {fullAccessExpiryDate}</span>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {[
+                      { m: 1, label: '1 Month', sub: 'Standard Active' },
+                      { m: 3, label: '3 Months', sub: 'Quarterly' },
+                      { m: 6, label: '6 Months', sub: 'Half-Yearly' },
+                      { m: 12, label: '12 Months', sub: 'Annual License' }
+                    ].map(opt => (
+                      <button
+                        key={opt.m}
+                        type="button"
+                        onClick={() => setValidityDurationMonths(opt.m)}
+                        className={`py-2 px-3 rounded-lg border text-left cursor-pointer transition-all ${
+                          validityDurationMonths === opt.m
+                            ? 'bg-white border-[#3A3564] ring-2 ring-[#3A3564]/15 shadow-2xs'
+                            : 'bg-white/60 border-slate-200 hover:bg-white text-slate-600'
+                        }`}
+                      >
+                        <span className="text-xs font-mono font-bold block text-slate-900">{opt.label}</span>
+                        <span className="text-[10px] text-slate-500 block">{opt.sub}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Plan Tier Selection */}

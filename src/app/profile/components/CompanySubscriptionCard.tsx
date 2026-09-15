@@ -28,10 +28,10 @@ interface CompanySubscriptionCardProps {
 
 export function CompanySubscriptionCard({
   companyName,
-  accessType = 'DEMO_TRIAL',
+  accessType = 'FULL_ACCESS',
   subscriptionTier = 'FULL_PLANT_AI',
-  provisionedAt = '2026-09-15T00:00:00.000Z',
-  expiresAt = '2026-09-22T00:00:00.000Z',
+  provisionedAt,
+  expiresAt,
   isExpired = false,
   tenantStatus = 'ACTIVE',
   monthlyBillingInr = 4999,
@@ -47,20 +47,27 @@ export function CompanySubscriptionCard({
   const isTrial = accessType === 'DEMO_TRIAL'
   const isAccountExpired = isExpired || isExpiredUrlParam
 
+  const baseProvisionedTime = provisionedAt ? new Date(provisionedAt).getTime() : Date.now()
+  const effectiveExpiresAt = expiresAt || (
+    isTrial
+      ? new Date(baseProvisionedTime + 7 * 24 * 60 * 60 * 1000).toISOString()
+      : new Date(baseProvisionedTime + 30 * 24 * 60 * 60 * 1000).toISOString()
+  )
+
   // Compute Days Remaining
   const now = Date.now()
-  const expiryTime = expiresAt ? new Date(expiresAt).getTime() : 0
+  const expiryTime = effectiveExpiresAt ? new Date(effectiveExpiresAt).getTime() : 0
   const daysLeft = expiryTime ? Math.ceil((expiryTime - now) / (1000 * 60 * 60 * 24)) : 0
 
   // Format Dates
   const issueDateStr = provisionedAt ? new Date(provisionedAt).toLocaleDateString('en-IN', {
-    day: '2-digit',
+    day: 'numeric',
     month: 'short',
     year: 'numeric'
-  }) : '15-Sep-2026'
+  }) : new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
 
-  const expiryDateStr = expiresAt ? new Date(expiresAt).toLocaleDateString('en-IN', {
-    day: '2-digit',
+  const expiryDateStr = effectiveExpiresAt ? new Date(effectiveExpiresAt).toLocaleDateString('en-IN', {
+    day: 'numeric',
     month: 'short',
     year: 'numeric'
   }) : 'Continuous / Perpetual'

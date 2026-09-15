@@ -174,7 +174,26 @@ export async function resolveUserTenant(user: {
         : (metadata.display_name || metadata.displayName || profileUsername || 'Department Head')
 
       const accessType: 'DEMO_TRIAL' | 'FULL_ACCESS' = tenant.access_type || 'FULL_ACCESS'
-      const expiresAt = tenant.expires_at || undefined
+      const provisionedTime = tenant.provisioned_at ? new Date(tenant.provisioned_at).getTime() : Date.now()
+      const defaultCalculatedExpiry = accessType === 'DEMO_TRIAL'
+        ? new Date(provisionedTime + 7 * 24 * 60 * 60 * 1000).toISOString()
+        : new Date(provisionedTime + 30 * 24 * 60 * 60 * 1000).toISOString()
+
+      let expiresAt = tenant.expires_at || defaultCalculatedExpiry
+      // Auto-correct any Full Access accounts that were mistakenly given a 7/8-day trial expiry
+      if (accessType === 'FULL_ACCESS' && tenant.expires_at) {
+        const storedExpiryTime = new Date(tenant.expires_at).getTime()
+        if (storedExpiryTime - provisionedTime < 15 * 24 * 60 * 60 * 1000) {
+          expiresAt = new Date(provisionedTime + 30 * 24 * 60 * 60 * 1000).toISOString()
+          try {
+            supabaseAdmin
+              .from('platform_tenant_factories')
+              .update({ expires_at: expiresAt })
+              .eq('id', tenant.id)
+              .then(() => {})
+          } catch (_) {}
+        }
+      }
       const tenantStatus = tenant.status || 'ACTIVE'
 
       // Check if account has expired or been revoked

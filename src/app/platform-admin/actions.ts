@@ -454,9 +454,10 @@ export async function provisionTenantFactoryAction(
       `${payload.companyName.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '') || 'tenant'}_admin`
 
     const accessType = payload.accessType || 'FULL_ACCESS'
+    const durationMonths = payload.validityDurationMonths || 1
     const expiresAt = accessType === 'DEMO_TRIAL'
       ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
-      : null
+      : new Date(Date.now() + durationMonths * 30 * 24 * 60 * 60 * 1000).toISOString()
 
     // Step A: Create User in Supabase Auth via Service Role
     let authUserId: string | undefined
