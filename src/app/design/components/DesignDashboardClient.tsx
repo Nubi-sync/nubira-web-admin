@@ -23,7 +23,10 @@ import {
   ClipboardList,
   Bookmark,
   ShieldCheck,
-  FolderArchive
+  FolderArchive,
+  Target,
+  Tag,
+  Phone
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { 
@@ -88,18 +91,46 @@ export function DesignDashboardClient({
   // Create Brief Modal
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  // Create Brief Form State (Initialized empty with clean placeholders)
+  // Create Brief Form State (Initialized empty with clean placeholders - zero dummy data)
   const [selectedDesignerId, setSelectedDesignerId] = useState<string>('')
   const [garmentType, setGarmentType] = useState('')
   const [category, setCategory] = useState<string>('')
+  const [targetDesigns, setTargetDesigns] = useState<string>('')
   const [maxColors, setMaxColors] = useState<string>('')
+  const [targetColors, setTargetColors] = useState<string[]>([])
+  const [colorInput, setColorInput] = useState('')
   const [instructions, setInstructions] = useState('')
+
+  function handleAddColor(colorName?: string) {
+    const val = (colorName || colorInput).trim().replace(/^,+|,+$/g, '')
+    if (!val) return
+    if (!targetColors.includes(val)) {
+      setTargetColors(prev => [...prev, val])
+    }
+    setColorInput('')
+  }
+
+  function handleRemoveColor(index: number) {
+    setTargetColors(prev => prev.filter((_, i) => i !== index))
+  }
+
+  function handleColorKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault()
+      handleAddColor()
+    } else if (e.key === 'Backspace' && !colorInput && targetColors.length > 0) {
+      handleRemoveColor(targetColors.length - 1)
+    }
+  }
 
   function resetCreateForm() {
     setSelectedDesignerId('')
     setGarmentType('')
     setCategory('')
+    setTargetDesigns('')
     setMaxColors('')
+    setTargetColors([])
+    setColorInput('')
     setInstructions('')
   }
 
@@ -128,6 +159,10 @@ export function DesignDashboardClient({
 
   const activeTeamMembers = (teamMembers || []).filter(m => m.status === 'ACTIVE')
 
+  // Dynamically compute existing silhouettes and categories from real database briefs
+  const existingGarments = Array.from(new Set(briefs.map(b => b.garment_type).filter(Boolean)))
+  const existingCategories = Array.from(new Set(briefs.map(b => b.category).filter(Boolean)))
+
   const filteredBriefs = briefs.filter(b => {
     const matchesStatus = statusFilter === 'ALL' || b.status === statusFilter
     const q = searchQuery.toLowerCase()
@@ -149,7 +184,7 @@ export function DesignDashboardClient({
 
   async function handleCreateBrief(e: React.FormEvent) {
     e.preventDefault()
-    if (!selectedDesignerId || !garmentType || !category || !maxColors) {
+    if (!selectedDesignerId || !garmentType || !category) {
       toast.error('Please fill in all required fields.')
       return
     }
@@ -160,7 +195,11 @@ export function DesignDashboardClient({
         designer_member_id: selectedDesignerId || undefined,
         garment_type: garmentType,
         category: category,
-        max_colors: Number(maxColors) || 3,
+        target_designs: Number(targetDesigns) || 1,
+        num_designs: Number(targetDesigns) || 1,
+        max_colors: Number(maxColors) || (targetColors.length > 0 ? targetColors.length : 3),
+        chart_colors: Number(maxColors) || (targetColors.length > 0 ? targetColors.length : 3),
+        target_colors: targetColors.length > 0 ? targetColors : undefined,
         instructions: instructions.trim() || undefined,
         company_name: companyName
       })
@@ -518,7 +557,7 @@ export function DesignDashboardClient({
                 <tr className="border-b border-black/10 bg-[#FAF7F0] text-slate-600 text-xs font-semibold uppercase tracking-wider">
                   <th className="py-3 px-4">Garment Silhouette</th>
                   <th className="py-3 px-4">Designer</th>
-                  <th className="py-3 px-4">Colors Limit</th>
+                  <th className="py-3 px-4">Target &amp; Quota</th>
                   <th className="py-3 px-4">Concept Photos</th>
                   <th className="py-3 px-4">Status</th>
                   <th className="py-3 px-4">Notes / Instructions</th>
@@ -529,6 +568,9 @@ export function DesignDashboardClient({
                 {filteredBriefs.map(brief => {
                   const stCfg = STATUS_CONFIG[brief.status] || STATUS_CONFIG.ALLOCATED
                   const hasPhotos = brief.latest_submission && brief.latest_submission.photo_url_1
+                  const completedSubmissions = brief.submissions_count || (hasPhotos ? 1 : 0)
+                  const targetCount = brief.target_designs || 1
+                  const pct = Math.min(100, Math.round((completedSubmissions / targetCount) * 100))
 
                   return (
                     <tr key={brief.id} className="hover:bg-slate-50/80 transition-colors">
@@ -543,15 +585,54 @@ export function DesignDashboardClient({
                             <div className="w-6 h-6 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center text-xs font-bold font-mono">
                               {brief.designer_name.charAt(0).toUpperCase()}
                             </div>
-                            <span className="font-semibold text-slate-800 text-xs">{brief.designer_name}</span>
+                            <div>
+                              <span className="font-semibold text-slate-800 text-xs block">{brief.designer_name}</span>
+                              {brief.designer_phone && (
+                                <span className="text-[10px] text-slate-500 font-mono inline-flex items-center gap-0.5">
+                                  <Phone className="w-2.5 h-2.5 text-slate-400" />
+                                  +91 {brief.designer_phone}
+                                </span>
+                              )}
+                            </div>
                           </div>
                         ) : (
                           <span className="text-xs text-slate-400 italic">Unassigned</span>
                         )}
                       </td>
 
-                      <td className="py-3.5 px-4 font-mono font-bold text-slate-800 text-xs">
-                        {brief.max_colors} Max
+                      <td className="py-3.5 px-4 min-w-[150px]">
+                        <div className="space-y-1">
+                          <div className="flex items-center justify-between text-xs font-semibold text-slate-800">
+                            <span className="inline-flex items-center gap-1 font-mono text-[11.5px]">
+                              <Target className="w-3 h-3 text-[#3A3564]" />
+                              {completedSubmissions} of {targetCount} Designs
+                            </span>
+                            <span className="text-[10.5px] font-mono text-slate-500 font-bold">
+                              {pct}%
+                            </span>
+                          </div>
+                          <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden border border-black/5">
+                            <div 
+                              className={`h-full rounded-full transition-all duration-300 ${
+                                completedSubmissions >= targetCount ? 'bg-emerald-500' : 'bg-[#3A3564]'
+                              }`}
+                              style={{ width: `${pct}%` }}
+                            />
+                          </div>
+                          <div className="text-[10.5px] text-slate-500 font-mono inline-flex items-center gap-1">
+                            <Palette className="w-2.5 h-2.5 text-slate-400" />
+                            {brief.max_colors} Colors Chart
+                          </div>
+                          {brief.target_colors && brief.target_colors.length > 0 && (
+                            <div className="flex flex-wrap gap-1 pt-0.5">
+                              {brief.target_colors.map((col, i) => (
+                                <span key={i} className="text-[9.5px] px-1.5 py-0.2 rounded-md bg-[#FAF7F0] border border-black/5 font-mono text-[#3A3564] font-semibold">
+                                  {col}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
                       </td>
 
                       <td className="py-3.5 px-4">
@@ -679,7 +760,10 @@ export function DesignDashboardClient({
                 </h2>
               </div>
               <button
-                onClick={() => setIsCreateOpen(false)}
+                onClick={() => {
+                  setIsCreateOpen(false)
+                  resetCreateForm()
+                }}
                 className="text-slate-400 hover:text-slate-700 text-lg font-bold p-1 cursor-pointer"
               >
                 ✕
@@ -689,7 +773,7 @@ export function DesignDashboardClient({
             <form onSubmit={handleCreateBrief} className="space-y-4 text-xs sm:text-sm">
               <div>
                 <label className="block font-bold text-slate-800 mb-1">
-                  Assign Creative Designer <span className="text-rose-600">*</span>
+                  Assign Designer <span className="text-rose-600">*</span>
                 </label>
                 <select
                   required
@@ -697,7 +781,7 @@ export function DesignDashboardClient({
                   onChange={e => setSelectedDesignerId(e.target.value)}
                   className="w-full px-3 py-2 rounded-xl border border-black/10 bg-white text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                 >
-                  <option value="">Select a team designer...</option>
+                  <option value="">Select a team member...</option>
                   {activeTeamMembers.map(m => {
                     const phone = m.phone_number || m.designer_phone
                     const displayLabel = phone ? `+91 ${phone}` : (m.username ? `@${m.username}` : '')
@@ -710,7 +794,7 @@ export function DesignDashboardClient({
                 </select>
                 {activeTeamMembers.length === 0 && (
                   <p className="text-xs text-amber-600 mt-1">
-                    No active designers. Please onboard designers in Team Management first.
+                    No active designers. Please add designers in Team Management first.
                   </p>
                 )}
               </div>
@@ -720,68 +804,155 @@ export function DesignDashboardClient({
                   <label className="block font-bold text-slate-800 mb-1">
                     Garment Silhouette <span className="text-rose-600">*</span>
                   </label>
-                  <select
-                    required
-                    value={garmentType}
-                    onChange={e => setGarmentType(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-black/10 bg-white text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
-                  >
-                    <option value="">Select silhouette...</option>
-                    <option value="T-Shirt">T-Shirt</option>
-                    <option value="Hoodie">Hoodie</option>
-                    <option value="Polo">Polo</option>
-                    <option value="Suit">Suit</option>
-                    <option value="Pant">Pant</option>
-                    <option value="Jogger">Jogger</option>
-                    <option value="Kids Romper">Kids Romper</option>
-                    <option value="Ethnic">Ethnic</option>
-                  </select>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      required
+                      list="garment-options"
+                      placeholder="e.g. Tees, Cargo, Jogger, Girls Suit..."
+                      value={garmentType}
+                      onChange={e => setGarmentType(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl border border-black/10 bg-white text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                    />
+                    <datalist id="garment-options">
+                      {existingGarments.map(g => (
+                        <option key={g} value={g} />
+                      ))}
+                    </datalist>
+                  </div>
+                  <p className="text-[11px] text-slate-400 mt-0.5">
+                    Type any real factory silhouette or pick from recent
+                  </p>
                 </div>
 
                 <div>
                   <label className="block font-bold text-slate-800 mb-1">
-                    Category Style <span className="text-rose-600">*</span>
+                    Category Style / Collection <span className="text-rose-600">*</span>
                   </label>
-                  <select
-                    required
-                    value={category}
-                    onChange={e => setCategory(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-black/10 bg-white text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
-                  >
-                    <option value="">Select category style...</option>
-                    <option value="Formal">Formal</option>
-                    <option value="Informal">Informal</option>
-                    <option value="Casual">Casual</option>
-                    <option value="Ethnic">Ethnic</option>
-                    <option value="Sportswear">Sportswear</option>
-                    <option value="Kids">Kids</option>
-                  </select>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      required
+                      list="category-options"
+                      placeholder="e.g. Digital, Disney, Casual, Formal..."
+                      value={category}
+                      onChange={e => setCategory(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl border border-black/10 bg-white text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                    />
+                    <datalist id="category-options">
+                      {existingCategories.map(c => (
+                        <option key={c} value={c} />
+                      ))}
+                    </datalist>
+                  </div>
+                  <p className="text-[11px] text-slate-400 mt-0.5">
+                    Type any collection tag or pick from recent
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-bold text-slate-800 mb-1 text-xs">
+                    Target No. of Designs <span className="text-rose-600">*</span>
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                      <Target className="w-4 h-4" />
+                    </div>
+                    <input
+                      type="number"
+                      min={1}
+                      max={50}
+                      required
+                      placeholder="e.g. 4"
+                      value={targetDesigns}
+                      onChange={e => setTargetDesigns(e.target.value)}
+                      className="w-full pl-9 pr-3 py-2 rounded-xl border border-black/10 bg-white text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                    />
+                  </div>
+                  <p className="text-[11px] text-slate-400 mt-0.5">
+                    Required designs for this brief (e.g. 4)
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block font-bold text-slate-800 mb-1 text-xs">
+                    Chart / Colorways Count <span className="text-rose-600">*</span>
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                      <Palette className="w-4 h-4" />
+                    </div>
+                    <input
+                      type="number"
+                      min={1}
+                      max={12}
+                      required
+                      placeholder="e.g. 3"
+                      value={maxColors}
+                      onChange={e => setMaxColors(e.target.value)}
+                      className="w-full pl-9 pr-3 py-2 rounded-xl border border-black/10 bg-white text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                    />
+                  </div>
+                  <p className="text-[11px] text-slate-400 mt-0.5">
+                    Colors per chart / colorway (e.g. 3)
+                  </p>
                 </div>
               </div>
 
               <div>
-                <label className="block font-bold text-slate-800 mb-1">
-                  Max Colorways Limit <span className="text-rose-600">*</span>
+                <label className="block font-bold text-slate-800 mb-1 text-xs">
+                  Target Color Palette / Specific Colors (Optional)
                 </label>
-                <input
-                  type="number"
-                  min={1}
-                  max={12}
-                  required
-                  placeholder="e.g. 3"
-                  value={maxColors}
-                  onChange={e => setMaxColors(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-black/10 bg-white text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
-                />
+                <div className="flex flex-wrap items-center gap-1.5 p-2 rounded-xl border border-black/10 bg-white focus-within:ring-2 focus-within:ring-[#3A3564] transition-all">
+                  {targetColors.map((col, idx) => (
+                    <span
+                      key={idx}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#FAF7F0] border border-black/10 text-xs font-semibold text-[#3A3564]"
+                    >
+                      <span>{col}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveColor(idx)}
+                        className="text-slate-400 hover:text-slate-700 font-bold ml-0.5 cursor-pointer"
+                        aria-label={`Remove color ${col}`}
+                      >
+                        &times;
+                      </button>
+                    </span>
+                  ))}
+                  <input
+                    type="text"
+                    placeholder={targetColors.length === 0 ? "Type color (e.g. Navy Blue, Olive, Black) and press Enter..." : "Add another color..."}
+                    value={colorInput}
+                    onChange={e => setColorInput(e.target.value)}
+                    onKeyDown={handleColorKeyDown}
+                    onBlur={() => { if (colorInput.trim()) handleAddColor() }}
+                    className="flex-1 min-w-[150px] px-1 py-1 text-xs bg-transparent text-slate-900 font-medium focus:outline-none placeholder:text-slate-400"
+                  />
+                  {colorInput.trim() && (
+                    <button
+                      type="button"
+                      onClick={() => handleAddColor()}
+                      className="px-2 py-0.5 rounded-md bg-[#3A3564] text-[#FAF7F0] text-[11px] font-bold hover:bg-[#2A2649] cursor-pointer shrink-0"
+                    >
+                      + Add
+                    </button>
+                  )}
+                </div>
+                <p className="text-[11px] text-slate-400 mt-0.5">
+                  Type any color name and press Enter or comma (zero dummy presets)
+                </p>
               </div>
 
               <div>
-                <label className="block font-bold text-slate-800 mb-1">
+                <label className="block font-bold text-slate-800 mb-1 text-xs">
                   Design Instructions &amp; Creative Guidelines
                 </label>
                 <textarea
                   rows={3}
-                  placeholder="e.g. Minimal embroidery on left chest, drop-shoulder cut, oversized silhouette..."
+                  placeholder="e.g. Minimal typography on chest, raw hem finish, oversized street style..."
                   value={instructions}
                   onChange={e => setInstructions(e.target.value)}
                   className="w-full px-3 py-2 rounded-xl border border-black/10 bg-white text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
@@ -801,7 +972,7 @@ export function DesignDashboardClient({
                 </button>
                 <button
                   type="submit"
-                  disabled={isSubmitting || !selectedDesignerId || !garmentType || !category || !maxColors}
+                  disabled={isSubmitting || !selectedDesignerId || !garmentType || !category}
                   className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#3A3564] text-[#FAF7F0] text-xs font-bold hover:bg-[#2A2649] transition-all shadow-2xs cursor-pointer disabled:opacity-50"
                 >
                   {isSubmitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
