@@ -201,11 +201,41 @@ export default function SubscriptionsAndExpiryPage() {
   }
 
   return (
-    <PlatformAdminShell
-      headerTitle="Subscriptions & Expiry Management"
-      headerSubtitle="Real-time license validity, trial tracking, automated reminder dispatch, and manual contract renewals."
-    >
-      <div className="space-y-6">
+    <PlatformAdminShell userEmail="admin@zigza.in">
+      <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto text-[#09090b]">
+        {/* Layer 1: Breadcrumb Trail */}
+        <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
+          <Link href="/platform-admin" className="hover:text-[#3A3564] transition-colors">
+            Platform Root
+          </Link>
+          <span>/</span>
+          <span>Tenant Operations</span>
+          <span>/</span>
+          <span className="font-bold text-slate-900">Subscriptions & Expiry</span>
+        </div>
+
+        {/* Layer 2: Top Header Card */}
+        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all">
+          <div className="flex items-start sm:items-center gap-3.5">
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+              <CreditCard className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2.5 flex-wrap">
+                <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
+                  Subscriptions & Expiry Management
+                </h1>
+                <span className="text-xs font-medium px-2.5 py-0.5 rounded-md bg-[#FAF7F0] text-slate-700 border border-black/10">
+                  {totalTenantsCount} {totalTenantsCount === 1 ? 'tenant organization' : 'tenant organizations'}
+                </span>
+              </div>
+              <p className="text-sm sm:text-base text-slate-600 mt-1 font-medium">
+                Live license validity tracking, 7-day evaluation controls, automated reminder dispatch, and manual contract renewals
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Toast Alert */}
         {toastMsg && (
           <div className={`p-4 rounded-xl border flex items-center justify-between gap-3 shadow-sm animate-in fade-in duration-200 ${

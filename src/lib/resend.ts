@@ -218,7 +218,10 @@ export async function sendCustomInquiryNotificationEmail(params: CustomInquiryNo
   } catch (error: any) {
     console.error('[sendCustomInquiryNotificationEmail] Error:', error)
     return { success: false, error: error?.message }
-  }export interface PaymentReminderEmailParams {
+  }
+}
+
+export interface PaymentReminderEmailParams {
   to: string
   companyName: string
   adminName: string
