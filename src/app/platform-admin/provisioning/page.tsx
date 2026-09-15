@@ -332,14 +332,33 @@ Allocated Units   : ${selectedDivisions.length} of ${ENTERPRISE_DIVISIONS_CATALO
                 <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
                   Phone / WhatsApp Contact <span className="text-rose-500">*</span>
                 </label>
-                <input
-                  type="text"
-                  required
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="+91 98140 00112"
-                  className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-mono font-medium text-slate-900 outline-none shadow-2xs transition-all"
-                />
+                <div className="flex bg-slate-50/70 hover:bg-white focus-within:bg-white border border-slate-200 focus-within:border-[#3A3564] focus-within:ring-2 focus-within:ring-[#3A3564]/10 rounded-xl overflow-hidden shadow-2xs transition-all">
+                  <div className="flex items-center justify-center px-3.5 bg-slate-100/80 border-r border-slate-200 text-slate-700 font-mono font-bold text-xs select-none shrink-0">
+                    +91
+                  </div>
+                  <input
+                    type="tel"
+                    required
+                    value={phone.replace(/^\+91\s*/, '')}
+                    onChange={(e) => {
+                      let digits = e.target.value.replace(/\D/g, '')
+                      if (digits.length > 10 && digits.startsWith('91')) {
+                        digits = digits.slice(2)
+                      }
+                      if (digits.length > 10 && digits.startsWith('0')) {
+                        digits = digits.slice(1)
+                      }
+                      digits = digits.slice(0, 10)
+                      let formatted = digits
+                      if (digits.length > 5) {
+                        formatted = `${digits.slice(0, 5)} ${digits.slice(5)}`
+                      }
+                      setPhone(formatted ? `+91 ${formatted}` : '')
+                    }}
+                    placeholder="98140 00112"
+                    className="w-full px-3.5 py-2.5 bg-transparent text-sm font-mono font-medium text-slate-900 outline-none"
+                  />
+                </div>
               </div>
             </div>
 
