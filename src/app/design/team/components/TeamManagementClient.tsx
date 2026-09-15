@@ -56,13 +56,20 @@ export function TeamManagementClient({
   const [newPassword, setNewPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
 
-  // Quick Allocate Brief State
+  // Quick Allocate Brief State (Initialized empty with clean placeholders)
   const [allocateMember, setAllocateMember] = useState<DesignTeamMember | null>(null)
-  const [garmentType, setGarmentType] = useState('T-Shirt')
-  const [category, setCategory] = useState<BriefCategory>('Casual')
-  const [maxColors, setMaxColors] = useState(3)
+  const [garmentType, setGarmentType] = useState('')
+  const [category, setCategory] = useState<string>('')
+  const [maxColors, setMaxColors] = useState<string>('')
   const [instructions, setInstructions] = useState('')
   const [isAllocating, setIsAllocating] = useState(false)
+
+  function resetAllocateForm() {
+    setGarmentType('')
+    setCategory('')
+    setMaxColors('')
+    setInstructions('')
+  }
 
   // Delete State
   const [memberToDelete, setMemberToDelete] = useState<DesignTeamMember | null>(null)
@@ -178,7 +185,7 @@ export function TeamManagementClient({
       if (res.success) {
         toast.success(`Brief allocated to ${allocateMember.designer_name} successfully!`)
         setAllocateMember(null)
-        setInstructions('')
+        resetAllocateForm()
       } else {
         toast.error(res.error || 'Failed to allocate brief.')
       }
@@ -536,7 +543,10 @@ export function TeamManagementClient({
                 </div>
               </div>
               <button
-                onClick={() => setAllocateMember(null)}
+                onClick={() => {
+                  setAllocateMember(null)
+                  resetAllocateForm()
+                }}
                 className="text-slate-400 hover:text-slate-700 text-lg font-bold p-1 cursor-pointer"
               >
                 ✕
@@ -550,10 +560,12 @@ export function TeamManagementClient({
                     Garment Silhouette <span className="text-rose-600">*</span>
                   </label>
                   <select
+                    required
                     value={garmentType}
                     onChange={e => setGarmentType(e.target.value)}
                     className="w-full px-3 py-2 rounded-xl border border-black/10 bg-white text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                   >
+                    <option value="">Select silhouette...</option>
                     <option value="T-Shirt">T-Shirt</option>
                     <option value="Hoodie">Hoodie</option>
                     <option value="Polo">Polo</option>
@@ -570,10 +582,12 @@ export function TeamManagementClient({
                     Category Style <span className="text-rose-600">*</span>
                   </label>
                   <select
+                    required
                     value={category}
-                    onChange={e => setCategory(e.target.value as BriefCategory)}
+                    onChange={e => setCategory(e.target.value)}
                     className="w-full px-3 py-2 rounded-xl border border-black/10 bg-white text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                   >
+                    <option value="">Select category style...</option>
                     <option value="Formal">Formal</option>
                     <option value="Informal">Informal</option>
                     <option value="Casual">Casual</option>
@@ -593,8 +607,9 @@ export function TeamManagementClient({
                   min={1}
                   max={12}
                   required
+                  placeholder="e.g. 3"
                   value={maxColors}
-                  onChange={e => setMaxColors(Number(e.target.value))}
+                  onChange={e => setMaxColors(e.target.value)}
                   className="w-full px-3 py-2 rounded-xl border border-black/10 bg-white text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                 />
               </div>
@@ -615,14 +630,17 @@ export function TeamManagementClient({
               <div className="flex items-center justify-end gap-2 pt-2 border-t border-black/5">
                 <button
                   type="button"
-                  onClick={() => setAllocateMember(null)}
+                  onClick={() => {
+                    setAllocateMember(null)
+                    resetAllocateForm()
+                  }}
                   className="px-4 py-2 rounded-xl border border-black/10 text-xs font-semibold text-slate-700 hover:bg-slate-100 cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  disabled={isAllocating}
+                  disabled={isAllocating || !garmentType || !category || !maxColors}
                   className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#3A3564] text-[#FAF7F0] text-xs font-bold hover:bg-[#2A2649] transition-all shadow-2xs cursor-pointer disabled:opacity-50"
                 >
                   {isAllocating && <Loader2 className="w-3.5 h-3.5 animate-spin" />}

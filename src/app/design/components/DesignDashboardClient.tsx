@@ -88,11 +88,20 @@ export function DesignDashboardClient({
   // Create Brief Modal
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  // Create Brief Form State (Initialized empty with clean placeholders)
   const [selectedDesignerId, setSelectedDesignerId] = useState<string>('')
-  const [garmentType, setGarmentType] = useState('T-Shirt')
-  const [category, setCategory] = useState<BriefCategory>('Casual')
-  const [maxColors, setMaxColors] = useState(3)
+  const [garmentType, setGarmentType] = useState('')
+  const [category, setCategory] = useState<string>('')
+  const [maxColors, setMaxColors] = useState<string>('')
   const [instructions, setInstructions] = useState('')
+
+  function resetCreateForm() {
+    setSelectedDesignerId('')
+    setGarmentType('')
+    setCategory('')
+    setMaxColors('')
+    setInstructions('')
+  }
 
   // PH Review Modal
   const [reviewingSubmission, setReviewingSubmission] = useState<{
@@ -140,6 +149,10 @@ export function DesignDashboardClient({
 
   async function handleCreateBrief(e: React.FormEvent) {
     e.preventDefault()
+    if (!selectedDesignerId || !garmentType || !category || !maxColors) {
+      toast.error('Please fill in all required fields.')
+      return
+    }
     setIsSubmitting(true)
     try {
       const res = await createDesignBriefAction({
@@ -156,8 +169,7 @@ export function DesignDashboardClient({
         toast.success('Design brief allocated successfully!')
         setBriefs(prev => [res.data!, ...prev])
         setIsCreateOpen(false)
-        setSelectedDesignerId('')
-        setInstructions('')
+        resetCreateForm()
       } else {
         toast.error(res.error || 'Failed to allocate design brief.')
       }
@@ -709,10 +721,12 @@ export function DesignDashboardClient({
                     Garment Silhouette <span className="text-rose-600">*</span>
                   </label>
                   <select
+                    required
                     value={garmentType}
                     onChange={e => setGarmentType(e.target.value)}
                     className="w-full px-3 py-2 rounded-xl border border-black/10 bg-white text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                   >
+                    <option value="">Select silhouette...</option>
                     <option value="T-Shirt">T-Shirt</option>
                     <option value="Hoodie">Hoodie</option>
                     <option value="Polo">Polo</option>
@@ -729,10 +743,12 @@ export function DesignDashboardClient({
                     Category Style <span className="text-rose-600">*</span>
                   </label>
                   <select
+                    required
                     value={category}
-                    onChange={e => setCategory(e.target.value as BriefCategory)}
+                    onChange={e => setCategory(e.target.value)}
                     className="w-full px-3 py-2 rounded-xl border border-black/10 bg-white text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                   >
+                    <option value="">Select category style...</option>
                     <option value="Formal">Formal</option>
                     <option value="Informal">Informal</option>
                     <option value="Casual">Casual</option>
@@ -752,8 +768,9 @@ export function DesignDashboardClient({
                   min={1}
                   max={12}
                   required
+                  placeholder="e.g. 3"
                   value={maxColors}
-                  onChange={e => setMaxColors(Number(e.target.value))}
+                  onChange={e => setMaxColors(e.target.value)}
                   className="w-full px-3 py-2 rounded-xl border border-black/10 bg-white text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                 />
               </div>
@@ -774,14 +791,17 @@ export function DesignDashboardClient({
               <div className="flex items-center justify-end gap-2 pt-2 border-t border-black/5">
                 <button
                   type="button"
-                  onClick={() => setIsCreateOpen(false)}
+                  onClick={() => {
+                    setIsCreateOpen(false)
+                    resetCreateForm()
+                  }}
                   className="px-4 py-2 rounded-xl border border-black/10 text-xs font-semibold text-slate-700 hover:bg-slate-100 cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  disabled={isSubmitting || !selectedDesignerId}
+                  disabled={isSubmitting || !selectedDesignerId || !garmentType || !category || !maxColors}
                   className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#3A3564] text-[#FAF7F0] text-xs font-bold hover:bg-[#2A2649] transition-all shadow-2xs cursor-pointer disabled:opacity-50"
                 >
                   {isSubmitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
