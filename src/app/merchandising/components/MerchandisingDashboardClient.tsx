@@ -437,8 +437,8 @@ export function MerchandisingDashboardClient({
           </div>
 
           <div className="mt-4 pt-3 border-t border-slate-100/80">
-            <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none">
-              {totalBookedPcs.toLocaleString()}
+            <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none" suppressHydrationWarning>
+              {totalBookedPcs.toLocaleString('en-IN')}
             </h3>
             <div className="mt-2.5 flex items-center justify-between">
               <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 tracking-wider shadow-2xs">
@@ -643,7 +643,7 @@ export function MerchandisingDashboardClient({
           </div>
           <div className="flex items-center gap-3">
             <span className="text-xs sm:text-sm font-semibold text-slate-500">
-              Total Booked: <strong className="text-slate-900 font-mono">{totalBookedPcs.toLocaleString()} pcs</strong>
+              Total Booked: <strong className="text-slate-900 font-mono" suppressHydrationWarning>{totalBookedPcs.toLocaleString('en-IN')} pcs</strong>
             </span>
             <Link
               href="/merchandising/tna-calendar"
@@ -668,8 +668,8 @@ export function MerchandisingDashboardClient({
               </span>
             </div>
             <div className="mt-2 flex items-baseline justify-between">
-              <p className="text-lg sm:text-xl font-bold font-[family-name:var(--font-heading)] text-slate-900">
-                {isFabricInwardCleared ? `${Math.round(totalBookedPcs * 0.38).toLocaleString()}` : '0'} <span className="text-xs font-normal text-slate-400">kg</span>
+              <p className="text-lg sm:text-xl font-bold font-[family-name:var(--font-heading)] text-slate-900" suppressHydrationWarning>
+                {isFabricInwardCleared ? `${Math.round(totalBookedPcs * 0.38).toLocaleString('en-IN')}` : '0'} <span className="text-xs font-normal text-slate-400">kg</span>
               </p>
               <span className="text-[10px] font-medium text-slate-400">{isFabricInwardCleared ? 'Cleared Lab' : 'Pending Inward'}</span>
             </div>
@@ -870,16 +870,16 @@ export function MerchandisingDashboardClient({
                             {ord.style_name}
                           </span>
                         </td>
-                        <td className="py-2.5 px-3 text-right font-bold text-slate-900 font-mono">
-                          {ord.total_quantity.toLocaleString()}
+                        <td className="py-2.5 px-3 text-right font-bold text-slate-900 font-mono" suppressHydrationWarning>
+                          {ord.total_quantity.toLocaleString('en-IN')}
                         </td>
                         <td className="py-2.5 px-3 font-mono text-slate-700">
                           {ord.currency === 'INR' ? '₹' : ord.currency === 'USD' ? '$' : '€'}
                           {ord.unit_fob_price.toFixed(2)}
                         </td>
-                        <td className="py-2.5 px-3 font-mono font-bold text-slate-900">
+                        <td className="py-2.5 px-3 font-mono font-bold text-slate-900" suppressHydrationWarning>
                           {ord.currency === 'INR' ? '₹' : ord.currency === 'USD' ? '$' : '€'}
-                          {ord.total_contract_value.toLocaleString()}
+                          {ord.total_contract_value.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                         </td>
                         <td className="py-2.5 px-3 text-center">
                           <span
