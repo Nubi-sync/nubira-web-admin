@@ -47,6 +47,27 @@ const STATUSES: { label: string; value: TechPackStatus }[] = [
 export function EditTechPackModal({ isOpen, onClose, techPack, onUpdated, availableBrands }: EditTechPackModalProps) {
   if (!isOpen || !techPack) return null
 
+  return (
+    <EditTechPackModalContent
+      onClose={onClose}
+      techPack={techPack}
+      onUpdated={onUpdated}
+      availableBrands={availableBrands}
+    />
+  )
+}
+
+function EditTechPackModalContent({
+  onClose,
+  techPack,
+  onUpdated,
+  availableBrands
+}: {
+  onClose: () => void
+  techPack: TechPack
+  onUpdated?: (techPack: TechPack) => void
+  availableBrands?: { id: string; brand_name: string; brand_code: string }[]
+}) {
   const brandsList = (availableBrands && availableBrands.length > 0)
     ? Array.from(new Set([...availableBrands.map(b => b.brand_name), techPack.brand_name]))
     : Array.from(new Set([...BRANDS, techPack.brand_name]))

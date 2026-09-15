@@ -17,6 +17,11 @@ import { GradingScheme, PointOfMeasure, SizeSystem } from '../../types/design'
 import { getStoredGradingSchemes, saveStoredGradingScheme } from '../../utils/designStorage'
 import { EmptyState } from '@/components/ui/EmptyState'
 
+import { toast } from 'sonner'
+import { createPomAction, deletePomAction } from '../../actions'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
+import { Trash2, Loader2 } from 'lucide-react'
+
 interface GradingMatrixClientProps {
   initialSchemes?: GradingScheme[]
 }
@@ -31,6 +36,9 @@ export function GradingMatrixClient({ initialSchemes }: GradingMatrixClientProps
     return 'scheme-adult-unisex'
   })
   const [isAddPomOpen, setIsAddPomOpen] = useState(false)
+  const [isSubmittingPom, setIsSubmittingPom] = useState(false)
+  const [pomToDelete, setPomToDelete] = useState<{ code: string; name: string } | null>(null)
+  const [isDeletingPom, setIsDeletingPom] = useState(false)
 
   // New POM form state
   const [newPomCode, setNewPomCode] = useState('')
@@ -41,31 +49,37 @@ export function GradingMatrixClient({ initialSchemes }: GradingMatrixClientProps
 
   function loadSchemes() {
     const list = getStoredGradingSchemes()
-    setSchemes(list)
+    if (list && list.length > 0) {
+      setSchemes(list)
+    }
   }
 
   useEffect(() => {
     if (initialSchemes && initialSchemes.length > 0) {
       setSchemes(initialSchemes)
-      setSelectedSchemeId(initialSchemes[0].id)
+      if (!initialSchemes.some(s => s.id === selectedSchemeId)) {
+        setSelectedSchemeId(initialSchemes[0].id)
+      }
       if (typeof window !== 'undefined') {
         localStorage.setItem('zigza_design_grading_schemes', JSON.stringify(initialSchemes))
       }
     } else {
       loadSchemes()
     }
-    const handler = () => loadSchemes()
-    window.addEventListener('zigza_grading_schemes_updated', handler)
-    return () => window.removeEventListener('zigza_grading_schemes_updated', handler)
   }, [initialSchemes])
 
   const currentScheme = schemes.find(s => s.id === selectedSchemeId) || schemes[0]
 
-  function handleAddPom() {
-    if (!currentScheme || !newPomName.trim()) return
+  async function handleAddPom() {
+    if (!currentScheme || !newPomName.trim()) {
+      toast.error('Please enter a measurement description.')
+      return
+    }
 
-    const baseVal = Number(newBaseValue)
-    const stepVal = Number(newGradeStep)
+    const pomCode = newPomCode.trim().toUpperCase() || `POM_${Date.now()}`
+    const baseVal = Number(newBaseValue) || 50.0
+    const stepVal = Number(newGradeStep) || 2.0
+    const toleranceVal = Number(newTolerance) || 0.5
     const baseIdx = currentScheme.sizes.indexOf(currentScheme.base_size)
     const generatedSizes: Record<string, number> = {}
 
@@ -75,24 +89,77 @@ export function GradingMatrixClient({ initialSchemes }: GradingMatrixClientProps
     })
 
     const newPom: PointOfMeasure = {
-      pom_code: newPomCode.trim().toUpperCase() || `POM_${Date.now()}`,
+      pom_code: pomCode,
       pom_name: newPomName.trim(),
-      tolerance_cm: Number(newTolerance),
+      tolerance_cm: toleranceVal,
       grade_step_cm: stepVal,
       base_value_cm: baseVal,
       sizes: generatedSizes
     }
 
-    const updatedScheme: GradingScheme = {
-      ...currentScheme,
-      poms: [...currentScheme.poms, newPom]
-    }
+    setIsSubmittingPom(true)
+    try {
+      // 1. Call server action to write directly to Supabase design_poms & design_measurement_values
+      const res = await createPomAction({
+        tech_pack_id: currentScheme.id,
+        pom_code: pomCode,
+        pom_name: newPomName.trim(),
+        tolerance_cm: toleranceVal,
+        grade_step_cm: stepVal,
+        base_value_cm: baseVal,
+        base_size: currentScheme.base_size,
+        sizes: currentScheme.sizes
+      })
 
-    saveStoredGradingScheme(updatedScheme)
-    loadSchemes()
-    setIsAddPomOpen(false)
-    setNewPomCode('')
-    setNewPomName('')
+      if (!res.success) {
+        toast.error(res.error || 'Failed to save POM to database.')
+        setIsSubmittingPom(false)
+        return
+      }
+
+      const updatedScheme: GradingScheme = {
+        ...currentScheme,
+        poms: [...currentScheme.poms.filter(p => p.pom_code !== pomCode), res.data || newPom]
+      }
+
+      setSchemes(prev => prev.map(s => s.id === currentScheme.id ? updatedScheme : s))
+      saveStoredGradingScheme(updatedScheme)
+      toast.success(`Point of Measure "${newPomName.trim()}" saved to Supabase!`)
+      setIsAddPomOpen(false)
+      setNewPomCode('')
+      setNewPomName('')
+    } catch (err: any) {
+      toast.error(err?.message || 'Error saving POM')
+    } finally {
+      setIsSubmittingPom(false)
+    }
+  }
+
+  async function handleDeletePomConfirm() {
+    if (!pomToDelete || !currentScheme) return
+    setIsDeletingPom(true)
+    try {
+      const res = await deletePomAction(currentScheme.id, pomToDelete.code)
+      if (!res.success) {
+        toast.error(res.error || 'Failed to delete POM.')
+        setIsDeletingPom(false)
+        return
+      }
+
+      const updatedScheme: GradingScheme = {
+        ...currentScheme,
+        poms: currentScheme.poms.filter(p => p.pom_code !== pomToDelete.code)
+      }
+
+      setSchemes(prev => prev.map(s => s.id === currentScheme.id ? updatedScheme : s))
+      saveStoredGradingScheme(updatedScheme)
+      toast.success(`POM "${pomToDelete.name}" deleted successfully.`)
+      setPomToDelete(null)
+    } catch (err: any) {
+      toast.error(err?.message || 'Error deleting POM')
+    } finally {
+      setIsDeletingPom(false)
+    }
   }
 
   return (
@@ -201,6 +268,7 @@ export function GradingMatrixClient({ initialSchemes }: GradingMatrixClientProps
                     )
                   })}
                   <th className="py-3 px-4 text-right">Grade step</th>
+                  <th className="py-3 px-3 text-center w-12">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-black/5 font-medium text-slate-700 text-xs sm:text-sm">
@@ -230,6 +298,15 @@ export function GradingMatrixClient({ initialSchemes }: GradingMatrixClientProps
                     <td className="py-3.5 px-4 text-right font-mono font-semibold text-[#3A3564] text-xs sm:text-sm">
                       +{pom.grade_step_cm.toFixed(1)} cm
                     </td>
+                    <td className="py-3.5 px-3 text-center">
+                      <button
+                        onClick={() => setPomToDelete({ code: pom.pom_code, name: pom.pom_name })}
+                        className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                        title="Delete POM"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -258,7 +335,8 @@ export function GradingMatrixClient({ initialSchemes }: GradingMatrixClientProps
               </div>
               <button
                 onClick={() => setIsAddPomOpen(false)}
-                className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-500 hover:text-slate-800 cursor-pointer"
+                disabled={isSubmittingPom}
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-500 hover:text-slate-800 cursor-pointer disabled:opacity-50"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -273,8 +351,9 @@ export function GradingMatrixClient({ initialSchemes }: GradingMatrixClientProps
                   type="text"
                   placeholder="e.g. BICEP_WIDTH"
                   value={newPomCode}
+                  disabled={isSubmittingPom}
                   onChange={e => setNewPomCode(e.target.value.toUpperCase())}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-black/15 text-sm font-semibold text-slate-900 bg-white uppercase focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-black/15 text-sm font-semibold text-slate-900 bg-white uppercase focus:outline-none focus:ring-2 focus:ring-[#3A3564] disabled:bg-slate-50"
                 />
               </div>
 
@@ -286,8 +365,9 @@ export function GradingMatrixClient({ initialSchemes }: GradingMatrixClientProps
                   type="text"
                   placeholder="e.g. Upper Bicep Width (1 inch below armhole)"
                   value={newPomName}
+                  disabled={isSubmittingPom}
                   onChange={e => setNewPomName(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-black/15 text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-black/15 text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564] disabled:bg-slate-50"
                 />
               </div>
 
@@ -300,8 +380,9 @@ export function GradingMatrixClient({ initialSchemes }: GradingMatrixClientProps
                     type="number"
                     step="0.5"
                     value={newBaseValue}
+                    disabled={isSubmittingPom}
                     onChange={e => setNewBaseValue(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-black/15 text-sm font-semibold bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                    className="w-full px-3 py-2 rounded-xl border border-black/15 text-sm font-semibold bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564] disabled:bg-slate-50"
                   />
                 </div>
 
@@ -313,8 +394,9 @@ export function GradingMatrixClient({ initialSchemes }: GradingMatrixClientProps
                     type="number"
                     step="0.5"
                     value={newGradeStep}
+                    disabled={isSubmittingPom}
                     onChange={e => setNewGradeStep(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-black/15 text-sm font-semibold bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                    className="w-full px-3 py-2 rounded-xl border border-black/15 text-sm font-semibold bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564] disabled:bg-slate-50"
                   />
                 </div>
 
@@ -326,8 +408,9 @@ export function GradingMatrixClient({ initialSchemes }: GradingMatrixClientProps
                     type="number"
                     step="0.25"
                     value={newTolerance}
+                    disabled={isSubmittingPom}
                     onChange={e => setNewTolerance(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-black/15 text-sm font-semibold bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                    className="w-full px-3 py-2 rounded-xl border border-black/15 text-sm font-semibold bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564] disabled:bg-slate-50"
                   />
                 </div>
               </div>
@@ -341,21 +424,44 @@ export function GradingMatrixClient({ initialSchemes }: GradingMatrixClientProps
             <div className="px-6 py-4 border-t border-black/10 bg-slate-50 flex items-center justify-between">
               <button
                 onClick={() => setIsAddPomOpen(false)}
-                className="px-4 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:text-slate-900 cursor-pointer"
+                disabled={isSubmittingPom}
+                className="px-4 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:text-slate-900 cursor-pointer disabled:opacity-50"
               >
                 Cancel
               </button>
               <button
                 onClick={handleAddPom}
-                className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-[#3A3564] text-[#FAF7F0] text-sm font-semibold hover:bg-[#2A2649] transition-all shadow-2xs cursor-pointer"
+                disabled={isSubmittingPom}
+                className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-[#3A3564] text-[#FAF7F0] text-sm font-semibold hover:bg-[#2A2649] transition-all shadow-2xs cursor-pointer disabled:opacity-50"
               >
-                <Check className="w-3.5 h-3.5" />
-                <span>Save POM to scheme</span>
+                {isSubmittingPom ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>Saving...</span>
+                  </>
+                ) : (
+                  <>
+                    <Check className="w-3.5 h-3.5" />
+                    <span>Save POM to scheme</span>
+                  </>
+                )}
               </button>
             </div>
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmDialog
+        isOpen={!!pomToDelete}
+        title="Delete Point of Measure"
+        description={`Are you sure you want to delete POM rule "${pomToDelete?.name}" (${pomToDelete?.code})? This measurement specification will be permanently removed.`}
+        confirmText="Delete POM"
+        variant="danger"
+        isLoading={isDeletingPom}
+        onConfirm={handleDeletePomConfirm}
+        onClose={() => setPomToDelete(null)}
+      />
 
     </div>
   )

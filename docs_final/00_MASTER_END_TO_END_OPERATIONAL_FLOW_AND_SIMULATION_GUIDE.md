@@ -67,18 +67,23 @@ Define the technical engineering specification, CAD vectors, grade rules, and st
 ---
 
 ### Page 1.2: Sample Approvals & Fit Tracker (`/design/sample-approvals`)
-- **Page Function**: Manages the pre-production sample lifecycle (Proto &rarr; Fit &rarr; PPS &rarr; Size Set &rarr; TOP).
+- **Page Function**: Technical fit verification, ASTM tolerance comparison, and golden sample buyer sign-off.
 - **Action / What to Click**:
-  1. Click **`+ Book Sample Fit Request`**.
-  2. Select Style: `TP-2026-8801`.
-  3. Sample Stage: Select `PPS (Pre-Production Sample)`.
-  4. Assigned Tailor / Pattern Master: Type `Master K. Ramanathan`.
-  5. Measurement Delta: Type `0.2 cm`.
-  6. Click **`Register Sample Round`**.
-  7. On the newly created row, click the action button **`Approve Fit & Release to Merchandising`**.
+  1. Click the top-right button **`+ Submit Fit Audit`**.
+  2. In the **Submit sample fit audit** modal:
+     - **Style specification**: Select `TP-2026-8801 - Hoodie`
+     - **Sample stage**: Select `Pre-production sample (PPS)`
+     - **Point 1: Half chest width**: Target is `53.0`, enter Measured sample `53.2`
+     - **Point 2: Body length from HPS**: Target is `72.0`, enter Measured sample `72.1`
+     - Verify green alert: *"Measurements strictly within ASTM ±0.5 cm tolerance."*
+     - **Fit specialist / buyer review comments**: Type `Drape on golden mannequin verified. Armhole pitch and pocket placement cleared.`
+     - **Auditor email**: Keep `buyer.qa@brand.com` (or type your auditor email)
+     - **Approval decision**: Select `Approved (Pass)`
+     - Click **`Save Audit Sign-Off`**.
 - **Expected Result**:
-  - Sample status updates to `APPROVED` with an emerald badge.
-  - Tech-pack `TP-2026-8801` status advances from `DRAFT` &rarr; `PPS_APPROVED`.
+  - A green toast appears: *"Sample fit audit approved and saved to Supabase!"*
+  - The audit record appears in the table with an emerald `APPROVED` badge.
+  - Tech-pack `TP-2026-8801` status advances from `DRAFT` &rarr; `PPS_APPROVED`, qualifying it for Merchandising and Cutting.
 
 ---
 

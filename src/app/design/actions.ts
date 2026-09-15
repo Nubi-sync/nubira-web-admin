@@ -524,7 +524,7 @@ export async function createSampleApprovalAction(payload: {
 // 3. GRADING MATRIX
 // -----------------------------------------------------------------------------
 
-export async function fetchGradingSchemesAction(companyName?: string): Promise<GradingScheme[]> {
+export async function fetchGradingSchemesAction(_companyName?: string): Promise<GradingScheme[]> {
   try {
     const { data: techPacks, error } = await supabaseAdmin
       .from('design_tech_packs')
@@ -559,9 +559,7 @@ export async function fetchGradingSchemesAction(companyName?: string): Promise<G
 
     if (!techPacks || techPacks.length === 0) return []
 
-    const filteredTechPacks = techPacks
-
-    return filteredTechPacks.map((tp: any) => {
+    return techPacks.map((tp: any) => {
       const pomsList: PointOfMeasure[] = (tp.design_poms || [])
         .sort((a: any, b: any) => (a.sort_order || 0) - (b.sort_order || 0))
         .map((p: any) => {
@@ -583,8 +581,8 @@ export async function fetchGradingSchemesAction(companyName?: string): Promise<G
             pom_code: p.pom_code,
             pom_name: p.pom_name,
             tolerance_cm: Number(p.tolerance_cm) || 0.5,
-            grade_step_cm: gradeStep || 2.5,
-            base_value_cm: baseVal || 50.0,
+            grade_step_cm: gradeStep || 2.0,
+            base_value_cm: baseVal || (p.tolerance_cm ? 50.0 : 50.0),
             sizes: sizesMap
           }
         })
@@ -612,6 +610,103 @@ export async function fetchGradingSchemesAction(companyName?: string): Promise<G
   } catch (err) {
     console.error('[fetchGradingSchemesAction] Unexpected error:', err)
     return []
+  }
+}
+
+export async function createPomAction(payload: {
+  tech_pack_id: string
+  pom_code: string
+  pom_name: string
+  tolerance_cm: number
+  grade_step_cm: number
+  base_value_cm: number
+  base_size: string
+  sizes: string[]
+}): Promise<{ success: boolean; data?: PointOfMeasure; error?: string }> {
+  try {
+    const pomCode = payload.pom_code.trim().toUpperCase().replace(/[^A-Z0-9_]/g, '_')
+    const tolerance = Number(payload.tolerance_cm) || 0.5
+    const baseVal = Number(payload.base_value_cm) || 50.0
+    const stepVal = Number(payload.grade_step_cm) || 2.0
+    const baseSize = payload.base_size || 'M'
+
+    // 1. Insert/upsert into design_poms
+    const { data: pom, error: pomError } = await supabaseAdmin
+      .from('design_poms')
+      .upsert({
+        tech_pack_id: payload.tech_pack_id,
+        pom_code: pomCode,
+        pom_name: payload.pom_name.trim(),
+        tolerance_cm: tolerance,
+        sort_order: Date.now() % 10000
+      }, { onConflict: 'tech_pack_id,pom_code' })
+      .select('id, pom_code, pom_name, tolerance_cm')
+      .single()
+
+    if (pomError || !pom) {
+      console.error('[createPomAction] POM Error:', pomError)
+      return { success: false, error: pomError?.message || 'Failed to create point of measure in Supabase.' }
+    }
+
+    // 2. Generate and insert sizes into design_measurement_values
+    const baseIdx = payload.sizes.indexOf(baseSize)
+    const sizesMap: Record<string, number> = {}
+    const measRows = payload.sizes.map((sz, idx) => {
+      const offset = idx - (baseIdx >= 0 ? baseIdx : 0)
+      const val = Number((baseVal + offset * stepVal).toFixed(2))
+      sizesMap[sz] = val
+      return {
+        pom_id: pom.id,
+        size_label: sz,
+        value_cm: val,
+        grade_step_cm: stepVal,
+        is_base_size: sz === baseSize
+      }
+    })
+
+    try {
+      await supabaseAdmin.from('design_measurement_values').delete().eq('pom_id', pom.id)
+      await supabaseAdmin.from('design_measurement_values').insert(measRows)
+    } catch (measErr) {
+      console.warn('[createPomAction] Measurement values insert note:', measErr)
+    }
+
+    revalidatePath('/design/grading-matrix')
+    revalidatePath('/design')
+
+    const newPom: PointOfMeasure = {
+      pom_code: pom.pom_code,
+      pom_name: pom.pom_name,
+      tolerance_cm: Number(pom.tolerance_cm) || tolerance,
+      grade_step_cm: stepVal,
+      base_value_cm: baseVal,
+      sizes: sizesMap
+    }
+
+    return { success: true, data: newPom }
+  } catch (err: any) {
+    console.error('[createPomAction] Unexpected error:', err)
+    return { success: false, error: err?.message || 'Failed to create POM.' }
+  }
+}
+
+export async function deletePomAction(techPackId: string, pomCode: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const { error } = await supabaseAdmin
+      .from('design_poms')
+      .delete()
+      .eq('tech_pack_id', techPackId)
+      .eq('pom_code', pomCode)
+
+    if (error) {
+      return { success: false, error: error.message }
+    }
+
+    revalidatePath('/design/grading-matrix')
+    revalidatePath('/design')
+    return { success: true }
+  } catch (err: any) {
+    return { success: false, error: err?.message || 'Failed to delete POM.' }
   }
 }
 
