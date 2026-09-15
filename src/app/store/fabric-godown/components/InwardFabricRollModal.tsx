@@ -1,9 +1,7 @@
-'use client'
-
 import React, { useState, useEffect, useMemo } from 'react'
-import { X, Layers, ShieldCheck, CheckCircle2, AlertTriangle, Plus, Sparkles } from 'lucide-react'
+import { X, Layers, ShieldCheck, CheckCircle2, AlertTriangle, Plus, Sparkles, Zap } from 'lucide-react'
 import { FabricRoll, FabricShadeGroup, FabricInspectionStatus } from '../../types/store'
-import { saveFabricRoll, calculate4PointScore } from '../../utils/storeStorage'
+import { saveFabricRoll, batchSaveFabricRolls, calculate4PointScore } from '../../utils/storeStorage'
 import { getOrders, getSourcingRequisitions } from '@/app/merchandising/utils/merchandisingStorage'
 
 interface InwardFabricRollModalProps {
@@ -123,13 +121,63 @@ export function InwardFabricRollModal({ isOpen, onClose, onSuccess }: InwardFabr
 
   if (!isOpen) return null
 
+  const handleInwardAllDeliveryRolls = (e?: React.MouseEvent) => {
+    if (e) e.preventDefault()
+    setIsSubmitting(true)
+    try {
+      const rollsToBatch: FabricRoll[] = activeColors.map((c, idx) => {
+        const bcode = `ROL-2026-${9901 + idx}`
+        const rack = idx === 0 ? 'Bin A-04' : `Bin B-0${2 + idx}`
+        const p1 = idx === 0 ? 1 : 0
+        const p2 = 1
+        const totalP = p1 * 1 + p2 * 2
+        const yards = 450 * 1.09361
+        const { pointsPer100SqYd: score, verdict: v } = calculate4PointScore(totalP, yards, 60)
+
+        return {
+          id: `roll-${bcode.toLowerCase()}`,
+          rollBarcode: bcode,
+          supplierName: activeVendor || 'Vardhman demo mills',
+          fabricType: activeMaterial || '100% Combed Cotton French Terry (380 GSM)',
+          colorShade: c.name,
+          shadeGroup: c.shade,
+          grossWeightKg: 250,
+          netMeterage: 450,
+          measuredGsm: 380,
+          targetGsm: 380,
+          measuredWidthInches: 60,
+          targetWidthInches: 60,
+          penaltyPointsTotal: totalP,
+          pointsPer100SqYd: score,
+          inspectionStatus: v,
+          inspectorId: 'emp-qa-101',
+          inspectorName: inspectorName || 'QA Fabric Auditor',
+          inspectedAt: new Date().toISOString(),
+          godownRackLocation: rack,
+          isIssuedToCutting: false,
+          allocatedOrderId: activePo || 'PO-2026-9901',
+          defectBreakdown: { points1: p1, points2: p2, points3: 0, points4: 0 },
+          notes: `Delivery batch inwarded - Color: ${c.name}`
+        }
+      })
+
+      batchSaveFabricRolls(rollsToBatch)
+      if (onSuccess) onSuccess()
+      onClose()
+    } catch (err) {
+      console.error('Failed to batch inward delivery rolls:', err)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
 
     try {
       const newRoll: FabricRoll = {
-        id: `roll-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+        id: `roll-${rollBarcode.trim().toLowerCase()}`,
         rollBarcode: rollBarcode.trim() || `ROL-${Date.now().toString().slice(-6)}`,
         supplierName: supplierName.trim() || activeVendor || 'Mill Supplier',
         fabricType: fabricType.trim() || activeMaterial || 'Knitted French Terry',
@@ -455,22 +503,36 @@ export function InwardFabricRollModal({ isOpen, onClose, onSuccess }: InwardFabr
           </div>
 
           {/* Modal Actions */}
-          <div className="flex items-center justify-end gap-3 pt-2 border-t border-black/10">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 text-xs font-mono font-bold text-slate-600 hover:text-slate-900 bg-[#FAF7F0] hover:bg-[#F2ECE1] rounded-xl border border-black/10 transition-colors cursor-pointer"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="px-4 py-2 text-xs font-mono font-bold text-white bg-[#3A3564] hover:bg-[#2c284e] rounded-xl shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
-            >
-              <CheckCircle2 className="w-4 h-4" />
-              <span>Accept Roll into {godownRackLocation || 'Godown'}</span>
-            </button>
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-3 border-t border-black/10">
+            {activeColors.length > 1 && (
+              <button
+                type="button"
+                onClick={handleInwardAllDeliveryRolls}
+                disabled={isSubmitting}
+                className="px-3.5 py-2 text-xs font-mono font-bold text-[#3A3564] bg-[#FAF7F0] hover:bg-[#F2ECE1] rounded-xl border border-black/10 shadow-2xs transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+              >
+                <Zap className="w-4 h-4 text-[#3A3564]" />
+                <span>Inward All Delivery Rolls ({activeColors.map(c => c.name).join(' + ')})</span>
+              </button>
+            )}
+
+            <div className="flex items-center justify-end gap-2.5">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2 text-xs font-mono font-bold text-slate-600 hover:text-slate-900 bg-[#FAF7F0] hover:bg-[#F2ECE1] rounded-xl border border-black/10 transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="px-4 py-2 text-xs font-mono font-bold text-white bg-[#3A3564] hover:bg-[#2c284e] rounded-xl shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+              >
+                <CheckCircle2 className="w-4 h-4" />
+                <span>Accept Current Roll into {godownRackLocation || 'Godown'}</span>
+              </button>
+            </div>
           </div>
         </form>
       </div>

@@ -237,6 +237,18 @@ export function adjustTrimsStock(
   return updatedItem
 }
 
+export function deleteTrimsItem(itemId: string): TrimsInventoryItem[] {
+  const current = getTrimsInventory()
+  const updated = current.filter(t => t.id !== itemId)
+  try {
+    localStorage.setItem(STORAGE_KEYS.TRIMS, JSON.stringify(updated))
+    broadcastUpdate()
+  } catch (e) {
+    console.error('Failed to delete trims item:', e)
+  }
+  return updated
+}
+
 // ----------------------------------------------------------------------------
 // 3. TRUCK INWARD GATE & WEIGHBRIDGE GRN
 // ----------------------------------------------------------------------------

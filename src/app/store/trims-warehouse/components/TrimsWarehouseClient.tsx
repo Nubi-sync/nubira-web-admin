@@ -13,11 +13,13 @@ import {
   Clock, 
   Boxes, 
   RotateCw, 
-  ArrowRight 
+  ArrowRight,
+  Trash2
 } from 'lucide-react'
 import { TrimsInventoryItem, TrimCategory } from '../../types/store'
-import { getTrimsInventory, STORE_UPDATE_EVENT } from '../../utils/storeStorage'
+import { getTrimsInventory, deleteTrimsItem, STORE_UPDATE_EVENT } from '../../utils/storeStorage'
 import { AdjustTrimStockModal } from './AdjustTrimStockModal'
+import { ReceiveTrimsPackageModal } from './ReceiveTrimsPackageModal'
 import { EmptyState } from '@/components/ui/EmptyState'
 
 export function TrimsWarehouseClient() {
@@ -26,9 +28,17 @@ export function TrimsWarehouseClient() {
   const [categoryFilter, setCategoryFilter] = useState<'ALL' | TrimCategory | 'LOW_STOCK'>('ALL')
   const [selectedItem, setSelectedItem] = useState<TrimsInventoryItem | null>(null)
   const [isAdjustModalOpen, setIsAdjustModalOpen] = useState(false)
+  const [isReceiveModalOpen, setIsReceiveModalOpen] = useState(false)
 
   const loadTrims = () => {
     setTrims(getTrimsInventory())
+  }
+
+  const handleDeleteTrim = (itemId: string, itemName: string) => {
+    if (confirm(`Remove "${itemName}" from warehouse inventory?`)) {
+      deleteTrimsItem(itemId)
+      loadTrims()
+    }
   }
 
   useEffect(() => {
@@ -80,7 +90,7 @@ export function TrimsWarehouseClient() {
           <span>Store Dashboard</span>
         </Link>
         <span className="text-[11px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-          Trims & Accessories Bin-Location Warehouse • ROL Alerts
+          Trims &amp; Accessories Bin-Location Warehouse • ROL Alerts
         </span>
       </div>
 
@@ -93,7 +103,7 @@ export function TrimsWarehouseClient() {
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
               <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
-                Trims & Accessories Warehouse
+                Trims &amp; Accessories Warehouse
               </h1>
               <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 tracking-wider">
                 Bin Inventory Matrix
@@ -105,13 +115,24 @@ export function TrimsWarehouseClient() {
           </div>
         </div>
 
-        <Link
-          href="/store/material-issues"
-          className="px-4 py-2.5 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2c284e] transition-all shadow-2xs inline-flex items-center gap-2 shrink-0 cursor-pointer"
-        >
-          <ArrowRight className="w-4 h-4" />
-          <span>Issue Trims to Sewing Floor</span>
-        </Link>
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <button
+            type="button"
+            onClick={() => setIsReceiveModalOpen(true)}
+            className="px-4 py-2.5 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2c284e] transition-all shadow-2xs inline-flex items-center gap-1.5 shrink-0 cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />
+            <span>+ Receive Trims Package</span>
+          </button>
+
+          <Link
+            href="/store/material-issues"
+            className="px-4 py-2.5 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 text-xs font-bold hover:bg-[#F2ECE1] transition-all shadow-2xs inline-flex items-center gap-2 shrink-0 cursor-pointer"
+          >
+            <span>Issue Trims to Sewing Floor</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
       </div>
 
       {/* 4 Metric KPI Cards - Unified Icon & Neutral Typography */}
@@ -244,12 +265,14 @@ export function TrimsWarehouseClient() {
                       variant="seamless"
                       icon={Tag}
                       title="No Trims or Accessories Found"
-                      description="No trim items match your search filter criteria. You can clear filters or adjust bin stock."
-                      actionLabel="Reset Filters"
-                      onAction={() => {
+                      description="No trim items found in warehouse stock. Inward trims batches from suppliers for your production orders."
+                      actionLabel="+ Receive Trims Package"
+                      onAction={() => setIsReceiveModalOpen(true)}
+                      secondaryActionLabel={searchQuery || categoryFilter !== 'ALL' ? "Reset Filters" : undefined}
+                      onSecondaryAction={searchQuery || categoryFilter !== 'ALL' ? () => {
                         setSearchQuery('')
                         setCategoryFilter('ALL')
-                      }}
+                      } : undefined}
                     />
                   </td>
                 </tr>
@@ -319,12 +342,21 @@ export function TrimsWarehouseClient() {
                       </td>
 
                       <td className="py-3 px-4 text-right">
-                        <button
-                          onClick={() => openAdjustModal(item)}
-                          className="px-3 py-1.5 rounded-xl bg-[#FAF7F0] border border-black/10 hover:bg-[#3A3564] hover:text-white text-xs font-mono font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
-                        >
-                          Adjust / Inward
-                        </button>
+                        <div className="flex items-center justify-end gap-1.5">
+                          <button
+                            onClick={() => openAdjustModal(item)}
+                            className="px-3 py-1.5 rounded-xl bg-[#FAF7F0] border border-black/10 hover:bg-[#3A3564] hover:text-white text-xs font-mono font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
+                          >
+                            Adjust / Inward
+                          </button>
+                          <button
+                            onClick={() => handleDeleteTrim(item.id, item.itemName)}
+                            title="Delete Trim"
+                            className="p-1.5 rounded-xl bg-[#FAF7F0] border border-black/10 hover:bg-rose-50 hover:text-rose-600 text-slate-400 transition-colors shadow-2xs cursor-pointer"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   )
@@ -335,7 +367,13 @@ export function TrimsWarehouseClient() {
         </div>
       </div>
 
-      {/* Modal */}
+      {/* Modals */}
+      <ReceiveTrimsPackageModal
+        isOpen={isReceiveModalOpen}
+        onClose={() => setIsReceiveModalOpen(false)}
+        onSuccess={loadTrims}
+      />
+
       <AdjustTrimStockModal
         isOpen={isAdjustModalOpen}
         onClose={() => setIsAdjustModalOpen(false)}
