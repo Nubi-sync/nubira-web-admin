@@ -597,27 +597,27 @@ export default function SubscriptionsAndExpiryPage() {
 
       {/* Unified "View Details & Subscription Management" Modal */}
       {isManageModalOpen && selectedTenant && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200 overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/60 backdrop-blur-xs animate-in fade-in duration-200 overflow-y-auto">
           <div
-            className="bg-white rounded-2xl max-w-xl w-full p-6 sm:p-7 shadow-2xl border border-black/10 my-auto animate-in zoom-in-95 duration-200 space-y-5"
+            className="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-7 shadow-2xl border border-black/10 my-auto animate-in zoom-in-95 duration-200 space-y-5"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
             <div className="flex items-center justify-between pb-4 border-b border-slate-100">
               <div className="flex items-center gap-3.5">
-                <div className="w-12 h-12 rounded-2xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-xs">
+                <div className="w-12 h-12 rounded-2xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
                   <Building2 className="w-6 h-6" />
                 </div>
                 <div>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight font-[family-name:var(--font-heading)]">
+                  <div className="flex items-center gap-2.5 flex-wrap">
+                    <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight font-[family-name:var(--font-heading)]">
                       {selectedTenant.companyName}
                     </h3>
-                    <span className="text-xs font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15">
-                      {selectedTenant.accessType === 'DEMO_TRIAL' ? '7-Day Trial' : 'Active Plan'}
+                    <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs">
+                      {selectedTenant.accessType === 'DEMO_TRIAL' ? '7-Day Demo Trial' : 'Active Plan'}
                     </span>
                   </div>
-                  <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+                  <p className="text-xs sm:text-sm text-slate-500 mt-1 font-medium">
                     Subscription management, validity extension, and billing controls
                   </p>
                 </div>
@@ -625,7 +625,7 @@ export default function SubscriptionsAndExpiryPage() {
               <button
                 type="button"
                 onClick={() => setIsManageModalOpen(false)}
-                className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
+                className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -634,42 +634,46 @@ export default function SubscriptionsAndExpiryPage() {
             {/* Section 1: Tenant Information Overview */}
             <div className="p-4 sm:p-5 rounded-2xl bg-[#FAF7F0] border border-black/10 grid grid-cols-2 gap-4 text-xs">
               <div>
-                <span className="text-[10px] font-mono uppercase text-slate-500 font-bold tracking-wider block">Super Admin</span>
-                <span className="font-bold text-slate-900 mt-1 block text-sm">{selectedTenant.adminName || 'Admin'}</span>
-                <span className="text-slate-600 font-mono text-xs">{selectedTenant.adminEmail}</span>
+                <span className="text-[10px] sm:text-[11px] font-mono uppercase text-slate-500 font-bold tracking-wider block">Super Admin</span>
+                <span className="font-bold text-slate-900 mt-1 block text-sm">{selectedTenant.adminName || 'Enterprise SuperAdmin'}</span>
+                <span className="text-slate-600 font-mono text-xs mt-0.5 block">{selectedTenant.adminEmail}</span>
               </div>
               <div>
-                <span className="text-[10px] font-mono uppercase text-slate-500 font-bold tracking-wider block">Current Model</span>
-                <span className="font-bold text-slate-900 mt-1 block text-sm">
+                <span className="text-[10px] sm:text-[11px] font-mono uppercase text-slate-500 font-bold tracking-wider block">Current Model</span>
+                <span className="font-bold text-[#3A3564] mt-1 block text-sm">
                   {selectedTenant.accessType === 'DEMO_TRIAL' ? '7-Day Demo Trial' : 'Full Enterprise Plan'}
                 </span>
-                <span className="text-slate-600 text-xs font-medium">
+                <span className="text-slate-600 text-xs font-semibold mt-0.5 block font-mono">
                   ₹{(selectedTenant.monthlyBillingInr || 4999).toLocaleString('en-IN')}/month
                 </span>
               </div>
               <div>
-                <span className="text-[10px] font-mono uppercase text-slate-500 font-bold tracking-wider block">Issue / Start Date</span>
+                <span className="text-[10px] sm:text-[11px] font-mono uppercase text-slate-500 font-bold tracking-wider block">Issue / Start Date</span>
                 <span className="font-bold text-slate-900 mt-1 block font-mono text-xs sm:text-sm">
-                  {selectedTenant.provisionedAt ? new Date(selectedTenant.provisionedAt).toLocaleDateString('en-IN') : '15-Sep-2026'}
+                  {selectedTenant.provisionedAt
+                    ? new Date(selectedTenant.provisionedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'numeric', year: 'numeric' })
+                    : '15/9/2026'}
                 </span>
               </div>
               <div>
-                <span className="text-[10px] font-mono uppercase text-slate-500 font-bold tracking-wider block">Expiry Date</span>
+                <span className="text-[10px] sm:text-[11px] font-mono uppercase text-slate-500 font-bold tracking-wider block">Expiry Date</span>
                 <span className={`font-bold mt-1 block font-mono text-xs sm:text-sm ${isTenantExpired(selectedTenant) ? 'text-rose-600' : 'text-slate-900'}`}>
-                  {selectedTenant.expiresAt ? new Date(selectedTenant.expiresAt).toLocaleDateString('en-IN') : 'Continuous'}
+                  {selectedTenant.expiresAt
+                    ? new Date(selectedTenant.expiresAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'numeric', year: 'numeric' })
+                    : 'Continuous'}
                 </span>
               </div>
             </div>
 
             {/* Section 2: Send Reminder Notice */}
-            <div className="p-4 rounded-xl bg-white border border-slate-200/80 flex items-center justify-between gap-3 shadow-2xs">
+            <div className="p-4 rounded-2xl bg-white border border-slate-200/80 flex items-center justify-between gap-3 shadow-2xs">
               <div>
                 <span className="text-xs font-bold text-slate-900 block">Dispatch Expiry Notice Email</span>
-                <p className="text-[11px] text-slate-500 mt-0.5">
+                <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">
                   Sends an automated notification from noreply@zigza.in directing them to their Company Profile.
                 </p>
                 {selectedTenant.lastPaymentReminderAt && (
-                  <span className="text-[10px] text-slate-400 block mt-1">
+                  <span className="text-[10px] text-slate-400 block mt-1 font-mono">
                     Last sent: {new Date(selectedTenant.lastPaymentReminderAt).toLocaleString('en-IN')}
                   </span>
                 )}
@@ -686,7 +690,7 @@ export default function SubscriptionsAndExpiryPage() {
             </div>
 
             {/* Section 3: Quick Validity Extension */}
-            <div className="p-4 sm:p-4.5 rounded-xl bg-slate-50/80 border border-slate-200/80 space-y-3">
+            <div className="p-4 sm:p-4.5 rounded-2xl bg-slate-50/80 border border-slate-200/80 space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-700">
                   Quick Validity Extension
@@ -700,7 +704,7 @@ export default function SubscriptionsAndExpiryPage() {
                     type="button"
                     onClick={() => handleQuickExtend(selectedTenant.id, d)}
                     disabled={isPending}
-                    className="py-2.5 rounded-xl text-xs font-bold bg-white hover:bg-slate-100 text-slate-800 border border-slate-200 transition-colors shadow-2xs cursor-pointer text-center"
+                    className="py-2.5 rounded-xl text-xs font-bold bg-white hover:bg-[#FAF7F0] hover:border-[#3A3564]/30 hover:text-[#3A3564] text-slate-800 border border-slate-200 transition-all shadow-2xs cursor-pointer text-center active:scale-95"
                   >
                     +{d} Days
                   </button>
@@ -723,7 +727,7 @@ export default function SubscriptionsAndExpiryPage() {
                   <select
                     value={upgradeTier}
                     onChange={(e) => setUpgradeTier(e.target.value as SubscriptionPlanTier)}
-                    className="w-full p-2.5 text-xs font-medium rounded-xl border border-slate-200 bg-white text-slate-900 outline-none focus:border-[#3A3564]"
+                    className="w-full p-2.5 text-xs font-medium rounded-xl border border-slate-200 bg-white text-slate-900 outline-none focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 shadow-2xs"
                   >
                     <option value="FULL_PLANT_AI">Full Plant AI (₹4,999/mo)</option>
                     <option value="MODULAR">Modular Plan (₹1,999/mo)</option>
@@ -735,7 +739,7 @@ export default function SubscriptionsAndExpiryPage() {
                   <select
                     value={upgradeDurationMonths}
                     onChange={(e) => setUpgradeDurationMonths(Number(e.target.value))}
-                    className="w-full p-2.5 text-xs font-medium rounded-xl border border-slate-200 bg-white text-slate-900 outline-none focus:border-[#3A3564]"
+                    className="w-full p-2.5 text-xs font-medium rounded-xl border border-slate-200 bg-white text-slate-900 outline-none focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 shadow-2xs"
                   >
                     <option value={1}>1 Month</option>
                     <option value={3}>3 Months</option>
@@ -749,14 +753,14 @@ export default function SubscriptionsAndExpiryPage() {
                 type="button"
                 onClick={handleConfirmUpgrade}
                 disabled={isPending}
-                className="w-full py-2.5 rounded-xl bg-[#3A3564] text-white text-xs sm:text-sm font-bold hover:bg-[#2A2649] transition-all cursor-pointer shadow-xs"
+                className="w-full py-2.5 sm:py-3 rounded-xl bg-[#3A3564] text-white text-xs sm:text-sm font-bold hover:bg-[#2A2649] transition-all cursor-pointer shadow-xs active:scale-[0.99]"
               >
                 Mark Paid & Activate Full Access
               </button>
             </div>
 
             {/* Section 5: Suspend / Reactivate Account */}
-            <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+            <div className="flex items-center justify-between pt-3 border-t border-slate-100">
               <span className="text-xs text-slate-500 font-medium">
                 {selectedTenant.status === 'SUSPENDED'
                   ? 'Account is currently suspended and locked.'
