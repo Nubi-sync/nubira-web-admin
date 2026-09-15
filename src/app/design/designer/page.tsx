@@ -19,13 +19,13 @@ export default async function DesignerPage() {
   }
 
   const tenant = await resolveUserTenant(user)
-  const isLegacy = isLegacyNubiraTenant(tenant)
-  const companyName = isLegacy ? 'Nubira Creation' : (tenant.companyName || 'Nubira Creation')
+  const companyName = tenant.companyName || 'Nubira Creation'
 
-  // Fetch only briefs for this designer (filtered by email / tenant)
+  // Fetch only briefs for this designer (filtered by user id, phone, or email)
   const initialBriefs = await fetchDesignBriefsAction({
     companyName,
-    designerEmail: user.email || undefined
+    designerEmail: user.email || undefined,
+    designerUserId: user.id
   })
 
   return (
@@ -33,6 +33,9 @@ export default async function DesignerPage() {
       <div className="p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6 max-w-7xl w-full mx-auto select-none">
         <DesignerDashboardClient
           initialBriefs={initialBriefs}
+          designerName={tenant.adminDisplayName}
+          designerPhone={tenant.phone}
+          designerUsername={tenant.customUsername}
           designerEmail={user.email || 'designer@brand.com'}
           companyName={companyName}
           currentUserId={user.id}

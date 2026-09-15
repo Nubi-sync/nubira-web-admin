@@ -132,6 +132,11 @@ export function getUserAllowedModules(
     return explicitModules
   }
 
+  // 3.5. Creative Designer check
+  if (role === 'DESIGNER' || email.includes('@designer.') || email.endsWith('@designer.nubira.local')) {
+    return ['/design/designer']
+  }
+
   // 4. Role-based module mapping for operational floor staff
   if (ROLE_MODULE_MAPPING[role]) {
     return ROLE_MODULE_MAPPING[role]

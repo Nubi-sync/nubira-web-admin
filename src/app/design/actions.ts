@@ -683,6 +683,7 @@ export async function fetchDesignBriefsAction(filters?: {
   phUserId?: string
   designerMemberId?: string
   designerEmail?: string
+  designerUserId?: string
   status?: string
 }): Promise<DesignBrief[]> {
   try {
@@ -691,7 +692,7 @@ export async function fetchDesignBriefsAction(filters?: {
       .select('*, design_team_members(*), design_submissions(*)')
       .order('created_at', { ascending: false })
 
-    if (filters?.companyName) {
+    if (filters?.companyName && !filters?.designerEmail && !filters?.designerUserId) {
       query = query.eq('company_name', filters.companyName)
     }
     if (filters?.phUserId) {
@@ -712,10 +713,19 @@ export async function fetchDesignBriefsAction(filters?: {
     }
 
     let filteredData = data || []
-    if (filters?.designerEmail) {
-      filteredData = filteredData.filter((row: any) => 
-        row.design_team_members?.designer_email?.toLowerCase() === filters.designerEmail?.toLowerCase()
-      )
+    if (filters?.designerEmail || filters?.designerUserId) {
+      const emailLower = filters.designerEmail?.toLowerCase()
+      const rawDigits = emailLower ? emailLower.split('@')[0].replace(/\D/g, '') : ''
+      const phone10 = rawDigits.length >= 10 ? rawDigits.slice(-10) : rawDigits
+
+      filteredData = filteredData.filter((row: any) => {
+        const m = row.design_team_members
+        if (!m) return false
+        if (filters.designerUserId && (m.designer_user_id === filters.designerUserId || m.id === filters.designerUserId)) return true
+        if (emailLower && m.designer_email?.toLowerCase() === emailLower) return true
+        if (phone10 && (m.phone_number === phone10 || m.designer_phone === phone10)) return true
+        return false
+      })
     }
 
     return filteredData.map((row: any) => {

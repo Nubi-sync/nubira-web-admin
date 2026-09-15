@@ -24,6 +24,9 @@ import { EmptyState } from '@/components/ui/EmptyState'
 
 interface DesignerDashboardClientProps {
   initialBriefs: DesignBrief[]
+  designerName?: string
+  designerPhone?: string
+  designerUsername?: string
   designerEmail: string
   companyName: string
   currentUserId: string
@@ -42,6 +45,9 @@ const STATUS_CONFIG: Record<BriefStatus, { label: string; badgeClass: string; de
 
 export function DesignerDashboardClient({
   initialBriefs,
+  designerName,
+  designerPhone,
+  designerUsername,
   designerEmail,
   companyName,
   currentUserId,
@@ -124,8 +130,11 @@ export function DesignerDashboardClient({
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="px-3 py-1.5 rounded-xl bg-[#FAF7F0] border border-black/10 text-xs font-bold text-[#3A3564] font-mono">
-            {designerEmail}
+          <span className="px-3.5 py-1.5 rounded-xl bg-[#FAF7F0] border border-black/10 text-xs font-bold text-[#3A3564] font-mono flex items-center gap-2">
+            <span>🎨</span>
+            <span>{designerName || 'Designer'}</span>
+            <span className="opacity-40">|</span>
+            <span>+91 {designerPhone || (designerEmail.includes('@') ? designerEmail.split('@')[0] : designerEmail)}</span>
           </span>
         </div>
       </div>

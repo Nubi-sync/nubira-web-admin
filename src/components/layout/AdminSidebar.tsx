@@ -138,16 +138,39 @@ export function AdminSidebar({
     userRole?.toUpperCase() === 'PLATFORM_SUPERADMIN'
   )
 
+  const isDesignerUser = (
+    userRole?.toUpperCase() === 'DESIGNER' ||
+    userEmail?.toLowerCase().includes('@designer.') ||
+    userEmail?.toLowerCase().endsWith('@designer.nubira.local')
+  )
+
   const roleLabel = isAdmin 
     ? 'Super Admin' 
-    : (userRole && userRole.toUpperCase() !== 'ADMIN'
-        ? userRole.split('/')[0].trim().replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
-        : (isStoreUser ? 'Store Supervisor' : 'Department Head'))
+    : (isDesignerUser
+        ? 'Creative Designer'
+        : (userRole && userRole.toUpperCase() !== 'ADMIN'
+            ? userRole.split('/')[0].trim().replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+            : (isStoreUser ? 'Store Supervisor' : 'Department Head')))
 
   // Module-specific unique side navigation
   let activeNavSections: NavSection[] = []
 
-  if (isStoreUser && !pathname?.startsWith('/modules')) {
+  if (isDesignerUser) {
+    activeNavSections = [
+      {
+        section: 'Designer Studio',
+        items: [
+          { label: 'My Design Briefs', href: '/design/designer', icon: Palette },
+        ],
+      },
+      {
+        section: 'Account',
+        items: [
+          { label: 'Profile', href: '/design/profile', icon: User },
+        ],
+      },
+    ]
+  } else if (isStoreUser && !pathname?.startsWith('/modules')) {
     activeNavSections = [
       ...(isAdmin ? [
         {
@@ -727,9 +750,11 @@ export function AdminSidebar({
 
   const homeHref = isAdmin 
     ? '/modules' 
-    : (isStoreUser 
-        ? '/stitching-sewing/store' 
-        : (activeNavSections[0]?.items[0]?.href || '/stitching-sewing/dashboard'))
+    : (isDesignerUser
+        ? '/design/designer'
+        : (isStoreUser 
+            ? '/stitching-sewing/store' 
+            : (activeNavSections[0]?.items[0]?.href || '/stitching-sewing/dashboard')))
 
   return (
     <>

@@ -78,6 +78,49 @@ export async function resolveUserTenant(user: {
     }
   }
 
+  // 1.5. Check design_team_members for creative designers
+  try {
+    const rawDigits = userEmail.split('@')[0].replace(/\D/g, '')
+    const phone10 = rawDigits.length >= 10 ? rawDigits.slice(-10) : rawDigits
+
+    let memberQuery = supabaseAdmin
+      .from('design_team_members')
+      .select('*')
+
+    if (phone10.length === 10) {
+      memberQuery = memberQuery.or(`designer_user_id.eq.${user.id},designer_email.eq.${userEmail},phone_number.eq.${phone10},designer_phone.eq.${phone10}`)
+    } else {
+      memberQuery = memberQuery.or(`designer_user_id.eq.${user.id},designer_email.eq.${userEmail}`)
+    }
+
+    const { data: matchedMember } = await memberQuery.limit(1).maybeSingle()
+
+    if (matchedMember) {
+      const company = matchedMember.company_name || 'Nubira Creation'
+      return {
+        userId: user.id,
+        userEmail,
+        role: 'DESIGNER',
+        isSuperAdmin: false,
+        isPlatformAdmin: false,
+        companyName: company,
+        adminDisplayName: matchedMember.designer_name || 'Creative Designer',
+        customUsername: matchedMember.username || `${matchedMember.designer_name.toLowerCase().replace(/\s+/g, '_')}_nubira`,
+        phone: matchedMember.phone_number || matchedMember.designer_phone || '',
+        cityState: 'India',
+        subscriptionTier: 'ENTERPRISE_PLAN',
+        allowedDivisions: ['/design/designer'],
+        isProvisionedTenant: true,
+        accessType: 'FULL_ACCESS',
+        isExpired: false,
+        tenantStatus: matchedMember.status || 'ACTIVE',
+        provisionedAt: matchedMember.created_at || '2026-09-15T00:00:00.000Z'
+      }
+    }
+  } catch (designerErr) {
+    console.error('[resolveUserTenant] Error resolving design team member:', designerErr)
+  }
+
   // 2. Check platform_tenant_factories for provisioned client factory accounts
   try {
     let tenant: any = null
