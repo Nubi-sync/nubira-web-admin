@@ -1,13 +1,4 @@
-export type GarmentCategory = 
-  | 'Hoodie'
-  | 'T-Shirt'
-  | 'Polo'
-  | 'Jogger'
-  | 'Jacket'
-  | 'Kids Romper'
-  | 'Suit'
-  | 'Pant'
-  | 'Ethnic'
+export type GarmentCategory = string
 
 export type SizeSystem = 
   | 'ALPHA_ADULT' 
@@ -144,7 +135,7 @@ export interface DesignTeamMember {
   active_briefs_count?: number
 }
 
-export type BriefCategory = 'Formal' | 'Informal' | 'Casual' | 'Ethnic' | 'Sportswear' | 'Kids'
+export type BriefCategory = string
 
 export type BriefStatus = 
   | 'ALLOCATED'
@@ -161,9 +152,15 @@ export interface DesignBrief {
   designer_member_id?: string
   designer_name?: string
   designer_email?: string
+  designer_phone?: string
   garment_type: string
-  category: BriefCategory | string
+  category: string
   max_colors: number
+  chart_colors?: number
+  target_colors?: string[]
+  target_designs?: number
+  num_designs?: number
+  submissions_count?: number
   instructions?: string
   status: BriefStatus
   company_name: string

@@ -57,6 +57,9 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [loginMode, setLoginMode] = useState<'PHONE' | 'EMAIL'>('PHONE')
   const [phoneInput, setPhoneInput] = useState('')
+  const [emailInput, setEmailInput] = useState('')
+  const [password, setPassword] = useState('')
+  const [rememberMe, setRememberMe] = useState(true)
 
   // 3-Step Forgot Password Modal States
   const [showForgotModal, setShowForgotModal] = useState(false)
@@ -298,33 +301,37 @@ export default function LoginPage() {
                 </div>
 
                 {loginMode === 'PHONE' ? (
-                  <div className="flex items-center rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-white focus-within:bg-white focus-within:border-[#3A3564] focus-within:ring-2 focus-within:ring-[#3A3564]/10 shadow-2xs overflow-hidden transition-all">
+                  <div key="phone-mode-wrapper" className="flex items-center rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-white focus-within:bg-white focus-within:border-[#3A3564] focus-within:ring-2 focus-within:ring-[#3A3564]/10 shadow-2xs overflow-hidden transition-all">
                     <div className="px-3.5 py-2.5 sm:py-3 bg-[#FAF7F0] border-r border-slate-200 text-xs font-mono font-bold text-[#3A3564] select-none flex items-center gap-1.5 shrink-0">
-                      <span>🇮🇳</span>
+                      <IndiaFlag className="w-4 h-3 rounded-xs shrink-0" />
                       <span>+91</span>
                     </div>
                     <input
+                      key="phone-mode-input"
                       id="phone"
                       name="email"
                       type="tel"
                       required
                       maxLength={10}
-                      value={phoneInput}
+                      value={phoneInput ?? ''}
                       onChange={e => setPhoneInput(e.target.value.replace(/\D/g, ''))}
                       placeholder="8010993993"
                       className="w-full px-3.5 py-2.5 sm:py-3 bg-transparent text-sm font-semibold font-mono text-slate-900 placeholder:text-slate-400 focus:outline-none"
                     />
                   </div>
                 ) : (
-                  <div className="relative group">
+                  <div key="email-mode-wrapper" className="relative group">
                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-[#3A3564] transition-colors">
                       <Mail className="w-4 h-4" />
                     </div>
                     <input
+                      key="email-mode-input"
                       id="email"
                       name="email"
                       type="text"
                       required
+                      value={emailInput ?? ''}
+                      onChange={e => setEmailInput(e.target.value)}
                       placeholder="e.g. rahul_nubira or admin@zigza.in"
                       className="w-full pl-10 pr-4 py-2.5 sm:py-3 rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-white focus:bg-white text-sm font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 shadow-2xs transition-all"
                     />
@@ -349,6 +356,8 @@ export default function LoginPage() {
                     name="password"
                     type={showPassword ? 'text' : 'password'}
                     required
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
                     placeholder="Enter your password"
                     className="w-full pl-10 pr-11 py-2.5 sm:py-3 rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-white focus:bg-white text-sm font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 shadow-2xs transition-all"
                   />
@@ -370,7 +379,8 @@ export default function LoginPage() {
                     type="checkbox" 
                     id="remember" 
                     name="remember"
-                    defaultChecked
+                    checked={rememberMe}
+                    onChange={e => setRememberMe(e.target.checked)}
                     className="w-4 h-4 rounded border-slate-300 text-[#3A3564] accent-[#3A3564] cursor-pointer"
                   />
                   <span className="text-xs sm:text-[13px] text-slate-600 font-medium">
@@ -607,7 +617,7 @@ export default function LoginPage() {
             <Link href="/security" className="hover:text-slate-900 transition-colors">Security</Link>
           </div>
 
-          <p>© {new Date().getFullYear()} Zigza MES. All rights reserved.</p>
+          <p suppressHydrationWarning>© {new Date().getFullYear()} Zigza MES. All rights reserved.</p>
         </div>
       </footer>
 

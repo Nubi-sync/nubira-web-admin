@@ -627,10 +627,28 @@ export async function createDesignBriefAction(payload: {
   garment_type: string
   category: string
   max_colors: number
+  chart_colors?: number
+  target_colors?: string[]
+  target_designs?: number
+  num_designs?: number
   instructions?: string
   company_name: string
 }): Promise<{ success: boolean; data?: DesignBrief; error?: string }> {
   try {
+    const targetCount = Number(payload.target_designs || payload.num_designs) || 1
+    const colorCount = Number(payload.chart_colors || payload.max_colors) || 3
+
+    let rawInstructions = payload.instructions?.trim() || ''
+    if (payload.target_colors && payload.target_colors.length > 0) {
+      const colorsTag = `[COLORS: ${payload.target_colors.join(', ')}]`
+      if (!rawInstructions.includes('[COLORS:')) {
+        rawInstructions = `${colorsTag} ${rawInstructions}`.trim()
+      }
+    }
+    if (targetCount > 1 && !rawInstructions.includes('[TARGET:')) {
+      rawInstructions = `[TARGET: ${targetCount} Designs] ${rawInstructions}`.trim()
+    }
+
     const { data, error } = await supabaseAdmin
       .from('design_briefs')
       .insert({
@@ -638,8 +656,8 @@ export async function createDesignBriefAction(payload: {
         designer_member_id: payload.designer_member_id || null,
         garment_type: payload.garment_type.trim(),
         category: payload.category.trim(),
-        max_colors: Number(payload.max_colors) || 3,
-        instructions: payload.instructions?.trim() || null,
+        max_colors: colorCount,
+        instructions: rawInstructions || null,
         status: 'ALLOCATED',
         company_name: payload.company_name
       })
@@ -655,16 +673,27 @@ export async function createDesignBriefAction(payload: {
     revalidatePath('/design/briefs')
     revalidatePath('/design/designer')
 
+    const cleanInst = data.instructions
+      ?.replace(/\[TARGET:\s*\d+\s*(?:Designs)?\]\s*/gi, '')
+      ?.replace(/\[COLORS:\s*[^\]]+\]\s*/gi, '')
+      ?.trim() || undefined
+
     const created: DesignBrief = {
       id: data.id,
       ph_user_id: data.ph_user_id,
       designer_member_id: data.designer_member_id || undefined,
       designer_name: data.design_team_members?.designer_name || undefined,
       designer_email: data.design_team_members?.designer_email || undefined,
+      designer_phone: data.design_team_members?.phone_number || data.design_team_members?.designer_phone || undefined,
       garment_type: data.garment_type,
       category: data.category,
       max_colors: data.max_colors,
-      instructions: data.instructions || undefined,
+      chart_colors: data.max_colors,
+      target_colors: payload.target_colors && payload.target_colors.length > 0 ? payload.target_colors : undefined,
+      target_designs: targetCount,
+      num_designs: targetCount,
+      submissions_count: 0,
+      instructions: cleanInst,
       status: data.status,
       company_name: data.company_name,
       created_at: data.created_at,
@@ -734,16 +763,49 @@ export async function fetchDesignBriefsAction(filters?: {
       subs.sort((a, b) => new Date(b.submitted_at).getTime() - new Date(a.submitted_at).getTime())
       const latestSub = subs[0]
 
+      // Extract target designs quota from metadata or instructions
+      let targetDesigns = 1
+      if (row.num_designs) {
+        targetDesigns = Number(row.num_designs) || 1
+      } else if (row.instructions) {
+        const match = row.instructions.match(/\[TARGET:\s*(\d+)\s*(?:Designs)?\]/i)
+        if (match && match[1]) {
+          targetDesigns = parseInt(match[1], 10) || 1
+        }
+      }
+
+      // Extract target colors list from metadata
+      let targetColors: string[] | undefined
+      if (row.instructions) {
+        const colMatch = row.instructions.match(/\[COLORS:\s*([^\]]+)\]/i)
+        if (colMatch && colMatch[1]) {
+          targetColors = colMatch[1].split(',').map((s: string) => s.trim()).filter(Boolean)
+        }
+      }
+
+      const cleanInstructions = row.instructions
+        ? row.instructions
+            .replace(/\[TARGET:\s*\d+\s*(?:Designs)?\]\s*/gi, '')
+            .replace(/\[COLORS:\s*[^\]]+\]\s*/gi, '')
+            .trim() || undefined
+        : undefined
+
       return {
         id: row.id,
         ph_user_id: row.ph_user_id,
         designer_member_id: row.designer_member_id || undefined,
         designer_name: row.design_team_members?.designer_name || undefined,
         designer_email: row.design_team_members?.designer_email || undefined,
+        designer_phone: row.design_team_members?.phone_number || row.design_team_members?.designer_phone || undefined,
         garment_type: row.garment_type,
         category: row.category,
         max_colors: row.max_colors,
-        instructions: row.instructions || undefined,
+        chart_colors: row.max_colors,
+        target_colors: targetColors,
+        target_designs: targetDesigns,
+        num_designs: targetDesigns,
+        submissions_count: subs.length,
+        instructions: cleanInstructions,
         status: row.status as BriefStatus,
         company_name: row.company_name,
         created_at: row.created_at,

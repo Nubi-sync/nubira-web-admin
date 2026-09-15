@@ -15,7 +15,8 @@ import {
   Loader2, 
   Image as ImageIcon,
   ShieldCheck,
-  Bookmark
+  Bookmark,
+  Target
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { DesignBrief, DesignSubmission, BriefStatus } from '../../types/design'
@@ -131,7 +132,7 @@ export function DesignerDashboardClient({
 
         <div className="flex items-center gap-2">
           <span className="px-3.5 py-1.5 rounded-xl bg-[#FAF7F0] border border-black/10 text-xs font-bold text-[#3A3564] font-mono flex items-center gap-2">
-            <span>🎨</span>
+            <Palette className="w-3.5 h-3.5 text-[#3A3564]" />
             <span>{designerName || 'Designer'}</span>
             <span className="opacity-40">|</span>
             <span>+91 {designerPhone || (designerEmail.includes('@') ? designerEmail.split('@')[0] : designerEmail)}</span>
@@ -212,15 +213,35 @@ export function DesignerDashboardClient({
                         <span className="font-bold text-slate-900 text-base font-[family-name:var(--font-heading)] block">
                           {brief.garment_type}
                         </span>
-                        <span className="text-xs text-slate-500 font-medium">
-                          {brief.category} Style &bull; {brief.max_colors} Max Colors
-                        </span>
+                        <div className="text-xs text-slate-500 font-medium flex flex-wrap items-center gap-1.5 mt-0.5">
+                          <span>{brief.category} Style</span>
+                          <span>&bull;</span>
+                          <span className="inline-flex items-center gap-0.5 text-[#3A3564] font-bold font-mono">
+                            <Target className="w-3 h-3" />
+                            {brief.target_designs || 1} Designs
+                          </span>
+                          <span>&bull;</span>
+                          <span className="inline-flex items-center gap-0.5 font-mono">
+                            <Palette className="w-3 h-3 text-slate-400" />
+                            {brief.max_colors} Colors
+                          </span>
+                        </div>
                       </div>
 
-                      <span className={`text-[11px] px-2 py-0.5 rounded-md border font-semibold ${stCfg.badgeClass}`}>
+                      <span className={`text-[11px] px-2 py-0.5 rounded-md border font-semibold shrink-0 ${stCfg.badgeClass}`}>
                         {stCfg.label}
                       </span>
                     </div>
+
+                    {brief.target_colors && brief.target_colors.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-2">
+                        {brief.target_colors.map((c, i) => (
+                          <span key={i} className="text-[10px] px-2 py-0.5 rounded-md bg-white border border-black/10 font-mono text-[#3A3564] font-semibold">
+                            {c}
+                          </span>
+                        ))}
+                      </div>
+                    )}
 
                     {brief.instructions && (
                       <p className="text-xs text-slate-600 mt-2 line-clamp-2 italic">
@@ -260,18 +281,48 @@ export function DesignerDashboardClient({
                 </div>
               </div>
 
-              {/* Brief Guidelines */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                <div className="bg-slate-50 p-3 rounded-xl border border-black/5">
-                  <span className="text-slate-500 font-semibold block">Max Colorways Allowed:</span>
-                  <span className="text-slate-900 font-mono font-bold text-sm mt-0.5 block">{activeBrief.max_colors} Colors</span>
+              {/* Brief Guidelines & Target Quota */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                <div className="bg-[#FAF7F0] p-3 rounded-xl border border-black/10">
+                  <span className="text-slate-500 font-semibold block flex items-center gap-1">
+                    <Target className="w-3.5 h-3.5 text-[#3A3564]" /> Target Output:
+                  </span>
+                  <span className="text-[#3A3564] font-mono font-bold text-sm mt-0.5 block">
+                    {activeBrief.target_designs || 1} Designs Required
+                  </span>
                 </div>
 
                 <div className="bg-slate-50 p-3 rounded-xl border border-black/5">
-                  <span className="text-slate-500 font-semibold block">Garment Category:</span>
+                  <span className="text-slate-500 font-semibold block flex items-center gap-1">
+                    <Palette className="w-3.5 h-3.5 text-slate-400" /> Chart / Colorways:
+                  </span>
+                  <span className="text-slate-900 font-mono font-bold text-sm mt-0.5 block">
+                    {activeBrief.max_colors} Colors Chart
+                  </span>
+                </div>
+
+                <div className="bg-slate-50 p-3 rounded-xl border border-black/5">
+                  <span className="text-slate-500 font-semibold block">Collection Style:</span>
                   <span className="text-slate-900 font-bold text-sm mt-0.5 block">{activeBrief.category}</span>
                 </div>
               </div>
+
+              {/* Target Color Palette Chips */}
+              {activeBrief.target_colors && activeBrief.target_colors.length > 0 && (
+                <div className="p-3.5 rounded-xl bg-slate-50 border border-black/5 text-xs space-y-1.5">
+                  <span className="font-bold text-slate-800 flex items-center gap-1.5">
+                    <Palette className="w-3.5 h-3.5 text-[#3A3564]" />
+                    Target Colorway Palette ({activeBrief.target_colors.length} Colors):
+                  </span>
+                  <div className="flex flex-wrap gap-1.5 pt-0.5">
+                    {activeBrief.target_colors.map((col, i) => (
+                      <span key={i} className="px-2.5 py-1 rounded-lg bg-white border border-black/10 font-mono text-xs font-bold text-[#3A3564] shadow-2xs">
+                        {col}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {activeBrief.instructions && (
                 <div className="text-xs space-y-1">
