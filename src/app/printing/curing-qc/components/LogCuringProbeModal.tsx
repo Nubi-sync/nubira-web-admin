@@ -1,9 +1,10 @@
 'use client'
 
-import React, { useState } from 'react'
-import { X, CheckCircle2, AlertCircle, Flame, Thermometer } from 'lucide-react'
+import React, { useState, useEffect } from 'react'
+import { X, CheckCircle2, AlertCircle, Flame, Thermometer, Sparkles } from 'lucide-react'
 import { CuringOvenLog } from '../../types/printing'
 import { saveCuringLog } from '../../utils/printingStorage'
+import { getOrders } from '@/app/merchandising/utils/merchandisingStorage'
 
 interface LogCuringProbeModalProps {
   isOpen: boolean
@@ -12,16 +13,40 @@ interface LogCuringProbeModalProps {
 }
 
 export function LogCuringProbeModal({ isOpen, onClose, onSuccess }: LogCuringProbeModalProps) {
-  const [ovenId, setOvenId] = useState('Tunnel Oven 01')
-  const [targetTemp, setTargetTemp] = useState('160')
-  const [probeTemp, setProbeTemp] = useState('160.0')
-  const [conveyorSpeed, setConveyorSpeed] = useState('2.5')
-  const [dwellTime, setDwellTime] = useState('2.5')
-  const [poNumber, setPoNumber] = useState('')
+  const [availablePos, setAvailablePos] = useState<any[]>([])
+  const [ovenId, setOvenId] = useState('Continuous Tunnel Oven #1 (Gas Infrared)')
+  const [targetTemp, setTargetTemp] = useState('160.0')
+  const [probeTemp, setProbeTemp] = useState('162.5')
+  const [conveyorSpeed, setConveyorSpeed] = useState('2.4')
+  const [dwellTime, setDwellTime] = useState('2.0')
+  const [poNumber, setPoNumber] = useState('PO-2026-9901')
   const [washCycles, setWashCycles] = useState('50')
   const [fastnessRating, setFastnessRating] = useState('5.0')
-  const [auditorName, setAuditorName] = useState('Print Auditor')
+  const [auditorName, setAuditorName] = useState('Senior Thermal QC Lead')
   const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const orders = getOrders()
+      setAvailablePos(orders)
+      const activePo = orders.find(p => p.po_number === 'PO-2026-9901') || orders[0]
+      if (activePo) {
+        setPoNumber(activePo.po_number)
+      }
+    }
+  }, [isOpen])
+
+  const applyPreset54 = () => {
+    setOvenId('Continuous Tunnel Oven #1 (Gas Infrared)')
+    setTargetTemp('160.0')
+    setProbeTemp('162.5')
+    setConveyorSpeed('2.4')
+    setDwellTime('2.0')
+    setPoNumber('PO-2026-9901')
+    setWashCycles('50')
+    setFastnessRating('5.0')
+    setAuditorName('Senior Thermal QC Lead')
+  }
 
   if (!isOpen) return null
 
@@ -43,11 +68,11 @@ export function LogCuringProbeModal({ isOpen, onClose, onSuccess }: LogCuringPro
       oven_id: ovenId,
       target_temp_c: tTemp,
       probe_temp_c: pTemp,
-      conveyor_speed_mpm: parseFloat(conveyorSpeed) || 2.8,
-      dwell_time_minutes: parseFloat(dwellTime) || 2.5,
+      conveyor_speed_mpm: parseFloat(conveyorSpeed) || 2.4,
+      dwell_time_minutes: parseFloat(dwellTime) || 2.0,
       po_number: poNumber.trim(),
       wash_test_cycles: parseInt(washCycles, 10) || 50,
-      fastness_rating: parseFloat(fastnessRating) || 4.5,
+      fastness_rating: parseFloat(fastnessRating) || 5.0,
       auditor_name: auditorName.trim(),
       status: status,
       logged_at: new Date().toISOString()
@@ -82,6 +107,23 @@ export function LogCuringProbeModal({ isOpen, onClose, onSuccess }: LogCuringPro
           </button>
         </div>
 
+        {/* Step 5.4 Quick Fill Preset */}
+        <div className="px-5 pt-4">
+          <div className="bg-[#FAF7F0] p-3 rounded-xl border border-black/10 flex items-center justify-between">
+            <span className="text-xs font-mono font-bold text-slate-700 flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-[#3A3564]" />
+              Step 5.4 Oven Preset:
+            </span>
+            <button
+              type="button"
+              onClick={applyPreset54}
+              className="px-2.5 py-1 text-xs font-mono font-bold bg-white text-[#3A3564] border border-black/10 rounded-lg hover:bg-[#3A3564] hover:text-white transition-all shadow-2xs cursor-pointer"
+            >
+              Tunnel #01 (160°C / 162.5°C • 2.4 m/min • 5.0 Rating)
+            </button>
+          </div>
+        </div>
+
         {/* Modal Body */}
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
           {error && (
@@ -100,9 +142,9 @@ export function LogCuringProbeModal({ isOpen, onClose, onSuccess }: LogCuringPro
               onChange={e => setOvenId(e.target.value)}
               className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/10 focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900"
             >
-              <option value="Continuous Tunnel Oven #1 (Gas Infrared)">Continuous Tunnel Oven #1 (Gas Infrared)</option>
-              <option value="Tunnel Oven #2 (Electric High-Airflow)">Tunnel Oven #2 (Electric High-Airflow)</option>
-              <option value="Batch Curing Chamber #3 (Specialty Foil & Puff)">Batch Curing Chamber #3 (Specialty Foil & Puff)</option>
+              <option value="Continuous Tunnel Oven #1 (Gas Infrared)">Tunnel Dryer Oven #01 (Continuous Gas Infrared)</option>
+              <option value="Tunnel Oven #2 (Electric High-Airflow)">Tunnel Dryer Oven #02 (Electric High-Airflow)</option>
+              <option value="Batch Curing Chamber #3 (Specialty Foil & Puff)">Batch Curing Chamber #03 (Specialty Foil & Puff)</option>
             </select>
           </div>
 
@@ -168,12 +210,20 @@ export function LogCuringProbeModal({ isOpen, onClose, onSuccess }: LogCuringPro
               <label className="block text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 mb-1.5">
                 Linked Buyer PO
               </label>
-              <input
-                type="text"
+              <select
                 value={poNumber}
                 onChange={e => setPoNumber(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/10 focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900 font-mono"
-              />
+                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/10 focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900 font-mono font-bold"
+              >
+                {availablePos.map(p => (
+                  <option key={p.po_number} value={p.po_number}>
+                    {p.po_number} ({p.brand_name || 'Buyer'})
+                  </option>
+                ))}
+                {availablePos.length === 0 && (
+                  <option value="PO-2026-9901">PO-2026-9901 (ZARA INTERNATIONAL)</option>
+                )}
+              </select>
             </div>
 
             <div>
