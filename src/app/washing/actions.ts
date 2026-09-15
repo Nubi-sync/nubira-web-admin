@@ -44,21 +44,9 @@ export async function fetchWashingDashboardDataAction(companyName?: string): Pro
         .limit(50)
     ])
 
-    const rawBatches = isNonNubira
-      ? (batchesRes.data || []).filter((b: any) => {
-          const brand = (b.order?.brands?.brand_name || '').toUpperCase()
-          return brand.length > 0 && brand.includes(targetComp)
-        })
-      : (batchesRes.data || [])
-
-    const rawRecipes = isNonNubira ? [] : (recipesRes.data || [])
-
-    const rawShrinkage = isNonNubira
-      ? (shrinkageRes.data || []).filter((s: any) => {
-          const brand = (s.batch?.order?.brands?.brand_name || '').toUpperCase()
-          return brand.length > 0 && brand.includes(targetComp)
-        })
-      : (shrinkageRes.data || [])
+    const rawBatches = batchesRes.data || []
+    const rawRecipes = recipesRes.data || []
+    const rawShrinkage = shrinkageRes.data || []
 
     const batches: WashBatch[] = rawBatches.map((b: any) => ({
       id: b.id,

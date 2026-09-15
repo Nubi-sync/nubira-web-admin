@@ -66,15 +66,7 @@ export async function fetchMerchandisingOrdersAction(companyName?: string): Prom
 
     if (!data || data.length === 0) return []
 
-    const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
-    const targetComp = (companyName || '').toUpperCase()
-
-    const filteredData = isNonNubira
-      ? data.filter((row: any) => {
-          const b = (row.brands?.brand_name || '').toUpperCase()
-          return b.length > 0 && b.includes(targetComp)
-        })
-      : data
+    const filteredData = data
 
     return filteredData.map((row: any) => {
       // Group ratios by color_name
@@ -257,9 +249,6 @@ export async function createBuyerOrderAction(payload: {
 
 export async function fetchBomCostingsAction(companyName?: string): Promise<BomCosting[]> {
   try {
-    const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
-    if (isNonNubira) return []
-
     const { data, error } = await supabaseAdmin
       .from('view_merchandising_order_economics')
       .select('*')
@@ -301,9 +290,6 @@ export async function fetchBomCostingsAction(companyName?: string): Promise<BomC
 
 export async function fetchTnaMilestonesAction(companyName?: string): Promise<TnaMilestone[]> {
   try {
-    const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
-    if (isNonNubira) return []
-
     const { data, error } = await supabaseAdmin
       .from('merchandising_tna_milestones')
       .select(`
@@ -375,9 +361,6 @@ export async function updateTnaMilestoneAction(payload: {
 
 export async function fetchSourcingRequisitionsAction(companyName?: string): Promise<SourcingRequisition[]> {
   try {
-    const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
-    if (isNonNubira) return []
-
     const { data, error } = await supabaseAdmin
       .from('merchandising_sourcing_requisitions')
       .select(`
@@ -420,9 +403,6 @@ export async function fetchSourcingRequisitionsAction(companyName?: string): Pro
 
 export async function fetchShipmentsAction(companyName?: string): Promise<ExportShipment[]> {
   try {
-    const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
-    if (isNonNubira) return []
-
     const { data, error } = await supabaseAdmin
       .from('merchandising_shipments')
       .select(`

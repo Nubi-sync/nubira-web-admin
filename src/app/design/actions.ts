@@ -52,15 +52,7 @@ export async function fetchTechPacksAction(companyName?: string): Promise<TechPa
 
     if (!data || data.length === 0) return []
 
-    const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
-    const targetComp = (companyName || '').toUpperCase()
-
-    const filteredData = isNonNubira
-      ? data.filter((row: any) => {
-          const b = (row.brands?.brand_name || '').toUpperCase()
-          return b.length > 0 && b.includes(targetComp)
-        })
-      : data
+    const filteredData = data
 
     return filteredData.map((row: any) => ({
       id: row.id,
@@ -225,15 +217,7 @@ export async function fetchSampleApprovalsAction(companyName?: string): Promise<
 
     if (!data || data.length === 0) return []
 
-    const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
-    const targetComp = (companyName || '').toUpperCase()
-
-    const filteredData = isNonNubira
-      ? data.filter((row: any) => {
-          const b = (row.design_tech_packs?.brands?.brand_name || '').toUpperCase()
-          return b.length > 0 && b.includes(targetComp)
-        })
-      : data
+    const filteredData = data
 
     return filteredData.map((row: any) => ({
       id: row.id,
@@ -351,15 +335,7 @@ export async function fetchGradingSchemesAction(companyName?: string): Promise<G
 
     if (!techPacks || techPacks.length === 0) return []
 
-    const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
-    const targetComp = (companyName || '').toUpperCase()
-
-    const filteredTechPacks = isNonNubira
-      ? techPacks.filter((tp: any) => {
-          const b = (tp.brands?.brand_name || '').toUpperCase()
-          return b.length > 0 && b.includes(targetComp)
-        })
-      : techPacks
+    const filteredTechPacks = techPacks
 
     return filteredTechPacks.map((tp: any) => {
       const pomsList: PointOfMeasure[] = (tp.design_poms || [])
@@ -421,11 +397,6 @@ export async function fetchGradingSchemesAction(companyName?: string): Promise<G
 
 export async function fetchMaterialsLibraryAction(companyName?: string): Promise<MaterialItem[]> {
   try {
-    const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
-    if (isNonNubira) {
-      return []
-    }
-
     const { data, error } = await supabaseAdmin
       .from('design_materials_library')
       .select('*')
@@ -526,15 +497,6 @@ export async function fetchBrandsAction(companyName?: string): Promise<{ id: str
     if (error) {
       console.error('[fetchBrandsAction] DB error:', error)
       return []
-    }
-
-    const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
-    const targetComp = (companyName || '').toUpperCase()
-
-    if (isNonNubira) {
-      const filtered = (data || []).filter((b: any) => (b.brand_name || '').toUpperCase().includes(targetComp))
-      if (filtered.length > 0) return filtered
-      return [{ id: 'inhouse', brand_name: companyName || 'Inhouse', brand_code: 'INHOUSE' }]
     }
 
     return data || []

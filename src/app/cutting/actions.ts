@@ -46,21 +46,13 @@ export async function fetchLaySheetsAction(companyName?: string): Promise<LayShe
       return []
     }
 
-    const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
-    const targetComp = (companyName || '').toUpperCase()
-
-    const filteredSheets = isNonNubira
-      ? (sheets || []).filter((s: any) => {
-          const b = (s.merchandising_orders?.brands?.brand_name || '').toUpperCase()
-          return b.length > 0 && b.includes(targetComp)
-        })
-      : (sheets || [])
+    const filteredSheets = sheets || []
 
     return filteredSheets.map((sheet: any) => ({
       id: sheet.id,
       lay_number: sheet.lay_sheet_number,
       po_number: sheet.merchandising_orders?.order_number || 'PO-PENDING',
-      brand_name: sheet.merchandising_orders?.brands?.brand_name || (isNonNubira ? companyName : 'Primary Factory'),
+      brand_name: sheet.merchandising_orders?.brands?.brand_name || companyName || 'Primary Factory',
       style_ref: sheet.merchandising_orders?.design_tech_packs?.style_number || 'N/A',
       style_name: sheet.merchandising_orders?.design_tech_packs?.category || 'Standard Garment',
       table_number: sheet.cutting_table_id,
@@ -233,15 +225,7 @@ export async function fetchCutBundlesAction(
       return []
     }
 
-    const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
-    const targetComp = (companyName || '').toUpperCase()
-
-    const filteredBundles = isNonNubira
-      ? (bundles || []).filter((b: any) => {
-          const brand = (b.cutting_lay_sheets?.merchandising_orders?.brands?.brand_name || '').toUpperCase()
-          return brand.length > 0 && brand.includes(targetComp)
-        })
-      : (bundles || [])
+    const filteredBundles = bundles || []
 
     return filteredBundles.map((b: any) => ({
       id: b.id,

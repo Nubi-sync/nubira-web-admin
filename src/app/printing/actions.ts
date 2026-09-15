@@ -19,21 +19,6 @@ const supabaseAdmin = createAdminClient(
 // 1. Fetch Executive Printing Floor KPIs
 export async function fetchPrintingDashboardKpisAction(companyName?: string) {
   try {
-    const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
-    if (isNonNubira) {
-      return {
-        totalStrikeOffs: 0,
-        approvedStrikeOffs: 0,
-        strikeOffApprovalRate: 0,
-        activeRuns: 0,
-        completedRuns: 0,
-        totalPanelsPrinted: 0,
-        totalPanelsRejected: 0,
-        rejectionRatePct: 0,
-        optimalOvensCount: 0,
-        thermalAlarmCount: 0
-      }
-    }
 
     const { data: kpiView, error: viewError } = await supabaseAdmin
       .from('view_printing_floor_kpis')
@@ -125,15 +110,7 @@ export async function fetchPrintingRunsAction(filters?: { status?: string }, com
       return []
     }
 
-    const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
-    const targetComp = (companyName || '').toUpperCase()
-
-    const filteredRuns = isNonNubira
-      ? (runs || []).filter((r: any) => {
-          const b = (r.merchandising_orders?.brands?.brand_name || '').toUpperCase()
-          return b.length > 0 && b.includes(targetComp)
-        })
-      : (runs || [])
+    const filteredRuns = runs || []
 
     return filteredRuns.map((r: any) => {
       const totalIssued = (r.printing_bundle_runs || []).reduce((acc: number, b: any) => acc + (b.received_pieces || 0), 0)
@@ -169,11 +146,8 @@ export async function fetchPrintingRunsAction(filters?: { status?: string }, com
   }
 }
 
-// 3. Fetch Strike-Offs
 export async function fetchStrikeOffsAction(filters?: { status?: string }, companyName?: string) {
   try {
-    const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
-    if (isNonNubira) return []
 
     let query = supabaseAdmin
       .from('printing_strike_offs')
@@ -224,8 +198,6 @@ export async function fetchStrikeOffsAction(filters?: { status?: string }, compa
 // 4. Fetch Curing Oven Logs
 export async function fetchCuringLogsAction(companyName?: string) {
   try {
-    const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
-    if (isNonNubira) return []
 
     const { data: logs, error } = await supabaseAdmin
       .from('printing_curing_oven_logs')
