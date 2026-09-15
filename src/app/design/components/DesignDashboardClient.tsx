@@ -16,11 +16,17 @@ import {
   Filter, 
   CheckCircle2, 
   AlertCircle,
-  Scissors
+  Scissors,
+  Pencil,
+  Trash2,
+  Loader2
 } from 'lucide-react'
+import { toast } from 'sonner'
 import { TechPack, TechPackStatus, SampleApproval, GradingScheme, MaterialItem } from '../types/design'
 import { getStoredTechPacks } from '../utils/designStorage'
 import { CreateTechPackModal } from '../tech-packs/components/CreateTechPackModal'
+import { EditTechPackModal } from '../tech-packs/components/EditTechPackModal'
+import { deleteTechPackAction } from '../actions'
 import { EmptyState } from '@/components/ui/EmptyState'
 
 const STATUS_CONFIG: Record<string, { label: string; badgeClass: string }> = {
@@ -52,6 +58,8 @@ export function DesignDashboardClient({
   const [statusFilter, setStatusFilter] = useState<string>('ALL')
   const [searchQuery, setSearchQuery] = useState('')
   const [isCreateOpen, setIsCreateOpen] = useState(false)
+  const [editingPack, setEditingPack] = useState<TechPack | null>(null)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
 
   function loadData() {
     const stored = getStoredTechPacks()
@@ -76,6 +84,26 @@ export function DesignDashboardClient({
     window.addEventListener('zigza_tech_packs_updated', handler)
     return () => window.removeEventListener('zigza_tech_packs_updated', handler)
   }, [initialTechPacks])
+
+  async function handleDelete(tp: TechPack) {
+    if (!window.confirm(`Are you sure you want to delete Tech-Pack "${tp.style_number}" (${tp.style_name})? This will remove all associated sampling audits and records.`)) {
+      return
+    }
+    setDeletingId(tp.id)
+    try {
+      const res = await deleteTechPackAction(tp.id)
+      if (res.success) {
+        toast.success(`Tech-Pack ${tp.style_number} deleted successfully`)
+        setTechPacks(prev => prev.filter(p => p.id !== tp.id))
+      } else {
+        toast.error(res.error || 'Failed to delete Tech-Pack')
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'An error occurred during deletion')
+    } finally {
+      setDeletingId(null)
+    }
+  }
 
   const approvedCount = techPacks.filter(p => p.status === 'APPROVED_BULK' || (p.status as string) === 'PPS_APPROVED').length
   const pendingCount = techPacks.filter(p => p.status === 'PPS_SUBMITTED' || p.status === 'SAMPLE_DEV').length
@@ -344,13 +372,36 @@ export function DesignDashboardClient({
                         {pack.target_cut_date}
                       </td>
                       <td className="py-3.5 px-4 text-right">
-                        <Link
-                          href="/design/sample-approvals"
-                          className="inline-flex items-center gap-1 text-xs font-semibold text-[#3A3564] hover:underline"
-                        >
-                          <span>Audit</span>
-                          <ArrowRight className="w-3 h-3" />
-                        </Link>
+                        <div className="flex items-center justify-end gap-1.5">
+                          <button
+                            onClick={() => setEditingPack(pack)}
+                            className="inline-flex items-center gap-1 text-xs font-semibold text-slate-700 hover:text-[#3A3564] p-1.5 rounded-lg hover:bg-[#FAF7F0] border border-black/5 hover:border-black/15 transition-all cursor-pointer shadow-2xs"
+                            title="Edit Tech-Pack"
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                            <span className="hidden md:inline">Edit</span>
+                          </button>
+                          <button
+                            onClick={() => handleDelete(pack)}
+                            disabled={deletingId === pack.id}
+                            className="inline-flex items-center gap-1 text-xs font-semibold text-rose-600 hover:text-rose-700 p-1.5 rounded-lg hover:bg-rose-50 border border-black/5 hover:border-rose-200 transition-all cursor-pointer disabled:opacity-50 shadow-2xs"
+                            title="Delete Tech-Pack"
+                          >
+                            {deletingId === pack.id ? (
+                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            ) : (
+                              <Trash2 className="w-3.5 h-3.5" />
+                            )}
+                            <span className="hidden md:inline">Delete</span>
+                          </button>
+                          <Link
+                            href="/design/sample-approvals"
+                            className="inline-flex items-center gap-1 text-xs font-semibold text-[#3A3564] hover:underline p-1.5 ml-0.5"
+                          >
+                            <span>Audit</span>
+                            <ArrowRight className="w-3 h-3" />
+                          </Link>
+                        </div>
                       </td>
                     </tr>
                   )
@@ -402,6 +453,16 @@ export function DesignDashboardClient({
         isOpen={isCreateOpen}
         onClose={() => setIsCreateOpen(false)}
         onCreated={loadData}
+      />
+
+      {/* Edit Tech-Pack Modal */}
+      <EditTechPackModal
+        isOpen={!!editingPack}
+        onClose={() => setEditingPack(null)}
+        techPack={editingPack}
+        onUpdated={(updatedTp) => {
+          setTechPacks(prev => prev.map(p => p.id === updatedTp.id ? updatedTp : p))
+        }}
       />
 
     </div>

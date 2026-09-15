@@ -199,6 +199,131 @@ export async function createTechPackAction(payload: {
   }
 }
 
+export async function updateTechPackAction(
+  id: string,
+  payload: {
+    style_number?: string
+    brand_name?: string
+    category?: string
+    size_system?: SizeSystem
+    base_size?: string
+    fabric_composition?: string
+    target_gsm?: number
+    embellishment_sequence?: EmbellishmentSequence
+    spi?: number
+    seam_class?: SeamClass
+    status?: TechPackStatus
+  }
+): Promise<{ success: boolean; data?: TechPack; error?: string }> {
+  try {
+    let brandId: string | undefined
+    if (payload.brand_name) {
+      const brandToFind = payload.brand_name.trim()
+      const { data: existingBrand } = await supabaseAdmin
+        .from('brands')
+        .select('id')
+        .ilike('brand_name', brandToFind)
+        .maybeSingle()
+
+      if (existingBrand) {
+        brandId = existingBrand.id
+      } else {
+        const { data: newBrand } = await supabaseAdmin
+          .from('brands')
+          .insert({
+            brand_name: brandToFind,
+            brand_code: brandToFind.replace(/[^a-zA-Z0-9]/g, '').substring(0, 8).toUpperCase() || 'BRAND'
+          })
+          .select('id')
+          .single()
+        if (newBrand) brandId = newBrand.id
+      }
+    }
+
+    const updates: Record<string, any> = {
+      updated_at: new Date().toISOString()
+    }
+    if (payload.style_number) updates.style_number = payload.style_number.trim()
+    if (brandId) updates.brand_id = brandId
+    if (payload.category) updates.category = payload.category.toUpperCase().replace(/\s+/g, '_').replace(/-/g, '')
+    if (payload.size_system) updates.size_system = payload.size_system
+    if (payload.base_size) updates.base_size = payload.base_size
+    if (payload.fabric_composition) updates.fabric_composition = payload.fabric_composition.trim()
+    if (payload.target_gsm !== undefined) updates.target_gsm = Number(payload.target_gsm)
+    if (payload.embellishment_sequence) updates.embellishment_sequence = payload.embellishment_sequence
+    if (payload.spi !== undefined) updates.spi = Number(payload.spi)
+    if (payload.seam_class) updates.seam_class = payload.seam_class
+    if (payload.status) updates.status = payload.status
+
+    const { data, error } = await supabaseAdmin
+      .from('design_tech_packs')
+      .update(updates)
+      .eq('id', id)
+      .select('*, brands(*)')
+      .single()
+
+    if (error) {
+      console.error('[updateTechPackAction] DB Error:', error)
+      return { success: false, error: error.message }
+    }
+
+    revalidatePath('/design')
+    revalidatePath('/design/tech-packs')
+
+    const updatedPack: TechPack = {
+      id: data.id,
+      style_number: data.style_number,
+      style_name: `${data.category} Style ${data.style_number}`,
+      brand_name: data.brands?.brand_name || payload.brand_name || 'Inhouse',
+      category: mapCategoryToUI(data.category),
+      size_system: data.size_system as SizeSystem,
+      base_size: data.base_size,
+      fabric_composition: data.fabric_composition,
+      target_gsm: Number(data.target_gsm),
+      embellishment_sequence: data.embellishment_sequence as EmbellishmentSequence,
+      spi: Number(data.spi),
+      seam_class: data.seam_class as SeamClass,
+      status: data.status as TechPackStatus,
+      target_cut_date: new Date(Date.now() + 14 * 86400000).toISOString().split('T')[0],
+      version: data.version,
+      created_at: data.created_at,
+      updated_at: data.updated_at
+    }
+
+    return { success: true, data: updatedPack }
+  } catch (err: any) {
+    console.error('[updateTechPackAction] Unexpected error:', err)
+    return { success: false, error: err?.message || 'Failed to update tech pack.' }
+  }
+}
+
+export async function deleteTechPackAction(id: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    try {
+      await supabaseAdmin.from('design_sample_audits').delete().eq('tech_pack_id', id)
+      await supabaseAdmin.from('design_poms').delete().eq('tech_pack_id', id)
+    } catch (_) {}
+
+    const { error } = await supabaseAdmin
+      .from('design_tech_packs')
+      .delete()
+      .eq('id', id)
+
+    if (error) {
+      console.error('[deleteTechPackAction] DB Error:', error)
+      return { success: false, error: error.message }
+    }
+
+    revalidatePath('/design')
+    revalidatePath('/design/tech-packs')
+
+    return { success: true }
+  } catch (err: any) {
+    console.error('[deleteTechPackAction] Unexpected error:', err)
+    return { success: false, error: err?.message || 'Failed to delete tech pack.' }
+  }
+}
+
 // -----------------------------------------------------------------------------
 // 2. SAMPLE APPROVALS
 // -----------------------------------------------------------------------------
