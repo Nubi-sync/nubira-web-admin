@@ -18,6 +18,7 @@ import {
 } from 'lucide-react'
 import { getOrders } from '@/app/merchandising/utils/merchandisingStorage'
 import { getMaterialIssues } from '@/app/store/utils/storeStorage'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 export interface CuttingOrder {
   id: string
@@ -114,10 +115,34 @@ export function CuttingOrdersClient({ initialOrders }: CuttingOrdersClientProps 
     }
   }, [initialOrders])
 
+  const activePo = availablePos.find(p => p.po_number === formData.buyer_po) || availablePos[0]
+  const availableColors: { label: string; value: string; qty: number }[] = []
+  if (activePo?.color_matrix && Array.isArray(activePo.color_matrix)) {
+    const allNames = activePo.color_matrix.map((c: any) => c.color).join(' & ')
+    const totalQty = activePo.color_matrix.reduce((acc: number, c: any) => acc + (Number(c.total) || 0), 0) || activePo.total_quantity || 1000
+    availableColors.push({ label: `All Colorways (${allNames} - ${totalQty} pcs)`, value: allNames, qty: totalQty })
+    activePo.color_matrix.forEach((c: any) => {
+      const cQty = Number(c.total) || 500
+      availableColors.push({ label: `${c.color} (${cQty} pcs)`, value: c.color, qty: cQty })
+    })
+  } else {
+    availableColors.push(
+      { label: 'All Colorways (Orange & Green - 1,000 pcs)', value: 'Orange & Green', qty: 1000 },
+      { label: 'Orange (500 pcs)', value: 'Orange', qty: 500 },
+      { label: 'Green (500 pcs)', value: 'Green', qty: 500 }
+    )
+  }
+
   const handleSelectPo = (poNumber: string) => {
     const found = availablePos.find(p => p.po_number === poNumber)
     if (found) {
       const colors = found.color_matrix?.map((c: any) => c.color).join(' & ') || 'Orange & Green'
+      const totalQty = found.total_quantity || 1000
+      const issues = typeof window !== 'undefined' ? getMaterialIssues() : []
+      const relevantIssue = issues.find((i: any) => i.orderId === found.po_number && i.destinationDivision === 'CUTTING_FLOOR')
+      const fabricM = relevantIssue?.quantityIssued || 900
+      const plies = Math.ceil(totalQty / 12) || 84
+
       setFormData(prev => ({
         ...prev,
         buyer_po: found.po_number,
@@ -125,11 +150,28 @@ export function CuttingOrdersClient({ initialOrders }: CuttingOrdersClientProps 
         style_number: found.style_ref || 'TP-2026-8801',
         style_name: `${found.style_ref || 'TP-2026-8801'} (${found.style_name || 'Heavyweight Relaxed French Terry Hoodie'})`,
         colorway: colors,
-        total_pieces: found.total_quantity || 1000
+        total_pieces: totalQty,
+        plies_planned: plies,
+        fabric_meters_allocated: fabricM
       }))
     } else {
       setFormData(prev => ({ ...prev, buyer_po: poNumber }))
     }
+  }
+
+  const handleSelectColorway = (colorVal: string) => {
+    const matchedColor = availableColors.find(c => c.value === colorVal)
+    const qty = matchedColor?.qty || (colorVal.includes('&') ? (activePo?.total_quantity || 1000) : 500)
+    const plies = Math.ceil(qty / 12) || (colorVal.includes('&') ? 84 : 42)
+    const fabricM = Math.round((qty / (activePo?.total_quantity || 1000)) * (formData.fabric_meters_allocated || 900)) || 450
+
+    setFormData(prev => ({
+      ...prev,
+      colorway: colorVal,
+      total_pieces: qty,
+      plies_planned: plies,
+      fabric_meters_allocated: fabricM
+    }))
   }
 
   const applyPreset42 = () => {
@@ -481,23 +523,40 @@ export function CuttingOrdersClient({ initialOrders }: CuttingOrdersClientProps 
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="font-mono font-bold text-slate-700 uppercase">Style Name &amp; Ref</label>
-                  <input
-                    type="text"
-                    required
+                  <select
                     value={formData.style_name}
-                    onChange={e => setFormData({ ...formData, style_name: e.target.value })}
-                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-medium text-slate-900"
-                  />
+                    onChange={e => {
+                      const selectedVal = e.target.value
+                      const ref = selectedVal.split(' ')[0] || 'TP-2026-8801'
+                      setFormData({ ...formData, style_name: selectedVal, style_number: ref })
+                    }}
+                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-bold text-slate-900"
+                  >
+                    {availablePos.map(p => (
+                      <option key={p.style_ref || p.po_number} value={`${p.style_ref || 'TP-2026-8801'} (${p.style_name || 'Heavyweight Relaxed French Terry Hoodie'})`}>
+                        {p.style_ref || 'TP-2026-8801'} - {p.style_name || 'Heavyweight Relaxed French Terry Hoodie'}
+                      </option>
+                    ))}
+                    {availablePos.length === 0 && (
+                      <option value="TP-2026-8801 (Heavyweight Relaxed French Terry Hoodie)">
+                        TP-2026-8801 - Heavyweight Relaxed French Terry Hoodie
+                      </option>
+                    )}
+                  </select>
                 </div>
                 <div>
                   <label className="font-mono font-bold text-slate-700 uppercase">Colorway</label>
-                  <input
-                    type="text"
-                    required
+                  <select
                     value={formData.colorway}
-                    onChange={e => setFormData({ ...formData, colorway: e.target.value })}
-                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-medium text-slate-900"
-                  />
+                    onChange={e => handleSelectColorway(e.target.value)}
+                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-bold text-slate-900"
+                  >
+                    {availableColors.map(c => (
+                      <option key={c.value} value={c.value}>
+                        {c.label}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
 

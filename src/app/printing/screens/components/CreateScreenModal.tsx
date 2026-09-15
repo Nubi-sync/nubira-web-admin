@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { X, Layers, CheckCircle2, AlertCircle } from 'lucide-react'
+import { X, Layers, CheckCircle2, AlertCircle, Sparkles } from 'lucide-react'
 import { PrintingScreen, ScreenMesh, ScreenStatus } from '../../types/printing'
 import { saveScreen } from '../../utils/printingStorage'
 
@@ -21,9 +21,21 @@ export function CreateScreenModal({ isOpen, onClose, onSuccess }: CreateScreenMo
   const [tensionNewtons, setTensionNewtons] = useState('25.0')
   const [emulsionType, setEmulsionType] = useState('Murakami One-Pot SBQ')
   const [frameMaterial, setFrameMaterial] = useState<'ALUMINUM' | 'WOOD'>('ALUMINUM')
-  const [rackLocation, setRackLocation] = useState('Rack S-01 / Bin 01')
+  const [rackLocation, setRackLocation] = useState('Rack S-02 / Bin 01')
   const [status, setStatus] = useState<ScreenStatus>('READY_FOR_PRINT')
   const [error, setError] = useState<string | null>(null)
+
+  const applyPreset52 = () => {
+    setScreenCode('SCR-2026-112')
+    setArtworkRef('ART-HOODIE-CHEST-LOGO (Front Chest Arch Logo)')
+    setColorSeparation('Front Chest Arch Logo Base Screen')
+    setMeshCount(160)
+    setTensionNewtons('24.0')
+    setEmulsionType('Murakami One-Pot SBQ')
+    setFrameMaterial('ALUMINUM')
+    setRackLocation('Rack S-02 / Bin 01')
+    setStatus('READY_FOR_PRINT')
+  }
 
   if (!isOpen) return null
 
@@ -84,6 +96,23 @@ export function CreateScreenModal({ isOpen, onClose, onSuccess }: CreateScreenMo
           >
             <X className="w-4 h-4" />
           </button>
+        </div>
+
+        {/* Step 5.2 Quick Fill Preset */}
+        <div className="px-5 pt-4">
+          <div className="bg-[#FAF7F0] p-3 rounded-xl border border-black/10 flex items-center justify-between">
+            <span className="text-xs font-mono font-bold text-slate-700 flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-[#3A3564]" />
+              Step 5.2 Screen Preset:
+            </span>
+            <button
+              type="button"
+              onClick={applyPreset52}
+              className="px-2.5 py-1 text-xs font-mono font-bold bg-white text-[#3A3564] border border-black/10 rounded-lg hover:bg-[#3A3564] hover:text-white transition-all shadow-2xs cursor-pointer"
+            >
+              SCR-2026-112 (140T / 160T • 24 N/cm)
+            </button>
+          </div>
         </div>
 
         {/* Modal Body */}

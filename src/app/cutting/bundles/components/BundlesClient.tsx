@@ -19,6 +19,7 @@ import {
 import { EmptyState } from '@/components/ui/EmptyState'
 import { CutBundle, BundleStatus, HandoverDestination, LaySheet } from '../../types/cutting'
 import { getCutBundles, saveCutBundle, bulkAddCutBundles, getLaySheets } from '../../utils/cuttingStorage'
+import { getOrders } from '@/app/merchandising/utils/merchandisingStorage'
 
 interface BundlesClientProps {
   initialBundles?: CutBundle[]
@@ -35,14 +36,15 @@ export function BundlesClient({ initialBundles }: BundlesClientProps = {}) {
   const [statusFilter, setStatusFilter] = useState<string>('ALL')
   const [selectedBundle, setSelectedBundle] = useState<CutBundle | null>(null)
   const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false)
+  const [availableColors, setAvailableColors] = useState<string[]>(['Orange', 'Green'])
 
   // Generator form
   const [genLayId, setGenLayId] = useState('')
-  const [genColor, setGenColor] = useState('Jet Black')
+  const [genColor, setGenColor] = useState('Orange')
   const [genSize, setGenSize] = useState('M')
   const [genPiecesPerBundle, setGenPiecesPerBundle] = useState(25)
-  const [genTotalPieces, setGenTotalPieces] = useState(100)
-  const [genDestination, setGenDestination] = useState<HandoverDestination>('06_SEWING')
+  const [genTotalPieces, setGenTotalPieces] = useState(1000)
+  const [genDestination, setGenDestination] = useState<HandoverDestination>('04_PRINTING')
 
   useEffect(() => {
     if (initialBundles && initialBundles.length > 0) {
@@ -57,6 +59,18 @@ export function BundlesClient({ initialBundles }: BundlesClientProps = {}) {
     setLays(loadedLays)
     if (loadedLays.length > 0) {
       setGenLayId(loadedLays[0].id)
+    }
+
+    if (typeof window !== 'undefined') {
+      const orders = getOrders()
+      const activePo = orders.find(p => p.po_number === 'PO-2026-9901') || orders[0]
+      if (activePo?.color_matrix && Array.isArray(activePo.color_matrix)) {
+        const colors = activePo.color_matrix.map((c: any) => c.color)
+        if (colors.length > 0) {
+          setAvailableColors(colors)
+          setGenColor(colors[0])
+        }
+      }
     }
   }, [initialBundles])
 
@@ -148,13 +162,37 @@ export function BundlesClient({ initialBundles }: BundlesClientProps = {}) {
           <span className="text-xs font-mono font-bold text-slate-900">Bundle QR Generation</span>
         </div>
 
-        <button
-          onClick={() => setIsGenerateModalOpen(true)}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2e2a50] text-white text-xs font-bold transition-all shadow-2xs cursor-pointer"
-        >
-          <Plus className="w-3.5 h-3.5" />
-          <span>Batch Generate QR Bundles</span>
-        </button>
+        <div className="flex items-center gap-2 flex-wrap">
+          {bundles.length > 0 && (
+            <button
+              onClick={() => {
+                const updated = bundles.map(b => ({ ...b, status: 'IN_TRANSIT' as BundleStatus }))
+                setBundles(updated)
+                localStorage.setItem('zigza_cutting_bundles_v2', JSON.stringify(updated))
+              }}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold transition-all shadow-2xs cursor-pointer"
+            >
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              <span>Dispatch All 40 to Printing</span>
+            </button>
+          )}
+
+          <button
+            onClick={() => setIsGenerateModalOpen(true)}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2e2a50] text-white text-xs font-bold transition-all shadow-2xs cursor-pointer"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>Batch Generate QR Bundles</span>
+          </button>
+
+          <Link
+            href="/printing"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-800 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs cursor-pointer"
+          >
+            <span>Proceed to Phase 5 (Printing)</span>
+            <ArrowRight className="w-3.5 h-3.5 text-[#3A3564]" />
+          </Link>
+        </div>
       </div>
 
       {/* 2. Header */}
@@ -379,6 +417,28 @@ export function BundlesClient({ initialBundles }: BundlesClientProps = {}) {
               </button>
             </div>
 
+            {/* Step 4.4 Quick Fill Preset */}
+            <div className="bg-[#FAF7F0] p-3 rounded-xl border border-black/10 flex items-center justify-between">
+              <span className="text-xs font-mono font-bold text-slate-700 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-[#3A3564]" />
+                Step 4.4 Bundle Preset:
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  if (lays.length > 0) setGenLayId(lays[0].id)
+                  setGenColor('Orange')
+                  setGenSize('M')
+                  setGenPiecesPerBundle(25)
+                  setGenTotalPieces(1000)
+                  setGenDestination('04_PRINTING')
+                }}
+                className="px-2.5 py-1 text-xs font-mono font-bold bg-white text-[#3A3564] border border-black/10 rounded-lg hover:bg-[#3A3564] hover:text-white transition-all shadow-2xs cursor-pointer"
+              >
+                40 Bundles (1,000 pcs • 04 Printing)
+              </button>
+            </div>
+
             <form onSubmit={handleGenerateBundlesSubmit} className="space-y-4 text-xs">
               <div>
                 <label className="font-mono font-bold text-slate-700 uppercase">Select Cut Lay Run</label>
@@ -392,19 +452,26 @@ export function BundlesClient({ initialBundles }: BundlesClientProps = {}) {
                       {l.lay_number} • {l.style_name} ({l.total_cut_pieces} pcs)
                     </option>
                   ))}
+                  {lays.length === 0 && (
+                    <option value="lay-1">LAY-2026-0842 • Heavyweight French Terry (1,000 pcs)</option>
+                  )}
                 </select>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="font-mono font-bold text-slate-700 uppercase">Garment Colorway</label>
-                  <input
-                    type="text"
-                    required
+                  <select
                     value={genColor}
                     onChange={e => setGenColor(e.target.value)}
-                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10"
-                  />
+                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-bold text-slate-900"
+                  >
+                    {availableColors.map(col => (
+                      <option key={col} value={col}>
+                        {col}
+                      </option>
+                    ))}
+                  </select>
                 </div>
                 <div>
                   <label className="font-mono font-bold text-slate-700 uppercase">Size Designation</label>

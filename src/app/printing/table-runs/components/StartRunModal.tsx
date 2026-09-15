@@ -1,9 +1,10 @@
 'use client'
 
-import React, { useState } from 'react'
-import { X, CheckCircle2, AlertCircle, Plus } from 'lucide-react'
+import React, { useState, useEffect } from 'react'
+import { X, CheckCircle2, AlertCircle, Plus, Sparkles } from 'lucide-react'
 import { PrintingProductionRun, PrintTechnique } from '../../types/printing'
 import { saveProductionRun } from '../../utils/printingStorage'
+import { getOrders } from '@/app/merchandising/utils/merchandisingStorage'
 
 interface StartRunModalProps {
   isOpen: boolean
@@ -13,24 +14,61 @@ interface StartRunModalProps {
 
 const TECHNIQUES: PrintTechnique[] = [
   'PLASTISOL',
+  'HIGH_DENSITY',
   'WATER_BASED',
   'DISCHARGE',
   'DTG',
-  'PUFF',
-  'HIGH_DENSITY'
+  'PUFF'
 ]
 
 export function StartRunModal({ isOpen, onClose, onSuccess }: StartRunModalProps) {
-  const [poNumber, setPoNumber] = useState('')
-  const [styleRef, setStyleRef] = useState('')
-  const [styleName, setStyleName] = useState('')
-  const [tableOrMachine, setTableOrMachine] = useState('Carousel 01 (Auto)')
-  const [operatorName, setOperatorName] = useState('Floor Lead Printer')
+  const [availablePos, setAvailablePos] = useState<any[]>([])
+  const [poNumber, setPoNumber] = useState('PO-2026-9901')
+  const [styleRef, setStyleRef] = useState('TP-2026-8801')
+  const [styleName, setStyleName] = useState('Heavyweight Relaxed French Terry Hoodie')
+  const [tableOrMachine, setTableOrMachine] = useState('Automatic Oval Screen Printing Machine 01')
+  const [operatorName, setOperatorName] = useState('Senior Printer Amitava Roy')
   const [technique, setTechnique] = useState<PrintTechnique>('PLASTISOL')
-  const [pantoneCodes, setPantoneCodes] = useState('')
-  const [totalPanelsIssued, setTotalPanelsIssued] = useState('0')
+  const [pantoneCodes, setPantoneCodes] = useState('Pantone 19-4007 TPX, Pantone 16-0421 TPX')
+  const [totalPanelsIssued, setTotalPanelsIssued] = useState('1000')
   const [curingTemp, setCuringTemp] = useState('160')
   const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const orders = getOrders()
+      setAvailablePos(orders)
+      const activePo = orders.find(p => p.po_number === 'PO-2026-9901') || orders[0]
+      if (activePo) {
+        setPoNumber(activePo.po_number)
+        setStyleRef(activePo.style_ref || 'TP-2026-8801')
+        setStyleName(activePo.style_name || 'Heavyweight Relaxed French Terry Hoodie')
+        setTotalPanelsIssued(String(activePo.total_quantity || 1000))
+      }
+    }
+  }, [isOpen])
+
+  const applyPreset53 = () => {
+    setPoNumber('PO-2026-9901')
+    setStyleRef('TP-2026-8801')
+    setStyleName('Heavyweight Relaxed French Terry Hoodie')
+    setTableOrMachine('Automatic Oval Screen Printing Machine 01')
+    setOperatorName('Senior Printer Amitava Roy')
+    setTechnique('PLASTISOL')
+    setPantoneCodes('Pantone 19-4007 TPX, Pantone 16-0421 TPX')
+    setTotalPanelsIssued('1000')
+    setCuringTemp('160')
+  }
+
+  const handleSelectPo = (selectedPo: string) => {
+    setPoNumber(selectedPo)
+    const found = availablePos.find(p => p.po_number === selectedPo)
+    if (found) {
+      setStyleRef(found.style_ref || 'TP-2026-8801')
+      setStyleName(found.style_name || 'Heavyweight Relaxed French Terry Hoodie')
+      setTotalPanelsIssued(String(found.total_quantity || 1000))
+    }
+  }
 
   if (!isOpen) return null
 
@@ -46,7 +84,7 @@ export function StartRunModal({ isOpen, onClose, onSuccess }: StartRunModalProps
 
     const newRun: PrintingProductionRun = {
       id: `run-${Date.now()}`,
-      run_number: `PRN-2026-${Math.floor(100 + Math.random() * 900)}`,
+      run_number: `PRN-2026-052`,
       po_number: poNumber.trim(),
       style_ref: styleRef.trim(),
       style_name: styleName.trim(),
@@ -89,6 +127,23 @@ export function StartRunModal({ isOpen, onClose, onSuccess }: StartRunModalProps
           </button>
         </div>
 
+        {/* Step 5.3 Quick Fill Preset */}
+        <div className="px-5 pt-4">
+          <div className="bg-[#FAF7F0] p-3 rounded-xl border border-black/10 flex items-center justify-between">
+            <span className="text-xs font-mono font-bold text-slate-700 flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-[#3A3564]" />
+              Step 5.3 Table Run Preset:
+            </span>
+            <button
+              type="button"
+              onClick={applyPreset53}
+              className="px-2.5 py-1 text-xs font-mono font-bold bg-white text-[#3A3564] border border-black/10 rounded-lg hover:bg-[#3A3564] hover:text-white transition-all shadow-2xs cursor-pointer"
+            >
+              PRN-2026-052 (PO-2026-9901 • 1,000 Panels)
+            </button>
+          </div>
+        </div>
+
         {/* Modal Body */}
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
           {error && (
@@ -103,26 +158,46 @@ export function StartRunModal({ isOpen, onClose, onSuccess }: StartRunModalProps
               <label className="block text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 mb-1.5">
                 Buyer PO Number *
               </label>
-              <input
-                type="text"
+              <select
                 value={poNumber}
-                onChange={e => setPoNumber(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/10 focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900 font-mono"
+                onChange={e => handleSelectPo(e.target.value)}
+                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/10 focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900 font-mono font-bold"
                 required
-              />
+              >
+                {availablePos.map(p => (
+                  <option key={p.po_number} value={p.po_number}>
+                    {p.po_number} ({p.brand_name || 'Buyer'})
+                  </option>
+                ))}
+                {availablePos.length === 0 && (
+                  <option value="PO-2026-9901">PO-2026-9901 (ZARA INTERNATIONAL)</option>
+                )}
+              </select>
             </div>
 
             <div>
               <label className="block text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 mb-1.5">
                 Style Reference
               </label>
-              <input
-                type="text"
+              <select
                 value={styleRef}
-                onChange={e => setStyleRef(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/10 focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900 font-mono"
+                onChange={e => {
+                  setStyleRef(e.target.value)
+                  const found = availablePos.find(p => p.style_ref === e.target.value)
+                  if (found) setStyleName(found.style_name || 'Heavyweight Relaxed French Terry Hoodie')
+                }}
+                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/10 focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900 font-mono font-bold"
                 required
-              />
+              >
+                {availablePos.map(p => (
+                  <option key={p.style_ref || p.po_number} value={p.style_ref || 'TP-2026-8801'}>
+                    {p.style_ref || 'TP-2026-8801'} - {p.style_name || 'Hoodie'}
+                  </option>
+                ))}
+                {availablePos.length === 0 && (
+                  <option value="TP-2026-8801">TP-2026-8801 - Heavyweight Relaxed French Terry Hoodie</option>
+                )}
+              </select>
             </div>
           </div>
 
@@ -134,7 +209,7 @@ export function StartRunModal({ isOpen, onClose, onSuccess }: StartRunModalProps
               type="text"
               value={styleName}
               onChange={e => setStyleName(e.target.value)}
-              className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/10 focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900"
+              className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/10 focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900 font-medium"
               required
             />
           </div>

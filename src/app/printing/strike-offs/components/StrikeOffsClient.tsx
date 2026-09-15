@@ -88,7 +88,7 @@ export function StrikeOffsClient({ initialStrikeOffs }: StrikeOffsClientProps = 
           className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
         >
           <Plus className="w-3.5 h-3.5" />
-          <span>Submit Strike-Off Test (Form 1)</span>
+          <span>+ Log Strike-Off Trial</span>
         </button>
       </div>
 
