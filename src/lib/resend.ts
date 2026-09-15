@@ -29,7 +29,7 @@ export interface TenantActivationEmailParams {
   customUsername?: string
   initialPassword: string
   subscriptionTier: string
-  divisionsCount: number
+  divisionsCount?: number
   accessType?: string
 }
 
@@ -60,6 +60,7 @@ export async function sendTenantActivationEmail(params: TenantActivationEmailPar
   try {
     const isTrial = accessType === 'DEMO_TRIAL'
     const recipient = getRecipientName(adminName, companyName)
+    const planName = subscriptionTier === 'FULL_PLANT_AI' ? 'Full Plant' : (subscriptionTier === 'MODULAR' ? 'Modular' : 'Custom')
 
     const htmlContent = `
       <!DOCTYPE html>
@@ -67,145 +68,79 @@ export async function sendTenantActivationEmail(params: TenantActivationEmailPar
       <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <style>
-          body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: #FAFAF8;
-            margin: 0;
-            padding: 36px 16px;
-            color: #0f172a;
-            -webkit-font-smoothing: antialiased;
-          }
-          .card {
-            max-width: 520px;
-            margin: 0 auto;
-            background: #ffffff;
-            border-radius: 14px;
-            border: 1px solid #e2e8f0;
-            padding: 32px 28px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
-          }
-          .brand {
-            font-size: 20px;
-            font-weight: 700;
-            letter-spacing: -0.6px;
-            color: #0f172a;
-            margin-bottom: 24px;
-          }
-          .brand span {
-            color: #94a3b8;
-          }
-          .greeting {
-            font-size: 15px;
-            font-weight: 600;
-            color: #0f172a;
-            margin-bottom: 10px;
-          }
-          .text {
-            font-size: 14px;
-            line-height: 1.55;
-            color: #475569;
-            margin-bottom: 20px;
-          }
-          .box {
-            background: #F8FAFC;
-            border: 1px solid #E2E8F0;
-            border-radius: 10px;
-            padding: 16px 18px;
-            margin-bottom: 24px;
-          }
-          .row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 6px 0;
-            font-size: 13px;
-          }
-          .row:not(:last-child) {
-            border-bottom: 1px solid #F1F5F9;
-          }
-          .label {
-            color: #64748b;
-            font-weight: 500;
-          }
-          .val {
-            color: #0f172a;
-            font-weight: 600;
-            font-family: monospace;
-          }
-          .btn-wrap {
-            margin: 24px 0 20px;
-          }
-          .btn {
-            display: inline-block;
-            background: #0f172a;
-            color: #ffffff !important;
-            padding: 11px 24px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 600;
-            text-decoration: none;
-          }
-          .note {
-            font-size: 12px;
-            color: #94a3b8;
-            line-height: 1.5;
-            margin-top: 20px;
-            border-top: 1px solid #f1f5f9;
-            padding-top: 16px;
-          }
-          .footer {
-            margin-top: 24px;
-            text-align: center;
-            font-size: 11px;
-            color: #94a3b8;
-          }
-        </style>
+        <title>Workspace Access - ${companyName}</title>
       </head>
-      <body>
-        <div class="card">
-          <div class="brand">zigza<span>.</span></div>
+      <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #FAFAF8; margin: 0; padding: 40px 16px; color: #0f172a; -webkit-font-smoothing: antialiased;">
+        <table role="presentation" cellpadding="0" cellspacing="0" style="max-width: 520px; width: 100%; margin: 0 auto; background: #ffffff; border-radius: 16px; border: 1px solid rgba(0,0,0,0.08); box-shadow: 0 4px 20px rgba(0,0,0,0.02); overflow: hidden;">
+          <tr>
+            <td style="padding: 32px 30px;">
+              <!-- Brand Logo with rounded corners -->
+              <div style="margin-bottom: 24px;">
+                <img 
+                  src="https://app.zigza.in/z%20i%20g%20z%20a%20(2).png" 
+                  alt="zigza" 
+                  style="height: 36px; width: auto; border-radius: 8px; display: block;"
+                />
+              </div>
 
-          <div class="greeting">Dear ${recipient},</div>
-          <p class="text">
-            Your workspace for <strong>${companyName}</strong> is ready on <strong>zigza.in</strong> with ${isTrial ? '7-day demo trial access' : 'full access'}.
-          </p>
+              <!-- Greeting -->
+              <div style="font-size: 16px; font-weight: 700; color: #0f172a; margin-bottom: 10px;">
+                Dear ${recipient},
+              </div>
 
-          <div class="box">
-            <div class="row">
-              <span class="label">Workspace URL</span>
-              <span class="val" style="font-family: inherit; color: #0f172a;">https://zigza.in</span>
-            </div>
-            <div class="row">
-              <span class="label">Login Email</span>
-              <span class="val">${loginEmail}</span>
-            </div>
-            ${customUsername ? `
-            <div class="row">
-              <span class="label">Username</span>
-              <span class="val">${customUsername}</span>
-            </div>` : ''}
-            <div class="row">
-              <span class="label">Initial Password</span>
-              <span class="val">${initialPassword}</span>
-            </div>
-            <div class="row">
-              <span class="label">Account Status</span>
-              <span class="val" style="font-family: inherit;">${isTrial ? '7-Day Demo Trial' : 'Active Plan'}</span>
-            </div>
-          </div>
+              <!-- Intro Message -->
+              <p style="font-size: 14px; line-height: 1.6; color: #475569; margin: 0 0 20px;">
+                Your workspace for <strong>${companyName}</strong> is active on <strong>zigza.in</strong> under the ${isTrial ? '7-day demo trial' : 'active'} plan.
+              </p>
 
-          <div class="btn-wrap">
-            <a href="https://zigza.in" class="btn" target="_blank">Sign in to Workspace</a>
-          </div>
+              <!-- Credentials Table with proper spacing and colons -->
+              <table role="presentation" cellpadding="0" cellspacing="0" style="width: 100%; background-color: #FAF7F0; border: 1px solid rgba(58, 53, 100, 0.12); border-radius: 12px; margin-bottom: 24px; font-size: 13px;">
+                <tr>
+                  <td style="padding: 12px 16px 8px; color: #64748b; font-weight: 500; width: 38%;">Workspace:</td>
+                  <td style="padding: 12px 16px 8px; color: #3A3564; font-weight: 700; text-align: right;">https://zigza.in</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 16px; color: #64748b; font-weight: 500; border-top: 1px solid rgba(58, 53, 100, 0.08);">Login Email:</td>
+                  <td style="padding: 8px 16px; color: #0f172a; font-weight: 700; text-align: right; font-family: monospace; border-top: 1px solid rgba(58, 53, 100, 0.08);">${loginEmail}</td>
+                </tr>
+                ${customUsername ? `
+                <tr>
+                  <td style="padding: 8px 16px; color: #64748b; font-weight: 500; border-top: 1px solid rgba(58, 53, 100, 0.08);">Username:</td>
+                  <td style="padding: 8px 16px; color: #0f172a; font-weight: 700; text-align: right; font-family: monospace; border-top: 1px solid rgba(58, 53, 100, 0.08);">${customUsername}</td>
+                </tr>
+                ` : ''}
+                <tr>
+                  <td style="padding: 8px 16px; color: #64748b; font-weight: 500; border-top: 1px solid rgba(58, 53, 100, 0.08);">Password:</td>
+                  <td style="padding: 8px 16px; color: #3A3564; font-weight: 700; text-align: right; font-family: monospace; border-top: 1px solid rgba(58, 53, 100, 0.08);">${initialPassword}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 16px 12px; color: #64748b; font-weight: 500; border-top: 1px solid rgba(58, 53, 100, 0.08);">Plan Status:</td>
+                  <td style="padding: 8px 16px 12px; color: #3A3564; font-weight: 700; text-align: right; border-top: 1px solid rgba(58, 53, 100, 0.08);">${isTrial ? '7-Day Demo Trial' : 'Active Plan'} (${planName})</td>
+                </tr>
+              </table>
 
-          <div class="note">
-            Please change your password after your first login under your Company Profile.
-          </div>
-        </div>
+              <!-- Call To Action Button -->
+              <div style="margin: 24px 0 20px;">
+                <a 
+                  href="https://zigza.in" 
+                  style="display: inline-block; background-color: #3A3564; color: #ffffff !important; padding: 12px 26px; border-radius: 10px; font-size: 13px; font-weight: 700; text-decoration: none; box-shadow: 0 2px 8px rgba(58,53,100,0.25);"
+                  target="_blank"
+                >
+                  Sign in to Workspace
+                </a>
+              </div>
 
-        <div class="footer">
-          zigza.in • Automated notification
+              <!-- Note -->
+              <div style="font-size: 12px; color: #94a3b8; line-height: 1.5; margin-top: 24px; border-top: 1px solid #f1f5f9; padding-top: 16px;">
+                Please update your password upon your first sign in. Need help? Contact <a href="mailto:support@zigza.in" style="color: #3A3564; text-decoration: none; font-weight: 600;">support@zigza.in</a>.
+              </div>
+            </td>
+          </tr>
+        </table>
+
+        <!-- Subtle Footer -->
+        <div style="margin-top: 24px; text-align: center; font-size: 11px; color: #94a3b8;">
+          <a href="https://zigza.in" style="color: #64748b; text-decoration: none; font-weight: 600;">zigza.in</a> • Automated notification
         </div>
       </body>
       </html>
@@ -256,29 +191,53 @@ export async function sendCustomInquiryNotificationEmail(params: CustomInquiryNo
       <html>
       <head>
         <meta charset="utf-8">
-        <style>
-          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #FAFAF8; margin: 0; padding: 36px 16px; color: #0f172a; }
-          .card { max-width: 520px; margin: 0 auto; background: #ffffff; border-radius: 14px; border: 1px solid #e2e8f0; padding: 32px 28px; }
-          .brand { font-size: 20px; font-weight: 700; color: #0f172a; margin-bottom: 20px; }
-          .brand span { color: #94a3b8; }
-          .title { font-size: 15px; font-weight: 600; color: #0f172a; margin-bottom: 12px; }
-          .box { background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 14px 16px; margin: 16px 0; font-size: 13px; line-height: 1.8; color: #334155; }
-          .btn { display: inline-block; background: #0f172a; color: #ffffff !important; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none; margin-top: 12px; }
-        </style>
+        <title>New Inquiry - ${params.companyName}</title>
       </head>
-      <body>
-        <div class="card">
-          <div class="brand">zigza<span>.</span></div>
-          <div class="title">New Inquiry: ${params.companyName}</div>
-          <div class="box">
-            <div><strong>Contact:</strong> ${params.applicantName}</div>
-            <div><strong>Phone:</strong> ${params.phone}</div>
-            <div><strong>Email:</strong> ${params.email}</div>
-            ${params.estimatedMachines ? `<div><strong>Machines:</strong> ${params.estimatedMachines}</div>` : ''}
-            <div style="margin-top: 10px;"><strong>Requirements:</strong><br/>${params.requirements}</div>
-          </div>
-          <a href="https://zigza.in/platform-admin" class="btn">View in Portal</a>
-        </div>
+      <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #FAFAF8; margin: 0; padding: 40px 16px; color: #0f172a;">
+        <table role="presentation" cellpadding="0" cellspacing="0" style="max-width: 520px; width: 100%; margin: 0 auto; background: #ffffff; border-radius: 16px; border: 1px solid rgba(0,0,0,0.08); padding: 32px 30px;">
+          <tr>
+            <td>
+              <div style="margin-bottom: 20px;">
+                <img 
+                  src="https://app.zigza.in/z%20i%20g%20z%20a%20(2).png" 
+                  alt="zigza" 
+                  style="height: 36px; width: auto; border-radius: 8px; display: block;"
+                />
+              </div>
+              <div style="font-size: 16px; font-weight: 700; color: #0f172a; margin-bottom: 12px;">
+                New Inquiry: ${params.companyName}
+              </div>
+              <table role="presentation" cellpadding="0" cellspacing="0" style="width: 100%; background-color: #FAF7F0; border: 1px solid rgba(58, 53, 100, 0.12); border-radius: 12px; font-size: 13px; margin: 16px 0;">
+                <tr>
+                  <td style="padding: 10px 14px; color: #64748b;">Contact:</td>
+                  <td style="padding: 10px 14px; color: #0f172a; font-weight: 700; text-align: right;">${params.applicantName}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px 14px; color: #64748b; border-top: 1px solid rgba(58, 53, 100, 0.08);">Phone:</td>
+                  <td style="padding: 10px 14px; color: #0f172a; font-weight: 700; text-align: right; font-family: monospace;">${params.phone}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px 14px; color: #64748b; border-top: 1px solid rgba(58, 53, 100, 0.08);">Email:</td>
+                  <td style="padding: 10px 14px; color: #0f172a; font-weight: 700; text-align: right; font-family: monospace;">${params.email}</td>
+                </tr>
+                ${params.estimatedMachines ? `
+                <tr>
+                  <td style="padding: 10px 14px; color: #64748b; border-top: 1px solid rgba(58, 53, 100, 0.08);">Machines:</td>
+                  <td style="padding: 10px 14px; color: #0f172a; font-weight: 700; text-align: right;">${params.estimatedMachines}</td>
+                </tr>
+                ` : ''}
+              </table>
+              <div style="margin-top: 16px;">
+                <a 
+                  href="https://zigza.in/platform-admin" 
+                  style="display: inline-block; background-color: #3A3564; color: #ffffff !important; padding: 10px 22px; border-radius: 8px; font-size: 13px; font-weight: 700; text-decoration: none;"
+                >
+                  View in Admin Portal
+                </a>
+              </div>
+            </td>
+          </tr>
+        </table>
       </body>
       </html>
     `
@@ -344,149 +303,86 @@ export async function sendPaymentReminderEmail(params: PaymentReminderEmailParam
       year: 'numeric'
     }) : 'Pending'
 
+    const planName = planTier === 'FULL_PLANT_AI' ? 'Full Plant' : (planTier === 'MODULAR' ? 'Modular' : 'Custom')
+
     const htmlContent = `
       <!DOCTYPE html>
       <html>
       <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <style>
-          body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: #FAFAF8;
-            margin: 0;
-            padding: 36px 16px;
-            color: #0f172a;
-            -webkit-font-smoothing: antialiased;
-          }
-          .card {
-            max-width: 520px;
-            margin: 0 auto;
-            background: #ffffff;
-            border-radius: 14px;
-            border: 1px solid #e2e8f0;
-            padding: 32px 28px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
-          }
-          .brand {
-            font-size: 20px;
-            font-weight: 700;
-            letter-spacing: -0.6px;
-            color: #0f172a;
-            margin-bottom: 24px;
-          }
-          .brand span {
-            color: #94a3b8;
-          }
-          .greeting {
-            font-size: 15px;
-            font-weight: 600;
-            color: #0f172a;
-            margin-bottom: 10px;
-          }
-          .text {
-            font-size: 14px;
-            line-height: 1.55;
-            color: #475569;
-            margin-bottom: 20px;
-          }
-          .box {
-            background: #F8FAFC;
-            border: 1px solid #E2E8F0;
-            border-radius: 10px;
-            padding: 16px 18px;
-            margin-bottom: 24px;
-          }
-          .row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 6px 0;
-            font-size: 13px;
-          }
-          .row:not(:last-child) {
-            border-bottom: 1px solid #F1F5F9;
-          }
-          .label {
-            color: #64748b;
-            font-weight: 500;
-          }
-          .val {
-            color: #0f172a;
-            font-weight: 600;
-          }
-          .btn-wrap {
-            margin: 24px 0 20px;
-          }
-          .btn {
-            display: inline-block;
-            background: #0f172a;
-            color: #ffffff !important;
-            padding: 11px 24px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 600;
-            text-decoration: none;
-          }
-          .note {
-            font-size: 12px;
-            color: #94a3b8;
-            line-height: 1.5;
-            margin-top: 20px;
-            border-top: 1px solid #f1f5f9;
-            padding-top: 16px;
-          }
-          .footer {
-            margin-top: 24px;
-            text-align: center;
-            font-size: 11px;
-            color: #94a3b8;
-          }
-        </style>
+        <title>Subscription Notice - ${companyName}</title>
       </head>
-      <body>
-        <div class="card">
-          <div class="brand">zigza<span>.</span></div>
+      <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #FAFAF8; margin: 0; padding: 40px 16px; color: #0f172a; -webkit-font-smoothing: antialiased;">
+        <table role="presentation" cellpadding="0" cellspacing="0" style="max-width: 520px; width: 100%; margin: 0 auto; background: #ffffff; border-radius: 16px; border: 1px solid rgba(0,0,0,0.08); box-shadow: 0 4px 20px rgba(0,0,0,0.02); overflow: hidden;">
+          <tr>
+            <td style="padding: 32px 30px;">
+              <!-- Brand Logo with rounded corners -->
+              <div style="margin-bottom: 24px;">
+                <img 
+                  src="https://app.zigza.in/z%20i%20g%20z%20a%20(2).png" 
+                  alt="zigza" 
+                  style="height: 36px; width: auto; border-radius: 8px; display: block;"
+                />
+              </div>
 
-          <div class="greeting">Dear ${recipient},</div>
-          <p class="text">
-            ${isTrial
-              ? `Your 7-day demo trial for <strong>${companyName}</strong> is active until <strong>${expiryFormatted}</strong>. You can review your plan and activate your subscription under Company Profile.`
-              : `Your subscription for <strong>${companyName}</strong> is due for renewal. You can manage your plan directly under Company Profile.`
-            }
-          </p>
+              <!-- Greeting -->
+              <div style="font-size: 16px; font-weight: 700; color: #0f172a; margin-bottom: 10px;">
+                Dear ${recipient},
+              </div>
 
-          <div class="box">
-            <div class="row">
-              <span class="label">Factory</span>
-              <span class="val">${companyName}</span>
-            </div>
-            <div class="row">
-              <span class="label">Status</span>
-              <span class="val">${isTrial ? '7-Day Demo Trial' : 'Active Plan'}</span>
-            </div>
-            <div class="row">
-              <span class="label">Plan</span>
-              <span class="val">${planTier === 'FULL_PLANT_AI' ? 'Full Plant' : (planTier === 'MODULAR' ? 'Modular' : 'Custom')} (₹${monthlyBillingInr.toLocaleString('en-IN')}/mo)</span>
-            </div>
-            ${expiresAt ? `
-            <div class="row">
-              <span class="label">Valid Until</span>
-              <span class="val">${expiryFormatted}</span>
-            </div>` : ''}
-          </div>
+              <!-- Content Message -->
+              <p style="font-size: 14px; line-height: 1.6; color: #475569; margin: 0 0 20px;">
+                ${isTrial
+                  ? `Your 7-day demo trial for <strong>${companyName}</strong> is active until <strong>${expiryFormatted}</strong>. You can review your plan and activate your subscription under Company Profile.`
+                  : `Your subscription for <strong>${companyName}</strong> is due for renewal. You can manage and extend your plan directly under Company Profile.`
+                }
+              </p>
 
-          <div class="btn-wrap">
-            <a href="https://zigza.in" class="btn" target="_blank">Manage in Company Profile</a>
-          </div>
+              <!-- Properly aligned Key-Value Table with colons and clear spacing -->
+              <table role="presentation" cellpadding="0" cellspacing="0" style="width: 100%; background-color: #FAF7F0; border: 1px solid rgba(58, 53, 100, 0.12); border-radius: 12px; margin-bottom: 24px; font-size: 13px;">
+                <tr>
+                  <td style="padding: 12px 16px 8px; color: #64748b; font-weight: 500; width: 38%;">Factory:</td>
+                  <td style="padding: 12px 16px 8px; color: #0f172a; font-weight: 700; text-align: right;">${companyName}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 16px; color: #64748b; font-weight: 500; border-top: 1px solid rgba(58, 53, 100, 0.08);">Status:</td>
+                  <td style="padding: 8px 16px; color: #3A3564; font-weight: 700; text-align: right; border-top: 1px solid rgba(58, 53, 100, 0.08);">${isTrial ? '7-Day Demo Trial' : 'Active Plan'}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 16px; color: #64748b; font-weight: 500; border-top: 1px solid rgba(58, 53, 100, 0.08);">Plan:</td>
+                  <td style="padding: 8px 16px; color: #0f172a; font-weight: 700; text-align: right; border-top: 1px solid rgba(58, 53, 100, 0.08);">${planName} (₹${monthlyBillingInr.toLocaleString('en-IN')}/mo)</td>
+                </tr>
+                ${expiresAt ? `
+                <tr>
+                  <td style="padding: 8px 16px 12px; color: #64748b; font-weight: 500; border-top: 1px solid rgba(58, 53, 100, 0.08);">Valid Until:</td>
+                  <td style="padding: 8px 16px 12px; color: #3A3564; font-weight: 700; text-align: right; border-top: 1px solid rgba(58, 53, 100, 0.08);">${expiryFormatted}</td>
+                </tr>
+                ` : ''}
+              </table>
 
-          <div class="note">
-            Need assistance? Reach out to support@zigza.in.
-          </div>
-        </div>
+              <!-- Call To Action Button with brand color -->
+              <div style="margin: 24px 0 20px;">
+                <a 
+                  href="https://zigza.in" 
+                  style="display: inline-block; background-color: #3A3564; color: #ffffff !important; padding: 12px 26px; border-radius: 10px; font-size: 13px; font-weight: 700; text-decoration: none; box-shadow: 0 2px 8px rgba(58,53,100,0.25);"
+                  target="_blank"
+                >
+                  Manage in Company Profile
+                </a>
+              </div>
 
-        <div class="footer">
-          zigza.in • Automated notification
+              <!-- Note -->
+              <div style="font-size: 12px; color: #94a3b8; line-height: 1.5; margin-top: 24px; border-top: 1px solid #f1f5f9; padding-top: 16px;">
+                Need assistance? Reach out to <a href="mailto:support@zigza.in" style="color: #3A3564; text-decoration: none; font-weight: 600;">support@zigza.in</a>.
+              </div>
+            </td>
+          </tr>
+        </table>
+
+        <!-- Subtle Footer -->
+        <div style="margin-top: 24px; text-align: center; font-size: 11px; color: #94a3b8;">
+          <a href="https://zigza.in" style="color: #64748b; text-decoration: none; font-weight: 600;">zigza.in</a> • Automated notification
         </div>
       </body>
       </html>
