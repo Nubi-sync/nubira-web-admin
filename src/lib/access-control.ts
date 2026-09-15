@@ -23,7 +23,7 @@ export type DivisionRoute = typeof ALL_DIVISION_ROUTES[number]
 export const ROLE_MODULE_MAPPING: Record<string, DivisionRoute[]> = {
   // Pre-Production & CAD
   DESIGN: ['/design'],
-  DESIGNER: ['/design/designer' as any],
+  DESIGNER: ['/design/designer' as any, '/design/profile' as any],
   CAD_MASTER: ['/design'],
   
   // Sourcing & Commercial
@@ -134,7 +134,7 @@ export function getUserAllowedModules(
 
   // 3.5. Creative Designer check
   if (role === 'DESIGNER' || email.includes('@designer.') || email.endsWith('@designer.nubira.local')) {
-    return ['/design/designer']
+    return ['/design/designer', '/design/profile']
   }
 
   // 4. Role-based module mapping for operational floor staff
@@ -180,14 +180,20 @@ export function getDefaultLandingRoute(
     return '/modules'
   }
 
+  // Creative Designer always lands on designer workspace
+  if (normRole === 'DESIGNER' || normEmail.includes('@designer.') || normEmail.endsWith('@designer.nubira.local')) {
+    return '/design/designer'
+  }
+
   // Single-module operational account lands directly inside their assigned module
   if (allowedModules.length === 1) {
     return allowedModules[0]
   }
 
-  // If user has specific modules but not all, land on the first one
+  // If user has specific modules but not all, land on the first non-profile one
   if (allowedModules.length > 0 && !allowedModules.includes('/modules')) {
-    return allowedModules[0]
+    const mainModule = allowedModules.find(m => !m.endsWith('/profile')) || allowedModules[0]
+    return mainModule
   }
 
   return '/modules'
@@ -217,6 +223,12 @@ export function isRouteAuthorized(allowedModules: string[], pathname: string): b
   // If user is Platform SuperAdmin
   if (allowedModules.includes('/platform-admin') && pathname.startsWith('/platform-admin')) {
     return true
+  }
+
+  // Permit designer routes and profile for designers
+  if (allowedModules.includes('/design/designer')) {
+    if (pathname === '/design/designer' || pathname.startsWith('/design/designer/')) return true
+    if (pathname === '/design/profile' || pathname.startsWith('/design/profile/')) return true
   }
 
   // Permit root /allotments and /production-orders paths for users with Stitching & Sewing access

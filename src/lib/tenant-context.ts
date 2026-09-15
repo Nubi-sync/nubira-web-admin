@@ -109,7 +109,7 @@ export async function resolveUserTenant(user: {
         phone: matchedMember.phone_number || matchedMember.designer_phone || '',
         cityState: 'India',
         subscriptionTier: 'ENTERPRISE_PLAN',
-        allowedDivisions: ['/design/designer'],
+        allowedDivisions: ['/design/designer', '/design/profile'],
         isProvisionedTenant: true,
         accessType: 'FULL_ACCESS',
         isExpired: false,

@@ -141,6 +141,8 @@ interface DivisionProfileViewProps {
   departmentHead?: DivisionHeadInfo | null
   operationalSpecs?: DivisionOperationalSpec[]
   staff?: DivisionStaffMember[]
+  backHref?: string
+  backLabel?: string
 }
 
 export function DivisionProfileView({
@@ -161,6 +163,8 @@ export function DivisionProfileView({
   departmentHead,
   operationalSpecs = [],
   staff = [],
+  backHref = '/modules',
+  backLabel = 'Workspace Hub',
 }: DivisionProfileViewProps) {
   const [searchTerm, setSearchTerm] = useState('')
 
@@ -208,11 +212,11 @@ export function DivisionProfileView({
         </div>
 
         <Link
-          href="/modules"
+          href={backHref}
           className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs"
         >
           <ChevronLeft className="w-3.5 h-3.5" />
-          <span>Workspace Hub</span>
+          <span>{backLabel}</span>
         </Link>
       </div>
 
