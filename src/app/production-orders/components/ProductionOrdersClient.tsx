@@ -1155,12 +1155,12 @@ export function ProductionOrdersClient({
       const sizeTier = art.size_range || 'Free Size'
       const totalPcs = Number(art.total_pcs) || 0
 
-      // If multi-color like '3 COLOUR' or comma separated, split if needed
+      // If multi-color like '3 COLOUR' or separated by slash/comma/plus/ampersand, split dynamically
       let colorList: string[] = []
       if (rawColor === '3 COLOUR' || rawColor === '3 COLOR' || rawColor === 'ALL') {
         colorList = ['MUSHROOM', 'DUTCH BLUE', 'SCUBA']
-      } else if (rawColor.includes(',')) {
-        colorList = rawColor.split(',').map(s => s.trim()).filter(Boolean)
+      } else if (rawColor.includes(',') || rawColor.includes('/') || rawColor.includes('+') || rawColor.includes('&')) {
+        colorList = rawColor.split(/[/+&,]/).map(s => s.trim()).filter(Boolean)
       } else {
         colorList = [rawColor]
       }
@@ -1201,7 +1201,9 @@ export function ProductionOrdersClient({
       )
       return
     }
-    const targetUrl = `/allotments?target_key=FULL_CHALLAN_${challanId}&lineman_id=${lmId}`
+    const isStitchingSewing = typeof window !== 'undefined' && window.location.pathname.includes('/stitching-sewing')
+    const targetBasePath = isStitchingSewing ? '/stitching-sewing/allotments' : '/allotments'
+    const targetUrl = `${targetBasePath}?target_key=FULL_CHALLAN_${challanId}&lineman_id=${lmId}`
     router.push(targetUrl)
   }
 
@@ -1215,7 +1217,9 @@ export function ProductionOrdersClient({
       )
       return
     }
-    const targetUrl = `/allotments?target_key=COLOR_${encodeURIComponent(colorName)}_${challanId}&lineman_id=${lmId}`
+    const isStitchingSewing = typeof window !== 'undefined' && window.location.pathname.includes('/stitching-sewing')
+    const targetBasePath = isStitchingSewing ? '/stitching-sewing/allotments' : '/allotments'
+    const targetUrl = `${targetBasePath}?target_key=COLOR_${encodeURIComponent(colorName)}_${challanId}&lineman_id=${lmId}`
     router.push(targetUrl)
   }
 

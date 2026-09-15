@@ -47,7 +47,8 @@ import {
   adminCompleteLinemanBundle,
   adminReassignLineman,
   adminIssueMaterial,
-  adminDispatchAllotment
+  adminDispatchAllotment,
+  adminClaimBufferReplacement
 } from './actions'
 
 type StationType = 'LINEMAN' | 'MENDING' | 'QC' | 'STORE' | 'DISPATCH'
@@ -377,6 +378,18 @@ export function SupervisorDeskClient({
       if (res.error) {
         toast.error(res.error)
       } else {
+        if (qcDefectType === 'DAMAGED_LABEL_TRIM') {
+          const trimName = selectedAllotmentForQc.allotment_materials?.[0]?.item_name || 'Label / Trim'
+          await adminClaimBufferReplacement({
+            allotment_id: selectedAllotmentForQc.id,
+            article_no: selectedAllotmentForQc.articles?.art_no,
+            item_name: trimName,
+            quantity: qcAlterInput,
+            defect_reason: qcNotesInput || 'Needle cut / damaged trim replacement',
+            operator_name: currentUserName
+          })
+          toast.success(`Claimed ${qcAlterInput} pcs replacement from Store Safety Buffer Reserve.`)
+        }
         toast.warning(`Flagged ${qcAlterInput} pcs for alteration. Alert dispatched to Lineman Floor.`)
         setSelectedAllotmentForQc(null)
         router.refresh()
@@ -1468,12 +1481,19 @@ export function SupervisorDeskClient({
                     className="w-full px-3 py-2.5 rounded-xl border border-black/15 bg-white text-slate-900 font-mono text-xs"
                   >
                     <option value="STITCHING_ALTER">Stitching Alter / Seam Open</option>
+                    <option value="DAMAGED_LABEL_TRIM">Damaged Label / Trim (Claim from Safety Buffer)</option>
                     <option value="BROKEN_STITCH">Broken Stitch / Thread Cut</option>
                     <option value="SKIP_STITCH">Skip Stitch / Seam Miss</option>
                     <option value="UNEVEN_HEM">Uneven Hem / Alignment</option>
                     <option value="FABRIC_STAIN">Fabric Stain / Spot</option>
                     <option value="SIZING_ISSUE">Sizing / Measurement Off</option>
                   </select>
+                  {qcDefectType === 'DAMAGED_LABEL_TRIM' && (
+                    <div className="mt-2 p-2.5 rounded-xl bg-indigo-50 border border-[#3A3564]/15 flex items-center gap-2 text-[11px] text-[#3A3564] shadow-2xs">
+                      <ShieldCheck className="w-4 h-4 shrink-0" />
+                      <span>Safety Buffer Reserve Claim will be logged to Store Godown for {qcAlterInput} pcs replacement trim without disturbing the production lot.</span>
+                    </div>
+                  )}
                 </div>
               )}
 

@@ -214,6 +214,12 @@ export function isRouteAuthorized(allowedModules: string[], pathname: string): b
     return true
   }
 
+  // Permit root /allotments and /production-orders paths for users with Stitching & Sewing access
+  if (allowedModules.includes('/stitching-sewing')) {
+    if (pathname === '/allotments' || pathname.startsWith('/allotments/')) return true
+    if (pathname === '/production-orders' || pathname.startsWith('/production-orders/')) return true
+  }
+
   // Check if requested path matches any of the user's allowed division prefixes
   return allowedModules.some(allowedRoute => {
     return pathname === allowedRoute || pathname.startsWith(`${allowedRoute}/`)

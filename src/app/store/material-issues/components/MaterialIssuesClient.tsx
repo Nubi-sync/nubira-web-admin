@@ -19,8 +19,17 @@ import { MaterialFloorIssueChallan, MaterialDestination } from '../../types/stor
 import { getMaterialIssueChallans, updateMaterialIssueChallanStatus, STORE_UPDATE_EVENT } from '../../utils/storeStorage'
 import { IssueMaterialChallanModal } from './IssueMaterialChallanModal'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { ArticleConsumptionLedger } from '../../components/ArticleConsumptionLedger'
 
-export function MaterialIssuesClient() {
+interface MaterialIssuesClientProps {
+  activeAllotments?: any[]
+  truckInwards?: any[]
+}
+
+export function MaterialIssuesClient({
+  activeAllotments = [],
+  truckInwards = []
+}: MaterialIssuesClientProps) {
   const [challans, setChallans] = useState<MaterialFloorIssueChallan[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [destFilter, setDestFilter] = useState<'ALL' | MaterialDestination>('ALL')
@@ -183,6 +192,14 @@ export function MaterialIssuesClient() {
           </p>
         </div>
       </div>
+
+      {/* Live Article Material Consumption Ledger */}
+      {activeAllotments.length > 0 && (
+        <ArticleConsumptionLedger 
+          activeAllotments={activeAllotments} 
+          truckInwards={truckInwards} 
+        />
+      )}
 
       {/* Filter & Search Bar */}
       <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">

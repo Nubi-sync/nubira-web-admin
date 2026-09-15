@@ -250,13 +250,7 @@ export function CreateAllotmentForm({
     required_qty: string
     admin_issued: boolean
     source: 'CLIENT' | 'FACTORY_STORE'
-  }>>([
-    { id: '1', item_name: 'Main Fabric Roll', required_qty: '500 Meters', admin_issued: false, source: 'CLIENT' },
-    { id: '2', item_name: 'Matching Sewing Thread', required_qty: '12 Cones', admin_issued: false, source: 'FACTORY_STORE' },
-    { id: '3', item_name: '18L 4-Hole Buttons', required_qty: '1500 pcs', admin_issued: false, source: 'CLIENT' },
-    { id: '4', item_name: 'Main Brand Label', required_qty: '500 pcs', admin_issued: false, source: 'CLIENT' },
-    { id: '5', item_name: 'Size Labels', required_qty: '500 pcs', admin_issued: false, source: 'CLIENT' },
-  ])
+  }>>([])
 
   const [newMaterialName, setNewMaterialName] = useState('')
   const [newMaterialQty, setNewMaterialQty] = useState('')
@@ -269,6 +263,7 @@ export function CreateAllotmentForm({
   // Target Selection Modal & Search State
   const [isTargetModalOpen, setIsTargetModalOpen] = useState(false)
   const [targetSearchQuery, setTargetSearchQuery] = useState('')
+  const [selectedTargetBomDetails, setSelectedTargetBomDetails] = useState<any[]>([])
   const [selectedTargetSummary, setSelectedTargetSummary] = useState<{
     title: string
     subtitle: string
@@ -329,8 +324,8 @@ export function CreateAllotmentForm({
         const upperPat = patternRaw.toUpperCase()
         if (upperPat.includes('3 COLOUR') || upperPat.includes('3 COLOR') || upperPat.includes('ALL')) {
           matchedColors = ['MUSHROOM', 'DUTCH BLUE', 'SCUBA']
-        } else if (upperPat.includes('+') || upperPat.includes('&') || upperPat.includes(',')) {
-          matchedColors = patternRaw.split(/[+&,]/).map((s: string) => s.trim().toUpperCase()).filter(Boolean)
+        } else if (upperPat.includes('+') || upperPat.includes('&') || upperPat.includes(',') || upperPat.includes('/')) {
+          matchedColors = patternRaw.split(/[/+&,]/).map((s: string) => s.trim().toUpperCase()).filter(Boolean)
         } else {
           matchedColors = [normalizeColor(patternRaw)]
         }
@@ -449,6 +444,7 @@ export function CreateAllotmentForm({
     setArticleId(smartOpt.key)
     setTouchedArticle(true)
     setAutoLoadedOrder(null)
+    setSelectedTargetBomDetails(smartOpt.bomDetails || [])
 
     const challanRef = smartOpt.challanNo.startsWith('JOB-') ? smartOpt.challanNo : `JOB-${smartOpt.challanNo}`
     setProductionOrderNo(smartOpt.colorName ? `${challanRef}-${smartOpt.colorName}` : challanRef)
@@ -502,44 +498,87 @@ export function CreateAllotmentForm({
         themeBg: themeBg
       })
 
-      // BOM Checklist
+      // Smart Color-Line BOM Checklist:
+      const approxMeters = Math.max(Math.ceil(smartOpt.totalPcs * 0.4), 10)
+      const threadCones = Math.max(Math.ceil(smartOpt.totalPcs / 100), 2)
       const newMaterials: any[] = [
         {
           id: 'mat_fab_' + Date.now(),
           item_name: `${smartOpt.colorName} Fabric Lot (${smartOpt.fabricType || 'Sinker'})`,
-          required_qty: 'As per roll marker',
-          admin_issued: true,
+          required_qty: `${approxMeters} Meters`,
+          admin_issued: false,
           source: 'CLIENT' as const
         },
         {
           id: 'mat_thread_' + Date.now(),
           item_name: `Matching Sewing Thread (${smartOpt.colorName})`,
-          required_qty: `${Math.max(Math.ceil(smartOpt.totalPcs / 250), 4)} Cones`,
-          admin_issued: true,
+          required_qty: `${threadCones} Cones`,
+          admin_issued: false,
           source: 'FACTORY_STORE' as const
-        },
-        {
-          id: 'mat_neck_' + Date.now(),
-          item_name: `${smartOpt.brand} Main Neck Labels`,
-          required_qty: `${smartOpt.totalPcs.toLocaleString()} pcs`,
-          admin_issued: false,
-          source: 'CLIENT' as const
-        },
-        {
-          id: 'mat_size_' + Date.now(),
-          item_name: `Size Labels (${allIndividualSizes.join(', ')})`,
-          required_qty: `${smartOpt.totalPcs.toLocaleString()} pcs`,
-          admin_issued: false,
-          source: 'CLIENT' as const
-        },
-        {
-          id: 'mat_poly_' + Date.now(),
-          item_name: `Master Polybags`,
-          required_qty: `${smartOpt.totalPcs.toLocaleString()} pcs`,
-          admin_issued: false,
-          source: 'CLIENT' as const
         }
       ]
+
+      // Filter inward GRN trims: only include items matching this color, or common trims
+      const knownColors = ['NAVY', 'BLUE', 'BLACK', 'WHITE', 'BROWN', 'MUSHROOM', 'DUTCH BLUE', 'SCUBA', 'GREEN', 'RED', 'YELLOW', 'ORANGE', 'PINK', 'GREY', 'GRAY', 'BEIGE', 'MAROON', 'LILAC', 'RUST', 'PURPLE', 'CHARCOAL', 'OLIVE']
+      const activeColorUpper = smartOpt.colorName.toUpperCase()
+
+      if (smartOpt.bomDetails && smartOpt.bomDetails.length > 0) {
+        smartOpt.bomDetails.forEach((b: any, idx: number) => {
+          const bName = (b.item_name || b.name || '').trim()
+          if (!bName) return
+          const upper = bName.toUpperCase()
+          const bType = (b.material_type || '').toUpperCase()
+          if (bType === 'FABRIC' || upper.includes('FABRIC') || upper.includes('SEWING THREAD')) return
+
+          let itemColor: string | null = null
+          for (const c of knownColors) {
+            if (new RegExp(`\\b${c}\\b`, 'i').test(upper)) {
+              itemColor = c
+              break
+            }
+          }
+
+          if (itemColor && !activeColorUpper.includes(itemColor) && !itemColor.includes(activeColorUpper)) {
+            // Isolate out trims belonging to other colors
+            return
+          }
+
+          newMaterials.push({
+            id: `mat_inward_${idx}_` + Date.now(),
+            item_name: bName,
+            required_qty: `${smartOpt.totalPcs.toLocaleString('en-IN')} pcs`,
+            admin_issued: false,
+            source: (b.material_type === 'ACCESSORY' || upper.includes('THREAD')) ? 'FACTORY_STORE' : 'CLIENT'
+          })
+        })
+      }
+
+      if (!newMaterials.some(m => m.item_name.toLowerCase().includes('brand label') || m.item_name.toLowerCase().includes('neck label'))) {
+        newMaterials.push({
+          id: 'mat_neck_' + Date.now(),
+          item_name: `${smartOpt.brand || 'Main Brand'} Neck Label`,
+          required_qty: `${smartOpt.totalPcs.toLocaleString('en-IN')} pcs`,
+          admin_issued: false,
+          source: 'CLIENT' as const
+        })
+      }
+
+      newMaterials.push({
+        id: 'mat_size_' + Date.now(),
+        item_name: `Size Labels (${allIndividualSizes.join(', ')})`,
+        required_qty: `${smartOpt.totalPcs.toLocaleString('en-IN')} pcs`,
+        admin_issued: false,
+        source: 'CLIENT' as const
+      })
+
+      newMaterials.push({
+        id: 'mat_poly_' + Date.now(),
+        item_name: `Master Polybags (10x14)`,
+        required_qty: `${smartOpt.totalPcs.toLocaleString('en-IN')} pcs`,
+        admin_issued: false,
+        source: 'CLIENT' as const
+      })
+
       setMaterials(newMaterials)
     } else if (smartOpt.type === 'FULL_CHALLAN') {
       const sizesToUse = smartOpt.fullChallanSizes && smartOpt.fullChallanSizes.length > 0 ? smartOpt.fullChallanSizes : ['S', 'M', 'L', 'XL']
@@ -565,6 +604,7 @@ export function CreateAllotmentForm({
     setArticleId(chosenArt.id)
     setTouchedArticle(true)
     setAutoLoadedOrder(null)
+    setSelectedTargetBomDetails([])
 
     const chosenMeta = (chosenArt.size_rates as any)?._meta || {}
     const sizeTier = chosenMeta.size || 'L/XXL'
@@ -602,9 +642,40 @@ export function CreateAllotmentForm({
     const artNo = searchParams.get('art_no')
     const urlLinemanId = searchParams.get('lineman_id')
 
+    // Always prefill lineman immediately if provided in URL params
+    if (urlLinemanId) {
+      setLinemanId(urlLinemanId)
+      setTouchedLineman(true)
+    }
+
     if (targetKey && smartChallanOptions.length > 0) {
-      const decodedKey = decodeURIComponent(targetKey)
-      const matchedOpt = smartChallanOptions.find(o => o.key === decodedKey || o.challanId === decodedKey)
+      const rawDecoded = decodeURIComponent(targetKey)
+      const decodedKey = rawDecoded.replace(/\+/g, ' ').trim()
+      const normKey = decodedKey.toUpperCase()
+
+      // 1. Direct key match (exact or with + replaced by space)
+      let matchedOpt = smartChallanOptions.find(o => 
+        o.key === decodedKey || 
+        o.key === rawDecoded ||
+        o.key.toUpperCase() === normKey ||
+        o.challanId === decodedKey
+      )
+
+      // 2. Fuzzy / color match within the challan (e.g. target_key=COLOR_BABY+PINK_096e...)
+      if (!matchedOpt) {
+        matchedOpt = smartChallanOptions.find(o => {
+          if (!o.challanId || !normKey.includes(o.challanId.toUpperCase())) return false
+          if (normKey.startsWith('FULL_CHALLAN') && o.type === 'FULL_CHALLAN') return true
+          if (o.colorName && normKey.includes(o.colorName.toUpperCase())) return true
+          return false
+        })
+      }
+
+      // 3. Fallback: match by challan ID
+      if (!matchedOpt) {
+        matchedOpt = smartChallanOptions.find(o => o.challanId && normKey.includes(o.challanId.toUpperCase()))
+      }
+
       if (matchedOpt) {
         applySmartTarget(matchedOpt)
         if (urlLinemanId) {
@@ -630,9 +701,6 @@ export function CreateAllotmentForm({
           setTouchedLineman(true)
         }
       }
-    } else if (urlLinemanId) {
-      setLinemanId(urlLinemanId)
-      setTouchedLineman(true)
     }
   }, [searchParams, smartChallanOptions, articles])
 
@@ -792,7 +860,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
   }
 
   
-  // Auto-Generate Size & Color BOM Calculation
+  // Auto-Generate Size & Color BOM Calculation with Active Color Isolation & Real Inward Trims
   const handleAutoGenerateBOM = () => {
     const generated: Array<{
       id: string
@@ -802,68 +870,174 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
       source: 'CLIENT' | 'FACTORY_STORE'
     }> = []
 
-    // 1. Fabric Roll Estimate (approx 0.35 - 0.45 meters per piece)
-    const approxMeters = Math.max(Math.ceil(totalPieces * 0.4), 10)
-    generated.push({
-      id: 'fab_' + Date.now(),
-      item_name: 'Main Fabric Roll',
-      required_qty: totalPieces > 0 ? `${approxMeters} Meters` : 'As required',
-      admin_issued: false,
-      source: 'CLIENT'
+    // 1. Identify active colors with quantity > 0 in the matrix
+    const activeColorRows = colorRows.filter(row => {
+      const rowSum = selectedSizes.reduce((s, size) => s + (row.quantities[size] || 0), 0)
+      return rowSum > 0
     })
 
-    // 2. Matching Thread per Color (1 cone per 100 pcs, min 2 cones per active color)
-    colorRows.forEach((row, idx) => {
-      const colorName = row.color.trim() || `Color ${idx + 1}`
-      const colorSum = selectedSizes.reduce((s, size) => s + (row.quantities[size] || 0), 0)
-      const cones = Math.max(Math.ceil(colorSum / 100), 2)
+    const activeColors = activeColorRows.map(r => r.color.trim()).filter(Boolean)
+
+    // Helper: test if an item is color-specific and whether it matches any active color
+    const isColorSpecificForActiveLine = (itemName: string) => {
+      const upper = itemName.toUpperCase()
+      const knownColors = ['NAVY', 'BLUE', 'BLACK', 'WHITE', 'BROWN', 'MUSHROOM', 'DUTCH BLUE', 'SCUBA', 'GREEN', 'RED', 'YELLOW', 'ORANGE', 'PINK', 'GREY', 'GRAY', 'BEIGE', 'MAROON', 'LILAC', 'RUST', 'PURPLE', 'CHARCOAL', 'OLIVE']
+      
+      let itemColor: string | null = null
+      for (const c of knownColors) {
+        const reg = new RegExp(`\\b${c}\\b`, 'i')
+        if (reg.test(upper)) {
+          itemColor = c
+          break
+        }
+      }
+
+      if (!itemColor) {
+        return { isColorSpecific: false, isMatch: true }
+      }
+
+      // Check if itemColor matches any active color
+      const isMatch = activeColors.some(ac => {
+        const acUpper = ac.toUpperCase()
+        return acUpper.includes(itemColor!) || itemColor!.includes(acUpper)
+      })
+
+      return { isColorSpecific: true, itemColor, isMatch }
+    }
+
+    // 2. Matching Fabric Lots for active colors
+    if (activeColorRows.length > 0) {
+      activeColorRows.forEach((row) => {
+        const colorName = row.color.trim() || 'Active Color'
+        const colorSum = selectedSizes.reduce((s, size) => s + (row.quantities[size] || 0), 0)
+        const approxMeters = Math.max(Math.ceil(colorSum * 0.4), 10)
+        generated.push({
+          id: `fab_${row.id}_` + Date.now(),
+          item_name: `${colorName} Fabric Roll`,
+          required_qty: `${approxMeters} Meters`,
+          admin_issued: false,
+          source: 'CLIENT'
+        })
+      })
+    } else {
+      const approxMeters = Math.max(Math.ceil(totalPieces * 0.4), 10)
       generated.push({
-        id: `thread_${idx}_` + Date.now(),
-        item_name: `Matching Sewing Thread (${colorName})`,
-        required_qty: `${cones} Cones`,
+        id: 'fab_' + Date.now(),
+        item_name: 'Main Fabric Roll',
+        required_qty: totalPieces > 0 ? `${approxMeters} Meters` : 'As per marker',
+        admin_issued: false,
+        source: 'CLIENT'
+      })
+    }
+
+    // 3. Matching Sewing Thread — ONLY FOR ACTIVE COLORS (Zero cones for inactive colors!)
+    if (activeColorRows.length > 0) {
+      activeColorRows.forEach((row) => {
+        const colorName = row.color.trim() || 'Active Color'
+        const colorSum = selectedSizes.reduce((s, size) => s + (row.quantities[size] || 0), 0)
+        const cones = Math.max(Math.ceil(colorSum / 100), 2)
+        generated.push({
+          id: `thread_${row.id}_` + Date.now(),
+          item_name: `Matching Sewing Thread (${colorName})`,
+          required_qty: `${cones} Cones`,
+          admin_issued: false,
+          source: 'FACTORY_STORE'
+        })
+      })
+    } else if (colorRows.length > 0) {
+      const firstColor = colorRows[0].color.trim() || 'Standard'
+      generated.push({
+        id: `thread_0_` + Date.now(),
+        item_name: `Matching Sewing Thread (${firstColor})`,
+        required_qty: `2 Cones`,
         admin_issued: false,
         source: 'FACTORY_STORE'
       })
-    })
+    }
 
-    // 3. Size Labels per Size
-    selectedSizes.forEach((size, idx) => {
-      const sizeSum = colorRows.reduce((s, row) => s + (row.quantities[size] || 0), 0)
-      if (sizeSum > 0 || totalPieces === 0) {
+    // 4. Inward GRN / Challan Trims Integration & Color Isolation
+    if (selectedTargetBomDetails && selectedTargetBomDetails.length > 0) {
+      selectedTargetBomDetails.forEach((bom: any, bIdx: number) => {
+        const bName = (bom.item_name || bom.name || '').trim()
+        if (!bName) return
+
+        const bType = (bom.material_type || '').toUpperCase()
+        const upperName = bName.toUpperCase()
+        if (bType === 'FABRIC' || upperName.includes('SEWING THREAD') || upperName.includes('FABRIC')) {
+          return
+        }
+
+        const { isColorSpecific, isMatch } = isColorSpecificForActiveLine(bName)
+        
+        // If it is color-specific to another color (not active in this allotment), isolate it out!
+        if (isColorSpecific && !isMatch && activeColors.length > 0) {
+          return
+        }
+
+        // Calculate scaled quota for this allotment
+        let reqQty = bom.required_qty || ''
+        if (totalPieces > 0) {
+          reqQty = `${totalPieces.toLocaleString('en-IN')} pcs`
+        }
+
+        generated.push({
+          id: `inward_bom_${bIdx}_` + Date.now(),
+          item_name: bName,
+          required_qty: reqQty || `${totalPieces > 0 ? totalPieces : 500} pcs`,
+          admin_issued: false,
+          source: (bom.material_type === 'ACCESSORY' || bName.toLowerCase().includes('thread')) ? 'FACTORY_STORE' : 'CLIENT'
+        })
+      })
+    }
+
+    // 5. Size Labels for active sizes only
+    selectedSizes.forEach((size) => {
+      const sizeSum = (activeColorRows.length > 0 ? activeColorRows : colorRows).reduce(
+        (s, row) => s + (row.quantities[size] || 0), 
+        0
+      )
+      if (sizeSum > 0) {
         generated.push({
           id: `lbl_size_${size}_` + Date.now(),
           item_name: `Size Labels (${size})`,
-          required_qty: `${sizeSum > 0 ? sizeSum : 500} pcs`,
+          required_qty: `${sizeSum} pcs`,
           admin_issued: false,
           source: 'CLIENT'
         })
       }
     })
 
-    // 4. Main Brand Label & Polybags (Client Consignment)
-    generated.push({
-      id: 'lbl_brand_' + Date.now(),
-      item_name: 'Main Brand Label & Neck Tag',
-      required_qty: `${totalPieces > 0 ? totalPieces : 500} pcs`,
-      admin_issued: false,
-      source: 'CLIENT'
-    })
+    // 6. Common Brand Label & Polybags if not already added from inward BOM
+    const hasBrandLabel = generated.some(g => g.item_name.toLowerCase().includes('brand label') || g.item_name.toLowerCase().includes('neck label'))
+    if (!hasBrandLabel) {
+      generated.push({
+        id: 'lbl_brand_' + Date.now(),
+        item_name: 'Main Brand Label & Neck Tag',
+        required_qty: `${totalPieces > 0 ? totalPieces : 500} pcs`,
+        admin_issued: false,
+        source: 'CLIENT'
+      })
+    }
 
-    generated.push({
-      id: 'poly_' + Date.now(),
-      item_name: 'Polybags (10x14 Master)',
-      required_qty: `${totalPieces > 0 ? totalPieces : 500} pcs`,
-      admin_issued: false,
-      source: 'CLIENT'
-    })
+    const hasPolybags = generated.some(g => g.item_name.toLowerCase().includes('polybag'))
+    if (!hasPolybags) {
+      generated.push({
+        id: 'poly_' + Date.now(),
+        item_name: 'Polybags (10x14 Master)',
+        required_qty: `${totalPieces > 0 ? totalPieces : 500} pcs`,
+        admin_issued: false,
+        source: 'CLIENT'
+      })
+    }
 
-    // Retain any existing custom items not matching generated names
+    // 7. Retain any user-entered manual custom items (so admin's custom typing is NEVER erased)
     const existingCustom = materials.filter(m => 
       !m.item_name.includes('Sewing Thread') && 
       !m.item_name.includes('Size Labels') &&
-      !m.item_name.includes('Main Fabric Roll') &&
-      !m.item_name.includes('Main Brand Label') &&
-      !m.item_name.includes('Polybags')
+      !m.item_name.includes('Fabric') &&
+      !m.item_name.includes('Brand Label') &&
+      !m.item_name.includes('Polybags') &&
+      !generated.some(g => g.item_name.trim().toLowerCase() === m.item_name.trim().toLowerCase())
     )
 
     setMaterials([...generated, ...existingCustom.map(m => ({ ...m, source: m.source || 'CLIENT' }))])
@@ -926,7 +1100,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
     const payloadMaterials: MaterialPayload[] = materials.map(m => ({
       item_name: m.item_name,
       required_qty: m.required_qty,
-      admin_issued: false,
+      admin_issued: Boolean(m.admin_issued),
       source: m.source
     }))
 
@@ -1939,88 +2113,100 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
             </button>
           </div>
 
-          {/* Checklist Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {materials.map((mat) => {
-              const isChecked = mat.admin_issued
-              return (
-                <div
-                  key={mat.id}
-                  onClick={() => toggleMaterialIssued(mat.id)}
-                  className={`p-4 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-3 shadow-2xs ${
-                    isChecked
-                      ? 'bg-[#FAF7F0] border-[#3A3564]'
-                      : 'bg-white border-black/10 hover:border-slate-300 hover:bg-slate-50/60'
-                  }`}
-                >
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2 flex-wrap mb-1">
-                      <span className="block text-xs sm:text-sm font-bold truncate text-slate-900">
-                        {mat.item_name}
-                      </span>
+          {/* Checklist Grid or Empty State */}
+          {materials.length === 0 ? (
+            <div className="p-6 text-center rounded-xl border border-dashed border-slate-300 bg-[#FAF7F0]/40 space-y-2">
+              <div className="w-10 h-10 rounded-full bg-white border border-black/10 text-[#3A3564] flex items-center justify-center mx-auto shadow-2xs">
+                <Boxes className="w-5 h-5 text-[#3A3564]" />
+              </div>
+              <h4 className="text-sm font-bold text-slate-800">No Raw Materials in Checklist</h4>
+              <p className="text-xs text-slate-500 max-w-md mx-auto">
+                Fill in the Size & Color Ratio Matrix above and click <strong className="text-[#3A3564]">Auto-Calculate BOM from Matrix</strong> to isolate active color thread & trims, or type custom materials below.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {materials.map((mat) => {
+                const isChecked = mat.admin_issued
+                return (
+                  <div
+                    key={mat.id}
+                    onClick={() => toggleMaterialIssued(mat.id)}
+                    className={`p-4 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-3 shadow-2xs ${
+                      isChecked
+                        ? 'bg-[#FAF7F0] border-[#3A3564]'
+                        : 'bg-white border-black/10 hover:border-slate-300 hover:bg-slate-50/60'
+                    }`}
+                  >
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 flex-wrap mb-1">
+                        <span className="block text-xs sm:text-sm font-bold truncate text-slate-900">
+                          {mat.item_name}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-2.5 flex-wrap">
+                        <span className="text-xs font-mono font-medium text-slate-600">
+                          Qty: <strong className="text-slate-900 font-bold">{mat.required_qty}</strong>
+                        </span>
+
+                        {/* 1-Click Sourcing Toggle Badge */}
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setMaterials(materials.map(m => m.id === mat.id ? { ...m, source: m.source === 'FACTORY_STORE' ? 'CLIENT' : 'FACTORY_STORE' } : m))
+                          }}
+                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-bold border transition-all cursor-pointer ${
+                            mat.source === 'FACTORY_STORE'
+                              ? 'bg-white hover:bg-slate-100 text-slate-700 border-slate-200'
+                              : 'bg-white hover:bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs'
+                          }`}
+                          title="Click to toggle between Client Supplied and Factory Sourced"
+                        >
+                          {mat.source === 'FACTORY_STORE' ? (
+                            <>
+                              <Boxes className="w-3 h-3 text-slate-600" />
+                              <span>Factory Sourced</span>
+                            </>
+                          ) : (
+                            <>
+                              <Building2 className="w-3 h-3 text-[#3A3564]" />
+                              <span>Client Supplied</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
                     </div>
 
-                    <div className="flex items-center gap-2.5 flex-wrap">
-                      <span className="text-xs font-mono font-medium text-slate-600">
-                        Qty: <strong className="text-slate-900 font-bold">{mat.required_qty}</strong>
-                      </span>
+                    <div className="flex items-center gap-2">
+                      <div 
+                        className={`w-6 h-6 rounded-full flex items-center justify-center text-xs transition-all ${
+                          isChecked 
+                            ? 'bg-[#3A3564] text-white' 
+                            : 'border border-slate-300 bg-white'
+                        }`}
+                      >
+                        {isChecked && <Check className="w-4 h-4" />}
+                      </div>
 
-                      {/* 1-Click Sourcing Toggle Badge */}
                       <button
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation()
-                          setMaterials(materials.map(m => m.id === mat.id ? { ...m, source: m.source === 'FACTORY_STORE' ? 'CLIENT' : 'FACTORY_STORE' } : m))
+                          removeMaterial(mat.id)
                         }}
-                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-bold border transition-all cursor-pointer ${
-                          mat.source === 'FACTORY_STORE'
-                            ? 'bg-white hover:bg-slate-100 text-slate-700 border-slate-200'
-                            : 'bg-white hover:bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs'
-                        }`}
-                        title="Click to toggle between Client Supplied and Factory Sourced"
+                        className="p-1 rounded text-slate-400 hover:text-rose-600 transition-colors cursor-pointer"
+                        title="Remove material"
                       >
-                        {mat.source === 'FACTORY_STORE' ? (
-                          <>
-                            <Boxes className="w-3 h-3 text-slate-600" />
-                            <span>Factory Sourced</span>
-                          </>
-                        ) : (
-                          <>
-                            <Building2 className="w-3 h-3 text-[#3A3564]" />
-                            <span>Client Supplied</span>
-                          </>
-                        )}
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
-
-                  <div className="flex items-center gap-2">
-                    <div 
-                      className={`w-6 h-6 rounded-full flex items-center justify-center text-xs transition-all ${
-                        isChecked 
-                          ? 'bg-[#3A3564] text-white' 
-                          : 'border border-slate-300 bg-white'
-                      }`}
-                    >
-                      {isChecked && <Check className="w-4 h-4" />}
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        removeMaterial(mat.id)
-                      }}
-                      className="p-1 rounded text-slate-400 hover:text-rose-600 transition-colors cursor-pointer"
-                      title="Remove material"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
+                )
+              })}
+            </div>
+          )}
 
           {/* Add Custom Material Inline Form & Quick Chips */}
           <div className="pt-3 border-t border-slate-100 space-y-2.5">

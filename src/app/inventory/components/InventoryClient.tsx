@@ -35,6 +35,7 @@ import {
 } from 'lucide-react'
 import { TvViewButton } from '@/components/ui/TvViewButton'
 import { approveQcForStoreInward, deleteTruckInward, deleteStoreTransaction, deleteAccessory, deleteAccessoryByName } from '../actions'
+import { getDetailedItemBreakdown } from '@/utils/multiSizeParser'
 
 type Article = {
   id: string
@@ -1267,14 +1268,76 @@ export function InventoryClient({
                                   {/* List of items */}
                                   <div className="space-y-1.5">
                                     {allItems.slice(0, isExpanded ? allItems.length : 3).map((it, i) => {
-                                      let cleanName = it.item_name
-                                      let detectedSize = it.size_label || ''
-                                      const match = cleanName.match(/\(([^)]+)\)$/)
-                                      if (match) {
-                                        if (!detectedSize) detectedSize = match[1]
-                                        cleanName = cleanName.replace(/\(([^)]+)\)$/, '').trim()
+                                      const breakdown = getDetailedItemBreakdown(it.item_name, it.quantity, it.size_label)
+
+                                      if (breakdown.isMultiSize && breakdown.sizes.length > 1) {
+                                        return (
+                                          <div 
+                                            key={i} 
+                                            className={`p-2 rounded-lg border text-xs transition-colors space-y-1.5 ${
+                                              it.status === 'SHORTAGE' 
+                                                ? 'bg-amber-50/60 border-amber-200/70 text-amber-950' 
+                                                : it.status === 'DUE' 
+                                                  ? 'bg-purple-50/60 border-purple-200/70 text-purple-950' 
+                                                  : 'bg-white border-slate-200/70 text-slate-800 hover:border-slate-300'
+                                            }`}
+                                          >
+                                            {/* Primary Header Row: Item Name + Total Inward + Buffer */}
+                                            <div className="flex items-center justify-between gap-2">
+                                              <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                                                <span className={`w-2 h-2 rounded-full shrink-0 ${
+                                                  it.status === 'DUE' ? 'bg-purple-500' : it.status === 'SHORTAGE' ? 'bg-amber-500' : 'bg-emerald-500'
+                                                }`} />
+                                                <span className="font-bold text-slate-900 text-[12px] truncate" title={it.item_name}>
+                                                  {breakdown.cleanName}
+                                                </span>
+                                                <span className="px-1.5 py-0.2 rounded text-[10px] font-mono font-semibold bg-slate-100 text-slate-600 border border-slate-200 shrink-0">
+                                                  {breakdown.sizes.join(', ')}
+                                                </span>
+                                              </div>
+
+                                              <div className="flex items-center gap-1.5 shrink-0 pl-1">
+                                                <span className="font-mono font-bold text-xs text-[#3A3564] bg-[#FAF7F0] px-1.5 py-0.5 rounded border border-black/10 shadow-2xs">
+                                                  {Number(it.quantity).toLocaleString('en-IN')} <span className="text-[10px] font-normal text-slate-500">{it.unit || 'pcs'}</span>
+                                                </span>
+                                                {breakdown.bufferQty > 0 && (
+                                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-indigo-50 text-[#3A3564] border border-[#3A3564]/20 shadow-2xs" title="Safety Buffer Reserve in Store Rack">
+                                                    <ShieldCheck className="w-3 h-3 text-[#3A3564]" />
+                                                    <span>Buffer: +{breakdown.bufferQty}</span>
+                                                  </span>
+                                                )}
+                                                {it.status === 'DUE' && (
+                                                  <span className="px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-purple-100 text-purple-700">
+                                                    DUE
+                                                  </span>
+                                                )}
+                                                {it.status === 'SHORTAGE' && (
+                                                  <span className="px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-amber-100 text-amber-800">
+                                                    SHORT
+                                                  </span>
+                                                )}
+                                              </div>
+                                            </div>
+
+                                            {/* Nested Size Tier Breakdown Matrix */}
+                                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 pt-1.5 border-t border-slate-100">
+                                              {breakdown.sizeBreakdown.map((sb) => (
+                                                <div 
+                                                  key={sb.size} 
+                                                  className="flex items-center justify-between px-2 py-1 bg-[#FAF7F0] border border-black/10 rounded-md text-[11px] shadow-2xs"
+                                                >
+                                                  <span className="font-bold text-[#3A3564]">Size {sb.size}</span>
+                                                  <span className="font-mono font-bold text-slate-800">
+                                                    {sb.qty.toLocaleString('en-IN')} <span className="text-[9px] font-normal text-slate-500">{it.unit || 'pcs'}</span>
+                                                  </span>
+                                                </div>
+                                              ))}
+                                            </div>
+                                          </div>
+                                        )
                                       }
 
+                                      // Single-size / Common items (Standard Single Row)
                                       return (
                                         <div 
                                           key={i} 
@@ -1292,11 +1355,11 @@ export function InventoryClient({
                                               it.status === 'DUE' ? 'bg-purple-500' : it.status === 'SHORTAGE' ? 'bg-amber-500' : 'bg-emerald-500'
                                             }`} />
                                             <span className="font-semibold text-slate-800 text-[12px] truncate" title={it.item_name}>
-                                              {cleanName}
+                                              {breakdown.cleanName}
                                             </span>
-                                            {detectedSize && (
+                                            {breakdown.sizes.length > 0 && (
                                               <span className="px-1.5 py-0.2 rounded text-[10px] font-mono font-semibold bg-slate-100 text-slate-600 border border-slate-200 shrink-0">
-                                                {detectedSize}
+                                                {breakdown.sizes[0]}
                                               </span>
                                             )}
                                           </div>

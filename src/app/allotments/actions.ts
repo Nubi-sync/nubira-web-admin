@@ -155,8 +155,8 @@ export async function createDetailedAllotment(payload: {
         allotment_id: allotmentId,
         item_name: m.item_name.trim(),
         required_qty: m.required_qty.trim() || 'As required',
-        admin_issued: false,
-        admin_issued_at: null,
+        admin_issued: Boolean(m.admin_issued),
+        admin_issued_at: m.admin_issued ? nowIso : null,
         lineman_received: false,
         notes: JSON.stringify({ 
           lineman_name: linemanName, 
@@ -183,6 +183,32 @@ export async function createDetailedAllotment(payload: {
 
       if (matError) {
         console.error('Error inserting materials:', matError)
+      }
+
+      // If Admin pre-issued any materials directly upon allotment creation, log OUTWARD in store accessories
+      const preIssuedItems = materials.filter(m => m.admin_issued && m.item_name.trim() !== '')
+      if (preIssuedItems.length > 0) {
+        const todayStr = nowIso.split('T')[0]
+        const outwardRows = preIssuedItems.map(m => {
+          const parsedQty = parseInt(String(m.required_qty).replace(/[^0-9]/g, ''), 10) || 0
+          return {
+            item_name: m.item_name.trim(),
+            action: 'OUT',
+            quantity: parsedQty,
+            unit: 'pcs',
+            party_name: `Issued to Lineman ${linemanName} (Direct Allotment)`,
+            entry_date: todayStr,
+            notes: `Direct Handover on Allotment Creation #${allotmentId}${production_order_no ? ` • Order #${production_order_no}` : ''}${artNo ? ` • Art #${artNo}` : ''}`,
+          }
+        }).filter(r => r.quantity > 0)
+
+        if (outwardRows.length > 0) {
+          try {
+            await supabase.from('accessories').insert(outwardRows)
+          } catch (accErr) {
+            console.warn('Warning deducting pre-issued materials from accessories:', accErr)
+          }
+        }
       }
     }
   } else {

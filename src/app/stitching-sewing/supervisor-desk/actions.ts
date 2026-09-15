@@ -592,3 +592,49 @@ export async function adminDispatchAllotment(payload: {
     return { error: err.message || 'Failed to dispatch allotment' }
   }
 }
+
+// ---------------------------------------------------------------------------
+// 10. MENDING / QC: CLAIM TRIM REPLACEMENT FROM SAFETY BUFFER RESERVE
+// ---------------------------------------------------------------------------
+export async function adminClaimBufferReplacement(payload: {
+  allotment_id?: string
+  article_no?: string
+  item_name: string
+  quantity: number
+  unit?: string
+  defect_reason?: string
+  operator_name?: string
+}) {
+  try {
+    const { allotment_id, article_no, item_name, quantity, unit, defect_reason, operator_name } = payload
+    if (!item_name || !quantity || quantity <= 0) {
+      return { error: 'Invalid trim item name or quantity' }
+    }
+
+    const stamp = operator_name || 'Mending / QC Floor Override'
+    const todayStr = new Date().toISOString().split('T')[0]
+
+    // 1. Insert store transaction claiming from buffer
+    await supabaseAdmin.from('store_transactions').insert({
+      type: 'OUTWARD',
+      item_name: item_name.trim(),
+      quantity: Number(quantity) || 1,
+      unit: unit || 'pcs',
+      entry_date: todayStr,
+      allotment_id: allotment_id || null,
+      notes: `[SAFETY_BUFFER_RESERVE_CLAIM] ${defect_reason ? `Reason: ${defect_reason} • ` : ''}Claimed by ${stamp}${article_no ? ` • Art #${article_no}` : ''}`
+    })
+
+    revalidatePath('/stitching-sewing/supervisor-desk')
+    revalidatePath('/stitching-sewing/dashboard')
+    revalidatePath('/stitching-sewing/store')
+    revalidatePath('/stitching-sewing/inventory')
+    revalidatePath('/store')
+    revalidatePath('/inventory')
+
+    return { success: true, message: `Successfully claimed ${quantity} ${unit || 'pcs'} from Safety Buffer Reserve.` }
+  } catch (err: any) {
+    console.error('Error in adminClaimBufferReplacement:', err)
+    return { error: err.message || 'Failed to claim trim replacement from buffer' }
+  }
+}

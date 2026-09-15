@@ -59,6 +59,8 @@ import {
   BomMaterialItemState,
   FloorAccessoryReissuePayload
 } from '../actions'
+import { getDetailedItemBreakdown } from '@/utils/multiSizeParser'
+import { ArticleConsumptionLedger } from './ArticleConsumptionLedger'
 
 // Types
 export type Article = {
@@ -916,6 +918,14 @@ export function StoreDashboardClient({
       </div>
 
       {/* ============================================================ */}
+      {/* 4.5 LIVE ARTICLE MATERIAL CONSUMPTION LEDGER                  */}
+      {/* ============================================================ */}
+      <ArticleConsumptionLedger 
+        activeAllotments={activeAllotments} 
+        truckInwards={truckInwards} 
+      />
+
+      {/* ============================================================ */}
       {/* 5. RECENT SUPPLIER CHALLANS (GRN) FEED                       */}
       {/* ============================================================ */}
       {truckInwards.length > 0 && (
@@ -1068,22 +1078,36 @@ export function StoreDashboardClient({
                             const itReceived = it.received_quantity ?? it.quantity ?? 0
                             const itShortage = it.shortage_quantity ?? 0
                             const itStatus = it.status || (itShortage > 0 ? 'SHORTAGE' : 'RECEIVED')
+                            const breakdown = getDetailedItemBreakdown(it.item_name, Number(itReceived) || 0, it.size_label || it.size)
 
                             return (
                               <div 
                                 key={idx} 
-                                className="p-3 bg-white rounded-xl border border-slate-200/80 space-y-1.5 text-xs shadow-2xs"
+                                className="p-3 bg-white rounded-xl border border-slate-200/80 space-y-2 text-xs shadow-2xs"
                               >
                                 <div className="flex items-start justify-between gap-2">
-                                  <div>
-                                    <span className="font-bold text-slate-900 block">
-                                      {it.item_name}
+                                  <div className="min-w-0 flex-1">
+                                    <span className="font-bold text-slate-900 block truncate" title={it.item_name}>
+                                      {breakdown.cleanName}
                                     </span>
-                                    <p className="text-[11px] text-slate-500 font-mono">
-                                      {it.item_type || 'Material'} • {it.color || 'Standard'} {it.size ? `• ${it.size}` : ''}
-                                    </p>
+                                    <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                                      <span className="text-[11px] text-slate-500 font-mono">
+                                        {it.item_type || 'Material'} • {it.color || 'Standard'}
+                                      </span>
+                                      {breakdown.isMultiSize && breakdown.sizes.length > 0 && (
+                                        <span className="px-1.5 py-0.2 rounded text-[10px] font-mono font-semibold bg-slate-100 text-slate-600 border border-slate-200">
+                                          Sizes: {breakdown.sizes.join(', ')}
+                                        </span>
+                                      )}
+                                      {breakdown.bufferQty > 0 && (
+                                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-indigo-50 text-[#3A3564] border border-[#3A3564]/20 shadow-2xs" title="Safety Buffer Reserve in Store Rack">
+                                          <ShieldCheck className="w-3 h-3 text-[#3A3564]" />
+                                          <span>Buffer: +{breakdown.bufferQty}</span>
+                                        </span>
+                                      )}
+                                    </div>
                                   </div>
-                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md font-mono font-bold uppercase text-[10px] bg-[#FAF7F0] text-slate-800 border border-black/10">
+                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md font-mono font-bold uppercase text-[10px] bg-[#FAF7F0] text-slate-800 border border-black/10 shrink-0">
                                     {itStatus === 'SHORTAGE' ? (
                                       <><AlertTriangle className="w-3 h-3 text-slate-700" /> Shortage</>
                                     ) : itStatus === 'DEFECTIVE' ? (
@@ -1095,6 +1119,23 @@ export function StoreDashboardClient({
                                     )}
                                   </span>
                                 </div>
+
+                                {/* Size-Wise Breakdown Matrix */}
+                                {breakdown.isMultiSize && breakdown.sizeBreakdown.length > 0 && (
+                                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 pt-1.5 border-t border-slate-100">
+                                    {breakdown.sizeBreakdown.map((sb) => (
+                                      <div 
+                                        key={sb.size} 
+                                        className="flex items-center justify-between px-2 py-1 bg-[#FAF7F0] border border-black/10 rounded-md text-[11px] shadow-2xs"
+                                      >
+                                        <span className="font-bold text-[#3A3564]">Size {sb.size}</span>
+                                        <span className="font-mono font-bold text-slate-800">
+                                          {sb.qty.toLocaleString('en-IN')} <span className="text-[9px] font-normal text-slate-500">{it.unit || 'pcs'}</span>
+                                        </span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
 
                                 <div className="flex items-center justify-between text-[11px] font-mono font-semibold text-slate-600 pt-1 border-t border-slate-200/50">
                                   <span>Challan: <strong className="text-slate-800">{itChallan} {it.unit || 'pcs'}</strong></span>
@@ -1136,30 +1177,63 @@ export function StoreDashboardClient({
                         const itReceived = Number(it.quantity || it.received_qty || 0)
                         const itShortage = Number(it.shortage_qty || 0)
                         const itStatus = it.status || 'RECEIVED'
+                        const breakdown = getDetailedItemBreakdown(it.item_name, itReceived, it.size_label || it.size_color)
 
                         return (
                           <div key={idx} className="p-2.5 rounded-xl bg-slate-50/80 border border-slate-200/80 space-y-1.5 text-xs">
                             <div className="flex items-center justify-between gap-2">
-                              <p className="font-bold text-slate-900">
-                                {it.item_name} {it.size_label ? `(${it.size_label})` : it.size_color ? `(${it.size_color})` : ''}
-                              </p>
-                              <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md font-mono font-bold uppercase text-[10px] ${
-                                itStatus === 'SHORTAGE' ? 'bg-amber-100 text-amber-900 border border-amber-300' :
-                                itStatus === 'DEFECTIVE' ? 'bg-rose-100 text-rose-900 border border-rose-300' :
-                                itStatus === 'DUE' ? 'bg-indigo-100 text-indigo-900 border border-indigo-300' :
-                                'bg-emerald-100 text-emerald-900 border border-emerald-300'
-                              }`}>
-                                {itStatus === 'SHORTAGE' ? (
-                                  <><AlertTriangle className="w-3 h-3 text-amber-700" /> Shortage</>
-                                ) : itStatus === 'DEFECTIVE' ? (
-                                  <><AlertCircle className="w-3 h-3 text-rose-700" /> Defective</>
-                                ) : itStatus === 'DUE' ? (
-                                  <><Clock className="w-3 h-3 text-indigo-700" /> Due</>
-                                ) : (
-                                  <><CheckCircle2 className="w-3 h-3 text-emerald-700" /> Received</>
+                              <div className="min-w-0 flex-1">
+                                <p className="font-bold text-slate-900 truncate" title={it.item_name}>
+                                  {breakdown.cleanName}
+                                </p>
+                                {breakdown.isMultiSize && breakdown.sizes.length > 0 && (
+                                  <p className="text-[10px] text-slate-500 font-mono">
+                                    Sizes: {breakdown.sizes.join(', ')}
+                                  </p>
                                 )}
-                              </span>
+                              </div>
+                              <div className="flex items-center gap-1.5 shrink-0">
+                                {breakdown.bufferQty > 0 && (
+                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-indigo-50 text-[#3A3564] border border-[#3A3564]/20 shadow-2xs" title="Safety Buffer Reserve">
+                                    <ShieldCheck className="w-3 h-3 text-[#3A3564]" />
+                                    <span>+{breakdown.bufferQty} Buffer</span>
+                                  </span>
+                                )}
+                                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md font-mono font-bold uppercase text-[10px] ${
+                                  itStatus === 'SHORTAGE' ? 'bg-amber-100 text-amber-900 border border-amber-300' :
+                                  itStatus === 'DEFECTIVE' ? 'bg-rose-100 text-rose-900 border border-rose-300' :
+                                  itStatus === 'DUE' ? 'bg-indigo-100 text-indigo-900 border border-indigo-300' :
+                                  'bg-emerald-100 text-emerald-900 border border-emerald-300'
+                                }`}>
+                                  {itStatus === 'SHORTAGE' ? (
+                                    <><AlertTriangle className="w-3 h-3 text-amber-700" /> Shortage</>
+                                  ) : itStatus === 'DEFECTIVE' ? (
+                                    <><AlertCircle className="w-3 h-3 text-rose-700" /> Defective</>
+                                  ) : itStatus === 'DUE' ? (
+                                    <><Clock className="w-3 h-3 text-indigo-700" /> Due</>
+                                  ) : (
+                                    <><CheckCircle2 className="w-3 h-3 text-emerald-700" /> Received</>
+                                  )}
+                                </span>
+                              </div>
                             </div>
+
+                            {/* Size-Wise Breakdown Matrix */}
+                            {breakdown.isMultiSize && breakdown.sizeBreakdown.length > 0 && (
+                              <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 pt-1.5 border-t border-slate-200/60">
+                                {breakdown.sizeBreakdown.map((sb) => (
+                                  <div 
+                                    key={sb.size} 
+                                    className="flex items-center justify-between px-2 py-1 bg-white border border-black/10 rounded-md text-[11px] shadow-2xs"
+                                  >
+                                    <span className="font-bold text-[#3A3564]">Size {sb.size}</span>
+                                    <span className="font-mono font-bold text-slate-800">
+                                      {sb.qty.toLocaleString('en-IN')} <span className="text-[9px] font-normal text-slate-500">{it.unit || 'pcs'}</span>
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
 
                             <div className="flex items-center justify-between text-[11px] font-mono font-semibold text-slate-600 pt-1 border-t border-slate-200/50">
                               <span>Challan: <strong className="text-slate-800">{itChallan} {it.unit || 'pcs'}</strong></span>
@@ -2633,6 +2707,16 @@ function BomHandoverModal({
               </p>
             ) : (
               materials.map(mat => {
+                const breakdown = getDetailedItemBreakdown(mat.item_name, Number(mat.required_qty) || 0)
+                const lotVariants = selectedAllotment?.allotment_variants || []
+                const lotSizes = Array.from(new Set(lotVariants.map(v => v.size?.trim().toUpperCase()).filter(Boolean)))
+                const matchingSizes = breakdown.isMultiSize ? breakdown.sizes.filter(s => lotSizes.includes(s)) : []
+                const netSizeQuota = matchingSizes.length > 0
+                  ? lotVariants
+                      .filter(v => v.size && matchingSizes.includes(v.size.trim().toUpperCase()))
+                      .reduce((acc, v) => acc + (Number(v.quantity) || 0), 0)
+                  : 0
+
                 const st = itemStates[mat.id] || {
                   id: mat.id,
                   item_name: mat.item_name,
@@ -2649,6 +2733,36 @@ function BomHandoverModal({
                       <span className="text-xs font-extrabold text-slate-900">{mat.item_name}</span>
                       <span className="text-xs font-mono font-bold text-slate-600">Required: {mat.required_qty}</span>
                     </div>
+
+                    {/* Size-Specific Quota Helper for Multi-size trims */}
+                    {breakdown.isMultiSize && matchingSizes.length > 0 && netSizeQuota > 0 && (
+                      <div className="flex items-center justify-between p-2 rounded-lg bg-indigo-50/80 border border-[#3A3564]/15 text-xs flex-wrap gap-1.5">
+                        <div className="flex items-center gap-1.5">
+                          <Tag className="w-3.5 h-3.5 text-[#3A3564]" />
+                          <span className="font-semibold text-slate-800">
+                            Floor Bundle Size: <strong className="text-[#3A3564]">{matchingSizes.join(', ')}</strong> (Net Quota: <strong>{netSizeQuota} pcs</strong>)
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setItemStates(prev => ({
+                              ...prev,
+                              [mat.id]: {
+                                ...st,
+                                received_qty: netSizeQuota,
+                                status: 'VERIFIED',
+                                shortage_qty: 0,
+                                remarks: `Size ${matchingSizes.join(', ')} Net Quota (${netSizeQuota} pcs) issued. Remaining sizes stay in Store.`
+                              }
+                            }))
+                          }}
+                          className="px-2 py-0.5 rounded bg-[#3A3564] text-white font-bold text-[10.5px] hover:bg-[#2A2554] transition-colors cursor-pointer shadow-2xs"
+                        >
+                          Apply Size Quota ({netSizeQuota} pcs)
+                        </button>
+                      </div>
+                    )}
 
                     <div className="grid grid-cols-2 gap-2.5 text-xs">
                       <div>
@@ -3403,6 +3517,7 @@ function AccessoryReissueModal({
   const [unit, setUnit] = useState<string>('pcs')
   const [reason, setReason] = useState<'LOST' | 'MACHINE_DAMAGE' | 'DEFECTIVE_PIECE' | 'SHORT_IN_LOT'>('MACHINE_DAMAGE')
   const [channel, setChannel] = useState<'DIRECT_COUNTER' | 'VIA_LINEMAN'>('DIRECT_COUNTER')
+  const [isBufferClaim, setIsBufferClaim] = useState(false)
   const [notes, setNotes] = useState<string>('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -3502,6 +3617,10 @@ function AccessoryReissueModal({
     setIsSubmitting(true)
     setError(null)
 
+    const finalNotes = isBufferClaim
+      ? (notes.trim() ? `${notes.trim()} • [SAFETY_BUFFER_RESERVE_CLAIM]` : '[SAFETY_BUFFER_RESERVE_CLAIM]')
+      : (notes.trim() || null)
+
     const res = await reissueFloorAccessory({
       allotment_id: selectedAllotmentId || null,
       article_no: articleNo.trim(),
@@ -3513,7 +3632,7 @@ function AccessoryReissueModal({
       unit,
       reason,
       channel,
-      notes: notes.trim() || null,
+      notes: finalNotes,
     })
 
     setIsSubmitting(false)
@@ -3960,6 +4079,26 @@ function AccessoryReissueModal({
                     )
                   })}
                 </div>
+              </div>
+
+              {/* Safety Buffer Reserve Claim Toggle */}
+              <div className="p-3 rounded-xl bg-indigo-50/70 border border-[#3A3564]/15 flex items-start gap-2.5 shadow-2xs">
+                <input
+                  type="checkbox"
+                  id="bufferClaimCheckbox"
+                  checked={isBufferClaim}
+                  onChange={e => setIsBufferClaim(e.target.checked)}
+                  className="mt-0.5 w-4 h-4 rounded text-[#3A3564] focus:ring-[#3A3564]/30 border-slate-300 cursor-pointer"
+                />
+                <label htmlFor="bufferClaimCheckbox" className="text-xs cursor-pointer select-none">
+                  <span className="font-bold text-[#3A3564] flex items-center gap-1">
+                    <ShieldCheck className="w-3.5 h-3.5 text-[#3A3564]" />
+                    Claim from Safety Buffer Reserve
+                  </span>
+                  <span className="text-[11px] text-slate-600 block leading-tight mt-0.5">
+                    Deduct from Godown extra safety buffer without disturbing the Lineman&apos;s production target quota.
+                  </span>
+                </label>
               </div>
 
               {/* 7. Store Remarks */}
