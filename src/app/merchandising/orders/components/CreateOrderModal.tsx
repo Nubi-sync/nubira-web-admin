@@ -15,7 +15,9 @@ import {
   Layers,
   Sparkles,
   ChevronDown,
-  Loader2
+  Loader2,
+  Palette,
+  Scale
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { MerchandisingOrder, ColorSizeMatrixItem } from '../../types/merchandising'
@@ -34,6 +36,36 @@ interface CreateOrderModalProps {
 }
 
 const DEFAULT_SIZES = ['XS', 'S', 'M', 'L', 'XL']
+
+// Standard apparel distribution ratios (XS: 5%, S: 20%, M: 40%, L: 25%, XL: 10%)
+function distributeQuantity(amount: number, sizes: string[]): Record<string, number> {
+  const result: Record<string, number> = {}
+  sizes.forEach(s => { result[s] = 0 })
+  if (amount <= 0) return result
+
+  const ratios: Record<string, number> = {
+    'XS': 0.05,
+    'S': 0.20,
+    'M': 0.40,
+    'L': 0.25,
+    'XL': 0.10
+  }
+
+  let allocated = 0
+  sizes.forEach((size, idx) => {
+    if (idx === sizes.length - 1) {
+      // Allocate remaining to guarantee exact sum match
+      result[size] = Math.max(0, amount - allocated)
+    } else {
+      const ratio = ratios[size] ?? (1 / sizes.length)
+      const qty = Math.round(amount * ratio)
+      result[size] = qty
+      allocated += qty
+    }
+  })
+
+  return result
+}
 
 export function CreateOrderModal({ 
   isOpen, 
@@ -65,12 +97,9 @@ export function CreateOrderModal({
     return d.toISOString().split('T')[0]
   })
 
-  // Step 2 State (Color & Size Matrix)
-  const [colors, setColors] = useState<string[]>(['Obsidian Black', 'Sage Olive'])
-  const [matrixData, setMatrixData] = useState<Record<string, Record<string, number>>>({
-    'Obsidian Black': { 'XS': 0, 'S': 100, 'M': 200, 'L': 150, 'XL': 50 },
-    'Sage Olive': { 'XS': 0, 'S': 100, 'M': 200, 'L': 150, 'XL': 50 }
-  })
+  // Step 2 State (Color & Size Matrix) - Starts fresh with 0 pre-populated colors
+  const [colors, setColors] = useState<string[]>([])
+  const [matrixData, setMatrixData] = useState<Record<string, Record<string, number>>>({})
   const [newColorInput, setNewColorInput] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -221,20 +250,66 @@ export function CreateOrderModal({
   }
 
   const handleAddColor = () => {
-    if (!newColorInput.trim()) return
     const trimmed = newColorInput.trim()
-    if (!colors.includes(trimmed)) {
-      setColors(prev => [...prev, trimmed])
+    if (!trimmed) return
+    if (colors.some(c => c.toLowerCase() === trimmed.toLowerCase())) {
+      setError(`Colorway "${trimmed}" is already in the matrix.`)
+      return
+    }
+
+    const updatedColors = [...colors, trimmed]
+    const remainingDelta = targetQty - currentMatrixSum
+
+    if (colors.length === 0) {
+      // First color: gets the entire targetQty distributed
+      const allocatedSizes = distributeQuantity(targetQty, DEFAULT_SIZES)
+      setColors(updatedColors)
+      setMatrixData({ [trimmed]: allocatedSizes })
+    } else if (remainingDelta > 0) {
+      // If user pre-edited existing colors down, new color takes the remaining delta!
+      const allocatedSizes = distributeQuantity(remainingDelta, DEFAULT_SIZES)
+      setColors(updatedColors)
       setMatrixData(prev => ({
         ...prev,
-        [trimmed]: { 'XS': 0, 'S': 0, 'M': 0, 'L': 0, 'XL': 0 }
+        [trimmed]: allocatedSizes
       }))
+    } else {
+      // Delta is 0 (or sum equals targetQty): split targetQty equally across all colors!
+      const newMatrix: Record<string, Record<string, number>> = {}
+      const perColor = Math.floor(targetQty / updatedColors.length)
+      let allocated = 0
+
+      updatedColors.forEach((c, idx) => {
+        const quota = (idx === updatedColors.length - 1) ? Math.max(0, targetQty - allocated) : perColor
+        allocated += quota
+        newMatrix[c] = distributeQuantity(quota, DEFAULT_SIZES)
+      })
+
+      setColors(updatedColors)
+      setMatrixData(newMatrix)
     }
+
     setNewColorInput('')
+    setError(null)
+  }
+
+  const handleRebalanceAll = () => {
+    if (colors.length === 0 || targetQty <= 0) return
+    const newMatrix: Record<string, Record<string, number>> = {}
+    const perColor = Math.floor(targetQty / colors.length)
+    let allocated = 0
+
+    colors.forEach((c, idx) => {
+      const quota = (idx === colors.length - 1) ? Math.max(0, targetQty - allocated) : perColor
+      allocated += quota
+      newMatrix[c] = distributeQuantity(quota, DEFAULT_SIZES)
+    })
+
+    setMatrixData(newMatrix)
+    toast.success(`Re-balanced ${targetQty.toLocaleString()} pcs equally across ${colors.length} colorways.`)
   }
 
   const handleRemoveColor = (color: string) => {
-    if (colors.length <= 1) return
     setColors(prev => prev.filter(c => c !== color))
     setMatrixData(prev => {
       const copy = { ...prev }
@@ -247,8 +322,13 @@ export function CreateOrderModal({
     e.preventDefault()
     setError(null)
 
+    if (colors.length === 0) {
+      setError('Please add at least one colorway (e.g. Orange, Green) to the matrix.')
+      return
+    }
+
     if (currentMatrixSum !== targetQty) {
-      setError(`Matrix breakdown total (${currentMatrixSum.toLocaleString()} pcs) must match Target PO Quantity (${targetQty.toLocaleString()} pcs). Delta: ${qtyDelta.toLocaleString()} pcs.`)
+      setError(`Matrix breakdown total (${currentMatrixSum.toLocaleString()} pcs) must match Target PO Quantity (${targetQty.toLocaleString()} pcs). Delta: ${qtyDelta > 0 ? `+${qtyDelta}` : qtyDelta} pcs.`)
       return
     }
 
@@ -571,13 +651,13 @@ export function CreateOrderModal({
                 </div>
               </div>
 
-              {/* Add Color Input */}
+              {/* Add Color Input & Balance Tool */}
               <div className="flex items-center gap-2">
                 <input
                   type="text"
                   value={newColorInput}
                   onChange={e => setNewColorInput(e.target.value)}
-                  placeholder="Add Colorway (e.g. Obsidian Black, Sage Olive)..."
+                  placeholder="Add Colorway (e.g. Orange, Sage Olive)..."
                   className="flex-1 px-3.5 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs font-medium text-slate-900 outline-none shadow-2xs transition-all"
                   onKeyDown={e => {
                     if (e.key === 'Enter') {
@@ -594,6 +674,17 @@ export function CreateOrderModal({
                   <Plus className="w-3.5 h-3.5" />
                   <span>Add Color</span>
                 </button>
+                {colors.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={handleRebalanceAll}
+                    className="px-3.5 py-2.5 bg-white hover:bg-slate-100 border border-black/10 text-slate-700 font-semibold rounded-xl inline-flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs text-xs"
+                    title="Re-distribute total contract quantity equally across all colors"
+                  >
+                    <Scale className="w-3.5 h-3.5 text-[#3A3564]" />
+                    <span>Even Balance</span>
+                  </button>
+                )}
               </div>
 
               {/* Matrix Table */}
@@ -610,42 +701,59 @@ export function CreateOrderModal({
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-black/5 text-xs">
-                    {colors.map(color => {
-                      const row = matrixData[color] || {}
-                      const rowSum = DEFAULT_SIZES.reduce((acc, s) => acc + (row[s] || 0), 0)
-                      return (
-                        <tr key={color} className="hover:bg-slate-50/50">
-                          <td className="px-3.5 py-2 font-semibold text-slate-900 whitespace-nowrap">
-                            {color}
-                          </td>
-                          {DEFAULT_SIZES.map(size => (
-                            <td key={size} className="px-2 py-2 text-center">
-                              <input
-                                type="number"
-                                min="0"
-                                value={row[size] || 0}
-                                onChange={e => handleCellChange(color, size, e.target.value)}
-                                className="w-16 px-2 py-1.5 text-center font-mono rounded-lg border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 bg-white text-slate-900 font-semibold outline-none"
-                              />
+                    {colors.length === 0 ? (
+                      <tr>
+                        <td colSpan={DEFAULT_SIZES.length + 3} className="px-4 py-8 text-center bg-white">
+                          <div className="flex flex-col items-center justify-center space-y-2 text-slate-400">
+                            <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-[#3A3564]">
+                              <Palette className="w-5 h-5" />
+                            </div>
+                            <div className="text-center">
+                              <p className="text-xs font-bold text-slate-800">No Colorways Added Yet</p>
+                              <p className="text-[11px] text-slate-500 mt-1 max-w-sm">
+                                Enter your color name above (e.g. <span className="font-mono font-semibold text-slate-700">Orange</span>, <span className="font-mono font-semibold text-slate-700">Green</span>) and click <span className="font-bold text-[#3A3564]">+ Add Color</span> to automatically distribute the <span className="font-mono font-bold text-slate-800">{targetQty.toLocaleString()} pcs</span> order quantity.
+                              </p>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    ) : (
+                      colors.map(color => {
+                        const row = matrixData[color] || {}
+                        const rowSum = DEFAULT_SIZES.reduce((acc, s) => acc + (row[s] || 0), 0)
+                        return (
+                          <tr key={color} className="hover:bg-slate-50/50">
+                            <td className="px-3.5 py-2 font-semibold text-slate-900 whitespace-nowrap">
+                              {color}
                             </td>
-                          ))}
-                          <td className="px-3.5 py-2 text-right font-bold text-[#3A3564] font-mono">
-                            {rowSum.toLocaleString()}
-                          </td>
-                          <td className="px-2 py-2 text-center">
-                            {colors.length > 1 && (
+                            {DEFAULT_SIZES.map(size => (
+                              <td key={size} className="px-2 py-2 text-center">
+                                <input
+                                  type="number"
+                                  min="0"
+                                  value={row[size] ?? 0}
+                                  onChange={e => handleCellChange(color, size, e.target.value)}
+                                  className="w-16 px-2 py-1.5 text-center font-mono rounded-lg border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 bg-white text-slate-900 font-semibold outline-none"
+                                />
+                              </td>
+                            ))}
+                            <td className="px-3.5 py-2 text-right font-bold text-[#3A3564] font-mono">
+                              {rowSum.toLocaleString()}
+                            </td>
+                            <td className="px-2 py-2 text-center">
                               <button
                                 type="button"
                                 onClick={() => handleRemoveColor(color)}
                                 className="p-1 text-slate-400 hover:text-rose-600 rounded transition-colors cursor-pointer"
+                                title={`Remove ${color}`}
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
                               </button>
-                            )}
-                          </td>
-                        </tr>
-                      )
-                    })}
+                            </td>
+                          </tr>
+                        )
+                      })
+                    )}
                   </tbody>
                 </table>
               </div>
