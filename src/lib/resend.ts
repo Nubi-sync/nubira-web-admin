@@ -7,6 +7,20 @@ export function getResendClient(): Resend | null {
 
 export const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null
 
+// Clean recipient name formatter
+function getRecipientName(adminName?: string, companyName?: string): string {
+  const cleanAdmin = (adminName || '').trim()
+  if (
+    cleanAdmin &&
+    !cleanAdmin.toLowerCase().includes('admin') &&
+    !cleanAdmin.toLowerCase().includes('user') &&
+    !cleanAdmin.toLowerCase().includes('staff')
+  ) {
+    return cleanAdmin
+  }
+  return (companyName || '').trim() || 'Valued Client'
+}
+
 export interface TenantActivationEmailParams {
   to: string
   companyName: string
@@ -28,12 +42,11 @@ export async function sendTenantActivationEmail(params: TenantActivationEmailPar
     customUsername,
     initialPassword,
     subscriptionTier,
-    divisionsCount,
     accessType
   } = params
 
   const client = getResendClient()
-  const fromEmail = process.env.RESEND_FROM_EMAIL || 'Zigza Activation <noreply@zigza.in>'
+  const fromEmail = process.env.RESEND_FROM_EMAIL || 'zigza <noreply@zigza.in>'
 
   if (!client) {
     console.warn('[Resend] RESEND_API_KEY not set. Simulating activation email dispatch to:', to)
@@ -46,94 +59,153 @@ export async function sendTenantActivationEmail(params: TenantActivationEmailPar
 
   try {
     const isTrial = accessType === 'DEMO_TRIAL'
+    const recipient = getRecipientName(adminName, companyName)
 
     const htmlContent = `
       <!DOCTYPE html>
       <html>
       <head>
         <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <style>
-          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #FAFAF8; margin: 0; padding: 32px 16px; color: #1e293b; }
-          .container { max-width: 580px; margin: 0 auto; background: #ffffff; border-radius: 16px; border: 1px solid rgba(0,0,0,0.08); overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.04); }
-          .header { background: #3A3564; padding: 32px 28px; text-align: left; }
-          .brand-title { color: #ffffff; font-size: 24px; font-weight: 800; letter-spacing: -0.5px; margin: 0; }
-          .brand-subtitle { color: rgba(255,255,255,0.75); font-size: 13px; margin-top: 6px; }
-          .content { padding: 32px 28px; }
-          .greeting { font-size: 17px; font-weight: 700; color: #0f172a; margin-bottom: 12px; }
-          .message { font-size: 14px; line-height: 1.6; color: #475569; margin-bottom: 24px; }
-          .credentials-box { background: #FAF7F0; border: 1px solid rgba(58, 53, 100, 0.15); border-radius: 12px; padding: 20px; margin-bottom: 24px; font-family: 'Courier New', Courier, monospace; }
-          .cred-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 13px; }
-          .cred-row:last-child { margin-bottom: 0; }
-          .cred-label { color: #64748b; font-weight: 600; }
-          .cred-val { color: #0f172a; font-weight: 700; }
-          .cred-highlight { color: #3A3564; font-weight: 800; }
-          .button-wrap { text-align: center; margin: 24px 0; }
-          .btn-login { display: inline-block; background: #3A3564; color: #ffffff !important; padding: 14px 28px; border-radius: 10px; font-size: 14px; font-weight: 700; text-decoration: none; box-shadow: 0 2px 8px rgba(58,53,100,0.25); margin: 6px 4px; }
-          .plan-box { background: #FAF7F0; border: 1px solid rgba(58, 53, 100, 0.15); border-radius: 12px; padding: 16px 20px; margin: 20px 0; text-align: left; }
-          .plan-title { font-size: 13px; font-weight: 800; color: #3A3564; text-transform: uppercase; margin-bottom: 6px; }
-          .plan-desc { font-size: 12px; color: #475569; line-height: 1.5; }
-          .security-note { font-size: 12px; color: #64748b; line-height: 1.5; border-top: 1px solid #e2e8f0; padding-top: 20px; }
-          .footer { background: #f8fafc; padding: 20px 28px; text-align: center; font-size: 11px; color: #94a3b8; border-top: 1px solid #e2e8f0; }
+          body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #FAFAF8;
+            margin: 0;
+            padding: 36px 16px;
+            color: #0f172a;
+            -webkit-font-smoothing: antialiased;
+          }
+          .card {
+            max-width: 520px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 14px;
+            border: 1px solid #e2e8f0;
+            padding: 32px 28px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+          }
+          .brand {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.6px;
+            color: #0f172a;
+            margin-bottom: 24px;
+          }
+          .brand span {
+            color: #94a3b8;
+          }
+          .greeting {
+            font-size: 15px;
+            font-weight: 600;
+            color: #0f172a;
+            margin-bottom: 10px;
+          }
+          .text {
+            font-size: 14px;
+            line-height: 1.55;
+            color: #475569;
+            margin-bottom: 20px;
+          }
+          .box {
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: 10px;
+            padding: 16px 18px;
+            margin-bottom: 24px;
+          }
+          .row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            font-size: 13px;
+          }
+          .row:not(:last-child) {
+            border-bottom: 1px solid #F1F5F9;
+          }
+          .label {
+            color: #64748b;
+            font-weight: 500;
+          }
+          .val {
+            color: #0f172a;
+            font-weight: 600;
+            font-family: monospace;
+          }
+          .btn-wrap {
+            margin: 24px 0 20px;
+          }
+          .btn {
+            display: inline-block;
+            background: #0f172a;
+            color: #ffffff !important;
+            padding: 11px 24px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+          }
+          .note {
+            font-size: 12px;
+            color: #94a3b8;
+            line-height: 1.5;
+            margin-top: 20px;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 16px;
+          }
+          .footer {
+            margin-top: 24px;
+            text-align: center;
+            font-size: 11px;
+            color: #94a3b8;
+          }
         </style>
       </head>
       <body>
-        <div class="container">
-          <div class="header">
-            <h1 class="brand-title">Zigza Enterprise MES</h1>
-            <div class="brand-subtitle">Apparel Manufacturing Execution Platform</div>
-          </div>
-          <div class="content">
-            <div class="greeting">Welcome, ${adminName}</div>
-            <p class="message">
-              Your factory client workspace for <strong>${companyName}</strong> has been provisioned on Zigza MES with <strong>${divisionsCount} operational manufacturing divisions</strong> under the <strong>${subscriptionTier.replace(/_/g, ' ')}</strong> tier (${isTrial ? '7-Day Demo Evaluation' : 'Full Enterprise Contract'}).
-            </p>
-            
-            <div class="credentials-box">
-              <div class="cred-row">
-                <span class="cred-label">Login URL:</span>
-                <span class="cred-highlight">https://app.zigza.in/login</span>
-              </div>
-              ${customUsername ? `
-              <div class="cred-row">
-                <span class="cred-label">Custom Username:</span>
-                <span class="cred-highlight">${customUsername}</span>
-              </div>` : ''}
-              <div class="cred-row">
-                <span class="cred-label">Login Email:</span>
-                <span class="cred-val">${loginEmail}</span>
-              </div>
-              <div class="cred-row">
-                <span class="cred-label">Initial Password:</span>
-                <span class="cred-highlight">${initialPassword}</span>
-              </div>
-              <div class="cred-row">
-                <span class="cred-label">Plan Tier:</span>
-                <span class="cred-val">${subscriptionTier.replace(/_/g, ' ')}</span>
-              </div>
-              <div class="cred-row">
-                <span class="cred-label">Access Model:</span>
-                <span class="cred-highlight">${isTrial ? '7-Day Demo Trial (Revocable)' : 'Full Access'}</span>
-              </div>
-            </div>
+        <div class="card">
+          <div class="brand">zigza<span>.</span></div>
 
-            <div class="plan-box">
-              <div class="plan-title">Company Profile & Subscription Management</div>
-              <div class="plan-desc">
-                You can review active modules, license status, and renew or upgrade your subscription at any time directly under your factory <strong>Company Profile</strong> section.
-              </div>
-            </div>
+          <div class="greeting">Dear ${recipient},</div>
+          <p class="text">
+            Your workspace for <strong>${companyName}</strong> is ready on <strong>zigza.in</strong> with ${isTrial ? '7-day demo trial access' : 'full access'}.
+          </p>
 
-            <div class="button-wrap">
-              <a href="https://app.zigza.in/login" class="btn-login" target="_blank">Access Factory Workspace</a>
+          <div class="box">
+            <div class="row">
+              <span class="label">Workspace URL</span>
+              <span class="val" style="font-family: inherit; color: #0f172a;">https://zigza.in</span>
             </div>
-
-            <div class="security-note">
-              <strong>Security Protocol:</strong> Please change your password upon your first administrative login. This is an automated notification from Zigza Infrastructure Services.
+            <div class="row">
+              <span class="label">Login Email</span>
+              <span class="val">${loginEmail}</span>
+            </div>
+            ${customUsername ? `
+            <div class="row">
+              <span class="label">Username</span>
+              <span class="val">${customUsername}</span>
+            </div>` : ''}
+            <div class="row">
+              <span class="label">Initial Password</span>
+              <span class="val">${initialPassword}</span>
+            </div>
+            <div class="row">
+              <span class="label">Account Status</span>
+              <span class="val" style="font-family: inherit;">${isTrial ? '7-Day Demo Trial' : 'Active Plan'}</span>
             </div>
           </div>
-          <div class="footer">
-            Zigza MES Enterprise • Support: support@zigza.in • Confidential Factory Provisioning
+
+          <div class="btn-wrap">
+            <a href="https://zigza.in" class="btn" target="_blank">Sign in to Workspace</a>
           </div>
+
+          <div class="note">
+            Please change your password after your first login under your Company Profile.
+          </div>
+        </div>
+
+        <div class="footer">
+          zigza.in • Automated notification
         </div>
       </body>
       </html>
@@ -142,7 +214,7 @@ export async function sendTenantActivationEmail(params: TenantActivationEmailPar
     const result = await client.emails.send({
       from: fromEmail,
       to,
-      subject: `Zigza MES Activation Credentials - ${companyName}`,
+      subject: `Workspace Access - ${companyName}`,
       html: htmlContent,
     })
 
@@ -169,7 +241,7 @@ export interface CustomInquiryNotificationParams {
 
 export async function sendCustomInquiryNotificationEmail(params: CustomInquiryNotificationParams) {
   const client = getResendClient()
-  const fromEmail = process.env.RESEND_FROM_EMAIL || 'Zigza Activation <noreply@zigza.in>'
+  const fromEmail = process.env.RESEND_FROM_EMAIL || 'zigza <noreply@zigza.in>'
 
   if (!client) {
     console.warn('[Resend] Simulating custom inquiry notification email for:', params.companyName)
@@ -180,32 +252,41 @@ export async function sendCustomInquiryNotificationEmail(params: CustomInquiryNo
     const adminNotificationEmail = process.env.PLATFORM_ADMIN_ALERT_EMAIL || 'shawsumit6286@gmail.com'
 
     const htmlContent = `
-      <div style="font-family: sans-serif; padding: 24px; color: #1e293b;">
-        <h2 style="color: #3A3564; margin-bottom: 16px;">New Custom Enterprise Build Request</h2>
-        <p>A new prospective client has requested a custom engineering plan on Zigza MES:</p>
-        <ul style="line-height: 1.8;">
-          <li><strong>Company:</strong> ${params.companyName}</li>
-          <li><strong>Contact Person:</strong> ${params.applicantName}</li>
-          <li><strong>Phone:</strong> ${params.phone}</li>
-          <li><strong>Email:</strong> ${params.email}</li>
-          <li><strong>Estimated Machines:</strong> ${params.estimatedMachines || 'Not specified'}</li>
-        </ul>
-        <h3 style="margin-top: 20px;">Client Requirements / Scope:</h3>
-        <div style="background: #FAF7F0; border: 1px solid #e2e8f0; padding: 16px; border-radius: 8px; font-family: monospace;">
-          ${params.requirements.replace(/\n/g, '<br/>')}
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <style>
+          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #FAFAF8; margin: 0; padding: 36px 16px; color: #0f172a; }
+          .card { max-width: 520px; margin: 0 auto; background: #ffffff; border-radius: 14px; border: 1px solid #e2e8f0; padding: 32px 28px; }
+          .brand { font-size: 20px; font-weight: 700; color: #0f172a; margin-bottom: 20px; }
+          .brand span { color: #94a3b8; }
+          .title { font-size: 15px; font-weight: 600; color: #0f172a; margin-bottom: 12px; }
+          .box { background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 14px 16px; margin: 16px 0; font-size: 13px; line-height: 1.8; color: #334155; }
+          .btn { display: inline-block; background: #0f172a; color: #ffffff !important; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none; margin-top: 12px; }
+        </style>
+      </head>
+      <body>
+        <div class="card">
+          <div class="brand">zigza<span>.</span></div>
+          <div class="title">New Inquiry: ${params.companyName}</div>
+          <div class="box">
+            <div><strong>Contact:</strong> ${params.applicantName}</div>
+            <div><strong>Phone:</strong> ${params.phone}</div>
+            <div><strong>Email:</strong> ${params.email}</div>
+            ${params.estimatedMachines ? `<div><strong>Machines:</strong> ${params.estimatedMachines}</div>` : ''}
+            <div style="margin-top: 10px;"><strong>Requirements:</strong><br/>${params.requirements}</div>
+          </div>
+          <a href="https://zigza.in/platform-admin" class="btn">View in Portal</a>
         </div>
-        <p style="margin-top: 20px;">
-          <a href="https://app.zigza.in/platform-admin/custom-requests" style="background: #3A3564; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; font-weight: bold;">
-            Review in Platform Admin Portal
-          </a>
-        </p>
-      </div>
+      </body>
+      </html>
     `
 
     const result = await client.emails.send({
       from: fromEmail,
       to: adminNotificationEmail,
-      subject: `New Custom Build Request: ${params.companyName} (${params.applicantName})`,
+      subject: `New Request: ${params.companyName} (${params.applicantName})`,
       html: htmlContent,
     })
 
@@ -243,7 +324,7 @@ export async function sendPaymentReminderEmail(params: PaymentReminderEmailParam
   } = params
 
   const client = getResendClient()
-  const fromEmail = process.env.RESEND_FROM_EMAIL || 'Zigza Subscriptions <noreply@zigza.in>'
+  const fromEmail = process.env.RESEND_FROM_EMAIL || 'zigza <noreply@zigza.in>'
 
   if (!client) {
     console.warn('[Resend] RESEND_API_KEY not set. Simulating payment reminder email dispatch to:', to)
@@ -256,88 +337,156 @@ export async function sendPaymentReminderEmail(params: PaymentReminderEmailParam
 
   try {
     const isTrial = accessType === 'DEMO_TRIAL'
+    const recipient = getRecipientName(adminName, companyName)
     const expiryFormatted = expiresAt ? new Date(expiresAt).toLocaleDateString('en-IN', {
-      year: 'numeric',
+      day: 'numeric',
       month: 'short',
-      day: 'numeric'
-    }) : 'Pending Plan Setup'
+      year: 'numeric'
+    }) : 'Pending'
 
     const htmlContent = `
       <!DOCTYPE html>
       <html>
       <head>
         <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <style>
-          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #FAFAF8; margin: 0; padding: 32px 16px; color: #1e293b; }
-          .container { max-width: 580px; margin: 0 auto; background: #ffffff; border-radius: 16px; border: 1px solid rgba(0,0,0,0.08); overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.04); }
-          .header { background: #3A3564; padding: 32px 28px; text-align: left; }
-          .brand-title { color: #ffffff; font-size: 24px; font-weight: 800; letter-spacing: -0.5px; margin: 0; }
-          .brand-subtitle { color: rgba(255,255,255,0.75); font-size: 13px; margin-top: 6px; }
-          .content { padding: 32px 28px; }
-          .greeting { font-size: 17px; font-weight: 700; color: #0f172a; margin-bottom: 12px; }
-          .message { font-size: 14px; line-height: 1.6; color: #475569; margin-bottom: 24px; }
-          .notice-box { background: ${isTrial ? '#FFFBEB' : '#FAF7F0'}; border: 1px solid ${isTrial ? '#FDE68A' : 'rgba(58, 53, 100, 0.15)'}; border-radius: 12px; padding: 20px; margin-bottom: 24px; }
-          .notice-title { font-size: 13px; font-weight: 800; color: ${isTrial ? '#92400E' : '#3A3564'}; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
-          .detail-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 13px; }
-          .detail-row:last-child { margin-bottom: 0; }
-          .detail-label { color: #64748b; font-weight: 600; }
-          .detail-val { color: #0f172a; font-weight: 700; }
-          .detail-highlight { color: #3A3564; font-weight: 800; }
-          .button-wrap { text-align: center; margin: 28px 0; }
-          .btn-action { display: inline-block; background: #3A3564; color: #ffffff !important; padding: 15px 36px; border-radius: 10px; font-size: 15px; font-weight: 700; text-decoration: none; box-shadow: 0 4px 12px rgba(58,53,100,0.3); }
-          .note { font-size: 12px; color: #64748b; line-height: 1.5; border-top: 1px solid #e2e8f0; padding-top: 20px; }
-          .footer { background: #f8fafc; padding: 20px 28px; text-align: center; font-size: 11px; color: #94a3b8; border-top: 1px solid #e2e8f0; }
+          body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #FAFAF8;
+            margin: 0;
+            padding: 36px 16px;
+            color: #0f172a;
+            -webkit-font-smoothing: antialiased;
+          }
+          .card {
+            max-width: 520px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 14px;
+            border: 1px solid #e2e8f0;
+            padding: 32px 28px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+          }
+          .brand {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.6px;
+            color: #0f172a;
+            margin-bottom: 24px;
+          }
+          .brand span {
+            color: #94a3b8;
+          }
+          .greeting {
+            font-size: 15px;
+            font-weight: 600;
+            color: #0f172a;
+            margin-bottom: 10px;
+          }
+          .text {
+            font-size: 14px;
+            line-height: 1.55;
+            color: #475569;
+            margin-bottom: 20px;
+          }
+          .box {
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: 10px;
+            padding: 16px 18px;
+            margin-bottom: 24px;
+          }
+          .row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            font-size: 13px;
+          }
+          .row:not(:last-child) {
+            border-bottom: 1px solid #F1F5F9;
+          }
+          .label {
+            color: #64748b;
+            font-weight: 500;
+          }
+          .val {
+            color: #0f172a;
+            font-weight: 600;
+          }
+          .btn-wrap {
+            margin: 24px 0 20px;
+          }
+          .btn {
+            display: inline-block;
+            background: #0f172a;
+            color: #ffffff !important;
+            padding: 11px 24px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+          }
+          .note {
+            font-size: 12px;
+            color: #94a3b8;
+            line-height: 1.5;
+            margin-top: 20px;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 16px;
+          }
+          .footer {
+            margin-top: 24px;
+            text-align: center;
+            font-size: 11px;
+            color: #94a3b8;
+          }
         </style>
       </head>
       <body>
-        <div class="container">
-          <div class="header">
-            <h1 class="brand-title">Zigza Enterprise MES</h1>
-            <div class="brand-subtitle">Subscription & License Validity Notice</div>
-          </div>
-          <div class="content">
-            <div class="greeting">Dear ${adminName},</div>
-            <p class="message">
-              This is a notification regarding your <strong>${companyName}</strong> factory workspace license on the Zigza MES platform.
-              ${isTrial ? 'Your temporary 7-day demo trial period is nearing completion. To ensure continuous access to your manufacturing divisions without interruption, please activate your plan.' : 'Your monthly subscription period is due for renewal to maintain active operational execution across your plant.'}
-            </p>
-            
-            <div class="notice-box">
-              <div class="notice-title">Subscription Account Summary</div>
-              <div class="detail-row">
-                <span class="detail-label">Factory / Company:</span>
-                <span class="detail-val">${companyName}</span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">Access Model:</span>
-                <span class="detail-highlight">${isTrial ? '7-Day Demo Trial' : 'Full Enterprise Access'}</span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">Active Plan Tier:</span>
-                <span class="detail-val">${planTier.replace(/_/g, ' ')}</span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">Monthly Rate:</span>
-                <span class="detail-highlight">₹${monthlyBillingInr.toLocaleString('en-IN')}/month</span>
-              </div>
-              ${isTrial && expiresAt ? `
-              <div class="detail-row">
-                <span class="detail-label">Trial Expiry Date:</span>
-                <span class="detail-val" style="color: #DC2626; font-weight: 800;">${expiryFormatted}</span>
-              </div>` : ''}
-            </div>
+        <div class="card">
+          <div class="brand">zigza<span>.</span></div>
 
-            <div class="button-wrap">
-              <a href="https://app.zigza.in/modules/profile" class="btn-action" target="_blank">Manage & Renew in Company Profile</a>
-            </div>
+          <div class="greeting">Dear ${recipient},</div>
+          <p class="text">
+            ${isTrial
+              ? `Your 7-day demo trial for <strong>${companyName}</strong> is active until <strong>${expiryFormatted}</strong>. You can review your plan and activate your subscription under Company Profile.`
+              : `Your subscription for <strong>${companyName}</strong> is due for renewal. You can manage your plan directly under Company Profile.`
+            }
+          </p>
 
-            <div class="note">
-              <strong>Need assistance?</strong> For banking wire transfer instructions, customized enterprise agreements, or subscription changes, please reach out directly to <a href="mailto:billing@zigza.in" style="color: #3A3564; font-weight: 600;">billing@zigza.in</a>.
+          <div class="box">
+            <div class="row">
+              <span class="label">Factory</span>
+              <span class="val">${companyName}</span>
             </div>
+            <div class="row">
+              <span class="label">Status</span>
+              <span class="val">${isTrial ? '7-Day Demo Trial' : 'Active Plan'}</span>
+            </div>
+            <div class="row">
+              <span class="label">Plan</span>
+              <span class="val">${planTier === 'FULL_PLANT_AI' ? 'Full Plant' : (planTier === 'MODULAR' ? 'Modular' : 'Custom')} (₹${monthlyBillingInr.toLocaleString('en-IN')}/mo)</span>
+            </div>
+            ${expiresAt ? `
+            <div class="row">
+              <span class="label">Valid Until</span>
+              <span class="val">${expiryFormatted}</span>
+            </div>` : ''}
           </div>
-          <div class="footer">
-            Zigza MES Enterprise • Billing Desk: billing@zigza.in • Automated Subscription Notification
+
+          <div class="btn-wrap">
+            <a href="https://zigza.in" class="btn" target="_blank">Manage in Company Profile</a>
           </div>
+
+          <div class="note">
+            Need assistance? Reach out to support@zigza.in.
+          </div>
+        </div>
+
+        <div class="footer">
+          zigza.in • Automated notification
         </div>
       </body>
       </html>
@@ -346,7 +495,7 @@ export async function sendPaymentReminderEmail(params: PaymentReminderEmailParam
     const result = await client.emails.send({
       from: fromEmail,
       to,
-      subject: `Subscription & License Notice - ${companyName} (${isTrial ? 'Demo Trial Review' : 'Monthly Renewal'})`,
+      subject: `Subscription Notice - ${companyName}`,
       html: htmlContent,
     })
 
@@ -361,4 +510,3 @@ export async function sendPaymentReminderEmail(params: PaymentReminderEmailParam
     return { success: false, error: error?.message || 'Failed to send payment reminder email' }
   }
 }
-
