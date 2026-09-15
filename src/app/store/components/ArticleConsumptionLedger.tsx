@@ -588,7 +588,7 @@ export function ArticleConsumptionLedger({
                 )}
               </div>
             )
-          })}
+          }))}
       </div>
 
       {/* Buffer Replacement Claim Modal */}
