@@ -18,6 +18,9 @@ import {
 import { EmptyState } from '@/components/ui/EmptyState'
 import { LaySheet, LaySheetStatus } from '../../types/cutting'
 import { getLaySheets, saveLaySheet } from '../../utils/cuttingStorage'
+import { getOrders } from '@/app/merchandising/utils/merchandisingStorage'
+import { getFabricRolls } from '@/app/store/utils/storeStorage'
+import { Sparkles } from 'lucide-react'
 
 interface LaySheetsClientProps {
   initialLays?: LaySheet[]
@@ -32,23 +35,24 @@ export function LaySheetsClient({ initialLays }: LaySheetsClientProps = {}) {
   const [statusFilter, setStatusFilter] = useState<string>('ALL')
   const [selectedLay, setSelectedLay] = useState<LaySheet | null>(null)
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const [availablePos, setAvailablePos] = useState<any[]>([])
 
   // Form state
   const [formData, setFormData] = useState({
-    lay_number: '',
-    po_number: '',
-    brand_name: '',
-    style_ref: '',
-    style_name: '',
+    lay_number: 'LAY-2026-0842',
+    po_number: 'PO-2026-9901',
+    brand_name: 'ZARA INTERNATIONAL',
+    style_ref: 'TP-2026-8801',
+    style_name: 'Heavyweight Relaxed French Terry Hoodie',
     table_number: 'Table 01',
-    shell_fabric: '',
-    gsm: 0,
-    plies_count: 0,
-    marker_length_meters: 0,
-    total_cut_pieces: 0,
-    ratio_breakdown: '',
-    fabric_weight_kg: 0,
-    fabric_roll_barcodes: '',
+    shell_fabric: '100% Combed Cotton French Terry 380 GSM',
+    gsm: 380,
+    plies_count: 84,
+    marker_length_meters: 5.4,
+    total_cut_pieces: 1000,
+    ratio_breakdown: 'S:1, M:2, L:2, XL:1 (Ratio: 6)',
+    fabric_weight_kg: 500,
+    fabric_roll_barcodes: 'ROL-2026-9901, ROL-2026-9902',
     cutting_master: 'R. Veerappan (Master Cutter)',
     status: 'SPREADING' as LaySheetStatus
   })
@@ -62,7 +66,65 @@ export function LaySheetsClient({ initialLays }: LaySheetsClientProps = {}) {
     } else {
       setLays(getLaySheets())
     }
+
+    if (typeof window !== 'undefined') {
+      const pos = getOrders()
+      const rolls = getFabricRolls()
+      setAvailablePos(pos)
+
+      const activePo = pos.find(p => p.po_number === 'PO-2026-9901') || pos[0]
+      const rollCodes = rolls.length > 0 ? rolls.map(r => r.rollBarcode).join(', ') : 'ROL-2026-9901, ROL-2026-9902'
+
+      if (activePo) {
+        setFormData(prev => ({
+          ...prev,
+          po_number: activePo.po_number,
+          brand_name: activePo.brand_name || 'ZARA INTERNATIONAL',
+          style_ref: activePo.style_ref || 'TP-2026-8801',
+          style_name: activePo.style_name || 'Heavyweight Relaxed French Terry Hoodie',
+          total_cut_pieces: activePo.total_quantity || 1000,
+          fabric_roll_barcodes: rollCodes
+        }))
+      }
+    }
   }, [initialLays])
+
+  const handleSelectPo = (poNumber: string) => {
+    const found = availablePos.find(p => p.po_number === poNumber)
+    if (found) {
+      setFormData(prev => ({
+        ...prev,
+        po_number: found.po_number,
+        brand_name: found.brand_name || 'ZARA INTERNATIONAL',
+        style_ref: found.style_ref || 'TP-2026-8801',
+        style_name: found.style_name || 'Heavyweight Relaxed French Terry Hoodie',
+        total_cut_pieces: found.total_quantity || 1000
+      }))
+    } else {
+      setFormData(prev => ({ ...prev, po_number: poNumber }))
+    }
+  }
+
+  const applyPreset43 = () => {
+    setFormData({
+      lay_number: 'LAY-2026-0842',
+      po_number: 'PO-2026-9901',
+      brand_name: 'ZARA INTERNATIONAL',
+      style_ref: 'TP-2026-8801',
+      style_name: 'Heavyweight Relaxed French Terry Hoodie',
+      table_number: 'Table 01',
+      shell_fabric: '100% Combed Cotton French Terry 380 GSM',
+      gsm: 380,
+      plies_count: 84,
+      marker_length_meters: 5.4,
+      total_cut_pieces: 1000,
+      ratio_breakdown: 'S:1, M:2, L:2, XL:1 (Ratio: 6)',
+      fabric_weight_kg: 500,
+      fabric_roll_barcodes: 'ROL-2026-9901, ROL-2026-9902',
+      cutting_master: 'R. Veerappan (Master Cutter)',
+      status: 'SPREADING'
+    })
+  }
 
   const filteredLays = lays.filter(lay => {
     const matchSearch =
@@ -335,6 +397,21 @@ export function LaySheetsClient({ initialLays }: LaySheetsClientProps = {}) {
               </button>
             </div>
 
+            {/* Step 4.3 Quick Fill Preset */}
+            <div className="bg-[#FAF7F0] p-3 rounded-xl border border-black/10 flex items-center justify-between">
+              <span className="text-xs font-mono font-bold text-slate-700 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-[#3A3564]" />
+                Step 4.3 Lay Preset:
+              </span>
+              <button
+                type="button"
+                onClick={applyPreset43}
+                className="px-2.5 py-1 text-xs font-mono font-bold bg-white text-[#3A3564] border border-black/10 rounded-lg hover:bg-[#3A3564] hover:text-white transition-all shadow-2xs cursor-pointer"
+              >
+                LAY-2026-0842 (84 Plies • Table 01)
+              </button>
+            </div>
+
             <form onSubmit={handleCreateLay} className="space-y-4 text-xs">
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -342,22 +419,28 @@ export function LaySheetsClient({ initialLays }: LaySheetsClientProps = {}) {
                   <input
                     type="text"
                     required
-                    placeholder="e.g. LAY-2026-095"
+                    placeholder="e.g. LAY-2026-0842"
                     value={formData.lay_number}
                     onChange={e => setFormData({ ...formData, lay_number: e.target.value })}
-                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-mono"
+                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-mono font-bold text-slate-900"
                   />
                 </div>
                 <div>
                   <label className="font-mono font-bold text-slate-700 uppercase">PO Number</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. PO-ZIG-8910"
+                  <select
                     value={formData.po_number}
-                    onChange={e => setFormData({ ...formData, po_number: e.target.value })}
-                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-mono"
-                  />
+                    onChange={e => handleSelectPo(e.target.value)}
+                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-mono font-bold text-slate-900"
+                  >
+                    {availablePos.map(p => (
+                      <option key={p.po_number} value={p.po_number}>
+                        {p.po_number} ({p.brand_name || 'Buyer'})
+                      </option>
+                    ))}
+                    {availablePos.length === 0 && (
+                      <option value="PO-2026-9901">PO-2026-9901 (ZARA INTERNATIONAL)</option>
+                    )}
+                  </select>
                 </div>
               </div>
 
@@ -367,10 +450,10 @@ export function LaySheetsClient({ initialLays }: LaySheetsClientProps = {}) {
                   <input
                     type="text"
                     required
-                    placeholder="e.g. OLLYPOP"
+                    placeholder="e.g. ZARA INTERNATIONAL"
                     value={formData.brand_name}
                     onChange={e => setFormData({ ...formData, brand_name: e.target.value })}
-                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10"
+                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-medium text-slate-900"
                   />
                 </div>
                 <div>
@@ -394,10 +477,10 @@ export function LaySheetsClient({ initialLays }: LaySheetsClientProps = {}) {
                   <input
                     type="text"
                     required
-                    placeholder="e.g. STY-HD-8910"
+                    placeholder="e.g. TP-2026-8801"
                     value={formData.style_ref}
                     onChange={e => setFormData({ ...formData, style_ref: e.target.value })}
-                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-mono"
+                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-mono font-bold text-slate-900"
                   />
                 </div>
                 <div>
@@ -405,10 +488,10 @@ export function LaySheetsClient({ initialLays }: LaySheetsClientProps = {}) {
                   <input
                     type="text"
                     required
-                    placeholder="e.g. Heavy Pullover Hoodie"
+                    placeholder="e.g. Heavyweight Relaxed French Terry Hoodie"
                     value={formData.style_name}
                     onChange={e => setFormData({ ...formData, style_name: e.target.value })}
-                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10"
+                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-medium text-slate-900"
                   />
                 </div>
               </div>
@@ -418,10 +501,10 @@ export function LaySheetsClient({ initialLays }: LaySheetsClientProps = {}) {
                 <input
                   type="text"
                   required
-                  placeholder="e.g. 100% Organic Heavy Cotton Fleece"
+                  placeholder="e.g. 100% Combed Cotton French Terry 380 GSM"
                   value={formData.shell_fabric}
                   onChange={e => setFormData({ ...formData, shell_fabric: e.target.value })}
-                  className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10"
+                  className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-medium text-slate-900"
                 />
               </div>
 
@@ -432,7 +515,7 @@ export function LaySheetsClient({ initialLays }: LaySheetsClientProps = {}) {
                     type="number"
                     value={formData.gsm}
                     onChange={e => setFormData({ ...formData, gsm: Number(e.target.value) })}
-                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-mono"
+                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-mono font-bold text-slate-900"
                   />
                 </div>
                 <div>
@@ -441,7 +524,7 @@ export function LaySheetsClient({ initialLays }: LaySheetsClientProps = {}) {
                     type="number"
                     value={formData.plies_count}
                     onChange={e => setFormData({ ...formData, plies_count: Number(e.target.value) })}
-                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-mono"
+                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-mono font-bold text-slate-900"
                   />
                 </div>
                 <div>
@@ -450,7 +533,7 @@ export function LaySheetsClient({ initialLays }: LaySheetsClientProps = {}) {
                     type="number"
                     value={formData.total_cut_pieces}
                     onChange={e => setFormData({ ...formData, total_cut_pieces: Number(e.target.value) })}
-                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-mono"
+                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-mono font-bold text-slate-900"
                   />
                 </div>
               </div>
@@ -463,7 +546,7 @@ export function LaySheetsClient({ initialLays }: LaySheetsClientProps = {}) {
                     step="0.01"
                     value={formData.marker_length_meters}
                     onChange={e => setFormData({ ...formData, marker_length_meters: Number(e.target.value) })}
-                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-mono"
+                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-mono font-bold text-slate-900"
                   />
                 </div>
                 <div>
@@ -472,7 +555,7 @@ export function LaySheetsClient({ initialLays }: LaySheetsClientProps = {}) {
                     type="text"
                     value={formData.ratio_breakdown}
                     onChange={e => setFormData({ ...formData, ratio_breakdown: e.target.value })}
-                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-mono"
+                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-mono font-bold text-slate-900"
                   />
                 </div>
               </div>
@@ -483,7 +566,7 @@ export function LaySheetsClient({ initialLays }: LaySheetsClientProps = {}) {
                   type="text"
                   value={formData.fabric_roll_barcodes}
                   onChange={e => setFormData({ ...formData, fabric_roll_barcodes: e.target.value })}
-                  className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-mono"
+                  className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-mono font-bold text-slate-900"
                 />
               </div>
 
@@ -493,7 +576,7 @@ export function LaySheetsClient({ initialLays }: LaySheetsClientProps = {}) {
                   type="text"
                   value={formData.cutting_master}
                   onChange={e => setFormData({ ...formData, cutting_master: e.target.value })}
-                  className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10"
+                  className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-medium text-slate-900"
                 />
               </div>
 

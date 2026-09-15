@@ -261,29 +261,48 @@ export function IssueMaterialChallanModal({ isOpen, onClose }: IssueMaterialChal
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                Receiver Floor Supervisor
-              </label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700">
+                  Receiver Floor Supervisor
+                </label>
+                <span className="text-[10px] font-mono text-slate-400">Select or type</span>
+              </div>
               <input
                 type="text"
+                list="receiver-supervisors-list"
                 value={receiverName}
                 onChange={(e) => setReceiverName(e.target.value)}
                 className="w-full px-3.5 py-2.5 bg-[#FAF7F0] border border-black/10 rounded-xl text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20"
                 required
               />
+              <datalist id="receiver-supervisors-list">
+                <option value="Cutting Master R. Veerappan" />
+                <option value="Cutting Incharge K. Murugan" />
+                <option value="Sewing Line Chief Anita Roy" />
+                <option value="Sewing Supervisor Ramesh Kumar" />
+              </datalist>
             </div>
 
             <div>
-              <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                Dispatching Storekeeper
-              </label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700">
+                  Dispatching Storekeeper
+                </label>
+                <span className="text-[10px] font-mono text-slate-400">Select or type</span>
+              </div>
               <input
                 type="text"
+                list="dispatcher-storekeepers-list"
                 value={issuedBy}
                 onChange={(e) => setIssuedBy(e.target.value)}
                 className="w-full px-3.5 py-2.5 bg-[#FAF7F0] border border-black/10 rounded-xl text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20"
                 required
               />
+              <datalist id="dispatcher-storekeepers-list">
+                <option value="Store Incharge Suresh Kumar" />
+                <option value="Godown Supervisor Devrat Sharma" />
+                <option value="Inventory Officer Priya Mani" />
+              </datalist>
             </div>
           </div>
 

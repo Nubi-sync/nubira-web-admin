@@ -16,7 +16,8 @@ import {
   Clock,
   Sparkles
 } from 'lucide-react'
-import { EmptyState } from '@/components/ui/EmptyState'
+import { getOrders } from '@/app/merchandising/utils/merchandisingStorage'
+import { getMaterialIssues } from '@/app/store/utils/storeStorage'
 
 export interface CuttingOrder {
   id: string
@@ -52,22 +53,23 @@ export function CuttingOrdersClient({ initialOrders }: CuttingOrdersClientProps 
   const [statusFilter, setStatusFilter] = useState('ALL')
   const [selectedOrder, setSelectedOrder] = useState<CuttingOrder | null>(null)
   const [isNewModalOpen, setIsNewModalOpen] = useState(false)
+  const [availablePos, setAvailablePos] = useState<any[]>([])
 
   // Form state
   const [formData, setFormData] = useState({
-    order_number: '',
-    buyer_po: '',
-    buyer_name: '',
-    style_number: '',
-    style_name: '',
-    colorway: '',
-    total_pieces: 0,
-    plies_planned: 0,
-    fabric_meters_allocated: 0,
-    table_assigned: 'Table 01',
-    priority: 'NORMAL' as const,
-    scheduled_start: '',
-    operator_lead: ''
+    order_number: 'CO-2026-088',
+    buyer_po: 'PO-2026-9901',
+    buyer_name: 'ZARA INTERNATIONAL',
+    style_number: 'TP-2026-8801',
+    style_name: 'TP-2026-8801 (Heavyweight Relaxed French Terry Hoodie)',
+    colorway: 'Orange & Green',
+    total_pieces: 1000,
+    plies_planned: 84,
+    fabric_meters_allocated: 900,
+    table_assigned: 'Table 01 - Gerber Paragon HX',
+    priority: 'HIGH' as const,
+    scheduled_start: '2026-09-16 08:00',
+    operator_lead: 'Cutting Master R. Veerappan'
   })
 
   useEffect(() => {
@@ -86,7 +88,67 @@ export function CuttingOrdersClient({ initialOrders }: CuttingOrdersClientProps 
         }
       }
     }
+
+    if (typeof window !== 'undefined') {
+      const poList = getOrders()
+      const issues = getMaterialIssues()
+      setAvailablePos(poList)
+
+      const activePo = poList.find(p => p.po_number === 'PO-2026-9901') || poList[0]
+      if (activePo) {
+        const colors = activePo.color_matrix?.map((c: any) => c.color).join(' & ') || 'Orange & Green'
+        const relevantIssue = issues.find(i => i.orderId === activePo.po_number && i.destinationDivision === 'CUTTING_FLOOR')
+        const fabricMeters = relevantIssue?.quantityIssued || 900
+
+        setFormData(prev => ({
+          ...prev,
+          buyer_po: activePo.po_number,
+          buyer_name: activePo.brand_name || 'ZARA INTERNATIONAL',
+          style_number: activePo.style_ref || 'TP-2026-8801',
+          style_name: `${activePo.style_ref || 'TP-2026-8801'} (${activePo.style_name || 'Heavyweight Relaxed French Terry Hoodie'})`,
+          colorway: colors,
+          total_pieces: activePo.total_quantity || 1000,
+          fabric_meters_allocated: fabricMeters
+        }))
+      }
+    }
   }, [initialOrders])
+
+  const handleSelectPo = (poNumber: string) => {
+    const found = availablePos.find(p => p.po_number === poNumber)
+    if (found) {
+      const colors = found.color_matrix?.map((c: any) => c.color).join(' & ') || 'Orange & Green'
+      setFormData(prev => ({
+        ...prev,
+        buyer_po: found.po_number,
+        buyer_name: found.brand_name || 'ZARA INTERNATIONAL',
+        style_number: found.style_ref || 'TP-2026-8801',
+        style_name: `${found.style_ref || 'TP-2026-8801'} (${found.style_name || 'Heavyweight Relaxed French Terry Hoodie'})`,
+        colorway: colors,
+        total_pieces: found.total_quantity || 1000
+      }))
+    } else {
+      setFormData(prev => ({ ...prev, buyer_po: poNumber }))
+    }
+  }
+
+  const applyPreset42 = () => {
+    setFormData({
+      order_number: 'CO-2026-088',
+      buyer_po: 'PO-2026-9901',
+      buyer_name: 'ZARA INTERNATIONAL',
+      style_number: 'TP-2026-8801',
+      style_name: 'TP-2026-8801 (Heavyweight Relaxed French Terry Hoodie)',
+      colorway: 'Orange & Green',
+      total_pieces: 1000,
+      plies_planned: 84,
+      fabric_meters_allocated: 900,
+      table_assigned: 'Table 01 - Gerber Paragon HX',
+      priority: 'HIGH',
+      scheduled_start: '2026-09-16 08:00',
+      operator_lead: 'Cutting Master R. Veerappan'
+    })
+  }
 
   const saveOrders = (updated: CuttingOrder[]) => {
     setOrders(updated)
@@ -369,6 +431,21 @@ export function CuttingOrdersClient({ initialOrders }: CuttingOrdersClientProps 
               </button>
             </div>
 
+            {/* Step 4.2 Quick Fill Preset */}
+            <div className="bg-[#FAF7F0] p-3 rounded-xl border border-black/10 flex items-center justify-between">
+              <span className="text-xs font-mono font-bold text-slate-700 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-[#3A3564]" />
+                Step 4.2 Order Preset:
+              </span>
+              <button
+                type="button"
+                onClick={applyPreset42}
+                className="px-2.5 py-1 text-xs font-mono font-bold bg-white text-[#3A3564] border border-black/10 rounded-lg hover:bg-[#3A3564] hover:text-white transition-all shadow-2xs cursor-pointer"
+              >
+                CO-2026-088 ({formData.buyer_po || 'PO-2026-9901'})
+              </button>
+            </div>
+
             <form onSubmit={handleCreateOrder} className="space-y-4 text-xs">
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -376,33 +453,40 @@ export function CuttingOrdersClient({ initialOrders }: CuttingOrdersClientProps 
                   <input
                     type="text"
                     required
-                    placeholder="e.g. CO-2026-095"
+                    placeholder="e.g. CO-2026-088"
                     value={formData.order_number}
                     onChange={e => setFormData({ ...formData, order_number: e.target.value })}
-                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-mono"
+                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-mono font-bold text-slate-900"
                   />
                 </div>
                 <div>
                   <label className="font-mono font-bold text-slate-700 uppercase">Buyer PO Number</label>
-                  <input
-                    type="text"
-                    required
+                  <select
                     value={formData.buyer_po}
-                    onChange={e => setFormData({ ...formData, buyer_po: e.target.value })}
-                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-mono"
-                  />
+                    onChange={e => handleSelectPo(e.target.value)}
+                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-mono font-bold text-slate-900"
+                  >
+                    {availablePos.map(p => (
+                      <option key={p.po_number} value={p.po_number}>
+                        {p.po_number} ({p.brand_name || 'Buyer'})
+                      </option>
+                    ))}
+                    {availablePos.length === 0 && (
+                      <option value="PO-2026-9901">PO-2026-9901 (ZARA INTERNATIONAL)</option>
+                    )}
+                  </select>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="font-mono font-bold text-slate-700 uppercase">Style Name</label>
+                  <label className="font-mono font-bold text-slate-700 uppercase">Style Name &amp; Ref</label>
                   <input
                     type="text"
                     required
                     value={formData.style_name}
                     onChange={e => setFormData({ ...formData, style_name: e.target.value })}
-                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10"
+                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-medium text-slate-900"
                   />
                 </div>
                 <div>
@@ -412,7 +496,7 @@ export function CuttingOrdersClient({ initialOrders }: CuttingOrdersClientProps 
                     required
                     value={formData.colorway}
                     onChange={e => setFormData({ ...formData, colorway: e.target.value })}
-                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10"
+                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-medium text-slate-900"
                   />
                 </div>
               </div>
