@@ -38,9 +38,7 @@ export function CompanySubscriptionCard({
   isExpiredUrlParam = false
 }: CompanySubscriptionCardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [selectedTier, setSelectedTier] = useState<'FULL_PLANT_AI' | 'MODULAR'>(
-    subscriptionTier === 'MODULAR' ? 'MODULAR' : 'FULL_PLANT_AI'
-  )
+  const activePlanTier = subscriptionTier === 'MODULAR' ? 'MODULAR' : 'FULL_PLANT_AI'
   const [selectedDuration, setSelectedDuration] = useState<number>(1) // months
   const [isPending, startTransition] = useTransition()
   const [successMsg, setSuccessMsg] = useState<string | null>(null)
@@ -67,8 +65,8 @@ export function CompanySubscriptionCard({
     year: 'numeric'
   }) : 'Continuous / Perpetual'
 
-  // Pricing Calculation
-  const baseMonthlyPrice = selectedTier === 'FULL_PLANT_AI' ? 4999 : 1999
+  // Pricing Calculation based on factory's active/requested tier
+  const baseMonthlyPrice = monthlyBillingInr || (activePlanTier === 'FULL_PLANT_AI' ? 4999 : 1999)
   const totalAmount = selectedDuration === 12
     ? baseMonthlyPrice * 10 // 2 months free
     : (selectedDuration === 3 ? Math.round(baseMonthlyPrice * 3 * 0.9) : baseMonthlyPrice * selectedDuration)
@@ -79,7 +77,7 @@ export function CompanySubscriptionCard({
 
     startTransition(async () => {
       const res = await upgradeTenantSubscriptionAction({
-        planTier: selectedTier,
+        planTier: activePlanTier,
         durationMonths: selectedDuration,
         paymentMethod: 'IN_APP_UPGRADE',
         transactionRef: `TXN-${Date.now().toString().slice(-6)}`
@@ -259,21 +257,21 @@ export function CompanySubscriptionCard({
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200 overflow-y-auto">
           <div
-            className="bg-white rounded-2xl max-w-xl w-full p-5 sm:p-6 shadow-2xl border border-black/10 my-auto animate-in zoom-in-95 duration-200"
+            className="bg-white rounded-2xl max-w-xl w-full p-6 sm:p-7 shadow-2xl border border-black/10 my-auto animate-in zoom-in-95 duration-200"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
-            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0">
+            <div className="flex items-center justify-between pb-5 border-b border-slate-100">
+              <div className="flex items-center gap-3.5">
+                <div className="w-11 h-11 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0">
                   <CreditCard className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base sm:text-lg font-extrabold text-slate-900">
+                  <h3 className="text-lg sm:text-xl font-extrabold text-slate-900">
                     {isTrial ? 'Activate Full Enterprise License' : 'Renew Subscription Plan'}
                   </h3>
-                  <p className="text-xs text-slate-500">
-                    Select your plan tier and duration for {companyName}
+                  <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+                    Confirm your subscription duration for {companyName}
                   </p>
                 </div>
               </div>
@@ -289,152 +287,138 @@ export function CompanySubscriptionCard({
 
             {/* Error / Success Notifications */}
             {errorMsg && (
-              <div className="mt-4 p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold rounded-xl flex items-center gap-2">
+              <div className="mt-4 p-3.5 bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold rounded-xl flex items-center gap-2">
                 <AlertTriangle className="w-4 h-4 shrink-0" />
                 <span>{errorMsg}</span>
               </div>
             )}
             {successMsg && (
-              <div className="mt-4 p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold rounded-xl flex items-center gap-2">
+              <div className="mt-4 p-3.5 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold rounded-xl flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
                 <span>{successMsg}</span>
               </div>
             )}
 
             {/* Modal Form Body */}
-            <div className="space-y-4 pt-4">
-              {/* 1. Select Plan Tier */}
+            <div className="space-y-5 pt-5">
+              {/* 1. Requested Plan Card */}
               <div>
-                <label className="text-xs font-mono font-bold uppercase tracking-wider text-slate-700 block mb-2">
-                  Select License Tier
+                <label className="text-xs font-mono font-bold uppercase tracking-wider text-slate-600 block mb-2.5">
+                  Requested License Plan
                 </label>
-                <div className="grid grid-cols-2 gap-3">
-                  <div
-                    onClick={() => setSelectedTier('FULL_PLANT_AI')}
-                    className={`p-3.5 rounded-xl border-2 transition-all cursor-pointer ${
-                      selectedTier === 'FULL_PLANT_AI'
-                        ? 'border-[#3A3564] bg-[#FAF7F0] shadow-2xs'
-                        : 'border-slate-200 hover:border-slate-300 bg-white'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-[#3A3564]">Full Plant AI</span>
-                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#3A3564] text-white font-bold">
-                        12 Divisions
-                      </span>
-                    </div>
-                    <div className="text-sm font-extrabold text-slate-900 mt-1">
-                      ₹4,999<span className="text-xs font-normal text-slate-500">/mo</span>
-                    </div>
-                    <p className="text-[11px] text-slate-600 mt-1 leading-tight">
-                      Complete end-to-end MES from Design to Central Store.
-                    </p>
+                <div className="p-4 sm:p-5 rounded-2xl bg-[#FAF7F0] border-2 border-[#3A3564]/20 shadow-2xs">
+                  <div className="flex items-center justify-between">
+                    <span className="text-base font-extrabold text-[#3A3564]">
+                      {activePlanTier === 'FULL_PLANT_AI' ? 'Full Plant AI' : 'Modular Plan'}
+                    </span>
+                    <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#3A3564] text-white">
+                      {activePlanTier === 'FULL_PLANT_AI' ? '12 Divisions' : 'Core Units'}
+                    </span>
                   </div>
+                  <div className="text-xl font-extrabold text-slate-900 mt-1.5">
+                    ₹{baseMonthlyPrice.toLocaleString('en-IN')}<span className="text-sm font-normal text-slate-500"> / month</span>
+                  </div>
+                  <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">
+                    {activePlanTier === 'FULL_PLANT_AI'
+                      ? 'Complete end-to-end MES coverage from Design & Cutting through Stitching, Packing, and Finished Goods Vault.'
+                      : 'Essential production floor tracking for cutting, sewing lines, and store logistics.'}
+                  </p>
+                </div>
 
-                  <div
-                    onClick={() => setSelectedTier('MODULAR')}
-                    className={`p-3.5 rounded-xl border-2 transition-all cursor-pointer ${
-                      selectedTier === 'MODULAR'
-                        ? 'border-[#3A3564] bg-[#FAF7F0] shadow-2xs'
-                        : 'border-slate-200 hover:border-slate-300 bg-white'
-                    }`}
+                {/* Plan Switch Contact Prompt */}
+                <div className="flex items-center justify-between gap-3 px-4 py-2.5 mt-2.5 rounded-xl bg-slate-50 border border-slate-200/80 text-xs">
+                  <span className="text-slate-600">
+                    Need to modify division modules or discuss custom pricing?
+                  </span>
+                  <a
+                    href="mailto:support@zigza.in?subject=Custom%20Plan%20Inquiry%20-%20Shaw%20Industries"
+                    className="font-bold text-[#3A3564] hover:underline whitespace-nowrap shrink-0"
                   >
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-[#3A3564]">Modular Plan</span>
-                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-200 text-slate-700 font-bold">
-                        Core Units
-                      </span>
-                    </div>
-                    <div className="text-sm font-extrabold text-slate-900 mt-1">
-                      ₹1,999<span className="text-xs font-normal text-slate-500">/mo</span>
-                    </div>
-                    <p className="text-[11px] text-slate-600 mt-1 leading-tight">
-                      Cutting, Stitching, and Packing floor essentials.
-                    </p>
-                  </div>
+                    Contact Desk &rarr;
+                  </a>
                 </div>
               </div>
 
               {/* 2. Select Duration */}
               <div>
-                <label className="text-xs font-mono font-bold uppercase tracking-wider text-slate-700 block mb-2">
+                <label className="text-xs font-mono font-bold uppercase tracking-wider text-slate-600 block mb-2.5">
                   Select Billing Period
                 </label>
-                <div className="grid grid-cols-3 gap-2.5">
+                <div className="grid grid-cols-3 gap-3">
                   <button
                     type="button"
                     onClick={() => setSelectedDuration(1)}
-                    className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+                    className={`p-3.5 rounded-xl border-2 text-left transition-all cursor-pointer ${
                       selectedDuration === 1
-                        ? 'border-[#3A3564] bg-[#FAF7F0] text-[#3A3564] font-bold shadow-2xs'
-                        : 'border-slate-200 bg-white text-slate-700 font-medium hover:bg-slate-50'
+                        ? 'border-[#3A3564] bg-[#FAF7F0] text-[#3A3564] shadow-2xs'
+                        : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
                     }`}
                   >
-                    <div className="text-xs font-bold">1 Month</div>
-                    <div className="text-[11px] text-slate-500 mt-0.5">Standard</div>
+                    <div className="text-xs sm:text-sm font-bold">1 Month</div>
+                    <div className="text-[11px] text-slate-500 mt-1">Standard Cycle</div>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => setSelectedDuration(3)}
-                    className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+                    className={`p-3.5 rounded-xl border-2 text-left transition-all cursor-pointer ${
                       selectedDuration === 3
-                        ? 'border-[#3A3564] bg-[#FAF7F0] text-[#3A3564] font-bold shadow-2xs'
-                        : 'border-slate-200 bg-white text-slate-700 font-medium hover:bg-slate-50'
+                        ? 'border-[#3A3564] bg-[#FAF7F0] text-[#3A3564] shadow-2xs'
+                        : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
                     }`}
                   >
-                    <div className="text-xs font-bold">3 Months</div>
-                    <div className="text-[11px] text-emerald-600 font-bold mt-0.5">Save 10%</div>
+                    <div className="text-xs sm:text-sm font-bold">3 Months</div>
+                    <div className="text-[11px] text-emerald-700 font-bold mt-1">Save 10%</div>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => setSelectedDuration(12)}
-                    className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+                    className={`p-3.5 rounded-xl border-2 text-left transition-all cursor-pointer ${
                       selectedDuration === 12
-                        ? 'border-[#3A3564] bg-[#FAF7F0] text-[#3A3564] font-bold shadow-2xs'
-                        : 'border-slate-200 bg-white text-slate-700 font-medium hover:bg-slate-50'
+                        ? 'border-[#3A3564] bg-[#FAF7F0] text-[#3A3564] shadow-2xs'
+                        : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
                     }`}
                   >
-                    <div className="text-xs font-bold">1 Year</div>
-                    <div className="text-[11px] text-emerald-600 font-bold mt-0.5">2 Months Free</div>
+                    <div className="text-xs sm:text-sm font-bold">1 Year</div>
+                    <div className="text-[11px] text-emerald-700 font-bold mt-1">2 Months Free</div>
                   </button>
                 </div>
               </div>
 
               {/* 3. Order Summary Box */}
-              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
-                <div className="flex items-center justify-between text-xs text-slate-600 mb-1">
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2">
+                <div className="flex items-center justify-between text-xs text-slate-600">
                   <span>Selected License:</span>
                   <span className="font-bold text-slate-900">
-                    {selectedTier === 'FULL_PLANT_AI' ? 'Full Plant AI' : 'Modular Plan'} ({selectedDuration} Mo)
+                    {activePlanTier === 'FULL_PLANT_AI' ? 'Full Plant AI' : 'Modular Plan'} ({selectedDuration} {selectedDuration === 1 ? 'Month' : 'Months'})
                   </span>
                 </div>
-                <div className="flex items-center justify-between text-xs text-slate-600 mb-1">
-                  <span>Factory:</span>
+                <div className="flex items-center justify-between text-xs text-slate-600">
+                  <span>Factory Account:</span>
                   <span className="font-bold text-slate-900">{companyName}</span>
                 </div>
-                <div className="flex items-center justify-between text-xs text-slate-600 pt-2 border-t border-slate-200">
-                  <span className="font-bold text-slate-900 text-sm">Total Payable:</span>
-                  <span className="font-mono font-extrabold text-[#3A3564] text-base">
+                <div className="flex items-center justify-between pt-2.5 border-t border-slate-200 text-slate-900">
+                  <span className="font-bold text-sm">Total Payable:</span>
+                  <span className="font-mono font-extrabold text-[#3A3564] text-lg">
                     ₹{totalAmount.toLocaleString('en-IN')}
                   </span>
                 </div>
               </div>
 
               {/* Payment Info Note */}
-              <div className="text-[11px] text-slate-500 leading-relaxed bg-[#FAF7F0] p-3 rounded-xl border border-black/10">
-                <p className="font-bold text-slate-800 mb-0.5">Direct Corporate Activation:</p>
-                Confirming updates your workspace license immediately. Invoices are dispatched to your registered billing email with GST input credit details.
+              <div className="text-xs text-slate-600 leading-relaxed bg-[#FAF7F0] p-3.5 rounded-xl border border-black/10">
+                <p className="font-bold text-[#3A3564] mb-0.5">Direct Corporate Activation:</p>
+                Confirming updates your factory subscription immediately. Invoices with GST credit details are dispatched directly to your registered email.
               </div>
 
               {/* Action Buttons */}
-              <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-100">
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
                   disabled={isPending}
-                  className="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
+                  className="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -442,7 +426,7 @@ export function CompanySubscriptionCard({
                   type="button"
                   onClick={handleUpgrade}
                   disabled={isPending}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] shadow-2xs cursor-pointer transition-all disabled:opacity-50"
+                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] shadow-xs cursor-pointer transition-all disabled:opacity-50"
                 >
                   {isPending ? (
                     <>
@@ -450,10 +434,7 @@ export function CompanySubscriptionCard({
                       <span>Activating License...</span>
                     </>
                   ) : (
-                    <>
-                      <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                      <span>Confirm & Activate (₹{totalAmount.toLocaleString('en-IN')})</span>
-                    </>
+                    <span>Confirm & Activate (₹{totalAmount.toLocaleString('en-IN')})</span>
                   )}
                 </button>
               </div>

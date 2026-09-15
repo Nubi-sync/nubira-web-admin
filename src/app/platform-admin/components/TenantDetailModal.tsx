@@ -262,7 +262,7 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
         {/* 1. Modal Top Banner & Header */}
         <div className="bg-[#FAF7F0] border-b border-black/10 p-5 sm:p-6 flex items-start justify-between gap-4">
           <div className="flex items-start gap-3.5">
-            <div className="w-12 h-12 rounded-xl bg-white border border-black/10 flex items-center justify-center shrink-0 shadow-2xs text-[#3A3564]">
+            <div className="w-12 h-12 rounded-2xl bg-white border border-black/10 flex items-center justify-center shrink-0 shadow-xs text-[#3A3564]">
               <Building2 className="w-6 h-6" />
             </div>
             <div>
@@ -272,7 +272,7 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
                 </h2>
                 
                 {/* Status Badge */}
-                <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-md border ${
+                <span className={`text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full border ${
                   isSuspended
                     ? 'bg-rose-50 text-rose-800 border-rose-200'
                     : tenant.status === 'ACTIVE'
@@ -283,19 +283,15 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
                 </span>
 
                 {/* Access Model Badge */}
-                <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-md border ${
-                  isTrial
-                    ? 'bg-amber-50 text-amber-900 border-amber-300'
-                    : 'bg-indigo-50 text-indigo-900 border-indigo-200'
-                }`}>
+                <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs">
                   {isTrial ? '7-Day Demo Trial' : 'Full Enterprise Access'}
                 </span>
 
-                <span className="text-xs font-medium px-2.5 py-0.5 rounded-md bg-white text-slate-700 border border-black/10">
-                  {tenant.subscriptionTier.replace(/_/g, ' ')}
+                <span className="text-xs font-semibold px-2.5 py-0.5 rounded-md bg-white text-slate-700 border border-black/10">
+                  {tenant.subscriptionTier === 'FULL_PLANT_AI' ? 'Full Plant AI (12 Div)' : tenant.subscriptionTier.replace(/_/g, ' ')}
                 </span>
               </div>
-              <div className="flex items-center gap-3 text-xs text-slate-500 mt-1 flex-wrap">
+              <div className="flex items-center gap-3 text-xs text-slate-500 mt-1.5 flex-wrap">
                 <span>Slug: <strong className="text-slate-700 font-mono">{tenant.plantSlug}</strong></span>
                 <span>•</span>
                 <span className="flex items-center gap-1">
@@ -309,10 +305,10 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
           <button
             type="button"
             onClick={onClose}
-            className="w-9 h-9 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-black/5 transition-all cursor-pointer"
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-black/5 transition-all cursor-pointer"
             aria-label="Close dialog"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
@@ -368,7 +364,7 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
 
           {/* Section A: Plan, Billing & License Expiry Cards */}
           <div>
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-1.5">
+            <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-1.5">
               <CreditCard className="w-4 h-4 text-[#3A3564]" />
               <span>Subscription & Billing Overview</span>
             </h3>
@@ -376,11 +372,11 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
               {/* Card 1: Subscription Tier & Access Model */}
               <div className="bg-slate-50/70 p-4 rounded-xl border border-slate-200/80">
-                <span className="text-xs text-slate-500 font-medium block">
+                <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 block">
                   Access Model & Tier
                 </span>
                 <span className="text-base font-bold text-slate-900 mt-1 block">
-                  {tenant.subscriptionTier.replace(/_/g, ' ')}
+                  {tenant.subscriptionTier === 'FULL_PLANT_AI' ? 'Full Plant AI (12 Div)' : tenant.subscriptionTier.replace(/_/g, ' ')}
                 </span>
                 <span className="text-xs text-slate-600 mt-0.5 block font-mono font-semibold">
                   ₹{tenant.monthlyBillingInr.toLocaleString()} / month
@@ -389,10 +385,10 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
 
               {/* Card 2: Activation / Provisioned Date */}
               <div className="bg-slate-50/70 p-4 rounded-xl border border-slate-200/80">
-                <span className="text-xs text-slate-500 font-medium block">
+                <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 block">
                   Provisioned Date
                 </span>
-                <span className="text-base font-bold text-slate-900 mt-1 block">
+                <span className="text-base font-bold text-slate-900 mt-1 block font-mono">
                   {provisionDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
                 </span>
                 <span className="text-xs text-slate-500 mt-0.5 block">
@@ -405,14 +401,14 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
                 isSuspended
                   ? 'bg-rose-50/70 border-rose-200'
                   : isTrial
-                  ? 'bg-amber-50/70 border-amber-200'
+                  ? 'bg-[#FAF7F0] border-black/10'
                   : 'bg-white border-slate-200'
               }`}>
-                <span className="text-xs text-slate-500 font-medium block">
+                <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 block">
                   {isSuspended ? 'Access Status' : isTrial ? 'Trial Expiry Date' : 'Contract Status'}
                 </span>
-                <span className={`text-base font-bold mt-1 block ${
-                  isSuspended ? 'text-rose-700' : isTrial ? 'text-amber-900' : 'text-slate-900'
+                <span className={`text-base font-bold mt-1 block font-mono ${
+                  isSuspended ? 'text-rose-700' : isTrial ? 'text-[#3A3564]' : 'text-slate-900'
                 }`}>
                   {isSuspended
                     ? 'Access Suspended'
@@ -421,12 +417,12 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
                     : 'Active Enterprise'}
                 </span>
                 <span className={`text-xs mt-0.5 block ${
-                  isSuspended ? 'text-rose-600' : isTrial ? 'text-amber-800 font-semibold' : 'text-emerald-700'
+                  isSuspended ? 'text-rose-600' : isTrial ? 'text-slate-600 font-medium' : 'text-emerald-700'
                 }`}>
                   {isSuspended
                     ? (tenant.revokedAt ? `Revoked ${new Date(tenant.revokedAt).toLocaleDateString('en-GB')}` : 'Access Locked')
                     : isTrial
-                    ? (daysRemaining !== null ? `${daysRemaining} days remaining (Revocable)` : '7-Day Trial')
+                    ? (daysRemaining !== null ? `${daysRemaining} days remaining` : '7-Day Trial')
                     : 'Unrestricted Production Access'}
                 </span>
               </div>
@@ -434,7 +430,7 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
 
             {/* Last payment reminder tracker */}
             {tenant.lastPaymentReminderAt && (
-              <div className="mt-2.5 px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200/80 text-[11px] text-slate-600 flex items-center justify-between">
+              <div className="mt-2.5 px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200/80 text-xs text-slate-600 flex items-center justify-between">
                 <span>Last Payment Reminder Email:</span>
                 <span className="font-mono font-semibold text-slate-800">
                   {new Date(tenant.lastPaymentReminderAt).toLocaleString()} (via noreply@zigza.in)
