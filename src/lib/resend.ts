@@ -17,7 +17,6 @@ export interface TenantActivationEmailParams {
   subscriptionTier: string
   divisionsCount: number
   accessType?: string
-  paymentLinkUrl?: string
 }
 
 export async function sendTenantActivationEmail(params: TenantActivationEmailParams) {
@@ -30,8 +29,7 @@ export async function sendTenantActivationEmail(params: TenantActivationEmailPar
     initialPassword,
     subscriptionTier,
     divisionsCount,
-    accessType,
-    paymentLinkUrl
+    accessType
   } = params
 
   const client = getResendClient()
@@ -71,10 +69,9 @@ export async function sendTenantActivationEmail(params: TenantActivationEmailPar
           .cred-highlight { color: #3A3564; font-weight: 800; }
           .button-wrap { text-align: center; margin: 24px 0; }
           .btn-login { display: inline-block; background: #3A3564; color: #ffffff !important; padding: 14px 28px; border-radius: 10px; font-size: 14px; font-weight: 700; text-decoration: none; box-shadow: 0 2px 8px rgba(58,53,100,0.25); margin: 6px 4px; }
-          .btn-pay { display: inline-block; background: #059669; color: #ffffff !important; padding: 14px 28px; border-radius: 10px; font-size: 14px; font-weight: 700; text-decoration: none; box-shadow: 0 2px 8px rgba(5,150,105,0.25); margin: 6px 4px; }
-          .payment-box { background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 12px; padding: 16px 20px; margin: 20px 0; text-align: left; }
-          .payment-title { font-size: 13px; font-weight: 800; color: #065F46; text-transform: uppercase; margin-bottom: 6px; }
-          .payment-desc { font-size: 12px; color: #047857; line-height: 1.5; margin-bottom: 12px; }
+          .plan-box { background: #FAF7F0; border: 1px solid rgba(58, 53, 100, 0.15); border-radius: 12px; padding: 16px 20px; margin: 20px 0; text-align: left; }
+          .plan-title { font-size: 13px; font-weight: 800; color: #3A3564; text-transform: uppercase; margin-bottom: 6px; }
+          .plan-desc { font-size: 12px; color: #475569; line-height: 1.5; }
           .security-note { font-size: 12px; color: #64748b; line-height: 1.5; border-top: 1px solid #e2e8f0; padding-top: 20px; }
           .footer { background: #f8fafc; padding: 20px 28px; text-align: center; font-size: 11px; color: #94a3b8; border-top: 1px solid #e2e8f0; }
         </style>
@@ -119,15 +116,12 @@ export async function sendTenantActivationEmail(params: TenantActivationEmailPar
               </div>
             </div>
 
-            ${paymentLinkUrl ? `
-            <div class="payment-box">
-              <div class="payment-title">Settle Subscription & Activate Full Access</div>
-              <div class="payment-desc">
-                Click below to pay via Razorpay (UPI, NetBanking, Credit/Debit Cards). Upon settlement, your workspace is automatically upgraded to permanent Full Access.
+            <div class="plan-box">
+              <div class="plan-title">Company Profile & Subscription Management</div>
+              <div class="plan-desc">
+                You can review active modules, license status, and renew or upgrade your subscription at any time directly under your factory <strong>Company Profile</strong> section.
               </div>
-              <a href="${paymentLinkUrl}" class="btn-pay" target="_blank">Pay via Razorpay & Upgrade</a>
             </div>
-            ` : ''}
 
             <div class="button-wrap">
               <a href="https://app.zigza.in/login" class="btn-login" target="_blank">Access Factory Workspace</a>

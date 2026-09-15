@@ -43,7 +43,7 @@ const navSections: NavSection[] = [
       { label: 'Demo Leads & Inquiries', href: '/platform-admin', icon: Inbox },
       { label: 'Tenant Factories', href: '/platform-admin/tenants', icon: Building2 },
       { label: 'Access Provisioning', href: '/platform-admin/provisioning', icon: Key },
-      { label: 'Payment Links & Billing', href: '/platform-admin/payments', icon: CreditCard },
+      { label: 'Subscriptions & Expiry', href: '/platform-admin/payments', icon: CreditCard },
       { label: 'Custom Enterprise Requests', href: '/platform-admin/custom-requests', icon: Sparkles },
       { label: 'Infrastructure Telemetry', href: '/platform-admin/infrastructure', icon: Activity },
       { label: 'Security & Audit Logs', href: '/platform-admin/audit-logs', icon: ShieldCheck },

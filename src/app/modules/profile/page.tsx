@@ -8,12 +8,16 @@ import { AdminIdentityCard } from '@/app/profile/components/AdminIdentityCard'
 import { SupervisorTeamOverview, ProfileUser } from '@/app/profile/components/SupervisorTeamOverview'
 import { AccountDeletionDangerZone } from '@/app/profile/components/AccountDeletionDangerZone'
 import { StaffProfileView } from '@/app/profile/components/StaffProfileView'
+import { CompanySubscriptionCard } from '@/app/profile/components/CompanySubscriptionCard'
 import { resolveUserTenant } from '@/lib/tenant-context'
 import { ROLE_MODULE_MAPPING } from '@/lib/access-control'
 
 export const dynamic = 'force-dynamic'
 
-export default async function ModuleCompanyProfilePage() {
+export default async function ModuleCompanyProfilePage(props: {
+  searchParams?: Promise<{ expired?: string }>
+}) {
+  const resolvedSearchParams = props.searchParams ? await props.searchParams : {}
   const supabase = await createClient()
 
   const {
@@ -159,7 +163,20 @@ export default async function ModuleCompanyProfilePage() {
           </div>
         </div>
 
-        {/* 3. Executive Administrator Credentials Card (Full Width) */}
+        {/* 3. Company Subscription & Evaluation License Status Card */}
+        <CompanySubscriptionCard
+          companyName={tenant.companyName}
+          accessType={tenant.accessType}
+          subscriptionTier={tenant.subscriptionTier}
+          provisionedAt={tenant.provisionedAt}
+          expiresAt={tenant.expiresAt}
+          isExpired={tenant.isExpired}
+          tenantStatus={tenant.tenantStatus}
+          monthlyBillingInr={tenant.monthlyBillingInr}
+          isExpiredUrlParam={Boolean(resolvedSearchParams?.expired === 'true')}
+        />
+
+        {/* 4. Executive Administrator Credentials Card (Full Width) */}
         <AdminIdentityCard
           userEmail={tenant.userEmail}
           adminDisplayName={adminDisplayName}
