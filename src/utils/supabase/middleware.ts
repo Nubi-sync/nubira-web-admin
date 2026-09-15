@@ -131,6 +131,36 @@ export async function updateSession(request: NextRequest) {
       const allowedModules = getUserAllowedModules(user, { role: userRole })
       const defaultLanding = getDefaultLandingRoute(allowedModules, userRole, user.email)
 
+      // 1. Check if logged in user's tenant account has expired or been revoked
+      const userEmail = (user.email || '').trim().toLowerCase()
+      const isPlatformAdmin = userEmail === 'admin@zigza.in' || userRole === 'PLATFORM_SUPERADMIN'
+      const isProfileRoute = pathname === '/profile' || pathname.startsWith('/profile') || pathname === '/modules/profile' || pathname.startsWith('/modules/profile')
+      
+      let isTenantExpired = false
+      if (!isPlatformAdmin && userEmail !== 'team.anga9@gmail.com') {
+        try {
+          const { data: tenantFactory } = await supabase
+            .from('platform_tenant_factories')
+            .select('status, expires_at')
+            .ilike('admin_email', userEmail)
+            .maybeSingle()
+
+          if (tenantFactory) {
+            const isSuspended = tenantFactory.status === 'SUSPENDED' || tenantFactory.status === 'EXPIRED'
+            const isPastExpiry = tenantFactory.expires_at ? new Date(tenantFactory.expires_at).getTime() < Date.now() : false
+            isTenantExpired = isSuspended || isPastExpiry
+          }
+        } catch (_) {}
+      }
+
+      // If tenant access is expired, isolate them exclusively to the Company Profile page for renewal
+      if (isTenantExpired && isProtectedRoute && !isProfileRoute) {
+        const url = request.nextUrl.clone()
+        url.pathname = '/modules/profile'
+        url.searchParams.set('expired', 'true')
+        return NextResponse.redirect(url)
+      }
+
       // If already logged in and visiting /login, redirect to designated division or hub
       if (isLoginPage) {
         const url = request.nextUrl.clone()

@@ -34,6 +34,13 @@ export interface ResolvedTenantProfile {
   subscriptionTier: string
   allowedDivisions: string[]
   isProvisionedTenant: boolean
+  tenantId?: string
+  accessType?: 'DEMO_TRIAL' | 'FULL_ACCESS'
+  expiresAt?: string
+  provisionedAt?: string
+  isExpired: boolean
+  tenantStatus: string
+  monthlyBillingInr?: number
 }
 
 /**
@@ -63,7 +70,11 @@ export async function resolveUserTenant(user: {
       cityState: 'India',
       subscriptionTier: 'ENTERPRISE_PLATFORM',
       allowedDivisions: ['/platform-admin'],
-      isProvisionedTenant: false
+      isProvisionedTenant: false,
+      accessType: 'FULL_ACCESS',
+      isExpired: false,
+      tenantStatus: 'ACTIVE',
+      provisionedAt: '2026-09-15T00:00:00.000Z'
     }
   }
 
@@ -162,6 +173,14 @@ export async function resolveUserTenant(user: {
         ? (tenant.admin_name || metadata.displayName || 'Plant Head')
         : (metadata.display_name || metadata.displayName || profileUsername || 'Department Head')
 
+      const accessType: 'DEMO_TRIAL' | 'FULL_ACCESS' = tenant.access_type || 'FULL_ACCESS'
+      const expiresAt = tenant.expires_at || undefined
+      const tenantStatus = tenant.status || 'ACTIVE'
+
+      // Check if account has expired or been revoked
+      const isPastExpiry = expiresAt ? new Date(expiresAt).getTime() < Date.now() : false
+      const isExpired = tenantStatus === 'SUSPENDED' || tenantStatus === 'EXPIRED' || isPastExpiry
+
       return {
         userId: user.id,
         userEmail,
@@ -175,7 +194,14 @@ export async function resolveUserTenant(user: {
         cityState: tenant.city_state || 'India',
         subscriptionTier: tenant.subscription_tier || 'FULL_PLANT_AI',
         allowedDivisions: divisions,
-        isProvisionedTenant: true
+        isProvisionedTenant: true,
+        tenantId: tenant.id,
+        accessType,
+        expiresAt,
+        provisionedAt: tenant.provisioned_at || '2026-09-15T00:00:00.000Z',
+        isExpired,
+        tenantStatus,
+        monthlyBillingInr: Number(tenant.monthly_billing_inr || (tenant.subscription_tier === 'MODULAR' ? 1999 : 4999))
       }
     }
   } catch (err) {
@@ -224,7 +250,12 @@ export async function resolveUserTenant(user: {
       cityState: 'India',
       subscriptionTier: 'FULL_PLANT_AI',
       allowedDivisions: isSuperAdmin ? ALL_DEFAULT_DIVISIONS : (profileAllowedModules.length > 0 ? profileAllowedModules : ['/stitching-sewing']),
-      isProvisionedTenant: true
+      isProvisionedTenant: true,
+      accessType: 'FULL_ACCESS',
+      isExpired: false,
+      tenantStatus: 'ACTIVE',
+      provisionedAt: '2026-09-15T00:00:00.000Z',
+      monthlyBillingInr: 4999
     }
   }
 
@@ -249,7 +280,12 @@ export async function resolveUserTenant(user: {
       cityState: 'Kolkata, West Bengal',
       subscriptionTier: 'FULL_PLANT_AI',
       allowedDivisions: ['/stitching-sewing', '/store'],
-      isProvisionedTenant: false
+      isProvisionedTenant: false,
+      accessType: 'FULL_ACCESS',
+      isExpired: false,
+      tenantStatus: 'ACTIVE',
+      provisionedAt: '2026-09-15T00:00:00.000Z',
+      monthlyBillingInr: 4999
     }
   }
 
@@ -271,7 +307,13 @@ export async function resolveUserTenant(user: {
     cityState: 'India',
     subscriptionTier: 'FULL_PLANT_AI',
     allowedDivisions: ALL_DEFAULT_DIVISIONS,
-    isProvisionedTenant: true
+    isProvisionedTenant: true,
+    accessType: 'DEMO_TRIAL',
+    isExpired: false,
+    tenantStatus: 'ACTIVE',
+    provisionedAt: '2026-09-15T00:00:00.000Z',
+    expiresAt: '2026-09-22T00:00:00.000Z',
+    monthlyBillingInr: 4999
   }
 }
 

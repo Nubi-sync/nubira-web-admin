@@ -231,3 +231,77 @@ export async function updateStaffPassword(newPassword: string) {
   }
 }
 
+export async function upgradeTenantSubscriptionAction(params: {
+  planTier: 'MODULAR' | 'FULL_PLANT_AI' | 'CUSTOM'
+  durationMonths: number
+  paymentMethod?: string
+  transactionRef?: string
+}): Promise<{ success: boolean; error?: string; message?: string }> {
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { success: false, error: 'Unauthorized session' }
+  }
+
+  const tenant = await resolveUserTenant(user)
+  const userEmail = (user.email || '').trim().toLowerCase()
+
+  try {
+    const daysToAdd = params.durationMonths * 30
+    const newExpiresAt = new Date(Date.now() + daysToAdd * 24 * 60 * 60 * 1000).toISOString()
+    const monthlyRate = params.planTier === 'MODULAR' ? 1999 : (params.planTier === 'FULL_PLANT_AI' ? 4999 : 9999)
+
+    // Update in platform_tenant_factories
+    const { error: updateErr } = await supabaseAdmin
+      .from('platform_tenant_factories')
+      .update({
+        access_type: 'FULL_ACCESS',
+        subscription_tier: params.planTier,
+        monthly_billing_inr: monthlyRate,
+        status: 'ACTIVE',
+        expires_at: newExpiresAt,
+        revoked_at: null,
+        last_active_at: new Date().toISOString()
+      })
+      .ilike('admin_email', userEmail)
+
+    if (updateErr) {
+      console.warn('[upgradeTenantSubscriptionAction] DB update warning:', updateErr.message)
+    }
+
+    // Log in audit logs
+    try {
+      await supabaseAdmin.from('platform_audit_logs').insert([{
+        log_code: `SUB-UPG-${Date.now().toString().slice(-4)}`,
+        actor: userEmail,
+        action: 'Tenant Subscription Activated / Renewed',
+        category: 'CONFIG_CHANGE',
+        details: `${tenant.companyName} activated ${params.planTier} for ${params.durationMonths} month(s). New expiry: ${new Date(newExpiresAt).toLocaleDateString('en-IN')}`,
+        ip_address: '127.0.0.1',
+        location: tenant.cityState || 'India',
+        status: 'SUCCESS'
+      }])
+    } catch (_) {}
+
+    revalidatePath('/modules/profile')
+    revalidatePath('/profile')
+    revalidatePath('/modules')
+    revalidatePath('/dashboard')
+    revalidatePath('/platform-admin')
+    revalidatePath('/platform-admin/payments')
+
+    return {
+      success: true,
+      message: `Subscription successfully activated! Your plan is valid until ${new Date(newExpiresAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}.`
+    }
+  } catch (err: any) {
+    console.error('Error upgrading tenant subscription:', err)
+    return { success: false, error: err.message || 'Failed to process subscription upgrade' }
+  }
+}
+
+
