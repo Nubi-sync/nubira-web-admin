@@ -13,11 +13,13 @@ import {
   Cpu,
   CheckCircle2,
   AlertTriangle,
-  Ruler
+  Ruler,
+  Sparkles
 } from 'lucide-react'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { MarkerEfficiency, CADSoftware } from '../../types/cutting'
 import { getMarkers, saveMarker } from '../../utils/cuttingStorage'
+import { getOrders } from '@/app/merchandising/utils/merchandisingStorage'
 
 export function MarkersClient() {
   const [markers, setMarkers] = useState<MarkerEfficiency[]>([])
@@ -25,23 +27,58 @@ export function MarkersClient() {
   const [softwareFilter, setSoftwareFilter] = useState<string>('ALL')
   const [selectedMarker, setSelectedMarker] = useState<MarkerEfficiency | null>(null)
   const [isNewModalOpen, setIsNewModalOpen] = useState(false)
+  const [availableStyles, setAvailableStyles] = useState<{ ref: string; name: string; brand: string }[]>([
+    { ref: 'TP-2026-8801', name: 'Heavyweight Relaxed French Terry Hoodie', brand: 'ZARA INTERNATIONAL' }
+  ])
 
   // Form state
   const [formData, setFormData] = useState({
-    marker_name: '',
-    style_ref: '',
+    marker_name: 'MKR-ZARA-HD-8801',
+    style_ref: 'TP-2026-8801',
     cad_software: 'GERBER_ACCUMARK' as CADSoftware,
     fabric_width_inches: 60,
-    marker_length_meters: 0,
-    efficiency_percent: 0,
-    sizes_included: '',
-    ratio: '',
-    pattern_master: ''
+    marker_length_meters: 5.4,
+    efficiency_percent: 89.6,
+    sizes_included: 'S, M, L, XL',
+    ratio: '1:2:2:1 (Ratio: 6)',
+    pattern_master: 'R. Veerappan (Master Cutter)'
   })
 
   useEffect(() => {
     setMarkers(getMarkers())
+    if (typeof window !== 'undefined') {
+      const orders = getOrders()
+      if (orders && orders.length > 0) {
+        const styles = orders.map(o => ({
+          ref: o.style_ref || 'TP-2026-8801',
+          name: o.style_name || 'Heavyweight Relaxed French Terry Hoodie',
+          brand: o.brand_name || 'ZARA INTERNATIONAL'
+        }))
+        setAvailableStyles(styles)
+        if (styles[0]?.ref) {
+          setFormData(prev => ({
+            ...prev,
+            style_ref: styles[0].ref,
+            marker_name: `MKR-${(styles[0].brand || 'ZARA').slice(0, 4).toUpperCase()}-HD-8801`
+          }))
+        }
+      }
+    }
   }, [])
+
+  const applyPreset41 = () => {
+    setFormData({
+      marker_name: 'MKR-ZARA-HD-8801',
+      style_ref: availableStyles[0]?.ref || 'TP-2026-8801',
+      cad_software: 'GERBER_ACCUMARK',
+      fabric_width_inches: 60,
+      marker_length_meters: 5.4,
+      efficiency_percent: 89.6,
+      sizes_included: 'S, M, L, XL',
+      ratio: '1:2:2:1 (Ratio: 6)',
+      pattern_master: 'R. Veerappan (Master Cutter)'
+    })
+  }
 
   const filteredMarkers = markers.filter(m => {
     const markerName = (m.marker_name || m.marker_ref || '').toLowerCase()
@@ -79,11 +116,14 @@ export function MarkersClient() {
   // Derived Metrics
   const avgEfficiency = markers.length > 0
     ? (markers.reduce((acc, m) => acc + m.efficiency_percent, 0) / markers.length).toFixed(1)
-    : '88.4'
+    : '0.0'
   const highestYield = markers.length > 0
     ? Math.max(...markers.map(m => m.efficiency_percent)).toFixed(1)
-    : '89.6'
+    : '0.0'
   const targetAbove88Count = markers.filter(m => m.efficiency_percent >= 88.0).length
+  const cadEnginesCount = markers.length > 0
+    ? Array.from(new Set(markers.map(m => m.cad_software))).length
+    : 0
 
   return (
     <div className="p-4 sm:p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto select-none">
@@ -118,7 +158,7 @@ export function MarkersClient() {
           </div>
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
-              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
+              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 CAD Marker Efficiency & Nesting Library
               </h1>
               <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15">
@@ -143,7 +183,7 @@ export function MarkersClient() {
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
           <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">Top Yield Benchmark</span>
           <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 mt-2">{highestYield}%</div>
-          <p className="text-xs font-semibold text-slate-500 mt-1">Optimized by Gerber AccuMark</p>
+          <p className="text-xs font-semibold text-slate-500 mt-1">Optimized by CAD Nesting</p>
         </div>
 
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
@@ -154,7 +194,7 @@ export function MarkersClient() {
 
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
           <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">CAD Systems Synced</span>
-          <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 mt-2">4 Engines</div>
+          <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 mt-2">{cadEnginesCount} Engines</div>
           <p className="text-xs font-semibold text-slate-500 mt-1">Gerber, Lectra, Optitex, Tukatech</p>
         </div>
       </div>
@@ -284,6 +324,21 @@ export function MarkersClient() {
               </button>
             </div>
 
+            {/* Quick Fill Preset for Step 4.1 */}
+            <div className="bg-[#FAF7F0] p-3 rounded-xl border border-black/10 flex items-center justify-between">
+              <span className="text-xs font-mono font-bold text-slate-700 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-[#3A3564]" />
+                Step 4.1 Marker Preset:
+              </span>
+              <button
+                type="button"
+                onClick={applyPreset41}
+                className="px-2.5 py-1 text-xs font-mono font-bold bg-white text-[#3A3564] border border-black/10 rounded-lg hover:bg-[#3A3564] hover:text-white transition-all shadow-2xs cursor-pointer"
+              >
+                MKR-ZARA-HD-8801 (89.6% Yield)
+              </button>
+            </div>
+
             <form onSubmit={handleCreateMarker} className="space-y-4 text-xs">
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -291,7 +346,7 @@ export function MarkersClient() {
                   <input
                     type="text"
                     required
-                    placeholder="e.g. MKR-CREW-S-XL-04"
+                    placeholder="e.g. MKR-ZARA-HD-8801"
                     value={formData.marker_name}
                     onChange={e => setFormData({ ...formData, marker_name: e.target.value })}
                     className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-mono"
@@ -299,14 +354,17 @@ export function MarkersClient() {
                 </div>
                 <div>
                   <label className="font-mono font-bold text-slate-700 uppercase">Style Reference</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. STY-CREW-8801"
+                  <select
                     value={formData.style_ref}
                     onChange={e => setFormData({ ...formData, style_ref: e.target.value })}
-                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-mono"
-                  />
+                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-mono font-bold text-slate-900"
+                  >
+                    {availableStyles.map(s => (
+                      <option key={s.ref} value={s.ref}>
+                        {s.ref} ({s.brand})
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
 

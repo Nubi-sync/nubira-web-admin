@@ -13,7 +13,7 @@ In garment manufacturing, even the best factories make mistakes:
 - A mechanic drops a spot of dark lubricating oil on a white hoodie.
 - An operator sews a hood collar 1 centimeter crooked.
 
-In a bad factory, rejected clothes are thrown in the trash or hidden under tables, costing the factory thousands of dollars.
+In a bad factory, rejected clothes are thrown in the trash or hidden under tables, costing the factory thousands of rupees and eroding export margins.
 
 In our factory, **Division 10 (Alteration & Quality Recovery Clinic)** is the **factory's emergency hospital**.  
 Instead of throwing garments away, highly skilled "surgeons" (master alteration tailors and spot-cleaning chemists) carefully diagnose, clean, unpick, and re-stitch imperfect clothes until they look brand new and 100% perfect!

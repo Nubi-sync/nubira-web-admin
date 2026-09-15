@@ -19,11 +19,11 @@ import {
 export const ALTER_UPDATE_EVENT = 'zigza:alter_updated'
 
 const KEYS = {
-  TICKETS: 'zigza_alter_tickets_v1',
-  STATIONS: 'zigza_alter_stations_v1',
-  SPOTTING_LOGS: 'zigza_alter_spotting_logs_v1',
-  SCRAP: 'zigza_alter_scrap_requisitions_v1',
-  METRICS: 'zigza_alter_metrics_v1'
+  TICKETS: 'zigza_alter_tickets_v2',
+  STATIONS: 'zigza_alter_stations_v2',
+  SPOTTING_LOGS: 'zigza_alter_spotting_logs_v2',
+  SCRAP: 'zigza_alter_scrap_requisitions_v2',
+  METRICS: 'zigza_alter_metrics_v2'
 }
 
 function emitUpdate() {

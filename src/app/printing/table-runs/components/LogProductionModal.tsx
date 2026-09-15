@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { X, CheckCircle2, AlertCircle, Cpu, Sliders } from 'lucide-react'
+import { X, CheckCircle2, AlertCircle, Cpu, Sliders, Sparkles } from 'lucide-react'
 import { PrintingProductionRun, DefectReason } from '../../types/printing'
 import { saveProductionRun } from '../../utils/printingStorage'
 
@@ -13,21 +13,29 @@ interface LogProductionModalProps {
 }
 
 const DEFECT_REASONS: DefectReason[] = [
+  'PINHOLE_LEAK',
   'SMUDGE',
   'BLEED',
   'OFF_REGISTRATION',
   'CURING_SCORCH',
-  'PINHOLE_LEAK',
   'POOR_COVERAGE'
 ]
 
 export function LogProductionModal({ isOpen, onClose, run, onSuccess }: LogProductionModalProps) {
-  const [completedCount, setCompletedCount] = useState(run ? String(run.panels_completed) : '0')
-  const [rejectedCount, setRejectedCount] = useState(run ? String(run.panels_rejected) : '0')
-  const [defectReason, setDefectReason] = useState<DefectReason>('SMUDGE')
+  const [completedCount, setCompletedCount] = useState(run ? (run.panels_completed > 0 ? String(run.panels_completed) : '996') : '996')
+  const [rejectedCount, setRejectedCount] = useState(run ? (run.panels_rejected > 0 ? String(run.panels_rejected) : '4') : '4')
+  const [defectReason, setDefectReason] = useState<DefectReason>('PINHOLE_LEAK')
   const [curingTempVerified, setCuringTempVerified] = useState(true)
   const [tempReading, setTempReading] = useState(run ? String(run.curing_temp_c) : '160')
   const [error, setError] = useState<string | null>(null)
+
+  const applyPreset53Log = () => {
+    setCompletedCount('996')
+    setRejectedCount('4')
+    setDefectReason('PINHOLE_LEAK')
+    setCuringTempVerified(true)
+    setTempReading('160')
+  }
 
   if (!isOpen || !run) return null
 
@@ -83,6 +91,23 @@ export function LogProductionModal({ isOpen, onClose, run, onSuccess }: LogProdu
           >
             <X className="w-4 h-4" />
           </button>
+        </div>
+
+        {/* Step 5.3 Quick Log Preset */}
+        <div className="px-5 pt-4">
+          <div className="bg-[#FAF7F0] p-3 rounded-xl border border-black/10 flex items-center justify-between">
+            <span className="text-xs font-mono font-bold text-slate-700 flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-[#3A3564]" />
+              Step 5.3 Log Preset:
+            </span>
+            <button
+              type="button"
+              onClick={applyPreset53Log}
+              className="px-2.5 py-1 text-xs font-mono font-bold bg-white text-[#3A3564] border border-black/10 rounded-lg hover:bg-[#3A3564] hover:text-white transition-all shadow-2xs cursor-pointer"
+            >
+              996 Passed • 4 Rejects (Pinhole)
+            </button>
+          </div>
         </div>
 
         {/* Modal Body */}

@@ -26,6 +26,7 @@ export type TechPackStatus =
   | 'DRAFT'
   | 'SAMPLE_DEV'
   | 'PPS_SUBMITTED'
+  | 'PPS_APPROVED'
   | 'APPROVED_BULK'
   | 'REVISE_FIT'
 

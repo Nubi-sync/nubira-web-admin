@@ -20,12 +20,12 @@ import {
 export const WASHING_UPDATE_EVENT = 'zigza:washing_updated'
 
 const KEYS = {
-  BATCHES: 'zigza_washing_batches_v1',
-  RECIPES: 'zigza_washing_recipes_v1',
-  MACHINES: 'zigza_washing_machines_v1',
-  WATER_AUDITS: 'zigza_washing_water_audits_v1',
-  SHRINKAGE_QC: 'zigza_washing_shrinkage_qc_v1',
-  HANDOVERS: 'zigza_washing_handovers_v1',
+  BATCHES: 'zigza_washing_batches_v2',
+  RECIPES: 'zigza_washing_recipes_v2',
+  MACHINES: 'zigza_washing_machines_v2',
+  WATER_AUDITS: 'zigza_washing_water_audits_v2',
+  SHRINKAGE_QC: 'zigza_washing_shrinkage_qc_v2',
+  HANDOVERS: 'zigza_washing_handovers_v2',
 }
 
 function emitUpdate() {

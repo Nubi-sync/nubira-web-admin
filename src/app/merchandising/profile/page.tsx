@@ -79,7 +79,7 @@ export default async function MerchandisingProfilePage() {
         } : null}
         operationalSpecs={[
           { label: 'Buyer Accounts Active', value: 'Multi-Account Commercial Portfolios', iconName: 'ShoppingBag' },
-          { label: 'BOM Cost Realization', value: '> 98.2% Target Profit Margin', iconName: 'DollarSign' },
+          { label: 'BOM Cost Realization', value: '> 98.2% Target Profit Margin', iconName: 'IndianRupee' },
           { label: 'Shipment Compliance', value: '100% On-Time Delivery (OTD) Tracking', iconName: 'Calendar' },
           { label: 'Trim Sourcing Lead Time', value: 'Automated Purchase Requisition (PR)', iconName: 'TrendingUp' },
         ]}

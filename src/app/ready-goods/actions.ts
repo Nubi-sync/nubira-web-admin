@@ -39,19 +39,8 @@ export async function fetchReadyGoodsDashboardDataAction(companyName?: string): 
         .limit(50)
     ])
 
-    const rawCartons = isNonNubira
-      ? (cartonsRes.data || []).filter((c: any) => {
-          const brand = ((c.order?.brands?.brand_name || c.order?.brand_buyer || '')).toUpperCase()
-          return brand.length > 0 && brand.includes(targetComp)
-        })
-      : (cartonsRes.data || [])
-
-    const rawAql = isNonNubira
-      ? (aqlRes.data || []).filter((a: any) => {
-          const brand = ((a.carton?.order?.brands?.brand_name || a.carton?.order?.brand_buyer || '')).toUpperCase()
-          return brand.length > 0 && brand.includes(targetComp)
-        })
-      : (aqlRes.data || [])
+    const rawCartons = cartonsRes.data || []
+    const rawAql = aqlRes.data || []
 
     const cartons: ReadyGoodsCarton[] = rawCartons.map((c: any) => {
       const gross = Number(c.gross_weight_kg) || 12.5

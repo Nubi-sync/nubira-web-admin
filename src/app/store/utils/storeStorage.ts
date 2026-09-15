@@ -27,12 +27,12 @@ import {
 export const STORE_UPDATE_EVENT = 'zigza:central_store_updated'
 
 const STORAGE_KEYS = {
-  FABRIC_ROLLS: 'zigza_store_fabric_rolls_v1',
-  TRIMS: 'zigza_store_trims_inventory_v1',
-  TRUCK_INWARDS: 'zigza_store_truck_inwards_v1',
-  MATERIAL_ISSUES: 'zigza_store_material_issues_v1',
-  EXPORT_PALLETS: 'zigza_store_export_pallets_v1',
-  METRICS: 'zigza_store_metrics_v1'
+  FABRIC_ROLLS: 'zigza_store_fabric_rolls_v3',
+  TRIMS: 'zigza_store_trims_inventory_v3',
+  TRUCK_INWARDS: 'zigza_store_truck_inwards_v3',
+  MATERIAL_ISSUES: 'zigza_store_material_issues_v3',
+  EXPORT_PALLETS: 'zigza_store_export_pallets_v3',
+  METRICS: 'zigza_store_metrics_v3'
 }
 
 function broadcastUpdate() {
@@ -82,14 +82,51 @@ export function getFabricRolls(): FabricRoll[] {
 
 export function saveFabricRoll(roll: FabricRoll): FabricRoll[] {
   const current = getFabricRolls()
-  const exists = current.some(r => r.id === roll.id)
-  const updated = exists ? current.map(r => (r.id === roll.id ? roll : r)) : [roll, ...current]
+  const existsIndex = current.findIndex(r => r.id === roll.id || r.rollBarcode.trim().toLowerCase() === roll.rollBarcode.trim().toLowerCase())
+  let updated: FabricRoll[]
+  if (existsIndex >= 0) {
+    updated = [...current]
+    updated[existsIndex] = { ...current[existsIndex], ...roll }
+  } else {
+    updated = [roll, ...current]
+  }
 
   try {
     localStorage.setItem(STORAGE_KEYS.FABRIC_ROLLS, JSON.stringify(updated))
     broadcastUpdate()
   } catch (e) {
     console.error('Failed to save fabric roll:', e)
+  }
+  return updated
+}
+
+export function batchSaveFabricRolls(rolls: FabricRoll[]): FabricRoll[] {
+  let current = getFabricRolls()
+  for (const roll of rolls) {
+    const existsIndex = current.findIndex(r => r.id === roll.id || r.rollBarcode.trim().toLowerCase() === roll.rollBarcode.trim().toLowerCase())
+    if (existsIndex >= 0) {
+      current[existsIndex] = { ...current[existsIndex], ...roll }
+    } else {
+      current = [roll, ...current]
+    }
+  }
+  try {
+    localStorage.setItem(STORAGE_KEYS.FABRIC_ROLLS, JSON.stringify(current))
+    broadcastUpdate()
+  } catch (e) {
+    console.error('Failed to batch save fabric rolls:', e)
+  }
+  return current
+}
+
+export function deleteFabricRoll(rollId: string): FabricRoll[] {
+  const current = getFabricRolls()
+  const updated = current.filter(r => r.id !== rollId)
+  try {
+    localStorage.setItem(STORAGE_KEYS.FABRIC_ROLLS, JSON.stringify(updated))
+    broadcastUpdate()
+  } catch (e) {
+    console.error('Failed to delete fabric roll:', e)
   }
   return updated
 }
@@ -198,6 +235,18 @@ export function adjustTrimsStock(
 
   saveTrimsItem(updatedItem)
   return updatedItem
+}
+
+export function deleteTrimsItem(itemId: string): TrimsInventoryItem[] {
+  const current = getTrimsInventory()
+  const updated = current.filter(t => t.id !== itemId)
+  try {
+    localStorage.setItem(STORAGE_KEYS.TRIMS, JSON.stringify(updated))
+    broadcastUpdate()
+  } catch (e) {
+    console.error('Failed to delete trims item:', e)
+  }
+  return updated
 }
 
 // ----------------------------------------------------------------------------

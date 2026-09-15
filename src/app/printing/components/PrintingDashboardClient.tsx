@@ -89,7 +89,7 @@ export function PrintingDashboardClient({
     if (initialRuns && initialRuns.length > 0) {
       setRuns(initialRuns)
       if (typeof window !== 'undefined') {
-        localStorage.setItem('zigza_printing_runs_v2', JSON.stringify(initialRuns))
+        localStorage.setItem('zigza_printing_runs_v3', JSON.stringify(initialRuns))
       }
     } else {
       setRuns(getProductionRuns())
@@ -98,7 +98,7 @@ export function PrintingDashboardClient({
     if (initialStrikeOffs && initialStrikeOffs.length > 0) {
       setStrikeOffs(initialStrikeOffs)
       if (typeof window !== 'undefined') {
-        localStorage.setItem('zigza_printing_strike_offs_v2', JSON.stringify(initialStrikeOffs))
+        localStorage.setItem('zigza_printing_strike_offs_v3', JSON.stringify(initialStrikeOffs))
       }
     } else {
       setStrikeOffs(getStrikeOffs())
@@ -107,7 +107,7 @@ export function PrintingDashboardClient({
     if (initialCuringLogs && initialCuringLogs.length > 0) {
       setCuringLogs(initialCuringLogs)
       if (typeof window !== 'undefined') {
-        localStorage.setItem('zigza_printing_curing_logs_v2', JSON.stringify(initialCuringLogs))
+        localStorage.setItem('zigza_printing_curing_logs_v3', JSON.stringify(initialCuringLogs))
       }
     } else {
       setCuringLogs(getCuringLogs())

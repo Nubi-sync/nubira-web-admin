@@ -23,15 +23,15 @@ import {
   INITIAL_PANEL_AUDITS
 } from '../data/mockData'
 
-const TABLES_KEY = 'zigza_cutting_tables_v2'
-const LAYS_KEY = 'zigza_cutting_lays_v2'
-const BUNDLES_KEY = 'zigza_cutting_bundles_v2'
-const MARKERS_KEY = 'zigza_cutting_markers_v2'
-const QC_KEY = 'zigza_cutting_qc_v2'
-const ENDBITS_KEY = 'zigza_cutting_endbits_v2'
-const ROLLS_KEY = 'zigza_cutting_rolls_v2'
-const ENDLOSS_KEY = 'zigza_cutting_endloss_v2'
-const AUDITS_KEY = 'zigza_cutting_audits_v2'
+const TABLES_KEY = 'zigza_cutting_tables_v3'
+const LAYS_KEY = 'zigza_cutting_lays_v3'
+const BUNDLES_KEY = 'zigza_cutting_bundles_v3'
+const MARKERS_KEY = 'zigza_cutting_markers_v3'
+const QC_KEY = 'zigza_cutting_qc_v3'
+const ENDBITS_KEY = 'zigza_cutting_endbits_v3'
+const ROLLS_KEY = 'zigza_cutting_rolls_v3'
+const ENDLOSS_KEY = 'zigza_cutting_endloss_v3'
+const AUDITS_KEY = 'zigza_cutting_audits_v3'
 
 export const CUTTING_UPDATE_EVENT = 'zigza:cutting_updated'
 

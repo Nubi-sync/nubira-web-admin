@@ -12,11 +12,14 @@ import {
   CheckCircle2, 
   AlertTriangle, 
   ArrowRight,
-  Filter
+  Filter,
+  Plus,
+  Trash2
 } from 'lucide-react'
 import { FabricRollInspection, FabricShadeGroup } from '../../types/store'
-import { getFabricRolls, STORE_UPDATE_EVENT } from '../../utils/storeStorage'
+import { getFabricRolls, deleteFabricRoll, STORE_UPDATE_EVENT } from '../../utils/storeStorage'
 import { InspectRollModal } from './InspectRollModal'
+import { InwardFabricRollModal } from './InwardFabricRollModal'
 import { EmptyState } from '@/components/ui/EmptyState'
 
 export function FabricGodownClient() {
@@ -25,9 +28,31 @@ export function FabricGodownClient() {
   const [shadeFilter, setShadeFilter] = useState<'ALL' | FabricShadeGroup | 'PENDING' | 'REJECTED'>('ALL')
   const [selectedRoll, setSelectedRoll] = useState<FabricRollInspection | null>(null)
   const [isInspectModalOpen, setIsInspectModalOpen] = useState(false)
+  const [isInwardModalOpen, setIsInwardModalOpen] = useState(false)
 
   const loadRolls = () => {
-    setRolls(getFabricRolls())
+    const raw = getFabricRolls()
+    // Deduplicate by barcode if duplicates exist
+    const seen = new Set<string>()
+    const deduplicated: FabricRollInspection[] = []
+    for (const r of raw) {
+      const code = r.rollBarcode.trim().toLowerCase()
+      if (!seen.has(code)) {
+        seen.add(code)
+        deduplicated.push(r)
+      }
+    }
+    if (deduplicated.length !== raw.length) {
+      localStorage.setItem('zigza_store_fabric_rolls_v3', JSON.stringify(deduplicated))
+    }
+    setRolls(deduplicated)
+  }
+
+  const handleDeleteRoll = (rollId: string, barcode: string) => {
+    if (confirm(`Remove roll ${barcode} from godown inventory?`)) {
+      deleteFabricRoll(rollId)
+      loadRolls()
+    }
   }
 
   useEffect(() => {
@@ -92,10 +117,10 @@ export function FabricGodownClient() {
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
               <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
-                Fabric Godown & 4-Point QC
+                Fabric Godown &amp; 4-Point QC
               </h1>
               <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 tracking-wider">
-                ASTM D5430 SLA ≤ 28 Pts
+                ASTM D5430 SLA &le; 28 Pts
               </span>
             </div>
             <p className="text-xs sm:text-sm font-medium text-slate-600 mt-1">
@@ -104,13 +129,24 @@ export function FabricGodownClient() {
           </div>
         </div>
 
-        <Link
-          href="/store/material-issues"
-          className="px-4 py-2.5 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2c284e] transition-all shadow-2xs inline-flex items-center gap-2 shrink-0 cursor-pointer"
-        >
-          <ArrowRight className="w-4 h-4" />
-          <span>Issue Passed Rolls to Cutting</span>
-        </Link>
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <button
+            type="button"
+            onClick={() => setIsInwardModalOpen(true)}
+            className="px-4 py-2.5 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2c284e] transition-all shadow-2xs inline-flex items-center gap-1.5 shrink-0 cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />
+            <span>+ Inward Fabric Rolls</span>
+          </button>
+
+          <Link
+            href="/store/material-issues"
+            className="px-4 py-2.5 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 text-xs font-bold hover:bg-[#F2ECE1] transition-all shadow-2xs inline-flex items-center gap-2 shrink-0 cursor-pointer"
+          >
+            <span>Issue Passed Rolls to Cutting</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
       </div>
 
       {/* 4 Metric KPI Cards - Unified Icon & Neutral Typography */}
@@ -243,12 +279,14 @@ export function FabricGodownClient() {
                       variant="seamless"
                       icon={Layers}
                       title="No Fabric Rolls Found"
-                      description="No fabric rolls match your current search query or shade inspection filter."
-                      actionLabel="Reset Filters"
-                      onAction={() => {
+                      description="No fabric rolls match your current search query or the godown is currently empty. Inward fabric rolls from the mill truck delivery to begin inspection."
+                      actionLabel="+ Inward Fabric Roll"
+                      onAction={() => setIsInwardModalOpen(true)}
+                      secondaryActionLabel={searchQuery || shadeFilter !== 'ALL' ? "Reset Filters" : undefined}
+                      onSecondaryAction={searchQuery || shadeFilter !== 'ALL' ? () => {
                         setSearchQuery('')
                         setShadeFilter('ALL')
-                      }}
+                      } : undefined}
                     />
                   </td>
                 </tr>
@@ -343,12 +381,21 @@ export function FabricGodownClient() {
                       </td>
 
                       <td className="py-3 px-4 text-right">
-                        <button
-                          onClick={() => openInspectModal(roll)}
-                          className="px-3 py-1.5 rounded-xl bg-[#FAF7F0] border border-black/10 hover:bg-[#3A3564] hover:text-white text-xs font-mono font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
-                        >
-                          {isPending ? 'Audit Roll' : 'Re-Inspect'}
-                        </button>
+                        <div className="flex items-center justify-end gap-1.5">
+                          <button
+                            onClick={() => openInspectModal(roll)}
+                            className="px-3 py-1.5 rounded-xl bg-[#FAF7F0] border border-black/10 hover:bg-[#3A3564] hover:text-white text-xs font-mono font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
+                          >
+                            {isPending ? 'Audit Roll' : 'Re-Inspect'}
+                          </button>
+                          <button
+                            onClick={() => handleDeleteRoll(roll.id, roll.rollBarcode)}
+                            title="Delete Roll"
+                            className="p-1.5 rounded-xl bg-[#FAF7F0] border border-black/10 hover:bg-rose-50 hover:text-rose-600 text-slate-400 transition-colors shadow-2xs cursor-pointer"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   )
@@ -359,7 +406,13 @@ export function FabricGodownClient() {
         </div>
       </div>
 
-      {/* Modal */}
+      {/* Modals */}
+      <InwardFabricRollModal
+        isOpen={isInwardModalOpen}
+        onClose={() => setIsInwardModalOpen(false)}
+        onSuccess={loadRolls}
+      />
+
       <InspectRollModal
         isOpen={isInspectModalOpen}
         onClose={() => setIsInspectModalOpen(false)}

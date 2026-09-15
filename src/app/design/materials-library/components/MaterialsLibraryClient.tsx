@@ -14,13 +14,15 @@ import {
   Clock, 
   Building2,
   Compass,
-  ArrowDownRight
+  ArrowDownRight,
+  Trash2
 } from 'lucide-react'
 import { MaterialItem, MaterialType, MaterialStatus } from '../../types/design'
 import { toast } from 'sonner'
 import { getStoredMaterials, saveStoredMaterial } from '../../utils/designStorage'
-import { createMaterialAction } from '../../actions'
+import { createMaterialAction, deleteMaterialAction } from '../../actions'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 
 interface MaterialsLibraryClientProps {
   initialMaterials?: MaterialItem[]
@@ -35,6 +37,8 @@ export function MaterialsLibraryClient({ initialMaterials }: MaterialsLibraryCli
   const [searchQuery, setSearchQuery] = useState('')
   const [isAddOpen, setIsAddOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [materialToDelete, setMaterialToDelete] = useState<MaterialItem | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   // New Material form state
   const [materialCode, setMaterialCode] = useState('')
@@ -126,6 +130,31 @@ export function MaterialsLibraryClient({ initialMaterials }: MaterialsLibraryCli
     setIsAddOpen(false)
     setMaterialCode('')
     setMaterialName('')
+  }
+
+  async function handleDeleteMaterial() {
+    if (!materialToDelete) return
+    setIsDeleting(true)
+    try {
+      const res = await deleteMaterialAction(materialToDelete.id)
+      if (!res.success) {
+        toast.error(res.error || 'Failed to delete material.')
+        setIsDeleting(false)
+        return
+      }
+
+      const updated = materials.filter(m => m.id !== materialToDelete.id)
+      setMaterials(updated)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('zigza_design_materials', JSON.stringify(updated))
+      }
+      toast.success(`Material "${materialToDelete.material_name}" removed.`)
+      setMaterialToDelete(null)
+    } catch (err: any) {
+      toast.error(err?.message || 'Error deleting material')
+    } finally {
+      setIsDeleting(false)
+    }
   }
 
   return (
@@ -228,9 +257,18 @@ export function MaterialsLibraryClient({ initialMaterials }: MaterialsLibraryCli
                   <span className="text-xs font-semibold text-[#3A3564] px-2.5 py-0.5 rounded-md bg-white border border-black/10 shadow-2xs">
                     {mat.material_code}
                   </span>
-                  <span className="text-xs font-semibold px-2.5 py-0.5 rounded-md bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs">
-                    {mat.status === 'CERTIFIED' ? 'Certified' : mat.status}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-semibold px-2.5 py-0.5 rounded-md bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs">
+                      {mat.status === 'CERTIFIED' ? 'Certified' : mat.status}
+                    </span>
+                    <button
+                      onClick={() => setMaterialToDelete(mat)}
+                      className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                      title="Delete material"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
 
                 <div>
@@ -482,6 +520,18 @@ export function MaterialsLibraryClient({ initialMaterials }: MaterialsLibraryCli
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmDialog
+        isOpen={!!materialToDelete}
+        title="Delete Material Spec"
+        description={`Are you sure you want to remove "${materialToDelete?.material_name}" (${materialToDelete?.material_code}) from the Materials Library?`}
+        confirmText="Delete Material"
+        variant="danger"
+        isLoading={isDeleting}
+        onConfirm={handleDeleteMaterial}
+        onClose={() => setMaterialToDelete(null)}
+      />
 
     </div>
   )

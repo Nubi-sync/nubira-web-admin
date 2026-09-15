@@ -56,7 +56,7 @@ Here are plain-English explanations of words used on the packing floor every day
 | Word / Term | What it actually means | Everyday Example |
 |---|---|---|
 | **Ready Goods** | Garments that are 100% sewn, washed, ironed, and ready to be sold in retail stores. | A finished black hoodie with price tags attached, folded cleanly in its plastic wrapper. |
-| **Hangtag (Price Tag)** | The branded cardboard tag hanging on a garment showing the brand name, style code, barcode, and retail price. | The white Zara tag hanging from the armpit showing `Rs 1,990 / $39.90`. |
+| **Hangtag (Price Tag)** | The branded cardboard tag hanging on a garment showing the brand name, style code, barcode, and retail price. | The white Zara tag hanging from the armpit showing `₹1,990 / Rs 1,990 (INR)`. |
 | **Kimble Tag Gun** | A small hand-held gun with a hollow needle that shoots plastic fasteners through tags and clothing seams. | Clicking the trigger shoots a tiny transparent plastic pin through the neck seam to hold the tag without making holes in the cloth. |
 | **Polybag** | A transparent plastic protective envelope that wraps each individual garment. | Has micro-perforated airholes and a printed legal warning: "Warning: Keep away from babies to prevent suffocation." |
 | **Silica Gel Pack** | A tiny white paper sachet filled with moisture-absorbing mineral beads placed inside polybags. | Sucks up humidity so clothes never smell musty or get damp inside shipping containers crossing the ocean. |
@@ -138,7 +138,7 @@ This station is where workers take pressed garments, attach retail price tags, a
 | BARCODE HANGTAG VERIFICATION CHECK:                                                     |
 | Garment Size Label: [ SIZE M (Medium)                     ]                             |
 | Scanned EAN Barcode: [ 8434521098421                      ] -> [ MATCH CONFIRMED (OK) ] |
-| Price Tag Verified: [ USD $39.90 / EUR €35.90             ]                             |
+| Price Tag Verified: [ ₹1,990 (INR) / EUR €35.90            ]                             |
 | Folding Board:      [ Adult Hoodie 12" x 10" Standard     ]                             |
 | Polybag Spec:       [ 14" x 18" Transparent Self-Adhesive ]                             |
 +-----------------------------------------------------------------------------------------+
@@ -286,7 +286,7 @@ Let us follow how **5,000 Heavyweight French Terry Hoodies** are packed and read
        v
 2. PRICE HANGTAG ATTACHMENT (Day 6 - 08:00 AM)
    Operators use Kimble fine-fabric tag guns to shoot plastic fasteners through the
-   neck label seam, attaching Zara cardboard price tags ($39.90 USD).
+   neck label seam, attaching Zara cardboard price tags (₹1,990 / INR).
    Workers scan the barcode on each tag to confirm size matching.
        |
        v

@@ -69,6 +69,7 @@ export interface ProvisionTenantPayload {
   monthlyBillingInr: number
   selectedDivisions: string[]
   demoRequestId?: string
+  validityDurationMonths?: number
 }
 
 export interface PlatformMetrics {

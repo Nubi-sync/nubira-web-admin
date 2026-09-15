@@ -38,7 +38,7 @@ function mapCategoryToUI(cat: string): GarmentCategory {
 // 1. TECH PACKS
 // -----------------------------------------------------------------------------
 
-export async function fetchTechPacksAction(companyName?: string): Promise<TechPack[]> {
+export async function fetchTechPacksAction(_companyName?: string): Promise<TechPack[]> {
   try {
     const { data, error } = await supabaseAdmin
       .from('design_tech_packs')
@@ -52,17 +52,7 @@ export async function fetchTechPacksAction(companyName?: string): Promise<TechPa
 
     if (!data || data.length === 0) return []
 
-    const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
-    const targetComp = (companyName || '').toUpperCase()
-
-    const filteredData = isNonNubira
-      ? data.filter((row: any) => {
-          const b = (row.brands?.brand_name || '').toUpperCase()
-          return b.length > 0 && b.includes(targetComp)
-        })
-      : data
-
-    return filteredData.map((row: any) => ({
+    return data.map((row: any) => ({
       id: row.id,
       style_number: row.style_number,
       style_name: `${row.category} Style ${row.style_number}`,
@@ -106,19 +96,47 @@ export async function createTechPackAction(payload: {
   cad_back_url?: string
 }): Promise<{ success: boolean; data?: TechPack; error?: string }> {
   try {
-    // 1. Resolve Brand
+    // 1. Resolve Brand with robust UUID validation and auto-creation
     let brandId = payload.brand_id
-    if (!brandId) {
-      const { data: brand } = await supabaseAdmin
+    const isUUID = brandId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(brandId)
+    
+    if (!isUUID) {
+      const brandToFind = (payload.brand_name && payload.brand_name !== 'inhouse' ? payload.brand_name : 'Inhouse').trim()
+      
+      const { data: existingBrand } = await supabaseAdmin
         .from('brands')
         .select('id')
-        .limit(1)
-        .single()
-      brandId = brand?.id
+        .ilike('brand_name', brandToFind)
+        .maybeSingle()
+
+      if (existingBrand) {
+        brandId = existingBrand.id
+      } else {
+        const { data: newBrand, error: insertErr } = await supabaseAdmin
+          .from('brands')
+          .insert({
+            brand_name: brandToFind,
+            brand_code: brandToFind.replace(/[^a-zA-Z0-9]/g, '').substring(0, 8).toUpperCase() || 'BRAND'
+          })
+          .select('id')
+          .single()
+
+        if (!insertErr && newBrand) {
+          brandId = newBrand.id
+        } else {
+          // Fallback to any active brand in database
+          const { data: anyBrand } = await supabaseAdmin
+            .from('brands')
+            .select('id')
+            .limit(1)
+            .maybeSingle()
+          brandId = anyBrand?.id
+        }
+      }
     }
 
     if (!brandId) {
-      return { success: false, error: 'No active brand found in database.' }
+      return { success: false, error: 'Failed to resolve or create a valid brand entity in database.' }
     }
 
     const categoryDB = payload.category.toUpperCase().replace(/\s+/g, '_').replace(/-/g, '')
@@ -179,11 +197,239 @@ export async function createTechPackAction(payload: {
   }
 }
 
+export async function updateTechPackAction(
+  id: string,
+  payload: {
+    style_number?: string
+    brand_name?: string
+    category?: string
+    size_system?: SizeSystem
+    base_size?: string
+    fabric_composition?: string
+    target_gsm?: number
+    embellishment_sequence?: EmbellishmentSequence
+    spi?: number
+    seam_class?: SeamClass
+    status?: TechPackStatus
+  }
+): Promise<{ success: boolean; data?: TechPack; error?: string }> {
+  try {
+    let brandId: string | undefined
+    if (payload.brand_name) {
+      const brandToFind = payload.brand_name.trim()
+      const { data: existingBrand } = await supabaseAdmin
+        .from('brands')
+        .select('id')
+        .ilike('brand_name', brandToFind)
+        .maybeSingle()
+
+      if (existingBrand) {
+        brandId = existingBrand.id
+      } else {
+        const { data: newBrand } = await supabaseAdmin
+          .from('brands')
+          .insert({
+            brand_name: brandToFind,
+            brand_code: brandToFind.replace(/[^a-zA-Z0-9]/g, '').substring(0, 8).toUpperCase() || 'BRAND'
+          })
+          .select('id')
+          .single()
+        if (newBrand) brandId = newBrand.id
+      }
+    }
+
+    const updates: Record<string, any> = {
+      updated_at: new Date().toISOString()
+    }
+    if (payload.style_number) updates.style_number = payload.style_number.trim()
+    if (brandId) updates.brand_id = brandId
+    if (payload.category) updates.category = payload.category.toUpperCase().replace(/\s+/g, '_').replace(/-/g, '')
+    if (payload.size_system) updates.size_system = payload.size_system
+    if (payload.base_size) updates.base_size = payload.base_size
+    if (payload.fabric_composition) updates.fabric_composition = payload.fabric_composition.trim()
+    if (payload.target_gsm !== undefined) updates.target_gsm = Number(payload.target_gsm)
+    if (payload.embellishment_sequence) updates.embellishment_sequence = payload.embellishment_sequence
+    if (payload.spi !== undefined) updates.spi = Number(payload.spi)
+    if (payload.seam_class) updates.seam_class = payload.seam_class
+    if (payload.status) updates.status = payload.status
+
+    const { data, error } = await supabaseAdmin
+      .from('design_tech_packs')
+      .update(updates)
+      .eq('id', id)
+      .select('*, brands(*)')
+      .single()
+
+    if (error) {
+      console.error('[updateTechPackAction] DB Error:', error)
+      return { success: false, error: error.message }
+    }
+
+    revalidatePath('/design')
+    revalidatePath('/design/tech-packs')
+
+    const updatedPack: TechPack = {
+      id: data.id,
+      style_number: data.style_number,
+      style_name: `${data.category} Style ${data.style_number}`,
+      brand_name: data.brands?.brand_name || payload.brand_name || 'Inhouse',
+      category: mapCategoryToUI(data.category),
+      size_system: data.size_system as SizeSystem,
+      base_size: data.base_size,
+      fabric_composition: data.fabric_composition,
+      target_gsm: Number(data.target_gsm),
+      embellishment_sequence: data.embellishment_sequence as EmbellishmentSequence,
+      spi: Number(data.spi),
+      seam_class: data.seam_class as SeamClass,
+      status: data.status as TechPackStatus,
+      target_cut_date: new Date(Date.now() + 14 * 86400000).toISOString().split('T')[0],
+      version: data.version,
+      created_at: data.created_at,
+      updated_at: data.updated_at
+    }
+
+    return { success: true, data: updatedPack }
+  } catch (err: any) {
+    console.error('[updateTechPackAction] Unexpected error:', err)
+    return { success: false, error: err?.message || 'Failed to update tech pack.' }
+  }
+}
+
+export async function deleteTechPackAction(id: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    // 1. Clean up design child tables directly linked to this tech pack
+    try {
+      await supabaseAdmin.from('design_sample_audits').delete().eq('tech_pack_id', id)
+      await supabaseAdmin.from('design_poms').delete().eq('tech_pack_id', id)
+      await supabaseAdmin.from('design_materials').delete().eq('tech_pack_id', id)
+    } catch (e) {
+      console.warn('[deleteTechPackAction] design children cleanup note:', e)
+    }
+
+    // 2. Find any merchandising orders referencing this tech-pack
+    try {
+      const { data: linkedOrders } = await supabaseAdmin
+        .from('merchandising_orders')
+        .select('id')
+        .eq('tech_pack_id', id)
+
+      if (linkedOrders && linkedOrders.length > 0) {
+        for (const order of linkedOrders) {
+          const orderId = order.id
+
+          // A. Ready Goods child tables
+          try {
+            const { data: cartons } = await supabaseAdmin.from('ready_goods_cartons').select('id').eq('order_id', orderId)
+            if (cartons && cartons.length > 0) {
+              const cIds = cartons.map((c: any) => c.id)
+              await supabaseAdmin.from('ready_goods_carton_bundles').delete().in('carton_id', cIds)
+            }
+            await supabaseAdmin.from('ready_goods_aql_audits').delete().eq('order_id', orderId)
+            await supabaseAdmin.from('ready_goods_cartons').delete().eq('order_id', orderId)
+          } catch (_) {}
+
+          // B. Ironing
+          try {
+            const { data: irons } = await supabaseAdmin.from('iron_table_assignments').select('id').eq('order_id', orderId)
+            if (irons && irons.length > 0) {
+              const iIds = irons.map((i: any) => i.id)
+              await supabaseAdmin.from('iron_production_logs').delete().in('table_id', iIds)
+            }
+            await supabaseAdmin.from('iron_production_logs').delete().eq('order_id', orderId)
+            await supabaseAdmin.from('iron_table_assignments').delete().eq('order_id', orderId)
+          } catch (_) {}
+
+          // C. Washing
+          try {
+            const { data: batches } = await supabaseAdmin.from('washing_batches').select('id').eq('order_id', orderId)
+            if (batches && batches.length > 0) {
+              const bIds = batches.map((b: any) => b.id)
+              await supabaseAdmin.from('washing_batch_bundles').delete().in('batch_id', bIds)
+              await supabaseAdmin.from('washing_logs').delete().in('batch_id', bIds)
+            }
+            await supabaseAdmin.from('washing_batches').delete().eq('order_id', orderId)
+          } catch (_) {}
+
+          // D. Embroidery
+          try {
+            const { data: embDesigns } = await supabaseAdmin.from('embroidery_digitizing_designs').select('id').eq('order_id', orderId)
+            if (embDesigns && embDesigns.length > 0) {
+              const eIds = embDesigns.map((e: any) => e.id)
+              await supabaseAdmin.from('embroidery_operator_logs').delete().in('design_id', eIds)
+              await supabaseAdmin.from('embroidery_production_runs').delete().in('design_id', eIds)
+            }
+            await supabaseAdmin.from('embroidery_production_runs').delete().eq('order_id', orderId)
+            await supabaseAdmin.from('embroidery_digitizing_designs').delete().eq('order_id', orderId)
+          } catch (_) {}
+
+          // E. Printing
+          try {
+            const { data: printRuns } = await supabaseAdmin.from('printing_production_runs').select('id').eq('order_id', orderId)
+            if (printRuns && printRuns.length > 0) {
+              const pIds = printRuns.map((p: any) => p.id)
+              await supabaseAdmin.from('printing_operator_logs').delete().in('run_id', pIds)
+            }
+            await supabaseAdmin.from('printing_production_runs').delete().eq('order_id', orderId)
+            await supabaseAdmin.from('printing_strike_offs').delete().eq('order_id', orderId)
+          } catch (_) {}
+
+          // F. Cutting
+          try {
+            const { data: laySheets } = await supabaseAdmin.from('cutting_lay_sheets').select('id').eq('order_id', orderId)
+            if (laySheets && laySheets.length > 0) {
+              const sIds = laySheets.map((s: any) => s.id)
+              await supabaseAdmin.from('cutting_bundle_tickets').delete().in('sheet_id', sIds)
+              await supabaseAdmin.from('cutting_panel_qc_audits').delete().in('lay_sheet_id', sIds)
+              await supabaseAdmin.from('cutting_end_bit_logs').delete().in('lay_sheet_id', sIds)
+              await supabaseAdmin.from('cutting_bundles').delete().in('lay_sheet_id', sIds)
+              await supabaseAdmin.from('cutting_lay_ratios').delete().in('lay_sheet_id', sIds)
+              await supabaseAdmin.from('cutting_fabric_rolls').delete().in('lay_sheet_id', sIds)
+            }
+            await supabaseAdmin.from('cutting_bundles').delete().eq('order_id', orderId)
+            await supabaseAdmin.from('cutting_lay_sheets').delete().eq('order_id', orderId)
+          } catch (_) {}
+
+          // G. Merchandising Child Tables & Order
+          try {
+            await supabaseAdmin.from('merchandising_order_ratios').delete().eq('order_id', orderId)
+            await supabaseAdmin.from('merchandising_bom_items').delete().eq('order_id', orderId)
+            await supabaseAdmin.from('merchandising_procurement_pos').delete().eq('order_id', orderId)
+            await supabaseAdmin.from('merchandising_orders').delete().eq('id', orderId)
+          } catch (_) {}
+        }
+      }
+    } catch (fkErr) {
+      console.warn('[deleteTechPackAction] FK cascade resolution note:', fkErr)
+    }
+
+    // 3. Delete the tech-pack itself
+    const { error } = await supabaseAdmin
+      .from('design_tech_packs')
+      .delete()
+      .eq('id', id)
+
+    if (error) {
+      console.error('[deleteTechPackAction] DB Error:', error)
+      return { success: false, error: error.message }
+    }
+
+    revalidatePath('/design')
+    revalidatePath('/design/tech-packs')
+    revalidatePath('/merchandising')
+    revalidatePath('/merchandising/orders')
+
+    return { success: true }
+  } catch (err: any) {
+    console.error('[deleteTechPackAction] Unexpected error:', err)
+    return { success: false, error: err?.message || 'Failed to delete tech pack.' }
+  }
+}
+
 // -----------------------------------------------------------------------------
 // 2. SAMPLE APPROVALS
 // -----------------------------------------------------------------------------
 
-export async function fetchSampleApprovalsAction(companyName?: string): Promise<SampleApproval[]> {
+export async function fetchSampleApprovalsAction(_companyName?: string): Promise<SampleApproval[]> {
   try {
     const { data, error } = await supabaseAdmin
       .from('design_sample_audits')
@@ -197,17 +443,7 @@ export async function fetchSampleApprovalsAction(companyName?: string): Promise<
 
     if (!data || data.length === 0) return []
 
-    const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
-    const targetComp = (companyName || '').toUpperCase()
-
-    const filteredData = isNonNubira
-      ? data.filter((row: any) => {
-          const b = (row.design_tech_packs?.brands?.brand_name || '').toUpperCase()
-          return b.length > 0 && b.includes(targetComp)
-        })
-      : data
-
-    return filteredData.map((row: any) => ({
+    return data.map((row: any) => ({
       id: row.id,
       tech_pack_id: row.tech_pack_id,
       style_number: row.design_tech_packs?.style_number || 'UNKNOWN',
@@ -288,7 +524,7 @@ export async function createSampleApprovalAction(payload: {
 // 3. GRADING MATRIX
 // -----------------------------------------------------------------------------
 
-export async function fetchGradingSchemesAction(companyName?: string): Promise<GradingScheme[]> {
+export async function fetchGradingSchemesAction(_companyName?: string): Promise<GradingScheme[]> {
   try {
     const { data: techPacks, error } = await supabaseAdmin
       .from('design_tech_packs')
@@ -323,17 +559,7 @@ export async function fetchGradingSchemesAction(companyName?: string): Promise<G
 
     if (!techPacks || techPacks.length === 0) return []
 
-    const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
-    const targetComp = (companyName || '').toUpperCase()
-
-    const filteredTechPacks = isNonNubira
-      ? techPacks.filter((tp: any) => {
-          const b = (tp.brands?.brand_name || '').toUpperCase()
-          return b.length > 0 && b.includes(targetComp)
-        })
-      : techPacks
-
-    return filteredTechPacks.map((tp: any) => {
+    return techPacks.map((tp: any) => {
       const pomsList: PointOfMeasure[] = (tp.design_poms || [])
         .sort((a: any, b: any) => (a.sort_order || 0) - (b.sort_order || 0))
         .map((p: any) => {
@@ -355,8 +581,8 @@ export async function fetchGradingSchemesAction(companyName?: string): Promise<G
             pom_code: p.pom_code,
             pom_name: p.pom_name,
             tolerance_cm: Number(p.tolerance_cm) || 0.5,
-            grade_step_cm: gradeStep || 2.5,
-            base_value_cm: baseVal || 50.0,
+            grade_step_cm: gradeStep || 2.0,
+            base_value_cm: baseVal || (p.tolerance_cm ? 50.0 : 50.0),
             sizes: sizesMap
           }
         })
@@ -387,17 +613,109 @@ export async function fetchGradingSchemesAction(companyName?: string): Promise<G
   }
 }
 
+export async function createPomAction(payload: {
+  tech_pack_id: string
+  pom_code: string
+  pom_name: string
+  tolerance_cm: number
+  grade_step_cm: number
+  base_value_cm: number
+  base_size: string
+  sizes: string[]
+}): Promise<{ success: boolean; data?: PointOfMeasure; error?: string }> {
+  try {
+    const pomCode = payload.pom_code.trim().toUpperCase().replace(/[^A-Z0-9_]/g, '_')
+    const tolerance = Number(payload.tolerance_cm) || 0.5
+    const baseVal = Number(payload.base_value_cm) || 50.0
+    const stepVal = Number(payload.grade_step_cm) || 2.0
+    const baseSize = payload.base_size || 'M'
+
+    // 1. Insert/upsert into design_poms
+    const { data: pom, error: pomError } = await supabaseAdmin
+      .from('design_poms')
+      .upsert({
+        tech_pack_id: payload.tech_pack_id,
+        pom_code: pomCode,
+        pom_name: payload.pom_name.trim(),
+        tolerance_cm: tolerance,
+        sort_order: Date.now() % 10000
+      }, { onConflict: 'tech_pack_id,pom_code' })
+      .select('id, pom_code, pom_name, tolerance_cm')
+      .single()
+
+    if (pomError || !pom) {
+      console.error('[createPomAction] POM Error:', pomError)
+      return { success: false, error: pomError?.message || 'Failed to create point of measure in Supabase.' }
+    }
+
+    // 2. Generate and insert sizes into design_measurement_values
+    const baseIdx = payload.sizes.indexOf(baseSize)
+    const sizesMap: Record<string, number> = {}
+    const measRows = payload.sizes.map((sz, idx) => {
+      const offset = idx - (baseIdx >= 0 ? baseIdx : 0)
+      const val = Number((baseVal + offset * stepVal).toFixed(2))
+      sizesMap[sz] = val
+      return {
+        pom_id: pom.id,
+        size_label: sz,
+        value_cm: val,
+        grade_step_cm: stepVal,
+        is_base_size: sz === baseSize
+      }
+    })
+
+    try {
+      await supabaseAdmin.from('design_measurement_values').delete().eq('pom_id', pom.id)
+      await supabaseAdmin.from('design_measurement_values').insert(measRows)
+    } catch (measErr) {
+      console.warn('[createPomAction] Measurement values insert note:', measErr)
+    }
+
+    revalidatePath('/design/grading-matrix')
+    revalidatePath('/design')
+
+    const newPom: PointOfMeasure = {
+      pom_code: pom.pom_code,
+      pom_name: pom.pom_name,
+      tolerance_cm: Number(pom.tolerance_cm) || tolerance,
+      grade_step_cm: stepVal,
+      base_value_cm: baseVal,
+      sizes: sizesMap
+    }
+
+    return { success: true, data: newPom }
+  } catch (err: any) {
+    console.error('[createPomAction] Unexpected error:', err)
+    return { success: false, error: err?.message || 'Failed to create POM.' }
+  }
+}
+
+export async function deletePomAction(techPackId: string, pomCode: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const { error } = await supabaseAdmin
+      .from('design_poms')
+      .delete()
+      .eq('tech_pack_id', techPackId)
+      .eq('pom_code', pomCode)
+
+    if (error) {
+      return { success: false, error: error.message }
+    }
+
+    revalidatePath('/design/grading-matrix')
+    revalidatePath('/design')
+    return { success: true }
+  } catch (err: any) {
+    return { success: false, error: err?.message || 'Failed to delete POM.' }
+  }
+}
+
 // -----------------------------------------------------------------------------
 // 4. MATERIALS LIBRARY
 // -----------------------------------------------------------------------------
 
 export async function fetchMaterialsLibraryAction(companyName?: string): Promise<MaterialItem[]> {
   try {
-    const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
-    if (isNonNubira) {
-      return []
-    }
-
     const { data, error } = await supabaseAdmin
       .from('design_materials_library')
       .select('*')
@@ -483,6 +801,25 @@ export async function createMaterialAction(payload: {
   }
 }
 
+export async function deleteMaterialAction(id: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const { error } = await supabaseAdmin
+      .from('design_materials_library')
+      .delete()
+      .eq('id', id)
+
+    if (error) {
+      return { success: false, error: error.message }
+    }
+
+    revalidatePath('/design')
+    revalidatePath('/design/materials-library')
+    return { success: true }
+  } catch (err: any) {
+    return { success: false, error: err?.message || 'Failed to delete material.' }
+  }
+}
+
 // -----------------------------------------------------------------------------
 // 5. BRANDS LIST
 // -----------------------------------------------------------------------------
@@ -498,15 +835,6 @@ export async function fetchBrandsAction(companyName?: string): Promise<{ id: str
     if (error) {
       console.error('[fetchBrandsAction] DB error:', error)
       return []
-    }
-
-    const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
-    const targetComp = (companyName || '').toUpperCase()
-
-    if (isNonNubira) {
-      const filtered = (data || []).filter((b: any) => (b.brand_name || '').toUpperCase().includes(targetComp))
-      if (filtered.length > 0) return filtered
-      return [{ id: 'inhouse', brand_name: companyName || 'Inhouse', brand_code: 'INHOUSE' }]
     }
 
     return data || []

@@ -24,8 +24,15 @@ import {
   FileSpreadsheet,
   Boxes
 } from 'lucide-react'
-import { MerchandisingOrder, OrderStatus, BomCosting, TnaMilestone, ExportShipment } from '../types/merchandising'
-import { getOrders, MERCHANDISING_UPDATE_EVENT } from '../utils/merchandisingStorage'
+import { MerchandisingOrder, OrderStatus, BomCosting, TnaMilestone, ExportShipment, SourcingRequisition } from '../types/merchandising'
+import { 
+  getOrders, 
+  getBomCostings, 
+  getTnaMilestones, 
+  getSourcingRequisitions, 
+  getShipments, 
+  MERCHANDISING_UPDATE_EVENT 
+} from '../utils/merchandisingStorage'
 import { CreateOrderModal } from '../orders/components/CreateOrderModal'
 import { EmptyState } from '@/components/ui/EmptyState'
 
@@ -58,6 +65,19 @@ export function MerchandisingDashboardClient({
     if (initialOrders && initialOrders.length > 0) return initialOrders
     return []
   })
+  const [costings, setCostings] = useState<BomCosting[]>(() => {
+    if (initialBomCostings && initialBomCostings.length > 0) return initialBomCostings
+    return []
+  })
+  const [milestones, setMilestones] = useState<TnaMilestone[]>(() => {
+    if (initialMilestones && initialMilestones.length > 0) return initialMilestones
+    return []
+  })
+  const [shipments, setShipments] = useState<ExportShipment[]>(() => {
+    if (initialShipments && initialShipments.length > 0) return initialShipments
+    return []
+  })
+  const [sourcingPrs, setSourcingPrs] = useState<SourcingRequisition[]>([])
   const [selectedBrand, setSelectedBrand] = useState<string>('ALL')
   const [selectedStyleId, setSelectedStyleId] = useState<string>('ALL')
   const [isStyleMenuOpen, setIsStyleMenuOpen] = useState(false)
@@ -68,24 +88,24 @@ export function MerchandisingDashboardClient({
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
 
   const reloadData = () => {
-    const stored = getOrders()
-    if (stored && stored.length > 0) {
-      setOrders(stored)
-    }
+    const localOrders = getOrders()
+    const localCostings = getBomCostings()
+    const localMilestones = getTnaMilestones()
+    const localShipments = getShipments()
+    const localSourcing = getSourcingRequisitions()
+
+    setOrders(localOrders && localOrders.length > 0 ? localOrders : (initialOrders || []))
+    setCostings(localCostings && localCostings.length > 0 ? localCostings : (initialBomCostings || []))
+    setMilestones(localMilestones && localMilestones.length > 0 ? localMilestones : (initialMilestones || []))
+    setShipments(localShipments && localShipments.length > 0 ? localShipments : (initialShipments || []))
+    setSourcingPrs(localSourcing || [])
   }
 
   useEffect(() => {
-    if (initialOrders !== undefined) {
-      setOrders(initialOrders)
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('zigza_merchandising_orders_v1', JSON.stringify(initialOrders))
-      }
-    } else {
-      reloadData()
-    }
+    reloadData()
     window.addEventListener(MERCHANDISING_UPDATE_EVENT, reloadData)
     return () => window.removeEventListener(MERCHANDISING_UPDATE_EVENT, reloadData)
-  }, [initialOrders])
+  }, [initialOrders, initialBomCostings, initialMilestones, initialShipments])
 
   const handleManualSync = () => {
     setIsSyncing(true)
@@ -125,6 +145,36 @@ export function MerchandisingDashboardClient({
   const totalBookedPcs = orders.reduce((acc, curr) => acc + curr.total_quantity, 0)
   const activeOrdersCount = orders.filter(o => o.status !== 'CLOSED' && o.status !== 'DISPATCHED').length
   const hasOrders = orders.length > 0
+
+  // Dynamic Costing metrics
+  const hasCostings = costings.length > 0
+  const meanTargetMargin = hasCostings
+    ? (costings.reduce((sum, c) => sum + (c.target_margin_percent || 15), 0) / costings.length).toFixed(1)
+    : '0.0'
+  const meanVariance = hasCostings
+    ? (costings.reduce((sum, c) => sum + Math.abs(c.variance_percent || 0), 0) / costings.length).toFixed(1)
+    : '0.0'
+
+  // Dynamic Trim In-House metrics
+  const hasSourcing = sourcingPrs.length > 0
+  const inHousePrsCount = sourcingPrs.filter(p => p.fulfillment_status === 'STORE_RECEIVED').length
+  const trimInHousePct = hasSourcing ? Math.round((inHousePrsCount / sourcingPrs.length) * 100) : 0
+
+  // Dynamic Critical Path SLA (T&A)
+  const totalGates = milestones.length
+  const clearedGates = milestones.filter(m => m.status === 'COMPLETED').length
+  const slaPct = totalGates > 0 ? ((clearedGates / totalGates) * 100).toFixed(1) : '0.0'
+
+  // Dynamic Export Container / Shipments
+  const bookedContainers = shipments.length
+  const hasShipments = shipments.length > 0
+
+  // Dynamic 5-Stage Live Conversion Health
+  const isFabricInwardCleared = milestones.some(m => m.milestone_name?.toUpperCase().includes('FABRIC INWARD') && m.status === 'COMPLETED')
+  const isCuttingCleared = milestones.some(m => m.milestone_name?.toUpperCase().includes('CUTTING') && m.status === 'COMPLETED')
+  const isSewingCleared = milestones.some(m => m.milestone_name?.toUpperCase().includes('SEWING') && m.status === 'COMPLETED')
+  const isWashingCleared = milestones.some(m => m.milestone_name?.toUpperCase().includes('WASHING') && m.status === 'COMPLETED')
+  const isPackingCleared = milestones.some(m => (m.milestone_name?.toUpperCase().includes('AQL') || m.milestone_name?.toUpperCase().includes('PACK')) && m.status === 'COMPLETED')
 
   // Real commercial activity stream derived from real live orders
   const activities: ActivityItem[] = orders.length === 0
@@ -387,8 +437,8 @@ export function MerchandisingDashboardClient({
           </div>
 
           <div className="mt-4 pt-3 border-t border-slate-100/80">
-            <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none">
-              {totalBookedPcs.toLocaleString()}
+            <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none" suppressHydrationWarning>
+              {totalBookedPcs.toLocaleString('en-IN')}
             </h3>
             <div className="mt-2.5 flex items-center justify-between">
               <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 tracking-wider shadow-2xs">
@@ -423,11 +473,11 @@ export function MerchandisingDashboardClient({
 
           <div className="mt-4 pt-3 border-t border-slate-100/80">
             <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none">
-              {hasOrders ? '98.2%' : '0.0%'}
+              {hasCostings ? `${meanTargetMargin}%` : '0.0%'}
             </h3>
             <div className="mt-2.5 flex items-center justify-between">
-              <span className={`text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] ${hasOrders ? 'text-emerald-800 border border-emerald-200' : 'text-slate-500 border border-black/10'} tracking-wider shadow-2xs`}>
-                {hasOrders ? '±1.8% Variance' : '0% Variance'}
+              <span className={`text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] ${hasCostings ? 'text-emerald-800 border border-emerald-200' : 'text-slate-500 border border-black/10'} tracking-wider shadow-2xs`}>
+                {hasCostings ? `±${meanVariance}% Variance` : 'No Costing Sheets'}
               </span>
             </div>
           </div>
@@ -458,11 +508,11 @@ export function MerchandisingDashboardClient({
 
           <div className="mt-4 pt-3 border-t border-slate-100/80">
             <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none">
-              {hasOrders ? '100%' : '0%'}
+              {hasSourcing ? `${trimInHousePct}%` : '0%'}
             </h3>
             <div className="mt-2.5 flex items-center justify-between">
               <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 tracking-wider shadow-2xs">
-                {hasOrders ? 'Zero Line Stop' : 'No Active Orders'}
+                {hasSourcing ? (trimInHousePct === 100 ? 'Zero Line Stop' : `${inHousePrsCount}/${sourcingPrs.length} In-House`) : 'Pending Sourcing'}
               </span>
             </div>
           </div>
@@ -493,11 +543,11 @@ export function MerchandisingDashboardClient({
 
           <div className="mt-4 pt-3 border-t border-slate-100/80">
             <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none">
-              {hasOrders ? '92.5%' : '0.0%'}
+              {slaPct}%
             </h3>
             <div className="mt-2.5 flex items-center justify-between">
-              <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 tracking-wider shadow-2xs">
-                {hasOrders ? '8 Gates Tracked' : '0 Gates Tracked'}
+              <span className={`text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] ${clearedGates > 0 ? 'text-emerald-800 border border-emerald-200' : 'text-slate-600 border border-black/10'} tracking-wider shadow-2xs`}>
+                {totalGates > 0 ? `${clearedGates} of ${totalGates} Gates Cleared` : '0 Gates Tracked'}
               </span>
             </div>
           </div>
@@ -528,11 +578,11 @@ export function MerchandisingDashboardClient({
 
           <div className="mt-4 pt-3 border-t border-slate-100/80">
             <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none">
-              {hasOrders ? '192.0' : '0.0'}
+              {bookedContainers > 0 ? `${bookedContainers}.0` : '0.0'}
             </h3>
             <div className="mt-2.5 flex items-center justify-between">
               <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 tracking-wider shadow-2xs">
-                {hasOrders ? '3 Boxes Booked' : '0 Boxes Booked'}
+                {bookedContainers > 0 ? `${bookedContainers} Boxes Booked` : '0 Boxes Booked'}
               </span>
             </div>
           </div>
@@ -563,11 +613,11 @@ export function MerchandisingDashboardClient({
 
           <div className="mt-4 pt-3 border-t border-slate-100/80">
             <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none">
-              {hasOrders ? '97.8%' : '0.0%'}
+              {hasShipments ? '100.0%' : '0.0%'}
             </h3>
             <div className="mt-2.5 flex items-center justify-between">
-              <span className={`text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] ${hasOrders ? 'text-emerald-800 border border-emerald-200' : 'text-slate-500 border border-black/10'} tracking-wider shadow-2xs`}>
-                {hasOrders ? 'Port Cut-Off OK' : 'No Orders'}
+              <span className={`text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] ${hasShipments ? 'text-emerald-800 border border-emerald-200' : 'text-slate-500 border border-black/10'} tracking-wider shadow-2xs`}>
+                {hasShipments ? 'Port Cut-Off OK' : 'Pending Dispatch'}
               </span>
             </div>
           </div>
@@ -593,7 +643,7 @@ export function MerchandisingDashboardClient({
           </div>
           <div className="flex items-center gap-3">
             <span className="text-xs sm:text-sm font-semibold text-slate-500">
-              Total Booked: <strong className="text-slate-900 font-mono">{totalBookedPcs.toLocaleString()} pcs</strong>
+              Total Booked: <strong className="text-slate-900 font-mono" suppressHydrationWarning>{totalBookedPcs.toLocaleString('en-IN')} pcs</strong>
             </span>
             <Link
               href="/merchandising/tna-calendar"
@@ -613,20 +663,20 @@ export function MerchandisingDashboardClient({
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 block">
                 1. Fabric Inward
               </span>
-              <span className="text-xs font-extrabold font-mono text-[#3A3564] bg-[#FAF7F0] border border-black/10 px-2 py-0.5 rounded-full shadow-2xs">
-                {hasOrders ? '92%' : '0%'}
+              <span className={`text-xs font-extrabold font-mono px-2 py-0.5 rounded-full shadow-2xs ${isFabricInwardCleared ? 'text-emerald-800 bg-emerald-50 border border-emerald-200' : 'text-[#3A3564] bg-[#FAF7F0] border border-black/10'}`}>
+                {isFabricInwardCleared ? '100%' : '0%'}
               </span>
             </div>
             <div className="mt-2 flex items-baseline justify-between">
-              <p className="text-lg sm:text-xl font-bold font-[family-name:var(--font-heading)] text-slate-900">
-                {hasOrders ? '18,240' : '0'} <span className="text-xs font-normal text-slate-400">kg</span>
+              <p className="text-lg sm:text-xl font-bold font-[family-name:var(--font-heading)] text-slate-900" suppressHydrationWarning>
+                {isFabricInwardCleared ? `${Math.round(totalBookedPcs * 0.38).toLocaleString('en-IN')}` : '0'} <span className="text-xs font-normal text-slate-400">kg</span>
               </p>
-              <span className="text-[10px] font-medium text-slate-400">{hasOrders ? 'Cleared Lab' : 'No Inward'}</span>
+              <span className="text-[10px] font-medium text-slate-400">{isFabricInwardCleared ? 'Cleared Lab' : 'Pending Inward'}</span>
             </div>
             <div className="w-full bg-slate-100 h-1 rounded-full mt-2.5 overflow-hidden">
               <div 
                 className="bg-[#3A3564] h-full rounded-full transition-all duration-500" 
-                style={{ width: hasOrders ? '92%' : '0%' }}
+                style={{ width: isFabricInwardCleared ? '100%' : '0%' }}
               />
             </div>
           </div>
@@ -637,20 +687,20 @@ export function MerchandisingDashboardClient({
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 block">
                 2. Bulk Cutting
               </span>
-              <span className="text-xs font-extrabold font-mono text-[#3A3564] bg-[#FAF7F0] border border-black/10 px-2 py-0.5 rounded-full shadow-2xs">
-                {hasOrders ? '78%' : '0%'}
+              <span className={`text-xs font-extrabold font-mono px-2 py-0.5 rounded-full shadow-2xs ${isCuttingCleared ? 'text-emerald-800 bg-emerald-50 border border-emerald-200' : 'text-[#3A3564] bg-[#FAF7F0] border border-black/10'}`}>
+                {isCuttingCleared ? '100%' : '0%'}
               </span>
             </div>
             <div className="mt-2 flex items-baseline justify-between">
               <p className="text-lg sm:text-xl font-bold font-[family-name:var(--font-heading)] text-slate-900">
-                {hasOrders ? '78%' : '0%'} <span className="text-xs font-normal text-slate-400">Cut</span>
+                {isCuttingCleared ? '100%' : '0%'} <span className="text-xs font-normal text-slate-400">Cut</span>
               </p>
-              <span className="text-[10px] font-medium text-slate-400">{hasOrders ? 'Ratio OK' : 'No Cutting'}</span>
+              <span className="text-[10px] font-medium text-slate-400">{isCuttingCleared ? 'Ratio OK' : 'Pending Lay'}</span>
             </div>
             <div className="w-full bg-slate-100 h-1 rounded-full mt-2.5 overflow-hidden">
               <div 
                 className="bg-[#3A3564] h-full rounded-full transition-all duration-500" 
-                style={{ width: hasOrders ? '78%' : '0%' }}
+                style={{ width: isCuttingCleared ? '100%' : '0%' }}
               />
             </div>
           </div>
@@ -661,20 +711,20 @@ export function MerchandisingDashboardClient({
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 block">
                 3. Sewing Floor
               </span>
-              <span className="text-xs font-extrabold font-mono text-[#3A3564] bg-[#FAF7F0] border border-black/10 px-2 py-0.5 rounded-full shadow-2xs">
-                {hasOrders ? '64%' : '0%'}
+              <span className={`text-xs font-extrabold font-mono px-2 py-0.5 rounded-full shadow-2xs ${isSewingCleared ? 'text-emerald-800 bg-emerald-50 border border-emerald-200' : 'text-[#3A3564] bg-[#FAF7F0] border border-black/10'}`}>
+                {isSewingCleared ? '100%' : '0%'}
               </span>
             </div>
             <div className="mt-2 flex items-baseline justify-between">
               <p className="text-lg sm:text-xl font-bold font-[family-name:var(--font-heading)] text-slate-900">
-                {hasOrders ? '64%' : '0%'} <span className="text-xs font-normal text-slate-400">WIP</span>
+                {isSewingCleared ? '100%' : '0%'} <span className="text-xs font-normal text-slate-400">WIP</span>
               </p>
-              <span className="text-[10px] font-medium text-slate-400">{hasOrders ? '88% Output' : 'No Sewing'}</span>
+              <span className="text-[10px] font-medium text-slate-400">{isSewingCleared ? 'Output OK' : 'Pending Stitch'}</span>
             </div>
             <div className="w-full bg-slate-100 h-1 rounded-full mt-2.5 overflow-hidden">
               <div 
                 className="bg-[#3A3564] h-full rounded-full transition-all duration-500" 
-                style={{ width: hasOrders ? '64%' : '0%' }}
+                style={{ width: isSewingCleared ? '100%' : '0%' }}
               />
             </div>
           </div>
@@ -685,20 +735,20 @@ export function MerchandisingDashboardClient({
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 block">
                 4. Washing &amp; Finish
               </span>
-              <span className="text-xs font-extrabold font-mono text-[#3A3564] bg-[#FAF7F0] border border-black/10 px-2 py-0.5 rounded-full shadow-2xs">
-                {hasOrders ? '42%' : '0%'}
+              <span className={`text-xs font-extrabold font-mono px-2 py-0.5 rounded-full shadow-2xs ${isWashingCleared ? 'text-emerald-800 bg-emerald-50 border border-emerald-200' : 'text-[#3A3564] bg-[#FAF7F0] border border-black/10'}`}>
+                {isWashingCleared ? '100%' : '0%'}
               </span>
             </div>
             <div className="mt-2 flex items-baseline justify-between">
               <p className="text-lg sm:text-xl font-bold font-[family-name:var(--font-heading)] text-slate-900">
-                {hasOrders ? '42%' : '0%'} <span className="text-xs font-normal text-slate-400">Done</span>
+                {isWashingCleared ? '100%' : '0%'} <span className="text-xs font-normal text-slate-400">Done</span>
               </p>
-              <span className="text-[10px] font-medium text-slate-400">{hasOrders ? 'In Drum' : 'No Washing'}</span>
+              <span className="text-[10px] font-medium text-slate-400">{isWashingCleared ? 'In Drum' : 'Pending Wash'}</span>
             </div>
             <div className="w-full bg-slate-100 h-1 rounded-full mt-2.5 overflow-hidden">
               <div 
                 className="bg-[#3A3564] h-full rounded-full transition-all duration-500" 
-                style={{ width: hasOrders ? '42%' : '0%' }}
+                style={{ width: isWashingCleared ? '100%' : '0%' }}
               />
             </div>
           </div>
@@ -709,20 +759,20 @@ export function MerchandisingDashboardClient({
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 block">
                 5. Carton Pack (AQL)
               </span>
-              <span className="text-xs font-extrabold font-mono text-[#3A3564] bg-[#FAF7F0] border border-black/10 px-2 py-0.5 rounded-full shadow-2xs">
-                {hasOrders ? '30%' : '0%'}
+              <span className={`text-xs font-extrabold font-mono px-2 py-0.5 rounded-full shadow-2xs ${isPackingCleared ? 'text-emerald-800 bg-emerald-50 border border-emerald-200' : 'text-[#3A3564] bg-[#FAF7F0] border border-black/10'}`}>
+                {isPackingCleared ? '100%' : '0%'}
               </span>
             </div>
             <div className="mt-2 flex items-baseline justify-between">
               <p className="text-lg sm:text-xl font-bold font-[family-name:var(--font-heading)] text-slate-900">
-                {hasOrders ? '30%' : '0%'} <span className="text-xs font-normal text-slate-400">Packed</span>
+                {isPackingCleared ? '100%' : '0%'} <span className="text-xs font-normal text-slate-400">Packed</span>
               </p>
-              <span className="text-[10px] font-medium text-slate-400">{hasOrders ? 'AQL 2.5 Audit' : 'No Cartons'}</span>
+              <span className="text-[10px] font-medium text-slate-400">{isPackingCleared ? 'AQL 2.5 Passed' : 'Pending AQL'}</span>
             </div>
             <div className="w-full bg-slate-100 h-1 rounded-full mt-2.5 overflow-hidden">
               <div 
                 className="bg-[#3A3564] h-full rounded-full transition-all duration-500" 
-                style={{ width: hasOrders ? '30%' : '0%' }}
+                style={{ width: isPackingCleared ? '100%' : '0%' }}
               />
             </div>
           </div>
@@ -820,16 +870,16 @@ export function MerchandisingDashboardClient({
                             {ord.style_name}
                           </span>
                         </td>
-                        <td className="py-2.5 px-3 text-right font-bold text-slate-900 font-mono">
-                          {ord.total_quantity.toLocaleString()}
+                        <td className="py-2.5 px-3 text-right font-bold text-slate-900 font-mono" suppressHydrationWarning>
+                          {ord.total_quantity.toLocaleString('en-IN')}
                         </td>
                         <td className="py-2.5 px-3 font-mono text-slate-700">
                           {ord.currency === 'INR' ? '₹' : ord.currency === 'USD' ? '$' : '€'}
                           {ord.unit_fob_price.toFixed(2)}
                         </td>
-                        <td className="py-2.5 px-3 font-mono font-bold text-slate-900">
+                        <td className="py-2.5 px-3 font-mono font-bold text-slate-900" suppressHydrationWarning>
                           {ord.currency === 'INR' ? '₹' : ord.currency === 'USD' ? '$' : '€'}
-                          {ord.total_contract_value.toLocaleString()}
+                          {ord.total_contract_value.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                         </td>
                         <td className="py-2.5 px-3 text-center">
                           <span

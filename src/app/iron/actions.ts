@@ -43,21 +43,9 @@ export async function fetchIronDashboardDataAction(companyName?: string): Promis
         .limit(50)
     ])
 
-    const rawTables = isNonNubira ? [] : (tablesRes.data || [])
-
-    const rawLogs = isNonNubira
-      ? (logsRes.data || []).filter((l: any) => {
-          const brand = (l.order?.brands?.brand_name || '').toUpperCase()
-          return brand.length > 0 && brand.includes(targetComp)
-        })
-      : (logsRes.data || [])
-
-    const rawDefects = isNonNubira
-      ? (defectsRes.data || []).filter((d: any) => {
-          const brand = (d.iron_log?.order?.brands?.brand_name || '').toUpperCase()
-          return brand.length > 0 && brand.includes(targetComp)
-        })
-      : (defectsRes.data || [])
+    const rawTables = tablesRes.data || []
+    const rawLogs = logsRes.data || []
+    const rawDefects = defectsRes.data || []
 
     const tables: IronTable[] = rawTables.map((t: any, idx: number) => ({
       id: t.id,

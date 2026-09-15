@@ -16,12 +16,19 @@ import {
   CheckCircle2, 
   AlertCircle,
   GitCompare,
-  X
+  X,
+  Pencil,
+  Trash2,
+  Loader2
 } from 'lucide-react'
+import { toast } from 'sonner'
 import { TechPack, TechPackStatus } from '../../types/design'
 import { getStoredTechPacks } from '../../utils/designStorage'
 import { CreateTechPackModal } from './CreateTechPackModal'
+import { EditTechPackModal } from './EditTechPackModal'
+import { deleteTechPackAction } from '../../actions'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 
 const STATUS_CONFIG: Record<string, { label: string; badgeClass: string }> = {
   DRAFT: { label: 'Draft', badgeClass: 'bg-slate-100 text-slate-700 border-slate-200' },
@@ -46,6 +53,9 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands }: Tec
   const [statusFilter, setStatusFilter] = useState<string>('ALL')
   const [searchQuery, setSearchQuery] = useState('')
   const [isCreateOpen, setIsCreateOpen] = useState(false)
+  const [editingPack, setEditingPack] = useState<TechPack | null>(null)
+  const [packToDelete, setPackToDelete] = useState<TechPack | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
   const [diffPack, setDiffPack] = useState<TechPack | null>(null)
 
   function loadPacks() {
@@ -68,6 +78,25 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands }: Tec
     window.addEventListener('zigza_tech_packs_updated', handler)
     return () => window.removeEventListener('zigza_tech_packs_updated', handler)
   }, [initialTechPacks])
+
+  async function handleConfirmDelete() {
+    if (!packToDelete) return
+    setIsDeleting(true)
+    try {
+      const res = await deleteTechPackAction(packToDelete.id)
+      if (res.success) {
+        toast.success(`Tech-Pack ${packToDelete.style_number} deleted successfully`)
+        setTechPacks(prev => prev.filter(p => p.id !== packToDelete.id))
+        setPackToDelete(null)
+      } else {
+        toast.error(res.error || 'Failed to delete Tech-Pack')
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'An error occurred during deletion')
+    } finally {
+      setIsDeleting(false)
+    }
+  }
 
   const filteredPacks = techPacks.filter(tp => {
     const matchesStatus = 
@@ -255,19 +284,35 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands }: Tec
                 </div>
 
                 {/* Card Footer */}
-                <div className="p-4 border-t border-black/5 bg-[#FAF7F0]/40 flex items-center justify-between text-xs sm:text-sm">
+                <div className="p-3.5 border-t border-black/5 bg-[#FAF7F0]/40 flex items-center justify-between gap-2 text-xs sm:text-sm">
                   <div className="flex items-center gap-1.5 text-slate-500 font-mono text-xs">
-                    <Clock className="w-3.5 h-3.5" />
-                    <span>Cut: {pack.target_cut_date}</span>
+                    <Clock className="w-3.5 h-3.5 shrink-0" />
+                    <span className="truncate">Cut: {pack.target_cut_date}</span>
                   </div>
 
-                  <button
-                    onClick={() => setDiffPack(pack)}
-                    className="inline-flex items-center gap-1 text-xs font-semibold text-[#3A3564] hover:underline cursor-pointer"
-                  >
-                    <GitCompare className="w-3.5 h-3.5" />
-                    <span>View Diff (v{pack.version}.0)</span>
-                  </button>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <button
+                      onClick={() => setEditingPack(pack)}
+                      className="p-1.5 rounded-lg bg-white border border-black/10 text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all cursor-pointer shadow-2xs"
+                      title="Edit Tech-Pack"
+                    >
+                      <Pencil className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => setPackToDelete(pack)}
+                      className="p-1.5 rounded-lg bg-white border border-black/10 text-rose-600 hover:bg-rose-50 hover:border-rose-200 transition-all cursor-pointer shadow-2xs"
+                      title="Delete Tech-Pack"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => setDiffPack(pack)}
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-[#3A3564] hover:underline cursor-pointer pl-1"
+                    >
+                      <GitCompare className="w-3.5 h-3.5" />
+                      <span>Diff</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             )
@@ -319,13 +364,31 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands }: Tec
                         </span>
                       </td>
                       <td className="py-3.5 px-4 text-right">
-                        <button
-                          onClick={() => setDiffPack(pack)}
-                          className="inline-flex items-center gap-1 text-xs font-semibold text-[#3A3564] hover:underline cursor-pointer"
-                        >
-                          <GitCompare className="w-3.5 h-3.5" />
-                          <span>Diff</span>
-                        </button>
+                        <div className="flex items-center justify-end gap-1.5">
+                          <button
+                            onClick={() => setEditingPack(pack)}
+                            className="inline-flex items-center gap-1 text-xs font-semibold text-slate-700 hover:text-[#3A3564] p-1.5 rounded-lg hover:bg-[#FAF7F0] border border-black/5 hover:border-black/15 transition-all cursor-pointer shadow-2xs"
+                            title="Edit Tech-Pack"
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                            <span className="hidden md:inline">Edit</span>
+                          </button>
+                          <button
+                            onClick={() => setPackToDelete(pack)}
+                            className="inline-flex items-center gap-1 text-xs font-semibold text-rose-600 hover:text-rose-700 p-1.5 rounded-lg hover:bg-rose-50 border border-black/5 hover:border-rose-200 transition-all cursor-pointer shadow-2xs"
+                            title="Delete Tech-Pack"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                            <span className="hidden md:inline">Delete</span>
+                          </button>
+                          <button
+                            onClick={() => setDiffPack(pack)}
+                            className="inline-flex items-center gap-1 text-xs font-semibold text-[#3A3564] hover:underline cursor-pointer pl-1"
+                          >
+                            <GitCompare className="w-3.5 h-3.5" />
+                            <span>Diff</span>
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   )
@@ -409,8 +472,35 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands }: Tec
       <CreateTechPackModal
         isOpen={isCreateOpen}
         onClose={() => setIsCreateOpen(false)}
-        onCreated={loadPacks}
+        onCreated={(newTp) => {
+          setTechPacks(prev => [newTp, ...prev.filter(t => t.id !== newTp.id)])
+        }}
         availableBrands={availableBrands}
+      />
+
+      {/* Edit Tech-Pack Modal */}
+      <EditTechPackModal
+        isOpen={!!editingPack}
+        onClose={() => setEditingPack(null)}
+        techPack={editingPack}
+        onUpdated={(updatedTp) => {
+          setTechPacks(prev => prev.map(p => p.id === updatedTp.id ? updatedTp : p))
+        }}
+      />
+
+      {/* Custom Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={!!packToDelete}
+        title={`Delete Tech-Pack "${packToDelete?.style_number}"?`}
+        description={`Are you sure you want to delete "${packToDelete?.style_name || packToDelete?.style_number}" (${packToDelete?.brand_name})? This will delete all associated grading points, materials, and sampling audits.`}
+        confirmText="Yes, Delete Tech-Pack"
+        cancelText="Cancel"
+        variant="danger"
+        isLoading={isDeleting}
+        onConfirm={handleConfirmDelete}
+        onClose={() => {
+          if (!isDeleting) setPackToDelete(null)
+        }}
       />
     </div>
   )

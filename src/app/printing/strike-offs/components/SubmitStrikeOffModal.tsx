@@ -1,9 +1,10 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { X, CheckCircle2, AlertCircle, FileCheck2, Sparkles } from 'lucide-react'
 import { StrikeOffTest, PrintTechnique, StrikeOffStatus } from '../../types/printing'
 import { saveStrikeOff } from '../../utils/printingStorage'
+import { getOrders } from '@/app/merchandising/utils/merchandisingStorage'
 
 interface SubmitStrikeOffModalProps {
   isOpen: boolean
@@ -13,27 +14,64 @@ interface SubmitStrikeOffModalProps {
 
 const TECHNIQUES: PrintTechnique[] = [
   'PLASTISOL',
+  'HIGH_DENSITY',
   'WATER_BASED',
   'DISCHARGE',
   'DTG',
-  'PUFF',
-  'HIGH_DENSITY'
+  'PUFF'
 ]
 
 export function SubmitStrikeOffModal({ isOpen, onClose, onSuccess }: SubmitStrikeOffModalProps) {
-  const [poNumber, setPoNumber] = useState('')
-  const [styleRef, setStyleRef] = useState('')
-  const [pantoneTarget, setPantoneTarget] = useState('')
+  const [availablePos, setAvailablePos] = useState<any[]>([])
+  const [poNumber, setPoNumber] = useState('PO-2026-9901')
+  const [styleRef, setStyleRef] = useState('TP-2026-8801')
+  const [pantoneTarget, setPantoneTarget] = useState('Chest Arch Logo Print (White & Black Ink on Orange/Green Panels)')
   const [technique, setTechnique] = useState<PrintTechnique>('PLASTISOL')
-  const [spectroDeltaE, setSpectroDeltaE] = useState('0.0')
+  const [spectroDeltaE, setSpectroDeltaE] = useState('0.32')
   const [curingTemp, setCuringTemp] = useState('160')
   const [stretchTestPass, setStretchTestPass] = useState(true)
   const [crockingTestPass, setCrockingTestPass] = useState(true)
   const [washFastness, setWashFastness] = useState('5.0')
   const [approvalStatus, setApprovalStatus] = useState<StrikeOffStatus>('APPROVED')
   const [auditorName, setAuditorName] = useState('QA Technical Auditor')
-  const [remarks, setRemarks] = useState('')
+  const [remarks, setRemarks] = useState('Passed delta-E certification (<0.80 standard). Authorized for bulk oval table printing.')
   const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const orders = getOrders()
+      setAvailablePos(orders)
+      const activePo = orders.find(p => p.po_number === 'PO-2026-9901') || orders[0]
+      if (activePo) {
+        setPoNumber(activePo.po_number)
+        setStyleRef(activePo.style_ref || 'TP-2026-8801')
+        const colNames = activePo.color_matrix?.map((c: any) => c.color).join('/') || 'Orange/Green'
+        setPantoneTarget(`Chest Arch Logo Print (White & Black Ink on ${colNames} Panels)`)
+      }
+    }
+  }, [isOpen])
+
+  const applyPreset51 = () => {
+    setPoNumber('PO-2026-9901')
+    setStyleRef('TP-2026-8801')
+    setPantoneTarget('Chest Arch Logo Print (White & Black Ink on Orange/Green Panels)')
+    setTechnique('PLASTISOL')
+    setSpectroDeltaE('0.32')
+    setCuringTemp('160')
+    setStretchTestPass(true)
+    setCrockingTestPass(true)
+    setWashFastness('5.0')
+    setApprovalStatus('APPROVED')
+    setRemarks('Passed spectrophotometer delta-E test (0.32 < 0.80 standard). Authorized for bulk oval table printing.')
+  }
+
+  const handleSelectPo = (selectedPo: string) => {
+    setPoNumber(selectedPo)
+    const found = availablePos.find(p => p.po_number === selectedPo)
+    if (found) {
+      setStyleRef(found.style_ref || 'TP-2026-8801')
+    }
+  }
 
   if (!isOpen) return null
 
@@ -55,7 +93,7 @@ export function SubmitStrikeOffModal({ isOpen, onClose, onSuccess }: SubmitStrik
 
     const newTest: StrikeOffTest = {
       id: `sto-${Date.now()}`,
-      test_number: `STO-2026-${Math.floor(100 + Math.random() * 900)}`,
+      test_number: `SO-2026-041`,
       po_number: poNumber.trim(),
       style_ref: styleRef.trim(),
       pantone_target: pantoneTarget.trim(),
@@ -100,6 +138,23 @@ export function SubmitStrikeOffModal({ isOpen, onClose, onSuccess }: SubmitStrik
           </button>
         </div>
 
+        {/* Step 5.1 Quick Fill Preset */}
+        <div className="px-5 pt-4">
+          <div className="bg-[#FAF7F0] p-3 rounded-xl border border-black/10 flex items-center justify-between">
+            <span className="text-xs font-mono font-bold text-slate-700 flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-[#3A3564]" />
+              Step 5.1 Strike-Off Preset:
+            </span>
+            <button
+              type="button"
+              onClick={applyPreset51}
+              className="px-2.5 py-1 text-xs font-mono font-bold bg-white text-[#3A3564] border border-black/10 rounded-lg hover:bg-[#3A3564] hover:text-white transition-all shadow-2xs cursor-pointer"
+            >
+              SO-2026-041 (PO-2026-9901 • ΔE 0.32)
+            </button>
+          </div>
+        </div>
+
         {/* Modal Body */}
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
           {error && (
@@ -114,26 +169,42 @@ export function SubmitStrikeOffModal({ isOpen, onClose, onSuccess }: SubmitStrik
               <label className="block text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 mb-1.5">
                 Buyer PO Number *
               </label>
-              <input
-                type="text"
+              <select
                 value={poNumber}
-                onChange={e => setPoNumber(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/10 focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900 font-mono"
+                onChange={e => handleSelectPo(e.target.value)}
+                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/10 focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900 font-mono font-bold"
                 required
-              />
+              >
+                {availablePos.map(p => (
+                  <option key={p.po_number} value={p.po_number}>
+                    {p.po_number} ({p.brand_name || 'Buyer'})
+                  </option>
+                ))}
+                {availablePos.length === 0 && (
+                  <option value="PO-2026-9901">PO-2026-9901 (ZARA INTERNATIONAL)</option>
+                )}
+              </select>
             </div>
 
             <div>
               <label className="block text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 mb-1.5">
                 Style Reference
               </label>
-              <input
-                type="text"
+              <select
                 value={styleRef}
                 onChange={e => setStyleRef(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/10 focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900 font-mono"
+                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/10 focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900 font-mono font-bold"
                 required
-              />
+              >
+                {availablePos.map(p => (
+                  <option key={p.style_ref || p.po_number} value={p.style_ref || 'TP-2026-8801'}>
+                    {p.style_ref || 'TP-2026-8801'} - {p.style_name || 'Hoodie'}
+                  </option>
+                ))}
+                {availablePos.length === 0 && (
+                  <option value="TP-2026-8801">TP-2026-8801 - Heavyweight Relaxed French Terry Hoodie</option>
+                )}
+              </select>
             </div>
           </div>
 
@@ -144,11 +215,17 @@ export function SubmitStrikeOffModal({ isOpen, onClose, onSuccess }: SubmitStrik
               </label>
               <input
                 type="text"
+                list="pantone-suggestions"
                 value={pantoneTarget}
                 onChange={e => setPantoneTarget(e.target.value)}
                 className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/10 focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900 font-mono"
                 required
               />
+              <datalist id="pantone-suggestions">
+                <option value="Pantone 19-4007 TPX (Obsidian), Pantone 16-0421 TPX (Sage)" />
+                <option value="ZARA ATHLETICS 1975 ARCH LOGO - Plastisol White / Gold" />
+                <option value="Orange & Green Pigment Formulation" />
+              </datalist>
             </div>
 
             <div>

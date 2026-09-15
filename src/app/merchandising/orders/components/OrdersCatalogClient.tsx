@@ -17,15 +17,22 @@ import {
   ArrowUpRight
 } from 'lucide-react'
 import { MerchandisingOrder } from '../../types/merchandising'
+import { TechPack } from '@/app/design/types/design'
 import { getOrders, MERCHANDISING_UPDATE_EVENT } from '../../utils/merchandisingStorage'
 import { CreateOrderModal } from './CreateOrderModal'
 import { EmptyState } from '@/components/ui/EmptyState'
 
 interface OrdersCatalogClientProps {
   initialOrders?: MerchandisingOrder[]
+  availableTechPacks?: TechPack[]
+  availableBrands?: { id: string; brand_name: string; brand_code: string }[]
 }
 
-export function OrdersCatalogClient({ initialOrders }: OrdersCatalogClientProps = {}) {
+export function OrdersCatalogClient({ 
+  initialOrders,
+  availableTechPacks = [],
+  availableBrands = []
+}: OrdersCatalogClientProps = {}) {
   const [orders, setOrders] = useState<MerchandisingOrder[]>(() => {
     if (initialOrders && initialOrders.length > 0) return initialOrders
     return []
@@ -393,6 +400,8 @@ export function OrdersCatalogClient({ initialOrders }: OrdersCatalogClientProps 
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         onSuccess={reloadData}
+        availableTechPacks={availableTechPacks}
+        availableBrands={availableBrands}
       />
     </div>
   )

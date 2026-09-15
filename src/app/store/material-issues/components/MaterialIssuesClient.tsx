@@ -134,9 +134,9 @@ export function MaterialIssuesClient({
             </div>
           </div>
           <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 tabular-nums">
-            {todayChallans > 0 ? todayChallans : 18} <span className="text-sm font-normal text-slate-500">Challans</span>
+            {todayChallans} <span className="text-sm font-normal text-slate-500">Challans</span>
           </div>
-          <p className="text-[11px] font-mono text-slate-500 mt-1">
+          <p className="text-xs font-medium text-slate-500 mt-1">
             Active Cutting & Sewing Dispatches
           </p>
         </div>
@@ -153,7 +153,7 @@ export function MaterialIssuesClient({
           <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 tabular-nums">
             {cuttingMeters.toLocaleString()} <span className="text-sm font-normal text-slate-500">Meters</span>
           </div>
-          <p className="text-[11px] font-mono text-slate-500 mt-1">
+          <p className="text-xs font-medium text-slate-500 mt-1">
             Inspected 4-Point Passed Rolls
           </p>
         </div>
@@ -170,7 +170,7 @@ export function MaterialIssuesClient({
           <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 tabular-nums">
             {sewingSets.toLocaleString()} <span className="text-sm font-normal text-slate-500">BOM Sets</span>
           </div>
-          <p className="text-[11px] font-mono text-slate-500 mt-1">
+          <p className="text-xs font-medium text-slate-500 mt-1">
             Thread, Zippers, Labels Allotted
           </p>
         </div>
@@ -185,9 +185,9 @@ export function MaterialIssuesClient({
             </div>
           </div>
           <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 tabular-nums">
-            98.5%
+            {challans.length > 0 ? `${((acceptedCount / challans.length) * 100).toFixed(1)}%` : '100%'}
           </div>
-          <p className="text-[11px] font-mono text-slate-500 mt-1">
+          <p className="text-xs font-medium text-slate-500 mt-1">
             Zero Ghost Piece Handshake Integrity
           </p>
         </div>

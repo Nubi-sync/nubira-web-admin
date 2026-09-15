@@ -35,6 +35,7 @@ import { AppointHeadModal } from './AppointHeadModal'
 import { ResetPasswordModal } from './ResetPasswordModal'
 import { DEPARTMENT_HEADS_CATALOG } from '@/lib/access-control'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 
 interface DepartmentHeadsClientProps {
   initialDivisions: DivisionWithHeadStatus[]
@@ -71,6 +72,8 @@ export function DepartmentHeadsClient({
   // Modal States
   const [selectedHeadForEdit, setSelectedHeadForEdit] = useState<DepartmentHeadItem | null>(null)
   const [isAppointModalOpen, setIsAppointModalOpen] = useState(false)
+  const [headToDelete, setHeadToDelete] = useState<DepartmentHeadItem | null>(null)
+  const [isDeletingHead, setIsDeletingHead] = useState(false)
 
   // Password Modal
   const [passwordModalData, setPasswordModalData] = useState<{
@@ -151,7 +154,7 @@ export function DepartmentHeadsClient({
 
   const handleToggleStatus = async (head: DepartmentHeadItem) => {
     try {
-      const res = await toggleDepartmentHeadStatusAction(head.id, head.isActive)
+      const res = await toggleDepartmentHeadStatusAction(head.id, !head.isActive)
       if (res.success) {
         setDivisions(prev =>
           prev.map(d => {
@@ -169,26 +172,30 @@ export function DepartmentHeadsClient({
     } catch (_) {}
   }
 
-  const handleDeleteHead = async (head: DepartmentHeadItem) => {
-    const confirmDel = window.confirm(
-      `Are you sure you want to remove Department Head "${head.displayName}"? This will revoke their access to all assigned divisions.`
-    )
-    if (!confirmDel) return
+  const handleDeleteHead = (head: DepartmentHeadItem) => {
+    setHeadToDelete(head)
+  }
 
+  const handleConfirmDeleteHead = async () => {
+    if (!headToDelete) return
+    setIsDeletingHead(true)
     try {
-      const res = await deleteDepartmentHeadAction(head.id)
+      const res = await deleteDepartmentHeadAction(headToDelete.id)
       if (res.success) {
         setDivisions(prev =>
           prev.map(d => {
-            if (d.appointedHead?.id === head.id) {
+            if (d.appointedHead?.id === headToDelete.id) {
               return { ...d, appointedHead: null }
             }
             return d
           })
         )
-        showToast(`Head "${head.displayName}" removed`)
+        showToast(`Head "${headToDelete.displayName}" removed`)
+        setHeadToDelete(null)
       }
-    } catch (_) {}
+    } catch (_) {} finally {
+      setIsDeletingHead(false)
+    }
   }
 
   const activeCount = appointedHeads.filter(h => h.isActive).length
@@ -528,6 +535,21 @@ export function DepartmentHeadsClient({
           <span>{toastMessage}</span>
         </div>
       )}
+
+      {/* Custom Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={!!headToDelete}
+        title={`Remove Head "${headToDelete?.displayName}"?`}
+        description={`Are you sure you want to remove Department Head "${headToDelete?.displayName}" (@${headToDelete?.username})? This will immediately revoke their administrative access across assigned divisions.`}
+        confirmText="Yes, Remove Head"
+        cancelText="Cancel"
+        variant="danger"
+        isLoading={isDeletingHead}
+        onConfirm={handleConfirmDeleteHead}
+        onClose={() => {
+          if (!isDeletingHead) setHeadToDelete(null)
+        }}
+      />
 
     </div>
   )

@@ -15,11 +15,11 @@ import {
   INITIAL_CURING_LOGS
 } from '../data/initialData'
 
-const RUNS_KEY = 'zigza_printing_runs_v2'
-const SCREENS_KEY = 'zigza_printing_screens_v2'
-const STRIKE_OFFS_KEY = 'zigza_printing_strike_offs_v2'
-const INK_RECIPES_KEY = 'zigza_printing_ink_recipes_v2'
-const CURING_LOGS_KEY = 'zigza_printing_curing_logs_v2'
+const RUNS_KEY = 'zigza_printing_runs_v3'
+const SCREENS_KEY = 'zigza_printing_screens_v3'
+const STRIKE_OFFS_KEY = 'zigza_printing_strike_offs_v3'
+const INK_RECIPES_KEY = 'zigza_printing_ink_recipes_v3'
+const CURING_LOGS_KEY = 'zigza_printing_curing_logs_v3'
 
 export const PRINTING_UPDATE_EVENT = 'zigza:printing_updated'
 

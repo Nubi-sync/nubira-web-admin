@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import { X, CheckCircle2, AlertCircle, Calculator } from 'lucide-react'
 import { BomCosting, MerchandisingOrder } from '../../types/merchandising'
 import { saveBomCosting, getOrders } from '../../utils/merchandisingStorage'
+import { createBomCostingAction } from '../../actions'
 
 interface CreateCostingModalProps {
   isOpen: boolean
@@ -12,20 +13,30 @@ interface CreateCostingModalProps {
 }
 
 export function CreateCostingModal({ isOpen, onClose, onSuccess }: CreateCostingModalProps) {
-  const [orders] = useState<MerchandisingOrder[]>(getOrders())
-  const [selectedPo, setSelectedPo] = useState(orders[0]?.po_number || '')
+  const [orders, setOrders] = useState<MerchandisingOrder[]>([])
+  const [selectedPo, setSelectedPo] = useState('')
   
-  // Costing line items
-  const [fabricCost, setFabricCost] = useState('6.50')
-  const [trimsCost, setTrimsCost] = useState('1.20')
-  const [embellishmentCost, setEmbellishmentCost] = useState('0.75')
-  const [cmtSewingRate, setCmtSewingRate] = useState('2.00')
-  const [washingCost, setWashingCost] = useState('0.50')
-  const [packagingCost, setPackagingCost] = useState('0.40')
+  // Costing line items (INR ₹)
+  const [fabricCost, setFabricCost] = useState('550.00')
+  const [trimsCost, setTrimsCost] = useState('85.00')
+  const [embellishmentCost, setEmbellishmentCost] = useState('65.00')
+  const [cmtSewingRate, setCmtSewingRate] = useState('180.00')
+  const [washingCost, setWashingCost] = useState('45.00')
+  const [packagingCost, setPackagingCost] = useState('35.00')
   const [targetMargin, setTargetMargin] = useState('18.0')
-  const [actualRealized, setActualRealized] = useState('13.20')
+  const [actualRealized, setActualRealized] = useState('1080.00')
 
   const [error, setError] = useState<string | null>(null)
+
+  React.useEffect(() => {
+    if (isOpen) {
+      const liveOrders = getOrders()
+      setOrders(liveOrders)
+      if (liveOrders.length > 0 && !selectedPo) {
+        setSelectedPo(liveOrders[0].po_number)
+      }
+    }
+  }, [isOpen, selectedPo])
 
   if (!isOpen) return null
 
@@ -46,7 +57,7 @@ export function CreateCostingModal({ isOpen, onClose, onSuccess }: CreateCosting
   const actualCost = parseFloat(actualRealized) || netFobCost
   const variancePercent = netFobCost > 0 ? ((actualCost - netFobCost) / netFobCost) * 100 : 0
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
 
@@ -75,6 +86,28 @@ export function CreateCostingModal({ isOpen, onClose, onSuccess }: CreateCosting
     }
 
     saveBomCosting(newSheet)
+
+    if (selectedOrder?.id) {
+      try {
+        await createBomCostingAction({
+          order_id: selectedOrder.id,
+          fabric_cost: fCost,
+          trims_cost: tCost,
+          embellishment_cost: eCost,
+          cmt_cost: cmtCost,
+          washing_cost: wCost,
+          packaging_cost: pCost,
+          factory_overhead_pct: 12.0,
+          target_margin_pct: parseFloat(targetMargin) || 15.0,
+          planned_fob_rate: parseFloat(netFobCost.toFixed(2)),
+          actual_realized_cost: parseFloat(actualCost.toFixed(2)),
+          variance_pct: parseFloat(variancePercent.toFixed(2))
+        })
+      } catch (err) {
+        console.warn('[CreateCostingModal] Server sync notice:', err)
+      }
+    }
+
     if (onSuccess) onSuccess()
     onClose()
   }
@@ -130,7 +163,7 @@ export function CreateCostingModal({ isOpen, onClose, onSuccess }: CreateCosting
           {/* Cost Line Items Grid */}
           <div className="p-4 rounded-2xl bg-slate-50 border border-black/5 space-y-3">
             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600">
-              Direct Production Cost Breakdown (Per Garment)
+              Direct Production Cost Breakdown (Per Garment in ₹ INR)
             </h3>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -207,15 +240,15 @@ export function CreateCostingModal({ isOpen, onClose, onSuccess }: CreateCosting
           <div className="p-4 rounded-2xl bg-[#FAF7F0] border border-black/10 space-y-2 font-mono">
             <div className="flex items-center justify-between text-slate-600">
               <span>Direct Manufacturing Subtotal:</span>
-              <span>{directSubtotal.toFixed(2)}</span>
+              <span>₹{directSubtotal.toFixed(2)}</span>
             </div>
             <div className="flex items-center justify-between text-slate-600">
               <span>Factory Overhead (Fixed 12%):</span>
-              <span>+{overhead.toFixed(2)}</span>
+              <span>+₹{overhead.toFixed(2)}</span>
             </div>
             <div className="flex items-center justify-between font-bold text-slate-900 pt-1 border-t border-black/10 text-sm">
               <span>Planned Net FOB Cost:</span>
-              <span className="text-[#3A3564]">{netFobCost.toFixed(2)}</span>
+              <span className="text-[#3A3564]">₹{netFobCost.toFixed(2)}</span>
             </div>
           </div>
 
@@ -223,7 +256,7 @@ export function CreateCostingModal({ isOpen, onClose, onSuccess }: CreateCosting
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block font-semibold text-slate-700 mb-1">
-                Actual Realized Post-Cost
+                Actual Realized Post-Cost (₹)
               </label>
               <input
                 type="number"
@@ -247,6 +280,40 @@ export function CreateCostingModal({ isOpen, onClose, onSuccess }: CreateCosting
               </div>
             </div>
           </div>
+
+          {/* Commercial Profit Realization vs Buyer Contract FOB */}
+          {selectedOrder && (
+            <div className="p-4 rounded-2xl bg-[#FAF7F0] border border-black/10 shadow-2xs space-y-2">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-slate-600 font-medium">Buyer Contract FOB Price:</span>
+                <span className="font-mono font-bold text-slate-900">
+                  ₹{selectedOrder.unit_fob_price.toLocaleString('en-IN', { minimumFractionDigits: 2 })} / pc
+                </span>
+              </div>
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-slate-600 font-medium">Planned Factory Cost:</span>
+                <span className="font-mono font-bold text-slate-700">
+                  -₹{netFobCost.toFixed(2)} / pc
+                </span>
+              </div>
+              <div className="pt-2 border-t border-black/10 flex items-center justify-between">
+                <div>
+                  <span className="text-xs font-bold text-slate-900 block">Gross Commercial Profit:</span>
+                  <span className="text-[11px] text-slate-500">Realized gross profit margin per piece</span>
+                </div>
+                <div className="text-right">
+                  <span className={`text-sm font-bold font-mono block ${
+                    selectedOrder.unit_fob_price - netFobCost >= 0 ? 'text-emerald-700' : 'text-rose-600'
+                  }`}>
+                    {selectedOrder.unit_fob_price - netFobCost >= 0 ? '+' : ''}₹{(selectedOrder.unit_fob_price - netFobCost).toFixed(2)} / pc
+                  </span>
+                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
+                    {(((selectedOrder.unit_fob_price - netFobCost) / selectedOrder.unit_fob_price) * 100).toFixed(1)}% Gross Margin
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Actions */}
           <div className="pt-3 border-t border-black/10 flex items-center justify-end gap-3">
