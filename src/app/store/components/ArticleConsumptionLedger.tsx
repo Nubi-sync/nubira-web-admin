@@ -11,10 +11,11 @@ import {
   ShieldCheck, 
   Tag, 
   Package, 
-  Scissors, 
+  FileText,
+  Palette,
   Sparkles,
-  AlertCircle,
-  FileText
+  Inbox,
+  ArrowUpRight
 } from 'lucide-react'
 import { ActiveAllotment, TruckInward } from './StoreDashboardClient'
 
@@ -165,26 +166,28 @@ export function ArticleConsumptionLedger({
   return (
     <div className="space-y-4 select-none">
       {/* Section Header */}
-      <div className="flex items-center justify-between flex-wrap gap-2">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] border border-black/10 text-[#3A3564] flex items-center justify-center shadow-2xs">
-            <Boxes className="w-4 h-4 text-[#3A3564]" />
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 text-[#3A3564] flex items-center justify-center shadow-2xs">
+            <Boxes className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
-              <span>Live Article Material Consumption Ledger</span>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-indigo-50 text-[#3A3564] border border-[#3A3564]/15">
-                Matrix-Driven Smart Isolation
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <h2 className="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight font-[family-name:var(--font-heading)]">
+                Live Article Material Consumption Ledger
+              </h2>
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs">
+                Matrix Isolation
               </span>
-            </h2>
-            <p className="text-xs text-slate-500 font-medium">
+            </div>
+            <p className="text-xs sm:text-sm text-slate-600 font-medium font-[family-name:var(--font-public-sans)] mt-0.5">
               Track store inward GRN against color-line lineman handovers & remaining factory balance
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 text-xs font-mono">
-          <span className="px-2.5 py-1 rounded-lg bg-[#FAF7F0] text-[#3A3564] font-bold border border-black/10 shadow-2xs">
+        <div className="flex items-center gap-2">
+          <span className="px-3 py-1 rounded-xl bg-[#FAF7F0] text-[#3A3564] font-mono font-bold text-xs border border-black/10 shadow-2xs">
             {articleGroups.length} Articles Active
           </span>
         </div>
@@ -204,53 +207,53 @@ export function ArticleConsumptionLedger({
               {/* Card Header Bar */}
               <div 
                 onClick={() => setExpandedArticle(isArtExpanded ? null : group.artNo)}
-                className="p-4 sm:p-5 bg-[#FAF7F0] border-b border-black/10 flex flex-wrap items-center justify-between gap-3 cursor-pointer hover:bg-slate-100/70 transition-colors"
+                className="p-5 bg-[#FAF7F0]/60 border-b border-black/10 flex flex-wrap items-center justify-between gap-4 cursor-pointer hover:bg-[#FAF7F0] transition-colors"
               >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-white border border-black/10 text-[#3A3564] flex items-center justify-center font-mono font-black text-sm shadow-2xs shrink-0">
+                <div className="flex items-center gap-3.5">
+                  <div className="w-11 h-11 rounded-xl bg-white border border-black/10 text-[#3A3564] flex items-center justify-center font-mono font-black text-sm shadow-2xs shrink-0">
                     <Tag className="w-5 h-5 text-[#3A3564]" />
                   </div>
                   <div>
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <h3 className="text-base font-black text-slate-900 font-mono">
+                    <div className="flex items-center gap-2.5 flex-wrap">
+                      <h3 className="text-base sm:text-lg font-black text-slate-900 font-mono tracking-tight">
                         ARTICLE #{group.artNo}
                       </h3>
                       {group.description && (
-                        <span className="text-xs font-semibold text-slate-500">
+                        <span className="text-xs sm:text-sm font-semibold text-slate-600">
                           • {group.description}
                         </span>
                       )}
                       {isFullyAllocated ? (
-                        <span className="px-2 py-0.5 rounded-md text-[10px] font-mono font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                        <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                           100% Fully Allotted
                         </span>
                       ) : (
-                        <span className="px-2 py-0.5 rounded-md text-[10px] font-mono font-bold bg-indigo-50 text-[#3A3564] border border-[#3A3564]/20">
+                        <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs">
                           {group.allotments.length} Line Handovers
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-slate-500 font-mono mt-0.5">
+                    <p className="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
                       Store Material Consumption Ledger & Handover Audit
                     </p>
                   </div>
                 </div>
 
                 {/* Metrics Summary Strip */}
-                <div className="flex items-center gap-3 text-xs font-mono">
+                <div className="flex items-center gap-4 text-xs sm:text-sm font-mono">
                   <div className="hidden sm:block text-right">
-                    <span className="block text-[10px] font-bold uppercase text-slate-400">Total Store Inward</span>
-                    <strong className="text-slate-800 text-sm">{group.totalInward.toLocaleString('en-IN')} pcs</strong>
+                    <span className="block text-xs font-bold uppercase tracking-wider text-slate-400">Total Store Inward</span>
+                    <strong className="text-slate-900 text-sm sm:text-base font-bold">{group.totalInward.toLocaleString('en-IN')} pcs</strong>
                   </div>
-                  <div className="hidden sm:block text-right pl-3 border-l border-slate-200">
-                    <span className="block text-[10px] font-bold uppercase text-slate-400">Issued to Floor</span>
-                    <strong className="text-emerald-700 text-sm">{group.totalAllotted.toLocaleString('en-IN')} pcs</strong>
+                  <div className="hidden sm:block text-right pl-4 border-l border-slate-200">
+                    <span className="block text-xs font-bold uppercase tracking-wider text-slate-400">Issued to Floor</span>
+                    <strong className="text-emerald-700 text-sm sm:text-base font-bold">{group.totalAllotted.toLocaleString('en-IN')} pcs</strong>
                   </div>
-                  <div className="text-right pl-3 border-l border-slate-200">
-                    <span className="block text-[10px] font-bold uppercase text-slate-400">Unallotted Balance</span>
-                    <strong className="text-[#3A3564] text-sm">{group.balance.toLocaleString('en-IN')} pcs</strong>
+                  <div className="text-right pl-4 border-l border-slate-200">
+                    <span className="block text-xs font-bold uppercase tracking-wider text-slate-400">Unallotted Balance</span>
+                    <strong className="text-[#3A3564] text-sm sm:text-base font-bold">{group.balance.toLocaleString('en-IN')} pcs</strong>
                   </div>
-                  <div className="p-1 rounded-lg hover:bg-slate-200 text-slate-500">
+                  <div className="w-8 h-8 rounded-lg bg-white border border-black/10 flex items-center justify-center text-slate-600 shadow-2xs ml-1">
                     {isArtExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                   </div>
                 </div>
@@ -258,36 +261,36 @@ export function ArticleConsumptionLedger({
 
               {/* Card Body (Accordion) */}
               {isArtExpanded && (
-                <div className="p-4 sm:p-6 space-y-4">
+                <div className="p-5 sm:p-6 space-y-5 bg-white">
                   {/* Ledger Banner Strip */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200/80 text-xs font-mono">
-                    <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-lg bg-white border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
-                        <FileText className="w-3.5 h-3.5" />
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 p-4 bg-[#FAF7F0] rounded-xl border border-black/10 text-xs sm:text-sm font-mono">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-xl bg-white border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs shrink-0">
+                        <Inbox className="w-4 h-4" />
                       </div>
                       <div>
-                        <span className="text-[10px] text-slate-400 uppercase font-bold block">📥 Store Inward (GRN)</span>
-                        <strong className="text-slate-900 text-xs">{group.totalInward.toLocaleString('en-IN')} pcs (Received)</strong>
+                        <span className="text-xs text-slate-500 uppercase font-bold tracking-wider block">Store Inward (GRN)</span>
+                        <strong className="text-slate-900 text-sm font-bold">{group.totalInward.toLocaleString('en-IN')} pcs (Received)</strong>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2 sm:border-l sm:border-slate-200 sm:pl-3">
-                      <div className="w-7 h-7 rounded-lg bg-white border border-black/10 flex items-center justify-center text-emerald-600 shadow-2xs">
-                        <Package className="w-3.5 h-3.5" />
+                    <div className="flex items-center gap-3 sm:border-l sm:border-slate-200 sm:pl-4">
+                      <div className="w-9 h-9 rounded-xl bg-white border border-black/10 flex items-center justify-center text-emerald-700 shadow-2xs shrink-0">
+                        <ArrowUpRight className="w-4 h-4" />
                       </div>
                       <div>
-                        <span className="text-[10px] text-slate-400 uppercase font-bold block">📤 Floor Allocations</span>
-                        <strong className="text-emerald-700 text-xs">{group.totalAllotted.toLocaleString('en-IN')} pcs ({group.allotments.length} Lines)</strong>
+                        <span className="text-xs text-slate-500 uppercase font-bold tracking-wider block">Floor Allocations</span>
+                        <strong className="text-emerald-700 text-sm font-bold">{group.totalAllotted.toLocaleString('en-IN')} pcs ({group.allotments.length} Lines)</strong>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2 sm:border-l sm:border-slate-200 sm:pl-3">
-                      <div className="w-7 h-7 rounded-lg bg-white border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
-                        <ShieldCheck className="w-3.5 h-3.5 text-[#3A3564]" />
+                    <div className="flex items-center gap-3 sm:border-l sm:border-slate-200 sm:pl-4">
+                      <div className="w-9 h-9 rounded-xl bg-white border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs shrink-0">
+                        <ShieldCheck className="w-4 h-4" />
                       </div>
                       <div>
-                        <span className="text-[10px] text-slate-400 uppercase font-bold block">⚖️ Remaining Stock</span>
-                        <strong className="text-slate-900 text-xs">
+                        <span className="text-xs text-slate-500 uppercase font-bold tracking-wider block">Remaining Stock</span>
+                        <strong className="text-slate-900 text-sm font-bold">
                           {group.balance.toLocaleString('en-IN')} pcs {group.safetyBuffer > 0 ? `(+${group.safetyBuffer} Buffer Safe)` : ''}
                         </strong>
                       </div>
@@ -296,13 +299,13 @@ export function ArticleConsumptionLedger({
 
                   {/* Line-by-Line Handover List */}
                   <div className="space-y-3">
-                    <div className="flex items-center justify-between text-xs font-mono font-bold text-slate-700 pt-1">
+                    <div className="flex items-center justify-between text-xs sm:text-sm font-mono font-bold text-slate-800 pt-1">
                       <span>Floor Line Handovers & Color Isolation ({group.allotments.length} Active Lines)</span>
-                      <span className="text-[11px] text-slate-400 font-normal">Click any line to inspect itemized BOM checklist</span>
+                      <span className="text-xs text-slate-400 font-medium">Click line to view BOM breakdown</span>
                     </div>
 
                     {group.allotments.length === 0 ? (
-                      <div className="p-6 text-center text-xs text-slate-400 bg-slate-50 rounded-xl border border-dashed border-slate-200">
+                      <div className="p-8 text-center text-sm text-slate-500 bg-[#FAF7F0] rounded-xl border border-dashed border-black/10">
                         No floor allotments created for this article yet. Use Allotments Desk to assign lines.
                       </div>
                     ) : (
@@ -312,99 +315,101 @@ export function ArticleConsumptionLedger({
                         return (
                           <div 
                             key={al.id}
-                            className="rounded-xl border border-slate-200/90 bg-white overflow-hidden shadow-2xs transition-all"
+                            className="rounded-xl border border-black/10 bg-white overflow-hidden shadow-2xs transition-all"
                           >
                             {/* Line Handover Row Header */}
                             <div 
                               onClick={() => toggleAllotment(al.id)}
-                              className="p-3.5 flex flex-wrap items-center justify-between gap-2.5 cursor-pointer hover:bg-slate-50 transition-colors"
+                              className="p-4 flex flex-wrap items-center justify-between gap-3 cursor-pointer hover:bg-[#FAF7F0]/60 transition-colors"
                             >
-                              <div className="flex items-center gap-2.5 min-w-0">
-                                <span className="w-5 h-5 rounded-md bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[11px] font-mono font-bold text-[#3A3564]">
+                              <div className="flex items-center gap-3 min-w-0">
+                                <span className="w-7 h-7 rounded-lg bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-xs font-mono font-bold text-[#3A3564] shrink-0">
                                   {idx + 1}
                                 </span>
                                 <div>
-                                  <div className="flex items-center gap-2 flex-wrap">
-                                    <span className="text-xs font-black text-slate-900">
+                                  <div className="flex items-center gap-2.5 flex-wrap">
+                                    <span className="text-sm font-bold text-slate-900">
                                       Line {idx + 1} Handover ({al.linemanName})
                                     </span>
                                     {al.colors.map(col => (
                                       <span 
                                         key={col} 
-                                        className="px-2 py-0.2 rounded text-[10.5px] font-mono font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs"
+                                        className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-xs font-mono font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs"
                                       >
-                                        🎨 {col}
+                                        <Palette className="w-3 h-3" />
+                                        <span>{col}</span>
                                       </span>
                                     ))}
-                                    <span className="text-xs font-mono font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+                                    <span className="text-xs font-mono font-bold text-slate-800 bg-[#FAF7F0] px-2.5 py-0.5 rounded-lg border border-black/10">
                                       {al.targetQty.toLocaleString('en-IN')} pcs
                                     </span>
                                   </div>
-                                  <p className="text-[11px] text-slate-400 font-mono mt-0.5">
+                                  <p className="text-xs text-slate-500 font-mono mt-1">
                                     {al.issuedMaterialsCount} of {al.totalMaterialsCount} BOM items verified & issued
                                   </p>
                                 </div>
                               </div>
 
-                              <div className="flex items-center gap-2 text-xs font-mono">
+                              <div className="flex items-center gap-3 text-xs font-mono">
                                 {al.isFullyIssued ? (
-                                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10.5px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
                                     <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                                     <span>ISSUED TO FLOOR</span>
                                   </span>
                                 ) : (
-                                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10.5px] font-bold bg-indigo-50 text-[#3A3564] border border-[#3A3564]/15">
+                                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs">
                                     <Clock className="w-3.5 h-3.5 text-[#3A3564]" />
                                     <span>PENDING HANDOVER</span>
                                   </span>
                                 )}
-                                <div className="p-1 rounded-md text-slate-400">
-                                  {isAllotExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                                <div className="w-7 h-7 rounded-lg bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-slate-600">
+                                  {isAllotExpanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
                                 </div>
                               </div>
                             </div>
 
                             {/* Itemized BOM Checklist Accordion */}
                             {isAllotExpanded && (
-                              <div className="p-3.5 bg-slate-50/70 border-t border-slate-100 space-y-2">
-                                <div className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400">
+                              <div className="p-4 bg-[#FAF7F0]/40 border-t border-black/10 space-y-3">
+                                <div className="text-xs font-mono font-bold uppercase tracking-wider text-slate-600">
                                   Itemized Line BOM Handover Details:
                                 </div>
 
                                 {al.materials.length === 0 ? (
-                                  <p className="text-xs text-slate-400 italic">No BOM materials attached to this allotment.</p>
+                                  <p className="text-xs text-slate-500 italic">No BOM materials attached to this allotment.</p>
                                 ) : (
-                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                                     {al.materials.map((m, mIdx) => {
                                       const isThread = m.item_name.toLowerCase().includes('thread') || m.item_name.toLowerCase().includes('cone')
                                       const isLabel = m.item_name.toLowerCase().includes('label') || m.item_name.toLowerCase().includes('tag')
-                                      const isPatch = m.item_name.toLowerCase().includes('patch') || m.item_name.toLowerCase().includes('paw') || m.item_name.toLowerCase().includes('logo')
                                       const isFabric = m.item_name.toLowerCase().includes('fabric') || m.item_name.toLowerCase().includes('roll') || m.item_name.toLowerCase().includes('panel')
 
-                                      const icon = isThread ? '🧵' : isLabel ? '🏷️' : isPatch ? '🎨' : isFabric ? '📦' : '⚙️'
+                                      const ItemIcon = isThread ? Layers : isLabel ? Tag : isFabric ? Package : Boxes
 
                                       return (
                                         <div 
                                           key={m.id || mIdx}
-                                          className="p-2 rounded-lg bg-white border border-slate-200/80 flex items-center justify-between text-xs shadow-2xs"
+                                          className="p-3 rounded-xl bg-white border border-black/10 flex items-center justify-between text-xs shadow-2xs"
                                         >
-                                          <div className="flex items-center gap-2 min-w-0 flex-1 pr-2">
-                                            <span className="text-sm shrink-0">{icon}</span>
-                                            <span className="font-semibold text-slate-800 text-[11.5px] truncate" title={m.item_name}>
+                                          <div className="flex items-center gap-2.5 min-w-0 flex-1 pr-2">
+                                            <div className="w-7 h-7 rounded-lg bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shrink-0">
+                                              <ItemIcon className="w-3.5 h-3.5" />
+                                            </div>
+                                            <span className="font-bold text-slate-900 text-xs sm:text-sm truncate" title={m.item_name}>
                                               {m.item_name}
                                             </span>
                                           </div>
-                                          <div className="flex items-center gap-1.5 shrink-0 font-mono">
-                                            <span className="font-bold text-slate-900 bg-slate-50 px-2 py-0.5 rounded border border-slate-200/60 text-[11px]">
+                                          <div className="flex items-center gap-2 shrink-0 font-mono">
+                                            <span className="font-bold text-slate-900 bg-[#FAF7F0] px-2.5 py-1 rounded-lg border border-black/10 text-xs">
                                               {m.required_qty}
                                             </span>
                                             {m.admin_issued ? (
-                                              <span className="inline-flex items-center gap-0.5 text-[9.5px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
-                                                <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Issued
+                                              <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
+                                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Issued
                                               </span>
                                             ) : (
-                                              <span className="inline-flex items-center gap-0.5 text-[9.5px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
-                                                <Clock className="w-3 h-3 text-amber-600" /> Due
+                                              <span className="inline-flex items-center gap-1 text-xs font-bold text-amber-800 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200">
+                                                <Clock className="w-3.5 h-3.5 text-amber-600" /> Due
                                               </span>
                                             )}
                                           </div>

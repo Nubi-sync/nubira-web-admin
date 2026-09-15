@@ -64,15 +64,15 @@ export async function fetchPrintingDashboardKpisAction(companyName?: string) {
     const activeRuns = (runs || []).filter(r => r.status === 'PRINTING' || r.status === 'RUNNING').length
 
     return {
-      totalStrikeOffs: strikeOffsCount || 1,
-      approvedStrikeOffs: strikeOffsCount || 1,
-      strikeOffApprovalRate: 100.0,
-      activeRuns: activeRuns || 1,
+      totalStrikeOffs: strikeOffsCount || 0,
+      approvedStrikeOffs: strikeOffsCount || 0,
+      strikeOffApprovalRate: strikeOffsCount && strikeOffsCount > 0 ? 100.0 : 0.0,
+      activeRuns: activeRuns || 0,
       completedRuns: 0,
-      totalPanelsPrinted: totalPrinted || 74,
-      totalPanelsRejected: totalRejected || 1,
-      rejectionRatePct: totalPrinted > 0 ? Number(((totalRejected / (totalPrinted + totalRejected)) * 100).toFixed(2)) : 1.33,
-      optimalOvensCount: 1,
+      totalPanelsPrinted: totalPrinted || 0,
+      totalPanelsRejected: totalRejected || 0,
+      rejectionRatePct: totalPrinted > 0 ? Number(((totalRejected / (totalPrinted + totalRejected)) * 100).toFixed(2)) : 0.0,
+      optimalOvensCount: 0,
       thermalAlarmCount: 0
     }
   } catch (err: any) {

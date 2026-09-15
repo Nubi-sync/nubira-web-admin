@@ -79,11 +79,14 @@ export function MarkersClient() {
   // Derived Metrics
   const avgEfficiency = markers.length > 0
     ? (markers.reduce((acc, m) => acc + m.efficiency_percent, 0) / markers.length).toFixed(1)
-    : '88.4'
+    : '0.0'
   const highestYield = markers.length > 0
     ? Math.max(...markers.map(m => m.efficiency_percent)).toFixed(1)
-    : '89.6'
+    : '0.0'
   const targetAbove88Count = markers.filter(m => m.efficiency_percent >= 88.0).length
+  const cadEnginesCount = markers.length > 0
+    ? Array.from(new Set(markers.map(m => m.cad_software))).length
+    : 0
 
   return (
     <div className="p-4 sm:p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto select-none">
@@ -118,7 +121,7 @@ export function MarkersClient() {
           </div>
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
-              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
+              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 CAD Marker Efficiency & Nesting Library
               </h1>
               <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15">
@@ -143,7 +146,7 @@ export function MarkersClient() {
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
           <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">Top Yield Benchmark</span>
           <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 mt-2">{highestYield}%</div>
-          <p className="text-xs font-semibold text-slate-500 mt-1">Optimized by Gerber AccuMark</p>
+          <p className="text-xs font-semibold text-slate-500 mt-1">Optimized by CAD Nesting</p>
         </div>
 
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
@@ -154,7 +157,7 @@ export function MarkersClient() {
 
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
           <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">CAD Systems Synced</span>
-          <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 mt-2">4 Engines</div>
+          <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 mt-2">{cadEnginesCount} Engines</div>
           <p className="text-xs font-semibold text-slate-500 mt-1">Gerber, Lectra, Optitex, Tukatech</p>
         </div>
       </div>

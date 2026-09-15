@@ -74,10 +74,10 @@ export function CuttingOrdersClient({ initialOrders }: CuttingOrdersClientProps 
     if (initialOrders !== undefined) {
       setOrders(initialOrders)
       if (typeof window !== 'undefined') {
-        localStorage.setItem('cutting_orders_data', JSON.stringify(initialOrders))
+        localStorage.setItem('zigza_cutting_orders_v3', JSON.stringify(initialOrders))
       }
     } else {
-      const saved = localStorage.getItem('cutting_orders_data')
+      const saved = localStorage.getItem('zigza_cutting_orders_v3')
       if (saved) {
         try {
           setOrders(JSON.parse(saved))
@@ -90,7 +90,7 @@ export function CuttingOrdersClient({ initialOrders }: CuttingOrdersClientProps 
 
   const saveOrders = (updated: CuttingOrder[]) => {
     setOrders(updated)
-    localStorage.setItem('cutting_orders_data', JSON.stringify(updated))
+    localStorage.setItem('zigza_cutting_orders_v3', JSON.stringify(updated))
   }
 
   const handleAdvanceStatus = (order: CuttingOrder) => {

@@ -27,12 +27,12 @@ import {
 export const STORE_UPDATE_EVENT = 'zigza:central_store_updated'
 
 const STORAGE_KEYS = {
-  FABRIC_ROLLS: 'zigza_store_fabric_rolls_v2',
-  TRIMS: 'zigza_store_trims_inventory_v2',
-  TRUCK_INWARDS: 'zigza_store_truck_inwards_v2',
-  MATERIAL_ISSUES: 'zigza_store_material_issues_v2',
-  EXPORT_PALLETS: 'zigza_store_export_pallets_v2',
-  METRICS: 'zigza_store_metrics_v2'
+  FABRIC_ROLLS: 'zigza_store_fabric_rolls_v3',
+  TRIMS: 'zigza_store_trims_inventory_v3',
+  TRUCK_INWARDS: 'zigza_store_truck_inwards_v3',
+  MATERIAL_ISSUES: 'zigza_store_material_issues_v3',
+  EXPORT_PALLETS: 'zigza_store_export_pallets_v3',
+  METRICS: 'zigza_store_metrics_v3'
 }
 
 function broadcastUpdate() {

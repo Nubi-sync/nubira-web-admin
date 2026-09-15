@@ -78,26 +78,26 @@ export function IssueMaterialChallanModal({ isOpen, onClose }: IssueMaterialChal
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 overflow-y-auto">
-      <div className="bg-white border border-black/10 rounded-2xl shadow-2xl max-w-xl w-full p-6 space-y-6 animate-in fade-in zoom-in-95 duration-200">
+      <div className="bg-white border border-black/10 rounded-2xl shadow-2xl max-w-2xl w-full p-6 sm:p-7 space-y-6 animate-in fade-in zoom-in-95 duration-200">
         
         {/* Modal Header */}
-        <div className="flex items-center justify-between border-b border-black/10 pb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center font-bold shadow-2xs">
+        <div className="flex items-center justify-between border-b border-black/10 pb-5">
+          <div className="flex items-center gap-3.5">
+            <div className="w-11 h-11 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center font-bold shadow-2xs">
               <ArrowRight className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-lg font-black text-slate-900 font-[family-name:var(--font-heading)]">
+              <h2 className="text-xl font-black text-slate-900 font-[family-name:var(--font-heading)]">
                 Issue Material to Production Floor
               </h2>
-              <p className="text-xs font-mono text-slate-500">
-                Barcode Verified Material Delivery Challan
+              <p className="text-xs sm:text-sm font-medium text-slate-500 mt-0.5 font-[family-name:var(--font-public-sans)]">
+                Barcode Verified Material Delivery Challan & Floor Handshake
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-lg border border-black/10 text-slate-400 hover:text-slate-700 hover:bg-[#FAF7F0] flex items-center justify-center transition-colors cursor-pointer"
+            className="w-9 h-9 rounded-xl border border-black/10 text-slate-400 hover:text-slate-800 hover:bg-[#FAF7F0] flex items-center justify-center transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -106,28 +106,28 @@ export function IssueMaterialChallanModal({ isOpen, onClose }: IssueMaterialChal
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="space-y-4">
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-mono font-bold text-slate-600 mb-1">
+              <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
                 Issue Challan Number
               </label>
               <input
                 type="text"
                 value={issueChallanNo}
                 onChange={(e) => setIssueChallanNo(e.target.value)}
-                className="w-full px-3 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                className="w-full px-3.5 py-2.5 bg-[#FAF7F0] border border-black/10 rounded-xl text-sm font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-xs font-mono font-bold text-slate-600 mb-1">
+              <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
                 Destination Shop Floor
               </label>
               <select
                 value={destinationDivision}
                 onChange={(e) => handleDestinationChange(e.target.value as MaterialDestination)}
-                className="w-full px-3 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564] cursor-pointer"
+                className="w-full px-3.5 py-2.5 bg-[#FAF7F0] border border-black/10 rounded-xl text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 cursor-pointer"
               >
                 <option value="CUTTING_FLOOR">Division 03 • Cutting Floor (Fabric Rolls)</option>
                 <option value="SEWING_FLOOR">Division 06 • Stitching Lines (Trims BOM)</option>
@@ -135,49 +135,52 @@ export function IssueMaterialChallanModal({ isOpen, onClose }: IssueMaterialChal
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
-              <label className="block text-xs font-mono font-bold text-slate-600 mb-1">
+              <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
                 Production Order
               </label>
               <input
                 type="text"
                 value={orderId}
                 onChange={(e) => setOrderId(e.target.value)}
-                className="w-full px-3 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                placeholder="e.g. PO-2026-991"
+                className="w-full px-3.5 py-2.5 bg-[#FAF7F0] border border-black/10 rounded-xl text-sm font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-xs font-mono font-bold text-slate-600 mb-1">
+              <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
                 Article No
               </label>
               <input
                 type="text"
                 value={articleNo}
                 onChange={(e) => setArticleNo(e.target.value)}
-                className="w-full px-3 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                placeholder="e.g. #609"
+                className="w-full px-3.5 py-2.5 bg-[#FAF7F0] border border-black/10 rounded-xl text-sm font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-xs font-mono font-bold text-slate-600 mb-1">
+              <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
                 Buyer Client
               </label>
               <input
                 type="text"
                 value={buyerName}
                 onChange={(e) => setBuyerName(e.target.value)}
-                className="w-full px-3 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                placeholder="e.g. ZARA"
+                className="w-full px-3.5 py-2.5 bg-[#FAF7F0] border border-black/10 rounded-xl text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20"
                 required
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-mono font-bold text-slate-600 mb-1">
+            <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
               Scanned Material Barcodes (Comma Separated)
             </label>
             <div className="relative">
@@ -185,82 +188,83 @@ export function IssueMaterialChallanModal({ isOpen, onClose }: IssueMaterialChal
                 type="text"
                 value={barcodesRaw}
                 onChange={(e) => setBarcodesRaw(e.target.value)}
-                placeholder="RLL-2026-9812, RLL-2026-9813"
-                className="w-full pl-9 pr-3 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                placeholder="e.g. RLL-2026-9812, RLL-2026-9813"
+                className="w-full pl-10 pr-3.5 py-2.5 bg-[#FAF7F0] border border-black/10 rounded-xl text-sm font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20"
                 required
               />
-              <QrCode className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+              <QrCode className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="sm:col-span-2">
-              <label className="block text-xs font-mono font-bold text-slate-600 mb-1">
+              <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
                 Material Description
               </label>
               <input
                 type="text"
                 value={materialSummary}
                 onChange={(e) => setMaterialSummary(e.target.value)}
-                className="w-full px-3 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                placeholder="e.g. 100% Combed Cotton Single Jersey (Sage Olive)"
+                className="w-full px-3.5 py-2.5 bg-[#FAF7F0] border border-black/10 rounded-xl text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-xs font-mono font-bold text-slate-600 mb-1">
+              <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
                 Qty & Unit
               </label>
-              <div className="flex gap-1.5">
+              <div className="flex gap-2">
                 <input
                   type="number"
                   step="0.1"
                   value={quantityIssued}
                   onChange={(e) => setQuantityIssued(parseFloat(e.target.value) || 0)}
-                  className="w-2/3 px-3 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                  className="w-2/3 px-3.5 py-2.5 bg-[#FAF7F0] border border-black/10 rounded-xl text-sm font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20"
                   required
                 />
                 <input
                   type="text"
                   value={unit}
                   onChange={(e) => setUnit(e.target.value)}
-                  className="w-1/3 px-2 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-mono font-bold text-slate-600 focus:outline-none"
+                  className="w-1/3 px-3 py-2.5 bg-[#FAF7F0] border border-black/10 rounded-xl text-sm font-mono font-bold text-slate-600 focus:outline-none"
                   required
                 />
               </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-mono font-bold text-slate-600 mb-1">
+              <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
                 Receiver Floor Supervisor
               </label>
               <input
                 type="text"
                 value={receiverName}
                 onChange={(e) => setReceiverName(e.target.value)}
-                className="w-full px-3 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                className="w-full px-3.5 py-2.5 bg-[#FAF7F0] border border-black/10 rounded-xl text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-xs font-mono font-bold text-slate-600 mb-1">
+              <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
                 Dispatching Storekeeper
               </label>
               <input
                 type="text"
                 value={issuedBy}
                 onChange={(e) => setIssuedBy(e.target.value)}
-                className="w-full px-3 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                className="w-full px-3.5 py-2.5 bg-[#FAF7F0] border border-black/10 rounded-xl text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20"
                 required
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-mono font-bold text-slate-600 mb-1">
+            <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
               Handover Remarks
             </label>
             <input
@@ -268,22 +272,22 @@ export function IssueMaterialChallanModal({ isOpen, onClose }: IssueMaterialChal
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="e.g. Dispatched via trolley corridor"
-              className="w-full px-3 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+              className="w-full px-3.5 py-2.5 bg-[#FAF7F0] border border-black/10 rounded-xl text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20"
             />
           </div>
 
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-black/10">
+          <div className="flex items-center justify-end gap-3 pt-5 border-t border-black/10">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl border border-black/10 text-xs font-mono font-bold text-slate-700 hover:bg-[#FAF7F0] transition-colors cursor-pointer"
+              className="px-4.5 py-2.5 rounded-xl border border-black/10 text-sm font-bold text-slate-700 hover:bg-[#FAF7F0] transition-colors cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-5 py-2 rounded-xl bg-[#3A3564] text-white text-xs font-mono font-bold hover:bg-[#2c284e] transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer"
+              className="px-5 py-2.5 rounded-xl bg-[#3A3564] text-white text-sm font-bold hover:bg-[#2A2649] transition-all shadow-xs flex items-center gap-2 cursor-pointer active:scale-[0.98]"
             >
               <Check className="w-4 h-4" />
               <span>{isSubmitting ? 'Dispatching...' : 'Authorize Challan Dispatch'}</span>
