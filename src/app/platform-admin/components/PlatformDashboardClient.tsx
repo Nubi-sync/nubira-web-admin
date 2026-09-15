@@ -474,11 +474,12 @@ export function PlatformDashboardClient() {
 
                           {item.status === 'PROVISIONED_TENANT' ? (
                             <Link
-                              href="/platform-admin/tenants"
-                              className="px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold transition-all shadow-2xs inline-flex items-center gap-1.5"
+                              href="/platform-admin/payments"
+                              className="px-2.5 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-semibold transition-all shadow-2xs inline-flex items-center gap-1.5"
+                              title="Provisioned Active Plant - View in Subscriptions"
                             >
-                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                              <span>Active Plant</span>
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                              <span>Active</span>
                             </Link>
                           ) : (
                             <button
