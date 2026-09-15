@@ -91,6 +91,19 @@ export default function LoginPage() {
         setIsSuccess(true)
         return
       }
+      const isActionMismatch = 
+        err?.message?.includes('Server Action') || 
+        err?.message?.includes('failed-to-find-server-action') || 
+        err?.message?.includes('not found on the server')
+
+      if (isActionMismatch) {
+        toast.info('New build deployed. Refreshing session...')
+        setTimeout(() => {
+          window.location.reload()
+        }, 600)
+        return
+      }
+
       const errMsg = err?.message || 'Failed to sign in'
       setError(errMsg)
       toast.error(errMsg)
