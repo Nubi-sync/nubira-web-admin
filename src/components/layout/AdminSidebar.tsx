@@ -70,6 +70,7 @@ const navSections: NavSection[] = [
     section: 'Workspace Hub',
     items: [
       { label: 'All Modules', href: '/modules', icon: LayoutGrid },
+      { label: 'SA Design Approvals', href: '/design/sa-approvals', icon: Sparkles },
     ],
   },
   {

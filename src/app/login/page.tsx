@@ -55,6 +55,8 @@ export default function LoginPage() {
   const [isPending, setIsPending] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+  const [loginMode, setLoginMode] = useState<'PHONE' | 'EMAIL'>('PHONE')
+  const [phoneInput, setPhoneInput] = useState('')
 
   // 3-Step Forgot Password Modal States
   const [showForgotModal, setShowForgotModal] = useState(false)
@@ -261,27 +263,60 @@ export default function LoginPage() {
 
             <form onSubmit={handleSubmit} className="space-y-3.5 sm:space-y-4">
               
-              {/* Mobile Number, Work Email or Username Field */}
+              {/* Mobile Number (with unedited +91 badge) or Work Email Field */}
               <div>
-                <label 
-                  htmlFor="email" 
-                  className="block text-xs font-bold text-slate-700 uppercase tracking-wider font-mono mb-1.5"
-                >
-                  Mobile Number / Work Email / Username
-                </label>
-                <div className="relative group">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-[#3A3564] transition-colors">
-                    <Mail className="w-4 h-4" />
-                  </div>
-                  <input
-                    id="email"
-                    name="email"
-                    type="text"
-                    required
-                    placeholder="Enter 10-digit mobile (e.g. 8010993993) or work email"
-                    className="w-full pl-10 pr-4 py-2.5 sm:py-3 rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-white focus:bg-white text-sm font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 shadow-2xs transition-all"
-                  />
+                <div className="flex items-center justify-between mb-1.5">
+                  <label 
+                    htmlFor={loginMode === 'PHONE' ? 'phone' : 'email'} 
+                    className="block text-xs font-bold text-slate-700 uppercase tracking-wider font-mono"
+                  >
+                    {loginMode === 'PHONE' ? '10-Digit Mobile Number' : 'Work Email / Username'}
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setLoginMode(loginMode === 'PHONE' ? 'EMAIL' : 'PHONE')
+                      setError(null)
+                    }}
+                    className="text-[11px] font-semibold text-[#3A3564] hover:underline cursor-pointer"
+                  >
+                    {loginMode === 'PHONE' ? 'Use Work Email / Username' : 'Use Mobile (+91)'}
+                  </button>
                 </div>
+
+                {loginMode === 'PHONE' ? (
+                  <div className="flex items-center rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-white focus-within:bg-white focus-within:border-[#3A3564] focus-within:ring-2 focus-within:ring-[#3A3564]/10 shadow-2xs overflow-hidden transition-all">
+                    <div className="px-3.5 py-2.5 sm:py-3 bg-[#FAF7F0] border-r border-slate-200 text-xs font-mono font-bold text-[#3A3564] select-none flex items-center gap-1.5 shrink-0">
+                      <span>🇮🇳</span>
+                      <span>+91</span>
+                    </div>
+                    <input
+                      id="phone"
+                      name="email"
+                      type="tel"
+                      required
+                      maxLength={10}
+                      value={phoneInput}
+                      onChange={e => setPhoneInput(e.target.value.replace(/\D/g, ''))}
+                      placeholder="8010993993"
+                      className="w-full px-3.5 py-2.5 sm:py-3 bg-transparent text-sm font-semibold font-mono text-slate-900 placeholder:text-slate-400 focus:outline-none"
+                    />
+                  </div>
+                ) : (
+                  <div className="relative group">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-[#3A3564] transition-colors">
+                      <Mail className="w-4 h-4" />
+                    </div>
+                    <input
+                      id="email"
+                      name="email"
+                      type="text"
+                      required
+                      placeholder="e.g. rahul_nubira or admin@zigza.in"
+                      className="w-full pl-10 pr-4 py-2.5 sm:py-3 rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-white focus:bg-white text-sm font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 shadow-2xs transition-all"
+                    />
+                  </div>
+                )}
               </div>
 
               {/* Password Field */}
