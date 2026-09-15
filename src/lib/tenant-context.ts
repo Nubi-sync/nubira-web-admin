@@ -281,10 +281,11 @@ export async function resolveUserTenant(user: {
       subscriptionTier: 'FULL_PLANT_AI',
       allowedDivisions: ['/stitching-sewing', '/store'],
       isProvisionedTenant: false,
-      accessType: 'FULL_ACCESS',
+      accessType: 'DEMO_TRIAL',
       isExpired: false,
       tenantStatus: 'ACTIVE',
       provisionedAt: '2026-09-15T00:00:00.000Z',
+      expiresAt: '2026-09-22T23:59:59.000Z',
       monthlyBillingInr: 4999
     }
   }
@@ -312,7 +313,7 @@ export async function resolveUserTenant(user: {
     isExpired: false,
     tenantStatus: 'ACTIVE',
     provisionedAt: '2026-09-15T00:00:00.000Z',
-    expiresAt: '2026-09-22T00:00:00.000Z',
+    expiresAt: '2026-09-22T23:59:59.000Z',
     monthlyBillingInr: 4999
   }
 }

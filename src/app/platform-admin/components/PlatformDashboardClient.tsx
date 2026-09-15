@@ -472,14 +472,24 @@ export function PlatformDashboardClient() {
                             <Phone className="w-3.5 h-3.5" />
                           </a>
 
-                          <button
-                            type="button"
-                            onClick={() => openProvisionModal(item)}
-                            className="px-3 py-1.5 rounded-lg bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-semibold transition-all shadow-xs inline-flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
-                          >
-                            <Key className="w-3.5 h-3.5" />
-                            <span>Provision</span>
-                          </button>
+                          {item.status === 'PROVISIONED_TENANT' ? (
+                            <Link
+                              href="/platform-admin/tenants"
+                              className="px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold transition-all shadow-2xs inline-flex items-center gap-1.5"
+                            >
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                              <span>Active Plant</span>
+                            </Link>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => openProvisionModal(item)}
+                              className="px-3 py-1.5 rounded-lg bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-semibold transition-all shadow-xs inline-flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
+                            >
+                              <Key className="w-3.5 h-3.5" />
+                              <span>Provision</span>
+                            </button>
+                          )}
                         </div>
                       </td>
 
