@@ -299,11 +299,52 @@ export async function updateTechPackAction(
 
 export async function deleteTechPackAction(id: string): Promise<{ success: boolean; error?: string }> {
   try {
+    // 1. Clean up design child tables
     try {
       await supabaseAdmin.from('design_sample_audits').delete().eq('tech_pack_id', id)
       await supabaseAdmin.from('design_poms').delete().eq('tech_pack_id', id)
+      await supabaseAdmin.from('design_materials').delete().eq('tech_pack_id', id)
     } catch (_) {}
 
+    // 2. Resolve any linked merchandising orders
+    try {
+      const { data: linkedOrders } = await supabaseAdmin
+        .from('merchandising_orders')
+        .select('id')
+        .eq('tech_pack_id', id)
+
+      if (linkedOrders && linkedOrders.length > 0) {
+        const orderIds = linkedOrders.map((o: any) => o.id)
+
+        // Try setting tech_pack_id to null first if nullable
+        const { error: unlinkErr } = await supabaseAdmin
+          .from('merchandising_orders')
+          .update({ tech_pack_id: null })
+          .in('id', orderIds)
+
+        // If NOT NULL constraint prevents unlinking, cascade delete the linked order's downstream records
+        if (unlinkErr) {
+          for (const orderId of orderIds) {
+            try { await supabaseAdmin.from('merchandising_order_ratios').delete().eq('order_id', orderId) } catch (_) {}
+            try { await supabaseAdmin.from('merchandising_bom_items').delete().eq('order_id', orderId) } catch (_) {}
+            try { await supabaseAdmin.from('merchandising_procurement_pos').delete().eq('order_id', orderId) } catch (_) {}
+            try { await supabaseAdmin.from('cutting_lay_sheets').delete().eq('order_id', orderId) } catch (_) {}
+            try { await supabaseAdmin.from('printing_strike_offs').delete().eq('order_id', orderId) } catch (_) {}
+            try { await supabaseAdmin.from('printing_production_runs').delete().eq('order_id', orderId) } catch (_) {}
+            try { await supabaseAdmin.from('embroidery_digitizing_designs').delete().eq('order_id', orderId) } catch (_) {}
+            try { await supabaseAdmin.from('embroidery_production_runs').delete().eq('order_id', orderId) } catch (_) {}
+            try { await supabaseAdmin.from('washing_batches').delete().eq('order_id', orderId) } catch (_) {}
+            try { await supabaseAdmin.from('iron_table_assignments').delete().eq('order_id', orderId) } catch (_) {}
+            try { await supabaseAdmin.from('ready_goods_cartons').delete().eq('order_id', orderId) } catch (_) {}
+          }
+          await supabaseAdmin.from('merchandising_orders').delete().in('id', orderIds)
+        }
+      }
+    } catch (fkErr) {
+      console.warn('[deleteTechPackAction] FK cascade resolution note:', fkErr)
+    }
+
+    // 3. Delete the tech-pack
     const { error } = await supabaseAdmin
       .from('design_tech_packs')
       .delete()
@@ -316,6 +357,8 @@ export async function deleteTechPackAction(id: string): Promise<{ success: boole
 
     revalidatePath('/design')
     revalidatePath('/design/tech-packs')
+    revalidatePath('/merchandising')
+    revalidatePath('/merchandising/orders')
 
     return { success: true }
   } catch (err: any) {
