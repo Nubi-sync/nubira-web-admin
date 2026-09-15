@@ -531,7 +531,7 @@ export function TeamManagementClient({
                     Allocate Design Brief
                   </h2>
                   <p className="text-xs text-slate-500">
-                    Assigning to {allocateMember.designer_name} ({allocateMember.username || allocateMember.phone_number})
+                    Assigning to {allocateMember.designer_name} ({allocateMember.phone_number ? `+91 ${allocateMember.phone_number}` : (allocateMember.username ? `@${allocateMember.username}` : '')})
                   </p>
                 </div>
               </div>

@@ -381,20 +381,24 @@ export async function fetchDesignTeamMembersAction(companyName?: string, phUserI
       return []
     }
 
-    return (data || []).map((row: any) => ({
-      id: row.id,
-      ph_user_id: row.ph_user_id,
-      designer_user_id: row.designer_user_id || undefined,
-      designer_name: row.designer_name,
-      phone_number: row.phone_number || row.designer_phone || undefined,
-      username: row.username || undefined,
-      designer_email: row.designer_email,
-      designer_phone: row.designer_phone || row.phone_number || undefined,
-      company_name: row.company_name,
-      status: row.status,
-      created_at: row.created_at,
-      updated_at: row.updated_at
-    }))
+    return (data || []).map((row: any) => {
+      const fallbackPhone = (row.designer_email?.includes('@designer.nubira.local') ? row.designer_email.split('@')[0] : null)
+      const phone = row.phone_number || row.designer_phone || (fallbackPhone && /^\d{10}$/.test(fallbackPhone) ? fallbackPhone : undefined)
+      return {
+        id: row.id,
+        ph_user_id: row.ph_user_id,
+        designer_user_id: row.designer_user_id || undefined,
+        designer_name: row.designer_name,
+        phone_number: phone,
+        username: row.username || undefined,
+        designer_email: row.designer_email,
+        designer_phone: phone,
+        company_name: row.company_name,
+        status: row.status,
+        created_at: row.created_at,
+        updated_at: row.updated_at
+      }
+    })
   } catch (err) {
     console.error('[fetchDesignTeamMembersAction] Unexpected error:', err)
     return []

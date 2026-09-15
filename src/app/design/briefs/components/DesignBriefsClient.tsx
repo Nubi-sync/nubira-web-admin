@@ -571,11 +571,15 @@ export function DesignBriefsClient({
                   className="w-full px-3 py-2 rounded-xl border border-black/10 bg-white text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                 >
                   <option value="">Select a team member...</option>
-                  {activeTeamMembers.map(m => (
-                    <option key={m.id} value={m.id}>
-                      {m.designer_name} ({m.designer_email})
-                    </option>
-                  ))}
+                  {activeTeamMembers.map(m => {
+                    const phone = m.phone_number || m.designer_phone
+                    const displayLabel = phone ? `+91 ${phone}` : (m.username ? `@${m.username}` : '')
+                    return (
+                      <option key={m.id} value={m.id}>
+                        {m.designer_name}{displayLabel ? ` (${displayLabel})` : ''}
+                      </option>
+                    )
+                  })}
                 </select>
                 {activeTeamMembers.length === 0 && (
                   <p className="text-xs text-amber-600 mt-1">
