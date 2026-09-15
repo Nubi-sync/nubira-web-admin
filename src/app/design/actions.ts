@@ -801,6 +801,25 @@ export async function createMaterialAction(payload: {
   }
 }
 
+export async function deleteMaterialAction(id: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const { error } = await supabaseAdmin
+      .from('design_materials_library')
+      .delete()
+      .eq('id', id)
+
+    if (error) {
+      return { success: false, error: error.message }
+    }
+
+    revalidatePath('/design')
+    revalidatePath('/design/materials-library')
+    return { success: true }
+  } catch (err: any) {
+    return { success: false, error: err?.message || 'Failed to delete material.' }
+  }
+}
+
 // -----------------------------------------------------------------------------
 // 5. BRANDS LIST
 // -----------------------------------------------------------------------------
