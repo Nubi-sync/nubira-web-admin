@@ -647,37 +647,81 @@ export function DesignBriefsClient({
                         </div>
                       </td>
 
-                      <td className="py-3.5 px-4">
-                        {hasPhotos ? (
-                          <div className="flex items-center gap-1.5">
-                            <button
-                              onClick={() => setPreviewPhoto(brief.latest_submission!.photo_url_1)}
-                              className="w-9 h-9 rounded-lg border border-black/10 overflow-hidden bg-slate-100 relative group cursor-pointer"
-                              title="View Concept Photo 1"
-                            >
-                              <img 
-                                src={brief.latest_submission!.photo_url_1} 
-                                alt="Design 1" 
-                                className="w-full h-full object-cover group-hover:scale-105 transition-transform" 
-                              />
-                            </button>
-                            {brief.latest_submission!.photo_url_2 && (
-                              <button
-                                onClick={() => setPreviewPhoto(brief.latest_submission!.photo_url_2!)}
-                                className="w-9 h-9 rounded-lg border border-black/10 overflow-hidden bg-slate-100 relative group cursor-pointer"
-                                title="View Concept Photo 2"
-                              >
-                                <img 
-                                  src={brief.latest_submission!.photo_url_2!} 
-                                  alt="Design 2" 
-                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform" 
-                                />
-                              </button>
-                            )}
-                          </div>
-                        ) : (
-                          <span className="text-xs text-slate-400 italic">No photos yet</span>
-                        )}
+                      <td className="py-3.5 px-4 min-w-[140px]">
+                        {(() => {
+                          const submissionPhotos: { url: string; label: string; color?: string }[] = []
+                          if (brief.latest_submission?.concepts && brief.latest_submission.concepts.length > 0) {
+                            brief.latest_submission.concepts.forEach(concept => {
+                              concept.colorways?.forEach(cw => {
+                                if (cw.photo_front) {
+                                  submissionPhotos.push({
+                                    url: cw.photo_front,
+                                    label: `Design #${concept.concept_number} • ${cw.color_name} (Front)`,
+                                    color: cw.color_name
+                                  })
+                                }
+                                if (cw.photo_back) {
+                                  submissionPhotos.push({
+                                    url: cw.photo_back,
+                                    label: `Design #${concept.concept_number} • ${cw.color_name} (Back)`,
+                                    color: cw.color_name
+                                  })
+                                }
+                              })
+                            })
+                          } else if (brief.latest_submission?.photo_url_1) {
+                            submissionPhotos.push({ url: brief.latest_submission.photo_url_1, label: 'Concept Photo 1' })
+                            if (brief.latest_submission.photo_url_2) {
+                              submissionPhotos.push({ url: brief.latest_submission.photo_url_2, label: 'Concept Photo 2' })
+                            }
+                          }
+
+                          return submissionPhotos.length > 0 ? (
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                {submissionPhotos.slice(0, 3).map((item, idx) => (
+                                  <button
+                                    key={idx}
+                                    type="button"
+                                    onClick={() => setPreviewPhoto(item.url)}
+                                    className="w-9 h-9 rounded-lg border border-black/10 overflow-hidden bg-slate-100 relative group cursor-pointer shrink-0 shadow-2xs hover:ring-2 hover:ring-[#3A3564]"
+                                    title={item.label}
+                                  >
+                                    <img 
+                                      src={item.url} 
+                                      alt={item.label} 
+                                      className="w-full h-full object-cover group-hover:scale-105 transition-transform" 
+                                    />
+                                  </button>
+                                ))}
+                                {submissionPhotos.length > 3 && (
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      if (brief.status === 'SUBMITTED' && brief.latest_submission) {
+                                        setReviewingSubmission({ submission: brief.latest_submission, brief })
+                                      } else {
+                                        setPreviewPhoto(submissionPhotos[3].url)
+                                      }
+                                    }}
+                                    className="w-9 h-9 rounded-lg border border-black/10 bg-[#FAF7F0] text-[#3A3564] hover:bg-[#F2ECE1] text-[11px] font-bold font-mono flex items-center justify-center shrink-0 cursor-pointer transition-colors shadow-2xs"
+                                    title={`+${submissionPhotos.length - 3} more mockups. Click to view deck.`}
+                                  >
+                                    +{submissionPhotos.length - 3}
+                                  </button>
+                                )}
+                              </div>
+                              <div className="text-[10px] text-slate-500 font-mono flex items-center gap-1">
+                                <span>{submissionPhotos.length} mockups</span>
+                                {brief.latest_submission?.concepts && (
+                                  <span>• {brief.latest_submission.concepts.length} designs</span>
+                                )}
+                              </div>
+                            </div>
+                          ) : (
+                            <span className="text-xs text-slate-400 italic">No photos yet</span>
+                          )
+                        })()}
                       </td>
 
                       <td className="py-3.5 px-4">
