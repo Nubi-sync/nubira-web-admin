@@ -21,12 +21,12 @@ import {
 export const READY_GOODS_UPDATE_EVENT = 'zigza:ready_goods_updated'
 
 const KEYS = {
-  CARTONS: 'zigza_ready_goods_cartons_v1',
-  AQL_AUDITS: 'zigza_ready_goods_aql_audits_v1',
-  HANGTAG_SCANS: 'zigza_ready_goods_hangtag_scans_v1',
-  SCALE_LOGS: 'zigza_ready_goods_scale_logs_v1',
-  PALLETS: 'zigza_ready_goods_pallets_v1',
-  METRICS: 'zigza_ready_goods_metrics_v1'
+  CARTONS: 'zigza_ready_goods_cartons_v2',
+  AQL_AUDITS: 'zigza_ready_goods_aql_audits_v2',
+  HANGTAG_SCANS: 'zigza_ready_goods_hangtag_scans_v2',
+  SCALE_LOGS: 'zigza_ready_goods_scale_logs_v2',
+  PALLETS: 'zigza_ready_goods_pallets_v2',
+  METRICS: 'zigza_ready_goods_metrics_v2'
 }
 
 function emitUpdate() {

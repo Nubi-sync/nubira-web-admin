@@ -1,10 +1,10 @@
 import { TechPack, SampleApproval, GradingScheme, MaterialItem } from '../types/design'
 import { INITIAL_TECH_PACKS, INITIAL_SAMPLE_APPROVALS, INITIAL_GRADING_SCHEMES, INITIAL_MATERIALS } from '../data/initialData'
 
-const TECH_PACKS_KEY = 'zigza_design_tech_packs'
-const SAMPLE_APPROVALS_KEY = 'zigza_design_sample_approvals'
-const GRADING_SCHEMES_KEY = 'zigza_design_grading_schemes'
-const MATERIALS_KEY = 'zigza_design_materials'
+const TECH_PACKS_KEY = 'zigza_design_tech_packs_v2'
+const SAMPLE_APPROVALS_KEY = 'zigza_design_sample_approvals_v2'
+const GRADING_SCHEMES_KEY = 'zigza_design_grading_schemes_v2'
+const MATERIALS_KEY = 'zigza_design_materials_v2'
 
 export function getStoredTechPacks(): TechPack[] {
   if (typeof window === 'undefined') return INITIAL_TECH_PACKS

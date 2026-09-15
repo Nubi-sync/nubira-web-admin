@@ -18,11 +18,11 @@ import {
 export const IRON_UPDATE_EVENT = 'zigza:iron_updated'
 
 const KEYS = {
-  TABLES: 'zigza_iron_tables_v1',
-  PRODUCTION_LOGS: 'zigza_iron_production_logs_v1',
-  BOILER_LOGS: 'zigza_iron_boiler_logs_v1',
-  QC_AUDITS: 'zigza_iron_qc_audits_v1',
-  HANDOVERS: 'zigza_iron_handovers_v1',
+  TABLES: 'zigza_iron_tables_v2',
+  PRODUCTION_LOGS: 'zigza_iron_production_logs_v2',
+  BOILER_LOGS: 'zigza_iron_boiler_logs_v2',
+  QC_AUDITS: 'zigza_iron_qc_audits_v2',
+  HANDOVERS: 'zigza_iron_handovers_v2',
 }
 
 function emitUpdate() {
