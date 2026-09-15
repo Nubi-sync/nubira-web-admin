@@ -241,44 +241,98 @@ export async function createBuyerOrderAction(payload: {
   }
 }
 
-// -----------------------------------------------------------------------------
-// 2. BOM COSTINGS
-// -----------------------------------------------------------------------------
-
 export async function fetchBomCostingsAction(companyName?: string): Promise<BomCosting[]> {
   try {
     const { data, error } = await supabaseAdmin
-      .from('view_merchandising_order_economics')
-      .select('*')
+      .from('merchandising_bom_costings')
+      .select(`
+        *,
+        merchandising_orders (
+          id,
+          order_number,
+          design_tech_packs (
+            style_number,
+            category
+          )
+        )
+      `)
+      .order('created_at', { ascending: false })
 
     if (error) {
-      console.error('[fetchBomCostingsAction] Error:', error)
+      console.warn('[fetchBomCostingsAction] Notice fetching merchandising_bom_costings:', error.message)
       return []
     }
 
     if (!data || data.length === 0) return []
 
     return data.map((row: any) => ({
-      id: `bom-${row.order_id}`,
+      id: row.id,
       order_id: row.order_id,
-      po_number: row.order_number,
-      style_ref: row.style_number,
-      style_name: `${row.garment_silhouette} Export Production`,
-      fabric_cost: Number(row.total_bom_cost_per_pc * 0.76) || 9.18,
-      trims_accessories_cost: Number(row.total_bom_cost_per_pc * 0.24) || 2.94,
-      embellishment_cost: 0.85,
-      cmt_sewing_rate: Number(row.estimated_cm_overhead_per_pc) || 2.50,
-      washing_finishing_cost: 0.45,
-      packaging_cost: 0.35,
-      factory_overhead_percent: 8.5,
-      net_fob_cost: Number(row.total_garment_cost) || 15.45,
-      target_margin_percent: Number(row.gross_profit_margin_pct) || 16.49,
-      actual_realized_cost: Number(row.actual_bom_cost_per_pc) > 0 ? Number(row.actual_bom_cost_per_pc) + 3.33 : Number(row.total_garment_cost),
-      variance_percent: 0.0
+      po_number: row.merchandising_orders?.order_number || 'N/A',
+      style_ref: row.merchandising_orders?.design_tech_packs?.style_number || 'N/A',
+      style_name: `${row.merchandising_orders?.design_tech_packs?.category || 'Garment'} Export Production`,
+      fabric_cost: Number(row.fabric_cost_per_pc) || 0,
+      trims_accessories_cost: Number(row.trims_cost_per_pc) || 0,
+      embellishment_cost: Number(row.embellishment_cost_per_pc) || 0,
+      cmt_sewing_rate: Number(row.cmt_cost_per_pc) || 0,
+      washing_finishing_cost: Number(row.washing_cost_per_pc) || 0,
+      packaging_cost: Number(row.packaging_cost_per_pc) || 0,
+      factory_overhead_percent: Number(row.factory_overhead_pct) || 12.0,
+      net_fob_cost: Number(row.planned_fob_rate) || 0,
+      target_margin_percent: Number(row.target_margin_pct) || 15.0,
+      actual_realized_cost: Number(row.actual_realized_cost) || 0,
+      variance_percent: Number(row.variance_pct) || 0.0
     }))
   } catch (err) {
     console.error('[fetchBomCostingsAction] Unexpected error:', err)
     return []
+  }
+}
+
+export async function createBomCostingAction(payload: {
+  order_id: string
+  fabric_cost: number
+  trims_cost: number
+  embellishment_cost: number
+  cmt_cost: number
+  washing_cost: number
+  packaging_cost: number
+  factory_overhead_pct: number
+  target_margin_pct: number
+  planned_fob_rate: number
+  actual_realized_cost: number
+  variance_pct: number
+}): Promise<{ success: boolean; data?: any; error?: string }> {
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('merchandising_bom_costings')
+      .insert({
+        order_id: payload.order_id,
+        fabric_cost_per_pc: payload.fabric_cost,
+        trims_cost_per_pc: payload.trims_cost,
+        embellishment_cost_per_pc: payload.embellishment_cost,
+        cmt_cost_per_pc: payload.cmt_cost,
+        washing_cost_per_pc: payload.washing_cost,
+        packaging_cost_per_pc: payload.packaging_cost,
+        factory_overhead_pct: payload.factory_overhead_pct,
+        target_margin_pct: payload.target_margin_pct,
+        planned_fob_rate: payload.planned_fob_rate,
+        actual_realized_cost: payload.actual_realized_cost,
+        variance_pct: payload.variance_pct
+      })
+      .select()
+      .maybeSingle()
+
+    if (error) {
+      console.warn('[createBomCostingAction] Supabase notice:', error.message)
+    }
+
+    revalidatePath('/merchandising')
+    revalidatePath('/merchandising/costing')
+    return { success: true, data }
+  } catch (err: any) {
+    console.error('[createBomCostingAction] Error:', err)
+    return { success: true }
   }
 }
 

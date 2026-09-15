@@ -36,11 +36,8 @@ export function BomCostingClient({ initialCostings }: BomCostingClientProps = {}
   }
 
   useEffect(() => {
-    if (initialCostings && initialCostings.length > 0) {
+    if (initialCostings !== undefined && initialCostings.length > 0) {
       setCostings(initialCostings)
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('zigza_merchandising_bom_costings_v1', JSON.stringify(initialCostings))
-      }
     } else {
       reloadData()
     }

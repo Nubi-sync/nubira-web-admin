@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import { X, CheckCircle2, AlertCircle, Calculator } from 'lucide-react'
 import { BomCosting, MerchandisingOrder } from '../../types/merchandising'
 import { saveBomCosting, getOrders } from '../../utils/merchandisingStorage'
+import { createBomCostingAction } from '../../actions'
 
 interface CreateCostingModalProps {
   isOpen: boolean
@@ -12,8 +13,8 @@ interface CreateCostingModalProps {
 }
 
 export function CreateCostingModal({ isOpen, onClose, onSuccess }: CreateCostingModalProps) {
-  const [orders] = useState<MerchandisingOrder[]>(getOrders())
-  const [selectedPo, setSelectedPo] = useState(orders[0]?.po_number || '')
+  const [orders, setOrders] = useState<MerchandisingOrder[]>([])
+  const [selectedPo, setSelectedPo] = useState('')
   
   // Costing line items (INR ₹)
   const [fabricCost, setFabricCost] = useState('550.00')
@@ -26,6 +27,16 @@ export function CreateCostingModal({ isOpen, onClose, onSuccess }: CreateCosting
   const [actualRealized, setActualRealized] = useState('1080.00')
 
   const [error, setError] = useState<string | null>(null)
+
+  React.useEffect(() => {
+    if (isOpen) {
+      const liveOrders = getOrders()
+      setOrders(liveOrders)
+      if (liveOrders.length > 0 && !selectedPo) {
+        setSelectedPo(liveOrders[0].po_number)
+      }
+    }
+  }, [isOpen, selectedPo])
 
   if (!isOpen) return null
 
@@ -46,7 +57,7 @@ export function CreateCostingModal({ isOpen, onClose, onSuccess }: CreateCosting
   const actualCost = parseFloat(actualRealized) || netFobCost
   const variancePercent = netFobCost > 0 ? ((actualCost - netFobCost) / netFobCost) * 100 : 0
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
 
@@ -75,6 +86,28 @@ export function CreateCostingModal({ isOpen, onClose, onSuccess }: CreateCosting
     }
 
     saveBomCosting(newSheet)
+
+    if (selectedOrder?.id) {
+      try {
+        await createBomCostingAction({
+          order_id: selectedOrder.id,
+          fabric_cost: fCost,
+          trims_cost: tCost,
+          embellishment_cost: eCost,
+          cmt_cost: cmtCost,
+          washing_cost: wCost,
+          packaging_cost: pCost,
+          factory_overhead_pct: 12.0,
+          target_margin_pct: parseFloat(targetMargin) || 15.0,
+          planned_fob_rate: parseFloat(netFobCost.toFixed(2)),
+          actual_realized_cost: parseFloat(actualCost.toFixed(2)),
+          variance_pct: parseFloat(variancePercent.toFixed(2))
+        })
+      } catch (err) {
+        console.warn('[CreateCostingModal] Server sync notice:', err)
+      }
+    }
+
     if (onSuccess) onSuccess()
     onClose()
   }
