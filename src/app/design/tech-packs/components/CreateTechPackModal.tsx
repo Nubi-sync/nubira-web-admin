@@ -14,8 +14,21 @@ interface CreateTechPackModalProps {
   availableBrands?: { id: string; brand_name: string; brand_code: string }[]
 }
 
-const CATEGORIES: GarmentCategory[] = ['Hoodie', 'T-Shirt', 'Polo', 'Jogger', 'Jacket', 'Kids Romper']
+const CATEGORIES: GarmentCategory[] = ['Hoodie', 'T-Shirt', 'Polo', 'Jogger', 'Jacket', 'Kids Romper', 'Suit', 'Pant', 'Ethnic']
 const BRANDS = ['DIRECT CLIENT', 'PRIVATE LABEL', 'GLOBAL BRAND']
+
+const GARMENT_DEFAULTS: Record<string, { gsm: number; fabric: string; seam: SeamClass; base: string }> = {
+  'T-Shirt': { gsm: 180, fabric: '100% Combed Cotton Single Jersey', seam: 'ISO 4915 Class 504 (Overlock)', base: 'M' },
+  'Hoodie': { gsm: 360, fabric: '3-End French Terry 360 GSM Brushed Inside', seam: 'ISO 4915 Class 504 (Overlock)', base: 'M' },
+  'Polo': { gsm: 220, fabric: '100% Cotton Pique Double Knit', seam: 'ISO 4915 Class 401 (Chainstitch)', base: 'M' },
+  'Suit': { gsm: 260, fabric: 'Super 120s Wool Worsted', seam: 'ISO 4915 Class 401 (Chainstitch)', base: 'M' },
+  'Pant': { gsm: 280, fabric: '98% Cotton 2% Elastane Twill', seam: 'ISO 4915 Class 401 (Chainstitch)', base: '32' },
+  'Jogger': { gsm: 320, fabric: 'Cotton Elastane Loopback Fleece', seam: 'ISO 4915 Class 504 (Overlock)', base: 'M' },
+  'Jacket': { gsm: 300, fabric: 'Polyester Shell with Quilted Lining', seam: 'ISO 4915 Class 401 (Chainstitch)', base: 'L' },
+  'Kids Romper': { gsm: 160, fabric: '100% Organic Interlock Cotton', seam: 'ISO 4915 Class 607 (Flatlock)', base: '4T' },
+  'Ethnic': { gsm: 200, fabric: 'Pure Raw Silk / Chanderi Cotton Blend', seam: 'ISO 4915 Class 401 (Chainstitch)', base: 'M' }
+}
+
 const SIZE_SYSTEMS: { label: string; value: SizeSystem; defaultBase: string }[] = [
   { label: 'Adult Unisex Alpha (XS–3XL)', value: 'ALPHA_ADULT', defaultBase: 'M' },
   { label: 'Toddler & Kids (2T–14)', value: 'KIDS_AGE', defaultBase: '4T' },
@@ -49,8 +62,8 @@ export function CreateTechPackModal({ isOpen, onClose, onCreated, availableBrand
   const [category, setCategory] = useState<GarmentCategory>('Hoodie')
   const [sizeSystem, setSizeSystem] = useState<SizeSystem>('ALPHA_ADULT')
   const [baseSize, setBaseSize] = useState('M')
-  const [fabricComposition, setFabricComposition] = useState('')
-  const [targetGsm, setTargetGsm] = useState<number>(380)
+  const [fabricComposition, setFabricComposition] = useState('3-End French Terry 360 GSM Brushed Inside')
+  const [targetGsm, setTargetGsm] = useState<number>(360)
   const [embellishmentSeq, setEmbellishmentSeq] = useState<EmbellishmentSequence>('NONE')
   const [spi, setSpi] = useState<number>(12)
   const [seamClass, setSeamClass] = useState<SeamClass>('ISO 4915 Class 504 (Overlock)')
@@ -61,6 +74,23 @@ export function CreateTechPackModal({ isOpen, onClose, onCreated, availableBrand
   })
 
   if (!isOpen) return null
+
+  function handleCategoryChange(cat: GarmentCategory) {
+    setCategory(cat)
+    const defaults = GARMENT_DEFAULTS[cat]
+    if (defaults) {
+      setTargetGsm(defaults.gsm)
+      setFabricComposition(defaults.fabric)
+      setSeamClass(defaults.seam)
+      if (cat === 'Pant') {
+        setSizeSystem('NUMERIC_WAIST')
+        setBaseSize('32')
+      } else if (cat === 'Kids Romper') {
+        setSizeSystem('KIDS_AGE')
+        setBaseSize('4T')
+      }
+    }
+  }
 
   function handleSizeSystemChange(sys: SizeSystem) {
     setSizeSystem(sys)
@@ -263,7 +293,7 @@ export function CreateTechPackModal({ isOpen, onClose, onCreated, availableBrand
                   </label>
                   <select
                     value={category}
-                    onChange={e => setCategory(e.target.value as GarmentCategory)}
+                    onChange={e => handleCategoryChange(e.target.value as GarmentCategory)}
                     className="w-full px-3.5 py-2.5 rounded-xl border border-black/15 text-sm font-medium text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                   >
                     {CATEGORIES.map(c => (

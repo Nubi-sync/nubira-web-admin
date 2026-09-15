@@ -50,7 +50,8 @@ import {
   ArrowRight,
   Gauge,
   PackageCheck,
-  AlertTriangle
+  AlertTriangle,
+  Settings
 } from 'lucide-react'
 
 type NavItem = {
@@ -181,6 +182,21 @@ export function AdminSidebar({
         ],
       },
     ]
+  } else if (pathname?.startsWith('/design/designer')) {
+    activeNavSections = [
+      {
+        section: 'Designer Studio',
+        items: [
+          { label: 'My Design Briefs', href: '/design/designer', icon: Palette },
+        ],
+      },
+      {
+        section: 'Account',
+        items: [
+          { label: 'Profile', href: '/design/profile', icon: User },
+        ],
+      },
+    ]
   } else if (pathname?.startsWith('/design')) {
     activeNavSections = [
       {
@@ -194,9 +210,15 @@ export function AdminSidebar({
         items: [
           { label: 'Studio Dashboard', href: '/design', icon: Palette },
           { label: 'Tech-Pack Catalog', href: '/design/tech-packs', icon: FileCheck2 },
+          { label: 'Team Management', href: '/design/team', icon: Users },
+          { label: 'Design Briefs Queue', href: '/design/briefs', icon: ClipboardList },
+          ...(isAdmin ? [
+            { label: 'SA Design Approvals', href: '/design/sa-approvals', icon: ShieldCheck },
+          ] : []),
           { label: 'Sample Approvals (PPS)', href: '/design/sample-approvals', icon: Sparkles },
           { label: 'Size Grading Matrix', href: '/design/grading-matrix', icon: Ruler },
           { label: 'Fabric & Trims Library', href: '/design/materials-library', icon: Layers },
+          { label: 'PH Settings', href: '/design/settings', icon: Settings },
           { label: 'Zigza AI', href: '/design/zigza-ai', icon: Bot },
         ],
       },

@@ -5,6 +5,9 @@ export type GarmentCategory =
   | 'Jogger'
   | 'Jacket'
   | 'Kids Romper'
+  | 'Suit'
+  | 'Pant'
+  | 'Ethnic'
 
 export type SizeSystem = 
   | 'ALPHA_ADULT' 
@@ -50,6 +53,11 @@ export interface TechPack {
   version: number
   created_at: string
   updated_at: string
+  design_submission_id?: string
+  created_by_ph?: string
+  approved_by_sa?: boolean
+  sa_verdict?: string
+  company_name?: string
 }
 
 export type SampleStage = 'PROTO' | 'SIZE_SET' | 'PPS'
@@ -112,4 +120,120 @@ export interface MaterialItem {
   supplier_mill: string
   lead_time_days: number
   status: MaterialStatus
+}
+
+// -----------------------------------------------------------------------------
+// 3-TIER VERIFICATION PIPELINE & TEAM TYPES
+// -----------------------------------------------------------------------------
+
+export type TeamMemberStatus = 'ACTIVE' | 'SUSPENDED' | 'REMOVED'
+
+export interface DesignTeamMember {
+  id: string
+  ph_user_id: string
+  designer_user_id?: string
+  designer_name: string
+  designer_email: string
+  designer_phone?: string
+  company_name: string
+  status: TeamMemberStatus
+  created_at: string
+  updated_at: string
+  active_briefs_count?: number
+}
+
+export type BriefCategory = 'Formal' | 'Informal' | 'Casual' | 'Ethnic' | 'Sportswear' | 'Kids'
+
+export type BriefStatus = 
+  | 'ALLOCATED'
+  | 'SUBMITTED'
+  | 'PH_APPROVED'
+  | 'PH_REJECTED'
+  | 'SA_APPROVED'
+  | 'SA_SAVED_FOR_LATER'
+  | 'TECH_PACK_CREATED'
+
+export interface DesignBrief {
+  id: string
+  ph_user_id: string
+  designer_member_id?: string
+  designer_name?: string
+  designer_email?: string
+  garment_type: string
+  category: BriefCategory | string
+  max_colors: number
+  instructions?: string
+  status: BriefStatus
+  company_name: string
+  created_at: string
+  updated_at: string
+  latest_submission?: DesignSubmission
+}
+
+export type PHVerdict = 'PENDING' | 'APPROVED' | 'REJECTED'
+export type SAVerdict = 'APPROVED' | 'SAVED_FOR_LATER' | 'REJECTED'
+
+export interface DesignSubmission {
+  id: string
+  brief_id: string
+  designer_member_id?: string
+  designer_name?: string
+  photo_url_1: string
+  photo_url_2?: string
+  designer_notes?: string
+  ph_verdict: PHVerdict
+  ph_feedback?: string
+  sa_verdict?: SAVerdict
+  sa_notes?: string
+  company_name: string
+  submitted_at: string
+  reviewed_at?: string
+  brief?: DesignBrief
+}
+
+export interface BodyPartCode {
+  id: string
+  ph_user_id: string
+  company_name: string
+  code: string
+  body_part_name: string
+  sort_order: number
+  created_at: string
+}
+
+export type BOMComponentType = 'BUTTON' | 'SLEEVE' | 'COLLAR' | 'TRIM' | 'ZIPPER' | 'FABRIC' | 'THREAD'
+
+export interface BOMComponentCode {
+  id: string
+  ph_user_id: string
+  company_name: string
+  component_type: BOMComponentType
+  component_spec: string
+  code?: string
+  sort_order: number
+  created_at: string
+}
+
+export interface GarmentTemplateBodyPart {
+  code: string
+  name: string
+  default_tolerance: number
+  default_grade_step: number
+}
+
+export interface GarmentTemplateBOMDefault {
+  type: string
+  spec: string
+  code?: string
+}
+
+export interface GarmentTemplate {
+  id: string
+  garment_type: string
+  body_parts: GarmentTemplateBodyPart[]
+  bom_defaults: GarmentTemplateBOMDefault[]
+  is_system_template: boolean
+  ph_user_id?: string
+  company_name?: string
+  created_at: string
 }

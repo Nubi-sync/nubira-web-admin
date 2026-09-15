@@ -14,7 +14,17 @@ import {
   TechPackStatus,
   SampleStage,
   SampleApprovalStatus,
-  PointOfMeasure
+  PointOfMeasure,
+  DesignTeamMember,
+  DesignBrief,
+  DesignSubmission,
+  BodyPartCode,
+  BOMComponentCode,
+  GarmentTemplate,
+  BriefCategory,
+  BriefStatus,
+  PHVerdict,
+  SAVerdict
 } from './types/design'
 
 const supabaseAdmin = createAdminClient(
@@ -31,6 +41,9 @@ function mapCategoryToUI(cat: string): GarmentCategory {
   if (norm.includes('JOGGER')) return 'Jogger'
   if (norm.includes('JACKET')) return 'Jacket'
   if (norm.includes('ROMPER')) return 'Kids Romper'
+  if (norm.includes('SUIT')) return 'Suit'
+  if (norm.includes('PANT')) return 'Pant'
+  if (norm.includes('ETHNIC')) return 'Ethnic'
   return 'Hoodie'
 }
 
@@ -71,7 +84,12 @@ export async function fetchTechPacksAction(_companyName?: string): Promise<TechP
       target_cut_date: new Date(new Date(row.created_at).getTime() + 14 * 86400000).toISOString().split('T')[0],
       version: Number(row.version) || 1,
       created_at: row.created_at,
-      updated_at: row.updated_at
+      updated_at: row.updated_at,
+      design_submission_id: row.design_submission_id || undefined,
+      created_by_ph: row.created_by_ph || undefined,
+      approved_by_sa: Boolean(row.approved_by_sa),
+      sa_verdict: row.sa_verdict || 'PENDING',
+      company_name: row.company_name || 'Nubira Creation'
     }))
   } catch (err) {
     console.error('[fetchTechPacksAction] Unexpected error:', err)
@@ -94,9 +112,11 @@ export async function createTechPackAction(payload: {
   seam_class: SeamClass
   cad_front_url?: string
   cad_back_url?: string
+  design_submission_id?: string
+  created_by_ph?: string
+  company_name?: string
 }): Promise<{ success: boolean; data?: TechPack; error?: string }> {
   try {
-    // 1. Resolve Brand with robust UUID validation and auto-creation
     let brandId = payload.brand_id
     const isUUID = brandId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(brandId)
     
@@ -124,7 +144,6 @@ export async function createTechPackAction(payload: {
         if (!insertErr && newBrand) {
           brandId = newBrand.id
         } else {
-          // Fallback to any active brand in database
           const { data: anyBrand } = await supabaseAdmin
             .from('brands')
             .select('id')
@@ -156,6 +175,11 @@ export async function createTechPackAction(payload: {
         seam_class: payload.seam_class,
         cad_front_url: payload.cad_front_url || null,
         cad_back_url: payload.cad_back_url || null,
+        design_submission_id: payload.design_submission_id || null,
+        created_by_ph: payload.created_by_ph || null,
+        approved_by_sa: true,
+        sa_verdict: 'APPROVED',
+        company_name: payload.company_name || 'Nubira Creation',
         status: 'DRAFT',
         version: 1
       })
@@ -187,7 +211,12 @@ export async function createTechPackAction(payload: {
       target_cut_date: new Date(Date.now() + 14 * 86400000).toISOString().split('T')[0],
       version: data.version,
       created_at: data.created_at,
-      updated_at: data.updated_at
+      updated_at: data.updated_at,
+      design_submission_id: data.design_submission_id,
+      created_by_ph: data.created_by_ph,
+      approved_by_sa: data.approved_by_sa,
+      sa_verdict: data.sa_verdict,
+      company_name: data.company_name
     }
 
     return { success: true, data: createdPack }
@@ -268,173 +297,929 @@ export async function updateTechPackAction(
     revalidatePath('/design')
     revalidatePath('/design/tech-packs')
 
-    const updatedPack: TechPack = {
-      id: data.id,
-      style_number: data.style_number,
-      style_name: `${data.category} Style ${data.style_number}`,
-      brand_name: data.brands?.brand_name || payload.brand_name || 'Inhouse',
-      category: mapCategoryToUI(data.category),
-      size_system: data.size_system as SizeSystem,
-      base_size: data.base_size,
-      fabric_composition: data.fabric_composition,
-      target_gsm: Number(data.target_gsm),
-      embellishment_sequence: data.embellishment_sequence as EmbellishmentSequence,
-      spi: Number(data.spi),
-      seam_class: data.seam_class as SeamClass,
-      status: data.status as TechPackStatus,
-      target_cut_date: new Date(Date.now() + 14 * 86400000).toISOString().split('T')[0],
-      version: data.version,
-      created_at: data.created_at,
-      updated_at: data.updated_at
+    return {
+      success: true,
+      data: {
+        id: data.id,
+        style_number: data.style_number,
+        style_name: `${data.category} Style ${data.style_number}`,
+        brand_name: data.brands?.brand_name || 'Inhouse',
+        category: mapCategoryToUI(data.category),
+        size_system: data.size_system as SizeSystem,
+        base_size: data.base_size,
+        fabric_composition: data.fabric_composition,
+        target_gsm: Number(data.target_gsm),
+        embellishment_sequence: data.embellishment_sequence as EmbellishmentSequence,
+        spi: Number(data.spi),
+        seam_class: data.seam_class as SeamClass,
+        status: data.status as TechPackStatus,
+        target_cut_date: new Date(Date.now() + 14 * 86400000).toISOString().split('T')[0],
+        version: data.version,
+        created_at: data.created_at,
+        updated_at: data.updated_at
+      }
     }
-
-    return { success: true, data: updatedPack }
   } catch (err: any) {
-    console.error('[updateTechPackAction] Unexpected error:', err)
     return { success: false, error: err?.message || 'Failed to update tech pack.' }
   }
 }
 
-export async function deleteTechPackAction(id: string): Promise<{ success: boolean; error?: string }> {
+export async function updateTechPackStatusAction(id: string, status: TechPackStatus): Promise<{ success: boolean; error?: string }> {
   try {
-    // 1. Clean up design child tables directly linked to this tech pack
-    try {
-      await supabaseAdmin.from('design_sample_audits').delete().eq('tech_pack_id', id)
-      await supabaseAdmin.from('design_poms').delete().eq('tech_pack_id', id)
-      await supabaseAdmin.from('design_materials').delete().eq('tech_pack_id', id)
-    } catch (e) {
-      console.warn('[deleteTechPackAction] design children cleanup note:', e)
-    }
-
-    // 2. Find any merchandising orders referencing this tech-pack
-    try {
-      const { data: linkedOrders } = await supabaseAdmin
-        .from('merchandising_orders')
-        .select('id')
-        .eq('tech_pack_id', id)
-
-      if (linkedOrders && linkedOrders.length > 0) {
-        for (const order of linkedOrders) {
-          const orderId = order.id
-
-          // A. Ready Goods child tables
-          try {
-            const { data: cartons } = await supabaseAdmin.from('ready_goods_cartons').select('id').eq('order_id', orderId)
-            if (cartons && cartons.length > 0) {
-              const cIds = cartons.map((c: any) => c.id)
-              await supabaseAdmin.from('ready_goods_carton_bundles').delete().in('carton_id', cIds)
-            }
-            await supabaseAdmin.from('ready_goods_aql_audits').delete().eq('order_id', orderId)
-            await supabaseAdmin.from('ready_goods_cartons').delete().eq('order_id', orderId)
-          } catch (_) {}
-
-          // B. Ironing
-          try {
-            const { data: irons } = await supabaseAdmin.from('iron_table_assignments').select('id').eq('order_id', orderId)
-            if (irons && irons.length > 0) {
-              const iIds = irons.map((i: any) => i.id)
-              await supabaseAdmin.from('iron_production_logs').delete().in('table_id', iIds)
-            }
-            await supabaseAdmin.from('iron_production_logs').delete().eq('order_id', orderId)
-            await supabaseAdmin.from('iron_table_assignments').delete().eq('order_id', orderId)
-          } catch (_) {}
-
-          // C. Washing
-          try {
-            const { data: batches } = await supabaseAdmin.from('washing_batches').select('id').eq('order_id', orderId)
-            if (batches && batches.length > 0) {
-              const bIds = batches.map((b: any) => b.id)
-              await supabaseAdmin.from('washing_batch_bundles').delete().in('batch_id', bIds)
-              await supabaseAdmin.from('washing_logs').delete().in('batch_id', bIds)
-            }
-            await supabaseAdmin.from('washing_batches').delete().eq('order_id', orderId)
-          } catch (_) {}
-
-          // D. Embroidery
-          try {
-            const { data: embDesigns } = await supabaseAdmin.from('embroidery_digitizing_designs').select('id').eq('order_id', orderId)
-            if (embDesigns && embDesigns.length > 0) {
-              const eIds = embDesigns.map((e: any) => e.id)
-              await supabaseAdmin.from('embroidery_operator_logs').delete().in('design_id', eIds)
-              await supabaseAdmin.from('embroidery_production_runs').delete().in('design_id', eIds)
-            }
-            await supabaseAdmin.from('embroidery_production_runs').delete().eq('order_id', orderId)
-            await supabaseAdmin.from('embroidery_digitizing_designs').delete().eq('order_id', orderId)
-          } catch (_) {}
-
-          // E. Printing
-          try {
-            const { data: printRuns } = await supabaseAdmin.from('printing_production_runs').select('id').eq('order_id', orderId)
-            if (printRuns && printRuns.length > 0) {
-              const pIds = printRuns.map((p: any) => p.id)
-              await supabaseAdmin.from('printing_operator_logs').delete().in('run_id', pIds)
-            }
-            await supabaseAdmin.from('printing_production_runs').delete().eq('order_id', orderId)
-            await supabaseAdmin.from('printing_strike_offs').delete().eq('order_id', orderId)
-          } catch (_) {}
-
-          // F. Cutting
-          try {
-            const { data: laySheets } = await supabaseAdmin.from('cutting_lay_sheets').select('id').eq('order_id', orderId)
-            if (laySheets && laySheets.length > 0) {
-              const sIds = laySheets.map((s: any) => s.id)
-              await supabaseAdmin.from('cutting_bundle_tickets').delete().in('sheet_id', sIds)
-              await supabaseAdmin.from('cutting_panel_qc_audits').delete().in('lay_sheet_id', sIds)
-              await supabaseAdmin.from('cutting_end_bit_logs').delete().in('lay_sheet_id', sIds)
-              await supabaseAdmin.from('cutting_bundles').delete().in('lay_sheet_id', sIds)
-              await supabaseAdmin.from('cutting_lay_ratios').delete().in('lay_sheet_id', sIds)
-              await supabaseAdmin.from('cutting_fabric_rolls').delete().in('lay_sheet_id', sIds)
-            }
-            await supabaseAdmin.from('cutting_bundles').delete().eq('order_id', orderId)
-            await supabaseAdmin.from('cutting_lay_sheets').delete().eq('order_id', orderId)
-          } catch (_) {}
-
-          // G. Merchandising Child Tables & Order
-          try {
-            await supabaseAdmin.from('merchandising_order_ratios').delete().eq('order_id', orderId)
-            await supabaseAdmin.from('merchandising_bom_items').delete().eq('order_id', orderId)
-            await supabaseAdmin.from('merchandising_procurement_pos').delete().eq('order_id', orderId)
-            await supabaseAdmin.from('merchandising_orders').delete().eq('id', orderId)
-          } catch (_) {}
-        }
-      }
-    } catch (fkErr) {
-      console.warn('[deleteTechPackAction] FK cascade resolution note:', fkErr)
-    }
-
-    // 3. Delete the tech-pack itself
     const { error } = await supabaseAdmin
       .from('design_tech_packs')
-      .delete()
+      .update({ status, updated_at: new Date().toISOString() })
       .eq('id', id)
 
-    if (error) {
-      console.error('[deleteTechPackAction] DB Error:', error)
-      return { success: false, error: error.message }
-    }
-
+    if (error) return { success: false, error: error.message }
     revalidatePath('/design')
     revalidatePath('/design/tech-packs')
-    revalidatePath('/merchandising')
-    revalidatePath('/merchandising/orders')
-
     return { success: true }
   } catch (err: any) {
-    console.error('[deleteTechPackAction] Unexpected error:', err)
-    return { success: false, error: err?.message || 'Failed to delete tech pack.' }
+    return { success: false, error: err?.message || 'Failed to update status.' }
   }
 }
 
 // -----------------------------------------------------------------------------
-// 2. SAMPLE APPROVALS
+// 2. TEAM MANAGEMENT (PH adds/manages designers)
 // -----------------------------------------------------------------------------
 
-export async function fetchSampleApprovalsAction(_companyName?: string): Promise<SampleApproval[]> {
+export async function fetchDesignTeamMembersAction(companyName?: string, phUserId?: string): Promise<DesignTeamMember[]> {
+  try {
+    let query = supabaseAdmin
+      .from('design_team_members')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    if (companyName) {
+      query = query.eq('company_name', companyName)
+    }
+    if (phUserId) {
+      query = query.eq('ph_user_id', phUserId)
+    }
+
+    const { data, error } = await query
+
+    if (error) {
+      console.error('[fetchDesignTeamMembersAction] Supabase error:', error)
+      return []
+    }
+
+    return (data || []).map((row: any) => ({
+      id: row.id,
+      ph_user_id: row.ph_user_id,
+      designer_user_id: row.designer_user_id || undefined,
+      designer_name: row.designer_name,
+      designer_email: row.designer_email,
+      designer_phone: row.designer_phone || undefined,
+      company_name: row.company_name,
+      status: row.status,
+      created_at: row.created_at,
+      updated_at: row.updated_at
+    }))
+  } catch (err) {
+    console.error('[fetchDesignTeamMembersAction] Unexpected error:', err)
+    return []
+  }
+}
+
+export async function addDesignTeamMemberAction(payload: {
+  ph_user_id: string
+  designer_name: string
+  designer_email: string
+  designer_phone?: string
+  company_name: string
+}): Promise<{ success: boolean; data?: DesignTeamMember; error?: string }> {
+  try {
+    const emailNorm = payload.designer_email.trim().toLowerCase()
+    
+    // Check if member already exists for this company
+    const { data: existing } = await supabaseAdmin
+      .from('design_team_members')
+      .select('*')
+      .eq('company_name', payload.company_name)
+      .eq('designer_email', emailNorm)
+      .maybeSingle()
+
+    if (existing) {
+      if (existing.status === 'REMOVED') {
+        const { data: revived, error: reviveErr } = await supabaseAdmin
+          .from('design_team_members')
+          .update({
+            status: 'ACTIVE',
+            designer_name: payload.designer_name.trim(),
+            designer_phone: payload.designer_phone?.trim() || null,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', existing.id)
+          .select('*')
+          .single()
+
+        if (reviveErr) return { success: false, error: reviveErr.message }
+        revalidatePath('/design/team')
+        return { success: true, data: revived }
+      }
+      return { success: false, error: 'A team member with this email already exists in this company.' }
+    }
+
+    // Insert new member
+    const { data, error } = await supabaseAdmin
+      .from('design_team_members')
+      .insert({
+        ph_user_id: payload.ph_user_id,
+        designer_name: payload.designer_name.trim(),
+        designer_email: emailNorm,
+        designer_phone: payload.designer_phone?.trim() || null,
+        company_name: payload.company_name,
+        status: 'ACTIVE'
+      })
+      .select('*')
+      .single()
+
+    if (error) {
+      console.error('[addDesignTeamMemberAction] Insert error:', error)
+      return { success: false, error: error.message }
+    }
+
+    revalidatePath('/design/team')
+    return { success: true, data }
+  } catch (err: any) {
+    console.error('[addDesignTeamMemberAction] Unexpected error:', err)
+    return { success: false, error: err?.message || 'Failed to add team member.' }
+  }
+}
+
+export async function updateDesignTeamMemberStatusAction(
+  memberId: string,
+  status: 'ACTIVE' | 'SUSPENDED' | 'REMOVED'
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const { error } = await supabaseAdmin
+      .from('design_team_members')
+      .update({ status, updated_at: new Date().toISOString() })
+      .eq('id', memberId)
+
+    if (error) return { success: false, error: error.message }
+    revalidatePath('/design/team')
+    return { success: true }
+  } catch (err: any) {
+    return { success: false, error: err?.message || 'Failed to update member status.' }
+  }
+}
+
+export async function deleteDesignTeamMemberAction(memberId: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const { error } = await supabaseAdmin
+      .from('design_team_members')
+      .delete()
+      .eq('id', memberId)
+
+    if (error) return { success: false, error: error.message }
+    revalidatePath('/design/team')
+    return { success: true }
+  } catch (err: any) {
+    return { success: false, error: err?.message || 'Failed to delete member.' }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// 3. DESIGN BRIEFS QUEUE (PH allocates work to designers)
+// -----------------------------------------------------------------------------
+
+export async function createDesignBriefAction(payload: {
+  ph_user_id: string
+  designer_member_id?: string
+  garment_type: string
+  category: string
+  max_colors: number
+  instructions?: string
+  company_name: string
+}): Promise<{ success: boolean; data?: DesignBrief; error?: string }> {
   try {
     const { data, error } = await supabaseAdmin
-      .from('design_sample_audits')
-      .select('*, design_tech_packs(style_number, category, brands(brand_name))')
+      .from('design_briefs')
+      .insert({
+        ph_user_id: payload.ph_user_id,
+        designer_member_id: payload.designer_member_id || null,
+        garment_type: payload.garment_type.trim(),
+        category: payload.category.trim(),
+        max_colors: Number(payload.max_colors) || 3,
+        instructions: payload.instructions?.trim() || null,
+        status: 'ALLOCATED',
+        company_name: payload.company_name
+      })
+      .select('*, design_team_members(*)')
+      .single()
+
+    if (error) {
+      console.error('[createDesignBriefAction] DB Insert Error:', error)
+      return { success: false, error: error.message }
+    }
+
+    revalidatePath('/design')
+    revalidatePath('/design/briefs')
+    revalidatePath('/design/designer')
+
+    const created: DesignBrief = {
+      id: data.id,
+      ph_user_id: data.ph_user_id,
+      designer_member_id: data.designer_member_id || undefined,
+      designer_name: data.design_team_members?.designer_name || undefined,
+      designer_email: data.design_team_members?.designer_email || undefined,
+      garment_type: data.garment_type,
+      category: data.category,
+      max_colors: data.max_colors,
+      instructions: data.instructions || undefined,
+      status: data.status,
+      company_name: data.company_name,
+      created_at: data.created_at,
+      updated_at: data.updated_at
+    }
+
+    return { success: true, data: created }
+  } catch (err: any) {
+    console.error('[createDesignBriefAction] Unexpected error:', err)
+    return { success: false, error: err?.message || 'Failed to create design brief.' }
+  }
+}
+
+export async function fetchDesignBriefsAction(filters?: {
+  companyName?: string
+  phUserId?: string
+  designerMemberId?: string
+  designerEmail?: string
+  status?: string
+}): Promise<DesignBrief[]> {
+  try {
+    let query = supabaseAdmin
+      .from('design_briefs')
+      .select('*, design_team_members(*), design_submissions(*)')
       .order('created_at', { ascending: false })
+
+    if (filters?.companyName) {
+      query = query.eq('company_name', filters.companyName)
+    }
+    if (filters?.phUserId) {
+      query = query.eq('ph_user_id', filters.phUserId)
+    }
+    if (filters?.designerMemberId) {
+      query = query.eq('designer_member_id', filters.designerMemberId)
+    }
+    if (filters?.status) {
+      query = query.eq('status', filters.status)
+    }
+
+    const { data, error } = await query
+
+    if (error) {
+      console.error('[fetchDesignBriefsAction] Supabase error:', error)
+      return []
+    }
+
+    let filteredData = data || []
+    if (filters?.designerEmail) {
+      filteredData = filteredData.filter((row: any) => 
+        row.design_team_members?.designer_email?.toLowerCase() === filters.designerEmail?.toLowerCase()
+      )
+    }
+
+    return filteredData.map((row: any) => {
+      // Find latest submission
+      const subs = (row.design_submissions || []) as any[]
+      subs.sort((a, b) => new Date(b.submitted_at).getTime() - new Date(a.submitted_at).getTime())
+      const latestSub = subs[0]
+
+      return {
+        id: row.id,
+        ph_user_id: row.ph_user_id,
+        designer_member_id: row.designer_member_id || undefined,
+        designer_name: row.design_team_members?.designer_name || undefined,
+        designer_email: row.design_team_members?.designer_email || undefined,
+        garment_type: row.garment_type,
+        category: row.category,
+        max_colors: row.max_colors,
+        instructions: row.instructions || undefined,
+        status: row.status as BriefStatus,
+        company_name: row.company_name,
+        created_at: row.created_at,
+        updated_at: row.updated_at,
+        latest_submission: latestSub ? {
+          id: latestSub.id,
+          brief_id: latestSub.brief_id,
+          designer_member_id: latestSub.designer_member_id || undefined,
+          photo_url_1: latestSub.photo_url_1,
+          photo_url_2: latestSub.photo_url_2 || undefined,
+          designer_notes: latestSub.designer_notes || undefined,
+          ph_verdict: latestSub.ph_verdict as PHVerdict,
+          ph_feedback: latestSub.ph_feedback || undefined,
+          sa_verdict: latestSub.sa_verdict as SAVerdict || undefined,
+          sa_notes: latestSub.sa_notes || undefined,
+          company_name: latestSub.company_name,
+          submitted_at: latestSub.submitted_at,
+          reviewed_at: latestSub.reviewed_at || undefined
+        } : undefined
+      }
+    })
+  } catch (err) {
+    console.error('[fetchDesignBriefsAction] Unexpected error:', err)
+    return []
+  }
+}
+
+export async function deleteDesignBriefAction(briefId: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const { error } = await supabaseAdmin
+      .from('design_briefs')
+      .delete()
+      .eq('id', briefId)
+
+    if (error) return { success: false, error: error.message }
+    revalidatePath('/design')
+    revalidatePath('/design/briefs')
+    revalidatePath('/design/designer')
+    return { success: true }
+  } catch (err: any) {
+    return { success: false, error: err?.message || 'Failed to delete brief.' }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// 4. DESIGN SUBMISSIONS & 3-TIER VERIFICATION
+// -----------------------------------------------------------------------------
+
+export async function submitDesignPhotosAction(payload: {
+  brief_id: string
+  designer_member_id?: string
+  photo_url_1: string
+  photo_url_2?: string
+  designer_notes?: string
+  company_name: string
+}): Promise<{ success: boolean; data?: DesignSubmission; error?: string }> {
+  try {
+    if (!payload.photo_url_1) {
+      return { success: false, error: 'At least 1 photo is required.' }
+    }
+
+    const { data: subData, error: subErr } = await supabaseAdmin
+      .from('design_submissions')
+      .insert({
+        brief_id: payload.brief_id,
+        designer_member_id: payload.designer_member_id || null,
+        photo_url_1: payload.photo_url_1,
+        photo_url_2: payload.photo_url_2 || null,
+        designer_notes: payload.designer_notes?.trim() || null,
+        ph_verdict: 'PENDING',
+        company_name: payload.company_name
+      })
+      .select('*')
+      .single()
+
+    if (subErr) {
+      console.error('[submitDesignPhotosAction] Insert error:', subErr)
+      return { success: false, error: subErr.message }
+    }
+
+    // Update brief status to SUBMITTED
+    await supabaseAdmin
+      .from('design_briefs')
+      .update({ status: 'SUBMITTED', updated_at: new Date().toISOString() })
+      .eq('id', payload.brief_id)
+
+    revalidatePath('/design')
+    revalidatePath('/design/briefs')
+    revalidatePath('/design/designer')
+
+    return { success: true, data: subData }
+  } catch (err: any) {
+    console.error('[submitDesignPhotosAction] Unexpected error:', err)
+    return { success: false, error: err?.message || 'Failed to submit photos.' }
+  }
+}
+
+export async function fetchDesignSubmissionsAction(filters?: {
+  brief_id?: string
+  ph_verdict?: string
+  sa_verdict?: string
+  company_name?: string
+}): Promise<DesignSubmission[]> {
+  try {
+    let query = supabaseAdmin
+      .from('design_submissions')
+      .select('*, design_briefs(*, design_team_members(*)), design_team_members(*)')
+      .order('submitted_at', { ascending: false })
+
+    if (filters?.company_name) {
+      query = query.eq('company_name', filters.company_name)
+    }
+    if (filters?.brief_id) {
+      query = query.eq('brief_id', filters.brief_id)
+    }
+    if (filters?.ph_verdict) {
+      query = query.eq('ph_verdict', filters.ph_verdict)
+    }
+    if (filters?.sa_verdict) {
+      query = query.eq('sa_verdict', filters.sa_verdict)
+    }
+
+    const { data, error } = await query
+
+    if (error) {
+      console.error('[fetchDesignSubmissionsAction] Supabase error:', error)
+      return []
+    }
+
+    return (data || []).map((row: any) => ({
+      id: row.id,
+      brief_id: row.brief_id,
+      designer_member_id: row.designer_member_id || undefined,
+      designer_name: row.design_team_members?.designer_name || row.design_briefs?.design_team_members?.designer_name || 'Designer',
+      photo_url_1: row.photo_url_1,
+      photo_url_2: row.photo_url_2 || undefined,
+      designer_notes: row.designer_notes || undefined,
+      ph_verdict: row.ph_verdict as PHVerdict,
+      ph_feedback: row.ph_feedback || undefined,
+      sa_verdict: row.sa_verdict as SAVerdict || undefined,
+      sa_notes: row.sa_notes || undefined,
+      company_name: row.company_name,
+      submitted_at: row.submitted_at,
+      reviewed_at: row.reviewed_at || undefined,
+      brief: row.design_briefs ? {
+        id: row.design_briefs.id,
+        ph_user_id: row.design_briefs.ph_user_id,
+        garment_type: row.design_briefs.garment_type,
+        category: row.design_briefs.category,
+        max_colors: row.design_briefs.max_colors,
+        instructions: row.design_briefs.instructions || undefined,
+        status: row.design_briefs.status as BriefStatus,
+        company_name: row.design_briefs.company_name,
+        created_at: row.design_briefs.created_at,
+        updated_at: row.design_briefs.updated_at
+      } : undefined
+    }))
+  } catch (err) {
+    console.error('[fetchDesignSubmissionsAction] Unexpected error:', err)
+    return []
+  }
+}
+
+export async function reviewDesignSubmissionAction(payload: {
+  submission_id: string
+  ph_verdict: 'APPROVED' | 'REJECTED'
+  ph_feedback?: string
+}): Promise<{ success: boolean; error?: string }> {
+  try {
+    const { data: sub, error: fetchErr } = await supabaseAdmin
+      .from('design_submissions')
+      .select('brief_id')
+      .eq('id', payload.submission_id)
+      .single()
+
+    if (fetchErr || !sub) {
+      return { success: false, error: 'Submission not found.' }
+    }
+
+    const { error: updateErr } = await supabaseAdmin
+      .from('design_submissions')
+      .update({
+        ph_verdict: payload.ph_verdict,
+        ph_feedback: payload.ph_feedback?.trim() || null,
+        reviewed_at: new Date().toISOString()
+      })
+      .eq('id', payload.submission_id)
+
+    if (updateErr) return { success: false, error: updateErr.message }
+
+    // Update brief status accordingly
+    const briefStatus: BriefStatus = payload.ph_verdict === 'APPROVED' ? 'PH_APPROVED' : 'PH_REJECTED'
+    await supabaseAdmin
+      .from('design_briefs')
+      .update({ status: briefStatus, updated_at: new Date().toISOString() })
+      .eq('id', sub.brief_id)
+
+    revalidatePath('/design')
+    revalidatePath('/design/briefs')
+    revalidatePath('/design/sa-approvals')
+    revalidatePath('/design/designer')
+
+    return { success: true }
+  } catch (err: any) {
+    console.error('[reviewDesignSubmissionAction] Error:', err)
+    return { success: false, error: err?.message || 'Failed to review submission.' }
+  }
+}
+
+export async function saReviewDesignSubmissionAction(payload: {
+  submission_id: string
+  sa_verdict: 'APPROVED' | 'SAVED_FOR_LATER' | 'REJECTED'
+  sa_notes?: string
+}): Promise<{ success: boolean; error?: string }> {
+  try {
+    const { data: sub, error: fetchErr } = await supabaseAdmin
+      .from('design_submissions')
+      .select('brief_id')
+      .eq('id', payload.submission_id)
+      .single()
+
+    if (fetchErr || !sub) {
+      return { success: false, error: 'Submission not found.' }
+    }
+
+    const { error: updateErr } = await supabaseAdmin
+      .from('design_submissions')
+      .update({
+        sa_verdict: payload.sa_verdict,
+        sa_notes: payload.sa_notes?.trim() || null,
+        reviewed_at: new Date().toISOString()
+      })
+      .eq('id', payload.submission_id)
+
+    if (updateErr) return { success: false, error: updateErr.message }
+
+    // Map SA verdict to Brief Status
+    let briefStatus: BriefStatus = 'SA_APPROVED'
+    if (payload.sa_verdict === 'SAVED_FOR_LATER') {
+      briefStatus = 'SA_SAVED_FOR_LATER'
+    } else if (payload.sa_verdict === 'REJECTED') {
+      briefStatus = 'PH_REJECTED'
+    }
+
+    await supabaseAdmin
+      .from('design_briefs')
+      .update({ status: briefStatus, updated_at: new Date().toISOString() })
+      .eq('id', sub.brief_id)
+
+    revalidatePath('/design')
+    revalidatePath('/design/briefs')
+    revalidatePath('/design/sa-approvals')
+    revalidatePath('/design/tech-packs')
+
+    return { success: true }
+  } catch (err: any) {
+    console.error('[saReviewDesignSubmissionAction] Error:', err)
+    return { success: false, error: err?.message || 'Failed to update SA verdict.' }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// 5. PH SETTINGS: BODY PART CODES, BOM CODES & GARMENT TEMPLATES
+// -----------------------------------------------------------------------------
+
+export async function fetchBodyPartCodesAction(phUserId?: string, companyName?: string): Promise<BodyPartCode[]> {
+  try {
+    let query = supabaseAdmin
+      .from('design_body_part_codes')
+      .select('*')
+      .order('sort_order', { ascending: true })
+
+    if (companyName) query = query.eq('company_name', companyName)
+    if (phUserId) query = query.eq('ph_user_id', phUserId)
+
+    const { data, error } = await query
+    if (error) {
+      console.error('[fetchBodyPartCodesAction] Supabase error:', error)
+      return []
+    }
+    return data || []
+  } catch (err) {
+    console.error('[fetchBodyPartCodesAction] Unexpected error:', err)
+    return []
+  }
+}
+
+export async function createBodyPartCodeAction(payload: {
+  ph_user_id: string
+  company_name: string
+  code: string
+  body_part_name: string
+  sort_order?: number
+}): Promise<{ success: boolean; data?: BodyPartCode; error?: string }> {
+  try {
+    const codeNorm = payload.code.trim().toUpperCase()
+    const { data, error } = await supabaseAdmin
+      .from('design_body_part_codes')
+      .insert({
+        ph_user_id: payload.ph_user_id,
+        company_name: payload.company_name,
+        code: codeNorm,
+        body_part_name: payload.body_part_name.trim(),
+        sort_order: payload.sort_order || 0
+      })
+      .select('*')
+      .single()
+
+    if (error) return { success: false, error: error.message }
+    revalidatePath('/design/settings')
+    return { success: true, data }
+  } catch (err: any) {
+    return { success: false, error: err?.message || 'Failed to save body part code.' }
+  }
+}
+
+export async function deleteBodyPartCodeAction(id: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const { error } = await supabaseAdmin
+      .from('design_body_part_codes')
+      .delete()
+      .eq('id', id)
+
+    if (error) return { success: false, error: error.message }
+    revalidatePath('/design/settings')
+    return { success: true }
+  } catch (err: any) {
+    return { success: false, error: err?.message || 'Failed to delete body part code.' }
+  }
+}
+
+export async function fetchBOMComponentCodesAction(phUserId?: string, companyName?: string): Promise<BOMComponentCode[]> {
+  try {
+    let query = supabaseAdmin
+      .from('design_bom_component_codes')
+      .select('*')
+      .order('sort_order', { ascending: true })
+
+    if (companyName) query = query.eq('company_name', companyName)
+    if (phUserId) query = query.eq('ph_user_id', phUserId)
+
+    const { data, error } = await query
+    if (error) {
+      console.error('[fetchBOMComponentCodesAction] Supabase error:', error)
+      return []
+    }
+    return data || []
+  } catch (err) {
+    console.error('[fetchBOMComponentCodesAction] Unexpected error:', err)
+    return []
+  }
+}
+
+export async function createBOMComponentCodeAction(payload: {
+  ph_user_id: string
+  company_name: string
+  component_type: string
+  component_spec: string
+  code?: string
+  sort_order?: number
+}): Promise<{ success: boolean; data?: BOMComponentCode; error?: string }> {
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('design_bom_component_codes')
+      .insert({
+        ph_user_id: payload.ph_user_id,
+        company_name: payload.company_name,
+        component_type: payload.component_type.trim().toUpperCase(),
+        component_spec: payload.component_spec.trim(),
+        code: payload.code?.trim().toUpperCase() || null,
+        sort_order: payload.sort_order || 0
+      })
+      .select('*')
+      .single()
+
+    if (error) return { success: false, error: error.message }
+    revalidatePath('/design/settings')
+    return { success: true, data }
+  } catch (err: any) {
+    return { success: false, error: err?.message || 'Failed to save BOM component code.' }
+  }
+}
+
+export async function deleteBOMComponentCodeAction(id: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const { error } = await supabaseAdmin
+      .from('design_bom_component_codes')
+      .delete()
+      .eq('id', id)
+
+    if (error) return { success: false, error: error.message }
+    revalidatePath('/design/settings')
+    return { success: true }
+  } catch (err: any) {
+    return { success: false, error: err?.message || 'Failed to delete BOM code.' }
+  }
+}
+
+export async function fetchGarmentTemplatesAction(companyName?: string): Promise<GarmentTemplate[]> {
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('design_garment_templates')
+      .select('*')
+      .order('garment_type', { ascending: true })
+
+    if (error) {
+      console.error('[fetchGarmentTemplatesAction] Supabase error:', error)
+      return []
+    }
+
+    return (data || []).map((row: any) => ({
+      id: row.id,
+      garment_type: row.garment_type,
+      body_parts: row.body_parts || [],
+      bom_defaults: row.bom_defaults || [],
+      is_system_template: Boolean(row.is_system_template),
+      ph_user_id: row.ph_user_id || undefined,
+      company_name: row.company_name || undefined,
+      created_at: row.created_at
+    }))
+  } catch (err) {
+    console.error('[fetchGarmentTemplatesAction] Unexpected error:', err)
+    return []
+  }
+}
+
+export async function createGarmentTemplateAction(payload: {
+  garment_type: string
+  body_parts: any[]
+  bom_defaults?: any[]
+  ph_user_id?: string
+  company_name?: string
+}): Promise<{ success: boolean; data?: GarmentTemplate; error?: string }> {
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('design_garment_templates')
+      .insert({
+        garment_type: payload.garment_type.trim(),
+        body_parts: payload.body_parts,
+        bom_defaults: payload.bom_defaults || [],
+        is_system_template: false,
+        ph_user_id: payload.ph_user_id || null,
+        company_name: payload.company_name || null
+      })
+      .select('*')
+      .single()
+
+    if (error) return { success: false, error: error.message }
+    revalidatePath('/design/settings')
+    return { success: true, data }
+  } catch (err: any) {
+    return { success: false, error: err?.message || 'Failed to create garment template.' }
+  }
+}
+
+export async function deleteGarmentTemplateAction(id: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const { error } = await supabaseAdmin
+      .from('design_garment_templates')
+      .delete()
+      .eq('id', id)
+
+    if (error) return { success: false, error: error.message }
+    revalidatePath('/design/settings')
+    return { success: true }
+  } catch (err: any) {
+    return { success: false, error: err?.message || 'Failed to delete template.' }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// 6. TECH PACK FROM APPROVED DESIGN (PH CREATES AFTER SA APPROVAL)
+// -----------------------------------------------------------------------------
+
+export async function createTechPackFromApprovedDesignAction(payload: {
+  submission_id: string
+  style_number: string
+  style_name?: string
+  brand_name?: string
+  garment_type: string
+  size_system?: SizeSystem
+  base_size?: string
+  fabric_composition?: string
+  target_gsm?: number
+  embellishment_sequence?: EmbellishmentSequence
+  spi?: number
+  seam_class?: SeamClass
+  cad_front_url?: string
+  cad_back_url?: string
+  company_name: string
+  ph_user_id?: string
+}): Promise<{ success: boolean; data?: TechPack; error?: string }> {
+  try {
+    const res = await createTechPackAction({
+      style_number: payload.style_number,
+      style_name: payload.style_name,
+      brand_name: payload.brand_name || 'Inhouse',
+      category: payload.garment_type,
+      size_system: payload.size_system || 'ALPHA_ADULT',
+      base_size: payload.base_size || 'M',
+      fabric_composition: payload.fabric_composition || '100% Combed Cotton',
+      target_gsm: payload.target_gsm || 220,
+      embellishment_sequence: payload.embellishment_sequence || 'NONE',
+      spi: payload.spi || 12,
+      seam_class: payload.seam_class || 'ISO 4915 Class 401 (Chainstitch)',
+      cad_front_url: payload.cad_front_url,
+      cad_back_url: payload.cad_back_url,
+      design_submission_id: payload.submission_id,
+      created_by_ph: payload.ph_user_id,
+      company_name: payload.company_name
+    })
+
+    if (!res.success || !res.data) {
+      return { success: false, error: res.error || 'Failed to create tech pack.' }
+    }
+
+    // Update brief status to TECH_PACK_CREATED
+    const { data: sub } = await supabaseAdmin
+      .from('design_submissions')
+      .select('brief_id')
+      .eq('id', payload.submission_id)
+      .maybeSingle()
+
+    if (sub?.brief_id) {
+      await supabaseAdmin
+        .from('design_briefs')
+        .update({ status: 'TECH_PACK_CREATED', updated_at: new Date().toISOString() })
+        .eq('id', sub.brief_id)
+    }
+
+    revalidatePath('/design')
+    revalidatePath('/design/tech-packs')
+    revalidatePath('/design/briefs')
+    revalidatePath('/design/sa-approvals')
+
+    return { success: true, data: res.data }
+  } catch (err: any) {
+    console.error('[createTechPackFromApprovedDesignAction] Error:', err)
+    return { success: false, error: err?.message || 'Failed to convert approved design to tech-pack.' }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// 7. DESIGN STUDIO METRICS (KPIs)
+// -----------------------------------------------------------------------------
+
+export async function fetchDesignStudioMetricsAction(companyName?: string): Promise<{
+  active_briefs: number
+  pending_ph_reviews: number
+  pending_sa_approvals: number
+  sa_approved_designs: number
+  saved_for_later: number
+  active_tech_packs: number
+  team_designers_count: number
+}> {
+  try {
+    let briefsQ = supabaseAdmin.from('design_briefs').select('status')
+    let subsQ = supabaseAdmin.from('design_submissions').select('ph_verdict, sa_verdict')
+    let tpQ = supabaseAdmin.from('design_tech_packs').select('id')
+    let teamQ = supabaseAdmin.from('design_team_members').select('id').eq('status', 'ACTIVE')
+
+    if (companyName) {
+      briefsQ = briefsQ.eq('company_name', companyName)
+      subsQ = subsQ.eq('company_name', companyName)
+      tpQ = tpQ.eq('company_name', companyName)
+      teamQ = teamQ.eq('company_name', companyName)
+    }
+
+    const [briefsRes, subsRes, tpRes, teamRes] = await Promise.all([
+      briefsQ,
+      subsQ,
+      tpQ,
+      teamQ
+    ])
+
+    const briefs = briefsRes.data || []
+    const subs = subsRes.data || []
+    const tps = tpRes.data || []
+    const team = teamRes.data || []
+
+    const active_briefs = briefs.filter(b => b.status === 'ALLOCATED' || b.status === 'SUBMITTED').length
+    const pending_ph_reviews = subs.filter(s => s.ph_verdict === 'PENDING').length
+    const pending_sa_approvals = subs.filter(s => s.ph_verdict === 'APPROVED' && (!s.sa_verdict || s.sa_verdict === 'PENDING')).length
+    const sa_approved_designs = subs.filter(s => s.sa_verdict === 'APPROVED').length
+    const saved_for_later = subs.filter(s => s.sa_verdict === 'SAVED_FOR_LATER').length
+    const active_tech_packs = tps.length
+    const team_designers_count = team.length
+
+    return {
+      active_briefs,
+      pending_ph_reviews,
+      pending_sa_approvals,
+      sa_approved_designs,
+      saved_for_later,
+      active_tech_packs,
+      team_designers_count
+    }
+  } catch (err) {
+    console.error('[fetchDesignStudioMetricsAction] Error:', err)
+    return {
+      active_briefs: 0,
+      pending_ph_reviews: 0,
+      pending_sa_approvals: 0,
+      sa_approved_designs: 0,
+      saved_for_later: 0,
+      active_tech_packs: 0,
+      team_designers_count: 0
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// 8. SAMPLE APPROVALS (PPS & Fit Audit)
+// -----------------------------------------------------------------------------
+
+export async function fetchSampleApprovalsAction(): Promise<SampleApproval[]> {
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('design_sample_approvals')
+      .select('*, design_tech_packs(*, brands(*))')
+      .order('submitted_date', { ascending: false })
 
     if (error) {
       console.error('[fetchSampleApprovalsAction] Supabase error:', error)
@@ -447,21 +1232,21 @@ export async function fetchSampleApprovalsAction(_companyName?: string): Promise
       id: row.id,
       tech_pack_id: row.tech_pack_id,
       style_number: row.design_tech_packs?.style_number || 'UNKNOWN',
-      style_name: `${row.design_tech_packs?.category || ''} Style ${row.design_tech_packs?.style_number || ''}`,
+      style_name: `${row.design_tech_packs?.category || 'Apparel'} Style ${row.design_tech_packs?.style_number || ''}`,
       brand_name: row.design_tech_packs?.brands?.brand_name || 'Inhouse',
-      sample_stage: (row.sample_stage as SampleStage) || 'PPS',
+      sample_stage: row.sample_stage as SampleStage,
       measured_chest: Number(row.measured_chest) || 0,
-      target_chest: 53.0,
+      target_chest: Number(row.target_chest) || 0,
       measured_length: Number(row.measured_length) || 0,
-      target_length: 72.0,
+      target_length: Number(row.target_length) || 0,
       measured_sleeve: Number(row.measured_sleeve) || 0,
-      target_sleeve: 87.0,
-      variance_status: row.within_tolerance ? 'WITHIN_TOLERANCE' : 'OUT_OF_TOLERANCE',
+      target_sleeve: Number(row.target_sleeve) || 0,
+      variance_status: row.variance_status as 'WITHIN_TOLERANCE' | 'OUT_OF_TOLERANCE',
       fit_comments: row.fit_comments || '',
-      buyer_reviewer_email: row.buyer_reviewer_email || row.buyer_reviewer_name || 'reviewer@brand.com',
-      approval_status: (row.verdict as SampleApprovalStatus) || 'APPROVED',
-      submitted_date: row.created_at,
-      audit_date: row.approved_at || row.created_at
+      buyer_reviewer_email: row.buyer_reviewer_email || 'buyer@brand.com',
+      approval_status: row.approval_status as SampleApprovalStatus,
+      submitted_date: row.submitted_date || new Date().toISOString().split('T')[0],
+      audit_date: row.audit_date || undefined
     }))
   } catch (err) {
     console.error('[fetchSampleApprovalsAction] Unexpected error:', err)
@@ -471,37 +1256,38 @@ export async function fetchSampleApprovalsAction(_companyName?: string): Promise
 
 export async function createSampleApprovalAction(payload: {
   tech_pack_id: string
-  sample_stage: string
+  sample_stage: SampleStage
   measured_chest: number
+  target_chest: number
   measured_length: number
+  target_length: number
   measured_sleeve: number
-  measured_neck?: number
-  variance_max_cm: number
-  within_tolerance: boolean
+  target_sleeve: number
+  variance_status: 'WITHIN_TOLERANCE' | 'OUT_OF_TOLERANCE'
   fit_comments: string
-  buyer_reviewer_name: string
-  buyer_reviewer_email?: string
-  verdict: 'APPROVED' | 'REVISE_FIT' | 'REJECTED'
-}): Promise<{ success: boolean; data?: any; error?: string }> {
+  buyer_reviewer_email: string
+  approval_status: SampleApprovalStatus
+}): Promise<{ success: boolean; data?: SampleApproval; error?: string }> {
   try {
     const { data, error } = await supabaseAdmin
-      .from('design_sample_audits')
+      .from('design_sample_approvals')
       .insert({
         tech_pack_id: payload.tech_pack_id,
         sample_stage: payload.sample_stage,
-        measured_chest: payload.measured_chest,
-        measured_length: payload.measured_length,
-        measured_sleeve: payload.measured_sleeve,
-        measured_neck: payload.measured_neck || null,
-        variance_max_cm: payload.variance_max_cm,
-        within_tolerance: payload.within_tolerance,
+        measured_chest: Number(payload.measured_chest),
+        target_chest: Number(payload.target_chest),
+        measured_length: Number(payload.measured_length),
+        target_length: Number(payload.target_length),
+        measured_sleeve: Number(payload.measured_sleeve),
+        target_sleeve: Number(payload.target_sleeve),
+        variance_status: payload.variance_status,
         fit_comments: payload.fit_comments,
-        buyer_reviewer_name: payload.buyer_reviewer_name,
-        buyer_reviewer_email: payload.buyer_reviewer_email || null,
-        verdict: payload.verdict,
-        approved_at: payload.verdict === 'APPROVED' ? new Date().toISOString() : null
+        buyer_reviewer_email: payload.buyer_reviewer_email,
+        approval_status: payload.approval_status,
+        submitted_date: new Date().toISOString().split('T')[0],
+        audit_date: new Date().toISOString()
       })
-      .select('*, design_tech_packs(style_number, category, brands(brand_name))')
+      .select('*, design_tech_packs(*, brands(*))')
       .single()
 
     if (error) {
@@ -511,100 +1297,119 @@ export async function createSampleApprovalAction(payload: {
 
     revalidatePath('/design')
     revalidatePath('/design/sample-approvals')
-    revalidatePath('/design/tech-packs')
 
-    return { success: true, data }
+    return {
+      success: true,
+      data: {
+        id: data.id,
+        tech_pack_id: data.tech_pack_id,
+        style_number: data.design_tech_packs?.style_number || 'UNKNOWN',
+        style_name: `${data.design_tech_packs?.category || 'Apparel'} Style ${data.design_tech_packs?.style_number || ''}`,
+        brand_name: data.design_tech_packs?.brands?.brand_name || 'Inhouse',
+        sample_stage: data.sample_stage as SampleStage,
+        measured_chest: Number(data.measured_chest),
+        target_chest: Number(data.target_chest),
+        measured_length: Number(data.measured_length),
+        target_length: Number(data.target_length),
+        measured_sleeve: Number(data.measured_sleeve),
+        target_sleeve: Number(data.target_sleeve),
+        variance_status: data.variance_status,
+        fit_comments: data.fit_comments,
+        buyer_reviewer_email: data.buyer_reviewer_email,
+        approval_status: data.approval_status,
+        submitted_date: data.submitted_date,
+        audit_date: data.audit_date
+      }
+    }
   } catch (err: any) {
-    console.error('[createSampleApprovalAction] Unexpected error:', err)
-    return { success: false, error: err?.message || 'Failed to submit sample audit.' }
+    return { success: false, error: err?.message || 'Failed to create sample approval.' }
+  }
+}
+
+export async function auditSampleApprovalAction(
+  id: string,
+  approval_status: SampleApprovalStatus,
+  fit_comments?: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const updates: Record<string, any> = {
+      approval_status,
+      audit_date: new Date().toISOString()
+    }
+    if (fit_comments !== undefined) {
+      updates.fit_comments = fit_comments
+    }
+
+    const { error } = await supabaseAdmin
+      .from('design_sample_approvals')
+      .update(updates)
+      .eq('id', id)
+
+    if (error) {
+      console.error('[auditSampleApprovalAction] DB error:', error)
+      return { success: false, error: error.message }
+    }
+
+    revalidatePath('/design')
+    revalidatePath('/design/sample-approvals')
+    return { success: true }
+  } catch (err: any) {
+    return { success: false, error: err?.message || 'Failed to audit sample approval.' }
   }
 }
 
 // -----------------------------------------------------------------------------
-// 3. GRADING MATRIX
+// 9. GRADING SCHEMES
 // -----------------------------------------------------------------------------
 
-export async function fetchGradingSchemesAction(_companyName?: string): Promise<GradingScheme[]> {
+export async function fetchGradingSchemesAction(): Promise<GradingScheme[]> {
   try {
-    const { data: techPacks, error } = await supabaseAdmin
+    const { data: techPacks, error: tpErr } = await supabaseAdmin
       .from('design_tech_packs')
-      .select(`
-        id,
-        style_number,
-        category,
-        size_system,
-        base_size,
-        brands ( brand_name ),
-        design_poms (
-          id,
-          pom_code,
-          pom_name,
-          tolerance_cm,
-          sort_order,
-          design_measurement_values (
-            id,
-            size_label,
-            value_cm,
-            grade_step_cm,
-            is_base_size
-          )
-        )
-      `)
-      .order('created_at', { ascending: false })
+      .select('id, style_number, category, size_system, base_size')
+      .limit(20)
 
-    if (error) {
-      console.error('[fetchGradingSchemesAction] DB error:', error)
+    if (tpErr || !techPacks || techPacks.length === 0) {
       return []
     }
 
-    if (!techPacks || techPacks.length === 0) return []
+    const tpIds = techPacks.map(tp => tp.id)
+    const { data: poms, error: pomErr } = await supabaseAdmin
+      .from('design_poms')
+      .select('*, design_measurement_values(*)')
+      .in('tech_pack_id', tpIds)
+
+    if (pomErr) {
+      console.error('[fetchGradingSchemesAction] POM error:', pomErr)
+      return []
+    }
 
     return techPacks.map((tp: any) => {
-      const pomsList: PointOfMeasure[] = (tp.design_poms || [])
-        .sort((a: any, b: any) => (a.sort_order || 0) - (b.sort_order || 0))
-        .map((p: any) => {
-          const sizesMap: Record<string, number> = {}
-          let baseVal = 0
-          let gradeStep = 0
-
-          ;(p.design_measurement_values || []).forEach((v: any) => {
-            sizesMap[v.size_label] = Number(v.value_cm)
-            if (v.is_base_size) {
-              baseVal = Number(v.value_cm)
-            }
-            if (v.grade_step_cm !== 0) {
-              gradeStep = Math.abs(Number(v.grade_step_cm))
-            }
+      const relatedPoms = (poms || []).filter((p: any) => p.tech_pack_id === tp.id)
+      const mappedPoms: PointOfMeasure[] = relatedPoms.map((p: any) => {
+        const sizesMap: Record<string, number> = {}
+        if (p.design_measurement_values) {
+          p.design_measurement_values.forEach((v: any) => {
+            sizesMap[v.size_code] = Number(v.value_cm)
           })
-
-          return {
-            pom_code: p.pom_code,
-            pom_name: p.pom_name,
-            tolerance_cm: Number(p.tolerance_cm) || 0.5,
-            grade_step_cm: gradeStep || 2.0,
-            base_value_cm: baseVal || (p.tolerance_cm ? 50.0 : 50.0),
-            sizes: sizesMap
-          }
-        })
-
-      // Collect all unique sizes across POMs
-      const sizesSet = new Set<string>()
-      pomsList.forEach(p => {
-        Object.keys(p.sizes).forEach(s => sizesSet.add(s))
+        }
+        return {
+          pom_code: p.pom_code,
+          pom_name: p.pom_name,
+          tolerance_cm: Number(p.tolerance_cm) || 1.0,
+          grade_step_cm: Number(p.grade_step_cm) || 2.0,
+          base_value_cm: Number(p.base_value_cm) || 50.0,
+          sizes: sizesMap
+        }
       })
-
-      const sizesArray = Array.from(sizesSet)
-      if (sizesArray.length === 0) {
-        sizesArray.push('XS', 'S', 'M', 'L', 'XL', '2XL')
-      }
 
       return {
         id: tp.id,
-        name: `${tp.style_number} (${mapCategoryToUI(tp.category)}) Grading Matrix`,
+        name: `${tp.style_number} - ${tp.category} Grade Rules`,
         category: (tp.size_system as SizeSystem) || 'ALPHA_ADULT',
         base_size: tp.base_size || 'M',
-        sizes: sizesArray,
-        poms: pomsList
+        sizes: ['XS', 'S', 'M', 'L', 'XL', '2XL'],
+        poms: mappedPoms
       }
     })
   } catch (err) {
@@ -613,108 +1418,90 @@ export async function fetchGradingSchemesAction(_companyName?: string): Promise<
   }
 }
 
-export async function createPomAction(payload: {
+export async function createGradingSchemeAction(payload: {
   tech_pack_id: string
   pom_code: string
   pom_name: string
   tolerance_cm: number
   grade_step_cm: number
   base_value_cm: number
-  base_size: string
-  sizes: string[]
-}): Promise<{ success: boolean; data?: PointOfMeasure; error?: string }> {
+}): Promise<{ success: boolean; error?: string }> {
   try {
-    const pomCode = payload.pom_code.trim().toUpperCase().replace(/[^A-Z0-9_]/g, '_')
-    const tolerance = Number(payload.tolerance_cm) || 0.5
-    const baseVal = Number(payload.base_value_cm) || 50.0
-    const stepVal = Number(payload.grade_step_cm) || 2.0
-    const baseSize = payload.base_size || 'M'
-
-    // 1. Insert/upsert into design_poms
-    const { data: pom, error: pomError } = await supabaseAdmin
+    const { data: pom, error: pomErr } = await supabaseAdmin
       .from('design_poms')
-      .upsert({
+      .insert({
         tech_pack_id: payload.tech_pack_id,
-        pom_code: pomCode,
+        pom_code: payload.pom_code.trim().toUpperCase(),
         pom_name: payload.pom_name.trim(),
-        tolerance_cm: tolerance,
-        sort_order: Date.now() % 10000
-      }, { onConflict: 'tech_pack_id,pom_code' })
-      .select('id, pom_code, pom_name, tolerance_cm')
+        tolerance_cm: Number(payload.tolerance_cm),
+        grade_step_cm: Number(payload.grade_step_cm),
+        base_value_cm: Number(payload.base_value_cm)
+      })
+      .select('id')
       .single()
 
-    if (pomError || !pom) {
-      console.error('[createPomAction] POM Error:', pomError)
-      return { success: false, error: pomError?.message || 'Failed to create point of measure in Supabase.' }
+    if (pomErr || !pom) {
+      return { success: false, error: pomErr?.message || 'Failed to insert POM.' }
     }
 
-    // 2. Generate and insert sizes into design_measurement_values
-    const baseIdx = payload.sizes.indexOf(baseSize)
-    const sizesMap: Record<string, number> = {}
-    const measRows = payload.sizes.map((sz, idx) => {
-      const offset = idx - (baseIdx >= 0 ? baseIdx : 0)
-      const val = Number((baseVal + offset * stepVal).toFixed(2))
-      sizesMap[sz] = val
-      return {
-        pom_id: pom.id,
-        size_label: sz,
-        value_cm: val,
-        grade_step_cm: stepVal,
-        is_base_size: sz === baseSize
-      }
-    })
+    const sizes = ['XS', 'S', 'M', 'L', 'XL', '2XL']
+    const baseIndex = 2
+    const step = Number(payload.grade_step_cm)
+    const baseVal = Number(payload.base_value_cm)
 
-    try {
-      await supabaseAdmin.from('design_measurement_values').delete().eq('pom_id', pom.id)
-      await supabaseAdmin.from('design_measurement_values').insert(measRows)
-    } catch (measErr) {
-      console.warn('[createPomAction] Measurement values insert note:', measErr)
-    }
+    const valuesToInsert = sizes.map((size, idx) => ({
+      pom_id: pom.id,
+      size_code: size,
+      value_cm: baseVal + (idx - baseIndex) * step
+    }))
 
-    revalidatePath('/design/grading-matrix')
+    await supabaseAdmin.from('design_measurement_values').insert(valuesToInsert)
+
     revalidatePath('/design')
-
-    const newPom: PointOfMeasure = {
-      pom_code: pom.pom_code,
-      pom_name: pom.pom_name,
-      tolerance_cm: Number(pom.tolerance_cm) || tolerance,
-      grade_step_cm: stepVal,
-      base_value_cm: baseVal,
-      sizes: sizesMap
-    }
-
-    return { success: true, data: newPom }
-  } catch (err: any) {
-    console.error('[createPomAction] Unexpected error:', err)
-    return { success: false, error: err?.message || 'Failed to create POM.' }
-  }
-}
-
-export async function deletePomAction(techPackId: string, pomCode: string): Promise<{ success: boolean; error?: string }> {
-  try {
-    const { error } = await supabaseAdmin
-      .from('design_poms')
-      .delete()
-      .eq('tech_pack_id', techPackId)
-      .eq('pom_code', pomCode)
-
-    if (error) {
-      return { success: false, error: error.message }
-    }
-
     revalidatePath('/design/grading-matrix')
-    revalidatePath('/design')
+
     return { success: true }
   } catch (err: any) {
-    return { success: false, error: err?.message || 'Failed to delete POM.' }
+    return { success: false, error: err?.message || 'Failed to create grading POM.' }
+  }
+}
+
+export async function updateGradingSchemeAction(
+  pomId: string,
+  payload: {
+    pom_name?: string
+    tolerance_cm?: number
+    grade_step_cm?: number
+    base_value_cm?: number
+  }
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const updates: Record<string, any> = {}
+    if (payload.pom_name) updates.pom_name = payload.pom_name.trim()
+    if (payload.tolerance_cm !== undefined) updates.tolerance_cm = Number(payload.tolerance_cm)
+    if (payload.grade_step_cm !== undefined) updates.grade_step_cm = Number(payload.grade_step_cm)
+    if (payload.base_value_cm !== undefined) updates.base_value_cm = Number(payload.base_value_cm)
+
+    const { error } = await supabaseAdmin
+      .from('design_poms')
+      .update(updates)
+      .eq('id', pomId)
+
+    if (error) return { success: false, error: error.message }
+
+    revalidatePath('/design')
+    revalidatePath('/design/grading-matrix')
+    return { success: true }
+  } catch (err: any) {
+    return { success: false, error: err?.message || 'Failed to update POM.' }
   }
 }
 
 // -----------------------------------------------------------------------------
-// 4. MATERIALS LIBRARY
+// 10. MATERIALS & FABRICS LIBRARY
 // -----------------------------------------------------------------------------
 
-export async function fetchMaterialsLibraryAction(companyName?: string): Promise<MaterialItem[]> {
+export async function fetchMaterialsLibraryAction(): Promise<MaterialItem[]> {
   try {
     const { data, error } = await supabaseAdmin
       .from('design_materials_library')
@@ -729,24 +1516,25 @@ export async function fetchMaterialsLibraryAction(companyName?: string): Promise
     if (!data || data.length === 0) return []
 
     return data.map((row: any) => {
-      const isFabric = (row.material_type || '').includes('FABRIC')
-      const isTrim = (row.material_type || '').includes('TRIM') || (row.material_type || '').includes('RIB')
+      let type: 'FABRIC' | 'TRIM' | 'THREAD' = 'FABRIC'
+      if (row.material_type?.includes('TRIM')) type = 'TRIM'
+      if (row.material_type?.includes('THREAD')) type = 'THREAD'
 
       return {
         id: row.id,
         material_code: row.material_code,
         material_name: row.material_name,
-        type: isFabric ? 'FABRIC' : isTrim ? 'TRIM' : 'THREAD',
-        construction: row.material_type,
-        composition: row.composition,
-        weight_gsm: Number(row.nominal_gsm) || undefined,
+        type,
+        construction: row.material_type || 'Single Jersey',
+        composition: row.composition || '100% Cotton',
+        weight_gsm: row.nominal_gsm ? Number(row.nominal_gsm) : undefined,
         shrinkage_length_pct: Number(row.length_shrinkage_pct) || 0,
         shrinkage_width_pct: Number(row.width_shrinkage_pct) || 0,
         spirality_pct: Number(row.spirality_pct) || 0,
         recommended_needle: row.recommended_needle || 'Ball Point 75/11',
-        supplier_mill: 'Direct Mill / Inhouse Certified',
-        lead_time_days: 7,
-        status: row.is_active ? 'CERTIFIED' : 'DEPRECATED'
+        supplier_mill: row.supplier_mill || 'Standard Mill Partner',
+        lead_time_days: 14,
+        status: (row.is_active ? 'CERTIFIED' : 'DEPRECATED') as 'CERTIFIED' | 'DEPRECATED'
       }
     })
   } catch (err) {
@@ -808,9 +1596,7 @@ export async function deleteMaterialAction(id: string): Promise<{ success: boole
       .delete()
       .eq('id', id)
 
-    if (error) {
-      return { success: false, error: error.message }
-    }
+    if (error) return { success: false, error: error.message }
 
     revalidatePath('/design')
     revalidatePath('/design/materials-library')
@@ -821,10 +1607,10 @@ export async function deleteMaterialAction(id: string): Promise<{ success: boole
 }
 
 // -----------------------------------------------------------------------------
-// 5. BRANDS LIST
+// 11. BRANDS LIST
 // -----------------------------------------------------------------------------
 
-export async function fetchBrandsAction(companyName?: string): Promise<{ id: string; brand_name: string; brand_code: string }[]> {
+export async function fetchBrandsAction(_companyName?: string): Promise<{ id: string; brand_name: string; brand_code: string }[]> {
   try {
     const { data, error } = await supabaseAdmin
       .from('brands')
