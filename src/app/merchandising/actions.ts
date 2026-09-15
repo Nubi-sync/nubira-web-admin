@@ -66,7 +66,15 @@ export async function fetchMerchandisingOrdersAction(companyName?: string): Prom
 
     if (!data || data.length === 0) return []
 
-    const filteredData = data
+    let filteredData = data
+    if (companyName) {
+      const cNorm = companyName.toLowerCase().trim()
+      filteredData = data.filter((row: any) => {
+        const bName = (row.brands?.brand_name || '').toLowerCase().trim()
+        const bBuyer = (row.brand_buyer || '').toLowerCase().trim()
+        return bName.includes(cNorm) || cNorm.includes(bName) || bBuyer.includes(cNorm)
+      })
+    }
 
     return filteredData.map((row: any) => {
       // Group ratios by color_name

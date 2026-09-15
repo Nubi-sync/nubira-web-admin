@@ -52,7 +52,15 @@ export async function fetchTechPacksAction(companyName?: string): Promise<TechPa
 
     if (!data || data.length === 0) return []
 
-    const filteredData = data
+    let filteredData = data
+    if (companyName) {
+      const cNorm = companyName.toLowerCase().trim()
+      filteredData = data.filter((row: any) => {
+        const bName = (row.brands?.brand_name || '').toLowerCase().trim()
+        const bCode = (row.brands?.brand_code || '').toLowerCase().trim()
+        return bName.includes(cNorm) || cNorm.includes(bName) || (bCode && cNorm.includes(bCode))
+      })
+    }
 
     return filteredData.map((row: any) => ({
       id: row.id,
@@ -299,14 +307,16 @@ export async function updateTechPackAction(
 
 export async function deleteTechPackAction(id: string): Promise<{ success: boolean; error?: string }> {
   try {
-    // 1. Clean up design child tables
+    // 1. Clean up design child tables directly linked to this tech pack
     try {
       await supabaseAdmin.from('design_sample_audits').delete().eq('tech_pack_id', id)
       await supabaseAdmin.from('design_poms').delete().eq('tech_pack_id', id)
       await supabaseAdmin.from('design_materials').delete().eq('tech_pack_id', id)
-    } catch (_) {}
+    } catch (e) {
+      console.warn('[deleteTechPackAction] design children cleanup note:', e)
+    }
 
-    // 2. Resolve any linked merchandising orders
+    // 2. Find any merchandising orders referencing this tech-pack
     try {
       const { data: linkedOrders } = await supabaseAdmin
         .from('merchandising_orders')
@@ -314,37 +324,95 @@ export async function deleteTechPackAction(id: string): Promise<{ success: boole
         .eq('tech_pack_id', id)
 
       if (linkedOrders && linkedOrders.length > 0) {
-        const orderIds = linkedOrders.map((o: any) => o.id)
+        for (const order of linkedOrders) {
+          const orderId = order.id
 
-        // Try setting tech_pack_id to null first if nullable
-        const { error: unlinkErr } = await supabaseAdmin
-          .from('merchandising_orders')
-          .update({ tech_pack_id: null })
-          .in('id', orderIds)
+          // A. Ready Goods child tables
+          try {
+            const { data: cartons } = await supabaseAdmin.from('ready_goods_cartons').select('id').eq('order_id', orderId)
+            if (cartons && cartons.length > 0) {
+              const cIds = cartons.map((c: any) => c.id)
+              await supabaseAdmin.from('ready_goods_carton_bundles').delete().in('carton_id', cIds)
+            }
+            await supabaseAdmin.from('ready_goods_aql_audits').delete().eq('order_id', orderId)
+            await supabaseAdmin.from('ready_goods_cartons').delete().eq('order_id', orderId)
+          } catch (_) {}
 
-        // If NOT NULL constraint prevents unlinking, cascade delete the linked order's downstream records
-        if (unlinkErr) {
-          for (const orderId of orderIds) {
-            try { await supabaseAdmin.from('merchandising_order_ratios').delete().eq('order_id', orderId) } catch (_) {}
-            try { await supabaseAdmin.from('merchandising_bom_items').delete().eq('order_id', orderId) } catch (_) {}
-            try { await supabaseAdmin.from('merchandising_procurement_pos').delete().eq('order_id', orderId) } catch (_) {}
-            try { await supabaseAdmin.from('cutting_lay_sheets').delete().eq('order_id', orderId) } catch (_) {}
-            try { await supabaseAdmin.from('printing_strike_offs').delete().eq('order_id', orderId) } catch (_) {}
-            try { await supabaseAdmin.from('printing_production_runs').delete().eq('order_id', orderId) } catch (_) {}
-            try { await supabaseAdmin.from('embroidery_digitizing_designs').delete().eq('order_id', orderId) } catch (_) {}
-            try { await supabaseAdmin.from('embroidery_production_runs').delete().eq('order_id', orderId) } catch (_) {}
-            try { await supabaseAdmin.from('washing_batches').delete().eq('order_id', orderId) } catch (_) {}
-            try { await supabaseAdmin.from('iron_table_assignments').delete().eq('order_id', orderId) } catch (_) {}
-            try { await supabaseAdmin.from('ready_goods_cartons').delete().eq('order_id', orderId) } catch (_) {}
-          }
-          await supabaseAdmin.from('merchandising_orders').delete().in('id', orderIds)
+          // B. Ironing
+          try {
+            const { data: irons } = await supabaseAdmin.from('iron_table_assignments').select('id').eq('order_id', orderId)
+            if (irons && irons.length > 0) {
+              const iIds = irons.map((i: any) => i.id)
+              await supabaseAdmin.from('iron_production_logs').delete().in('table_id', iIds)
+            }
+            await supabaseAdmin.from('iron_production_logs').delete().eq('order_id', orderId)
+            await supabaseAdmin.from('iron_table_assignments').delete().eq('order_id', orderId)
+          } catch (_) {}
+
+          // C. Washing
+          try {
+            const { data: batches } = await supabaseAdmin.from('washing_batches').select('id').eq('order_id', orderId)
+            if (batches && batches.length > 0) {
+              const bIds = batches.map((b: any) => b.id)
+              await supabaseAdmin.from('washing_batch_bundles').delete().in('batch_id', bIds)
+              await supabaseAdmin.from('washing_logs').delete().in('batch_id', bIds)
+            }
+            await supabaseAdmin.from('washing_batches').delete().eq('order_id', orderId)
+          } catch (_) {}
+
+          // D. Embroidery
+          try {
+            const { data: embDesigns } = await supabaseAdmin.from('embroidery_digitizing_designs').select('id').eq('order_id', orderId)
+            if (embDesigns && embDesigns.length > 0) {
+              const eIds = embDesigns.map((e: any) => e.id)
+              await supabaseAdmin.from('embroidery_operator_logs').delete().in('design_id', eIds)
+              await supabaseAdmin.from('embroidery_production_runs').delete().in('design_id', eIds)
+            }
+            await supabaseAdmin.from('embroidery_production_runs').delete().eq('order_id', orderId)
+            await supabaseAdmin.from('embroidery_digitizing_designs').delete().eq('order_id', orderId)
+          } catch (_) {}
+
+          // E. Printing
+          try {
+            const { data: printRuns } = await supabaseAdmin.from('printing_production_runs').select('id').eq('order_id', orderId)
+            if (printRuns && printRuns.length > 0) {
+              const pIds = printRuns.map((p: any) => p.id)
+              await supabaseAdmin.from('printing_operator_logs').delete().in('run_id', pIds)
+            }
+            await supabaseAdmin.from('printing_production_runs').delete().eq('order_id', orderId)
+            await supabaseAdmin.from('printing_strike_offs').delete().eq('order_id', orderId)
+          } catch (_) {}
+
+          // F. Cutting
+          try {
+            const { data: laySheets } = await supabaseAdmin.from('cutting_lay_sheets').select('id').eq('order_id', orderId)
+            if (laySheets && laySheets.length > 0) {
+              const sIds = laySheets.map((s: any) => s.id)
+              await supabaseAdmin.from('cutting_bundle_tickets').delete().in('sheet_id', sIds)
+              await supabaseAdmin.from('cutting_panel_qc_audits').delete().in('lay_sheet_id', sIds)
+              await supabaseAdmin.from('cutting_end_bit_logs').delete().in('lay_sheet_id', sIds)
+              await supabaseAdmin.from('cutting_bundles').delete().in('lay_sheet_id', sIds)
+              await supabaseAdmin.from('cutting_lay_ratios').delete().in('lay_sheet_id', sIds)
+              await supabaseAdmin.from('cutting_fabric_rolls').delete().in('lay_sheet_id', sIds)
+            }
+            await supabaseAdmin.from('cutting_bundles').delete().eq('order_id', orderId)
+            await supabaseAdmin.from('cutting_lay_sheets').delete().eq('order_id', orderId)
+          } catch (_) {}
+
+          // G. Merchandising Child Tables & Order
+          try {
+            await supabaseAdmin.from('merchandising_order_ratios').delete().eq('order_id', orderId)
+            await supabaseAdmin.from('merchandising_bom_items').delete().eq('order_id', orderId)
+            await supabaseAdmin.from('merchandising_procurement_pos').delete().eq('order_id', orderId)
+            await supabaseAdmin.from('merchandising_orders').delete().eq('id', orderId)
+          } catch (_) {}
         }
       }
     } catch (fkErr) {
       console.warn('[deleteTechPackAction] FK cascade resolution note:', fkErr)
     }
 
-    // 3. Delete the tech-pack
+    // 3. Delete the tech-pack itself
     const { error } = await supabaseAdmin
       .from('design_tech_packs')
       .delete()
@@ -385,7 +453,14 @@ export async function fetchSampleApprovalsAction(companyName?: string): Promise<
 
     if (!data || data.length === 0) return []
 
-    const filteredData = data
+    let filteredData = data
+    if (companyName) {
+      const cNorm = companyName.toLowerCase().trim()
+      filteredData = data.filter((row: any) => {
+        const bName = (row.design_tech_packs?.brands?.brand_name || '').toLowerCase().trim()
+        return bName.includes(cNorm) || cNorm.includes(bName)
+      })
+    }
 
     return filteredData.map((row: any) => ({
       id: row.id,
