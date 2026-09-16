@@ -185,6 +185,7 @@ export interface DesignConceptColorway {
   color_name: string
   photo_front: string
   photo_back?: string
+  status?: 'APPROVED' | 'REJECTED' | 'PENDING'
 }
 
 export interface DesignConceptItem {
@@ -193,6 +194,11 @@ export interface DesignConceptItem {
   title?: string
   notes?: string
   colorways: DesignConceptColorway[]
+  status?: BriefStatus
+  ph_verdict?: PHVerdict
+  ph_feedback?: string
+  sa_verdict?: SAVerdict
+  sa_notes?: string
 }
 
 export interface DesignSubmission {

@@ -1,58 +1,63 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { 
   Palette, 
-  ChevronLeft, 
-  Layers, 
-  Sparkles, 
-  ArrowRight, 
   FileCheck2, 
-  Users, 
-  Clock, 
   Plus, 
+  Eye, 
+  Clock, 
   Search, 
+  Users, 
   CheckCircle2, 
   XCircle, 
   AlertCircle,
-  Eye,
-  Trash2,
   Loader2,
-  Settings,
-  ClipboardList,
-  Bookmark,
-  ShieldCheck,
-  FolderArchive,
-  Target,
-  Tag,
-  Phone,
   ChevronRight,
+  ShieldCheck,
+  ClipboardList,
+  Sparkles,
+  Trash2,
   X,
-  RefreshCw,
-  Shirt
+  Settings
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { 
-  TechPack, 
   DesignBrief, 
-  DesignTeamMember, 
-  DesignSubmission, 
   BriefStatus, 
-  BriefCategory 
+  TechPack, 
+  DesignTeamMember, 
+  DesignSubmission 
 } from '../types/design'
 import { 
-  createDesignBriefAction, 
-  deleteDesignBriefAction, 
   reviewDesignSubmissionAction, 
-  saReviewDesignSubmissionAction 
+  saReviewDesignSubmissionAction, 
+  deleteDesignBriefAction 
 } from '../actions'
 import { AllocateBriefModal } from './AllocateBriefModal'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 
+interface DesignDashboardClientProps {
+  metrics: {
+    totalBriefs: number
+    pendingSubmissions: number
+    phApproved: number
+    saApproved: number
+    techPacksCount: number
+    activeDesigners: number
+  }
+  initialBriefs: DesignBrief[]
+  initialTechPacks: TechPack[]
+  teamMembers: DesignTeamMember[]
+  companyName: string
+  currentUserId: string
+  userRole?: string
+}
+
 const STATUS_CONFIG: Record<BriefStatus, { label: string; badgeClass: string }> = {
-  ALLOCATED: { label: 'Allocated', badgeClass: 'bg-slate-100 text-slate-700 border-slate-200' },
+  ALLOCATED: { label: 'Pending Upload', badgeClass: 'bg-slate-100 text-slate-700 border-slate-200' },
   SUBMITTED: { label: 'In Review', badgeClass: 'bg-amber-50 text-amber-800 border-amber-200 font-semibold' },
   PH_APPROVED: { label: 'PH Approved', badgeClass: 'bg-sky-50 text-sky-800 border-sky-200 font-semibold' },
   PH_REJECTED: { label: 'Revisions Needed', badgeClass: 'bg-rose-50 text-rose-700 border-rose-200 font-semibold' },
@@ -87,24 +92,6 @@ function getColorSwatchInfo(colorName: string): { bg: string; border: string; is
   return { bg: '#3A3564', border: '#3A3564', isLight: false }
 }
 
-interface DesignDashboardClientProps {
-  metrics: {
-    active_briefs: number
-    pending_ph_reviews: number
-    pending_sa_approvals: number
-    sa_approved_designs: number
-    saved_for_later: number
-    active_tech_packs: number
-    team_designers_count: number
-  }
-  initialBriefs: DesignBrief[]
-  initialTechPacks: TechPack[]
-  teamMembers: DesignTeamMember[]
-  companyName: string
-  currentUserId: string
-  userRole?: string
-}
-
 export function DesignDashboardClient({
   metrics: initialMetrics,
   initialBriefs,
@@ -127,8 +114,7 @@ export function DesignDashboardClient({
   const [modalActiveConceptTab, setModalActiveConceptTab] = useState<number>(1)
   const [phFeedback, setPhFeedback] = useState('')
   const [isReviewing, setIsReviewing] = useState(false)
-  const [saNotes, setSaNotes] = useState('')
-  const [isSaReviewing, setIsSaReviewing] = useState(false)
+  const [colorwayDecisions, setColorwayDecisions] = useState<Record<string, 'APPROVED' | 'REJECTED'>>({})
 
   // Photo Lightbox
   const [previewPhoto, setPreviewPhoto] = useState<string | null>(null)
@@ -145,6 +131,23 @@ export function DesignDashboardClient({
   const activeTeamMembers = (teamMembers || []).filter(m => m.status === 'ACTIVE')
   const existingGarments = Array.from(new Set(briefs.map(b => b.garment_type).filter(Boolean)))
   const existingCategories = Array.from(new Set(briefs.map(b => b.category).filter(Boolean)))
+
+  // Sync colorway review decisions whenever selected brief or active concept changes
+  useEffect(() => {
+    if (!selectedBriefForView) {
+      setColorwayDecisions({})
+      return
+    }
+    const instructedReq = selectedBriefForView.design_concepts_brief?.find(c => c.concept_number === modalActiveConceptTab)
+    const currentConcept = selectedBriefForView.latest_submission?.concepts?.find(
+      c => c.concept_number === modalActiveConceptTab || (c.art_number && instructedReq?.art_number && c.art_number.toLowerCase() === instructedReq.art_number.toLowerCase())
+    )
+    const initDecisions: Record<string, 'APPROVED' | 'REJECTED'> = {}
+    currentConcept?.colorways?.forEach(cw => {
+      initDecisions[cw.color_name] = cw.status === 'REJECTED' ? 'REJECTED' : 'APPROVED'
+    })
+    setColorwayDecisions(initDecisions)
+  }, [selectedBriefForView?.id, modalActiveConceptTab])
 
   const filteredBriefs = briefs.filter(b => {
     let matchesStatus = true
@@ -168,8 +171,6 @@ export function DesignDashboardClient({
   const activeBriefsCount = briefs.filter(b => b.status === 'ALLOCATED' || b.status === 'SUBMITTED').length
   const pendingPHCount = briefs.filter(b => b.status === 'SUBMITTED').length
   const pendingSACount = briefs.filter(b => b.status === 'PH_APPROVED').length
-  const saApprovedCount = briefs.filter(b => b.status === 'SA_APPROVED').length
-  const savedForLaterCount = briefs.filter(b => b.status === 'SA_SAVED_FOR_LATER').length
   const techPacksCount = techPacks.length
 
   async function handlePHReviewSubmit(verdict: 'APPROVED' | 'REJECTED') {
@@ -178,15 +179,44 @@ export function DesignDashboardClient({
     try {
       const res = await reviewDesignSubmissionAction({
         submission_id: selectedBriefForView.latest_submission.id,
+        concept_number: modalActiveConceptTab,
         ph_verdict: verdict,
-        ph_feedback: phFeedback.trim() || undefined
+        ph_feedback: phFeedback.trim() || undefined,
+        colorway_verdicts: verdict === 'REJECTED' ? undefined : colorwayDecisions
       })
 
       if (res.success) {
         const nextStatus: BriefStatus = verdict === 'APPROVED' ? 'PH_APPROVED' : 'PH_REJECTED'
         toast.success(verdict === 'APPROVED' ? 'Concept approved and forwarded to Super Admin!' : 'Submission returned with feedback to designer.')
-        setBriefs(prev => prev.map(b => b.id === selectedBriefForView.id ? { ...b, status: nextStatus } : b))
-        setSelectedBriefForView(prev => prev ? { ...prev, status: nextStatus } : null)
+        setBriefs(prev => prev.map(b => {
+          if (b.id !== selectedBriefForView.id) return b
+          const updatedSub = b.latest_submission ? {
+            ...b.latest_submission,
+            ph_verdict: verdict,
+            ph_feedback: phFeedback.trim() || b.latest_submission.ph_feedback,
+            concepts: (b.latest_submission.concepts || []).map(c => {
+              if (c.concept_number === modalActiveConceptTab) {
+                return {
+                  ...c,
+                  status: nextStatus,
+                  ph_verdict: verdict,
+                  ph_feedback: phFeedback.trim() || c.ph_feedback,
+                  colorways: (c.colorways || []).map(cw => ({
+                    ...cw,
+                    status: colorwayDecisions[cw.color_name] || (verdict === 'APPROVED' ? 'APPROVED' : 'REJECTED')
+                  }))
+                }
+              }
+              return c
+            })
+          } : undefined
+          return {
+            ...b,
+            status: nextStatus,
+            latest_submission: updatedSub
+          }
+        }))
+        setSelectedBriefForView(null)
         setPhFeedback('')
       } else {
         toast.error(res.error || 'Failed to submit review.')
@@ -195,44 +225,6 @@ export function DesignDashboardClient({
       toast.error(err.message || 'Error occurred during review.')
     } finally {
       setIsReviewing(false)
-    }
-  }
-
-  async function handleSAReviewSubmit(verdict: 'APPROVED' | 'SAVED_FOR_LATER' | 'REJECTED') {
-    if (!selectedBriefForView?.latest_submission) return
-    setIsSaReviewing(true)
-    try {
-      const res = await saReviewDesignSubmissionAction({
-        submission_id: selectedBriefForView.latest_submission.id,
-        sa_verdict: verdict,
-        sa_notes: saNotes.trim() || undefined
-      })
-
-      if (res.success) {
-        const nextStatus: BriefStatus = 
-          verdict === 'APPROVED' 
-            ? 'SA_APPROVED' 
-            : verdict === 'SAVED_FOR_LATER' 
-            ? 'SA_SAVED_FOR_LATER' 
-            : 'PH_REJECTED'
-        
-        toast.success(
-          verdict === 'APPROVED' 
-            ? 'Concept officially greenlit for Tech-Pack generation!' 
-            : verdict === 'SAVED_FOR_LATER' 
-            ? 'Concept saved in Seasonal Archive!' 
-            : 'Concept returned for revision.'
-        )
-        setBriefs(prev => prev.map(b => b.id === selectedBriefForView.id ? { ...b, status: nextStatus } : b))
-        setSelectedBriefForView(prev => prev ? { ...prev, status: nextStatus } : null)
-        setSaNotes('')
-      } else {
-        toast.error(res.error || 'Failed to process Super Admin review.')
-      }
-    } catch (err: any) {
-      toast.error(err.message || 'Error occurred during Super Admin review.')
-    } finally {
-      setIsSaReviewing(false)
     }
   }
 
@@ -344,7 +336,7 @@ export function DesignDashboardClient({
         </div>
       </div>
 
-      {/* Layer 3: Streamlined KPI Stat Cards (4 Clean Boxes - No Archive/Save for Later) */}
+      {/* Layer 3: Streamlined KPI Stat Cards (4 Clean Boxes) */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
@@ -423,7 +415,7 @@ export function DesignDashboardClient({
         </div>
       </div>
 
-      {/* Layer 4 & 5: Primary Pipeline Queue Table & Card Container */}
+      {/* Layer 4 & 5: Primary Pipeline Queue Table */}
       <div className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden">
         {/* Toolbar Header */}
         <div className="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white">
@@ -458,7 +450,7 @@ export function DesignDashboardClient({
           </div>
         </div>
 
-        {/* Content Section: Empty vs Table/Cards */}
+        {/* Content Section */}
         {filteredBriefs.length === 0 ? (
           <div className="p-6">
             <EmptyState
@@ -475,7 +467,7 @@ export function DesignDashboardClient({
           </div>
         ) : (
           <div>
-            {/* Desktop Table View (Hidden on mobile < md) */}
+            {/* Desktop Table View */}
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-left border-collapse text-sm">
                 <thead>
@@ -522,6 +514,31 @@ export function DesignDashboardClient({
                             photos.push({ url: brief.latest_submission.photo_url_1, label: `${artNo} Mockup` })
                           }
 
+                          // Compute concept-level status independently
+                          const hasUploadedArtwork = photos.length > 0
+                          let conceptStatus: BriefStatus = 'ALLOCATED'
+                          if (hasUploadedArtwork) {
+                            if (subConcept?.status) {
+                              conceptStatus = subConcept.status
+                            } else if (subConcept?.sa_verdict === 'APPROVED') {
+                              conceptStatus = 'SA_APPROVED'
+                            } else if (subConcept?.sa_verdict === 'SAVED_FOR_LATER') {
+                              conceptStatus = 'SA_SAVED_FOR_LATER'
+                            } else if (subConcept?.sa_verdict === 'REJECTED') {
+                              conceptStatus = 'PH_REJECTED'
+                            } else if (subConcept?.ph_verdict === 'APPROVED') {
+                              conceptStatus = 'PH_APPROVED'
+                            } else if (subConcept?.ph_verdict === 'REJECTED') {
+                              conceptStatus = 'PH_REJECTED'
+                            } else if (subConcept?.ph_verdict === 'PENDING') {
+                              conceptStatus = 'SUBMITTED'
+                            } else {
+                              conceptStatus = brief.status || 'SUBMITTED'
+                            }
+                          } else {
+                            conceptStatus = 'ALLOCATED'
+                          }
+
                           designRows.push({
                             rowKey: `${brief.id}-${req.concept_number}`,
                             brief,
@@ -531,7 +548,7 @@ export function DesignDashboardClient({
                             category: cat,
                             colors: cols,
                             photos,
-                            status: brief.status
+                            status: conceptStatus
                           })
                         })
                       } else {
@@ -684,7 +701,6 @@ export function DesignDashboardClient({
             {/* Mobile Card List View (< md) */}
             <div className="md:hidden divide-y divide-slate-100">
               {filteredBriefs.flatMap(brief => {
-                const stCfg = STATUS_CONFIG[brief.status] || STATUS_CONFIG.ALLOCATED
                 const concepts = brief.design_concepts_brief && brief.design_concepts_brief.length > 0
                   ? brief.design_concepts_brief
                   : [{ concept_number: 1, art_number: `#${brief.id.substring(0, 6)}`, category_style: brief.category, colors: brief.target_colors || [] }]
@@ -693,6 +709,23 @@ export function DesignDashboardClient({
                   const artNo = req.art_number || (req.notes?.match(/Art No:\s*([^|]+)/i)?.[1]?.trim()) || `#${brief.id.substring(0, 6)}-${req.concept_number}`
                   const garment = (req.notes?.match(/Garment:\s*([^|]+)/i)?.[1]?.trim()) || brief.garment_type
                   const cat = req.category_style || brief.category
+                  const subConcept = brief.latest_submission?.concepts?.find(c => c.concept_number === req.concept_number || (c.art_number && c.art_number.toLowerCase() === artNo.toLowerCase()))
+                  const hasArtwork = (subConcept?.colorways && subConcept.colorways.some(cw => Boolean(cw.photo_front || cw.photo_back))) || false
+
+                  let conceptStatus: BriefStatus = 'ALLOCATED'
+                  if (hasArtwork) {
+                    if (subConcept?.status) conceptStatus = subConcept.status
+                    else if (subConcept?.sa_verdict === 'APPROVED') conceptStatus = 'SA_APPROVED'
+                    else if (subConcept?.sa_verdict === 'SAVED_FOR_LATER') conceptStatus = 'SA_SAVED_FOR_LATER'
+                    else if (subConcept?.sa_verdict === 'REJECTED') conceptStatus = 'PH_REJECTED'
+                    else if (subConcept?.ph_verdict === 'APPROVED') conceptStatus = 'PH_APPROVED'
+                    else if (subConcept?.ph_verdict === 'REJECTED') conceptStatus = 'PH_REJECTED'
+                    else if (subConcept?.ph_verdict === 'PENDING') conceptStatus = 'SUBMITTED'
+                    else conceptStatus = brief.status || 'SUBMITTED'
+                  } else {
+                    conceptStatus = 'ALLOCATED'
+                  }
+                  const stCfg = STATUS_CONFIG[conceptStatus] || STATUS_CONFIG.ALLOCATED
 
                   return (
                     <div key={`${brief.id}-${req.concept_number}`} className="p-4 space-y-3">
@@ -772,6 +805,7 @@ export function DesignDashboardClient({
         )
 
         const colorways = currentConcept?.colorways || []
+        const isReviewable = brief.status === 'SUBMITTED' || brief.status === 'ALLOCATED'
 
         return (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
@@ -804,7 +838,7 @@ export function DesignDashboardClient({
                 </button>
               </div>
 
-              {/* Scrollable Modal Body (Flat, Clean, No Boxes-in-Boxes) */}
+              {/* Scrollable Modal Body */}
               <div className="p-6 max-h-[72vh] overflow-y-auto space-y-5 text-xs sm:text-[13px]">
                 {/* Submitted Artwork Mockups */}
                 {colorways.length > 0 ? (
@@ -815,8 +849,8 @@ export function DesignDashboardClient({
 
                       return (
                         <div key={cwIdx} className="space-y-3">
-                          {/* Colorway Label */}
-                          <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                          {/* Colorway Label & Individual Review Verdict Selectors */}
+                          <div className="flex items-center justify-between border-b border-slate-100 pb-2.5 flex-wrap gap-2">
                             <div className="flex items-center gap-2 font-mono text-xs font-bold text-slate-900">
                               <span
                                 className="w-3.5 h-3.5 rounded-full border border-black/20 shrink-0 shadow-2xs"
@@ -824,11 +858,45 @@ export function DesignDashboardClient({
                               />
                               <span>{cw.color_name} Colorway</span>
                             </div>
-                            {variantArtNo && (
-                              <span className="font-mono font-bold text-slate-900 text-xs">
-                                {variantArtNo}
-                              </span>
-                            )}
+
+                            <div className="flex items-center gap-2">
+                              {variantArtNo && (
+                                <span className="font-mono font-bold text-slate-900 text-xs bg-[#FAF7F0] px-2.5 py-0.5 rounded-md border border-black/10">
+                                  {variantArtNo}
+                                </span>
+                              )}
+
+                              {/* Colorway Verdict Toggle (Approve vs Reject this specific colorway) */}
+                              <div className="inline-flex items-center rounded-xl bg-[#FAF7F0] p-0.5 border border-black/10 gap-0.5 shadow-2xs">
+                                <button
+                                  type="button"
+                                  onClick={() => setColorwayDecisions(prev => ({ ...prev, [cw.color_name]: 'APPROVED' }))}
+                                  className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+                                    colorwayDecisions[cw.color_name] !== 'REJECTED'
+                                      ? 'bg-emerald-700 text-white shadow-xs'
+                                      : 'text-slate-500 hover:text-slate-800'
+                                  }`}
+                                  title={`Accept ${cw.color_name}`}
+                                >
+                                  <CheckCircle2 className="w-3 h-3" />
+                                  <span>Accept</span>
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => setColorwayDecisions(prev => ({ ...prev, [cw.color_name]: 'REJECTED' }))}
+                                  className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+                                    colorwayDecisions[cw.color_name] === 'REJECTED'
+                                      ? 'bg-rose-600 text-white shadow-xs'
+                                      : 'text-slate-500 hover:text-rose-600'
+                                  }`}
+                                  title={`Reject ${cw.color_name}`}
+                                >
+                                  <XCircle className="w-3 h-3" />
+                                  <span>Reject</span>
+                                </button>
+                              </div>
+                            </div>
                           </div>
 
                           {/* Normal Floated Clean Artwork Images */}
@@ -950,33 +1018,7 @@ export function DesignDashboardClient({
                     <textarea
                       value={phFeedback}
                       onChange={e => setPhFeedback(e.target.value)}
-                      placeholder="Optional feedback for designer (required if rejecting)..."
-                      rows={3}
-                      className="w-full p-3 rounded-xl border border-black/10 text-xs bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
-                    />
-                  </div>
-                )}
-
-                {/* Super Admin Review Notes Input (If PH Approved) */}
-                {brief.status === 'PH_APPROVED' && (
-                  <div className="space-y-1.5 pt-2">
-                    {brief.latest_submission?.ph_feedback && (
-                      <div className="p-3 rounded-xl bg-amber-50 border border-amber-200/60 mb-3">
-                        <span className="text-[10px] font-mono uppercase font-bold text-amber-800 block">
-                          Provisional Head Feedback:
-                        </span>
-                        <p className="text-xs text-amber-900 mt-0.5">
-                          &ldquo;{brief.latest_submission.ph_feedback}&rdquo;
-                        </p>
-                      </div>
-                    )}
-                    <label className="text-xs font-bold text-slate-800 uppercase font-mono block">
-                      Super Admin Review Directives:
-                    </label>
-                    <textarea
-                      value={saNotes}
-                      onChange={e => setSaNotes(e.target.value)}
-                      placeholder="Instructions for production / pattern master..."
+                      placeholder="Optional feedback for designer (required if requesting revisions)..."
                       rows={3}
                       className="w-full p-3 rounded-xl border border-black/10 text-xs bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                     />
@@ -984,28 +1026,35 @@ export function DesignDashboardClient({
                 )}
               </div>
 
-              {/* Modal Footer Actions */}
-              <div className="px-6 py-4 bg-[#FAF7F0] border-t border-black/10 flex items-center justify-between gap-2 flex-wrap">
-                <div className="flex items-center gap-2">
+              {/* Modal Footer Actions - Clean, Modern Layout without Save for Later */}
+              <div className="px-6 py-4 bg-[#FAF7F0] border-t border-black/10 flex items-center justify-between gap-3 flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => setBriefToDelete({ brief, conceptNumber: modalActiveConceptTab, artNumber: currentArtNo, garmentType: currentGarment })}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-slate-500 hover:text-rose-600 hover:bg-rose-50 border border-black/10 hover:border-rose-200 text-xs font-bold transition-all cursor-pointer"
+                  title="Delete Design"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Delete Design</span>
+                </button>
+
+                <div className="flex items-center gap-2.5 flex-wrap">
                   <button
                     type="button"
-                    onClick={() => setBriefToDelete({ brief, conceptNumber: modalActiveConceptTab, artNumber: currentArtNo, garmentType: currentGarment })}
-                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-rose-600 hover:bg-rose-50 border border-rose-200 text-xs font-bold transition-all cursor-pointer"
+                    onClick={() => setSelectedBriefForView(null)}
+                    className="px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-black/10 hover:bg-slate-100 rounded-xl shadow-2xs cursor-pointer transition-all"
                   >
-                    <Trash2 className="w-4 h-4" />
-                    <span>Delete Design</span>
+                    Close
                   </button>
-                </div>
 
-                <div className="flex items-center gap-2 flex-wrap">
-                  {/* 1. Provisional Head Review Actions */}
-                  {brief.status === 'SUBMITTED' && (
+                  {/* Provisional Head Review Actions */}
+                  {(brief.status === 'SUBMITTED' || brief.status === 'ALLOCATED') && (
                     <>
                       <button
                         type="button"
                         disabled={isReviewing}
                         onClick={() => handlePHReviewSubmit('REJECTED')}
-                        className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-rose-600 hover:bg-rose-50 border border-rose-200 text-xs font-bold transition-all shadow-2xs cursor-pointer disabled:opacity-50"
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold transition-all shadow-2xs cursor-pointer disabled:opacity-50"
                       >
                         <XCircle className="w-4 h-4" />
                         <span>Request Revisions</span>
@@ -1015,7 +1064,7 @@ export function DesignDashboardClient({
                         type="button"
                         disabled={isReviewing}
                         onClick={() => handlePHReviewSubmit('APPROVED')}
-                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#3A3564] text-white hover:bg-[#2A2649] text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50"
+                        className="inline-flex items-center gap-1.5 px-4.5 py-2 rounded-xl bg-[#3A3564] text-white hover:bg-[#2A2649] text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50"
                       >
                         {isReviewing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
                         <span>Approve &amp; Forward to SA</span>
@@ -1023,72 +1072,16 @@ export function DesignDashboardClient({
                     </>
                   )}
 
-                  {/* 2. Super Admin Actions */}
-                  {brief.status === 'PH_APPROVED' && (
-                    <>
-                      <button
-                        type="button"
-                        disabled={isSaReviewing}
-                        onClick={() => handleSAReviewSubmit('REJECTED')}
-                        className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-rose-600 hover:bg-rose-50 border border-rose-200 text-xs font-bold transition-all shadow-2xs cursor-pointer disabled:opacity-50"
-                      >
-                        <XCircle className="w-4 h-4" />
-                        <span>Request Revision</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        disabled={isSaReviewing}
-                        onClick={() => handleSAReviewSubmit('SAVED_FOR_LATER')}
-                        className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white text-[#3A3564] hover:bg-slate-100 border border-black/15 text-xs font-bold transition-all shadow-2xs cursor-pointer disabled:opacity-50"
-                      >
-                        <Bookmark className="w-4 h-4" />
-                        <span>Save for Later</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        disabled={isSaReviewing}
-                        onClick={() => handleSAReviewSubmit('APPROVED')}
-                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50"
-                      >
-                        {isSaReviewing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
-                        <span>Greenlight for Tech-Pack</span>
-                      </button>
-                    </>
-                  )}
-
-                  {/* 3. Revive Archive */}
-                  {brief.status === 'SA_SAVED_FOR_LATER' && (
-                    <button
-                      type="button"
-                      disabled={isSaReviewing}
-                      onClick={() => handleSAReviewSubmit('APPROVED')}
-                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2A2649] transition-all shadow-xs cursor-pointer"
-                    >
-                      <Bookmark className="w-4 h-4" />
-                      <span>Revive Concept</span>
-                    </button>
-                  )}
-
-                  {/* 4. Tech-Pack Link */}
+                  {/* SA Approved Stage Link */}
                   {brief.status === 'SA_APPROVED' && (
                     <Link
                       href={`/design/tech-packs?createFromSubmission=${brief.latest_submission?.id || ''}&garment=${brief.garment_type}`}
-                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 text-xs font-bold transition-all shadow-xs"
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-700 text-white hover:bg-emerald-800 text-xs font-bold transition-all shadow-xs"
                     >
                       <FileCheck2 className="w-4 h-4" />
                       <span>Generate Tech-Pack</span>
                     </Link>
                   )}
-
-                  <button
-                    type="button"
-                    onClick={() => setSelectedBriefForView(null)}
-                    className="px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-black/10 hover:bg-slate-100 rounded-xl shadow-2xs cursor-pointer"
-                  >
-                    Close
-                  </button>
                 </div>
               </div>
             </div>

@@ -1365,13 +1365,15 @@ export async function fetchDesignSubmissionsAction(filters?: {
 
 export async function reviewDesignSubmissionAction(payload: {
   submission_id: string
+  concept_number?: number
   ph_verdict: 'APPROVED' | 'REJECTED'
   ph_feedback?: string
+  colorway_verdicts?: Record<string, 'APPROVED' | 'REJECTED'>
 }): Promise<{ success: boolean; error?: string }> {
   try {
     const { data: sub, error: fetchErr } = await supabaseAdmin
       .from('design_submissions')
-      .select('brief_id')
+      .select('id, brief_id, designer_notes, ph_verdict')
       .eq('id', payload.submission_id)
       .single()
 
@@ -1379,9 +1381,39 @@ export async function reviewDesignSubmissionAction(payload: {
       return { success: false, error: 'Submission not found.' }
     }
 
+    const parsed = parseConceptsFromNotes(sub.designer_notes)
+    let updatedConcepts = parsed.concepts || []
+
+    if (payload.concept_number && updatedConcepts.length > 0) {
+      updatedConcepts = updatedConcepts.map(c => {
+        if (c.concept_number === payload.concept_number) {
+          const updatedColorways = (c.colorways || []).map(cw => ({
+            ...cw,
+            status: payload.colorway_verdicts?.[cw.color_name] || payload.ph_verdict
+          }))
+          const allCwRejected = updatedColorways.length > 0 && updatedColorways.every(cw => cw.status === 'REJECTED')
+          const conceptVerdict = allCwRejected ? 'REJECTED' : payload.ph_verdict
+          return {
+            ...c,
+            ph_verdict: conceptVerdict,
+            ph_feedback: payload.ph_feedback?.trim() || c.ph_feedback,
+            status: conceptVerdict === 'APPROVED' ? ('PH_APPROVED' as BriefStatus) : ('PH_REJECTED' as BriefStatus),
+            colorways: updatedColorways
+          }
+        }
+        return c
+      })
+    }
+
+    let rawNotes = parsed.cleanNotes || ''
+    if (updatedConcepts.length > 0) {
+      rawNotes = `[CONCEPTS_JSON: ${JSON.stringify(updatedConcepts)}] ${rawNotes}`.trim()
+    }
+
     const { error: updateErr } = await supabaseAdmin
       .from('design_submissions')
       .update({
+        designer_notes: rawNotes || null,
         ph_verdict: payload.ph_verdict,
         ph_feedback: payload.ph_feedback?.trim() || null,
         reviewed_at: new Date().toISOString()
@@ -1411,13 +1443,15 @@ export async function reviewDesignSubmissionAction(payload: {
 
 export async function saReviewDesignSubmissionAction(payload: {
   submission_id: string
+  concept_number?: number
   sa_verdict: 'APPROVED' | 'SAVED_FOR_LATER' | 'REJECTED'
   sa_notes?: string
+  colorway_verdicts?: Record<string, 'APPROVED' | 'REJECTED'>
 }): Promise<{ success: boolean; error?: string }> {
   try {
     const { data: sub, error: fetchErr } = await supabaseAdmin
       .from('design_submissions')
-      .select('brief_id')
+      .select('id, brief_id, designer_notes, sa_verdict')
       .eq('id', payload.submission_id)
       .single()
 
@@ -1425,9 +1459,41 @@ export async function saReviewDesignSubmissionAction(payload: {
       return { success: false, error: 'Submission not found.' }
     }
 
+    const parsed = parseConceptsFromNotes(sub.designer_notes)
+    let updatedConcepts = parsed.concepts || []
+
+    if (payload.concept_number && updatedConcepts.length > 0) {
+      updatedConcepts = updatedConcepts.map(c => {
+        if (c.concept_number === payload.concept_number) {
+          const updatedColorways = (c.colorways || []).map(cw => ({
+            ...cw,
+            status: payload.colorway_verdicts?.[cw.color_name] || (payload.sa_verdict === 'APPROVED' ? 'APPROVED' : 'REJECTED')
+          }))
+          return {
+            ...c,
+            sa_verdict: payload.sa_verdict,
+            sa_notes: payload.sa_notes?.trim() || c.sa_notes,
+            status: payload.sa_verdict === 'APPROVED' 
+              ? ('SA_APPROVED' as BriefStatus) 
+              : payload.sa_verdict === 'SAVED_FOR_LATER' 
+              ? ('SA_SAVED_FOR_LATER' as BriefStatus) 
+              : ('PH_REJECTED' as BriefStatus),
+            colorways: updatedColorways
+          }
+        }
+        return c
+      })
+    }
+
+    let rawNotes = parsed.cleanNotes || ''
+    if (updatedConcepts.length > 0) {
+      rawNotes = `[CONCEPTS_JSON: ${JSON.stringify(updatedConcepts)}] ${rawNotes}`.trim()
+    }
+
     const { error: updateErr } = await supabaseAdmin
       .from('design_submissions')
       .update({
+        designer_notes: rawNotes || null,
         sa_verdict: payload.sa_verdict,
         sa_notes: payload.sa_notes?.trim() || null,
         reviewed_at: new Date().toISOString()
