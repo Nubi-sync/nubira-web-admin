@@ -1343,18 +1343,66 @@ export async function fetchDesignSubmissionsAction(filters?: {
         company_name: row.company_name,
         submitted_at: row.submitted_at,
         reviewed_at: row.reviewed_at || undefined,
-        brief: row.design_briefs ? {
-          id: row.design_briefs.id,
-          ph_user_id: row.design_briefs.ph_user_id,
-          garment_type: row.design_briefs.garment_type,
-          category: row.design_briefs.category,
-          max_colors: row.design_briefs.max_colors,
-          instructions: row.design_briefs.instructions || undefined,
-          status: row.design_briefs.status as BriefStatus,
-          company_name: row.design_briefs.company_name,
-          created_at: row.design_briefs.created_at,
-          updated_at: row.design_briefs.updated_at
-        } : undefined
+        brief: row.design_briefs ? (() => {
+          let parsedConceptsBrief: BriefDesignConceptRequirement[] | undefined
+          if (row.design_briefs.instructions) {
+            const conceptsMatch = row.design_briefs.instructions.match(/\[CONCEPTS_BRIEF:\s*(\[[\s\S]*?\])\]/i)
+            if (conceptsMatch && conceptsMatch[1]) {
+              try {
+                parsedConceptsBrief = JSON.parse(conceptsMatch[1])
+              } catch (e) {
+                // Ignore parse error
+              }
+            }
+          }
+          let targetDesigns = parsedConceptsBrief?.length || 1
+          if (row.design_briefs.num_designs) {
+            targetDesigns = Number(row.design_briefs.num_designs) || targetDesigns
+          } else if (row.design_briefs.instructions) {
+            const match = row.design_briefs.instructions.match(/\[TARGET:\s*(\d+)\s*(?:Designs)?\]/i)
+            if (match && match[1]) {
+              targetDesigns = parseInt(match[1], 10) || targetDesigns
+            }
+          }
+          let targetColors: string[] | undefined
+          if (parsedConceptsBrief && parsedConceptsBrief.length > 0) {
+            const set = new Set<string>()
+            parsedConceptsBrief.forEach((c: any) => c.colors?.forEach((col: string) => { if (col) set.add(col) }))
+            targetColors = Array.from(set)
+          } else if (row.design_briefs.instructions) {
+            const colMatch = row.design_briefs.instructions.match(/\[COLORS:\s*([^\]]+)\]/i)
+            if (colMatch && colMatch[1]) {
+              targetColors = colMatch[1].split(',').map((s: string) => s.trim()).filter(Boolean)
+            }
+          }
+          const cleanInstructions = row.design_briefs.instructions
+            ? row.design_briefs.instructions
+                .replace(/\[CONCEPTS_BRIEF:\s*\[[\s\S]*?\]\]\s*/gi, '')
+                .replace(/\[TARGET:\s*\d+\s*(?:Designs)?\]\s*/gi, '')
+                .replace(/\[COLORS:\s*[^\]]+\]\s*/gi, '')
+                .trim() || undefined
+            : undefined
+
+          return {
+            id: row.design_briefs.id,
+            ph_user_id: row.design_briefs.ph_user_id,
+            designer_member_id: row.design_briefs.designer_member_id || undefined,
+            designer_name: row.design_team_members?.designer_name || row.design_briefs.design_team_members?.designer_name || undefined,
+            garment_type: row.design_briefs.garment_type,
+            category: row.design_briefs.category,
+            max_colors: row.design_briefs.max_colors,
+            chart_colors: row.design_briefs.max_colors,
+            target_colors: targetColors,
+            target_designs: targetDesigns,
+            num_designs: targetDesigns,
+            design_concepts_brief: parsedConceptsBrief,
+            instructions: cleanInstructions,
+            status: row.design_briefs.status as BriefStatus,
+            company_name: row.design_briefs.company_name,
+            created_at: row.design_briefs.created_at,
+            updated_at: row.design_briefs.updated_at
+          }
+        })() : undefined
       }
     })
   } catch (err) {

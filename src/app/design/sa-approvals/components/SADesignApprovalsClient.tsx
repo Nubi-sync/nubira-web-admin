@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { 
   ShieldCheck, 
@@ -20,10 +20,16 @@ import {
   Layers,
   Tag,
   ChevronRight,
-  X
+  X,
+  Shirt
 } from 'lucide-react'
 import { toast } from 'sonner'
-import { DesignSubmission } from '../../types/design'
+import { 
+  DesignSubmission, 
+  BriefStatus, 
+  DesignConceptItem, 
+  DesignConceptColorway 
+} from '../../types/design'
 import { saReviewDesignSubmissionAction } from '../../actions'
 import { EmptyState } from '@/components/ui/EmptyState'
 
@@ -53,6 +59,28 @@ function getColorSwatchInfo(colorName: string): { bg: string; border: string; is
   return { bg: '#3A3564', border: '#3A3564', isLight: false }
 }
 
+interface SAReviewItem {
+  key: string
+  submissionId: string
+  briefId: string
+  conceptNumber: number
+  artNumber: string
+  garment: string
+  category: string
+  designerName: string
+  designerPhone?: string
+  colorways: DesignConceptColorway[]
+  status: BriefStatus
+  saVerdict: 'APPROVED' | 'SAVED_FOR_LATER' | 'REJECTED' | 'PENDING'
+  phVerdict: 'APPROVED' | 'REJECTED' | 'PENDING'
+  phFeedback?: string
+  saNotes?: string
+  designerNotes?: string
+  submittedAt: string
+  rawSubmission: DesignSubmission
+  rawConcept?: DesignConceptItem
+}
+
 interface SADesignApprovalsClientProps {
   initialSubmissions: DesignSubmission[]
   companyName: string
@@ -71,65 +99,204 @@ export function SADesignApprovalsClient({
   const [searchQuery, setSearchQuery] = useState('')
 
   // Review Modal State
-  const [reviewingSub, setReviewingSub] = useState<DesignSubmission | null>(null)
-  const [modalActiveConceptTab, setModalActiveConceptTab] = useState<number>(1)
+  const [selectedReviewItem, setSelectedReviewItem] = useState<SAReviewItem | null>(null)
+  const [colorwayDecisions, setColorwayDecisions] = useState<Record<string, 'APPROVED' | 'REJECTED'>>({})
   const [saNotes, setSaNotes] = useState('')
   const [isReviewing, setIsReviewing] = useState(false)
 
   // Lightbox Photo State
   const [previewPhoto, setPreviewPhoto] = useState<string | null>(null)
 
-  const pendingSubmissions = submissions.filter(s => s.ph_verdict === 'APPROVED' && (!s.sa_verdict || s.sa_verdict === 'PENDING'))
-  const approvedSubmissions = submissions.filter(s => s.sa_verdict === 'APPROVED')
-  const savedForLaterSubmissions = submissions.filter(s => s.sa_verdict === 'SAVED_FOR_LATER')
-  const rejectedSubmissions = submissions.filter(s => s.sa_verdict === 'REJECTED')
+  // Derive individual design items from submissions
+  const reviewItems: SAReviewItem[] = []
 
-  const filteredList = submissions.filter(s => {
+  submissions.forEach(sub => {
+    const brief = sub.brief
+    const instructedConcepts = brief?.design_concepts_brief || []
+    const subConcepts = sub.concepts || []
+
+    if (subConcepts.length > 0) {
+      subConcepts.forEach((concept, cIdx) => {
+        const cNum = concept.concept_number || (cIdx + 1)
+        const instructedReq = instructedConcepts.find(b => b.concept_number === cNum)
+        
+        // Concept must be approved by PH to show up in SA Approvals
+        const isConceptPHApproved = concept.ph_verdict === 'APPROVED' || 
+                                   concept.status === 'PH_APPROVED' || 
+                                   concept.status === 'SA_APPROVED' || 
+                                   concept.status === 'SA_SAVED_FOR_LATER' ||
+                                   concept.sa_verdict === 'APPROVED' ||
+                                   concept.sa_verdict === 'SAVED_FOR_LATER' ||
+                                   (sub.ph_verdict === 'APPROVED' && !concept.ph_verdict && (concept.colorways && concept.colorways.some(cw => Boolean(cw.photo_front || cw.photo_back))))
+
+        if (!isConceptPHApproved) return
+
+        const artNo = concept.art_number || instructedReq?.art_number || `DEMO-10${cNum}`
+        const garment = brief?.garment_type || 'Apparel'
+        const category = concept.title || instructedReq?.category_style || brief?.category || 'Casual'
+        const colorways = concept.colorways || []
+        const saVerdict = (concept.sa_verdict || sub.sa_verdict || 'PENDING') as 'APPROVED' | 'SAVED_FOR_LATER' | 'REJECTED' | 'PENDING'
+        const phVerdict = (concept.ph_verdict || sub.ph_verdict || 'APPROVED') as 'APPROVED' | 'REJECTED' | 'PENDING'
+        const conceptStatus: BriefStatus = concept.status || (
+          saVerdict === 'APPROVED' ? 'SA_APPROVED' :
+          saVerdict === 'SAVED_FOR_LATER' ? 'SA_SAVED_FOR_LATER' :
+          saVerdict === 'REJECTED' ? 'PH_REJECTED' :
+          'PH_APPROVED'
+        )
+
+        reviewItems.push({
+          key: `${sub.id}-c-${cNum}`,
+          submissionId: sub.id,
+          briefId: sub.brief_id,
+          conceptNumber: cNum,
+          artNumber: artNo,
+          garment,
+          category,
+          designerName: sub.designer_name || brief?.designer_name || 'Designer',
+          designerPhone: brief?.designer_phone,
+          colorways,
+          status: conceptStatus,
+          saVerdict,
+          phVerdict,
+          phFeedback: concept.ph_feedback || sub.ph_feedback,
+          saNotes: concept.sa_notes || sub.sa_notes,
+          designerNotes: concept.notes || sub.designer_notes,
+          submittedAt: sub.submitted_at,
+          rawSubmission: sub,
+          rawConcept: concept
+        })
+      })
+    } else if (sub.ph_verdict === 'APPROVED') {
+      const artNo = brief?.design_concepts_brief?.[0]?.art_number || 'DEMO-101'
+      const garment = brief?.garment_type || 'Apparel'
+      const category = brief?.category || 'Casual'
+      const colorways: DesignConceptColorway[] = [
+        {
+          color_name: brief?.target_colors?.[0] || 'Default',
+          photo_front: sub.photo_url_1,
+          photo_back: sub.photo_url_2
+        }
+      ]
+      const saVerdict = (sub.sa_verdict || 'PENDING') as 'APPROVED' | 'SAVED_FOR_LATER' | 'REJECTED' | 'PENDING'
+
+      reviewItems.push({
+        key: `${sub.id}-c-1`,
+        submissionId: sub.id,
+        briefId: sub.brief_id,
+        conceptNumber: 1,
+        artNumber: artNo,
+        garment,
+        category,
+        designerName: sub.designer_name || brief?.designer_name || 'Designer',
+        designerPhone: brief?.designer_phone,
+        colorways,
+        status: saVerdict === 'APPROVED' ? 'SA_APPROVED' : saVerdict === 'SAVED_FOR_LATER' ? 'SA_SAVED_FOR_LATER' : 'PH_APPROVED',
+        saVerdict,
+        phVerdict: 'APPROVED',
+        phFeedback: sub.ph_feedback,
+        saNotes: sub.sa_notes,
+        designerNotes: sub.designer_notes,
+        submittedAt: sub.submitted_at,
+        rawSubmission: sub
+      })
+    }
+  })
+
+  // Sync colorway decisions when opening review item
+  useEffect(() => {
+    if (!selectedReviewItem) {
+      setColorwayDecisions({})
+      setSaNotes('')
+      return
+    }
+    const initDecisions: Record<string, 'APPROVED' | 'REJECTED'> = {}
+    selectedReviewItem.colorways.forEach(cw => {
+      initDecisions[cw.color_name] = cw.status === 'REJECTED' ? 'REJECTED' : 'APPROVED'
+    })
+    setColorwayDecisions(initDecisions)
+    setSaNotes(selectedReviewItem.saNotes || '')
+  }, [selectedReviewItem?.key])
+
+  const pendingItems = reviewItems.filter(r => r.phVerdict === 'APPROVED' && (!r.saVerdict || r.saVerdict === 'PENDING'))
+  const approvedItems = reviewItems.filter(r => r.saVerdict === 'APPROVED')
+  const savedForLaterItems = reviewItems.filter(r => r.saVerdict === 'SAVED_FOR_LATER')
+  const rejectedItems = reviewItems.filter(r => r.saVerdict === 'REJECTED')
+
+  const filteredList = reviewItems.filter(r => {
     if (activeTab === 'PENDING') {
-      if (!(s.ph_verdict === 'APPROVED' && (!s.sa_verdict || s.sa_verdict === 'PENDING'))) return false
+      if (!(r.phVerdict === 'APPROVED' && (!r.saVerdict || r.saVerdict === 'PENDING'))) return false
     } else if (activeTab === 'APPROVED') {
-      if (s.sa_verdict !== 'APPROVED') return false
+      if (r.saVerdict !== 'APPROVED') return false
     } else if (activeTab === 'SAVED_FOR_LATER') {
-      if (s.sa_verdict !== 'SAVED_FOR_LATER') return false
+      if (r.saVerdict !== 'SAVED_FOR_LATER') return false
     } else if (activeTab === 'REJECTED') {
-      if (s.sa_verdict !== 'REJECTED') return false
+      if (r.saVerdict !== 'REJECTED') return false
     }
 
     const q = searchQuery.toLowerCase()
-    const garment = s.brief?.garment_type?.toLowerCase() || ''
-    const cat = s.brief?.category?.toLowerCase() || ''
-    const designer = s.designer_name?.toLowerCase() || ''
-    const notes = s.designer_notes?.toLowerCase() || ''
+    const art = r.artNumber?.toLowerCase() || ''
+    const garment = r.garment?.toLowerCase() || ''
+    const cat = r.category?.toLowerCase() || ''
+    const designer = r.designerName?.toLowerCase() || ''
+    const notes = r.designerNotes?.toLowerCase() || ''
 
-    return garment.includes(q) || cat.includes(q) || designer.includes(q) || notes.includes(q)
+    return art.includes(q) || garment.includes(q) || cat.includes(q) || designer.includes(q) || notes.includes(q)
   })
 
-  async function handleVerdict(submissionId: string, verdict: 'APPROVED' | 'SAVED_FOR_LATER' | 'REJECTED') {
+  async function handleVerdict(item: SAReviewItem, verdict: 'APPROVED' | 'SAVED_FOR_LATER' | 'REJECTED') {
     setIsReviewing(true)
     try {
       const res = await saReviewDesignSubmissionAction({
-        submission_id: submissionId,
+        submission_id: item.submissionId,
+        concept_number: item.conceptNumber,
         sa_verdict: verdict,
-        sa_notes: saNotes.trim() || undefined
+        sa_notes: saNotes.trim() || undefined,
+        colorway_verdicts: colorwayDecisions
       })
 
       if (res.success) {
         toast.success(
           verdict === 'APPROVED' 
-            ? 'Concept greenlit! Ready for Tech-Pack creation.' 
+            ? `Design ${item.artNumber} greenlit! Ready for Tech-Pack creation.` 
             : verdict === 'SAVED_FOR_LATER'
-              ? 'Concept archived in Seasonal Archive for future collections.'
-              : 'Concept returned for revisions.'
+              ? `Design ${item.artNumber} archived in Seasonal Archive.`
+              : `Design ${item.artNumber} returned for revisions.`
         )
 
-        setSubmissions(prev => prev.map(s => s.id === submissionId ? {
-          ...s,
-          sa_verdict: verdict,
-          sa_notes: saNotes.trim() || undefined,
-          reviewed_at: new Date().toISOString()
-        } : s))
+        setSubmissions(prev => prev.map(s => {
+          if (s.id === item.submissionId) {
+            const updatedConcepts = (s.concepts || []).map(c => {
+              if (c.concept_number === item.conceptNumber) {
+                return {
+                  ...c,
+                  sa_verdict: verdict,
+                  sa_notes: saNotes.trim() || undefined,
+                  status: verdict === 'APPROVED' 
+                    ? ('SA_APPROVED' as BriefStatus) 
+                    : verdict === 'SAVED_FOR_LATER' 
+                    ? ('SA_SAVED_FOR_LATER' as BriefStatus) 
+                    : ('PH_REJECTED' as BriefStatus),
+                  colorways: (c.colorways || []).map(cw => ({
+                    ...cw,
+                    status: colorwayDecisions[cw.color_name] || (verdict === 'APPROVED' ? 'APPROVED' : 'REJECTED')
+                  }))
+                }
+              }
+              return c
+            })
 
-        setReviewingSub(null)
+            return {
+              ...s,
+              sa_verdict: verdict,
+              sa_notes: saNotes.trim() || undefined,
+              concepts: updatedConcepts.length > 0 ? updatedConcepts : s.concepts,
+              reviewed_at: new Date().toISOString()
+            }
+          }
+          return s
+        }))
+
+        setSelectedReviewItem(null)
         setSaNotes('')
       } else {
         toast.error(res.error || 'Failed to update verdict.')
@@ -166,11 +333,11 @@ export function SADesignApprovalsClient({
                 Design Executive Approvals
               </h1>
               <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
-                {pendingSubmissions.length} Awaiting Decision
+                {pendingItems.length} Awaiting Decision
               </span>
             </div>
             <p className="text-sm text-slate-600 mt-1">
-              Review Provisional Head-approved designs, greenlight for Tech-Pack creation, or save in seasonal archive
+              Review Provisional Head-approved designs individually, greenlight for Tech-Pack creation, or save in seasonal archive
             </p>
           </div>
         </div>
@@ -202,7 +369,7 @@ export function SADesignApprovalsClient({
               Total Designs
             </div>
             <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
-              {submissions.length}
+              {reviewItems.length}
             </div>
           </div>
         </div>
@@ -221,7 +388,7 @@ export function SADesignApprovalsClient({
               Awaiting Decision
             </div>
             <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
-              {pendingSubmissions.length}
+              {pendingItems.length}
             </div>
           </div>
         </div>
@@ -240,7 +407,7 @@ export function SADesignApprovalsClient({
               SA Greenlit
             </div>
             <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
-              {approvedSubmissions.length}
+              {approvedItems.length}
             </div>
           </div>
         </div>
@@ -259,7 +426,7 @@ export function SADesignApprovalsClient({
               Seasonal Archive
             </div>
             <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
-              {savedForLaterSubmissions.length}
+              {savedForLaterItems.length}
             </div>
           </div>
         </div>
@@ -279,7 +446,7 @@ export function SADesignApprovalsClient({
                   : 'text-slate-700 bg-[#FAF7F0] border-black/10 hover:bg-slate-100'
               }`}
             >
-              All Designs ({submissions.length})
+              All Designs ({reviewItems.length})
             </button>
             <button
               type="button"
@@ -290,7 +457,7 @@ export function SADesignApprovalsClient({
                   : 'text-slate-700 bg-[#FAF7F0] border-black/10 hover:bg-slate-100'
               }`}
             >
-              Awaiting Decision ({pendingSubmissions.length})
+              Awaiting Decision ({pendingItems.length})
             </button>
             <button
               type="button"
@@ -301,7 +468,7 @@ export function SADesignApprovalsClient({
                   : 'text-slate-700 bg-[#FAF7F0] border-black/10 hover:bg-slate-100'
               }`}
             >
-              Greenlit ({approvedSubmissions.length})
+              Greenlit ({approvedItems.length})
             </button>
             <button
               type="button"
@@ -312,9 +479,9 @@ export function SADesignApprovalsClient({
                   : 'text-slate-700 bg-[#FAF7F0] border-black/10 hover:bg-slate-100'
               }`}
             >
-              Saved for Later ({savedForLaterSubmissions.length})
+              Saved for Later ({savedForLaterItems.length})
             </button>
-            {rejectedSubmissions.length > 0 && (
+            {rejectedItems.length > 0 && (
               <button
                 type="button"
                 onClick={() => setActiveTab('REJECTED')}
@@ -324,7 +491,7 @@ export function SADesignApprovalsClient({
                     : 'text-slate-700 bg-[#FAF7F0] border-black/10 hover:bg-slate-100'
                 }`}
               >
-                Revisions Needed ({rejectedSubmissions.length})
+                Revisions Needed ({rejectedItems.length})
               </button>
             )}
           </div>
@@ -333,7 +500,7 @@ export function SADesignApprovalsClient({
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
-              placeholder="Search concepts or designers..."
+              placeholder="Search art no, concepts, designers..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] font-medium text-slate-900"
@@ -347,7 +514,7 @@ export function SADesignApprovalsClient({
             <EmptyState
               icon={ShieldCheck}
               title="No designs found in this category"
-              description="When Provisional Heads approve designer submissions, they appear here for Super Admin executive review."
+              description="When Provisional Heads approve individual designer submissions, they appear here for Super Admin executive review."
             />
           </div>
         ) : (
@@ -359,75 +526,83 @@ export function SADesignApprovalsClient({
                   <tr className="border-b border-slate-100 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0]">
                     <th className="py-3 px-4">Art No. &amp; Garment</th>
                     <th className="py-3 px-4">Designer</th>
-                    <th className="py-3 px-4">Submitted Concepts</th>
+                    <th className="py-3 px-4">Colors &amp; Scope</th>
                     <th className="py-3 px-4">Decision Status</th>
                     <th className="py-3 px-4 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 text-xs">
-                  {filteredList.map(sub => {
-                    const garment = sub.brief?.garment_type || 'Apparel'
-                    const category = sub.brief?.category || 'Casual'
-                    const isPendingSA = sub.ph_verdict === 'APPROVED' && (!sub.sa_verdict || sub.sa_verdict === 'PENDING')
-                    const isGreenlit = sub.sa_verdict === 'APPROVED'
-                    const isSaved = sub.sa_verdict === 'SAVED_FOR_LATER'
-                    const totalConcepts = sub.concepts?.length || 1
+                  {filteredList.map(item => {
+                    const isPendingSA = item.phVerdict === 'APPROVED' && (!item.saVerdict || item.saVerdict === 'PENDING')
+                    const isGreenlit = item.saVerdict === 'APPROVED'
+                    const isSaved = item.saVerdict === 'SAVED_FOR_LATER'
+                    const isRejected = item.saVerdict === 'REJECTED'
 
-                    const allArtNos: string[] = []
-                    sub.concepts?.forEach(c => {
-                      const baseNo = c.art_number
-                      if (baseNo) {
-                        if (c.colorways && c.colorways.length > 1) {
-                          c.colorways.forEach((_, idx) => {
-                            allArtNos.push(getVariantArtNumber(baseNo, idx, c.colorways.length))
-                          })
-                        } else {
-                          allArtNos.push(baseNo)
-                        }
-                      }
-                    })
+                    const colorCount = item.colorways?.length || 1
 
                     return (
-                      <tr key={sub.id} className="hover:bg-slate-50/80 transition-colors group">
+                      <tr key={item.key} className="hover:bg-slate-50/80 transition-colors group">
                         <td className="py-3.5 px-4">
-                          {allArtNos.length > 0 ? (
-                            <div className="flex flex-wrap items-center gap-1.5 mb-1">
-                              {allArtNos.map((art, aIdx) => (
-                                <span key={aIdx} className="font-mono font-bold text-slate-900 text-sm">
-                                  {art}{aIdx < allArtNos.length - 1 ? ',' : ''}
-                                </span>
-                              ))}
-                            </div>
-                          ) : (
-                            <span className="font-mono font-bold text-slate-400 text-sm block mb-1">
-                              —
+                          <div className="flex items-center gap-2 mb-0.5">
+                            <span className="font-mono font-extrabold text-slate-900 text-sm">
+                              {item.artNumber}
                             </span>
-                          )}
+                            <span className="text-[10px] font-mono text-slate-400 bg-slate-100 px-1.5 py-0.2 rounded border border-black/5">
+                              #{item.conceptNumber} &bull; #{item.briefId.substring(0, 6)}
+                            </span>
+                          </div>
                           <span className="font-bold text-slate-800 text-xs block font-[family-name:var(--font-heading)]">
-                            {garment}
+                            {item.garment}
                           </span>
                           <span className="text-xs text-slate-500 font-medium">
-                            {category} Style &bull; <span className="font-mono text-[11px] text-slate-400">#{sub.id.substring(0, 6)}</span>
+                            {item.category}
                           </span>
                         </td>
 
                         <td className="py-3.5 px-4">
                           <span className="font-semibold text-slate-800 text-xs block">
-                            {sub.designer_name}
+                            {item.designerName}
                           </span>
-                          <span className="text-[11px] text-emerald-700 font-mono inline-flex items-center gap-1 font-bold">
+                          {item.designerPhone && (
+                            <span className="text-[11px] font-mono text-slate-400 block">
+                              {item.designerPhone}
+                            </span>
+                          )}
+                          <span className="text-[11px] text-emerald-700 font-mono inline-flex items-center gap-1 font-bold mt-0.5">
                             <CheckCircle2 className="w-3 h-3 text-emerald-600" /> PH Approved
                           </span>
                         </td>
 
                         <td className="py-3.5 px-4">
-                          <span className="font-mono font-bold text-slate-800 text-xs block">
-                            {totalConcepts} Design Concepts
-                          </span>
-                          {sub.designer_notes && (
-                            <span className="text-[11px] text-slate-500 italic line-clamp-1 max-w-xs block">
-                              &ldquo;{sub.designer_notes}&rdquo;
-                            </span>
+                          <div className="flex items-center gap-1.5 font-bold font-mono text-slate-800 text-xs mb-1">
+                            <Palette className="w-3.5 h-3.5 text-slate-500" />
+                            <span>{colorCount} {colorCount === 1 ? 'Color' : 'Colors'}</span>
+                          </div>
+                          {item.colorways && item.colorways.length > 0 ? (
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              {item.colorways.slice(0, 3).map((cw, cwIdx) => {
+                                const sw = getColorSwatchInfo(cw.color_name)
+                                return (
+                                  <span 
+                                    key={cwIdx} 
+                                    className="inline-flex items-center gap-1 text-[11px] font-medium bg-[#FAF7F0] px-2 py-0.5 rounded-full border border-black/10 text-slate-700"
+                                  >
+                                    <span 
+                                      className="w-2 h-2 rounded-full border border-black/20 shrink-0" 
+                                      style={{ backgroundColor: sw.bg }} 
+                                    />
+                                    <span className="truncate max-w-[80px]">{cw.color_name}</span>
+                                  </span>
+                                )
+                              })}
+                              {item.colorways.length > 3 && (
+                                <span className="text-[10px] font-mono text-slate-500 font-bold bg-[#FAF7F0] px-1.5 py-0.5 rounded-full border border-black/10">
+                                  +{item.colorways.length - 3}
+                                </span>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="text-slate-400 font-mono text-xs">Standard</span>
                           )}
                         </td>
 
@@ -447,18 +622,20 @@ export function SADesignApprovalsClient({
                               Saved in Archive
                             </span>
                           )}
+                          {isRejected && (
+                            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
+                              Revisions Needed
+                            </span>
+                          )}
                         </td>
 
                         <td className="py-3.5 px-4 text-right">
                           <button
                             type="button"
-                            onClick={() => {
-                              setReviewingSub(sub)
-                              setSaNotes(sub.sa_notes || '')
-                            }}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-slate-100 border border-black/10 text-xs font-bold text-[#3A3564] transition-all cursor-pointer shadow-2xs"
+                            onClick={() => setSelectedReviewItem(item)}
+                            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white hover:bg-slate-100 border border-black/10 text-xs font-bold text-slate-700 shadow-2xs transition-all cursor-pointer hover:border-black/20"
                           >
-                            <Eye className="w-3.5 h-3.5" />
+                            <Eye className="w-3.5 h-3.5 text-slate-600" />
                             <span>View &amp; Decide</span>
                             <ChevronRight className="w-3 h-3 text-slate-400" />
                           </button>
@@ -472,45 +649,69 @@ export function SADesignApprovalsClient({
 
             {/* Mobile Cards */}
             <div className="md:hidden divide-y divide-slate-100">
-              {filteredList.map(sub => {
-                const garment = sub.brief?.garment_type || 'Apparel'
-                const category = sub.brief?.category || 'Casual'
-                const totalConcepts = sub.concepts?.length || 1
+              {filteredList.map(item => {
+                const isPendingSA = item.phVerdict === 'APPROVED' && (!item.saVerdict || item.saVerdict === 'PENDING')
+                const isGreenlit = item.saVerdict === 'APPROVED'
+                const isSaved = item.saVerdict === 'SAVED_FOR_LATER'
+                const isRejected = item.saVerdict === 'REJECTED'
+                const colorCount = item.colorways?.length || 1
 
                 return (
-                  <div key={sub.id} className="p-4 space-y-3">
+                  <div key={item.key} className="p-4 space-y-3 bg-white">
                     <div className="flex items-start justify-between gap-2">
                       <div>
-                        <h3 className="font-bold text-slate-900 text-base font-[family-name:var(--font-heading)]">
-                          {garment}
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono font-extrabold text-slate-900 text-sm">
+                            {item.artNumber}
+                          </span>
+                          <span className="text-[10px] font-mono text-slate-400 bg-slate-100 px-1.5 py-0.2 rounded border border-black/5">
+                            #{item.conceptNumber}
+                          </span>
+                        </div>
+                        <h3 className="font-bold text-slate-900 text-sm mt-0.5">
+                          {item.garment}
                         </h3>
                         <p className="text-xs text-slate-500 font-medium">
-                          {category} Style &bull; <span className="font-mono text-[11px] text-slate-400">#{sub.id.substring(0, 6)}</span>
+                          {item.category}
                         </p>
                       </div>
 
-                      <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
-                        PH Approved
-                      </span>
+                      {isPendingSA && (
+                        <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 shrink-0">
+                          Awaiting Decision
+                        </span>
+                      )}
+                      {isGreenlit && (
+                        <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 shrink-0">
+                          Greenlit
+                        </span>
+                      )}
+                      {isSaved && (
+                        <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 shrink-0">
+                          Archived
+                        </span>
+                      )}
+                      {isRejected && (
+                        <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200 shrink-0">
+                          Revisions
+                        </span>
+                      )}
                     </div>
 
-                    <div className="flex items-center justify-between text-xs font-mono text-slate-600 bg-[#FAF7F0] p-2.5 rounded-xl border border-black/5">
+                    <div className="flex items-center justify-between text-xs pt-1 border-t border-slate-100 text-slate-600">
                       <div>
                         <span className="text-slate-400 block text-[10px] uppercase font-bold">Designer</span>
-                        <span className="font-bold text-slate-800">{sub.designer_name}</span>
+                        <span className="font-bold text-slate-800">{item.designerName}</span>
                       </div>
                       <div className="text-right">
-                        <span className="text-slate-400 block text-[10px] uppercase font-bold">Concepts</span>
-                        <span className="font-bold text-[#3A3564]">{totalConcepts} Designs</span>
+                        <span className="text-slate-400 block text-[10px] uppercase font-bold">Colors</span>
+                        <span className="font-bold text-[#3A3564]">{colorCount} Colorway(s)</span>
                       </div>
                     </div>
 
                     <button
                       type="button"
-                      onClick={() => {
-                        setReviewingSub(sub)
-                        setSaNotes(sub.sa_notes || '')
-                      }}
+                      onClick={() => setSelectedReviewItem(item)}
                       className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl bg-[#3A3564] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
                     >
                       <Eye className="w-3.5 h-3.5" />
@@ -526,42 +727,42 @@ export function SADesignApprovalsClient({
       </div>
 
       {/* ========================================================================= */}
-      {/* SUPER ADMIN EXECUTIVE DECISION MODAL */}
+      {/* SUPER ADMIN EXECUTIVE DECISION MODAL (INDIVIDUAL CONCEPT) */}
       {/* ========================================================================= */}
-      {reviewingSub && (
+      {selectedReviewItem && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="relative w-full max-w-3xl bg-white rounded-3xl shadow-2xl border border-black/10 overflow-hidden">
+          <div className="relative w-full max-w-3xl bg-white rounded-3xl shadow-2xl border border-black/10 overflow-hidden flex flex-col max-h-[90vh]">
             {/* Modal Header */}
-            <div className="px-6 py-5 bg-[#FAF7F0] border-b border-black/10 flex items-center justify-between">
+            <div className="px-6 py-5 bg-[#FAF7F0] border-b border-black/10 flex items-center justify-between shrink-0">
               <div>
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-2xs">
                     PH Approved
                   </span>
-                  {reviewingSub.sa_verdict === 'APPROVED' && (
+                  <span className="text-xs font-mono font-extrabold text-slate-900 bg-white px-2.5 py-0.5 rounded-full border border-black/10 shadow-2xs">
+                    ART NO: {selectedReviewItem.artNumber}
+                  </span>
+                  {selectedReviewItem.saVerdict === 'APPROVED' && (
                     <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-emerald-600 text-white shadow-2xs">
                       Greenlit for Production
                     </span>
                   )}
-                  {reviewingSub.sa_verdict === 'SAVED_FOR_LATER' && (
+                  {selectedReviewItem.saVerdict === 'SAVED_FOR_LATER' && (
                     <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs">
                       Saved in Archive
                     </span>
                   )}
                 </div>
                 <h2 className="text-xl font-bold text-slate-900 mt-1 font-[family-name:var(--font-heading)]">
-                  {reviewingSub.brief?.garment_type || 'Apparel'} ({reviewingSub.brief?.category || 'Casual'})
+                  {selectedReviewItem.garment} ({selectedReviewItem.category})
                 </h2>
                 <p className="text-xs text-slate-500 font-mono mt-0.5">
-                  Designer: <strong className="text-slate-800 font-sans">{reviewingSub.designer_name}</strong> &bull; Submission ID: #{reviewingSub.id.substring(0, 8)}
+                  Designer: <strong className="text-slate-800 font-sans">{selectedReviewItem.designerName}</strong> &bull; Submission ID: #{selectedReviewItem.submissionId.substring(0, 8)}
                 </p>
               </div>
               <button
                 type="button"
-                onClick={() => {
-                  setReviewingSub(null)
-                  setSaNotes('')
-                }}
+                onClick={() => setSelectedReviewItem(null)}
                 className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-black/5 cursor-pointer transition-colors"
               >
                 <X className="w-5 h-5" />
@@ -569,224 +770,153 @@ export function SADesignApprovalsClient({
             </div>
 
             {/* Modal Body */}
-            <div className="p-6 max-h-[72vh] overflow-y-auto space-y-4 text-xs sm:text-[13px]">
-              {/* Concept Deck */}
+            <div className="p-6 overflow-y-auto space-y-4 text-xs sm:text-[13px] flex-1">
+              {/* Designer Notes */}
+              {selectedReviewItem.designerNotes && (
+                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs">
+                  <span className="font-bold text-slate-700 block font-mono uppercase mb-0.5">Designer Notes:</span>
+                  <p className="text-slate-600 italic">&ldquo;{selectedReviewItem.designerNotes}&rdquo;</p>
+                </div>
+              )}
+
+              {/* Colorways Deck with Individual Colorway Toggles */}
               <div>
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center justify-between mb-2.5">
                   <label className="text-xs font-bold uppercase tracking-wider text-slate-700 font-mono">
-                    Submitted Design Concepts Deck
+                    Colorway Variations ({selectedReviewItem.colorways?.length || 0})
                   </label>
                   <span className="text-[11px] font-mono text-slate-400">
-                    Click any thumbnail to view full image
+                    Click any artwork to expand full view
                   </span>
                 </div>
 
-                {reviewingSub.concepts && reviewingSub.concepts.length > 0 ? (
-                  <div className="space-y-3">
-                    {/* Concept Selector Tabs */}
-                    <div className="flex flex-wrap items-center gap-1.5 p-1 bg-[#FAF7F0] rounded-xl border border-black/10">
-                      {reviewingSub.concepts.map((concept, idx) => {
-                        const cNum = concept.concept_number || (idx + 1)
-                        const isTabActive = modalActiveConceptTab === cNum
-                        return (
-                          <button
-                            key={cNum}
-                            type="button"
-                            onClick={() => setModalActiveConceptTab(cNum)}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold font-mono transition-all cursor-pointer ${
-                              isTabActive
-                                ? 'bg-[#3A3564] text-white shadow-2xs'
-                                : 'text-slate-700 hover:bg-white/80'
-                            }`}
-                          >
-                            <span>Design #{cNum}</span>
-                            <span className={`text-[10px] px-1.5 py-0.2 rounded font-normal ${
-                              isTabActive ? 'bg-white/20 text-white' : 'bg-black/5 text-slate-500'
-                            }`}>
-                              {concept.colorways?.length || 0} Colors
-                            </span>
-                          </button>
-                        )
-                      })}
-                    </div>
-
-                    {/* Active Selected Concept View */}
-                    {(() => {
-                      const concepts = reviewingSub.concepts
-                      const currentConcept = concepts.find(c => (c.concept_number || 1) === modalActiveConceptTab) || concepts[0]
-
-                      if (!currentConcept) return null
+                <div className="space-y-4">
+                  {selectedReviewItem.colorways && selectedReviewItem.colorways.length > 0 ? (
+                    selectedReviewItem.colorways.map((cw, cwIdx) => {
+                      const sw = getColorSwatchInfo(cw.color_name)
+                      const variantArtNo = getVariantArtNumber(
+                        selectedReviewItem.artNumber,
+                        cwIdx,
+                        selectedReviewItem.colorways.length
+                      )
+                      const isRejected = colorwayDecisions[cw.color_name] === 'REJECTED'
 
                       return (
-                        <div className="p-4 rounded-2xl bg-[#FAF7F0]/60 border border-black/10 space-y-3">
-                          <div className="flex items-center justify-between flex-wrap gap-2">
-                            <div className="flex items-center gap-2">
-                              <span className="font-bold text-slate-900 text-sm font-[family-name:var(--font-heading)]">
-                                {currentConcept.title || `Design Concept #${currentConcept.concept_number}`}
+                        <div 
+                          key={cwIdx} 
+                          className={`p-4 rounded-2xl border transition-all ${
+                            isRejected 
+                              ? 'bg-rose-50/40 border-rose-200 shadow-2xs' 
+                              : 'bg-white border-black/10 shadow-2xs'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">
+                            <div className="flex items-center gap-2.5">
+                              <span 
+                                className="w-3.5 h-3.5 rounded-full border border-black/20 shadow-2xs shrink-0"
+                                style={{ backgroundColor: sw.bg }}
+                              />
+                              <span className="font-bold text-slate-900 text-sm">
+                                {cw.color_name} Colorway
                               </span>
-                              {currentConcept.art_number && (
-                                <span className="text-xs font-mono font-bold text-slate-900">
-                                  ART NO: {currentConcept.art_number}
+                              {variantArtNo && (
+                                <span className="text-xs font-mono font-bold text-slate-700 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+                                  {variantArtNo}
                                 </span>
                               )}
                             </div>
-                            <span className="text-xs font-mono text-slate-500">
-                              {currentConcept.colorways?.length || 0} Colorway(s)
-                            </span>
+
+                            {/* Colorway Individual Decision Controls */}
+                            <div className="flex items-center gap-1.5 bg-[#FAF7F0] p-1 rounded-xl border border-black/10">
+                              <button
+                                type="button"
+                                onClick={() => setColorwayDecisions(prev => ({ ...prev, [cw.color_name]: 'APPROVED' }))}
+                                className={`px-2.5 py-1 rounded-lg text-xs font-bold font-mono transition-all cursor-pointer ${
+                                  !isRejected
+                                    ? 'bg-emerald-600 text-white shadow-2xs'
+                                    : 'text-slate-600 hover:text-slate-900'
+                                }`}
+                              >
+                                Accept
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setColorwayDecisions(prev => ({ ...prev, [cw.color_name]: 'REJECTED' }))}
+                                className={`px-2.5 py-1 rounded-lg text-xs font-bold font-mono transition-all cursor-pointer ${
+                                  isRejected
+                                    ? 'bg-rose-600 text-white shadow-2xs'
+                                    : 'text-slate-600 hover:text-slate-900'
+                                }`}
+                              >
+                                Reject
+                              </button>
+                            </div>
                           </div>
 
-                          {currentConcept.notes && (
-                            <p className="text-xs text-slate-600 italic bg-white p-2.5 rounded-xl border border-black/10">
-                              &ldquo;{currentConcept.notes}&rdquo;
-                            </p>
-                          )}
-
-                          {/* Colorways in Responsive Grid Layout */}
-                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5 pt-1">
-                            {currentConcept.colorways && currentConcept.colorways.length > 0 ? (
-                              currentConcept.colorways.map((cw, cwIdx) => {
-                                const sw = getColorSwatchInfo(cw.color_name)
-                                const variantArtNo = getVariantArtNumber(
-                                  currentConcept.art_number || '',
-                                  cwIdx,
-                                  currentConcept.colorways.length
-                                )
-
-                                return (
-                                  <div
-                                    key={cwIdx}
-                                    className="bg-white p-3 rounded-2xl border border-black/10 shadow-2xs hover:shadow-xs transition-all flex flex-col justify-between gap-2.5"
-                                  >
-                                    <div className="flex items-center justify-between gap-2">
-                                      <div className="flex items-center gap-2 font-mono text-xs font-bold text-slate-800 truncate">
-                                        <span
-                                          className="w-3 h-3 rounded-full border border-black/15 shrink-0 shadow-2xs"
-                                          style={{ backgroundColor: sw.bg }}
-                                        />
-                                        <span className="truncate">{cw.color_name}</span>
-                                      </div>
-                                      {variantArtNo ? (
-                                        <span className="text-[11px] font-mono font-bold text-slate-900 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10 shrink-0">
-                                          {variantArtNo}
-                                        </span>
-                                      ) : (
-                                        <span className="text-[10px] font-mono text-slate-400 font-medium bg-[#FAF7F0] px-1.5 py-0.5 rounded border border-black/5 shrink-0">
-                                          {cw.photo_back ? '2 Views' : '1 View'}
-                                        </span>
-                                      )}
-                                    </div>
-
-                                    {/* Artwork Thumbnails */}
-                                    <div className="grid grid-cols-2 gap-2">
-                                      {/* Front Thumbnail */}
-                                      {cw.photo_front ? (
-                                        <div
-                                          onClick={() => setPreviewPhoto(cw.photo_front)}
-                                          className="aspect-square rounded-xl border border-black/10 bg-[#FAF7F0] overflow-hidden relative group cursor-pointer p-1.5 flex items-center justify-center shadow-2xs hover:border-[#3A3564]/30 transition-all"
-                                          title="Click to view full Front Artwork"
-                                        >
-                                          <img
-                                            src={cw.photo_front}
-                                            alt={`${cw.color_name} Front`}
-                                            className="w-full h-full object-contain group-hover:scale-105 transition-transform drop-shadow-xs"
-                                          />
-                                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white text-[10px] font-bold rounded-xl gap-0.5">
-                                            <Eye className="w-3.5 h-3.5" />
-                                            <span>Front</span>
-                                          </div>
-                                          <span className="absolute bottom-1 left-1 text-[9px] font-mono font-bold bg-white/90 text-slate-700 px-1 py-0.2 rounded border border-black/5 shadow-2xs">
-                                            Front
-                                          </span>
-                                        </div>
-                                      ) : (
-                                        <div className="aspect-square rounded-xl border border-dashed border-slate-200 bg-slate-50 flex flex-col items-center justify-center text-[10px] text-slate-400 font-mono p-1">
-                                          <span>No Front</span>
-                                        </div>
-                                      )}
-
-                                      {/* Back Thumbnail */}
-                                      {cw.photo_back ? (
-                                        <div
-                                          onClick={() => setPreviewPhoto(cw.photo_back!)}
-                                          className="aspect-square rounded-xl border border-black/10 bg-[#FAF7F0] overflow-hidden relative group cursor-pointer p-1.5 flex items-center justify-center shadow-2xs hover:border-[#3A3564]/30 transition-all"
-                                          title="Click to view full Back Artwork"
-                                        >
-                                          <img
-                                            src={cw.photo_back}
-                                            alt={`${cw.color_name} Back`}
-                                            className="w-full h-full object-contain group-hover:scale-105 transition-transform drop-shadow-xs"
-                                          />
-                                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white text-[10px] font-bold rounded-xl gap-0.5">
-                                            <Eye className="w-3.5 h-3.5" />
-                                            <span>Back</span>
-                                          </div>
-                                          <span className="absolute bottom-1 left-1 text-[9px] font-mono font-bold bg-white/90 text-slate-700 px-1 py-0.2 rounded border border-black/5 shadow-2xs">
-                                            Back
-                                          </span>
-                                        </div>
-                                      ) : (
-                                        <div className="aspect-square rounded-xl border border-dashed border-slate-200 bg-slate-50 flex flex-col items-center justify-center text-[10px] text-slate-400 font-mono p-1">
-                                          <span>No Back</span>
-                                        </div>
-                                      )}
-                                    </div>
-                                  </div>
-                                )
-                              })
+                          {/* Front & Back Artwork Cards */}
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                            {cw.photo_front ? (
+                              <div
+                                onClick={() => setPreviewPhoto(cw.photo_front)}
+                                className="rounded-2xl border border-black/10 bg-[#FAF7F0] overflow-hidden relative group cursor-pointer p-2 flex flex-col items-center justify-center shadow-2xs hover:border-[#3A3564]/40 transition-all min-h-[200px]"
+                              >
+                                <img
+                                  src={cw.photo_front}
+                                  alt={`${cw.color_name} Front View`}
+                                  className="max-h-48 w-auto object-contain group-hover:scale-105 transition-transform"
+                                />
+                                <span className="absolute bottom-2.5 left-2.5 text-[10px] font-mono font-bold bg-white/95 text-slate-800 px-2.5 py-0.5 rounded-full border border-black/10 shadow-2xs">
+                                  Front View
+                                </span>
+                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-1 rounded-2xl">
+                                  <Eye className="w-4 h-4" /> Expand View
+                                </div>
+                              </div>
                             ) : (
-                              <div className="p-4 text-center text-slate-400 text-xs font-mono col-span-full">
-                                No colorways uploaded for this concept.
+                              <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 flex items-center justify-center text-xs text-slate-400 font-mono p-6 min-h-[200px]">
+                                No Front View
+                              </div>
+                            )}
+
+                            {cw.photo_back ? (
+                              <div
+                                onClick={() => setPreviewPhoto(cw.photo_back!)}
+                                className="rounded-2xl border border-black/10 bg-[#FAF7F0] overflow-hidden relative group cursor-pointer p-2 flex flex-col items-center justify-center shadow-2xs hover:border-[#3A3564]/40 transition-all min-h-[200px]"
+                              >
+                                <img
+                                  src={cw.photo_back}
+                                  alt={`${cw.color_name} Back View`}
+                                  className="max-h-48 w-auto object-contain group-hover:scale-105 transition-transform"
+                                />
+                                <span className="absolute bottom-2.5 left-2.5 text-[10px] font-mono font-bold bg-white/95 text-slate-800 px-2.5 py-0.5 rounded-full border border-black/10 shadow-2xs">
+                                  Back View
+                                </span>
+                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-1 rounded-2xl">
+                                  <Eye className="w-4 h-4" /> Expand View
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 flex items-center justify-center text-xs text-slate-400 font-mono p-6 min-h-[200px]">
+                                No Back View
                               </div>
                             )}
                           </div>
                         </div>
                       )
-                    })()}
-                  </div>
-                ) : reviewingSub.photo_url_1 ? (
-                  <div className="flex items-center gap-3 bg-[#FAF7F0] p-3.5 rounded-2xl border border-black/10">
-                    <div 
-                      onClick={() => setPreviewPhoto(reviewingSub.photo_url_1)}
-                      className="w-28 h-20 rounded-xl border border-black/10 overflow-hidden bg-white relative group cursor-pointer shadow-2xs shrink-0"
-                    >
-                      <img
-                        src={reviewingSub.photo_url_1}
-                        alt="Front Artwork"
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                      />
-                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[10px] font-bold">
-                        <Eye className="w-3.5 h-3.5 mr-1" /> View
-                      </div>
+                    })
+                  ) : (
+                    <div className="p-6 rounded-2xl border border-dashed border-slate-200 bg-slate-50 text-center text-slate-400 font-mono text-xs">
+                      No artwork variations attached.
                     </div>
-
-                    {reviewingSub.photo_url_2 && (
-                      <div 
-                        onClick={() => setPreviewPhoto(reviewingSub.photo_url_2!)}
-                        className="w-28 h-20 rounded-xl border border-black/10 overflow-hidden bg-white relative group cursor-pointer shadow-2xs shrink-0"
-                      >
-                        <img
-                          src={reviewingSub.photo_url_2}
-                          alt="Back Artwork"
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                        />
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[10px] font-bold">
-                          <Eye className="w-3.5 h-3.5 mr-1" /> View
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className="p-6 rounded-2xl border border-dashed border-slate-200 bg-slate-50 text-center text-slate-400 font-mono text-xs">
-                    No mockups attached.
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
 
-              {/* Review History */}
-              {reviewingSub.ph_feedback && (
+              {/* PH Approval Notes */}
+              {selectedReviewItem.phFeedback && (
                 <div className="p-3.5 rounded-xl bg-sky-50 border border-sky-200 text-xs">
-                  <span className="font-bold text-sky-900 block font-mono uppercase mb-0.5">PH Approval Notes:</span>
-                  <p className="text-sky-800 italic">&ldquo;{reviewingSub.ph_feedback}&rdquo;</p>
+                  <span className="font-bold text-sky-900 block font-mono uppercase mb-0.5">Provisional Head Notes:</span>
+                  <p className="text-sky-800 italic">&ldquo;{selectedReviewItem.phFeedback}&rdquo;</p>
                 </div>
               )}
 
@@ -806,24 +936,24 @@ export function SADesignApprovalsClient({
             </div>
 
             {/* Action Bar */}
-            <div className="px-6 py-4 bg-[#FAF7F0] border-t border-black/10 flex flex-wrap items-center justify-between gap-2">
+            <div className="px-6 py-4 bg-[#FAF7F0] border-t border-black/10 flex flex-wrap items-center justify-between gap-3 shrink-0">
               <button
                 type="button"
                 onClick={() => {
-                  setReviewingSub(null)
+                  setSelectedReviewItem(null)
                   setSaNotes('')
                 }}
-                className="px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-black/10 hover:bg-slate-100 rounded-xl shadow-2xs cursor-pointer"
+                className="px-4 py-2.5 text-xs font-bold text-slate-700 bg-white border border-black/10 hover:bg-slate-100 rounded-xl shadow-2xs cursor-pointer transition-all"
               >
                 Close
               </button>
 
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2.5">
                 <button
                   type="button"
                   disabled={isReviewing}
-                  onClick={() => handleVerdict(reviewingSub.id, 'REJECTED')}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 text-xs font-bold transition-all shadow-2xs cursor-pointer disabled:opacity-50"
+                  onClick={() => handleVerdict(selectedReviewItem, 'REJECTED')}
+                  className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 text-xs font-bold transition-all shadow-2xs cursor-pointer disabled:opacity-50"
                 >
                   <XCircle className="w-4 h-4" />
                   <span>Request Revisions</span>
@@ -832,8 +962,8 @@ export function SADesignApprovalsClient({
                 <button
                   type="button"
                   disabled={isReviewing}
-                  onClick={() => handleVerdict(reviewingSub.id, 'SAVED_FOR_LATER')}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white text-[#3A3564] hover:bg-slate-100 border border-black/15 text-xs font-bold transition-all shadow-2xs cursor-pointer disabled:opacity-50"
+                  onClick={() => handleVerdict(selectedReviewItem, 'SAVED_FOR_LATER')}
+                  className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-white text-[#3A3564] hover:bg-slate-100 border border-black/15 text-xs font-bold transition-all shadow-2xs cursor-pointer disabled:opacity-50"
                 >
                   <Bookmark className="w-4 h-4" />
                   <span>Save for Later</span>
@@ -842,11 +972,11 @@ export function SADesignApprovalsClient({
                 <button
                   type="button"
                   disabled={isReviewing}
-                  onClick={() => handleVerdict(reviewingSub.id, 'APPROVED')}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50"
+                  onClick={() => handleVerdict(selectedReviewItem, 'APPROVED')}
+                  className="inline-flex items-center gap-1.5 px-4.5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50"
                 >
                   {isReviewing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
-                  <span>Greenlight for Production</span>
+                  <span>Greenlight for Tech-Pack</span>
                 </button>
               </div>
             </div>
