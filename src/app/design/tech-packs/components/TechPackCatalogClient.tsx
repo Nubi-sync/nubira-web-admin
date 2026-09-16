@@ -23,7 +23,8 @@ import {
   Loader2
 } from 'lucide-react'
 import { toast } from 'sonner'
-import { TechPack, TechPackStatus } from '../../types/design'
+import { useSearchParams } from 'next/navigation'
+import { TechPack, TechPackStatus, AvailableArticleOption } from '../../types/design'
 import { getStoredTechPacks } from '../../utils/designStorage'
 import { CreateTechPackModal } from './CreateTechPackModal'
 import { EditTechPackModal } from './EditTechPackModal'
@@ -43,9 +44,11 @@ const STATUS_CONFIG: Record<string, { label: string; badgeClass: string }> = {
 interface TechPackCatalogClientProps {
   initialTechPacks?: TechPack[]
   availableBrands?: { id: string; brand_name: string; brand_code: string }[]
+  availableArticles?: AvailableArticleOption[]
 }
 
-export function TechPackCatalogClient({ initialTechPacks, availableBrands }: TechPackCatalogClientProps = {}) {
+export function TechPackCatalogClient({ initialTechPacks, availableBrands, availableArticles }: TechPackCatalogClientProps = {}) {
+  const searchParams = useSearchParams()
   const [techPacks, setTechPacks] = useState<TechPack[]>(() => {
     if (initialTechPacks && initialTechPacks.length > 0) return initialTechPacks
     return []
@@ -53,7 +56,9 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands }: Tec
   const [activeTab, setActiveTab] = useState<'gallery' | 'table'>('gallery')
   const [statusFilter, setStatusFilter] = useState<string>('ALL')
   const [searchQuery, setSearchQuery] = useState('')
-  const [isCreateOpen, setIsCreateOpen] = useState(false)
+  const [isCreateOpen, setIsCreateOpen] = useState(() => {
+    return Boolean(searchParams?.get('createFromSubmission') || searchParams?.get('from_brief') || searchParams?.get('art_number'))
+  })
   const [editingPack, setEditingPack] = useState<TechPack | null>(null)
   const [packToDelete, setPackToDelete] = useState<TechPack | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
@@ -590,6 +595,7 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands }: Tec
           setTechPacks(prev => [newTp, ...prev.filter(t => t.id !== newTp.id)])
         }}
         availableBrands={availableBrands}
+        availableArticles={availableArticles}
       />
 
       {/* Edit Tech-Pack Modal */}
@@ -597,6 +603,7 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands }: Tec
         isOpen={!!editingPack}
         onClose={() => setEditingPack(null)}
         techPack={editingPack}
+        availableBrands={availableBrands}
         onUpdated={(updatedTp) => {
           setTechPacks(prev => prev.map(p => p.id === updatedTp.id ? updatedTp : p))
         }}

@@ -24,6 +24,34 @@ export type TechPackStatus =
   | 'APPROVED_BULK'
   | 'REVISE_FIT'
 
+export interface TechPackMaterialRequirement {
+  id: string
+  component_type: string
+  item_name: string
+  specification?: string
+  consumption?: string
+  placement?: string
+}
+
+export interface AvailableArticleOption {
+  id: string
+  art_number: string
+  garment_type: string
+  category_style: string
+  color_name?: string
+  photo_front?: string
+  photo_back?: string
+  brief_id: string
+  submission_id?: string
+  designer_name?: string
+  designer_notes?: string
+  instructions?: string
+  company_name?: string
+  brand_name?: string
+  target_gsm?: number
+  fabric_composition?: string
+}
+
 export interface TechPack {
   id: string
   style_number: string
@@ -49,6 +77,8 @@ export interface TechPack {
   approved_by_sa?: boolean
   sa_verdict?: string
   company_name?: string
+  materials?: TechPackMaterialRequirement[]
+  instructions?: string
 }
 
 export type SampleStage = 'PROTO' | 'SIZE_SET' | 'PPS'

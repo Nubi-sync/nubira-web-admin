@@ -1,17 +1,44 @@
 'use client'
 
-import { useState } from 'react'
-import { X, Check, ArrowRight, ArrowLeft, Sparkles, FileText, Layers, Tag, Scissors } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { 
+  X, 
+  Check, 
+  ArrowRight, 
+  ArrowLeft, 
+  Sparkles, 
+  FileText, 
+  Layers, 
+  Tag, 
+  Scissors, 
+  Palette, 
+  Package, 
+  Plus, 
+  Trash2, 
+  Eye, 
+  Info,
+  CheckCircle2,
+  ChevronDown
+} from 'lucide-react'
 import { toast } from 'sonner'
-import { TechPack, GarmentCategory, SizeSystem, EmbellishmentSequence, SeamClass } from '../../types/design'
+import { 
+  TechPack, 
+  GarmentCategory, 
+  SizeSystem, 
+  EmbellishmentSequence, 
+  SeamClass, 
+  TechPackMaterialRequirement, 
+  AvailableArticleOption 
+} from '../../types/design'
 import { saveStoredTechPack } from '../../utils/designStorage'
-import { createTechPackAction } from '../../actions'
+import { createTechPackAction, fetchApprovedArticlesForTechPackAction } from '../../actions'
 
 interface CreateTechPackModalProps {
   isOpen: boolean
   onClose: () => void
   onCreated?: (techPack: TechPack) => void
   availableBrands?: { id: string; brand_name: string; brand_code: string }[]
+  availableArticles?: AvailableArticleOption[]
 }
 
 const CATEGORIES: GarmentCategory[] = ['Hoodie', 'T-Shirt', 'Polo', 'Jogger', 'Jacket', 'Kids Romper', 'Suit', 'Pant', 'Ethnic']
@@ -48,10 +75,95 @@ const SEAM_CLASSES: SeamClass[] = [
   'ISO 4915 Class 607 (Flatlock)'
 ]
 
-export function CreateTechPackModal({ isOpen, onClose, onCreated, availableBrands }: CreateTechPackModalProps) {
+function mapToCategory(val: string): GarmentCategory {
+  const norm = (val || '').toUpperCase()
+  if (norm.includes('HOODIE')) return 'Hoodie'
+  if (norm.includes('TSHIRT') || norm.includes('T-SHIRT') || norm.includes('TEE')) return 'T-Shirt'
+  if (norm.includes('POLO')) return 'Polo'
+  if (norm.includes('JOGGER')) return 'Jogger'
+  if (norm.includes('JACKET')) return 'Jacket'
+  if (norm.includes('ROMPER')) return 'Kids Romper'
+  if (norm.includes('SUIT')) return 'Suit'
+  if (norm.includes('PANT')) return 'Pant'
+  if (norm.includes('ETHNIC')) return 'Ethnic'
+  return 'T-Shirt'
+}
+
+function getColorSwatchInfo(colorName?: string): { bg: string } {
+  if (!colorName) return { bg: '#e2e8f0' }
+  const c = colorName.toLowerCase()
+  if (c.includes('black')) return { bg: '#18181b' }
+  if (c.includes('white')) return { bg: '#f8fafc' }
+  if (c.includes('red') || c.includes('crimson') || c.includes('maroon') || c.includes('burgundy')) return { bg: '#e11d48' }
+  if (c.includes('navy')) return { bg: '#1e293b' }
+  if (c.includes('blue') || c.includes('royal')) return { bg: '#2563eb' }
+  if (c.includes('green') || c.includes('olive') || c.includes('sage') || c.includes('emerald')) return { bg: '#15803d' }
+  if (c.includes('yellow') || c.includes('mustard') || c.includes('gold')) return { bg: '#ca8a04' }
+  if (c.includes('orange') || c.includes('rust')) return { bg: '#ea580c' }
+  if (c.includes('purple') || c.includes('lavender') || c.includes('violet') || c.includes('plum')) return { bg: '#7c3aed' }
+  if (c.includes('pink') || c.includes('rose') || c.includes('blush') || c.includes('coral')) return { bg: '#db2777' }
+  if (c.includes('brown') || c.includes('tan') || c.includes('khaki') || c.includes('beige') || c.includes('camel')) return { bg: '#78350f' }
+  if (c.includes('grey') || c.includes('gray') || c.includes('charcoal') || c.includes('heather')) return { bg: '#475569' }
+  if (c.includes('teal') || c.includes('cyan')) return { bg: '#0d9488' }
+  return { bg: '#cbd5e1' }
+}
+
+function getDefaultMaterialsForCategory(category: GarmentCategory): TechPackMaterialRequirement[] {
+  switch (category) {
+    case 'T-Shirt':
+    case 'Polo':
+      return [
+        { id: '1', component_type: 'Collar / Rib', item_name: '1x1 Cotton Spandex Collar Rib', specification: '95% Cotton 5% Spandex, 320 GSM', consumption: '0.08 Mtr', placement: 'Neck Collar' },
+        { id: '2', component_type: 'Ribbon / Tape', item_name: 'Herringbone Neck Tape', specification: '100% Cotton 12mm Width', consumption: '0.35 Mtr', placement: 'Inside Back Neck Seam' },
+        { id: '3', component_type: 'Main Label', item_name: 'Woven Damask Brand Label', specification: 'Center Fold, 45x25mm', consumption: '1 Pcs', placement: 'Inside Center Back Neck' },
+        { id: '4', component_type: 'Care Label', item_name: 'Printed Satin Wash Care Label', specification: 'Book Fold, 30x70mm', consumption: '1 Pcs', placement: 'Left Inner Side Seam (10cm from hem)' },
+        { id: '5', component_type: 'Sewing Thread', item_name: 'Tex 40 Poly-Core Thread', specification: '100% Spun Polyester matching colorway', consumption: '80 Mtr', placement: 'All Construction Seams' },
+        { id: '6', component_type: 'Polybag', item_name: 'Self-Adhesive Recycled Polybag', specification: '30 Micron with Warning Print', consumption: '1 Pcs', placement: 'Individual Packaging' }
+      ]
+    case 'Pant':
+      return [
+        { id: '1', component_type: 'Pocket Bag Fabric', item_name: 'Cotton Poplin Pocketing', specification: '100% Combed Cotton Poplin 120 GSM', consumption: '0.30 Mtr', placement: 'Front & Back Pocket Bags' },
+        { id: '2', component_type: 'Zipper', item_name: '#5 Metal Fly Zipper', specification: 'Antique Brass Auto-Lock Metal Zipper', consumption: '1 Pcs', placement: 'Front Fly Closure' },
+        { id: '3', component_type: 'Buttons', item_name: 'Waistband Shank Button', specification: '24L Metal Shank Button / Snap', consumption: '1 Pcs', placement: 'Center Front Waistband' },
+        { id: '4', component_type: 'Main Label', item_name: 'Woven Waistband Brand Label', specification: 'Loop Fold, 50x30mm', consumption: '1 Pcs', placement: 'Inside Center Back Waistband' },
+        { id: '5', component_type: 'Care Label', item_name: 'Printed Satin Wash Care Label', specification: 'Book Fold, 30x70mm', consumption: '1 Pcs', placement: 'Left Inner Pocket Bag' },
+        { id: '6', component_type: 'Sewing Thread', item_name: 'Tex 60 Heavy Duty Core Thread', specification: 'Polyester-Cotton Wrapped Thread', consumption: '120 Mtr', placement: 'Inseam, Outseam & Waistband' }
+      ]
+    case 'Hoodie':
+    case 'Jogger':
+      return [
+        { id: '1', component_type: 'Collar / Rib', item_name: '2x2 Heavy Spandex Rib', specification: '95% Cotton 5% Spandex, 420 GSM', consumption: '0.25 Mtr', placement: 'Cuffs & Bottom Hem' },
+        { id: '2', component_type: 'Drawstring', item_name: 'Braided Cotton Drawcord', specification: 'Tubular Knit with Metal Gunmetal Aglets', consumption: '1.2 Mtr', placement: 'Hood Opening / Waistband' },
+        { id: '3', component_type: 'Ribbon / Tape', item_name: 'Twill Neck Binding Tape', specification: '100% Cotton 15mm Width', consumption: '0.40 Mtr', placement: 'Inside Neck Seam' },
+        { id: '4', component_type: 'Main Label', item_name: 'Woven Damask Brand Label', specification: 'Center Fold, 50x30mm', consumption: '1 Pcs', placement: 'Inside Center Back Neck' },
+        { id: '5', component_type: 'Care Label', item_name: 'Printed Satin Wash Care Label', specification: 'Book Fold, 30x70mm', consumption: '1 Pcs', placement: 'Left Inner Side Seam' },
+        { id: '6', component_type: 'Polybag', item_name: 'Heavy Duty Self-Adhesive Polybag', specification: '40 Micron with Vent Holes', consumption: '1 Pcs', placement: 'Individual Packaging' }
+      ]
+    default:
+      return [
+        { id: '1', component_type: 'Ribbon / Tape', item_name: 'Cotton Binding / Seam Tape', specification: '12mm Width', consumption: '0.35 Mtr', placement: 'Internal Seams' },
+        { id: '2', component_type: 'Main Label', item_name: 'Woven Brand Label', specification: 'Standard Center Fold', consumption: '1 Pcs', placement: 'Inside Neck / Waistband' },
+        { id: '3', component_type: 'Care Label', item_name: 'Wash Care & Composition Label', specification: 'Printed Satin', consumption: '1 Pcs', placement: 'Inner Side Seam' },
+        { id: '4', component_type: 'Sewing Thread', item_name: 'High-Tenacity Poly Thread', specification: 'Tex 40 Spun Polyester', consumption: '90 Mtr', placement: 'All Construction Seams' },
+        { id: '5', component_type: 'Polybag', item_name: 'Garment Polybag', specification: 'Self-Adhesive Transparent', consumption: '1 Pcs', placement: 'Individual Packaging' }
+      ]
+  }
+}
+
+export function CreateTechPackModal({ 
+  isOpen, 
+  onClose, 
+  onCreated, 
+  availableBrands,
+  availableArticles = []
+}: CreateTechPackModalProps) {
   const [step, setStep] = useState<1 | 2>(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [articlesList, setArticlesList] = useState<AvailableArticleOption[]>(availableArticles)
+  const [selectedArtKey, setSelectedArtKey] = useState<string>('')
+  const [selectedArticle, setSelectedArticle] = useState<AvailableArticleOption | null>(null)
+  const [previewPhoto, setPreviewPhoto] = useState<string | null>(null)
 
   const brandsList = (availableBrands && availableBrands.length > 0) ? availableBrands.map(b => b.brand_name) : BRANDS
 
@@ -67,13 +179,82 @@ export function CreateTechPackModal({ isOpen, onClose, onCreated, availableBrand
   const [embellishmentSeq, setEmbellishmentSeq] = useState<EmbellishmentSequence>('NONE')
   const [spi, setSpi] = useState<number>(12)
   const [seamClass, setSeamClass] = useState<SeamClass>('ISO 4915 Class 504 (Overlock)')
+  const [cadFrontUrl, setCadFrontUrl] = useState<string | undefined>()
+  const [cadBackUrl, setCadBackUrl] = useState<string | undefined>()
+  const [submissionId, setSubmissionId] = useState<string | undefined>()
+  const [additionalInstructions, setAdditionalInstructions] = useState('')
+  const [materials, setMaterials] = useState<TechPackMaterialRequirement[]>(() => getDefaultMaterialsForCategory('Hoodie'))
   const [targetCutDate, setTargetCutDate] = useState(() => {
     const d = new Date()
     d.setDate(d.getDate() + 14)
     return d.toISOString().split('T')[0]
   })
 
-  if (!isOpen) return null
+  // Load articles if not provided
+  useEffect(() => {
+    if (availableArticles && availableArticles.length > 0) {
+      setArticlesList(availableArticles)
+    } else {
+      fetchApprovedArticlesForTechPackAction().then(res => {
+        if (res && res.length > 0) setArticlesList(res)
+      })
+    }
+  }, [availableArticles])
+
+  // Handle article selection from dropdown
+  function handleSelectArticle(artKey: string) {
+    setSelectedArtKey(artKey)
+    if (!artKey || artKey === '__CUSTOM__') {
+      setSelectedArticle(null)
+      if (artKey === '__CUSTOM__') {
+        setStyleNumber('')
+      }
+      return
+    }
+
+    const art = articlesList.find(a => a.id === artKey || a.art_number === artKey)
+    if (!art) return
+
+    setSelectedArticle(art)
+    setStyleNumber(art.art_number)
+    
+    const cat = mapToCategory(art.garment_type)
+    setCategory(cat)
+    
+    const colorPart = art.color_name ? ` • ${art.color_name} Colorway` : ''
+    setStyleName(`${art.garment_type} (${art.category_style}${colorPart})`)
+
+    const defaults = GARMENT_DEFAULTS[cat]
+    if (defaults) {
+      setTargetGsm(defaults.gsm)
+      setFabricComposition(defaults.fabric)
+      setSeamClass(defaults.seam)
+      if (cat === 'Pant') {
+        setSizeSystem('NUMERIC_WAIST')
+        setBaseSize('32')
+      } else if (cat === 'Kids Romper') {
+        setSizeSystem('KIDS_AGE')
+        setBaseSize('4T')
+      } else {
+        setSizeSystem('ALPHA_ADULT')
+        setBaseSize(defaults.base || 'M')
+      }
+    }
+
+    if (art.photo_front) setCadFrontUrl(art.photo_front)
+    if (art.photo_back) setCadBackUrl(art.photo_back)
+    if (art.submission_id) setSubmissionId(art.submission_id)
+
+    // Pre-fill instructions from brief/designer notes
+    const combinedInst = [art.designer_notes, art.instructions].filter(Boolean).join('\n')
+    if (combinedInst) setAdditionalInstructions(combinedInst)
+
+    // Populate smart default materials for this garment category
+    setMaterials(getDefaultMaterialsForCategory(cat))
+
+    // Clear any errors
+    setErrors(prev => ({ ...prev, styleNumber: '', styleName: '' }))
+  }
 
   function handleCategoryChange(cat: GarmentCategory) {
     setCategory(cat)
@@ -90,6 +271,8 @@ export function CreateTechPackModal({ isOpen, onClose, onCreated, availableBrand
         setBaseSize('4T')
       }
     }
+    // Update default materials if user hasn't manually customized extensively
+    setMaterials(getDefaultMaterialsForCategory(cat))
   }
 
   function handleSizeSystemChange(sys: SizeSystem) {
@@ -100,21 +283,40 @@ export function CreateTechPackModal({ isOpen, onClose, onCreated, availableBrand
     }
   }
 
+  // Material helpers
+  function handleAddMaterial(preset?: Partial<TechPackMaterialRequirement>) {
+    const newMat: TechPackMaterialRequirement = {
+      id: Date.now().toString() + Math.random().toString(36).substring(2, 6),
+      component_type: preset?.component_type || 'Ribbon / Tape',
+      item_name: preset?.item_name || '100% Cotton Binding Tape',
+      specification: preset?.specification || '12mm Width',
+      consumption: preset?.consumption || '1 Pcs',
+      placement: preset?.placement || 'Inside Neck Seam'
+    }
+    setMaterials(prev => [...prev, newMat])
+  }
+
+  function handleUpdateMaterial(id: string, field: keyof TechPackMaterialRequirement, value: string) {
+    setMaterials(prev => prev.map(m => m.id === id ? { ...m, [field]: value } : m))
+  }
+
+  function handleDeleteMaterial(id: string) {
+    setMaterials(prev => prev.filter(m => m.id !== id))
+  }
+
   function validateStep1(): boolean {
     const errs: Record<string, string> = {}
     if (!styleNumber.trim()) {
-      errs.styleNumber = 'Style Number is required (e.g. TP-2026-101)'
-    } else if (!/^[A-Z0-9-]{4,25}$/i.test(styleNumber.trim())) {
-      errs.styleNumber = 'Alpha-numeric and hyphens only (4–25 chars)'
+      errs.styleNumber = 'Please select an Article Number or enter a valid style code.'
     }
     if (!styleName.trim()) {
-      errs.styleName = 'Style Name is required'
+      errs.styleName = 'Style description is required.'
     }
     if (!fabricComposition.trim()) {
-      errs.fabricComposition = 'Fabric composition is required'
+      errs.fabricComposition = 'Fabric composition is required.'
     }
     if (!targetGsm || targetGsm < 60 || targetGsm > 700) {
-      errs.targetGsm = 'Valid GSM between 60 and 700 required'
+      errs.targetGsm = 'Valid GSM between 60 and 700 required.'
     }
     setErrors(errs)
     return Object.keys(errs).length === 0
@@ -123,10 +325,10 @@ export function CreateTechPackModal({ isOpen, onClose, onCreated, availableBrand
   function validateStep2(): boolean {
     const errs: Record<string, string> = {}
     if (!spi || spi < 8 || spi > 20) {
-      errs.spi = 'Stitches per inch must be between 8 and 20'
+      errs.spi = 'Stitches per inch must be between 8 and 20.'
     }
     if (!targetCutDate) {
-      errs.targetCutDate = 'Target cut date is required'
+      errs.targetCutDate = 'Target cut date is required.'
     }
     setErrors(errs)
     return Object.keys(errs).length === 0
@@ -159,13 +361,18 @@ export function CreateTechPackModal({ isOpen, onClose, onCreated, availableBrand
       embellishment_sequence: embellishmentSeq,
       spi: Number(spi),
       seam_class: seamClass,
+      cad_front_url: cadFrontUrl,
+      cad_back_url: cadBackUrl,
+      design_submission_id: submissionId,
+      materials,
+      instructions: additionalInstructions.trim() || undefined
     })
 
     setIsSubmitting(false)
 
     if (res.success && res.data) {
       saveStoredTechPack(res.data)
-      toast.success(`Tech-Pack ${res.data.style_number} created in Supabase!`)
+      toast.success(`Tech-Pack ${res.data.style_number} created with BOM and specifications!`)
       onCreated?.(res.data)
       onClose()
     } else {
@@ -173,128 +380,210 @@ export function CreateTechPackModal({ isOpen, onClose, onCreated, availableBrand
     }
   }
 
+  if (!isOpen) return null
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200 select-none">
-      <div className="bg-white rounded-3xl border border-black/15 shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200 select-none">
+      <div className="bg-white rounded-3xl border border-black/15 shadow-2xl max-w-3xl w-full max-h-[92vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
         
         {/* Modal Header */}
-        <div className="px-6 py-5 border-b border-black/10 flex items-center justify-between bg-[#FAF7F0]">
+        <div className="px-6 py-4.5 border-b border-black/10 flex items-center justify-between bg-[#FAF7F0]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 text-[#3A3564] flex items-center justify-center shadow-2xs">
+            <div className="w-10 h-10 rounded-2xl bg-[#FAF7F0] border border-black/10 text-[#3A3564] flex items-center justify-center shadow-2xs">
               <FileText className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-900 font-[family-name:var(--font-heading)]">
-                New Tech-Pack Specification
+              <h2 className="text-lg font-bold text-slate-900 font-[family-name:var(--font-heading)] flex items-center gap-2">
+                <span>Create Production Tech-Pack</span>
+                <span className="text-[10px] font-mono font-bold bg-[#3A3564] text-white px-2 py-0.5 rounded-md">
+                  V1.0
+                </span>
               </h2>
-              <p className="text-xs sm:text-sm text-slate-600">
-                Standardize industrial CAD parameters, grading rules & embellishment sequencing
+              <p className="text-xs text-slate-600">
+                Generate production specification with BOM, trims, stitches &amp; CAD coordinates
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="w-9 h-9 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-black/5 transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-black/5 transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Stepper Progress Bar */}
-        <div className="px-6 py-3.5 bg-slate-50 border-b border-black/10 flex items-center justify-between">
+        {/* Stepper Progress Indicator */}
+        <div className="px-6 py-3 bg-slate-50 border-b border-black/10 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-mono font-bold ${
-              step === 1 ? 'bg-[#3A3564] text-[#FAF7F0]' : 'bg-[#3A3564] text-white'
+            <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-mono font-bold ${
+              step === 1 ? 'bg-[#3A3564] text-white' : 'bg-emerald-600 text-white'
             }`}>
-              {step > 1 ? <Check className="w-3.5 h-3.5" /> : '1'}
+              {step > 1 ? <Check className="w-3 h-3" /> : '1'}
             </div>
-            <span className={`text-xs font-semibold ${step === 1 ? 'text-[#3A3564]' : 'text-slate-600'}`}>
-              Step 1: Garment Metadata & Fabric
+            <span className={`text-xs font-bold ${step === 1 ? 'text-[#3A3564]' : 'text-slate-700'}`}>
+              Article Selection, BOM &amp; Instructions
             </span>
           </div>
 
-          <div className="w-12 h-0.5 bg-slate-200">
+          <div className="w-16 h-0.5 bg-slate-200 mx-2">
             <div className={`h-full bg-[#3A3564] transition-all duration-300 ${step === 2 ? 'w-full' : 'w-0'}`} />
           </div>
 
           <div className="flex items-center gap-2">
-            <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-mono font-bold ${
-              step === 2 ? 'bg-[#3A3564] text-[#FAF7F0]' : 'bg-slate-200 text-slate-600'
+            <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-mono font-bold ${
+              step === 2 ? 'bg-[#3A3564] text-white' : 'bg-slate-200 text-slate-600'
             }`}>
               2
             </div>
             <span className={`text-xs font-semibold ${step === 2 ? 'text-[#3A3564]' : 'text-slate-400'}`}>
-              Step 2: Stitches & Seam Specs
+              CAD Grading &amp; Seam Engineering
             </span>
           </div>
         </div>
 
-        {/* Modal Form Body */}
-        <div className="p-6 overflow-y-auto space-y-4 flex-1">
+        {/* Modal Form Content */}
+        <div className="p-6 overflow-y-auto space-y-6 flex-1 text-slate-900">
           {step === 1 ? (
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-semibold text-slate-900 mb-1.5">
-                    Style Number / Article Code *
+            <div className="space-y-6">
+
+              {/* 1. Article Selection Dropdown */}
+              <div className="p-4 rounded-2xl bg-[#FAF7F0] border border-black/10 space-y-3 shadow-2xs">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold uppercase tracking-wider text-slate-800 font-mono flex items-center gap-1.5">
+                    <Tag className="w-3.5 h-3.5 text-[#3A3564]" />
+                    <span>Select Approved Article Number (Art #) *</span>
                   </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. TP-2026-101"
-                    value={styleNumber}
-                    onChange={e => setStyleNumber(e.target.value.toUpperCase())}
-                    className={`w-full px-3.5 py-2.5 rounded-xl border text-sm font-mono font-bold text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564] ${
-                      errors.styleNumber ? 'border-rose-500 bg-rose-50/20' : 'border-black/15'
-                    }`}
-                  />
-                  {errors.styleNumber && (
-                    <p className="text-xs text-rose-600 font-medium mt-1">{errors.styleNumber}</p>
-                  )}
+                  <span className="text-[11px] font-mono text-slate-500">
+                    {articlesList.length} Available Articles
+                  </span>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-semibold text-slate-900 mb-1.5">
-                    Buyer / Brand Client *
-                  </label>
+                <div className="relative">
                   <select
-                    value={brandName}
-                    onChange={e => setBrandName(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-black/15 text-sm font-medium text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                    value={selectedArtKey}
+                    onChange={e => handleSelectArticle(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-black/15 text-xs font-bold text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564] cursor-pointer shadow-2xs"
                   >
-                    {brandsList.map(b => (
-                      <option key={b} value={b}>{b}</option>
+                    <option value="">-- Choose Article Number from Design Studio --</option>
+                    {articlesList.map(art => (
+                      <option key={art.id} value={art.id}>
+                        {art.art_number} — {art.garment_type} ({art.category_style}{art.color_name ? ` • ${art.color_name}` : ''})
+                      </option>
                     ))}
+                    <option value="__CUSTOM__">➕ Enter Custom Style / Article Number Manually</option>
                   </select>
                 </div>
-              </div>
 
-              <div>
-                <label className="block text-sm font-semibold text-slate-900 mb-1.5">
-                  Style Description / Commercial Name *
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. Heavyweight Loopback French Terry Hoodie"
-                  value={styleName}
-                  onChange={e => setStyleName(e.target.value)}
-                  className={`w-full px-3.5 py-2.5 rounded-xl border text-sm font-medium text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564] ${
-                    errors.styleName ? 'border-rose-500 bg-rose-50/20' : 'border-black/15'
-                  }`}
-                />
-                {errors.styleName && (
-                  <p className="text-xs text-rose-600 font-medium mt-1">{errors.styleName}</p>
+                {errors.styleNumber && (
+                  <p className="text-xs text-rose-600 font-medium">{errors.styleNumber}</p>
+                )}
+
+                {/* Pop-up Article Showcase Banner if selected */}
+                {selectedArticle && (
+                  <div className="mt-3 p-3.5 bg-white rounded-xl border border-black/10 flex items-start gap-4 animate-in fade-in slide-in-from-top-2 duration-200">
+                    {/* Artwork Mockup Photos */}
+                    <div className="flex items-center gap-2 shrink-0">
+                      {selectedArticle.photo_front ? (
+                        <div 
+                          onClick={() => setPreviewPhoto(selectedArticle.photo_front!)}
+                          className="w-16 h-16 rounded-xl border border-black/10 bg-[#FAF7F0] overflow-hidden cursor-pointer relative group p-1 flex items-center justify-center shadow-2xs"
+                          title="Click to zoom Front Mockup"
+                        >
+                          <img 
+                            src={selectedArticle.photo_front} 
+                            alt="Front Mockup" 
+                            className="w-full h-full object-contain group-hover:scale-110 transition-transform" 
+                          />
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+                            <Eye className="w-3.5 h-3.5" />
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="w-16 h-16 rounded-xl border border-dashed border-slate-200 bg-slate-50 flex items-center justify-center text-[10px] text-slate-400 font-mono">
+                          No Photo
+                        </div>
+                      )}
+
+                      {selectedArticle.photo_back && (
+                        <div 
+                          onClick={() => setPreviewPhoto(selectedArticle.photo_back!)}
+                          className="w-16 h-16 rounded-xl border border-black/10 bg-[#FAF7F0] overflow-hidden cursor-pointer relative group p-1 flex items-center justify-center shadow-2xs"
+                          title="Click to zoom Back Mockup"
+                        >
+                          <img 
+                            src={selectedArticle.photo_back} 
+                            alt="Back Mockup" 
+                            className="w-full h-full object-contain group-hover:scale-110 transition-transform" 
+                          />
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+                            <Eye className="w-3.5 h-3.5" />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Article Details & Badges */}
+                    <div className="flex-1 min-w-0 space-y-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-xs font-mono font-bold text-slate-900 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+                          {selectedArticle.art_number}
+                        </span>
+                        <span className="text-xs font-bold text-[#3A3564]">
+                          {selectedArticle.garment_type}
+                        </span>
+                        <span className="text-[11px] text-slate-500 font-medium">
+                          ({selectedArticle.category_style})
+                        </span>
+                        {selectedArticle.color_name && (
+                          <span className="inline-flex items-center gap-1 text-[11px] font-mono text-slate-700 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200">
+                            <span 
+                              className="w-2 h-2 rounded-full border border-black/20" 
+                              style={{ backgroundColor: getColorSwatchInfo(selectedArticle.color_name).bg }} 
+                            />
+                            <span>{selectedArticle.color_name}</span>
+                          </span>
+                        )}
+                      </div>
+
+                      {selectedArticle.designer_name && (
+                        <p className="text-[11px] text-slate-500 font-mono">
+                          Designer: <span className="font-semibold text-slate-700">{selectedArticle.designer_name}</span>
+                        </p>
+                      )}
+
+                      {selectedArticle.designer_notes && (
+                        <p className="text-xs text-slate-600 italic line-clamp-2">
+                          &ldquo;{selectedArticle.designer_notes}&rdquo;
+                        </p>
+                      )}
+                    </div>
+                  </div>
                 )}
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* 2. Style Code & Basic Garment Metadata */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-slate-900 mb-1.5">
-                    Garment Silhouette Category *
+                  <label className="block text-xs font-bold text-slate-800 uppercase font-mono mb-1.5">
+                    Style / Art Number *
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. DEMO-102"
+                    value={styleNumber}
+                    onChange={e => setStyleNumber(e.target.value.toUpperCase())}
+                    className="w-full px-3.5 py-2 rounded-xl border border-black/15 text-xs font-mono font-bold text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-800 uppercase font-mono mb-1.5">
+                    Garment Product Type *
                   </label>
                   <select
                     value={category}
                     onChange={e => handleCategoryChange(e.target.value as GarmentCategory)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-black/15 text-sm font-medium text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                    className="w-full px-3.5 py-2 rounded-xl border border-black/15 text-xs font-semibold text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                   >
                     {CATEGORIES.map(c => (
                       <option key={c} value={c}>{c}</option>
@@ -303,57 +592,58 @@ export function CreateTechPackModal({ isOpen, onClose, onCreated, availableBrand
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-slate-900 mb-1.5">
-                    Size Grading System *
+                  <label className="block text-xs font-bold text-slate-800 uppercase font-mono mb-1.5">
+                    Buyer / Brand Client *
                   </label>
                   <select
-                    value={sizeSystem}
-                    onChange={e => handleSizeSystemChange(e.target.value as SizeSystem)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-black/15 text-sm font-medium text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                    value={brandName}
+                    onChange={e => setBrandName(e.target.value)}
+                    className="w-full px-3.5 py-2 rounded-xl border border-black/15 text-xs font-semibold text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                   >
-                    {SIZE_SYSTEMS.map(s => (
-                      <option key={s.value} value={s.value}>{s.label}</option>
+                    {brandsList.map(b => (
+                      <option key={b} value={b}>{b}</option>
                     ))}
                   </select>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-semibold text-slate-900 mb-1.5">
-                    Base Root Size *
-                  </label>
-                  <input
-                    type="text"
-                    value={baseSize}
-                    onChange={e => setBaseSize(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-black/15 text-sm font-mono font-bold text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
-                  />
-                  <p className="text-xs text-slate-500 mt-1">Golden sample fit size</p>
-                </div>
+              {/* Style Commercial Description */}
+              <div>
+                <label className="block text-xs font-bold text-slate-800 uppercase font-mono mb-1.5">
+                  Style Description / Commercial Name *
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Heavyweight Cotton French Terry Hoodie"
+                  value={styleName}
+                  onChange={e => setStyleName(e.target.value)}
+                  className="w-full px-3.5 py-2 rounded-xl border border-black/15 text-xs font-medium text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                />
+                {errors.styleName && (
+                  <p className="text-xs text-rose-600 font-medium mt-1">{errors.styleName}</p>
+                )}
+              </div>
 
+              {/* Shell Fabric & Target GSM */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="sm:col-span-2">
-                  <label className="block text-sm font-semibold text-slate-900 mb-1.5">
+                  <label className="block text-xs font-bold text-slate-800 uppercase font-mono mb-1.5">
                     Shell Fabric Composition *
                   </label>
                   <input
                     type="text"
-                    placeholder="e.g. 100% Combed Compact Cotton"
+                    placeholder="e.g. 100% Combed Cotton Single Jersey"
                     value={fabricComposition}
                     onChange={e => setFabricComposition(e.target.value)}
-                    className={`w-full px-3.5 py-2.5 rounded-xl border text-sm font-medium text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564] ${
-                      errors.fabricComposition ? 'border-rose-500 bg-rose-50/20' : 'border-black/15'
-                    }`}
+                    className="w-full px-3.5 py-2 rounded-xl border border-black/15 text-xs font-medium text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                   />
                   {errors.fabricComposition && (
                     <p className="text-xs text-rose-600 font-medium mt-1">{errors.fabricComposition}</p>
                   )}
                 </div>
-              </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-slate-900 mb-1.5">
+                  <label className="block text-xs font-bold text-slate-800 uppercase font-mono mb-1.5">
                     Target Weight (GSM) *
                   </label>
                   <div className="relative">
@@ -361,41 +651,167 @@ export function CreateTechPackModal({ isOpen, onClose, onCreated, availableBrand
                       type="number"
                       value={targetGsm}
                       onChange={e => setTargetGsm(Number(e.target.value))}
-                      className={`w-full px-3.5 py-2.5 rounded-xl border text-sm font-mono font-bold text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564] ${
-                        errors.targetGsm ? 'border-rose-500 bg-rose-50/20' : 'border-black/15'
-                      }`}
+                      className="w-full px-3.5 py-2 rounded-xl border border-black/15 text-xs font-mono font-bold text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                     />
-                    <span className="absolute right-3.5 top-2.5 text-xs font-mono text-slate-400 font-bold">GSM</span>
+                    <span className="absolute right-3.5 top-2 text-[10px] font-mono text-slate-400 font-bold">GSM</span>
                   </div>
-                  {errors.targetGsm && (
-                    <p className="text-xs text-rose-600 font-medium mt-1">{errors.targetGsm}</p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-slate-900 mb-1.5">
-                    Target Cut Release Date *
-                  </label>
-                  <input
-                    type="date"
-                    value={targetCutDate}
-                    onChange={e => setTargetCutDate(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-black/15 text-sm font-mono text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
-                  />
                 </div>
               </div>
+
+              {/* 3. NEW SECTION: Required Materials & Bill of Materials (BOM) */}
+              <div className="space-y-3 pt-2">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <div className="flex items-center gap-2">
+                    <Package className="w-4 h-4 text-[#3A3564]" />
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900 font-mono">
+                      Bill of Materials (BOM) &amp; Trims Required
+                    </h3>
+                    <span className="text-[10px] font-mono font-bold bg-[#FAF7F0] text-[#3A3564] px-2 py-0.5 rounded border border-black/10">
+                      {materials.length} Items
+                    </span>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleAddMaterial()}
+                    className="inline-flex items-center gap-1 px-3 py-1 rounded-xl bg-[#FAF7F0] hover:bg-slate-100 text-[#3A3564] border border-black/10 text-xs font-bold transition-all cursor-pointer shadow-2xs"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Add Material</span>
+                  </button>
+                </div>
+
+                {/* Quick-Add Preset Chips */}
+                <div className="flex items-center gap-1.5 flex-wrap text-[11px]">
+                  <span className="text-[10px] font-mono font-bold text-slate-400 uppercase mr-1">Quick Add:</span>
+                  {[
+                    { label: '+ Collar / Rib', preset: { component_type: 'Collar / Rib', item_name: '1x1 Spandex Rib', specification: '95% Cotton 5% Spandex 320 GSM', consumption: '0.08 Mtr', placement: 'Neckline' } },
+                    { label: '+ Ribbon / Tape', preset: { component_type: 'Ribbon / Tape', item_name: 'Herringbone Twill Tape', specification: '12mm 100% Cotton', consumption: '0.35 Mtr', placement: 'Inside Neck Seam' } },
+                    { label: '+ Main Label', preset: { component_type: 'Main Label', item_name: 'Woven Damask Brand Label', specification: 'Center Fold 45x25mm', consumption: '1 Pcs', placement: 'Inside Back Neck' } },
+                    { label: '+ Care Label', preset: { component_type: 'Care Label', item_name: 'Printed Satin Care Label', specification: 'Book Fold 30x70mm', consumption: '1 Pcs', placement: 'Inner Left Side Seam' } },
+                    { label: '+ Size Pip', preset: { component_type: 'Size Label', item_name: 'Woven Size Pip', specification: 'End Fold 12x12mm', consumption: '1 Pcs', placement: 'Under Main Label' } },
+                    { label: '+ Buttons', preset: { component_type: 'Buttons', item_name: '4-Hole Horn Button', specification: '18L Matte Finish', consumption: '4 Pcs', placement: 'Front Placket' } },
+                    { label: '+ Zipper', preset: { component_type: 'Zipper', item_name: '#5 YKK Metal Zipper', specification: 'Antique Brass Auto-lock', consumption: '1 Pcs', placement: 'Front Fly / Opening' } },
+                    { label: '+ Drawstring', preset: { component_type: 'Drawstring', item_name: 'Cotton Drawcord', specification: 'Tubular with Metal Tips', consumption: '1.2 Mtr', placement: 'Hood / Waist' } },
+                    { label: '+ Polybag', preset: { component_type: 'Polybag', item_name: 'Self-Adhesive Polybag', specification: 'Recycled 30 Micron', consumption: '1 Pcs', placement: 'Packing' } }
+                  ].map((chip, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => handleAddMaterial(chip.preset)}
+                      className="px-2 py-0.5 rounded-lg bg-white hover:bg-[#FAF7F0] border border-black/10 text-slate-700 font-medium transition-colors cursor-pointer shadow-2xs"
+                    >
+                      {chip.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Materials List Table */}
+                <div className="rounded-2xl border border-black/10 bg-white overflow-hidden shadow-2xs">
+                  <table className="w-full text-left border-collapse text-xs">
+                    <thead>
+                      <tr className="bg-[#FAF7F0] border-b border-black/10 text-[10px] font-mono font-bold uppercase text-slate-600">
+                        <th className="py-2.5 px-3">Component Type</th>
+                        <th className="py-2.5 px-3">Item Description</th>
+                        <th className="py-2.5 px-3">Specification / Details</th>
+                        <th className="py-2.5 px-3 w-24">Consumption</th>
+                        <th className="py-2.5 px-3">Placement</th>
+                        <th className="py-2.5 px-2 text-right w-10"></th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {materials.map((mat) => (
+                        <tr key={mat.id} className="hover:bg-slate-50/60 transition-colors">
+                          <td className="py-2 px-3">
+                            <input
+                              type="text"
+                              value={mat.component_type}
+                              onChange={e => handleUpdateMaterial(mat.id, 'component_type', e.target.value)}
+                              placeholder="e.g. Rib / Collar"
+                              className="w-full px-2 py-1 rounded-lg border border-slate-200 text-xs font-bold text-slate-900 bg-white focus:ring-1 focus:ring-[#3A3564]"
+                            />
+                          </td>
+                          <td className="py-2 px-3">
+                            <input
+                              type="text"
+                              value={mat.item_name}
+                              onChange={e => handleUpdateMaterial(mat.id, 'item_name', e.target.value)}
+                              placeholder="e.g. 1x1 Cotton Rib"
+                              className="w-full px-2 py-1 rounded-lg border border-slate-200 text-xs font-medium text-slate-900 bg-white focus:ring-1 focus:ring-[#3A3564]"
+                            />
+                          </td>
+                          <td className="py-2 px-3">
+                            <input
+                              type="text"
+                              value={mat.specification || ''}
+                              onChange={e => handleUpdateMaterial(mat.id, 'specification', e.target.value)}
+                              placeholder="e.g. 95% Cotton 5% Spandex"
+                              className="w-full px-2 py-1 rounded-lg border border-slate-200 text-xs text-slate-700 bg-white focus:ring-1 focus:ring-[#3A3564]"
+                            />
+                          </td>
+                          <td className="py-2 px-3">
+                            <input
+                              type="text"
+                              value={mat.consumption || ''}
+                              onChange={e => handleUpdateMaterial(mat.id, 'consumption', e.target.value)}
+                              placeholder="e.g. 1 Pcs"
+                              className="w-full px-2 py-1 rounded-lg border border-slate-200 text-xs font-mono font-bold text-slate-800 bg-white focus:ring-1 focus:ring-[#3A3564]"
+                            />
+                          </td>
+                          <td className="py-2 px-3">
+                            <input
+                              type="text"
+                              value={mat.placement || ''}
+                              onChange={e => handleUpdateMaterial(mat.id, 'placement', e.target.value)}
+                              placeholder="e.g. Neckline"
+                              className="w-full px-2 py-1 rounded-lg border border-slate-200 text-xs text-slate-700 bg-white focus:ring-1 focus:ring-[#3A3564]"
+                            />
+                          </td>
+                          <td className="py-2 px-2 text-right">
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteMaterial(mat.id)}
+                              className="p-1 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                              title="Delete Material Line"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* 4. NEW SECTION: Additional Instructions Bar */}
+              <div className="space-y-1.5 pt-2">
+                <label className="text-xs font-bold uppercase tracking-wider text-slate-800 font-mono block">
+                  Additional Construction &amp; Packaging Instructions:
+                </label>
+                <textarea
+                  value={additionalInstructions}
+                  onChange={e => setAdditionalInstructions(e.target.value)}
+                  placeholder="e.g. Double needle topstitch on neck rib. Silicon wash after stitching for ultra-soft handfeel. Fold with butter paper and tag on left sleeve..."
+                  rows={3}
+                  className="w-full p-3 rounded-2xl border border-black/15 text-xs text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564] shadow-2xs"
+                />
+              </div>
+
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-5">
+              
+              {/* Embellishment Routing */}
               <div>
-                <label className="block text-sm font-semibold text-slate-900 mb-2">
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-800 font-mono mb-2">
                   Embellishment Routing Rule *
                 </label>
-                <div className="space-y-2.5">
+                <div className="space-y-2">
                   {EMBELLISHMENT_SEQUENCES.map(seq => (
                     <label
                       key={seq.value}
-                      className={`flex items-start gap-3 p-3.5 rounded-xl border cursor-pointer transition-all ${
+                      className={`flex items-start gap-3 p-3.5 rounded-2xl border cursor-pointer transition-all ${
                         embellishmentSeq === seq.value
                           ? 'border-[#3A3564] bg-[#FAF7F0] shadow-2xs'
                           : 'border-black/10 hover:bg-slate-50'
@@ -409,18 +825,49 @@ export function CreateTechPackModal({ isOpen, onClose, onCreated, availableBrand
                         className="mt-0.5 text-[#3A3564] focus:ring-[#3A3564]"
                       />
                       <div>
-                        <span className="text-sm font-bold text-slate-900 block">{seq.label}</span>
-                        <span className="text-xs text-slate-500">{seq.desc}</span>
+                        <span className="text-xs font-bold text-slate-900 block">{seq.label}</span>
+                        <span className="text-[11px] text-slate-500">{seq.desc}</span>
                       </div>
                     </label>
                   ))}
                 </div>
               </div>
 
+              {/* Sizing & Base Size */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-slate-900 mb-1.5">
-                    Stitches Per Inch (SPI) *
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-800 font-mono mb-1.5">
+                    Size Grading System *
+                  </label>
+                  <select
+                    value={sizeSystem}
+                    onChange={e => handleSizeSystemChange(e.target.value as SizeSystem)}
+                    className="w-full px-3.5 py-2 rounded-xl border border-black/15 text-xs font-semibold text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                  >
+                    {SIZE_SYSTEMS.map(s => (
+                      <option key={s.value} value={s.value}>{s.label}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-800 font-mono mb-1.5">
+                    Base Golden Sample Size *
+                  </label>
+                  <input
+                    type="text"
+                    value={baseSize}
+                    onChange={e => setBaseSize(e.target.value)}
+                    className="w-full px-3.5 py-2 rounded-xl border border-black/15 text-xs font-mono font-bold text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                  />
+                </div>
+              </div>
+
+              {/* Stitches, Seam Class & Target Cut Date */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-800 font-mono mb-1.5">
+                    Stitches / Inch (SPI) *
                   </label>
                   <input
                     type="number"
@@ -428,54 +875,69 @@ export function CreateTechPackModal({ isOpen, onClose, onCreated, availableBrand
                     max={20}
                     value={spi}
                     onChange={e => setSpi(Number(e.target.value))}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-black/15 text-sm font-mono font-bold text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                    className="w-full px-3.5 py-2 rounded-xl border border-black/15 text-xs font-mono font-bold text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                   />
-                  <p className="text-xs text-slate-500 mt-1">Default 12 SPI for woven/knit apparel</p>
+                  <p className="text-[10px] text-slate-400 font-mono mt-1">Default 12 SPI</p>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-slate-900 mb-1.5">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-800 font-mono mb-1.5">
                     Seam Construction Class *
                   </label>
                   <select
                     value={seamClass}
                     onChange={e => setSeamClass(e.target.value as SeamClass)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-black/15 text-sm font-medium text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                    className="w-full px-3.5 py-2 rounded-xl border border-black/15 text-xs font-medium text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
                   >
                     {SEAM_CLASSES.map(sc => (
                       <option key={sc} value={sc}>{sc}</option>
                     ))}
                   </select>
                 </div>
+
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-800 font-mono mb-1.5">
+                    Target Cut Date *
+                  </label>
+                  <input
+                    type="date"
+                    value={targetCutDate}
+                    onChange={e => setTargetCutDate(e.target.value)}
+                    className="w-full px-3.5 py-2 rounded-xl border border-black/15 text-xs font-mono text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                  />
+                </div>
               </div>
 
-              {/* Vector Sketch Preview Box */}
-              <div className="p-4 rounded-2xl border border-black/10 bg-[#FAF7F0]/60 space-y-3">
-                <span className="text-xs font-semibold text-slate-600 uppercase tracking-wider block">
-                  Technical CAD Outline
+              {/* Technical CAD Vector Summary Box */}
+              <div className="p-4 rounded-2xl border border-black/10 bg-[#FAF7F0] space-y-2">
+                <span className="text-[10px] font-mono font-bold text-slate-500 uppercase tracking-wider block">
+                  CAD Specifications Ready
                 </span>
-                <div className="h-28 rounded-xl bg-white border border-black/10 flex items-center justify-center p-4">
-                  <div className="text-center space-y-1">
-                    <Scissors className="w-7 h-7 mx-auto text-[#3A3564]" />
-                    <p className="text-sm font-bold text-slate-900">
-                      Standard {category} Vector Model Generated
+                <div className="flex items-center gap-3 p-3 bg-white rounded-xl border border-black/10">
+                  <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 text-[#3A3564] flex items-center justify-center shrink-0">
+                    <Scissors className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-slate-900">
+                      Standard {category} Pattern POMs Linked to Size {baseSize}
                     </p>
-                    <p className="text-xs text-slate-500 font-mono">
-                      Front & Back POM coordinates linked to {baseSize} Base Pattern
+                    <p className="text-[11px] text-slate-500 font-mono">
+                      {materials.length} BOM components and {seamClass} mapped for production handover.
                     </p>
                   </div>
                 </div>
               </div>
+
             </div>
           )}
         </div>
 
         {/* Modal Footer */}
-        <div className="px-6 py-4 border-t border-black/10 bg-[#FAF7F0]/60 flex items-center justify-between">
+        <div className="px-6 py-4 border-t border-black/10 bg-[#FAF7F0] flex items-center justify-between">
           {step === 2 ? (
             <button
               onClick={() => setStep(1)}
-              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-black/10 text-xs font-semibold text-slate-700 hover:bg-white transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-black/10 text-xs font-bold text-slate-700 bg-white hover:bg-slate-100 transition-colors cursor-pointer shadow-2xs"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Back</span>
@@ -487,7 +949,7 @@ export function CreateTechPackModal({ isOpen, onClose, onCreated, availableBrand
           <div className="flex items-center gap-3">
             <button
               onClick={onClose}
-              className="px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
+              className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:text-slate-900 bg-white border border-black/10 hover:bg-slate-100 transition-colors cursor-pointer shadow-2xs"
             >
               Cancel
             </button>
@@ -495,7 +957,7 @@ export function CreateTechPackModal({ isOpen, onClose, onCreated, availableBrand
             {step === 1 ? (
               <button
                 onClick={handleNext}
-                className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-[#3A3564] text-[#FAF7F0] text-xs font-bold hover:bg-[#2A2649] transition-all shadow-2xs cursor-pointer font-[family-name:var(--font-heading)]"
+                className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2A2649] transition-all shadow-xs cursor-pointer font-[family-name:var(--font-heading)]"
               >
                 <span>Continue to Step 2</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -504,7 +966,7 @@ export function CreateTechPackModal({ isOpen, onClose, onCreated, availableBrand
               <button
                 onClick={handleSubmit}
                 disabled={isSubmitting}
-                className="inline-flex items-center gap-1.5 px-6 py-2.5 rounded-xl bg-[#3A3564] text-[#FAF7F0] text-xs font-bold hover:bg-[#2A2649] transition-all shadow-2xs cursor-pointer disabled:opacity-50 font-[family-name:var(--font-heading)]"
+                className="inline-flex items-center gap-1.5 px-6 py-2 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2A2649] transition-all shadow-xs cursor-pointer disabled:opacity-50 font-[family-name:var(--font-heading)]"
               >
                 <Check className="w-3.5 h-3.5" />
                 <span>Save Tech-Pack Specification</span>
@@ -514,6 +976,29 @@ export function CreateTechPackModal({ isOpen, onClose, onCreated, availableBrand
         </div>
 
       </div>
+
+      {/* Full Photo Zoom Modal */}
+      {previewPhoto && (
+        <div 
+          onClick={() => setPreviewPhoto(null)}
+          className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs cursor-pointer"
+        >
+          <div className="relative max-w-2xl max-h-[85vh] p-2 bg-white rounded-2xl shadow-2xl border border-black/10">
+            <img 
+              src={previewPhoto} 
+              alt="Preview" 
+              className="max-h-[80vh] w-auto rounded-xl object-contain" 
+            />
+            <button
+              onClick={() => setPreviewPhoto(null)}
+              className="absolute top-4 right-4 w-8 h-8 bg-black/60 text-white rounded-full flex items-center justify-center text-sm font-bold hover:bg-black"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
+
     </div>
   )
 }

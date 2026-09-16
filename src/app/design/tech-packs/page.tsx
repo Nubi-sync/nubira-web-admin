@@ -2,7 +2,7 @@ import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { AdminShell } from '@/components/layout/AdminShell'
 import { TechPackCatalogClient } from './components/TechPackCatalogClient'
-import { fetchTechPacksAction, fetchBrandsAction } from '../actions'
+import { fetchTechPacksAction, fetchBrandsAction, fetchApprovedArticlesForTechPackAction } from '../actions'
 
 import { resolveUserTenant, isLegacyNubiraTenant } from '@/lib/tenant-context'
 
@@ -23,15 +23,20 @@ export default async function TechPacksPage() {
   const isLegacy = isLegacyNubiraTenant(tenant)
   const companyFilter = isLegacy ? undefined : tenant.companyName
 
-  const [initialTechPacks, brands] = await Promise.all([
+  const [initialTechPacks, brands, availableArticles] = await Promise.all([
     fetchTechPacksAction(companyFilter),
-    fetchBrandsAction(companyFilter)
+    fetchBrandsAction(companyFilter),
+    fetchApprovedArticlesForTechPackAction(companyFilter)
   ])
 
   return (
     <AdminShell userEmail={tenant.userEmail} userRole={tenant.role}>
       <div className="p-4 sm:p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto select-none">
-        <TechPackCatalogClient initialTechPacks={initialTechPacks} availableBrands={brands} />
+        <TechPackCatalogClient 
+          initialTechPacks={initialTechPacks} 
+          availableBrands={brands} 
+          availableArticles={availableArticles} 
+        />
       </div>
     </AdminShell>
   )

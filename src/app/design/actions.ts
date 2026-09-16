@@ -27,7 +27,9 @@ import {
   PHVerdict,
   SAVerdict,
   DesignConceptItem,
-  DesignConceptColorway
+  DesignConceptColorway,
+  TechPackMaterialRequirement,
+  AvailableArticleOption
 } from './types/design'
 
 const supabaseAdmin = createAdminClient(
@@ -50,6 +52,43 @@ function mapCategoryToUI(cat: string): GarmentCategory {
   return 'Hoodie'
 }
 
+function getVariantArtNumber(baseArtNo: string, cwIndex: number, totalCw: number): string {
+  if (totalCw <= 1) return baseArtNo
+  const suffix = String(cwIndex + 1).padStart(2, '0')
+  return `${baseArtNo}-${suffix}`
+}
+
+function parseTechPackMetadata(rawFabric?: string | null): {
+  fabric: string
+  materials?: TechPackMaterialRequirement[]
+  instructions?: string
+} {
+  if (!rawFabric) return { fabric: '100% Cotton' }
+  let cleanFabric = rawFabric
+  let materials: TechPackMaterialRequirement[] | undefined
+  let instructions: string | undefined
+
+  const bomMatch = cleanFabric.match(/\[BOM_JSON:\s*(\[[\s\S]*?\])\]/i)
+  if (bomMatch && bomMatch[1]) {
+    try {
+      materials = JSON.parse(bomMatch[1])
+      cleanFabric = cleanFabric.replace(/\[BOM_JSON:\s*\[[\s\S]*?\]\]\s*/gi, '')
+    } catch {}
+  }
+
+  const instMatch = cleanFabric.match(/\[INSTRUCTIONS:\s*([\s\S]*?)\]\s*$/i)
+  if (instMatch && instMatch[1]) {
+    instructions = instMatch[1].trim()
+    cleanFabric = cleanFabric.replace(/\[INSTRUCTIONS:\s*[\s\S]*?\]\s*$/gi, '')
+  }
+
+  return {
+    fabric: cleanFabric.trim() || '100% Cotton',
+    materials,
+    instructions
+  }
+}
+
 // -----------------------------------------------------------------------------
 // 1. TECH PACKS
 // -----------------------------------------------------------------------------
@@ -68,34 +107,147 @@ export async function fetchTechPacksAction(_companyName?: string): Promise<TechP
 
     if (!data || data.length === 0) return []
 
-    return data.map((row: any) => ({
-      id: row.id,
-      style_number: row.style_number,
-      style_name: `${row.category} Style ${row.style_number}`,
-      brand_name: row.brands?.brand_name || 'Inhouse',
-      category: mapCategoryToUI(row.category),
-      size_system: (row.size_system as SizeSystem) || 'ALPHA_ADULT',
-      base_size: row.base_size || 'M',
-      fabric_composition: row.fabric_composition || '100% Cotton',
-      target_gsm: Number(row.target_gsm) || 300,
-      embellishment_sequence: (row.embellishment_sequence as EmbellishmentSequence) || 'NONE',
-      cad_front_url: row.cad_front_url || undefined,
-      cad_back_url: row.cad_back_url || undefined,
-      spi: Number(row.spi) || 12,
-      seam_class: (row.seam_class as SeamClass) || 'ISO 4915 Class 401 (Chainstitch)',
-      status: (row.status as TechPackStatus) || 'DRAFT',
-      target_cut_date: new Date(new Date(row.created_at).getTime() + 14 * 86400000).toISOString().split('T')[0],
-      version: Number(row.version) || 1,
-      created_at: row.created_at,
-      updated_at: row.updated_at,
-      design_submission_id: row.design_submission_id || undefined,
-      created_by_ph: row.created_by_ph || undefined,
-      approved_by_sa: Boolean(row.approved_by_sa),
-      sa_verdict: row.sa_verdict || 'PENDING',
-      company_name: row.company_name || 'Nubira Creation'
-    }))
+    return data.map((row: any) => {
+      const meta = parseTechPackMetadata(row.fabric_composition)
+      return {
+        id: row.id,
+        style_number: row.style_number,
+        style_name: `${row.category} Style ${row.style_number}`,
+        brand_name: row.brands?.brand_name || 'Inhouse',
+        category: mapCategoryToUI(row.category),
+        size_system: (row.size_system as SizeSystem) || 'ALPHA_ADULT',
+        base_size: row.base_size || 'M',
+        fabric_composition: meta.fabric,
+        materials: meta.materials,
+        instructions: meta.instructions,
+        target_gsm: Number(row.target_gsm) || 300,
+        embellishment_sequence: (row.embellishment_sequence as EmbellishmentSequence) || 'NONE',
+        cad_front_url: row.cad_front_url || undefined,
+        cad_back_url: row.cad_back_url || undefined,
+        spi: Number(row.spi) || 12,
+        seam_class: (row.seam_class as SeamClass) || 'ISO 4915 Class 401 (Chainstitch)',
+        status: (row.status as TechPackStatus) || 'DRAFT',
+        target_cut_date: new Date(new Date(row.created_at).getTime() + 14 * 86400000).toISOString().split('T')[0],
+        version: Number(row.version) || 1,
+        created_at: row.created_at,
+        updated_at: row.updated_at,
+        design_submission_id: row.design_submission_id || undefined,
+        created_by_ph: row.created_by_ph || undefined,
+        approved_by_sa: Boolean(row.approved_by_sa),
+        sa_verdict: row.sa_verdict || 'PENDING',
+        company_name: row.company_name || 'Nubira Creation'
+      }
+    })
   } catch (err) {
     console.error('[fetchTechPacksAction] Unexpected error:', err)
+    return []
+  }
+}
+
+export async function fetchApprovedArticlesForTechPackAction(companyName?: string): Promise<AvailableArticleOption[]> {
+  try {
+    let query = supabaseAdmin
+      .from('design_briefs')
+      .select('*, design_team_members(*), design_submissions(*)')
+      .order('created_at', { ascending: false })
+
+    if (companyName) {
+      query = query.eq('company_name', companyName)
+    }
+
+    const { data, error } = await query
+    if (error || !data) return []
+
+    const articles: AvailableArticleOption[] = []
+
+    data.forEach((briefRow: any) => {
+      const subs = (briefRow.design_submissions || []) as any[]
+      subs.sort((a, b) => new Date(b.submitted_at).getTime() - new Date(a.submitted_at).getTime())
+      const latestSub = subs[0]
+      if (!latestSub) return
+
+      const parsedNotes = parseConceptsFromNotes(latestSub.designer_notes)
+      const concepts = parsedNotes.concepts || []
+
+      // Parse instructed concepts brief
+      let parsedConceptsBrief: BriefDesignConceptRequirement[] | undefined
+      if (briefRow.instructions) {
+        const match = briefRow.instructions.match(/\[CONCEPTS_BRIEF:\s*(\[[\s\S]*?\])\]/i)
+        if (match && match[1]) {
+          try {
+            parsedConceptsBrief = JSON.parse(match[1])
+          } catch {}
+        }
+      }
+
+      if (parsedConceptsBrief && parsedConceptsBrief.length > 0) {
+        parsedConceptsBrief.forEach(req => {
+          const baseArtNo = req.art_number || (req.notes?.match(/Art No:\s*([^|]+)/i)?.[1]?.trim()) || `#${briefRow.id.substring(0, 6)}-${req.concept_number}`
+          const garment = (req.notes?.match(/Garment:\s*([^|]+)/i)?.[1]?.trim()) || 
+                          briefRow.garment_type?.split(',')[req.concept_number - 1]?.trim() || 
+                          briefRow.garment_type
+          const cat = req.category_style || briefRow.category
+          const subConcept = concepts.find(c => c.concept_number === req.concept_number || (c.art_number && c.art_number.toLowerCase() === baseArtNo.toLowerCase()))
+
+          if (subConcept?.colorways && subConcept.colorways.length > 0) {
+            subConcept.colorways.forEach((cw, cwIdx) => {
+              if (cw.status === 'REJECTED') return // strictly omit rejected colorways
+              const variantArtNo = getVariantArtNumber(baseArtNo, cwIdx, subConcept.colorways.length)
+              articles.push({
+                id: `${briefRow.id}-${req.concept_number}-${cwIdx}`,
+                art_number: variantArtNo,
+                garment_type: garment,
+                category_style: cat,
+                color_name: cw.color_name,
+                photo_front: cw.photo_front || latestSub.photo_url_1,
+                photo_back: cw.photo_back || latestSub.photo_url_2,
+                brief_id: briefRow.id,
+                submission_id: latestSub.id,
+                designer_name: briefRow.design_team_members?.designer_name,
+                designer_notes: parsedNotes.cleanNotes,
+                instructions: briefRow.instructions?.replace(/\[CONCEPTS_BRIEF:[\s\S]*?\]/gi, '').trim(),
+                company_name: briefRow.company_name
+              })
+            })
+          } else {
+            articles.push({
+              id: `${briefRow.id}-${req.concept_number}`,
+              art_number: baseArtNo,
+              garment_type: garment,
+              category_style: cat,
+              photo_front: latestSub.photo_url_1,
+              photo_back: latestSub.photo_url_2,
+              brief_id: briefRow.id,
+              submission_id: latestSub.id,
+              designer_name: briefRow.design_team_members?.designer_name,
+              designer_notes: parsedNotes.cleanNotes,
+              instructions: briefRow.instructions?.replace(/\[CONCEPTS_BRIEF:[\s\S]*?\]/gi, '').trim(),
+              company_name: briefRow.company_name
+            })
+          }
+        })
+      } else {
+        const baseArtNo = `#${briefRow.id.substring(0, 6)}`
+        articles.push({
+          id: briefRow.id,
+          art_number: baseArtNo,
+          garment_type: briefRow.garment_type,
+          category_style: briefRow.category,
+          photo_front: latestSub.photo_url_1,
+          photo_back: latestSub.photo_url_2,
+          brief_id: briefRow.id,
+          submission_id: latestSub.id,
+          designer_name: briefRow.design_team_members?.designer_name,
+          designer_notes: parsedNotes.cleanNotes,
+          instructions: briefRow.instructions,
+          company_name: briefRow.company_name
+        })
+      }
+    })
+
+    return articles
+  } catch (err) {
+    console.error('[fetchApprovedArticlesForTechPackAction] Error:', err)
     return []
   }
 }
@@ -118,6 +270,8 @@ export async function createTechPackAction(payload: {
   design_submission_id?: string
   created_by_ph?: string
   company_name?: string
+  materials?: TechPackMaterialRequirement[]
+  instructions?: string
 }): Promise<{ success: boolean; data?: TechPack; error?: string }> {
   try {
     let brandId = payload.brand_id
@@ -163,6 +317,14 @@ export async function createTechPackAction(payload: {
 
     const categoryDB = payload.category.toUpperCase().replace(/\s+/g, '_').replace(/-/g, '')
 
+    let finalFabric = payload.fabric_composition.trim()
+    if (payload.materials && payload.materials.length > 0) {
+      finalFabric = `[BOM_JSON: ${JSON.stringify(payload.materials)}] ${finalFabric}`
+    }
+    if (payload.instructions && payload.instructions.trim()) {
+      finalFabric = `${finalFabric} [INSTRUCTIONS: ${payload.instructions.trim()}]`
+    }
+
     const { data, error } = await supabaseAdmin
       .from('design_tech_packs')
       .insert({
@@ -171,7 +333,7 @@ export async function createTechPackAction(payload: {
         category: categoryDB,
         size_system: payload.size_system,
         base_size: payload.base_size,
-        fabric_composition: payload.fabric_composition.trim(),
+        fabric_composition: finalFabric,
         target_gsm: Number(payload.target_gsm),
         embellishment_sequence: payload.embellishment_sequence,
         spi: Number(payload.spi),
@@ -197,6 +359,8 @@ export async function createTechPackAction(payload: {
     revalidatePath('/design')
     revalidatePath('/design/tech-packs')
 
+    const meta = parseTechPackMetadata(data.fabric_composition)
+
     const createdPack: TechPack = {
       id: data.id,
       style_number: data.style_number,
@@ -205,9 +369,13 @@ export async function createTechPackAction(payload: {
       category: mapCategoryToUI(data.category),
       size_system: data.size_system as SizeSystem,
       base_size: data.base_size,
-      fabric_composition: data.fabric_composition,
+      fabric_composition: meta.fabric,
+      materials: meta.materials || payload.materials,
+      instructions: meta.instructions || payload.instructions,
       target_gsm: Number(data.target_gsm),
       embellishment_sequence: data.embellishment_sequence as EmbellishmentSequence,
+      cad_front_url: data.cad_front_url || undefined,
+      cad_back_url: data.cad_back_url || undefined,
       spi: Number(data.spi),
       seam_class: data.seam_class as SeamClass,
       status: data.status as TechPackStatus,
@@ -243,6 +411,8 @@ export async function updateTechPackAction(
     spi?: number
     seam_class?: SeamClass
     status?: TechPackStatus
+    materials?: TechPackMaterialRequirement[]
+    instructions?: string
   }
 ): Promise<{ success: boolean; data?: TechPack; error?: string }> {
   try {
@@ -278,7 +448,18 @@ export async function updateTechPackAction(
     if (payload.category) updates.category = payload.category.toUpperCase().replace(/\s+/g, '_').replace(/-/g, '')
     if (payload.size_system) updates.size_system = payload.size_system
     if (payload.base_size) updates.base_size = payload.base_size
-    if (payload.fabric_composition) updates.fabric_composition = payload.fabric_composition.trim()
+
+    let finalFabric = payload.fabric_composition?.trim()
+    if (finalFabric !== undefined) {
+      if (payload.materials && payload.materials.length > 0) {
+        finalFabric = `[BOM_JSON: ${JSON.stringify(payload.materials)}] ${finalFabric}`
+      }
+      if (payload.instructions && payload.instructions.trim()) {
+        finalFabric = `${finalFabric} [INSTRUCTIONS: ${payload.instructions.trim()}]`
+      }
+      updates.fabric_composition = finalFabric
+    }
+
     if (payload.target_gsm !== undefined) updates.target_gsm = Number(payload.target_gsm)
     if (payload.embellishment_sequence) updates.embellishment_sequence = payload.embellishment_sequence
     if (payload.spi !== undefined) updates.spi = Number(payload.spi)
@@ -300,6 +481,8 @@ export async function updateTechPackAction(
     revalidatePath('/design')
     revalidatePath('/design/tech-packs')
 
+    const meta = parseTechPackMetadata(data.fabric_composition)
+
     return {
       success: true,
       data: {
@@ -310,9 +493,13 @@ export async function updateTechPackAction(
         category: mapCategoryToUI(data.category),
         size_system: data.size_system as SizeSystem,
         base_size: data.base_size,
-        fabric_composition: data.fabric_composition,
+        fabric_composition: meta.fabric,
+        materials: meta.materials || payload.materials,
+        instructions: meta.instructions || payload.instructions,
         target_gsm: Number(data.target_gsm),
         embellishment_sequence: data.embellishment_sequence as EmbellishmentSequence,
+        cad_front_url: data.cad_front_url || undefined,
+        cad_back_url: data.cad_back_url || undefined,
         spi: Number(data.spi),
         seam_class: data.seam_class as SeamClass,
         status: data.status as TechPackStatus,
