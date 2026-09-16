@@ -56,7 +56,7 @@ const STATUS_CONFIG: Record<BriefStatus, { label: string; badgeClass: string }> 
   PH_APPROVED: { label: 'PH Approved', badgeClass: 'bg-sky-50 text-sky-800 border-sky-200 font-semibold' },
   PH_REJECTED: { label: 'Revisions Needed', badgeClass: 'bg-rose-50 text-rose-700 border-rose-200 font-semibold' },
   SA_APPROVED: { label: 'SA Greenlit', badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200 font-bold' },
-  SA_SAVED_FOR_LATER: { label: 'Saved for Later', badgeClass: 'bg-[#FAF7F0] text-[#3A3564] border-black/10 font-semibold' },
+  SA_SAVED_FOR_LATER: { label: 'PH Approved', badgeClass: 'bg-sky-50 text-sky-800 border-sky-200 font-semibold' },
   TECH_PACK_CREATED: { label: 'Tech-Pack Created', badgeClass: 'bg-[#FAF7F0] text-slate-900 border-black/15 font-bold' }
 }
 
@@ -143,10 +143,14 @@ export function DesignDashboardClient({
   const existingCategories = Array.from(new Set(briefs.map(b => b.category).filter(Boolean)))
 
   const filteredBriefs = briefs.filter(b => {
-    // Saved for Later is managed solely in the Super Admin Seasonal Archive
-    if (b.status === 'SA_SAVED_FOR_LATER') return false
-
-    const matchesStatus = statusFilter === 'ALL' || b.status === statusFilter
+    let matchesStatus = true
+    if (statusFilter !== 'ALL') {
+      if (statusFilter === 'PH_APPROVED') {
+        matchesStatus = b.status === 'PH_APPROVED' || b.status === 'SA_APPROVED' || b.status === 'SA_SAVED_FOR_LATER'
+      } else {
+        matchesStatus = b.status === statusFilter
+      }
+    }
     const q = searchQuery.toLowerCase()
     const matchesSearch = 
       b.garment_type.toLowerCase().includes(q) ||
@@ -798,44 +802,54 @@ export function DesignDashboardClient({
                             </p>
                           )}
 
-                          {/* Colorways in Compact Horizontal Row */}
-                          <div className="flex flex-wrap items-stretch gap-3 pt-1">
+                          {/* Colorways in Responsive Grid Layout */}
+                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5 pt-1">
                             {currentConcept.colorways && currentConcept.colorways.length > 0 ? (
                               currentConcept.colorways.map((cw, cwIdx) => {
                                 const sw = getColorSwatchInfo(cw.color_name)
                                 return (
                                   <div
                                     key={cwIdx}
-                                    className="bg-white p-2.5 rounded-xl border border-black/10 shadow-2xs flex flex-col justify-between gap-2 min-w-[130px] max-w-[180px] shrink-0"
+                                    className="bg-white p-3 rounded-2xl border border-black/10 shadow-2xs hover:shadow-xs transition-all flex flex-col justify-between gap-2.5"
                                   >
-                                    <div className="flex items-center gap-1.5 font-mono text-xs font-bold text-slate-800 truncate">
-                                      <span
-                                        className="w-2.5 h-2.5 rounded-full border border-black/15 shrink-0"
-                                        style={{ backgroundColor: sw.bg }}
-                                      />
-                                      <span className="truncate">{cw.color_name}</span>
+                                    <div className="flex items-center justify-between gap-2">
+                                      <div className="flex items-center gap-2 font-mono text-xs font-bold text-slate-800 truncate">
+                                        <span
+                                          className="w-3 h-3 rounded-full border border-black/15 shrink-0 shadow-2xs"
+                                          style={{ backgroundColor: sw.bg }}
+                                        />
+                                        <span className="truncate">{cw.color_name}</span>
+                                      </div>
+                                      <span className="text-[10px] font-mono text-slate-400 font-medium bg-[#FAF7F0] px-1.5 py-0.5 rounded border border-black/5 shrink-0">
+                                        {cw.photo_back ? '2 Views' : '1 View'}
+                                      </span>
                                     </div>
 
-                                    <div className="flex items-center gap-1.5">
+                                    {/* Artwork Thumbnails */}
+                                    <div className="grid grid-cols-2 gap-2">
                                       {/* Front Thumbnail */}
                                       {cw.photo_front ? (
                                         <div
                                           onClick={() => setPreviewPhoto(cw.photo_front)}
-                                          className="w-20 h-16 sm:w-24 sm:h-18 rounded-lg border border-black/10 overflow-hidden bg-slate-50 relative group cursor-pointer shadow-2xs shrink-0"
-                                          title="Click to view Front Artwork"
+                                          className="aspect-square rounded-xl border border-black/10 bg-[#FAF7F0] overflow-hidden relative group cursor-pointer p-1.5 flex items-center justify-center shadow-2xs hover:border-[#3A3564]/30 transition-all"
+                                          title="Click to view full Front Artwork"
                                         >
                                           <img
                                             src={cw.photo_front}
                                             alt={`${cw.color_name} Front`}
-                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                                            className="w-full h-full object-contain group-hover:scale-105 transition-transform drop-shadow-xs"
                                           />
-                                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[9px] font-bold">
-                                            <Eye className="w-3 h-3" />
+                                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white text-[10px] font-bold rounded-xl gap-0.5">
+                                            <Eye className="w-3.5 h-3.5" />
+                                            <span>Front</span>
                                           </div>
+                                          <span className="absolute bottom-1 left-1 text-[9px] font-mono font-bold bg-white/90 text-slate-700 px-1 py-0.2 rounded border border-black/5 shadow-2xs">
+                                            Front
+                                          </span>
                                         </div>
                                       ) : (
-                                        <div className="w-20 h-16 rounded-lg border border-dashed border-slate-200 bg-slate-50 flex items-center justify-center text-[10px] text-slate-400 font-mono">
-                                          No Front
+                                        <div className="aspect-square rounded-xl border border-dashed border-slate-200 bg-slate-50 flex flex-col items-center justify-center text-[10px] text-slate-400 font-mono p-1">
+                                          <span>No Front</span>
                                         </div>
                                       )}
 
@@ -843,25 +857,33 @@ export function DesignDashboardClient({
                                       {cw.photo_back ? (
                                         <div
                                           onClick={() => setPreviewPhoto(cw.photo_back!)}
-                                          className="w-20 h-16 sm:w-24 sm:h-18 rounded-lg border border-black/10 overflow-hidden bg-slate-50 relative group cursor-pointer shadow-2xs shrink-0"
-                                          title="Click to view Back Artwork"
+                                          className="aspect-square rounded-xl border border-black/10 bg-[#FAF7F0] overflow-hidden relative group cursor-pointer p-1.5 flex items-center justify-center shadow-2xs hover:border-[#3A3564]/30 transition-all"
+                                          title="Click to view full Back Artwork"
                                         >
                                           <img
                                             src={cw.photo_back}
                                             alt={`${cw.color_name} Back`}
-                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                                            className="w-full h-full object-contain group-hover:scale-105 transition-transform drop-shadow-xs"
                                           />
-                                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[9px] font-bold">
-                                            <Eye className="w-3 h-3" />
+                                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white text-[10px] font-bold rounded-xl gap-0.5">
+                                            <Eye className="w-3.5 h-3.5" />
+                                            <span>Back</span>
                                           </div>
+                                          <span className="absolute bottom-1 left-1 text-[9px] font-mono font-bold bg-white/90 text-slate-700 px-1 py-0.2 rounded border border-black/5 shadow-2xs">
+                                            Back
+                                          </span>
                                         </div>
-                                      ) : null}
+                                      ) : (
+                                        <div className="aspect-square rounded-xl border border-dashed border-slate-200 bg-slate-50 flex flex-col items-center justify-center text-[10px] text-slate-400 font-mono p-1">
+                                          <span>No Back</span>
+                                        </div>
+                                      )}
                                     </div>
                                   </div>
                                 )
                               })
                             ) : (
-                              <div className="p-4 text-center text-slate-400 text-xs font-mono w-full">
+                              <div className="p-4 text-center text-slate-400 text-xs font-mono col-span-full">
                                 No colorways uploaded for this concept.
                               </div>
                             )}

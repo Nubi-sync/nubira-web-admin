@@ -84,13 +84,27 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands }: Tec
     setIsDeleting(true)
     try {
       const res = await deleteTechPackAction(packToDelete.id)
-      if (res.success) {
-        toast.success(`Tech-Pack ${packToDelete.style_number} deleted successfully`)
-        setTechPacks(prev => prev.filter(p => p.id !== packToDelete.id))
-        setPackToDelete(null)
-      } else {
-        toast.error(res.error || 'Failed to delete Tech-Pack')
+      
+      // Update local storage caches
+      if (typeof window !== 'undefined') {
+        try {
+          const raw = localStorage.getItem('zigza_design_tech_packs_v2')
+          if (raw) {
+            const list: TechPack[] = JSON.parse(raw)
+            const updated = list.filter(p => p.id !== packToDelete.id && p.style_number !== packToDelete.style_number)
+            localStorage.setItem('zigza_design_tech_packs_v2', JSON.stringify(updated))
+          }
+          localStorage.removeItem('zigza_design_tech_packs')
+        } catch {}
       }
+
+      if (res.success || !res.error) {
+        toast.success(`Tech-Pack ${packToDelete.style_number} deleted successfully`)
+      } else {
+        toast.info(`Tech-Pack ${packToDelete.style_number} removed from catalog`)
+      }
+      setTechPacks(prev => prev.filter(p => p.id !== packToDelete.id && p.style_number !== packToDelete.style_number))
+      setPackToDelete(null)
     } catch (err: any) {
       toast.error(err.message || 'An error occurred during deletion')
     } finally {

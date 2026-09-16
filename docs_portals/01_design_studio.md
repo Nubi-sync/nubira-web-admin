@@ -1,20 +1,27 @@
-# 01 • Design & Tech-Pack Studio Architecture Specification
+# 01 • Design Studio & Tech-Pack Enterprise Architecture Specification
 ### Zigza MES Garment Manufacturing Platform • Division Specification Document
-**Route Prefix**: `/design` | **Division Order**: 01 of 11 | **Theme**: `#3A3564` (Indigo Night) & `#FAF7F0` (Cream Silk)
+**Route Prefix**: `/design` | **Division Order**: 01 of 11 | **Design System**: `#3A3564` (Deep Indigo) & `#FAF7F0` (Cream Silk)
 
 ---
 
 ## 1. Executive Summary & Industry Scope
 
-The **Design & Tech-Pack Studio** is the digital inception point of the garment manufacturing lifecycle. It bridges creative fashion concepts and industrial mass manufacturing by standardizing CAD sketches, dynamic Point of Measure (POM) grading tables, Bill of Materials (BOM), measurement tolerances, and size grading matrices.
+The **Design & Tech-Pack Studio** is the digital inception gate of the Zigza MES garment platform. It orchestrates the entire creative and technical development lifecycle:
+1. **Design Brief Allocation & Creative Direction**: Provisional Head (PH) allocates structured briefs to assigned designers.
+2. **Multi-Concept & Colorway Submission**: Designers submit high-fidelity artwork decks with multiple concepts, front/back vector mockups, and colorway palettes across Web and Mobile App portals.
+3. **Dual-Tier Review & Gatekeeper Approval**:
+   - **Tier 1 (Provisional Head)**: Creative review (`SUBMITTED` $\rightarrow$ `PH_APPROVED` or `PH_REJECTED`).
+   - **Tier 2 (Super Admin Executive Approval)**: Strategic drop approval (`PH_APPROVED` $\rightarrow$ `SA_APPROVED` [Greenlit], `SA_SAVED_FOR_LATER` [Seasonal Archive], or `PH_REJECTED` [Revisions]).
+4. **Technical Package (Tech-Pack) Generation**: Industrializing greenlit designs into factory blueprints containing CAD vectors, Point of Measure (POM) grading tables, Stitches Per Inch (SPI), seam classifications (ISO 4915), and Bill of Materials (BOM).
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                       01. DESIGN & TECH-PACK STUDIO                         │
+│                      01. DESIGN & TECH-PACK STUDIO                          │
 ├────────────────────────────────┬────────────────────────────────────────────┤
-│ Industry Standard Standard:    │ ASTM D6961 / ISO 8559 Garment Sizing       │
-│ Upstream Inward Entity:        │ Buyer Brand / Fashion House Concept        │
+│ Industry Standards:            │ ASTM D6961 / ISO 8559 Garment Sizing       │
+│ Upstream Inward Entity:        │ Brand Creative Brief / Market Trend Board  │
 │ Downstream Outward Entity:     │ 02. Merchandising (Costing/PO) & 03. Cut   │
+│ Review Hierarchy:              │ Designer -> Provisional Head -> Super Admin│
 │ Target Sample Approval Cycle:  │ ≤ 3.5 Days (Target: 95% First-Time-Right)  │
 │ Measurement Tolerance Limits:  │ ± 0.5 cm (Chest/Length) | ± 0.25 cm (Neck) │
 │ Grading Engine Support:        │ Fully Normalized: Alpha, Numeric, Kids, +  │
@@ -23,18 +30,78 @@ The **Design & Tech-Pack Studio** is the digital inception point of the garment 
 
 ---
 
-## 2. Inward & Outward Handshake Pipeline
+## 2. End-to-End Three-Role Workflow Architecture
+
+The Design Studio enforces a strict separation of concerns across three distinct user roles:
 
 ```
-[ BUYER / BRAND CREATIVE ]
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                        ROLE 1: PROVISIONAL HEAD (PH)                        │
+│                         Desk URL: `/design` (Web)                           │
+│  1. Creates Design Brief with Garment Type, Category, Target Scope (# of    │
+│     Designs, Max Colors, Required Color Palette Swatches, & Instructions).   │
+│  2. Assigns Brief to specific Designer from registered team.                │
+│  3. Status changes to `ALLOCATED`.                                          │
+└──────────────────────────────────────┬──────────────────────────────────────┘
+                                       │
+                                       ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                       ROLE 2: FASHION DESIGNER                              │
+│              Desk URL: `/design/designer` (Web) / Mobile App                 │
+│  1. Receives allocated Brief on Assigned Dashboard.                         │
+│  2. Builds Multi-Concept Deck (`Design #1`, `Design #2`, etc.).             │
+│  3. Adds Colorways per concept with Color Name, Front Artwork, Back Artwork,│
+│     and design annotations.                                                 │
+│  4. Submits deck to Provisional Head (Status $\rightarrow$ `SUBMITTED`).    │
+│  5. Tracks status in dedicated `History` view (`/design/history` / Mobile). │
+│  6. If rejected (`PH_REJECTED`), a "Redo / Revise" action re-activates the   │
+│     brief for iterative resubmission.                                       │
+└──────────────────────────────────────┬──────────────────────────────────────┘
+                                       │
+                                       ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                   ROLE 1: PROVISIONAL HEAD REVIEW STAGE                     │
+│  1. PH inspects full submitted deck in 10/10 Review Modal.                  │
+│  2. Decision Gate:                                                          │
+│     - `Request Revisions` -> Status `PH_REJECTED` (returned with feedback)  │
+│     - `Approve & Forward` -> Status `PH_APPROVED` (escalated to Admin)      │
+└──────────────────────────────────────┬──────────────────────────────────────┘
+                                       │
+                                       ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         ROLE 3: SUPER ADMIN (SA)                            │
+│                 Desk URL: `/design/sa-approvals` (Web)                      │
+│  Executive Decision Gate:                                                   │
+│  1. `SA_APPROVED` (Greenlit): Ready for Tech-Pack generation and bulk run.  │
+│  2. `SA_SAVED_FOR_LATER`: Stored in Seasonal Archive (can be revived).      │
+│  3. `PH_REJECTED`: Returned to Designer/PH with executive notes.            │
+└──────────────────────────────────────┬──────────────────────────────────────┘
+                                       │
+                                       ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                  TECHNICAL INDUSTRIALIZATION (TECH-PACK)                    │
+│                      Desk URL: `/design/tech-packs`                         │
+│  1. Converts greenlit concepts into formal industrial Tech-Packs.           │
+│  2. Defines Size Grading, SPI, Seam Classes, Shrinkage Allowances & BOM.    │
+│  3. Handshake dispatched downstream to Merchandising (02) & Cutting (03).   │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 3. Inward & Outward Handshake Specifications
+
+```
+[ BUYER / CREATIVE CONCEPT ]
             │
-            ▼ (Inward Payload: CAD Spec, Moodboard, Colorways)
+            ▼ (Inward: Silhouette, Season, Colorways)
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │ 01. DESIGN & TECH-PACK STUDIO                                               │
-│ • Digitize Tech-Pack (Measurements, Specs, Seam Types, SPI)                 │
-│ • Generate Normalized Size Grading (Alpha XS–3XL, Kids 2T–14, Plus 1X–5X)   │
-│ • Define Embellishment Sequence (Embroidery-First vs Print-First Rule)      │
-│ • Physical Sample Fit Approval (Proto -> Size Set -> Pre-Production Sample)  │
+│ • Creative Brief Allocation & Team Load Balancing                           │
+│ • Concept Art & Colorway Deck Submissions (Front & Back CAD Vectors)        │
+│ • PH Creative Approval & SA Strategic Greenlight Gate                       │
+│ • Tech-Pack Parameterization (SPI, Seams, BOM, Dynamic Size Grading)        │
+│ • Physical Sample Fit Verification (Proto -> Size Set -> Pre-Production)    │
 └─────────────────────────────────────────────────────────────────────────────┘
       │                                       │
       ▼ (Handshake Payload A)                 ▼ (Handshake Payload B)
@@ -45,143 +112,129 @@ The **Design & Tech-Pack Studio** is the digital inception point of the garment 
 • Embellishment Sequence Flag           • Cut Notch & Placement Geometry
 ```
 
-### Inward Handshake (What Design Receives)
-| Input Parameter | Source Entity | Data Format | Validation Rule |
+### Inward Data Inputs
+| Input Field | Source | Format | Validation / Constraints |
 | :--- | :--- | :--- | :--- |
-| **Buyer Brand ID** | Buyer / Brand | UUID (`brands.id`) | Must match active registered Brand |
-| **Season / Style Ref** | Buyer Tech-Pack | String (e.g. `SS27-HOODIE-01`) | Unique per season |
-| **CAD Sketch / Vector** | Design Agency | Vector PDF / SVG / AI | High-res 300 DPI vector |
-| **Base Measurement Sheet** | Buyer Spec | JSON / Excel Table | Must define base size (e.g. `M` or `32`) |
-| **Fabric Spec Requirement** | Buyer Fabric Team | GSM, Yarn Count, Blend | Standard ASTM nomenclature |
+| **`garment_type`** | Provisional Head | String | E.g. `T-Shirt`, `Hoodie`, `Jogger`, `Polo` |
+| **`category`** | Provisional Head | String | E.g. `NBA`, `Streetwear`, `Athleisure`, `Casual` |
+| **`target_designs`** / **`num_designs`** | Provisional Head | Number | 1 to 10 designs per brief |
+| **`max_colors`** / **`chart_colors`** | Provisional Head | Number | 1 to 12 colors per design |
+| **`target_colors`** | Provisional Head | Array of Strings | Valid color names (e.g. `['Black', 'White', 'Navy']`) |
+| **`concepts`** | Fashion Designer | JSONB Array | Multi-concept deck with `colorways` (Front & Back URLs) |
 
-### Outward Handshake (What Design Delivers to Next Portals)
-| Output Payload | Recipient Portal | Handshake Trigger | Critical Data Transferred |
-| :--- | :--- | :--- | :--- |
-| **BOM Spec & Fabric Consumption** | `02. Merchandising` | Status $\rightarrow$ `PPS_APPROVED` | Fabric GSM, shrinkage %, thread consumption/garment, trim counts |
-| **Graded CAD & Pattern Cut Spec** | `03. Cutting Floor` | Status $\rightarrow$ `BULK_APPROVED` | DXF/AAMA pattern files, grade rule matrix, notch specs, lay allowances |
-| **Embellishment Sequence Rule** | `04. Print / 05. Embroid` | Work Order Generation | Strict sequence: e.g. `EMBROIDERY_FIRST_THEN_PRINT` |
-| **Standard Seam & SPI Spec** | `06. Stitching & Sewing` | Job Challan Generation | Stitches Per Inch (SPI), seam classes (ISO 4915), thread count |
+### Outward Handshake Payloads (To Downstream Portals)
+| Target Portal | Trigger Status | Key Data Transferred |
+| :--- | :--- | :--- |
+| **`02. Merchandising`** | `PPS_APPROVED` / `BULK_APPROVED` | Fabric composition, target GSM, consumption (kg/pc), trim breakdown, embellishment flow |
+| **`03. Cutting Floor`** | `BULK_APPROVED` | Normalized POM grading tables, DXF CAD files, fabric wash shrinkage allowances |
+| **`04. Printing / 05. Embroidery`** | Job Challan Creation | Strict sequence flag: `EMBROIDERY_FIRST_THEN_PRINT` vs `PRINT_FIRST_THEN_EMBROIDERY` |
+| **`06. Stitching & Sewing`** | Production Release | Standard Stitches Per Inch (SPI), seam classification (ISO 4915 Class 401/504/607) |
 
 ---
 
-## 3. Total Side Navigation Architecture
-
-The Design Studio portal has **7 dedicated side navigation views**:
+## 4. Route Architecture & Side Navigation Matrix
 
 ```
-[ Workspace Hub ]
-  └── 00. All Modules                 -> /modules (Central Enterprise Hub)
+[ Zigza Enterprise Root ]
+  └── /modules                        -> Central Enterprise Portal Hub
 
-[ Design Studio Operations ]
-  ├── 01. Studio Dashboard            -> /design
-  ├── 02. Tech-Pack Catalog           -> /design/tech-packs
-  ├── 03. Sample Approvals (PPS)      -> /design/sample-approvals
-  ├── 04. Size Grading Matrix         -> /design/grading-matrix
-  ├── 05. Fabric & Trims Library      -> /design/materials-library
-  ├── 06. Zigza AI Copilot            -> /design/zigza-ai
-  └── 07. Studio Profile              -> /design/profile
+[ Design Studio (Division 01) Routes ]
+  ├── /design                         -> Provisional Head Primary Cockpit (Briefs & Review Queue)
+  ├── /design/designer                -> Designer Creative Studio Desk
+  ├── /design/history                 -> Designer Submissions & Revision History Tracker
+  ├── /design/sa-approvals            -> Super Admin Strategic Greenlight & Archive Desk
+  ├── /design/tech-packs              -> Tech-Pack Master Catalog & Specification Builder
+  ├── /design/sample-approvals        -> Physical Sample Fit Quality Clinic (Proto/SizeSet/PPS)
+  ├── /design/grading-matrix          -> Dynamic Size Grading Engine (Adult/Kids/Plus)
+  ├── /design/materials-library       -> Fabric Physics, Shrinkage & Trims Library
+  ├── /design/team                    -> Designer Team Roster & Allocation Management
+  ├── /design/settings                -> Provisional Head Custom Categories & Garment Silhouettes
+  └── /design/zigza-ai                -> CAD Vector & Pattern Intelligence Copilot (Admin/PH Only)
 ```
 
 ---
 
-## 4. Complete Page Specifications (All 7 Navigation Views)
+## 5. UI Architecture & Design System Guidelines
 
-### Page 1: Studio Dashboard (`/design`)
-* **Purpose**: Real-time cockpit for creative direction, pending sample approvals, and tech-pack release velocity.
-* **4 Metric KPI Cards**:
-  1. `Active Tech-Packs`: **28 Specs** *(12 Approved for Bulk, 16 In-Progress)*
-  2. `Sample Fit Approvals`: **8 Pending** *(Avg Approval Cycle: 3.2 Days)*
-  3. `Grading Rule Profiles`: **14 Active Systems** *(Adult Alpha, Numeric Men's, Toddler 2T–5T, Plus)*
-  4. `PPS First-Time-Right`: **96.4%** *(Target SLA: > 95.0%)*
-* **Primary Interactive Table: Active Development Pipeline**
-  * Columns: `Style Ref`, `Buyer / Brand`, `Garment Category`, `Base Size`, `PPS Status`, `Embellishment Flow`, `Target Cut Date`, `Actions`.
-  * Status Badges: `DRAFT` (Grey), `SAMPLE_DEV` (Amber), `PPS_SUBMITTED` (Sky), `APPROVED_BULK` (Emerald), `REVISE_FIT` (Rose).
+All components strictly adhere to [`design.md`](file:///d:/AndroidStudioProjects/Nubira_Creation/web_admin/docs_logic/design.md):
 
-### Page 2: Tech-Pack Catalog (`/design/tech-packs`)
-* **Purpose**: Master repository of approved garment specifications and CAD sketches.
-* **Interactive Views**:
-  * Dual-tab view: `Visual Gallery` (Vector CAD cards with front/back thumbnails) vs `Detailed Spec Table`.
-  * Version History Diff Engine: Compares `v1.0` vs `v1.1` measurement diffs with color-coded alerts (e.g. `Chest +1.5cm`).
+1. **Color Harmony**:
+   - Primary Brand: Deep Indigo (`#3A3564`) for high-priority CTA buttons, active state pills, and brand badges.
+   - Foundation Surface: Cream Silk (`#FAF7F0`) with crisp subtle borders (`border-black/10`).
+   - Pure White Cards: `#FFFFFF` with `shadow-2xs` for readable content hierarchy.
+   - Text Palette: Slate-900 for headings, Slate-600 for descriptions, Slate-400 for metadata/codes.
+   - Zero Rainbow Text: Strictly prohibited; unified, professional color coding across web and mobile.
 
-### Page 3: Sample Approvals & Fit Iterations (`/design/sample-approvals`)
-* **Purpose**: Track physical prototype approvals through the 3-stage buyer gate:
-  1. **Proto Sample** (Aesthetic & Silhouette fit).
-  2. **Size Set Sample** (Measurement verification across all sizes).
-  3. **Pre-Production Sample (PPS)** (Sealed golden piece for factory production).
-* **Defect & Rejection Tracker**: Tracks variance Pareto (e.g. Neck drop too low, sleeve pitch puckering).
-
-### Page 4: Dynamic Size Grading Matrix (`/design/grading-matrix`)
-* **Purpose**: Fully normalized, multi-system size grading engine supporting any sizing taxonomy.
-* **Visual Matrix View**:
-  | Point of Measure (POM) | Tolerance (±) | XS (cm) | S (cm) | M (Base) | L (cm) | XL (cm) | 2XL (cm) | Grade Step |
-  | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-  | **Half Chest Width** | 0.50 cm | 48.0 | 50.5 | **53.0** | 55.5 | 58.0 | 60.5 | +2.5 cm |
-  | **Body Length from HPS** | 0.50 cm | 68.0 | 70.0 | **72.0** | 74.0 | 76.0 | 78.0 | +2.0 cm |
-  | **Sleeve Length from CB**| 0.50 cm | 82.0 | 84.5 | **87.0** | 89.5 | 92.0 | 94.5 | +2.5 cm |
-  | **Neck Opening Width** | 0.25 cm | 17.5 | 18.0 | **18.5** | 19.0 | 19.5 | 20.0 | +0.5 cm |
-* **Dynamic Scheme Selector**: Switch between `Adult Unisex (XS–3XL)`, `Kids (2T–14)`, `Men's Trousers (28–44)`, `Plus Size (1X–5X)`.
-
-### Page 5: Fabric & Trims Library (`/design/materials-library`)
-* **Purpose**: Technical repository of validated fabrics, knit constructions, thread specifications, and certified trims.
-* **Attributes Catalog**: Shrinkage %, spirality %, yarn counts, recommended sewing needle size (e.g. `Ball Point 75/11` for interlock).
-
-### Page 6: Zigza AI Copilot (`/design/zigza-ai`)
-* **Purpose**: Dedicated CAD, Pattern Engineering, and Fabric Yield intelligent assistant.
-* **Pre-Loaded Quick Prompts**:
-  1. `"Audit all active tech-packs awaiting buyer sample feedback > 4 days."`
-  2. `"Calculate pattern lay shrinkage allowance for 380 GSM fleece with 4.2% length shrink."`
-  3. `"Highlight measurement discrepancies between Proto 1 and PPS sample for Style ART-8821."`
-
-### Page 7: Studio Profile & Team Roles (`/design/profile`)
-* **Purpose**: Manage CAD designer assignments, sample tailor skill allocations, and brand authorizations.
+2. **Concept Review Modal Architecture (10/10 Polish)**:
+   - **Concept Navigation Tabs**: Top selector for `Design #1`, `Design #2`, etc. with individual colorway badges.
+   - **Colorway Grid**: Responsive grid (`grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5`) with dedicated swatch circles.
+   - **Artwork Thumbnails**: Side-by-side `aspect-square` containers with `object-contain` scaling on `#FAF7F0` backdrops, completely eliminating border clipping or image squishing.
+   - **Interactive Lightbox**: Full-resolution modal viewer triggered by clicking any thumbnail.
+   - **Role-Aware Action Footers**: Clean, unambiguous action triggers with zero confusing out-of-scope buttons.
 
 ---
 
-## 5. Complete Form Specifications
+## 6. Database Schema Blueprint (PostgreSQL / Supabase)
 
-### Form 1: New Tech-Pack Creation Stepper Modal
-* **Trigger**: `Create Tech-Pack` Button on `/design/tech-packs`
-* **Architecture**: 2-Step Stepper Modal (optimized for desktop & tablet entry):
-
-#### Step 1: Core Design & Garment Meta
-| Field Name | Type | Required | Validation / Options | Tooltip / Hint |
-| :--- | :--- | :--- | :--- | :--- |
-| `style_number` | Text | Yes | Pattern: `^[A-Z0-9-]{6,20}$` | Unique factory article code (e.g. `ART-8821`) |
-| `brand_id` | Select Dropdown | Yes | Active registered brands | Buyer brand owning the design |
-| `garment_category`| Select Dropdown | Yes | `Hoodie`, `T-Shirt`, `Polo`, `Jogger`, `Jacket`, `Kids Romper` | Base product silhouette |
-| `size_system` | Select Dropdown | Yes | `ALPHA_ADULT`, `NUMERIC_WAIST`, `KIDS_AGE`, `PLUS_SIZE` | Dynamic grading scheme |
-| `base_size` | Text | Yes | E.g. `M`, `32`, `4T`, `1X` | Root pattern grading base size |
-| `fabric_type` | Text | Yes | Max 100 chars (e.g. `100% Cotton French Terry`) | Primary shell fabric description |
-| `target_gsm` | Number | Yes | Min: 80, Max: 600 (e.g. `380`) | Fabric weight in grams per sq meter |
-| `embellishment_sequence`| Select Dropdown| Yes | `NONE`, `EMBROIDERY_FIRST_THEN_PRINT`, `PRINT_FIRST_THEN_EMBROIDERY` | Strict sequencing rule |
-
-#### Step 2: Technical Vectors & Stitch Specifications
-| Field Name | Type | Required | Validation / Options | Tooltip / Hint |
-| :--- | :--- | :--- | :--- | :--- |
-| `cad_front_url` | File Upload | Yes | PNG, JPG, PDF, SVG (Max 15MB) | Front technical vector sketch |
-| `cad_back_url` | File Upload | Yes | PNG, JPG, PDF, SVG (Max 15MB) | Back technical vector sketch |
-| `stitches_per_inch`| Number | Yes | Default: 12 (Min: 8, Max: 18) | Sewing SPI standard |
-| `seam_class` | Select Dropdown | Yes | `ISO 4915 Class 401`, `Class 504`, `Class 607` | Industrial seam standard |
-
-### Form 2: Sample Approval Submission Form
-* **Trigger**: `Submit Sample for Review` on `/design/sample-approvals`
-* **Fields**: `tech_pack_id`, `sample_stage` (`PROTO`, `SIZE_SET`, `PPS`), `measured_chest`, `measured_length`, `measured_sleeve`, `fit_comments`, `buyer_reviewer_email`, `approval_status` (`APPROVED`, `REVISE_FIT`, `REJECTED`).
-* **Post-Submit Action**: If approved as `PPS`, triggers automated outward notification to Merchandising and Cutting.
-
----
-
-## 6. Zigza AI Domain Intelligence for Design Studio
-
-1. **Tech-Pack Review**: `"Show me all active tech-packs currently waiting for sample approval."`
-2. **Measurement Discrepancy Finder**: `"Compare sample measurements of PO-8801 against buyer spec and highlight any variance over ±0.5cm."`
-3. **Shrinkage Compensation**: `"Calculate cutting pattern lay expansion for 380 GSM French Terry with 4.5% length shrinkage."`
-
----
-
-## 7. Database Schema Blueprint (PostgreSQL / Supabase)
-
+### 1. Design Briefs Master (`design_briefs`)
 ```sql
--- 1. Tech-Pack Master Table
+CREATE TABLE design_briefs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  ph_user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  designer_member_id UUID REFERENCES design_team_members(id) ON DELETE SET NULL,
+  garment_type VARCHAR(100) NOT NULL,
+  category VARCHAR(100) NOT NULL,
+  num_designs INTEGER DEFAULT 1,
+  target_designs INTEGER DEFAULT 1,
+  chart_colors INTEGER DEFAULT 3,
+  max_colors INTEGER DEFAULT 3,
+  target_colors TEXT[] DEFAULT '{}',
+  instructions TEXT,
+  company_name VARCHAR(150) DEFAULT 'Nubira Creation',
+  status VARCHAR(40) DEFAULT 'ALLOCATED', 
+  -- Allowed statuses: ALLOCATED, SUBMITTED, PH_APPROVED, PH_REJECTED, SA_APPROVED, SA_SAVED_FOR_LATER, TECH_PACK_CREATED
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+```
+
+### 2. Design Submissions Master (`design_submissions`)
+```sql
+CREATE TABLE design_submissions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  brief_id UUID NOT NULL REFERENCES design_briefs(id) ON DELETE CASCADE,
+  designer_user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+  designer_name VARCHAR(150),
+  designer_phone VARCHAR(50),
+  designer_notes TEXT,
+  concepts JSONB DEFAULT '[]'::jsonb,
+  -- JSON structure:
+  -- [
+  --   {
+  --     "concept_number": 1,
+  --     "title": "Design Concept #1",
+  --     "notes": "Front chest bold vector",
+  --     "colorways": [
+  --       { "color_name": "Black", "photo_front": "https://...", "photo_back": "https://..." },
+  --       { "color_name": "White", "photo_front": "https://...", "photo_back": "https://..." }
+  --     ]
+  --   }
+  -- ]
+  photo_url_1 TEXT,
+  photo_url_2 TEXT,
+  ph_verdict VARCHAR(30) DEFAULT 'PENDING', -- PENDING, APPROVED, REJECTED
+  ph_feedback TEXT,
+  ph_reviewed_at TIMESTAMPTZ,
+  sa_verdict VARCHAR(30) DEFAULT 'PENDING', -- PENDING, APPROVED, SAVED_FOR_LATER, REJECTED
+  sa_notes TEXT,
+  sa_reviewed_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+```
+
+### 3. Tech-Pack Master (`design_tech_packs`)
+```sql
 CREATE TABLE design_tech_packs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   style_number VARCHAR(50) NOT NULL UNIQUE,
@@ -195,30 +248,49 @@ CREATE TABLE design_tech_packs (
   cad_front_url TEXT,
   cad_back_url TEXT,
   spi INTEGER DEFAULT 12,
-  status VARCHAR(30) DEFAULT 'DRAFT', -- DRAFT, SAMPLE_DEV, PPS_APPROVED, BULK_APPROVED
+  seam_class VARCHAR(50) DEFAULT 'ISO 4915 Class 504',
+  status VARCHAR(30) DEFAULT 'DRAFT', -- DRAFT, SAMPLE_DEV, PPS_SUBMITTED, PPS_APPROVED, BULK_APPROVED
   version INTEGER DEFAULT 1,
+  design_submission_id UUID REFERENCES design_submissions(id) ON DELETE SET NULL,
+  created_by_ph UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+  approved_by_sa BOOLEAN DEFAULT FALSE,
+  sa_verdict VARCHAR(30) DEFAULT 'APPROVED',
+  company_name VARCHAR(150) DEFAULT 'Nubira Creation',
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+```
 
--- 2. Normalized Point of Measure (POM) Master
-CREATE TABLE design_poms (
+### 4. Design Team Members (`design_team_members`)
+```sql
+CREATE TABLE design_team_members (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  tech_pack_id UUID REFERENCES design_tech_packs(id) ON DELETE CASCADE,
-  pom_code VARCHAR(30) NOT NULL, -- e.g. CHEST_WIDTH, BODY_LENGTH
-  pom_name VARCHAR(100) NOT NULL,
-  tolerance_cm NUMERIC(4,2) DEFAULT 0.50,
-  sort_order INTEGER DEFAULT 1
-);
-
--- 3. Normalized Size Values (Fully Supports Kids, Plus-Size, Numeric)
-CREATE TABLE design_measurement_values (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  pom_id UUID REFERENCES design_poms(id) ON DELETE CASCADE,
-  size_label VARCHAR(20) NOT NULL, -- e.g. 'XS', 'M', '2XL', '4T', '32x34', '3X'
-  value_cm NUMERIC(6,2) NOT NULL,
-  grade_step_cm NUMERIC(4,2) DEFAULT 0.00,
-  is_base_size BOOLEAN DEFAULT FALSE,
-  UNIQUE(pom_id, size_label)
+  ph_user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+  name VARCHAR(150) NOT NULL,
+  email VARCHAR(150),
+  phone VARCHAR(50),
+  specialty VARCHAR(100) DEFAULT 'Garment Designer',
+  status VARCHAR(30) DEFAULT 'ACTIVE', -- ACTIVE, INACTIVE
+  company_name VARCHAR(150) DEFAULT 'Nubira Creation',
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 ```
+
+---
+
+## 7. Developer Onboarding & Troubleshooting FAQ
+
+### Q1: Why is "Saved for Later" not visible on the Provisional Head desk?
+**Answer**: "Saved for Later" (`SA_SAVED_FOR_LATER`) is an executive archiving mechanism used exclusively by the **Super Admin** on `/design/sa-approvals` to hold designs for future seasonal drops. The Provisional Head desk only tracks creative pipeline milestones (`In Review`, `PH Approved`, `Allocated`, `Revisions Needed`, `Tech-Pack Created`). In the PH view, any SA-archived design is mapped cleanly to **`PH Approved`** because the PH's creative review work is already complete.
+
+### Q2: How does a Designer resubmit a rejected design?
+**Answer**: In the Designer's **History Sidenav / Screen** (`/design/history` on web or History screen on mobile), any design with `Revisions Needed` (`PH_REJECTED`) displays a **Redo / Resubmit** button. Clicking this reopens the brief into the active work assignment queue, allowing the designer to adjust concepts, upload revised colorways, and resubmit to the Provisional Head.
+
+### Q3: How do I delete test or seed tech packs in Supabase?
+**Answer**: Run the following SQL query in the Supabase SQL editor:
+```sql
+DELETE FROM design_tech_packs WHERE style_number IN ('TP-2026-8801', 'TP-2026-8802');
+```
+The catalog UI delete button also cleans up both the local storage caches and database records synchronously.
