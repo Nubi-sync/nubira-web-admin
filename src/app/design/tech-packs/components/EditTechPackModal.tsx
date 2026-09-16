@@ -90,6 +90,12 @@ function EditTechPackModalContent({
   const [instructions, setInstructions] = useState(techPack.instructions || '')
   const [errors, setErrors] = useState<Record<string, string>>({})
 
+  // 4 boxes state for adding new BOM item
+  const [newMatType, setNewMatType] = useState('')
+  const [newMatName, setNewMatName] = useState('')
+  const [newMatConsumption, setNewMatConsumption] = useState('')
+  const [newMatPlacement, setNewMatPlacement] = useState('')
+
   useEffect(() => {
     if (techPack) {
       setStyleNumber(techPack.style_number)
@@ -109,16 +115,24 @@ function EditTechPackModalContent({
     }
   }, [techPack])
 
-  function handleAddMaterial(preset?: Partial<TechPackMaterialRequirement>) {
+  function handleAddNewMaterial() {
+    if (!newMatType.trim() && !newMatName.trim()) {
+      toast.error('Please enter a component type or item description')
+      return
+    }
     const newMat: TechPackMaterialRequirement = {
       id: Date.now().toString() + Math.random().toString(36).substring(2, 6),
-      component_type: preset?.component_type || 'Ribbon / Tape',
-      item_name: preset?.item_name || '100% Cotton Binding Tape',
-      specification: preset?.specification || '12mm Width',
-      consumption: preset?.consumption || '1 Pcs',
-      placement: preset?.placement || 'Inside Neck Seam'
+      component_type: newMatType.trim() || 'Material',
+      item_name: newMatName.trim() || '-',
+      specification: '',
+      consumption: newMatConsumption.trim() || '1 Pcs',
+      placement: newMatPlacement.trim() || '-'
     }
     setMaterials(prev => [...prev, newMat])
+    setNewMatType('')
+    setNewMatName('')
+    setNewMatConsumption('')
+    setNewMatPlacement('')
   }
 
   function handleUpdateMaterial(id: string, field: keyof TechPackMaterialRequirement, value: string) {
@@ -367,149 +381,170 @@ function EditTechPackModalContent({
           </div>
 
           {/* Section 2: Bill of Materials & Trims (BOM) */}
-          <div className="bg-emerald-50/40 border border-emerald-200/80 rounded-2xl p-4.5 space-y-3">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <div>
-                <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-emerald-900 flex items-center gap-2">
-                  <Package className="w-4 h-4 text-emerald-700" />
-                  Bill of Materials (BOM) & Trims
+          <div className="space-y-3 pt-2">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <div className="flex items-center gap-2">
+                <Package className="w-4 h-4 text-[#3A3564]" />
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900 font-mono">
+                  Bill of Materials (BOM) &amp; Trims Required
                 </h3>
-                <p className="text-[11px] text-emerald-800/80 mt-0.5">
-                  Specify all materials, ribbons, collars, labels, trims, and packaging components.
-                </p>
+                <span className="text-[10px] font-mono font-bold bg-[#FAF7F0] text-[#3A3564] px-2 py-0.5 rounded border border-black/10">
+                  {materials.length} Items
+                </span>
               </div>
-              <button
-                type="button"
-                onClick={() => handleAddMaterial()}
-                className="px-3 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold transition-all shadow-2xs inline-flex items-center gap-1.5 cursor-pointer"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                Add Item
-              </button>
             </div>
 
-            {/* Quick-Add Presets Chips */}
-            <div className="flex flex-wrap items-center gap-1.5 pt-1">
-              <span className="text-[10px] font-mono uppercase text-emerald-800/70 font-bold mr-1">Quick Add:</span>
-              {[
-                { label: '+ Collar / Rib', preset: { component_type: 'Collar / Rib', item_name: '1x1 Cotton Spandex Rib', specification: '380 GSM matching body color', consumption: '1 Pcs', placement: 'Neckline' } },
-                { label: '+ Ribbon / Tape', preset: { component_type: 'Ribbon / Tape', item_name: 'Cotton Herringbone Tape', specification: '12mm Natural White', consumption: '1 Pcs', placement: 'Back Neck & Side Slits' } },
-                { label: '+ Main Label', preset: { component_type: 'Main Label', item_name: 'Woven Damask Brand Label', specification: '50mm x 25mm High Density', consumption: '1 Pcs', placement: 'Center Back Inner Collar' } },
-                { label: '+ Care Label', preset: { component_type: 'Care Label', item_name: 'Printed Satin Wash Label', specification: 'Multi-lingual 30mm x 70mm', consumption: '1 Pcs', placement: 'Left Inner Bottom Seam' } },
-                { label: '+ Buttons', preset: { component_type: 'Buttons', item_name: '4-Hole Engraved Chalk Buttons', specification: '18L (11.5mm) Matched Dye', consumption: '3 Pcs', placement: 'Front Placket' } },
-                { label: '+ Zipper', preset: { component_type: 'Zipper', item_name: '#5 YKK Metal Zipper', specification: 'Antique Brass Open-End', consumption: '1 Pcs', placement: 'Center Front Opening' } },
-                { label: '+ Thread', preset: { component_type: 'Thread', item_name: 'Coats Epic Poly-Wrapped Thread', specification: 'Tex 27 / 40s Color Matched', consumption: '100 m', placement: 'All Structural & Topstitch' } },
-                { label: '+ Polybag', preset: { component_type: 'Packaging', item_name: 'Recycled Biodegradable Polybag', specification: 'Self-Adhesive with Warning Print', consumption: '1 Pcs', placement: 'Unit Packaging' } },
-              ].map((chip, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  onClick={() => handleAddMaterial(chip.preset)}
-                  className="px-2 py-0.5 rounded-md bg-white border border-emerald-300/80 hover:border-emerald-600 hover:bg-emerald-50 text-[10px] font-bold text-emerald-900 transition-all cursor-pointer shadow-2xs"
-                >
-                  {chip.label}
-                </button>
-              ))}
+            {/* 4 Input Boxes + Add Button */}
+            <div className="bg-[#FAF7F0] p-3.5 rounded-2xl border border-black/10 shadow-2xs">
+              <div className="grid grid-cols-1 sm:grid-cols-12 gap-2.5 items-end">
+                <div className="sm:col-span-3">
+                  <label className="block text-[10px] font-mono font-bold uppercase tracking-wider text-slate-700 mb-1">
+                    Component Type
+                  </label>
+                  <input
+                    type="text"
+                    value={newMatType}
+                    onChange={e => setNewMatType(e.target.value)}
+                    placeholder="e.g. Ribbon, Collar, Label"
+                    className="w-full px-3 py-2 rounded-xl border border-black/15 text-xs font-semibold text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                    onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAddNewMaterial() } }}
+                  />
+                </div>
+                <div className="sm:col-span-4">
+                  <label className="block text-[10px] font-mono font-bold uppercase tracking-wider text-slate-700 mb-1">
+                    Item Description / Spec
+                  </label>
+                  <input
+                    type="text"
+                    value={newMatName}
+                    onChange={e => setNewMatName(e.target.value)}
+                    placeholder="e.g. 1x1 Cotton Spandex Rib 380 GSM"
+                    className="w-full px-3 py-2 rounded-xl border border-black/15 text-xs font-semibold text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                    onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAddNewMaterial() } }}
+                  />
+                </div>
+                <div className="sm:col-span-2">
+                  <label className="block text-[10px] font-mono font-bold uppercase tracking-wider text-slate-700 mb-1">
+                    Consumption / Qty
+                  </label>
+                  <input
+                    type="text"
+                    value={newMatConsumption}
+                    onChange={e => setNewMatConsumption(e.target.value)}
+                    placeholder="e.g. 1 Pcs, 0.35 Mtr"
+                    className="w-full px-3 py-2 rounded-xl border border-black/15 text-xs font-semibold text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                    onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAddNewMaterial() } }}
+                  />
+                </div>
+                <div className="sm:col-span-2">
+                  <label className="block text-[10px] font-mono font-bold uppercase tracking-wider text-slate-700 mb-1">
+                    Placement
+                  </label>
+                  <input
+                    type="text"
+                    value={newMatPlacement}
+                    onChange={e => setNewMatPlacement(e.target.value)}
+                    placeholder="e.g. Neck Seam, Placket"
+                    className="w-full px-3 py-2 rounded-xl border border-black/15 text-xs font-semibold text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                    onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAddNewMaterial() } }}
+                  />
+                </div>
+                <div className="sm:col-span-1">
+                  <button
+                    type="button"
+                    onClick={handleAddNewMaterial}
+                    className="w-full h-[38px] flex items-center justify-center gap-1 px-3 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold transition-all cursor-pointer shadow-2xs"
+                    title="Add Material to Table"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span className="sm:hidden">Add</span>
+                  </button>
+                </div>
+              </div>
             </div>
 
-            {/* Materials Table */}
+            {/* Materials List Table */}
             {materials.length === 0 ? (
-              <div className="py-6 text-center bg-white/60 rounded-xl border border-dashed border-emerald-200">
-                <p className="text-xs text-slate-500 font-medium">No materials or trims added yet.</p>
-                <button
-                  type="button"
-                  onClick={() => handleAddMaterial()}
-                  className="mt-2 text-xs font-bold text-emerald-700 hover:text-emerald-800 underline cursor-pointer"
-                >
-                  + Add First Material Item
-                </button>
+              <div className="py-6 text-center bg-white rounded-2xl border border-dashed border-black/15 p-4">
+                <p className="text-xs text-slate-500 font-medium">No materials added yet.</p>
+                <p className="text-[11px] text-slate-400 mt-0.5">Fill the 4 boxes above and click &quot;+&quot; to add them to this table.</p>
               </div>
             ) : (
-              <div className="space-y-2 overflow-x-auto">
-                <div className="hidden sm:grid sm:grid-cols-12 gap-2 px-2 py-1 text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500">
-                  <div className="col-span-3">Component Type</div>
-                  <div className="col-span-3">Item Name / Material</div>
-                  <div className="col-span-3">Specification</div>
-                  <div className="col-span-1">Qty / Unit</div>
-                  <div className="col-span-1">Placement</div>
-                  <div className="col-span-1 text-right">Action</div>
-                </div>
-
-                {materials.map((mat, index) => (
-                  <div key={mat.id || index} className="grid grid-cols-1 sm:grid-cols-12 gap-2 bg-white p-2.5 rounded-xl border border-slate-200 shadow-2xs items-center">
-                    <div className="sm:col-span-3">
-                      <input
-                        type="text"
-                        value={mat.component_type}
-                        onChange={e => handleUpdateMaterial(mat.id, 'component_type', e.target.value)}
-                        placeholder="e.g. Collar / Rib, Ribbon, Label"
-                        className="w-full px-2.5 py-1.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-emerald-600 rounded-lg text-xs font-bold text-slate-800 outline-none"
-                      />
-                    </div>
-                    <div className="sm:col-span-3">
-                      <input
-                        type="text"
-                        value={mat.item_name}
-                        onChange={e => handleUpdateMaterial(mat.id, 'item_name', e.target.value)}
-                        placeholder="e.g. 100% Cotton Rib"
-                        className="w-full px-2.5 py-1.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-emerald-600 rounded-lg text-xs font-medium text-slate-800 outline-none"
-                      />
-                    </div>
-                    <div className="sm:col-span-3">
-                      <input
-                        type="text"
-                        value={mat.specification}
-                        onChange={e => handleUpdateMaterial(mat.id, 'specification', e.target.value)}
-                        placeholder="e.g. 380 GSM, 12mm width"
-                        className="w-full px-2.5 py-1.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-emerald-600 rounded-lg text-xs font-medium text-slate-800 outline-none"
-                      />
-                    </div>
-                    <div className="sm:col-span-1">
-                      <input
-                        type="text"
-                        value={mat.consumption}
-                        onChange={e => handleUpdateMaterial(mat.id, 'consumption', e.target.value)}
-                        placeholder="1 Pcs"
-                        className="w-full px-2.5 py-1.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-emerald-600 rounded-lg text-xs font-bold text-center text-slate-800 outline-none"
-                      />
-                    </div>
-                    <div className="sm:col-span-1">
-                      <input
-                        type="text"
-                        value={mat.placement || ''}
-                        onChange={e => handleUpdateMaterial(mat.id, 'placement', e.target.value)}
-                        placeholder="Neck"
-                        className="w-full px-2.5 py-1.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-emerald-600 rounded-lg text-xs font-medium text-slate-800 outline-none"
-                      />
-                    </div>
-                    <div className="sm:col-span-1 flex justify-end">
-                      <button
-                        type="button"
-                        onClick={() => handleDeleteMaterial(mat.id)}
-                        className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 transition-all cursor-pointer"
-                        title="Remove component"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
+              <div className="rounded-2xl border border-black/10 bg-white overflow-hidden shadow-2xs">
+                <table className="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr className="bg-[#FAF7F0] border-b border-black/10 text-[10px] font-mono font-bold uppercase text-slate-600">
+                      <th className="py-2.5 px-3">Component Type</th>
+                      <th className="py-2.5 px-3">Item Description / Spec</th>
+                      <th className="py-2.5 px-3 w-28">Consumption</th>
+                      <th className="py-2.5 px-3">Placement</th>
+                      <th className="py-2.5 px-2 text-right w-10"></th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {materials.map((mat) => (
+                      <tr key={mat.id} className="hover:bg-slate-50/60 transition-colors">
+                        <td className="py-2 px-3">
+                          <input
+                            type="text"
+                            value={mat.component_type}
+                            onChange={e => handleUpdateMaterial(mat.id, 'component_type', e.target.value)}
+                            className="w-full px-2 py-1 rounded-lg border border-slate-200 text-xs font-bold text-slate-900 bg-white focus:ring-1 focus:ring-[#3A3564]"
+                          />
+                        </td>
+                        <td className="py-2 px-3">
+                          <input
+                            type="text"
+                            value={mat.item_name}
+                            onChange={e => handleUpdateMaterial(mat.id, 'item_name', e.target.value)}
+                            className="w-full px-2 py-1 rounded-lg border border-slate-200 text-xs font-medium text-slate-900 bg-white focus:ring-1 focus:ring-[#3A3564]"
+                          />
+                        </td>
+                        <td className="py-2 px-3">
+                          <input
+                            type="text"
+                            value={mat.consumption || ''}
+                            onChange={e => handleUpdateMaterial(mat.id, 'consumption', e.target.value)}
+                            className="w-full px-2 py-1 rounded-lg border border-slate-200 text-xs font-mono font-bold text-slate-800 bg-white focus:ring-1 focus:ring-[#3A3564]"
+                          />
+                        </td>
+                        <td className="py-2 px-3">
+                          <input
+                            type="text"
+                            value={mat.placement || ''}
+                            onChange={e => handleUpdateMaterial(mat.id, 'placement', e.target.value)}
+                            className="w-full px-2 py-1 rounded-lg border border-slate-200 text-xs text-slate-700 bg-white focus:ring-1 focus:ring-[#3A3564]"
+                          />
+                        </td>
+                        <td className="py-2 px-2 text-right">
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteMaterial(mat.id)}
+                            className="p-1 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                            title="Delete Material Line"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             )}
           </div>
 
           {/* Section 3: Additional Instructions Bar */}
-          <div className="bg-amber-50/50 border border-amber-200/80 rounded-2xl p-4.5 space-y-2">
-            <label className="block text-xs font-mono font-bold uppercase tracking-wider text-amber-900 flex items-center justify-between">
-              <span>Additional Manufacturing & Packaging Instructions</span>
-              <span className="text-[10px] text-amber-800 font-normal">Special stitching, washing, packaging guidelines</span>
+          <div className="space-y-1.5 pt-2">
+            <label className="text-xs font-bold uppercase tracking-wider text-slate-800 font-mono block">
+              Additional Construction &amp; Packaging Instructions:
             </label>
             <textarea
-              rows={3}
               value={instructions}
               onChange={e => setInstructions(e.target.value)}
-              placeholder="Enter specific garment production notes, e.g. Pre-shrink wash required before cutting. Double-needle topstitch along shoulder seams. Polybag with desiccant pouch..."
-              className="w-full px-3.5 py-2.5 bg-white border border-amber-200 focus:border-amber-600 focus:ring-2 focus:ring-amber-500/10 rounded-xl text-xs font-medium text-slate-900 outline-none shadow-2xs resize-y"
+              placeholder="Enter specific garment production notes, stitching guidelines, washing instructions, and packaging details..."
+              rows={3}
+              className="w-full p-3 rounded-2xl border border-black/15 text-xs text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564] shadow-2xs"
             />
           </div>
 

@@ -108,48 +108,6 @@ function getColorSwatchInfo(colorName?: string): { bg: string } {
   return { bg: '#cbd5e1' }
 }
 
-function getDefaultMaterialsForCategory(category: GarmentCategory): TechPackMaterialRequirement[] {
-  switch (category) {
-    case 'T-Shirt':
-    case 'Polo':
-      return [
-        { id: '1', component_type: 'Collar / Rib', item_name: '1x1 Cotton Spandex Collar Rib', specification: '95% Cotton 5% Spandex, 320 GSM', consumption: '0.08 Mtr', placement: 'Neck Collar' },
-        { id: '2', component_type: 'Ribbon / Tape', item_name: 'Herringbone Neck Tape', specification: '100% Cotton 12mm Width', consumption: '0.35 Mtr', placement: 'Inside Back Neck Seam' },
-        { id: '3', component_type: 'Main Label', item_name: 'Woven Damask Brand Label', specification: 'Center Fold, 45x25mm', consumption: '1 Pcs', placement: 'Inside Center Back Neck' },
-        { id: '4', component_type: 'Care Label', item_name: 'Printed Satin Wash Care Label', specification: 'Book Fold, 30x70mm', consumption: '1 Pcs', placement: 'Left Inner Side Seam (10cm from hem)' },
-        { id: '5', component_type: 'Sewing Thread', item_name: 'Tex 40 Poly-Core Thread', specification: '100% Spun Polyester matching colorway', consumption: '80 Mtr', placement: 'All Construction Seams' },
-        { id: '6', component_type: 'Polybag', item_name: 'Self-Adhesive Recycled Polybag', specification: '30 Micron with Warning Print', consumption: '1 Pcs', placement: 'Individual Packaging' }
-      ]
-    case 'Pant':
-      return [
-        { id: '1', component_type: 'Pocket Bag Fabric', item_name: 'Cotton Poplin Pocketing', specification: '100% Combed Cotton Poplin 120 GSM', consumption: '0.30 Mtr', placement: 'Front & Back Pocket Bags' },
-        { id: '2', component_type: 'Zipper', item_name: '#5 Metal Fly Zipper', specification: 'Antique Brass Auto-Lock Metal Zipper', consumption: '1 Pcs', placement: 'Front Fly Closure' },
-        { id: '3', component_type: 'Buttons', item_name: 'Waistband Shank Button', specification: '24L Metal Shank Button / Snap', consumption: '1 Pcs', placement: 'Center Front Waistband' },
-        { id: '4', component_type: 'Main Label', item_name: 'Woven Waistband Brand Label', specification: 'Loop Fold, 50x30mm', consumption: '1 Pcs', placement: 'Inside Center Back Waistband' },
-        { id: '5', component_type: 'Care Label', item_name: 'Printed Satin Wash Care Label', specification: 'Book Fold, 30x70mm', consumption: '1 Pcs', placement: 'Left Inner Pocket Bag' },
-        { id: '6', component_type: 'Sewing Thread', item_name: 'Tex 60 Heavy Duty Core Thread', specification: 'Polyester-Cotton Wrapped Thread', consumption: '120 Mtr', placement: 'Inseam, Outseam & Waistband' }
-      ]
-    case 'Hoodie':
-    case 'Jogger':
-      return [
-        { id: '1', component_type: 'Collar / Rib', item_name: '2x2 Heavy Spandex Rib', specification: '95% Cotton 5% Spandex, 420 GSM', consumption: '0.25 Mtr', placement: 'Cuffs & Bottom Hem' },
-        { id: '2', component_type: 'Drawstring', item_name: 'Braided Cotton Drawcord', specification: 'Tubular Knit with Metal Gunmetal Aglets', consumption: '1.2 Mtr', placement: 'Hood Opening / Waistband' },
-        { id: '3', component_type: 'Ribbon / Tape', item_name: 'Twill Neck Binding Tape', specification: '100% Cotton 15mm Width', consumption: '0.40 Mtr', placement: 'Inside Neck Seam' },
-        { id: '4', component_type: 'Main Label', item_name: 'Woven Damask Brand Label', specification: 'Center Fold, 50x30mm', consumption: '1 Pcs', placement: 'Inside Center Back Neck' },
-        { id: '5', component_type: 'Care Label', item_name: 'Printed Satin Wash Care Label', specification: 'Book Fold, 30x70mm', consumption: '1 Pcs', placement: 'Left Inner Side Seam' },
-        { id: '6', component_type: 'Polybag', item_name: 'Heavy Duty Self-Adhesive Polybag', specification: '40 Micron with Vent Holes', consumption: '1 Pcs', placement: 'Individual Packaging' }
-      ]
-    default:
-      return [
-        { id: '1', component_type: 'Ribbon / Tape', item_name: 'Cotton Binding / Seam Tape', specification: '12mm Width', consumption: '0.35 Mtr', placement: 'Internal Seams' },
-        { id: '2', component_type: 'Main Label', item_name: 'Woven Brand Label', specification: 'Standard Center Fold', consumption: '1 Pcs', placement: 'Inside Neck / Waistband' },
-        { id: '3', component_type: 'Care Label', item_name: 'Wash Care & Composition Label', specification: 'Printed Satin', consumption: '1 Pcs', placement: 'Inner Side Seam' },
-        { id: '4', component_type: 'Sewing Thread', item_name: 'High-Tenacity Poly Thread', specification: 'Tex 40 Spun Polyester', consumption: '90 Mtr', placement: 'All Construction Seams' },
-        { id: '5', component_type: 'Polybag', item_name: 'Garment Polybag', specification: 'Self-Adhesive Transparent', consumption: '1 Pcs', placement: 'Individual Packaging' }
-      ]
-  }
-}
-
 export function CreateTechPackModal({ 
   isOpen, 
   onClose, 
@@ -183,7 +141,14 @@ export function CreateTechPackModal({
   const [cadBackUrl, setCadBackUrl] = useState<string | undefined>()
   const [submissionId, setSubmissionId] = useState<string | undefined>()
   const [additionalInstructions, setAdditionalInstructions] = useState('')
-  const [materials, setMaterials] = useState<TechPackMaterialRequirement[]>(() => getDefaultMaterialsForCategory('Hoodie'))
+  const [materials, setMaterials] = useState<TechPackMaterialRequirement[]>([])
+
+  // 4 boxes state for adding new BOM item
+  const [newMatType, setNewMatType] = useState('')
+  const [newMatName, setNewMatName] = useState('')
+  const [newMatConsumption, setNewMatConsumption] = useState('')
+  const [newMatPlacement, setNewMatPlacement] = useState('')
+
   const [targetCutDate, setTargetCutDate] = useState(() => {
     const d = new Date()
     d.setDate(d.getDate() + 14)
@@ -245,13 +210,6 @@ export function CreateTechPackModal({
     if (art.photo_back) setCadBackUrl(art.photo_back)
     if (art.submission_id) setSubmissionId(art.submission_id)
 
-    // Pre-fill instructions from brief/designer notes
-    const combinedInst = [art.designer_notes, art.instructions].filter(Boolean).join('\n')
-    if (combinedInst) setAdditionalInstructions(combinedInst)
-
-    // Populate smart default materials for this garment category
-    setMaterials(getDefaultMaterialsForCategory(cat))
-
     // Clear any errors
     setErrors(prev => ({ ...prev, styleNumber: '', styleName: '' }))
   }
@@ -271,8 +229,6 @@ export function CreateTechPackModal({
         setBaseSize('4T')
       }
     }
-    // Update default materials if user hasn't manually customized extensively
-    setMaterials(getDefaultMaterialsForCategory(cat))
   }
 
   function handleSizeSystemChange(sys: SizeSystem) {
@@ -284,16 +240,24 @@ export function CreateTechPackModal({
   }
 
   // Material helpers
-  function handleAddMaterial(preset?: Partial<TechPackMaterialRequirement>) {
+  function handleAddNewMaterial() {
+    if (!newMatType.trim() && !newMatName.trim()) {
+      toast.error('Please enter a component type or item description')
+      return
+    }
     const newMat: TechPackMaterialRequirement = {
       id: Date.now().toString() + Math.random().toString(36).substring(2, 6),
-      component_type: preset?.component_type || 'Ribbon / Tape',
-      item_name: preset?.item_name || '100% Cotton Binding Tape',
-      specification: preset?.specification || '12mm Width',
-      consumption: preset?.consumption || '1 Pcs',
-      placement: preset?.placement || 'Inside Neck Seam'
+      component_type: newMatType.trim() || 'Material',
+      item_name: newMatName.trim() || '-',
+      specification: '',
+      consumption: newMatConsumption.trim() || '1 Pcs',
+      placement: newMatPlacement.trim() || '-'
     }
     setMaterials(prev => [...prev, newMat])
+    setNewMatType('')
+    setNewMatName('')
+    setNewMatConsumption('')
+    setNewMatPlacement('')
   }
 
   function handleUpdateMaterial(id: string, field: keyof TechPackMaterialRequirement, value: string) {
@@ -670,118 +634,146 @@ export function CreateTechPackModal({
                       {materials.length} Items
                     </span>
                   </div>
-
-                  <button
-                    type="button"
-                    onClick={() => handleAddMaterial()}
-                    className="inline-flex items-center gap-1 px-3 py-1 rounded-xl bg-[#FAF7F0] hover:bg-slate-100 text-[#3A3564] border border-black/10 text-xs font-bold transition-all cursor-pointer shadow-2xs"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                    <span>Add Material</span>
-                  </button>
                 </div>
 
-                {/* Quick-Add Preset Chips */}
-                <div className="flex items-center gap-1.5 flex-wrap text-[11px]">
-                  <span className="text-[10px] font-mono font-bold text-slate-400 uppercase mr-1">Quick Add:</span>
-                  {[
-                    { label: '+ Collar / Rib', preset: { component_type: 'Collar / Rib', item_name: '1x1 Spandex Rib', specification: '95% Cotton 5% Spandex 320 GSM', consumption: '0.08 Mtr', placement: 'Neckline' } },
-                    { label: '+ Ribbon / Tape', preset: { component_type: 'Ribbon / Tape', item_name: 'Herringbone Twill Tape', specification: '12mm 100% Cotton', consumption: '0.35 Mtr', placement: 'Inside Neck Seam' } },
-                    { label: '+ Main Label', preset: { component_type: 'Main Label', item_name: 'Woven Damask Brand Label', specification: 'Center Fold 45x25mm', consumption: '1 Pcs', placement: 'Inside Back Neck' } },
-                    { label: '+ Care Label', preset: { component_type: 'Care Label', item_name: 'Printed Satin Care Label', specification: 'Book Fold 30x70mm', consumption: '1 Pcs', placement: 'Inner Left Side Seam' } },
-                    { label: '+ Size Pip', preset: { component_type: 'Size Label', item_name: 'Woven Size Pip', specification: 'End Fold 12x12mm', consumption: '1 Pcs', placement: 'Under Main Label' } },
-                    { label: '+ Buttons', preset: { component_type: 'Buttons', item_name: '4-Hole Horn Button', specification: '18L Matte Finish', consumption: '4 Pcs', placement: 'Front Placket' } },
-                    { label: '+ Zipper', preset: { component_type: 'Zipper', item_name: '#5 YKK Metal Zipper', specification: 'Antique Brass Auto-lock', consumption: '1 Pcs', placement: 'Front Fly / Opening' } },
-                    { label: '+ Drawstring', preset: { component_type: 'Drawstring', item_name: 'Cotton Drawcord', specification: 'Tubular with Metal Tips', consumption: '1.2 Mtr', placement: 'Hood / Waist' } },
-                    { label: '+ Polybag', preset: { component_type: 'Polybag', item_name: 'Self-Adhesive Polybag', specification: 'Recycled 30 Micron', consumption: '1 Pcs', placement: 'Packing' } }
-                  ].map((chip, idx) => (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => handleAddMaterial(chip.preset)}
-                      className="px-2 py-0.5 rounded-lg bg-white hover:bg-[#FAF7F0] border border-black/10 text-slate-700 font-medium transition-colors cursor-pointer shadow-2xs"
-                    >
-                      {chip.label}
-                    </button>
-                  ))}
+                {/* 4 Input Boxes + Add Button */}
+                <div className="bg-[#FAF7F0] p-3.5 rounded-2xl border border-black/10 shadow-2xs">
+                  <div className="grid grid-cols-1 sm:grid-cols-12 gap-2.5 items-end">
+                    <div className="sm:col-span-3">
+                      <label className="block text-[10px] font-mono font-bold uppercase tracking-wider text-slate-700 mb-1">
+                        Component Type
+                      </label>
+                      <input
+                        type="text"
+                        value={newMatType}
+                        onChange={e => setNewMatType(e.target.value)}
+                        placeholder="e.g. Ribbon, Collar, Label"
+                        className="w-full px-3 py-2 rounded-xl border border-black/15 text-xs font-semibold text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                        onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAddNewMaterial() } }}
+                      />
+                    </div>
+                    <div className="sm:col-span-4">
+                      <label className="block text-[10px] font-mono font-bold uppercase tracking-wider text-slate-700 mb-1">
+                        Item Description / Spec
+                      </label>
+                      <input
+                        type="text"
+                        value={newMatName}
+                        onChange={e => setNewMatName(e.target.value)}
+                        placeholder="e.g. 1x1 Cotton Spandex Rib 380 GSM"
+                        className="w-full px-3 py-2 rounded-xl border border-black/15 text-xs font-semibold text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                        onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAddNewMaterial() } }}
+                      />
+                    </div>
+                    <div className="sm:col-span-2">
+                      <label className="block text-[10px] font-mono font-bold uppercase tracking-wider text-slate-700 mb-1">
+                        Consumption / Qty
+                      </label>
+                      <input
+                        type="text"
+                        value={newMatConsumption}
+                        onChange={e => setNewMatConsumption(e.target.value)}
+                        placeholder="e.g. 1 Pcs, 0.35 Mtr"
+                        className="w-full px-3 py-2 rounded-xl border border-black/15 text-xs font-semibold text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                        onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAddNewMaterial() } }}
+                      />
+                    </div>
+                    <div className="sm:col-span-2">
+                      <label className="block text-[10px] font-mono font-bold uppercase tracking-wider text-slate-700 mb-1">
+                        Placement
+                      </label>
+                      <input
+                        type="text"
+                        value={newMatPlacement}
+                        onChange={e => setNewMatPlacement(e.target.value)}
+                        placeholder="e.g. Neck Seam, Placket"
+                        className="w-full px-3 py-2 rounded-xl border border-black/15 text-xs font-semibold text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                        onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAddNewMaterial() } }}
+                      />
+                    </div>
+                    <div className="sm:col-span-1">
+                      <button
+                        type="button"
+                        onClick={handleAddNewMaterial}
+                        className="w-full h-[38px] flex items-center justify-center gap-1 px-3 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold transition-all cursor-pointer shadow-2xs"
+                        title="Add Material to Table"
+                      >
+                        <Plus className="w-4 h-4" />
+                        <span className="sm:hidden">Add</span>
+                      </button>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Materials List Table */}
-                <div className="rounded-2xl border border-black/10 bg-white overflow-hidden shadow-2xs">
-                  <table className="w-full text-left border-collapse text-xs">
-                    <thead>
-                      <tr className="bg-[#FAF7F0] border-b border-black/10 text-[10px] font-mono font-bold uppercase text-slate-600">
-                        <th className="py-2.5 px-3">Component Type</th>
-                        <th className="py-2.5 px-3">Item Description</th>
-                        <th className="py-2.5 px-3">Specification / Details</th>
-                        <th className="py-2.5 px-3 w-24">Consumption</th>
-                        <th className="py-2.5 px-3">Placement</th>
-                        <th className="py-2.5 px-2 text-right w-10"></th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      {materials.map((mat) => (
-                        <tr key={mat.id} className="hover:bg-slate-50/60 transition-colors">
-                          <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={mat.component_type}
-                              onChange={e => handleUpdateMaterial(mat.id, 'component_type', e.target.value)}
-                              placeholder="e.g. Rib / Collar"
-                              className="w-full px-2 py-1 rounded-lg border border-slate-200 text-xs font-bold text-slate-900 bg-white focus:ring-1 focus:ring-[#3A3564]"
-                            />
-                          </td>
-                          <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={mat.item_name}
-                              onChange={e => handleUpdateMaterial(mat.id, 'item_name', e.target.value)}
-                              placeholder="e.g. 1x1 Cotton Rib"
-                              className="w-full px-2 py-1 rounded-lg border border-slate-200 text-xs font-medium text-slate-900 bg-white focus:ring-1 focus:ring-[#3A3564]"
-                            />
-                          </td>
-                          <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={mat.specification || ''}
-                              onChange={e => handleUpdateMaterial(mat.id, 'specification', e.target.value)}
-                              placeholder="e.g. 95% Cotton 5% Spandex"
-                              className="w-full px-2 py-1 rounded-lg border border-slate-200 text-xs text-slate-700 bg-white focus:ring-1 focus:ring-[#3A3564]"
-                            />
-                          </td>
-                          <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={mat.consumption || ''}
-                              onChange={e => handleUpdateMaterial(mat.id, 'consumption', e.target.value)}
-                              placeholder="e.g. 1 Pcs"
-                              className="w-full px-2 py-1 rounded-lg border border-slate-200 text-xs font-mono font-bold text-slate-800 bg-white focus:ring-1 focus:ring-[#3A3564]"
-                            />
-                          </td>
-                          <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={mat.placement || ''}
-                              onChange={e => handleUpdateMaterial(mat.id, 'placement', e.target.value)}
-                              placeholder="e.g. Neckline"
-                              className="w-full px-2 py-1 rounded-lg border border-slate-200 text-xs text-slate-700 bg-white focus:ring-1 focus:ring-[#3A3564]"
-                            />
-                          </td>
-                          <td className="py-2 px-2 text-right">
-                            <button
-                              type="button"
-                              onClick={() => handleDeleteMaterial(mat.id)}
-                              className="p-1 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
-                              title="Delete Material Line"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
-                          </td>
+                {materials.length === 0 ? (
+                  <div className="py-6 text-center bg-white rounded-2xl border border-dashed border-black/15 p-4">
+                    <p className="text-xs text-slate-500 font-medium">No materials added yet.</p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">Fill the 4 boxes above and click &quot;+&quot; to add them to this table.</p>
+                  </div>
+                ) : (
+                  <div className="rounded-2xl border border-black/10 bg-white overflow-hidden shadow-2xs">
+                    <table className="w-full text-left border-collapse text-xs">
+                      <thead>
+                        <tr className="bg-[#FAF7F0] border-b border-black/10 text-[10px] font-mono font-bold uppercase text-slate-600">
+                          <th className="py-2.5 px-3">Component Type</th>
+                          <th className="py-2.5 px-3">Item Description / Spec</th>
+                          <th className="py-2.5 px-3 w-28">Consumption</th>
+                          <th className="py-2.5 px-3">Placement</th>
+                          <th className="py-2.5 px-2 text-right w-10"></th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {materials.map((mat) => (
+                          <tr key={mat.id} className="hover:bg-slate-50/60 transition-colors">
+                            <td className="py-2 px-3">
+                              <input
+                                type="text"
+                                value={mat.component_type}
+                                onChange={e => handleUpdateMaterial(mat.id, 'component_type', e.target.value)}
+                                className="w-full px-2 py-1 rounded-lg border border-slate-200 text-xs font-bold text-slate-900 bg-white focus:ring-1 focus:ring-[#3A3564]"
+                              />
+                            </td>
+                            <td className="py-2 px-3">
+                              <input
+                                type="text"
+                                value={mat.item_name}
+                                onChange={e => handleUpdateMaterial(mat.id, 'item_name', e.target.value)}
+                                className="w-full px-2 py-1 rounded-lg border border-slate-200 text-xs font-medium text-slate-900 bg-white focus:ring-1 focus:ring-[#3A3564]"
+                              />
+                            </td>
+                            <td className="py-2 px-3">
+                              <input
+                                type="text"
+                                value={mat.consumption || ''}
+                                onChange={e => handleUpdateMaterial(mat.id, 'consumption', e.target.value)}
+                                className="w-full px-2 py-1 rounded-lg border border-slate-200 text-xs font-mono font-bold text-slate-800 bg-white focus:ring-1 focus:ring-[#3A3564]"
+                              />
+                            </td>
+                            <td className="py-2 px-3">
+                              <input
+                                type="text"
+                                value={mat.placement || ''}
+                                onChange={e => handleUpdateMaterial(mat.id, 'placement', e.target.value)}
+                                className="w-full px-2 py-1 rounded-lg border border-slate-200 text-xs text-slate-700 bg-white focus:ring-1 focus:ring-[#3A3564]"
+                              />
+                            </td>
+                            <td className="py-2 px-2 text-right">
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteMaterial(mat.id)}
+                                className="p-1 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                                title="Delete Material Line"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
 
               {/* 4. NEW SECTION: Additional Instructions Bar */}
@@ -792,7 +784,7 @@ export function CreateTechPackModal({
                 <textarea
                   value={additionalInstructions}
                   onChange={e => setAdditionalInstructions(e.target.value)}
-                  placeholder="e.g. Double needle topstitch on neck rib. Silicon wash after stitching for ultra-soft handfeel. Fold with butter paper and tag on left sleeve..."
+                  placeholder="Enter specific garment production notes, stitching guidelines, washing instructions, and packaging details..."
                   rows={3}
                   className="w-full p-3 rounded-2xl border border-black/15 text-xs text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564] shadow-2xs"
                 />
