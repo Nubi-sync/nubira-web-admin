@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { 
   ClipboardList, 
@@ -128,6 +128,26 @@ export function DesignBriefsClient({
 
   // Photo Preview Lightbox
   const [previewPhoto, setPreviewPhoto] = useState<string | null>(null)
+  const [colorwayDecisions, setColorwayDecisions] = useState<Record<string, 'APPROVED' | 'REJECTED'>>({})
+
+  // Initialize colorway review decisions whenever review modal opens
+  useEffect(() => {
+    const activeSub = reviewingSubmission || saReviewingSubmission
+    if (!activeSub) {
+      setColorwayDecisions({})
+      return
+    }
+    const targetConceptNum = activeSub.conceptNumber || 1
+    const currentArtNo = activeSub.artNumber
+    const currentConcept = activeSub.submission.concepts?.find(
+      c => c.concept_number === targetConceptNum || (c.art_number && currentArtNo && c.art_number.toLowerCase() === currentArtNo.toLowerCase())
+    )
+    const initDecisions: Record<string, 'APPROVED' | 'REJECTED'> = {}
+    currentConcept?.colorways?.forEach(cw => {
+      initDecisions[cw.color_name] = cw.status === 'REJECTED' ? 'REJECTED' : 'APPROVED'
+    })
+    setColorwayDecisions(initDecisions)
+  }, [reviewingSubmission?.brief.id, reviewingSubmission?.conceptNumber, saReviewingSubmission?.brief.id, saReviewingSubmission?.conceptNumber])
 
   // Delete State
   const [briefToDelete, setBriefToDelete] = useState<{
@@ -172,14 +192,43 @@ export function DesignBriefsClient({
     try {
       const res = await reviewDesignSubmissionAction({
         submission_id: reviewingSubmission.submission.id,
+        concept_number: reviewingSubmission.conceptNumber,
         ph_verdict: verdict,
-        ph_feedback: phFeedback.trim() || undefined
+        ph_feedback: phFeedback.trim() || undefined,
+        colorway_verdicts: verdict === 'REJECTED' ? undefined : colorwayDecisions
       })
 
       if (res.success) {
         const nextStatus: BriefStatus = verdict === 'APPROVED' ? 'PH_APPROVED' : 'PH_REJECTED'
         toast.success(verdict === 'APPROVED' ? 'Concept approved & forwarded to Super Admin.' : 'Concept returned with revision notes.')
-        setBriefs(prev => prev.map(b => b.id === reviewingSubmission.brief.id ? { ...b, status: nextStatus } : b))
+        setBriefs(prev => prev.map(b => {
+          if (b.id !== reviewingSubmission.brief.id) return b
+          const updatedSub = b.latest_submission ? {
+            ...b.latest_submission,
+            ph_verdict: verdict,
+            ph_feedback: phFeedback.trim() || b.latest_submission.ph_feedback,
+            concepts: (b.latest_submission.concepts || []).map(c => {
+              if (c.concept_number === (reviewingSubmission.conceptNumber || 1)) {
+                return {
+                  ...c,
+                  status: nextStatus,
+                  ph_verdict: verdict,
+                  ph_feedback: phFeedback.trim() || c.ph_feedback,
+                  colorways: (c.colorways || []).map(cw => ({
+                    ...cw,
+                    status: colorwayDecisions[cw.color_name] || (verdict === 'APPROVED' ? 'APPROVED' : 'REJECTED')
+                  }))
+                }
+              }
+              return c
+            })
+          } : undefined
+          return {
+            ...b,
+            status: nextStatus,
+            latest_submission: updatedSub
+          }
+        }))
         setReviewingSubmission(null)
         setPhFeedback('')
       } else {
@@ -198,8 +247,10 @@ export function DesignBriefsClient({
     try {
       const res = await saReviewDesignSubmissionAction({
         submission_id: saReviewingSubmission.submission.id,
+        concept_number: saReviewingSubmission.conceptNumber,
         sa_verdict: verdict,
-        sa_notes: saNotes.trim() || undefined
+        sa_notes: saNotes.trim() || undefined,
+        colorway_verdicts: verdict === 'REJECTED' ? undefined : colorwayDecisions
       })
 
       if (res.success) {
@@ -215,7 +266,34 @@ export function DesignBriefsClient({
               : 'Design rejected.'
         )
 
-        setBriefs(prev => prev.map(b => b.id === saReviewingSubmission.brief.id ? { ...b, status: nextStatus } : b))
+        setBriefs(prev => prev.map(b => {
+          if (b.id !== saReviewingSubmission.brief.id) return b
+          const updatedSub = b.latest_submission ? {
+            ...b.latest_submission,
+            sa_verdict: verdict,
+            sa_notes: saNotes.trim() || b.latest_submission.sa_notes,
+            concepts: (b.latest_submission.concepts || []).map(c => {
+              if (c.concept_number === (saReviewingSubmission.conceptNumber || 1)) {
+                return {
+                  ...c,
+                  status: nextStatus,
+                  sa_verdict: verdict,
+                  sa_notes: saNotes.trim() || c.sa_notes,
+                  colorways: (c.colorways || []).map(cw => ({
+                    ...cw,
+                    status: colorwayDecisions[cw.color_name] || (verdict === 'APPROVED' ? 'APPROVED' : 'REJECTED')
+                  }))
+                }
+              }
+              return c
+            })
+          } : undefined
+          return {
+            ...b,
+            status: nextStatus,
+            latest_submission: updatedSub
+          }
+        }))
         setSaReviewingSubmission(null)
         setSaNotes('')
       } else {
@@ -593,6 +671,7 @@ export function DesignBriefsClient({
                     category: string
                     colors: string[]
                     photos: { url: string; label: string; color?: string }[]
+                    status: BriefStatus
                   }[] = []
 
                   filteredBriefs.forEach(brief => {
@@ -615,6 +694,22 @@ export function DesignBriefsClient({
                           photos.push({ url: brief.latest_submission.photo_url_1, label: `${artNo} Mockup` })
                         }
 
+                        // Compute concept-level status independently
+                        const hasUploadedArtwork = photos.length > 0
+                        let conceptStatus: BriefStatus = 'ALLOCATED'
+                        if (hasUploadedArtwork) {
+                          if (subConcept?.status) conceptStatus = subConcept.status
+                          else if (subConcept?.sa_verdict === 'APPROVED') conceptStatus = 'SA_APPROVED'
+                          else if (subConcept?.sa_verdict === 'SAVED_FOR_LATER') conceptStatus = 'SA_SAVED_FOR_LATER'
+                          else if (subConcept?.sa_verdict === 'REJECTED') conceptStatus = 'PH_REJECTED'
+                          else if (subConcept?.ph_verdict === 'APPROVED') conceptStatus = 'PH_APPROVED'
+                          else if (subConcept?.ph_verdict === 'REJECTED') conceptStatus = 'PH_REJECTED'
+                          else if (subConcept?.ph_verdict === 'PENDING') conceptStatus = 'SUBMITTED'
+                          else conceptStatus = brief.status || 'SUBMITTED'
+                        } else {
+                          conceptStatus = 'ALLOCATED'
+                        }
+
                         rows.push({
                           key: `${brief.id}-${req.concept_number}`,
                           brief,
@@ -623,7 +718,8 @@ export function DesignBriefsClient({
                           garmentType: garment,
                           category: cat,
                           colors: cols,
-                          photos
+                          photos,
+                          status: conceptStatus
                         })
                       })
                     } else {
@@ -640,7 +736,8 @@ export function DesignBriefsClient({
                         garmentType: brief.garment_type,
                         category: brief.category,
                         colors: brief.target_colors || [],
-                        photos
+                        photos,
+                        status: brief.status
                       })
                     }
                   })
@@ -657,7 +754,7 @@ export function DesignBriefsClient({
 
                   return rows.map(item => {
                     const brief = item.brief
-                    const stCfg = STATUS_CONFIG[brief.status] || STATUS_CONFIG.ALLOCATED
+                    const stCfg = STATUS_CONFIG[item.status] || STATUS_CONFIG[brief.status] || STATUS_CONFIG.ALLOCATED
 
                     return (
                       <tr key={item.key} className="hover:bg-slate-50/80 transition-colors">
@@ -925,8 +1022,8 @@ export function DesignBriefsClient({
 
                       return (
                         <div key={cwIdx} className="space-y-3">
-                          {/* Colorway Label */}
-                          <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                          {/* Colorway Label & Individual Review Verdict Selectors */}
+                          <div className="flex items-center justify-between border-b border-slate-100 pb-2.5 flex-wrap gap-2">
                             <div className="flex items-center gap-2 font-mono text-xs font-bold text-slate-900">
                               <span
                                 className="w-3.5 h-3.5 rounded-full border border-black/20 shrink-0 shadow-2xs"
@@ -934,11 +1031,45 @@ export function DesignBriefsClient({
                               />
                               <span>{cw.color_name} Colorway</span>
                             </div>
-                            {variantArtNo && (
-                              <span className="font-mono font-bold text-slate-900 text-xs">
-                                {variantArtNo}
-                              </span>
-                            )}
+
+                            <div className="flex items-center gap-2">
+                              {variantArtNo && (
+                                <span className="font-mono font-bold text-slate-900 text-xs bg-[#FAF7F0] px-2.5 py-0.5 rounded-md border border-black/10">
+                                  {variantArtNo}
+                                </span>
+                              )}
+
+                              {/* Colorway Verdict Toggle (Approve vs Reject this specific colorway) */}
+                              <div className="inline-flex items-center rounded-xl bg-[#FAF7F0] p-0.5 border border-black/10 gap-0.5 shadow-2xs">
+                                <button
+                                  type="button"
+                                  onClick={() => setColorwayDecisions(prev => ({ ...prev, [cw.color_name]: 'APPROVED' }))}
+                                  className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+                                    colorwayDecisions[cw.color_name] !== 'REJECTED'
+                                      ? 'bg-emerald-700 text-white shadow-xs'
+                                      : 'text-slate-500 hover:text-slate-800'
+                                  }`}
+                                  title={`Accept ${cw.color_name}`}
+                                >
+                                  <CheckCircle2 className="w-3 h-3" />
+                                  <span>Accept</span>
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => setColorwayDecisions(prev => ({ ...prev, [cw.color_name]: 'REJECTED' }))}
+                                  className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+                                    colorwayDecisions[cw.color_name] === 'REJECTED'
+                                      ? 'bg-rose-600 text-white shadow-xs'
+                                      : 'text-slate-500 hover:text-rose-600'
+                                  }`}
+                                  title={`Reject ${cw.color_name}`}
+                                >
+                                  <XCircle className="w-3 h-3" />
+                                  <span>Reject</span>
+                                </button>
+                              </div>
+                            </div>
                           </div>
 
                           {/* Normal Floated Clean Artwork Images */}
@@ -1066,8 +1197,8 @@ export function DesignBriefsClient({
                 </div>
               </div>
 
-              {/* Modal Footer Actions */}
-              <div className="px-6 py-4 bg-[#FAF7F0] border-t border-black/10 flex items-center justify-between gap-2 flex-wrap">
+              {/* Modal Footer Actions - Clean Modern Design */}
+              <div className="px-6 py-4 bg-[#FAF7F0] border-t border-black/10 flex items-center justify-between gap-3 flex-wrap">
                 <button
                   type="button"
                   onClick={() => setReviewingSubmission(null)}
@@ -1076,12 +1207,12 @@ export function DesignBriefsClient({
                   Cancel
                 </button>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2.5">
                   <button
                     type="button"
                     disabled={isReviewing}
                     onClick={() => handlePHReviewSubmit('REJECTED')}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-rose-600 hover:bg-rose-50 border border-rose-200 text-xs font-bold transition-all shadow-2xs cursor-pointer disabled:opacity-50"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold transition-all shadow-2xs cursor-pointer disabled:opacity-50"
                   >
                     <XCircle className="w-4 h-4" />
                     <span>Request Revisions</span>
@@ -1091,7 +1222,7 @@ export function DesignBriefsClient({
                     type="button"
                     disabled={isReviewing}
                     onClick={() => handlePHReviewSubmit('APPROVED')}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#3A3564] text-white hover:bg-[#2A2649] text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50"
+                    className="inline-flex items-center gap-1.5 px-4.5 py-2 rounded-xl bg-[#3A3564] text-white hover:bg-[#2A2649] text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50"
                   >
                     {isReviewing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
                     <span>Approve &amp; Forward to SA</span>

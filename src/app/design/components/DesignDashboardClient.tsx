@@ -40,13 +40,15 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 
 interface DesignDashboardClientProps {
-  metrics: {
-    totalBriefs: number
-    pendingSubmissions: number
-    phApproved: number
-    saApproved: number
-    techPacksCount: number
-    activeDesigners: number
+  metrics?: {
+    active_briefs?: number
+    pending_ph_reviews?: number
+    pending_sa_approvals?: number
+    sa_approved_designs?: number
+    saved_for_later?: number
+    active_tech_packs?: number
+    team_designers_count?: number
+    [key: string]: any
   }
   initialBriefs: DesignBrief[]
   initialTechPacks: TechPack[]
