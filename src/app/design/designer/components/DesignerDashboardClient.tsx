@@ -671,8 +671,10 @@ export function DesignerDashboardClient({
               const cNum = idx + 1
               const isTabActive = activeConceptTab === cNum
               const cData = conceptsState[cNum]
-              const readyForThisConcept = targetColorsList.filter(col => cData?.colorways[col]?.photo_front?.trim()).length
-              const isFullyDone = readyForThisConcept >= targetColorsList.length
+              const req = activeBrief.design_concepts_brief?.find(c => c.concept_number === cNum)
+              const cColors = (req?.colors && req.colors.length > 0) ? req.colors : targetColorsList
+              const readyForThisConcept = cColors.filter(col => cData?.colorways[col]?.photo_front?.trim()).length
+              const isFullyDone = readyForThisConcept >= cColors.length
 
               return (
                 <button
@@ -680,7 +682,7 @@ export function DesignerDashboardClient({
                   type="button"
                   onClick={() => {
                     setActiveConceptTab(cNum)
-                    setActiveColorwayTab(targetColorsList[0])
+                    setActiveColorwayTab(cColors[0])
                   }}
                   className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold font-mono transition-all cursor-pointer shadow-2xs border ${
                     isTabActive
@@ -698,10 +700,15 @@ export function DesignerDashboardClient({
                     </span>
                   )}
                   <span>Design #{cNum}</span>
+                  {req?.category_style && (
+                    <span className="hidden sm:inline font-sans text-[11px] font-medium text-slate-500 max-w-[120px] truncate">
+                      ({req.category_style})
+                    </span>
+                  )}
                   <span className={`text-[10px] px-1.5 py-0.2 rounded-md ${
                     isTabActive ? 'bg-white/20 text-white' : 'bg-black/5 text-slate-600'
                   }`}>
-                    {readyForThisConcept}/{targetColorsList.length}
+                    {readyForThisConcept}/{cColors.length}
                   </span>
                 </button>
               )
@@ -724,47 +731,56 @@ export function DesignerDashboardClient({
               />
             </div>
 
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5 flex items-center justify-between">
-                <span>Select Colorway to Attach Artwork</span>
-                <span className="text-[11px] font-normal text-slate-500 font-sans">
-                  Click each color to upload front &amp; back views
-                </span>
-              </label>
-              <div className="flex flex-wrap gap-2">
-                {targetColorsList.map((colName) => {
-                  const sw = getColorSwatchInfo(colName)
-                  const isColorSelected = activeColorwayTab === colName
-                  const hasPhoto = !!currentConcept.colorways[colName]?.photo_front?.trim()
+            {(() => {
+              const currentInstructed = activeBrief.design_concepts_brief?.find(c => c.concept_number === activeConceptTab)
+              const activeConceptColors = (currentInstructed?.colors && currentInstructed.colors.length > 0)
+                ? currentInstructed.colors
+                : targetColorsList
 
-                  return (
-                    <button
-                      key={colName}
-                      type="button"
-                      onClick={() => setActiveColorwayTab(colName)}
-                      className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer border shadow-2xs ${
-                        isColorSelected
-                          ? 'bg-white text-[#3A3564] border-[#3A3564] ring-2 ring-[#3A3564]/15'
-                          : hasPhoto
-                          ? 'bg-emerald-50 text-emerald-900 border-emerald-200'
-                          : 'bg-white text-slate-700 border-black/10 hover:bg-slate-50'
-                      }`}
-                    >
-                      <span 
-                        className="w-3.5 h-3.5 rounded-full border border-black/20 shrink-0" 
-                        style={{ backgroundColor: sw.bg }} 
-                      />
-                      <span>{colName}</span>
-                      {hasPhoto ? (
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                      ) : (
-                        <span className="text-[10px] text-slate-400 font-mono">Pending</span>
-                      )}
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
+              return (
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5 flex items-center justify-between">
+                    <span>Select Colorway to Attach Artwork ({activeConceptColors.length} Allocated)</span>
+                    <span className="text-[11px] font-normal text-slate-500 font-sans">
+                      Click each color to upload front &amp; back views
+                    </span>
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {activeConceptColors.map((colName) => {
+                      const sw = getColorSwatchInfo(colName)
+                      const isColorSelected = activeColorwayTab === colName
+                      const hasPhoto = !!currentConcept.colorways[colName]?.photo_front?.trim()
+
+                      return (
+                        <button
+                          key={colName}
+                          type="button"
+                          onClick={() => setActiveColorwayTab(colName)}
+                          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer border shadow-2xs ${
+                            isColorSelected
+                              ? 'bg-white text-[#3A3564] border-[#3A3564] ring-2 ring-[#3A3564]/15'
+                              : hasPhoto
+                              ? 'bg-emerald-50 text-emerald-900 border-emerald-200'
+                              : 'bg-white text-slate-700 border-black/10 hover:bg-slate-50'
+                          }`}
+                        >
+                          <span 
+                            className="w-3.5 h-3.5 rounded-full border border-black/20 shrink-0" 
+                            style={{ backgroundColor: sw.bg }} 
+                          />
+                          <span>{colName}</span>
+                          {hasPhoto ? (
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                          ) : (
+                            <span className="text-[10px] text-slate-400 font-mono">Pending</span>
+                          )}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              )
+            })()}
 
             <div className="bg-white p-4 sm:p-5 rounded-2xl border border-black/10 space-y-3">
               <div className="flex items-center justify-between text-xs">
@@ -927,36 +943,82 @@ export function DesignerDashboardClient({
         </div>
       </div>
 
-      {/* Layer 3: Executive Metrics Strip */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
-          <span className="text-xs font-mono font-bold text-slate-500 block mb-2 uppercase tracking-wider">
-            Active Briefs To Do
-          </span>
-          <div className="text-2xl sm:text-3xl font-black text-slate-900 font-mono">
-            {activeAssignments.length} Tasks
+      {/* Layer 3: Executive Metrics Strip (Unified 4-Box Grid) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+              TASKS
+            </span>
+            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+              <ClipboardList className="w-4 h-4 text-[#3A3564]" />
+            </div>
           </div>
-          <p className="text-xs text-slate-500 mt-1 font-medium">Pending artwork upload</p>
+          <div className="mt-3">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-900 font-mono">
+              Active Briefs
+            </div>
+            <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
+              {activeAssignments.length}
+            </div>
+          </div>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
-          <span className="text-xs font-mono font-bold text-[#3A3564] block mb-2 uppercase tracking-wider">
-            Concepts Target
-          </span>
-          <div className="text-2xl sm:text-3xl font-black text-[#3A3564] font-mono">
-            {totalConceptsRequired} Required
+        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+              TARGET
+            </span>
+            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+              <Layers className="w-4 h-4 text-[#3A3564]" />
+            </div>
           </div>
-          <p className="text-xs text-slate-500 mt-1 font-medium">Across active brief allocations</p>
+          <div className="mt-3">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-900 font-mono">
+              Concepts Required
+            </div>
+            <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
+              {totalConceptsRequired}
+            </div>
+          </div>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
-          <span className="text-xs font-mono font-bold text-emerald-700 block mb-2 uppercase tracking-wider">
-            Approved &amp; Cleared
-          </span>
-          <div className="text-2xl sm:text-3xl font-black text-emerald-800 font-mono">
-            {completedBriefsCount} Briefs
+        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+              STAGE 02
+            </span>
+            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+              <Clock className="w-4 h-4 text-[#3A3564]" />
+            </div>
           </div>
-          <p className="text-xs text-emerald-600 mt-1 font-medium">View in Submission History</p>
+          <div className="mt-3">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-900 font-mono">
+              In Head Review
+            </div>
+            <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
+              {inReviewCount}
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+              CLEARED
+            </span>
+            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+              <CheckCircle2 className="w-4 h-4 text-[#3A3564]" />
+            </div>
+          </div>
+          <div className="mt-3">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-900 font-mono">
+              Approved Designs
+            </div>
+            <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
+              {completedBriefsCount}
+            </div>
+          </div>
         </div>
       </div>
 

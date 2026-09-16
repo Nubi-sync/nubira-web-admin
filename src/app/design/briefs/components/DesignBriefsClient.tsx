@@ -270,53 +270,81 @@ export function DesignBriefsClient({
         </div>
       </div>
 
-      {/* Metric Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
-          <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-            Pending PH Reviews
-          </span>
-          <div className="text-2xl sm:text-3xl font-bold font-mono text-amber-800 font-[family-name:var(--font-heading)] mt-2">
-            {pendingReviewCount} Awaiting
+      {/* Metric Cards (Unified 4-Box Grid) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+              STAGE 02
+            </span>
+            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+              <Clock className="w-4 h-4 text-[#3A3564]" />
+            </div>
           </div>
-          <div className="text-xs text-slate-500 mt-1">
-            Submitted designer photos
-          </div>
-        </div>
-
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
-          <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-            Pending SA Approvals
-          </span>
-          <div className="text-2xl sm:text-3xl font-bold font-mono text-sky-800 font-[family-name:var(--font-heading)] mt-2">
-            {pendingSACount} Pending
-          </div>
-          <div className="text-xs text-slate-500 mt-1">
-            Awaiting SA Greenlight
+          <div className="mt-3">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-900 font-mono">
+              Pending PH Reviews
+            </div>
+            <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
+              {pendingReviewCount}
+            </div>
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
-          <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-            Saved for Later
-          </span>
-          <div className="text-2xl sm:text-3xl font-bold font-mono text-[#3A3564] font-[family-name:var(--font-heading)] mt-2">
-            {savedForLaterCount} Archived
+        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+              STAGE 03
+            </span>
+            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+              <ShieldCheck className="w-4 h-4 text-[#3A3564]" />
+            </div>
           </div>
-          <div className="text-xs text-slate-500 mt-1">
-            Seasonal Archive Collection
+          <div className="mt-3">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-900 font-mono">
+              Forwarded to SA
+            </div>
+            <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
+              {pendingSACount}
+            </div>
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
-          <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-            SA Greenlit Ready
-          </span>
-          <div className="text-2xl sm:text-3xl font-bold font-mono text-emerald-800 font-[family-name:var(--font-heading)] mt-2">
-            {saApprovedCount} Ready
+        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+              GREENLIT
+            </span>
+            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+              <CheckCircle2 className="w-4 h-4 text-[#3A3564]" />
+            </div>
           </div>
-          <div className="text-xs text-slate-500 mt-1">
-            Ready for Tech-Pack creation
+          <div className="mt-3">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-900 font-mono">
+              SA Greenlit
+            </div>
+            <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
+              {saApprovedCount}
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+              ARCHIVE
+            </span>
+            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+              <Bookmark className="w-4 h-4 text-[#3A3564]" />
+            </div>
+          </div>
+          <div className="mt-3">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-900 font-mono">
+              Seasonal Archive
+            </div>
+            <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
+              {savedForLaterCount}
+            </div>
           </div>
         </div>
       </div>

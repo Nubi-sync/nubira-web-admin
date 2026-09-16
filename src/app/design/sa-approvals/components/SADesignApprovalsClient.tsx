@@ -179,61 +179,81 @@ export function SADesignApprovalsClient({
         </div>
       </div>
 
-      {/* Layer 3: Small, Compact Informational KPI Data Boxes (Not Clickable Tabs) */}
+      {/* Layer 3: Informational KPI Data Boxes (Unified 4-Box Grid) */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        <div className="bg-white p-3.5 rounded-2xl border border-black/10 shadow-2xs flex items-center justify-between">
-          <div>
-            <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">
-              Total Designs
+        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+              PIPELINE
             </span>
-            <div className="text-xl sm:text-2xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
+            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+              <Layers className="w-4 h-4 text-[#3A3564]" />
+            </div>
+          </div>
+          <div className="mt-3">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-900 font-mono">
+              Total Designs
+            </div>
+            <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
               {submissions.length}
             </div>
           </div>
-          <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs shrink-0">
-            <Layers className="w-4 h-4 text-[#3A3564]" />
-          </div>
         </div>
 
-        <div className="bg-white p-3.5 rounded-2xl border border-black/10 shadow-2xs flex items-center justify-between">
-          <div>
-            <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-700">
-              Awaiting Decision
+        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+              DECISION
             </span>
-            <div className="text-xl sm:text-2xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
+            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+              <Clock className="w-4 h-4 text-[#3A3564]" />
+            </div>
+          </div>
+          <div className="mt-3">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-900 font-mono">
+              Awaiting Decision
+            </div>
+            <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
               {pendingSubmissions.length}
             </div>
           </div>
-          <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-800 border border-amber-200 flex items-center justify-center shadow-2xs shrink-0">
-            <Clock className="w-4 h-4 text-amber-700" />
-          </div>
         </div>
 
-        <div className="bg-white p-3.5 rounded-2xl border border-black/10 shadow-2xs flex items-center justify-between">
-          <div>
-            <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-700">
-              SA Greenlit
+        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+              GREENLIT
             </span>
-            <div className="text-xl sm:text-2xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
+            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+              <CheckCircle2 className="w-4 h-4 text-[#3A3564]" />
+            </div>
+          </div>
+          <div className="mt-3">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-900 font-mono">
+              SA Greenlit
+            </div>
+            <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
               {approvedSubmissions.length}
             </div>
           </div>
-          <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-center justify-center shadow-2xs shrink-0">
-            <CheckCircle2 className="w-4 h-4 text-emerald-700" />
-          </div>
         </div>
 
-        <div className="bg-white p-3.5 rounded-2xl border border-black/10 shadow-2xs flex items-center justify-between">
-          <div>
-            <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-700">
-              Seasonal Archive
+        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+              ARCHIVE
             </span>
-            <div className="text-xl sm:text-2xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
-              {savedForLaterSubmissions.length}
+            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+              <Bookmark className="w-4 h-4 text-[#3A3564]" />
             </div>
           </div>
-          <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs shrink-0">
-            <Bookmark className="w-4 h-4 text-[#3A3564]" />
+          <div className="mt-3">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-900 font-mono">
+              Seasonal Archive
+            </div>
+            <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
+              {savedForLaterSubmissions.length}
+            </div>
           </div>
         </div>
       </div>

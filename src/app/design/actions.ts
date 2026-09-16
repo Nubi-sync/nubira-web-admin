@@ -23,6 +23,7 @@ import {
   GarmentTemplate,
   BriefCategory,
   BriefStatus,
+  BriefDesignConceptRequirement,
   PHVerdict,
   SAVerdict,
   DesignConceptItem,
@@ -647,7 +648,7 @@ export async function createDesignBriefAction(payload: {
       targetCount = concepts.length
       const colorSet = new Set(allColors)
       concepts.forEach(c => {
-        c.colors.forEach(col => {
+        c.colors.forEach((col: string) => {
           if (col && col.trim()) colorSet.add(col.trim())
         })
       })
@@ -813,7 +814,7 @@ export async function fetchDesignBriefsAction(filters?: {
       let targetColors: string[] | undefined
       if (parsedConceptsBrief && parsedConceptsBrief.length > 0) {
         const set = new Set<string>()
-        parsedConceptsBrief.forEach(c => c.colors.forEach(col => { if (col) set.add(col) }))
+        parsedConceptsBrief.forEach(c => c.colors.forEach((col: string) => { if (col) set.add(col) }))
         targetColors = Array.from(set)
       } else if (row.instructions) {
         const colMatch = row.instructions.match(/\[COLORS:\s*([^\]]+)\]/i)

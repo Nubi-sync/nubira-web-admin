@@ -154,46 +154,82 @@ export function DesignerHistoryClient({
         </div>
       </div>
 
-      {/* 3. Metric KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
-          <span className="text-xs font-mono font-bold text-slate-500 block mb-2 uppercase tracking-wider">
-            Total Submissions
-          </span>
-          <div className="text-2xl sm:text-3xl font-black text-slate-900 font-mono">
-            {totalSubmissions} Decks
+      {/* 3. Metric KPI Cards (Unified 4-Box Grid) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+              ARCHIVE
+            </span>
+            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+              <Layers className="w-4 h-4 text-[#3A3564]" />
+            </div>
           </div>
-          <p className="text-xs text-slate-500 mt-1 font-medium">All completed briefs</p>
+          <div className="mt-3">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-900 font-mono">
+              Total Submissions
+            </div>
+            <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
+              {totalSubmissions}
+            </div>
+          </div>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
-          <span className="text-xs font-mono font-bold text-emerald-700 block mb-2 uppercase tracking-wider">
-            Approved &amp; Greenlit
-          </span>
-          <div className="text-2xl sm:text-3xl font-black text-emerald-800 font-mono">
-            {approvedCount} Concepts
+        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+              APPROVED
+            </span>
+            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+              <CheckCircle2 className="w-4 h-4 text-[#3A3564]" />
+            </div>
           </div>
-          <p className="text-xs text-emerald-600 mt-1 font-medium">Cleared for industrial Tech-Pack</p>
+          <div className="mt-3">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-900 font-mono">
+              Approved &amp; Greenlit
+            </div>
+            <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
+              {approvedCount}
+            </div>
+          </div>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
-          <span className="text-xs font-mono font-bold text-amber-700 block mb-2 uppercase tracking-wider">
-            In Head Review
-          </span>
-          <div className="text-2xl sm:text-3xl font-black text-amber-800 font-mono">
-            {inReviewCount} Briefs
+        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+              STAGE 02
+            </span>
+            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+              <Clock className="w-4 h-4 text-[#3A3564]" />
+            </div>
           </div>
-          <p className="text-xs text-amber-600 mt-1 font-medium">Awaiting Provisional Head review</p>
+          <div className="mt-3">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-900 font-mono">
+              In Head Review
+            </div>
+            <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
+              {inReviewCount}
+            </div>
+          </div>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
-          <span className="text-xs font-mono font-bold text-rose-700 block mb-2 uppercase tracking-wider">
-            Revisions Needed
-          </span>
-          <div className="text-2xl sm:text-3xl font-black text-rose-800 font-mono">
-            {revisionsCount} Briefs
+        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+              FEEDBACK
+            </span>
+            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+              <AlertCircle className="w-4 h-4 text-[#3A3564]" />
+            </div>
           </div>
-          <p className="text-xs text-rose-600 mt-1 font-medium">Action required by designer</p>
+          <div className="mt-3">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-900 font-mono">
+              Revisions Needed
+            </div>
+            <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
+              {revisionsCount}
+            </div>
+          </div>
         </div>
       </div>
 
