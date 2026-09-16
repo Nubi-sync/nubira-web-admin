@@ -724,413 +724,342 @@ export function DesignDashboardClient({
       {/* ========================================================================= */}
       {/* DEDICATED VIEW & REVIEW MODAL (Clean Single-Screen Detail) */}
       {/* ========================================================================= */}
-      {selectedBriefForView && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-black/10 overflow-hidden">
-            {/* Modal Header */}
-            <div className="px-6 py-5 bg-[#FAF7F0] border-b border-black/10 flex items-center justify-between">
-              <div>
-                <span className={`text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full border shadow-2xs ${STATUS_CONFIG[selectedBriefForView.status]?.badgeClass}`}>
-                  {STATUS_CONFIG[selectedBriefForView.status]?.label}
-                </span>
-                <h2 className="text-xl font-bold text-slate-900 mt-1 font-[family-name:var(--font-heading)]">
-                  {selectedBriefForView.garment_type} ({selectedBriefForView.category})
-                </h2>
-                <p className="text-xs text-slate-500 font-mono mt-0.5">
-                  Brief ID: #{selectedBriefForView.id.substring(0, 8)} &bull; Designer: <strong className="text-slate-800 font-sans">{selectedBriefForView.designer_name || 'Unassigned'}</strong>
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setSelectedBriefForView(null)}
-                className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-black/5 cursor-pointer transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
+      {selectedBriefForView && (() => {
+        const brief = selectedBriefForView
+        const instructedReq = brief.design_concepts_brief?.find(c => c.concept_number === modalActiveConceptTab)
+        const currentArtNo = instructedReq?.art_number || `#${brief.id.substring(0, 6)}`
+        const currentGarment = instructedReq?.category_style ? `${brief.garment_type}` : brief.garment_type
+        const currentCategory = instructedReq?.category_style || brief.category
 
-            {/* Scrollable Modal Body */}
-            <div className="p-6 max-h-[72vh] overflow-y-auto space-y-4 text-xs sm:text-[13px]">
-              {/* Target Scope & Palette Banner */}
-              <div className="bg-[#FAF7F0] p-4 rounded-2xl border border-black/10 space-y-2.5">
-                <div className="flex items-center justify-between font-mono text-xs">
-                  <span className="font-bold text-slate-700 uppercase tracking-wider">Required Target:</span>
-                  <span className="font-bold text-[#3A3564]">
-                    {selectedBriefForView.target_designs || 1} Designs &times; {selectedBriefForView.max_colors} Colors
-                  </span>
-                </div>
+        const currentConcept = brief.latest_submission?.concepts?.find(
+          c => c.concept_number === modalActiveConceptTab
+        ) || (brief.latest_submission?.concepts ? brief.latest_submission.concepts[0] : null)
 
-                {selectedBriefForView.target_colors && selectedBriefForView.target_colors.length > 0 && (
-                  <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                    {selectedBriefForView.target_colors.map((col, idx) => {
-                      const sw = getColorSwatchInfo(col)
-                      return (
-                        <span key={idx} className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-md bg-white border border-black/10 font-mono font-semibold text-slate-800 shadow-2xs">
-                          <span className="w-2.5 h-2.5 rounded-full border border-black/15 shrink-0" style={{ backgroundColor: sw.bg }} />
-                          <span>{col}</span>
-                        </span>
-                      )
-                    })}
+        const colorways = currentConcept?.colorways || []
+
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+            <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-black/10 overflow-hidden">
+              {/* Modal Header */}
+              <div className="px-6 py-5 bg-[#FAF7F0] border-b border-black/10 flex items-center justify-between">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className={`text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full border shadow-2xs ${STATUS_CONFIG[brief.status]?.badgeClass}`}>
+                      {STATUS_CONFIG[brief.status]?.label}
+                    </span>
+                    <span className="text-xs font-mono font-bold text-slate-900">
+                      ART NO: {currentArtNo}
+                    </span>
                   </div>
-                )}
-
-                {selectedBriefForView.instructions && (
-                  <p className="text-xs text-slate-700 italic border-t border-black/5 pt-2">
-                    &ldquo;{selectedBriefForView.instructions}&rdquo;
+                  <h2 className="text-xl font-bold text-slate-900 mt-1 font-[family-name:var(--font-heading)]">
+                    {currentGarment} ({currentCategory} Style)
+                  </h2>
+                  <p className="text-xs text-slate-500 font-medium mt-0.5">
+                    Designer: <strong className="text-slate-800">{brief.designer_name || 'Unassigned'}</strong>
+                    {brief.designer_phone ? ` • +91 ${brief.designer_phone}` : ''}
+                    {brief.design_concepts_brief && brief.design_concepts_brief.length > 1 ? ` • Concept #${modalActiveConceptTab} of ${brief.design_concepts_brief.length}` : ''}
                   </p>
-                )}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSelectedBriefForView(null)}
+                  className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-black/5 cursor-pointer transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
               </div>
 
-              {/* Submitted Artwork Mockups Deck */}
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="text-xs font-bold uppercase tracking-wider text-slate-700 font-mono">
-                    Design Concepts Deck
-                  </label>
-                  <span className="text-[11px] font-mono text-slate-400">
-                    Click any thumbnail to view full image
-                  </span>
-                </div>
-
-                {selectedBriefForView.latest_submission?.concepts && selectedBriefForView.latest_submission.concepts.length > 0 ? (
-                  <div className="space-y-3">
-                    {/* Concept Selector Tabs */}
-                    <div className="flex flex-wrap items-center gap-1.5 p-1 bg-[#FAF7F0] rounded-xl border border-black/10">
-                      {selectedBriefForView.latest_submission.concepts.map((concept, idx) => {
-                        const cNum = concept.concept_number || (idx + 1)
-                        const isTabActive = modalActiveConceptTab === cNum
-                        return (
-                          <button
-                            key={cNum}
-                            type="button"
-                            onClick={() => setModalActiveConceptTab(cNum)}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold font-mono transition-all cursor-pointer ${
-                              isTabActive
-                                ? 'bg-[#3A3564] text-white shadow-2xs'
-                                : 'text-slate-700 hover:bg-white/80'
-                            }`}
-                          >
-                            <span>Design #{cNum}</span>
-                            <span className={`text-[10px] px-1.5 py-0.2 rounded font-normal ${
-                              isTabActive ? 'bg-white/20 text-white' : 'bg-black/5 text-slate-500'
-                            }`}>
-                              {concept.colorways?.length || 0} Colors
-                            </span>
-                          </button>
-                        )
-                      })}
-                    </div>
-
-                    {/* Active Selected Concept View */}
-                    {(() => {
-                      const concepts = selectedBriefForView.latest_submission.concepts
-                      const currentConcept = concepts.find(c => (c.concept_number || 1) === modalActiveConceptTab) || concepts[0]
-
-                      if (!currentConcept) return null
+              {/* Scrollable Modal Body (Flat, Clean, No Boxes-in-Boxes) */}
+              <div className="p-6 max-h-[72vh] overflow-y-auto space-y-5 text-xs sm:text-[13px]">
+                {/* Submitted Artwork Mockups */}
+                {colorways.length > 0 ? (
+                  <div className="space-y-6">
+                    {colorways.map((cw, cwIdx) => {
+                      const sw = getColorSwatchInfo(cw.color_name)
+                      const variantArtNo = getVariantArtNumber(currentArtNo, cwIdx, colorways.length)
 
                       return (
-                        <div className="p-4 rounded-2xl bg-[#FAF7F0]/60 border border-black/10 space-y-3">
-                          <div className="flex items-center justify-between flex-wrap gap-2">
-                            <div className="flex items-center gap-2">
-                              <span className="font-bold text-slate-900 text-sm font-[family-name:var(--font-heading)]">
-                                {currentConcept.title || `Design Concept #${currentConcept.concept_number}`}
-                              </span>
-                              {currentConcept.art_number && (
-                                <span className="text-xs font-mono font-bold text-slate-900">
-                                  ART NO: {currentConcept.art_number}
-                                </span>
-                              )}
+                        <div key={cwIdx} className="space-y-3">
+                          {/* Colorway Label */}
+                          <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                            <div className="flex items-center gap-2 font-mono text-xs font-bold text-slate-900">
+                              <span
+                                className="w-3.5 h-3.5 rounded-full border border-black/20 shrink-0 shadow-2xs"
+                                style={{ backgroundColor: sw.bg }}
+                              />
+                              <span>{cw.color_name} Colorway</span>
                             </div>
-                            <span className="text-xs font-mono text-slate-500">
-                              {currentConcept.colorways?.length || 0} Colorway(s)
-                            </span>
+                            {variantArtNo && (
+                              <span className="font-mono font-bold text-slate-900 text-xs">
+                                {variantArtNo}
+                              </span>
+                            )}
                           </div>
 
-                          {currentConcept.notes && (
-                            <p className="text-xs text-slate-600 italic bg-white p-2.5 rounded-xl border border-black/10">
-                              &ldquo;{currentConcept.notes}&rdquo;
-                            </p>
-                          )}
-
-                          {/* Colorways in Responsive Grid Layout */}
-                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5 pt-1">
-                            {currentConcept.colorways && currentConcept.colorways.length > 0 ? (
-                              currentConcept.colorways.map((cw, cwIdx) => {
-                                const sw = getColorSwatchInfo(cw.color_name)
-                                const variantArtNo = getVariantArtNumber(
-                                  currentConcept.art_number || '',
-                                  cwIdx,
-                                  currentConcept.colorways.length
-                                )
-
-                                return (
-                                  <div
-                                    key={cwIdx}
-                                    className="bg-white p-3 rounded-2xl border border-black/10 shadow-2xs hover:shadow-xs transition-all flex flex-col justify-between gap-2.5"
-                                  >
-                                    <div className="flex items-center justify-between gap-2">
-                                      <div className="flex items-center gap-2 font-mono text-xs font-bold text-slate-800 truncate">
-                                        <span
-                                          className="w-3 h-3 rounded-full border border-black/15 shrink-0 shadow-2xs"
-                                          style={{ backgroundColor: sw.bg }}
-                                        />
-                                        <span className="truncate">{cw.color_name}</span>
-                                      </div>
-                                      {variantArtNo ? (
-                                        <span className="text-[11px] font-mono font-bold text-slate-900 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10 shrink-0">
-                                          {variantArtNo}
-                                        </span>
-                                      ) : (
-                                        <span className="text-[10px] font-mono text-slate-400 font-medium bg-[#FAF7F0] px-1.5 py-0.5 rounded border border-black/5 shrink-0">
-                                          {cw.photo_back ? '2 Views' : '1 View'}
-                                        </span>
-                                      )}
-                                    </div>
-
-                                    {/* Artwork Thumbnails */}
-                                    <div className="grid grid-cols-2 gap-2">
-                                      {/* Front Thumbnail */}
-                                      {cw.photo_front ? (
-                                        <div
-                                          onClick={() => setPreviewPhoto(cw.photo_front)}
-                                          className="aspect-square rounded-xl border border-black/10 bg-[#FAF7F0] overflow-hidden relative group cursor-pointer p-1.5 flex items-center justify-center shadow-2xs hover:border-[#3A3564]/30 transition-all"
-                                          title="Click to view full Front Artwork"
-                                        >
-                                          <img
-                                            src={cw.photo_front}
-                                            alt={`${cw.color_name} Front`}
-                                            className="w-full h-full object-contain group-hover:scale-105 transition-transform drop-shadow-xs"
-                                          />
-                                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white text-[10px] font-bold rounded-xl gap-0.5">
-                                            <Eye className="w-3.5 h-3.5" />
-                                            <span>Front</span>
-                                          </div>
-                                          <span className="absolute bottom-1 left-1 text-[9px] font-mono font-bold bg-white/90 text-slate-700 px-1 py-0.2 rounded border border-black/5 shadow-2xs">
-                                            Front
-                                          </span>
-                                        </div>
-                                      ) : (
-                                        <div className="aspect-square rounded-xl border border-dashed border-slate-200 bg-slate-50 flex flex-col items-center justify-center text-[10px] text-slate-400 font-mono p-1">
-                                          <span>No Front</span>
-                                        </div>
-                                      )}
-
-                                      {/* Back Thumbnail */}
-                                      {cw.photo_back ? (
-                                        <div
-                                          onClick={() => setPreviewPhoto(cw.photo_back!)}
-                                          className="aspect-square rounded-xl border border-black/10 bg-[#FAF7F0] overflow-hidden relative group cursor-pointer p-1.5 flex items-center justify-center shadow-2xs hover:border-[#3A3564]/30 transition-all"
-                                          title="Click to view full Back Artwork"
-                                        >
-                                          <img
-                                            src={cw.photo_back}
-                                            alt={`${cw.color_name} Back`}
-                                            className="w-full h-full object-contain group-hover:scale-105 transition-transform drop-shadow-xs"
-                                          />
-                                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white text-[10px] font-bold rounded-xl gap-0.5">
-                                            <Eye className="w-3.5 h-3.5" />
-                                            <span>Back</span>
-                                          </div>
-                                          <span className="absolute bottom-1 left-1 text-[9px] font-mono font-bold bg-white/90 text-slate-700 px-1 py-0.2 rounded border border-black/5 shadow-2xs">
-                                            Back
-                                          </span>
-                                        </div>
-                                      ) : (
-                                        <div className="aspect-square rounded-xl border border-dashed border-slate-200 bg-slate-50 flex flex-col items-center justify-center text-[10px] text-slate-400 font-mono p-1">
-                                          <span>No Back</span>
-                                        </div>
-                                      )}
-                                    </div>
-                                  </div>
-                                )
-                              })
+                          {/* Normal Floated Clean Artwork Images */}
+                          <div className={`grid gap-4 ${cw.photo_back ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1 max-w-sm mx-auto'}`}>
+                            {cw.photo_front ? (
+                              <div
+                                onClick={() => setPreviewPhoto(cw.photo_front)}
+                                className="aspect-square rounded-2xl border border-black/10 bg-[#FAF7F0] overflow-hidden relative group cursor-pointer p-3 flex items-center justify-center shadow-2xs hover:shadow-md transition-all"
+                                title="Click to view full Front Artwork"
+                              >
+                                <img
+                                  src={cw.photo_front}
+                                  alt={`${cw.color_name} Front`}
+                                  className="w-full h-full object-contain group-hover:scale-105 transition-transform drop-shadow-xs"
+                                />
+                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold rounded-2xl gap-1">
+                                  <Eye className="w-4 h-4" />
+                                  <span>Full View</span>
+                                </div>
+                                <span className="absolute bottom-2 left-2 text-[10px] font-mono font-bold bg-white/95 text-slate-800 px-2 py-0.5 rounded-md border border-black/10 shadow-2xs">
+                                  Front View
+                                </span>
+                              </div>
                             ) : (
-                              <div className="p-4 text-center text-slate-400 text-xs font-mono col-span-full">
-                                No colorways uploaded for this concept.
+                              <div className="aspect-square rounded-2xl border border-dashed border-slate-200 bg-slate-50 flex items-center justify-center text-xs text-slate-400 font-mono">
+                                No Front Artwork
+                              </div>
+                            )}
+
+                            {cw.photo_back && (
+                              <div
+                                onClick={() => setPreviewPhoto(cw.photo_back!)}
+                                className="aspect-square rounded-2xl border border-black/10 bg-[#FAF7F0] overflow-hidden relative group cursor-pointer p-3 flex items-center justify-center shadow-2xs hover:shadow-md transition-all"
+                                title="Click to view full Back Artwork"
+                              >
+                                <img
+                                  src={cw.photo_back}
+                                  alt={`${cw.color_name} Back`}
+                                  className="w-full h-full object-contain group-hover:scale-105 transition-transform drop-shadow-xs"
+                                />
+                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold rounded-2xl gap-1">
+                                  <Eye className="w-4 h-4" />
+                                  <span>Full View</span>
+                                </div>
+                                <span className="absolute bottom-2 left-2 text-[10px] font-mono font-bold bg-white/95 text-slate-800 px-2 py-0.5 rounded-md border border-black/10 shadow-2xs">
+                                  Back View
+                                </span>
                               </div>
                             )}
                           </div>
                         </div>
                       )
-                    })()}
+                    })}
                   </div>
-                ) : selectedBriefForView.latest_submission?.photo_url_1 ? (
-                  <div className="flex items-center gap-3 bg-[#FAF7F0] p-3.5 rounded-2xl border border-black/10">
-                    <div 
-                      onClick={() => setPreviewPhoto(selectedBriefForView.latest_submission!.photo_url_1)}
-                      className="w-28 h-20 rounded-xl border border-black/10 overflow-hidden bg-white relative group cursor-pointer shadow-2xs shrink-0"
+                ) : brief.latest_submission?.photo_url_1 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div
+                      onClick={() => setPreviewPhoto(brief.latest_submission!.photo_url_1)}
+                      className="aspect-square rounded-2xl border border-black/10 bg-[#FAF7F0] overflow-hidden relative group cursor-pointer p-3 flex items-center justify-center shadow-2xs hover:shadow-md transition-all"
                     >
                       <img
-                        src={selectedBriefForView.latest_submission.photo_url_1}
+                        src={brief.latest_submission.photo_url_1}
                         alt="Front Artwork"
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                        className="w-full h-full object-contain group-hover:scale-105 transition-transform"
                       />
-                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[10px] font-bold">
-                        <Eye className="w-3.5 h-3.5 mr-1" /> View
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold rounded-2xl gap-1">
+                        <Eye className="w-4 h-4" />
+                        <span>Full View</span>
                       </div>
+                      <span className="absolute bottom-2 left-2 text-[10px] font-mono font-bold bg-white/95 text-slate-800 px-2 py-0.5 rounded-md border border-black/10 shadow-2xs">
+                        Front View
+                      </span>
                     </div>
 
-                    {selectedBriefForView.latest_submission.photo_url_2 && (
-                      <div 
-                        onClick={() => setPreviewPhoto(selectedBriefForView.latest_submission!.photo_url_2!)}
-                        className="w-28 h-20 rounded-xl border border-black/10 overflow-hidden bg-white relative group cursor-pointer shadow-2xs shrink-0"
+                    {brief.latest_submission.photo_url_2 && (
+                      <div
+                        onClick={() => setPreviewPhoto(brief.latest_submission!.photo_url_2!)}
+                        className="aspect-square rounded-2xl border border-black/10 bg-[#FAF7F0] overflow-hidden relative group cursor-pointer p-3 flex items-center justify-center shadow-2xs hover:shadow-md transition-all"
                       >
                         <img
-                          src={selectedBriefForView.latest_submission.photo_url_2}
+                          src={brief.latest_submission.photo_url_2}
                           alt="Back Artwork"
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                          className="w-full h-full object-contain group-hover:scale-105 transition-transform"
                         />
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[10px] font-bold">
-                          <Eye className="w-3.5 h-3.5 mr-1" /> View
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold rounded-2xl gap-1">
+                          <Eye className="w-4 h-4" />
+                          <span>Full View</span>
                         </div>
+                        <span className="absolute bottom-2 left-2 text-[10px] font-mono font-bold bg-white/95 text-slate-800 px-2 py-0.5 rounded-md border border-black/10 shadow-2xs">
+                          Back View
+                        </span>
                       </div>
                     )}
                   </div>
                 ) : (
-                  <div className="p-6 rounded-2xl border border-dashed border-slate-200 bg-slate-50 text-center text-slate-400 font-mono text-xs">
-                    No mockups submitted yet by designer.
+                  <div className="text-center py-10 px-4 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                    <p className="text-xs text-slate-400 font-mono">No artwork has been submitted by the designer yet.</p>
+                  </div>
+                )}
+
+                {/* Designer Notes */}
+                {brief.latest_submission?.designer_notes && (
+                  <div className="p-3.5 rounded-2xl bg-[#FAF7F0] border border-black/10">
+                    <span className="text-[10px] font-mono uppercase font-bold text-slate-400 block mb-1">
+                      Designer Notes:
+                    </span>
+                    <p className="text-xs text-slate-700 italic">
+                      &ldquo;{brief.latest_submission.designer_notes}&rdquo;
+                    </p>
+                  </div>
+                )}
+
+                {/* Provisional Head Feedback Input */}
+                {(brief.status === 'SUBMITTED' || brief.status === 'ALLOCATED') && (
+                  <div className="space-y-1.5 pt-2">
+                    <label className="text-xs font-bold text-slate-800 uppercase font-mono block">
+                      Provisional Head Review Notes / Feedback:
+                    </label>
+                    <textarea
+                      value={phFeedback}
+                      onChange={e => setPhFeedback(e.target.value)}
+                      placeholder="Optional feedback for designer (required if rejecting)..."
+                      rows={3}
+                      className="w-full p-3 rounded-xl border border-black/10 text-xs bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                    />
+                  </div>
+                )}
+
+                {/* Super Admin Review Notes Input (If PH Approved) */}
+                {brief.status === 'PH_APPROVED' && (
+                  <div className="space-y-1.5 pt-2">
+                    {brief.latest_submission?.ph_feedback && (
+                      <div className="p-3 rounded-xl bg-amber-50 border border-amber-200/60 mb-3">
+                        <span className="text-[10px] font-mono uppercase font-bold text-amber-800 block">
+                          Provisional Head Feedback:
+                        </span>
+                        <p className="text-xs text-amber-900 mt-0.5">
+                          &ldquo;{brief.latest_submission.ph_feedback}&rdquo;
+                        </p>
+                      </div>
+                    )}
+                    <label className="text-xs font-bold text-slate-800 uppercase font-mono block">
+                      Super Admin Review Directives:
+                    </label>
+                    <textarea
+                      value={saNotes}
+                      onChange={e => setSaNotes(e.target.value)}
+                      placeholder="Instructions for production / pattern master..."
+                      rows={3}
+                      className="w-full p-3 rounded-xl border border-black/10 text-xs bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                    />
                   </div>
                 )}
               </div>
 
-              {/* Feedback History If Available */}
-              {selectedBriefForView.latest_submission?.ph_feedback && (
-                <div className="p-3.5 rounded-xl bg-sky-50 border border-sky-200 text-xs">
-                  <span className="font-bold text-sky-900 block font-mono uppercase mb-0.5">PH Review Feedback:</span>
-                  <p className="text-sky-800 italic">&ldquo;{selectedBriefForView.latest_submission.ph_feedback}&rdquo;</p>
+              {/* Modal Footer Actions */}
+              <div className="px-6 py-4 bg-[#FAF7F0] border-t border-black/10 flex items-center justify-between gap-2 flex-wrap">
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setBriefToDelete(brief)}
+                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-rose-600 hover:bg-rose-50 border border-rose-200 text-xs font-bold transition-all cursor-pointer"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    <span>Delete Brief</span>
+                  </button>
                 </div>
-              )}
 
-              {/* Feedback Inputs for Active Reviews */}
-              {selectedBriefForView.status === 'SUBMITTED' && (
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
-                    Provisional Head Review Notes / Feedback:
-                  </label>
-                  <textarea
-                    rows={2}
-                    placeholder="Optional feedback for designer (required if rejecting)..."
-                    value={phFeedback}
-                    onChange={e => setPhFeedback(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs font-medium text-slate-900 outline-none transition-all"
-                  />
-                </div>
-              )}
+                <div className="flex items-center gap-2 flex-wrap">
+                  {/* 1. Provisional Head Review Actions */}
+                  {brief.status === 'SUBMITTED' && (
+                    <>
+                      <button
+                        type="button"
+                        disabled={isReviewing}
+                        onClick={() => handlePHReviewSubmit('REJECTED')}
+                        className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-rose-600 hover:bg-rose-50 border border-rose-200 text-xs font-bold transition-all shadow-2xs cursor-pointer disabled:opacity-50"
+                      >
+                        <XCircle className="w-4 h-4" />
+                        <span>Request Revisions</span>
+                      </button>
 
-              {selectedBriefForView.status === 'PH_APPROVED' && (
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
-                    Super Admin Strategic Decision Notes:
-                  </label>
-                  <textarea
-                    rows={2}
-                    placeholder="e.g. Greenlit for Summer 2026 drop / Saved for Winter collection..."
-                    value={saNotes}
-                    onChange={e => setSaNotes(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs font-medium text-slate-900 outline-none transition-all"
-                  />
-                </div>
-              )}
-            </div>
+                      <button
+                        type="button"
+                        disabled={isReviewing}
+                        onClick={() => handlePHReviewSubmit('APPROVED')}
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#3A3564] text-white hover:bg-[#2A2649] text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50"
+                      >
+                        {isReviewing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+                        <span>Approve &amp; Forward to SA</span>
+                      </button>
+                    </>
+                  )}
 
-            {/* Modal Footer Action Bar */}
-            <div className="px-6 py-4 bg-[#FAF7F0] border-t border-black/10 flex flex-wrap items-center justify-between gap-2">
-              <button
-                type="button"
-                onClick={() => setBriefToDelete(selectedBriefForView)}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-rose-700 bg-white border border-rose-200 hover:bg-rose-50 rounded-xl shadow-2xs cursor-pointer"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-                <span>Delete Brief</span>
-              </button>
+                  {/* 2. Super Admin Actions */}
+                  {brief.status === 'PH_APPROVED' && (
+                    <>
+                      <button
+                        type="button"
+                        disabled={isSaReviewing}
+                        onClick={() => handleSAReviewSubmit('REJECTED')}
+                        className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-rose-600 hover:bg-rose-50 border border-rose-200 text-xs font-bold transition-all shadow-2xs cursor-pointer disabled:opacity-50"
+                      >
+                        <XCircle className="w-4 h-4" />
+                        <span>Request Revision</span>
+                      </button>
 
-              <div className="flex flex-wrap items-center gap-2">
-                {/* 1. Provisional Head Action */}
-                {selectedBriefForView.status === 'SUBMITTED' && (
-                  <>
-                    <button
-                      type="button"
-                      disabled={isReviewing}
-                      onClick={() => handlePHReviewSubmit('REJECTED')}
-                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 text-xs font-bold transition-all shadow-2xs cursor-pointer disabled:opacity-50"
-                    >
-                      <XCircle className="w-4 h-4" />
-                      <span>Request Revisions</span>
-                    </button>
+                      <button
+                        type="button"
+                        disabled={isSaReviewing}
+                        onClick={() => handleSAReviewSubmit('SAVED_FOR_LATER')}
+                        className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white text-[#3A3564] hover:bg-slate-100 border border-black/15 text-xs font-bold transition-all shadow-2xs cursor-pointer disabled:opacity-50"
+                      >
+                        <Bookmark className="w-4 h-4" />
+                        <span>Save for Later</span>
+                      </button>
 
-                    <button
-                      type="button"
-                      disabled={isReviewing}
-                      onClick={() => handlePHReviewSubmit('APPROVED')}
-                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2A2649] transition-all shadow-xs cursor-pointer disabled:opacity-50"
-                    >
-                      {isReviewing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
-                      <span>Approve &amp; Forward to SA</span>
-                    </button>
-                  </>
-                )}
+                      <button
+                        type="button"
+                        disabled={isSaReviewing}
+                        onClick={() => handleSAReviewSubmit('APPROVED')}
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50"
+                      >
+                        {isSaReviewing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+                        <span>Greenlight for Tech-Pack</span>
+                      </button>
+                    </>
+                  )}
 
-                {/* 2. Super Admin Decision */}
-                {selectedBriefForView.status === 'PH_APPROVED' && (
-                  <>
-                    <button
-                      type="button"
-                      disabled={isSaReviewing}
-                      onClick={() => handleSAReviewSubmit('SAVED_FOR_LATER')}
-                      className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white text-[#3A3564] hover:bg-slate-100 border border-black/15 text-xs font-bold transition-all shadow-2xs cursor-pointer disabled:opacity-50"
-                    >
-                      <Bookmark className="w-4 h-4" />
-                      <span>Save for Later Archive</span>
-                    </button>
-
+                  {/* 3. Revive Archive */}
+                  {brief.status === 'SA_SAVED_FOR_LATER' && (
                     <button
                       type="button"
                       disabled={isSaReviewing}
                       onClick={() => handleSAReviewSubmit('APPROVED')}
-                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50"
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2A2649] transition-all shadow-xs cursor-pointer"
                     >
-                      {isSaReviewing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
-                      <span>Greenlight for Tech-Pack</span>
+                      <Bookmark className="w-4 h-4" />
+                      <span>Revive Concept</span>
                     </button>
-                  </>
-                )}
+                  )}
 
-                {/* 3. Revive Archive */}
-                {selectedBriefForView.status === 'SA_SAVED_FOR_LATER' && (
+                  {/* 4. Tech-Pack Link */}
+                  {brief.status === 'SA_APPROVED' && (
+                    <Link
+                      href={`/design/tech-packs?createFromSubmission=${brief.latest_submission?.id || ''}&garment=${brief.garment_type}`}
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 text-xs font-bold transition-all shadow-xs"
+                    >
+                      <FileCheck2 className="w-4 h-4" />
+                      <span>Generate Tech-Pack</span>
+                    </Link>
+                  )}
+
                   <button
                     type="button"
-                    disabled={isSaReviewing}
-                    onClick={() => handleSAReviewSubmit('APPROVED')}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2A2649] transition-all shadow-xs cursor-pointer"
+                    onClick={() => setSelectedBriefForView(null)}
+                    className="px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-black/10 hover:bg-slate-100 rounded-xl shadow-2xs cursor-pointer"
                   >
-                    <Bookmark className="w-4 h-4" />
-                    <span>Revive Concept</span>
+                    Close
                   </button>
-                )}
-
-                {/* 4. Tech-Pack Link */}
-                {selectedBriefForView.status === 'SA_APPROVED' && (
-                  <Link
-                    href={`/design/tech-packs?createFromSubmission=${selectedBriefForView.latest_submission?.id || ''}&garment=${selectedBriefForView.garment_type}`}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 text-xs font-bold transition-all shadow-xs"
-                  >
-                    <FileCheck2 className="w-4 h-4" />
-                    <span>Generate Tech-Pack</span>
-                  </Link>
-                )}
-
-                <button
-                  type="button"
-                  onClick={() => setSelectedBriefForView(null)}
-                  className="px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-black/10 hover:bg-slate-100 rounded-xl shadow-2xs cursor-pointer"
-                >
-                  Close
-                </button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )
+      })()}
 
       {/* Allocate Brief Modal */}
       <AllocateBriefModal

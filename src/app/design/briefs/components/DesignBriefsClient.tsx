@@ -27,7 +27,8 @@ import {
   Shirt,
   Phone,
   Target,
-  Palette
+  Palette,
+  X
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { 
@@ -57,11 +58,11 @@ interface DesignBriefsClientProps {
 
 const STATUS_CONFIG: Record<BriefStatus, { label: string; badgeClass: string }> = {
   ALLOCATED: { label: 'Allocated', badgeClass: 'bg-slate-100 text-slate-700 border-slate-200' },
-  SUBMITTED: { label: 'Submitted (Review)', badgeClass: 'bg-amber-50 text-amber-800 border-amber-200 font-semibold' },
-  PH_APPROVED: { label: 'PH Approved (Pending SA)', badgeClass: 'bg-sky-50 text-sky-800 border-sky-200 font-semibold' },
-  PH_REJECTED: { label: 'PH Rejected', badgeClass: 'bg-rose-50 text-rose-700 border-rose-200' },
-  SA_APPROVED: { label: 'SA Greenlit (Tech-Pack Ready)', badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200 font-bold' },
-  SA_SAVED_FOR_LATER: { label: 'Saved for Later (Archive)', badgeClass: 'bg-[#FAF7F0] text-[#3A3564] border-black/10 font-semibold' },
+  SUBMITTED: { label: 'In Review', badgeClass: 'bg-amber-50 text-amber-800 border-amber-200 font-semibold' },
+  PH_APPROVED: { label: 'PH Approved', badgeClass: 'bg-sky-50 text-sky-800 border-sky-200 font-semibold' },
+  PH_REJECTED: { label: 'Revisions Needed', badgeClass: 'bg-rose-50 text-rose-700 border-rose-200 font-semibold' },
+  SA_APPROVED: { label: 'SA Greenlit', badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200 font-bold' },
+  SA_SAVED_FOR_LATER: { label: 'PH Approved', badgeClass: 'bg-sky-50 text-sky-800 border-sky-200 font-semibold' },
   TECH_PACK_CREATED: { label: 'Tech-Pack Created', badgeClass: 'bg-[#FAF7F0] text-slate-900 border-black/15 font-bold' }
 }
 
@@ -70,6 +71,25 @@ function getVariantArtNumber(baseArtNo: string, index: number, totalCount: numbe
   if (totalCount <= 1) return baseArtNo
   const suffix = String(index + 1).padStart(2, '0')
   return `${baseArtNo}-${suffix}`
+}
+
+function getColorSwatchInfo(colorName: string): { bg: string; border: string; isLight: boolean } {
+  const norm = colorName.trim().toLowerCase()
+  if (norm.includes('black')) return { bg: '#111111', border: '#222222', isLight: false }
+  if (norm.includes('white')) return { bg: '#FFFFFF', border: '#CBD5E1', isLight: true }
+  if (norm.includes('navy')) return { bg: '#1B2A4A', border: '#1B2A4A', isLight: false }
+  if (norm.includes('olive')) return { bg: '#556B2F', border: '#556B2F', isLight: false }
+  if (norm.includes('grey') || norm.includes('gray')) return { bg: '#718096', border: '#718096', isLight: false }
+  if (norm.includes('red') || norm.includes('maroon') || norm.includes('crimson')) return { bg: '#C53030', border: '#C53030', isLight: false }
+  if (norm.includes('beige') || norm.includes('cream') || norm.includes('khaki') || norm.includes('sand')) return { bg: '#F5F5DC', border: '#CBD5E1', isLight: true }
+  if (norm.includes('blue') || norm.includes('cyan') || norm.includes('sky')) return { bg: '#2B6CB0', border: '#2B6CB0', isLight: false }
+  if (norm.includes('green') || norm.includes('mint') || norm.includes('emerald')) return { bg: '#276749', border: '#276749', isLight: false }
+  if (norm.includes('yellow') || norm.includes('mustard') || norm.includes('gold')) return { bg: '#ECC94B', border: '#D69E2E', isLight: true }
+  if (norm.includes('pink') || norm.includes('rose') || norm.includes('fuchsia')) return { bg: '#D53F8C', border: '#D53F8C', isLight: false }
+  if (norm.includes('orange') || norm.includes('coral') || norm.includes('rust')) return { bg: '#DD6B20', border: '#DD6B20', isLight: false }
+  if (norm.includes('brown') || norm.includes('tan') || norm.includes('chocolate')) return { bg: '#7B341E', border: '#7B341E', isLight: false }
+  if (norm.includes('purple') || norm.includes('violet') || norm.includes('lavender')) return { bg: '#6B46C1', border: '#6B46C1', isLight: false }
+  return { bg: '#3A3564', border: '#3A3564', isLight: false }
 }
 
 export function DesignBriefsClient({
@@ -90,6 +110,8 @@ export function DesignBriefsClient({
   const [reviewingSubmission, setReviewingSubmission] = useState<{
     submission: DesignSubmission
     brief: DesignBrief
+    conceptNumber?: number
+    artNumber?: string
   } | null>(null)
   const [phFeedback, setPhFeedback] = useState('')
   const [isReviewing, setIsReviewing] = useState(false)
@@ -98,6 +120,8 @@ export function DesignBriefsClient({
   const [saReviewingSubmission, setSaReviewingSubmission] = useState<{
     submission: DesignSubmission
     brief: DesignBrief
+    conceptNumber?: number
+    artNumber?: string
   } | null>(null)
   const [saNotes, setSaNotes] = useState('')
   const [isSaReviewing, setIsSaReviewing] = useState(false)
@@ -725,7 +749,7 @@ export function DesignBriefsClient({
                           <div className="flex items-center justify-end gap-1.5">
                             {brief.status === 'SUBMITTED' && brief.latest_submission && (
                               <button
-                                onClick={() => setReviewingSubmission({ submission: brief.latest_submission!, brief })}
+                                onClick={() => setReviewingSubmission({ submission: brief.latest_submission!, brief, conceptNumber: item.conceptNumber, artNumber: item.artNumber })}
                                 className="inline-flex items-center gap-1 text-xs font-bold text-[#FAF7F0] bg-[#3A3564] hover:bg-[#2A2649] px-2.5 py-1.5 rounded-lg transition-all cursor-pointer shadow-2xs"
                                 title="Provisional Head Review"
                               >
@@ -736,7 +760,7 @@ export function DesignBriefsClient({
 
                             {brief.status === 'PH_APPROVED' && brief.latest_submission && (
                               <button
-                                onClick={() => setSaReviewingSubmission({ submission: brief.latest_submission!, brief })}
+                                onClick={() => setSaReviewingSubmission({ submission: brief.latest_submission!, brief, conceptNumber: item.conceptNumber, artNumber: item.artNumber })}
                                 className="inline-flex items-center gap-1 text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 px-2.5 py-1.5 rounded-lg transition-all cursor-pointer shadow-2xs"
                                 title="Super Admin Greenlight / Seasonal Archive"
                               >
@@ -747,7 +771,7 @@ export function DesignBriefsClient({
 
                             {brief.status === 'SA_SAVED_FOR_LATER' && brief.latest_submission && (
                               <button
-                                onClick={() => setSaReviewingSubmission({ submission: brief.latest_submission!, brief })}
+                                onClick={() => setSaReviewingSubmission({ submission: brief.latest_submission!, brief, conceptNumber: item.conceptNumber, artNumber: item.artNumber })}
                                 className="inline-flex items-center gap-1 text-xs font-semibold text-[#3A3564] bg-[#FAF7F0] hover:bg-slate-100 border border-black/10 px-2 py-1.5 rounded-lg transition-all cursor-pointer"
                                 title="Revive from Seasonal Archive"
                               >
@@ -760,7 +784,7 @@ export function DesignBriefsClient({
                               <button
                                 onClick={() => {
                                   if (brief.latest_submission) {
-                                    setReviewingSubmission({ submission: brief.latest_submission, brief })
+                                    setReviewingSubmission({ submission: brief.latest_submission, brief, conceptNumber: item.conceptNumber, artNumber: item.artNumber })
                                   } else {
                                     toast.info('Brief is currently allocated and waiting for designer upload.')
                                   }
@@ -819,179 +843,210 @@ export function DesignBriefsClient({
       />
 
       {/* PH Review Submission Modal */}
-      {reviewingSubmission && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs">
-          <div className="bg-white rounded-2xl border border-black/10 shadow-xl max-w-xl w-full p-6 space-y-5 animate-in fade-in zoom-in duration-150">
-            <div className="flex items-center justify-between border-b border-black/5 pb-3">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
-                  <Sparkles className="w-4 h-4" />
-                </div>
+      {reviewingSubmission && (() => {
+        const brief = reviewingSubmission.brief
+        const sub = reviewingSubmission.submission
+        const targetConceptNum = reviewingSubmission.conceptNumber || 1
+        const instructedReq = brief.design_concepts_brief?.find(c => c.concept_number === targetConceptNum)
+        const currentArtNo = reviewingSubmission.artNumber || instructedReq?.art_number || `#${brief.id.substring(0, 6)}`
+        const currentGarment = instructedReq?.notes?.match(/Garment:\s*([^|]+)/i)?.[1]?.trim() || brief.garment_type
+        const currentCategory = instructedReq?.category_style || brief.category
+
+        const currentConcept = sub.concepts?.find(
+          c => c.concept_number === targetConceptNum || (c.art_number && c.art_number.toLowerCase() === currentArtNo.toLowerCase())
+        ) || (sub.concepts ? sub.concepts[0] : null)
+
+        const colorways = currentConcept?.colorways || []
+
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+            <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-black/10 overflow-hidden">
+              {/* Modal Header */}
+              <div className="px-6 py-5 bg-[#FAF7F0] border-b border-black/10 flex items-center justify-between">
                 <div>
-                  <h2 className="text-lg font-bold text-slate-900 font-[family-name:var(--font-heading)]">
-                    Provisional Head Review
+                  <div className="flex items-center gap-2">
+                    <span className={`text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full border shadow-2xs ${STATUS_CONFIG[brief.status]?.badgeClass}`}>
+                      {STATUS_CONFIG[brief.status]?.label}
+                    </span>
+                    <span className="text-xs font-mono font-bold text-slate-900">
+                      ART NO: {currentArtNo}
+                    </span>
+                  </div>
+                  <h2 className="text-xl font-bold text-slate-900 mt-1 font-[family-name:var(--font-heading)]">
+                    {currentGarment} ({currentCategory} Style)
                   </h2>
-                  <p className="text-xs text-slate-500">
-                    {reviewingSubmission.brief.garment_type} ({reviewingSubmission.brief.category}) by {reviewingSubmission.brief.designer_name}
+                  <p className="text-xs text-slate-500 font-medium mt-0.5">
+                    Designer: <strong className="text-slate-800">{brief.designer_name || 'Unassigned'}</strong>
+                    {brief.designer_phone ? ` • +91 ${brief.designer_phone}` : ''}
                   </p>
                 </div>
-              </div>
-              <button
-                onClick={() => setReviewingSubmission(null)}
-                className="text-slate-400 hover:text-slate-700 text-lg font-bold p-1 cursor-pointer"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="space-y-4">
-              {reviewingSubmission.submission.concepts && reviewingSubmission.submission.concepts.length > 0 ? (
-                <div className="space-y-3 max-h-[50vh] overflow-y-auto pr-1">
-                  <label className="block font-bold text-slate-800 text-xs">
-                    Submitted Design Concepts ({reviewingSubmission.submission.concepts.length} Designs):
-                  </label>
-                  {reviewingSubmission.submission.concepts.map((concept) => {
-                    const instructedReq = reviewingSubmission.brief.design_concepts_brief?.find(c => c.concept_number === concept.concept_number)
-                    const artNo = concept.art_number || instructedReq?.art_number
-
-                    return (
-                      <div key={concept.concept_number} className="p-3.5 rounded-xl bg-slate-50 border border-black/10 space-y-2">
-                        <div className="flex items-center justify-between">
-                          <span className="font-bold text-slate-900 text-xs flex items-center gap-1.5 flex-wrap">
-                            <span className="w-5 h-5 rounded-full bg-[#3A3564] text-[#FAF7F0] flex items-center justify-center text-[10px] font-mono">
-                              {concept.concept_number}
-                            </span>
-                            <span className="text-xs font-mono font-bold text-slate-900">
-                              {concept.title || `Design Concept #${concept.concept_number}`}
-                            </span>
-                            {artNo && (
-                              <span className="text-xs font-mono font-bold text-slate-900">
-                                ART NO: {artNo}
-                              </span>
-                            )}
-                          </span>
-                          <span className="text-[10px] font-mono text-slate-500 font-bold">
-                            {concept.colorways.length} Colorway(s)
-                          </span>
-                        </div>
-                      
-                      {concept.notes && (
-                        <p className="text-[11px] text-slate-600 italic bg-white p-2 rounded-lg border border-black/5">
-                          &ldquo;{concept.notes}&rdquo;
-                        </p>
-                      )}
-
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-1">
-                        {concept.colorways.map((cw, cwIdx) => {
-                          const variantArtNo = getVariantArtNumber(artNo || '', cwIdx, concept.colorways.length)
-                          return (
-                            <div key={cwIdx} className="space-y-1">
-                              <div className="flex items-center justify-between gap-1">
-                                <span className="text-[10px] font-bold text-slate-700 block truncate">
-                                  {cw.color_name}
-                                </span>
-                                {variantArtNo && (
-                                  <span className="text-[10px] font-mono font-bold text-slate-900 bg-white px-1.5 py-0.2 rounded border border-black/10">
-                                    {variantArtNo}
-                                  </span>
-                                )}
-                              </div>
-                              <div 
-                                onClick={() => setPreviewPhoto(cw.photo_front)}
-                                className="aspect-video rounded-lg border border-black/10 overflow-hidden bg-white relative group cursor-pointer"
-                              >
-                                <img src={cw.photo_front} alt={cw.color_name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
-                                <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[10px] font-bold">
-                                  <Eye className="w-3.5 h-3.5 mr-1" /> View Front
-                                </div>
-                              </div>
-                              {cw.photo_back && (
-                                <div 
-                                  onClick={() => setPreviewPhoto(cw.photo_back!)}
-                                  className="aspect-video rounded-lg border border-black/10 overflow-hidden bg-white relative group cursor-pointer mt-1"
-                                >
-                                  <img src={cw.photo_back} alt={`${cw.color_name} Back`} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
-                                  <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[10px] font-bold">
-                                    <Eye className="w-3.5 h-3.5 mr-1" /> View Back
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          )
-                        })}
-                      </div>
-                    </div>
-                    )
-                  })}
-                </div>
-              ) : (
-                <div>
-                  <label className="block font-bold text-slate-800 mb-2 text-xs">
-                    Submitted Concept Photos (Max 2):
-                  </label>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div 
-                      onClick={() => setPreviewPhoto(reviewingSubmission.submission.photo_url_1)}
-                      className="aspect-square rounded-xl border border-black/10 overflow-hidden bg-slate-100 relative group cursor-pointer"
-                    >
-                      <img
-                        src={reviewingSubmission.submission.photo_url_1}
-                        alt="Concept 1"
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                      />
-                      <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-semibold">
-                        <Eye className="w-4 h-4 mr-1" /> Full View
-                      </div>
-                    </div>
-
-                    {reviewingSubmission.submission.photo_url_2 ? (
-                      <div 
-                        onClick={() => setPreviewPhoto(reviewingSubmission.submission.photo_url_2!)}
-                        className="aspect-square rounded-xl border border-black/10 overflow-hidden bg-slate-100 relative group cursor-pointer"
-                      >
-                        <img
-                          src={reviewingSubmission.submission.photo_url_2}
-                          alt="Concept 2"
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                        />
-                        <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-semibold">
-                          <Eye className="w-4 h-4 mr-1" /> Full View
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="aspect-square rounded-xl border border-dashed border-black/15 bg-slate-50 flex items-center justify-center text-xs text-slate-400">
-                        Single photo submitted
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {reviewingSubmission.submission.designer_notes && (
-                <div className="bg-[#FAF7F0] p-3.5 rounded-xl border border-black/10 text-xs">
-                  <span className="font-bold text-[#3A3564] block mb-1">Designer&apos;s Creative Notes:</span>
-                  <p className="text-slate-700 italic leading-relaxed">&ldquo;{reviewingSubmission.submission.designer_notes}&rdquo;</p>
-                </div>
-              )}
-
-              <div>
-                <label className="block font-bold text-slate-800 mb-1 text-xs">
-                  Provisional Head Feedback / Revision Notes:
-                </label>
-                <textarea
-                  rows={2}
-                  placeholder="Optional notes or reasons for approval / rejection..."
-                  value={phFeedback}
-                  onChange={e => setPhFeedback(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-black/10 text-xs bg-white text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
-                />
-              </div>
-
-              <div className="flex items-center justify-between pt-3 border-t border-black/5">
                 <button
                   type="button"
                   onClick={() => setReviewingSubmission(null)}
-                  className="px-4 py-2 rounded-xl border border-black/10 text-xs font-semibold text-slate-700 hover:bg-slate-100 cursor-pointer"
+                  className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-black/5 cursor-pointer transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Scrollable Modal Body (Flat, Clean, No Boxes-in-Boxes) */}
+              <div className="p-6 max-h-[72vh] overflow-y-auto space-y-5 text-xs sm:text-[13px]">
+                {/* Submitted Artwork Mockups */}
+                {colorways.length > 0 ? (
+                  <div className="space-y-6">
+                    {colorways.map((cw, cwIdx) => {
+                      const sw = getColorSwatchInfo(cw.color_name)
+                      const variantArtNo = getVariantArtNumber(currentArtNo, cwIdx, colorways.length)
+
+                      return (
+                        <div key={cwIdx} className="space-y-3">
+                          {/* Colorway Label */}
+                          <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                            <div className="flex items-center gap-2 font-mono text-xs font-bold text-slate-900">
+                              <span
+                                className="w-3.5 h-3.5 rounded-full border border-black/20 shrink-0 shadow-2xs"
+                                style={{ backgroundColor: sw.bg }}
+                              />
+                              <span>{cw.color_name} Colorway</span>
+                            </div>
+                            {variantArtNo && (
+                              <span className="font-mono font-bold text-slate-900 text-xs">
+                                {variantArtNo}
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Normal Floated Clean Artwork Images */}
+                          <div className={`grid gap-4 ${cw.photo_back ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1 max-w-sm mx-auto'}`}>
+                            {cw.photo_front ? (
+                              <div
+                                onClick={() => setPreviewPhoto(cw.photo_front)}
+                                className="aspect-square rounded-2xl border border-black/10 bg-[#FAF7F0] overflow-hidden relative group cursor-pointer p-3 flex items-center justify-center shadow-2xs hover:shadow-md transition-all"
+                                title="Click to view full Front Artwork"
+                              >
+                                <img
+                                  src={cw.photo_front}
+                                  alt={`${cw.color_name} Front`}
+                                  className="w-full h-full object-contain group-hover:scale-105 transition-transform drop-shadow-xs"
+                                />
+                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold rounded-2xl gap-1">
+                                  <Eye className="w-4 h-4" />
+                                  <span>Full View</span>
+                                </div>
+                                <span className="absolute bottom-2 left-2 text-[10px] font-mono font-bold bg-white/95 text-slate-800 px-2 py-0.5 rounded-md border border-black/10 shadow-2xs">
+                                  Front View
+                                </span>
+                              </div>
+                            ) : (
+                              <div className="aspect-square rounded-2xl border border-dashed border-slate-200 bg-slate-50 flex items-center justify-center text-xs text-slate-400 font-mono">
+                                No Front Artwork
+                              </div>
+                            )}
+
+                            {cw.photo_back && (
+                              <div
+                                onClick={() => setPreviewPhoto(cw.photo_back!)}
+                                className="aspect-square rounded-2xl border border-black/10 bg-[#FAF7F0] overflow-hidden relative group cursor-pointer p-3 flex items-center justify-center shadow-2xs hover:shadow-md transition-all"
+                                title="Click to view full Back Artwork"
+                              >
+                                <img
+                                  src={cw.photo_back}
+                                  alt={`${cw.color_name} Back`}
+                                  className="w-full h-full object-contain group-hover:scale-105 transition-transform drop-shadow-xs"
+                                />
+                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold rounded-2xl gap-1">
+                                  <Eye className="w-4 h-4" />
+                                  <span>Full View</span>
+                                </div>
+                                <span className="absolute bottom-2 left-2 text-[10px] font-mono font-bold bg-white/95 text-slate-800 px-2 py-0.5 rounded-md border border-black/10 shadow-2xs">
+                                  Back View
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                ) : sub.photo_url_1 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div
+                      onClick={() => setPreviewPhoto(sub.photo_url_1)}
+                      className="aspect-square rounded-2xl border border-black/10 bg-[#FAF7F0] overflow-hidden relative group cursor-pointer p-3 flex items-center justify-center shadow-2xs hover:shadow-md transition-all"
+                    >
+                      <img
+                        src={sub.photo_url_1}
+                        alt="Front Artwork"
+                        className="w-full h-full object-contain group-hover:scale-105 transition-transform"
+                      />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold rounded-2xl gap-1">
+                        <Eye className="w-4 h-4" />
+                        <span>Full View</span>
+                      </div>
+                      <span className="absolute bottom-2 left-2 text-[10px] font-mono font-bold bg-white/95 text-slate-800 px-2 py-0.5 rounded-md border border-black/10 shadow-2xs">
+                        Front View
+                      </span>
+                    </div>
+
+                    {sub.photo_url_2 && (
+                      <div
+                        onClick={() => setPreviewPhoto(sub.photo_url_2!)}
+                        className="aspect-square rounded-2xl border border-black/10 bg-[#FAF7F0] overflow-hidden relative group cursor-pointer p-3 flex items-center justify-center shadow-2xs hover:shadow-md transition-all"
+                      >
+                        <img
+                          src={sub.photo_url_2}
+                          alt="Back Artwork"
+                          className="w-full h-full object-contain group-hover:scale-105 transition-transform"
+                        />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold rounded-2xl gap-1">
+                          <Eye className="w-4 h-4" />
+                          <span>Full View</span>
+                        </div>
+                        <span className="absolute bottom-2 left-2 text-[10px] font-mono font-bold bg-white/95 text-slate-800 px-2 py-0.5 rounded-md border border-black/10 shadow-2xs">
+                          Back View
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-center py-10 px-4 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                    <p className="text-xs text-slate-400 font-mono">No artwork has been submitted by the designer yet.</p>
+                  </div>
+                )}
+
+                {/* Designer Notes */}
+                {sub.designer_notes && (
+                  <div className="p-3.5 rounded-2xl bg-[#FAF7F0] border border-black/10">
+                    <span className="text-[10px] font-mono uppercase font-bold text-slate-400 block mb-1">
+                      Designer Notes:
+                    </span>
+                    <p className="text-xs text-slate-700 italic">
+                      &ldquo;{sub.designer_notes}&rdquo;
+                    </p>
+                  </div>
+                )}
+
+                {/* Provisional Head Feedback Input */}
+                <div className="space-y-1.5 pt-2">
+                  <label className="text-xs font-bold text-slate-800 uppercase font-mono block">
+                    Provisional Head Review Notes / Feedback:
+                  </label>
+                  <textarea
+                    value={phFeedback}
+                    onChange={e => setPhFeedback(e.target.value)}
+                    placeholder="Optional feedback for designer (required if rejecting)..."
+                    rows={3}
+                    className="w-full p-3 rounded-xl border border-black/10 text-xs bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                  />
+                </div>
+              </div>
+
+              {/* Modal Footer Actions */}
+              <div className="px-6 py-4 bg-[#FAF7F0] border-t border-black/10 flex items-center justify-between gap-2 flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => setReviewingSubmission(null)}
+                  className="px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-black/10 hover:bg-slate-100 rounded-xl shadow-2xs cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -1001,17 +1056,17 @@ export function DesignBriefsClient({
                     type="button"
                     disabled={isReviewing}
                     onClick={() => handlePHReviewSubmit('REJECTED')}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 text-xs font-bold transition-all shadow-2xs cursor-pointer disabled:opacity-50"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-rose-600 hover:bg-rose-50 border border-rose-200 text-xs font-bold transition-all shadow-2xs cursor-pointer disabled:opacity-50"
                   >
                     <XCircle className="w-4 h-4" />
-                    <span>Reject to Designer</span>
+                    <span>Request Revisions</span>
                   </button>
 
                   <button
                     type="button"
                     disabled={isReviewing}
                     onClick={() => handlePHReviewSubmit('APPROVED')}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#3A3564] text-[#FAF7F0] text-xs font-bold hover:bg-[#2A2649] transition-all shadow-2xs cursor-pointer disabled:opacity-50"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#3A3564] text-white hover:bg-[#2A2649] text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50"
                   >
                     {isReviewing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
                     <span>Approve &amp; Forward to SA</span>
@@ -1020,184 +1075,256 @@ export function DesignBriefsClient({
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )
+      })()}
 
-      {/* SA Review Submission Modal (Greenlight vs Save for Later) */}
-      {saReviewingSubmission && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs">
-          <div className="bg-white rounded-2xl border border-black/10 shadow-xl max-w-xl w-full p-6 space-y-5 animate-in fade-in zoom-in duration-150">
-            <div className="flex items-center justify-between border-b border-black/5 pb-3">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-center justify-center">
-                  <ShieldCheck className="w-4 h-4" />
-                </div>
+      {/* SA Review Submission Modal */}
+      {saReviewingSubmission && (() => {
+        const brief = saReviewingSubmission.brief
+        const sub = saReviewingSubmission.submission
+        const targetConceptNum = saReviewingSubmission.conceptNumber || 1
+        const instructedReq = brief.design_concepts_brief?.find(c => c.concept_number === targetConceptNum)
+        const currentArtNo = saReviewingSubmission.artNumber || instructedReq?.art_number || `#${brief.id.substring(0, 6)}`
+        const currentGarment = instructedReq?.notes?.match(/Garment:\s*([^|]+)/i)?.[1]?.trim() || brief.garment_type
+        const currentCategory = instructedReq?.category_style || brief.category
+
+        const currentConcept = sub.concepts?.find(
+          c => c.concept_number === targetConceptNum || (c.art_number && c.art_number.toLowerCase() === currentArtNo.toLowerCase())
+        ) || (sub.concepts ? sub.concepts[0] : null)
+
+        const colorways = currentConcept?.colorways || []
+
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+            <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-black/10 overflow-hidden">
+              {/* Modal Header */}
+              <div className="px-6 py-5 bg-[#FAF7F0] border-b border-black/10 flex items-center justify-between">
                 <div>
-                  <h2 className="text-lg font-bold text-slate-900 font-[family-name:var(--font-heading)]">
-                    Super Admin Executive Review
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full border shadow-2xs bg-sky-50 text-sky-800 border-sky-200">
+                      PH Approved
+                    </span>
+                    <span className="text-xs font-mono font-bold text-slate-900">
+                      ART NO: {currentArtNo}
+                    </span>
+                  </div>
+                  <h2 className="text-xl font-bold text-slate-900 mt-1 font-[family-name:var(--font-heading)]">
+                    {currentGarment} ({currentCategory} Style)
                   </h2>
-                  <p className="text-xs text-slate-500">
-                    {saReviewingSubmission.brief.garment_type} ({saReviewingSubmission.brief.category}) &bull; Provisional Head Approved
+                  <p className="text-xs text-slate-500 font-medium mt-0.5">
+                    Designer: <strong className="text-slate-800">{brief.designer_name || 'Unassigned'}</strong>
+                    {brief.designer_phone ? ` • +91 ${brief.designer_phone}` : ''}
                   </p>
                 </div>
-              </div>
-              <button
-                onClick={() => setSaReviewingSubmission(null)}
-                className="text-slate-400 hover:text-slate-700 text-lg font-bold p-1 cursor-pointer"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="space-y-4">
-              {saReviewingSubmission.submission.concepts && saReviewingSubmission.submission.concepts.length > 0 ? (
-                <div className="space-y-3 max-h-[50vh] overflow-y-auto pr-1">
-                  <label className="block font-bold text-slate-800 text-xs">
-                    Submitted Design Concepts ({saReviewingSubmission.submission.concepts.length} Designs):
-                  </label>
-                  {saReviewingSubmission.submission.concepts.map((concept) => (
-                    <div key={concept.concept_number} className="p-3.5 rounded-xl bg-slate-50 border border-black/10 space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-slate-900 text-xs flex items-center gap-1.5">
-                          <span className="w-5 h-5 rounded-full bg-[#3A3564] text-[#FAF7F0] flex items-center justify-center text-[10px] font-mono">
-                            {concept.concept_number}
-                          </span>
-                          <span>{concept.title || `Design Concept #${concept.concept_number}`}</span>
-                        </span>
-                        <span className="text-[10px] font-mono text-slate-500 font-bold">
-                          {concept.colorways.length} Colorway(s)
-                        </span>
-                      </div>
-                      
-                      {concept.notes && (
-                        <p className="text-[11px] text-slate-600 italic bg-white p-2 rounded-lg border border-black/5">
-                          &ldquo;{concept.notes}&rdquo;
-                        </p>
-                      )}
-
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-1">
-                        {concept.colorways.map((cw, cwIdx) => (
-                          <div key={cwIdx} className="space-y-1">
-                            <span className="text-[10px] font-bold text-slate-700 block truncate">
-                              {cw.color_name} Colorway
-                            </span>
-                            <div 
-                              onClick={() => setPreviewPhoto(cw.photo_front)}
-                              className="aspect-video rounded-lg border border-black/10 overflow-hidden bg-white relative group cursor-pointer"
-                            >
-                              <img src={cw.photo_front} alt={cw.color_name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
-                              <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[10px] font-bold">
-                                <Eye className="w-3.5 h-3.5 mr-1" /> View Front
-                              </div>
-                            </div>
-                            {cw.photo_back && (
-                              <div 
-                                onClick={() => setPreviewPhoto(cw.photo_back!)}
-                                className="aspect-video rounded-lg border border-black/10 overflow-hidden bg-white relative group cursor-pointer mt-1"
-                              >
-                                <img src={cw.photo_back} alt={`${cw.color_name} Back`} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
-                                <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[10px] font-bold">
-                                  <Eye className="w-3.5 h-3.5 mr-1" /> View Back
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div>
-                  <label className="block font-bold text-slate-800 mb-2 text-xs">
-                    Submitted Concept Photos:
-                  </label>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div 
-                      onClick={() => setPreviewPhoto(saReviewingSubmission.submission.photo_url_1)}
-                      className="aspect-square rounded-xl border border-black/10 overflow-hidden bg-slate-100 relative group cursor-pointer"
-                    >
-                      <img
-                        src={saReviewingSubmission.submission.photo_url_1}
-                        alt="Concept 1"
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                      />
-                      <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-semibold">
-                        <Eye className="w-4 h-4 mr-1" /> Full View
-                      </div>
-                    </div>
-
-                    {saReviewingSubmission.submission.photo_url_2 && (
-                      <div 
-                        onClick={() => setPreviewPhoto(saReviewingSubmission.submission.photo_url_2!)}
-                        className="aspect-square rounded-xl border border-black/10 overflow-hidden bg-slate-100 relative group cursor-pointer"
-                      >
-                        <img
-                          src={saReviewingSubmission.submission.photo_url_2}
-                          alt="Concept 2"
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                        />
-                        <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-semibold">
-                          <Eye className="w-4 h-4 mr-1" /> Full View
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {saReviewingSubmission.submission.designer_notes && (
-                <div className="bg-[#FAF7F0] p-3 rounded-xl border border-black/10 text-xs">
-                  <span className="font-bold text-[#3A3564] block mb-0.5">Designer Notes:</span>
-                  <p className="text-slate-700 italic">&ldquo;{saReviewingSubmission.submission.designer_notes}&rdquo;</p>
-                </div>
-              )}
-
-              {saReviewingSubmission.submission.ph_feedback && (
-                <div className="bg-sky-50 p-3 rounded-xl border border-sky-200 text-xs">
-                  <span className="font-bold text-sky-900 block mb-0.5">PH Review Comments:</span>
-                  <p className="text-sky-800">&ldquo;{saReviewingSubmission.submission.ph_feedback}&rdquo;</p>
-                </div>
-              )}
-
-              <div>
-                <label className="block font-bold text-slate-800 mb-1 text-xs">
-                  Super Admin Decision Notes:
-                </label>
-                <textarea
-                  rows={2}
-                  placeholder="Optional strategic notes or collection assignment..."
-                  value={saNotes}
-                  onChange={e => setSaNotes(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-black/10 text-xs bg-white text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
-                />
-              </div>
-
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 pt-3 border-t border-black/5">
                 <button
                   type="button"
                   onClick={() => setSaReviewingSubmission(null)}
-                  className="px-4 py-2 rounded-xl border border-black/10 text-xs font-semibold text-slate-700 hover:bg-slate-100 cursor-pointer text-center"
+                  className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-black/5 cursor-pointer transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Scrollable Modal Body (Flat, Clean, No Boxes-in-Boxes) */}
+              <div className="p-6 max-h-[72vh] overflow-y-auto space-y-5 text-xs sm:text-[13px]">
+                {/* Submitted Artwork Mockups */}
+                {colorways.length > 0 ? (
+                  <div className="space-y-6">
+                    {colorways.map((cw, cwIdx) => {
+                      const sw = getColorSwatchInfo(cw.color_name)
+                      const variantArtNo = getVariantArtNumber(currentArtNo, cwIdx, colorways.length)
+
+                      return (
+                        <div key={cwIdx} className="space-y-3">
+                          {/* Colorway Label */}
+                          <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                            <div className="flex items-center gap-2 font-mono text-xs font-bold text-slate-900">
+                              <span
+                                className="w-3.5 h-3.5 rounded-full border border-black/20 shrink-0 shadow-2xs"
+                                style={{ backgroundColor: sw.bg }}
+                              />
+                              <span>{cw.color_name} Colorway</span>
+                            </div>
+                            {variantArtNo && (
+                              <span className="font-mono font-bold text-slate-900 text-xs">
+                                {variantArtNo}
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Normal Floated Clean Artwork Images */}
+                          <div className={`grid gap-4 ${cw.photo_back ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1 max-w-sm mx-auto'}`}>
+                            {cw.photo_front ? (
+                              <div
+                                onClick={() => setPreviewPhoto(cw.photo_front)}
+                                className="aspect-square rounded-2xl border border-black/10 bg-[#FAF7F0] overflow-hidden relative group cursor-pointer p-3 flex items-center justify-center shadow-2xs hover:shadow-md transition-all"
+                                title="Click to view full Front Artwork"
+                              >
+                                <img
+                                  src={cw.photo_front}
+                                  alt={`${cw.color_name} Front`}
+                                  className="w-full h-full object-contain group-hover:scale-105 transition-transform drop-shadow-xs"
+                                />
+                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold rounded-2xl gap-1">
+                                  <Eye className="w-4 h-4" />
+                                  <span>Full View</span>
+                                </div>
+                                <span className="absolute bottom-2 left-2 text-[10px] font-mono font-bold bg-white/95 text-slate-800 px-2 py-0.5 rounded-md border border-black/10 shadow-2xs">
+                                  Front View
+                                </span>
+                              </div>
+                            ) : (
+                              <div className="aspect-square rounded-2xl border border-dashed border-slate-200 bg-slate-50 flex items-center justify-center text-xs text-slate-400 font-mono">
+                                No Front Artwork
+                              </div>
+                            )}
+
+                            {cw.photo_back && (
+                              <div
+                                onClick={() => setPreviewPhoto(cw.photo_back!)}
+                                className="aspect-square rounded-2xl border border-black/10 bg-[#FAF7F0] overflow-hidden relative group cursor-pointer p-3 flex items-center justify-center shadow-2xs hover:shadow-md transition-all"
+                                title="Click to view full Back Artwork"
+                              >
+                                <img
+                                  src={cw.photo_back}
+                                  alt={`${cw.color_name} Back`}
+                                  className="w-full h-full object-contain group-hover:scale-105 transition-transform drop-shadow-xs"
+                                />
+                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold rounded-2xl gap-1">
+                                  <Eye className="w-4 h-4" />
+                                  <span>Full View</span>
+                                </div>
+                                <span className="absolute bottom-2 left-2 text-[10px] font-mono font-bold bg-white/95 text-slate-800 px-2 py-0.5 rounded-md border border-black/10 shadow-2xs">
+                                  Back View
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                ) : sub.photo_url_1 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div
+                      onClick={() => setPreviewPhoto(sub.photo_url_1)}
+                      className="aspect-square rounded-2xl border border-black/10 bg-[#FAF7F0] overflow-hidden relative group cursor-pointer p-3 flex items-center justify-center shadow-2xs hover:shadow-md transition-all"
+                    >
+                      <img
+                        src={sub.photo_url_1}
+                        alt="Front Artwork"
+                        className="w-full h-full object-contain group-hover:scale-105 transition-transform"
+                      />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold rounded-2xl gap-1">
+                        <Eye className="w-4 h-4" />
+                        <span>Full View</span>
+                      </div>
+                      <span className="absolute bottom-2 left-2 text-[10px] font-mono font-bold bg-white/95 text-slate-800 px-2 py-0.5 rounded-md border border-black/10 shadow-2xs">
+                        Front View
+                      </span>
+                    </div>
+
+                    {sub.photo_url_2 && (
+                      <div
+                        onClick={() => setPreviewPhoto(sub.photo_url_2!)}
+                        className="aspect-square rounded-2xl border border-black/10 bg-[#FAF7F0] overflow-hidden relative group cursor-pointer p-3 flex items-center justify-center shadow-2xs hover:shadow-md transition-all"
+                      >
+                        <img
+                          src={sub.photo_url_2}
+                          alt="Back Artwork"
+                          className="w-full h-full object-contain group-hover:scale-105 transition-transform"
+                        />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold rounded-2xl gap-1">
+                          <Eye className="w-4 h-4" />
+                          <span>Full View</span>
+                        </div>
+                        <span className="absolute bottom-2 left-2 text-[10px] font-mono font-bold bg-white/95 text-slate-800 px-2 py-0.5 rounded-md border border-black/10 shadow-2xs">
+                          Back View
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-center py-10 px-4 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                    <p className="text-xs text-slate-400 font-mono">No artwork has been submitted by the designer yet.</p>
+                  </div>
+                )}
+
+                {/* Designer Notes */}
+                {sub.designer_notes && (
+                  <div className="p-3.5 rounded-2xl bg-[#FAF7F0] border border-black/10">
+                    <span className="text-[10px] font-mono uppercase font-bold text-slate-400 block mb-1">
+                      Designer Notes:
+                    </span>
+                    <p className="text-xs text-slate-700 italic">
+                      &ldquo;{sub.designer_notes}&rdquo;
+                    </p>
+                  </div>
+                )}
+
+                {/* PH Review Comments */}
+                {sub.ph_feedback && (
+                  <div className="p-3 rounded-xl bg-amber-50 border border-amber-200/60">
+                    <span className="text-[10px] font-mono uppercase font-bold text-amber-800 block">
+                      Provisional Head Feedback:
+                    </span>
+                    <p className="text-xs text-amber-900 mt-0.5">
+                      &ldquo;{sub.ph_feedback}&rdquo;
+                    </p>
+                  </div>
+                )}
+
+                {/* Super Admin Notes Input */}
+                <div className="space-y-1.5 pt-2">
+                  <label className="text-xs font-bold text-slate-800 uppercase font-mono block">
+                    Super Admin Review Directives:
+                  </label>
+                  <textarea
+                    value={saNotes}
+                    onChange={e => setSaNotes(e.target.value)}
+                    placeholder="Instructions for production / pattern master..."
+                    rows={3}
+                    className="w-full p-3 rounded-xl border border-black/10 text-xs bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                  />
+                </div>
+              </div>
+
+              {/* Modal Footer Actions */}
+              <div className="px-6 py-4 bg-[#FAF7F0] border-t border-black/10 flex items-center justify-between gap-2 flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => setSaReviewingSubmission(null)}
+                  className="px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-black/10 hover:bg-slate-100 rounded-xl shadow-2xs cursor-pointer"
                 >
                   Cancel
                 </button>
 
-                <div className="flex flex-wrap items-center gap-2 justify-end">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <button
+                    type="button"
+                    disabled={isSaReviewing}
+                    onClick={() => handleSAReviewSubmit('REJECTED')}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-rose-600 hover:bg-rose-50 border border-rose-200 text-xs font-bold transition-all shadow-2xs cursor-pointer disabled:opacity-50"
+                  >
+                    <XCircle className="w-4 h-4" />
+                    <span>Request Revision</span>
+                  </button>
+
                   <button
                     type="button"
                     disabled={isSaReviewing}
                     onClick={() => handleSAReviewSubmit('SAVED_FOR_LATER')}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#FAF7F0] text-[#3A3564] hover:bg-[#F2ECE1] border border-black/15 text-xs font-bold transition-all shadow-2xs cursor-pointer disabled:opacity-50"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white text-[#3A3564] hover:bg-slate-100 border border-black/15 text-xs font-bold transition-all shadow-2xs cursor-pointer disabled:opacity-50"
                   >
                     <Bookmark className="w-4 h-4" />
-                    <span>Save for Later Archive</span>
+                    <span>Save for Later</span>
                   </button>
 
                   <button
                     type="button"
                     disabled={isSaReviewing}
                     onClick={() => handleSAReviewSubmit('APPROVED')}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 text-xs font-bold transition-all shadow-2xs cursor-pointer disabled:opacity-50"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50"
                   >
                     {isSaReviewing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
                     <span>Greenlight for Tech-Pack</span>
@@ -1206,8 +1333,8 @@ export function DesignBriefsClient({
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )
+      })()}
 
       {/* Full Photo Preview Lightbox */}
       {previewPhoto && (
