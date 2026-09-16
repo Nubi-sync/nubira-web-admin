@@ -33,12 +33,12 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 
 const STATUS_CONFIG: Record<string, { label: string; badgeClass: string }> = {
-  DRAFT: { label: 'Draft', badgeClass: 'bg-slate-100 text-slate-700 border-slate-200' },
-  SAMPLE_DEV: { label: 'Sample Dev', badgeClass: 'bg-[#FAF7F0] text-[#3A3564] border-black/10 font-semibold' },
-  PPS_SUBMITTED: { label: 'PPS Review', badgeClass: 'bg-slate-100 text-slate-800 border-slate-200 font-semibold' },
+  APPROVED_BULK: { label: 'Ready for Merchandising', badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-300 font-bold' },
   PPS_APPROVED: { label: 'PPS Approved', badgeClass: 'bg-[#FAF7F0] text-slate-800 border-black/10 font-semibold' },
-  APPROVED_BULK: { label: 'Approved Bulk', badgeClass: 'bg-[#FAF7F0] text-slate-900 border-black/15 font-bold' },
-  REVISE_FIT: { label: 'Revise Fit', badgeClass: 'bg-slate-100 text-slate-700 border-slate-300' }
+  PPS_SUBMITTED: { label: 'PPS Review', badgeClass: 'bg-slate-100 text-slate-800 border-slate-200 font-semibold' },
+  SAMPLE_DEV: { label: 'Sample Dev', badgeClass: 'bg-[#FAF7F0] text-[#3A3564] border-black/10 font-semibold' },
+  REVISE_FIT: { label: 'Revise Fit', badgeClass: 'bg-amber-50 text-amber-800 border-amber-300 font-semibold' },
+  DRAFT: { label: 'Ready for Merchandising', badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-300 font-bold' }
 }
 
 interface TechPackCatalogClientProps {
@@ -239,7 +239,7 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands, avail
           </div>
           <div className="mt-3">
             <div className="text-xs font-bold uppercase tracking-wider text-slate-900 font-mono">
-              Bulk Approved
+              Ready for Merchandising
             </div>
             <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
               {bulkApprovedCount}
@@ -269,7 +269,7 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands, avail
         <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
-              DRAFTS
+              REVISIONS
             </span>
             <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
               <Layers className="w-4 h-4 text-[#3A3564]" />
@@ -277,7 +277,7 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands, avail
           </div>
           <div className="mt-3">
             <div className="text-xs font-bold uppercase tracking-wider text-slate-900 font-mono">
-              Drafts &amp; Fit
+              Fit Revisions
             </div>
             <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
               {draftsCount}
@@ -601,6 +601,7 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands, avail
         }}
         availableBrands={availableBrands}
         availableArticles={availableArticles}
+        existingTechPacks={techPacks}
       />
 
       {/* Edit Tech-Pack Modal */}

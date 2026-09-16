@@ -126,7 +126,7 @@ export async function fetchTechPacksAction(_companyName?: string): Promise<TechP
         cad_back_url: row.cad_back_url || undefined,
         spi: Number(row.spi) || 12,
         seam_class: (row.seam_class as SeamClass) || 'ISO 4915 Class 401 (Chainstitch)',
-        status: (row.status as TechPackStatus) || 'DRAFT',
+        status: (row.status === 'DRAFT' || !row.status ? 'APPROVED_BULK' : row.status) as TechPackStatus,
         target_cut_date: new Date(new Date(row.created_at).getTime() + 14 * 86400000).toISOString().split('T')[0],
         version: Number(row.version) || 1,
         created_at: row.created_at,
@@ -146,6 +146,17 @@ export async function fetchTechPacksAction(_companyName?: string): Promise<TechP
 
 export async function fetchApprovedArticlesForTechPackAction(companyName?: string): Promise<AvailableArticleOption[]> {
   try {
+    // 1. Fetch active tech packs to exclude articles that already have a tech pack
+    let tpQuery = supabaseAdmin.from('design_tech_packs').select('style_number')
+    if (companyName) {
+      tpQuery = tpQuery.eq('company_name', companyName)
+    }
+    const { data: tpData } = await tpQuery
+    const existingStyleNumbers = new Set(
+      (tpData || []).map((tp: any) => (tp.style_number || '').trim().toUpperCase()).filter(Boolean)
+    )
+
+    // 2. Fetch design briefs and submissions
     let query = supabaseAdmin
       .from('design_briefs')
       .select('*, design_team_members(*), design_submissions(*)')
@@ -165,6 +176,9 @@ export async function fetchApprovedArticlesForTechPackAction(companyName?: strin
       subs.sort((a, b) => new Date(b.submitted_at).getTime() - new Date(a.submitted_at).getTime())
       const latestSub = subs[0]
       if (!latestSub) return
+
+      // ONLY include articles that have been approved by Super Admin
+      if (latestSub.sa_verdict !== 'APPROVED') return
 
       const parsedNotes = parseConceptsFromNotes(latestSub.designer_notes)
       const concepts = parsedNotes.concepts || []
@@ -193,6 +207,10 @@ export async function fetchApprovedArticlesForTechPackAction(companyName?: strin
             subConcept.colorways.forEach((cw, cwIdx) => {
               if (cw.status === 'REJECTED') return // strictly omit rejected colorways
               const variantArtNo = getVariantArtNumber(baseArtNo, cwIdx, subConcept.colorways.length)
+              
+              // Skip if a tech pack already exists for this article number
+              if (existingStyleNumbers.has(variantArtNo.toUpperCase())) return
+
               articles.push({
                 id: `${briefRow.id}-${req.concept_number}-${cwIdx}`,
                 art_number: variantArtNo,
@@ -210,6 +228,9 @@ export async function fetchApprovedArticlesForTechPackAction(companyName?: strin
               })
             })
           } else {
+            // Skip if a tech pack already exists for this base article number
+            if (existingStyleNumbers.has(baseArtNo.toUpperCase())) return
+
             articles.push({
               id: `${briefRow.id}-${req.concept_number}`,
               art_number: baseArtNo,
@@ -228,20 +249,22 @@ export async function fetchApprovedArticlesForTechPackAction(companyName?: strin
         })
       } else {
         const baseArtNo = `#${briefRow.id.substring(0, 6)}`
-        articles.push({
-          id: briefRow.id,
-          art_number: baseArtNo,
-          garment_type: briefRow.garment_type,
-          category_style: briefRow.category,
-          photo_front: latestSub.photo_url_1,
-          photo_back: latestSub.photo_url_2,
-          brief_id: briefRow.id,
-          submission_id: latestSub.id,
-          designer_name: briefRow.design_team_members?.designer_name,
-          designer_notes: parsedNotes.cleanNotes,
-          instructions: briefRow.instructions,
-          company_name: briefRow.company_name
-        })
+        if (!existingStyleNumbers.has(baseArtNo.toUpperCase())) {
+          articles.push({
+            id: briefRow.id,
+            art_number: baseArtNo,
+            garment_type: briefRow.garment_type,
+            category_style: briefRow.category,
+            photo_front: latestSub.photo_url_1,
+            photo_back: latestSub.photo_url_2,
+            brief_id: briefRow.id,
+            submission_id: latestSub.id,
+            designer_name: briefRow.design_team_members?.designer_name,
+            designer_notes: parsedNotes.cleanNotes,
+            instructions: briefRow.instructions,
+            company_name: briefRow.company_name
+          })
+        }
       }
     })
 
@@ -272,6 +295,8 @@ export async function createTechPackAction(payload: {
   company_name?: string
   materials?: TechPackMaterialRequirement[]
   instructions?: string
+  status?: TechPackStatus
+  target_cut_date?: string
 }): Promise<{ success: boolean; data?: TechPack; error?: string }> {
   try {
     let brandId = payload.brand_id
@@ -284,21 +309,25 @@ export async function createTechPackAction(payload: {
         .from('brands')
         .select('id')
         .ilike('brand_name', brandToFind)
+        .limit(1)
         .maybeSingle()
 
       if (existingBrand) {
         brandId = existingBrand.id
       } else {
-        const { data: newBrand, error: insertErr } = await supabaseAdmin
+        const fallbackCode = brandToFind.replace(/[^A-Z0-9]/gi, '').substring(0, 4).toUpperCase() || 'BRND'
+        const { data: newBrand, error: brandCreateErr } = await supabaseAdmin
           .from('brands')
           .insert({
             brand_name: brandToFind,
-            brand_code: brandToFind.replace(/[^a-zA-Z0-9]/g, '').substring(0, 8).toUpperCase() || 'BRAND'
+            brand_code: `${fallbackCode}-${Math.floor(100 + Math.random() * 900)}`,
+            company_name: payload.company_name || 'Nubira Creation',
+            status: 'ACTIVE'
           })
           .select('id')
           .single()
 
-        if (!insertErr && newBrand) {
+        if (!brandCreateErr && newBrand) {
           brandId = newBrand.id
         } else {
           const { data: anyBrand } = await supabaseAdmin
@@ -345,7 +374,8 @@ export async function createTechPackAction(payload: {
         approved_by_sa: true,
         sa_verdict: 'APPROVED',
         company_name: payload.company_name || 'Nubira Creation',
-        status: 'DRAFT',
+        target_cut_date: payload.target_cut_date || null,
+        status: payload.status || 'APPROVED_BULK',
         version: 1
       })
       .select('*, brands(*)')

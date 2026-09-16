@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { 
   X, 
   Check, 
@@ -39,6 +39,7 @@ interface CreateTechPackModalProps {
   onCreated?: (techPack: TechPack) => void
   availableBrands?: { id: string; brand_name: string; brand_code: string }[]
   availableArticles?: AvailableArticleOption[]
+  existingTechPacks?: TechPack[]
 }
 
 const CATEGORIES: GarmentCategory[] = ['Hoodie', 'T-Shirt', 'Polo', 'Jogger', 'Jacket', 'Kids Romper', 'Suit', 'Pant', 'Ethnic']
@@ -115,7 +116,8 @@ export function CreateTechPackModal({
   onClose, 
   onCreated, 
   availableBrands,
-  availableArticles = []
+  availableArticles = [],
+  existingTechPacks = []
 }: CreateTechPackModalProps) {
   const [step, setStep] = useState<1 | 2>(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -157,16 +159,24 @@ export function CreateTechPackModal({
     return d.toISOString().split('T')[0]
   })
 
-  // Load articles if not provided
+  // Load articles if not provided or refreshed
   useEffect(() => {
-    if (availableArticles && availableArticles.length > 0) {
-      setArticlesList(availableArticles)
-    } else {
+    if (isOpen) {
       fetchApprovedArticlesForTechPackAction().then(res => {
-        if (res && res.length > 0) setArticlesList(res)
+        if (res) setArticlesList(res)
       })
+    } else if (availableArticles && availableArticles.length > 0) {
+      setArticlesList(availableArticles)
     }
-  }, [availableArticles])
+  }, [isOpen, availableArticles])
+
+  // Filter out any articles that already have a tech pack created
+  const unassignedArticles = useMemo(() => {
+    const existingStyles = new Set(
+      (existingTechPacks || []).map(tp => (tp.style_number || '').trim().toUpperCase()).filter(Boolean)
+    )
+    return articlesList.filter(a => !existingStyles.has(a.art_number.trim().toUpperCase()))
+  }, [articlesList, existingTechPacks])
 
   // Handle article selection from dropdown
   function handleSelectArticle(artKey: string) {
@@ -420,7 +430,7 @@ export function CreateTechPackModal({
                     <span>Select Approved Article Number (Art #) *</span>
                   </label>
                   <span className="text-[11px] font-mono text-slate-500">
-                    {articlesList.length} Available Articles
+                    {unassignedArticles.length} Available Articles
                   </span>
                 </div>
 
@@ -431,7 +441,7 @@ export function CreateTechPackModal({
                     className="w-full px-3.5 py-2.5 rounded-xl border border-black/15 text-xs font-bold text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564] cursor-pointer shadow-2xs"
                   >
                     <option value="">-- Choose Article Number from Design Studio --</option>
-                    {articlesList.map(art => (
+                    {unassignedArticles.map(art => (
                       <option key={art.id} value={art.id}>
                         {art.art_number} — {art.garment_type} ({art.category_style}{art.color_name ? ` • ${art.color_name}` : ''})
                       </option>
