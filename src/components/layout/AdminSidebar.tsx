@@ -160,7 +160,8 @@ export function AdminSidebar({
       {
         section: 'Designer Studio',
         items: [
-          { label: 'My Design Briefs', href: '/design/designer', icon: Palette },
+          { label: 'Active Assignments', href: '/design/designer', icon: Palette },
+          { label: 'Submission History', href: '/design/history', icon: Clock },
         ],
       },
       {
@@ -212,13 +213,13 @@ export function AdminSidebar({
         ],
       },
     ]
-  } else if (pathname?.startsWith('/design/designer')) {
+  } else if (pathname?.startsWith('/design/designer') || pathname?.startsWith('/design/history')) {
     activeNavSections = [
       {
         section: 'Designer Studio',
         items: [
           { label: 'Active Assignments', href: '/design/designer', icon: Palette },
-          { label: 'Submission History', href: '/design/designer?view=history', icon: Clock },
+          { label: 'Submission History', href: '/design/history', icon: Clock },
         ],
       },
       {

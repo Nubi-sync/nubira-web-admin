@@ -23,7 +23,7 @@ export type DivisionRoute = typeof ALL_DIVISION_ROUTES[number]
 export const ROLE_MODULE_MAPPING: Record<string, DivisionRoute[]> = {
   // Pre-Production & CAD
   DESIGN: ['/design'],
-  DESIGNER: ['/design/designer' as any, '/design/profile' as any],
+  DESIGNER: ['/design/designer' as any, '/design/history' as any, '/design/profile' as any],
   CAD_MASTER: ['/design'],
   
   // Sourcing & Commercial
@@ -134,7 +134,7 @@ export function getUserAllowedModules(
 
   // 3.5. Creative Designer check
   if (role === 'DESIGNER' || email.includes('@designer.') || email.endsWith('@designer.nubira.local')) {
-    return ['/design/designer', '/design/profile']
+    return ['/design/designer', '/design/history', '/design/profile']
   }
 
   // 4. Role-based module mapping for operational floor staff
