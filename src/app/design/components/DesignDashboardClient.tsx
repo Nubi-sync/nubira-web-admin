@@ -20,7 +20,8 @@ import {
   Sparkles,
   Trash2,
   X,
-  Settings
+  Settings,
+  RefreshCw
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { 
@@ -138,6 +139,7 @@ export function DesignDashboardClient({
   useEffect(() => {
     if (!selectedBriefForView) {
       setColorwayDecisions({})
+      setPhFeedback('')
       return
     }
     const instructedReq = selectedBriefForView.design_concepts_brief?.find(c => c.concept_number === modalActiveConceptTab)
@@ -149,6 +151,7 @@ export function DesignDashboardClient({
       initDecisions[cw.color_name] = cw.status === 'REJECTED' ? 'REJECTED' : 'APPROVED'
     })
     setColorwayDecisions(initDecisions)
+    setPhFeedback(currentConcept?.ph_feedback || selectedBriefForView.latest_submission?.ph_feedback || '')
   }, [selectedBriefForView?.id, modalActiveConceptTab])
 
   const filteredBriefs = briefs.filter(b => {
@@ -184,28 +187,34 @@ export function DesignDashboardClient({
         concept_number: modalActiveConceptTab,
         ph_verdict: verdict,
         ph_feedback: phFeedback.trim() || undefined,
-        colorway_verdicts: verdict === 'REJECTED' ? undefined : colorwayDecisions
+        colorway_verdicts: colorwayDecisions
       })
 
       if (res.success) {
-        const nextStatus: BriefStatus = verdict === 'APPROVED' ? 'PH_APPROVED' : 'PH_REJECTED'
-        toast.success(verdict === 'APPROVED' ? 'Concept approved and forwarded to Super Admin!' : 'Submission returned with feedback to designer.')
+        const hasAnyApproved = Object.values(colorwayDecisions).some(v => v === 'APPROVED')
+        const nextVerdict: import('../types/design').PHVerdict = (verdict === 'APPROVED' || hasAnyApproved) ? 'APPROVED' : 'REJECTED'
+        const nextStatus: BriefStatus = nextVerdict === 'APPROVED' ? 'PH_APPROVED' : 'PH_REJECTED'
+        toast.success(
+          nextStatus === 'PH_APPROVED'
+            ? 'Review updated! Approved designs synced to Super Admin for cross-checking.'
+            : 'Submission updated and returned to designer with feedback.'
+        )
         setBriefs(prev => prev.map(b => {
           if (b.id !== selectedBriefForView.id) return b
           const updatedSub = b.latest_submission ? {
             ...b.latest_submission,
-            ph_verdict: verdict,
+            ph_verdict: nextVerdict,
             ph_feedback: phFeedback.trim() || b.latest_submission.ph_feedback,
             concepts: (b.latest_submission.concepts || []).map(c => {
               if (c.concept_number === modalActiveConceptTab) {
                 return {
                   ...c,
                   status: nextStatus,
-                  ph_verdict: verdict,
+                  ph_verdict: nextVerdict,
                   ph_feedback: phFeedback.trim() || c.ph_feedback,
                   colorways: (c.colorways || []).map(cw => ({
                     ...cw,
-                    status: colorwayDecisions[cw.color_name] || (verdict === 'APPROVED' ? 'APPROVED' : 'REJECTED')
+                    status: colorwayDecisions[cw.color_name] || (nextStatus === 'PH_APPROVED' ? 'APPROVED' : 'REJECTED')
                   }))
                 }
               }
@@ -1014,7 +1023,7 @@ export function DesignDashboardClient({
                 )}
 
                 {/* Provisional Head Feedback Input */}
-                {(brief.status === 'SUBMITTED' || brief.status === 'ALLOCATED') && (
+                {brief.latest_submission && (
                   <div className="space-y-1.5 pt-2">
                     <label className="text-xs font-bold text-slate-800 uppercase font-mono block">
                       Provisional Head Review Notes / Feedback:
@@ -1051,8 +1060,8 @@ export function DesignDashboardClient({
                     Close
                   </button>
 
-                  {/* Provisional Head Review Actions */}
-                  {(brief.status === 'SUBMITTED' || brief.status === 'ALLOCATED') && (
+                  {/* Initial Review Actions */}
+                  {brief.latest_submission && (brief.status === 'SUBMITTED' || brief.status === 'ALLOCATED') && (
                     <>
                       <button
                         type="button"
@@ -1072,6 +1081,36 @@ export function DesignDashboardClient({
                       >
                         {isReviewing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
                         <span>Approve &amp; Forward to SA</span>
+                      </button>
+                    </>
+                  )}
+
+                  {/* Re-review / Update Review Actions (when already reviewed or re-deciding) */}
+                  {brief.latest_submission && brief.status !== 'SUBMITTED' && brief.status !== 'ALLOCATED' && (
+                    <>
+                      <button
+                        type="button"
+                        disabled={isReviewing}
+                        onClick={() => handlePHReviewSubmit('REJECTED')}
+                        className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold transition-all shadow-2xs cursor-pointer disabled:opacity-50"
+                        title="Return design with revisions request"
+                      >
+                        <XCircle className="w-4 h-4" />
+                        <span>Request Revisions</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        disabled={isReviewing}
+                        onClick={() => {
+                          const hasAnyCwApproved = Object.values(colorwayDecisions).some(v => v === 'APPROVED')
+                          handlePHReviewSubmit(hasAnyCwApproved ? 'APPROVED' : 'REJECTED')
+                        }}
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#3A3564] text-white hover:bg-[#2A2649] text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50"
+                        title="Update review decisions and sync accepted colorways to Super Admin"
+                      >
+                        {isReviewing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
+                        <span>Update Review &amp; Sync</span>
                       </button>
                     </>
                   )}

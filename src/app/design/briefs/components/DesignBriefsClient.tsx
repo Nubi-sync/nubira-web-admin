@@ -28,7 +28,8 @@ import {
   Phone,
   Target,
   Palette,
-  X
+  X,
+  RefreshCw
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { 
@@ -135,6 +136,7 @@ export function DesignBriefsClient({
     const activeSub = reviewingSubmission || saReviewingSubmission
     if (!activeSub) {
       setColorwayDecisions({})
+      setPhFeedback('')
       return
     }
     const targetConceptNum = activeSub.conceptNumber || 1
@@ -147,6 +149,7 @@ export function DesignBriefsClient({
       initDecisions[cw.color_name] = cw.status === 'REJECTED' ? 'REJECTED' : 'APPROVED'
     })
     setColorwayDecisions(initDecisions)
+    setPhFeedback(currentConcept?.ph_feedback || activeSub.submission.ph_feedback || '')
   }, [reviewingSubmission?.brief.id, reviewingSubmission?.conceptNumber, saReviewingSubmission?.brief.id, saReviewingSubmission?.conceptNumber])
 
   // Delete State
@@ -195,28 +198,34 @@ export function DesignBriefsClient({
         concept_number: reviewingSubmission.conceptNumber,
         ph_verdict: verdict,
         ph_feedback: phFeedback.trim() || undefined,
-        colorway_verdicts: verdict === 'REJECTED' ? undefined : colorwayDecisions
+        colorway_verdicts: colorwayDecisions
       })
 
       if (res.success) {
-        const nextStatus: BriefStatus = verdict === 'APPROVED' ? 'PH_APPROVED' : 'PH_REJECTED'
-        toast.success(verdict === 'APPROVED' ? 'Concept approved & forwarded to Super Admin.' : 'Concept returned with revision notes.')
+        const hasAnyApproved = Object.values(colorwayDecisions).some(v => v === 'APPROVED')
+        const nextVerdict: import('../../types/design').PHVerdict = (verdict === 'APPROVED' || hasAnyApproved) ? 'APPROVED' : 'REJECTED'
+        const nextStatus: BriefStatus = nextVerdict === 'APPROVED' ? 'PH_APPROVED' : 'PH_REJECTED'
+        toast.success(
+          nextStatus === 'PH_APPROVED'
+            ? 'Review updated! Approved designs synced to Super Admin for cross-checking.'
+            : 'Concept returned with revision notes.'
+        )
         setBriefs(prev => prev.map(b => {
           if (b.id !== reviewingSubmission.brief.id) return b
           const updatedSub = b.latest_submission ? {
             ...b.latest_submission,
-            ph_verdict: verdict,
+            ph_verdict: nextVerdict,
             ph_feedback: phFeedback.trim() || b.latest_submission.ph_feedback,
             concepts: (b.latest_submission.concepts || []).map(c => {
               if (c.concept_number === (reviewingSubmission.conceptNumber || 1)) {
                 return {
                   ...c,
                   status: nextStatus,
-                  ph_verdict: verdict,
+                  ph_verdict: nextVerdict,
                   ph_feedback: phFeedback.trim() || c.ph_feedback,
                   colorways: (c.colorways || []).map(cw => ({
                     ...cw,
-                    status: colorwayDecisions[cw.color_name] || (verdict === 'APPROVED' ? 'APPROVED' : 'REJECTED')
+                    status: colorwayDecisions[cw.color_name] || (nextStatus === 'PH_APPROVED' ? 'APPROVED' : 'REJECTED')
                   }))
                 }
               }
@@ -916,6 +925,17 @@ export function DesignBriefsClient({
                               </button>
                             )}
 
+                            {brief.status === 'PH_REJECTED' && brief.latest_submission && (
+                              <button
+                                onClick={() => setReviewingSubmission({ submission: brief.latest_submission!, brief, conceptNumber: item.conceptNumber, artNumber: item.artNumber })}
+                                className="inline-flex items-center gap-1 text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 px-2.5 py-1.5 rounded-lg transition-all cursor-pointer shadow-2xs"
+                                title="Re-Review / Update Review Decision"
+                              >
+                                <Eye className="w-3.5 h-3.5" />
+                                <span>Re-Review</span>
+                              </button>
+                            )}
+
                             {brief.status === 'SA_APPROVED' && (
                               <Link
                                 href={`/design/tech-packs?from_brief=${brief.id}`}
@@ -1210,25 +1230,57 @@ export function DesignBriefsClient({
                 </button>
 
                 <div className="flex items-center gap-2.5">
-                  <button
-                    type="button"
-                    disabled={isReviewing}
-                    onClick={() => handlePHReviewSubmit('REJECTED')}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold transition-all shadow-2xs cursor-pointer disabled:opacity-50"
-                  >
-                    <XCircle className="w-4 h-4" />
-                    <span>Request Revisions</span>
-                  </button>
+                  {/* Initial Review Actions */}
+                  {(brief.status === 'SUBMITTED' || brief.status === 'ALLOCATED') ? (
+                    <>
+                      <button
+                        type="button"
+                        disabled={isReviewing}
+                        onClick={() => handlePHReviewSubmit('REJECTED')}
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold transition-all shadow-2xs cursor-pointer disabled:opacity-50"
+                      >
+                        <XCircle className="w-4 h-4" />
+                        <span>Request Revisions</span>
+                      </button>
 
-                  <button
-                    type="button"
-                    disabled={isReviewing}
-                    onClick={() => handlePHReviewSubmit('APPROVED')}
-                    className="inline-flex items-center gap-1.5 px-4.5 py-2 rounded-xl bg-[#3A3564] text-white hover:bg-[#2A2649] text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50"
-                  >
-                    {isReviewing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
-                    <span>Approve &amp; Forward to SA</span>
-                  </button>
+                      <button
+                        type="button"
+                        disabled={isReviewing}
+                        onClick={() => handlePHReviewSubmit('APPROVED')}
+                        className="inline-flex items-center gap-1.5 px-4.5 py-2 rounded-xl bg-[#3A3564] text-white hover:bg-[#2A2649] text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50"
+                      >
+                        {isReviewing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+                        <span>Approve &amp; Forward to SA</span>
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        type="button"
+                        disabled={isReviewing}
+                        onClick={() => handlePHReviewSubmit('REJECTED')}
+                        className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold transition-all shadow-2xs cursor-pointer disabled:opacity-50"
+                        title="Return design with revisions request"
+                      >
+                        <XCircle className="w-4 h-4" />
+                        <span>Request Revisions</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        disabled={isReviewing}
+                        onClick={() => {
+                          const hasAnyCwApproved = Object.values(colorwayDecisions).some(v => v === 'APPROVED')
+                          handlePHReviewSubmit(hasAnyCwApproved ? 'APPROVED' : 'REJECTED')
+                        }}
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#3A3564] text-white hover:bg-[#2A2649] text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50"
+                        title="Update review decisions and sync accepted colorways to Super Admin"
+                      >
+                        {isReviewing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
+                        <span>Update Review &amp; Sync</span>
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             </div>

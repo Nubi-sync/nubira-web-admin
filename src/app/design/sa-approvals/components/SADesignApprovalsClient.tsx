@@ -134,15 +134,23 @@ export function SADesignApprovalsClient({
         if (colorways.length > 0) {
           colorways.forEach((cw, cwIdx) => {
             const variantArtNo = getVariantArtNumber(baseArtNo, cwIdx, colorways.length)
-            const isPHApproved = cw.status === 'APPROVED' || (!cw.status && concept.ph_verdict === 'APPROVED')
-            const isPHRejected = cw.status === 'REJECTED' || (!cw.status && concept.ph_verdict === 'REJECTED')
+            
+            // Strictly exclude if rejected by Provisional Head
+            if (cw.status === 'REJECTED') return
+            if (!cw.status && concept.ph_verdict === 'REJECTED') return
+            if (!cw.status && !concept.ph_verdict && sub.ph_verdict === 'REJECTED') return
+            if (!cw.status && !concept.ph_verdict && sub.ph_verdict !== 'APPROVED') return
+
+            const isPHApproved = cw.status === 'APPROVED' || (!cw.status && concept.ph_verdict === 'APPROVED') || sub.ph_verdict === 'APPROVED'
+            if (!isPHApproved) return
+
             const saVerdict = (cw.sa_verdict || concept.sa_verdict || sub.sa_verdict || 'PENDING') as 'APPROVED' | 'SAVED_FOR_LATER' | 'REJECTED' | 'PENDING'
 
             const status: BriefStatus = saVerdict === 'APPROVED' 
               ? 'SA_APPROVED' 
               : saVerdict === 'SAVED_FOR_LATER' 
               ? 'SA_SAVED_FOR_LATER' 
-              : isPHRejected || saVerdict === 'REJECTED'
+              : saVerdict === 'REJECTED'
               ? 'PH_REJECTED'
               : 'PH_APPROVED'
 
@@ -159,8 +167,8 @@ export function SADesignApprovalsClient({
               category,
               designerName: sub.designer_name || brief?.designer_name || 'Designer',
               designerPhone: brief?.designer_phone,
-              isPHApproved,
-              isPHRejected,
+              isPHApproved: true,
+              isPHRejected: false,
               saVerdict,
               status,
               phFeedback: concept.ph_feedback || sub.ph_feedback,
@@ -173,10 +181,12 @@ export function SADesignApprovalsClient({
           })
         } else {
           // Fallback if no specific colorways array
+          if (concept.ph_verdict === 'REJECTED' || sub.ph_verdict === 'REJECTED') return
           const isPHApproved = concept.ph_verdict === 'APPROVED' || sub.ph_verdict === 'APPROVED'
-          const isPHRejected = concept.ph_verdict === 'REJECTED' || sub.ph_verdict === 'REJECTED'
+          if (!isPHApproved) return
+
           const saVerdict = (concept.sa_verdict || sub.sa_verdict || 'PENDING') as 'APPROVED' | 'SAVED_FOR_LATER' | 'REJECTED' | 'PENDING'
-          const status: BriefStatus = saVerdict === 'APPROVED' ? 'SA_APPROVED' : saVerdict === 'SAVED_FOR_LATER' ? 'SA_SAVED_FOR_LATER' : isPHRejected ? 'PH_REJECTED' : 'PH_APPROVED'
+          const status: BriefStatus = saVerdict === 'APPROVED' ? 'SA_APPROVED' : saVerdict === 'SAVED_FOR_LATER' ? 'SA_SAVED_FOR_LATER' : saVerdict === 'REJECTED' ? 'PH_REJECTED' : 'PH_APPROVED'
 
           allRows.push({
             key: `${sub.id}-c-${cNum}`,
@@ -191,8 +201,8 @@ export function SADesignApprovalsClient({
             category,
             designerName: sub.designer_name || brief?.designer_name || 'Designer',
             designerPhone: brief?.designer_phone,
-            isPHApproved,
-            isPHRejected,
+            isPHApproved: true,
+            isPHRejected: false,
             saVerdict,
             status,
             phFeedback: concept.ph_feedback || sub.ph_feedback,
@@ -248,7 +258,7 @@ export function SADesignApprovalsClient({
   const pendingItems = allRows.filter(r => r.isPHApproved && (!r.saVerdict || r.saVerdict === 'PENDING'))
   const approvedItems = allRows.filter(r => r.saVerdict === 'APPROVED')
   const savedForLaterItems = allRows.filter(r => r.saVerdict === 'SAVED_FOR_LATER')
-  const rejectedItems = allRows.filter(r => r.isPHRejected || r.saVerdict === 'REJECTED')
+  const rejectedItems = allRows.filter(r => r.saVerdict === 'REJECTED')
 
   const filteredList = allRows.filter(r => {
     if (activeTab === 'PENDING') {
@@ -258,7 +268,7 @@ export function SADesignApprovalsClient({
     } else if (activeTab === 'SAVED_FOR_LATER') {
       if (r.saVerdict !== 'SAVED_FOR_LATER') return false
     } else if (activeTab === 'REJECTED') {
-      if (!(r.isPHRejected || r.saVerdict === 'REJECTED')) return false
+      if (r.saVerdict !== 'REJECTED') return false
     }
 
     const q = searchQuery.toLowerCase()
@@ -604,15 +614,9 @@ export function SADesignApprovalsClient({
                               {item.designerPhone}
                             </span>
                           )}
-                          {item.isPHApproved ? (
-                            <span className="text-[11px] text-emerald-700 font-mono inline-flex items-center gap-1 font-bold mt-0.5">
-                              <CheckCircle2 className="w-3 h-3 text-emerald-600" /> PH Approved
-                            </span>
-                          ) : (
-                            <span className="text-[11px] text-rose-700 font-mono inline-flex items-center gap-1 font-bold mt-0.5">
-                              <XCircle className="w-3 h-3 text-rose-600" /> PH Rejected
-                            </span>
-                          )}
+                          <span className="text-[11px] text-emerald-700 font-mono inline-flex items-center gap-1 font-bold mt-0.5">
+                            <CheckCircle2 className="w-3 h-3 text-emerald-600" /> PH Approved
+                          </span>
                         </td>
 
                         <td className="py-3.5 px-4">
@@ -664,7 +668,7 @@ export function SADesignApprovalsClient({
                           )}
                           {isRejected && (
                             <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
-                              {item.isPHRejected ? 'PH Rejected' : 'Revisions Needed'}
+                              Revisions Requested
                             </span>
                           )}
                         </td>
