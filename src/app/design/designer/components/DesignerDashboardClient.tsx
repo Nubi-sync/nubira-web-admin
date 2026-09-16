@@ -679,6 +679,7 @@ export function DesignerDashboardClient({
               const cColors = (req?.colors && req.colors.length > 0) ? req.colors : targetColorsList
               const readyForThisConcept = cColors.filter(col => cData?.colorways[col]?.photo_front?.trim()).length
               const isFullyDone = readyForThisConcept >= cColors.length
+              const artNo = req?.art_number || (req?.notes?.match(/Art No:\s*([^|]+)/i)?.[1]?.trim())
 
               return (
                 <button
@@ -688,36 +689,39 @@ export function DesignerDashboardClient({
                     setActiveConceptTab(cNum)
                     setActiveColorwayTab(cColors[0])
                   }}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold font-mono transition-all cursor-pointer shadow-2xs border ${
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold font-mono transition-all cursor-pointer shadow-2xs border ${
                     isTabActive
                       ? 'bg-[#3A3564] text-white border-[#3A3564]'
                       : isFullyDone
                       ? 'bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100'
-                      : 'bg-[#FAF7F0] text-slate-700 border-black/10 hover:bg-slate-100'
+                      : 'bg-[#FAF7F0] text-slate-800 border-black/15 hover:bg-slate-100'
                   }`}
                 >
                   {isFullyDone ? (
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                   ) : (
-                    <span className="w-4 h-4 rounded-full bg-black/10 flex items-center justify-center text-[10px]">
+                    <span className="w-4 h-4 rounded-full bg-black/10 flex items-center justify-center text-[10px] shrink-0 font-bold">
                       {cNum}
                     </span>
                   )}
-                  <span>Design #{cNum}</span>
-                  {req?.art_number && (
-                    <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded font-bold ${
-                      isTabActive ? 'bg-white/20 text-white' : 'bg-[#3A3564]/10 text-[#3A3564]'
+                  {artNo ? (
+                    <span className={`px-2 py-0.5 rounded-md font-mono font-extrabold tracking-wider ${
+                      isTabActive ? 'bg-white/20 text-white' : 'bg-[#3A3564] text-white'
                     }`}>
-                      {req.art_number}
+                      ART NO: {artNo}
                     </span>
+                  ) : (
+                    <span>Design #{cNum}</span>
                   )}
                   {req?.category_style && (
-                    <span className="hidden sm:inline font-sans text-[11px] font-medium text-slate-500 max-w-[120px] truncate">
+                    <span className={`hidden sm:inline font-sans text-[11px] font-medium max-w-[130px] truncate ${
+                      isTabActive ? 'text-white/80' : 'text-slate-500'
+                    }`}>
                       ({req.category_style})
                     </span>
                   )}
-                  <span className={`text-[10px] px-1.5 py-0.2 rounded-md ${
-                    isTabActive ? 'bg-white/20 text-white' : 'bg-black/5 text-slate-600'
+                  <span className={`text-[10px] px-1.5 py-0.2 rounded-md font-mono ${
+                    isTabActive ? 'bg-white/20 text-white' : 'bg-black/5 text-slate-600 font-semibold'
                   }`}>
                     {readyForThisConcept}/{cColors.length}
                   </span>
@@ -1069,6 +1073,10 @@ export function DesignerDashboardClient({
             {activeAssignments.map(brief => {
               const isRejected = brief.status === 'PH_REJECTED'
               const colorList = brief.target_colors || []
+              const conceptsList = brief.design_concepts_brief || []
+              const artNumbers = conceptsList
+                .map(c => c.art_number || (c.notes?.match(/Art No:\s*([^|]+)/i)?.[1]?.trim()))
+                .filter(Boolean) as string[]
 
               return (
                 <div
@@ -1081,22 +1089,37 @@ export function DesignerDashboardClient({
                   }`}
                 >
                   <div className="space-y-3">
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <span className="text-[10px] font-mono font-bold uppercase text-slate-400 block tracking-wider">
-                          Brief #{brief.id.substring(0, 8)}
-                        </span>
-                        <h3 className="font-bold text-slate-900 text-lg font-[family-name:var(--font-heading)] group-hover:text-[#3A3564] transition-colors leading-tight mt-0.5">
-                          {brief.garment_type}
-                        </h3>
-                        <p className="text-xs text-slate-600 font-medium">
-                          {brief.category} Style
-                        </p>
+                    {/* Top Art Number Badges */}
+                    <div className="flex items-center justify-between gap-2 flex-wrap border-b border-black/5 pb-2.5">
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        {artNumbers.length > 0 ? (
+                          artNumbers.map((art, aIdx) => (
+                            <span
+                              key={aIdx}
+                              className="px-2.5 py-0.5 rounded-md bg-[#3A3564] text-white text-xs font-mono font-extrabold tracking-wider shadow-2xs"
+                            >
+                              ART NO: {art}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-[10px] font-mono font-bold uppercase text-slate-400 block tracking-wider">
+                            Brief #{brief.id.substring(0, 8)}
+                          </span>
+                        )}
                       </div>
 
                       <span className={`text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full border shrink-0 ${STATUS_CONFIG[brief.status]?.badgeClass}`}>
                         {STATUS_CONFIG[brief.status]?.label}
                       </span>
+                    </div>
+
+                    <div>
+                      <h3 className="font-bold text-slate-900 text-lg font-[family-name:var(--font-heading)] group-hover:text-[#3A3564] transition-colors leading-tight">
+                        {brief.garment_type}
+                      </h3>
+                      <p className="text-xs text-slate-600 font-medium mt-0.5">
+                        {brief.category} Style &bull; <span className="font-mono text-[11px] text-slate-400">Brief #{brief.id.substring(0, 6)}</span>
+                      </p>
                     </div>
 
                     {/* Scope Spec */}
