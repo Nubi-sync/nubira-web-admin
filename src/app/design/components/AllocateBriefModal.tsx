@@ -1,13 +1,14 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { 
   X, 
   Plus, 
   Trash2, 
   Palette, 
   Loader2, 
-  AlertCircle
+  AlertCircle,
+  CheckCircle2
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { 
@@ -15,7 +16,7 @@ import {
   DesignTeamMember, 
   BriefDesignConceptRequirement 
 } from '../types/design'
-import { createDesignBriefAction } from '../actions'
+import { createDesignBriefAction, checkArticleNumberUniqueAction } from '../actions'
 
 function getColorSwatch(colorName: string): string {
   const c = colorName.trim().toLowerCase()
@@ -75,6 +76,8 @@ export function AllocateBriefModal({
   const [selectedDesignerId, setSelectedDesignerId] = useState(preselectedDesignerId || '')
   const [instructions, setInstructions] = useState('')
   const [designs, setDesigns] = useState<DesignInstructionItem[]>([])
+  const [serverErrors, setServerErrors] = useState<Record<string, string>>({})
+  const [checkingArtNumbers, setCheckingArtNumbers] = useState<Record<string, boolean>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   if (!isOpen) return null
@@ -93,29 +96,75 @@ export function AllocateBriefModal({
       color_input: ''
     }
     setDesigns(prev => [...prev, newItem])
+    // Check initial uniqueness for new item
+    const full = `TS-${defaultNumber}`
+    verifyArticleNumberDb(newItem.id, full)
   }
 
   function handleRemoveDesign(index: number) {
+    const removedId = designs[index]?.id
     setDesigns(prev => prev.filter((_, i) => i !== index))
+    if (removedId) {
+      setServerErrors(prev => {
+        const next = { ...prev }
+        delete next[removedId]
+        return next
+      })
+    }
+  }
+
+  async function verifyArticleNumberDb(itemId: string, fullArtNo: string) {
+    if (!fullArtNo) return
+    setCheckingArtNumbers(prev => ({ ...prev, [itemId]: true }))
+    try {
+      const res = await checkArticleNumberUniqueAction(fullArtNo, companyName)
+      if (!res.isUnique && res.conflictReason) {
+        setServerErrors(prev => ({ ...prev, [itemId]: res.conflictReason! }))
+      } else {
+        setServerErrors(prev => {
+          const next = { ...prev }
+          delete next[itemId]
+          return next
+        })
+      }
+    } catch {
+      // Ignore network error on quick check
+    } finally {
+      setCheckingArtNumbers(prev => ({ ...prev, [itemId]: false }))
+    }
   }
 
   function handleUpdateDesignField(index: number, field: keyof DesignInstructionItem, value: any) {
-    setDesigns(prev => prev.map((item, i) => {
-      if (i === index) {
-        if (field === 'art_prefix') {
-          // Strictly uppercase alphanumeric, max 4 chars
-          const cleaned = String(value).toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4)
-          return { ...item, art_prefix: cleaned }
+    setDesigns(prev => {
+      const next = prev.map((item, i) => {
+        if (i === index) {
+          if (field === 'art_prefix') {
+            // Strictly uppercase alphanumeric, max 4 chars
+            const cleaned = String(value).toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4)
+            return { ...item, art_prefix: cleaned }
+          }
+          if (field === 'art_number') {
+            // Strictly digits, max 6 chars
+            const cleaned = String(value).replace(/\D/g, '').slice(0, 6)
+            return { ...item, art_number: cleaned }
+          }
+          return { ...item, [field]: value }
         }
-        if (field === 'art_number') {
-          // Strictly digits, max 6 chars
-          const cleaned = String(value).replace(/\D/g, '').slice(0, 6)
-          return { ...item, art_number: cleaned }
+        return item
+      })
+
+      // If art_prefix or art_number was updated, trigger debounced verification
+      if (field === 'art_prefix' || field === 'art_number') {
+        const updatedItem = next[index]
+        const fullArt = getFormattedArtNumber(updatedItem)
+        const check = validateArtNumber(updatedItem)
+        if (check.valid && fullArt) {
+          verifyArticleNumberDb(updatedItem.id, fullArt)
         }
-        return { ...item, [field]: value }
       }
-      return item
-    }))
+
+      return next
+    })
   }
 
   function handleAddManualColor(index: number) {
@@ -172,9 +221,27 @@ export function AllocateBriefModal({
     return { valid: true }
   }
 
+  // Count Art Number occurrences in local designs list
+  const artNumberCounts = designs.reduce<Record<string, number>>((acc, d) => {
+    const full = getFormattedArtNumber(d).toUpperCase()
+    if (full) {
+      acc[full] = (acc[full] || 0) + 1
+    }
+    return acc
+  }, {})
+
+  const hasDuplicateArtNumbers = designs.some(d => {
+    const full = getFormattedArtNumber(d).toUpperCase()
+    return full && (artNumberCounts[full] || 0) > 1
+  })
+
+  const hasServerConflicts = Object.keys(serverErrors).length > 0
+
   const isFormValid = Boolean(
     selectedDesignerId &&
     designs.length > 0 &&
+    !hasDuplicateArtNumbers &&
+    !hasServerConflicts &&
     designs.every(d => {
       const artCheck = validateArtNumber(d)
       return artCheck.valid && d.garment_type.trim() && d.category.trim() && d.colors.length > 0
@@ -193,11 +260,17 @@ export function AllocateBriefModal({
       return
     }
 
+    // Intra-modal uniqueness check
     for (let i = 0; i < designs.length; i++) {
       const d = designs[i]
       const artCheck = validateArtNumber(d)
       if (!artCheck.valid) {
         toast.error(`Design #${i + 1}: ${artCheck.error}`)
+        return
+      }
+      const fullArtNo = getFormattedArtNumber(d).toUpperCase()
+      if (artNumberCounts[fullArtNo] > 1) {
+        toast.error(`Design #${i + 1} uses repeated Article Number "${fullArtNo}". Each design must have a unique Art #.`)
         return
       }
       if (!d.garment_type.trim()) {
@@ -211,6 +284,25 @@ export function AllocateBriefModal({
       if (d.colors.length === 0) {
         toast.error(`Please add at least 1 color for Design #${i + 1}.`)
         return
+      }
+    }
+
+    setIsSubmitting(true)
+
+    // Final DB collision check for all Art Numbers
+    for (let i = 0; i < designs.length; i++) {
+      const d = designs[i]
+      const fullArtNo = getFormattedArtNumber(d)
+      try {
+        const checkRes = await checkArticleNumberUniqueAction(fullArtNo, companyName)
+        if (!checkRes.isUnique) {
+          setServerErrors(prev => ({ ...prev, [d.id]: checkRes.conflictReason || 'Article Number is not unique.' }))
+          toast.error(`Design #${i + 1} (${fullArtNo}): ${checkRes.conflictReason || 'Already exists.'}`)
+          setIsSubmitting(false)
+          return
+        }
+      } catch (err: any) {
+        console.warn('Check uniqueness error:', err)
       }
     }
 
@@ -230,7 +322,6 @@ export function AllocateBriefModal({
       }
     })
 
-    setIsSubmitting(true)
     try {
       const res = await createDesignBriefAction({
         ph_user_id: currentUserId,
@@ -334,6 +425,9 @@ export function AllocateBriefModal({
               {designs.map((design, idx) => {
                 const fullArtNo = getFormattedArtNumber(design)
                 const artCheck = validateArtNumber(design)
+                const isDuplicateInModal = Boolean(fullArtNo && (artNumberCounts[fullArtNo.toUpperCase()] || 0) > 1)
+                const serverConflict = serverErrors[design.id]
+                const isChecking = checkingArtNumbers[design.id]
 
                 return (
                   <div 
@@ -347,7 +441,11 @@ export function AllocateBriefModal({
                           Design #{idx + 1}
                         </span>
                         {fullArtNo && (
-                          <span className="px-2.5 py-0.5 rounded-md bg-[#3A3564] text-white text-[11px] font-mono font-bold tracking-wider shadow-2xs">
+                          <span className={`px-2.5 py-0.5 rounded-md text-[11px] font-mono font-bold tracking-wider shadow-2xs flex items-center gap-1 ${
+                            isDuplicateInModal || serverConflict
+                              ? 'bg-rose-600 text-white'
+                              : 'bg-[#3A3564] text-white'
+                          }`}>
                             ART NO: {fullArtNo}
                           </span>
                         )}
@@ -362,7 +460,7 @@ export function AllocateBriefModal({
                       </button>
                     </div>
 
-                    {/* Article Number Configuration (Prefix + Number) */}
+                    {/* Article Number Configuration (Prefix + Number) with Uniqueness Checker */}
                     <div>
                       <div className="flex items-center justify-between mb-1.5 flex-wrap gap-1">
                         <label className="block text-xs font-bold uppercase tracking-wider text-slate-900 font-mono">
@@ -381,10 +479,14 @@ export function AllocateBriefModal({
                             placeholder="Prefix (e.g. TS, HD01)"
                             value={design.art_prefix}
                             onChange={e => handleUpdateDesignField(idx, 'art_prefix', e.target.value)}
-                            className="w-full px-3 py-2 bg-white border border-slate-200 focus:border-[#3A3564] rounded-xl text-xs font-mono font-bold text-slate-900 uppercase outline-none placeholder:font-normal placeholder:normal-case placeholder:text-slate-400"
+                            className={`w-full px-3 py-2 bg-white border rounded-xl text-xs font-mono font-bold text-slate-900 uppercase outline-none placeholder:font-normal placeholder:normal-case placeholder:text-slate-400 ${
+                              isDuplicateInModal || serverConflict
+                                ? 'border-rose-300 focus:border-rose-500'
+                                : 'border-slate-200 focus:border-[#3A3564]'
+                            }`}
                           />
                         </div>
-                        <div className="col-span-3">
+                        <div className="col-span-3 relative">
                           <input
                             type="text"
                             required
@@ -392,13 +494,42 @@ export function AllocateBriefModal({
                             placeholder="Number (e.g. 101, 0042)"
                             value={design.art_number}
                             onChange={e => handleUpdateDesignField(idx, 'art_number', e.target.value)}
-                            className="w-full px-3 py-2 bg-white border border-slate-200 focus:border-[#3A3564] rounded-xl text-xs font-mono font-bold text-slate-900 outline-none placeholder:font-normal placeholder:text-slate-400"
+                            className={`w-full px-3 py-2 bg-white border rounded-xl text-xs font-mono font-bold text-slate-900 outline-none placeholder:font-normal placeholder:text-slate-400 ${
+                              isDuplicateInModal || serverConflict
+                                ? 'border-rose-300 focus:border-rose-500'
+                                : 'border-slate-200 focus:border-[#3A3564]'
+                            }`}
                           />
+                          {isChecking && (
+                            <div className="absolute right-2.5 top-1/2 -translate-y-1/2">
+                              <Loader2 className="w-3.5 h-3.5 animate-spin text-slate-400" />
+                            </div>
+                          )}
                         </div>
                       </div>
+
+                      {/* Validation & Uniqueness Feedback */}
                       {!artCheck.valid && (
                         <p className="text-[11px] text-rose-600 font-medium mt-1">
                           {artCheck.error}
+                        </p>
+                      )}
+                      {artCheck.valid && isDuplicateInModal && (
+                        <p className="text-[11px] text-rose-600 font-bold mt-1 flex items-center gap-1">
+                          <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                          Repeated Article Number in this brief. Each design must have a unique Art #.
+                        </p>
+                      )}
+                      {artCheck.valid && !isDuplicateInModal && serverConflict && (
+                        <p className="text-[11px] text-rose-600 font-bold mt-1 flex items-center gap-1">
+                          <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                          {serverConflict}
+                        </p>
+                      )}
+                      {artCheck.valid && !isDuplicateInModal && !serverConflict && !isChecking && fullArtNo && (
+                        <p className="text-[11px] text-emerald-700 font-semibold mt-1 flex items-center gap-1">
+                          <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                          Article Number is available and verified unique.
                         </p>
                       )}
                     </div>

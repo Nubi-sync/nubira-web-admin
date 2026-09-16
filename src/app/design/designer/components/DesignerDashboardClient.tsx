@@ -34,7 +34,7 @@ import {
   DesignConceptItem, 
   DesignConceptColorway 
 } from '../../types/design'
-import { submitDesignPhotosAction } from '../../actions'
+import { submitDesignPhotosAction, uploadDesignMockupAction } from '../../actions'
 import { EmptyState } from '@/components/ui/EmptyState'
 
 // Clean line-art Waving Hand Outline SVG (stroke line-art, fill="none", NO solid fill, NO emoji)
@@ -124,7 +124,7 @@ function ColorwayMockupDropzone({
   const [isUploading, setIsUploading] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
 
-  const processFile = (file: File) => {
+  const processFile = async (file: File) => {
     if (!file.type.startsWith('image/')) {
       toast.error('Please select an image file (PNG, JPG, WEBP, SVG)')
       return
@@ -134,18 +134,21 @@ function ColorwayMockupDropzone({
       return
     }
     setIsUploading(true)
-    const reader = new FileReader()
-    reader.onload = () => {
-      const dataUrl = reader.result as string
-      onPhotoChange(dataUrl)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      const res = await uploadDesignMockupAction(formData)
+      if (res.success && res.url) {
+        onPhotoChange(res.url)
+        toast.success(`${slotType === 'front' ? 'Front' : 'Back'} mockup uploaded to cloud!`)
+      } else {
+        toast.error(res.error || 'Failed to upload mockup to Supabase Storage.')
+      }
+    } catch (err: any) {
+      toast.error(err?.message || 'Upload failed.')
+    } finally {
       setIsUploading(false)
-      toast.success(`${slotType === 'front' ? 'Front' : 'Back'} mockup attached!`)
     }
-    reader.onerror = () => {
-      setIsUploading(false)
-      toast.error('Failed to read image file.')
-    }
-    reader.readAsDataURL(file)
   }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {

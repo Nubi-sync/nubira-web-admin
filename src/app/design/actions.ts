@@ -620,9 +620,125 @@ export async function deleteDesignTeamMemberAction(memberId: string): Promise<{ 
   }
 }
 
-// -----------------------------------------------------------------------------
-// 3. DESIGN BRIEFS QUEUE (PH allocates work to designers)
-// -----------------------------------------------------------------------------
+export async function checkArticleNumberUniqueAction(
+  artNumber: string,
+  companyName?: string
+): Promise<{ isUnique: boolean; conflictReason?: string }> {
+  try {
+    const trimmed = artNumber.trim()
+    if (!trimmed) return { isUnique: true }
+
+    // 1. Check in design_tech_packs for matching style_number
+    const { data: tpData } = await supabaseAdmin
+      .from('design_tech_packs')
+      .select('id, style_number, style_name')
+      .ilike('style_number', trimmed)
+      .limit(1)
+
+    if (tpData && tpData.length > 0) {
+      return { 
+        isUnique: false, 
+        conflictReason: `Already registered in Tech-Pack Catalog (${tpData[0].style_number}: ${tpData[0].style_name || 'Spec'})` 
+      }
+    }
+
+    // 2. Check in design_briefs instructions for matching art_number or [CONCEPTS_BRIEF: ...]
+    let briefQuery = supabaseAdmin
+      .from('design_briefs')
+      .select('id, instructions, garment_type, category, created_at')
+      .ilike('instructions', `%${trimmed}%`)
+      .limit(5)
+
+    if (companyName) {
+      briefQuery = briefQuery.eq('company_name', companyName)
+    }
+
+    const { data: briefData } = await briefQuery
+
+    if (briefData && briefData.length > 0) {
+      for (const row of briefData) {
+        const conceptsMatch = row.instructions?.match(/\[CONCEPTS_BRIEF:\s*(\[[\s\S]*?\])\]/i)
+        if (conceptsMatch && conceptsMatch[1]) {
+          try {
+            const parsed = JSON.parse(conceptsMatch[1])
+            const found = parsed.find((c: any) => 
+              (c.art_number && c.art_number.toLowerCase() === trimmed.toLowerCase()) ||
+              (c.notes && c.notes.toLowerCase().includes(trimmed.toLowerCase()))
+            )
+            if (found) {
+              return { 
+                isUnique: false, 
+                conflictReason: `Already allocated in Design Brief (${row.garment_type} - ${row.category})` 
+              }
+            }
+          } catch (e) {
+            // ignore JSON parse error
+          }
+        } else if (
+          row.instructions?.toLowerCase().includes(`art no: ${trimmed.toLowerCase()}`) || 
+          row.instructions?.toLowerCase().includes(`art #${trimmed.toLowerCase()}`)
+        ) {
+          return { 
+            isUnique: false, 
+            conflictReason: `Already allocated in Design Brief (${row.garment_type} - ${row.category})` 
+          }
+        }
+      }
+    }
+
+    return { isUnique: true }
+  } catch (err: any) {
+    console.error('[checkArticleNumberUniqueAction] Error:', err)
+    return { isUnique: true }
+  }
+}
+
+export async function uploadDesignMockupAction(
+  formData: FormData
+): Promise<{ success: boolean; url?: string; error?: string }> {
+  try {
+    const file = formData.get('file') as File
+    if (!file) {
+      return { success: false, error: 'No file provided.' }
+    }
+
+    const fileExt = file.name.split('.').pop() || 'png'
+    const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 9)}.${fileExt}`
+    const filePath = `mockups/${fileName}`
+    const bucketName = 'design-artworks'
+
+    // Check if bucket exists, if not create it
+    const { data: buckets } = await supabaseAdmin.storage.listBuckets()
+    const bucketExists = buckets?.some(b => b.name === bucketName)
+    if (!bucketExists) {
+      await supabaseAdmin.storage.createBucket(bucketName, { public: true })
+    }
+
+    const arrayBuffer = await file.arrayBuffer()
+    const buffer = Buffer.from(arrayBuffer)
+
+    const { error: uploadErr } = await supabaseAdmin.storage
+      .from(bucketName)
+      .upload(filePath, buffer, {
+        contentType: file.type || 'image/png',
+        upsert: true
+      })
+
+    if (uploadErr) {
+      console.error('[uploadDesignMockupAction] Storage upload error:', uploadErr)
+      return { success: false, error: uploadErr.message }
+    }
+
+    const { data: publicUrlData } = supabaseAdmin.storage
+      .from(bucketName)
+      .getPublicUrl(filePath)
+
+    return { success: true, url: publicUrlData.publicUrl }
+  } catch (err: any) {
+    console.error('[uploadDesignMockupAction] Unexpected error:', err)
+    return { success: false, error: err?.message || 'Failed to upload artwork to Supabase Storage.' }
+  }
+}
 
 export async function createDesignBriefAction(payload: {
   ph_user_id: string
