@@ -8,6 +8,8 @@ export type SizeSystem =
 
 export type EmbellishmentSequence = 
   | 'NONE'
+  | 'ONLY_PRINTING'
+  | 'ONLY_EMBROIDERY'
   | 'EMBROIDERY_FIRST_THEN_PRINT'
   | 'PRINT_FIRST_THEN_EMBROIDERY'
 

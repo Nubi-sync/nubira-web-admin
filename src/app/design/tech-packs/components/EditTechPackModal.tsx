@@ -24,10 +24,12 @@ const SIZE_SYSTEMS: { label: string; value: SizeSystem; defaultBase: string }[] 
   { label: 'Plus Size Silhouette (1X–5X)', value: 'PLUS_SIZE', defaultBase: '2X' },
 ]
 
-const EMBELLISHMENT_SEQUENCES: { label: string; value: EmbellishmentSequence; desc: string }[] = [
-  { label: 'No Embellishment (Plain Cut)', value: 'NONE', desc: 'Direct cut bundle to sewing line' },
-  { label: 'Embroidery First, Then Print', value: 'EMBROIDERY_FIRST_THEN_PRINT', desc: 'Hooped embroidery before screen curing' },
-  { label: 'Print First, Then Embroidery', value: 'PRINT_FIRST_THEN_EMBROIDERY', desc: 'Rotary/screen print before chest embroidery' },
+const EMBELLISHMENT_SEQUENCES: { label: string; value: EmbellishmentSequence }[] = [
+  { label: 'No Embroidery, No Printing', value: 'NONE' },
+  { label: 'Only Printing', value: 'ONLY_PRINTING' },
+  { label: 'Only Embroidery', value: 'ONLY_EMBROIDERY' },
+  { label: 'Embroidery First, Then Printing', value: 'EMBROIDERY_FIRST_THEN_PRINT' },
+  { label: 'Printing First, Then Embroidery', value: 'PRINT_FIRST_THEN_EMBROIDERY' },
 ]
 
 const SEAM_CLASSES: SeamClass[] = [

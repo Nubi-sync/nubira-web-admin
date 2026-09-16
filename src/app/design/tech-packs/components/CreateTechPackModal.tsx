@@ -63,10 +63,12 @@ const SIZE_SYSTEMS: { label: string; value: SizeSystem; defaultBase: string }[] 
   { label: 'Plus Size Silhouette (1X–5X)', value: 'PLUS_SIZE', defaultBase: '2X' },
 ]
 
-const EMBELLISHMENT_SEQUENCES: { label: string; value: EmbellishmentSequence; desc: string }[] = [
-  { label: 'No Embellishment (Plain Cut)', value: 'NONE', desc: 'Direct cut bundle to sewing line' },
-  { label: 'Embroidery First, Then Print', value: 'EMBROIDERY_FIRST_THEN_PRINT', desc: 'Hooped embroidery before screen curing' },
-  { label: 'Print First, Then Embroidery', value: 'PRINT_FIRST_THEN_EMBROIDERY', desc: 'Rotary/screen print before chest embroidery' },
+const EMBELLISHMENT_SEQUENCES: { label: string; value: EmbellishmentSequence }[] = [
+  { label: 'No Embroidery, No Printing', value: 'NONE' },
+  { label: 'Only Printing', value: 'ONLY_PRINTING' },
+  { label: 'Only Embroidery', value: 'ONLY_EMBROIDERY' },
+  { label: 'Embroidery First, Then Printing', value: 'EMBROIDERY_FIRST_THEN_PRINT' },
+  { label: 'Printing First, Then Embroidery', value: 'PRINT_FIRST_THEN_EMBROIDERY' },
 ]
 
 const SEAM_CLASSES: SeamClass[] = [
@@ -799,29 +801,52 @@ export function CreateTechPackModal({
                 <label className="block text-xs font-bold uppercase tracking-wider text-slate-800 font-mono mb-2">
                   Embellishment Routing Rule *
                 </label>
-                <div className="space-y-2">
-                  {EMBELLISHMENT_SEQUENCES.map(seq => (
-                    <label
-                      key={seq.value}
-                      className={`flex items-start gap-3 p-3.5 rounded-2xl border cursor-pointer transition-all ${
-                        embellishmentSeq === seq.value
-                          ? 'border-[#3A3564] bg-[#FAF7F0] shadow-2xs'
-                          : 'border-black/10 hover:bg-slate-50'
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="embellishment"
-                        checked={embellishmentSeq === seq.value}
-                        onChange={() => setEmbellishmentSeq(seq.value)}
-                        className="mt-0.5 text-[#3A3564] focus:ring-[#3A3564]"
-                      />
-                      <div>
-                        <span className="text-xs font-bold text-slate-900 block">{seq.label}</span>
-                        <span className="text-[11px] text-slate-500">{seq.desc}</span>
-                      </div>
-                    </label>
-                  ))}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  {/* Column 1: 3 options */}
+                  <div className="space-y-2">
+                    {EMBELLISHMENT_SEQUENCES.slice(0, 3).map(seq => (
+                      <label
+                        key={seq.value}
+                        className={`flex items-center gap-3 p-3 rounded-2xl border cursor-pointer transition-all ${
+                          embellishmentSeq === seq.value
+                            ? 'border-[#3A3564] bg-[#FAF7F0] shadow-2xs'
+                            : 'border-black/10 hover:bg-slate-50'
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="embellishment"
+                          checked={embellishmentSeq === seq.value}
+                          onChange={() => setEmbellishmentSeq(seq.value)}
+                          className="text-[#3A3564] focus:ring-[#3A3564]"
+                        />
+                        <span className="text-xs font-bold text-slate-900">{seq.label}</span>
+                      </label>
+                    ))}
+                  </div>
+
+                  {/* Column 2: 2 options */}
+                  <div className="space-y-2">
+                    {EMBELLISHMENT_SEQUENCES.slice(3).map(seq => (
+                      <label
+                        key={seq.value}
+                        className={`flex items-center gap-3 p-3 rounded-2xl border cursor-pointer transition-all ${
+                          embellishmentSeq === seq.value
+                            ? 'border-[#3A3564] bg-[#FAF7F0] shadow-2xs'
+                            : 'border-black/10 hover:bg-slate-50'
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="embellishment"
+                          checked={embellishmentSeq === seq.value}
+                          onChange={() => setEmbellishmentSeq(seq.value)}
+                          className="text-[#3A3564] focus:ring-[#3A3564]"
+                        />
+                        <span className="text-xs font-bold text-slate-900">{seq.label}</span>
+                      </label>
+                    ))}
+                  </div>
                 </div>
               </div>
 
