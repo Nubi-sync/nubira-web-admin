@@ -701,6 +701,13 @@ export function DesignerDashboardClient({
                     </span>
                   )}
                   <span>Design #{cNum}</span>
+                  {req?.art_number && (
+                    <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded font-bold ${
+                      isTabActive ? 'bg-white/20 text-white' : 'bg-[#3A3564]/10 text-[#3A3564]'
+                    }`}>
+                      {req.art_number}
+                    </span>
+                  )}
                   {req?.category_style && (
                     <span className="hidden sm:inline font-sans text-[11px] font-medium text-slate-500 max-w-[120px] truncate">
                       ({req.category_style})
@@ -718,20 +725,6 @@ export function DesignerDashboardClient({
 
           {/* Concept Canvas */}
           <div className="bg-[#FAF7F0] p-4 sm:p-5 rounded-2xl border border-black/10 space-y-4">
-            <div>
-              <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
-                Design Concept #{activeConceptTab} Title / Theme
-              </label>
-              <input
-                type="text"
-                disabled={!isEditable}
-                placeholder={`e.g. Front Chest Arch Logo Variant #${activeConceptTab}`}
-                value={currentConcept.title}
-                onChange={e => handleUpdateConceptField(activeConceptTab, 'title', e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-semibold text-slate-900 outline-none shadow-2xs transition-all"
-              />
-            </div>
-
             {(() => {
               const currentInstructed = activeBrief.design_concepts_brief?.find(c => c.concept_number === activeConceptTab)
               const activeConceptColors = (currentInstructed?.colors && currentInstructed.colors.length > 0)
@@ -739,45 +732,68 @@ export function DesignerDashboardClient({
                 : targetColorsList
 
               return (
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5 flex items-center justify-between">
-                    <span>Select Colorway to Attach Artwork ({activeConceptColors.length} Allocated)</span>
-                    <span className="text-[11px] font-normal text-slate-500 font-sans">
-                      Click each color to upload front &amp; back views
-                    </span>
-                  </label>
-                  <div className="flex flex-wrap gap-2">
-                    {activeConceptColors.map((colName) => {
-                      const sw = getColorSwatchInfo(colName)
-                      const isColorSelected = activeColorwayTab === colName
-                      const hasPhoto = !!currentConcept.colorways[colName]?.photo_front?.trim()
+                <div className="space-y-4">
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono">
+                        Design Concept #{activeConceptTab} Title / Theme
+                      </label>
+                      {currentInstructed?.art_number && (
+                        <span className="px-2.5 py-0.5 rounded-lg bg-[#3A3564] text-white text-xs font-mono font-bold tracking-wider shadow-2xs">
+                          ART NO: {currentInstructed.art_number}
+                        </span>
+                      )}
+                    </div>
+                    <input
+                      type="text"
+                      disabled={!isEditable}
+                      placeholder={`e.g. Front Chest Arch Logo Variant #${activeConceptTab}`}
+                      value={currentConcept.title}
+                      onChange={e => handleUpdateConceptField(activeConceptTab, 'title', e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-semibold text-slate-900 outline-none shadow-2xs transition-all"
+                    />
+                  </div>
 
-                      return (
-                        <button
-                          key={colName}
-                          type="button"
-                          onClick={() => setActiveColorwayTab(colName)}
-                          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer border shadow-2xs ${
-                            isColorSelected
-                              ? 'bg-white text-[#3A3564] border-[#3A3564] ring-2 ring-[#3A3564]/15'
-                              : hasPhoto
-                              ? 'bg-emerald-50 text-emerald-900 border-emerald-200'
-                              : 'bg-white text-slate-700 border-black/10 hover:bg-slate-50'
-                          }`}
-                        >
-                          <span 
-                            className="w-3.5 h-3.5 rounded-full border border-black/20 shrink-0" 
-                            style={{ backgroundColor: sw.bg }} 
-                          />
-                          <span>{colName}</span>
-                          {hasPhoto ? (
-                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                          ) : (
-                            <span className="text-[10px] text-slate-400 font-mono">Pending</span>
-                          )}
-                        </button>
-                      )
-                    })}
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5 flex items-center justify-between">
+                      <span>Select Colorway to Attach Artwork ({activeConceptColors.length} Allocated)</span>
+                      <span className="text-[11px] font-normal text-slate-500 font-sans">
+                        Click each color to upload front &amp; back views
+                      </span>
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {activeConceptColors.map((colName) => {
+                        const sw = getColorSwatchInfo(colName)
+                        const isColorSelected = activeColorwayTab === colName
+                        const hasPhoto = !!currentConcept.colorways[colName]?.photo_front?.trim()
+
+                        return (
+                          <button
+                            key={colName}
+                            type="button"
+                            onClick={() => setActiveColorwayTab(colName)}
+                            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer border shadow-2xs ${
+                              isColorSelected
+                                ? 'bg-white text-[#3A3564] border-[#3A3564] ring-2 ring-[#3A3564]/15'
+                                : hasPhoto
+                                ? 'bg-emerald-50 text-emerald-900 border-emerald-200'
+                                : 'bg-white text-slate-700 border-black/10 hover:bg-slate-50'
+                            }`}
+                          >
+                            <span 
+                              className="w-3.5 h-3.5 rounded-full border border-black/20 shrink-0" 
+                              style={{ backgroundColor: sw.bg }} 
+                            />
+                            <span>{colName}</span>
+                            {hasPhoto ? (
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                            ) : (
+                              <span className="text-[10px] text-slate-400 font-mono">Pending</span>
+                            )}
+                          </button>
+                        )
+                      })}
+                    </div>
                   </div>
                 </div>
               )

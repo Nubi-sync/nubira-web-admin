@@ -805,19 +805,28 @@ export function DesignBriefsClient({
                   <label className="block font-bold text-slate-800 text-xs">
                     Submitted Design Concepts ({reviewingSubmission.submission.concepts.length} Designs):
                   </label>
-                  {reviewingSubmission.submission.concepts.map((concept) => (
-                    <div key={concept.concept_number} className="p-3.5 rounded-xl bg-slate-50 border border-black/10 space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-slate-900 text-xs flex items-center gap-1.5">
-                          <span className="w-5 h-5 rounded-full bg-[#3A3564] text-[#FAF7F0] flex items-center justify-center text-[10px] font-mono">
-                            {concept.concept_number}
+                  {reviewingSubmission.submission.concepts.map((concept) => {
+                    const instructedReq = reviewingSubmission.brief.design_concepts_brief?.find(c => c.concept_number === concept.concept_number)
+                    const artNo = concept.art_number || instructedReq?.art_number
+
+                    return (
+                      <div key={concept.concept_number} className="p-3.5 rounded-xl bg-slate-50 border border-black/10 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-slate-900 text-xs flex items-center gap-1.5 flex-wrap">
+                            <span className="w-5 h-5 rounded-full bg-[#3A3564] text-[#FAF7F0] flex items-center justify-center text-[10px] font-mono">
+                              {concept.concept_number}
+                            </span>
+                            <span>{concept.title || `Design Concept #${concept.concept_number}`}</span>
+                            {artNo && (
+                              <span className="px-2 py-0.5 rounded bg-[#3A3564] text-white text-[10px] font-mono font-bold tracking-wider">
+                                ART NO: {artNo}
+                              </span>
+                            )}
                           </span>
-                          <span>{concept.title || `Design Concept #${concept.concept_number}`}</span>
-                        </span>
-                        <span className="text-[10px] font-mono text-slate-500 font-bold">
-                          {concept.colorways.length} Colorway(s)
-                        </span>
-                      </div>
+                          <span className="text-[10px] font-mono text-slate-500 font-bold">
+                            {concept.colorways.length} Colorway(s)
+                          </span>
+                        </div>
                       
                       {concept.notes && (
                         <p className="text-[11px] text-slate-600 italic bg-white p-2 rounded-lg border border-black/5">
@@ -855,7 +864,8 @@ export function DesignBriefsClient({
                         ))}
                       </div>
                     </div>
-                  ))}
+                    )
+                  })}
                 </div>
               ) : (
                 <div>

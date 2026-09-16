@@ -471,13 +471,22 @@ export function DesignerHistoryClient({
                   {(() => {
                     const currentConcept = selectedBrief.latest_submission?.concepts.find(c => c.concept_number === activeModalConceptTab) || selectedBrief.latest_submission?.concepts[0]
                     if (!currentConcept) return null
+                    const instructedReq = selectedBrief.design_concepts_brief?.find(c => c.concept_number === currentConcept.concept_number)
+                    const artNo = currentConcept.art_number || instructedReq?.art_number
 
                     return (
                       <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <h3 className="font-bold text-slate-900 text-sm font-mono">
-                            {currentConcept.title || `Design Concept #${currentConcept.concept_number}`}
-                          </h3>
+                        <div className="flex items-center justify-between flex-wrap gap-2">
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-bold text-slate-900 text-sm font-mono">
+                              {currentConcept.title || `Design Concept #${currentConcept.concept_number}`}
+                            </h3>
+                            {artNo && (
+                              <span className="px-2 py-0.5 rounded-md bg-[#3A3564] text-white text-xs font-mono font-bold tracking-wider shadow-2xs">
+                                ART NO: {artNo}
+                              </span>
+                            )}
+                          </div>
                           <span className="text-[11px] text-slate-500 font-mono">
                             {currentConcept.colorways?.length || 0} Colorway(s)
                           </span>

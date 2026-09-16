@@ -6,14 +6,11 @@ import {
   Plus, 
   Trash2, 
   Palette, 
-  Shirt, 
-  Layers, 
-  Sparkles, 
   Loader2, 
+  Check,
   AlertCircle,
-  Tag,
-  Info,
-  Check
+  Hash,
+  Tag
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { 
@@ -26,37 +23,43 @@ import { createDesignBriefAction } from '../actions'
 const PRESET_COLORS = [
   { name: 'Black', hex: '#000000' },
   { name: 'White', hex: '#FFFFFF' },
-  { name: 'Off-White / Cream', hex: '#FAF7F0' },
-  { name: 'Charcoal Grey', hex: '#334155' },
+  { name: 'Off-White', hex: '#FAF7F0' },
+  { name: 'Charcoal', hex: '#334155' },
   { name: 'Navy Blue', hex: '#1E3A8A' },
   { name: 'Olive Green', hex: '#556B2F' },
   { name: 'Forest Green', hex: '#1B4D3E' },
-  { name: 'Crimson / Maroon', hex: '#800020' },
+  { name: 'Maroon', hex: '#800020' },
   { name: 'Beige / Sand', hex: '#D2B48C' },
-  { name: 'Sky / Ice Blue', hex: '#93C5FD' },
-  { name: 'Lavender', hex: '#E9D5FF' },
-  { name: 'Rust / Terracotta', hex: '#C85A17' }
+  { name: 'Sky Blue', hex: '#93C5FD' },
+  { name: 'Rust', hex: '#C85A17' },
+  { name: 'Lavender', hex: '#C084FC' }
 ]
 
 function getColorSwatch(colorName: string): string {
   const c = colorName.trim().toLowerCase()
   if (c.includes('black')) return '#0f172a'
-  if (c.includes('white') || c.includes('cream') || c.includes('bone')) return '#f8fafc'
+  if (c.includes('white') || c.includes('cream')) return '#f8fafc'
   if (c.includes('off-white') || c.includes('sand') || c.includes('beige')) return '#e2d9cc'
   if (c.includes('navy') || c.includes('dark blue')) return '#1e3a8a'
-  if (c.includes('royal') || c.includes('blue')) return '#2563eb'
-  if (c.includes('sky') || c.includes('ice')) return '#7dd3fc'
+  if (c.includes('blue')) return '#2563eb'
   if (c.includes('olive') || c.includes('sage')) return '#556b2f'
-  if (c.includes('forest') || c.includes('emerald') || c.includes('green')) return '#15803d'
-  if (c.includes('maroon') || c.includes('crimson') || c.includes('burgundy')) return '#881337'
-  if (c.includes('red') || c.includes('ruby')) return '#dc2626'
-  if (c.includes('pink') || c.includes('rose') || c.includes('blush')) return '#f43f5e'
-  if (c.includes('purple') || c.includes('lavender') || c.includes('violet')) return '#7c3aed'
-  if (c.includes('yellow') || c.includes('mustard') || c.includes('gold')) return '#eab308'
-  if (c.includes('orange') || c.includes('rust') || c.includes('terracotta')) return '#ea580c'
-  if (c.includes('brown') || c.includes('mocha') || c.includes('tan')) return '#78350f'
-  if (c.includes('grey') || c.includes('gray') || c.includes('charcoal') || c.includes('ash')) return '#475569'
+  if (c.includes('green')) return '#15803d'
+  if (c.includes('maroon') || c.includes('crimson') || c.includes('red')) return '#881337'
+  if (c.includes('orange') || c.includes('rust')) return '#ea580c'
+  if (c.includes('grey') || c.includes('gray') || c.includes('charcoal')) return '#475569'
+  if (c.includes('purple') || c.includes('lavender')) return '#9333ea'
   return '#3A3564'
+}
+
+interface DesignInstructionItem {
+  id: string
+  art_prefix: string // 2-4 chars alphanumeric (optional)
+  art_number: string // 3-6 digits numeric (required)
+  garment_type: string
+  category: string
+  print_required: string
+  colors: string[]
+  color_input: string
 }
 
 interface AllocateBriefModalProps {
@@ -79,105 +82,104 @@ export function AllocateBriefModal({
   currentUserId,
   companyName,
   preselectedDesignerId,
-  existingGarments = ['T-Shirt', 'Oversized Tee', 'Cargo Pants', 'Jogger', 'Hoodie', 'Girls Suit', 'Polo Shirt'],
-  existingCategories = ['Streetwear', 'Anime Graphic', 'Vintage Aesthetic', 'Minimalist', 'Sportswear', 'Casual Lounge']
+  existingGarments = ['T-Shirt', 'Oversized Tee', 'Cargo Pants', 'Jogger', 'Hoodie', 'Polo Shirt'],
+  existingCategories = ['Streetwear', 'Anime Graphic', 'Vintage Aesthetic', 'Minimalist', 'Sportswear']
 }: AllocateBriefModalProps) {
   const activeTeamMembers = teamMembers.filter(m => m.status === 'ACTIVE')
 
-  // Top Brief Details
   const [selectedDesignerId, setSelectedDesignerId] = useState(preselectedDesignerId || '')
-  const [garmentType, setGarmentType] = useState('T-Shirt')
-  const [category, setCategory] = useState('')
   const [instructions, setInstructions] = useState('')
-
-  // Instructed Designs List
-  const [designConcepts, setDesignConcepts] = useState<BriefDesignConceptRequirement[]>([
-    {
-      concept_number: 1,
-      category_style: 'Front Chest Graphic',
-      colors: ['Black', 'Off-White', 'Olive Green'],
-      notes: ''
-    }
-  ])
-
-  // New Design Builder State
-  const [newConceptTitle, setNewConceptTitle] = useState('')
-  const [newConceptColors, setNewConceptColors] = useState<string[]>([])
-  const [newConceptColorInput, setNewConceptColorInput] = useState('')
-  const [newConceptNotes, setNewConceptNotes] = useState('')
-  const [isAddingConcept, setIsAddingConcept] = useState(false)
-
+  const [designs, setDesigns] = useState<DesignInstructionItem[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   if (!isOpen) return null
 
-  function handleAddColorToNewConcept(colorName?: string) {
-    const col = (colorName || newConceptColorInput).trim()
-    if (!col) return
-    if (!newConceptColors.some(c => c.toLowerCase() === col.toLowerCase())) {
-      setNewConceptColors(prev => [...prev, col])
+  function handleAddDesignInstruction() {
+    const nextIndex = designs.length + 1
+    const defaultNumber = String(100 + nextIndex).padStart(3, '0')
+    const newItem: DesignInstructionItem = {
+      id: Math.random().toString(36).substring(2, 9),
+      art_prefix: 'TS',
+      art_number: defaultNumber,
+      garment_type: 'T-Shirt',
+      category: '',
+      print_required: '',
+      colors: ['Black', 'Off-White'],
+      color_input: ''
     }
-    setNewConceptColorInput('')
+    setDesigns(prev => [...prev, newItem])
   }
 
-  function handleRemoveColorFromNewConcept(index: number) {
-    setNewConceptColors(prev => prev.filter((_, idx) => idx !== index))
+  function handleRemoveDesign(index: number) {
+    setDesigns(prev => prev.filter((_, i) => i !== index))
   }
 
-  function handleCommitNewDesignConcept() {
-    const title = newConceptTitle.trim() || `Design Concept #${designConcepts.length + 1}`
-    const colors = newConceptColors.length > 0 ? newConceptColors : ['Black', 'White']
-
-    const nextItem: BriefDesignConceptRequirement = {
-      concept_number: designConcepts.length + 1,
-      category_style: title,
-      colors: colors,
-      notes: newConceptNotes.trim() || undefined
-    }
-
-    setDesignConcepts(prev => [...prev, nextItem])
-    // Reset builder form
-    setNewConceptTitle('')
-    setNewConceptColors([])
-    setNewConceptColorInput('')
-    setNewConceptNotes('')
-    setIsAddingConcept(false)
-    toast.success(`Added Design #${nextItem.concept_number}: ${title}`)
+  function handleUpdateDesignField(index: number, field: keyof DesignInstructionItem, value: any) {
+    setDesigns(prev => prev.map((item, i) => {
+      if (i === index) {
+        if (field === 'art_prefix') {
+          // Strictly uppercase alphanumeric, max 4 chars
+          const cleaned = String(value).toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4)
+          return { ...item, art_prefix: cleaned }
+        }
+        if (field === 'art_number') {
+          // Strictly digits, max 6 chars
+          const cleaned = String(value).replace(/\D/g, '').slice(0, 6)
+          return { ...item, art_number: cleaned }
+        }
+        return { ...item, [field]: value }
+      }
+      return item
+    }))
   }
 
-  function handleRemoveDesignConcept(index: number) {
-    if (designConcepts.length <= 1) {
-      toast.error('At least 1 design instruction is required.')
-      return
-    }
-    setDesignConcepts(prev => {
-      const filtered = prev.filter((_, idx) => idx !== index)
-      // Renumber concepts
-      return filtered.map((item, idx) => ({
-        ...item,
-        concept_number: idx + 1
-      }))
-    })
-  }
-
-  function handleAddColorDirectlyToConcept(conceptIndex: number, colorName: string) {
-    const col = colorName.trim()
-    if (!col) return
-    setDesignConcepts(prev => prev.map((item, idx) => {
-      if (idx === conceptIndex) {
-        if (!item.colors.some(c => c.toLowerCase() === col.toLowerCase())) {
-          return { ...item, colors: [...item.colors, col] }
+  function handleToggleColor(designIndex: number, colorName: string) {
+    setDesigns(prev => prev.map((item, i) => {
+      if (i === designIndex) {
+        const exists = item.colors.some(c => c.toLowerCase() === colorName.toLowerCase())
+        if (exists) {
+          if (item.colors.length <= 1) {
+            toast.error('Each design must have at least 1 color.')
+            return item
+          }
+          return {
+            ...item,
+            colors: item.colors.filter(c => c.toLowerCase() !== colorName.toLowerCase())
+          }
+        } else {
+          return {
+            ...item,
+            colors: [...item.colors, colorName]
+          }
         }
       }
       return item
     }))
   }
 
-  function handleRemoveColorDirectlyFromConcept(conceptIndex: number, colorIndex: number) {
-    setDesignConcepts(prev => prev.map((item, idx) => {
-      if (idx === conceptIndex) {
+  function handleAddCustomColor(index: number) {
+    setDesigns(prev => prev.map((item, i) => {
+      if (i === index) {
+        const val = item.color_input.trim()
+        if (!val) return item
+        if (item.colors.some(c => c.toLowerCase() === val.toLowerCase())) {
+          return { ...item, color_input: '' }
+        }
+        return {
+          ...item,
+          colors: [...item.colors, val],
+          color_input: ''
+        }
+      }
+      return item
+    }))
+  }
+
+  function handleRemoveColorFromDesign(designIndex: number, colorIndex: number) {
+    setDesigns(prev => prev.map((item, i) => {
+      if (i === designIndex) {
         if (item.colors.length <= 1) {
-          toast.error('Each design must have at least 1 colorway.')
+          toast.error('Each design must have at least 1 color.')
           return item
         }
         return {
@@ -189,496 +191,480 @@ export function AllocateBriefModal({
     }))
   }
 
-  // Summary Metrics
-  const totalDesignsCount = designConcepts.length
-  const allUniqueColors = Array.from(
-    new Set(designConcepts.flatMap(d => d.colors.map(c => c.trim())).filter(Boolean))
+  function getFormattedArtNumber(item: DesignInstructionItem): string {
+    const prefix = item.art_prefix.trim().toUpperCase()
+    const num = item.art_number.trim()
+    if (!num) return ''
+    return prefix ? `${prefix}-${num}` : num
+  }
+
+  function validateArtNumber(item: DesignInstructionItem): { valid: boolean; error?: string } {
+    const prefix = item.art_prefix.trim()
+    const num = item.art_number.trim()
+
+    if (prefix && prefix.length < 2) {
+      return { valid: false, error: 'Prefix must be at least 2 characters (e.g. TS, HD01).' }
+    }
+    if (!num) {
+      return { valid: false, error: 'Art number digits are required.' }
+    }
+    if (num.length < 3 || num.length > 6) {
+      return { valid: false, error: 'Art number must be between 3 and 6 digits (e.g. 101, 0042).' }
+    }
+    return { valid: true }
+  }
+
+  const isFormValid = Boolean(
+    selectedDesignerId &&
+    designs.length > 0 &&
+    designs.every(d => {
+      const artCheck = validateArtNumber(d)
+      return artCheck.valid && d.garment_type.trim() && d.category.trim() && d.colors.length > 0
+    })
   )
-  const maxColorsPerDesign = Math.max(...designConcepts.map(d => d.colors.length), 1)
 
   async function handleSubmitBrief(e: React.FormEvent) {
     e.preventDefault()
 
     if (!selectedDesignerId) {
-      toast.error('Please assign a designer to this brief.')
+      toast.error('Please select a designer.')
       return
     }
-    if (!garmentType.trim()) {
-      toast.error('Please specify the garment silhouette.')
+    if (designs.length === 0) {
+      toast.error('Please add at least 1 design instruction.')
       return
     }
-    if (!category.trim()) {
-      toast.error('Please specify the main collection or theme category.')
-      return
+
+    for (let i = 0; i < designs.length; i++) {
+      const d = designs[i]
+      const artCheck = validateArtNumber(d)
+      if (!artCheck.valid) {
+        toast.error(`Design #${i + 1}: ${artCheck.error}`)
+        return
+      }
+      if (!d.garment_type.trim()) {
+        toast.error(`Please select garment silhouette for Design #${i + 1}.`)
+        return
+      }
+      if (!d.category.trim()) {
+        toast.error(`Please select category for Design #${i + 1}.`)
+        return
+      }
+      if (d.colors.length === 0) {
+        toast.error(`Please allocate at least 1 color for Design #${i + 1}.`)
+        return
+      }
     }
-    if (designConcepts.length === 0) {
-      toast.error('Please add at least 1 design requirement.')
-      return
-    }
+
+    const primaryGarment = Array.from(new Set(designs.map(d => d.garment_type.trim()))).join(', ')
+    const primaryCategory = Array.from(new Set(designs.map(d => d.category.trim()))).join(', ')
+    const allColors = Array.from(new Set(designs.flatMap(d => d.colors)))
+    const maxColors = Math.max(...designs.map(d => d.colors.length), 1)
+
+    const formattedConcepts: BriefDesignConceptRequirement[] = designs.map((d, idx) => {
+      const fullArtNo = getFormattedArtNumber(d)
+      return {
+        concept_number: idx + 1,
+        art_number: fullArtNo,
+        category_style: `${d.category}${d.print_required ? ` • ${d.print_required}` : ''}`,
+        colors: d.colors,
+        notes: `Art No: ${fullArtNo} | Garment: ${d.garment_type}`
+      }
+    })
 
     setIsSubmitting(true)
     try {
       const res = await createDesignBriefAction({
         ph_user_id: currentUserId,
         designer_member_id: selectedDesignerId,
-        garment_type: garmentType.trim(),
-        category: category.trim(),
-        max_colors: maxColorsPerDesign,
-        chart_colors: maxColorsPerDesign,
-        target_colors: allUniqueColors,
-        target_designs: totalDesignsCount,
-        num_designs: totalDesignsCount,
-        design_concepts: designConcepts,
+        garment_type: primaryGarment,
+        category: primaryCategory,
+        max_colors: maxColors,
+        chart_colors: maxColors,
+        target_colors: allColors,
+        target_designs: designs.length,
+        num_designs: designs.length,
+        design_concepts: formattedConcepts,
         instructions: instructions.trim() || undefined,
         company_name: companyName
       })
 
       if (res.success && res.data) {
-        toast.success(`Design Brief allocated (${totalDesignsCount} Designs) successfully!`)
+        toast.success(`Design Brief (${designs.length} Designs) allocated successfully!`)
         onSuccess(res.data)
         onClose()
       } else {
         toast.error(res.error || 'Failed to allocate design brief.')
       }
     } catch (err: any) {
-      toast.error(err?.message || 'A network error occurred while allocating brief.')
+      toast.error(err?.message || 'Error occurred while allocating brief.')
     } finally {
       setIsSubmitting(false)
     }
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 md:p-6 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-black/10 overflow-hidden flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
+      <div className="relative w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-black/10 overflow-hidden flex flex-col max-h-[90vh]">
         
-        {/* Modal Header */}
-        <div className="px-6 py-4 bg-[#FAF7F0] border-b border-black/10 flex items-center justify-between shrink-0">
+        {/* Header */}
+        <div className="px-5 py-4 bg-[#FAF7F0] border-b border-black/10 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-white border border-black/10 text-[#3A3564] flex items-center justify-center shadow-2xs">
-              <Palette className="w-5 h-5" />
+            <div className="w-9 h-9 rounded-xl bg-white border border-black/10 text-[#3A3564] flex items-center justify-center shadow-2xs">
+              <Palette className="w-4 h-4" />
             </div>
-            <div>
-              <h2 className="text-lg font-black text-slate-900 font-[family-name:var(--font-heading)] leading-tight">
-                Allocate New Design Brief
-              </h2>
-              <p className="text-xs text-slate-500 font-medium">
-                Assign garment silhouette, designer, and specific design instructions with colorways.
-              </p>
-            </div>
+            <h2 className="text-base sm:text-lg font-extrabold text-slate-900 font-[family-name:var(--font-heading)] leading-none">
+              Allocate Design Brief
+            </h2>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-black/5 cursor-pointer transition-colors"
+            className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-black/5 cursor-pointer transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Modal Body */}
-        <form onSubmit={handleSubmitBrief} className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-5 text-xs sm:text-[13px]">
+        {/* Body */}
+        <form onSubmit={handleSubmitBrief} className="flex-1 overflow-y-auto p-5 space-y-4 text-xs sm:text-sm">
           
-          {/* Section 1: Core Allotment Details */}
-          <div className="space-y-3.5">
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
-                Assign Designer <span className="text-rose-500">*</span>
-              </label>
-              <select
-                required
-                value={selectedDesignerId}
-                onChange={e => setSelectedDesignerId(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-semibold text-slate-900 outline-none shadow-2xs transition-all"
-              >
-                <option value="">Select an active designer from team...</option>
-                {activeTeamMembers.map(m => {
-                  const phone = m.phone_number || m.designer_phone
-                  const displayLabel = phone ? `+91 ${phone}` : (m.username ? `@${m.username}` : '')
-                  return (
-                    <option key={m.id} value={m.id}>
-                      {m.designer_name}{displayLabel ? ` (${displayLabel})` : ''}
-                    </option>
-                  )
-                })}
-              </select>
-              {activeTeamMembers.length === 0 && (
-                <p className="text-xs text-amber-600 mt-1 flex items-center gap-1">
-                  <AlertCircle className="w-3.5 h-3.5" />
-                  No active designers found. Please add a designer in Team Management first.
-                </p>
-              )}
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
-                  Garment Silhouette <span className="text-rose-500">*</span>
-                </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    required
-                    list="garment-options-modal"
-                    placeholder="e.g. T-Shirt, Cargo, Jogger, Hoodie..."
-                    value={garmentType}
-                    onChange={e => setGarmentType(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-semibold text-slate-900 outline-none shadow-2xs transition-all"
-                  />
-                  <datalist id="garment-options-modal">
-                    {existingGarments.map(g => (
-                      <option key={g} value={g} />
-                    ))}
-                  </datalist>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
-                  Collection / Theme Style <span className="text-rose-500">*</span>
-                </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    required
-                    list="category-options-modal"
-                    placeholder="e.g. Streetwear 2026, Anime, Vintage..."
-                    value={category}
-                    onChange={e => setCategory(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-semibold text-slate-900 outline-none shadow-2xs transition-all"
-                  />
-                  <datalist id="category-options-modal">
-                    {existingCategories.map(c => (
-                      <option key={c} value={c} />
-                    ))}
-                  </datalist>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
-                General Instructions &amp; Guidelines (Optional)
-              </label>
-              <textarea
-                rows={2}
-                placeholder="e.g. Heavyweight 240 GSM single jersey, minimal puff chest branding, oversized streetwear drape..."
-                value={instructions}
-                onChange={e => setInstructions(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs font-medium text-slate-900 outline-none transition-all"
-              />
-            </div>
+          {/* 1. Designer Selection */}
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-800 font-mono mb-1">
+              Designer <span className="text-rose-500">*</span>
+            </label>
+            <select
+              required
+              value={selectedDesignerId}
+              onChange={e => setSelectedDesignerId(e.target.value)}
+              className="w-full px-3.5 py-2.5 bg-[#FAF7F0] border border-black/15 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs sm:text-sm font-semibold text-slate-900 outline-none shadow-2xs transition-all cursor-pointer"
+            >
+              <option value="">Select Designer...</option>
+              {activeTeamMembers.map(m => {
+                const phone = m.phone_number || m.designer_phone
+                const label = phone ? `+91 ${phone}` : (m.username ? `@${m.username}` : '')
+                return (
+                  <option key={m.id} value={m.id}>
+                    {m.designer_name} {label ? `(${label})` : ''}
+                  </option>
+                )
+              })}
+            </select>
+            {activeTeamMembers.length === 0 && (
+              <p className="text-xs text-amber-600 mt-1 flex items-center gap-1">
+                <AlertCircle className="w-3.5 h-3.5" />
+                No active designers found.
+              </p>
+            )}
           </div>
 
-          {/* Section 2: Dynamic Design Instructions & Colorways Builder */}
-          <div className="pt-2 border-t border-black/10 space-y-3.5">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <div>
-                <h3 className="text-sm font-black text-slate-900 flex items-center gap-1.5 font-[family-name:var(--font-heading)]">
-                  <Layers className="w-4 h-4 text-[#3A3564]" />
-                  <span>Instructed Designs &amp; Colorways ({designConcepts.length})</span>
-                </h3>
-                <p className="text-[11px] text-slate-500 font-medium">
-                  Define each design concept with its unique style and allocated colorway palette.
-                </p>
-              </div>
-
-              {!isAddingConcept && (
-                <button
-                  type="button"
-                  onClick={() => setIsAddingConcept(true)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#3A3564] text-white hover:bg-[#2A2649] text-xs font-bold shadow-xs cursor-pointer transition-all self-start"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>Add Design Instructed</span>
-                </button>
-              )}
+          {/* 2. Design Instructions (Added on-demand) */}
+          {designs.length === 0 ? (
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={handleAddDesignInstruction}
+                className="w-full py-3 px-4 rounded-xl border-2 border-dashed border-[#3A3564]/30 hover:border-[#3A3564] bg-[#FAF7F0]/60 hover:bg-[#FAF7F0] text-[#3A3564] font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Add Design Instruction</span>
+              </button>
             </div>
+          ) : (
+            <div className="space-y-4 pt-1">
+              {designs.map((design, idx) => {
+                const fullArtNo = getFormattedArtNumber(design)
+                const artCheck = validateArtNumber(design)
 
-            {/* Interactive Add Design Instruction Box */}
-            {isAddingConcept && (
-              <div className="p-4 bg-[#FAF7F0] rounded-2xl border-2 border-[#3A3564]/20 space-y-3.5 animate-in fade-in duration-150">
-                <div className="flex items-center justify-between border-b border-black/10 pb-2">
-                  <span className="text-xs font-bold font-mono uppercase text-[#3A3564]">
-                    Add Requirement for Design #{designConcepts.length + 1}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setIsAddingConcept(false)}
-                    className="text-slate-400 hover:text-slate-700 font-bold p-1 cursor-pointer"
+                return (
+                  <div 
+                    key={design.id}
+                    className="p-4 rounded-2xl bg-[#FAF7F0] border border-black/10 space-y-3.5 shadow-2xs"
                   >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-800 mb-1">
-                    Design Category / Concept Style <span className="text-rose-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Vintage Back Graphic, Chest Pocket Print, Minimal Typography..."
-                    value={newConceptTitle}
-                    onChange={e => setNewConceptTitle(e.target.value)}
-                    className="w-full px-3 py-2 bg-white border border-slate-200 focus:border-[#3A3564] rounded-xl text-xs font-semibold text-slate-900 outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-800 mb-1">
-                    Allocated Colorways for this Design <span className="text-rose-500">*</span>
-                  </label>
-
-                  {/* Preset quick colors */}
-                  <div className="flex flex-wrap gap-1 mb-2">
-                    {PRESET_COLORS.map(pc => {
-                      const isSelected = newConceptColors.some(c => c.toLowerCase() === pc.name.toLowerCase())
-                      return (
-                        <button
-                          key={pc.name}
-                          type="button"
-                          onClick={() => handleAddColorToNewConcept(pc.name)}
-                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg border text-[11px] font-mono transition-all cursor-pointer ${
-                            isSelected 
-                              ? 'bg-[#3A3564] text-white border-[#3A3564]' 
-                              : 'bg-white text-slate-700 border-black/10 hover:border-black/30'
-                          }`}
-                        >
-                          <span className="w-2 h-2 rounded-full border border-black/20" style={{ backgroundColor: pc.hex }} />
-                          <span>{pc.name}</span>
-                          {isSelected && <Check className="w-2.5 h-2.5 ml-0.5" />}
-                        </button>
-                      )
-                    })}
-                  </div>
-
-                  {/* Custom color input */}
-                  <div className="flex items-center gap-1.5">
-                    <input
-                      type="text"
-                      placeholder="Or type custom color (e.g. Acid Wash Grey) & press Enter..."
-                      value={newConceptColorInput}
-                      onChange={e => setNewConceptColorInput(e.target.value)}
-                      onKeyDown={e => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault()
-                          handleAddColorToNewConcept()
-                        }
-                      }}
-                      className="flex-1 px-3 py-2 bg-white border border-slate-200 focus:border-[#3A3564] rounded-xl text-xs font-medium text-slate-900 outline-none"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => handleAddColorToNewConcept()}
-                      className="px-3 py-2 rounded-xl bg-slate-900 text-white hover:bg-black font-bold text-xs cursor-pointer"
-                    >
-                      + Add Color
-                    </button>
-                  </div>
-
-                  {/* Active Chips for this new design */}
-                  {newConceptColors.length > 0 && (
-                    <div className="flex flex-wrap items-center gap-1.5 mt-2.5 p-2 bg-white rounded-xl border border-black/10">
-                      <span className="text-[10px] font-mono uppercase font-bold text-slate-400 mr-1">
-                        Allocated ({newConceptColors.length}):
-                      </span>
-                      {newConceptColors.map((col, idx) => (
-                        <span
-                          key={idx}
-                          className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-[#FAF7F0] border border-black/10 font-mono text-xs font-bold text-[#3A3564]"
-                        >
-                          <span
-                            className="w-2 h-2 rounded-full border border-black/20 shrink-0"
-                            style={{ backgroundColor: getColorSwatch(col) }}
-                          />
-                          <span>{col}</span>
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveColorFromNewConcept(idx)}
-                            className="text-slate-400 hover:text-slate-700 ml-0.5 cursor-pointer font-bold"
-                          >
-                            &times;
-                          </button>
+                    {/* Design Card Header */}
+                    <div className="flex items-center justify-between border-b border-black/10 pb-2.5">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-mono font-bold uppercase text-[#3A3564] tracking-wider">
+                          Design #{idx + 1}
                         </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex items-center justify-end gap-2 pt-2 border-t border-black/10">
-                  <button
-                    type="button"
-                    onClick={() => setIsAddingConcept(false)}
-                    className="px-3 py-1.5 rounded-xl bg-white border border-black/10 text-xs font-bold text-slate-600 hover:bg-slate-100 cursor-pointer"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleCommitNewDesignConcept}
-                    className="px-4 py-1.5 rounded-xl bg-[#3A3564] text-white hover:bg-[#2A2649] text-xs font-bold shadow-xs cursor-pointer"
-                  >
-                    Save Design #{designConcepts.length + 1}
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Designs Table */}
-            <div className="border border-black/10 rounded-2xl overflow-hidden bg-white shadow-2xs">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="bg-[#FAF7F0] border-b border-black/10 text-[10px] sm:text-[11px] font-mono uppercase tracking-wider text-slate-600">
-                      <th className="py-2.5 px-3.5 font-bold w-16">Design #</th>
-                      <th className="py-2.5 px-3.5 font-bold">Category / Print Style</th>
-                      <th className="py-2.5 px-3.5 font-bold">Allocated Colorways</th>
-                      <th className="py-2.5 px-3.5 font-bold text-center w-20">Colors</th>
-                      <th className="py-2.5 px-3.5 font-bold text-right w-16">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-black/5 text-xs">
-                    {designConcepts.map((item, idx) => (
-                      <tr key={idx} className="hover:bg-slate-50/80 transition-colors">
-                        <td className="py-3 px-3.5 font-mono font-bold text-slate-800">
-                          <span className="w-6 h-6 rounded-lg bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-xs text-[#3A3564]">
-                            {item.concept_number}
+                        {fullArtNo && (
+                          <span className="px-2 py-0.5 rounded-md bg-[#3A3564] text-white text-[11px] font-mono font-bold tracking-wider shadow-2xs">
+                            ART NO: {fullArtNo}
                           </span>
-                        </td>
-                        <td className="py-3 px-3.5 font-medium text-slate-900">
+                        )}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveDesign(idx)}
+                        className="p-1 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                        title="Remove Design"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+
+                    {/* Article Number Configuration (Prefix + Number) */}
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-800 font-mono">
+                          Article Number (Art #) <span className="text-rose-500">*</span>
+                        </label>
+                        <span className="text-[10px] text-slate-500 font-mono">
+                          2-4 Prefix (opt) + 3-6 Digits (req)
+                        </span>
+                      </div>
+                      
+                      <div className="grid grid-cols-5 gap-2">
+                        <div className="col-span-2">
                           <input
                             type="text"
-                            value={item.category_style || ''}
-                            onChange={e => {
-                              const val = e.target.value
-                              setDesignConcepts(prev => prev.map((c, cIdx) => cIdx === idx ? { ...c, category_style: val } : c))
-                            }}
-                            placeholder={`e.g. Design Style #${item.concept_number}`}
-                            className="w-full px-2 py-1 rounded-lg border border-transparent hover:border-slate-200 focus:border-[#3A3564] focus:bg-white font-semibold text-slate-900 text-xs outline-none transition-all"
+                            maxLength={4}
+                            placeholder="Prefix (e.g. TS, HD01)"
+                            value={design.art_prefix}
+                            onChange={e => handleUpdateDesignField(idx, 'art_prefix', e.target.value)}
+                            className="w-full px-3 py-2 bg-white border border-slate-200 focus:border-[#3A3564] rounded-xl text-xs font-mono font-bold text-slate-900 uppercase outline-none placeholder:font-normal placeholder:normal-case placeholder:text-slate-400"
                           />
-                        </td>
-                        <td className="py-3 px-3.5">
-                          <div className="flex flex-wrap items-center gap-1">
-                            {item.colors.map((col, cIdx) => (
-                              <span
+                        </div>
+                        <div className="col-span-3">
+                          <input
+                            type="text"
+                            required
+                            maxLength={6}
+                            placeholder="Number (e.g. 101, 0042)"
+                            value={design.art_number}
+                            onChange={e => handleUpdateDesignField(idx, 'art_number', e.target.value)}
+                            className="w-full px-3 py-2 bg-white border border-slate-200 focus:border-[#3A3564] rounded-xl text-xs font-mono font-bold text-slate-900 outline-none placeholder:font-normal placeholder:text-slate-400"
+                          />
+                        </div>
+                      </div>
+                      {!artCheck.valid && (
+                        <p className="text-[11px] text-rose-600 font-medium mt-1">
+                          {artCheck.error}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Garment & Category */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                      <div>
+                        <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1">
+                          Garment Silhouette <span className="text-rose-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          list={`garment-list-${idx}`}
+                          placeholder="e.g. T-Shirt, Hoodie"
+                          value={design.garment_type}
+                          onChange={e => handleUpdateDesignField(idx, 'garment_type', e.target.value)}
+                          className="w-full px-3 py-2 bg-white border border-slate-200 focus:border-[#3A3564] rounded-xl text-xs font-semibold text-slate-900 outline-none"
+                        />
+                        <datalist id={`garment-list-${idx}`}>
+                          {existingGarments.map(g => (
+                            <option key={g} value={g} />
+                          ))}
+                        </datalist>
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1">
+                          Category / Theme <span className="text-rose-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          list={`category-list-${idx}`}
+                          placeholder="e.g. Streetwear, Vintage"
+                          value={design.category}
+                          onChange={e => handleUpdateDesignField(idx, 'category', e.target.value)}
+                          className="w-full px-3 py-2 bg-white border border-slate-200 focus:border-[#3A3564] rounded-xl text-xs font-semibold text-slate-900 outline-none"
+                        />
+                        <datalist id={`category-list-${idx}`}>
+                          {existingCategories.map(c => (
+                            <option key={c} value={c} />
+                          ))}
+                        </datalist>
+                      </div>
+                    </div>
+
+                    {/* Print Required */}
+                    <div>
+                      <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1">
+                        Print Required / Placement
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="e.g. Front Chest Graphic, Puff Print Back, Embroidery"
+                        value={design.print_required}
+                        onChange={e => handleUpdateDesignField(idx, 'print_required', e.target.value)}
+                        className="w-full px-3 py-2 bg-white border border-slate-200 focus:border-[#3A3564] rounded-xl text-xs font-semibold text-slate-900 outline-none"
+                      />
+                    </div>
+
+                    {/* Distinct & Visible Colorways Section */}
+                    <div className="pt-2 border-t border-black/5 space-y-2.5">
+                      
+                      {/* 1. Final Selected Colors */}
+                      <div>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-900 font-mono flex items-center gap-1.5">
+                            <Palette className="w-3.5 h-3.5 text-[#3A3564]" />
+                            <span>Selected Colorways ({design.colors.length})</span>
+                            <span className="text-rose-500">*</span>
+                          </span>
+                          <span className="text-[10px] text-slate-500">
+                            Final palette for this design
+                          </span>
+                        </div>
+
+                        {design.colors.length === 0 ? (
+                          <div className="p-2.5 rounded-xl bg-white border border-dashed border-slate-300 text-center text-xs text-slate-400">
+                            No colors selected yet. Click options below to add.
+                          </div>
+                        ) : (
+                          <div className="flex flex-wrap items-center gap-2 p-2.5 rounded-xl bg-white border border-black/10 shadow-2xs">
+                            {design.colors.map((col, cIdx) => (
+                              <div
                                 key={cIdx}
-                                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#FAF7F0] border border-black/10 text-[11px] font-mono font-bold text-[#3A3564]"
+                                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#FAF7F0] border border-black/10 text-xs font-bold text-slate-900 shadow-2xs"
                               >
-                                <span
-                                  className="w-2 h-2 rounded-full border border-black/20 shrink-0"
+                                <span 
+                                  className="w-3.5 h-3.5 rounded-full border border-black/20 shrink-0 shadow-2xs"
                                   style={{ backgroundColor: getColorSwatch(col) }}
                                 />
                                 <span>{col}</span>
                                 <button
                                   type="button"
-                                  onClick={() => handleRemoveColorDirectlyFromConcept(idx, cIdx)}
-                                  className="text-slate-400 hover:text-rose-600 ml-0.5 cursor-pointer font-bold"
-                                  title="Remove color"
+                                  onClick={() => handleRemoveColorFromDesign(idx, cIdx)}
+                                  className="text-slate-400 hover:text-rose-600 hover:bg-rose-50 p-0.5 rounded cursor-pointer transition-colors"
+                                  title={`Remove ${col}`}
                                 >
-                                  &times;
+                                  <X className="w-3.5 h-3.5" />
                                 </button>
-                              </span>
+                              </div>
                             ))}
-
-                            {/* Quick add color chip trigger */}
-                            <input
-                              type="text"
-                              placeholder="+ Add color"
-                              onKeyDown={e => {
-                                if (e.key === 'Enter') {
-                                  e.preventDefault()
-                                  const target = e.target as HTMLInputElement
-                                  if (target.value.trim()) {
-                                    handleAddColorDirectlyToConcept(idx, target.value)
-                                    target.value = ''
-                                  }
-                                }
-                              }}
-                              className="w-20 px-1.5 py-0.5 text-[11px] bg-transparent placeholder:text-slate-400 border-b border-dashed border-slate-300 focus:border-[#3A3564] outline-none font-mono"
-                            />
                           </div>
-                        </td>
-                        <td className="py-3 px-3.5 text-center font-mono font-bold text-slate-700 text-xs">
-                          {item.colors.length}
-                        </td>
-                        <td className="py-3 px-3.5 text-right">
+                        )}
+                      </div>
+
+                      {/* 2. Quick Presets & Custom Adder */}
+                      <div className="space-y-2 pt-1">
+                        <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 font-mono">
+                          Quick Presets (Click to Add / Remove):
+                        </span>
+                        
+                        <div className="flex flex-wrap gap-1.5">
+                          {PRESET_COLORS.map(pc => {
+                            const isAdded = design.colors.some(c => c.toLowerCase() === pc.name.toLowerCase())
+                            return (
+                              <button
+                                key={pc.name}
+                                type="button"
+                                onClick={() => handleToggleColor(idx, pc.name)}
+                                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] font-mono font-medium transition-all cursor-pointer ${
+                                  isAdded 
+                                    ? 'bg-[#3A3564] text-white border-[#3A3564] shadow-2xs' 
+                                    : 'bg-white text-slate-700 border-black/10 hover:border-black/30 hover:bg-slate-50'
+                                }`}
+                              >
+                                <span className="w-2.5 h-2.5 rounded-full border border-black/20 shrink-0" style={{ backgroundColor: pc.hex }} />
+                                <span>{pc.name}</span>
+                                {isAdded && <Check className="w-3 h-3 ml-0.5" />}
+                              </button>
+                            )
+                          })}
+                        </div>
+
+                        {/* Custom Color Input */}
+                        <div className="flex items-center gap-1.5 pt-1">
+                          <input
+                            type="text"
+                            placeholder="Add custom color (e.g. Sage Green, Acid Wash)..."
+                            value={design.color_input}
+                            onChange={e => handleUpdateDesignField(idx, 'color_input', e.target.value)}
+                            onKeyDown={e => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault()
+                                handleAddCustomColor(idx)
+                              }
+                            }}
+                            className="flex-1 px-3 py-1.5 bg-white border border-slate-200 focus:border-[#3A3564] rounded-xl text-xs font-medium text-slate-900 outline-none"
+                          />
                           <button
                             type="button"
-                            onClick={() => handleRemoveDesignConcept(idx)}
-                            disabled={designConcepts.length <= 1}
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-slate-400 cursor-pointer transition-colors"
-                            title={designConcepts.length <= 1 ? "At least 1 design required" : "Delete design requirement"}
+                            onClick={() => handleAddCustomColor(idx)}
+                            className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-black/10 text-xs font-bold text-[#3A3564] cursor-pointer shadow-2xs"
                           >
-                            <Trash2 className="w-4 h-4" />
+                            + Add Color
                           </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                        </div>
+                      </div>
 
-              {/* Table Footer / Summary metrics */}
-              <div className="px-4 py-2.5 bg-[#FAF7F0] border-t border-black/10 flex flex-wrap items-center justify-between gap-2 text-xs font-mono">
-                <div className="flex items-center gap-3 text-slate-700">
-                  <span>
-                    Total Designs: <strong className="text-[#3A3564] font-bold">{totalDesignsCount}</strong>
-                  </span>
-                  <span>•</span>
-                  <span>
-                    Total Unique Colors: <strong className="text-[#3A3564] font-bold">{allUniqueColors.length}</strong>
-                  </span>
-                </div>
+                    </div>
 
-                <div className="flex items-center gap-1.5">
-                  <span className="text-slate-500">Palette:</span>
-                  <div className="flex items-center -space-x-1">
-                    {allUniqueColors.slice(0, 6).map((c, i) => (
-                      <span
-                        key={i}
-                        className="w-3.5 h-3.5 rounded-full border border-white shadow-2xs shrink-0"
-                        style={{ backgroundColor: getColorSwatch(c) }}
-                        title={c}
-                      />
-                    ))}
-                    {allUniqueColors.length > 6 && (
-                      <span className="text-[10px] font-bold text-slate-500 pl-1.5">
-                        +{allUniqueColors.length - 6}
-                      </span>
-                    )}
                   </div>
-                </div>
-              </div>
+                )
+              })}
+
+              <button
+                type="button"
+                onClick={handleAddDesignInstruction}
+                className="w-full py-2.5 px-3 rounded-xl border border-dashed border-[#3A3564]/30 hover:border-[#3A3564] bg-[#FAF7F0]/60 hover:bg-[#FAF7F0] text-[#3A3564] font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-2xs"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Add Another Design</span>
+              </button>
             </div>
+          )}
+
+          {/* 3. Optional General Notes */}
+          <div>
+            <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1">
+              Instructions (Optional)
+            </label>
+            <input
+              type="text"
+              placeholder="e.g. 240 GSM single jersey, minimal aesthetic"
+              value={instructions}
+              onChange={e => setInstructions(e.target.value)}
+              className="w-full px-3 py-2 bg-[#FAF7F0] border border-black/10 focus:border-[#3A3564] rounded-xl text-xs font-medium text-slate-900 outline-none"
+            />
           </div>
 
-          {/* Modal Actions */}
+          {/* Footer Actions */}
           <div className="pt-3 border-t border-black/10 flex items-center justify-end gap-2.5">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-black/10 hover:bg-slate-100 rounded-xl shadow-2xs cursor-pointer transition-all"
+              className="px-4 py-2 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
-              disabled={isSubmitting || activeTeamMembers.length === 0}
-              className="inline-flex items-center gap-2 px-5 py-2 text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] active:scale-98 rounded-xl shadow-xs cursor-pointer transition-all disabled:opacity-50"
+              disabled={!isFormValid || isSubmitting}
+              className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-xs ${
+                isFormValid && !isSubmitting
+                  ? 'bg-[#3A3564] hover:bg-[#2A2649] text-white cursor-pointer active:scale-[0.98]'
+                  : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+              }`}
             >
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Allocating Brief...</span>
+                  <span>Allocating...</span>
                 </>
               ) : (
                 <>
                   <Palette className="w-4 h-4" />
-                  <span>Allocate Brief ({totalDesignsCount} Designs)</span>
+                  <span>
+                    {designs.length > 0 ? `Allocate Brief (${designs.length} Designs)` : 'Allocate Brief'}
+                  </span>
                 </>
               )}
             </button>
           </div>
-
         </form>
       </div>
     </div>

@@ -148,6 +148,7 @@ export type BriefStatus =
 
 export interface BriefDesignConceptRequirement {
   concept_number: number
+  art_number?: string
   category_style?: string
   colors: string[]
   notes?: string
@@ -188,6 +189,7 @@ export interface DesignConceptColorway {
 
 export interface DesignConceptItem {
   concept_number: number
+  art_number?: string
   title?: string
   notes?: string
   colorways: DesignConceptColorway[]
