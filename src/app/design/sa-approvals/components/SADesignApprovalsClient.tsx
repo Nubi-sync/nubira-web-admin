@@ -41,7 +41,7 @@ export function SADesignApprovalsClient({
   userRole
 }: SADesignApprovalsClientProps) {
   const [submissions, setSubmissions] = useState<DesignSubmission[]>(initialSubmissions || [])
-  const [activeTab, setActiveTab] = useState<'PENDING' | 'APPROVED' | 'SAVED_FOR_LATER' | 'ALL'>('PENDING')
+  const [activeTab, setActiveTab] = useState<'ALL' | 'PENDING' | 'APPROVED' | 'SAVED_FOR_LATER' | 'REJECTED'>('ALL')
   const [searchQuery, setSearchQuery] = useState('')
 
   // Review Modal State
@@ -52,15 +52,10 @@ export function SADesignApprovalsClient({
   // Lightbox Photo State
   const [previewPhoto, setPreviewPhoto] = useState<string | null>(null)
 
-  // Zigza AI Assistant State
-  const [isAiModalOpen, setIsAiModalOpen] = useState(false)
-  const [aiCustomPrompt, setAiCustomPrompt] = useState('')
-  const [isAiGenerating, setIsAiGenerating] = useState(false)
-  const [aiAnalysisResult, setAiAnalysisResult] = useState<string | null>(null)
-
   const pendingSubmissions = submissions.filter(s => s.ph_verdict === 'APPROVED' && (!s.sa_verdict || s.sa_verdict === 'PENDING'))
   const approvedSubmissions = submissions.filter(s => s.sa_verdict === 'APPROVED')
   const savedForLaterSubmissions = submissions.filter(s => s.sa_verdict === 'SAVED_FOR_LATER')
+  const rejectedSubmissions = submissions.filter(s => s.sa_verdict === 'REJECTED')
 
   const filteredList = submissions.filter(s => {
     if (activeTab === 'PENDING') {
@@ -69,6 +64,8 @@ export function SADesignApprovalsClient({
       if (s.sa_verdict !== 'APPROVED') return false
     } else if (activeTab === 'SAVED_FOR_LATER') {
       if (s.sa_verdict !== 'SAVED_FOR_LATER') return false
+    } else if (activeTab === 'REJECTED') {
+      if (s.sa_verdict !== 'REJECTED') return false
     }
 
     const q = searchQuery.toLowerCase()
@@ -152,15 +149,6 @@ export function SADesignApprovalsClient({
         </div>
 
         <div className="flex items-center gap-2.5 self-end sm:self-auto">
-          <button
-            type="button"
-            onClick={() => setIsAiModalOpen(true)}
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#FAF7F0] text-[#3A3564] hover:bg-[#F2ECE1] border border-black/10 text-xs font-bold transition-all shadow-2xs cursor-pointer"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-[#3A3564]" />
-            <span>Zigza AI</span>
-          </button>
-
           <Link
             href="/design"
             className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#FAF7F0] text-[#3A3564] hover:bg-[#F2ECE1] border border-black/10 text-xs font-bold transition-all shadow-2xs cursor-pointer"
@@ -171,95 +159,61 @@ export function SADesignApprovalsClient({
         </div>
       </div>
 
-      {/* Layer 3: Executive KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4">
-        <div 
-          onClick={() => setActiveTab('PENDING')}
-          className={`bg-white rounded-2xl p-4 sm:p-5 border shadow-2xs flex flex-col justify-between cursor-pointer transition-all ${
-            activeTab === 'PENDING' ? 'border-[#3A3564] ring-2 ring-[#3A3564]/10 bg-[#FAF7F0]/40' : 'border-black/10 hover:border-black/20'
-          }`}
-        >
-          <div className="flex items-start justify-between">
-            <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-700 shadow-2xs">
-              <Clock className="w-5 h-5" />
-            </div>
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-100">
-              PENDING SA
+      {/* Layer 3: Small, Compact Informational KPI Data Boxes (Not Clickable Tabs) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="bg-white p-3.5 rounded-2xl border border-black/10 shadow-2xs flex items-center justify-between">
+          <div>
+            <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">
+              Total Designs
             </span>
-          </div>
-          <div className="mt-3">
-            <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
-              Awaiting SA Decision
+            <div className="text-xl sm:text-2xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
+              {submissions.length}
             </div>
-            <div className="text-[11px] text-slate-400 font-medium">Head approved &bull; Ready for Greenlight</div>
           </div>
-          <div className="pt-2 border-t border-slate-100 flex items-baseline justify-between mt-3">
-            <div className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-amber-700">
+          <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs shrink-0">
+            <Layers className="w-4 h-4 text-[#3A3564]" />
+          </div>
+        </div>
+
+        <div className="bg-white p-3.5 rounded-2xl border border-black/10 shadow-2xs flex items-center justify-between">
+          <div>
+            <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-700">
+              Awaiting Decision
+            </span>
+            <div className="text-xl sm:text-2xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
               {pendingSubmissions.length}
             </div>
-            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200">
-              Decide
-            </span>
+          </div>
+          <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-800 border border-amber-200 flex items-center justify-center shadow-2xs shrink-0">
+            <Clock className="w-4 h-4 text-amber-700" />
           </div>
         </div>
 
-        <div 
-          onClick={() => setActiveTab('APPROVED')}
-          className={`bg-white rounded-2xl p-4 sm:p-5 border shadow-2xs flex flex-col justify-between cursor-pointer transition-all ${
-            activeTab === 'APPROVED' ? 'border-[#3A3564] ring-2 ring-[#3A3564]/10 bg-[#FAF7F0]/40' : 'border-black/10 hover:border-black/20'
-          }`}
-        >
-          <div className="flex items-start justify-between">
-            <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700 shadow-2xs">
-              <CheckCircle2 className="w-5 h-5" />
-            </div>
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100">
-              GREENLIT
+        <div className="bg-white p-3.5 rounded-2xl border border-black/10 shadow-2xs flex items-center justify-between">
+          <div>
+            <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-700">
+              SA Greenlit
             </span>
-          </div>
-          <div className="mt-3">
-            <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
-              Greenlit for Tech-Pack
-            </div>
-            <div className="text-[11px] text-slate-400 font-medium">Approved for studio tech-packs</div>
-          </div>
-          <div className="pt-2 border-t border-slate-100 flex items-baseline justify-between mt-3">
-            <div className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-emerald-700">
+            <div className="text-xl sm:text-2xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
               {approvedSubmissions.length}
             </div>
-            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
-              Production Ready
-            </span>
+          </div>
+          <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-center justify-center shadow-2xs shrink-0">
+            <CheckCircle2 className="w-4 h-4 text-emerald-700" />
           </div>
         </div>
 
-        <div 
-          onClick={() => setActiveTab('SAVED_FOR_LATER')}
-          className={`bg-white rounded-2xl p-4 sm:p-5 border shadow-2xs flex flex-col justify-between cursor-pointer transition-all ${
-            activeTab === 'SAVED_FOR_LATER' ? 'border-[#3A3564] ring-2 ring-[#3A3564]/10 bg-[#FAF7F0]/40' : 'border-black/10 hover:border-black/20'
-          }`}
-        >
-          <div className="flex items-start justify-between">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
-              <Bookmark className="w-5 h-5" />
-            </div>
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#3A3564] bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
-              ARCHIVE
-            </span>
-          </div>
-          <div className="mt-3">
-            <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
+        <div className="bg-white p-3.5 rounded-2xl border border-black/10 shadow-2xs flex items-center justify-between">
+          <div>
+            <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-700">
               Seasonal Archive
-            </div>
-            <div className="text-[11px] text-slate-400 font-medium">Saved for future drop seasons</div>
-          </div>
-          <div className="pt-2 border-t border-slate-100 flex items-baseline justify-between mt-3">
-            <div className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-[#3A3564]">
+            </span>
+            <div className="text-xl sm:text-2xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
               {savedForLaterSubmissions.length}
             </div>
-            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-              Archived
-            </span>
+          </div>
+          <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs shrink-0">
+            <Bookmark className="w-4 h-4 text-[#3A3564]" />
           </div>
         </div>
       </div>
@@ -271,14 +225,25 @@ export function SADesignApprovalsClient({
           <div className="flex items-center gap-1.5 overflow-x-auto text-xs font-semibold pb-1 sm:pb-0">
             <button
               type="button"
+              onClick={() => setActiveTab('ALL')}
+              className={`px-3 py-1.5 rounded-xl transition-all whitespace-nowrap cursor-pointer border ${
+                activeTab === 'ALL'
+                  ? 'bg-[#3A3564] text-white border-[#3A3564] font-bold shadow-2xs'
+                  : 'text-slate-700 bg-[#FAF7F0] border-black/10 hover:bg-slate-100'
+              }`}
+            >
+              All Designs ({submissions.length})
+            </button>
+            <button
+              type="button"
               onClick={() => setActiveTab('PENDING')}
               className={`px-3 py-1.5 rounded-xl transition-all whitespace-nowrap cursor-pointer border ${
                 activeTab === 'PENDING'
                   ? 'bg-[#3A3564] text-white border-[#3A3564] font-bold shadow-2xs'
-                  : 'text-slate-600 bg-[#FAF7F0] border-black/10 hover:bg-slate-100'
+                  : 'text-slate-700 bg-[#FAF7F0] border-black/10 hover:bg-slate-100'
               }`}
             >
-              Pending SA Decision ({pendingSubmissions.length})
+              Awaiting Decision ({pendingSubmissions.length})
             </button>
             <button
               type="button"
@@ -286,7 +251,7 @@ export function SADesignApprovalsClient({
               className={`px-3 py-1.5 rounded-xl transition-all whitespace-nowrap cursor-pointer border ${
                 activeTab === 'APPROVED'
                   ? 'bg-[#3A3564] text-white border-[#3A3564] font-bold shadow-2xs'
-                  : 'text-slate-600 bg-[#FAF7F0] border-black/10 hover:bg-slate-100'
+                  : 'text-slate-700 bg-[#FAF7F0] border-black/10 hover:bg-slate-100'
               }`}
             >
               Greenlit ({approvedSubmissions.length})
@@ -297,22 +262,24 @@ export function SADesignApprovalsClient({
               className={`px-3 py-1.5 rounded-xl transition-all whitespace-nowrap cursor-pointer border ${
                 activeTab === 'SAVED_FOR_LATER'
                   ? 'bg-[#3A3564] text-white border-[#3A3564] font-bold shadow-2xs'
-                  : 'text-slate-600 bg-[#FAF7F0] border-black/10 hover:bg-slate-100'
+                  : 'text-slate-700 bg-[#FAF7F0] border-black/10 hover:bg-slate-100'
               }`}
             >
-              Seasonal Archive ({savedForLaterSubmissions.length})
+              Saved for Later ({savedForLaterSubmissions.length})
             </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab('ALL')}
-              className={`px-3 py-1.5 rounded-xl transition-all whitespace-nowrap cursor-pointer border ${
-                activeTab === 'ALL'
-                  ? 'bg-[#3A3564] text-white border-[#3A3564] font-bold shadow-2xs'
-                  : 'text-slate-600 bg-[#FAF7F0] border-black/10 hover:bg-slate-100'
-              }`}
-            >
-              All Designs ({submissions.length})
-            </button>
+            {rejectedSubmissions.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setActiveTab('REJECTED')}
+                className={`px-3 py-1.5 rounded-xl transition-all whitespace-nowrap cursor-pointer border ${
+                  activeTab === 'REJECTED'
+                    ? 'bg-[#3A3564] text-white border-[#3A3564] font-bold shadow-2xs'
+                    : 'text-slate-700 bg-[#FAF7F0] border-black/10 hover:bg-slate-100'
+                }`}
+              >
+                Revisions Needed ({rejectedSubmissions.length})
+              </button>
+            )}
           </div>
 
           <div className="relative w-full sm:w-64 shrink-0">
@@ -718,139 +685,6 @@ export function SADesignApprovalsClient({
             >
               ✕
             </button>
-          </div>
-        </div>
-      )}
-
-      {/* Floating Zigza AI Button for Super Admin */}
-      <div className="fixed bottom-6 right-6 z-40">
-        <button
-          type="button"
-          onClick={() => setIsAiModalOpen(true)}
-          className="group flex items-center gap-2.5 px-4 py-2.5 rounded-full bg-[#3A3564] text-white hover:bg-[#2A2649] shadow-xl border border-white/20 transition-all hover:scale-105 active:scale-95 cursor-pointer"
-        >
-          <div className="w-6 h-6 rounded-full bg-white/15 flex items-center justify-center">
-            <Sparkles className="w-3.5 h-3.5 text-amber-300 group-hover:rotate-12 transition-transform" />
-          </div>
-          <div className="text-left pr-1">
-            <div className="text-xs font-extrabold tracking-wide">Zigza AI</div>
-            <div className="text-[10px] text-slate-300 font-mono font-medium -mt-0.5">Approval Insights</div>
-          </div>
-        </button>
-      </div>
-
-      {/* Zigza AI Executive Decision Copilot Modal */}
-      {isAiModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs">
-          <div className="bg-white w-full max-w-2xl rounded-2xl border border-black/10 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-            {/* Header */}
-            <div className="p-4 sm:p-5 bg-white border-b border-black/10 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
-                  <Sparkles className="w-5 h-5 text-[#3A3564]" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 font-[family-name:var(--font-heading)]">
-                      Zigza AI Approval Insights
-                    </h2>
-                    <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-                      Executive Copilot
-                    </span>
-                  </div>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    Production viability, commercial risk evaluation &amp; seasonal market fit
-                  </p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsAiModalOpen(false)}
-                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center text-xs font-bold transition-colors cursor-pointer"
-              >
-                ✕
-              </button>
-            </div>
-
-            {/* Modal Body */}
-            <div className="p-4 sm:p-6 overflow-y-auto space-y-5 bg-[#FAF7F0]/40">
-              {/* Strategic Insights Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="p-4 rounded-xl bg-white border border-black/10 shadow-2xs space-y-1.5">
-                  <div className="flex items-center gap-2 text-xs font-bold text-slate-900 font-mono uppercase tracking-wider">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                    <span>Greenlight Criteria</span>
-                  </div>
-                  <p className="text-xs text-slate-600">
-                    High commercial viability, standard fabric availability (French Terry, Cotton Jersey), and clear contrast prints suitable for automated screen printing.
-                  </p>
-                </div>
-
-                <div className="p-4 rounded-xl bg-white border border-black/10 shadow-2xs space-y-1.5">
-                  <div className="flex items-center gap-2 text-xs font-bold text-slate-900 font-mono uppercase tracking-wider">
-                    <Bookmark className="w-4 h-4 text-[#3A3564]" />
-                    <span>Seasonal Archive Strategy</span>
-                  </div>
-                  <p className="text-xs text-slate-600">
-                    Save strong concepts with seasonal dependencies (e.g. heavy winter outerwear during summer planning) for instant revival in future quarters.
-                  </p>
-                </div>
-              </div>
-
-              {/* Quick AI Audit Tool */}
-              <div className="bg-white p-4 sm:p-5 rounded-2xl border border-black/10 shadow-2xs space-y-3">
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 font-mono">
-                  Executive Design Quality Query
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="e.g. Check fabric yield for 420 GSM French Terry..."
-                    value={aiCustomPrompt}
-                    onChange={e => setAiCustomPrompt(e.target.value)}
-                    className="flex-1 px-3.5 py-2 text-xs rounded-xl bg-[#FAF7F0] border border-black/10 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/15 focus:border-[#3A3564] font-medium text-slate-900"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsAiGenerating(true)
-                      setTimeout(() => {
-                        setAiAnalysisResult('Fabric consumption estimated at ~1.45m/piece with minimal cutting waste (<6%). Recommended stitch count for embroidery is 8,500 stitches at chest zone.')
-                        setIsAiGenerating(false)
-                        toast.success('Zigza AI intelligence analysis complete!')
-                      }, 400)
-                    }}
-                    className="px-4 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer shrink-0"
-                  >
-                    {isAiGenerating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
-                    <span>Analyze</span>
-                  </button>
-                </div>
-
-                {aiAnalysisResult && (
-                  <div className="p-3 bg-[#FAF7F0] rounded-xl border border-black/10 text-xs text-slate-800">
-                    <span className="font-bold text-[#3A3564] block font-mono text-[10px] uppercase mb-1">
-                      AI Production Assessment:
-                    </span>
-                    {aiAnalysisResult}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Modal Footer */}
-            <div className="px-5 py-3.5 bg-[#FAF7F0] border-t border-black/10 flex items-center justify-between text-xs">
-              <span className="text-[11px] font-mono text-slate-500">
-                Visible only to Executive Super Admin
-              </span>
-              <button
-                type="button"
-                onClick={() => setIsAiModalOpen(false)}
-                className="px-4 py-1.5 text-xs font-bold text-slate-700 bg-white border border-black/10 hover:bg-slate-100 rounded-xl shadow-2xs cursor-pointer"
-              >
-                Close
-              </button>
-            </div>
           </div>
         </div>
       )}

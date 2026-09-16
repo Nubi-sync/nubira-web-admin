@@ -133,18 +133,6 @@ export function DesignDashboardClient({
   // Photo Lightbox
   const [previewPhoto, setPreviewPhoto] = useState<string | null>(null)
 
-  // Zigza AI Modal State
-  const [isAiModalOpen, setIsAiModalOpen] = useState(false)
-  const [aiCustomPrompt, setAiCustomPrompt] = useState('')
-  const [isAiGenerating, setIsAiGenerating] = useState(false)
-  const [aiGeneratedResult, setAiGeneratedResult] = useState<{
-    garmentType: string
-    category: string
-    targetDesigns: number
-    colors: string[]
-    instructions: string
-  } | null>(null)
-
   // Delete State
   const [briefToDelete, setBriefToDelete] = useState<DesignBrief | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
@@ -328,105 +316,6 @@ export function DesignDashboardClient({
     }
   }
 
-  // Zigza AI Preset Concepts
-  const AI_TREND_PRESETS = [
-    {
-      title: 'Oversized Heavyweight Streetwear Hoodie',
-      garmentType: 'Hoodie',
-      category: 'Streetwear',
-      targetDesigns: 2,
-      colors: ['Jet Black', 'Washed Slate', 'Vintage Olive'],
-      instructions: '420 GSM French Terry, boxy drop shoulder fit, double layered hood with no drawstrings, minimal high-density puff print across center chest and subtle embroidery on left wrist cuff.'
-    },
-    {
-      title: 'Boxy Drop-Shoulder Minimal Graphic Tee',
-      garmentType: 'T-Shirt',
-      category: 'Casual',
-      targetDesigns: 3,
-      colors: ['Chalk White', 'Jet Black', 'Earth Sand'],
-      instructions: '240 GSM single jersey cotton, 1.25-inch thick neck ribbing, vintage soft wash. Artwork front: subtle typography chest print; back: large architectural brutalist line-art illustration.'
-    },
-    {
-      title: 'Modular Multi-Pocket Tech Cargo Pant',
-      garmentType: 'Cargo Pant',
-      category: 'Streetwear',
-      targetDesigns: 2,
-      colors: ['Tactical Olive', 'Midnight Navy', 'Jet Black'],
-      instructions: 'Ripstop stretch fabric, bungee-cord adjustable cuffs, reinforced knee darts, 6 modular utility pockets with matte waterproof zippers and subtle brand silicone badge.'
-    },
-    {
-      title: 'Cuban Collar Breathable Linen Resort Shirt',
-      garmentType: 'Resort Shirt',
-      category: 'Resort',
-      targetDesigns: 2,
-      colors: ['Natural Beige', 'Sage Green', 'Terracotta'],
-      instructions: '100% pure European linen, relaxed resort fit with camp collar, genuine horn buttons, tonal geometric palm embroidery along placket edge.'
-    },
-    {
-      title: 'Reversible Quilted Overshirt / Bomber',
-      garmentType: 'Bomber Jacket',
-      category: 'Outerwear',
-      targetDesigns: 2,
-      colors: ['Forest Green', 'Midnight Navy', 'Jet Black'],
-      instructions: 'Diamond quilted nylon shell with contrast matte reverse side, heavyweight two-way YKK metal zipper, storm flap pockets, and ribbed hem band.'
-    }
-  ]
-
-  function handleGenerateAiBrief(customText?: string) {
-    const prompt = (customText || aiCustomPrompt).trim().toLowerCase()
-    setIsAiGenerating(true)
-
-    setTimeout(() => {
-      let matched = AI_TREND_PRESETS[0]
-      if (prompt.includes('tee') || prompt.includes('t-shirt') || prompt.includes('graphic')) {
-        matched = AI_TREND_PRESETS[1]
-      } else if (prompt.includes('pant') || prompt.includes('cargo') || prompt.includes('trouser') || prompt.includes('jogger')) {
-        matched = AI_TREND_PRESETS[2]
-      } else if (prompt.includes('shirt') || prompt.includes('linen') || prompt.includes('resort') || prompt.includes('collar')) {
-        matched = AI_TREND_PRESETS[3]
-      } else if (prompt.includes('jacket') || prompt.includes('bomber') || prompt.includes('coat') || prompt.includes('outerwear')) {
-        matched = AI_TREND_PRESETS[4]
-      } else if (customText) {
-        matched = {
-          title: customText,
-          garmentType: customText.split(' ')[0] || 'Apparel Concept',
-          category: 'Streetwear',
-          targetDesigns: 2,
-          colors: ['Jet Black', 'Chalk White', 'Vintage Olive'],
-          instructions: `Creative direction for "${customText}": Modern tailored silhouette, premium heavyweight fabric, clean placement artwork with minimal branding accents.`
-        }
-      }
-
-      setAiGeneratedResult({
-        garmentType: matched.garmentType,
-        category: matched.category,
-        targetDesigns: matched.targetDesigns,
-        colors: matched.colors,
-        instructions: matched.instructions
-      })
-      setIsAiGenerating(false)
-      toast.success('Zigza AI generated apparel creative brief!')
-    }, 450)
-  }
-
-  function handleApplyAiToBrief(data: {
-    garmentType: string
-    category: string
-    targetDesigns: number
-    colors: string[]
-    instructions: string
-  }) {
-    setGarmentType(data.garmentType)
-    setCategory(data.category)
-    setTargetDesigns(String(data.targetDesigns))
-    setMaxColors(String(data.colors.length))
-    setTargetColors(data.colors)
-    setInstructions(data.instructions)
-    setIsAiModalOpen(false)
-    setIsCreateOpen(true)
-    toast.success('AI brief parameters loaded into Allocate Brief modal!')
-  }
-
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Layer 1: Breadcrumb Hierarchy Trail */}
@@ -463,15 +352,6 @@ export function DesignDashboardClient({
 
         {/* Quick Nav Actions */}
         <div className="flex flex-wrap items-center gap-2 self-stretch sm:self-auto justify-end">
-          <button
-            type="button"
-            onClick={() => setIsAiModalOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#FAF7F0] border border-black/10 text-xs font-bold text-[#3A3564] hover:bg-[#F2ECE1] transition-all shadow-2xs cursor-pointer"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-[#3A3564]" />
-            <span>Zigza AI</span>
-          </button>
-
           <Link
             href="/design/tech-packs"
             className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#FAF7F0] border border-black/10 text-xs font-bold text-slate-800 hover:bg-slate-100 transition-all shadow-2xs cursor-pointer"
@@ -507,22 +387,22 @@ export function DesignDashboardClient({
         </div>
       </div>
 
-      {/* Layer 3: Executive KPI Metric Cards (Grid of 6) */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+      {/* Layer 3: Streamlined KPI Stat Cards (4 Clean Boxes - No Archive/Save for Later) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
               STAGE 01
             </span>
-            <div className="w-7 h-7 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
-              <ClipboardList className="w-3.5 h-3.5" />
+            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+              <ClipboardList className="w-4 h-4 text-[#3A3564]" />
             </div>
           </div>
-          <div className="mt-2">
-            <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
+          <div className="mt-3">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-900 font-mono">
               Active Briefs
             </div>
-            <div className="text-xl sm:text-2xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
+            <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
               {activeBriefsCount}
             </div>
           </div>
@@ -530,18 +410,18 @@ export function DesignDashboardClient({
 
         <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-100">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
               STAGE 02
             </span>
-            <div className="w-7 h-7 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 flex items-center justify-center shadow-2xs">
-              <Clock className="w-3.5 h-3.5" />
+            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+              <Clock className="w-4 h-4 text-[#3A3564]" />
             </div>
           </div>
-          <div className="mt-2">
-            <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
-              Pending PH
+          <div className="mt-3">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-900 font-mono">
+              Pending PH Review
             </div>
-            <div className="text-xl sm:text-2xl font-bold font-mono text-amber-700 font-[family-name:var(--font-heading)] mt-0.5">
+            <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
               {pendingPHCount}
             </div>
           </div>
@@ -549,18 +429,18 @@ export function DesignDashboardClient({
 
         <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-sky-600 bg-sky-50 px-2 py-0.5 rounded border border-sky-100">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-700 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
               STAGE 03
             </span>
-            <div className="w-7 h-7 rounded-lg bg-sky-50 text-sky-800 border border-sky-200 flex items-center justify-center shadow-2xs">
-              <ShieldCheck className="w-3.5 h-3.5" />
+            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+              <ShieldCheck className="w-4 h-4 text-[#3A3564]" />
             </div>
           </div>
-          <div className="mt-2">
-            <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
-              Pending SA
+          <div className="mt-3">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-900 font-mono">
+              Forwarded to SA
             </div>
-            <div className="text-xl sm:text-2xl font-bold font-mono text-sky-800 font-[family-name:var(--font-heading)] mt-0.5">
+            <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
               {pendingSACount}
             </div>
           </div>
@@ -568,56 +448,18 @@ export function DesignDashboardClient({
 
         <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#3A3564] bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
-              ARCHIVE
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-700 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+              CATALOG
             </span>
-            <div className="w-7 h-7 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
-              <Bookmark className="w-3.5 h-3.5" />
+            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+              <FileCheck2 className="w-4 h-4 text-[#3A3564]" />
             </div>
           </div>
-          <div className="mt-2">
-            <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
-              Saved for Later
+          <div className="mt-3">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-900 font-mono">
+              Tech-Packs Ready
             </div>
-            <div className="text-xl sm:text-2xl font-bold font-mono text-[#3A3564] font-[family-name:var(--font-heading)] mt-0.5">
-              {savedForLaterCount}
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100">
-              GREENLIT
-            </span>
-            <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-center justify-center shadow-2xs">
-              <CheckCircle2 className="w-3.5 h-3.5" />
-            </div>
-          </div>
-          <div className="mt-2">
-            <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
-              SA Greenlit
-            </div>
-            <div className="text-xl sm:text-2xl font-bold font-mono text-emerald-700 font-[family-name:var(--font-heading)] mt-0.5">
-              {saApprovedCount}
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-600 bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
-              READY
-            </span>
-            <div className="w-7 h-7 rounded-lg bg-[#FAF7F0] text-slate-800 border border-black/10 flex items-center justify-center shadow-2xs">
-              <FileCheck2 className="w-3.5 h-3.5" />
-            </div>
-          </div>
-          <div className="mt-2">
-            <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
-              Tech-Packs
-            </div>
-            <div className="text-xl sm:text-2xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
+            <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
               {techPacksCount}
             </div>
           </div>
@@ -630,7 +472,7 @@ export function DesignDashboardClient({
         <div className="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white">
           {/* Filter Tabs */}
           <div className="flex items-center gap-1.5 overflow-x-auto text-xs font-semibold pb-1 sm:pb-0">
-            {(['ALL', 'SUBMITTED', 'PH_APPROVED', 'SA_APPROVED', 'SA_SAVED_FOR_LATER', 'ALLOCATED', 'PH_REJECTED', 'TECH_PACK_CREATED'] as const).map(st => (
+            {(['ALL', 'SUBMITTED', 'PH_APPROVED', 'ALLOCATED', 'PH_REJECTED', 'TECH_PACK_CREATED'] as const).map(st => (
               <button
                 key={st}
                 type="button"
@@ -638,7 +480,7 @@ export function DesignDashboardClient({
                 className={`px-3 py-1.5 rounded-xl transition-all whitespace-nowrap cursor-pointer border ${
                   statusFilter === st
                     ? 'bg-[#3A3564] text-white border-[#3A3564] font-bold shadow-2xs'
-                    : 'text-slate-600 bg-[#FAF7F0] border-black/10 hover:bg-slate-100'
+                    : 'text-slate-700 bg-[#FAF7F0] border-black/10 hover:bg-slate-100'
                 }`}
               >
                 {st === 'ALL' ? 'All Queue' : STATUS_CONFIG[st as BriefStatus]?.label || st}
@@ -1349,190 +1191,6 @@ export function DesignDashboardClient({
             >
               ✕
             </button>
-          </div>
-        </div>
-      )}
-
-      {/* Floating Zigza AI Button for Admin / Provisional Head */}
-      <div className="fixed bottom-6 right-6 z-40">
-        <button
-          type="button"
-          onClick={() => {
-            setIsAiModalOpen(true)
-            if (!aiGeneratedResult) handleGenerateAiBrief()
-          }}
-          className="group flex items-center gap-2.5 px-4 py-2.5 rounded-full bg-[#3A3564] text-white hover:bg-[#2A2649] shadow-xl border border-white/20 transition-all hover:scale-105 active:scale-95 cursor-pointer"
-        >
-          <div className="w-6 h-6 rounded-full bg-white/15 flex items-center justify-center">
-            <Sparkles className="w-3.5 h-3.5 text-amber-300 group-hover:rotate-12 transition-transform" />
-          </div>
-          <div className="text-left pr-1">
-            <div className="text-xs font-extrabold tracking-wide">Zigza AI</div>
-            <div className="text-[10px] text-slate-300 font-mono font-medium -mt-0.5">Design Copilot</div>
-          </div>
-        </button>
-      </div>
-
-      {/* Zigza AI Design Studio Assistant Modal */}
-      {isAiModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs">
-          <div className="bg-white w-full max-w-2xl rounded-2xl border border-black/10 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-            {/* Header */}
-            <div className="p-4 sm:p-5 bg-white border-b border-black/10 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
-                  <Sparkles className="w-5 h-5 text-[#3A3564]" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 font-[family-name:var(--font-heading)]">
-                      Zigza AI Design Copilot
-                    </h2>
-                    <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-                      Studio Assistant
-                    </span>
-                  </div>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    Creative brief generator, silhouette recommendations &amp; seasonal palettes
-                  </p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsAiModalOpen(false)}
-                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center text-xs font-bold transition-colors cursor-pointer"
-              >
-                ✕
-              </button>
-            </div>
-
-            {/* Modal Body */}
-            <div className="p-4 sm:p-6 overflow-y-auto space-y-5 bg-[#FAF7F0]/40">
-              {/* Preset Trend Prompts */}
-              <div className="space-y-2">
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 font-mono">
-                  Trending Apparel Presets (1-Click Generation)
-                </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {AI_TREND_PRESETS.map((preset, idx) => (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => handleGenerateAiBrief(preset.title)}
-                      className="text-left p-3 rounded-xl bg-white border border-black/10 hover:border-[#3A3564] hover:bg-[#FAF7F0] transition-all cursor-pointer shadow-2xs group"
-                    >
-                      <div className="text-xs font-bold text-slate-900 group-hover:text-[#3A3564] flex items-center justify-between">
-                        <span>{preset.title}</span>
-                        <ArrowRight className="w-3 h-3 text-slate-400 group-hover:translate-x-0.5 group-hover:text-[#3A3564] transition-all" />
-                      </div>
-                      <div className="flex items-center gap-1.5 mt-1 text-[11px] font-mono text-slate-500">
-                        <span className="font-semibold text-[#3A3564]">{preset.garmentType}</span>
-                        <span>&bull;</span>
-                        <span>{preset.colors.length} Colors</span>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Custom Prompt Input */}
-              <div className="space-y-2 bg-white p-4 rounded-xl border border-black/10 shadow-2xs">
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 font-mono">
-                  Custom Apparel Concept Idea
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="e.g. Acid wash cargo jacket with metallic hardware..."
-                    value={aiCustomPrompt}
-                    onChange={e => setAiCustomPrompt(e.target.value)}
-                    onKeyDown={e => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault()
-                        handleGenerateAiBrief()
-                      }
-                    }}
-                    className="flex-1 px-3.5 py-2 text-xs rounded-xl bg-[#FAF7F0] border border-black/10 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/15 focus:border-[#3A3564] font-medium text-slate-900"
-                  />
-                  <button
-                    type="button"
-                    disabled={isAiGenerating}
-                    onClick={() => handleGenerateAiBrief()}
-                    className="px-4 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer disabled:opacity-50 shrink-0"
-                  >
-                    {isAiGenerating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
-                    <span>Generate</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Generated Result Card */}
-              {aiGeneratedResult && (
-                <div className="bg-white p-4 sm:p-5 rounded-2xl border border-black/10 shadow-2xs space-y-3">
-                  <div className="flex items-center justify-between border-b border-black/5 pb-2.5">
-                    <span className="text-xs font-mono font-bold uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
-                      Generated Creative Brief
-                    </span>
-                    <span className="text-xs font-mono font-bold text-slate-500">
-                      {aiGeneratedResult.targetDesigns} Required Designs
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
-                    <div className="p-2.5 rounded-xl bg-[#FAF7F0] border border-black/10">
-                      <span className="text-[10px] uppercase font-mono font-bold text-slate-500 block">Silhouette</span>
-                      <span className="font-bold text-slate-900">{aiGeneratedResult.garmentType}</span>
-                    </div>
-                    <div className="p-2.5 rounded-xl bg-[#FAF7F0] border border-black/10">
-                      <span className="text-[10px] uppercase font-mono font-bold text-slate-500 block">Category</span>
-                      <span className="font-bold text-slate-900">{aiGeneratedResult.category}</span>
-                    </div>
-                    <div className="p-2.5 rounded-xl bg-[#FAF7F0] border border-black/10 col-span-2 sm:col-span-1">
-                      <span className="text-[10px] uppercase font-mono font-bold text-slate-500 block">Colors</span>
-                      <div className="flex items-center gap-1 mt-0.5 flex-wrap">
-                        {aiGeneratedResult.colors.map((c, i) => (
-                          <span key={i} className="text-[11px] font-mono font-bold text-slate-800 bg-white px-1.5 py-0.5 rounded border border-black/10">
-                            {c}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="p-3 bg-[#FAF7F0] rounded-xl border border-black/10 text-xs text-slate-700 italic">
-                    <span className="font-bold text-slate-900 not-italic block mb-1 font-mono text-[10px] uppercase">
-                      Tech &amp; Design Instructions:
-                    </span>
-                    &ldquo;{aiGeneratedResult.instructions}&rdquo;
-                  </div>
-
-                  <div className="pt-2 flex items-center justify-end gap-2">
-                    <button
-                      type="button"
-                      onClick={() => handleApplyAiToBrief(aiGeneratedResult)}
-                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold transition-all shadow-2xs cursor-pointer active:scale-95"
-                    >
-                      <Plus className="w-3.5 h-3.5" />
-                      <span>Use in New Brief &rarr;</span>
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Modal Footer */}
-            <div className="px-5 py-3.5 bg-[#FAF7F0] border-t border-black/10 flex items-center justify-between text-xs">
-              <span className="text-[11px] font-mono text-slate-500">
-                Visible only to Admin &amp; Provisional Head
-              </span>
-              <button
-                type="button"
-                onClick={() => setIsAiModalOpen(false)}
-                className="px-4 py-1.5 text-xs font-bold text-slate-700 bg-white border border-black/10 hover:bg-slate-100 rounded-xl shadow-2xs cursor-pointer"
-              >
-                Close
-              </button>
-            </div>
           </div>
         </div>
       )}

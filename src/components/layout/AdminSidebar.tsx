@@ -244,6 +244,7 @@ export function AdminSidebar({
           { label: 'Tech-Pack Catalog', href: '/design/tech-packs', icon: FileCheck2 },
           { label: 'Team Management', href: '/design/team', icon: Users },
           { label: 'PH Settings', href: '/design/settings', icon: Settings },
+          { label: 'Zigza AI', href: '/design/zigza-ai', icon: Bot },
         ],
       },
       {
