@@ -125,6 +125,7 @@ export function DesignDashboardClient({
 
   // Dedicated View & Review Modal State
   const [selectedBriefForView, setSelectedBriefForView] = useState<DesignBrief | null>(null)
+  const [modalActiveConceptTab, setModalActiveConceptTab] = useState<number>(1)
   const [phFeedback, setPhFeedback] = useState('')
   const [isReviewing, setIsReviewing] = useState(false)
   const [saNotes, setSaNotes] = useState('')
@@ -142,6 +143,9 @@ export function DesignDashboardClient({
   const existingCategories = Array.from(new Set(briefs.map(b => b.category).filter(Boolean)))
 
   const filteredBriefs = briefs.filter(b => {
+    // Saved for Later is managed solely in the Super Admin Seasonal Archive
+    if (b.status === 'SA_SAVED_FOR_LATER') return false
+
     const matchesStatus = statusFilter === 'ALL' || b.status === statusFilter
     const q = searchQuery.toLowerCase()
     const matchesSearch = 
@@ -410,7 +414,7 @@ export function DesignDashboardClient({
 
         <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
               STAGE 02
             </span>
             <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
@@ -732,92 +736,168 @@ export function DesignDashboardClient({
 
               {/* Submitted Artwork Mockups Deck */}
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 font-mono mb-2">
-                  Submitted Design Concepts Deck:
-                </label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-xs font-bold uppercase tracking-wider text-slate-700 font-mono">
+                    Design Concepts Deck
+                  </label>
+                  <span className="text-[11px] font-mono text-slate-400">
+                    Click any thumbnail to view full image
+                  </span>
+                </div>
 
                 {selectedBriefForView.latest_submission?.concepts && selectedBriefForView.latest_submission.concepts.length > 0 ? (
                   <div className="space-y-3">
-                    {selectedBriefForView.latest_submission.concepts.map(concept => (
-                      <div key={concept.concept_number} className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
-                        <div className="flex items-center justify-between">
-                          <span className="font-bold text-slate-900 text-xs sm:text-sm flex items-center gap-2 font-[family-name:var(--font-heading)]">
-                            <span className="w-5 h-5 rounded-full bg-[#3A3564] text-white flex items-center justify-center text-[10px] font-mono">
-                              {concept.concept_number}
+                    {/* Concept Selector Tabs */}
+                    <div className="flex flex-wrap items-center gap-1.5 p-1 bg-[#FAF7F0] rounded-xl border border-black/10">
+                      {selectedBriefForView.latest_submission.concepts.map((concept, idx) => {
+                        const cNum = concept.concept_number || (idx + 1)
+                        const isTabActive = modalActiveConceptTab === cNum
+                        return (
+                          <button
+                            key={cNum}
+                            type="button"
+                            onClick={() => setModalActiveConceptTab(cNum)}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold font-mono transition-all cursor-pointer ${
+                              isTabActive
+                                ? 'bg-[#3A3564] text-white shadow-2xs'
+                                : 'text-slate-700 hover:bg-white/80'
+                            }`}
+                          >
+                            <span>Design #{cNum}</span>
+                            <span className={`text-[10px] px-1.5 py-0.2 rounded font-normal ${
+                              isTabActive ? 'bg-white/20 text-white' : 'bg-black/5 text-slate-500'
+                            }`}>
+                              {concept.colorways?.length || 0} Colors
                             </span>
-                            <span>{concept.title || `Design Concept #${concept.concept_number}`}</span>
-                          </span>
-                          <span className="text-[11px] font-mono font-bold text-slate-500">
-                            {concept.colorways.length} Colorway(s)
-                          </span>
-                        </div>
+                          </button>
+                        )
+                      })}
+                    </div>
 
-                        {concept.notes && (
-                          <p className="text-xs text-slate-600 italic bg-white p-2.5 rounded-xl border border-slate-200">
-                            &ldquo;{concept.notes}&rdquo;
-                          </p>
-                        )}
+                    {/* Active Selected Concept View */}
+                    {(() => {
+                      const concepts = selectedBriefForView.latest_submission.concepts
+                      const currentConcept = concepts.find(c => (c.concept_number || 1) === modalActiveConceptTab) || concepts[0]
 
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-                          {concept.colorways.map((cw, cwIdx) => (
-                            <div key={cwIdx} className="space-y-1.5">
-                              <span className="text-[11px] font-bold text-slate-700 block truncate font-mono">
-                                {cw.color_name}
-                              </span>
-                              <div
-                                onClick={() => setPreviewPhoto(cw.photo_front)}
-                                className="aspect-video rounded-xl border border-black/10 overflow-hidden bg-white relative group cursor-pointer shadow-2xs"
-                              >
-                                <img src={cw.photo_front} alt={cw.color_name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
-                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[10px] font-bold">
-                                  <Eye className="w-3.5 h-3.5 mr-1" /> View Front
-                                </div>
-                              </div>
-                              {cw.photo_back && (
-                                <div
-                                  onClick={() => setPreviewPhoto(cw.photo_back!)}
-                                  className="aspect-video rounded-xl border border-black/10 overflow-hidden bg-white relative group cursor-pointer shadow-2xs"
-                                >
-                                  <img src={cw.photo_back} alt={`${cw.color_name} Back`} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
-                                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[10px] font-bold">
-                                    <Eye className="w-3.5 h-3.5 mr-1" /> View Back
+                      if (!currentConcept) return null
+
+                      return (
+                        <div className="p-4 rounded-2xl bg-[#FAF7F0]/60 border border-black/10 space-y-3">
+                          <div className="flex items-center justify-between flex-wrap gap-2">
+                            <span className="font-bold text-slate-900 text-sm font-[family-name:var(--font-heading)]">
+                              {currentConcept.title || `Design Concept #${currentConcept.concept_number}`}
+                            </span>
+                            <span className="text-xs font-mono text-slate-500">
+                              {currentConcept.colorways?.length || 0} Colorway(s)
+                            </span>
+                          </div>
+
+                          {currentConcept.notes && (
+                            <p className="text-xs text-slate-600 italic bg-white p-2.5 rounded-xl border border-black/10">
+                              &ldquo;{currentConcept.notes}&rdquo;
+                            </p>
+                          )}
+
+                          {/* Colorways in Compact Horizontal Row */}
+                          <div className="flex flex-wrap items-stretch gap-3 pt-1">
+                            {currentConcept.colorways && currentConcept.colorways.length > 0 ? (
+                              currentConcept.colorways.map((cw, cwIdx) => {
+                                const sw = getColorSwatchInfo(cw.color_name)
+                                return (
+                                  <div
+                                    key={cwIdx}
+                                    className="bg-white p-2.5 rounded-xl border border-black/10 shadow-2xs flex flex-col justify-between gap-2 min-w-[130px] max-w-[180px] shrink-0"
+                                  >
+                                    <div className="flex items-center gap-1.5 font-mono text-xs font-bold text-slate-800 truncate">
+                                      <span
+                                        className="w-2.5 h-2.5 rounded-full border border-black/15 shrink-0"
+                                        style={{ backgroundColor: sw.bg }}
+                                      />
+                                      <span className="truncate">{cw.color_name}</span>
+                                    </div>
+
+                                    <div className="flex items-center gap-1.5">
+                                      {/* Front Thumbnail */}
+                                      {cw.photo_front ? (
+                                        <div
+                                          onClick={() => setPreviewPhoto(cw.photo_front)}
+                                          className="w-20 h-16 sm:w-24 sm:h-18 rounded-lg border border-black/10 overflow-hidden bg-slate-50 relative group cursor-pointer shadow-2xs shrink-0"
+                                          title="Click to view Front Artwork"
+                                        >
+                                          <img
+                                            src={cw.photo_front}
+                                            alt={`${cw.color_name} Front`}
+                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                                          />
+                                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[9px] font-bold">
+                                            <Eye className="w-3 h-3" />
+                                          </div>
+                                        </div>
+                                      ) : (
+                                        <div className="w-20 h-16 rounded-lg border border-dashed border-slate-200 bg-slate-50 flex items-center justify-center text-[10px] text-slate-400 font-mono">
+                                          No Front
+                                        </div>
+                                      )}
+
+                                      {/* Back Thumbnail */}
+                                      {cw.photo_back ? (
+                                        <div
+                                          onClick={() => setPreviewPhoto(cw.photo_back!)}
+                                          className="w-20 h-16 sm:w-24 sm:h-18 rounded-lg border border-black/10 overflow-hidden bg-slate-50 relative group cursor-pointer shadow-2xs shrink-0"
+                                          title="Click to view Back Artwork"
+                                        >
+                                          <img
+                                            src={cw.photo_back}
+                                            alt={`${cw.color_name} Back`}
+                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                                          />
+                                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[9px] font-bold">
+                                            <Eye className="w-3 h-3" />
+                                          </div>
+                                        </div>
+                                      ) : null}
+                                    </div>
                                   </div>
-                                </div>
-                              )}
-                            </div>
-                          ))}
+                                )
+                              })
+                            ) : (
+                              <div className="p-4 text-center text-slate-400 text-xs font-mono w-full">
+                                No colorways uploaded for this concept.
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      )
+                    })()}
                   </div>
                 ) : selectedBriefForView.latest_submission?.photo_url_1 ? (
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="flex items-center gap-3 bg-[#FAF7F0] p-3.5 rounded-2xl border border-black/10">
                     <div 
                       onClick={() => setPreviewPhoto(selectedBriefForView.latest_submission!.photo_url_1)}
-                      className="aspect-video rounded-xl border border-black/10 overflow-hidden bg-slate-100 relative group cursor-pointer shadow-2xs"
+                      className="w-28 h-20 rounded-xl border border-black/10 overflow-hidden bg-white relative group cursor-pointer shadow-2xs shrink-0"
                     >
                       <img
                         src={selectedBriefForView.latest_submission.photo_url_1}
-                        alt="Artwork 1"
+                        alt="Front Artwork"
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                       />
-                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold">
-                        <Eye className="w-4 h-4 mr-1" /> Full View
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[10px] font-bold">
+                        <Eye className="w-3.5 h-3.5 mr-1" /> View
                       </div>
                     </div>
 
                     {selectedBriefForView.latest_submission.photo_url_2 && (
                       <div 
                         onClick={() => setPreviewPhoto(selectedBriefForView.latest_submission!.photo_url_2!)}
-                        className="aspect-video rounded-xl border border-black/10 overflow-hidden bg-slate-100 relative group cursor-pointer shadow-2xs"
+                        className="w-28 h-20 rounded-xl border border-black/10 overflow-hidden bg-white relative group cursor-pointer shadow-2xs shrink-0"
                       >
                         <img
                           src={selectedBriefForView.latest_submission.photo_url_2}
-                          alt="Artwork 2"
+                          alt="Back Artwork"
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                         />
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold">
-                          <Eye className="w-4 h-4 mr-1" /> Full View
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[10px] font-bold">
+                          <Eye className="w-3.5 h-3.5 mr-1" /> View
                         </div>
                       </div>
                     )}
