@@ -25,7 +25,9 @@ import {
   RotateCcw,
   SlidersHorizontal,
   Info,
-  ClipboardList
+  ClipboardList,
+  Save,
+  ArrowRight
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { 
@@ -36,6 +38,7 @@ import {
 } from '../../types/design'
 import { submitDesignPhotosAction, uploadDesignMockupAction } from '../../actions'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 
 // Clean line-art Waving Hand Outline SVG (stroke line-art, fill="none", NO solid fill, NO emoji)
 function WavingHandOutlineIcon({ className = "w-6 h-6 text-slate-800" }: { className?: string }) {
@@ -315,6 +318,7 @@ export function DesignerDashboardClient({
   const [activeColorwayTab, setActiveColorwayTab] = useState<string>(targetColorsList[0] || 'Default Colorway')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [previewPhoto, setPreviewPhoto] = useState<string | null>(null)
+  const [isConfirmSubmitOpen, setIsConfirmSubmitOpen] = useState(false)
 
   // Sync selectedBriefId from query params if changed
   useEffect(() => {
@@ -447,21 +451,13 @@ export function DesignerDashboardClient({
     })
   }
 
-  async function handleSubmitAllConcepts(e: React.FormEvent) {
-    e.preventDefault()
-    if (!activeBrief) return
-
-    if (readySlotsCount === 0) {
-      toast.error('Please attach at least one front artwork mockup before submitting.')
-      return
-    }
-
+  function buildConceptsPayload(): DesignConceptItem[] {
     const conceptsPayload: DesignConceptItem[] = []
     for (let i = 1; i <= targetDesignsCount; i++) {
       const cData = conceptsState[i]
       if (!cData) continue
 
-      const req = activeBrief.design_concepts_brief?.find(c => c.concept_number === i)
+      const req = activeBrief?.design_concepts_brief?.find(c => c.concept_number === i)
       const conceptColors = (req?.colors && req.colors.length > 0) ? req.colors : targetColorsList
 
       const colorwaysPayload: DesignConceptColorway[] = []
@@ -479,11 +475,22 @@ export function DesignerDashboardClient({
       if (colorwaysPayload.length > 0 || cData.title || cData.notes) {
         conceptsPayload.push({
           concept_number: i,
+          art_number: req?.art_number,
           title: cData.title || `Design Concept #${i}`,
           notes: cData.notes || '',
           colorways: colorwaysPayload
         })
       }
+    }
+    return conceptsPayload
+  }
+
+  async function handleSaveDraft(nextTab?: number) {
+    if (!activeBrief) return
+    const conceptsPayload = buildConceptsPayload()
+    if (conceptsPayload.length === 0) {
+      toast.error('Please attach at least one artwork mockup to save progress.')
+      return
     }
 
     setIsSubmitting(true)
@@ -498,13 +505,78 @@ export function DesignerDashboardClient({
         photo_url_2: firstBackPhoto,
         designer_notes: conceptsPayload[0]?.notes || '',
         concepts: conceptsPayload,
-        company_name: companyName
+        company_name: companyName,
+        is_final_submission: false
       })
 
       if (res.success) {
-        toast.success(`Design deck submitted (${readySlotsCount}/${totalSlots} mockups attached) for Provisional Head review!`)
-        
-        // Update local brief state to SUBMITTED
+        setBriefs(prev => prev.map(b => {
+          if (b.id === activeBrief.id) {
+            return {
+              ...b,
+              latest_submission: {
+                id: res.data?.id || `sub-${Date.now()}`,
+                brief_id: b.id,
+                designer_member_id: currentUserId,
+                designer_name: designerName || 'Designer',
+                designer_notes: conceptsPayload[0]?.notes || '',
+                photo_url_1: firstFrontPhoto,
+                photo_url_2: firstBackPhoto,
+                concepts: conceptsPayload,
+                ph_verdict: 'PENDING',
+                company_name: companyName,
+                submitted_at: new Date().toISOString()
+              }
+            }
+          }
+          return b
+        }))
+
+        if (nextTab && nextTab <= targetDesignsCount) {
+          toast.success(`Design Concept #${activeConceptTab} saved! You are now on Design Concept #${nextTab}.`)
+          setActiveConceptTab(nextTab)
+          const nextConceptReq = activeBrief.design_concepts_brief?.find(c => c.concept_number === nextTab)
+          const nextColors = (nextConceptReq?.colors && nextConceptReq.colors.length > 0) ? nextConceptReq.colors : targetColorsList
+          setActiveColorwayTab(nextColors[0])
+        } else {
+          toast.success(`Concept progress saved (${readySlotsCount}/${totalSlots} mockups attached).`)
+        }
+      } else {
+        toast.error(res.error || 'Failed to save progress.')
+      }
+    } catch (err: any) {
+      toast.error(err?.message || 'A network error occurred while saving.')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  async function handleFinalSubmit() {
+    if (!activeBrief) return
+    const conceptsPayload = buildConceptsPayload()
+    if (conceptsPayload.length === 0) {
+      toast.error('Please attach at least one front artwork mockup before submitting.')
+      return
+    }
+
+    setIsSubmitting(true)
+    const firstFrontPhoto = conceptsPayload[0]?.colorways[0]?.photo_front || ''
+    const firstBackPhoto = conceptsPayload[0]?.colorways[0]?.photo_back || ''
+
+    try {
+      const res = await submitDesignPhotosAction({
+        brief_id: activeBrief.id,
+        designer_member_id: activeBrief.designer_member_id || currentUserId,
+        photo_url_1: firstFrontPhoto,
+        photo_url_2: firstBackPhoto,
+        designer_notes: conceptsPayload[0]?.notes || '',
+        concepts: conceptsPayload,
+        company_name: companyName,
+        is_final_submission: true
+      })
+
+      if (res.success) {
+        toast.success(`Full design deck (${readySlotsCount}/${totalSlots} mockups) submitted for Provisional Head review!`)
         setBriefs(prev => prev.map(b => {
           if (b.id === activeBrief.id) {
             return {
@@ -527,11 +599,10 @@ export function DesignerDashboardClient({
           }
           return b
         }))
-
-        // Return to assignments list
+        setIsConfirmSubmitOpen(false)
         setSelectedBriefId(null)
       } else {
-        toast.error(res.error || 'Failed to submit design deck.')
+        toast.error(res.error || 'Failed to submit assignment.')
       }
     } catch (err: any) {
       toast.error(err?.message || 'A network error occurred while submitting.')
@@ -557,6 +628,17 @@ export function DesignerDashboardClient({
       colorways: {}
     }
     const currentColorwayData = currentConcept.colorways[activeColorwayTab] || { photo_front: '', photo_back: '' }
+
+    let completedConceptsCount = 0
+    for (let i = 1; i <= targetDesignsCount; i++) {
+      const cData = conceptsState[i]
+      const req = activeBrief.design_concepts_brief?.find(c => c.concept_number === i)
+      const cColors = (req?.colors && req.colors.length > 0) ? req.colors : targetColorsList
+      const readyForThisConcept = cColors.filter(col => cData?.colorways[col]?.photo_front?.trim()).length
+      if (readyForThisConcept >= cColors.length && readyForThisConcept > 0) {
+        completedConceptsCount++
+      }
+    }
 
     return (
       <div className="space-y-5 sm:space-y-6">
@@ -858,14 +940,51 @@ export function DesignerDashboardClient({
             </div>
           </div>
 
-          {/* Submit Action Button */}
+          {/* Action Toolbar */}
           {isEditable ? (
-            <div className="pt-2">
-              <form onSubmit={handleSubmitAllConcepts}>
+            <div className="pt-3 border-t border-black/10 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
                 <button
-                  type="submit"
+                  type="button"
                   disabled={isSubmitting || readySlotsCount === 0}
-                  className={`w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-sm font-bold transition-all shadow-xs cursor-pointer active:scale-[0.99] disabled:opacity-50 ${
+                  onClick={() => handleSaveDraft()}
+                  className="px-4 py-2.5 rounded-xl border border-black/15 bg-white text-slate-800 hover:bg-slate-50 text-xs font-bold font-mono transition-all shadow-2xs cursor-pointer disabled:opacity-50 inline-flex items-center justify-center gap-1.5"
+                >
+                  {isSubmitting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5 text-[#3A3564]" />}
+                  <span>Save Progress Draft</span>
+                </button>
+
+                <span className="text-xs font-mono text-slate-500 font-semibold hidden sm:inline">
+                  {completedConceptsCount} of {targetDesignsCount} Concepts Complete
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2 flex-wrap justify-end">
+                {/* Save & Step to Next Concept Button */}
+                {activeConceptTab < targetDesignsCount && (
+                  <button
+                    type="button"
+                    disabled={isSubmitting}
+                    onClick={() => handleSaveDraft(activeConceptTab + 1)}
+                    className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#FAF7F0] hover:bg-[#F2ECE1] text-[#3A3564] border border-black/15 text-xs font-bold font-mono transition-all shadow-2xs cursor-pointer disabled:opacity-50"
+                  >
+                    <span>Save &amp; Go to Design #{activeConceptTab + 1}</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                )}
+
+                {/* Submit Assignment for Review Button */}
+                <button
+                  type="button"
+                  disabled={isSubmitting || readySlotsCount === 0}
+                  onClick={() => {
+                    if (readySlotsCount < totalSlots) {
+                      setIsConfirmSubmitOpen(true)
+                    } else {
+                      handleFinalSubmit()
+                    }
+                  }}
+                  className={`inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50 ${
                     readySlotsCount >= totalSlots
                       ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
                       : 'bg-[#3A3564] hover:bg-[#2A2649] text-white'
@@ -878,11 +997,13 @@ export function DesignerDashboardClient({
                   )}
                   <span>
                     {activeBrief.status === 'PH_REJECTED'
-                      ? `Resubmit Revised Work (${readySlotsCount}/${totalSlots} Mockups)`
-                      : `Submit Work (${readySlotsCount}/${totalSlots} Mockups) to Provisional Head`}
+                      ? `Resubmit Work (${readySlotsCount}/${totalSlots} Mockups)`
+                      : readySlotsCount >= totalSlots
+                      ? `Submit Complete Assignment (${targetDesignsCount}/${targetDesignsCount} Designs) for Review`
+                      : `Submit Assignment (${readySlotsCount}/${totalSlots} Mockups) for Review`}
                   </span>
                 </button>
-              </form>
+              </div>
             </div>
           ) : (
             <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 flex items-center gap-2 font-medium">
@@ -891,6 +1012,19 @@ export function DesignerDashboardClient({
             </div>
           )}
         </div>
+
+        {/* Partial Submission Confirmation Dialog */}
+        <ConfirmDialog
+          isOpen={isConfirmSubmitOpen}
+          onClose={() => setIsConfirmSubmitOpen(false)}
+          onConfirm={handleFinalSubmit}
+          isLoading={isSubmitting}
+          title="Submit Assignment for Head Review?"
+          description={`You have completed ${readySlotsCount} of ${totalSlots} mockup slots (${completedConceptsCount} of ${targetDesignsCount} design concepts). Submitting now will finalize this assignment and send it to the Provisional Head for technical review.`}
+          confirmText="Yes, Submit to Provisional Head"
+          cancelText="Continue Working"
+          variant="primary"
+        />
 
         {/* Lightbox Preview */}
         {previewPhoto && (

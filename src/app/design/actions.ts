@@ -1039,8 +1039,10 @@ export async function submitDesignPhotosAction(payload: {
   designer_notes?: string
   concepts?: DesignConceptItem[]
   company_name: string
+  is_final_submission?: boolean
 }): Promise<{ success: boolean; data?: DesignSubmission; error?: string }> {
   try {
+    const isFinal = payload.is_final_submission !== false
     let p1 = payload.photo_url_1?.trim() || ''
     let p2 = payload.photo_url_2?.trim() || ''
 
@@ -1104,34 +1106,72 @@ export async function submitDesignPhotosAction(payload: {
       }
     }
 
-    const { data: subData, error: subErr } = await supabaseAdmin
+    // Check if an existing pending/draft submission exists for this brief
+    const { data: existingSub } = await supabaseAdmin
       .from('design_submissions')
-      .insert({
-        brief_id: payload.brief_id,
-        designer_member_id: validMemberId,
-        photo_url_1: p1,
-        photo_url_2: p2 || null,
-        designer_notes: rawNotes || null,
-        ph_verdict: 'PENDING',
-        company_name: payload.company_name
-      })
-      .select('*')
-      .single()
+      .select('id')
+      .eq('brief_id', payload.brief_id)
+      .eq('ph_verdict', 'PENDING')
+      .order('submitted_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
 
-    if (subErr) {
-      console.error('[submitDesignPhotosAction] Insert error:', subErr)
-      return { success: false, error: subErr.message }
+    let subData: any = null
+
+    if (existingSub) {
+      const { data: updatedSub, error: updateErr } = await supabaseAdmin
+        .from('design_submissions')
+        .update({
+          designer_member_id: validMemberId,
+          photo_url_1: p1,
+          photo_url_2: p2 || null,
+          designer_notes: rawNotes || null,
+          company_name: payload.company_name,
+          submitted_at: new Date().toISOString()
+        })
+        .eq('id', existingSub.id)
+        .select('*')
+        .single()
+
+      if (updateErr) {
+        console.error('[submitDesignPhotosAction] Update error:', updateErr)
+        return { success: false, error: updateErr.message }
+      }
+      subData = updatedSub
+    } else {
+      const { data: insertedSub, error: subErr } = await supabaseAdmin
+        .from('design_submissions')
+        .insert({
+          brief_id: payload.brief_id,
+          designer_member_id: validMemberId,
+          photo_url_1: p1,
+          photo_url_2: p2 || null,
+          designer_notes: rawNotes || null,
+          ph_verdict: 'PENDING',
+          company_name: payload.company_name
+        })
+        .select('*')
+        .single()
+
+      if (subErr) {
+        console.error('[submitDesignPhotosAction] Insert error:', subErr)
+        return { success: false, error: subErr.message }
+      }
+      subData = insertedSub
     }
 
-    // Update brief status to SUBMITTED
-    await supabaseAdmin
-      .from('design_briefs')
-      .update({ status: 'SUBMITTED', updated_at: new Date().toISOString() })
-      .eq('id', payload.brief_id)
+    // Update brief status to SUBMITTED only if final submission
+    if (isFinal) {
+      await supabaseAdmin
+        .from('design_briefs')
+        .update({ status: 'SUBMITTED', updated_at: new Date().toISOString() })
+        .eq('id', payload.brief_id)
+    }
 
     revalidatePath('/design')
     revalidatePath('/design/briefs')
     revalidatePath('/design/designer')
+    revalidatePath('/design/history')
 
     const parsed = parseConceptsFromNotes(subData.designer_notes)
     const formatted: DesignSubmission = {
