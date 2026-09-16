@@ -493,7 +493,7 @@ export function DesignerDashboardClient({
     try {
       const res = await submitDesignPhotosAction({
         brief_id: activeBrief.id,
-        designer_member_id: currentUserId,
+        designer_member_id: activeBrief.designer_member_id || currentUserId,
         photo_url_1: firstFrontPhoto,
         photo_url_2: firstBackPhoto,
         designer_notes: conceptsPayload[0]?.notes || '',

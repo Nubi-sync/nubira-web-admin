@@ -1065,11 +1065,50 @@ export async function submitDesignPhotosAction(payload: {
       rawNotes = `[CONCEPTS_JSON: ${JSON.stringify(payload.concepts)}] ${rawNotes}`.trim()
     }
 
+    // Resolve valid designer_member_id referencing design_team_members(id)
+    let validMemberId: string | null = null
+    if (payload.designer_member_id) {
+      // 1. Check if directly an id in design_team_members
+      const { data: directMember } = await supabaseAdmin
+        .from('design_team_members')
+        .select('id')
+        .eq('id', payload.designer_member_id)
+        .maybeSingle()
+
+      if (directMember) {
+        validMemberId = directMember.id
+      } else {
+        // 2. Look up by designer_user_id (auth user id) or ph_user_id
+        const { data: authLinkedMember } = await supabaseAdmin
+          .from('design_team_members')
+          .select('id')
+          .or(`designer_user_id.eq.${payload.designer_member_id},ph_user_id.eq.${payload.designer_member_id}`)
+          .maybeSingle()
+
+        if (authLinkedMember) {
+          validMemberId = authLinkedMember.id
+        }
+      }
+    }
+
+    // 3. Fallback to brief's assigned designer_member_id
+    if (!validMemberId && payload.brief_id) {
+      const { data: briefRecord } = await supabaseAdmin
+        .from('design_briefs')
+        .select('designer_member_id')
+        .eq('id', payload.brief_id)
+        .maybeSingle()
+
+      if (briefRecord?.designer_member_id) {
+        validMemberId = briefRecord.designer_member_id
+      }
+    }
+
     const { data: subData, error: subErr } = await supabaseAdmin
       .from('design_submissions')
       .insert({
         brief_id: payload.brief_id,
-        designer_member_id: payload.designer_member_id || null,
+        designer_member_id: validMemberId,
         photo_url_1: p1,
         photo_url_2: p2 || null,
         designer_notes: rawNotes || null,

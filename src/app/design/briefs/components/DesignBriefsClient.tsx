@@ -521,9 +521,10 @@ export function DesignBriefsClient({
             <table className="w-full text-left border-collapse text-sm">
               <thead>
                 <tr className="border-b border-black/10 bg-[#FAF7F0] text-slate-600 text-xs font-semibold uppercase tracking-wider">
+                  <th className="py-3 px-4">Article Number (Art #)</th>
                   <th className="py-3 px-4">Garment / Category</th>
                   <th className="py-3 px-4">Assigned Designer</th>
-                  <th className="py-3 px-4">Target &amp; Quota</th>
+                  <th className="py-3 px-4">Colors &amp; Scope</th>
                   <th className="py-3 px-4">Photos</th>
                   <th className="py-3 px-4">Status</th>
                   <th className="py-3 px-4">Instructions</th>
@@ -531,228 +532,265 @@ export function DesignBriefsClient({
                 </tr>
               </thead>
               <tbody className="divide-y divide-black/5 text-slate-700">
-                {filteredBriefs.map(brief => {
-                  const stCfg = STATUS_CONFIG[brief.status] || STATUS_CONFIG.ALLOCATED
-                  const hasPhotos = brief.latest_submission && brief.latest_submission.photo_url_1
-                  const completedSubmissions = brief.submissions_count || (hasPhotos ? 1 : 0)
-                  const targetCount = brief.target_designs || 1
-                  const pct = Math.min(100, Math.round((completedSubmissions / targetCount) * 100))
+                {(() => {
+                  const rows: {
+                    key: string
+                    brief: DesignBrief
+                    conceptNumber: number
+                    artNumber: string
+                    garmentType: string
+                    category: string
+                    colors: string[]
+                    photos: { url: string; label: string; color?: string }[]
+                  }[] = []
 
-                  return (
-                    <tr key={brief.id} className="hover:bg-slate-50/80 transition-colors">
-                      <td className="py-3.5 px-4">
-                        <span className="font-bold text-slate-900 text-sm block">{brief.garment_type}</span>
-                        <span className="text-xs text-slate-500 font-medium">{brief.category} Style</span>
-                      </td>
+                  filteredBriefs.forEach(brief => {
+                    if (brief.design_concepts_brief && brief.design_concepts_brief.length > 0) {
+                      brief.design_concepts_brief.forEach(req => {
+                        const artNo = req.art_number || (req.notes?.match(/Art No:\s*([^|]+)/i)?.[1]?.trim()) || `#${brief.id.substring(0, 6)}-${req.concept_number}`
+                        const garment = (req.notes?.match(/Garment:\s*([^|]+)/i)?.[1]?.trim()) || brief.garment_type
+                        const cat = req.category_style || brief.category
+                        const cols = (req.colors && req.colors.length > 0) ? req.colors : (brief.target_colors || [])
+                        const subConcept = brief.latest_submission?.concepts?.find(c => c.concept_number === req.concept_number || (c.art_number && c.art_number.toLowerCase() === artNo.toLowerCase()))
+                        
+                        const photos: { url: string; label: string; color?: string }[] = []
+                        if (subConcept?.colorways) {
+                          subConcept.colorways.forEach(cw => {
+                            if (cw.photo_front) photos.push({ url: cw.photo_front, label: `${artNo} • ${cw.color_name} (Front)`, color: cw.color_name })
+                            if (cw.photo_back) photos.push({ url: cw.photo_back, label: `${artNo} • ${cw.color_name} (Back)`, color: cw.color_name })
+                          })
+                        }
+                        if (photos.length === 0 && brief.latest_submission?.photo_url_1) {
+                          photos.push({ url: brief.latest_submission.photo_url_1, label: `${artNo} Mockup` })
+                        }
 
-                      <td className="py-3.5 px-4">
-                        {brief.designer_name ? (
-                          <div className="flex items-center gap-1.5">
-                            <div className="w-6 h-6 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center text-xs font-bold font-mono">
-                              {brief.designer_name.charAt(0).toUpperCase()}
-                            </div>
-                            <div>
-                              <span className="font-semibold text-slate-800 text-xs block">{brief.designer_name}</span>
-                              {brief.designer_phone && (
-                                <span className="text-[10px] text-slate-500 font-mono inline-flex items-center gap-0.5">
-                                  <Phone className="w-2.5 h-2.5 text-slate-400" />
-                                  +91 {brief.designer_phone}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        ) : (
-                          <span className="text-xs text-slate-400 italic">Unassigned</span>
-                        )}
-                      </td>
+                        rows.push({
+                          key: `${brief.id}-${req.concept_number}`,
+                          brief,
+                          conceptNumber: req.concept_number,
+                          artNumber: artNo,
+                          garmentType: garment,
+                          category: cat,
+                          colors: cols,
+                          photos
+                        })
+                      })
+                    } else {
+                      const artNo = `#${brief.id.substring(0, 6)}`
+                      const photos: { url: string; label: string; color?: string }[] = []
+                      if (brief.latest_submission?.photo_url_1) photos.push({ url: brief.latest_submission.photo_url_1, label: 'Photo 1' })
+                      if (brief.latest_submission?.photo_url_2) photos.push({ url: brief.latest_submission.photo_url_2, label: 'Photo 2' })
 
-                      <td className="py-3.5 px-4 min-w-[150px]">
-                        <div className="space-y-1">
-                          <div className="flex items-center justify-between text-xs font-semibold text-slate-800">
-                            <span className="inline-flex items-center gap-1 font-mono text-[11.5px]">
-                              <Target className="w-3 h-3 text-[#3A3564]" />
-                              {completedSubmissions} of {targetCount} Designs
+                      rows.push({
+                        key: brief.id,
+                        brief,
+                        conceptNumber: 1,
+                        artNumber: artNo,
+                        garmentType: brief.garment_type,
+                        category: brief.category,
+                        colors: brief.target_colors || [],
+                        photos
+                      })
+                    }
+                  })
+
+                  if (rows.length === 0) {
+                    return (
+                      <tr>
+                        <td colSpan={8} className="py-8 text-center text-slate-400 font-mono text-xs">
+                          No designs found.
+                        </td>
+                      </tr>
+                    )
+                  }
+
+                  return rows.map(item => {
+                    const brief = item.brief
+                    const stCfg = STATUS_CONFIG[brief.status] || STATUS_CONFIG.ALLOCATED
+
+                    return (
+                      <tr key={item.key} className="hover:bg-slate-50/80 transition-colors">
+                        {/* 1. Article Number (Art #) */}
+                        <td className="py-3.5 px-4">
+                          <div className="space-y-0.5">
+                            <span className="font-mono font-bold text-slate-900 text-sm block">
+                              {item.artNumber}
                             </span>
-                            <span className="text-[10.5px] font-mono text-slate-500 font-bold">
-                              {pct}%
+                            <span className="text-[11px] font-mono text-slate-400 font-medium block">
+                              #{item.conceptNumber} &bull; #{brief.id.substring(0, 6)}
                             </span>
                           </div>
-                          <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden border border-black/5">
-                            <div 
-                              className={`h-full rounded-full transition-all duration-300 ${
-                                completedSubmissions >= targetCount ? 'bg-emerald-500' : 'bg-[#3A3564]'
-                              }`}
-                              style={{ width: `${pct}%` }}
-                            />
-                          </div>
-                          <div className="text-[10.5px] text-slate-500 font-mono inline-flex items-center gap-1">
-                            <Palette className="w-2.5 h-2.5 text-slate-400" />
-                            {brief.max_colors} Colors Chart
-                          </div>
-                          {brief.target_colors && brief.target_colors.length > 0 && (
-                            <div className="flex flex-wrap gap-1 pt-0.5">
-                              {brief.target_colors.map((col, i) => (
+                        </td>
+
+                        {/* 2. Garment / Category */}
+                        <td className="py-3.5 px-4">
+                          <span className="font-bold text-slate-900 text-sm block">{item.garmentType}</span>
+                          <span className="text-xs text-slate-500 font-medium">{item.category} Style</span>
+                        </td>
+
+                        {/* 3. Designer */}
+                        <td className="py-3.5 px-4">
+                          {brief.designer_name ? (
+                            <div className="flex items-center gap-1.5">
+                              <div className="w-6 h-6 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center text-xs font-bold font-mono">
+                                {brief.designer_name.charAt(0).toUpperCase()}
+                              </div>
+                              <div>
+                                <span className="font-semibold text-slate-800 text-xs block">{brief.designer_name}</span>
+                                {brief.designer_phone && (
+                                  <span className="text-[10px] text-slate-500 font-mono inline-flex items-center gap-0.5">
+                                    <Phone className="w-2.5 h-2.5 text-slate-400" />
+                                    +91 {brief.designer_phone}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          ) : (
+                            <span className="text-xs text-slate-400 italic">Unassigned</span>
+                          )}
+                        </td>
+
+                        {/* 4. Colors & Scope */}
+                        <td className="py-3.5 px-4 min-w-[130px]">
+                          <div className="space-y-1">
+                            <div className="text-xs font-bold text-slate-800 font-mono flex items-center gap-1">
+                              <Palette className="w-3 h-3 text-[#3A3564]" />
+                              <span>{item.colors.length} Color{item.colors.length === 1 ? '' : 's'}</span>
+                            </div>
+                            <div className="flex flex-wrap gap-1">
+                              {item.colors.map((col, i) => (
                                 <span key={i} className="text-[9.5px] px-1.5 py-0.2 rounded-md bg-[#FAF7F0] border border-black/5 font-mono text-[#3A3564] font-semibold">
                                   {col}
                                 </span>
                               ))}
                             </div>
-                          )}
-                        </div>
-                      </td>
+                          </div>
+                        </td>
 
-                      <td className="py-3.5 px-4 min-w-[140px]">
-                        {(() => {
-                          const submissionPhotos: { url: string; label: string; color?: string }[] = []
-                          if (brief.latest_submission?.concepts && brief.latest_submission.concepts.length > 0) {
-                            brief.latest_submission.concepts.forEach(concept => {
-                              concept.colorways?.forEach(cw => {
-                                if (cw.photo_front && cw.photo_front.trim()) {
-                                  submissionPhotos.push({
-                                    url: cw.photo_front,
-                                    label: `Design #${concept.concept_number} • ${cw.color_name} (Front)`,
-                                    color: cw.color_name
-                                  })
-                                }
-                                if (cw.photo_back && cw.photo_back.trim()) {
-                                  submissionPhotos.push({
-                                    url: cw.photo_back,
-                                    label: `Design #${concept.concept_number} • ${cw.color_name} (Back)`,
-                                    color: cw.color_name
-                                  })
-                                }
-                              })
-                            })
-                          }
-                          if (submissionPhotos.length === 0) {
-                            if (brief.latest_submission?.photo_url_1) {
-                              submissionPhotos.push({ url: brief.latest_submission.photo_url_1, label: 'Concept Photo 1' })
-                            }
-                            if (brief.latest_submission?.photo_url_2) {
-                              submissionPhotos.push({ url: brief.latest_submission.photo_url_2, label: 'Concept Photo 2' })
-                            }
-                          }
-
-                          return submissionPhotos.length > 0 ? (
-                            <div className="space-y-1">
-                              <div className="flex items-center gap-1.5 flex-wrap">
-                                {submissionPhotos.slice(0, 3).map((item, idx) => (
-                                  <button
-                                    key={idx}
-                                    type="button"
-                                    onClick={() => setPreviewPhoto(item.url)}
-                                    className="w-9 h-9 rounded-lg border border-black/10 overflow-hidden bg-slate-100 relative group cursor-pointer shrink-0 shadow-2xs hover:ring-2 hover:ring-[#3A3564]"
-                                    title={item.label}
-                                  >
-                                    <img 
-                                      src={item.url} 
-                                      alt={item.label} 
-                                      className="w-full h-full object-cover group-hover:scale-105 transition-transform" 
-                                    />
-                                  </button>
-                                ))}
-                                {submissionPhotos.length > 3 && (
-                                  <button
-                                    type="button"
-                                    onClick={() => {
-                                      if (brief.status === 'SUBMITTED' && brief.latest_submission) {
-                                        setReviewingSubmission({ submission: brief.latest_submission, brief })
-                                      } else {
-                                        setPreviewPhoto(submissionPhotos[3].url)
-                                      }
-                                    }}
-                                    className="w-9 h-9 rounded-lg border border-black/10 bg-[#FAF7F0] text-[#3A3564] hover:bg-[#F2ECE1] text-[11px] font-bold font-mono flex items-center justify-center shrink-0 cursor-pointer transition-colors shadow-2xs"
-                                    title={`+${submissionPhotos.length - 3} more mockups. Click to view deck.`}
-                                  >
-                                    +{submissionPhotos.length - 3}
-                                  </button>
-                                )}
-                              </div>
-                              <div className="text-[10px] text-slate-500 font-mono flex items-center gap-1">
-                                <span>{submissionPhotos.length} mockups</span>
-                                {brief.latest_submission?.concepts && (
-                                  <span>• {brief.latest_submission.concepts.length} designs</span>
-                                )}
-                              </div>
+                        {/* 5. Photos */}
+                        <td className="py-3.5 px-4 min-w-[120px]">
+                          {item.photos.length > 0 ? (
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              {item.photos.slice(0, 3).map((photo, idx) => (
+                                <button
+                                  key={idx}
+                                  type="button"
+                                  onClick={() => setPreviewPhoto(photo.url)}
+                                  className="w-9 h-9 rounded-lg border border-black/10 overflow-hidden bg-slate-100 relative group cursor-pointer shrink-0 shadow-2xs hover:ring-2 hover:ring-[#3A3564]"
+                                  title={photo.label}
+                                >
+                                  <img 
+                                    src={photo.url} 
+                                    alt={photo.label} 
+                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform" 
+                                  />
+                                </button>
+                              ))}
+                              {item.photos.length > 3 && (
+                                <button
+                                  type="button"
+                                  onClick={() => setPreviewPhoto(item.photos[3].url)}
+                                  className="w-9 h-9 rounded-lg border border-black/10 bg-[#FAF7F0] text-[#3A3564] hover:bg-[#F2ECE1] text-[11px] font-bold font-mono flex items-center justify-center shrink-0 cursor-pointer transition-colors shadow-2xs"
+                                >
+                                  +{item.photos.length - 3}
+                                </button>
+                              )}
                             </div>
                           ) : (
-                            <span className="text-xs text-slate-400 italic">No photos yet</span>
-                          )
-                        })()}
-                      </td>
+                            <span className="text-xs text-slate-400 italic">No photos</span>
+                          )}
+                        </td>
 
-                      <td className="py-3.5 px-4">
-                        <span className={`text-xs px-2.5 py-0.5 rounded-md border ${stCfg.badgeClass}`}>
-                          {stCfg.label}
-                        </span>
-                      </td>
+                        {/* 6. Status */}
+                        <td className="py-3.5 px-4">
+                          <span className={`text-xs px-2.5 py-0.5 rounded-md border ${stCfg.badgeClass}`}>
+                            {stCfg.label}
+                          </span>
+                        </td>
 
-                      <td className="py-3.5 px-4 text-xs text-slate-600 max-w-xs truncate">
-                        {brief.latest_submission?.designer_notes || brief.instructions || '—'}
-                      </td>
+                        {/* 7. Instructions */}
+                        <td className="py-3.5 px-4 text-xs text-slate-600 max-w-xs truncate">
+                          {brief.latest_submission?.designer_notes || brief.instructions || '—'}
+                        </td>
 
-                      <td className="py-3.5 px-4 text-right">
-                        <div className="flex items-center justify-end gap-1.5">
-                          {/* 1. PH Review Button */}
-                          {brief.status === 'SUBMITTED' && brief.latest_submission && (
+                        {/* 8. Verification Actions */}
+                        <td className="py-3.5 px-4 text-right">
+                          <div className="flex items-center justify-end gap-1.5">
+                            {brief.status === 'SUBMITTED' && brief.latest_submission && (
+                              <button
+                                onClick={() => setReviewingSubmission({ submission: brief.latest_submission!, brief })}
+                                className="inline-flex items-center gap-1 text-xs font-bold text-[#FAF7F0] bg-[#3A3564] hover:bg-[#2A2649] px-2.5 py-1.5 rounded-lg transition-all cursor-pointer shadow-2xs"
+                                title="Provisional Head Review"
+                              >
+                                <Eye className="w-3.5 h-3.5" />
+                                <span>PH Review</span>
+                              </button>
+                            )}
+
+                            {brief.status === 'PH_APPROVED' && brief.latest_submission && (
+                              <button
+                                onClick={() => setSaReviewingSubmission({ submission: brief.latest_submission!, brief })}
+                                className="inline-flex items-center gap-1 text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 px-2.5 py-1.5 rounded-lg transition-all cursor-pointer shadow-2xs"
+                                title="Super Admin Greenlight / Seasonal Archive"
+                              >
+                                <ShieldCheck className="w-3.5 h-3.5" />
+                                <span>SA Review</span>
+                              </button>
+                            )}
+
+                            {brief.status === 'SA_SAVED_FOR_LATER' && brief.latest_submission && (
+                              <button
+                                onClick={() => setSaReviewingSubmission({ submission: brief.latest_submission!, brief })}
+                                className="inline-flex items-center gap-1 text-xs font-semibold text-[#3A3564] bg-[#FAF7F0] hover:bg-slate-100 border border-black/10 px-2 py-1.5 rounded-lg transition-all cursor-pointer"
+                                title="Revive from Seasonal Archive"
+                              >
+                                <Bookmark className="w-3.5 h-3.5" />
+                                <span>Revive</span>
+                              </button>
+                            )}
+
+                            {brief.status === 'ALLOCATED' && (
+                              <button
+                                onClick={() => {
+                                  if (brief.latest_submission) {
+                                    setReviewingSubmission({ submission: brief.latest_submission, brief })
+                                  } else {
+                                    toast.info('Brief is currently allocated and waiting for designer upload.')
+                                  }
+                                }}
+                                className="inline-flex items-center gap-1 text-xs font-semibold text-slate-700 bg-[#FAF7F0] hover:bg-slate-100 border border-black/10 px-2 py-1.5 rounded-lg transition-all cursor-pointer"
+                                title="View Brief Details"
+                              >
+                                <Eye className="w-3.5 h-3.5" />
+                                <span>View</span>
+                              </button>
+                            )}
+
+                            {brief.status === 'SA_APPROVED' && (
+                              <Link
+                                href={`/design/tech-packs?from_brief=${brief.id}`}
+                                className="inline-flex items-center gap-1 text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-800 px-2.5 py-1.5 rounded-lg transition-all shadow-2xs"
+                                title="Create Production Tech-Pack"
+                              >
+                                <Sparkles className="w-3.5 h-3.5" />
+                                <span>Create Tech-Pack</span>
+                              </Link>
+                            )}
+
                             <button
-                              onClick={() => setReviewingSubmission({ submission: brief.latest_submission!, brief })}
-                              className="inline-flex items-center gap-1 text-xs font-bold text-[#FAF7F0] bg-[#3A3564] hover:bg-[#2A2649] px-2.5 py-1.5 rounded-lg transition-all cursor-pointer shadow-2xs"
-                              title="Provisional Head Review"
+                              type="button"
+                              onClick={() => setBriefToDelete(brief)}
+                              className="p-1.5 text-xs text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg border border-transparent hover:border-rose-100 transition-all cursor-pointer ml-1"
+                              title="Delete Brief"
                             >
-                              <Eye className="w-3.5 h-3.5" />
-                              <span>PH Review</span>
+                              <Trash2 className="w-3.5 h-3.5" />
                             </button>
-                          )}
-
-                          {/* 2. SA Review Button */}
-                          {brief.status === 'PH_APPROVED' && brief.latest_submission && (
-                            <button
-                              onClick={() => setSaReviewingSubmission({ submission: brief.latest_submission!, brief })}
-                              className="inline-flex items-center gap-1 text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 px-2.5 py-1.5 rounded-lg transition-all cursor-pointer shadow-2xs"
-                              title="Super Admin Greenlight / Seasonal Archive"
-                            >
-                              <ShieldCheck className="w-3.5 h-3.5" />
-                              <span>SA Review</span>
-                            </button>
-                          )}
-
-                          {/* 3. Revive Archive Button */}
-                          {brief.status === 'SA_SAVED_FOR_LATER' && brief.latest_submission && (
-                            <button
-                              onClick={() => setSaReviewingSubmission({ submission: brief.latest_submission!, brief })}
-                              className="inline-flex items-center gap-1 text-xs font-bold text-[#3A3564] bg-[#FAF7F0] hover:bg-[#F2ECE1] border border-black/10 px-2.5 py-1.5 rounded-lg transition-all cursor-pointer shadow-2xs"
-                              title="Revive from Seasonal Archive"
-                            >
-                              <Bookmark className="w-3.5 h-3.5" />
-                              <span>Revive</span>
-                            </button>
-                          )}
-
-                          {/* 4. Generate Tech-Pack */}
-                          {brief.status === 'SA_APPROVED' && (
-                            <Link
-                              href={`/design/tech-packs?createFromSubmission=${brief.latest_submission?.id || ''}&garment=${brief.garment_type}`}
-                              className="inline-flex items-center gap-1 text-xs font-bold text-[#3A3564] bg-[#FAF7F0] hover:bg-[#F2ECE1] border border-black/10 px-2.5 py-1.5 rounded-lg transition-all shadow-2xs"
-                              title="Generate Tech-Pack"
-                            >
-                              <FileCheck2 className="w-3.5 h-3.5" />
-                              <span>Tech-Pack</span>
-                            </Link>
-                          )}
-
-                          <button
-                            onClick={() => setBriefToDelete(brief)}
-                            className="p-1.5 text-xs text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-lg border border-black/5 transition-all cursor-pointer shadow-2xs"
-                            title="Delete Brief"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  )
-                })}
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  })
+                })()}
               </tbody>
             </table>
           </div>

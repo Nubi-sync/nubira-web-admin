@@ -27,6 +27,13 @@ import { DesignSubmission } from '../../types/design'
 import { saReviewDesignSubmissionAction } from '../../actions'
 import { EmptyState } from '@/components/ui/EmptyState'
 
+function getVariantArtNumber(baseArtNo: string, index: number, totalCount: number): string {
+  if (!baseArtNo) return ''
+  if (totalCount <= 1) return baseArtNo
+  const suffix = String(index + 1).padStart(2, '0')
+  return `${baseArtNo}-${suffix}`
+}
+
 function getColorSwatchInfo(colorName: string): { bg: string; border: string; isLight: boolean } {
   const norm = colorName.trim().toLowerCase()
   if (norm.includes('black')) return { bg: '#111111', border: '#222222', isLight: false }
