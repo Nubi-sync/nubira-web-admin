@@ -7,10 +7,7 @@ import {
   Trash2, 
   Palette, 
   Loader2, 
-  Check,
-  AlertCircle,
-  Hash,
-  Tag
+  AlertCircle
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { 
@@ -19,21 +16,6 @@ import {
   BriefDesignConceptRequirement 
 } from '../types/design'
 import { createDesignBriefAction } from '../actions'
-
-const PRESET_COLORS = [
-  { name: 'Black', hex: '#000000' },
-  { name: 'White', hex: '#FFFFFF' },
-  { name: 'Off-White', hex: '#FAF7F0' },
-  { name: 'Charcoal', hex: '#334155' },
-  { name: 'Navy Blue', hex: '#1E3A8A' },
-  { name: 'Olive Green', hex: '#556B2F' },
-  { name: 'Forest Green', hex: '#1B4D3E' },
-  { name: 'Maroon', hex: '#800020' },
-  { name: 'Beige / Sand', hex: '#D2B48C' },
-  { name: 'Sky Blue', hex: '#93C5FD' },
-  { name: 'Rust', hex: '#C85A17' },
-  { name: 'Lavender', hex: '#C084FC' }
-]
 
 function getColorSwatch(colorName: string): string {
   const c = colorName.trim().toLowerCase()
@@ -48,6 +30,9 @@ function getColorSwatch(colorName: string): string {
   if (c.includes('orange') || c.includes('rust')) return '#ea580c'
   if (c.includes('grey') || c.includes('gray') || c.includes('charcoal')) return '#475569'
   if (c.includes('purple') || c.includes('lavender')) return '#9333ea'
+  if (c.includes('yellow') || c.includes('mustard')) return '#eab308'
+  if (c.includes('brown') || c.includes('tan') || c.includes('khaki')) return '#78350f'
+  if (c.includes('pink') || c.includes('rose')) return '#f43f5e'
   return '#3A3564'
 }
 
@@ -104,7 +89,7 @@ export function AllocateBriefModal({
       garment_type: 'T-Shirt',
       category: '',
       print_required: '',
-      colors: ['Black', 'Off-White'],
+      colors: [],
       color_input: ''
     }
     setDesigns(prev => [...prev, newItem])
@@ -133,36 +118,13 @@ export function AllocateBriefModal({
     }))
   }
 
-  function handleToggleColor(designIndex: number, colorName: string) {
-    setDesigns(prev => prev.map((item, i) => {
-      if (i === designIndex) {
-        const exists = item.colors.some(c => c.toLowerCase() === colorName.toLowerCase())
-        if (exists) {
-          if (item.colors.length <= 1) {
-            toast.error('Each design must have at least 1 color.')
-            return item
-          }
-          return {
-            ...item,
-            colors: item.colors.filter(c => c.toLowerCase() !== colorName.toLowerCase())
-          }
-        } else {
-          return {
-            ...item,
-            colors: [...item.colors, colorName]
-          }
-        }
-      }
-      return item
-    }))
-  }
-
-  function handleAddCustomColor(index: number) {
+  function handleAddManualColor(index: number) {
     setDesigns(prev => prev.map((item, i) => {
       if (i === index) {
         const val = item.color_input.trim()
         if (!val) return item
         if (item.colors.some(c => c.toLowerCase() === val.toLowerCase())) {
+          toast.info(`"${val}" is already added.`)
           return { ...item, color_input: '' }
         }
         return {
@@ -178,10 +140,6 @@ export function AllocateBriefModal({
   function handleRemoveColorFromDesign(designIndex: number, colorIndex: number) {
     setDesigns(prev => prev.map((item, i) => {
       if (i === designIndex) {
-        if (item.colors.length <= 1) {
-          toast.error('Each design must have at least 1 color.')
-          return item
-        }
         return {
           ...item,
           colors: item.colors.filter((_, cIdx) => cIdx !== colorIndex)
@@ -243,15 +201,15 @@ export function AllocateBriefModal({
         return
       }
       if (!d.garment_type.trim()) {
-        toast.error(`Please select garment silhouette for Design #${i + 1}.`)
+        toast.error(`Please enter garment silhouette for Design #${i + 1}.`)
         return
       }
       if (!d.category.trim()) {
-        toast.error(`Please select category for Design #${i + 1}.`)
+        toast.error(`Please enter category for Design #${i + 1}.`)
         return
       }
       if (d.colors.length === 0) {
-        toast.error(`Please allocate at least 1 color for Design #${i + 1}.`)
+        toast.error(`Please add at least 1 color for Design #${i + 1}.`)
         return
       }
     }
@@ -389,7 +347,7 @@ export function AllocateBriefModal({
                           Design #{idx + 1}
                         </span>
                         {fullArtNo && (
-                          <span className="px-2 py-0.5 rounded-md bg-[#3A3564] text-white text-[11px] font-mono font-bold tracking-wider shadow-2xs">
+                          <span className="px-2.5 py-0.5 rounded-md bg-[#3A3564] text-white text-[11px] font-mono font-bold tracking-wider shadow-2xs">
                             ART NO: {fullArtNo}
                           </span>
                         )}
@@ -406,12 +364,12 @@ export function AllocateBriefModal({
 
                     {/* Article Number Configuration (Prefix + Number) */}
                     <div>
-                      <div className="flex items-center justify-between mb-1">
-                        <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-800 font-mono">
+                      <div className="flex items-center justify-between mb-1.5 flex-wrap gap-1">
+                        <label className="block text-xs font-bold uppercase tracking-wider text-slate-900 font-mono">
                           Article Number (Art #) <span className="text-rose-500">*</span>
                         </label>
-                        <span className="text-[10px] text-slate-500 font-mono">
-                          2-4 Prefix (opt) + 3-6 Digits (req)
+                        <span className="text-xs font-mono font-bold text-[#3A3564] bg-white px-2.5 py-0.5 rounded-lg border border-black/10 shadow-2xs">
+                          Prefix: 2–4 chars (Optional) &bull; Number: 3–6 digits (Required)
                         </span>
                       </div>
                       
@@ -502,105 +460,71 @@ export function AllocateBriefModal({
                       />
                     </div>
 
-                    {/* Distinct & Visible Colorways Section */}
-                    <div className="pt-2 border-t border-black/5 space-y-2.5">
-                      
-                      {/* 1. Final Selected Colors */}
-                      <div>
-                        <div className="flex items-center justify-between mb-1.5">
-                          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-900 font-mono flex items-center gap-1.5">
-                            <Palette className="w-3.5 h-3.5 text-[#3A3564]" />
-                            <span>Selected Colorways ({design.colors.length})</span>
-                            <span className="text-rose-500">*</span>
-                          </span>
-                          <span className="text-[10px] text-slate-500">
-                            Final palette for this design
-                          </span>
-                        </div>
-
-                        {design.colors.length === 0 ? (
-                          <div className="p-2.5 rounded-xl bg-white border border-dashed border-slate-300 text-center text-xs text-slate-400">
-                            No colors selected yet. Click options below to add.
-                          </div>
-                        ) : (
-                          <div className="flex flex-wrap items-center gap-2 p-2.5 rounded-xl bg-white border border-black/10 shadow-2xs">
-                            {design.colors.map((col, cIdx) => (
-                              <div
-                                key={cIdx}
-                                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#FAF7F0] border border-black/10 text-xs font-bold text-slate-900 shadow-2xs"
-                              >
-                                <span 
-                                  className="w-3.5 h-3.5 rounded-full border border-black/20 shrink-0 shadow-2xs"
-                                  style={{ backgroundColor: getColorSwatch(col) }}
-                                />
-                                <span>{col}</span>
-                                <button
-                                  type="button"
-                                  onClick={() => handleRemoveColorFromDesign(idx, cIdx)}
-                                  className="text-slate-400 hover:text-rose-600 hover:bg-rose-50 p-0.5 rounded cursor-pointer transition-colors"
-                                  title={`Remove ${col}`}
-                                >
-                                  <X className="w-3.5 h-3.5" />
-                                </button>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-
-                      {/* 2. Quick Presets & Custom Adder */}
-                      <div className="space-y-2 pt-1">
-                        <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 font-mono">
-                          Quick Presets (Click to Add / Remove):
+                    {/* Purely Manual Colors Section */}
+                    <div className="pt-2 border-t border-black/5 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <label className="block text-xs font-bold uppercase tracking-wider text-slate-900 font-mono flex items-center gap-1.5">
+                          <Palette className="w-3.5 h-3.5 text-[#3A3564]" />
+                          <span>Colors ({design.colors.length}) <span className="text-rose-500">*</span></span>
+                        </label>
+                        <span className="text-[11px] text-slate-500">
+                          Type color and click Add
                         </span>
-                        
-                        <div className="flex flex-wrap gap-1.5">
-                          {PRESET_COLORS.map(pc => {
-                            const isAdded = design.colors.some(c => c.toLowerCase() === pc.name.toLowerCase())
-                            return (
-                              <button
-                                key={pc.name}
-                                type="button"
-                                onClick={() => handleToggleColor(idx, pc.name)}
-                                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] font-mono font-medium transition-all cursor-pointer ${
-                                  isAdded 
-                                    ? 'bg-[#3A3564] text-white border-[#3A3564] shadow-2xs' 
-                                    : 'bg-white text-slate-700 border-black/10 hover:border-black/30 hover:bg-slate-50'
-                                }`}
-                              >
-                                <span className="w-2.5 h-2.5 rounded-full border border-black/20 shrink-0" style={{ backgroundColor: pc.hex }} />
-                                <span>{pc.name}</span>
-                                {isAdded && <Check className="w-3 h-3 ml-0.5" />}
-                              </button>
-                            )
-                          })}
-                        </div>
-
-                        {/* Custom Color Input */}
-                        <div className="flex items-center gap-1.5 pt-1">
-                          <input
-                            type="text"
-                            placeholder="Add custom color (e.g. Sage Green, Acid Wash)..."
-                            value={design.color_input}
-                            onChange={e => handleUpdateDesignField(idx, 'color_input', e.target.value)}
-                            onKeyDown={e => {
-                              if (e.key === 'Enter') {
-                                e.preventDefault()
-                                handleAddCustomColor(idx)
-                              }
-                            }}
-                            className="flex-1 px-3 py-1.5 bg-white border border-slate-200 focus:border-[#3A3564] rounded-xl text-xs font-medium text-slate-900 outline-none"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => handleAddCustomColor(idx)}
-                            className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-black/10 text-xs font-bold text-[#3A3564] cursor-pointer shadow-2xs"
-                          >
-                            + Add Color
-                          </button>
-                        </div>
                       </div>
 
+                      {/* Manual Color Input Row */}
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          placeholder="Type color name (e.g. Black, Off-White, Olive Green, Rust)..."
+                          value={design.color_input}
+                          onChange={e => handleUpdateDesignField(idx, 'color_input', e.target.value)}
+                          onKeyDown={e => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault()
+                              handleAddManualColor(idx)
+                            }
+                          }}
+                          className="flex-1 px-3 py-2 bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs font-semibold text-slate-900 outline-none shadow-2xs"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleAddManualColor(idx)}
+                          className="px-4 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold cursor-pointer transition-all shadow-xs shrink-0 active:scale-95"
+                        >
+                          + Add Color
+                        </button>
+                      </div>
+
+                      {/* Added Colors Display */}
+                      {design.colors.length === 0 ? (
+                        <div className="p-3 rounded-xl bg-white border border-dashed border-slate-300 text-center text-xs text-slate-400">
+                          No colors added yet. Type a color name above and click &ldquo;+ Add Color&rdquo;.
+                        </div>
+                      ) : (
+                        <div className="flex flex-wrap items-center gap-2 p-2.5 rounded-xl bg-white border border-black/10 shadow-2xs">
+                          {design.colors.map((col, cIdx) => (
+                            <div
+                              key={cIdx}
+                              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#FAF7F0] border border-black/10 text-xs font-bold text-slate-900 shadow-2xs"
+                            >
+                              <span 
+                                className="w-3.5 h-3.5 rounded-full border border-black/20 shrink-0 shadow-2xs"
+                                style={{ backgroundColor: getColorSwatch(col) }}
+                              />
+                              <span>{col}</span>
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveColorFromDesign(idx, cIdx)}
+                                className="text-slate-400 hover:text-rose-600 hover:bg-rose-50 p-0.5 rounded cursor-pointer transition-colors"
+                                title={`Remove ${col}`}
+                              >
+                                <X className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
 
                   </div>
