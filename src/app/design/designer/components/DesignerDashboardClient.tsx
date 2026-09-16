@@ -323,7 +323,7 @@ export function DesignerDashboardClient({
   useEffect(() => {
     if (!activeBrief) return
     const count = activeBrief.target_designs || 1
-    const colors = (activeBrief.target_colors && activeBrief.target_colors.length > 0)
+    const globalColors = (activeBrief.target_colors && activeBrief.target_colors.length > 0)
       ? activeBrief.target_colors
       : ['Default Colorway']
 
@@ -349,7 +349,7 @@ export function DesignerDashboardClient({
         title: 'Design Concept #1',
         notes: activeBrief.latest_submission.designer_notes || '',
         colorways: {
-          [colors[0]]: {
+          [globalColors[0]]: {
             photo_front: activeBrief.latest_submission.photo_url_1,
             photo_back: activeBrief.latest_submission.photo_url_2 || ''
           }
@@ -358,14 +358,19 @@ export function DesignerDashboardClient({
     }
 
     for (let i = 1; i <= count; i++) {
+      const instructedConcept = activeBrief.design_concepts_brief?.find(c => c.concept_number === i)
+      const conceptColors = (instructedConcept?.colors && instructedConcept.colors.length > 0)
+        ? instructedConcept.colors
+        : globalColors
+
       if (!nextState[i]) {
         nextState[i] = {
-          title: `Design Concept #${i}`,
-          notes: '',
+          title: instructedConcept?.category_style || `Design Concept #${i}`,
+          notes: instructedConcept?.notes || '',
           colorways: {}
         }
       }
-      colors.forEach(col => {
+      conceptColors.forEach(col => {
         if (!nextState[i].colorways[col]) {
           nextState[i].colorways[col] = { photo_front: '', photo_back: '' }
         }
@@ -374,15 +379,30 @@ export function DesignerDashboardClient({
 
     setConceptsState(nextState)
     setActiveConceptTab(1)
-    setActiveColorwayTab(colors[0])
+    
+    const firstConceptReq = activeBrief.design_concepts_brief?.find(c => c.concept_number === 1)
+    const initialColors = (firstConceptReq?.colors && firstConceptReq.colors.length > 0)
+      ? firstConceptReq.colors
+      : globalColors
+    setActiveColorwayTab(initialColors[0])
   }, [activeBrief?.id])
 
-  const totalSlots = targetDesignsCount * targetColorsList.length
+  // Total slots calculation across all concepts
+  let totalSlots = 0
+  for (let i = 1; i <= targetDesignsCount; i++) {
+    const req = activeBrief?.design_concepts_brief?.find(c => c.concept_number === i)
+    const cColors = (req?.colors && req.colors.length > 0) ? req.colors : targetColorsList
+    totalSlots += cColors.length
+  }
+  if (totalSlots === 0) totalSlots = targetDesignsCount * targetColorsList.length
+
   let readySlotsCount = 0
   for (let i = 1; i <= targetDesignsCount; i++) {
     const cData = conceptsState[i]
+    const req = activeBrief?.design_concepts_brief?.find(c => c.concept_number === i)
+    const cColors = (req?.colors && req.colors.length > 0) ? req.colors : targetColorsList
     if (cData) {
-      targetColorsList.forEach(col => {
+      cColors.forEach(col => {
         if (cData.colorways[col]?.photo_front?.trim()) {
           readySlotsCount++
         }
@@ -437,8 +457,11 @@ export function DesignerDashboardClient({
       const cData = conceptsState[i]
       if (!cData) continue
 
+      const req = activeBrief.design_concepts_brief?.find(c => c.concept_number === i)
+      const conceptColors = (req?.colors && req.colors.length > 0) ? req.colors : targetColorsList
+
       const colorwaysPayload: DesignConceptColorway[] = []
-      targetColorsList.forEach(colName => {
+      conceptColors.forEach(colName => {
         const cw = cData.colorways[colName]
         if (cw && (cw.photo_front || cw.photo_back)) {
           colorwaysPayload.push({

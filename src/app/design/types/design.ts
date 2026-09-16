@@ -146,6 +146,13 @@ export type BriefStatus =
   | 'SA_SAVED_FOR_LATER'
   | 'TECH_PACK_CREATED'
 
+export interface BriefDesignConceptRequirement {
+  concept_number: number
+  category_style?: string
+  colors: string[]
+  notes?: string
+}
+
 export interface DesignBrief {
   id: string
   ph_user_id: string
@@ -162,6 +169,7 @@ export interface DesignBrief {
   num_designs?: number
   submissions_count?: number
   instructions?: string
+  design_concepts_brief?: BriefDesignConceptRequirement[]
   status: BriefStatus
   company_name: string
   created_at: string

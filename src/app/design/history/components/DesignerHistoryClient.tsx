@@ -490,7 +490,7 @@ export function DesignerHistoryClient({
                                     <span className="text-[10px] font-mono text-slate-500 uppercase block mb-1">Back</span>
                                     {cw.photo_back ? (
                                       <div
-                                        onClick={() => setPreviewPhoto(cw.photo_back)}
+                                        onClick={() => setPreviewPhoto(cw.photo_back || null)}
                                         className="aspect-square bg-white rounded-lg border border-black/10 p-1 flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity"
                                       >
                                         <img src={cw.photo_back} alt="Back" className="h-full w-full object-contain" />

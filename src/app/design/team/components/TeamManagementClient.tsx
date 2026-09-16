@@ -31,6 +31,7 @@ import {
   deleteDesignTeamMemberAction,
   createDesignBriefAction 
 } from '../../actions'
+import { AllocateBriefModal } from '../../components/AllocateBriefModal'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 
@@ -58,48 +59,8 @@ export function TeamManagementClient({
   const [newPassword, setNewPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
 
-  // Quick Allocate Brief State (Initialized empty with clean placeholders)
+  // Quick Allocate Brief State
   const [allocateMember, setAllocateMember] = useState<DesignTeamMember | null>(null)
-  const [garmentType, setGarmentType] = useState('')
-  const [category, setCategory] = useState<string>('')
-  const [targetDesigns, setTargetDesigns] = useState<string>('')
-  const [maxColors, setMaxColors] = useState<string>('')
-  const [targetColors, setTargetColors] = useState<string[]>([])
-  const [colorInput, setColorInput] = useState('')
-  const [instructions, setInstructions] = useState('')
-  const [isAllocating, setIsAllocating] = useState(false)
-
-  function handleAddColor(colorName?: string) {
-    const val = (colorName || colorInput).trim().replace(/^,+|,+$/g, '')
-    if (!val) return
-    if (!targetColors.includes(val)) {
-      setTargetColors(prev => [...prev, val])
-    }
-    setColorInput('')
-  }
-
-  function handleRemoveColor(index: number) {
-    setTargetColors(prev => prev.filter((_, i) => i !== index))
-  }
-
-  function handleColorKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.key === 'Enter' || e.key === ',') {
-      e.preventDefault()
-      handleAddColor()
-    } else if (e.key === 'Backspace' && !colorInput && targetColors.length > 0) {
-      handleRemoveColor(targetColors.length - 1)
-    }
-  }
-
-  function resetAllocateForm() {
-    setGarmentType('')
-    setCategory('')
-    setTargetDesigns('')
-    setMaxColors('')
-    setTargetColors([])
-    setColorInput('')
-    setInstructions('')
-  }
 
   // Delete State
   const [memberToDelete, setMemberToDelete] = useState<DesignTeamMember | null>(null)
@@ -194,39 +155,6 @@ export function TeamManagementClient({
       toast.error(err.message || 'Error removing member')
     } finally {
       setIsDeleting(false)
-    }
-  }
-
-  async function handleAllocateBriefSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    if (!allocateMember) return
-    setIsAllocating(true)
-    try {
-      const res = await createDesignBriefAction({
-        ph_user_id: currentUserId,
-        designer_member_id: allocateMember.id,
-        garment_type: garmentType,
-        category: category,
-        target_designs: Number(targetDesigns) || 1,
-        num_designs: Number(targetDesigns) || 1,
-        max_colors: Number(maxColors) || (targetColors.length > 0 ? targetColors.length : 3),
-        chart_colors: Number(maxColors) || (targetColors.length > 0 ? targetColors.length : 3),
-        target_colors: targetColors.length > 0 ? targetColors : undefined,
-        instructions: instructions.trim() || undefined,
-        company_name: companyName
-      })
-
-      if (res.success) {
-        toast.success(`Brief allocated to ${allocateMember.designer_name} successfully!`)
-        setAllocateMember(null)
-        resetAllocateForm()
-      } else {
-        toast.error(res.error || 'Failed to allocate brief.')
-      }
-    } catch (err: any) {
-      toast.error(err.message || 'Error allocating brief.')
-    } finally {
-      setIsAllocating(false)
     }
   }
 
@@ -563,195 +491,18 @@ export function TeamManagementClient({
 
       {/* Quick Allocate Brief Modal */}
       {allocateMember && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs">
-          <div className="bg-white rounded-2xl border border-black/10 shadow-xl max-w-lg w-full p-6 space-y-5 animate-in fade-in zoom-in duration-150">
-            <div className="flex items-center justify-between border-b border-black/5 pb-3">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
-                  <ClipboardList className="w-4 h-4" />
-                </div>
-                <div>
-                  <h2 className="text-lg font-bold text-slate-900 font-[family-name:var(--font-heading)]">
-                    Allocate Design Brief
-                  </h2>
-                  <p className="text-xs text-slate-500">
-                    Assigning to {allocateMember.designer_name} ({allocateMember.phone_number ? `+91 ${allocateMember.phone_number}` : (allocateMember.username ? `@${allocateMember.username}` : '')})
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => {
-                  setAllocateMember(null)
-                  resetAllocateForm()
-                }}
-                className="text-slate-400 hover:text-slate-700 text-lg font-bold p-1 cursor-pointer"
-              >
-                ✕
-              </button>
-            </div>
-
-            <form onSubmit={handleAllocateBriefSubmit} className="space-y-4 text-xs sm:text-sm">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-bold text-slate-800 mb-1">
-                    Garment Silhouette <span className="text-rose-600">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Tees, Cargo, Jogger, Girls Suit..."
-                    value={garmentType}
-                    onChange={e => setGarmentType(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-black/10 bg-white text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-bold text-slate-800 mb-1">
-                    Category Style / Collection <span className="text-rose-600">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Digital, Disney, Casual, Formal..."
-                    value={category}
-                    onChange={e => setCategory(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-black/10 bg-white text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-bold text-slate-800 mb-1 text-xs">
-                    Target No. of Designs <span className="text-rose-600">*</span>
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                      <Target className="w-4 h-4" />
-                    </div>
-                    <input
-                      type="number"
-                      min={1}
-                      max={50}
-                      required
-                      placeholder="e.g. 4"
-                      value={targetDesigns}
-                      onChange={e => setTargetDesigns(e.target.value)}
-                      className="w-full pl-9 pr-3 py-2 rounded-xl border border-black/10 bg-white text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
-                    />
-                  </div>
-                  <p className="text-[11px] text-slate-400 mt-0.5">
-                    Required designs for this brief (e.g. 4)
-                  </p>
-                </div>
-
-                <div>
-                  <label className="block font-bold text-slate-800 mb-1 text-xs">
-                    Chart / Colorways Count <span className="text-rose-600">*</span>
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                      <Palette className="w-4 h-4" />
-                    </div>
-                    <input
-                      type="number"
-                      min={1}
-                      max={12}
-                      required
-                      placeholder="e.g. 3"
-                      value={maxColors}
-                      onChange={e => setMaxColors(e.target.value)}
-                      className="w-full pl-9 pr-3 py-2 rounded-xl border border-black/10 bg-white text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
-                    />
-                  </div>
-                  <p className="text-[11px] text-slate-400 mt-0.5">
-                    Colors per chart / colorway (e.g. 3)
-                  </p>
-                </div>
-              </div>
-
-              <div>
-                <label className="block font-bold text-slate-800 mb-1 text-xs">
-                  Target Color Palette / Specific Colors (Optional)
-                </label>
-                <div className="flex flex-wrap items-center gap-1.5 p-2 rounded-xl border border-black/10 bg-white focus-within:ring-2 focus-within:ring-[#3A3564] transition-all">
-                  {targetColors.map((col, idx) => (
-                    <span
-                      key={idx}
-                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#FAF7F0] border border-black/10 text-xs font-semibold text-[#3A3564]"
-                    >
-                      <span>{col}</span>
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveColor(idx)}
-                        className="text-slate-400 hover:text-slate-700 font-bold ml-0.5 cursor-pointer"
-                        aria-label={`Remove color ${col}`}
-                      >
-                        &times;
-                      </button>
-                    </span>
-                  ))}
-                  <input
-                    type="text"
-                    placeholder={targetColors.length === 0 ? "Type color (e.g. Navy Blue, Olive, Black) and press Enter..." : "Add another color..."}
-                    value={colorInput}
-                    onChange={e => setColorInput(e.target.value)}
-                    onKeyDown={handleColorKeyDown}
-                    onBlur={() => { if (colorInput.trim()) handleAddColor() }}
-                    className="flex-1 min-w-[150px] px-1 py-1 text-xs bg-transparent text-slate-900 font-medium focus:outline-none placeholder:text-slate-400"
-                  />
-                  {colorInput.trim() && (
-                    <button
-                      type="button"
-                      onClick={() => handleAddColor()}
-                      className="px-2 py-0.5 rounded-md bg-[#3A3564] text-[#FAF7F0] text-[11px] font-bold hover:bg-[#2A2649] cursor-pointer shrink-0"
-                    >
-                      + Add
-                    </button>
-                  )}
-                </div>
-                <p className="text-[11px] text-slate-400 mt-0.5">
-                  Type any color name and press Enter or comma (zero dummy presets)
-                </p>
-              </div>
-
-              <div>
-                <label className="block font-bold text-slate-800 mb-1 text-xs">
-                  Design Instructions &amp; Creative Guidelines
-                </label>
-                <textarea
-                  rows={3}
-                  placeholder="e.g. Minimal branding on chest, drop shoulder cut, contrast collar..."
-                  value={instructions}
-                  onChange={e => setInstructions(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-black/10 bg-white text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
-                />
-              </div>
-
-              <div className="flex items-center justify-end gap-2 pt-2 border-t border-black/5">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setAllocateMember(null)
-                    resetAllocateForm()
-                  }}
-                  className="px-4 py-2 rounded-xl border border-black/10 text-xs font-semibold text-slate-700 hover:bg-slate-100 cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isAllocating || !garmentType || !category}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#3A3564] text-[#FAF7F0] text-xs font-bold hover:bg-[#2A2649] transition-all shadow-2xs cursor-pointer disabled:opacity-50"
-                >
-                  {isAllocating && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                  <span>Allocate Brief</span>
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+        <AllocateBriefModal
+          isOpen={!!allocateMember}
+          onClose={() => setAllocateMember(null)}
+          onSuccess={_brief => {
+            toast.success(`Brief allocated to ${allocateMember.designer_name} successfully!`)
+            setAllocateMember(null)
+          }}
+          teamMembers={members}
+          currentUserId={currentUserId}
+          companyName={companyName}
+          preselectedDesignerId={allocateMember.id}
+        />
       )}
 
       {/* Delete Member Confirmation */}

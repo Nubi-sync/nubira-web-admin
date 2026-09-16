@@ -47,6 +47,7 @@ import {
   reviewDesignSubmissionAction, 
   saReviewDesignSubmissionAction 
 } from '../actions'
+import { AllocateBriefModal } from './AllocateBriefModal'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 
@@ -113,15 +114,6 @@ export function DesignDashboardClient({
 
   // Create Brief Modal
   const [isCreateOpen, setIsCreateOpen] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [selectedDesignerId, setSelectedDesignerId] = useState<string>('')
-  const [garmentType, setGarmentType] = useState('')
-  const [category, setCategory] = useState<string>('')
-  const [targetDesigns, setTargetDesigns] = useState<string>('')
-  const [maxColors, setMaxColors] = useState<string>('')
-  const [targetColors, setTargetColors] = useState<string[]>([])
-  const [colorInput, setColorInput] = useState('')
-  const [instructions, setInstructions] = useState('')
 
   // Dedicated View & Review Modal State
   const [selectedBriefForView, setSelectedBriefForView] = useState<DesignBrief | null>(null)
@@ -167,76 +159,6 @@ export function DesignDashboardClient({
   const saApprovedCount = briefs.filter(b => b.status === 'SA_APPROVED').length
   const savedForLaterCount = briefs.filter(b => b.status === 'SA_SAVED_FOR_LATER').length
   const techPacksCount = techPacks.length
-
-  function handleAddColor(colorName?: string) {
-    const val = (colorName || colorInput).trim().replace(/^,+|,+$/g, '')
-    if (!val) return
-    if (!targetColors.includes(val)) {
-      setTargetColors(prev => [...prev, val])
-    }
-    setColorInput('')
-  }
-
-  function handleRemoveColor(index: number) {
-    setTargetColors(prev => prev.filter((_, i) => i !== index))
-  }
-
-  function handleColorKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.key === 'Enter' || e.key === ',') {
-      e.preventDefault()
-      handleAddColor()
-    } else if (e.key === 'Backspace' && !colorInput && targetColors.length > 0) {
-      handleRemoveColor(targetColors.length - 1)
-    }
-  }
-
-  function resetCreateForm() {
-    setSelectedDesignerId('')
-    setGarmentType('')
-    setCategory('')
-    setTargetDesigns('')
-    setMaxColors('')
-    setTargetColors([])
-    setColorInput('')
-    setInstructions('')
-  }
-
-  async function handleCreateBrief(e: React.FormEvent) {
-    e.preventDefault()
-    if (!selectedDesignerId || !garmentType || !category) {
-      toast.error('Please fill in all required fields.')
-      return
-    }
-    setIsSubmitting(true)
-    try {
-      const res = await createDesignBriefAction({
-        ph_user_id: currentUserId,
-        designer_member_id: selectedDesignerId || undefined,
-        garment_type: garmentType,
-        category: category,
-        target_designs: Number(targetDesigns) || 1,
-        num_designs: Number(targetDesigns) || 1,
-        max_colors: Number(maxColors) || (targetColors.length > 0 ? targetColors.length : 3),
-        chart_colors: Number(maxColors) || (targetColors.length > 0 ? targetColors.length : 3),
-        target_colors: targetColors.length > 0 ? targetColors : undefined,
-        instructions: instructions.trim() || undefined,
-        company_name: companyName
-      })
-
-      if (res.success && res.data) {
-        toast.success('Design brief allocated successfully!')
-        setBriefs(prev => [res.data!, ...prev])
-        setIsCreateOpen(false)
-        resetCreateForm()
-      } else {
-        toast.error(res.error || 'Failed to allocate design brief.')
-      }
-    } catch (err: any) {
-      toast.error(err.message || 'Error creating design brief.')
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
 
   async function handlePHReviewSubmit(verdict: 'APPROVED' | 'REJECTED') {
     if (!selectedBriefForView?.latest_submission) return
@@ -1071,209 +993,18 @@ export function DesignDashboardClient({
       )}
 
       {/* Allocate Brief Modal */}
-      {isCreateOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="relative w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-black/10 overflow-hidden">
-            <div className="px-6 py-5 bg-[#FAF7F0] border-b border-black/10 flex items-center justify-between">
-              <div>
-                <span className="text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-white text-[#3A3564] border border-black/10 shadow-2xs">
-                  Creative Allotment
-                </span>
-                <h2 className="text-lg font-bold text-slate-900 mt-1 font-[family-name:var(--font-heading)]">
-                  Allocate New Design Brief
-                </h2>
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  setIsCreateOpen(false)
-                  resetCreateForm()
-                }}
-                className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-black/5 cursor-pointer transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <form onSubmit={handleCreateBrief}>
-              <div className="p-6 max-h-[72vh] overflow-y-auto space-y-4 text-xs sm:text-[13px]">
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
-                    Assign Designer <span className="text-rose-500">*</span>
-                  </label>
-                  <select
-                    required
-                    value={selectedDesignerId}
-                    onChange={e => setSelectedDesignerId(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
-                  >
-                    <option value="">Select an active designer...</option>
-                    {activeTeamMembers.map(m => {
-                      const phone = m.phone_number || m.designer_phone
-                      const displayLabel = phone ? `+91 ${phone}` : (m.username ? `@${m.username}` : '')
-                      return (
-                        <option key={m.id} value={m.id}>
-                          {m.designer_name}{displayLabel ? ` (${displayLabel})` : ''}
-                        </option>
-                      )
-                    })}
-                  </select>
-                  {activeTeamMembers.length === 0 && (
-                    <p className="text-xs text-amber-600 mt-1">
-                      No active designers found. Please add a designer in Team Management.
-                    </p>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
-                      Garment Silhouette <span className="text-rose-500">*</span>
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        required
-                        list="garment-options"
-                        placeholder="e.g. T-Shirt, Cargo, Jogger..."
-                        value={garmentType}
-                        onChange={e => setGarmentType(e.target.value)}
-                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
-                      />
-                      <datalist id="garment-options">
-                        {existingGarments.map(g => (
-                          <option key={g} value={g} />
-                        ))}
-                      </datalist>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
-                      Category Style <span className="text-rose-500">*</span>
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        required
-                        list="category-options"
-                        placeholder="e.g. NBA, Streetwear, Casual..."
-                        value={category}
-                        onChange={e => setCategory(e.target.value)}
-                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
-                      />
-                      <datalist id="category-options">
-                        {existingCategories.map(c => (
-                          <option key={c} value={c} />
-                        ))}
-                      </datalist>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
-                      Target Designs <span className="text-rose-500">*</span>
-                    </label>
-                    <input
-                      type="number"
-                      min={1}
-                      max={50}
-                      required
-                      placeholder="e.g. 3"
-                      value={targetDesigns}
-                      onChange={e => setTargetDesigns(e.target.value)}
-                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-mono font-bold text-slate-900 outline-none shadow-2xs transition-all"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
-                      Max Colors Chart <span className="text-rose-500">*</span>
-                    </label>
-                    <input
-                      type="number"
-                      min={1}
-                      max={12}
-                      required
-                      placeholder="e.g. 2"
-                      value={maxColors}
-                      onChange={e => setMaxColors(e.target.value)}
-                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-mono font-bold text-slate-900 outline-none shadow-2xs transition-all"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
-                    Target Colorway Palette (Optional)
-                  </label>
-                  <div className="flex flex-wrap items-center gap-1.5 p-2 rounded-xl border border-slate-200 bg-slate-50 focus-within:bg-white focus-within:border-[#3A3564] transition-all">
-                    {targetColors.map((col, idx) => (
-                      <span
-                        key={idx}
-                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#FAF7F0] border border-black/10 text-xs font-mono font-bold text-[#3A3564]"
-                      >
-                        <span>{col}</span>
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveColor(idx)}
-                          className="text-slate-400 hover:text-slate-700 font-bold ml-0.5 cursor-pointer"
-                        >
-                          &times;
-                        </button>
-                      </span>
-                    ))}
-                    <input
-                      type="text"
-                      placeholder={targetColors.length === 0 ? "Type color (e.g. Black, White) and press Enter..." : "Add more..."}
-                      value={colorInput}
-                      onChange={e => setColorInput(e.target.value)}
-                      onKeyDown={handleColorKeyDown}
-                      onBlur={() => { if (colorInput.trim()) handleAddColor() }}
-                      className="flex-1 min-w-[150px] px-1 py-1 text-xs bg-transparent text-slate-900 font-medium focus:outline-none placeholder:text-slate-400"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
-                    Creative Instructions &amp; Guidelines
-                  </label>
-                  <textarea
-                    rows={3}
-                    placeholder="e.g. Minimal print on chest, drop shoulder fit..."
-                    value={instructions}
-                    onChange={e => setInstructions(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs font-medium text-slate-900 outline-none transition-all"
-                  />
-                </div>
-              </div>
-
-              <div className="px-6 py-4 bg-[#FAF7F0] border-t border-black/10 flex items-center justify-end gap-3">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsCreateOpen(false)
-                    resetCreateForm()
-                  }}
-                  className="px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-black/10 hover:bg-slate-100 rounded-xl shadow-2xs cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting || !selectedDesignerId || !garmentType || !category}
-                  className="px-5 py-2 text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] rounded-xl shadow-xs cursor-pointer disabled:opacity-50"
-                >
-                  {isSubmitting ? 'Allocating...' : 'Allocate Brief'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <AllocateBriefModal
+        isOpen={isCreateOpen}
+        onClose={() => setIsCreateOpen(false)}
+        onSuccess={newBrief => {
+          setBriefs(prev => [newBrief, ...prev])
+        }}
+        teamMembers={teamMembers}
+        currentUserId={currentUserId}
+        companyName={companyName}
+        existingGarments={existingGarments}
+        existingCategories={existingCategories}
+      />
 
       {/* Full Photo Lightbox */}
       {previewPhoto && (

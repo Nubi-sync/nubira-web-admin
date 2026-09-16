@@ -633,19 +633,37 @@ export async function createDesignBriefAction(payload: {
   target_colors?: string[]
   target_designs?: number
   num_designs?: number
+  design_concepts?: BriefDesignConceptRequirement[]
   instructions?: string
   company_name: string
 }): Promise<{ success: boolean; data?: DesignBrief; error?: string }> {
   try {
-    const targetCount = Number(payload.target_designs || payload.num_designs) || 1
-    const colorCount = Number(payload.chart_colors || payload.max_colors) || 3
+    let concepts = payload.design_concepts
+    let targetCount = Number(payload.target_designs || payload.num_designs) || (concepts && concepts.length > 0 ? concepts.length : 1)
+    
+    // Calculate all unique colors across all concepts if provided
+    let allColors: string[] = payload.target_colors ? [...payload.target_colors] : []
+    if (concepts && concepts.length > 0) {
+      targetCount = concepts.length
+      const colorSet = new Set(allColors)
+      concepts.forEach(c => {
+        c.colors.forEach(col => {
+          if (col && col.trim()) colorSet.add(col.trim())
+        })
+      })
+      allColors = Array.from(colorSet)
+    }
+
+    const calculatedMaxColors = concepts && concepts.length > 0
+      ? Math.max(...concepts.map(c => c.colors.length), 1)
+      : (allColors.length > 0 ? allColors.length : Number(payload.chart_colors || payload.max_colors) || 3)
 
     let rawInstructions = payload.instructions?.trim() || ''
-    if (payload.target_colors && payload.target_colors.length > 0) {
-      const colorsTag = `[COLORS: ${payload.target_colors.join(', ')}]`
-      if (!rawInstructions.includes('[COLORS:')) {
-        rawInstructions = `${colorsTag} ${rawInstructions}`.trim()
-      }
+    if (concepts && concepts.length > 0) {
+      rawInstructions = `[CONCEPTS_BRIEF: ${JSON.stringify(concepts)}] ${rawInstructions}`.trim()
+    }
+    if (allColors.length > 0 && !rawInstructions.includes('[COLORS:')) {
+      rawInstructions = `[COLORS: ${allColors.join(', ')}] ${rawInstructions}`.trim()
     }
     if (targetCount > 1 && !rawInstructions.includes('[TARGET:')) {
       rawInstructions = `[TARGET: ${targetCount} Designs] ${rawInstructions}`.trim()
@@ -658,7 +676,7 @@ export async function createDesignBriefAction(payload: {
         designer_member_id: payload.designer_member_id || null,
         garment_type: payload.garment_type.trim(),
         category: payload.category.trim(),
-        max_colors: colorCount,
+        max_colors: calculatedMaxColors,
         instructions: rawInstructions || null,
         status: 'ALLOCATED',
         company_name: payload.company_name
@@ -676,6 +694,7 @@ export async function createDesignBriefAction(payload: {
     revalidatePath('/design/designer')
 
     const cleanInst = data.instructions
+      ?.replace(/\[CONCEPTS_BRIEF:\s*\[[\s\S]*?\]\]\s*/gi, '')
       ?.replace(/\[TARGET:\s*\d+\s*(?:Designs)?\]\s*/gi, '')
       ?.replace(/\[COLORS:\s*[^\]]+\]\s*/gi, '')
       ?.trim() || undefined
@@ -691,9 +710,10 @@ export async function createDesignBriefAction(payload: {
       category: data.category,
       max_colors: data.max_colors,
       chart_colors: data.max_colors,
-      target_colors: payload.target_colors && payload.target_colors.length > 0 ? payload.target_colors : undefined,
+      target_colors: allColors.length > 0 ? allColors : undefined,
       target_designs: targetCount,
       num_designs: targetCount,
+      design_concepts_brief: concepts && concepts.length > 0 ? concepts : undefined,
       submissions_count: 0,
       instructions: cleanInst,
       status: data.status,
@@ -765,20 +785,37 @@ export async function fetchDesignBriefsAction(filters?: {
       subs.sort((a, b) => new Date(b.submitted_at).getTime() - new Date(a.submitted_at).getTime())
       const latestSub = subs[0]
 
+      // Extract concepts brief from instructions if serialized
+      let parsedConceptsBrief: BriefDesignConceptRequirement[] | undefined
+      if (row.instructions) {
+        const conceptsMatch = row.instructions.match(/\[CONCEPTS_BRIEF:\s*(\[[\s\S]*?\])\]/i)
+        if (conceptsMatch && conceptsMatch[1]) {
+          try {
+            parsedConceptsBrief = JSON.parse(conceptsMatch[1])
+          } catch (e) {
+            // Ignore parse error
+          }
+        }
+      }
+
       // Extract target designs quota from metadata or instructions
-      let targetDesigns = 1
+      let targetDesigns = parsedConceptsBrief?.length || 1
       if (row.num_designs) {
-        targetDesigns = Number(row.num_designs) || 1
+        targetDesigns = Number(row.num_designs) || targetDesigns
       } else if (row.instructions) {
         const match = row.instructions.match(/\[TARGET:\s*(\d+)\s*(?:Designs)?\]/i)
         if (match && match[1]) {
-          targetDesigns = parseInt(match[1], 10) || 1
+          targetDesigns = parseInt(match[1], 10) || targetDesigns
         }
       }
 
       // Extract target colors list from metadata
       let targetColors: string[] | undefined
-      if (row.instructions) {
+      if (parsedConceptsBrief && parsedConceptsBrief.length > 0) {
+        const set = new Set<string>()
+        parsedConceptsBrief.forEach(c => c.colors.forEach(col => { if (col) set.add(col) }))
+        targetColors = Array.from(set)
+      } else if (row.instructions) {
         const colMatch = row.instructions.match(/\[COLORS:\s*([^\]]+)\]/i)
         if (colMatch && colMatch[1]) {
           targetColors = colMatch[1].split(',').map((s: string) => s.trim()).filter(Boolean)
@@ -787,6 +824,7 @@ export async function fetchDesignBriefsAction(filters?: {
 
       const cleanInstructions = row.instructions
         ? row.instructions
+            .replace(/\[CONCEPTS_BRIEF:\s*\[[\s\S]*?\]\]\s*/gi, '')
             .replace(/\[TARGET:\s*\d+\s*(?:Designs)?\]\s*/gi, '')
             .replace(/\[COLORS:\s*[^\]]+\]\s*/gi, '')
             .trim() || undefined
@@ -806,6 +844,7 @@ export async function fetchDesignBriefsAction(filters?: {
         target_colors: targetColors,
         target_designs: targetDesigns,
         num_designs: targetDesigns,
+        design_concepts_brief: parsedConceptsBrief,
         submissions_count: subs.length,
         instructions: cleanInstructions,
         status: row.status as BriefStatus,
