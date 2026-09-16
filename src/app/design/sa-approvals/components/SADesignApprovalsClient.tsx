@@ -357,7 +357,7 @@ export function SADesignApprovalsClient({
               <table className="w-full text-left border-collapse text-sm">
                 <thead>
                   <tr className="border-b border-slate-100 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0]">
-                    <th className="py-3 px-4">Garment Silhouette</th>
+                    <th className="py-3 px-4">Art No. &amp; Garment</th>
                     <th className="py-3 px-4">Designer</th>
                     <th className="py-3 px-4">Submitted Concepts</th>
                     <th className="py-3 px-4">Decision Status</th>
@@ -373,10 +373,37 @@ export function SADesignApprovalsClient({
                     const isSaved = sub.sa_verdict === 'SAVED_FOR_LATER'
                     const totalConcepts = sub.concepts?.length || 1
 
+                    const allArtNos: string[] = []
+                    sub.concepts?.forEach(c => {
+                      const baseNo = c.art_number
+                      if (baseNo) {
+                        if (c.colorways && c.colorways.length > 1) {
+                          c.colorways.forEach((_, idx) => {
+                            allArtNos.push(getVariantArtNumber(baseNo, idx, c.colorways.length))
+                          })
+                        } else {
+                          allArtNos.push(baseNo)
+                        }
+                      }
+                    })
+
                     return (
                       <tr key={sub.id} className="hover:bg-slate-50/80 transition-colors group">
                         <td className="py-3.5 px-4">
-                          <span className="font-bold text-slate-900 text-sm block font-[family-name:var(--font-heading)]">
+                          {allArtNos.length > 0 ? (
+                            <div className="flex flex-wrap items-center gap-1.5 mb-1">
+                              {allArtNos.map((art, aIdx) => (
+                                <span key={aIdx} className="font-mono font-bold text-slate-900 text-sm">
+                                  {art}{aIdx < allArtNos.length - 1 ? ',' : ''}
+                                </span>
+                              ))}
+                            </div>
+                          ) : (
+                            <span className="font-mono font-bold text-slate-400 text-sm block mb-1">
+                              —
+                            </span>
+                          )}
+                          <span className="font-bold text-slate-800 text-xs block font-[family-name:var(--font-heading)]">
                             {garment}
                           </span>
                           <span className="text-xs text-slate-500 font-medium">
@@ -593,9 +620,16 @@ export function SADesignApprovalsClient({
                       return (
                         <div className="p-4 rounded-2xl bg-[#FAF7F0]/60 border border-black/10 space-y-3">
                           <div className="flex items-center justify-between flex-wrap gap-2">
-                            <span className="font-bold text-slate-900 text-sm font-[family-name:var(--font-heading)]">
-                              {currentConcept.title || `Design Concept #${currentConcept.concept_number}`}
-                            </span>
+                            <div className="flex items-center gap-2">
+                              <span className="font-bold text-slate-900 text-sm font-[family-name:var(--font-heading)]">
+                                {currentConcept.title || `Design Concept #${currentConcept.concept_number}`}
+                              </span>
+                              {currentConcept.art_number && (
+                                <span className="text-xs font-mono font-bold text-slate-900">
+                                  ART NO: {currentConcept.art_number}
+                                </span>
+                              )}
+                            </div>
                             <span className="text-xs font-mono text-slate-500">
                               {currentConcept.colorways?.length || 0} Colorway(s)
                             </span>
@@ -612,6 +646,12 @@ export function SADesignApprovalsClient({
                             {currentConcept.colorways && currentConcept.colorways.length > 0 ? (
                               currentConcept.colorways.map((cw, cwIdx) => {
                                 const sw = getColorSwatchInfo(cw.color_name)
+                                const variantArtNo = getVariantArtNumber(
+                                  currentConcept.art_number || '',
+                                  cwIdx,
+                                  currentConcept.colorways.length
+                                )
+
                                 return (
                                   <div
                                     key={cwIdx}
@@ -625,9 +665,15 @@ export function SADesignApprovalsClient({
                                         />
                                         <span className="truncate">{cw.color_name}</span>
                                       </div>
-                                      <span className="text-[10px] font-mono text-slate-400 font-medium bg-[#FAF7F0] px-1.5 py-0.5 rounded border border-black/5 shrink-0">
-                                        {cw.photo_back ? '2 Views' : '1 View'}
-                                      </span>
+                                      {variantArtNo ? (
+                                        <span className="text-[11px] font-mono font-bold text-slate-900 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10 shrink-0">
+                                          {variantArtNo}
+                                        </span>
+                                      ) : (
+                                        <span className="text-[10px] font-mono text-slate-400 font-medium bg-[#FAF7F0] px-1.5 py-0.5 rounded border border-black/5 shrink-0">
+                                          {cw.photo_back ? '2 Views' : '1 View'}
+                                        </span>
+                                      )}
                                     </div>
 
                                     {/* Artwork Thumbnails */}

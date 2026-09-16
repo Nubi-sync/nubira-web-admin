@@ -39,6 +39,13 @@ const STATUS_CONFIG: Record<BriefStatus, { label: string; badgeClass: string; is
   TECH_PACK_CREATED: { label: 'Tech-Pack Created', badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200 font-bold', isGreen: true }
 }
 
+function getVariantArtNumber(baseArtNo: string, index: number, totalCount: number): string {
+  if (!baseArtNo) return ''
+  if (totalCount <= 1) return baseArtNo
+  const suffix = String(index + 1).padStart(2, '0')
+  return `${baseArtNo}-${suffix}`
+}
+
 function getColorSwatchInfo(colorName: string): { bg: string; border: string; isLight: boolean } {
   const norm = colorName.trim().toLowerCase()
   if (norm.includes('black')) return { bg: '#111111', border: '#222222', isLight: false }
@@ -482,7 +489,7 @@ export function DesignerHistoryClient({
                               {currentConcept.title || `Design Concept #${currentConcept.concept_number}`}
                             </h3>
                             {artNo && (
-                              <span className="px-2 py-0.5 rounded-md bg-[#3A3564] text-white text-xs font-mono font-bold tracking-wider shadow-2xs">
+                              <span className="text-xs font-mono font-bold text-slate-900">
                                 ART NO: {artNo}
                               </span>
                             )}
@@ -501,13 +508,19 @@ export function DesignerHistoryClient({
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                           {(currentConcept.colorways || []).map((cw, idx) => {
                             const sw = getColorSwatchInfo(cw.color_name)
+                            const variantArtNo = getVariantArtNumber(artNo || '', idx, (currentConcept.colorways || []).length)
                             return (
                               <div key={idx} className="bg-[#FAF7F0] p-3 rounded-xl border border-black/10 space-y-2">
-                                <div className="flex items-center justify-between">
+                                <div className="flex items-center justify-between gap-1">
                                   <span className="font-bold text-slate-900 flex items-center gap-1.5 font-mono text-xs">
                                     <span className="w-2.5 h-2.5 rounded-full border border-black/20" style={{ backgroundColor: sw.bg }} />
                                     {cw.color_name}
                                   </span>
+                                  {variantArtNo && (
+                                    <span className="text-[10px] font-mono font-bold text-slate-900 bg-white px-1.5 py-0.2 rounded border border-black/10">
+                                      {variantArtNo}
+                                    </span>
+                                  )}
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-2">

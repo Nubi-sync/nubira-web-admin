@@ -61,6 +61,13 @@ const STATUS_CONFIG: Record<BriefStatus, { label: string; badgeClass: string }> 
   TECH_PACK_CREATED: { label: 'Tech-Pack Created', badgeClass: 'bg-[#FAF7F0] text-slate-900 border-black/15 font-bold' }
 }
 
+function getVariantArtNumber(baseArtNo: string, index: number, totalCount: number): string {
+  if (!baseArtNo) return ''
+  if (totalCount <= 1) return baseArtNo
+  const suffix = String(index + 1).padStart(2, '0')
+  return `${baseArtNo}-${suffix}`
+}
+
 function getColorSwatchInfo(colorName: string): { bg: string; border: string; isLight: boolean } {
   const norm = colorName.trim().toLowerCase()
   if (norm.includes('black')) return { bg: '#111111', border: '#222222', isLight: false }
@@ -824,9 +831,16 @@ export function DesignDashboardClient({
                       return (
                         <div className="p-4 rounded-2xl bg-[#FAF7F0]/60 border border-black/10 space-y-3">
                           <div className="flex items-center justify-between flex-wrap gap-2">
-                            <span className="font-bold text-slate-900 text-sm font-[family-name:var(--font-heading)]">
-                              {currentConcept.title || `Design Concept #${currentConcept.concept_number}`}
-                            </span>
+                            <div className="flex items-center gap-2">
+                              <span className="font-bold text-slate-900 text-sm font-[family-name:var(--font-heading)]">
+                                {currentConcept.title || `Design Concept #${currentConcept.concept_number}`}
+                              </span>
+                              {currentConcept.art_number && (
+                                <span className="text-xs font-mono font-bold text-slate-900">
+                                  ART NO: {currentConcept.art_number}
+                                </span>
+                              )}
+                            </div>
                             <span className="text-xs font-mono text-slate-500">
                               {currentConcept.colorways?.length || 0} Colorway(s)
                             </span>
@@ -843,6 +857,12 @@ export function DesignDashboardClient({
                             {currentConcept.colorways && currentConcept.colorways.length > 0 ? (
                               currentConcept.colorways.map((cw, cwIdx) => {
                                 const sw = getColorSwatchInfo(cw.color_name)
+                                const variantArtNo = getVariantArtNumber(
+                                  currentConcept.art_number || '',
+                                  cwIdx,
+                                  currentConcept.colorways.length
+                                )
+
                                 return (
                                   <div
                                     key={cwIdx}
@@ -856,9 +876,15 @@ export function DesignDashboardClient({
                                         />
                                         <span className="truncate">{cw.color_name}</span>
                                       </div>
-                                      <span className="text-[10px] font-mono text-slate-400 font-medium bg-[#FAF7F0] px-1.5 py-0.5 rounded border border-black/5 shrink-0">
-                                        {cw.photo_back ? '2 Views' : '1 View'}
-                                      </span>
+                                      {variantArtNo ? (
+                                        <span className="text-[11px] font-mono font-bold text-slate-900 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10 shrink-0">
+                                          {variantArtNo}
+                                        </span>
+                                      ) : (
+                                        <span className="text-[10px] font-mono text-slate-400 font-medium bg-[#FAF7F0] px-1.5 py-0.5 rounded border border-black/5 shrink-0">
+                                          {cw.photo_back ? '2 Views' : '1 View'}
+                                        </span>
+                                      )}
                                     </div>
 
                                     {/* Artwork Thumbnails */}

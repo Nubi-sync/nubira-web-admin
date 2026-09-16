@@ -65,6 +65,13 @@ const STATUS_CONFIG: Record<BriefStatus, { label: string; badgeClass: string }> 
   TECH_PACK_CREATED: { label: 'Tech-Pack Created', badgeClass: 'bg-[#FAF7F0] text-slate-900 border-black/15 font-bold' }
 }
 
+function getVariantArtNumber(baseArtNo: string, index: number, totalCount: number): string {
+  if (!baseArtNo) return ''
+  if (totalCount <= 1) return baseArtNo
+  const suffix = String(index + 1).padStart(2, '0')
+  return `${baseArtNo}-${suffix}`
+}
+
 export function DesignBriefsClient({
   initialBriefs,
   teamMembers,
@@ -854,9 +861,11 @@ export function DesignBriefsClient({
                             <span className="w-5 h-5 rounded-full bg-[#3A3564] text-[#FAF7F0] flex items-center justify-center text-[10px] font-mono">
                               {concept.concept_number}
                             </span>
-                            <span>{concept.title || `Design Concept #${concept.concept_number}`}</span>
+                            <span className="text-xs font-mono font-bold text-slate-900">
+                              {concept.title || `Design Concept #${concept.concept_number}`}
+                            </span>
                             {artNo && (
-                              <span className="px-2 py-0.5 rounded bg-[#3A3564] text-white text-[10px] font-mono font-bold tracking-wider">
+                              <span className="text-xs font-mono font-bold text-slate-900">
                                 ART NO: {artNo}
                               </span>
                             )}
@@ -873,33 +882,43 @@ export function DesignBriefsClient({
                       )}
 
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-1">
-                        {concept.colorways.map((cw, cwIdx) => (
-                          <div key={cwIdx} className="space-y-1">
-                            <span className="text-[10px] font-bold text-slate-700 block truncate">
-                              {cw.color_name} Colorway
-                            </span>
-                            <div 
-                              onClick={() => setPreviewPhoto(cw.photo_front)}
-                              className="aspect-video rounded-lg border border-black/10 overflow-hidden bg-white relative group cursor-pointer"
-                            >
-                              <img src={cw.photo_front} alt={cw.color_name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
-                              <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[10px] font-bold">
-                                <Eye className="w-3.5 h-3.5 mr-1" /> View Front
+                        {concept.colorways.map((cw, cwIdx) => {
+                          const variantArtNo = getVariantArtNumber(artNo || '', cwIdx, concept.colorways.length)
+                          return (
+                            <div key={cwIdx} className="space-y-1">
+                              <div className="flex items-center justify-between gap-1">
+                                <span className="text-[10px] font-bold text-slate-700 block truncate">
+                                  {cw.color_name}
+                                </span>
+                                {variantArtNo && (
+                                  <span className="text-[10px] font-mono font-bold text-slate-900 bg-white px-1.5 py-0.2 rounded border border-black/10">
+                                    {variantArtNo}
+                                  </span>
+                                )}
                               </div>
-                            </div>
-                            {cw.photo_back && (
                               <div 
-                                onClick={() => setPreviewPhoto(cw.photo_back!)}
-                                className="aspect-video rounded-lg border border-black/10 overflow-hidden bg-white relative group cursor-pointer mt-1"
+                                onClick={() => setPreviewPhoto(cw.photo_front)}
+                                className="aspect-video rounded-lg border border-black/10 overflow-hidden bg-white relative group cursor-pointer"
                               >
-                                <img src={cw.photo_back} alt={`${cw.color_name} Back`} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                                <img src={cw.photo_front} alt={cw.color_name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
                                 <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[10px] font-bold">
-                                  <Eye className="w-3.5 h-3.5 mr-1" /> View Back
+                                  <Eye className="w-3.5 h-3.5 mr-1" /> View Front
                                 </div>
                               </div>
-                            )}
-                          </div>
-                        ))}
+                              {cw.photo_back && (
+                                <div 
+                                  onClick={() => setPreviewPhoto(cw.photo_back!)}
+                                  className="aspect-video rounded-lg border border-black/10 overflow-hidden bg-white relative group cursor-pointer mt-1"
+                                >
+                                  <img src={cw.photo_back} alt={`${cw.color_name} Back`} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                                  <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[10px] font-bold">
+                                    <Eye className="w-3.5 h-3.5 mr-1" /> View Back
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          )
+                        })}
                       </div>
                     </div>
                     )
