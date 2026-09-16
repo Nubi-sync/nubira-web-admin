@@ -5,8 +5,7 @@ import { DesignDashboardClient } from './components/DesignDashboardClient'
 import { 
   fetchTechPacksAction, 
   fetchDesignBriefsAction, 
-  fetchDesignTeamMembersAction, 
-  fetchDesignStudioMetricsAction 
+  fetchDesignTeamMembersAction
 } from './actions'
 import { resolveUserTenant, isLegacyNubiraTenant } from '@/lib/tenant-context'
 
@@ -28,12 +27,30 @@ export default async function DesignModulePage() {
   const isLegacy = isLegacyNubiraTenant(tenant)
   const companyFilter = isLegacy ? undefined : tenant.companyName
 
-  const [metrics, initialBriefs, initialTechPacks, teamMembers] = await Promise.all([
-    fetchDesignStudioMetricsAction(companyFilter),
+  const [initialBriefs, initialTechPacks, teamMembers] = await Promise.all([
     fetchDesignBriefsAction({ companyName: companyFilter }),
     fetchTechPacksAction(companyFilter),
     fetchDesignTeamMembersAction(companyFilter)
   ])
+
+  // Derive metrics instantly without redundant DB queries
+  const active_briefs = initialBriefs.filter(b => b.status === 'ALLOCATED' || b.status === 'SUBMITTED').length
+  const pending_ph_reviews = initialBriefs.filter(b => b.status === 'SUBMITTED').length
+  const pending_sa_approvals = initialBriefs.filter(b => b.status === 'PH_APPROVED').length
+  const sa_approved_designs = initialBriefs.filter(b => b.status === 'SA_APPROVED').length
+  const saved_for_later = initialBriefs.filter(b => b.status === 'SA_SAVED_FOR_LATER').length
+  const active_tech_packs = initialTechPacks.length
+  const team_designers_count = teamMembers.filter(m => m.status === 'ACTIVE').length
+
+  const metrics = {
+    active_briefs,
+    pending_ph_reviews,
+    pending_sa_approvals,
+    sa_approved_designs,
+    saved_for_later,
+    active_tech_packs,
+    team_designers_count
+  }
 
   return (
     <AdminShell userEmail={tenant.userEmail} userRole={tenant.role}>
@@ -51,3 +68,4 @@ export default async function DesignModulePage() {
     </AdminShell>
   )
 }
+
