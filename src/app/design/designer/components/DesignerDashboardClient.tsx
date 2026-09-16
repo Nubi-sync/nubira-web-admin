@@ -24,7 +24,8 @@ import {
   Shirt,
   RotateCcw,
   SlidersHorizontal,
-  Info
+  Info,
+  ClipboardList
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { 
@@ -918,19 +919,19 @@ export function DesignerDashboardClient({
       {/* Layer 2: Encapsulated Top Header Card */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-slate-800 shrink-0 shadow-2xs">
-            <WavingHandOutlineIcon className="w-6 h-6 text-slate-800" />
+          <div className="w-10 h-10 rounded-2xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shrink-0 shadow-2xs">
+            <Palette className="w-5 h-5 text-[#3A3564]" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
+              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 Welcome, {designerName || 'Designer'}
               </h1>
-              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
+              <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
                 {activeAssignments.length} Active Tasks
               </span>
             </div>
-            <p className="text-xs sm:text-sm font-semibold text-slate-600 mt-1">
+            <p className="text-sm text-slate-600 mt-1">
               Your assigned garment creative briefs and multi-concept upload desk
             </p>
           </div>

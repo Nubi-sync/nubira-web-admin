@@ -160,31 +160,33 @@ export function TeamManagementClient({
 
   return (
     <div className="space-y-6">
-      {/* Navigation Breadcrumb */}
-      <div className="flex items-center justify-between gap-4">
-        <Link
-          href="/design"
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-black/10 text-xs font-semibold text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs cursor-pointer"
-        >
-          <ChevronLeft className="w-3.5 h-3.5" />
-          <span>Design Studio</span>
+      {/* Breadcrumb Hierarchy Trail */}
+      <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
+        <Link href="/design" className="hover:text-[#3A3564] transition-colors">
+          Design Studio
         </Link>
-        <span className="text-xs font-mono font-medium text-slate-500">
-          Provisional Head &bull; Team Management
-        </span>
+        <span>/</span>
+        <span>Administration</span>
+        <span>/</span>
+        <span className="font-bold text-slate-900">Team Management</span>
       </div>
 
       {/* Header */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-            <Users className="w-6 h-6" />
+          <div className="w-10 h-10 rounded-2xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shrink-0 shadow-2xs">
+            <Users className="w-5 h-5 text-[#3A3564]" />
           </div>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
-              Design Team Management
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-600 mt-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
+                Design Team Management
+              </h1>
+              <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
+                {activeMembers.length} Active
+              </span>
+            </div>
+            <p className="text-sm text-slate-600 mt-1">
               Onboard creative designers with 10-digit phone login and allocate apparel briefs
             </p>
           </div>
@@ -199,41 +201,81 @@ export function TeamManagementClient({
         </button>
       </div>
 
-      {/* Metrics Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
-          <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-            Active Creative Designers
-          </span>
-          <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-2">
-            {activeMembers.length} Active
+      {/* Metrics Row (Unified 4-Box Grid) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+              ACTIVE
+            </span>
+            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+              <CheckCircle2 className="w-4 h-4 text-[#3A3564]" />
+            </div>
           </div>
-          <div className="text-xs text-slate-500 mt-1">
-            Registered under {companyName}
-          </div>
-        </div>
-
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
-          <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-            Suspended Accounts
-          </span>
-          <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-2">
-            {suspendedMembers.length}
-          </div>
-          <div className="text-xs text-slate-500 mt-1">
-            Temporary pause on brief allocations
+          <div className="mt-3">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-900 font-mono">
+              Active Designers
+            </div>
+            <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
+              {activeMembers.length}
+            </div>
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
-          <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-            Login Credentials
-          </span>
-          <div className="text-base font-bold text-[#3A3564] font-mono mt-2">
-            10-Digit Mobile + Password
+        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+              SUSPENDED
+            </span>
+            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+              <XCircle className="w-4 h-4 text-[#3A3564]" />
+            </div>
           </div>
-          <div className="text-xs text-slate-500 mt-1">
-            Direct access to restricted Designer Studio
+          <div className="mt-3">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-900 font-mono">
+              Suspended Accounts
+            </div>
+            <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
+              {suspendedMembers.length}
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+              ROSTER
+            </span>
+            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+              <Users className="w-4 h-4 text-[#3A3564]" />
+            </div>
+          </div>
+          <div className="mt-3">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-900 font-mono">
+              Total Roster
+            </div>
+            <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
+              {members.length}
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+              AUTH
+            </span>
+            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+              <Phone className="w-4 h-4 text-[#3A3564]" />
+            </div>
+          </div>
+          <div className="mt-3">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-900 font-mono">
+              Phone Logins
+            </div>
+            <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
+              {activeMembers.length}
+            </div>
           </div>
         </div>
       </div>

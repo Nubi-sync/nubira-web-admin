@@ -230,14 +230,19 @@ export function DesignBriefsClient({
       {/* Header */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-            <ClipboardList className="w-6 h-6" />
+          <div className="w-10 h-10 rounded-2xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shrink-0 shadow-2xs">
+            <ClipboardList className="w-5 h-5 text-[#3A3564]" />
           </div>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
-              Design Briefs &amp; Reviews
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-600 mt-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
+                Design Briefs &amp; Reviews
+              </h1>
+              <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
+                {briefs.length} Briefs
+              </span>
+            </div>
+            <p className="text-sm text-slate-600 mt-1">
               Allocate apparel briefs to designers, review submitted sample photos, and verify through Super Admin
             </p>
           </div>

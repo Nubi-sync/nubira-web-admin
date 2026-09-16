@@ -240,39 +240,41 @@ export function PHSettingsClient({
 
   return (
     <div className="space-y-6">
-      {/* Breadcrumb */}
-      <div className="flex items-center justify-between gap-4">
-        <Link
-          href="/design"
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-black/10 text-xs font-semibold text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs cursor-pointer"
-        >
-          <ChevronLeft className="w-3.5 h-3.5" />
-          <span>Design Studio</span>
+      {/* Breadcrumb Hierarchy Trail */}
+      <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
+        <Link href="/design" className="hover:text-[#3A3564] transition-colors">
+          Design Studio
         </Link>
-        <span className="text-xs font-mono font-medium text-slate-500">
-          Provisional Head Configuration
-        </span>
+        <span>/</span>
+        <span>Configuration</span>
+        <span>/</span>
+        <span className="font-bold text-slate-900">PH Settings</span>
       </div>
 
       {/* Header */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-            <Settings className="w-6 h-6" />
+          <div className="w-10 h-10 rounded-2xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shrink-0 shadow-2xs">
+            <Settings className="w-5 h-5 text-[#3A3564]" />
           </div>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
-              Provisional Head Studio Settings
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-600 mt-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
+                Provisional Head Studio Settings
+              </h1>
+              <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
+                PH Privileged
+              </span>
+            </div>
+            <p className="text-sm text-slate-600 mt-1">
               Configure standardized code-words for body parts (e.g. BC = Bicep), BOM trims (buttons, sleeves), and auto-fill garment templates
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="px-3 py-1.5 rounded-xl bg-[#FAF7F0] border border-black/10 text-xs font-bold text-[#3A3564]">
-            PH Privileged Controls
+          <span className="px-3.5 py-1.5 rounded-xl bg-[#FAF7F0] border border-black/10 text-xs font-mono font-bold text-[#3A3564] shadow-2xs">
+            Admin Workspace
           </span>
         </div>
       </div>

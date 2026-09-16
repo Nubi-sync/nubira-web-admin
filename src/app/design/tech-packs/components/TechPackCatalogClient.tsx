@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { 
   FileCheck2, 
   Search, 
@@ -125,23 +126,43 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands }: Tec
     return matchesStatus && matchesSearch
   })
 
+  const totalSpecs = techPacks.length
+  const bulkApprovedCount = techPacks.filter(p => p.status === 'APPROVED_BULK' || p.status === 'PPS_APPROVED').length
+  const samplingCount = techPacks.filter(p => p.status === 'SAMPLE_DEV' || p.status === 'PPS_SUBMITTED').length
+  const draftsCount = techPacks.filter(p => p.status === 'DRAFT' || p.status === 'REVISE_FIT').length
+
   return (
     <div className="space-y-6">
-      
+      {/* Breadcrumb Hierarchy Trail */}
+      <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
+        <Link href="/design" className="hover:text-[#3A3564] transition-colors">
+          Design Studio
+        </Link>
+        <span>/</span>
+        <span>Specifications</span>
+        <span>/</span>
+        <span className="font-bold text-slate-900">Tech-Pack Catalog</span>
+      </div>
+
       {/* Action Header Card */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <div className="flex items-center gap-2.5 flex-wrap">
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
-              Tech-Pack Master Catalog
-            </h1>
-            <span className="text-xs font-mono text-slate-500 font-medium">
-              {filteredPacks.length} specifications
-            </span>
+        <div className="flex items-center gap-3.5">
+          <div className="w-10 h-10 rounded-2xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shrink-0 shadow-2xs">
+            <FileCheck2 className="w-5 h-5 text-[#3A3564]" />
           </div>
-          <p className="text-xs sm:text-sm text-slate-600 mt-1">
-            Standardized technical packages, CAD vectors, SPI standards & bill of materials
-          </p>
+          <div>
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
+                Tech-Pack Master Catalog
+              </h1>
+              <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
+                {totalSpecs} Specs
+              </span>
+            </div>
+            <p className="text-sm text-slate-600 mt-1">
+              Standardized technical packages, CAD vectors, SPI standards &amp; bill of materials
+            </p>
+          </div>
         </div>
 
         <div className="flex items-center gap-2.5 w-full sm:w-auto">
@@ -178,6 +199,85 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands }: Tec
             <Plus className="w-4 h-4" />
             <span>Create Tech-Pack</span>
           </button>
+        </div>
+      </div>
+
+      {/* Metrics Row (Unified 4-Box Grid) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+              CATALOG
+            </span>
+            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+              <FileCheck2 className="w-4 h-4 text-[#3A3564]" />
+            </div>
+          </div>
+          <div className="mt-3">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-900 font-mono">
+              Total Specs
+            </div>
+            <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
+              {totalSpecs}
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+              PRODUCTION
+            </span>
+            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+              <CheckCircle2 className="w-4 h-4 text-[#3A3564]" />
+            </div>
+          </div>
+          <div className="mt-3">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-900 font-mono">
+              Bulk Approved
+            </div>
+            <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
+              {bulkApprovedCount}
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+              SAMPLING
+            </span>
+            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+              <Clock className="w-4 h-4 text-[#3A3564]" />
+            </div>
+          </div>
+          <div className="mt-3">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-900 font-mono">
+              Sample Dev / PPS
+            </div>
+            <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
+              {samplingCount}
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+              DRAFTS
+            </span>
+            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+              <Layers className="w-4 h-4 text-[#3A3564]" />
+            </div>
+          </div>
+          <div className="mt-3">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-900 font-mono">
+              Drafts &amp; Fit
+            </div>
+            <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
+              {draftsCount}
+            </div>
+          </div>
         </div>
       </div>
 
