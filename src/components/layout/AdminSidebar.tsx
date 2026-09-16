@@ -241,7 +241,6 @@ export function AdminSidebar({
         section: '1. Design Studio',
         items: [
           { label: 'Studio Dashboard', href: '/design', icon: Palette },
-          { label: 'Design Briefs & Reviews', href: '/design/briefs', icon: ClipboardList },
           { label: 'Tech-Pack Catalog', href: '/design/tech-packs', icon: FileCheck2 },
           { label: 'Team Management', href: '/design/team', icon: Users },
           { label: 'PH Settings', href: '/design/settings', icon: Settings },

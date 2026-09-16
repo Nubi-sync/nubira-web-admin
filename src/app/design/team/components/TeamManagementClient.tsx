@@ -295,11 +295,11 @@ export function TeamManagementClient({
           </div>
 
           <Link
-            href="/design/briefs"
+            href="/design"
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] border border-black/10 text-xs font-bold text-[#3A3564] hover:bg-[#F2ECE1] transition-all shadow-2xs"
           >
             <ClipboardList className="w-3.5 h-3.5" />
-            <span>View Briefs Queue</span>
+            <span>View Studio Dashboard</span>
           </Link>
         </div>
 
