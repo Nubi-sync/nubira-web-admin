@@ -171,11 +171,11 @@ export function CreateTechPackModal({
   }, [isOpen, availableArticles])
 
   // Filter out any articles that already have a tech pack created
-  const unassignedArticles = useMemo(() => {
+  const unassignedArticles: AvailableArticleOption[] = useMemo(() => {
     const existingStyles = new Set(
       (existingTechPacks || []).map(tp => (tp.style_number || '').trim().toUpperCase()).filter(Boolean)
     )
-    return articlesList.filter(a => !existingStyles.has(a.art_number.trim().toUpperCase()))
+    return articlesList.filter((a: AvailableArticleOption) => !existingStyles.has(a.art_number.trim().toUpperCase()))
   }, [articlesList, existingTechPacks])
 
   // Handle article selection from dropdown
