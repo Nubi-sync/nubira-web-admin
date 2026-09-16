@@ -28,7 +28,8 @@ import {
   DesignSubmission, 
   BriefStatus, 
   DesignConceptItem, 
-  DesignConceptColorway 
+  DesignConceptColorway,
+  SAVerdict
 } from '../../types/design'
 import { saReviewDesignSubmissionAction } from '../../actions'
 import { EmptyState } from '@/components/ui/EmptyState'
@@ -59,20 +60,23 @@ function getColorSwatchInfo(colorName: string): { bg: string; border: string; is
   return { bg: '#3A3564', border: '#3A3564', isLight: false }
 }
 
-interface SAReviewItem {
+interface SARowItem {
   key: string
   submissionId: string
   briefId: string
   conceptNumber: number
   artNumber: string
+  baseArtNumber: string
+  colorName: string
+  colorway: DesignConceptColorway
   garment: string
   category: string
   designerName: string
   designerPhone?: string
-  colorways: DesignConceptColorway[]
-  status: BriefStatus
+  isPHApproved: boolean
+  isPHRejected: boolean
   saVerdict: 'APPROVED' | 'SAVED_FOR_LATER' | 'REJECTED' | 'PENDING'
-  phVerdict: 'APPROVED' | 'REJECTED' | 'PENDING'
+  status: BriefStatus
   phFeedback?: string
   saNotes?: string
   designerNotes?: string
@@ -99,16 +103,15 @@ export function SADesignApprovalsClient({
   const [searchQuery, setSearchQuery] = useState('')
 
   // Review Modal State
-  const [selectedReviewItem, setSelectedReviewItem] = useState<SAReviewItem | null>(null)
-  const [colorwayDecisions, setColorwayDecisions] = useState<Record<string, 'APPROVED' | 'REJECTED'>>({})
+  const [selectedRowItem, setSelectedRowItem] = useState<SARowItem | null>(null)
   const [saNotes, setSaNotes] = useState('')
   const [isReviewing, setIsReviewing] = useState(false)
 
   // Lightbox Photo State
   const [previewPhoto, setPreviewPhoto] = useState<string | null>(null)
 
-  // Derive individual design items from submissions
-  const reviewItems: SAReviewItem[] = []
+  // Derive individual unbundled variant rows from submissions
+  const allRows: SARowItem[] = []
 
   submissions.forEach(sub => {
     const brief = sub.brief
@@ -120,79 +123,110 @@ export function SADesignApprovalsClient({
         const cNum = concept.concept_number || (cIdx + 1)
         const instructedReq = instructedConcepts.find(b => b.concept_number === cNum)
         
-        // Concept must be approved by PH to show up in SA Approvals
-        const isConceptPHApproved = concept.ph_verdict === 'APPROVED' || 
-                                   concept.status === 'PH_APPROVED' || 
-                                   concept.status === 'SA_APPROVED' || 
-                                   concept.status === 'SA_SAVED_FOR_LATER' ||
-                                   concept.sa_verdict === 'APPROVED' ||
-                                   concept.sa_verdict === 'SAVED_FOR_LATER' ||
-                                   (sub.ph_verdict === 'APPROVED' && !concept.ph_verdict && (concept.colorways && concept.colorways.some(cw => Boolean(cw.photo_front || cw.photo_back))))
-
-        if (!isConceptPHApproved) return
-
-        const artNo = concept.art_number || instructedReq?.art_number || `DEMO-10${cNum}`
-        const garment = brief?.garment_type || 'Apparel'
+        const baseArtNo = concept.art_number || instructedReq?.art_number || `DEMO-10${cNum}`
+        const garment = (instructedReq?.notes?.match(/Garment:\s*([^|]+)/i)?.[1]?.trim()) || 
+                        brief?.garment_type?.split(',')[cNum - 1]?.trim() || 
+                        brief?.garment_type || 
+                        'Apparel'
         const category = concept.title || instructedReq?.category_style || brief?.category || 'Casual'
         const colorways = concept.colorways || []
-        const saVerdict = (concept.sa_verdict || sub.sa_verdict || 'PENDING') as 'APPROVED' | 'SAVED_FOR_LATER' | 'REJECTED' | 'PENDING'
-        const phVerdict = (concept.ph_verdict || sub.ph_verdict || 'APPROVED') as 'APPROVED' | 'REJECTED' | 'PENDING'
-        const conceptStatus: BriefStatus = concept.status || (
-          saVerdict === 'APPROVED' ? 'SA_APPROVED' :
-          saVerdict === 'SAVED_FOR_LATER' ? 'SA_SAVED_FOR_LATER' :
-          saVerdict === 'REJECTED' ? 'PH_REJECTED' :
-          'PH_APPROVED'
-        )
 
-        reviewItems.push({
-          key: `${sub.id}-c-${cNum}`,
-          submissionId: sub.id,
-          briefId: sub.brief_id,
-          conceptNumber: cNum,
-          artNumber: artNo,
-          garment,
-          category,
-          designerName: sub.designer_name || brief?.designer_name || 'Designer',
-          designerPhone: brief?.designer_phone,
-          colorways,
-          status: conceptStatus,
-          saVerdict,
-          phVerdict,
-          phFeedback: concept.ph_feedback || sub.ph_feedback,
-          saNotes: concept.sa_notes || sub.sa_notes,
-          designerNotes: concept.notes || sub.designer_notes,
-          submittedAt: sub.submitted_at,
-          rawSubmission: sub,
-          rawConcept: concept
-        })
+        if (colorways.length > 0) {
+          colorways.forEach((cw, cwIdx) => {
+            const variantArtNo = getVariantArtNumber(baseArtNo, cwIdx, colorways.length)
+            const isPHApproved = cw.status === 'APPROVED' || (!cw.status && concept.ph_verdict === 'APPROVED')
+            const isPHRejected = cw.status === 'REJECTED' || (!cw.status && concept.ph_verdict === 'REJECTED')
+            const saVerdict = (cw.sa_verdict || concept.sa_verdict || sub.sa_verdict || 'PENDING') as 'APPROVED' | 'SAVED_FOR_LATER' | 'REJECTED' | 'PENDING'
+
+            const status: BriefStatus = saVerdict === 'APPROVED' 
+              ? 'SA_APPROVED' 
+              : saVerdict === 'SAVED_FOR_LATER' 
+              ? 'SA_SAVED_FOR_LATER' 
+              : isPHRejected || saVerdict === 'REJECTED'
+              ? 'PH_REJECTED'
+              : 'PH_APPROVED'
+
+            allRows.push({
+              key: `${sub.id}-c-${cNum}-cw-${cw.color_name}-${cwIdx}`,
+              submissionId: sub.id,
+              briefId: sub.brief_id,
+              conceptNumber: cNum,
+              artNumber: variantArtNo,
+              baseArtNumber: baseArtNo,
+              colorName: cw.color_name,
+              colorway: cw,
+              garment,
+              category,
+              designerName: sub.designer_name || brief?.designer_name || 'Designer',
+              designerPhone: brief?.designer_phone,
+              isPHApproved,
+              isPHRejected,
+              saVerdict,
+              status,
+              phFeedback: concept.ph_feedback || sub.ph_feedback,
+              saNotes: cw.sa_notes || concept.sa_notes || sub.sa_notes,
+              designerNotes: concept.notes || sub.designer_notes,
+              submittedAt: sub.submitted_at,
+              rawSubmission: sub,
+              rawConcept: concept
+            })
+          })
+        } else {
+          // Fallback if no specific colorways array
+          const isPHApproved = concept.ph_verdict === 'APPROVED' || sub.ph_verdict === 'APPROVED'
+          const isPHRejected = concept.ph_verdict === 'REJECTED' || sub.ph_verdict === 'REJECTED'
+          const saVerdict = (concept.sa_verdict || sub.sa_verdict || 'PENDING') as 'APPROVED' | 'SAVED_FOR_LATER' | 'REJECTED' | 'PENDING'
+          const status: BriefStatus = saVerdict === 'APPROVED' ? 'SA_APPROVED' : saVerdict === 'SAVED_FOR_LATER' ? 'SA_SAVED_FOR_LATER' : isPHRejected ? 'PH_REJECTED' : 'PH_APPROVED'
+
+          allRows.push({
+            key: `${sub.id}-c-${cNum}`,
+            submissionId: sub.id,
+            briefId: sub.brief_id,
+            conceptNumber: cNum,
+            artNumber: baseArtNo,
+            baseArtNumber: baseArtNo,
+            colorName: 'Standard',
+            colorway: { color_name: 'Standard', photo_front: sub.photo_url_1, photo_back: sub.photo_url_2 },
+            garment,
+            category,
+            designerName: sub.designer_name || brief?.designer_name || 'Designer',
+            designerPhone: brief?.designer_phone,
+            isPHApproved,
+            isPHRejected,
+            saVerdict,
+            status,
+            phFeedback: concept.ph_feedback || sub.ph_feedback,
+            saNotes: concept.sa_notes || sub.sa_notes,
+            designerNotes: concept.notes || sub.designer_notes,
+            submittedAt: sub.submitted_at,
+            rawSubmission: sub,
+            rawConcept: concept
+          })
+        }
       })
     } else if (sub.ph_verdict === 'APPROVED') {
       const artNo = brief?.design_concepts_brief?.[0]?.art_number || 'DEMO-101'
       const garment = brief?.garment_type || 'Apparel'
       const category = brief?.category || 'Casual'
-      const colorways: DesignConceptColorway[] = [
-        {
-          color_name: brief?.target_colors?.[0] || 'Default',
-          photo_front: sub.photo_url_1,
-          photo_back: sub.photo_url_2
-        }
-      ]
       const saVerdict = (sub.sa_verdict || 'PENDING') as 'APPROVED' | 'SAVED_FOR_LATER' | 'REJECTED' | 'PENDING'
 
-      reviewItems.push({
+      allRows.push({
         key: `${sub.id}-c-1`,
         submissionId: sub.id,
         briefId: sub.brief_id,
         conceptNumber: 1,
         artNumber: artNo,
+        baseArtNumber: artNo,
+        colorName: brief?.target_colors?.[0] || 'Default',
+        colorway: { color_name: brief?.target_colors?.[0] || 'Default', photo_front: sub.photo_url_1, photo_back: sub.photo_url_2 },
         garment,
         category,
         designerName: sub.designer_name || brief?.designer_name || 'Designer',
         designerPhone: brief?.designer_phone,
-        colorways,
-        status: saVerdict === 'APPROVED' ? 'SA_APPROVED' : saVerdict === 'SAVED_FOR_LATER' ? 'SA_SAVED_FOR_LATER' : 'PH_APPROVED',
+        isPHApproved: true,
+        isPHRejected: false,
         saVerdict,
-        phVerdict: 'APPROVED',
+        status: saVerdict === 'APPROVED' ? 'SA_APPROVED' : saVerdict === 'SAVED_FOR_LATER' ? 'SA_SAVED_FOR_LATER' : 'PH_APPROVED',
         phFeedback: sub.ph_feedback,
         saNotes: sub.sa_notes,
         designerNotes: sub.designer_notes,
@@ -202,56 +236,51 @@ export function SADesignApprovalsClient({
     }
   })
 
-  // Sync colorway decisions when opening review item
+  // Sync SA notes when opening review item
   useEffect(() => {
-    if (!selectedReviewItem) {
-      setColorwayDecisions({})
+    if (!selectedRowItem) {
       setSaNotes('')
       return
     }
-    const initDecisions: Record<string, 'APPROVED' | 'REJECTED'> = {}
-    selectedReviewItem.colorways.forEach(cw => {
-      initDecisions[cw.color_name] = cw.status === 'REJECTED' ? 'REJECTED' : 'APPROVED'
-    })
-    setColorwayDecisions(initDecisions)
-    setSaNotes(selectedReviewItem.saNotes || '')
-  }, [selectedReviewItem?.key])
+    setSaNotes(selectedRowItem.saNotes || '')
+  }, [selectedRowItem?.key])
 
-  const pendingItems = reviewItems.filter(r => r.phVerdict === 'APPROVED' && (!r.saVerdict || r.saVerdict === 'PENDING'))
-  const approvedItems = reviewItems.filter(r => r.saVerdict === 'APPROVED')
-  const savedForLaterItems = reviewItems.filter(r => r.saVerdict === 'SAVED_FOR_LATER')
-  const rejectedItems = reviewItems.filter(r => r.saVerdict === 'REJECTED')
+  const pendingItems = allRows.filter(r => r.isPHApproved && (!r.saVerdict || r.saVerdict === 'PENDING'))
+  const approvedItems = allRows.filter(r => r.saVerdict === 'APPROVED')
+  const savedForLaterItems = allRows.filter(r => r.saVerdict === 'SAVED_FOR_LATER')
+  const rejectedItems = allRows.filter(r => r.isPHRejected || r.saVerdict === 'REJECTED')
 
-  const filteredList = reviewItems.filter(r => {
+  const filteredList = allRows.filter(r => {
     if (activeTab === 'PENDING') {
-      if (!(r.phVerdict === 'APPROVED' && (!r.saVerdict || r.saVerdict === 'PENDING'))) return false
+      if (!(r.isPHApproved && (!r.saVerdict || r.saVerdict === 'PENDING'))) return false
     } else if (activeTab === 'APPROVED') {
       if (r.saVerdict !== 'APPROVED') return false
     } else if (activeTab === 'SAVED_FOR_LATER') {
       if (r.saVerdict !== 'SAVED_FOR_LATER') return false
     } else if (activeTab === 'REJECTED') {
-      if (r.saVerdict !== 'REJECTED') return false
+      if (!(r.isPHRejected || r.saVerdict === 'REJECTED')) return false
     }
 
     const q = searchQuery.toLowerCase()
-    const art = r.artNumber?.toLowerCase() || ''
-    const garment = r.garment?.toLowerCase() || ''
-    const cat = r.category?.toLowerCase() || ''
-    const designer = r.designerName?.toLowerCase() || ''
+    const art = r.artNumber.toLowerCase()
+    const garment = r.garment.toLowerCase()
+    const cat = r.category.toLowerCase()
+    const col = r.colorName.toLowerCase()
+    const designer = r.designerName.toLowerCase()
     const notes = r.designerNotes?.toLowerCase() || ''
 
-    return art.includes(q) || garment.includes(q) || cat.includes(q) || designer.includes(q) || notes.includes(q)
+    return art.includes(q) || garment.includes(q) || cat.includes(q) || col.includes(q) || designer.includes(q) || notes.includes(q)
   })
 
-  async function handleVerdict(item: SAReviewItem, verdict: 'APPROVED' | 'SAVED_FOR_LATER' | 'REJECTED') {
+  async function handleVerdict(item: SARowItem, verdict: 'APPROVED' | 'SAVED_FOR_LATER' | 'REJECTED') {
     setIsReviewing(true)
     try {
       const res = await saReviewDesignSubmissionAction({
         submission_id: item.submissionId,
         concept_number: item.conceptNumber,
+        colorway_name: item.colorName,
         sa_verdict: verdict,
-        sa_notes: saNotes.trim() || undefined,
-        colorway_verdicts: colorwayDecisions
+        sa_notes: saNotes.trim() || undefined
       })
 
       if (res.success) {
@@ -267,6 +296,16 @@ export function SADesignApprovalsClient({
           if (s.id === item.submissionId) {
             const updatedConcepts = (s.concepts || []).map(c => {
               if (c.concept_number === item.conceptNumber) {
+                const updatedCws = (c.colorways || []).map(cw => {
+                  if (cw.color_name === item.colorName) {
+                    return {
+                      ...cw,
+                      sa_verdict: verdict,
+                      sa_notes: saNotes.trim() || undefined
+                    }
+                  }
+                  return cw
+                })
                 return {
                   ...c,
                   sa_verdict: verdict,
@@ -276,10 +315,7 @@ export function SADesignApprovalsClient({
                     : verdict === 'SAVED_FOR_LATER' 
                     ? ('SA_SAVED_FOR_LATER' as BriefStatus) 
                     : ('PH_REJECTED' as BriefStatus),
-                  colorways: (c.colorways || []).map(cw => ({
-                    ...cw,
-                    status: colorwayDecisions[cw.color_name] || (verdict === 'APPROVED' ? 'APPROVED' : 'REJECTED')
-                  }))
+                  colorways: updatedCws
                 }
               }
               return c
@@ -296,7 +332,7 @@ export function SADesignApprovalsClient({
           return s
         }))
 
-        setSelectedReviewItem(null)
+        setSelectedRowItem(null)
         setSaNotes('')
       } else {
         toast.error(res.error || 'Failed to update verdict.')
@@ -337,7 +373,7 @@ export function SADesignApprovalsClient({
               </span>
             </div>
             <p className="text-sm text-slate-600 mt-1">
-              Review Provisional Head-approved designs individually, greenlight for Tech-Pack creation, or save in seasonal archive
+              Review Provisional Head-approved designs individually with unique Art Numbers, greenlight for Tech-Pack, or save in seasonal archive
             </p>
           </div>
         </div>
@@ -369,7 +405,7 @@ export function SADesignApprovalsClient({
               Total Designs
             </div>
             <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
-              {reviewItems.length}
+              {allRows.length}
             </div>
           </div>
         </div>
@@ -446,7 +482,7 @@ export function SADesignApprovalsClient({
                   : 'text-slate-700 bg-[#FAF7F0] border-black/10 hover:bg-slate-100'
               }`}
             >
-              All Designs ({reviewItems.length})
+              All Designs ({allRows.length})
             </button>
             <button
               type="button"
@@ -500,7 +536,7 @@ export function SADesignApprovalsClient({
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
-              placeholder="Search art no, concepts, designers..."
+              placeholder="Search art no, colors, garment..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] font-medium text-slate-900"
@@ -514,7 +550,7 @@ export function SADesignApprovalsClient({
             <EmptyState
               icon={ShieldCheck}
               title="No designs found in this category"
-              description="When Provisional Heads approve individual designer submissions, they appear here for Super Admin executive review."
+              description="When Provisional Heads approve designer submissions, each individual design and colorway appears here for Super Admin executive review."
             />
           </div>
         ) : (
@@ -526,19 +562,19 @@ export function SADesignApprovalsClient({
                   <tr className="border-b border-slate-100 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0]">
                     <th className="py-3 px-4">Art No. &amp; Garment</th>
                     <th className="py-3 px-4">Designer</th>
-                    <th className="py-3 px-4">Colors &amp; Scope</th>
+                    <th className="py-3 px-4">Colorway &amp; Artwork</th>
                     <th className="py-3 px-4">Decision Status</th>
                     <th className="py-3 px-4 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 text-xs">
                   {filteredList.map(item => {
-                    const isPendingSA = item.phVerdict === 'APPROVED' && (!item.saVerdict || item.saVerdict === 'PENDING')
+                    const isPendingSA = item.isPHApproved && (!item.saVerdict || item.saVerdict === 'PENDING')
                     const isGreenlit = item.saVerdict === 'APPROVED'
                     const isSaved = item.saVerdict === 'SAVED_FOR_LATER'
-                    const isRejected = item.saVerdict === 'REJECTED'
+                    const isRejected = item.isPHRejected || item.saVerdict === 'REJECTED'
 
-                    const colorCount = item.colorways?.length || 1
+                    const sw = getColorSwatchInfo(item.colorName)
 
                     return (
                       <tr key={item.key} className="hover:bg-slate-50/80 transition-colors group">
@@ -568,42 +604,46 @@ export function SADesignApprovalsClient({
                               {item.designerPhone}
                             </span>
                           )}
-                          <span className="text-[11px] text-emerald-700 font-mono inline-flex items-center gap-1 font-bold mt-0.5">
-                            <CheckCircle2 className="w-3 h-3 text-emerald-600" /> PH Approved
-                          </span>
+                          {item.isPHApproved ? (
+                            <span className="text-[11px] text-emerald-700 font-mono inline-flex items-center gap-1 font-bold mt-0.5">
+                              <CheckCircle2 className="w-3 h-3 text-emerald-600" /> PH Approved
+                            </span>
+                          ) : (
+                            <span className="text-[11px] text-rose-700 font-mono inline-flex items-center gap-1 font-bold mt-0.5">
+                              <XCircle className="w-3 h-3 text-rose-600" /> PH Rejected
+                            </span>
+                          )}
                         </td>
 
                         <td className="py-3.5 px-4">
-                          <div className="flex items-center gap-1.5 font-bold font-mono text-slate-800 text-xs mb-1">
-                            <Palette className="w-3.5 h-3.5 text-slate-500" />
-                            <span>{colorCount} {colorCount === 1 ? 'Color' : 'Colors'}</span>
-                          </div>
-                          {item.colorways && item.colorways.length > 0 ? (
-                            <div className="flex items-center gap-1.5 flex-wrap">
-                              {item.colorways.slice(0, 3).map((cw, cwIdx) => {
-                                const sw = getColorSwatchInfo(cw.color_name)
-                                return (
-                                  <span 
-                                    key={cwIdx} 
-                                    className="inline-flex items-center gap-1 text-[11px] font-medium bg-[#FAF7F0] px-2 py-0.5 rounded-full border border-black/10 text-slate-700"
-                                  >
-                                    <span 
-                                      className="w-2 h-2 rounded-full border border-black/20 shrink-0" 
-                                      style={{ backgroundColor: sw.bg }} 
-                                    />
-                                    <span className="truncate max-w-[80px]">{cw.color_name}</span>
-                                  </span>
-                                )
-                              })}
-                              {item.colorways.length > 3 && (
-                                <span className="text-[10px] font-mono text-slate-500 font-bold bg-[#FAF7F0] px-1.5 py-0.5 rounded-full border border-black/10">
-                                  +{item.colorways.length - 3}
-                                </span>
-                              )}
+                          <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-1.5">
+                              <span 
+                                className="w-3.5 h-3.5 rounded-full border border-black/20 shrink-0 shadow-2xs" 
+                                style={{ backgroundColor: sw.bg }} 
+                              />
+                              <span className="font-bold text-slate-800 text-xs">
+                                {item.colorName}
+                              </span>
                             </div>
-                          ) : (
-                            <span className="text-slate-400 font-mono text-xs">Standard</span>
-                          )}
+
+                            {/* Mini Thumbnail */}
+                            {item.colorway.photo_front ? (
+                              <div 
+                                onClick={() => setPreviewPhoto(item.colorway.photo_front)}
+                                className="w-10 h-10 rounded-lg border border-black/10 overflow-hidden bg-[#FAF7F0] cursor-pointer p-0.5 shadow-2xs hover:border-[#3A3564] transition-all shrink-0"
+                                title="Click to preview artwork"
+                              >
+                                <img
+                                  src={item.colorway.photo_front}
+                                  alt={`${item.artNumber} Preview`}
+                                  className="w-full h-full object-contain"
+                                />
+                              </div>
+                            ) : (
+                              <span className="text-slate-400 font-mono text-[10px]">No Artwork</span>
+                            )}
+                          </div>
                         </td>
 
                         <td className="py-3.5 px-4">
@@ -624,7 +664,7 @@ export function SADesignApprovalsClient({
                           )}
                           {isRejected && (
                             <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
-                              Revisions Needed
+                              {item.isPHRejected ? 'PH Rejected' : 'Revisions Needed'}
                             </span>
                           )}
                         </td>
@@ -632,7 +672,7 @@ export function SADesignApprovalsClient({
                         <td className="py-3.5 px-4 text-right">
                           <button
                             type="button"
-                            onClick={() => setSelectedReviewItem(item)}
+                            onClick={() => setSelectedRowItem(item)}
                             className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white hover:bg-slate-100 border border-black/10 text-xs font-bold text-slate-700 shadow-2xs transition-all cursor-pointer hover:border-black/20"
                           >
                             <Eye className="w-3.5 h-3.5 text-slate-600" />
@@ -650,11 +690,11 @@ export function SADesignApprovalsClient({
             {/* Mobile Cards */}
             <div className="md:hidden divide-y divide-slate-100">
               {filteredList.map(item => {
-                const isPendingSA = item.phVerdict === 'APPROVED' && (!item.saVerdict || item.saVerdict === 'PENDING')
+                const isPendingSA = item.isPHApproved && (!item.saVerdict || item.saVerdict === 'PENDING')
                 const isGreenlit = item.saVerdict === 'APPROVED'
                 const isSaved = item.saVerdict === 'SAVED_FOR_LATER'
-                const isRejected = item.saVerdict === 'REJECTED'
-                const colorCount = item.colorways?.length || 1
+                const isRejected = item.isPHRejected || item.saVerdict === 'REJECTED'
+                const sw = getColorSwatchInfo(item.colorName)
 
                 return (
                   <div key={item.key} className="p-4 space-y-3 bg-white">
@@ -704,18 +744,21 @@ export function SADesignApprovalsClient({
                         <span className="font-bold text-slate-800">{item.designerName}</span>
                       </div>
                       <div className="text-right">
-                        <span className="text-slate-400 block text-[10px] uppercase font-bold">Colors</span>
-                        <span className="font-bold text-[#3A3564]">{colorCount} Colorway(s)</span>
+                        <span className="text-slate-400 block text-[10px] uppercase font-bold">Colorway</span>
+                        <div className="flex items-center gap-1 font-bold text-slate-800 justify-end">
+                          <span className="w-2.5 h-2.5 rounded-full border border-black/20 shrink-0" style={{ backgroundColor: sw.bg }} />
+                          <span>{item.colorName}</span>
+                        </div>
                       </div>
                     </div>
 
                     <button
                       type="button"
-                      onClick={() => setSelectedReviewItem(item)}
+                      onClick={() => setSelectedRowItem(item)}
                       className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl bg-[#3A3564] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
                     >
                       <Eye className="w-3.5 h-3.5" />
-                      <span>View &amp; Decide Concept</span>
+                      <span>View &amp; Decide {item.artNumber}</span>
                       <ChevronRight className="w-3.5 h-3.5" />
                     </button>
                   </div>
@@ -727,42 +770,42 @@ export function SADesignApprovalsClient({
       </div>
 
       {/* ========================================================================= */}
-      {/* SUPER ADMIN EXECUTIVE DECISION MODAL (INDIVIDUAL CONCEPT) */}
+      {/* SUPER ADMIN EXECUTIVE DECISION MODAL (INDIVIDUAL VARIANT) */}
       {/* ========================================================================= */}
-      {selectedReviewItem && (
+      {selectedRowItem && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="relative w-full max-w-3xl bg-white rounded-3xl shadow-2xl border border-black/10 overflow-hidden flex flex-col max-h-[90vh]">
+          <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-black/10 overflow-hidden flex flex-col max-h-[90vh]">
             {/* Modal Header */}
             <div className="px-6 py-5 bg-[#FAF7F0] border-b border-black/10 flex items-center justify-between shrink-0">
               <div>
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-2xs">
-                    PH Approved
+                    {selectedRowItem.isPHApproved ? 'PH Approved' : 'PH Rejected'}
                   </span>
                   <span className="text-xs font-mono font-extrabold text-slate-900 bg-white px-2.5 py-0.5 rounded-full border border-black/10 shadow-2xs">
-                    ART NO: {selectedReviewItem.artNumber}
+                    ART NO: {selectedRowItem.artNumber}
                   </span>
-                  {selectedReviewItem.saVerdict === 'APPROVED' && (
+                  {selectedRowItem.saVerdict === 'APPROVED' && (
                     <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-emerald-600 text-white shadow-2xs">
-                      Greenlit for Production
+                      Greenlit for Tech-Pack
                     </span>
                   )}
-                  {selectedReviewItem.saVerdict === 'SAVED_FOR_LATER' && (
+                  {selectedRowItem.saVerdict === 'SAVED_FOR_LATER' && (
                     <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs">
                       Saved in Archive
                     </span>
                   )}
                 </div>
                 <h2 className="text-xl font-bold text-slate-900 mt-1 font-[family-name:var(--font-heading)]">
-                  {selectedReviewItem.garment} ({selectedReviewItem.category})
+                  {selectedRowItem.garment} ({selectedRowItem.category})
                 </h2>
                 <p className="text-xs text-slate-500 font-mono mt-0.5">
-                  Designer: <strong className="text-slate-800 font-sans">{selectedReviewItem.designerName}</strong> &bull; Submission ID: #{selectedReviewItem.submissionId.substring(0, 8)}
+                  Colorway: <strong className="text-slate-800 font-sans">{selectedRowItem.colorName}</strong> &bull; Designer: <strong className="text-slate-800 font-sans">{selectedRowItem.designerName}</strong>
                 </p>
               </div>
               <button
                 type="button"
-                onClick={() => setSelectedReviewItem(null)}
+                onClick={() => setSelectedRowItem(null)}
                 className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-black/5 cursor-pointer transition-colors"
               >
                 <X className="w-5 h-5" />
@@ -771,152 +814,79 @@ export function SADesignApprovalsClient({
 
             {/* Modal Body */}
             <div className="p-6 overflow-y-auto space-y-4 text-xs sm:text-[13px] flex-1">
-              {/* Designer Notes */}
-              {selectedReviewItem.designerNotes && (
-                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs">
-                  <span className="font-bold text-slate-700 block font-mono uppercase mb-0.5">Designer Notes:</span>
-                  <p className="text-slate-600 italic">&ldquo;{selectedReviewItem.designerNotes}&rdquo;</p>
-                </div>
-              )}
-
-              {/* Colorways Deck with Individual Colorway Toggles */}
+              {/* Artwork Cards */}
               <div>
                 <div className="flex items-center justify-between mb-2.5">
                   <label className="text-xs font-bold uppercase tracking-wider text-slate-700 font-mono">
-                    Colorway Variations ({selectedReviewItem.colorways?.length || 0})
+                    Artwork Mockups ({selectedRowItem.artNumber})
                   </label>
                   <span className="text-[11px] font-mono text-slate-400">
-                    Click any artwork to expand full view
+                    Click image to expand
                   </span>
                 </div>
 
-                <div className="space-y-4">
-                  {selectedReviewItem.colorways && selectedReviewItem.colorways.length > 0 ? (
-                    selectedReviewItem.colorways.map((cw, cwIdx) => {
-                      const sw = getColorSwatchInfo(cw.color_name)
-                      const variantArtNo = getVariantArtNumber(
-                        selectedReviewItem.artNumber,
-                        cwIdx,
-                        selectedReviewItem.colorways.length
-                      )
-                      const isRejected = colorwayDecisions[cw.color_name] === 'REJECTED'
-
-                      return (
-                        <div 
-                          key={cwIdx} 
-                          className={`p-4 rounded-2xl border transition-all ${
-                            isRejected 
-                              ? 'bg-rose-50/40 border-rose-200 shadow-2xs' 
-                              : 'bg-white border-black/10 shadow-2xs'
-                          }`}
-                        >
-                          <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">
-                            <div className="flex items-center gap-2.5">
-                              <span 
-                                className="w-3.5 h-3.5 rounded-full border border-black/20 shadow-2xs shrink-0"
-                                style={{ backgroundColor: sw.bg }}
-                              />
-                              <span className="font-bold text-slate-900 text-sm">
-                                {cw.color_name} Colorway
-                              </span>
-                              {variantArtNo && (
-                                <span className="text-xs font-mono font-bold text-slate-700 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
-                                  {variantArtNo}
-                                </span>
-                              )}
-                            </div>
-
-                            {/* Colorway Individual Decision Controls */}
-                            <div className="flex items-center gap-1.5 bg-[#FAF7F0] p-1 rounded-xl border border-black/10">
-                              <button
-                                type="button"
-                                onClick={() => setColorwayDecisions(prev => ({ ...prev, [cw.color_name]: 'APPROVED' }))}
-                                className={`px-2.5 py-1 rounded-lg text-xs font-bold font-mono transition-all cursor-pointer ${
-                                  !isRejected
-                                    ? 'bg-emerald-600 text-white shadow-2xs'
-                                    : 'text-slate-600 hover:text-slate-900'
-                                }`}
-                              >
-                                Accept
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => setColorwayDecisions(prev => ({ ...prev, [cw.color_name]: 'REJECTED' }))}
-                                className={`px-2.5 py-1 rounded-lg text-xs font-bold font-mono transition-all cursor-pointer ${
-                                  isRejected
-                                    ? 'bg-rose-600 text-white shadow-2xs'
-                                    : 'text-slate-600 hover:text-slate-900'
-                                }`}
-                              >
-                                Reject
-                              </button>
-                            </div>
-                          </div>
-
-                          {/* Front & Back Artwork Cards */}
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                            {cw.photo_front ? (
-                              <div
-                                onClick={() => setPreviewPhoto(cw.photo_front)}
-                                className="rounded-2xl border border-black/10 bg-[#FAF7F0] overflow-hidden relative group cursor-pointer p-2 flex flex-col items-center justify-center shadow-2xs hover:border-[#3A3564]/40 transition-all min-h-[200px]"
-                              >
-                                <img
-                                  src={cw.photo_front}
-                                  alt={`${cw.color_name} Front View`}
-                                  className="max-h-48 w-auto object-contain group-hover:scale-105 transition-transform"
-                                />
-                                <span className="absolute bottom-2.5 left-2.5 text-[10px] font-mono font-bold bg-white/95 text-slate-800 px-2.5 py-0.5 rounded-full border border-black/10 shadow-2xs">
-                                  Front View
-                                </span>
-                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-1 rounded-2xl">
-                                  <Eye className="w-4 h-4" /> Expand View
-                                </div>
-                              </div>
-                            ) : (
-                              <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 flex items-center justify-center text-xs text-slate-400 font-mono p-6 min-h-[200px]">
-                                No Front View
-                              </div>
-                            )}
-
-                            {cw.photo_back ? (
-                              <div
-                                onClick={() => setPreviewPhoto(cw.photo_back!)}
-                                className="rounded-2xl border border-black/10 bg-[#FAF7F0] overflow-hidden relative group cursor-pointer p-2 flex flex-col items-center justify-center shadow-2xs hover:border-[#3A3564]/40 transition-all min-h-[200px]"
-                              >
-                                <img
-                                  src={cw.photo_back}
-                                  alt={`${cw.color_name} Back View`}
-                                  className="max-h-48 w-auto object-contain group-hover:scale-105 transition-transform"
-                                />
-                                <span className="absolute bottom-2.5 left-2.5 text-[10px] font-mono font-bold bg-white/95 text-slate-800 px-2.5 py-0.5 rounded-full border border-black/10 shadow-2xs">
-                                  Back View
-                                </span>
-                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-1 rounded-2xl">
-                                  <Eye className="w-4 h-4" /> Expand View
-                                </div>
-                              </div>
-                            ) : (
-                              <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 flex items-center justify-center text-xs text-slate-400 font-mono p-6 min-h-[200px]">
-                                No Back View
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      )
-                    })
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  {selectedRowItem.colorway.photo_front ? (
+                    <div
+                      onClick={() => setPreviewPhoto(selectedRowItem.colorway.photo_front)}
+                      className="rounded-2xl border border-black/10 bg-[#FAF7F0] overflow-hidden relative group cursor-pointer p-2 flex flex-col items-center justify-center shadow-2xs hover:border-[#3A3564]/40 transition-all min-h-[220px]"
+                    >
+                      <img
+                        src={selectedRowItem.colorway.photo_front}
+                        alt={`${selectedRowItem.artNumber} Front View`}
+                        className="max-h-52 w-auto object-contain group-hover:scale-105 transition-transform"
+                      />
+                      <span className="absolute bottom-2.5 left-2.5 text-[10px] font-mono font-bold bg-white/95 text-slate-800 px-2.5 py-0.5 rounded-full border border-black/10 shadow-2xs">
+                        Front View
+                      </span>
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-1 rounded-2xl">
+                        <Eye className="w-4 h-4" /> Expand View
+                      </div>
+                    </div>
                   ) : (
-                    <div className="p-6 rounded-2xl border border-dashed border-slate-200 bg-slate-50 text-center text-slate-400 font-mono text-xs">
-                      No artwork variations attached.
+                    <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 flex items-center justify-center text-xs text-slate-400 font-mono p-6 min-h-[220px]">
+                      No Front View Attached
+                    </div>
+                  )}
+
+                  {selectedRowItem.colorway.photo_back ? (
+                    <div
+                      onClick={() => setPreviewPhoto(selectedRowItem.colorway.photo_back!)}
+                      className="rounded-2xl border border-black/10 bg-[#FAF7F0] overflow-hidden relative group cursor-pointer p-2 flex flex-col items-center justify-center shadow-2xs hover:border-[#3A3564]/40 transition-all min-h-[220px]"
+                    >
+                      <img
+                        src={selectedRowItem.colorway.photo_back}
+                        alt={`${selectedRowItem.artNumber} Back View`}
+                        className="max-h-52 w-auto object-contain group-hover:scale-105 transition-transform"
+                      />
+                      <span className="absolute bottom-2.5 left-2.5 text-[10px] font-mono font-bold bg-white/95 text-slate-800 px-2.5 py-0.5 rounded-full border border-black/10 shadow-2xs">
+                        Back View
+                      </span>
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-1 rounded-2xl">
+                        <Eye className="w-4 h-4" /> Expand View
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 flex items-center justify-center text-xs text-slate-400 font-mono p-6 min-h-[220px]">
+                      No Back View Attached
                     </div>
                   )}
                 </div>
               </div>
 
+              {/* Designer Notes */}
+              {selectedRowItem.designerNotes && (
+                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs">
+                  <span className="font-bold text-slate-700 block font-mono uppercase mb-0.5">Designer Notes:</span>
+                  <p className="text-slate-600 italic">&ldquo;{selectedRowItem.designerNotes}&rdquo;</p>
+                </div>
+              )}
+
               {/* PH Approval Notes */}
-              {selectedReviewItem.phFeedback && (
+              {selectedRowItem.phFeedback && (
                 <div className="p-3.5 rounded-xl bg-sky-50 border border-sky-200 text-xs">
                   <span className="font-bold text-sky-900 block font-mono uppercase mb-0.5">Provisional Head Notes:</span>
-                  <p className="text-sky-800 italic">&ldquo;{selectedReviewItem.phFeedback}&rdquo;</p>
+                  <p className="text-sky-800 italic">&ldquo;{selectedRowItem.phFeedback}&rdquo;</p>
                 </div>
               )}
 
@@ -940,7 +910,7 @@ export function SADesignApprovalsClient({
               <button
                 type="button"
                 onClick={() => {
-                  setSelectedReviewItem(null)
+                  setSelectedRowItem(null)
                   setSaNotes('')
                 }}
                 className="px-4 py-2.5 text-xs font-bold text-slate-700 bg-white border border-black/10 hover:bg-slate-100 rounded-xl shadow-2xs cursor-pointer transition-all"
@@ -952,7 +922,7 @@ export function SADesignApprovalsClient({
                 <button
                   type="button"
                   disabled={isReviewing}
-                  onClick={() => handleVerdict(selectedReviewItem, 'REJECTED')}
+                  onClick={() => handleVerdict(selectedRowItem, 'REJECTED')}
                   className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 text-xs font-bold transition-all shadow-2xs cursor-pointer disabled:opacity-50"
                 >
                   <XCircle className="w-4 h-4" />
@@ -962,7 +932,7 @@ export function SADesignApprovalsClient({
                 <button
                   type="button"
                   disabled={isReviewing}
-                  onClick={() => handleVerdict(selectedReviewItem, 'SAVED_FOR_LATER')}
+                  onClick={() => handleVerdict(selectedRowItem, 'SAVED_FOR_LATER')}
                   className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-white text-[#3A3564] hover:bg-slate-100 border border-black/15 text-xs font-bold transition-all shadow-2xs cursor-pointer disabled:opacity-50"
                 >
                   <Bookmark className="w-4 h-4" />
@@ -972,7 +942,7 @@ export function SADesignApprovalsClient({
                 <button
                   type="button"
                   disabled={isReviewing}
-                  onClick={() => handleVerdict(selectedReviewItem, 'APPROVED')}
+                  onClick={() => handleVerdict(selectedRowItem, 'APPROVED')}
                   className="inline-flex items-center gap-1.5 px-4.5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50"
                 >
                   {isReviewing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}

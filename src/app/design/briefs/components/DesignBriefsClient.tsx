@@ -678,7 +678,9 @@ export function DesignBriefsClient({
                     if (brief.design_concepts_brief && brief.design_concepts_brief.length > 0) {
                       brief.design_concepts_brief.forEach(req => {
                         const artNo = req.art_number || (req.notes?.match(/Art No:\s*([^|]+)/i)?.[1]?.trim()) || `#${brief.id.substring(0, 6)}-${req.concept_number}`
-                        const garment = (req.notes?.match(/Garment:\s*([^|]+)/i)?.[1]?.trim()) || brief.garment_type
+                        const garment = (req.notes?.match(/Garment:\s*([^|]+)/i)?.[1]?.trim()) || 
+                                        brief.garment_type?.split(',')[req.concept_number - 1]?.trim() || 
+                                        brief.garment_type
                         const cat = req.category_style || brief.category
                         const cols = (req.colors && req.colors.length > 0) ? req.colors : (brief.target_colors || [])
                         const subConcept = brief.latest_submission?.concepts?.find(c => c.concept_number === req.concept_number || (c.art_number && c.art_number.toLowerCase() === artNo.toLowerCase()))

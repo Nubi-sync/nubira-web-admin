@@ -186,6 +186,8 @@ export interface DesignConceptColorway {
   photo_front: string
   photo_back?: string
   status?: 'APPROVED' | 'REJECTED' | 'PENDING'
+  sa_verdict?: SAVerdict
+  sa_notes?: string
 }
 
 export interface DesignConceptItem {

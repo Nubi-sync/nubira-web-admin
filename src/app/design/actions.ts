@@ -1435,12 +1435,16 @@ export async function reviewDesignSubmissionAction(payload: {
     if (payload.concept_number && updatedConcepts.length > 0) {
       updatedConcepts = updatedConcepts.map(c => {
         if (c.concept_number === payload.concept_number) {
-          const updatedColorways = (c.colorways || []).map(cw => ({
-            ...cw,
-            status: payload.colorway_verdicts?.[cw.color_name] || payload.ph_verdict
-          }))
+          const updatedColorways = (c.colorways || []).map(cw => {
+            const cwVerdict = payload.colorway_verdicts?.[cw.color_name] ?? payload.ph_verdict
+            return {
+              ...cw,
+              status: cwVerdict
+            }
+          })
           const allCwRejected = updatedColorways.length > 0 && updatedColorways.every(cw => cw.status === 'REJECTED')
-          const conceptVerdict = allCwRejected ? 'REJECTED' : payload.ph_verdict
+          const anyCwApproved = updatedColorways.length > 0 && updatedColorways.some(cw => cw.status === 'APPROVED')
+          const conceptVerdict: PHVerdict = allCwRejected ? 'REJECTED' : (anyCwApproved ? 'APPROVED' : payload.ph_verdict)
           return {
             ...c,
             ph_verdict: conceptVerdict,
@@ -1458,11 +1462,18 @@ export async function reviewDesignSubmissionAction(payload: {
       rawNotes = `[CONCEPTS_JSON: ${JSON.stringify(updatedConcepts)}] ${rawNotes}`.trim()
     }
 
+    const hasAnyConceptApproved = updatedConcepts.length > 0
+      ? updatedConcepts.some(c => c.ph_verdict === 'APPROVED' || c.status === 'PH_APPROVED')
+      : payload.ph_verdict === 'APPROVED'
+
+    const overallVerdict: PHVerdict = hasAnyConceptApproved ? 'APPROVED' : 'REJECTED'
+    const briefStatus: BriefStatus = hasAnyConceptApproved ? 'PH_APPROVED' : 'PH_REJECTED'
+
     const { error: updateErr } = await supabaseAdmin
       .from('design_submissions')
       .update({
         designer_notes: rawNotes || null,
-        ph_verdict: payload.ph_verdict,
+        ph_verdict: overallVerdict,
         ph_feedback: payload.ph_feedback?.trim() || null,
         reviewed_at: new Date().toISOString()
       })
@@ -1470,8 +1481,6 @@ export async function reviewDesignSubmissionAction(payload: {
 
     if (updateErr) return { success: false, error: updateErr.message }
 
-    // Update brief status accordingly
-    const briefStatus: BriefStatus = payload.ph_verdict === 'APPROVED' ? 'PH_APPROVED' : 'PH_REJECTED'
     await supabaseAdmin
       .from('design_briefs')
       .update({ status: briefStatus, updated_at: new Date().toISOString() })
@@ -1492,9 +1501,10 @@ export async function reviewDesignSubmissionAction(payload: {
 export async function saReviewDesignSubmissionAction(payload: {
   submission_id: string
   concept_number?: number
+  colorway_name?: string
   sa_verdict: 'APPROVED' | 'SAVED_FOR_LATER' | 'REJECTED'
   sa_notes?: string
-  colorway_verdicts?: Record<string, 'APPROVED' | 'REJECTED'>
+  colorway_verdicts?: Record<string, 'APPROVED' | 'SAVED_FOR_LATER' | 'REJECTED'>
 }): Promise<{ success: boolean; error?: string }> {
   try {
     const { data: sub, error: fetchErr } = await supabaseAdmin
@@ -1513,19 +1523,50 @@ export async function saReviewDesignSubmissionAction(payload: {
     if (payload.concept_number && updatedConcepts.length > 0) {
       updatedConcepts = updatedConcepts.map(c => {
         if (c.concept_number === payload.concept_number) {
-          const updatedColorways = (c.colorways || []).map(cw => ({
-            ...cw,
-            status: payload.colorway_verdicts?.[cw.color_name] || (payload.sa_verdict === 'APPROVED' ? 'APPROVED' : 'REJECTED')
-          }))
+          const updatedColorways = (c.colorways || []).map(cw => {
+            let cwSaVerdict = cw.sa_verdict
+            if (payload.colorway_name && cw.color_name === payload.colorway_name) {
+              cwSaVerdict = payload.sa_verdict
+            } else if (payload.colorway_verdicts?.[cw.color_name]) {
+              cwSaVerdict = payload.colorway_verdicts[cw.color_name]
+            } else if (!payload.colorway_name && !payload.colorway_verdicts) {
+              cwSaVerdict = payload.sa_verdict
+            }
+
+            return {
+              ...cw,
+              sa_verdict: cwSaVerdict,
+              sa_notes: (payload.colorway_name && cw.color_name === payload.colorway_name) || !payload.colorway_name 
+                ? (payload.sa_notes?.trim() || cw.sa_notes) 
+                : cw.sa_notes
+            }
+          })
+
+          const hasAnyApproved = updatedColorways.some(cw => cw.sa_verdict === 'APPROVED')
+          const hasAnySaved = updatedColorways.some(cw => cw.sa_verdict === 'SAVED_FOR_LATER')
+          const allRejected = updatedColorways.length > 0 && updatedColorways.every(cw => cw.sa_verdict === 'REJECTED')
+
+          const conceptSaVerdict: SAVerdict = hasAnyApproved 
+            ? 'APPROVED' 
+            : hasAnySaved 
+            ? 'SAVED_FOR_LATER' 
+            : allRejected 
+            ? 'REJECTED' 
+            : payload.sa_verdict
+
+          const conceptStatus: BriefStatus = conceptSaVerdict === 'APPROVED' 
+            ? 'SA_APPROVED' 
+            : conceptSaVerdict === 'SAVED_FOR_LATER' 
+            ? 'SA_SAVED_FOR_LATER' 
+            : conceptSaVerdict === 'REJECTED' 
+            ? 'PH_REJECTED' 
+            : (c.status || 'PH_APPROVED')
+
           return {
             ...c,
-            sa_verdict: payload.sa_verdict,
+            sa_verdict: conceptSaVerdict,
             sa_notes: payload.sa_notes?.trim() || c.sa_notes,
-            status: payload.sa_verdict === 'APPROVED' 
-              ? ('SA_APPROVED' as BriefStatus) 
-              : payload.sa_verdict === 'SAVED_FOR_LATER' 
-              ? ('SA_SAVED_FOR_LATER' as BriefStatus) 
-              : ('PH_REJECTED' as BriefStatus),
+            status: conceptStatus,
             colorways: updatedColorways
           }
         }
@@ -1550,7 +1591,6 @@ export async function saReviewDesignSubmissionAction(payload: {
 
     if (updateErr) return { success: false, error: updateErr.message }
 
-    // Map SA verdict to Brief Status
     let briefStatus: BriefStatus = 'SA_APPROVED'
     if (payload.sa_verdict === 'SAVED_FOR_LATER') {
       briefStatus = 'SA_SAVED_FOR_LATER'
