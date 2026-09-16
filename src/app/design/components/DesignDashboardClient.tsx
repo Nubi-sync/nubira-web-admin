@@ -134,7 +134,12 @@ export function DesignDashboardClient({
   const [previewPhoto, setPreviewPhoto] = useState<string | null>(null)
 
   // Delete State
-  const [briefToDelete, setBriefToDelete] = useState<DesignBrief | null>(null)
+  const [briefToDelete, setBriefToDelete] = useState<{
+    brief: DesignBrief
+    conceptNumber?: number
+    artNumber?: string
+    garmentType?: string
+  } | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
 
   const activeTeamMembers = (teamMembers || []).filter(m => m.status === 'ACTIVE')
@@ -235,19 +240,34 @@ export function DesignDashboardClient({
     if (!briefToDelete) return
     setIsDeleting(true)
     try {
-      const res = await deleteDesignBriefAction(briefToDelete.id)
+      const res = await deleteDesignBriefAction(briefToDelete.brief.id, briefToDelete.conceptNumber)
       if (res.success) {
-        toast.success('Design brief deleted successfully.')
-        setBriefs(prev => prev.filter(b => b.id !== briefToDelete.id))
-        if (selectedBriefForView?.id === briefToDelete.id) {
+        toast.success(`Design ${briefToDelete.artNumber || 'concept'} deleted successfully.`)
+        if (!briefToDelete.conceptNumber || (briefToDelete.brief.design_concepts_brief?.length || 1) <= 1) {
+          setBriefs(prev => prev.filter(b => b.id !== briefToDelete.brief.id))
+        } else {
+          setBriefs(prev => prev.map(b => {
+            if (b.id !== briefToDelete.brief.id) return b
+            const rem = (b.design_concepts_brief || [])
+              .filter(c => c.concept_number !== briefToDelete.conceptNumber)
+              .map((c, idx) => ({ ...c, concept_number: idx + 1 }))
+            return {
+              ...b,
+              target_designs: rem.length,
+              num_designs: rem.length,
+              design_concepts_brief: rem
+            }
+          }))
+        }
+        if (selectedBriefForView?.id === briefToDelete.brief.id) {
           setSelectedBriefForView(null)
         }
         setBriefToDelete(null)
       } else {
-        toast.error(res.error || 'Failed to delete design brief.')
+        toast.error(res.error || 'Failed to delete design.')
       }
     } catch (err: any) {
-      toast.error(err.message || 'Error deleting design brief.')
+      toast.error(err.message || 'Error deleting design.')
     } finally {
       setIsDeleting(false)
     }
@@ -700,18 +720,172 @@ export function DesignDashboardClient({
                         </div>
                       </div>
 
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setSelectedBriefForView(brief)
-                          setModalActiveConceptTab(req.concept_number)
-                        }}
-                        className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl bg-[#3A3564] text-white text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-[0.99]"
-                      >
-                        <Eye className="w-3.5 h-3.5" />
-                        <span>View &amp; Review ({artNo})</span>
-                        <ChevronRight className="w-3.5 h-3.5" />
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedBriefForView(brief)
+                            setModalActiveConceptTab(req.concept_number)
+                          }}
+                          className="flex-1 inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl bg-[#3A3564] text-white text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-[0.99]"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                          <span>View &amp; Review ({artNo})</span>
+                          <ChevronRight className="w-3 h-3 text-slate-400" />
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setBriefToDelete({ brief, conceptNumber: req.concept_number, artNumber: artNo, garmentType: garment })}
+                          className="p-2.5 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-black/10 transition-all cursor-pointer"
+                          title="Delete Design"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  )
+                })
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* ----------------------------------------------------------------------- */}
+        {/* VIEW MODE 2: VISUAL INTAKE PIPELINE CARDS                               */}
+        {/* ----------------------------------------------------------------------- */}
+        {viewMode === 'pipeline' && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredBriefs.map(brief => {
+                const stCfg = STATUS_CONFIG[brief.status] || STATUS_CONFIG.ALLOCATED
+                const concepts = brief.design_concepts_brief || []
+
+                if (concepts.length === 0) {
+                  const artNo = `#${brief.id.substring(0, 6)}`
+                  return (
+                    <div 
+                      key={brief.id}
+                      className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between gap-4"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <span className="font-mono font-bold text-slate-900 text-xs block">
+                            {artNo}
+                          </span>
+                          <h3 className="text-base font-bold text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
+                            {brief.garment_type}
+                          </h3>
+                          <p className="text-xs text-slate-500 font-medium">
+                            {brief.category} Style &bull; <span className="font-mono text-[11px] text-slate-400">#{brief.id.substring(0, 6)}</span>
+                          </p>
+                        </div>
+
+                        <span className={`text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full border shrink-0 ${stCfg.badgeClass}`}>
+                          {stCfg.label}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-between text-xs font-mono text-slate-600 bg-[#FAF7F0] p-2.5 rounded-xl border border-black/5">
+                        <div>
+                          <span className="text-slate-400 block text-[10px] uppercase font-bold">Designer</span>
+                          <span className="font-bold text-slate-800">{brief.designer_name || 'Unassigned'}</span>
+                        </div>
+                        <div className="text-right">
+                          <span className="text-slate-400 block text-[10px] uppercase font-bold">Colors</span>
+                          <span className="font-bold text-[#3A3564]">{(brief.target_colors || []).length} Selected</span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedBriefForView(brief)
+                            setModalActiveConceptTab(1)
+                          }}
+                          className="flex-1 inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl bg-[#3A3564] text-white text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-[0.99]"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                          <span>View &amp; Review</span>
+                          <ChevronRight className="w-3 h-3 text-slate-400" />
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setBriefToDelete({ brief, conceptNumber: 1, artNumber: artNo, garmentType: brief.garment_type })}
+                          className="p-2.5 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-black/10 transition-all cursor-pointer"
+                          title="Delete Design"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  )
+                }
+
+                return concepts.map(req => {
+                  const artNo = req.art_number || (req.notes?.match(/Art No:\s*([^|]+)/i)?.[1]?.trim()) || `#${brief.id.substring(0, 6)}-${req.concept_number}`
+                  const garment = (req.notes?.match(/Garment:\s*([^|]+)/i)?.[1]?.trim()) || brief.garment_type
+                  const cat = req.category_style || brief.category
+
+                  return (
+                    <div 
+                      key={`${brief.id}-${req.concept_number}`}
+                      className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between gap-4"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <span className="font-mono font-bold text-slate-900 text-xs block">
+                            {artNo}
+                          </span>
+                          <h3 className="text-base font-bold text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
+                            {garment}
+                          </h3>
+                          <p className="text-xs text-slate-500 font-medium">
+                            {cat} Style &bull; <span className="font-mono text-[11px] text-slate-400">#{req.concept_number} &bull; #{brief.id.substring(0, 6)}</span>
+                          </p>
+                        </div>
+
+                        <span className={`text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full border shrink-0 ${stCfg.badgeClass}`}>
+                          {stCfg.label}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-between text-xs font-mono text-slate-600 bg-[#FAF7F0] p-2.5 rounded-xl border border-black/5">
+                        <div>
+                          <span className="text-slate-400 block text-[10px] uppercase font-bold">Designer</span>
+                          <span className="font-bold text-slate-800">{brief.designer_name || 'Unassigned'}</span>
+                        </div>
+                        <div className="text-right">
+                          <span className="text-slate-400 block text-[10px] uppercase font-bold">Colors</span>
+                          <span className="font-bold text-[#3A3564]">{(req.colors || []).length} Selected</span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedBriefForView(brief)
+                            setModalActiveConceptTab(req.concept_number)
+                          }}
+                          className="flex-1 inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl bg-[#3A3564] text-white text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-[0.99]"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                          <span>View &amp; Review ({artNo})</span>
+                          <ChevronRight className="w-3 h-3 text-slate-400" />
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setBriefToDelete({ brief, conceptNumber: req.concept_number, artNumber: artNo, garmentType: garment })}
+                          className="p-2.5 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-black/10 transition-all cursor-pointer"
+                          title="Delete Design"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
                   )
                 })
@@ -728,12 +902,12 @@ export function DesignDashboardClient({
         const brief = selectedBriefForView
         const instructedReq = brief.design_concepts_brief?.find(c => c.concept_number === modalActiveConceptTab)
         const currentArtNo = instructedReq?.art_number || `#${brief.id.substring(0, 6)}`
-        const currentGarment = instructedReq?.category_style ? `${brief.garment_type}` : brief.garment_type
+        const currentGarment = instructedReq?.notes?.match(/Garment:\s*([^|]+)/i)?.[1]?.trim() || brief.garment_type
         const currentCategory = instructedReq?.category_style || brief.category
 
         const currentConcept = brief.latest_submission?.concepts?.find(
-          c => c.concept_number === modalActiveConceptTab
-        ) || (brief.latest_submission?.concepts ? brief.latest_submission.concepts[0] : null)
+          c => c.concept_number === modalActiveConceptTab || (c.art_number && instructedReq?.art_number && c.art_number.toLowerCase() === instructedReq.art_number.toLowerCase())
+        )
 
         const colorways = currentConcept?.colorways || []
 
@@ -757,7 +931,6 @@ export function DesignDashboardClient({
                   <p className="text-xs text-slate-500 font-medium mt-0.5">
                     Designer: <strong className="text-slate-800">{brief.designer_name || 'Unassigned'}</strong>
                     {brief.designer_phone ? ` • +91 ${brief.designer_phone}` : ''}
-                    {brief.design_concepts_brief && brief.design_concepts_brief.length > 1 ? ` • Concept #${modalActiveConceptTab} of ${brief.design_concepts_brief.length}` : ''}
                   </p>
                 </div>
                 <button
@@ -848,7 +1021,7 @@ export function DesignDashboardClient({
                       )
                     })}
                   </div>
-                ) : brief.latest_submission?.photo_url_1 ? (
+                ) : (!brief.design_concepts_brief || brief.design_concepts_brief.length <= 1) && brief.latest_submission?.photo_url_1 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div
                       onClick={() => setPreviewPhoto(brief.latest_submission!.photo_url_1)}
@@ -890,7 +1063,7 @@ export function DesignDashboardClient({
                   </div>
                 ) : (
                   <div className="text-center py-10 px-4 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-                    <p className="text-xs text-slate-400 font-mono">No artwork has been submitted by the designer yet.</p>
+                    <p className="text-xs text-slate-400 font-mono">No artwork has been submitted for this design yet.</p>
                   </div>
                 )}
 
@@ -954,11 +1127,11 @@ export function DesignDashboardClient({
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
-                    onClick={() => setBriefToDelete(brief)}
+                    onClick={() => setBriefToDelete({ brief, conceptNumber: modalActiveConceptTab, artNumber: currentArtNo, garmentType: currentGarment })}
                     className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-rose-600 hover:bg-rose-50 border border-rose-200 text-xs font-bold transition-all cursor-pointer"
                   >
                     <Trash2 className="w-4 h-4" />
-                    <span>Delete Brief</span>
+                    <span>Delete Design</span>
                   </button>
                 </div>
 
@@ -1100,9 +1273,9 @@ export function DesignDashboardClient({
       {/* Delete Confirmation */}
       <ConfirmDialog
         isOpen={!!briefToDelete}
-        title={`Delete Design Brief for "${briefToDelete?.garment_type}"?`}
-        description={`Are you sure you want to delete this brief? All associated designer submissions and photos will be permanently deleted.`}
-        confirmText="Yes, Delete Brief"
+        title={`Delete Design "${briefToDelete?.artNumber || briefToDelete?.garmentType}"?`}
+        description={`Are you sure you want to delete Article ${briefToDelete?.artNumber || ''} (${briefToDelete?.garmentType || 'Design'})? All associated mockups for this concept will be permanently deleted.`}
+        confirmText="Yes, Delete Design"
         cancelText="Cancel"
         variant="danger"
         isLoading={isDeleting}

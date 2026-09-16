@@ -995,20 +995,126 @@ export async function fetchDesignBriefsAction(filters?: {
   }
 }
 
-export async function deleteDesignBriefAction(briefId: string): Promise<{ success: boolean; error?: string }> {
+export async function deleteDesignBriefAction(
+  briefId: string,
+  conceptNumber?: number
+): Promise<{ success: boolean; error?: string }> {
   try {
-    const { error } = await supabaseAdmin
+    // If no conceptNumber is specified, delete entire brief
+    if (!conceptNumber) {
+      const { error } = await supabaseAdmin
+        .from('design_briefs')
+        .delete()
+        .eq('id', briefId)
+
+      if (error) return { success: false, error: error.message }
+      revalidatePath('/design')
+      revalidatePath('/design/briefs')
+      revalidatePath('/design/designer')
+      return { success: true }
+    }
+
+    // If conceptNumber is specified, fetch the brief
+    const { data: brief, error: fetchErr } = await supabaseAdmin
       .from('design_briefs')
-      .delete()
+      .select('*')
+      .eq('id', briefId)
+      .single()
+
+    if (fetchErr || !brief) {
+      return { success: false, error: fetchErr?.message || 'Brief not found.' }
+    }
+
+    // Parse concepts from instructions
+    let concepts: BriefDesignConceptRequirement[] = []
+    if (brief.instructions) {
+      const match = brief.instructions.match(/\[CONCEPTS_BRIEF:\s*(\[[\s\S]*?\])\]/i)
+      if (match && match[1]) {
+        try {
+          concepts = JSON.parse(match[1])
+        } catch {
+          // ignore
+        }
+      }
+    }
+
+    // If <= 1 concept remaining, delete entire brief
+    if (concepts.length <= 1) {
+      const { error: delErr } = await supabaseAdmin
+        .from('design_briefs')
+        .delete()
+        .eq('id', briefId)
+
+      if (delErr) return { success: false, error: delErr.message }
+      revalidatePath('/design')
+      revalidatePath('/design/briefs')
+      revalidatePath('/design/designer')
+      return { success: true }
+    }
+
+    // Remove targeted concept and re-index
+    const remainingConcepts = concepts
+      .filter(c => c.concept_number !== conceptNumber)
+      .map((c, idx) => ({ ...c, concept_number: idx + 1 }))
+
+    // Rebuild instructions
+    const cleanInstructions = (brief.instructions || '')
+      .replace(/\[CONCEPTS_BRIEF:\s*\[[\s\S]*?\]\]\s*/gi, '')
+      .replace(/\[TARGET:\s*\d+\s*(?:Designs)?\]\s*/gi, '')
+      .trim()
+
+    let newInstructions = `[CONCEPTS_BRIEF: ${JSON.stringify(remainingConcepts)}]`
+    if (remainingConcepts.length > 1) {
+      newInstructions += ` [TARGET: ${remainingConcepts.length} Designs]`
+    }
+    if (cleanInstructions) {
+      newInstructions += ` ${cleanInstructions}`
+    }
+
+    // Also update any existing submissions to remove this concept
+    const { data: submissions } = await supabaseAdmin
+      .from('design_submissions')
+      .select('id, designer_notes')
+      .eq('brief_id', briefId)
+
+    if (submissions && submissions.length > 0) {
+      for (const sub of submissions) {
+        if (sub.designer_notes) {
+          const parsed = parseConceptsFromNotes(sub.designer_notes)
+          if (parsed.concepts && parsed.concepts.length > 0) {
+            const remSubConcepts = parsed.concepts
+              .filter(c => c.concept_number !== conceptNumber)
+              .map((c, idx) => ({ ...c, concept_number: idx + 1 }))
+
+            const newSubNotes = remSubConcepts.length > 0
+              ? `[CONCEPTS_JSON: ${JSON.stringify(remSubConcepts)}] ${parsed.cleanNotes || ''}`.trim()
+              : (parsed.cleanNotes || '')
+
+            await supabaseAdmin
+              .from('design_submissions')
+              .update({ designer_notes: newSubNotes || null })
+              .eq('id', sub.id)
+          }
+        }
+      }
+    }
+
+    const { error: updateErr } = await supabaseAdmin
+      .from('design_briefs')
+      .update({
+        instructions: newInstructions,
+        updated_at: new Date().toISOString()
+      })
       .eq('id', briefId)
 
-    if (error) return { success: false, error: error.message }
+    if (updateErr) return { success: false, error: updateErr.message }
+
     revalidatePath('/design')
     revalidatePath('/design/briefs')
     revalidatePath('/design/designer')
     return { success: true }
   } catch (err: any) {
-    return { success: false, error: err?.message || 'Failed to delete brief.' }
+    return { success: false, error: err?.message || 'Failed to delete concept.' }
   }
 }
 

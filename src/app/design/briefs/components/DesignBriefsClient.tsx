@@ -130,7 +130,12 @@ export function DesignBriefsClient({
   const [previewPhoto, setPreviewPhoto] = useState<string | null>(null)
 
   // Delete State
-  const [briefToDelete, setBriefToDelete] = useState<DesignBrief | null>(null)
+  const [briefToDelete, setBriefToDelete] = useState<{
+    brief: DesignBrief
+    conceptNumber?: number
+    artNumber?: string
+    garmentType?: string
+  } | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
 
   const activeTeamMembers = (teamMembers || []).filter(m => m.status === 'ACTIVE')
@@ -173,7 +178,7 @@ export function DesignBriefsClient({
 
       if (res.success) {
         const nextStatus: BriefStatus = verdict === 'APPROVED' ? 'PH_APPROVED' : 'PH_REJECTED'
-        toast.success(verdict === 'APPROVED' ? 'Concept approved and forwarded to Super Admin!' : 'Submission returned with feedback sent to designer.')
+        toast.success(verdict === 'APPROVED' ? 'Concept approved & forwarded to Super Admin.' : 'Concept returned with revision notes.')
         setBriefs(prev => prev.map(b => b.id === reviewingSubmission.brief.id ? { ...b, status: nextStatus } : b))
         setReviewingSubmission(null)
         setPhFeedback('')
@@ -227,16 +232,31 @@ export function DesignBriefsClient({
     if (!briefToDelete) return
     setIsDeleting(true)
     try {
-      const res = await deleteDesignBriefAction(briefToDelete.id)
+      const res = await deleteDesignBriefAction(briefToDelete.brief.id, briefToDelete.conceptNumber)
       if (res.success) {
-        toast.success('Design brief removed.')
-        setBriefs(prev => prev.filter(b => b.id !== briefToDelete.id))
+        toast.success(`Design ${briefToDelete.artNumber || 'concept'} deleted successfully.`)
+        if (!briefToDelete.conceptNumber || (briefToDelete.brief.design_concepts_brief?.length || 1) <= 1) {
+          setBriefs(prev => prev.filter(b => b.id !== briefToDelete.brief.id))
+        } else {
+          setBriefs(prev => prev.map(b => {
+            if (b.id !== briefToDelete.brief.id) return b
+            const rem = (b.design_concepts_brief || [])
+              .filter(c => c.concept_number !== briefToDelete.conceptNumber)
+              .map((c, idx) => ({ ...c, concept_number: idx + 1 }))
+            return {
+              ...b,
+              target_designs: rem.length,
+              num_designs: rem.length,
+              design_concepts_brief: rem
+            }
+          }))
+        }
         setBriefToDelete(null)
       } else {
-        toast.error(res.error || 'Failed to delete brief.')
+        toast.error(res.error || 'Failed to delete design.')
       }
     } catch (err: any) {
-      toast.error(err.message || 'Error deleting brief.')
+      toast.error(err.message || 'Error deleting design.')
     } finally {
       setIsDeleting(false)
     }
@@ -591,7 +611,7 @@ export function DesignBriefsClient({
                             if (cw.photo_back) photos.push({ url: cw.photo_back, label: `${artNo} • ${cw.color_name} (Back)`, color: cw.color_name })
                           })
                         }
-                        if (photos.length === 0 && brief.latest_submission?.photo_url_1) {
+                        if (photos.length === 0 && (!brief.design_concepts_brief || brief.design_concepts_brief.length <= 1) && brief.latest_submission?.photo_url_1) {
                           photos.push({ url: brief.latest_submission.photo_url_1, label: `${artNo} Mockup` })
                         }
 
@@ -810,9 +830,14 @@ export function DesignBriefsClient({
 
                             <button
                               type="button"
-                              onClick={() => setBriefToDelete(brief)}
+                              onClick={() => setBriefToDelete({
+                                brief: item.brief,
+                                conceptNumber: item.conceptNumber,
+                                artNumber: item.artNumber,
+                                garmentType: item.garmentType
+                              })}
                               className="p-1.5 text-xs text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg border border-transparent hover:border-rose-100 transition-all cursor-pointer ml-1"
-                              title="Delete Brief"
+                              title="Delete Design"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>
@@ -854,7 +879,7 @@ export function DesignBriefsClient({
 
         const currentConcept = sub.concepts?.find(
           c => c.concept_number === targetConceptNum || (c.art_number && c.art_number.toLowerCase() === currentArtNo.toLowerCase())
-        ) || (sub.concepts ? sub.concepts[0] : null)
+        ) || null
 
         const colorways = currentConcept?.colorways || []
 
@@ -968,7 +993,7 @@ export function DesignBriefsClient({
                       )
                     })}
                   </div>
-                ) : sub.photo_url_1 ? (
+                ) : (sub.photo_url_1 && (!brief.design_concepts_brief || brief.design_concepts_brief.length <= 1 || targetConceptNum === 1)) ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div
                       onClick={() => setPreviewPhoto(sub.photo_url_1)}
@@ -1010,7 +1035,7 @@ export function DesignBriefsClient({
                   </div>
                 ) : (
                   <div className="text-center py-10 px-4 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-                    <p className="text-xs text-slate-400 font-mono">No artwork has been submitted by the designer yet.</p>
+                    <p className="text-xs text-slate-400 font-mono">No artwork has been submitted for this design yet.</p>
                   </div>
                 )}
 
@@ -1090,7 +1115,7 @@ export function DesignBriefsClient({
 
         const currentConcept = sub.concepts?.find(
           c => c.concept_number === targetConceptNum || (c.art_number && c.art_number.toLowerCase() === currentArtNo.toLowerCase())
-        ) || (sub.concepts ? sub.concepts[0] : null)
+        ) || null
 
         const colorways = currentConcept?.colorways || []
 
@@ -1204,7 +1229,7 @@ export function DesignBriefsClient({
                       )
                     })}
                   </div>
-                ) : sub.photo_url_1 ? (
+                ) : (sub.photo_url_1 && (!brief.design_concepts_brief || brief.design_concepts_brief.length <= 1 || targetConceptNum === 1)) ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div
                       onClick={() => setPreviewPhoto(sub.photo_url_1)}
@@ -1246,7 +1271,7 @@ export function DesignBriefsClient({
                   </div>
                 ) : (
                   <div className="text-center py-10 px-4 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-                    <p className="text-xs text-slate-400 font-mono">No artwork has been submitted by the designer yet.</p>
+                    <p className="text-xs text-slate-400 font-mono">No artwork has been submitted for this design yet.</p>
                   </div>
                 )}
 
@@ -1361,9 +1386,13 @@ export function DesignBriefsClient({
       {/* Delete Confirmation */}
       <ConfirmDialog
         isOpen={!!briefToDelete}
-        title={`Delete Design Brief for "${briefToDelete?.garment_type}"?`}
-        description={`Are you sure you want to delete this brief? All associated designer submissions and photos will be permanently deleted.`}
-        confirmText="Yes, Delete Brief"
+        title={`Delete Design "${briefToDelete?.artNumber || briefToDelete?.garmentType}"?`}
+        description={
+          (briefToDelete?.brief.design_concepts_brief?.length || 0) > 1
+            ? `Are you sure you want to delete ${briefToDelete?.artNumber}? Sibling designs in this allocation brief will remain intact.`
+            : `Are you sure you want to delete this brief? All associated submissions and artwork will be permanently deleted.`
+        }
+        confirmText="Yes, Delete Design"
         cancelText="Cancel"
         variant="danger"
         isLoading={isDeleting}
