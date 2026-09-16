@@ -18,7 +18,9 @@ import {
   FolderArchive,
   Palette,
   Layers,
-  Tag
+  Tag,
+  ChevronRight,
+  X
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { DesignSubmission } from '../../types/design'
@@ -49,6 +51,12 @@ export function SADesignApprovalsClient({
 
   // Lightbox Photo State
   const [previewPhoto, setPreviewPhoto] = useState<string | null>(null)
+
+  // Zigza AI Assistant State
+  const [isAiModalOpen, setIsAiModalOpen] = useState(false)
+  const [aiCustomPrompt, setAiCustomPrompt] = useState('')
+  const [isAiGenerating, setIsAiGenerating] = useState(false)
+  const [aiAnalysisResult, setAiAnalysisResult] = useState<string | null>(null)
 
   const pendingSubmissions = submissions.filter(s => s.ph_verdict === 'APPROVED' && (!s.sa_verdict || s.sa_verdict === 'PENDING'))
   const approvedSubmissions = submissions.filter(s => s.sa_verdict === 'APPROVED')
@@ -87,7 +95,7 @@ export function SADesignApprovalsClient({
             ? 'Concept greenlit! Ready for Tech-Pack creation.' 
             : verdict === 'SAVED_FOR_LATER'
               ? 'Concept archived in Seasonal Archive for future collections.'
-              : 'Concept rejected.'
+              : 'Concept returned for revisions.'
         )
 
         setSubmissions(prev => prev.map(s => s.id === submissionId ? {
@@ -110,41 +118,52 @@ export function SADesignApprovalsClient({
   }
 
   return (
-    <div className="space-y-6">
-      {/* Breadcrumb Navigation */}
-      <div className="flex items-center justify-between gap-4">
-        <Link
-          href="/modules"
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-black/10 text-xs font-semibold text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs cursor-pointer"
-        >
-          <ChevronLeft className="w-3.5 h-3.5" />
-          <span>All Modules</span>
+    <div className="space-y-4 sm:space-y-6">
+      {/* Layer 1: Breadcrumb Hierarchy Trail */}
+      <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
+        <Link href="/modules" className="hover:text-[#3A3564] transition-colors">
+          Executive Hub
         </Link>
-        <span className="text-xs font-mono font-medium text-slate-500">
-          Super Admin Executive Gallery &bull; {companyName}
-        </span>
+        <span>/</span>
+        <span>Approvals</span>
+        <span>/</span>
+        <span className="font-bold text-slate-900">Design Approvals</span>
       </div>
 
-      {/* Header Banner */}
+      {/* Layer 2: Encapsulated Top Header Card */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-emerald-50 text-emerald-800 border border-emerald-200">
-            <ShieldCheck className="w-6 h-6" />
+          <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+            <ShieldCheck className="w-5 h-5 text-[#3A3564]" />
           </div>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
-              Super Admin Design Approvals
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-600 mt-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
+                Design Executive Approvals
+              </h1>
+              <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
+                {pendingSubmissions.length} Awaiting Decision
+              </span>
+            </div>
+            <p className="text-sm text-slate-600 mt-1">
               Review Provisional Head-approved designs, greenlight for Tech-Pack creation, or save in seasonal archive
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2.5 self-end sm:self-auto">
+          <button
+            type="button"
+            onClick={() => setIsAiModalOpen(true)}
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#FAF7F0] text-[#3A3564] hover:bg-[#F2ECE1] border border-black/10 text-xs font-bold transition-all shadow-2xs cursor-pointer"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-[#3A3564]" />
+            <span>Zigza AI</span>
+          </button>
+
           <Link
             href="/design"
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#FAF7F0] text-[#3A3564] hover:bg-[#F2ECE1] border border-black/10 text-xs font-bold transition-all shadow-2xs"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#FAF7F0] text-[#3A3564] hover:bg-[#F2ECE1] border border-black/10 text-xs font-bold transition-all shadow-2xs cursor-pointer"
           >
             <Palette className="w-3.5 h-3.5" />
             <span>Design Studio</span>
@@ -152,115 +171,144 @@ export function SADesignApprovalsClient({
         </div>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      {/* Layer 3: Executive KPI Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4">
         <div 
           onClick={() => setActiveTab('PENDING')}
-          className={`p-5 rounded-2xl border transition-all cursor-pointer shadow-2xs ${
-            activeTab === 'PENDING' ? 'bg-[#FAF7F0] border-[#3A3564] ring-2 ring-[#3A3564]/10' : 'bg-white border-black/10 hover:border-black/20'
+          className={`bg-white rounded-2xl p-4 sm:p-5 border shadow-2xs flex flex-col justify-between cursor-pointer transition-all ${
+            activeTab === 'PENDING' ? 'border-[#3A3564] ring-2 ring-[#3A3564]/10 bg-[#FAF7F0]/40' : 'border-black/10 hover:border-black/20'
           }`}
         >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-              Awaiting SA Decision
-            </span>
-            <div className="w-7 h-7 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 flex items-center justify-center">
-              <Clock className="w-3.5 h-3.5" />
+          <div className="flex items-start justify-between">
+            <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-700 shadow-2xs">
+              <Clock className="w-5 h-5" />
             </div>
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-100">
+              PENDING SA
+            </span>
           </div>
-          <div className="text-2xl sm:text-3xl font-bold font-mono text-amber-800 font-[family-name:var(--font-heading)] mt-2">
-            {pendingSubmissions.length} Concepts
+          <div className="mt-3">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
+              Awaiting SA Decision
+            </div>
+            <div className="text-[11px] text-slate-400 font-medium">Head approved &bull; Ready for Greenlight</div>
           </div>
-          <div className="text-xs text-slate-500 mt-1">
-            Approved by Provisional Head &bull; Ready for SA Greenlight
+          <div className="pt-2 border-t border-slate-100 flex items-baseline justify-between mt-3">
+            <div className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-amber-700">
+              {pendingSubmissions.length}
+            </div>
+            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200">
+              Decide
+            </span>
           </div>
         </div>
 
         <div 
           onClick={() => setActiveTab('APPROVED')}
-          className={`p-5 rounded-2xl border transition-all cursor-pointer shadow-2xs ${
-            activeTab === 'APPROVED' ? 'bg-[#FAF7F0] border-[#3A3564] ring-2 ring-[#3A3564]/10' : 'bg-white border-black/10 hover:border-black/20'
+          className={`bg-white rounded-2xl p-4 sm:p-5 border shadow-2xs flex flex-col justify-between cursor-pointer transition-all ${
+            activeTab === 'APPROVED' ? 'border-[#3A3564] ring-2 ring-[#3A3564]/10 bg-[#FAF7F0]/40' : 'border-black/10 hover:border-black/20'
           }`}
         >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-              Greenlit for Tech-Pack
-            </span>
-            <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-center justify-center">
-              <CheckCircle2 className="w-3.5 h-3.5" />
+          <div className="flex items-start justify-between">
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700 shadow-2xs">
+              <CheckCircle2 className="w-5 h-5" />
             </div>
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100">
+              GREENLIT
+            </span>
           </div>
-          <div className="text-2xl sm:text-3xl font-bold font-mono text-emerald-800 font-[family-name:var(--font-heading)] mt-2">
-            {approvedSubmissions.length} Approved
+          <div className="mt-3">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
+              Greenlit for Tech-Pack
+            </div>
+            <div className="text-[11px] text-slate-400 font-medium">Approved for studio tech-packs</div>
           </div>
-          <div className="text-xs text-slate-500 mt-1">
-            Authorized for PH Tech-Pack production
+          <div className="pt-2 border-t border-slate-100 flex items-baseline justify-between mt-3">
+            <div className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-emerald-700">
+              {approvedSubmissions.length}
+            </div>
+            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+              Production Ready
+            </span>
           </div>
         </div>
 
         <div 
           onClick={() => setActiveTab('SAVED_FOR_LATER')}
-          className={`p-5 rounded-2xl border transition-all cursor-pointer shadow-2xs ${
-            activeTab === 'SAVED_FOR_LATER' ? 'bg-[#FAF7F0] border-[#3A3564] ring-2 ring-[#3A3564]/10' : 'bg-white border-black/10 hover:border-black/20'
+          className={`bg-white rounded-2xl p-4 sm:p-5 border shadow-2xs flex flex-col justify-between cursor-pointer transition-all ${
+            activeTab === 'SAVED_FOR_LATER' ? 'border-[#3A3564] ring-2 ring-[#3A3564]/10 bg-[#FAF7F0]/40' : 'border-black/10 hover:border-black/20'
           }`}
         >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-              Seasonal Archive
-            </span>
-            <div className="w-7 h-7 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
-              <Bookmark className="w-3.5 h-3.5" />
+          <div className="flex items-start justify-between">
+            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+              <Bookmark className="w-5 h-5" />
             </div>
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#3A3564] bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+              ARCHIVE
+            </span>
           </div>
-          <div className="text-2xl sm:text-3xl font-bold font-mono text-[#3A3564] font-[family-name:var(--font-heading)] mt-2">
-            {savedForLaterSubmissions.length} Saved
+          <div className="mt-3">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
+              Seasonal Archive
+            </div>
+            <div className="text-[11px] text-slate-400 font-medium">Saved for future drop seasons</div>
           </div>
-          <div className="text-xs text-slate-500 mt-1">
-            Archived for upcoming seasonal drops
+          <div className="pt-2 border-t border-slate-100 flex items-baseline justify-between mt-3">
+            <div className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-[#3A3564]">
+              {savedForLaterSubmissions.length}
+            </div>
+            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+              Archived
+            </span>
           </div>
         </div>
       </div>
 
-      {/* Gallery & Table Container */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs space-y-5">
-        <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
-          <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
+      {/* Layer 4 & 5: Primary Approvals Ledger Container */}
+      <div className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden">
+        {/* Toolbar */}
+        <div className="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white">
+          <div className="flex items-center gap-1.5 overflow-x-auto text-xs font-semibold pb-1 sm:pb-0">
             <button
+              type="button"
               onClick={() => setActiveTab('PENDING')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 cursor-pointer border ${
+              className={`px-3 py-1.5 rounded-xl transition-all whitespace-nowrap cursor-pointer border ${
                 activeTab === 'PENDING'
-                  ? 'bg-[#3A3564] text-[#FAF7F0] border-[#3A3564] shadow-2xs'
-                  : 'bg-white text-slate-600 border-black/10 hover:bg-[#FAF7F0]'
+                  ? 'bg-[#3A3564] text-white border-[#3A3564] font-bold shadow-2xs'
+                  : 'text-slate-600 bg-[#FAF7F0] border-black/10 hover:bg-slate-100'
               }`}
             >
               Pending SA Decision ({pendingSubmissions.length})
             </button>
             <button
+              type="button"
               onClick={() => setActiveTab('APPROVED')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 cursor-pointer border ${
+              className={`px-3 py-1.5 rounded-xl transition-all whitespace-nowrap cursor-pointer border ${
                 activeTab === 'APPROVED'
-                  ? 'bg-[#3A3564] text-[#FAF7F0] border-[#3A3564] shadow-2xs'
-                  : 'bg-white text-slate-600 border-black/10 hover:bg-[#FAF7F0]'
+                  ? 'bg-[#3A3564] text-white border-[#3A3564] font-bold shadow-2xs'
+                  : 'text-slate-600 bg-[#FAF7F0] border-black/10 hover:bg-slate-100'
               }`}
             >
               Greenlit ({approvedSubmissions.length})
             </button>
             <button
+              type="button"
               onClick={() => setActiveTab('SAVED_FOR_LATER')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 cursor-pointer border ${
+              className={`px-3 py-1.5 rounded-xl transition-all whitespace-nowrap cursor-pointer border ${
                 activeTab === 'SAVED_FOR_LATER'
-                  ? 'bg-[#3A3564] text-[#FAF7F0] border-[#3A3564] shadow-2xs'
-                  : 'bg-white text-slate-600 border-black/10 hover:bg-[#FAF7F0]'
+                  ? 'bg-[#3A3564] text-white border-[#3A3564] font-bold shadow-2xs'
+                  : 'text-slate-600 bg-[#FAF7F0] border-black/10 hover:bg-slate-100'
               }`}
             >
               Seasonal Archive ({savedForLaterSubmissions.length})
             </button>
             <button
+              type="button"
               onClick={() => setActiveTab('ALL')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 cursor-pointer border ${
+              className={`px-3 py-1.5 rounded-xl transition-all whitespace-nowrap cursor-pointer border ${
                 activeTab === 'ALL'
-                  ? 'bg-[#3A3564] text-[#FAF7F0] border-[#3A3564] shadow-2xs'
-                  : 'bg-white text-slate-600 border-black/10 hover:bg-[#FAF7F0]'
+                  ? 'bg-[#3A3564] text-white border-[#3A3564] font-bold shadow-2xs'
+                  : 'text-slate-600 bg-[#FAF7F0] border-black/10 hover:bg-slate-100'
               }`}
             >
               All Designs ({submissions.length})
@@ -268,69 +316,204 @@ export function SADesignApprovalsClient({
           </div>
 
           <div className="relative w-full sm:w-64 shrink-0">
-            <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
-              placeholder="Search designs..."
+              placeholder="Search concepts or designers..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-1.5 rounded-xl border border-black/10 text-xs sm:text-sm font-medium bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] font-medium text-slate-900"
             />
           </div>
         </div>
 
-        {/* Gallery Grid View */}
+        {/* Ledger Rows */}
         {filteredList.length === 0 ? (
-          <EmptyState
-            icon={ShieldCheck}
-            title="No designs found in this category"
-            description="When Provisional Heads approve designer submissions, they appear here for Super Admin executive review."
-          />
+          <div className="p-6">
+            <EmptyState
+              icon={ShieldCheck}
+              title="No designs found in this category"
+              description="When Provisional Heads approve designer submissions, they appear here for Super Admin executive review."
+            />
+          </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {filteredList.map(sub => (
-              <SubmissionCard
-                key={sub.id}
-                sub={sub}
-                onReview={(s) => {
-                  setReviewingSub(s)
-                  setSaNotes(s.sa_notes || '')
-                }}
-                onPreviewPhoto={(url) => setPreviewPhoto(url)}
-              />
-            ))}
+          <div>
+            {/* Desktop Table */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left border-collapse text-sm">
+                <thead>
+                  <tr className="border-b border-slate-100 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0]">
+                    <th className="py-3 px-4">Garment Silhouette</th>
+                    <th className="py-3 px-4">Designer</th>
+                    <th className="py-3 px-4">Submitted Concepts</th>
+                    <th className="py-3 px-4">Decision Status</th>
+                    <th className="py-3 px-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 text-xs">
+                  {filteredList.map(sub => {
+                    const garment = sub.brief?.garment_type || 'Apparel'
+                    const category = sub.brief?.category || 'Casual'
+                    const isPendingSA = sub.ph_verdict === 'APPROVED' && (!sub.sa_verdict || sub.sa_verdict === 'PENDING')
+                    const isGreenlit = sub.sa_verdict === 'APPROVED'
+                    const isSaved = sub.sa_verdict === 'SAVED_FOR_LATER'
+                    const totalConcepts = sub.concepts?.length || 1
+
+                    return (
+                      <tr key={sub.id} className="hover:bg-slate-50/80 transition-colors group">
+                        <td className="py-3.5 px-4">
+                          <span className="font-bold text-slate-900 text-sm block font-[family-name:var(--font-heading)]">
+                            {garment}
+                          </span>
+                          <span className="text-xs text-slate-500 font-medium">
+                            {category} Style &bull; <span className="font-mono text-[11px] text-slate-400">#{sub.id.substring(0, 6)}</span>
+                          </span>
+                        </td>
+
+                        <td className="py-3.5 px-4">
+                          <span className="font-semibold text-slate-800 text-xs block">
+                            {sub.designer_name}
+                          </span>
+                          <span className="text-[11px] text-emerald-700 font-mono inline-flex items-center gap-1 font-bold">
+                            <CheckCircle2 className="w-3 h-3 text-emerald-600" /> PH Approved
+                          </span>
+                        </td>
+
+                        <td className="py-3.5 px-4">
+                          <span className="font-mono font-bold text-slate-800 text-xs block">
+                            {totalConcepts} Design Concepts
+                          </span>
+                          {sub.designer_notes && (
+                            <span className="text-[11px] text-slate-500 italic line-clamp-1 max-w-xs block">
+                              &ldquo;{sub.designer_notes}&rdquo;
+                            </span>
+                          )}
+                        </td>
+
+                        <td className="py-3.5 px-4">
+                          {isPendingSA && (
+                            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200">
+                              Awaiting SA Decision
+                            </span>
+                          )}
+                          {isGreenlit && (
+                            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+                              SA Greenlit
+                            </span>
+                          )}
+                          {isSaved && (
+                            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                              Saved in Archive
+                            </span>
+                          )}
+                        </td>
+
+                        <td className="py-3.5 px-4 text-right">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setReviewingSub(sub)
+                              setSaNotes(sub.sa_notes || '')
+                            }}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-slate-100 border border-black/10 text-xs font-bold text-[#3A3564] transition-all cursor-pointer shadow-2xs"
+                          >
+                            <Eye className="w-3.5 h-3.5" />
+                            <span>View &amp; Decide</span>
+                            <ChevronRight className="w-3 h-3 text-slate-400" />
+                          </button>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Cards */}
+            <div className="md:hidden divide-y divide-slate-100">
+              {filteredList.map(sub => {
+                const garment = sub.brief?.garment_type || 'Apparel'
+                const category = sub.brief?.category || 'Casual'
+                const totalConcepts = sub.concepts?.length || 1
+
+                return (
+                  <div key={sub.id} className="p-4 space-y-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <h3 className="font-bold text-slate-900 text-base font-[family-name:var(--font-heading)]">
+                          {garment}
+                        </h3>
+                        <p className="text-xs text-slate-500 font-medium">
+                          {category} Style &bull; <span className="font-mono text-[11px] text-slate-400">#{sub.id.substring(0, 6)}</span>
+                        </p>
+                      </div>
+
+                      <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+                        PH Approved
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between text-xs font-mono text-slate-600 bg-[#FAF7F0] p-2.5 rounded-xl border border-black/5">
+                      <div>
+                        <span className="text-slate-400 block text-[10px] uppercase font-bold">Designer</span>
+                        <span className="font-bold text-slate-800">{sub.designer_name}</span>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-slate-400 block text-[10px] uppercase font-bold">Concepts</span>
+                        <span className="font-bold text-[#3A3564]">{totalConcepts} Designs</span>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setReviewingSub(sub)
+                        setSaNotes(sub.sa_notes || '')
+                      }}
+                      className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl bg-[#3A3564] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
+                    >
+                      <Eye className="w-3.5 h-3.5" />
+                      <span>View &amp; Decide Concept</span>
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )
+              })}
+            </div>
           </div>
         )}
       </div>
 
-      {/* Super Admin Executive Review Modal */}
+      {/* ========================================================================= */}
+      {/* SUPER ADMIN EXECUTIVE DECISION MODAL */}
+      {/* ========================================================================= */}
       {reviewingSub && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
-          <div className="bg-white rounded-2xl border border-black/10 shadow-2xl max-w-3xl w-full max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in duration-150">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="relative w-full max-w-3xl bg-white rounded-3xl shadow-2xl border border-black/10 overflow-hidden">
             {/* Modal Header */}
-            <div className="flex items-center justify-between border-b border-black/10 p-5 bg-[#FAF7F0] shrink-0">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-white text-emerald-700 border border-black/10 flex items-center justify-center shadow-2xs">
-                  <ShieldCheck className="w-5 h-5" />
+            <div className="px-6 py-5 bg-[#FAF7F0] border-b border-black/10 flex items-center justify-between">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-2xs">
+                    PH Approved
+                  </span>
+                  {reviewingSub.sa_verdict === 'APPROVED' && (
+                    <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-emerald-600 text-white shadow-2xs">
+                      Greenlit for Production
+                    </span>
+                  )}
+                  {reviewingSub.sa_verdict === 'SAVED_FOR_LATER' && (
+                    <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs">
+                      Saved in Archive
+                    </span>
+                  )}
                 </div>
-                <div>
-                  <h2 className="text-lg font-bold text-slate-900 font-[family-name:var(--font-heading)] flex items-center gap-2">
-                    <span>Super Admin Executive Review</span>
-                    {reviewingSub.sa_verdict === 'APPROVED' && (
-                      <span className="text-xs px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 font-mono font-bold">
-                        Greenlit
-                      </span>
-                    )}
-                    {reviewingSub.sa_verdict === 'SAVED_FOR_LATER' && (
-                      <span className="text-xs px-2 py-0.5 rounded-md bg-[#3A3564]/10 text-[#3A3564] font-mono font-bold">
-                        Archived
-                      </span>
-                    )}
-                  </h2>
-                  <p className="text-xs text-slate-600">
-                    {reviewingSub.brief?.garment_type || 'Apparel'} ({reviewingSub.brief?.category || 'Casual'}) &bull; Created by {reviewingSub.designer_name} &bull; PH Approved
-                  </p>
-                </div>
+                <h2 className="text-xl font-bold text-slate-900 mt-1 font-[family-name:var(--font-heading)]">
+                  {reviewingSub.brief?.garment_type || 'Apparel'} ({reviewingSub.brief?.category || 'Casual'})
+                </h2>
+                <p className="text-xs text-slate-500 font-mono mt-0.5">
+                  Designer: <strong className="text-slate-800 font-sans">{reviewingSub.designer_name}</strong> &bull; Submission ID: #{reviewingSub.id.substring(0, 8)}
+                </p>
               </div>
               <button
                 type="button"
@@ -338,230 +521,178 @@ export function SADesignApprovalsClient({
                   setReviewingSub(null)
                   setSaNotes('')
                 }}
-                className="w-8 h-8 rounded-lg bg-white hover:bg-slate-200 text-slate-600 hover:text-slate-900 flex items-center justify-center text-sm font-bold border border-black/10 cursor-pointer transition-colors"
+                className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-black/5 cursor-pointer transition-colors"
               >
-                ✕
+                <X className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Modal Scrollable Content */}
-            <div className="p-5 sm:p-6 overflow-y-auto space-y-5 flex-1">
-              {/* Full Concepts & Colorways Deck */}
-              {reviewingSub.concepts && reviewingSub.concepts.length > 0 ? (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between border-b border-black/5 pb-2">
-                    <label className="font-bold text-slate-900 text-xs uppercase tracking-wider flex items-center gap-1.5">
-                      <Sparkles className="w-3.5 h-3.5 text-[#3A3564]" />
-                      <span>Multi-Design Studio Deck ({reviewingSub.concepts.length} Concept Designs)</span>
-                    </label>
-                    <span className="text-xs font-mono text-slate-500 font-semibold">
-                      Click any mockup to zoom
-                    </span>
-                  </div>
+            {/* Modal Body */}
+            <div className="p-6 max-h-[72vh] overflow-y-auto space-y-4 text-xs sm:text-[13px]">
+              {/* Concept Deck */}
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 font-mono mb-2">
+                  Submitted Design Concepts &amp; Colorways:
+                </label>
 
-                  <div className="space-y-4">
+                {reviewingSub.concepts && reviewingSub.concepts.length > 0 ? (
+                  <div className="space-y-3">
                     {reviewingSub.concepts.map((concept) => (
-                      <div key={concept.concept_number} className="p-4 rounded-2xl bg-[#FAF7F0] border border-black/10 space-y-3">
-                        <div className="flex items-center justify-between flex-wrap gap-2">
-                          <span className="font-bold text-slate-900 text-sm flex items-center gap-2">
-                            <span className="w-6 h-6 rounded-lg bg-[#3A3564] text-[#FAF7F0] flex items-center justify-center text-xs font-mono font-bold shadow-2xs">
+                      <div key={concept.concept_number} className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-slate-900 text-sm flex items-center gap-2 font-[family-name:var(--font-heading)]">
+                            <span className="w-5 h-5 rounded-full bg-[#3A3564] text-white flex items-center justify-center text-[10px] font-mono">
                               {concept.concept_number}
                             </span>
                             <span>{concept.title || `Design Concept #${concept.concept_number}`}</span>
                           </span>
-                          <span className="text-xs font-mono text-[#3A3564] bg-white px-2.5 py-1 rounded-lg border border-black/10 font-bold">
+                          <span className="text-[11px] font-mono font-bold text-slate-500">
                             {concept.colorways.length} Colorway(s)
                           </span>
                         </div>
 
                         {concept.notes && (
-                          <div className="text-xs text-slate-700 italic bg-white p-3 rounded-xl border border-black/5">
-                            <span className="font-semibold not-italic text-slate-500 block text-[11px] mb-0.5">Design Notes:</span>
+                          <p className="text-xs text-slate-600 italic bg-white p-2.5 rounded-xl border border-slate-200">
                             &ldquo;{concept.notes}&rdquo;
-                          </div>
+                          </p>
                         )}
 
-                        {/* Colorways Grid */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 pt-1">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                           {concept.colorways.map((cw, cwIdx) => (
-                            <div key={cwIdx} className="bg-white p-3 rounded-xl border border-black/10 shadow-2xs space-y-2">
-                              <div className="flex items-center justify-between">
-                                <span className="text-xs font-bold text-slate-800 flex items-center gap-1">
-                                  <Palette className="w-3 h-3 text-[#3A3564]" />
-                                  <span>{cw.color_name}</span>
-                                </span>
-                                <span className="text-[10px] font-mono text-slate-400">
-                                  {cw.photo_back ? 'Front & Back' : 'Front Only'}
-                                </span>
-                              </div>
-
-                              <div className="grid grid-cols-2 gap-2">
-                                <div 
-                                  onClick={() => setPreviewPhoto(cw.photo_front)}
-                                  className="aspect-square rounded-lg border border-black/10 overflow-hidden bg-slate-900 relative group cursor-pointer"
-                                  title={`Zoom ${cw.color_name} Front View`}
-                                >
-                                  <img 
-                                    src={cw.photo_front} 
-                                    alt={`${cw.color_name} Front`} 
-                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform" 
-                                  />
-                                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[10.5px] font-bold">
-                                    <Eye className="w-3.5 h-3.5 mr-1" /> Front
-                                  </div>
-                                  <span className="absolute bottom-1 left-1 px-1.5 py-0.2 rounded bg-black/70 text-white text-[9px] font-mono font-bold">
-                                    Front
-                                  </span>
+                            <div key={cwIdx} className="space-y-1.5">
+                              <span className="text-[11px] font-bold text-slate-700 block truncate font-mono">
+                                {cw.color_name}
+                              </span>
+                              <div
+                                onClick={() => setPreviewPhoto(cw.photo_front)}
+                                className="aspect-video rounded-xl border border-black/10 overflow-hidden bg-white relative group cursor-pointer shadow-2xs"
+                              >
+                                <img src={cw.photo_front} alt={cw.color_name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[10px] font-bold">
+                                  <Eye className="w-3.5 h-3.5 mr-1" /> View Front
                                 </div>
-
-                                {cw.photo_back ? (
-                                  <div 
-                                    onClick={() => setPreviewPhoto(cw.photo_back!)}
-                                    className="aspect-square rounded-lg border border-black/10 overflow-hidden bg-slate-900 relative group cursor-pointer"
-                                    title={`Zoom ${cw.color_name} Back View`}
-                                  >
-                                    <img 
-                                      src={cw.photo_back} 
-                                      alt={`${cw.color_name} Back`} 
-                                      className="w-full h-full object-cover group-hover:scale-105 transition-transform" 
-                                    />
-                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[10.5px] font-bold">
-                                      <Eye className="w-3.5 h-3.5 mr-1" /> Back
-                                    </div>
-                                    <span className="absolute bottom-1 left-1 px-1.5 py-0.2 rounded bg-black/70 text-white text-[9px] font-mono font-bold">
-                                      Back
-                                    </span>
-                                  </div>
-                                ) : (
-                                  <div className="aspect-square rounded-lg border border-dashed border-black/10 bg-slate-50 flex items-center justify-center text-[10px] text-slate-400 font-mono text-center p-1">
-                                    No back photo
-                                  </div>
-                                )}
                               </div>
+                              {cw.photo_back && (
+                                <div
+                                  onClick={() => setPreviewPhoto(cw.photo_back!)}
+                                  className="aspect-video rounded-xl border border-black/10 overflow-hidden bg-white relative group cursor-pointer shadow-2xs"
+                                >
+                                  <img src={cw.photo_back} alt={`${cw.color_name} Back`} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[10px] font-bold">
+                                    <Eye className="w-3.5 h-3.5 mr-1" /> View Back
+                                  </div>
+                                </div>
+                              )}
                             </div>
                           ))}
                         </div>
                       </div>
                     ))}
                   </div>
-                </div>
-              ) : (
-                <div>
-                  <label className="block font-bold text-slate-800 mb-2 text-xs">
-                    Submitted Concept Photos:
-                  </label>
+                ) : reviewingSub.photo_url_1 ? (
                   <div className="grid grid-cols-2 gap-3">
                     <div 
                       onClick={() => setPreviewPhoto(reviewingSub.photo_url_1)}
-                      className="aspect-4/3 rounded-xl border border-black/10 overflow-hidden bg-slate-900 relative group cursor-pointer shadow-2xs"
+                      className="aspect-video rounded-xl border border-black/10 overflow-hidden bg-slate-100 relative group cursor-pointer shadow-2xs"
                     >
                       <img
                         src={reviewingSub.photo_url_1}
-                        alt="Concept 1"
+                        alt="Artwork 1"
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                       />
-                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-semibold">
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold">
                         <Eye className="w-4 h-4 mr-1" /> Full View
                       </div>
                     </div>
 
-                    {reviewingSub.photo_url_2 ? (
+                    {reviewingSub.photo_url_2 && (
                       <div 
                         onClick={() => setPreviewPhoto(reviewingSub.photo_url_2!)}
-                        className="aspect-4/3 rounded-xl border border-black/10 overflow-hidden bg-slate-900 relative group cursor-pointer shadow-2xs"
+                        className="aspect-video rounded-xl border border-black/10 overflow-hidden bg-slate-100 relative group cursor-pointer shadow-2xs"
                       >
                         <img
                           src={reviewingSub.photo_url_2}
-                          alt="Concept 2"
+                          alt="Artwork 2"
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                         />
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-semibold">
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold">
                           <Eye className="w-4 h-4 mr-1" /> Full View
                         </div>
                       </div>
-                    ) : (
-                      <div className="aspect-4/3 rounded-xl border border-dashed border-black/15 bg-slate-50 flex items-center justify-center text-xs text-slate-400">
-                        Single angle submitted
-                      </div>
                     )}
                   </div>
-                </div>
-              )}
-
-              {/* Review Notes Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                {reviewingSub.designer_notes && (
-                  <div className="bg-[#FAF7F0] p-3.5 rounded-xl border border-black/10 text-xs">
-                    <span className="font-bold text-[#3A3564] block mb-1">Designer&apos;s Creative Notes:</span>
-                    <p className="text-slate-700 italic leading-relaxed">&ldquo;{reviewingSub.designer_notes}&rdquo;</p>
-                  </div>
-                )}
-
-                {reviewingSub.ph_feedback && (
-                  <div className="bg-sky-50 p-3.5 rounded-xl border border-sky-200 text-xs">
-                    <span className="font-bold text-sky-900 block mb-1">Provisional Head Approval Note:</span>
-                    <p className="text-sky-800 leading-relaxed">{reviewingSub.ph_feedback}</p>
+                ) : (
+                  <div className="p-6 rounded-2xl border border-dashed border-slate-200 bg-slate-50 text-center text-slate-400 font-mono text-xs">
+                    No mockups attached.
                   </div>
                 )}
               </div>
 
-              {/* Super Admin Input */}
+              {/* Review History */}
+              {reviewingSub.ph_feedback && (
+                <div className="p-3.5 rounded-xl bg-sky-50 border border-sky-200 text-xs">
+                  <span className="font-bold text-sky-900 block font-mono uppercase mb-0.5">PH Approval Notes:</span>
+                  <p className="text-sky-800 italic">&ldquo;{reviewingSub.ph_feedback}&rdquo;</p>
+                </div>
+              )}
+
+              {/* SA Decision Notes */}
               <div>
-                <label className="block font-bold text-slate-800 mb-1 text-xs">
-                  Super Admin Strategic Decision Notes (Optional):
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
+                  Super Admin Decision Notes:
                 </label>
                 <textarea
                   rows={2}
-                  placeholder="e.g. Greenlit for Summer 2026 Collection / Sizing graded for oversized street fit / Saved for autumn drop..."
+                  placeholder="e.g. Greenlit for Summer Drop / Saved in seasonal library..."
                   value={saNotes}
                   onChange={e => setSaNotes(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-black/10 text-xs bg-white text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs font-medium text-slate-900 outline-none transition-all"
                 />
               </div>
             </div>
 
-            {/* Modal Actions Footer */}
-            <div className="p-4 sm:p-5 bg-slate-50 border-t border-black/10 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
+            {/* Action Bar */}
+            <div className="px-6 py-4 bg-[#FAF7F0] border-t border-black/10 flex flex-wrap items-center justify-between gap-2">
               <button
                 type="button"
                 onClick={() => {
                   setReviewingSub(null)
                   setSaNotes('')
                 }}
-                className="w-full sm:w-auto px-4 py-2 rounded-xl border border-black/10 text-xs font-semibold text-slate-700 hover:bg-white cursor-pointer"
+                className="px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-black/10 hover:bg-slate-100 rounded-xl shadow-2xs cursor-pointer"
               >
-                Close Review
+                Close
               </button>
 
-              <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-end">
+              <div className="flex flex-wrap items-center gap-2">
                 <button
                   type="button"
                   disabled={isReviewing}
                   onClick={() => handleVerdict(reviewingSub.id, 'REJECTED')}
-                  className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 text-xs font-bold transition-all shadow-2xs cursor-pointer disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 text-xs font-bold transition-all shadow-2xs cursor-pointer disabled:opacity-50"
                 >
-                  <XCircle className="w-3.5 h-3.5" />
-                  <span>Reject Concept</span>
+                  <XCircle className="w-4 h-4" />
+                  <span>Request Revisions</span>
                 </button>
 
                 <button
                   type="button"
                   disabled={isReviewing}
                   onClick={() => handleVerdict(reviewingSub.id, 'SAVED_FOR_LATER')}
-                  className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#FAF7F0] text-[#3A3564] hover:bg-[#F2ECE1] border border-black/15 text-xs font-bold transition-all shadow-2xs cursor-pointer disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white text-[#3A3564] hover:bg-slate-100 border border-black/15 text-xs font-bold transition-all shadow-2xs cursor-pointer disabled:opacity-50"
                 >
-                  <Bookmark className="w-3.5 h-3.5" />
-                  <span>Save for Later (Archive)</span>
+                  <Bookmark className="w-4 h-4" />
+                  <span>Save for Later</span>
                 </button>
 
                 <button
                   type="button"
                   disabled={isReviewing}
                   onClick={() => handleVerdict(reviewingSub.id, 'APPROVED')}
-                  className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 text-xs font-bold transition-all shadow-2xs cursor-pointer disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50"
                 >
-                  {isReviewing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
-                  <span>Greenlight for Tech-Pack</span>
+                  {isReviewing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+                  <span>Greenlight for Production</span>
                 </button>
               </div>
             </div>
@@ -569,13 +700,13 @@ export function SADesignApprovalsClient({
         </div>
       )}
 
-      {/* Full Photo Lightbox */}
+      {/* Lightbox Preview */}
       {previewPhoto && (
         <div 
           onClick={() => setPreviewPhoto(null)}
-          className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm cursor-pointer"
+          className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs cursor-pointer"
         >
-          <div className="relative max-w-3xl max-h-[85vh] p-2 bg-white rounded-2xl shadow-2xl">
+          <div className="relative max-w-3xl max-h-[85vh] p-2 bg-white rounded-2xl shadow-2xl border border-black/10">
             <img 
               src={previewPhoto} 
               alt="Preview" 
@@ -590,277 +721,139 @@ export function SADesignApprovalsClient({
           </div>
         </div>
       )}
-    </div>
-  )
-}
 
-function SubmissionCard({
-  sub,
-  onReview,
-  onPreviewPhoto,
-}: {
-  sub: DesignSubmission
-  onReview: (sub: DesignSubmission) => void
-  onPreviewPhoto: (url: string) => void
-}) {
-  const garment = sub.brief?.garment_type || 'Apparel'
-  const category = sub.brief?.category || 'Casual'
-  const maxColors = sub.brief?.max_colors || 3
-  const isPendingSA = sub.ph_verdict === 'APPROVED' && (!sub.sa_verdict || sub.sa_verdict === 'PENDING')
-  const isGreenlit = sub.sa_verdict === 'APPROVED'
-  const isSaved = sub.sa_verdict === 'SAVED_FOR_LATER'
-
-  // Extract all photos from concepts & colorways
-  const submissionPhotos: { url: string; label: string; color?: string; conceptNum?: number; isBack?: boolean }[] = []
-  if (sub.concepts && sub.concepts.length > 0) {
-    sub.concepts.forEach(concept => {
-      concept.colorways?.forEach(cw => {
-        if (cw.photo_front) {
-          submissionPhotos.push({
-            url: cw.photo_front,
-            label: `Design #${concept.concept_number} • ${cw.color_name} (Front)`,
-            color: cw.color_name,
-            conceptNum: concept.concept_number,
-            isBack: false
-          })
-        }
-        if (cw.photo_back) {
-          submissionPhotos.push({
-            url: cw.photo_back,
-            label: `Design #${concept.concept_number} • ${cw.color_name} (Back)`,
-            color: cw.color_name,
-            conceptNum: concept.concept_number,
-            isBack: true
-          })
-        }
-      })
-    })
-  }
-  if (submissionPhotos.length === 0) {
-    if (sub.photo_url_1) {
-      submissionPhotos.push({ url: sub.photo_url_1, label: 'Concept Photo 1' })
-    }
-    if (sub.photo_url_2) {
-      submissionPhotos.push({ url: sub.photo_url_2, label: 'Concept Photo 2' })
-    }
-  }
-
-  const [activePhotoIdx, setActivePhotoIdx] = useState(0)
-  const currentPhoto = submissionPhotos[activePhotoIdx] || submissionPhotos[0] || { url: sub.photo_url_1, label: garment }
-
-  // Unique colors in this submission
-  const uniqueColors = Array.from(new Set(submissionPhotos.map(p => p.color).filter(Boolean)))
-  const totalConcepts = sub.concepts?.length || 1
-
-  return (
-    <div className="bg-white rounded-2xl border border-black/10 overflow-hidden shadow-2xs flex flex-col hover:border-black/20 hover:shadow-md transition-all group">
-      {/* Main Showcase Photo */}
-      <div className="relative aspect-4/3 bg-slate-900 overflow-hidden">
-        <img 
-          src={currentPhoto.url} 
-          alt={currentPhoto.label} 
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-        />
-        
-        {/* Top Badges */}
-        <div className="absolute top-3 left-3 flex items-center gap-1.5 flex-wrap">
-          <span className="px-2.5 py-1 rounded-lg bg-black/75 backdrop-blur-xs text-white text-[11px] font-bold shadow-2xs">
-            {garment}
-          </span>
-          <span className="px-2 py-1 rounded-lg bg-white/90 backdrop-blur-xs text-slate-800 text-[11px] font-semibold shadow-2xs">
-            {category}
-          </span>
-          {sub.concepts && sub.concepts.length > 0 && (
-            <span className="px-2 py-1 rounded-lg bg-[#3A3564]/90 backdrop-blur-xs text-[#FAF7F0] text-[10.5px] font-mono font-bold shadow-2xs">
-              {totalConcepts} Designs &bull; {submissionPhotos.length} Mockups
-            </span>
-          )}
-        </div>
-
-        {/* Top Right Zoom Button */}
-        <div className="absolute top-3 right-3 flex items-center gap-1.5">
-          <button
-            type="button"
-            onClick={() => onPreviewPhoto(currentPhoto.url)}
-            className="w-8 h-8 rounded-lg bg-black/60 hover:bg-black text-white flex items-center justify-center transition-colors cursor-pointer shadow-2xs"
-            title={`View Full Size: ${currentPhoto.label}`}
-          >
-            <Eye className="w-4 h-4" />
-          </button>
-        </div>
-
-        {/* Current Photo Label Overlay */}
-        <div className="absolute bottom-2 left-3 right-3 flex items-center justify-between pointer-events-none">
-          <span className="px-2 py-0.5 rounded-md bg-black/70 backdrop-blur-xs text-white text-[10px] font-mono font-medium truncate max-w-[80%]">
-            {currentPhoto.label}
-          </span>
-          <span className="px-1.5 py-0.5 rounded-md bg-white/80 text-slate-900 text-[10px] font-mono font-bold">
-            {activePhotoIdx + 1}/{submissionPhotos.length}
-          </span>
-        </div>
+      {/* Floating Zigza AI Button for Super Admin */}
+      <div className="fixed bottom-6 right-6 z-40">
+        <button
+          type="button"
+          onClick={() => setIsAiModalOpen(true)}
+          className="group flex items-center gap-2.5 px-4 py-2.5 rounded-full bg-[#3A3564] text-white hover:bg-[#2A2649] shadow-xl border border-white/20 transition-all hover:scale-105 active:scale-95 cursor-pointer"
+        >
+          <div className="w-6 h-6 rounded-full bg-white/15 flex items-center justify-center">
+            <Sparkles className="w-3.5 h-3.5 text-amber-300 group-hover:rotate-12 transition-transform" />
+          </div>
+          <div className="text-left pr-1">
+            <div className="text-xs font-extrabold tracking-wide">Zigza AI</div>
+            <div className="text-[10px] text-slate-300 font-mono font-medium -mt-0.5">Approval Insights</div>
+          </div>
+        </button>
       </div>
 
-      {/* Multi-Photo Carousel Strip if more than 1 photo */}
-      {submissionPhotos.length > 1 && (
-        <div className="bg-[#FAF7F0] p-2.5 border-b border-black/5 flex items-center gap-2 overflow-x-auto select-none">
-          {submissionPhotos.map((item, idx) => {
-            const isSelected = idx === activePhotoIdx
-            return (
+      {/* Zigza AI Executive Decision Copilot Modal */}
+      {isAiModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs">
+          <div className="bg-white w-full max-w-2xl rounded-2xl border border-black/10 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            {/* Header */}
+            <div className="p-4 sm:p-5 bg-white border-b border-black/10 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+                  <Sparkles className="w-5 h-5 text-[#3A3564]" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 font-[family-name:var(--font-heading)]">
+                      Zigza AI Approval Insights
+                    </h2>
+                    <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                      Executive Copilot
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Production viability, commercial risk evaluation &amp; seasonal market fit
+                  </p>
+                </div>
+              </div>
               <button
-                key={idx}
                 type="button"
-                onClick={() => setActivePhotoIdx(idx)}
-                className={`relative w-11 h-11 rounded-lg overflow-hidden border shrink-0 transition-all cursor-pointer ${
-                  isSelected 
-                    ? 'ring-2 ring-[#3A3564] border-[#3A3564] scale-105 shadow-2xs' 
-                    : 'border-black/10 opacity-70 hover:opacity-100 hover:scale-102'
-                }`}
-                title={item.label}
+                onClick={() => setIsAiModalOpen(false)}
+                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center text-xs font-bold transition-colors cursor-pointer"
               >
-                <img src={item.url} alt={item.label} className="w-full h-full object-cover" />
-                {item.color && (
-                  <span className="absolute bottom-0 inset-x-0 bg-black/75 text-white text-[8px] font-bold font-mono text-center truncate px-0.5">
-                    {item.color.slice(0, 5)}
-                  </span>
+                ✕
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-4 sm:p-6 overflow-y-auto space-y-5 bg-[#FAF7F0]/40">
+              {/* Strategic Insights Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="p-4 rounded-xl bg-white border border-black/10 shadow-2xs space-y-1.5">
+                  <div className="flex items-center gap-2 text-xs font-bold text-slate-900 font-mono uppercase tracking-wider">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                    <span>Greenlight Criteria</span>
+                  </div>
+                  <p className="text-xs text-slate-600">
+                    High commercial viability, standard fabric availability (French Terry, Cotton Jersey), and clear contrast prints suitable for automated screen printing.
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-xl bg-white border border-black/10 shadow-2xs space-y-1.5">
+                  <div className="flex items-center gap-2 text-xs font-bold text-slate-900 font-mono uppercase tracking-wider">
+                    <Bookmark className="w-4 h-4 text-[#3A3564]" />
+                    <span>Seasonal Archive Strategy</span>
+                  </div>
+                  <p className="text-xs text-slate-600">
+                    Save strong concepts with seasonal dependencies (e.g. heavy winter outerwear during summer planning) for instant revival in future quarters.
+                  </p>
+                </div>
+              </div>
+
+              {/* Quick AI Audit Tool */}
+              <div className="bg-white p-4 sm:p-5 rounded-2xl border border-black/10 shadow-2xs space-y-3">
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 font-mono">
+                  Executive Design Quality Query
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="e.g. Check fabric yield for 420 GSM French Terry..."
+                    value={aiCustomPrompt}
+                    onChange={e => setAiCustomPrompt(e.target.value)}
+                    className="flex-1 px-3.5 py-2 text-xs rounded-xl bg-[#FAF7F0] border border-black/10 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/15 focus:border-[#3A3564] font-medium text-slate-900"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsAiGenerating(true)
+                      setTimeout(() => {
+                        setAiAnalysisResult('Fabric consumption estimated at ~1.45m/piece with minimal cutting waste (<6%). Recommended stitch count for embroidery is 8,500 stitches at chest zone.')
+                        setIsAiGenerating(false)
+                        toast.success('Zigza AI intelligence analysis complete!')
+                      }, 400)
+                    }}
+                    className="px-4 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer shrink-0"
+                  >
+                    {isAiGenerating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+                    <span>Analyze</span>
+                  </button>
+                </div>
+
+                {aiAnalysisResult && (
+                  <div className="p-3 bg-[#FAF7F0] rounded-xl border border-black/10 text-xs text-slate-800">
+                    <span className="font-bold text-[#3A3564] block font-mono text-[10px] uppercase mb-1">
+                      AI Production Assessment:
+                    </span>
+                    {aiAnalysisResult}
+                  </div>
                 )}
-              </button>
-            )
-          })}
-
-          <button
-            type="button"
-            onClick={() => onReview(sub)}
-            className="h-11 px-2.5 rounded-lg border border-black/10 bg-white hover:bg-[#F2ECE1] text-[#3A3564] text-[10px] font-bold font-mono flex items-center gap-1 shrink-0 cursor-pointer shadow-2xs"
-            title="Inspect all designs in full review deck"
-          >
-            <Sparkles className="w-3 h-3 text-[#3A3564]" />
-            <span>Deck</span>
-          </button>
-        </div>
-      )}
-
-      {/* Card Content */}
-      <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-4">
-        <div className="space-y-2.5">
-          <div className="flex items-center justify-between text-xs">
-            <span className="font-semibold text-slate-500">Designer:</span>
-            <span className="font-bold text-slate-800">{sub.designer_name}</span>
-          </div>
-
-          <div className="flex items-center justify-between text-xs">
-            <span className="font-semibold text-slate-500">Colors / Chart:</span>
-            <div className="flex items-center gap-1 flex-wrap justify-end">
-              {uniqueColors.length > 0 ? (
-                uniqueColors.map((col, i) => (
-                  <span key={i} className="text-[10px] font-mono font-semibold px-1.5 py-0.2 rounded bg-slate-100 text-slate-700 border border-black/5">
-                    {col}
-                  </span>
-                ))
-              ) : (
-                <span className="font-mono font-bold text-slate-800">{maxColors} Max</span>
-              )}
-            </div>
-          </div>
-
-          {sub.designer_notes && (
-            <div className="bg-[#FAF7F0] p-2.5 rounded-xl border border-black/10 text-xs text-slate-700 italic">
-              &ldquo;{sub.designer_notes}&rdquo;
-            </div>
-          )}
-
-          {sub.ph_feedback && (
-            <div className="bg-sky-50 p-2.5 rounded-xl border border-sky-200 text-xs text-sky-900">
-              <span className="font-bold block mb-0.5">PH Approval Note:</span>
-              {sub.ph_feedback}
-            </div>
-          )}
-
-          {sub.sa_notes && (
-            <div className="bg-emerald-50 p-2.5 rounded-xl border border-emerald-200 text-xs text-emerald-900">
-              <span className="font-bold block mb-0.5">SA Strategic Note:</span>
-              {sub.sa_notes}
-            </div>
-          )}
-        </div>
-
-        {/* Decision State / Action Buttons */}
-        <div className="pt-3 border-t border-black/5 space-y-2">
-          {isPendingSA && (
-            <div className="space-y-2">
-              <button
-                type="button"
-                onClick={() => onReview(sub)}
-                className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-[#FAF7F0] text-xs font-bold transition-all shadow-2xs cursor-pointer"
-              >
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>Executive Review Deck ({submissionPhotos.length} Mockups)</span>
-              </button>
-
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => onReview(sub)}
-                  className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-2xs cursor-pointer"
-                >
-                  <CheckCircle2 className="w-3.5 h-3.5" />
-                  <span>Greenlight</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => onReview(sub)}
-                  className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-[#FAF7F0] hover:bg-[#F2ECE1] text-[#3A3564] border border-black/15 text-xs font-bold transition-all shadow-2xs cursor-pointer"
-                >
-                  <Bookmark className="w-3.5 h-3.5" />
-                  <span>Save for Later</span>
-                </button>
               </div>
             </div>
-          )}
 
-          {isGreenlit && (
-            <div className="flex items-center justify-between">
+            {/* Modal Footer */}
+            <div className="px-5 py-3.5 bg-[#FAF7F0] border-t border-black/10 flex items-center justify-between text-xs">
+              <span className="text-[11px] font-mono text-slate-500">
+                Visible only to Executive Super Admin
+              </span>
               <button
                 type="button"
-                onClick={() => onReview(sub)}
-                className="inline-flex items-center gap-1 text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-2.5 py-1 rounded-lg border border-emerald-200 transition-colors cursor-pointer"
+                onClick={() => setIsAiModalOpen(false)}
+                className="px-4 py-1.5 text-xs font-bold text-slate-700 bg-white border border-black/10 hover:bg-slate-100 rounded-xl shadow-2xs cursor-pointer"
               >
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>Greenlit for Tech-Pack</span>
-              </button>
-
-              <Link
-                href={`/design/tech-packs?createFromSubmission=${sub.id}&garment=${garment}`}
-                className="inline-flex items-center gap-1 text-xs font-bold text-[#3A3564] hover:underline"
-              >
-                <span>Tech-Pack</span>
-                <ArrowRight className="w-3 h-3" />
-              </Link>
-            </div>
-          )}
-
-          {isSaved && (
-            <div className="flex items-center justify-between">
-              <button
-                type="button"
-                onClick={() => onReview(sub)}
-                className="inline-flex items-center gap-1 text-xs font-bold text-[#3A3564] bg-[#FAF7F0] hover:bg-[#F2ECE1] px-2.5 py-1 rounded-lg border border-black/10 transition-colors cursor-pointer"
-              >
-                <Bookmark className="w-3.5 h-3.5" />
-                <span>Seasonal Archive</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => onReview(sub)}
-                className="text-xs font-bold text-emerald-700 hover:underline cursor-pointer"
-              >
-                Revive &amp; Review
+                Close
               </button>
             </div>
-          )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }

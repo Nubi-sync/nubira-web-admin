@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { 
   Palette, 
@@ -21,7 +22,8 @@ import {
   Link2,
   X,
   Target,
-  Shirt
+  Shirt,
+  RotateCcw
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { 
@@ -69,14 +71,14 @@ interface DesignerDashboardClientProps {
   userRole?: string
 }
 
-const STATUS_CONFIG: Record<BriefStatus, { label: string; badgeClass: string; desc: string }> = {
-  ALLOCATED: { label: 'Pending Upload', badgeClass: 'bg-slate-100 text-slate-700 border-slate-200', desc: 'Ready for concept & mockup uploads.' },
-  SUBMITTED: { label: 'In Review', badgeClass: 'bg-amber-50 text-amber-800 border-amber-200 font-semibold', desc: 'Under review by Provisional Head.' },
-  PH_APPROVED: { label: 'PH Approved', badgeClass: 'bg-sky-50 text-sky-800 border-sky-200 font-semibold', desc: 'Provisional Head approved. Awaiting Super Admin greenlight.' },
-  PH_REJECTED: { label: 'Revisions Needed', badgeClass: 'bg-rose-50 text-rose-700 border-rose-200 font-semibold', desc: 'Revision feedback provided.' },
-  SA_APPROVED: { label: 'Greenlit', badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200 font-bold', desc: 'Greenlit for production.' },
-  SA_SAVED_FOR_LATER: { label: 'Saved for Later', badgeClass: 'bg-[#FAF7F0] text-[#3A3564] border-black/10 font-semibold', desc: 'Saved for upcoming season.' },
-  TECH_PACK_CREATED: { label: 'Tech-Pack Created', badgeClass: 'bg-[#FAF7F0] text-slate-900 border-black/15 font-bold', desc: 'Tech-pack generated.' }
+const STATUS_CONFIG: Record<BriefStatus, { label: string; badgeClass: string; isGreen?: boolean; isRed?: boolean }> = {
+  ALLOCATED: { label: 'Pending Upload', badgeClass: 'bg-slate-100 text-slate-700 border-slate-200' },
+  SUBMITTED: { label: 'In Review', badgeClass: 'bg-amber-50 text-amber-800 border-amber-200 font-semibold' },
+  PH_APPROVED: { label: 'Approved', badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200 font-bold', isGreen: true },
+  PH_REJECTED: { label: 'Revisions Needed', badgeClass: 'bg-rose-50 text-rose-700 border-rose-200 font-bold', isRed: true },
+  SA_APPROVED: { label: 'Approved / Greenlit', badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200 font-bold', isGreen: true },
+  SA_SAVED_FOR_LATER: { label: 'Saved for Later', badgeClass: 'bg-[#FAF7F0] text-[#3A3564] border-black/10 font-semibold' },
+  TECH_PACK_CREATED: { label: 'Production Ready', badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200 font-bold', isGreen: true }
 }
 
 function getColorSwatchInfo(colorName: string): { bg: string; border: string; isLight: boolean } {
@@ -342,7 +344,11 @@ export function DesignerDashboardClient({
   currentUserId,
   userRole
 }: DesignerDashboardClientProps) {
+  const searchParams = useSearchParams()
+  const initialView = searchParams.get('view') === 'history' ? 'HISTORY' : 'ASSIGNMENTS'
+
   const [briefs, setBriefs] = useState<DesignBrief[]>(initialBriefs)
+  const [activeTab, setActiveTab] = useState<'ASSIGNMENTS' | 'HISTORY'>(initialView)
   
   // Navigation State: null = Screen 1 (Dashboard Overview); string = Screen 2 (Dedicated Assignment Page)
   const [selectedBriefId, setSelectedBriefId] = useState<string | null>(null)
@@ -371,7 +377,6 @@ export function DesignerDashboardClient({
 
     const nextState: Record<number, ConceptFormState> = {}
 
-    // 1. Check if previous submission concepts exist
     if (activeBrief.latest_submission?.concepts && activeBrief.latest_submission.concepts.length > 0) {
       activeBrief.latest_submission.concepts.forEach(c => {
         const cwMap: Record<string, { photo_front: string; photo_back: string }> = {}
@@ -388,7 +393,6 @@ export function DesignerDashboardClient({
         }
       })
     } else if (activeBrief.latest_submission?.photo_url_1) {
-      // Legacy single submission fallback
       nextState[1] = {
         title: 'Design Concept #1',
         notes: activeBrief.latest_submission.designer_notes || '',
@@ -401,7 +405,6 @@ export function DesignerDashboardClient({
       }
     }
 
-    // Fill missing concept slots up to target count
     for (let i = 1; i <= count; i++) {
       if (!nextState[i]) {
         nextState[i] = {
@@ -422,7 +425,6 @@ export function DesignerDashboardClient({
     setActiveColorwayTab(colors[0])
   }, [activeBrief?.id])
 
-  // Count ready colorways across all concepts
   const totalSlots = targetDesignsCount * targetColorsList.length
   let readySlotsCount = 0
   for (let i = 1; i <= targetDesignsCount; i++) {
@@ -436,7 +438,6 @@ export function DesignerDashboardClient({
     }
   }
 
-  // Quick concept handlers
   function handleUpdateColorwayPhoto(conceptNum: number, colorName: string, field: 'photo_front' | 'photo_back', value: string) {
     setConceptsState(prev => {
       const c = prev[conceptNum] || { title: `Design Concept #${conceptNum}`, notes: '', colorways: {} }
@@ -470,12 +471,10 @@ export function DesignerDashboardClient({
     })
   }
 
-  // Active brief submission handler
   async function handleSubmitAllConcepts(e: React.FormEvent) {
     e.preventDefault()
     if (!activeBrief) return
 
-    // Build structured concepts list
     const conceptsPayload: DesignConceptItem[] = []
     let firstFrontPhoto = ''
     let firstBackPhoto = ''
@@ -531,6 +530,8 @@ export function DesignerDashboardClient({
           status: 'SUBMITTED',
           latest_submission: res.data!
         } : b))
+        setSelectedBriefId(null)
+        setActiveTab('HISTORY')
       } else {
         toast.error(res.error || 'Failed to submit design concepts.')
       }
@@ -545,9 +546,9 @@ export function DesignerDashboardClient({
   const isEditable = !isFinalApproved
   const isSubmitted = activeBrief?.status === 'SUBMITTED' || activeBrief?.status === 'PH_APPROVED'
 
-  const activeBriefsCount = briefs.filter(b => b.status === 'ALLOCATED' || b.status === 'PH_REJECTED' || (b.status === 'SUBMITTED' && (b.submissions_count || 0) < (b.target_designs || 1))).length
-  const submittedBriefsCount = briefs.filter(b => b.status === 'SUBMITTED' || b.status === 'PH_APPROVED').length
-  const approvedBriefsCount = briefs.filter(b => b.status === 'SA_APPROVED' || b.status === 'TECH_PACK_CREATED').length
+  // Partition briefs into Active Assignments vs History
+  const activeAssignments = briefs.filter(b => b.status === 'ALLOCATED' || b.status === 'PH_REJECTED')
+  const historySubmissions = briefs.filter(b => b.status !== 'ALLOCATED')
 
   const currentConcept = conceptsState[activeConceptTab] || {
     title: `Design Concept #${activeConceptTab}`,
@@ -569,7 +570,7 @@ export function DesignerDashboardClient({
             onClick={() => setSelectedBriefId(null)}
             className="hover:text-[#3A3564] transition-colors cursor-pointer"
           >
-            Allocations
+            Assignments
           </button>
           <span>/</span>
           <span className="font-bold text-slate-900">{activeBrief.garment_type}</span>
@@ -577,14 +578,14 @@ export function DesignerDashboardClient({
           <span className="font-mono text-slate-500">#{activeBrief.id.substring(0, 6)}</span>
         </div>
 
-        {/* Layer 2: Encapsulated Top Header Card with Back Button */}
+        {/* Layer 2: Top Header Card with Back Button */}
         <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3.5">
             <button
               type="button"
               onClick={() => setSelectedBriefId(null)}
               className="w-11 h-11 rounded-xl bg-[#FAF7F0] hover:bg-slate-100 border border-black/10 flex items-center justify-center text-[#3A3564] transition-all cursor-pointer shrink-0 shadow-2xs"
-              title="Back to Allocations"
+              title="Back to List"
             >
               <ArrowLeft className="w-5 h-5 text-[#3A3564]" />
             </button>
@@ -616,7 +617,6 @@ export function DesignerDashboardClient({
 
         {/* Layer 3: Palette & Guidelines Card */}
         <div className="bg-white p-4 sm:p-5 rounded-2xl border border-black/10 shadow-2xs space-y-3">
-          {/* Target Colorway Palette */}
           <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
             <span className="font-bold text-slate-700 font-mono uppercase tracking-wider text-[11px]">
               Assigned Colors ({targetColorsList.length}):
@@ -640,26 +640,26 @@ export function DesignerDashboardClient({
             </div>
           </div>
 
-          {/* Instructions note if present */}
           {activeBrief.instructions && (
             <div className="p-3 bg-[#FAF7F0] rounded-xl border border-black/10 text-xs text-slate-700 italic">
               &ldquo;{activeBrief.instructions}&rdquo;
             </div>
           )}
 
-          {/* Revision Feedback alert if rejected */}
+          {/* Revisions Needed Alert Banner */}
           {activeBrief.status === 'PH_REJECTED' && activeBrief.latest_submission?.ph_feedback && (
-            <div className="bg-rose-50 p-3.5 rounded-xl border border-rose-200 text-xs space-y-1">
+            <div className="bg-rose-50 p-4 rounded-xl border border-rose-200 text-xs space-y-1">
               <div className="flex items-center gap-1.5 text-rose-800 font-bold font-mono">
                 <XCircle className="w-4 h-4" />
-                <span>Revision Feedback:</span>
+                <span>Head Revision Notes (Action Required):</span>
               </div>
-              <p className="text-rose-900 italic">&ldquo;{activeBrief.latest_submission.ph_feedback}&rdquo;</p>
+              <p className="text-rose-900 italic font-medium pt-0.5">&ldquo;{activeBrief.latest_submission.ph_feedback}&rdquo;</p>
+              <p className="text-rose-700 pt-1 text-[11px]">Please adjust your artwork below and click &ldquo;Resubmit Work&rdquo;.</p>
             </div>
           )}
         </div>
 
-        {/* Layer 4 & 5: Multi-Concept Deck Container */}
+        {/* Multi-Concept Tabs & Workspace */}
         <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/10 shadow-2xs space-y-4">
           <div className="flex items-center justify-between border-b border-black/5 pb-3">
             <h2 className="font-bold text-slate-900 text-sm flex items-center gap-2 font-[family-name:var(--font-heading)]">
@@ -671,7 +671,6 @@ export function DesignerDashboardClient({
             </span>
           </div>
 
-          {/* Concept Tabs Header */}
           <div className="flex flex-wrap gap-2 pb-2">
             {Array.from({ length: targetDesignsCount }).map((_, idx) => {
               const cNum = idx + 1
@@ -714,9 +713,7 @@ export function DesignerDashboardClient({
             })}
           </div>
 
-          {/* Active Concept Card */}
           <div className="bg-[#FAF7F0] p-4 sm:p-5 rounded-2xl border border-black/10 space-y-4">
-            {/* Concept Title */}
             <div>
               <label className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
                 Design Concept #{activeConceptTab} Title / Theme
@@ -731,7 +728,6 @@ export function DesignerDashboardClient({
               />
             </div>
 
-            {/* Colorway Sub-Selector */}
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5 flex items-center justify-between">
                 <span>Fabric Colorway</span>
@@ -759,7 +755,7 @@ export function DesignerDashboardClient({
                       }`}
                     >
                       <span 
-                        className="w-3 h-3 rounded-full border border-black/20 shrink-0" 
+                        className="w-3.5 h-3.5 rounded-full border border-black/20 shrink-0" 
                         style={{ backgroundColor: sw.bg }} 
                       />
                       <span>{colName}</span>
@@ -774,7 +770,6 @@ export function DesignerDashboardClient({
               </div>
             </div>
 
-            {/* Front & Back Artwork Dropzones */}
             <div className="bg-white p-4 rounded-xl border border-black/10 space-y-3">
               <div className="flex items-center justify-between text-xs">
                 <span className="font-bold text-slate-900 flex items-center gap-1.5 font-mono">
@@ -812,7 +807,6 @@ export function DesignerDashboardClient({
               </div>
             </div>
 
-            {/* Fabric / Print Technique Notes */}
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
                 Fabric &amp; Print Notes (Optional)
@@ -828,7 +822,7 @@ export function DesignerDashboardClient({
             </div>
           </div>
 
-          {/* Submit Action Area */}
+          {/* Submit Button */}
           {isEditable ? (
             <div className="pt-2">
               <form onSubmit={handleSubmitAllConcepts}>
@@ -847,11 +841,9 @@ export function DesignerDashboardClient({
                     <UploadCloud className="w-4 h-4" />
                   )}
                   <span>
-                    {readySlotsCount >= totalSlots
-                      ? `Submit Complete Deck (${readySlotsCount}/${totalSlots}) for Review`
-                      : isSubmitted
-                      ? `Save & Sync Mockups (${readySlotsCount}/${totalSlots}) to Head`
-                      : `Submit Ready Mockups (${readySlotsCount}/${totalSlots}) for Review`}
+                    {activeBrief.status === 'PH_REJECTED'
+                      ? `Resubmit Revised Work (${readySlotsCount}/${totalSlots})`
+                      : `Submit Work (${readySlotsCount}/${totalSlots}) for Head Review`}
                   </span>
                 </button>
               </form>
@@ -859,7 +851,7 @@ export function DesignerDashboardClient({
           ) : (
             <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 flex items-center gap-2 font-medium">
               <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-              <span>This style has been approved for production.</span>
+              <span>This design concept has been officially greenlit by Super Admin.</span>
             </div>
           )}
         </div>
@@ -890,20 +882,20 @@ export function DesignerDashboardClient({
   }
 
   // =========================================================================
-  // SCREEN 1: DASHBOARD OVERVIEW (Allocations List)
+  // SCREEN 1: DASHBOARD OVERVIEW (Tabs: Active Assignments vs Submission History)
   // =========================================================================
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Layer 1: Breadcrumb Hierarchy Trail */}
       <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
-        <span>Design Studio</span>
+        <span>Designer Studio</span>
         <span>/</span>
-        <span>Workspaces</span>
-        <span>/</span>
-        <span className="font-bold text-slate-900">Designer Desk</span>
+        <span className="font-bold text-slate-900">
+          {activeTab === 'ASSIGNMENTS' ? 'Active Assignments' : 'Submission History'}
+        </span>
       </div>
 
-      {/* Layer 2: Encapsulated Top Header Card with Waving Hand Outline SVG */}
+      {/* Layer 2: Encapsulated Top Header Card */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3.5">
           <div className="w-11 h-11 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-slate-800 shrink-0 shadow-2xs">
@@ -915,16 +907,15 @@ export function DesignerDashboardClient({
                 Welcome, {designerName || 'Designer'}
               </h1>
               <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
-                {briefs.length} Briefs Assigned
+                {activeAssignments.length} Assignments To Do
               </span>
             </div>
             <p className="text-sm text-slate-600 mt-1">
-              Your assigned apparel design briefs, concept decks, and colorway submissions
+              Your apparel design tasks, artwork upload deck, and submission history
             </p>
           </div>
         </div>
 
-        {/* Designer contact badge */}
         <div className="flex items-center gap-2">
           <span className="px-3.5 py-1.5 rounded-xl bg-[#FAF7F0] border border-black/10 text-xs font-mono font-bold text-[#3A3564] shadow-2xs">
             +91 {designerPhone || (designerEmail.includes('@') ? designerEmail.split('@')[0] : designerEmail)}
@@ -932,176 +923,198 @@ export function DesignerDashboardClient({
         </div>
       </div>
 
-      {/* Layer 3: Executive KPI Metric Cards (Grid of 3) */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4">
-        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs flex flex-col justify-between">
-          <div className="flex items-start justify-between gap-2">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
-              <Palette className="w-5 h-5" />
-            </div>
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
-              STAGE 01
-            </span>
-          </div>
-          <div className="mt-3">
-            <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
-              Active Allocations
-            </div>
-            <div className="text-[11px] text-slate-400 font-medium">Pending concept uploads</div>
-          </div>
-          <div className="pt-2 border-t border-slate-100 flex items-baseline justify-between mt-3">
-            <div className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900">
-              {activeBriefsCount}
-            </div>
-            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-              To Submit
-            </span>
-          </div>
-        </div>
+      {/* Tab Switcher: Active Assignments vs Submission History */}
+      <div className="flex items-center gap-2 p-1.5 bg-[#FAF7F0] rounded-2xl border border-black/10 w-fit">
+        <button
+          type="button"
+          onClick={() => setActiveTab('ASSIGNMENTS')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold font-mono transition-all cursor-pointer ${
+            activeTab === 'ASSIGNMENTS'
+              ? 'bg-[#3A3564] text-white shadow-xs'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+          }`}
+        >
+          <Palette className="w-3.5 h-3.5" />
+          <span>Active Assignments ({activeAssignments.length})</span>
+        </button>
 
-        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs flex flex-col justify-between">
-          <div className="flex items-start justify-between gap-2">
-            <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-700 shadow-2xs">
-              <Clock className="w-5 h-5" />
-            </div>
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-100">
-              STAGE 02
-            </span>
-          </div>
-          <div className="mt-3">
-            <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
-              In Verification Review
-            </div>
-            <div className="text-[11px] text-slate-400 font-medium">Head &amp; Admin pipeline</div>
-          </div>
-          <div className="pt-2 border-t border-slate-100 flex items-baseline justify-between mt-3">
-            <div className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-amber-600">
-              {submittedBriefsCount}
-            </div>
-            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200">
-              Under Review
-            </span>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs flex flex-col justify-between">
-          <div className="flex items-start justify-between gap-2">
-            <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700 shadow-2xs">
-              <CheckCircle2 className="w-5 h-5" />
-            </div>
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100">
-              STAGE 03
-            </span>
-          </div>
-          <div className="mt-3">
-            <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
-              Approved for Production
-            </div>
-            <div className="text-[11px] text-slate-400 font-medium">Tech-Pack greenlighted</div>
-          </div>
-          <div className="pt-2 border-t border-slate-100 flex items-baseline justify-between mt-3">
-            <div className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-emerald-600">
-              {approvedBriefsCount}
-            </div>
-            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
-              Greenlit
-            </span>
-          </div>
-        </div>
+        <button
+          type="button"
+          onClick={() => setActiveTab('HISTORY')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold font-mono transition-all cursor-pointer ${
+            activeTab === 'HISTORY'
+              ? 'bg-[#3A3564] text-white shadow-xs'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+          }`}
+        >
+          <Clock className="w-3.5 h-3.5" />
+          <span>Submission History ({historySubmissions.length})</span>
+        </button>
       </div>
 
-      {/* Layer 4 & 5: Work Allotted Ledger Cards */}
-      {briefs.length === 0 ? (
-        <EmptyState
-          icon={Palette}
-          title="No design briefs allocated yet"
-          description="Your Provisional Head has not assigned any apparel briefs yet. Check back soon."
-        />
-      ) : (
+      {/* VIEW 1: ACTIVE ASSIGNMENTS */}
+      {activeTab === 'ASSIGNMENTS' && (
         <div className="space-y-3">
-          <div className="flex items-center justify-between px-1">
-            <h2 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-700">
-              Allocated Work ({briefs.length})
-            </h2>
-            <span className="text-xs text-slate-400 font-medium font-sans">
-              Click any work card to open assignment workspace
-            </span>
-          </div>
+          {activeAssignments.length === 0 ? (
+            <EmptyState
+              icon={CheckCircle2}
+              title="No pending assignments"
+              description="You have completed all active brief allotments. Check your Submission History tab to see past approvals."
+            />
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
+              {activeAssignments.map(brief => {
+                const isRejected = brief.status === 'PH_REJECTED'
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
-            {briefs.map(brief => {
-              const stCfg = STATUS_CONFIG[brief.status] || STATUS_CONFIG.ALLOCATED
+                return (
+                  <div
+                    key={brief.id}
+                    onClick={() => setSelectedBriefId(brief.id)}
+                    className={`bg-white p-4 sm:p-5 rounded-2xl border transition-all cursor-pointer group flex flex-col justify-between gap-3 shadow-2xs ${
+                      isRejected ? 'border-rose-200 hover:border-rose-400 ring-2 ring-rose-500/10' : 'border-black/10 hover:border-[#3A3564]'
+                    }`}
+                  >
+                    <div className="space-y-2">
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <h3 className="font-bold text-slate-900 text-base sm:text-lg font-[family-name:var(--font-heading)] group-hover:text-[#3A3564] transition-colors leading-tight">
+                            {brief.garment_type}
+                          </h3>
+                          <p className="text-xs text-slate-500 font-medium mt-0.5">
+                            {brief.category} Style
+                          </p>
+                        </div>
 
-              return (
-                <div
-                  key={brief.id}
-                  onClick={() => setSelectedBriefId(brief.id)}
-                  className="bg-white p-4 sm:p-5 rounded-2xl border border-black/10 hover:border-[#3A3564] hover:shadow-md transition-all cursor-pointer group flex flex-col justify-between gap-3 shadow-2xs"
-                >
-                  <div className="space-y-2">
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <h3 className="font-bold text-slate-900 text-base sm:text-lg font-[family-name:var(--font-heading)] group-hover:text-[#3A3564] transition-colors leading-tight">
-                          {brief.garment_type}
-                        </h3>
-                        <p className="text-xs text-slate-500 font-medium mt-0.5">
-                          {brief.category} Style
-                        </p>
+                        <span className={`text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full border shrink-0 ${STATUS_CONFIG[brief.status]?.badgeClass}`}>
+                          {STATUS_CONFIG[brief.status]?.label}
+                        </span>
                       </div>
 
-                      <span className={`text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full border shrink-0 ${stCfg.badgeClass}`}>
-                        {stCfg.label}
+                      <div className="flex items-center gap-2 text-xs font-mono text-slate-600">
+                        <span className="font-bold text-[#3A3564]">{brief.target_designs || 1} Designs</span>
+                        <span>&bull;</span>
+                        <span>{brief.max_colors} Colors</span>
+                      </div>
+
+                      {/* Instructions or Rejection Note snippet */}
+                      {isRejected && brief.latest_submission?.ph_feedback ? (
+                        <div className="p-2 rounded-lg bg-rose-50 border border-rose-200 text-xs text-rose-800 font-medium">
+                          <span className="font-bold block text-[10px] uppercase font-mono">Head Feedback:</span>
+                          <p className="line-clamp-2 italic">&ldquo;{brief.latest_submission.ph_feedback}&rdquo;</p>
+                        </div>
+                      ) : brief.instructions ? (
+                        <p className="text-xs text-slate-600 line-clamp-2 italic pt-1">
+                          &ldquo;{brief.instructions}&rdquo;
+                        </p>
+                      ) : null}
+                    </div>
+
+                    <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-[#3A3564]">
+                      <span className="font-mono text-[11px] text-slate-400 font-normal">
+                        #{brief.id.substring(0, 6)}
+                      </span>
+                      <span className="inline-flex items-center gap-1 group-hover:translate-x-0.5 transition-transform font-bold">
+                        {isRejected ? 'Redo / Revise Work' : 'Open Assignment'} <ChevronRight className="w-3.5 h-3.5" />
                       </span>
                     </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      )}
 
-                    <div className="flex items-center gap-2 text-xs font-mono text-slate-600">
-                      <span className="font-bold text-[#3A3564]">{brief.target_designs || 1} Designs</span>
-                      <span>&bull;</span>
-                      <span>{brief.max_colors} Colors</span>
-                    </div>
+      {/* VIEW 2: SUBMISSION HISTORY */}
+      {activeTab === 'HISTORY' && (
+        <div className="space-y-3">
+          {historySubmissions.length === 0 ? (
+            <EmptyState
+              icon={Clock}
+              title="No submissions in history"
+              description="When you complete an assignment and submit it for review, it will appear here with its approval status."
+            />
+          ) : (
+            <div className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse text-sm">
+                  <thead>
+                    <tr className="border-b border-slate-100 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0]">
+                      <th className="py-3 px-4">Garment</th>
+                      <th className="py-3 px-4">Scope</th>
+                      <th className="py-3 px-4">Status &amp; Verification</th>
+                      <th className="py-3 px-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 text-xs">
+                    {historySubmissions.map(brief => {
+                      const stCfg = STATUS_CONFIG[brief.status] || STATUS_CONFIG.SUBMITTED
+                      const isRejected = brief.status === 'PH_REJECTED'
+                      const isApproved = stCfg.isGreen
 
-                    {/* Colorway Swatches */}
-                    {brief.target_colors && brief.target_colors.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5 pt-1">
-                        {brief.target_colors.map((c, idx) => {
-                          const sw = getColorSwatchInfo(c)
-                          return (
-                            <span 
-                              key={idx} 
-                              className="inline-flex items-center gap-1.5 text-[11px] px-2 py-0.5 rounded-md bg-[#FAF7F0] border border-black/10 font-mono text-slate-800 font-medium"
-                            >
-                              <span 
-                                className="w-2.5 h-2.5 rounded-full border border-black/15 shrink-0" 
-                                style={{ backgroundColor: sw.bg }} 
-                              />
-                              <span>{c}</span>
+                      return (
+                        <tr key={brief.id} className="hover:bg-slate-50/80 transition-colors">
+                          <td className="py-3.5 px-4">
+                            <span className="font-bold text-slate-900 text-sm block font-[family-name:var(--font-heading)]">
+                              {brief.garment_type}
                             </span>
-                          )
-                        })}
-                      </div>
-                    )}
+                            <span className="text-xs text-slate-500 font-medium">
+                              {brief.category} Style &bull; <span className="font-mono text-[11px] text-slate-400">#{brief.id.substring(0, 6)}</span>
+                            </span>
+                          </td>
 
-                    {/* Brief Instructions Snippet */}
-                    {brief.instructions && (
-                      <p className="text-xs text-slate-600 line-clamp-2 italic pt-1">
-                        &ldquo;{brief.instructions}&rdquo;
-                      </p>
-                    )}
-                  </div>
+                          <td className="py-3.5 px-4 font-mono">
+                            <span className="font-bold text-slate-800">{brief.target_designs || 1} Designs</span>
+                            <span className="text-slate-400 block text-[11px]">{brief.max_colors} Colors</span>
+                          </td>
 
-                  {/* Action Link Footer */}
-                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-[#3A3564]">
-                    <span className="font-mono text-[11px] text-slate-400 font-normal">
-                      #{brief.id.substring(0, 6)}
-                    </span>
-                    <span className="inline-flex items-center gap-1 group-hover:translate-x-0.5 transition-transform font-bold">
-                      Open Work Assignment <ChevronRight className="w-3.5 h-3.5" />
-                    </span>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
+                          <td className="py-3.5 px-4">
+                            <div className="space-y-1">
+                              <span className={`inline-block text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full border ${stCfg.badgeClass}`}>
+                                {stCfg.label}
+                              </span>
+                              {isRejected && brief.latest_submission?.ph_feedback && (
+                                <p className="text-[11px] text-rose-700 italic line-clamp-1 max-w-xs">
+                                  &ldquo;{brief.latest_submission.ph_feedback}&rdquo;
+                                </p>
+                              )}
+                              {isApproved && (
+                                <span className="text-[11px] text-emerald-700 font-medium block">
+                                  Approved &amp; Archived
+                                </span>
+                              )}
+                            </div>
+                          </td>
+
+                          <td className="py-3.5 px-4 text-right">
+                            {isRejected ? (
+                              <button
+                                type="button"
+                                onClick={() => setSelectedBriefId(brief.id)}
+                                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition-all shadow-2xs cursor-pointer"
+                              >
+                                <RotateCcw className="w-3.5 h-3.5" />
+                                <span>Redo Assignment</span>
+                              </button>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => setSelectedBriefId(brief.id)}
+                                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-slate-100 text-[#3A3564] border border-black/10 text-xs font-bold transition-all shadow-2xs cursor-pointer"
+                              >
+                                <Eye className="w-3.5 h-3.5" />
+                                <span>View Submission</span>
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

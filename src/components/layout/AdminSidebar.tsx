@@ -207,9 +207,8 @@ export function AdminSidebar({
           { label: 'All Modules', href: '/modules', icon: LayoutGrid },
           { label: 'Department Heads', href: '/modules/access-control', icon: ShieldCheck },
           { label: 'Supervisor Operations', href: '/modules/supervisor-desk', icon: Wrench },
-          { label: 'SA Design Approvals', href: '/design/sa-approvals', icon: Sparkles },
+          { label: 'SA Design Approvals', href: '/design/sa-approvals', icon: ShieldCheck },
           { label: 'Company Profile', href: '/modules/profile', icon: Building2 },
-          { label: 'Zigza AI', href: '/modules/zigza-ai', icon: Bot },
         ],
       },
     ]
@@ -218,7 +217,8 @@ export function AdminSidebar({
       {
         section: 'Designer Studio',
         items: [
-          { label: 'My Design Briefs', href: '/design/designer', icon: Palette },
+          { label: 'Active Assignments', href: '/design/designer', icon: Palette },
+          { label: 'Submission History', href: '/design/designer?view=history', icon: Clock },
         ],
       },
       {
