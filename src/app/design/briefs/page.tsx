@@ -20,11 +20,12 @@ export default async function DesignBriefsPage() {
 
   const tenant = await resolveUserTenant(user)
   const isLegacy = isLegacyNubiraTenant(tenant)
-  const companyName = isLegacy ? 'Nubira Creation' : (tenant.companyName || 'Nubira Creation')
+  const companyFilter = isLegacy ? undefined : tenant.companyName
+  const companyName = tenant.companyName || 'Nubira Creation'
 
   const [initialBriefs, teamMembers] = await Promise.all([
-    fetchDesignBriefsAction({ companyName, phUserId: user.id }),
-    fetchDesignTeamMembersAction(companyName, user.id)
+    fetchDesignBriefsAction({ companyName: companyFilter }),
+    fetchDesignTeamMembersAction(companyFilter)
   ])
 
   return (
@@ -41,3 +42,4 @@ export default async function DesignBriefsPage() {
     </AdminShell>
   )
 }
+

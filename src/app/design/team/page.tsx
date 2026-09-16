@@ -21,9 +21,10 @@ export default async function DesignTeamPage() {
   // Centrally resolve tenant identity
   const tenant = await resolveUserTenant(user)
   const isLegacy = isLegacyNubiraTenant(tenant)
-  const companyName = isLegacy ? 'Nubira Creation' : (tenant.companyName || 'Nubira Creation')
+  const companyFilter = isLegacy ? undefined : tenant.companyName
+  const companyName = tenant.companyName || 'Nubira Creation'
 
-  const initialMembers = await fetchDesignTeamMembersAction(companyName, user.id)
+  const initialMembers = await fetchDesignTeamMembersAction(companyFilter)
 
   return (
     <AdminShell userEmail={tenant.userEmail} userRole={tenant.role}>
@@ -38,3 +39,4 @@ export default async function DesignTeamPage() {
     </AdminShell>
   )
 }
+

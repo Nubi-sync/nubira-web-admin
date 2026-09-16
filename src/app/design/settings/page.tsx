@@ -24,12 +24,13 @@ export default async function PHSettingsPage() {
 
   const tenant = await resolveUserTenant(user)
   const isLegacy = isLegacyNubiraTenant(tenant)
-  const companyName = isLegacy ? 'Nubira Creation' : (tenant.companyName || 'Nubira Creation')
+  const companyFilter = isLegacy ? undefined : tenant.companyName
+  const companyName = tenant.companyName || 'Nubira Creation'
 
   const [initialBodyCodes, initialBOMCodes, initialTemplates] = await Promise.all([
-    fetchBodyPartCodesAction(user.id, companyName),
-    fetchBOMComponentCodesAction(user.id, companyName),
-    fetchGarmentTemplatesAction(companyName)
+    fetchBodyPartCodesAction(user.id, companyFilter || 'Nubira Creation'),
+    fetchBOMComponentCodesAction(user.id, companyFilter || 'Nubira Creation'),
+    fetchGarmentTemplatesAction(companyFilter)
   ])
 
   return (
@@ -47,3 +48,4 @@ export default async function PHSettingsPage() {
     </AdminShell>
   )
 }
+
