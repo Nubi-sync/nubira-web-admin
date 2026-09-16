@@ -641,14 +641,14 @@ export function DesignDashboardClient({
                           if (brief.latest_submission?.concepts && brief.latest_submission.concepts.length > 0) {
                             brief.latest_submission.concepts.forEach(concept => {
                               concept.colorways?.forEach(cw => {
-                                if (cw.photo_front) {
+                                if (cw.photo_front && cw.photo_front.trim()) {
                                   submissionPhotos.push({
                                     url: cw.photo_front,
                                     label: `Design #${concept.concept_number} • ${cw.color_name} (Front)`,
                                     color: cw.color_name
                                   })
                                 }
-                                if (cw.photo_back) {
+                                if (cw.photo_back && cw.photo_back.trim()) {
                                   submissionPhotos.push({
                                     url: cw.photo_back,
                                     label: `Design #${concept.concept_number} • ${cw.color_name} (Back)`,
@@ -657,9 +657,12 @@ export function DesignDashboardClient({
                                 }
                               })
                             })
-                          } else if (brief.latest_submission?.photo_url_1) {
-                            submissionPhotos.push({ url: brief.latest_submission.photo_url_1, label: 'Concept Photo 1' })
-                            if (brief.latest_submission.photo_url_2) {
+                          }
+                          if (submissionPhotos.length === 0) {
+                            if (brief.latest_submission?.photo_url_1) {
+                              submissionPhotos.push({ url: brief.latest_submission.photo_url_1, label: 'Concept Photo 1' })
+                            }
+                            if (brief.latest_submission?.photo_url_2) {
                               submissionPhotos.push({ url: brief.latest_submission.photo_url_2, label: 'Concept Photo 2' })
                             }
                           }
