@@ -55,7 +55,7 @@ export default function LoginPage() {
   const [isPending, setIsPending] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
-  const [loginMode, setLoginMode] = useState<'PHONE' | 'EMAIL'>('PHONE')
+  const [loginMode, setLoginMode] = useState<'PHONE' | 'EMAIL'>('EMAIL')
   const [phoneInput, setPhoneInput] = useState('')
   const [emailInput, setEmailInput] = useState('')
   const [password, setPassword] = useState('')
@@ -315,7 +315,7 @@ export default function LoginPage() {
                       maxLength={10}
                       value={phoneInput ?? ''}
                       onChange={e => setPhoneInput(e.target.value.replace(/\D/g, ''))}
-                      placeholder="8010993993"
+                      placeholder="Enter your mobile number"
                       className="w-full px-3.5 py-2.5 sm:py-3 bg-transparent text-sm font-semibold font-mono text-slate-900 placeholder:text-slate-400 focus:outline-none"
                     />
                   </div>
@@ -332,7 +332,7 @@ export default function LoginPage() {
                       required
                       value={emailInput ?? ''}
                       onChange={e => setEmailInput(e.target.value)}
-                      placeholder="e.g. rahul_nubira or admin@zigza.in"
+                      placeholder="Enter your work email or username"
                       className="w-full pl-10 pr-4 py-2.5 sm:py-3 rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-white focus:bg-white text-sm font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 shadow-2xs transition-all"
                     />
                   </div>
