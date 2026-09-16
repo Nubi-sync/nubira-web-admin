@@ -397,7 +397,12 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands, avail
                   <div className="space-y-1 text-xs sm:text-sm">
                     <span className="text-xs text-slate-400 font-medium block">Embellishment Flow</span>
                     <span className="inline-block text-xs font-mono font-medium text-[#3A3564] bg-[#FAF7F0] px-2.5 py-1 rounded border border-black/10">
-                      {pack.embellishment_sequence === 'NONE' ? 'Plain Cut Assembly' : pack.embellishment_sequence}
+                      {pack.embellishment_sequence === 'NONE' ? 'No Embroidery, No Printing' :
+                       pack.embellishment_sequence === 'ONLY_PRINTING' ? 'Only Printing' :
+                       pack.embellishment_sequence === 'ONLY_EMBROIDERY' ? 'Only Embroidery' :
+                       pack.embellishment_sequence === 'EMBROIDERY_FIRST_THEN_PRINT' ? 'Embroidery First, Then Printing' :
+                       pack.embellishment_sequence === 'PRINT_FIRST_THEN_EMBROIDERY' ? 'Printing First, Then Embroidery' :
+                       pack.embellishment_sequence}
                     </span>
                   </div>
                 </div>
