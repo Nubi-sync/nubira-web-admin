@@ -440,11 +440,18 @@ export function saveCuttingTaskAllocation(task: any): any[] {
 
 export function updateCuttingTaskStatus(id: string, status: any, extraData?: any): any[] {
   const current = getCuttingTaskAllocations()
-  const updated = current.map(t => {
+  const exists = current.some(t => t.id === id || t.task_ref === id)
+  
+  let baseList = current
+  if (!exists && extraData?.task) {
+    baseList = [extraData.task, ...current]
+  }
+
+  let updated = baseList.map(t => {
     if (t.id === id || t.task_ref === id) {
       const isCompleted = status === 'COMPLETED' || status === 'WORKER_COMPLETED' || status === 'VERIFIED_COMPLETED'
-      let dueTime = t.due_time
-      let startedAt = t.started_at
+      let dueTime = extraData?.due_time || t.due_time
+      let startedAt = extraData?.started_at || t.started_at
       if (status === 'IN_PROGRESS' && !startedAt) {
         startedAt = new Date().toISOString()
         const hours = Number(t.alloted_hours) || 4.0
@@ -463,6 +470,21 @@ export function updateCuttingTaskStatus(id: string, status: any, extraData?: any
     }
     return t
   })
+
+  // If still not found and extraData provided, construct entry
+  if (!updated.some(t => t.id === id || t.task_ref === id) && extraData) {
+    const isCompleted = status === 'COMPLETED' || status === 'WORKER_COMPLETED' || status === 'VERIFIED_COMPLETED'
+    const newTask = {
+      id,
+      task_ref: id,
+      ...extraData,
+      status,
+      completed_pieces: isCompleted ? (extraData.pieces_to_cut || 0) : 0,
+      updated_at: new Date().toISOString()
+    }
+    updated = [newTask, ...updated]
+  }
+
   if (typeof window !== 'undefined') {
     localStorage.setItem(ALLOCATIONS_KEY, JSON.stringify(updated))
   }

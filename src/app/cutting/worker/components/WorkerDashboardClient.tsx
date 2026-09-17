@@ -76,7 +76,15 @@ export function WorkerDashboardClient({
       }
     })
 
-    setTasks(Array.from(taskMap.values()))
+    const merged = Array.from(taskMap.values())
+    setTasks(merged)
+
+    // Ensure local storage is always populated with the merged active tasks
+    if (merged.length > 0 && typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('zigza_cutting_task_allocations_v1', JSON.stringify(merged))
+      } catch (_) {}
+    }
   }
 
   useEffect(() => {
@@ -240,23 +248,71 @@ export function WorkerDashboardClient({
   const handleStartCutting = async (taskId: string, taskRef: string, tableName?: string, allotedHours = 4) => {
     const startedAt = new Date().toISOString()
     const dueTime = new Date(Date.now() + (allotedHours || 4) * 3600 * 1000).toISOString()
-    const updated = updateCuttingTaskStatus(taskId, 'IN_PROGRESS', { started_at: startedAt, due_time: dueTime })
-    setTasks(updated)
-    const taskObj = updated.find(t => t.id === taskId)
+    const existingTask = tasks.find(t => t.id === taskId || t.task_ref === taskRef)
+
+    // 1. Update React state immediately so the card updates in-place with zero screen clearing or flicker
+    const updatedTasks = tasks.map(t => {
+      if (t.id === taskId || t.task_ref === taskRef) {
+        return {
+          ...t,
+          status: 'IN_PROGRESS' as const,
+          started_at: startedAt,
+          due_time: dueTime,
+          table_number: tableName || t.table_number || 'Table 01',
+          updated_at: new Date().toISOString()
+        }
+      }
+      return t
+    })
+    setTasks(updatedTasks)
+
+    // 2. Persist to local storage
+    updateCuttingTaskStatus(taskId, 'IN_PROGRESS', {
+      task: existingTask,
+      started_at: startedAt,
+      due_time: dueTime,
+      table_number: tableName || existingTask?.table_number || 'Table 01'
+    })
+
+    // 3. Persist to Supabase Database
+    const taskObj = updatedTasks.find(t => t.id === taskId || t.task_ref === taskRef)
     if (taskObj) {
       await saveCuttingTaskAllocationAction(taskObj)
     }
+
     toast.success(`Task #${taskRef} started! ${allotedHours} hr cutting countdown timer is running on ${tableName || 'Table 01'}.`)
   }
 
   // Worker Action 2: Finish Work (Submits for Head of Dept Verification & Sign-Off)
   const handleFinishWork = async (taskId: string, taskRef: string, pieces: number) => {
-    const updated = updateCuttingTaskStatus(taskId, 'WORKER_COMPLETED', { completed_pieces: pieces })
-    setTasks(updated)
-    const taskObj = updated.find(t => t.id === taskId)
+    const existingTask = tasks.find(t => t.id === taskId || t.task_ref === taskRef)
+
+    // 1. Update React state immediately
+    const updatedTasks = tasks.map(t => {
+      if (t.id === taskId || t.task_ref === taskRef) {
+        return {
+          ...t,
+          status: 'WORKER_COMPLETED' as const,
+          completed_pieces: pieces,
+          updated_at: new Date().toISOString()
+        }
+      }
+      return t
+    })
+    setTasks(updatedTasks)
+
+    // 2. Persist to local storage
+    updateCuttingTaskStatus(taskId, 'WORKER_COMPLETED', {
+      task: existingTask,
+      completed_pieces: pieces
+    })
+
+    // 3. Persist to Supabase Database
+    const taskObj = updatedTasks.find(t => t.id === taskId || t.task_ref === taskRef)
     if (taskObj) {
       await saveCuttingTaskAllocationAction(taskObj)
     }
+
     toast.success(`Work finished for Task #${taskRef} (${pieces.toLocaleString('en-IN')} pcs)! Submitted to Head of Dept for Verification.`)
   }
 
