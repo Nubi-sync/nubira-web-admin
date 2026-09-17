@@ -137,7 +137,7 @@ export interface ExportShipment {
   created_at: string
 }
 
-export type BuyerStatus = 'ACTIVE' | 'CONTRACTED' | 'PENDING_LINK'
+export type BuyerStatus = 'ACTIVE' | 'CONTRACTED' | 'LINKED' | 'PENDING_LINK'
 
 export interface ActiveBuyer {
   id: string

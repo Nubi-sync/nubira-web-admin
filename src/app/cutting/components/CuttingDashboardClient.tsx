@@ -41,6 +41,11 @@ import {
   getMarkers,
   getEndBits
 } from '../utils/cuttingStorage'
+import { 
+  getActiveBuyers, 
+  getOrders, 
+  MERCHANDISING_UPDATE_EVENT 
+} from '@/app/merchandising/utils/merchandisingStorage'
 
 interface CuttingDashboardClientProps {
   userEmail?: string
@@ -49,6 +54,85 @@ interface CuttingDashboardClientProps {
   initialBundles?: CutBundle[]
   liveKpis?: any
   initialBuyers?: any[]
+}
+
+function mergeBuyersFromAllSources(serverBuyers: any[] = []): any[] {
+  const buyerMap = new Map<string, any>()
+
+  // 1. Process server buyers
+  serverBuyers.forEach(b => {
+    if (b && (b.id || b.buyer_name)) {
+      const key = (b.buyer_name || b.id).trim().toUpperCase()
+      buyerMap.set(key, { ...b })
+    }
+  })
+
+  // 2. Process localStorage active buyers
+  if (typeof window !== 'undefined') {
+    try {
+      const localBuyers = getActiveBuyers()
+      localBuyers.forEach(b => {
+        if (b && (b.id || b.buyer_name)) {
+          const key = (b.buyer_name || b.id).trim().toUpperCase()
+          const existing = buyerMap.get(key)
+          if (!existing) {
+            buyerMap.set(key, { ...b })
+          } else {
+            if (Number(b.contracted_volume) > Number(existing.contracted_volume || 0)) {
+              existing.contracted_volume = b.contracted_volume
+            }
+            if (b.linked_article_number && !existing.linked_article_number) {
+              existing.linked_article_number = b.linked_article_number
+              existing.linked_article_name = b.linked_article_name
+            }
+          }
+        }
+      })
+    } catch {}
+
+    // 3. Process localStorage BPO orders (each BPO directly creates/updates a buyer for Cutting)
+    try {
+      const localOrders = getOrders()
+      localOrders.forEach(ord => {
+        if (ord && (ord.brand_name || ord.po_number)) {
+          const buyerName = ord.brand_name || 'Direct Buyer'
+          const key = buyerName.trim().toUpperCase()
+          const existing = buyerMap.get(key)
+          const qty = Number(ord.total_quantity) || 0
+          const price = Number(ord.unit_fob_price) || 12.5
+
+          if (!existing) {
+            buyerMap.set(key, {
+              id: ord.buyer_id || `byr-${key.toLowerCase().replace(/[^a-z0-9]/g, '-')}`,
+              buyer_name: buyerName,
+              buyer_code: ord.buyer_code || buyerName.slice(0, 4).toUpperCase(),
+              brand_name: buyerName,
+              contact_person: 'Procurement Lead',
+              contracted_volume: qty,
+              price_per_piece: price,
+              total_contract_value: qty * price,
+              currency: ord.currency || 'INR',
+              linked_article_id: ord.tech_pack_id,
+              linked_article_number: ord.style_ref,
+              linked_article_name: ord.style_name,
+              status: 'LINKED',
+              created_at: ord.created_at
+            })
+          } else {
+            if (qty > Number(existing.contracted_volume || 0)) {
+              existing.contracted_volume = qty
+            }
+            if (!existing.linked_article_number && ord.style_ref) {
+              existing.linked_article_number = ord.style_ref
+              existing.linked_article_name = ord.style_name
+            }
+          }
+        }
+      })
+    } catch {}
+  }
+
+  return Array.from(buyerMap.values())
 }
 
 export function CuttingDashboardClient({ 
@@ -73,40 +157,33 @@ export function CuttingDashboardClient({
   const [selectedLay, setSelectedLay] = useState<LaySheet | null>(null)
   const [tableModal, setTableModal] = useState<CuttingTable | null>(null)
 
-  // Active Buyers for Contract Selection
-  const [buyers, setBuyers] = useState<any[]>(() => {
-    if (initialBuyers && initialBuyers.length > 0) return initialBuyers
-    if (typeof window !== 'undefined') {
-      try {
-        const raw = localStorage.getItem('zigza_active_buyers_v3')
-        if (raw) return JSON.parse(raw)
-      } catch {}
-    }
-    return []
-  })
+  // Active Buyers for Contract Selection (auto-merged from server BPOs, local active buyers, and local orders)
+  const [buyers, setBuyers] = useState<any[]>(() => mergeBuyersFromAllSources(initialBuyers))
   const [selectedBuyerId, setSelectedBuyerId] = useState<string>('')
   const [isBuyerMenuOpen, setIsBuyerMenuOpen] = useState(false)
   const [buyerSearchQuery, setBuyerSearchQuery] = useState('')
   const [isSyncing, setIsSyncing] = useState(false)
 
-  // Auto-sync buyers if updated in localStorage
+  // Auto-sync buyers and orders whenever merchandising or cutting is updated
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const handleStorageChange = () => {
-        try {
-          const raw = localStorage.getItem('zigza_active_buyers_v3')
-          if (raw) {
-            const parsed = JSON.parse(raw)
-            if (Array.isArray(parsed) && parsed.length > 0) {
-              setBuyers(parsed)
-            }
-          }
-        } catch {}
-      }
-      window.addEventListener('storage', handleStorageChange)
-      return () => window.removeEventListener('storage', handleStorageChange)
+    const refreshAllBuyers = () => {
+      const merged = mergeBuyersFromAllSources(initialBuyers)
+      setBuyers(merged)
     }
-  }, [])
+
+    refreshAllBuyers()
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('storage', refreshAllBuyers)
+      window.addEventListener(MERCHANDISING_UPDATE_EVENT, refreshAllBuyers)
+      window.addEventListener('zigza:cutting_updated', refreshAllBuyers)
+      return () => {
+        window.removeEventListener('storage', refreshAllBuyers)
+        window.removeEventListener(MERCHANDISING_UPDATE_EVENT, refreshAllBuyers)
+        window.removeEventListener('zigza:cutting_updated', refreshAllBuyers)
+      }
+    }
+  }, [initialBuyers])
 
   useEffect(() => {
     const rawTables = getCuttingTables()
@@ -180,10 +257,10 @@ export function CuttingDashboardClient({
 
   const handleManualSync = () => {
     setIsSyncing(true)
+    const merged = mergeBuyersFromAllSources(initialBuyers)
+    setBuyers(merged)
     if (typeof window !== 'undefined') {
       try {
-        const rawBuyers = localStorage.getItem('zigza_active_buyers_v3')
-        if (rawBuyers) setBuyers(JSON.parse(rawBuyers))
         const rawLays = localStorage.getItem('zigza_cutting_lays_v2')
         if (rawLays) setLaySheets(JSON.parse(rawLays))
         const rawBundles = localStorage.getItem('zigza_cutting_bundles_v2')
@@ -209,13 +286,22 @@ export function CuttingDashboardClient({
     (b.linked_article_number && b.linked_article_number.toLowerCase().includes(buyerSearchQuery.toLowerCase()))
   )
 
-  const selectedBuyerDisplayText = selectedBuyer
-    ? `${selectedBuyer.buyer_name} (${(Number(selectedBuyer.contracted_volume) || 0).toLocaleString('en-IN')} Pcs)`
-    : (buyers.length === 0 ? 'No Active Buyers Contracted' : 'Select Buyer Contract')
-
   // Piece metrics calculation for the selected buyer
-  const inHandPieces = selectedBuyer ? (Number(selectedBuyer.contracted_volume) || 0) : 0
-  const articleNum = (selectedBuyer?.linked_article_number || '').trim().toUpperCase()
+  const localOrders = typeof window !== 'undefined' ? getOrders() : []
+  const matchingBpos = selectedBuyer
+    ? localOrders.filter(o => 
+        (o.brand_name && (selectedBuyer.buyer_name || selectedBuyer.brand_name) && 
+         o.brand_name.toLowerCase() === (selectedBuyer.buyer_name || selectedBuyer.brand_name).toLowerCase()) ||
+        (o.buyer_id && o.buyer_id === selectedBuyer.id)
+      )
+    : []
+  const bpoOrdersTotal = matchingBpos.reduce((sum, o) => sum + (Number(o.total_quantity) || 0), 0)
+  const inHandPieces = Math.max(Number(selectedBuyer?.contracted_volume) || 0, bpoOrdersTotal)
+  const articleNum = (selectedBuyer?.linked_article_number || matchingBpos[0]?.style_ref || '').trim().toUpperCase()
+
+  const selectedBuyerDisplayText = selectedBuyer
+    ? `${selectedBuyer.buyer_name} (${inHandPieces.toLocaleString('en-IN')} Pcs)`
+    : (buyers.length === 0 ? 'No Active Buyers Contracted' : 'Select Buyer Contract')
 
   // Completed cutting pieces for the selected buyer/article
   const completedCuttingPieces = laySheets

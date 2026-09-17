@@ -43,6 +43,39 @@ function mapDbTnaStatusToUI(st: string): TnaStatus {
   }
 }
 
+// Helper: Parse Tech-Pack Metadata & BOM from fabric_composition
+function parseTechPackMetadata(rawFabric?: string | null): {
+  fabric: string
+  materials?: any[]
+} {
+  if (!rawFabric) return { fabric: '100% Cotton' }
+  let cleanFabric = rawFabric
+  let materials: any[] | undefined
+
+  const bomMatch = cleanFabric.match(/\[BOM_JSON:\s*(\[[\s\S]*?\])\]/i)
+  if (bomMatch && bomMatch[1]) {
+    try {
+      materials = JSON.parse(bomMatch[1])
+      cleanFabric = cleanFabric.replace(/\[BOM_JSON:\s*\[[\s\S]*?\]\]\s*/gi, '')
+    } catch {}
+  }
+
+  const cutMatch = cleanFabric.match(/\[TARGET_CUT_DATE:\s*([\s\S]*?)\]/i)
+  if (cutMatch && cutMatch[1]) {
+    cleanFabric = cleanFabric.replace(/\[TARGET_CUT_DATE:\s*[\s\S]*?\]\s*/gi, '')
+  }
+
+  const instMatch = cleanFabric.match(/\[INSTRUCTIONS:\s*([\s\S]*?)\]\s*$/i)
+  if (instMatch && instMatch[1]) {
+    cleanFabric = cleanFabric.replace(/\[INSTRUCTIONS:\s*[\s\S]*?\]\s*$/gi, '')
+  }
+
+  return {
+    fabric: cleanFabric.trim() || '100% Cotton',
+    materials
+  }
+}
+
 // -----------------------------------------------------------------------------
 // 1. ORDERS
 // -----------------------------------------------------------------------------
@@ -54,7 +87,7 @@ export async function fetchMerchandisingOrdersAction(_companyName?: string): Pro
       .select(`
         *,
         brands ( id, brand_name, brand_code ),
-        design_tech_packs ( id, style_number, category, embellishment_sequence, fabric_composition, target_gsm, cad_front_url, cad_back_url, materials ),
+        design_tech_packs ( id, style_number, category, embellishment_sequence, fabric_composition, target_gsm, cad_front_url, cad_back_url ),
         merchandising_order_ratios ( id, color_name, color_code, size_label, ratio_units, quantity )
       `)
       .order('created_at', { ascending: false })
@@ -83,6 +116,8 @@ export async function fetchMerchandisingOrdersAction(_companyName?: string): Pro
         total: val.total
       }))
 
+      const meta = parseTechPackMetadata(row.design_tech_packs?.fabric_composition)
+
       return {
         id: row.id,
         po_number: row.order_number,
@@ -97,11 +132,11 @@ export async function fetchMerchandisingOrdersAction(_companyName?: string): Pro
         ex_factory_date: row.ex_factory_date,
         status: mapDbStatusToUI(row.status),
         embellishment_sequence: row.design_tech_packs?.embellishment_sequence || 'NONE',
-        fabric_composition: row.design_tech_packs?.fabric_composition || '100% Combed Cotton Single Jersey',
+        fabric_composition: meta.fabric || '100% Combed Cotton Single Jersey',
         target_gsm: row.design_tech_packs?.target_gsm || 180,
         cad_front_url: row.design_tech_packs?.cad_front_url,
         cad_back_url: row.design_tech_packs?.cad_back_url,
-        bom_materials: row.design_tech_packs?.materials || [],
+        bom_materials: meta.materials || [],
         color_matrix: colorMatrix.length > 0 ? colorMatrix : [
           { color: 'Standard Colorway', sizes: { S: 500, M: 1000, L: 500 }, total: Number(row.total_quantity) || 2000 }
         ],
@@ -575,16 +610,116 @@ export async function fetchShipmentsAction(companyName?: string): Promise<Export
 
 export async function fetchActiveBuyersAction(): Promise<any[]> {
   try {
-    const { data, error } = await supabaseAdmin
-      .from('merchandising_active_buyers')
-      .select('*')
-      .order('created_at', { ascending: false })
+    // 1. Try querying dedicated active buyers table
+    let buyersList: any[] = []
+    try {
+      const { data, error } = await supabaseAdmin
+        .from('merchandising_active_buyers')
+        .select('*')
+        .order('created_at', { ascending: false })
 
-    if (error) {
-      console.warn('[fetchActiveBuyersAction] Supabase notice:', error.message)
-      return []
+      if (!error && data && data.length > 0) {
+        buyersList = [...data]
+      }
+    } catch {}
+
+    // 2. Fetch live BPO orders to guarantee every buyer with an order is represented with their exact volume & article
+    try {
+      const { data: orders, error: ordErr } = await supabaseAdmin
+        .from('merchandising_orders')
+        .select(`
+          id,
+          order_number,
+          total_quantity,
+          fob_price_per_piece,
+          status,
+          created_at,
+          brands ( id, brand_name, brand_code ),
+          design_tech_packs ( id, style_number, category )
+        `)
+        .order('created_at', { ascending: false })
+
+      if (!ordErr && orders && orders.length > 0) {
+        const orderBuyersMap = new Map<string, any>()
+
+        orders.forEach((ord: any) => {
+          const buyerName = ord.brands?.brand_name || 'Commercial Buyer'
+          const buyerKey = buyerName.trim().toUpperCase()
+          const qty = Number(ord.total_quantity) || 0
+          const price = Number(ord.fob_price_per_piece) || 12.5
+
+          const existing = orderBuyersMap.get(buyerKey)
+          if (!existing) {
+            orderBuyersMap.set(buyerKey, {
+              id: ord.brands?.id || `buyer-${ord.id}`,
+              buyer_name: buyerName,
+              buyer_code: ord.brands?.brand_code || buyerName.slice(0, 4).toUpperCase(),
+              brand_name: buyerName,
+              contact_person: 'Procurement Lead',
+              contact_email: `buyer@${buyerName.toLowerCase().replace(/[^a-z0-9]/g, '')}.com`,
+              contracted_volume: qty,
+              price_per_piece: price,
+              total_contract_value: qty * price,
+              currency: 'INR',
+              linked_article_id: ord.design_tech_packs?.id,
+              linked_article_number: ord.design_tech_packs?.style_number || ord.order_number,
+              linked_article_name: ord.design_tech_packs?.category || 'Garment Contract',
+              status: 'LINKED',
+              created_at: ord.created_at
+            })
+          } else {
+            existing.contracted_volume += qty
+            existing.total_contract_value += qty * price
+            if (!existing.linked_article_number && ord.design_tech_packs?.style_number) {
+              existing.linked_article_number = ord.design_tech_packs.style_number
+              existing.linked_article_name = ord.design_tech_packs.category
+              existing.status = 'LINKED'
+            }
+          }
+        })
+
+        // Merge order-derived buyers into buyersList
+        orderBuyersMap.forEach((ordBuyer, key) => {
+          const idx = buyersList.findIndex(b => (b.buyer_name || '').trim().toUpperCase() === key)
+          if (idx >= 0) {
+            if (ordBuyer.contracted_volume > (Number(buyersList[idx].contracted_volume) || 0)) {
+              buyersList[idx].contracted_volume = ordBuyer.contracted_volume
+              buyersList[idx].total_contract_value = ordBuyer.total_contract_value
+            }
+            if (!buyersList[idx].linked_article_number && ordBuyer.linked_article_number) {
+              buyersList[idx].linked_article_number = ordBuyer.linked_article_number
+              buyersList[idx].linked_article_name = ordBuyer.linked_article_name
+              buyersList[idx].status = 'LINKED'
+            }
+          } else {
+            buyersList.push(ordBuyer)
+          }
+        })
+      }
+    } catch {}
+
+    // 3. Fallback to brands table if empty
+    if (buyersList.length === 0) {
+      try {
+        const { data: brands } = await supabaseAdmin.from('brands').select('*')
+        if (brands && brands.length > 0) {
+          buyersList = brands.map((b: any) => ({
+            id: b.id,
+            buyer_name: b.brand_name,
+            buyer_code: b.brand_code || b.brand_name.slice(0, 4).toUpperCase(),
+            brand_name: b.brand_name,
+            contact_person: 'Commercial Lead',
+            contracted_volume: 5000,
+            price_per_piece: 12.5,
+            total_contract_value: 62500,
+            currency: 'INR',
+            status: 'PENDING_LINK'
+          }))
+        }
+      } catch {}
     }
-    return data || []
+
+    return buyersList
   } catch (err) {
     console.error('[fetchActiveBuyersAction] Unexpected error:', err)
     return []

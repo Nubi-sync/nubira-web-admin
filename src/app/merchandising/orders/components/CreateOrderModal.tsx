@@ -26,8 +26,8 @@ import {
 import { toast } from 'sonner'
 import { MerchandisingOrder, ColorSizeMatrixItem, ActiveBuyer } from '../../types/merchandising'
 import { TechPack, TechPackMaterialRequirement } from '@/app/design/types/design'
-import { saveOrder, getActiveBuyers } from '../../utils/merchandisingStorage'
-import { createBuyerOrderAction, fetchActiveBuyersAction } from '../../actions'
+import { saveOrder, getActiveBuyers, saveActiveBuyer } from '../../utils/merchandisingStorage'
+import { createBuyerOrderAction, fetchActiveBuyersAction, saveActiveBuyerAction } from '../../actions'
 import { fetchTechPacksAction, fetchBrandsAction } from '@/app/design/actions'
 import { getStoredTechPacks } from '@/app/design/utils/designStorage'
 
@@ -490,12 +490,34 @@ export function CreateOrderModal({
 
       saveOrder(newOrder)
 
+      // Automatically register / update Active Buyer contract for Cutting Floor
+      const buyerContract: ActiveBuyer = {
+        id: selectedBuyerRef?.id || `byr-${newOrder.brand_name.toLowerCase().replace(/[^a-z0-9]/g, '-') || Date.now()}`,
+        buyer_name: newOrder.brand_name,
+        buyer_code: selectedBuyerRef?.buyer_code || newOrder.brand_name.slice(0, 4).toUpperCase(),
+        brand_name: newOrder.brand_name,
+        contact_person: 'Procurement Lead',
+        contact_email: `buyer@${newOrder.brand_name.toLowerCase().replace(/[^a-z0-9]/g, '') || 'buyer'}.com`,
+        contracted_volume: targetQty,
+        price_per_piece: unitPrice,
+        currency: newOrder.currency,
+        total_contract_value: totalContractValue,
+        status: 'LINKED',
+        linked_article_id: selectedTechPackId || undefined,
+        linked_article_number: newOrder.style_ref,
+        linked_article_name: newOrder.style_name,
+        linked_at: new Date().toISOString(),
+        created_at: new Date().toISOString()
+      }
+      saveActiveBuyer(buyerContract)
+      saveActiveBuyerAction(buyerContract).catch(() => {})
+
       // Sync active buyer contracted state if needed
       if (typeof window !== 'undefined') {
         try {
-          const rawLays = localStorage.getItem('zigza_cutting_lays_v2')
-          const lays = rawLays ? JSON.parse(rawLays) : []
           window.dispatchEvent(new Event('storage'))
+          window.dispatchEvent(new CustomEvent('zigza:merchandising_updated'))
+          window.dispatchEvent(new CustomEvent('zigza:cutting_updated'))
         } catch {}
       }
 

@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useMemo } from 'react'
 import { 
   X, 
   Building2, 
@@ -18,6 +18,7 @@ import {
   Image as ImageIcon
 } from 'lucide-react'
 import { MerchandisingOrder } from '../../types/merchandising'
+import { getStoredTechPacks } from '@/app/design/utils/designStorage'
 
 interface ViewOrderDetailModalProps {
   isOpen: boolean
@@ -27,8 +28,42 @@ interface ViewOrderDetailModalProps {
 
 const DEFAULT_SIZES = ['XS', 'S', 'M', 'L', 'XL']
 
+function formatEmbellishmentSequence(seq?: string): string {
+  if (!seq || seq === 'NONE') return 'No Embroidery, No Printing (Cut & Sew)'
+  if (seq === 'ONLY_PRINTING') return 'Only Printing'
+  if (seq === 'ONLY_EMBROIDERY') return 'Only Embroidery'
+  if (seq === 'EMBROIDERY_FIRST_THEN_PRINT') return 'Embroidery First, Then Printing'
+  if (seq === 'PRINT_FIRST_THEN_EMBROIDERY') return 'Printing First, Then Embroidery'
+  return seq
+}
+
 export function ViewOrderDetailModal({ isOpen, onClose, order }: ViewOrderDetailModalProps) {
   if (!isOpen || !order) return null
+
+  // Fallback to active tech pack if order was saved in older format
+  const matchedTechPack = React.useMemo(() => {
+    if (typeof window === 'undefined') return null
+    try {
+      const tps = getStoredTechPacks()
+      const cleanRef = (order.style_ref || '').trim().toUpperCase()
+      return tps.find(tp => (tp.style_number || '').trim().toUpperCase() === cleanRef || tp.id === order.tech_pack_id) || null
+    } catch {
+      return null
+    }
+  }, [order])
+
+  const embSeq = order.embellishment_sequence && order.embellishment_sequence !== 'NONE'
+    ? order.embellishment_sequence
+    : (matchedTechPack?.embellishment_sequence || order.embellishment_sequence || 'NONE')
+
+  const effectiveMaterials = (order.bom_materials && order.bom_materials.length > 0)
+    ? order.bom_materials
+    : (matchedTechPack?.materials || [])
+
+  const effectiveCadFront = order.cad_front_url || matchedTechPack?.cad_front_url
+  const effectiveCadBack = order.cad_back_url || matchedTechPack?.cad_back_url
+  const effectiveFabric = order.fabric_composition || matchedTechPack?.fabric_composition || '100% Combed Cotton Single Jersey'
+  const effectiveGsm = order.target_gsm || matchedTechPack?.target_gsm || 180
 
   const currencySymbol = order.currency === 'USD' ? '$' : order.currency === 'EUR' ? '€' : '₹'
 
@@ -114,7 +149,7 @@ export function ViewOrderDetailModal({ isOpen, onClose, order }: ViewOrderDetail
           </div>
 
           {/* Attached Design Reference & CAD Visuals */}
-          {(order.cad_front_url || order.cad_back_url) && (
+          {(effectiveCadFront || effectiveCadBack) && (
             <div className="bg-white p-4.5 rounded-2xl border border-black/10 space-y-3 shadow-2xs">
               <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
                 <ImageIcon className="w-4 h-4 text-[#3A3564]" />
@@ -122,20 +157,20 @@ export function ViewOrderDetailModal({ isOpen, onClose, order }: ViewOrderDetail
               </h3>
 
               <div className="grid grid-cols-2 gap-3">
-                {order.cad_front_url && (
+                {effectiveCadFront && (
                   <div className="p-3 bg-[#FAF7F0] rounded-xl border border-black/10 flex flex-col items-center">
                     <img 
-                      src={order.cad_front_url} 
+                      src={effectiveCadFront} 
                       alt="Front CAD" 
                       className="h-28 w-auto max-w-full object-contain rounded-lg shadow-2xs bg-white p-1 border border-black/5" 
                     />
                     <span className="text-[10.5px] font-mono font-bold text-slate-700 mt-2 uppercase">Front View Design</span>
                   </div>
                 )}
-                {order.cad_back_url && (
+                {effectiveCadBack && (
                   <div className="p-3 bg-[#FAF7F0] rounded-xl border border-black/10 flex flex-col items-center">
                     <img 
-                      src={order.cad_back_url} 
+                      src={effectiveCadBack} 
                       alt="Back CAD" 
                       className="h-28 w-auto max-w-full object-contain rounded-lg shadow-2xs bg-white p-1 border border-black/5" 
                     />
@@ -157,27 +192,20 @@ export function ViewOrderDetailModal({ isOpen, onClose, order }: ViewOrderDetail
               <div className="p-3 bg-slate-50 rounded-xl border border-slate-200/80 space-y-1">
                 <span className="text-slate-400 font-mono text-[10.5px] uppercase block">Style Description</span>
                 <p className="font-bold text-slate-900">{order.style_name || `${order.style_ref} Apparel`}</p>
-                {order.fabric_composition && (
-                  <p className="text-slate-600 font-medium">{order.fabric_composition} {order.target_gsm ? `• ${order.target_gsm} GSM` : ''}</p>
-                )}
+                <p className="text-slate-600 font-medium">{effectiveFabric} {effectiveGsm ? `• ${effectiveGsm} GSM` : ''}</p>
               </div>
 
               <div className="p-3 bg-slate-50 rounded-xl border border-slate-200/80 space-y-1">
                 <span className="text-slate-400 font-mono text-[10.5px] uppercase block">Embellishment Flow</span>
                 <span className="inline-block px-2.5 py-1 rounded-md bg-[#FAF7F0] text-[#3A3564] font-mono font-bold border border-black/10">
-                  {order.embellishment_sequence === 'NONE' ? 'No Embroidery, No Printing' :
-                   order.embellishment_sequence === 'ONLY_PRINTING' ? 'Only Printing' :
-                   order.embellishment_sequence === 'ONLY_EMBROIDERY' ? 'Only Embroidery' :
-                   order.embellishment_sequence === 'EMBROIDERY_FIRST_THEN_PRINT' ? 'Embroidery First, Then Printing' :
-                   order.embellishment_sequence === 'PRINT_FIRST_THEN_EMBROIDERY' ? 'Printing First, Then Embroidery' :
-                   order.embellishment_sequence || 'Standard Cut & Sew Routing'}
+                  {formatEmbellishmentSequence(embSeq)}
                 </span>
               </div>
             </div>
           </div>
 
           {/* Bill of Materials (BOM) Trims & Specs (if present) */}
-          {order.bom_materials && order.bom_materials.length > 0 && (
+          {effectiveMaterials && effectiveMaterials.length > 0 && (
             <div className="bg-white p-4.5 rounded-2xl border border-black/10 space-y-3 shadow-2xs">
               <div className="flex items-center justify-between">
                 <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
@@ -185,7 +213,7 @@ export function ViewOrderDetailModal({ isOpen, onClose, order }: ViewOrderDetail
                   <span>Bill of Materials (BOM) &amp; Trims</span>
                 </h3>
                 <span className="text-[11px] font-mono font-bold bg-[#FAF7F0] text-[#3A3564] px-2 py-0.5 rounded border border-black/10">
-                  {order.bom_materials.length} Items
+                  {effectiveMaterials.length} Items
                 </span>
               </div>
 
@@ -200,7 +228,7 @@ export function ViewOrderDetailModal({ isOpen, onClose, order }: ViewOrderDetail
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-black/5 text-slate-700">
-                    {order.bom_materials.map((mat: any, idx: number) => (
+                    {effectiveMaterials.map((mat: any, idx: number) => (
                       <tr key={idx} className="hover:bg-slate-50">
                         <td className="py-2 px-3 font-semibold text-slate-900">{mat.component_type || 'Material'}</td>
                         <td className="py-2 px-3">{mat.item_name || '-'}</td>
