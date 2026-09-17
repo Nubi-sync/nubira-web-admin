@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { AdminShell } from '@/components/layout/AdminShell'
 import { CuttingDashboardClient } from './components/CuttingDashboardClient'
 import { fetchLaySheetsAction, fetchCutBundlesAction, fetchCuttingDashboardKpisAction } from './actions'
+import { fetchActiveBuyersAction } from '@/app/merchandising/actions'
 import { resolveUserTenant, isLegacyNubiraTenant } from '@/lib/tenant-context'
 
 export const dynamic = 'force-dynamic'
@@ -23,10 +24,11 @@ export default async function CuttingModulePage() {
   const isLegacy = isLegacyNubiraTenant(tenant)
   const companyFilter = isLegacy ? undefined : tenant.companyName
 
-  const [initialLays, initialBundles, liveKpis] = await Promise.all([
+  const [initialLays, initialBundles, liveKpis, initialBuyers] = await Promise.all([
     fetchLaySheetsAction(companyFilter),
     fetchCutBundlesAction(undefined, companyFilter),
-    fetchCuttingDashboardKpisAction(companyFilter)
+    fetchCuttingDashboardKpisAction(companyFilter),
+    fetchActiveBuyersAction()
   ])
 
   return (
@@ -37,6 +39,7 @@ export default async function CuttingModulePage() {
         initialLays={initialLays}
         initialBundles={initialBundles}
         liveKpis={liveKpis}
+        initialBuyers={initialBuyers}
       />
     </AdminShell>
   )

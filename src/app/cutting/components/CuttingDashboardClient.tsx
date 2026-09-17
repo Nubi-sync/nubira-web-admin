@@ -20,7 +20,15 @@ import {
   Plus,
   RefreshCw,
   X,
-  AlertCircle
+  AlertCircle,
+  Building2,
+  Users,
+  Search,
+  ChevronDown,
+  Check,
+  ShoppingBag,
+  Cpu,
+  Bot
 } from 'lucide-react'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { CuttingTable, LaySheet, CutBundle, MarkerEfficiency, EndBitRemnant } from '../types/cutting'
@@ -40,6 +48,7 @@ interface CuttingDashboardClientProps {
   initialLays?: LaySheet[]
   initialBundles?: CutBundle[]
   liveKpis?: any
+  initialBuyers?: any[]
 }
 
 export function CuttingDashboardClient({ 
@@ -47,7 +56,8 @@ export function CuttingDashboardClient({
   isSuperAdmin = false,
   initialLays,
   initialBundles,
-  liveKpis
+  liveKpis,
+  initialBuyers
 }: CuttingDashboardClientProps) {
   const [tables, setTables] = useState<CuttingTable[]>([])
   const [laySheets, setLaySheets] = useState<LaySheet[]>(() => {
@@ -62,6 +72,41 @@ export function CuttingDashboardClient({
   const [endBits, setEndBits] = useState<EndBitRemnant[]>([])
   const [selectedLay, setSelectedLay] = useState<LaySheet | null>(null)
   const [tableModal, setTableModal] = useState<CuttingTable | null>(null)
+
+  // Active Buyers for Contract Selection
+  const [buyers, setBuyers] = useState<any[]>(() => {
+    if (initialBuyers && initialBuyers.length > 0) return initialBuyers
+    if (typeof window !== 'undefined') {
+      try {
+        const raw = localStorage.getItem('zigza_active_buyers_v3')
+        if (raw) return JSON.parse(raw)
+      } catch {}
+    }
+    return []
+  })
+  const [selectedBuyerId, setSelectedBuyerId] = useState<string>('')
+  const [isBuyerMenuOpen, setIsBuyerMenuOpen] = useState(false)
+  const [buyerSearchQuery, setBuyerSearchQuery] = useState('')
+  const [isSyncing, setIsSyncing] = useState(false)
+
+  // Auto-sync buyers if updated in localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const handleStorageChange = () => {
+        try {
+          const raw = localStorage.getItem('zigza_active_buyers_v3')
+          if (raw) {
+            const parsed = JSON.parse(raw)
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              setBuyers(parsed)
+            }
+          }
+        } catch {}
+      }
+      window.addEventListener('storage', handleStorageChange)
+      return () => window.removeEventListener('storage', handleStorageChange)
+    }
+  }, [])
 
   useEffect(() => {
     const rawTables = getCuttingTables()
@@ -133,21 +178,58 @@ export function CuttingDashboardClient({
     setBundles(updated)
   }
 
-  // Derived metrics
-  const totalPiecesCut = laySheets
-    .filter(l => l.status === 'CUT_COMPLETED' || l.status === 'BUNDLED')
-    .reduce((acc, curr) => acc + curr.total_cut_pieces, 0)
+  const handleManualSync = () => {
+    setIsSyncing(true)
+    if (typeof window !== 'undefined') {
+      try {
+        const rawBuyers = localStorage.getItem('zigza_active_buyers_v3')
+        if (rawBuyers) setBuyers(JSON.parse(rawBuyers))
+        const rawLays = localStorage.getItem('zigza_cutting_lays_v2')
+        if (rawLays) setLaySheets(JSON.parse(rawLays))
+        const rawBundles = localStorage.getItem('zigza_cutting_bundles_v2')
+        if (rawBundles) setBundles(JSON.parse(rawBundles))
+      } catch {}
+    }
+    setTimeout(() => {
+      setIsSyncing(false)
+    }, 400)
+  }
 
-  const avgMarkerEff = markers.length > 0 
-    ? (markers.reduce((acc, m) => acc + m.efficiency_percent, 0) / markers.length).toFixed(1)
-    : '88.4'
+  // Determine active selected buyer
+  const activeSelectedBuyerId = selectedBuyerId && buyers.some(b => b.id === selectedBuyerId)
+    ? selectedBuyerId
+    : (buyers[0]?.id || '')
 
-  const activeBundlesInTransit = bundles.filter(b => b.status === 'IN_TRANSIT' || b.status === 'BANDED').length
-  const totalRemnantsCount = endBits.filter(e => e.status === 'AVAILABLE_FOR_RECUT').length
-  const totalRemnantMeters = endBits
-    .filter(e => e.status === 'AVAILABLE_FOR_RECUT')
-    .reduce((acc, e) => acc + e.usable_length_meters, 0)
-    .toFixed(1)
+  const selectedBuyer = buyers.find(b => b.id === activeSelectedBuyerId) || (buyers.length > 0 ? buyers[0] : null)
+
+  const filteredBuyersList = buyers.filter(b =>
+    (b.buyer_name || '').toLowerCase().includes(buyerSearchQuery.toLowerCase()) ||
+    (b.buyer_code || '').toLowerCase().includes(buyerSearchQuery.toLowerCase()) ||
+    (b.brand_name && b.brand_name.toLowerCase().includes(buyerSearchQuery.toLowerCase())) ||
+    (b.linked_article_number && b.linked_article_number.toLowerCase().includes(buyerSearchQuery.toLowerCase()))
+  )
+
+  const selectedBuyerDisplayText = selectedBuyer
+    ? `${selectedBuyer.buyer_name} (${(Number(selectedBuyer.contracted_volume) || 0).toLocaleString('en-IN')} Pcs)`
+    : (buyers.length === 0 ? 'No Active Buyers Contracted' : 'Select Buyer Contract')
+
+  // Piece metrics calculation for the selected buyer
+  const inHandPieces = selectedBuyer ? (Number(selectedBuyer.contracted_volume) || 0) : 0
+  const articleNum = (selectedBuyer?.linked_article_number || '').trim().toUpperCase()
+
+  // Completed cutting pieces for the selected buyer/article
+  const completedCuttingPieces = laySheets
+    .filter(l => {
+      const isDone = l.status === 'CUT_COMPLETED' || (l.status as string) === 'COMPLETED' || l.status === 'BUNDLED'
+      if (!isDone) return false
+      if (!articleNum) return true
+      const sRef = (l.style_ref || '').trim().toUpperCase()
+      const sName = (l.style_name || '').trim().toUpperCase()
+      return sRef === articleNum || sRef.includes(articleNum) || sName.includes(articleNum)
+    })
+    .reduce((sum, curr) => sum + (Number(curr.total_cut_pieces) || 0), 0)
+
+  const pendingCuttingPieces = Math.max(0, inHandPieces - completedCuttingPieces)
 
   return (
     <div className="p-4 sm:p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto select-none">
@@ -184,7 +266,7 @@ export function CuttingDashboardClient({
           </div>
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
-              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
+              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 Cutting & Lay Floor
               </h1>
               <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
@@ -207,6 +289,20 @@ export function CuttingDashboardClient({
             <span>Lay Sheets</span>
           </Link>
           <Link
+            href="/cutting/markers"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs"
+          >
+            <Maximize2 className="w-3.5 h-3.5" />
+            <span>CAD Markers</span>
+          </Link>
+          <Link
+            href="/cutting/orders"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs"
+          >
+            <Cpu className="w-3.5 h-3.5" />
+            <span>Cutting Orders</span>
+          </Link>
+          <Link
             href="/cutting/bundles"
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs"
           >
@@ -214,74 +310,179 @@ export function CuttingDashboardClient({
             <span>Bundle QR</span>
           </Link>
           <Link
-            href="/cutting/markers"
+            href="/cutting/zigza-ai"
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs"
           >
-            <Maximize2 className="w-3.5 h-3.5" />
-            <span>Markers</span>
-          </Link>
-          <Link
-            href="/cutting/panel-qc"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs"
-          >
-            <CheckCircle2 className="w-3.5 h-3.5" />
-            <span>Panel QC</span>
-          </Link>
-          <Link
-            href="/cutting/end-loss"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs"
-          >
-            <Boxes className="w-3.5 h-3.5" />
-            <span>End-Loss</span>
+            <Bot className="w-3.5 h-3.5" />
+            <span>Zigza AI</span>
           </Link>
         </div>
       </div>
 
-      {/* 4 Summary Metric Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">Completed Cut Volume</span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
-              <Scissors className="w-4 h-4" />
+      {/* Buyer Selection & Sync Control Bar */}
+      <div className="bg-white p-4 sm:p-5 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
+        
+        {/* Left: Active Buyer Info Pill */}
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+            <Building2 className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="text-xs font-mono font-bold uppercase tracking-wider text-slate-400">
+              Selected Buyer Contract
+            </div>
+            <div className="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2">
+              <span>{selectedBuyer ? selectedBuyer.buyer_name : 'No Active Buyers'}</span>
+              {selectedBuyer?.linked_article_number && (
+                <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                  {selectedBuyer.linked_article_number}
+                </span>
+              )}
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900">{totalPiecesCut.toLocaleString()} pcs</div>
-          <p className="text-xs font-semibold text-slate-500 mt-1">From completed lay runs</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        {/* Right: Buyer Selector Dropdown & Sync */}
+        <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap justify-end">
+          
+          {/* Buyer Selector Searchable Dropdown */}
+          <div className="relative min-w-[240px] sm:min-w-[280px]">
+            <button
+              type="button"
+              onClick={() => setIsBuyerMenuOpen(!isBuyerMenuOpen)}
+              className="w-full flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-xs sm:text-sm font-bold text-slate-800 transition-all cursor-pointer shadow-2xs"
+            >
+              <div className="flex items-center gap-2 truncate">
+                <Users className="w-4 h-4 text-[#3A3564] shrink-0" />
+                <span className="truncate">{selectedBuyerDisplayText}</span>
+              </div>
+              <ChevronDown className={`w-4 h-4 text-slate-500 shrink-0 transition-transform ${isBuyerMenuOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            {isBuyerMenuOpen && (
+              <div className="absolute right-0 top-full mt-1.5 w-80 bg-white rounded-xl border border-black/10 shadow-xl z-30 p-2 space-y-1.5 animate-in fade-in zoom-in-95">
+                <div className="relative">
+                  <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    value={buyerSearchQuery}
+                    onChange={e => setBuyerSearchQuery(e.target.value)}
+                    placeholder="Search buyers..."
+                    className="w-full pl-8 pr-2.5 py-1.5 text-xs rounded-lg border border-black/10 bg-slate-50 focus:bg-white focus:outline-hidden focus:border-[#3A3564]"
+                    autoFocus
+                  />
+                </div>
+                <div className="max-h-56 overflow-y-auto space-y-0.5 pt-1">
+                  {filteredBuyersList.length === 0 ? (
+                    <div className="py-3 px-2 text-center text-xs text-slate-400">
+                      No buyers found
+                    </div>
+                  ) : (
+                    filteredBuyersList.map(b => (
+                      <button
+                        key={b.id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedBuyerId(b.id)
+                          setIsBuyerMenuOpen(false)
+                        }}
+                        className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer flex items-center justify-between ${
+                          activeSelectedBuyerId === b.id
+                            ? 'bg-[#3A3564] text-white font-bold'
+                            : 'text-slate-700 hover:bg-[#FAF7F0]'
+                        }`}
+                      >
+                        <div className="truncate pr-2">
+                          <div className="font-bold">{b.buyer_name}</div>
+                          <div className={`text-[10px] font-mono mt-0.5 ${activeSelectedBuyerId === b.id ? 'text-indigo-200' : 'text-slate-500'}`}>
+                            {(Number(b.contracted_volume) || 0).toLocaleString('en-IN')} Pcs {b.linked_article_number ? `• ${b.linked_article_number}` : '• Pending Link'}
+                          </div>
+                        </div>
+                        {activeSelectedBuyerId === b.id && <Check className="w-4 h-4 text-white shrink-0" />}
+                      </button>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Refresh Sync Button */}
+          <button
+            type="button"
+            onClick={handleManualSync}
+            disabled={isSyncing}
+            className="p-2.5 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-[#3A3564] transition-all cursor-pointer shadow-2xs flex items-center justify-center shrink-0"
+            title="Sync latest live updates from floor modules"
+          >
+            <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
+          </button>
+        </div>
+      </div>
+
+      {/* 3 Summary Metric Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
+        
+        {/* 1. In Hand */}
+        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">CAD Marker Yield</span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
-              <Gauge className="w-4 h-4" />
+            <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
+              In Hand
+            </span>
+            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+              <ShoppingBag className="w-5 h-5" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900">{avgMarkerEff}%</div>
-          <p className="text-xs font-semibold text-slate-500 mt-1">Benchmark target &gt;86.0%</p>
+          <div>
+            <div className="text-2xl sm:text-3xl lg:text-4xl font-black font-mono text-slate-900">
+              {inHandPieces.toLocaleString('en-IN')}
+            </div>
+            <p className="text-xs font-semibold text-slate-500 mt-1">
+              {selectedBuyer ? `Contracted BPO pieces for ${selectedBuyer.buyer_name}` : 'Contracted BPO volume'}
+            </p>
+          </div>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        {/* 2. Pending Cutting */}
+        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">Active QR Bundles</span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
-              <QrCode className="w-4 h-4" />
+            <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
+              Pending Cutting
+            </span>
+            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+              <Clock className="w-5 h-5" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900">{activeBundlesInTransit} in transit</div>
-          <p className="text-xs font-semibold text-slate-500 mt-1">{bundles.length} total generated</p>
+          <div>
+            <div className="text-2xl sm:text-3xl lg:text-4xl font-black font-mono text-slate-900">
+              {pendingCuttingPieces.toLocaleString('en-IN')}
+            </div>
+            <p className="text-xs font-semibold text-slate-500 mt-1">
+              Pieces pending table allocation &amp; cut
+            </p>
+          </div>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        {/* 3. Completed Cutting */}
+        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">Usable End-Bits</span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
-              <Boxes className="w-4 h-4" />
+            <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
+              Completed Cutting
+            </span>
+            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+              <Scissors className="w-5 h-5" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900">{totalRemnantMeters} m</div>
-          <p className="text-xs font-semibold text-slate-500 mt-1">{totalRemnantsCount} remnants in recut rack</p>
+          <div>
+            <div className="text-2xl sm:text-3xl lg:text-4xl font-black font-mono text-slate-900">
+              {completedCuttingPieces.toLocaleString('en-IN')}
+            </div>
+            <p className="text-xs font-semibold text-slate-500 mt-1">
+              Cut panels verified &amp; bundled
+            </p>
+          </div>
         </div>
+
       </div>
 
       {/* Cutting Tables Real-Time Grid */}
