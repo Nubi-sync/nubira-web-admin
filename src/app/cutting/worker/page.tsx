@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic'
 
 export const metadata = {
   title: 'Worker Portal | Cutting & Lay Floor',
-  description: 'Floor operator visual portal for cutting piece quotas, lay executions, and shift sign-offs.'
+  description: 'Floor operator workstation for assigned cutting quotas, table allocations, and completion sign-offs.'
 }
 
 export default async function CuttingWorkerPage() {
@@ -25,12 +25,14 @@ export default async function CuttingWorkerPage() {
   const tenant = await resolveUserTenant(user)
 
   return (
-    <AdminShell userEmail={tenant.userEmail} userRole={tenant.role}>
-      <div className="p-4 sm:p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto select-none">
+    <AdminShell userEmail={tenant.userEmail} userRole={tenant.role || 'CUTTING_WORKER'}>
+      <div className="p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6 max-w-7xl w-full mx-auto select-none">
         <WorkerDashboardClient
           userEmail={tenant.userEmail}
           userName={tenant.adminDisplayName}
           userPhone={tenant.phone}
+          userId={user.id}
+          userRole={tenant.role}
         />
       </div>
     </AdminShell>

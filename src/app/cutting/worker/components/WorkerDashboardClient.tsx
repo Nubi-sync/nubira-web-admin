@@ -1,10 +1,10 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
   Scissors,
-  ChevronLeft,
   Clock,
   CheckCircle2,
   Play,
@@ -17,11 +17,13 @@ import {
   History,
   Briefcase,
   AlertCircle,
-  ExternalLink,
+  ClipboardList,
+  User,
+  ShieldCheck,
   TableProperties
 } from 'lucide-react'
 import { toast } from 'sonner'
-import { CuttingWorker, CuttingTaskAllocation, CuttingAllocationStatus } from '../../types/cutting'
+import { CuttingWorker, CuttingTaskAllocation } from '../../types/cutting'
 import {
   getCuttingWorkers,
   getCuttingTaskAllocations,
@@ -33,28 +35,31 @@ interface WorkerDashboardClientProps {
   userEmail?: string
   userName?: string
   userPhone?: string
+  userId?: string
+  userRole?: string
 }
 
 export function WorkerDashboardClient({
   userEmail,
   userName,
-  userPhone
+  userPhone,
+  userId,
+  userRole
 }: WorkerDashboardClientProps) {
-  const [workers, setWorkers] = useState<CuttingWorker[]>([])
-  const [selectedWorkerId, setSelectedWorkerId] = useState<string>('')
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const tabParam = searchParams.get('tab')
+
   const [tasks, setTasks] = useState<CuttingTaskAllocation[]>([])
-  const [activeTab, setActiveTab] = useState<'CURRENT' | 'HISTORY'>('CURRENT')
+  const [activeTab, setActiveTab] = useState<'CURRENT' | 'HISTORY'>(
+    tabParam === 'history' ? 'HISTORY' : 'CURRENT'
+  )
   const [isSyncing, setIsSyncing] = useState(false)
 
+  // Load and refresh task allocations
   const reloadData = () => {
-    const allWorkers = getCuttingWorkers()
-    setWorkers(allWorkers)
     const allTasks = getCuttingTaskAllocations()
     setTasks(allTasks)
-
-    if (allWorkers.length > 0 && !selectedWorkerId) {
-      setSelectedWorkerId(allWorkers[0].id)
-    }
   }
 
   useEffect(() => {
@@ -70,200 +75,237 @@ export function WorkerDashboardClient({
     }
   }, [])
 
+  // Sync tab with URL query parameter
+  useEffect(() => {
+    if (tabParam === 'history' && activeTab !== 'HISTORY') {
+      setActiveTab('HISTORY')
+    } else if (tabParam !== 'history' && activeTab === 'HISTORY' && !tabParam) {
+      setActiveTab('CURRENT')
+    }
+  }, [tabParam])
+
   const handleManualSync = () => {
     setIsSyncing(true)
     reloadData()
     setTimeout(() => {
       setIsSyncing(false)
-      toast.success('Tasks synchronized with Head of Department.')
+      toast.success('Workstation updated with latest floor assignments.')
     }, 400)
   }
 
-  // Determine current selected worker
-  const activeWorker = workers.find(w => w.id === selectedWorkerId) || (workers.length > 0 ? workers[0] : null)
+  // Normalized phone and username for strict user filtering
+  const normPhone = (userPhone || '').replace(/\D/g, '').slice(-10)
+  const normName = (userName || '').trim().toLowerCase()
 
-  // Filter tasks for this worker
-  const workerTasks = tasks.filter(t => {
-    if (!activeWorker) return false
-    return t.worker_id === activeWorker.id || (t.worker_name && t.worker_name.toLowerCase() === activeWorker.worker_name.toLowerCase())
+  // Filter tasks strictly belonging to THIS logged in operator
+  const myTasks = tasks.filter(t => {
+    // 1. Phone match
+    if (normPhone && t.worker_phone) {
+      const taskPhone = t.worker_phone.replace(/\D/g, '').slice(-10)
+      if (taskPhone === normPhone) return true
+    }
+    // 2. Worker name match
+    if (normName && t.worker_name) {
+      if (t.worker_name.trim().toLowerCase() === normName) return true
+    }
+    // 3. Worker id match
+    if (userId && t.worker_id === userId) return true
+
+    // Fallback: If no strict filter matched because it's local dev preview, show all tasks for this worker
+    return false
   })
 
-  // Current tasks: ASSIGNED, IN_PROGRESS, WORKER_COMPLETED
-  const currentTasks = workerTasks.filter(t => t.status !== 'VERIFIED_COMPLETED')
+  // If newly assigned or in local storage without strict phone link, fallback to tasks assigned to this operator name
+  const effectiveTasks = myTasks.length > 0 ? myTasks : tasks.filter(t => {
+    if (!normName) return true
+    return t.worker_name?.toLowerCase().includes(normName)
+  })
 
-  // History tasks: VERIFIED_COMPLETED (or past completed jobs)
-  const historyTasks = workerTasks.filter(t => t.status === 'VERIFIED_COMPLETED')
+  // Active current assignments: ASSIGNED, IN_PROGRESS, WORKER_COMPLETED
+  const currentTasks = effectiveTasks.filter(t => t.status !== 'VERIFIED_COMPLETED' && t.status !== 'COMPLETED')
 
-  // Summary Metrics
-  const totalPiecesCut = historyTasks.reduce((sum, t) => sum + (Number(t.completed_pieces || t.pieces_to_cut) || 0), 0)
+  // Completed history: VERIFIED_COMPLETED or COMPLETED
+  const historyTasks = effectiveTasks.filter(t => t.status === 'VERIFIED_COMPLETED' || t.status === 'COMPLETED')
+
+  // Executive Metric Counts
+  const activeAssignments = currentTasks
+  const inReviewCount = effectiveTasks.filter(t => t.status === 'WORKER_COMPLETED').length
+  const totalVerifiedPiecesCut = historyTasks.reduce((sum, t) => sum + (Number(t.completed_pieces || t.pieces_to_cut) || 0), 0)
   const activePiecesTarget = currentTasks.reduce((sum, t) => sum + (Number(t.pieces_to_cut) || 0), 0)
 
   // Worker Action 1: Start Cutting
-  const handleStartCutting = (taskId: string, taskRef: string) => {
+  const handleStartCutting = (taskId: string, taskRef: string, tableName: string) => {
     const updated = updateCuttingTaskStatus(taskId, 'IN_PROGRESS')
     setTasks(updated)
-    toast.success(`Task #${taskRef} started! Table is now active.`)
+    toast.success(`Task #${taskRef} started! Table station ${tableName || 'Table 01'} is now active.`)
   }
 
   // Worker Action 2: Mark Complete (Submit for Head of Dept Verification)
-  const handleMarkComplete = (taskId: string, taskRef: string) => {
+  const handleMarkComplete = (taskId: string, taskRef: string, pieces: number) => {
     const updated = updateCuttingTaskStatus(taskId, 'WORKER_COMPLETED')
     setTasks(updated)
-    toast.success(`Task #${taskRef} completed! Submitted to Head of Dept for Verification & Sign-Off.`)
+    toast.success(`Task #${taskRef} completed (${pieces.toLocaleString('en-IN')} pcs)! Submitted to Head of Dept for Verification & Sign-Off.`)
   }
 
   // Format Time
-  const formatDeadline = (isoTime: string) => {
-    if (!isoTime) return 'End of Shift'
+  const formatDeadline = (isoTime: string, allotedHours: number) => {
+    if (!isoTime) return `${allotedHours} Hrs Target`
     try {
       const d = new Date(isoTime)
       return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) +
         ', ' + d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
     } catch {
-      return 'End of Shift'
+      return `${allotedHours} Hrs Target`
     }
   }
 
   return (
-    <div className="space-y-6 select-none">
+    <div className="space-y-5 sm:space-y-6">
       
-      {/* Top Breadcrumb & Return to Supervisor Desk */}
+      {/* Layer 1: Breadcrumb Hierarchy Trail */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
-        <div className="flex items-center gap-2">
-          <Link
-            href="/cutting"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs cursor-pointer"
-          >
-            <ChevronLeft className="w-3.5 h-3.5" />
-            <span>Cutting &amp; Lay Floor Desk</span>
-          </Link>
-          <span className="text-slate-400 font-mono text-xs">/</span>
-          <span className="text-xs font-mono font-bold text-slate-900">Operator Portal</span>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <span className="text-[11px] font-mono font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            Floor Workstation Live
+        <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
+          <span>Floor Workstation</span>
+          <span>/</span>
+          <span className="font-bold text-slate-900">
+            {activeTab === 'CURRENT' ? 'Active Assignments' : 'Completed History'}
           </span>
         </div>
-      </div>
 
-      {/* Operator Identity & Switcher Card */}
-      <div className="bg-white p-5 sm:p-6 rounded-3xl border border-black/10 shadow-2xs flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
-        
-        <div className="flex items-start sm:items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-[#3A3564] text-white flex items-center justify-center font-black text-lg shadow-xs shrink-0">
-            {activeWorker ? activeWorker.worker_name.slice(0, 2).toUpperCase() : 'OP'}
-          </div>
-          <div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-xl sm:text-2xl font-black text-slate-900 font-[family-name:var(--font-heading)]">
-                {activeWorker ? activeWorker.worker_name : 'Cutting Floor Operator'}
-              </h1>
-              {activeWorker && (
-                <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-                  +91 {activeWorker.phone_number}
-                </span>
-              )}
-            </div>
-            
-            <div className="flex items-center gap-2 mt-1 flex-wrap">
-              {activeWorker?.roles && activeWorker.roles.length > 0 ? (
-                activeWorker.roles.map((r, i) => (
-                  <span key={i} className="text-[11px] font-mono font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md">
-                    {r.replace(/_/g, ' ')}
-                  </span>
-                ))
-              ) : (
-                <span className="text-[11px] font-mono font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md">
-                  {activeWorker?.role || 'Knife Cutter'}
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Worker Switcher & Sync */}
-        <div className="flex items-center gap-3 w-full md:w-auto justify-end flex-wrap sm:flex-nowrap">
-          {workers.length > 1 && (
-            <div className="flex items-center gap-2 bg-[#FAF7F0] px-3 py-2 rounded-2xl border border-black/10">
-              <span className="text-xs font-mono font-bold text-slate-500 whitespace-nowrap">Operator:</span>
-              <select
-                value={selectedWorkerId}
-                onChange={e => setSelectedWorkerId(e.target.value)}
-                className="bg-white px-2.5 py-1 text-xs font-mono font-bold rounded-lg border border-black/10 text-slate-900 focus:outline-hidden"
-              >
-                {workers.map(w => (
-                  <option key={w.id} value={w.id}>
-                    {w.worker_name} (+91 {w.phone_number})
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-
+        <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={handleManualSync}
             disabled={isSyncing}
-            className="p-2.5 rounded-2xl border border-black/10 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-[#3A3564] transition-all cursor-pointer shadow-2xs flex items-center justify-center shrink-0"
-            title="Refresh latest task assignments"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs cursor-pointer"
+            title="Refresh floor assignments"
           >
-            <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
+            <span>Sync Live</span>
           </button>
         </div>
-
       </div>
 
-      {/* 2 Big Visual Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {/* Layer 2: Encapsulated Top Header Card (Designer Style) */}
+      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3.5">
+          <div className="w-12 h-12 rounded-2xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shrink-0 shadow-2xs">
+            <Scissors className="w-6 h-6 text-[#3A3564]" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
+                Welcome, {userName || 'Cutting Operator'}
+              </h1>
+              <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
+                {activeAssignments.length} Active Tasks
+              </span>
+            </div>
+            <p className="text-sm text-slate-600 mt-1">
+              Your assigned garment cutting piece quotas, vacuum table stations, and shift sign-off desk
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <span className="px-3.5 py-1.5 rounded-xl bg-[#FAF7F0] border border-black/10 text-xs font-mono font-bold text-[#3A3564] shadow-2xs">
+            {userPhone ? `+91 ${userPhone}` : userEmail}
+          </span>
+        </div>
+      </div>
+
+      {/* Layer 3: Executive Metrics Strip (Unified 4-Box Grid) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         
-        {/* Active Target */}
-        <div className="bg-white p-5 sm:p-6 rounded-3xl border border-black/10 shadow-2xs flex items-center justify-between">
-          <div>
-            <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
-              Assigned Queue (In-Progress)
+        {/* Metric 1: Tasks */}
+        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+              TASKS
             </span>
-            <div className="text-3xl sm:text-4xl font-black font-mono text-slate-900 mt-1">
-              {activePiecesTarget.toLocaleString('en-IN')} <span className="text-base font-normal text-slate-500">Pcs</span>
+            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+              <ClipboardList className="w-4 h-4 text-[#3A3564]" />
             </div>
-            <p className="text-xs font-semibold text-slate-500 mt-0.5">
-              {currentTasks.length} active cutting jobs allocated
-            </p>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs shrink-0">
-            <Scissors className="w-6 h-6" />
+          <div className="mt-3">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-900 font-mono">
+              Active Jobs
+            </div>
+            <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
+              {activeAssignments.length}
+            </div>
           </div>
         </div>
 
-        {/* Total Verified Cut */}
-        <div className="bg-white p-5 sm:p-6 rounded-3xl border border-black/10 shadow-2xs flex items-center justify-between">
-          <div>
-            <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
-              Verified Pieces Cut
+        {/* Metric 2: Target */}
+        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+              TARGET
             </span>
-            <div className="text-3xl sm:text-4xl font-black font-mono text-emerald-700 mt-1">
-              {totalPiecesCut.toLocaleString('en-IN')} <span className="text-base font-normal text-slate-500">Pcs</span>
+            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+              <Layers className="w-4 h-4 text-[#3A3564]" />
             </div>
-            <p className="text-xs font-semibold text-slate-500 mt-0.5">
-              {historyTasks.length} jobs verified &amp; completed
-            </p>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center shadow-2xs shrink-0">
-            <CheckCircle2 className="w-6 h-6" />
+          <div className="mt-3">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-900 font-mono">
+              Pieces to Cut
+            </div>
+            <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
+              {activePiecesTarget.toLocaleString('en-IN')} <span className="text-xs font-normal text-slate-500">Pcs</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Metric 3: Stage 02 In Head Review */}
+        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+              STAGE 02
+            </span>
+            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+              <Clock className="w-4 h-4 text-[#3A3564]" />
+            </div>
+          </div>
+          <div className="mt-3">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-900 font-mono">
+              In Head Review
+            </div>
+            <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
+              {inReviewCount}
+            </div>
+          </div>
+        </div>
+
+        {/* Metric 4: Cleared & Verified */}
+        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+              CLEARED
+            </span>
+            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center shadow-2xs">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+            </div>
+          </div>
+          <div className="mt-3">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-900 font-mono">
+              Verified Pieces Cut
+            </div>
+            <div className="text-2xl sm:text-3xl font-bold font-mono text-emerald-700 font-[family-name:var(--font-heading)] mt-0.5">
+              {totalVerifiedPiecesCut.toLocaleString('en-IN')} <span className="text-xs font-normal text-emerald-600">Pcs</span>
+            </div>
           </div>
         </div>
 
       </div>
 
-      {/* Main Content Area with 2 Side Nav Tabs */}
+      {/* Layer 4: Two Side Nav Workstation (Current Work vs Completed History) */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
         
-        {/* Left Side Nav (Current Work vs History) */}
+        {/* Left Side Navigation */}
         <div className="bg-white p-3 sm:p-4 rounded-3xl border border-black/10 shadow-2xs space-y-2 lg:sticky lg:top-6">
           <div className="px-3 py-2 text-xs font-mono font-bold text-slate-400 uppercase tracking-wider">
-            Workspace Views
+            Workstation Views
           </div>
 
           <button
@@ -282,7 +324,7 @@ export function WorkerDashboardClient({
             <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
               activeTab === 'CURRENT' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
             }`}>
-              {currentTasks.length}
+              {activeAssignments.length}
             </span>
           </button>
 
@@ -307,7 +349,7 @@ export function WorkerDashboardClient({
           </button>
         </div>
 
-        {/* Right Main Panel: Highly Visual Task Cards */}
+        {/* Right Main Panel */}
         <div className="lg:col-span-3 space-y-4">
           
           {/* TAB 1: CURRENT WORK */}
@@ -319,7 +361,7 @@ export function WorkerDashboardClient({
                     Active Cutting Tasks
                   </h2>
                   <p className="text-xs text-slate-500 font-mono">
-                    Execute fabric plies, start vacuum beds, and submit when finished
+                    Execute fabric plies, start vacuum tables, and submit when finished
                   </p>
                 </div>
               </div>
@@ -331,21 +373,21 @@ export function WorkerDashboardClient({
                   </div>
                   <h3 className="text-base font-bold text-slate-900">All Cutting Tasks Cleared</h3>
                   <p className="text-xs text-slate-500 font-mono max-w-sm mx-auto">
-                    You have no pending tasks in your queue. New assignments from the Head of Department will appear here automatically.
+                    You have no pending cutting allocations in your queue. New assignments from the Head of Department will appear here.
                   </p>
                 </div>
               ) : (
                 currentTasks.map(task => {
                   const isAssigned = task.status === 'ASSIGNED'
                   const isInProgress = task.status === 'IN_PROGRESS'
-                  const isWorkerCompleted = task.status === 'WORKER_COMPLETED' || task.status === 'COMPLETED'
+                  const isWorkerCompleted = task.status === 'WORKER_COMPLETED'
 
                   return (
                     <div
                       key={task.id}
                       className="bg-white rounded-3xl border border-black/10 shadow-2xs overflow-hidden transition-all hover:shadow-md"
                     >
-                      {/* Task Card Header */}
+                      {/* Task Header */}
                       <div className="p-5 sm:p-6 border-b border-black/10 bg-[#FAF7F0]/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                         <div className="flex items-center gap-3">
                           <span className="font-mono font-black text-sm px-3 py-1 rounded-xl bg-white border border-black/10 text-[#3A3564] shadow-2xs">
@@ -365,19 +407,19 @@ export function WorkerDashboardClient({
                         <div>
                           {isAssigned && (
                             <span className="px-3 py-1 rounded-xl bg-amber-50 text-amber-800 border border-amber-200 text-xs font-mono font-bold">
-                              Assigned • Ready to Start
+                              Assigned • Ready on Floor
                             </span>
                           )}
                           {isInProgress && (
                             <span className="px-3 py-1 rounded-xl bg-indigo-50 text-[#3A3564] border border-indigo-200 text-xs font-mono font-bold flex items-center gap-1.5">
                               <span className="w-2 h-2 rounded-full bg-indigo-600 animate-pulse" />
-                              Cutting In Progress ({task.table_number || 'Table 01'})
+                              Cutting Live ({task.table_number || 'Table 01'})
                             </span>
                           )}
                           {isWorkerCompleted && (
-                            <span className="px-3 py-1 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-mono font-bold flex items-center gap-1.5">
-                              <Check className="w-3.5 h-3.5 text-emerald-600" />
-                              Completed • Awaiting Head of Dept Sign-Off
+                            <span className="px-3 py-1 rounded-xl bg-amber-100 text-amber-900 border border-amber-300 text-xs font-mono font-bold flex items-center gap-1.5 shadow-2xs">
+                              <Clock className="w-3.5 h-3.5 text-amber-700" />
+                              Completed • In Head Review
                             </span>
                           )}
                         </div>
@@ -404,7 +446,7 @@ export function WorkerDashboardClient({
                           <div className="text-xl font-black font-mono text-[#3A3564] mt-1">
                             {task.table_number || 'Table 01'}
                           </div>
-                          <span className="text-[11px] text-slate-500 font-mono">Automated Cutter Bed</span>
+                          <span className="text-[11px] text-slate-500 font-mono">Cutter Bed Station</span>
                         </div>
 
                         {/* 3. Alloted Hours & Deadline */}
@@ -417,7 +459,7 @@ export function WorkerDashboardClient({
                             {task.alloted_hours} Hours
                           </div>
                           <span className="text-[11px] text-emerald-700 font-mono font-bold">
-                            Due: {formatDeadline(task.due_time)}
+                            Due: {formatDeadline(task.due_time, task.alloted_hours)}
                           </span>
                         </div>
 
@@ -436,7 +478,7 @@ export function WorkerDashboardClient({
                         {isAssigned && (
                           <button
                             type="button"
-                            onClick={() => handleStartCutting(task.id, task.task_ref)}
+                            onClick={() => handleStartCutting(task.id, task.task_ref, task.table_number)}
                             className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer flex items-center justify-center gap-2"
                           >
                             <Play className="w-4 h-4 fill-current" />
@@ -447,8 +489,8 @@ export function WorkerDashboardClient({
                         {isInProgress && (
                           <button
                             type="button"
-                            onClick={() => handleMarkComplete(task.id, task.task_ref)}
-                            className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer flex items-center justify-center gap-2 animate-pulse"
+                            onClick={() => handleMarkComplete(task.id, task.task_ref, task.pieces_to_cut)}
+                            className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer flex items-center justify-center gap-2"
                           >
                             <CheckCircle2 className="w-4 h-4" />
                             <span>✓ Mark as Complete ({task.pieces_to_cut.toLocaleString('en-IN')} Pcs Cut)</span>
@@ -456,9 +498,9 @@ export function WorkerDashboardClient({
                         )}
 
                         {isWorkerCompleted && (
-                          <div className="text-xs font-mono font-bold text-emerald-700 flex items-center gap-2">
-                            <Check className="w-4 h-4" />
-                            <span>Submitted to Head of Dept • Waiting for final sign-off &amp; piece move</span>
+                          <div className="text-xs font-mono font-bold text-amber-800 flex items-center gap-2 bg-amber-50 px-4 py-2.5 rounded-xl border border-amber-200">
+                            <Clock className="w-4 h-4 text-amber-700" />
+                            <span>Submitted to Head of Dept • Awaiting Verification &amp; Sign-Off</span>
                           </div>
                         )}
                       </div>
@@ -479,7 +521,7 @@ export function WorkerDashboardClient({
                     Completed &amp; Verified History
                   </h2>
                   <p className="text-xs text-slate-500 font-mono">
-                    Past jobs verified and signed off by the Head of Department
+                    Past cutting jobs verified and signed off by the Head of Department
                   </p>
                 </div>
               </div>
@@ -489,9 +531,9 @@ export function WorkerDashboardClient({
                   <div className="w-14 h-14 rounded-2xl bg-slate-100 text-slate-400 border border-slate-200 flex items-center justify-center mx-auto mb-2">
                     <History className="w-7 h-7" />
                   </div>
-                  <h3 className="text-base font-bold text-slate-900">No History Records Yet</h3>
+                  <h3 className="text-base font-bold text-slate-900">No Verified History Records Yet</h3>
                   <p className="text-xs text-slate-500 font-mono max-w-sm mx-auto">
-                    Completed jobs verified by the Head of Department will appear in this history log.
+                    Once the Head of Department clicks &quot;Verify &amp; Done&quot; on your completed tasks, they will appear in this history archive.
                   </p>
                 </div>
               ) : (

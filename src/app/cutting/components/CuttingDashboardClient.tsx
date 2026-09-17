@@ -386,13 +386,6 @@ export function CuttingDashboardClient({
             <Bot className="w-3.5 h-3.5" />
             <span>Zigza AI</span>
           </Link>
-          <Link
-            href="/cutting/worker"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer"
-          >
-            <ExternalLink className="w-3.5 h-3.5" />
-            <span>Worker Portal</span>
-          </Link>
         </div>
       </div>
 

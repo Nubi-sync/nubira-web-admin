@@ -7,8 +7,10 @@
 -- 1. Create cutting_workers Table
 CREATE TABLE IF NOT EXISTS public.cutting_workers (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    worker_user_id UUID,
     worker_name TEXT NOT NULL,
     phone_number TEXT NOT NULL UNIQUE,
+    worker_email TEXT,
     roles TEXT[] DEFAULT ARRAY['KNIFE_CUTTER']::TEXT[],
     role TEXT DEFAULT 'Knife Cutter',
     status TEXT DEFAULT 'ACTIVE',

@@ -772,9 +772,11 @@ export function AdminSidebar({
     ? '/modules' 
     : (isDesignerUser
         ? '/design/designer'
-        : (isStoreUser 
-            ? '/stitching-sewing/store' 
-            : (activeNavSections[0]?.items[0]?.href || '/stitching-sewing/dashboard')))
+        : (isCuttingWorker
+            ? '/cutting/worker'
+            : (isStoreUser 
+                ? '/stitching-sewing/store' 
+                : (activeNavSections[0]?.items[0]?.href || '/stitching-sewing/dashboard'))))
 
   return (
     <>
