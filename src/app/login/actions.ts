@@ -48,16 +48,26 @@ export async function login(formData: FormData) {
       try {
         const adminClient = createAdminClient(supabaseUrl, serviceRoleKey)
 
-        // 1. Check design_team_members by 10-digit phone number or username
+        // 1. Check cutting_workers or design_team_members by 10-digit phone number or username
         if (phone10) {
-          const { data: matchedDesignerPhone } = await adminClient
-            .from('design_team_members')
-            .select('designer_email, phone_number')
-            .or(`phone_number.eq.${phone10},designer_phone.eq.${phone10}`)
+          const { data: matchedWorkerPhone } = await adminClient
+            .from('cutting_workers')
+            .select('worker_email, phone_number')
+            .eq('phone_number', phone10)
             .maybeSingle()
 
-          if (matchedDesignerPhone) {
-            email = matchedDesignerPhone.designer_email || `${phone10}@designer.nubira.local`
+          if (matchedWorkerPhone) {
+            email = matchedWorkerPhone.worker_email || `${phone10}@cutting.nubira.local`
+          } else {
+            const { data: matchedDesignerPhone } = await adminClient
+              .from('design_team_members')
+              .select('designer_email, phone_number')
+              .or(`phone_number.eq.${phone10},designer_phone.eq.${phone10}`)
+              .maybeSingle()
+
+            if (matchedDesignerPhone) {
+              email = matchedDesignerPhone.designer_email || `${phone10}@designer.nubira.local`
+            }
           }
         }
 

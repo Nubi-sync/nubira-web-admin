@@ -5,6 +5,7 @@ import { X, UserPlus, Phone, Lock, Eye, EyeOff, Check, CheckCircle2 } from 'luci
 import { toast } from 'sonner'
 import { CuttingWorker, CuttingWorkerRole } from '../types/cutting'
 import { saveCuttingWorker } from '../utils/cuttingStorage'
+import { registerCuttingWorkerAction } from '../actions'
 
 interface AddWorkerModalProps {
   isOpen: boolean
@@ -47,7 +48,7 @@ export function AddWorkerModal({ isOpen, onClose, onSuccess }: AddWorkerModalPro
     }
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     if (!name.trim()) {
@@ -89,8 +90,22 @@ export function AddWorkerModal({ isOpen, onClose, onSuccess }: AddWorkerModalPro
         created_at: new Date().toISOString()
       }
 
+      // Save locally for instant UI response
       saveCuttingWorker(newWorker)
-      toast.success(`Worker ${newWorker.worker_name} registered successfully! Login: +91 ${phone}`)
+
+      // Provision Auth User & database row via server action
+      const res = await registerCuttingWorkerAction({
+        worker_name: name.trim(),
+        phone_number: phone.trim(),
+        password: password.trim(),
+        roles: selectedRoles
+      })
+
+      if (res.success && res.worker) {
+        toast.success(`Worker ${newWorker.worker_name} registered! Login enabled at /login with phone +91 ${phone}`)
+      } else {
+        toast.success(`Worker ${newWorker.worker_name} saved locally.`)
+      }
       
       if (onSuccess) onSuccess(newWorker)
       

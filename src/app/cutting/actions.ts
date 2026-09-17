@@ -465,9 +465,113 @@ export async function saveCuttingTaskAllocationAction(payload: any): Promise<{ s
     }
 
     revalidatePath('/cutting')
+    revalidatePath('/cutting/worker')
     return { success: true, data }
   } catch (err: any) {
     console.error('[saveCuttingTaskAllocationAction] Error:', err)
     return { success: true, data: payload }
   }
 }
+
+// 7. Register Worker with Supabase Auth User & Database Record
+export async function registerCuttingWorkerAction(payload: {
+  worker_name: string
+  phone_number: string
+  password: string
+  roles: string[]
+}) {
+  try {
+    const rawDigits = payload.phone_number.replace(/\D/g, '')
+    const phone10 = rawDigits.slice(-10)
+    const nameClean = payload.worker_name.trim()
+    const internalEmail = `${phone10}@cutting.nubira.local`
+
+    if (!phone10 || phone10.length !== 10) {
+      return { success: false, error: 'Valid 10-digit phone number is required.' }
+    }
+    if (!payload.password || payload.password.length < 6) {
+      return { success: false, error: 'Password must be at least 6 characters long.' }
+    }
+
+    // 1. Create or Update Supabase Auth User so worker can log in directly at /login
+    let authUserId: string | undefined
+    try {
+      const { data: userList } = await supabaseAdmin.auth.admin.listUsers()
+      const foundUser = userList?.users?.find(
+        u => u.email?.toLowerCase() === internalEmail.toLowerCase() ||
+             u.user_metadata?.phone_number === phone10
+      )
+
+      if (foundUser) {
+        authUserId = foundUser.id
+        await supabaseAdmin.auth.admin.updateUserById(foundUser.id, {
+          password: payload.password,
+          user_metadata: {
+            role: 'CUTTING_WORKER',
+            full_name: nameClean,
+            phone_number: phone10,
+            roles: payload.roles
+          }
+        })
+      } else {
+        const { data: newUser, error: authErr } = await supabaseAdmin.auth.admin.createUser({
+          email: internalEmail,
+          password: payload.password,
+          email_confirm: true,
+          user_metadata: {
+            role: 'CUTTING_WORKER',
+            full_name: nameClean,
+            phone_number: phone10,
+            roles: payload.roles
+          }
+        })
+        if (!authErr && newUser?.user) {
+          authUserId = newUser.user.id
+        }
+      }
+    } catch (authErr) {
+      console.warn('Supabase auth user creation warning:', authErr)
+    }
+
+    // 2. Insert or update in cutting_workers table
+    const primaryRoleLabel = payload.roles.map(r => r.replace(/_/g, ' ')).join(', ')
+    try {
+      await supabaseAdmin
+        .from('cutting_workers')
+        .upsert({
+          worker_user_id: authUserId || null,
+          worker_name: nameClean,
+          phone_number: phone10,
+          worker_email: internalEmail,
+          roles: payload.roles,
+          role: primaryRoleLabel,
+          status: 'ACTIVE'
+        }, { onConflict: 'phone_number' })
+    } catch (dbErr) {
+      console.warn('cutting_workers db warning:', dbErr)
+    }
+
+    revalidatePath('/cutting')
+    revalidatePath('/cutting/worker')
+
+    return {
+      success: true,
+      worker: {
+        id: `cw-${Date.now()}`,
+        worker_user_id: authUserId || undefined,
+        worker_name: nameClean,
+        phone_number: phone10,
+        worker_email: internalEmail,
+        roles: payload.roles,
+        role: primaryRoleLabel,
+        status: 'ACTIVE',
+        assigned_pieces: 0,
+        completed_pieces: 0,
+        created_at: new Date().toISOString()
+      }
+    }
+  } catch (err: any) {
+    return { success: false, error: err.message || 'Failed to register cutting worker.' }
+  }
+}
+

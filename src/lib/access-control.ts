@@ -35,6 +35,7 @@ export const ROLE_MODULE_MAPPING: Record<string, DivisionRoute[]> = {
   CUTTING: ['/cutting'],
   CUTTING_MASTER: ['/cutting'],
   SPREADER_OPERATOR: ['/cutting'],
+  CUTTING_WORKER: ['/cutting/worker' as any],
   
   // Surface Art
   PRINTING: ['/printing'],
@@ -137,6 +138,11 @@ export function getUserAllowedModules(
     return ['/design/designer', '/design/history', '/design/profile']
   }
 
+  // 3.6. Cutting Floor Worker check
+  if (role === 'CUTTING_WORKER' || email.includes('@cutting.') || email.endsWith('@cutting.nubira.local')) {
+    return ['/cutting/worker']
+  }
+
   // 4. Role-based module mapping for operational floor staff
   if (ROLE_MODULE_MAPPING[role]) {
     return ROLE_MODULE_MAPPING[role]
@@ -185,6 +191,11 @@ export function getDefaultLandingRoute(
     return '/design/designer'
   }
 
+  // Cutting Floor Worker always lands on worker portal
+  if (normRole === 'CUTTING_WORKER' || normEmail.includes('@cutting.') || normEmail.endsWith('@cutting.nubira.local')) {
+    return '/cutting/worker'
+  }
+
   // Single-module operational account lands directly inside their assigned module
   if (allowedModules.length === 1) {
     return allowedModules[0]
@@ -229,6 +240,11 @@ export function isRouteAuthorized(allowedModules: string[], pathname: string): b
   if (allowedModules.includes('/design/designer')) {
     if (pathname === '/design/designer' || pathname.startsWith('/design/designer/')) return true
     if (pathname === '/design/profile' || pathname.startsWith('/design/profile/')) return true
+  }
+
+  // Permit cutting worker route for cutting workers
+  if (allowedModules.includes('/cutting/worker')) {
+    if (pathname === '/cutting/worker' || pathname.startsWith('/cutting/worker/')) return true
   }
 
   // Permit root /allotments and /production-orders paths for users with Stitching & Sewing access

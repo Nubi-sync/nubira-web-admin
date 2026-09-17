@@ -144,13 +144,22 @@ export function AdminSidebar({
     userEmail?.toLowerCase().endsWith('@designer.nubira.local')
   )
 
+  const isCuttingWorker = (
+    userRole?.toUpperCase() === 'CUTTING_WORKER' ||
+    userRole?.toUpperCase() === 'CUTTER' ||
+    userEmail?.toLowerCase().includes('@cutting.') ||
+    userEmail?.toLowerCase().endsWith('@cutting.nubira.local')
+  )
+
   const roleLabel = isAdmin 
     ? 'Super Admin' 
     : (isDesignerUser
         ? 'Creative Designer'
-        : (userRole && userRole.toUpperCase() !== 'ADMIN'
-            ? userRole.split('/')[0].trim().replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
-            : (isStoreUser ? 'Store Supervisor' : 'Department Head')))
+        : (isCuttingWorker
+            ? 'Cutting Floor Operator'
+            : (userRole && userRole.toUpperCase() !== 'ADMIN'
+                ? userRole.split('/')[0].trim().replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+                : (isStoreUser ? 'Store Supervisor' : 'Department Head'))))
 
   // Module-specific unique side navigation
   let activeNavSections: NavSection[] = []
@@ -168,6 +177,22 @@ export function AdminSidebar({
         section: 'Account',
         items: [
           { label: 'Profile', href: '/design/profile', icon: User },
+        ],
+      },
+    ]
+  } else if (isCuttingWorker || pathname?.startsWith('/cutting/worker')) {
+    activeNavSections = [
+      {
+        section: 'Floor Workstation',
+        items: [
+          { label: 'Active Assignments', href: '/cutting/worker', icon: Scissors },
+          { label: 'Completed History', href: '/cutting/worker?tab=history', icon: Clock },
+        ],
+      },
+      {
+        section: 'Account',
+        items: [
+          { label: 'Operator Profile', href: '/cutting/worker?tab=profile', icon: User },
         ],
       },
     ]

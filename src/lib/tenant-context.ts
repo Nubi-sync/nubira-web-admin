@@ -78,7 +78,51 @@ export async function resolveUserTenant(user: {
     }
   }
 
-  // 1.5. Check design_team_members for creative designers
+  // 1.5. Check cutting_workers for cutting floor operators
+  try {
+    const rawDigits = userEmail.split('@')[0].replace(/\D/g, '')
+    const phone10 = rawDigits.length >= 10 ? rawDigits.slice(-10) : rawDigits
+
+    let workerQuery = supabaseAdmin
+      .from('cutting_workers')
+      .select('*')
+
+    if (phone10.length === 10) {
+      workerQuery = workerQuery.or(`worker_user_id.eq.${user.id},worker_email.eq.${userEmail},phone_number.eq.${phone10}`)
+    } else {
+      workerQuery = workerQuery.or(`worker_user_id.eq.${user.id},worker_email.eq.${userEmail}`)
+    }
+
+    const { data: matchedWorker } = await workerQuery.limit(1).maybeSingle()
+
+    if (matchedWorker || user.user_metadata?.role === 'CUTTING_WORKER' || userEmail.endsWith('@cutting.nubira.local')) {
+      const workerName = matchedWorker?.worker_name || user.user_metadata?.full_name || 'Cutting Operator'
+      const workerPhone = matchedWorker?.phone_number || user.user_metadata?.phone_number || phone10
+      return {
+        userId: user.id,
+        userEmail,
+        role: 'CUTTING_WORKER',
+        isSuperAdmin: false,
+        isPlatformAdmin: false,
+        companyName: 'Nubira Creation',
+        adminDisplayName: workerName,
+        customUsername: `${workerName.toLowerCase().replace(/\s+/g, '_')}_cutting`,
+        phone: workerPhone,
+        cityState: 'India',
+        subscriptionTier: 'ENTERPRISE_PLAN',
+        allowedDivisions: ['/cutting/worker'],
+        isProvisionedTenant: true,
+        accessType: 'FULL_ACCESS',
+        isExpired: false,
+        tenantStatus: matchedWorker?.status || 'ACTIVE',
+        provisionedAt: matchedWorker?.created_at || '2026-09-17T00:00:00.000Z'
+      }
+    }
+  } catch (workerErr) {
+    console.error('[resolveUserTenant] Error resolving cutting worker:', workerErr)
+  }
+
+  // 1.6. Check design_team_members for creative designers
   try {
     const rawDigits = userEmail.split('@')[0].replace(/\D/g, '')
     const phone10 = rawDigits.length >= 10 ? rawDigits.slice(-10) : rawDigits
