@@ -29,8 +29,7 @@ import {
   Trash2,
   Calendar,
   Sparkles,
-  Maximize2,
-  ExternalLink
+  Maximize2
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { EmptyState } from '@/components/ui/EmptyState'

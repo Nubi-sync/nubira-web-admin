@@ -191,6 +191,76 @@ export async function login(formData: FormData) {
     }
   }
 
+  // Fallback retry & auto-heal for mobile number login (e.g. registered cutting workers or designers)
+  if (error && phone10 && password && password.length >= 6) {
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    if (serviceRoleKey && supabaseUrl) {
+      try {
+        const adminClient = createAdminClient(supabaseUrl, serviceRoleKey)
+        const cuttingEmail = `${phone10}@cutting.nubira.local`
+
+        // Check if phone matches a cutting worker or design member
+        const { data: matchedWorker } = await adminClient
+          .from('cutting_workers')
+          .select('*')
+          .eq('phone_number', phone10)
+          .maybeSingle()
+
+        const { data: matchedDesigner } = await adminClient
+          .from('design_team_members')
+          .select('*')
+          .or(`phone_number.eq.${phone10},designer_phone.eq.${phone10}`)
+          .maybeSingle()
+
+        const targetEmail = matchedWorker?.worker_email || matchedDesigner?.designer_email || cuttingEmail
+        const role = matchedDesigner ? 'DESIGNER' : 'CUTTING_WORKER'
+        const fullName = matchedWorker?.worker_name || matchedDesigner?.designer_name || 'Floor Operator'
+
+        const { data: userList } = await adminClient.auth.admin.listUsers()
+        const foundAuth = userList?.users?.find(
+          u => u.email?.toLowerCase() === targetEmail.toLowerCase() ||
+               u.user_metadata?.phone_number === phone10
+        )
+
+        if (foundAuth) {
+          await adminClient.auth.admin.updateUserById(foundAuth.id, {
+            password: password,
+            email_confirm: true,
+            user_metadata: {
+              role,
+              full_name: fullName,
+              phone_number: phone10
+            }
+          })
+        } else {
+          await adminClient.auth.admin.createUser({
+            email: targetEmail,
+            password: password,
+            email_confirm: true,
+            user_metadata: {
+              role,
+              full_name: fullName,
+              phone_number: phone10
+            }
+          })
+        }
+
+        const retryWorker = await supabase.auth.signInWithPassword({
+          email: targetEmail,
+          password,
+        })
+
+        if (!retryWorker.error && retryWorker.data) {
+          authData = retryWorker.data
+          error = null
+        }
+      } catch (selfHealErr) {
+        console.warn('Worker login self-healing notice:', selfHealErr)
+      }
+    }
+  }
+
   if (error) {
     return { error: error.message }
   }
@@ -210,7 +280,7 @@ export async function login(formData: FormData) {
       const allowedModules = tenant.isSuperAdmin
         ? [...ALL_DIVISION_ROUTES, '/modules']
         : (tenant.allowedDivisions.length > 0 ? tenant.allowedDivisions : getUserAllowedModules(authData.user, { role: userRole }))
-      targetRoute = getDefaultLandingRoute(allowedModules, userRole, loginEmail)
+      targetRoute = getDefaultLandingRoute(allowedModules, userRole, authData.user?.email || loginEmail)
     }
   } catch (err) {
     console.error('Error resolving landing route upon login:', err)

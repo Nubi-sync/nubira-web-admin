@@ -1,31 +1,22 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { useSearchParams, useRouter } from 'next/navigation'
-import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import {
   Scissors,
   Clock,
   CheckCircle2,
   Play,
-  Check,
-  Building2,
   Layers,
-  Phone,
-  ArrowRight,
   RefreshCw,
   History,
   Briefcase,
   AlertCircle,
-  ClipboardList,
-  User,
-  ShieldCheck,
-  TableProperties
+  ClipboardList
 } from 'lucide-react'
 import { toast } from 'sonner'
-import { CuttingWorker, CuttingTaskAllocation } from '../../types/cutting'
+import { CuttingTaskAllocation } from '../../types/cutting'
 import {
-  getCuttingWorkers,
   getCuttingTaskAllocations,
   updateCuttingTaskStatus,
   CUTTING_UPDATE_EVENT
@@ -46,7 +37,6 @@ export function WorkerDashboardClient({
   userId,
   userRole
 }: WorkerDashboardClientProps) {
-  const router = useRouter()
   const searchParams = useSearchParams()
   const tabParam = searchParams.get('tab')
 
@@ -198,6 +188,9 @@ export function WorkerDashboardClient({
                 Welcome, {userName || 'Cutting Operator'}
               </h1>
               <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
+                {userRole ? userRole.replace(/_/g, ' ') : 'Cutting Floor Operator'}
+              </span>
+              <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-2xs tracking-wider">
                 {activeAssignments.length} Active Tasks
               </span>
             </div>
