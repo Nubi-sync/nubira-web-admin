@@ -4,13 +4,18 @@ import { AdminShell } from '@/components/layout/AdminShell'
 import { PrintingDashboardClient } from './components/PrintingDashboardClient'
 import {
   fetchPrintingDashboardKpisAction,
-  fetchPrintingRunsAction,
-  fetchStrikeOffsAction,
-  fetchCuringLogsAction
+  fetchPrintingWorkersAction,
+  fetchPrintingTaskAllocationsAction
 } from './actions'
+import { fetchActiveBuyersAction } from '@/app/merchandising/actions'
 import { resolveUserTenant, isLegacyNubiraTenant } from '@/lib/tenant-context'
 
 export const dynamic = 'force-dynamic'
+
+export const metadata = {
+  title: 'Screen & Digital Printing Studio | Zigza MES',
+  description: 'Screen print tables, automatic carousels, DTG stations, shift matrix tracking, and curing sign-offs'
+}
 
 export default async function PrintingModulePage() {
   const supabase = await createClient()
@@ -28,20 +33,21 @@ export default async function PrintingModulePage() {
   const isLegacy = isLegacyNubiraTenant(tenant)
   const companyFilter = isLegacy ? undefined : tenant.companyName
 
-  const [liveKpis, initialRuns, initialStrikeOffs, initialCuringLogs] = await Promise.all([
+  const [liveKpis, initialBuyers, initialWorkers, initialAllocations] = await Promise.all([
     fetchPrintingDashboardKpisAction(companyFilter),
-    fetchPrintingRunsAction(undefined, companyFilter),
-    fetchStrikeOffsAction(undefined, companyFilter),
-    fetchCuringLogsAction(companyFilter)
+    fetchActiveBuyersAction(),
+    fetchPrintingWorkersAction(),
+    fetchPrintingTaskAllocationsAction()
   ])
 
   return (
     <AdminShell userEmail={tenant.userEmail} userRole={tenant.role}>
       <PrintingDashboardClient 
         userEmail={tenant.userEmail}
-        initialRuns={initialRuns}
-        initialStrikeOffs={initialStrikeOffs}
-        initialCuringLogs={initialCuringLogs}
+        isSuperAdmin={tenant.isSuperAdmin}
+        initialBuyers={initialBuyers}
+        initialWorkers={initialWorkers}
+        initialAllocations={initialAllocations}
         liveKpis={liveKpis}
       />
     </AdminShell>

@@ -2,423 +2,1015 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import {
   Sparkles,
   ChevronLeft,
-  Cpu,
-  Zap,
-  FileCode,
-  Calculator,
+  Layers,
   ArrowRight,
-  Boxes,
   CheckCircle2,
-  Search
+  Clock,
+  Plus,
+  RefreshCw,
+  X,
+  AlertCircle,
+  Building2,
+  Users,
+  Search,
+  ChevronDown,
+  Check,
+  ShoppingBag,
+  Cpu,
+  Bot,
+  UserPlus,
+  TableProperties,
+  Phone,
+  Trash2,
+  Calendar
 } from 'lucide-react'
+import { toast } from 'sonner'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { 
+  EmbroideryWorker, 
+  EmbroideryTaskAllocation, 
+  EmbroideryAllocationStatus 
+} from '../types/embroidery'
 import {
-  getEmbroideryDesigns,
-  getMachineRuns,
-  EMBROIDERY_UPDATE_EVENT,
-} from '../utils/embroideryStorage'
-import { EmbroideryMachineRun, EmbroideryDesign } from '../types/embroidery'
+  getEmbroideryWorkers,
+  saveEmbroideryWorker,
+  deleteEmbroideryWorker,
+  getEmbroideryTaskAllocations,
+  saveEmbroideryTaskAllocation,
+  updateEmbroideryTaskStatus,
+  deleteEmbroideryTaskAllocation,
+  mergeEmbroideryTaskAllocations,
+  EMBROIDERY_FLOOR_UPDATE_EVENT
+} from '../utils/embroideryFloorStorage'
+import { 
+  getActiveBuyers, 
+  getOrders, 
+  MERCHANDISING_UPDATE_EVENT 
+} from '@/app/merchandising/utils/merchandisingStorage'
+import { AddWorkerModal } from './AddWorkerModal'
+import { WorkerListModal } from './WorkerListModal'
+import { AddTaskAllocationModal } from './AddTaskAllocationModal'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
+import { 
+  saveEmbroideryTaskAllocationAction, 
+  deleteEmbroideryTaskAllocationAction, 
+  fetchEmbroideryTaskAllocationsAction, 
+  fetchEmbroideryWorkersAction, 
+  deleteEmbroideryWorkerAction 
+} from '../actions'
 
 interface EmbroideryDashboardClientProps {
   userEmail?: string
+  isSuperAdmin?: boolean
+  initialBuyers?: any[]
+  initialWorkers?: EmbroideryWorker[]
+  initialAllocations?: EmbroideryTaskAllocation[]
   liveKpis?: any
-  initialRuns?: EmbroideryMachineRun[]
-  initialDesigns?: EmbroideryDesign[]
-  initialAudits?: any[]
-  initialCones?: any[]
 }
 
-export function EmbroideryDashboardClient({
-  userEmail,
-  liveKpis,
-  initialRuns,
-  initialDesigns,
-  initialAudits,
-  initialCones
-}: EmbroideryDashboardClientProps = {}) {
-  const router = useRouter()
-  const [runs, setRuns] = useState<EmbroideryMachineRun[]>(() => {
-    if (initialRuns && initialRuns.length > 0) return initialRuns
-    return []
-  })
-  const [designs, setDesigns] = useState<EmbroideryDesign[]>(() => {
-    if (initialDesigns && initialDesigns.length > 0) return initialDesigns
-    return []
-  })
-  const [searchFilter, setSearchFilter] = useState('')
+function mergeBuyersFromAllSources(serverBuyers: any[] = []): any[] {
+  const buyerMap = new Map<string, any>()
 
-  function loadData() {
-    if (initialRuns && initialRuns.length > 0) {
-      setRuns(initialRuns)
-    } else {
-      setRuns(getMachineRuns())
+  // 1. Process server buyers
+  serverBuyers.forEach(b => {
+    if (b && (b.id || b.buyer_name)) {
+      const key = (b.buyer_name || b.id).trim().toUpperCase()
+      buyerMap.set(key, { ...b })
     }
-    if (initialDesigns && initialDesigns.length > 0) {
-      setDesigns(initialDesigns)
-    } else {
-      setDesigns(getEmbroideryDesigns())
+  })
+
+  // 2. Process localStorage active buyers
+  if (typeof window !== 'undefined') {
+    try {
+      const localBuyers = getActiveBuyers()
+      localBuyers.forEach(b => {
+        if (b && (b.id || b.buyer_name)) {
+          const key = (b.buyer_name || b.id).trim().toUpperCase()
+          const existing = buyerMap.get(key)
+          if (!existing) {
+            buyerMap.set(key, { ...b })
+          } else {
+            if (Number(b.contracted_volume) > Number(existing.contracted_volume || 0)) {
+              existing.contracted_volume = b.contracted_volume
+            }
+            if (b.linked_article_number && !existing.linked_article_number) {
+              existing.linked_article_number = b.linked_article_number
+              existing.linked_article_name = b.linked_article_name
+            }
+          }
+        }
+      })
+    } catch {}
+
+    // 3. Process localStorage BPO orders
+    try {
+      const localOrders = getOrders()
+      localOrders.forEach(ord => {
+        if (ord && (ord.brand_name || ord.po_number)) {
+          const buyerName = ord.brand_name || 'Direct Buyer'
+          const key = buyerName.trim().toUpperCase()
+          const existing = buyerMap.get(key)
+          const qty = Number(ord.total_quantity) || 0
+          const price = Number(ord.unit_fob_price) || 12.5
+
+          if (!existing) {
+            buyerMap.set(key, {
+              id: ord.buyer_id || `byr-${key.toLowerCase().replace(/[^a-z0-9]/g, '-')}`,
+              buyer_name: buyerName,
+              buyer_code: ord.buyer_code || buyerName.slice(0, 4).toUpperCase(),
+              brand_name: buyerName,
+              contact_person: 'Procurement Lead',
+              contracted_volume: qty,
+              price_per_piece: price,
+              total_contract_value: qty * price,
+              currency: ord.currency || 'INR',
+              linked_article_id: ord.tech_pack_id,
+              linked_article_number: ord.style_ref,
+              linked_article_name: ord.style_name,
+              status: 'LINKED',
+              created_at: ord.created_at
+            })
+          } else {
+            if (qty > Number(existing.contracted_volume || 0)) {
+              existing.contracted_volume = qty
+            }
+            if (!existing.linked_article_number && ord.style_ref) {
+              existing.linked_article_number = ord.style_ref
+              existing.linked_article_name = ord.style_name
+            }
+          }
+        }
+      })
+    } catch {}
+  }
+
+  return Array.from(buyerMap.values())
+}
+
+export function EmbroideryDashboardClient({ 
+  userEmail,
+  isSuperAdmin = false,
+  initialBuyers,
+  initialWorkers = [],
+  initialAllocations = [],
+  liveKpis
+}: EmbroideryDashboardClientProps) {
+  // Workers & Task Allocations State
+  const [serverWorkers, setServerWorkers] = useState<EmbroideryWorker[]>(initialWorkers || [])
+  const [serverAllocations, setServerAllocations] = useState<EmbroideryTaskAllocation[]>(initialAllocations || [])
+  const [workers, setWorkers] = useState<EmbroideryWorker[]>([])
+  const [allocations, setAllocations] = useState<EmbroideryTaskAllocation[]>([])
+
+  // Modal Controls
+  const [isAddWorkerOpen, setIsAddWorkerOpen] = useState(false)
+  const [isWorkerListOpen, setIsWorkerListOpen] = useState(false)
+  const [isAddTaskOpen, setIsAddTaskOpen] = useState(false)
+
+  // Active Buyers for Contract Selection
+  const [buyers, setBuyers] = useState<any[]>(() => mergeBuyersFromAllSources(initialBuyers))
+  const [selectedBuyerId, setSelectedBuyerId] = useState<string>('')
+  const [isBuyerMenuOpen, setIsBuyerMenuOpen] = useState(false)
+  const [buyerSearchQuery, setBuyerSearchQuery] = useState('')
+  const [isSyncing, setIsSyncing] = useState(false)
+
+  // Spreadsheet Filters
+  const [taskSearchQuery, setTaskSearchQuery] = useState('')
+  const [statusFilter, setStatusFilter] = useState<'ACTIVE' | 'NEEDS_VERIFY' | 'COMPLETED' | 'ALL'>('ACTIVE')
+
+  // Delete Task Modal State
+  const [taskToDelete, setTaskToDelete] = useState<{
+    id: string
+    taskRef: string
+    workerName: string
+    buyerName: string
+    articleNumber: string
+    pieces: number
+    table: string
+  } | null>(null)
+  const [isDeletingTask, setIsDeletingTask] = useState(false)
+
+  // Sync state if props update
+  useEffect(() => {
+    if (initialWorkers && initialWorkers.length > 0) {
+      setServerWorkers(initialWorkers)
     }
+  }, [initialWorkers])
+
+  useEffect(() => {
+    if (initialAllocations && initialAllocations.length > 0) {
+      setServerAllocations(initialAllocations)
+    }
+  }, [initialAllocations])
+
+  // Load and refresh workers & task allocations
+  const refreshFloorData = () => {
+    const localWorkers = getEmbroideryWorkers()
+    const workerMap = new Map<string, EmbroideryWorker>()
+    serverWorkers.forEach(w => { if (w?.id || w?.phone_number) workerMap.set(w.phone_number || w.id, w) })
+    localWorkers.forEach(w => { if (w?.id || w?.phone_number) workerMap.set(w.phone_number || w.id, { ...(workerMap.get(w.phone_number || w.id) || {}), ...w }) })
+    setWorkers(Array.from(workerMap.values()))
+
+    const localTasks = getEmbroideryTaskAllocations()
+    const mergedTasks = mergeEmbroideryTaskAllocations(serverAllocations, localTasks)
+    setAllocations(mergedTasks)
+
+    const merged = mergeBuyersFromAllSources(initialBuyers)
+    setBuyers(merged)
+  }
+
+  // Delete Worker Handler
+  const handleDeleteWorker = async (workerId: string, phone?: string) => {
+    const rawDigits = (phone || workerId || '').replace(/\D/g, '')
+    const phone10 = rawDigits.length >= 10 ? rawDigits.slice(-10) : ''
+    const idClean = workerId.trim().toLowerCase()
+
+    setServerWorkers(prev => prev.filter(w => {
+      if (w.id === workerId) return false
+      if (w.worker_name && (w.worker_name.toLowerCase() === idClean || idClean.includes(w.worker_name.toLowerCase()))) return false
+      if (phone10 && w.phone_number && w.phone_number.includes(phone10)) return false
+      return true
+    }))
+
+    setWorkers(prev => prev.filter(w => {
+      if (w.id === workerId) return false
+      if (w.worker_name && (w.worker_name.toLowerCase() === idClean || idClean.includes(w.worker_name.toLowerCase()))) return false
+      if (phone10 && w.phone_number && w.phone_number.includes(phone10)) return false
+      return true
+    }))
+
+    deleteEmbroideryWorker(workerId)
+    await deleteEmbroideryWorkerAction(workerId, phone)
   }
 
   useEffect(() => {
-    if (initialRuns && initialRuns.length > 0) {
-      setRuns(initialRuns)
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('zigza_embroidery_runs_v2', JSON.stringify(initialRuns))
-      }
-    } else {
-      setRuns(getMachineRuns())
-    }
+    refreshFloorData()
 
-    if (initialDesigns && initialDesigns.length > 0) {
-      setDesigns(initialDesigns)
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('zigza_embroidery_designs_v2', JSON.stringify(initialDesigns))
-      }
-    } else {
-      setDesigns(getEmbroideryDesigns())
-    }
-
-    if (initialAudits && initialAudits.length > 0) {
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('zigza_embroidery_qc_v2', JSON.stringify(initialAudits))
+    if (typeof window !== 'undefined') {
+      window.addEventListener('storage', refreshFloorData)
+      window.addEventListener(MERCHANDISING_UPDATE_EVENT, refreshFloorData)
+      window.addEventListener(EMBROIDERY_FLOOR_UPDATE_EVENT, refreshFloorData)
+      return () => {
+        window.removeEventListener('storage', refreshFloorData)
+        window.removeEventListener(MERCHANDISING_UPDATE_EVENT, refreshFloorData)
+        window.removeEventListener(EMBROIDERY_FLOOR_UPDATE_EVENT, refreshFloorData)
       }
     }
+  }, [initialBuyers, serverWorkers, serverAllocations])
 
-    if (initialCones && initialCones.length > 0) {
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('zigza_embroidery_cones_v2', JSON.stringify(initialCones))
-      }
+  const handleManualSync = async () => {
+    setIsSyncing(true)
+    try {
+      const [freshTasks, freshWorkers] = await Promise.all([
+        fetchEmbroideryTaskAllocationsAction(),
+        fetchEmbroideryWorkersAction()
+      ])
+      setServerWorkers(freshWorkers || [])
+      setServerAllocations(freshTasks || [])
+
+      const workerMap = new Map<string, EmbroideryWorker>()
+      freshWorkers.forEach((w: any) => { if (w?.id || w?.phone_number) workerMap.set(w.phone_number || w.id, w) })
+      getEmbroideryWorkers().forEach(w => { if (w?.id || w?.phone_number) workerMap.set(w.phone_number || w.id, { ...(workerMap.get(w.phone_number || w.id) || {}), ...w }) })
+      setWorkers(Array.from(workerMap.values()))
+
+      const mergedTasks = mergeEmbroideryTaskAllocations(freshTasks || [], getEmbroideryTaskAllocations())
+      setAllocations(mergedTasks)
+
+      toast.success('Embroidery floor & worker sync updated from cloud database.')
+    } catch {
+      refreshFloorData()
+    } finally {
+      setIsSyncing(false)
     }
+  }
 
-    window.addEventListener(EMBROIDERY_UPDATE_EVENT, loadData)
-    return () => window.removeEventListener(EMBROIDERY_UPDATE_EVENT, loadData)
-  }, [initialRuns, initialDesigns, initialAudits, initialCones])
+  // Determine active selected buyer
+  const activeSelectedBuyerId = selectedBuyerId && buyers.some(b => b.id === selectedBuyerId)
+    ? selectedBuyerId
+    : (buyers[0]?.id || '')
 
-  // Calculations
-  const totalStitchesToday = runs.reduce((acc, r) => acc + (r.total_stitches_run || 0), 0)
-  const totalCompletedPanels = runs.reduce((acc, r) => acc + (r.panels_completed || 0), 0)
-  const totalBreaks = runs.reduce((acc, r) => acc + (r.thread_breaks_count || 0), 0)
-  const activeLinesCount = runs.filter(r => r.status === 'RUNNING').length
+  const selectedBuyer = buyers.find(b => b.id === activeSelectedBuyerId) || (buyers.length > 0 ? buyers[0] : null)
 
-  const filteredRuns = runs.filter(r =>
-    r.machine_number.toLowerCase().includes(searchFilter.toLowerCase()) ||
-    r.design_code.toLowerCase().includes(searchFilter.toLowerCase()) ||
-    r.operator_name.toLowerCase().includes(searchFilter.toLowerCase()) ||
-    r.order_po.toLowerCase().includes(searchFilter.toLowerCase())
+  const filteredBuyersList = buyers.filter(b =>
+    (b.buyer_name || '').toLowerCase().includes(buyerSearchQuery.toLowerCase()) ||
+    (b.buyer_code || '').toLowerCase().includes(buyerSearchQuery.toLowerCase()) ||
+    (b.brand_name && b.brand_name.toLowerCase().includes(buyerSearchQuery.toLowerCase())) ||
+    (b.linked_article_number && b.linked_article_number.toLowerCase().includes(buyerSearchQuery.toLowerCase()))
   )
 
+  // Piece metrics calculation for the selected buyer & linked article
+  const localOrders = typeof window !== 'undefined' ? getOrders() : []
+  const matchingBpos = selectedBuyer
+    ? localOrders.filter(o => 
+        (o.brand_name && (selectedBuyer.buyer_name || selectedBuyer.brand_name) && 
+         o.brand_name.toLowerCase() === (selectedBuyer.buyer_name || selectedBuyer.brand_name).toLowerCase()) ||
+        (o.buyer_id && o.buyer_id === selectedBuyer.id)
+      )
+    : []
+  const bpoOrdersTotal = matchingBpos.reduce((sum, o) => sum + (Number(o.total_quantity) || 0), 0)
+  const totalBpoContractedPieces = Math.max(Number(selectedBuyer?.contracted_volume) || 0, bpoOrdersTotal)
+  const articleNum = (selectedBuyer?.linked_article_number || matchingBpos[0]?.style_ref || '').trim().toUpperCase()
+
+  // Match allocations for this buyer/article
+  const matchingAllocations = allocations.filter(t => {
+    if (!selectedBuyer && !articleNum) return true
+    const buyerMatch = selectedBuyer ? (t.buyer_name || '').toLowerCase() === (selectedBuyer.buyer_name || '').toLowerCase() : false
+    const articleMatch = articleNum ? (t.article_number || '').trim().toUpperCase() === articleNum : false
+    return buyerMatch || articleMatch
+  })
+
+  // 1. COMPLETED EMBROIDERY: Pieces verified and signed off by Head of Dept
+  const completedEmbroideryPieces = matchingAllocations
+    .filter(t => t.status === 'VERIFIED_COMPLETED' || t.status === 'COMPLETED')
+    .reduce((sum, curr) => sum + (Number(curr.completed_pieces || curr.pieces_to_embroider) || 0), 0)
+
+  // 2. PENDING EMBROIDERY: Pieces assigned to worker/machine
+  const pendingEmbroideryPieces = matchingAllocations
+    .filter(t => t.status !== 'VERIFIED_COMPLETED' && t.status !== 'COMPLETED')
+    .reduce((sum, curr) => sum + (Number(curr.pieces_to_embroider) || 0), 0)
+
+  // 3. IN HAND: Unallocated queue waiting for machine assignment
+  const inHandPieces = Math.max(0, totalBpoContractedPieces - pendingEmbroideryPieces - completedEmbroideryPieces)
+
+  const selectedBuyerDisplayText = selectedBuyer
+    ? `${selectedBuyer.buyer_name} (${totalBpoContractedPieces.toLocaleString('en-IN')} Pcs Total)`
+    : (buyers.length === 0 ? 'No Active Buyers Contracted' : 'Select Buyer Contract')
+
+  // Filtered Task Allocations for Spreadsheet
+  const filteredTasks = allocations.filter(task => {
+    const matchesSearch = 
+      (task.task_ref || '').toLowerCase().includes(taskSearchQuery.toLowerCase()) ||
+      (task.worker_name || '').toLowerCase().includes(taskSearchQuery.toLowerCase()) ||
+      (task.article_number || '').toLowerCase().includes(taskSearchQuery.toLowerCase()) ||
+      (task.buyer_name || '').toLowerCase().includes(taskSearchQuery.toLowerCase()) ||
+      (task.table_number || '').toLowerCase().includes(taskSearchQuery.toLowerCase())
+
+    let matchesStatus = true
+    if (statusFilter === 'ACTIVE') {
+      matchesStatus = task.status !== 'VERIFIED_COMPLETED' && task.status !== 'COMPLETED'
+    } else if (statusFilter === 'NEEDS_VERIFY') {
+      matchesStatus = task.status === 'WORKER_COMPLETED'
+    } else if (statusFilter === 'COMPLETED') {
+      matchesStatus = task.status === 'VERIFIED_COMPLETED' || task.status === 'COMPLETED'
+    }
+    return matchesSearch && matchesStatus
+  })
+
+  // Head of Dept "Verify & Done" Sign-Off Handler
+  const handleVerifyAndDone = async (taskId: string, taskRef: string, pieces: number) => {
+    const updated = updateEmbroideryTaskStatus(taskId, 'VERIFIED_COMPLETED', { completed_pieces: pieces, completed_at: new Date().toISOString() })
+    setAllocations(updated)
+    const taskObj = updated.find(t => t.id === taskId || t.task_ref === taskId)
+    if (taskObj) {
+      await saveEmbroideryTaskAllocationAction(taskObj)
+    }
+    toast.success(`Task #${taskRef} verified! ${pieces.toLocaleString('en-IN')} pcs moved from Pending to Completed Embroidery & Worker Workstation History.`)
+  }
+
+  // Delete Task Handler
+  const handleConfirmDeleteTask = async () => {
+    if (!taskToDelete) return
+    try {
+      setIsDeletingTask(true)
+      const updated = deleteEmbroideryTaskAllocation(taskToDelete.id)
+      setAllocations(updated)
+      await deleteEmbroideryTaskAllocationAction(taskToDelete.id)
+      toast.info(`Task #${taskToDelete.taskRef} removed from allocations.`)
+    } catch (err) {
+      console.error('Failed to delete task allocation:', err)
+      toast.error('Failed to remove task allocation.')
+    } finally {
+      setIsDeletingTask(false)
+      setTaskToDelete(null)
+    }
+  }
+
+  // Format Due Timeline
+  const formatDueTimeline = (isoTime: string, allotedHours: number): { formatted: string; isPast: boolean } => {
+    if (!isoTime) return { formatted: `${allotedHours} hrs alloted`, isPast: false }
+    try {
+      const d = new Date(isoTime)
+      const isPast = d.getTime() < Date.now()
+      const timeStr = d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })
+      const dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+      return {
+        formatted: `${timeStr}, ${dateStr}`,
+        isPast
+      }
+    } catch {
+      return { formatted: `${allotedHours} hrs alloted`, isPast: false }
+    }
+  }
+
   return (
-    <div className="p-4 sm:p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto text-[#09090b] select-none">
-      {/* 1. Top Breadcrumb & Tag */}
+    <div className="p-4 sm:p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto select-none">
+      
+      {/* Navigation Breadcrumb */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-2">
-          <Link
-            href="/modules"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs cursor-pointer"
-          >
-            <ChevronLeft className="w-3.5 h-3.5" />
-            <span>Workspace Hub</span>
-          </Link>
-          <span className="text-slate-400 font-mono text-xs">/</span>
-          <span className="text-xs font-mono font-bold text-slate-900">Division 05 • Multi-Head Embroidery</span>
+          {isSuperAdmin && (
+            <>
+              <Link
+                href="/modules"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs cursor-pointer"
+              >
+                <ChevronLeft className="w-3.5 h-3.5" />
+                <span>Workspace Hub</span>
+              </Link>
+              <span className="text-slate-400 font-mono text-xs">/</span>
+            </>
+          )}
+          <span className="text-xs font-mono font-bold text-slate-900">Division 05 • Embroidery Studio</span>
         </div>
-
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-mono font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#3A3564]" />
-            200 Heads Active
-          </span>
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-mono font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-            ASTM D204 / ISO 4915
+        
+        <div className="flex items-center gap-2">
+          <span className="text-[11px] font-mono font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+            Multi-Head &amp; Punch Sync Active
           </span>
         </div>
       </div>
 
-      {/* 2. Header Banner Card */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div className="flex items-center gap-3.5">
+      {/* Module Header Card */}
+      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col lg:flex-row justify-between items-start lg:items-center gap-5">
+        <div className="flex items-start sm:items-center gap-4">
           <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
             <Sparkles className="w-6 h-6" />
           </div>
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
               <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
-                Multi-Head Embroidery Floor
+                Multi-Head Embroidery Studio
               </h1>
-              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15">
-                Division 05
+              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                {workers.length} Workers Registered
               </span>
             </div>
             <p className="text-xs sm:text-sm font-semibold text-slate-600 mt-1">
-              Computerized 20-head Tajima and Barudan lines, Tajima DST binary files, tension checks, and stitch piece-rate billing.
+              Multi-head computerized machines, hooping stations, shift matrix tracking, and stitch sign-offs
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5 flex-wrap w-full md:w-auto">
+        {/* Quick Nav Chips */}
+        <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
           <Link
-            href="/embroidery/punch-library"
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white border border-black/10 hover:bg-[#FAF7F0] text-slate-800 rounded-xl text-xs font-bold transition-all shadow-2xs cursor-pointer"
+            href="/embroidery/zigza-ai"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs"
           >
-            <FileCode className="w-3.5 h-3.5 text-[#3A3564]" />
-            <span>DST Library</span>
+            <Bot className="w-3.5 h-3.5" />
+            <span>Zigza AI</span>
           </Link>
           <Link
-            href="/embroidery/machine-runs"
-            className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
+            href="/embroidery/profile"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs"
           >
-            <Cpu className="w-3.5 h-3.5" />
-            <span>Machine Shifts</span>
+            <Users className="w-3.5 h-3.5" />
+            <span>Division Profile</span>
           </Link>
         </div>
       </div>
 
-      {/* 3. Executive Metric Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-mono font-bold text-slate-500">Active 20-Head Lines</span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
-              <Cpu className="w-4 h-4" />
-            </div>
+      {/* Buyer Selection & Worker Controls Bar */}
+      <div className="bg-white p-4 sm:p-5 rounded-2xl border border-black/10 shadow-2xs flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
+        
+        {/* Left: Active Buyer Info Pill */}
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+            <Building2 className="w-5 h-5" />
           </div>
-          <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900">
-            {activeLinesCount} / {runs.length} Lines
-          </div>
-          <p className="text-xs font-medium text-slate-500 mt-1">
-            200 Automated high-speed heads
-          </p>
-        </div>
-
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-mono font-bold text-slate-500">Daily Stitch Throughput</span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
-              <Zap className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900">
-            {(totalStitchesToday / 1000000).toFixed(2)}M Stitches
-          </div>
-          <p className="text-xs font-medium text-slate-600 mt-1">
-            {totalCompletedPanels.toLocaleString()} Panels finished today
-          </p>
-        </div>
-
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-mono font-bold text-slate-500">Thread Break Frequency (TBF)</span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
-              <CheckCircle2 className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900">
-            0.02%
-          </div>
-          <p className="text-xs font-medium text-slate-500 mt-1">
-            {totalBreaks} Breaks recorded (&lt;0.03% ASTM standard)
-          </p>
-        </div>
-
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-mono font-bold text-slate-500">DST Punch Library</span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
-              <FileCode className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900">
-            {designs.length} Approved Files
-          </div>
-          <p className="text-xs font-medium text-slate-500 mt-1">
-            Network loaded Tajima / Barudan
-          </p>
-        </div>
-      </div>
-
-      {/* 4. Quick Access Portal Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <Link
-          href="/embroidery/punch-library"
-          className="bg-white p-4 rounded-xl border border-black/10 hover:border-[#3A3564]/30 hover:bg-[#FAF7F0]/60 transition-all shadow-2xs group flex flex-col justify-between cursor-pointer"
-        >
-          <div className="flex items-center justify-between">
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
-              <FileCode className="w-4 h-4" />
-            </div>
-            <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-[#3A3564] transition-colors" />
-          </div>
-          <div className="mt-3">
-            <div className="text-xs font-bold text-slate-900">DST Punch Files</div>
-            <div className="text-[11px] text-slate-500 font-medium">Stitch densities & colors</div>
-          </div>
-        </Link>
-
-        <Link
-          href="/embroidery/machine-runs"
-          className="bg-white p-4 rounded-xl border border-black/10 hover:border-[#3A3564]/30 hover:bg-[#FAF7F0]/60 transition-all shadow-2xs group flex flex-col justify-between cursor-pointer"
-        >
-          <div className="flex items-center justify-between">
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
-              <Cpu className="w-4 h-4" />
-            </div>
-            <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-[#3A3564] transition-colors" />
-          </div>
-          <div className="mt-3">
-            <div className="text-xs font-bold text-slate-900">20-Head Machine Floor</div>
-            <div className="text-[11px] text-slate-500 font-medium">Active shift progression</div>
-          </div>
-        </Link>
-
-        <Link
-          href="/embroidery/stitch-billing"
-          className="bg-white p-4 rounded-xl border border-black/10 hover:border-[#3A3564]/30 hover:bg-[#FAF7F0]/60 transition-all shadow-2xs group flex flex-col justify-between cursor-pointer"
-        >
-          <div className="flex items-center justify-between">
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
-              <Calculator className="w-4 h-4" />
-            </div>
-            <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-[#3A3564] transition-colors" />
-          </div>
-          <div className="mt-3">
-            <div className="text-xs font-bold text-slate-900">Stitch Billing & Rates</div>
-            <div className="text-[11px] text-slate-500 font-medium">Commercial piece-rate</div>
-          </div>
-        </Link>
-
-        <Link
-          href="/embroidery/thread-store"
-          className="bg-white p-4 rounded-xl border border-black/10 hover:border-[#3A3564]/30 hover:bg-[#FAF7F0]/60 transition-all shadow-2xs group flex flex-col justify-between cursor-pointer"
-        >
-          <div className="flex items-center justify-between">
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
-              <Boxes className="w-4 h-4" />
-            </div>
-            <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-[#3A3564] transition-colors" />
-          </div>
-          <div className="mt-3">
-            <div className="text-xs font-bold text-slate-900">Thread Cones Store</div>
-            <div className="text-[11px] text-slate-500 font-medium">Madeira & Isacord stock</div>
-          </div>
-        </Link>
-      </div>
-
-      {/* 5. Real-Time Multi-Head Machine Floor Matrix */}
-      <div className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden">
-        <div className="p-5 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-[#FAF7F0]/30">
           <div>
-            <h2 className="text-lg font-bold text-slate-900 font-[family-name:var(--font-heading)]">
-              Multi-Head Computerized Machine Grid (10 Production Lines)
-            </h2>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Real-time telemetry across 20-head Tajima, Barudan & SWF automated lines.
-            </p>
-          </div>
-
-          <div className="relative w-full sm:w-64">
-            <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Search machine, DST, operator..."
-              value={searchFilter}
-              onChange={e => setSearchFilter(e.target.value)}
-              className="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl border border-black/10 focus:outline-none focus:ring-1 focus:ring-[#3A3564] bg-white text-slate-900 placeholder:text-slate-400 font-medium"
-            />
+            <div className="text-xs font-mono font-bold uppercase tracking-wider text-slate-400">
+              Selected Buyer Contract
+            </div>
+            <div className="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2 flex-wrap">
+              <span>{selectedBuyer ? selectedBuyer.buyer_name : 'No Active Buyers'}</span>
+              {selectedBuyer?.linked_article_number && (
+                <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                  Article: {selectedBuyer.linked_article_number}
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
-        {filteredRuns.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-5">
-            {filteredRuns.map(run => {
-              const pct = Math.min(100, Math.round((run.panels_completed / (run.panels_loaded || 1)) * 100))
+        {/* Right: Buyer Dropdown + View Worker List + Add Worker Buttons */}
+        <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap justify-end">
+          
+          {/* Buyer Selector Searchable Dropdown */}
+          <div className="relative min-w-[220px] sm:min-w-[260px]">
+            <button
+              type="button"
+              onClick={() => setIsBuyerMenuOpen(!isBuyerMenuOpen)}
+              className="w-full flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-xs sm:text-sm font-bold text-slate-800 transition-all cursor-pointer shadow-2xs"
+            >
+              <div className="flex items-center gap-2 truncate">
+                <Users className="w-4 h-4 text-[#3A3564] shrink-0" />
+                <span className="truncate">{selectedBuyerDisplayText}</span>
+              </div>
+              <ChevronDown className={`w-4 h-4 text-slate-500 shrink-0 transition-transform ${isBuyerMenuOpen ? 'rotate-180' : ''}`} />
+            </button>
 
-              return (
-                <div
-                  key={run.id}
-                  className="p-4 rounded-xl border border-black/10 hover:border-black/20 bg-white transition-all shadow-2xs space-y-3"
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-mono font-bold text-sm text-slate-900">
-                          {run.machine_number}
-                        </span>
-                        <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-                          {run.status.replace(/_/g, ' ')}
-                        </span>
-                      </div>
-                      <div className="text-xs font-medium text-slate-600 mt-0.5">
-                        Operator: <span className="font-bold text-slate-900">{run.operator_name}</span>
-                      </div>
-                    </div>
-
-                    <div className="text-right">
-                      <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-                        {run.rpm_speed} RPM
-                      </span>
-                      <div className="text-[10px] font-mono text-slate-500 mt-1">
-                        {run.active_heads}/{run.total_heads} Heads
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="bg-[#FAF7F0]/60 p-3 rounded-xl border border-black/5 space-y-1.5 text-xs">
-                    <div className="flex justify-between items-center font-mono">
-                      <span className="text-slate-500 font-semibold">Punch File:</span>
-                      <span className="font-bold text-[#3A3564]">{run.design_code}</span>
-                    </div>
-                    <div className="flex justify-between items-center font-mono">
-                      <span className="text-slate-500 font-semibold">Buyer PO:</span>
-                      <span className="text-slate-800 font-semibold">{run.order_po}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-slate-500 font-semibold">Backing Stabilizer:</span>
-                      <span className="text-slate-700 text-[11px] font-mono">{run.backing_spec}</span>
-                    </div>
-                  </div>
-
-                  {/* Progress bar */}
-                  <div>
-                    <div className="flex justify-between text-xs font-mono mb-1">
-                      <span className="text-slate-500">Panels Progress</span>
-                      <span className="font-bold text-slate-900">
-                        {run.panels_completed} / {run.panels_loaded} ({pct}%)
-                      </span>
-                    </div>
-                    <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
-                      <div
-                        className="bg-[#3A3564] h-1.5 rounded-full transition-all duration-500"
-                        style={{ width: `${pct}%` }}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1 border-t border-slate-100 font-mono">
-                    <span>Thread Breaks: <strong className="text-slate-900">{run.thread_breaks_count}</strong></span>
-                    <span>Stitches: <strong className="text-slate-900 font-bold">{(run.total_stitches_run / 1000).toFixed(0)}k</strong></span>
-                  </div>
+            {isBuyerMenuOpen && (
+              <div className="absolute right-0 top-full mt-1.5 w-80 bg-white rounded-xl border border-black/10 shadow-xl z-30 p-2 space-y-1.5 animate-in fade-in zoom-in-95">
+                <div className="relative">
+                  <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    value={buyerSearchQuery}
+                    onChange={e => setBuyerSearchQuery(e.target.value)}
+                    placeholder="Search buyers..."
+                    className="w-full pl-8 pr-2.5 py-1.5 text-xs rounded-lg border border-black/10 bg-slate-50 focus:bg-white focus:outline-hidden focus:border-[#3A3564]"
+                    autoFocus
+                  />
                 </div>
-              )
-            })}
+                <div className="max-h-56 overflow-y-auto space-y-0.5 pt-1">
+                  {filteredBuyersList.length === 0 ? (
+                    <div className="py-3 px-2 text-center text-xs text-slate-400">
+                      No buyers found
+                    </div>
+                  ) : (
+                    filteredBuyersList.map(b => (
+                      <button
+                        key={b.id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedBuyerId(b.id)
+                          setIsBuyerMenuOpen(false)
+                        }}
+                        className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer flex items-center justify-between ${
+                          activeSelectedBuyerId === b.id
+                            ? 'bg-[#3A3564] text-white font-bold'
+                            : 'text-slate-700 hover:bg-[#FAF7F0]'
+                        }`}
+                      >
+                        <div className="truncate pr-2">
+                          <div className="font-bold">{b.buyer_name}</div>
+                          <div className={`text-[10px] font-mono mt-0.5 ${activeSelectedBuyerId === b.id ? 'text-indigo-200' : 'text-slate-500'}`}>
+                            {(Number(b.contracted_volume) || 0).toLocaleString('en-IN')} Pcs {b.linked_article_number ? `• ${b.linked_article_number}` : '• Pending Link'}
+                          </div>
+                        </div>
+                        {activeSelectedBuyerId === b.id && <Check className="w-4 h-4 text-white shrink-0" />}
+                      </button>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
           </div>
-        ) : (
-          <div className="p-5">
-            <EmptyState
-              variant="seamless"
-              icon={Cpu}
-              title="No multi-head machine runs found"
-              description="Active 20-head Tajima and Barudan production runs, stitch counters, and telemetry will appear once scheduled."
-              actionLabel="Schedule Machine Shift"
-              onAction={() => router.push('/embroidery/machine-runs')}
-            />
+
+          {/* Button 1: View Worker List */}
+          <button
+            type="button"
+            onClick={() => setIsWorkerListOpen(true)}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-black/10 bg-white hover:bg-[#FAF7F0] text-xs font-mono font-bold text-slate-800 transition-all cursor-pointer shadow-2xs shrink-0"
+          >
+            <Users className="w-4 h-4 text-[#3A3564]" />
+            <span>View Worker List ({workers.length})</span>
+          </button>
+
+          {/* Button 2: Add Worker */}
+          <button
+            type="button"
+            onClick={() => setIsAddWorkerOpen(true)}
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer shrink-0"
+          >
+            <UserPlus className="w-4 h-4" />
+            <span>+ Add Worker</span>
+          </button>
+
+          {/* Refresh Sync Button */}
+          <button
+            type="button"
+            onClick={handleManualSync}
+            disabled={isSyncing}
+            className="p-2.5 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-[#3A3564] transition-all cursor-pointer shadow-2xs flex items-center justify-center shrink-0"
+            title="Sync latest live floor updates"
+          >
+            <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
+          </button>
+
+        </div>
+      </div>
+
+      {/* 3 Summary Metric Cards (Embroidery has 3 boxes ONLY) */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
+        
+        {/* 1. In Hand */}
+        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
+              In Hand
+            </span>
+            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+              <ShoppingBag className="w-5 h-5" />
+            </div>
+          </div>
+          <div>
+            <div className="text-2xl sm:text-3xl lg:text-4xl font-black font-mono text-slate-900">
+              {inHandPieces.toLocaleString('en-IN')}
+            </div>
+            <p className="text-xs font-semibold text-slate-500 mt-1">
+              {selectedBuyer ? `${inHandPieces.toLocaleString('en-IN')} unassigned pcs in queue` : 'Unassigned BPO pieces in queue'}
+            </p>
+          </div>
+        </div>
+
+        {/* 2. Pending Embroidery */}
+        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
+              Pending Embroidery
+            </span>
+            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+              <Clock className="w-5 h-5" />
+            </div>
+          </div>
+          <div>
+            <div className="text-2xl sm:text-3xl lg:text-4xl font-black font-mono text-slate-900">
+              {pendingEmbroideryPieces.toLocaleString('en-IN')}
+            </div>
+            <p className="text-xs font-semibold text-slate-500 mt-1">
+              {pendingEmbroideryPieces > 0 ? `${pendingEmbroideryPieces.toLocaleString('en-IN')} pcs assigned on machines` : '0 pcs assigned to machine'}
+            </p>
+          </div>
+        </div>
+
+        {/* 3. Completed Embroidery */}
+        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
+              Completed Embroidery
+            </span>
+            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+              <Sparkles className="w-5 h-5" />
+            </div>
+          </div>
+          <div>
+            <div className="text-2xl sm:text-3xl lg:text-4xl font-black font-mono text-slate-900">
+              {completedEmbroideryPieces.toLocaleString('en-IN')}
+            </div>
+            <p className="text-xs font-semibold text-slate-500 mt-1">
+              {completedEmbroideryPieces > 0 ? `${completedEmbroideryPieces.toLocaleString('en-IN')} embroidered panels verified & bundled` : '0 embroidered panels verified'}
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+      {/* SPREADSHEET MATRIX: Worker Shift & Piece Allocation Layout */}
+      <div className="bg-white rounded-3xl border border-black/10 shadow-2xs overflow-hidden space-y-0">
+        
+        {/* Spreadsheet Header Bar */}
+        <div className="p-5 sm:p-6 border-b border-black/10 bg-[#FAF7F0]/40 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-white border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+                <TableProperties className="w-4.5 h-4.5" />
+              </div>
+              <div>
+                <h2 className="text-lg sm:text-xl font-bold text-slate-900 font-[family-name:var(--font-heading)]">
+                  Embroidery Floor Task Allocation Matrix
+                </h2>
+                <p className="text-xs text-slate-500 font-mono">
+                  Distribute article embroidery quotas, assign multi-head machines, and set shift deadline targets
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Search, Filter & Add Row Button */}
+          <div className="flex items-center gap-3 w-full lg:w-auto flex-wrap sm:flex-nowrap justify-end">
+            
+            {/* Search */}
+            <div className="relative flex-1 sm:w-60">
+              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                value={taskSearchQuery}
+                onChange={e => setTaskSearchQuery(e.target.value)}
+                placeholder="Search worker, article, task..."
+                className="w-full pl-8 pr-3 py-2 text-xs rounded-xl border border-black/10 bg-white focus:outline-hidden focus:border-[#3A3564]"
+              />
+            </div>
+
+            {/* Status Tabs */}
+            <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-black/10 overflow-x-auto">
+              {[
+                { id: 'ACTIVE', label: 'Active Queue' },
+                { id: 'NEEDS_VERIFY', label: 'Needs Verification' },
+                { id: 'COMPLETED', label: 'Verified & Done' },
+                { id: 'ALL', label: 'All' }
+              ].map(st => (
+                <button
+                  key={st.id}
+                  type="button"
+                  onClick={() => setStatusFilter(st.id as any)}
+                  className={`px-2.5 py-1 text-[11px] font-mono font-bold rounded-lg transition-all cursor-pointer whitespace-nowrap ${
+                    statusFilter === st.id
+                      ? 'bg-[#3A3564] text-white'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-[#FAF7F0]'
+                  }`}
+                >
+                  {st.label}
+                </button>
+              ))}
+            </div>
+
+            {/* + Add Assignment Row Button */}
+            <button
+              type="button"
+              onClick={() => setIsAddTaskOpen(true)}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer shrink-0"
+            >
+              <Plus className="w-4 h-4" />
+              <span>+ Add Task Row</span>
+            </button>
+
+          </div>
+        </div>
+
+        {/* Spreadsheet Data Table */}
+        <div className="overflow-x-auto">
+          {filteredTasks.length === 0 ? (
+            <div className="py-16 px-4 text-center">
+              <div className="w-14 h-14 rounded-2xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center mx-auto text-[#3A3564] mb-3 shadow-2xs">
+                <TableProperties className="w-7 h-7" />
+              </div>
+              <h3 className="text-base font-bold text-slate-900">No Matching Embroidery Tasks</h3>
+              <p className="text-xs text-slate-500 font-mono mt-1 max-w-md mx-auto">
+                {statusFilter === 'NEEDS_VERIFY'
+                  ? 'No tasks currently waiting for Head of Department verification.'
+                  : 'Allocate article embroidery piece quotas to registered workers. When assigned, pieces move from In Hand to Pending Embroidery.'}
+              </p>
+              {statusFilter === 'ACTIVE' && (
+                <button
+                  type="button"
+                  onClick={() => setIsAddTaskOpen(true)}
+                  className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs font-mono font-bold shadow-xs cursor-pointer transition-all"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Assign Task Row</span>
+                </button>
+              )}
+            </div>
+          ) : (
+            <table className="w-full text-left text-xs min-w-[900px]">
+              <thead className="bg-[#FAF7F0] text-[#3A3564] font-mono uppercase text-[11px] tracking-wider border-b border-black/10">
+                <tr>
+                  <th className="py-3 px-4 font-bold"># Task Ref</th>
+                  <th className="py-3 px-4 font-bold">Worker &amp; Contact</th>
+                  <th className="py-3 px-4 font-bold">Article &amp; Buyer</th>
+                  <th className="py-3 px-4 font-bold">Station / Machine</th>
+                  <th className="py-3 px-4 font-bold text-right">Pieces to Embroider</th>
+                  <th className="py-3 px-4 font-bold text-center">Alloted Time</th>
+                  <th className="py-3 px-4 font-bold">Due Timeline</th>
+                  <th className="py-3 px-4 font-bold">Status</th>
+                  <th className="py-3 px-4 font-bold text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-black/5 font-medium">
+                {filteredTasks.map(task => {
+                  const timeline = formatDueTimeline(task.due_time, task.alloted_hours)
+                  const isVerified = task.status === 'VERIFIED_COMPLETED' || task.status === 'COMPLETED'
+                  const isWorkerCompleted = task.status === 'WORKER_COMPLETED'
+                  const isInProgress = task.status === 'IN_PROGRESS'
+                  const isAssigned = task.status === 'ASSIGNED'
+
+                  return (
+                    <tr key={task.id} className="hover:bg-[#FAF7F0]/40 transition-colors">
+                      
+                      {/* Task Ref */}
+                      <td className="py-3.5 px-4 font-mono font-bold text-slate-900 whitespace-nowrap">
+                        <span className="px-2.5 py-1 rounded-lg bg-[#FAF7F0] border border-black/10 text-[#3A3564] font-bold text-xs whitespace-nowrap shadow-2xs">
+                          #{task.task_ref}
+                        </span>
+                      </td>
+
+                      {/* Worker & Contact */}
+                      <td className="py-3.5 px-4 whitespace-nowrap">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-8 h-8 rounded-xl bg-white border border-black/10 flex items-center justify-center font-bold text-xs text-[#3A3564] shadow-2xs shrink-0">
+                            {task.worker_name.slice(0, 2).toUpperCase()}
+                          </div>
+                          <div>
+                            <div className="font-bold text-slate-900 text-xs">{task.worker_name}</div>
+                            {task.worker_phone && (
+                              <div className="text-[10px] font-mono text-slate-500">
+                                +91 {task.worker_phone}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+
+                      {/* Article & Buyer */}
+                      <td className="py-3.5 px-4">
+                        <div className="font-mono font-bold text-slate-900 text-xs">{task.article_number}</div>
+                        <div className="text-[11px] text-slate-500 truncate max-w-[180px]">
+                          {task.buyer_name} • {task.article_name}
+                        </div>
+                      </td>
+
+                      {/* Table / Station */}
+                      <td className="py-3.5 px-4 font-mono text-xs whitespace-nowrap">
+                        <span className="px-2.5 py-1 rounded-lg bg-[#FAF7F0] border border-black/10 font-bold text-slate-900 shadow-2xs">
+                          {task.table_number || 'Machine 01'}
+                        </span>
+                      </td>
+
+                      {/* Pieces to Embroider */}
+                      <td className="py-3.5 px-4 text-right whitespace-nowrap">
+                        <div className="font-mono font-black text-sm text-slate-900">
+                          {task.pieces_to_embroider.toLocaleString('en-IN')} <span className="text-xs font-normal text-slate-500">Pcs</span>
+                        </div>
+                      </td>
+
+                      {/* Alloted Timeline */}
+                      <td className="py-3.5 px-4 font-mono text-center whitespace-nowrap">
+                        <div className="inline-flex items-center gap-1.5 text-xs text-slate-700 font-bold">
+                          <Clock className="w-3.5 h-3.5 text-[#3A3564]" />
+                          <span>{task.alloted_hours} Hrs</span>
+                        </div>
+                      </td>
+
+                      {/* Due Target Timeline */}
+                      <td className="py-3.5 px-4 font-mono text-xs text-slate-700 whitespace-nowrap">
+                        {(() => {
+                          const due = formatDueTimeline(task.due_time, task.alloted_hours)
+                          return (
+                            <span className={due.isPast && !isVerified ? 'text-rose-600 font-bold' : 'text-slate-800 font-bold'}>
+                              {due.formatted}
+                            </span>
+                          )
+                        })()}
+                      </td>
+
+                      {/* Status Badge */}
+                      <td className="py-3.5 px-4 whitespace-nowrap">
+                        {isAssigned && (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 text-slate-800 border border-black/10 text-xs font-mono font-bold">
+                            Assigned
+                          </span>
+                        )}
+                        {isInProgress && (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-50 text-[#3A3564] border border-indigo-200 text-xs font-mono font-bold">
+                            <Sparkles className="w-3.5 h-3.5 text-[#3A3564]" />
+                            Stitching Live
+                          </span>
+                        )}
+                        {isWorkerCompleted && (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#FAF7F0] text-slate-900 border border-black/10 text-xs font-mono font-bold shadow-2xs">
+                            <Clock className="w-3.5 h-3.5 text-[#3A3564]" />
+                            Submitted
+                          </span>
+                        )}
+                        {isVerified && (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#FAF7F0] text-slate-900 border border-black/10 text-xs font-mono font-bold">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-[#3A3564]" />
+                            Verified &amp; Moved
+                          </span>
+                        )}
+                      </td>
+
+                      {/* Actions */}
+                      <td className="py-3.5 px-4 text-right whitespace-nowrap">
+                        <div className="flex items-center justify-end gap-2">
+                          {isWorkerCompleted && (
+                            <button
+                              type="button"
+                              onClick={() => handleVerifyAndDone(task.id, task.task_ref, task.pieces_to_embroider)}
+                              className="px-3.5 py-1.5 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-mono font-bold transition-all flex items-center gap-1.5 shadow-2xs hover:shadow-xs cursor-pointer whitespace-nowrap"
+                              title="Verify work and move pieces from Pending to Completed Embroidery"
+                            >
+                              <CheckCircle2 className="w-4 h-4 text-white" />
+                              <span>Verify &amp; Done</span>
+                            </button>
+                          )}
+
+                          {!isWorkerCompleted && !isVerified && (
+                            <span className="text-[11px] font-mono text-slate-400 italic pr-1 whitespace-nowrap">
+                              {isInProgress ? 'Stitching live' : 'Ready on machine'}
+                            </span>
+                          )}
+
+                          {isVerified && (
+                            <span className="text-[11px] font-mono font-bold text-slate-900 pr-1 whitespace-nowrap">
+                              ✓ Done
+                            </span>
+                          )}
+
+                          <button
+                            type="button"
+                            onClick={() => setTaskToDelete({
+                              id: task.id,
+                              taskRef: task.task_ref,
+                              workerName: task.worker_name || 'Unassigned Worker',
+                              buyerName: task.buyer_name || 'General Buyer',
+                              articleNumber: task.article_number || 'Style',
+                              pieces: Number(task.pieces_to_embroider) || 0,
+                              table: task.table_number || 'Machine 01'
+                            })}
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                            title="Delete allocation"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </td>
+
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          )}
+        </div>
+
+        {/* Spreadsheet Footer Summary */}
+        <div className="p-4 bg-slate-50/80 border-t border-black/10 flex flex-col sm:flex-row items-start sm:items-center justify-between text-xs text-slate-600 font-mono gap-2">
+          <div>
+            Showing <strong>{filteredTasks.length}</strong> task allocations across <strong>{workers.length}</strong> registered workers
+          </div>
+          <div className="flex items-center gap-4">
+            <span>In Hand: <strong className="text-slate-900">{inHandPieces.toLocaleString('en-IN')}</strong></span>
+            <span>Pending: <strong className="text-slate-900">{pendingEmbroideryPieces.toLocaleString('en-IN')}</strong></span>
+            <span>Completed: <strong className="text-slate-900">{completedEmbroideryPieces.toLocaleString('en-IN')}</strong></span>
+          </div>
+        </div>
+
+      </div>
+
+      {/* MODALS */}
+      <AddWorkerModal
+        isOpen={isAddWorkerOpen}
+        onClose={() => setIsAddWorkerOpen(false)}
+        onSuccess={newWorker => {
+          refreshFloorData()
+        }}
+      />
+
+      <WorkerListModal
+        isOpen={isWorkerListOpen}
+        onClose={() => setIsWorkerListOpen(false)}
+        workers={workers}
+        onOpenAddModal={() => setIsAddWorkerOpen(true)}
+        onWorkersUpdated={refreshFloorData}
+        onDeleteWorker={handleDeleteWorker}
+      />
+
+      <AddTaskAllocationModal
+        isOpen={isAddTaskOpen}
+        onClose={() => setIsAddTaskOpen(false)}
+        workers={workers}
+        selectedBuyer={selectedBuyer}
+        availableArticles={buyers.map(b => ({ style_number: b.linked_article_number || 'EMB-101-05', category: 'Garment Embroidery' }))}
+        inHandPieces={inHandPieces}
+        onOpenAddWorkerModal={() => setIsAddWorkerOpen(true)}
+        onSuccess={newTask => {
+          refreshFloorData()
+        }}
+      />
+
+      {/* Delete Task Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={!!taskToDelete}
+        title="Remove Task Allocation"
+        description={`Are you sure you want to remove Task #${taskToDelete?.taskRef}? Uncompleted pieces will revert back to the In Hand queue.`}
+        confirmText="Remove Task"
+        cancelText="Keep Task"
+        variant="danger"
+        isLoading={isDeletingTask}
+        onConfirm={handleConfirmDeleteTask}
+        onClose={() => {
+          if (!isDeletingTask) setTaskToDelete(null)
+        }}
+      >
+        {taskToDelete && (
+          <div className="p-3.5 rounded-2xl bg-[#FAF7F0] border border-black/10 text-left space-y-2 mt-2 font-mono text-xs">
+            <div className="flex items-center justify-between border-b border-black/5 pb-2">
+              <span className="text-slate-500">Task Reference:</span>
+              <span className="font-bold text-[#3A3564] bg-white px-2 py-0.5 rounded-md border border-black/10">
+                #{taskToDelete.taskRef}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-slate-500">Worker Assigned:</span>
+              <span className="font-bold text-slate-800">{taskToDelete.workerName}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-slate-500">Buyer &amp; Article:</span>
+              <span className="font-bold text-slate-800">{taskToDelete.buyerName} ({taskToDelete.articleNumber})</span>
+            </div>
+            <div className="flex items-center justify-between border-t border-black/5 pt-2">
+              <span className="text-slate-500">Pieces to Embroider:</span>
+              <span className="font-bold text-slate-800">{taskToDelete.pieces.toLocaleString('en-IN')} Pcs ({taskToDelete.table})</span>
+            </div>
           </div>
         )}
-      </div>
+      </ConfirmDialog>
+
     </div>
   )
 }
