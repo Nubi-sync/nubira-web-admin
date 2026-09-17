@@ -314,7 +314,7 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands, avail
           <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
           <input
             type="text"
-            placeholder="Search style or brand..."
+            placeholder="Search style or article #..."
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             className="w-full pl-9 pr-3 py-1.5 rounded-xl border border-black/10 text-xs font-semibold bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
@@ -371,7 +371,7 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands, avail
                       {pack.style_name}
                     </h3>
                     <p className="text-xs text-slate-500 font-medium mt-0.5">
-                      Brand: {pack.brand_name} • Category: {pack.category}
+                      Category: {pack.category}
                     </p>
                   </div>
                 </div>
@@ -451,7 +451,6 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands, avail
                 <tr className="border-b border-black/10 bg-[#FAF7F0] text-slate-600 text-xs font-semibold uppercase tracking-wider">
                   <th className="py-3 px-4">Style Ref</th>
                   <th className="py-3 px-4">Commercial Name</th>
-                  <th className="py-3 px-4">Buyer Brand</th>
                   <th className="py-3 px-4">Category</th>
                   <th className="py-3 px-4">Base Size</th>
                   <th className="py-3 px-4">Fabric / GSM</th>
@@ -470,9 +469,6 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands, avail
                       </td>
                       <td className="py-3.5 px-4 font-semibold text-slate-900">
                         {pack.style_name}
-                      </td>
-                      <td className="py-3.5 px-4 font-medium text-slate-600">
-                        {pack.brand_name}
                       </td>
                       <td className="py-3.5 px-4 font-medium">{pack.category}</td>
                       <td className="py-3.5 px-4 font-mono font-bold">{pack.base_size}</td>
@@ -619,7 +615,7 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands, avail
       <ConfirmDialog
         isOpen={!!packToDelete}
         title={`Delete Tech-Pack "${packToDelete?.style_number}"?`}
-        description={`Are you sure you want to delete "${packToDelete?.style_name || packToDelete?.style_number}" (${packToDelete?.brand_name})? This will delete all associated grading points, materials, and sampling audits.`}
+        description={`Are you sure you want to delete "${packToDelete?.style_name || packToDelete?.style_number}"? This will delete all associated grading points, materials, and sampling audits.`}
         confirmText="Yes, Delete Tech-Pack"
         cancelText="Cancel"
         variant="danger"

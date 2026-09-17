@@ -550,146 +550,224 @@ export function MerchandisingDashboardClient({
       </div>
 
       {/* ========================================================= */}
-      {/* 4. LIVE BUYER CONTRACT PROCESS TRACKER (8 BOXES)           */}
+      {/* 4. LIVE REVIEW (8 BOXES DISTRIBUTED IN 2 LINES)            */}
       {/* ========================================================= */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 sm:gap-4">
-        
-        {/* BOX 1: IN PENDING */}
-        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
-              <Clock className="w-5 h-5" />
+      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3.5 border-b border-slate-100 gap-2">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+              <TrendingUp className="w-4 h-4" />
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-slate-900 font-[family-name:var(--font-heading)]">
+                Live Review
+              </h3>
+              <p className="text-xs text-slate-500">
+                Commercial lead-time and factory floor conversion {selectedBuyer ? `• ${selectedBuyer.buyer_name}` : ''}
+              </p>
             </div>
           </div>
-          <div className="mt-4">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
-              In Pending
+          <div className="flex items-center gap-3">
+            <span className="text-xs sm:text-sm font-semibold text-slate-500">
+              Total Booked: <strong className="text-slate-900 font-mono" suppressHydrationWarning>{selectedBuyer ? Number(selectedBuyer.contracted_volume).toLocaleString('en-IN') : totalBookedPcs.toLocaleString('en-IN')} pcs</strong>
             </span>
-            <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 mt-1 leading-none" suppressHydrationWarning>
-              {stageMetrics.inPending.toLocaleString('en-IN')}
-            </h3>
+            <Link
+              href="/merchandising/tna-calendar"
+              className="text-xs font-bold text-[#3A3564] hover:underline inline-flex items-center gap-1"
+            >
+              Full T&amp;A Calendar <ChevronRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
         </div>
 
-        {/* BOX 2: IN CUTTING */}
-        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
-              <Scissors className="w-5 h-5" />
+        {/* 8 Production Stage Cards Distributed Evenly across 2 Rows (4 cols x 2 rows) */}
+        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+          
+          {/* 1. IN PENDING */}
+          <div className="bg-white border border-black/10 border-l-4 border-l-[#3A3564] rounded-xl p-3.5 shadow-2xs hover:border-black/25 transition-all flex flex-col justify-between">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 block">
+                1. In Pending
+              </span>
+              <span className="text-xs font-extrabold font-mono px-2 py-0.5 rounded-full shadow-2xs text-[#3A3564] bg-[#FAF7F0] border border-black/10">
+                {selectedBuyer && Number(selectedBuyer.contracted_volume) > 0 ? Math.round((stageMetrics.inPending / Number(selectedBuyer.contracted_volume)) * 100) : 0}%
+              </span>
+            </div>
+            <div className="mt-2 flex items-baseline justify-between">
+              <p className="text-lg sm:text-xl font-bold font-[family-name:var(--font-heading)] text-slate-900" suppressHydrationWarning>
+                {stageMetrics.inPending.toLocaleString('en-IN')}
+              </p>
+            </div>
+            <div className="w-full bg-slate-100 h-1 rounded-full mt-2.5 overflow-hidden">
+              <div 
+                className="bg-[#3A3564] h-full rounded-full transition-all duration-500" 
+                style={{ width: `${selectedBuyer && Number(selectedBuyer.contracted_volume) > 0 ? Math.round((stageMetrics.inPending / Number(selectedBuyer.contracted_volume)) * 100) : 0}%` }}
+              />
             </div>
           </div>
-          <div className="mt-4">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
-              In Cutting
-            </span>
-            <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 mt-1 leading-none" suppressHydrationWarning>
-              {stageMetrics.inCutting.toLocaleString('en-IN')}
-            </h3>
-          </div>
-        </div>
 
-        {/* BOX 3: IN PRINTING */}
-        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
-              <Printer className="w-5 h-5" />
+          {/* 2. IN CUTTING */}
+          <div className="bg-white border border-black/10 border-l-4 border-l-[#3A3564] rounded-xl p-3.5 shadow-2xs hover:border-black/25 transition-all flex flex-col justify-between">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 block">
+                2. In Cutting
+              </span>
+              <span className="text-xs font-extrabold font-mono px-2 py-0.5 rounded-full shadow-2xs text-[#3A3564] bg-[#FAF7F0] border border-black/10">
+                {selectedBuyer && Number(selectedBuyer.contracted_volume) > 0 ? Math.round((stageMetrics.inCutting / Number(selectedBuyer.contracted_volume)) * 100) : 0}%
+              </span>
+            </div>
+            <div className="mt-2 flex items-baseline justify-between">
+              <p className="text-lg sm:text-xl font-bold font-[family-name:var(--font-heading)] text-slate-900" suppressHydrationWarning>
+                {stageMetrics.inCutting.toLocaleString('en-IN')}
+              </p>
+            </div>
+            <div className="w-full bg-slate-100 h-1 rounded-full mt-2.5 overflow-hidden">
+              <div 
+                className="bg-[#3A3564] h-full rounded-full transition-all duration-500" 
+                style={{ width: `${selectedBuyer && Number(selectedBuyer.contracted_volume) > 0 ? Math.round((stageMetrics.inCutting / Number(selectedBuyer.contracted_volume)) * 100) : 0}%` }}
+              />
             </div>
           </div>
-          <div className="mt-4">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
-              In Printing
-            </span>
-            <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 mt-1 leading-none" suppressHydrationWarning>
-              {stageMetrics.inPrinting.toLocaleString('en-IN')}
-            </h3>
-          </div>
-        </div>
 
-        {/* BOX 4: IN EMBROIDERY */}
-        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
-              <Sparkles className="w-5 h-5" />
+          {/* 3. IN PRINTING */}
+          <div className="bg-white border border-black/10 border-l-4 border-l-[#3A3564] rounded-xl p-3.5 shadow-2xs hover:border-black/25 transition-all flex flex-col justify-between">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 block">
+                3. In Printing
+              </span>
+              <span className="text-xs font-extrabold font-mono px-2 py-0.5 rounded-full shadow-2xs text-[#3A3564] bg-[#FAF7F0] border border-black/10">
+                {selectedBuyer && Number(selectedBuyer.contracted_volume) > 0 ? Math.round((stageMetrics.inPrinting / Number(selectedBuyer.contracted_volume)) * 100) : 0}%
+              </span>
+            </div>
+            <div className="mt-2 flex items-baseline justify-between">
+              <p className="text-lg sm:text-xl font-bold font-[family-name:var(--font-heading)] text-slate-900" suppressHydrationWarning>
+                {stageMetrics.inPrinting.toLocaleString('en-IN')}
+              </p>
+            </div>
+            <div className="w-full bg-slate-100 h-1 rounded-full mt-2.5 overflow-hidden">
+              <div 
+                className="bg-[#3A3564] h-full rounded-full transition-all duration-500" 
+                style={{ width: `${selectedBuyer && Number(selectedBuyer.contracted_volume) > 0 ? Math.round((stageMetrics.inPrinting / Number(selectedBuyer.contracted_volume)) * 100) : 0}%` }}
+              />
             </div>
           </div>
-          <div className="mt-4">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
-              In Embroidery
-            </span>
-            <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 mt-1 leading-none" suppressHydrationWarning>
-              {stageMetrics.inEmbroidery.toLocaleString('en-IN')}
-            </h3>
-          </div>
-        </div>
 
-        {/* BOX 5: IN SEWING */}
-        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
-              <Shirt className="w-5 h-5" />
+          {/* 4. IN EMBROIDERY */}
+          <div className="bg-white border border-black/10 border-l-4 border-l-[#3A3564] rounded-xl p-3.5 shadow-2xs hover:border-black/25 transition-all flex flex-col justify-between">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 block">
+                4. In Embroidery
+              </span>
+              <span className="text-xs font-extrabold font-mono px-2 py-0.5 rounded-full shadow-2xs text-[#3A3564] bg-[#FAF7F0] border border-black/10">
+                {selectedBuyer && Number(selectedBuyer.contracted_volume) > 0 ? Math.round((stageMetrics.inEmbroidery / Number(selectedBuyer.contracted_volume)) * 100) : 0}%
+              </span>
+            </div>
+            <div className="mt-2 flex items-baseline justify-between">
+              <p className="text-lg sm:text-xl font-bold font-[family-name:var(--font-heading)] text-slate-900" suppressHydrationWarning>
+                {stageMetrics.inEmbroidery.toLocaleString('en-IN')}
+              </p>
+            </div>
+            <div className="w-full bg-slate-100 h-1 rounded-full mt-2.5 overflow-hidden">
+              <div 
+                className="bg-[#3A3564] h-full rounded-full transition-all duration-500" 
+                style={{ width: `${selectedBuyer && Number(selectedBuyer.contracted_volume) > 0 ? Math.round((stageMetrics.inEmbroidery / Number(selectedBuyer.contracted_volume)) * 100) : 0}%` }}
+              />
             </div>
           </div>
-          <div className="mt-4">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
-              In Sewing
-            </span>
-            <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 mt-1 leading-none" suppressHydrationWarning>
-              {stageMetrics.inSewing.toLocaleString('en-IN')}
-            </h3>
-          </div>
-        </div>
 
-        {/* BOX 6: IRON */}
-        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
-              <Flame className="w-5 h-5" />
+          {/* 5. IN SEWING */}
+          <div className="bg-white border border-black/10 border-l-4 border-l-[#3A3564] rounded-xl p-3.5 shadow-2xs hover:border-black/25 transition-all flex flex-col justify-between">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 block">
+                5. In Sewing
+              </span>
+              <span className="text-xs font-extrabold font-mono px-2 py-0.5 rounded-full shadow-2xs text-[#3A3564] bg-[#FAF7F0] border border-black/10">
+                {selectedBuyer && Number(selectedBuyer.contracted_volume) > 0 ? Math.round((stageMetrics.inSewing / Number(selectedBuyer.contracted_volume)) * 100) : 0}%
+              </span>
+            </div>
+            <div className="mt-2 flex items-baseline justify-between">
+              <p className="text-lg sm:text-xl font-bold font-[family-name:var(--font-heading)] text-slate-900" suppressHydrationWarning>
+                {stageMetrics.inSewing.toLocaleString('en-IN')}
+              </p>
+            </div>
+            <div className="w-full bg-slate-100 h-1 rounded-full mt-2.5 overflow-hidden">
+              <div 
+                className="bg-[#3A3564] h-full rounded-full transition-all duration-500" 
+                style={{ width: `${selectedBuyer && Number(selectedBuyer.contracted_volume) > 0 ? Math.round((stageMetrics.inSewing / Number(selectedBuyer.contracted_volume)) * 100) : 0}%` }}
+              />
             </div>
           </div>
-          <div className="mt-4">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
-              Iron
-            </span>
-            <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 mt-1 leading-none" suppressHydrationWarning>
-              {stageMetrics.iron.toLocaleString('en-IN')}
-            </h3>
-          </div>
-        </div>
 
-        {/* BOX 7: WASHING */}
-        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
-              <Droplets className="w-5 h-5" />
+          {/* 6. IRON */}
+          <div className="bg-white border border-black/10 border-l-4 border-l-[#3A3564] rounded-xl p-3.5 shadow-2xs hover:border-black/25 transition-all flex flex-col justify-between">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 block">
+                6. Iron
+              </span>
+              <span className="text-xs font-extrabold font-mono px-2 py-0.5 rounded-full shadow-2xs text-[#3A3564] bg-[#FAF7F0] border border-black/10">
+                {selectedBuyer && Number(selectedBuyer.contracted_volume) > 0 ? Math.round((stageMetrics.iron / Number(selectedBuyer.contracted_volume)) * 100) : 0}%
+              </span>
+            </div>
+            <div className="mt-2 flex items-baseline justify-between">
+              <p className="text-lg sm:text-xl font-bold font-[family-name:var(--font-heading)] text-slate-900" suppressHydrationWarning>
+                {stageMetrics.iron.toLocaleString('en-IN')}
+              </p>
+            </div>
+            <div className="w-full bg-slate-100 h-1 rounded-full mt-2.5 overflow-hidden">
+              <div 
+                className="bg-[#3A3564] h-full rounded-full transition-all duration-500" 
+                style={{ width: `${selectedBuyer && Number(selectedBuyer.contracted_volume) > 0 ? Math.round((stageMetrics.iron / Number(selectedBuyer.contracted_volume)) * 100) : 0}%` }}
+              />
             </div>
           </div>
-          <div className="mt-4">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
-              Washing
-            </span>
-            <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 mt-1 leading-none" suppressHydrationWarning>
-              {stageMetrics.washing.toLocaleString('en-IN')}
-            </h3>
-          </div>
-        </div>
 
-        {/* BOX 8: ALTER */}
-        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
-              <Wrench className="w-5 h-5" />
+          {/* 7. WASHING */}
+          <div className="bg-white border border-black/10 border-l-4 border-l-[#3A3564] rounded-xl p-3.5 shadow-2xs hover:border-black/25 transition-all flex flex-col justify-between">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 block">
+                7. Washing
+              </span>
+              <span className="text-xs font-extrabold font-mono px-2 py-0.5 rounded-full shadow-2xs text-[#3A3564] bg-[#FAF7F0] border border-black/10">
+                {selectedBuyer && Number(selectedBuyer.contracted_volume) > 0 ? Math.round((stageMetrics.washing / Number(selectedBuyer.contracted_volume)) * 100) : 0}%
+              </span>
+            </div>
+            <div className="mt-2 flex items-baseline justify-between">
+              <p className="text-lg sm:text-xl font-bold font-[family-name:var(--font-heading)] text-slate-900" suppressHydrationWarning>
+                {stageMetrics.washing.toLocaleString('en-IN')}
+              </p>
+            </div>
+            <div className="w-full bg-slate-100 h-1 rounded-full mt-2.5 overflow-hidden">
+              <div 
+                className="bg-[#3A3564] h-full rounded-full transition-all duration-500" 
+                style={{ width: `${selectedBuyer && Number(selectedBuyer.contracted_volume) > 0 ? Math.round((stageMetrics.washing / Number(selectedBuyer.contracted_volume)) * 100) : 0}%` }}
+              />
             </div>
           </div>
-          <div className="mt-4">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
-              Alter
-            </span>
-            <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 mt-1 leading-none" suppressHydrationWarning>
-              {stageMetrics.alter.toLocaleString('en-IN')}
-            </h3>
-          </div>
-        </div>
 
+          {/* 8. ALTER */}
+          <div className="bg-white border border-black/10 border-l-4 border-l-[#3A3564] rounded-xl p-3.5 shadow-2xs hover:border-black/25 transition-all flex flex-col justify-between">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 block">
+                8. Alter
+              </span>
+              <span className="text-xs font-extrabold font-mono px-2 py-0.5 rounded-full shadow-2xs text-[#3A3564] bg-[#FAF7F0] border border-black/10">
+                {selectedBuyer && Number(selectedBuyer.contracted_volume) > 0 ? Math.round((stageMetrics.alter / Number(selectedBuyer.contracted_volume)) * 100) : 0}%
+              </span>
+            </div>
+            <div className="mt-2 flex items-baseline justify-between">
+              <p className="text-lg sm:text-xl font-bold font-[family-name:var(--font-heading)] text-slate-900" suppressHydrationWarning>
+                {stageMetrics.alter.toLocaleString('en-IN')}
+              </p>
+            </div>
+            <div className="w-full bg-slate-100 h-1 rounded-full mt-2.5 overflow-hidden">
+              <div 
+                className="bg-[#3A3564] h-full rounded-full transition-all duration-500" 
+                style={{ width: `${selectedBuyer && Number(selectedBuyer.contracted_volume) > 0 ? Math.round((stageMetrics.alter / Number(selectedBuyer.contracted_volume)) * 100) : 0}%` }}
+              />
+            </div>
+          </div>
+
+        </div>
       </div>
 
       {/* ========================================================= */}

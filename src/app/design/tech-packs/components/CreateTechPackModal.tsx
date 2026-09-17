@@ -538,7 +538,7 @@ export function CreateTechPackModal({
               </div>
 
               {/* 2. Style Code & Basic Garment Metadata */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-800 uppercase font-mono mb-1.5">
                     Style / Art Number *
@@ -563,21 +563,6 @@ export function CreateTechPackModal({
                   >
                     {CATEGORIES.map(c => (
                       <option key={c} value={c}>{c}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-800 uppercase font-mono mb-1.5">
-                    Buyer / Brand Client *
-                  </label>
-                  <select
-                    value={brandName}
-                    onChange={e => setBrandName(e.target.value)}
-                    className="w-full px-3.5 py-2 rounded-xl border border-black/15 text-xs font-semibold text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
-                  >
-                    {brandsList.map(b => (
-                      <option key={b} value={b}>{b}</option>
                     ))}
                   </select>
                 </div>

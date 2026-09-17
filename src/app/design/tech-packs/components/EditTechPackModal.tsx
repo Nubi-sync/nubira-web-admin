@@ -222,41 +222,20 @@ function EditTechPackModalContent({
               <span className="w-2 h-2 rounded-full bg-[#3A3564]" />
               Core Garment Specifications
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                  Style / Art Number *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={styleNumber}
-                  onChange={e => setStyleNumber(e.target.value.toUpperCase())}
-                  className="w-full px-3.5 py-2.5 bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-mono font-bold text-[#3A3564] outline-none shadow-2xs"
-                />
-                {errors.styleNumber && (
-                  <p className="text-xs text-rose-600 mt-1 font-medium">{errors.styleNumber}</p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                  Buyer / Brand *
-                </label>
-                <input
-                  type="text"
-                  required
-                  list="brands-datalist"
-                  value={brandName}
-                  onChange={e => setBrandName(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-semibold text-slate-900 outline-none shadow-2xs"
-                />
-                <datalist id="brands-datalist">
-                  {brandsList.map(b => (
-                    <option key={b} value={b} />
-                  ))}
-                </datalist>
-              </div>
+            <div>
+              <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                Style / Art Number *
+              </label>
+              <input
+                type="text"
+                required
+                value={styleNumber}
+                onChange={e => setStyleNumber(e.target.value.toUpperCase())}
+                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-mono font-bold text-[#3A3564] outline-none shadow-2xs"
+              />
+              {errors.styleNumber && (
+                <p className="text-xs text-rose-600 mt-1 font-medium">{errors.styleNumber}</p>
+              )}
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
