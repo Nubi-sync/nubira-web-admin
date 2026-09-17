@@ -3,14 +3,16 @@ import {
   BomCosting, 
   TnaMilestone, 
   SourcingRequisition, 
-  ExportShipment 
+  ExportShipment,
+  ActiveBuyer
 } from '../types/merchandising'
 import { 
   INITIAL_ORDERS, 
   INITIAL_BOM_COSTINGS, 
   INITIAL_TNA_MILESTONES, 
   INITIAL_SOURCING_REQUISITIONS, 
-  INITIAL_EXPORT_SHIPMENTS 
+  INITIAL_EXPORT_SHIPMENTS,
+  INITIAL_ACTIVE_BUYERS
 } from '../data/initialData'
 
 const STORAGE_KEYS = {

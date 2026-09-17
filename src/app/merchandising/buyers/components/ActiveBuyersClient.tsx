@@ -305,18 +305,8 @@ export function ActiveBuyersClient({ initialBuyers }: ActiveBuyersClientProps) {
                   ? "Get started by contracting your first buyer account and assigning contracted order volumes."
                   : "No buyers match the current filter and search query."
               }
-              action={
-                buyers.length === 0 ? (
-                  <button
-                    type="button"
-                    onClick={() => setIsCreateModalOpen(true)}
-                    className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs sm:text-sm font-bold shadow-2xs cursor-pointer transition-all"
-                  >
-                    <Plus className="w-4 h-4" />
-                    <span>Contract First Buyer</span>
-                  </button>
-                ) : undefined
-              }
+              actionLabel={buyers.length === 0 ? "Contract First Buyer" : undefined}
+              onAction={buyers.length === 0 ? () => setIsCreateModalOpen(true) : undefined}
             />
           </div>
         ) : (
