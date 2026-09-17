@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import {
   Scissors,
@@ -9,13 +9,7 @@ import {
   Ruler,
   QrCode,
   ArrowRight,
-  Gauge,
   CheckCircle2,
-  Boxes,
-  Maximize2,
-  Sparkles,
-  Printer,
-  Shirt,
   Clock,
   Plus,
   RefreshCw,
@@ -28,30 +22,45 @@ import {
   Check,
   ShoppingBag,
   Cpu,
-  Bot
+  Bot,
+  UserPlus,
+  TableProperties,
+  Phone,
+  Trash2,
+  Calendar,
+  Sparkles,
+  Maximize2
 } from 'lucide-react'
+import { toast } from 'sonner'
 import { EmptyState } from '@/components/ui/EmptyState'
-import { CuttingTable, LaySheet, CutBundle, MarkerEfficiency, EndBitRemnant } from '../types/cutting'
+import { 
+  CuttingWorker, 
+  CuttingTaskAllocation, 
+  CuttingAllocationStatus 
+} from '../types/cutting'
 import {
-  getCuttingTables,
-  saveCuttingTables,
-  getLaySheets,
-  getCutBundles,
-  saveCutBundle,
-  getMarkers,
-  getEndBits
+  getCuttingWorkers,
+  saveCuttingWorker,
+  getCuttingTaskAllocations,
+  saveCuttingTaskAllocation,
+  updateCuttingTaskStatus,
+  deleteCuttingTaskAllocation,
+  CUTTING_UPDATE_EVENT
 } from '../utils/cuttingStorage'
 import { 
   getActiveBuyers, 
   getOrders, 
   MERCHANDISING_UPDATE_EVENT 
 } from '@/app/merchandising/utils/merchandisingStorage'
+import { AddWorkerModal } from './AddWorkerModal'
+import { WorkerListModal } from './WorkerListModal'
+import { AddTaskAllocationModal } from './AddTaskAllocationModal'
 
 interface CuttingDashboardClientProps {
   userEmail?: string
   isSuperAdmin?: boolean
-  initialLays?: LaySheet[]
-  initialBundles?: CutBundle[]
+  initialLays?: any[]
+  initialBundles?: any[]
   liveKpis?: any
   initialBuyers?: any[]
 }
@@ -90,7 +99,7 @@ function mergeBuyersFromAllSources(serverBuyers: any[] = []): any[] {
       })
     } catch {}
 
-    // 3. Process localStorage BPO orders (each BPO directly creates/updates a buyer for Cutting)
+    // 3. Process localStorage BPO orders
     try {
       const localOrders = getOrders()
       localOrders.forEach(ord => {
@@ -138,137 +147,57 @@ function mergeBuyersFromAllSources(serverBuyers: any[] = []): any[] {
 export function CuttingDashboardClient({ 
   userEmail,
   isSuperAdmin = false,
-  initialLays,
-  initialBundles,
-  liveKpis,
   initialBuyers
 }: CuttingDashboardClientProps) {
-  const [tables, setTables] = useState<CuttingTable[]>([])
-  const [laySheets, setLaySheets] = useState<LaySheet[]>(() => {
-    if (initialLays && initialLays.length > 0) return initialLays
-    return []
-  })
-  const [bundles, setBundles] = useState<CutBundle[]>(() => {
-    if (initialBundles && initialBundles.length > 0) return initialBundles
-    return []
-  })
-  const [markers, setMarkers] = useState<MarkerEfficiency[]>([])
-  const [endBits, setEndBits] = useState<EndBitRemnant[]>([])
-  const [selectedLay, setSelectedLay] = useState<LaySheet | null>(null)
-  const [tableModal, setTableModal] = useState<CuttingTable | null>(null)
+  // Workers & Task Allocations State
+  const [workers, setWorkers] = useState<CuttingWorker[]>([])
+  const [allocations, setAllocations] = useState<CuttingTaskAllocation[]>([])
 
-  // Active Buyers for Contract Selection (auto-merged from server BPOs, local active buyers, and local orders)
+  // Modal Controls
+  const [isAddWorkerOpen, setIsAddWorkerOpen] = useState(false)
+  const [isWorkerListOpen, setIsWorkerListOpen] = useState(false)
+  const [isAddTaskOpen, setIsAddTaskOpen] = useState(false)
+
+  // Active Buyers for Contract Selection
   const [buyers, setBuyers] = useState<any[]>(() => mergeBuyersFromAllSources(initialBuyers))
   const [selectedBuyerId, setSelectedBuyerId] = useState<string>('')
   const [isBuyerMenuOpen, setIsBuyerMenuOpen] = useState(false)
   const [buyerSearchQuery, setBuyerSearchQuery] = useState('')
   const [isSyncing, setIsSyncing] = useState(false)
 
-  // Auto-sync buyers and orders whenever merchandising or cutting is updated
-  useEffect(() => {
-    const refreshAllBuyers = () => {
-      const merged = mergeBuyersFromAllSources(initialBuyers)
-      setBuyers(merged)
-    }
+  // Spreadsheet Filters
+  const [taskSearchQuery, setTaskSearchQuery] = useState('')
+  const [statusFilter, setStatusFilter] = useState<'ALL' | 'ASSIGNED' | 'IN_PROGRESS' | 'COMPLETED'>('ALL')
 
-    refreshAllBuyers()
+  // Load and refresh workers & task allocations
+  const refreshFloorData = () => {
+    setWorkers(getCuttingWorkers())
+    setAllocations(getCuttingTaskAllocations())
+    const merged = mergeBuyersFromAllSources(initialBuyers)
+    setBuyers(merged)
+  }
+
+  useEffect(() => {
+    refreshFloorData()
 
     if (typeof window !== 'undefined') {
-      window.addEventListener('storage', refreshAllBuyers)
-      window.addEventListener(MERCHANDISING_UPDATE_EVENT, refreshAllBuyers)
-      window.addEventListener('zigza:cutting_updated', refreshAllBuyers)
+      window.addEventListener('storage', refreshFloorData)
+      window.addEventListener(MERCHANDISING_UPDATE_EVENT, refreshFloorData)
+      window.addEventListener(CUTTING_UPDATE_EVENT, refreshFloorData)
       return () => {
-        window.removeEventListener('storage', refreshAllBuyers)
-        window.removeEventListener(MERCHANDISING_UPDATE_EVENT, refreshAllBuyers)
-        window.removeEventListener('zigza:cutting_updated', refreshAllBuyers)
+        window.removeEventListener('storage', refreshFloorData)
+        window.removeEventListener(MERCHANDISING_UPDATE_EVENT, refreshFloorData)
+        window.removeEventListener(CUTTING_UPDATE_EVENT, refreshFloorData)
       }
     }
   }, [initialBuyers])
 
-  useEffect(() => {
-    const rawTables = getCuttingTables()
-    
-    if (initialLays && initialLays.length > 0) {
-      setLaySheets(initialLays)
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('zigza_cutting_lays_v2', JSON.stringify(initialLays))
-      }
-      
-      // Dynamically attach live active lay to table and clear mock lay IDs
-      const cleanTbl = (s: string) => (s || '').toLowerCase().replace(/[^a-z0-9]/g, '')
-      const syncedTables = rawTables.map(t => {
-        const cleanT = cleanTbl(t.table_number)
-        const found = initialLays.find(l => {
-          const cleanL = cleanTbl(l.table_number)
-          return cleanL === cleanT || cleanT.includes(cleanL) || cleanL.includes(cleanT)
-        })
-        if (found) {
-          return {
-            ...t,
-            current_lay_id: found.id,
-            status: (found.status === 'CUT_COMPLETED' || (found.status as string) === 'COMPLETED') ? 'IDLE' : 'SPREADING'
-          } as CuttingTable
-        }
-        return {
-          ...t,
-          current_lay_id: undefined,
-          status: 'IDLE'
-        } as CuttingTable
-      })
-      setTables(syncedTables)
-    } else {
-      setLaySheets(getLaySheets())
-      setTables(rawTables)
-    }
-
-    if (initialBundles && initialBundles.length > 0) {
-      setBundles(initialBundles)
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('zigza_cutting_bundles_v2', JSON.stringify(initialBundles))
-      }
-    } else {
-      setBundles(getCutBundles())
-    }
-
-    setMarkers(getMarkers())
-    setEndBits(getEndBits())
-  }, [initialLays, initialBundles])
-
-  const handleTableStatusChange = (tableId: string, newStatus: CuttingTable['status']) => {
-    const updated = tables.map(t => t.id === tableId ? { ...t, status: newStatus } : t)
-    setTables(updated)
-    saveCuttingTables(updated)
-    if (tableModal?.id === tableId) {
-      setTableModal({ ...tableModal, status: newStatus })
-    }
-  }
-
-  const handleQuickAdvanceBundle = (bundleId: string) => {
-    const b = bundles.find(x => x.id === bundleId)
-    if (!b) return
-    let nextStatus: CutBundle['status'] = b.status
-    if (b.status === 'GENERATED') nextStatus = 'BANDED'
-    else if (b.status === 'BANDED') nextStatus = 'IN_TRANSIT'
-    else if (b.status === 'IN_TRANSIT') nextStatus = 'HANDOVER_CONFIRMED'
-    
-    const updated = saveCutBundle({ ...b, status: nextStatus })
-    setBundles(updated)
-  }
-
   const handleManualSync = () => {
     setIsSyncing(true)
-    const merged = mergeBuyersFromAllSources(initialBuyers)
-    setBuyers(merged)
-    if (typeof window !== 'undefined') {
-      try {
-        const rawLays = localStorage.getItem('zigza_cutting_lays_v2')
-        if (rawLays) setLaySheets(JSON.parse(rawLays))
-        const rawBundles = localStorage.getItem('zigza_cutting_bundles_v2')
-        if (rawBundles) setBundles(JSON.parse(rawBundles))
-      } catch {}
-    }
+    refreshFloorData()
     setTimeout(() => {
       setIsSyncing(false)
+      toast.success('Cutting floor & worker sync updated.')
     }, 400)
   }
 
@@ -286,7 +215,7 @@ export function CuttingDashboardClient({
     (b.linked_article_number && b.linked_article_number.toLowerCase().includes(buyerSearchQuery.toLowerCase()))
   )
 
-  // Piece metrics calculation for the selected buyer
+  // Piece metrics calculation for the selected buyer & linked article
   const localOrders = typeof window !== 'undefined' ? getOrders() : []
   const matchingBpos = selectedBuyer
     ? localOrders.filter(o => 
@@ -296,29 +225,83 @@ export function CuttingDashboardClient({
       )
     : []
   const bpoOrdersTotal = matchingBpos.reduce((sum, o) => sum + (Number(o.total_quantity) || 0), 0)
-  const inHandPieces = Math.max(Number(selectedBuyer?.contracted_volume) || 0, bpoOrdersTotal)
+  const totalBpoContractedPieces = Math.max(Number(selectedBuyer?.contracted_volume) || 0, bpoOrdersTotal)
   const articleNum = (selectedBuyer?.linked_article_number || matchingBpos[0]?.style_ref || '').trim().toUpperCase()
 
+  // Match allocations for this buyer/article
+  const matchingAllocations = allocations.filter(t => {
+    if (!selectedBuyer && !articleNum) return true
+    const buyerMatch = selectedBuyer ? (t.buyer_name || '').toLowerCase() === (selectedBuyer.buyer_name || '').toLowerCase() : false
+    const articleMatch = articleNum ? (t.article_number || '').trim().toUpperCase() === articleNum : false
+    return buyerMatch || articleMatch
+  })
+
+  // 1. COMPLETED CUTTING: Pieces where worker completed the cut job
+  const completedCuttingPieces = matchingAllocations
+    .filter(t => t.status === 'COMPLETED')
+    .reduce((sum, curr) => sum + (Number(curr.completed_pieces || curr.pieces_to_cut) || 0), 0)
+
+  // 2. PENDING CUTTING: Pieces assigned to worker/table in progress
+  const pendingCuttingPieces = matchingAllocations
+    .filter(t => t.status !== 'COMPLETED')
+    .reduce((sum, curr) => sum + (Number(curr.pieces_to_cut) || 0), 0)
+
+  // 3. IN HAND: Unallocated queue waiting for table assignment
+  const inHandPieces = Math.max(0, totalBpoContractedPieces - pendingCuttingPieces - completedCuttingPieces)
+
   const selectedBuyerDisplayText = selectedBuyer
-    ? `${selectedBuyer.buyer_name} (${inHandPieces.toLocaleString('en-IN')} Pcs)`
+    ? `${selectedBuyer.buyer_name} (${totalBpoContractedPieces.toLocaleString('en-IN')} Pcs Total)`
     : (buyers.length === 0 ? 'No Active Buyers Contracted' : 'Select Buyer Contract')
 
-  // Completed cutting pieces for the selected buyer/article
-  const completedCuttingPieces = laySheets
-    .filter(l => {
-      const isDone = l.status === 'CUT_COMPLETED' || (l.status as string) === 'COMPLETED' || l.status === 'BUNDLED'
-      if (!isDone) return false
-      if (!articleNum) return true
-      const sRef = (l.style_ref || '').trim().toUpperCase()
-      const sName = (l.style_name || '').trim().toUpperCase()
-      return sRef === articleNum || sRef.includes(articleNum) || sName.includes(articleNum)
-    })
-    .reduce((sum, curr) => sum + (Number(curr.total_cut_pieces) || 0), 0)
+  // Filtered Task Allocations for Spreadsheet
+  const filteredTasks = allocations.filter(task => {
+    const matchesSearch = 
+      (task.task_ref || '').toLowerCase().includes(taskSearchQuery.toLowerCase()) ||
+      (task.worker_name || '').toLowerCase().includes(taskSearchQuery.toLowerCase()) ||
+      (task.article_number || '').toLowerCase().includes(taskSearchQuery.toLowerCase()) ||
+      (task.buyer_name || '').toLowerCase().includes(taskSearchQuery.toLowerCase()) ||
+      (task.table_number || '').toLowerCase().includes(taskSearchQuery.toLowerCase())
 
-  const pendingCuttingPieces = Math.max(0, inHandPieces - completedCuttingPieces)
+    const matchesStatus = statusFilter === 'ALL' || task.status === statusFilter
+    return matchesSearch && matchesStatus
+  })
+
+  // Status Change Handler
+  const handleUpdateStatus = (taskId: string, newStatus: CuttingAllocationStatus) => {
+    const updated = updateCuttingTaskStatus(taskId, newStatus)
+    setAllocations(updated)
+    toast.success(`Task status updated to ${newStatus.replace(/_/g, ' ')}`)
+  }
+
+  // Delete Task Handler
+  const handleDeleteTask = (taskId: string, taskRef: string) => {
+    if (confirm(`Remove allocation task "${taskRef}"?`)) {
+      const updated = deleteCuttingTaskAllocation(taskId)
+      setAllocations(updated)
+      toast.info(`Task ${taskRef} removed.`)
+    }
+  }
+
+  // Format Due Timeline
+  const formatDueTimeline = (isoTime: string, allotedHours: number): { formatted: string; isPast: boolean } => {
+    if (!isoTime) return { formatted: `${allotedHours} hrs alloted`, isPast: false }
+    try {
+      const d = new Date(isoTime)
+      const isPast = d.getTime() < Date.now()
+      const timeStr = d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })
+      const dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+      return {
+        formatted: `${timeStr}, ${dateStr}`,
+        isPast
+      }
+    } catch {
+      return { formatted: `${allotedHours} hrs alloted`, isPast: false }
+    }
+  }
 
   return (
     <div className="p-4 sm:p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto select-none">
+      
       {/* Navigation Breadcrumb */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-2">
@@ -339,7 +322,7 @@ export function CuttingDashboardClient({
         
         <div className="flex items-center gap-2">
           <span className="text-[11px] font-mono font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-            Vacuum Table Sync Active
+            Vacuum &amp; Worker Portal Sync Active
           </span>
         </div>
       </div>
@@ -353,14 +336,14 @@ export function CuttingDashboardClient({
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
               <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
-                Cutting & Lay Floor
+                Cutting &amp; Lay Floor
               </h1>
               <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-                4 Tables Live
+                {workers.length} Workers Registered
               </span>
             </div>
             <p className="text-xs sm:text-sm font-semibold text-slate-600 mt-1">
-              Automated spreading plies, CAD marker efficiency, CNC vacuum knife execution, and QR bundle dispatch
+              Automated spreading plies, worker task matrix, pieces per shift tracking, and vacuum knife execution
             </p>
           </div>
         </div>
@@ -382,13 +365,6 @@ export function CuttingDashboardClient({
             <span>CAD Markers</span>
           </Link>
           <Link
-            href="/cutting/orders"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs"
-          >
-            <Cpu className="w-3.5 h-3.5" />
-            <span>Cutting Orders</span>
-          </Link>
-          <Link
             href="/cutting/bundles"
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs"
           >
@@ -405,8 +381,8 @@ export function CuttingDashboardClient({
         </div>
       </div>
 
-      {/* Buyer Selection & Sync Control Bar */}
-      <div className="bg-white p-4 sm:p-5 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
+      {/* Buyer Selection & Worker Controls Bar */}
+      <div className="bg-white p-4 sm:p-5 rounded-2xl border border-black/10 shadow-2xs flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
         
         {/* Left: Active Buyer Info Pill */}
         <div className="flex items-center gap-3">
@@ -417,22 +393,22 @@ export function CuttingDashboardClient({
             <div className="text-xs font-mono font-bold uppercase tracking-wider text-slate-400">
               Selected Buyer Contract
             </div>
-            <div className="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2">
+            <div className="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2 flex-wrap">
               <span>{selectedBuyer ? selectedBuyer.buyer_name : 'No Active Buyers'}</span>
               {selectedBuyer?.linked_article_number && (
                 <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-                  {selectedBuyer.linked_article_number}
+                  Article: {selectedBuyer.linked_article_number}
                 </span>
               )}
             </div>
           </div>
         </div>
 
-        {/* Right: Buyer Selector Dropdown & Sync */}
+        {/* Right: Buyer Dropdown + View Worker List + Add Worker Buttons */}
         <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap justify-end">
           
           {/* Buyer Selector Searchable Dropdown */}
-          <div className="relative min-w-[240px] sm:min-w-[280px]">
+          <div className="relative min-w-[220px] sm:min-w-[260px]">
             <button
               type="button"
               onClick={() => setIsBuyerMenuOpen(!isBuyerMenuOpen)}
@@ -493,16 +469,37 @@ export function CuttingDashboardClient({
             )}
           </div>
 
+          {/* Button 1: View Worker List */}
+          <button
+            type="button"
+            onClick={() => setIsWorkerListOpen(true)}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-black/10 bg-white hover:bg-[#FAF7F0] text-xs font-mono font-bold text-slate-800 transition-all cursor-pointer shadow-2xs shrink-0"
+          >
+            <Users className="w-4 h-4 text-[#3A3564]" />
+            <span>View Worker List ({workers.length})</span>
+          </button>
+
+          {/* Button 2: Add Worker */}
+          <button
+            type="button"
+            onClick={() => setIsAddWorkerOpen(true)}
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer shrink-0"
+          >
+            <UserPlus className="w-4 h-4" />
+            <span>+ Add Worker</span>
+          </button>
+
           {/* Refresh Sync Button */}
           <button
             type="button"
             onClick={handleManualSync}
             disabled={isSyncing}
             className="p-2.5 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-[#3A3564] transition-all cursor-pointer shadow-2xs flex items-center justify-center shrink-0"
-            title="Sync latest live updates from floor modules"
+            title="Sync latest live floor updates"
           >
             <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
           </button>
+
         </div>
       </div>
 
@@ -524,7 +521,7 @@ export function CuttingDashboardClient({
               {inHandPieces.toLocaleString('en-IN')}
             </div>
             <p className="text-xs font-semibold text-slate-500 mt-1">
-              {selectedBuyer ? `Contracted BPO pieces for ${selectedBuyer.buyer_name}` : 'Contracted BPO volume'}
+              {selectedBuyer ? `${inHandPieces.toLocaleString('en-IN')} unassigned pcs in queue` : 'Unassigned BPO pieces in queue'}
             </p>
           </div>
         </div>
@@ -544,7 +541,7 @@ export function CuttingDashboardClient({
               {pendingCuttingPieces.toLocaleString('en-IN')}
             </div>
             <p className="text-xs font-semibold text-slate-500 mt-1">
-              Pieces pending table allocation &amp; cut
+              {pendingCuttingPieces > 0 ? `${pendingCuttingPieces.toLocaleString('en-IN')} pcs assigned to table in progress` : '0 pcs assigned to table'}
             </p>
           </div>
         </div>
@@ -564,356 +561,303 @@ export function CuttingDashboardClient({
               {completedCuttingPieces.toLocaleString('en-IN')}
             </div>
             <p className="text-xs font-semibold text-slate-500 mt-1">
-              Cut panels verified &amp; bundled
+              {completedCuttingPieces > 0 ? `${completedCuttingPieces.toLocaleString('en-IN')} cut panels verified & bundled` : '0 cut panels bundled'}
             </p>
           </div>
         </div>
 
       </div>
 
-      {/* Cutting Tables Real-Time Grid */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs space-y-4">
-        <div className="flex items-center justify-between flex-wrap gap-2">
+      {/* SPREADSHEET MATRIX: Worker Shift & Piece Allocation Layout */}
+      <div className="bg-white rounded-3xl border border-black/10 shadow-2xs overflow-hidden space-y-0">
+        
+        {/* Spreadsheet Header Bar */}
+        <div className="p-5 sm:p-6 border-b border-black/10 bg-[#FAF7F0]/40 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
           <div>
-            <h2 className="text-lg font-bold text-slate-900">Cutting Tables & Vacuum Stations</h2>
-            <p className="text-xs text-slate-500 mt-0.5">Physical table allocations and automated cutter live states</p>
-          </div>
-          <div className="text-xs font-mono text-slate-500">
-            Click table card to reassign status
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-1">
-          {tables.map(table => {
-            const activeLay = laySheets.find(l => l.id === table.current_lay_id)
-            let statusBadge = 'bg-[#FAF7F0] text-[#3A3564] border-black/10'
-            if (table.status === 'IDLE') statusBadge = 'bg-slate-100 text-slate-600 border-slate-200'
-            if (table.status === 'MAINTENANCE') statusBadge = 'bg-slate-200 text-slate-800 border-slate-300'
-
-            return (
-              <div 
-                key={table.id}
-                onClick={() => setTableModal(table)}
-                className="p-4 rounded-xl border border-black/10 bg-[#FAF7F0]/30 hover:bg-[#FAF7F0] transition-all cursor-pointer space-y-3 shadow-2xs flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-xs font-mono font-bold text-[#3A3564] uppercase">{table.table_number}</span>
-                    <span className={`text-[10px] font-mono px-2 py-0.5 rounded-md border font-bold uppercase ${statusBadge}`}>
-                      {table.status}
-                    </span>
-                  </div>
-                  <h3 className="text-sm font-black text-slate-900 leading-snug">{table.table_name}</h3>
-                  <div className="mt-2 space-y-1 text-xs text-slate-600 font-mono">
-                    <p>Bed: {table.length_meters}m × {table.width_inches}&quot; width</p>
-                    <p className="text-[11px] text-slate-500 truncate">{table.auto_cutter_model}</p>
-                  </div>
-                </div>
-
-                <div className="pt-2 border-t border-black/5">
-                  {activeLay ? (
-                    <div className="space-y-0.5">
-                      <span className="text-[10px] font-mono uppercase text-slate-500">Active Job:</span>
-                      <p className="text-xs font-bold text-slate-900 truncate">{activeLay.lay_number}</p>
-                      <p className="text-[11px] text-slate-600 truncate">{activeLay.style_name}</p>
-                      <p className="text-[10px] font-mono text-slate-700 font-semibold">{activeLay.plies_count} plies • {activeLay.total_cut_pieces} pcs</p>
-                    </div>
-                  ) : (
-                    <p className="text-xs text-slate-400 italic">No lay currently spread</p>
-                  )}
-                </div>
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-white border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+                <TableProperties className="w-4.5 h-4.5" />
               </div>
-            )
-          })}
-        </div>
-      </div>
-
-      {/* Active Lay Runs & Immediate Dispatch Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Active Lay Queue (2 Cols) */}
-        <div className="lg:col-span-2 bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-lg font-bold text-slate-900">Active Lay Sheets Queue</h2>
-              <p className="text-xs text-slate-500 mt-0.5">Roll barcodes, marker lengths, and cutting master sign-offs</p>
-            </div>
-            <Link
-              href="/cutting/lay-sheets"
-              className="inline-flex items-center gap-1 text-xs font-bold text-[#3A3564] hover:underline"
-            >
-              <span>View All</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
-
-          {laySheets.length === 0 ? (
-            <div className="py-8">
-              <EmptyState
-                title="No active lay sheets queued"
-                description="Spreading jobs and ply allocations will appear here once scheduled."
-                actionLabel="Create Lay Sheet"
-                onAction={() => { window.location.href = '/cutting/lay-sheets' }}
-              />
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs min-w-[560px]">
-                <thead className="bg-[#FAF7F0] text-[#3A3564] font-mono uppercase text-[10px] tracking-wider border-y border-black/10">
-                  <tr>
-                    <th className="py-2.5 px-3 font-bold">Lay Ref</th>
-                    <th className="py-2.5 px-3 font-bold">Style & Fabric</th>
-                    <th className="py-2.5 px-3 font-bold">Plies / Pcs</th>
-                    <th className="py-2.5 px-3 font-bold">Table</th>
-                    <th className="py-2.5 px-3 font-bold">Status</th>
-                    <th className="py-2.5 px-3 font-bold text-right">Details</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-black/5 font-medium">
-                  {laySheets.slice(0, 5).map(lay => {
-                    let badge = 'bg-[#FAF7F0] text-[#3A3564] border border-black/10'
-                    if (lay.status === 'SPREADING' || lay.status === 'READY_FOR_CUT') {
-                      badge = 'bg-slate-100 text-slate-700 border border-slate-200'
-                    }
-
-                    return (
-                      <tr key={lay.id} className="hover:bg-slate-50 transition-colors">
-                        <td className="py-3 px-3 font-mono font-bold text-slate-900">
-                          {lay.lay_number}
-                          <div className="text-[10px] text-slate-500 font-normal">{lay.po_number}</div>
-                        </td>
-                        <td className="py-3 px-3">
-                          <div className="font-bold text-slate-900 line-clamp-1">{lay.style_name}</div>
-                          <div className="text-[11px] text-slate-500 line-clamp-1">{lay.shell_fabric}</div>
-                        </td>
-                        <td className="py-3 px-3 font-mono">
-                          <span className="font-bold text-slate-900">{lay.plies_count} plies</span>
-                          <div className="text-[10px] text-slate-500">{lay.total_cut_pieces} pieces</div>
-                        </td>
-                        <td className="py-3 px-3 font-mono text-slate-700">{lay.table_number}</td>
-                        <td className="py-3 px-3">
-                          <span className={`text-[10px] font-mono px-2 py-0.5 rounded font-bold uppercase ${badge}`}>
-                            {lay.status.replace(/_/g, ' ')}
-                          </span>
-                        </td>
-                        <td className="py-3 px-3 text-right">
-                          <button
-                            onClick={() => setSelectedLay(lay)}
-                            className="px-2.5 py-1 rounded-lg bg-white border border-black/10 hover:bg-[#FAF7F0] font-mono text-[11px] text-[#3A3564] font-bold shadow-2xs"
-                          >
-                            Inspect
-                          </button>
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-
-        {/* Handover Pipeline (1 Col) */}
-        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-lg font-bold text-slate-900">Department Handover</h2>
-              <p className="text-xs text-slate-500 mt-0.5">QR Bundle dispatch to next processes</p>
-            </div>
-            <Link
-              href="/cutting/bundles"
-              className="inline-flex items-center gap-1 text-xs font-bold text-[#3A3564] hover:underline"
-            >
-              <span>Bundles</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
-
-          {bundles.length === 0 ? (
-            <div className="py-6">
-              <EmptyState
-                compact
-                title="No bundles awaiting handover"
-                description="QR bundles will list here once generated."
-                actionLabel="Generate Bundles"
-                onAction={() => { window.location.href = '/cutting/bundles' }}
-              />
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {bundles.slice(0, 4).map(bundle => {
-                let destIcon = <Shirt className="w-3.5 h-3.5" />
-                let destName = 'Sewing Floor'
-                if (bundle.destination === '04_PRINTING') {
-                  destIcon = <Printer className="w-3.5 h-3.5" />
-                  destName = 'Screen Print'
-                } else if (bundle.destination === '05_EMBROIDERY') {
-                  destIcon = <Sparkles className="w-3.5 h-3.5" />
-                  destName = 'Embroidery'
-                }
-
-                let stBadge = 'bg-[#FAF7F0] text-[#3A3564] border border-black/10'
-                if (bundle.status === 'HANDOVER_CONFIRMED') {
-                  stBadge = 'bg-slate-900 text-white border border-slate-900'
-                }
-
-                return (
-                  <div key={bundle.id} className="p-3 rounded-xl border border-black/10 bg-[#FAF7F0]/30 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="font-mono text-xs font-bold text-slate-900">{bundle.bundle_number}</span>
-                      <span className={`text-[9px] font-mono px-1.5 py-0.5 rounded font-bold uppercase ${stBadge}`}>
-                        {bundle.status.replace(/_/g, ' ')}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center justify-between text-xs text-slate-600">
-                      <span>Size: <strong className="text-slate-900">{bundle.size}</strong> ({bundle.pieces_count} pcs)</span>
-                      <div className="inline-flex items-center gap-1 font-mono text-[11px] font-bold text-[#3A3564]">
-                        {destIcon}
-                        <span>{destName}</span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between pt-1 border-t border-black/5">
-                      <span className="text-[10px] font-mono text-slate-500">Plies: {bundle.ply_range_start}-{bundle.ply_range_end}</span>
-                      {bundle.status !== 'HANDOVER_CONFIRMED' && (
-                        <button
-                          onClick={() => handleQuickAdvanceBundle(bundle.id)}
-                          className="px-2 py-0.5 rounded bg-white hover:bg-[#FAF7F0] border border-black/10 text-[10px] font-mono font-bold text-[#3A3564]"
-                        >
-                          Advance Step →
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Table Status Modal */}
-      {tableModal && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl border border-black/15 shadow-xl max-w-md w-full p-6 space-y-4">
-            <div className="flex items-center justify-between pb-2 border-b border-black/10">
-              <h3 className="font-bold text-base text-slate-900">Manage {tableModal.table_number}</h3>
-              <button onClick={() => setTableModal(null)} className="p-1 rounded-lg hover:bg-slate-100 text-slate-500">
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="space-y-2 text-xs text-slate-700">
-              <p><strong>Table Name:</strong> {tableModal.table_name}</p>
-              <p><strong>Dimensions:</strong> {tableModal.length_meters}m length × {tableModal.width_inches}&quot; bed</p>
-              <p><strong>Vacuum Type:</strong> {tableModal.vacuum_type}</p>
-              <p><strong>Automated Cutter:</strong> {tableModal.auto_cutter_model}</p>
-            </div>
-
-            <div className="space-y-1.5 pt-2">
-              <label className="text-xs font-mono font-bold text-slate-700 uppercase">Update Floor Status:</label>
-              <div className="grid grid-cols-2 gap-2">
-                {(['IDLE', 'SPREADING', 'CUTTING', 'MAINTENANCE'] as const).map(st => (
-                  <button
-                    key={st}
-                    onClick={() => handleTableStatusChange(tableModal.id, st)}
-                    className={`py-2 px-3 rounded-xl border text-xs font-mono font-bold transition-all ${
-                      tableModal.status === st
-                        ? 'bg-[#3A3564] text-white border-[#3A3564]'
-                        : 'bg-[#FAF7F0] text-slate-700 border-black/10 hover:bg-white'
-                    }`}
-                  >
-                    {st}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="pt-3 border-t border-black/10 flex justify-end">
-              <button
-                onClick={() => setTableModal(null)}
-                className="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Lay Sheet Details Modal */}
-      {selectedLay && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl border border-black/15 shadow-xl max-w-xl w-full p-6 space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-black/10">
               <div>
-                <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500">Lay Sheet Dossier</span>
-                <h3 className="font-black text-lg text-slate-900">{selectedLay.lay_number}</h3>
+                <h2 className="text-lg sm:text-xl font-bold text-slate-900 font-[family-name:var(--font-heading)]">
+                  Cutting Floor Task Allocation Matrix
+                </h2>
+                <p className="text-xs text-slate-500 font-mono">
+                  Distribute article piece quotas, assign tables, and set shift deadline targets
+                </p>
               </div>
-              <button onClick={() => setSelectedLay(null)} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500">
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3 text-xs">
-              <div className="p-2.5 rounded-lg bg-[#FAF7F0]/60 border border-black/5">
-                <span className="text-[10px] font-mono text-slate-500 uppercase">Purchase Order</span>
-                <p className="font-mono font-bold text-slate-900 mt-0.5">{selectedLay.po_number}</p>
-              </div>
-              <div className="p-2.5 rounded-lg bg-[#FAF7F0]/60 border border-black/5">
-                <span className="text-[10px] font-mono text-slate-500 uppercase">Brand / Client</span>
-                <p className="font-bold text-slate-900 mt-0.5">{selectedLay.brand_name}</p>
-              </div>
-              <div className="p-2.5 rounded-lg bg-[#FAF7F0]/60 border border-black/5">
-                <span className="text-[10px] font-mono text-slate-500 uppercase">Style Reference</span>
-                <p className="font-mono font-bold text-slate-900 mt-0.5">{selectedLay.style_ref}</p>
-                <p className="text-slate-600 truncate">{selectedLay.style_name}</p>
-              </div>
-              <div className="p-2.5 rounded-lg bg-[#FAF7F0]/60 border border-black/5">
-                <span className="text-[10px] font-mono text-slate-500 uppercase">Cutting Master</span>
-                <p className="font-bold text-slate-900 mt-0.5">{selectedLay.cutting_master}</p>
-              </div>
-              <div className="p-2.5 rounded-lg bg-[#FAF7F0]/60 border border-black/5 col-span-2">
-                <span className="text-[10px] font-mono text-slate-500 uppercase">Shell Fabric Spec</span>
-                <p className="font-medium text-slate-800 mt-0.5">{selectedLay.shell_fabric} ({selectedLay.gsm} GSM)</p>
-              </div>
-              <div className="p-2.5 rounded-lg bg-[#FAF7F0]/60 border border-black/5">
-                <span className="text-[10px] font-mono text-slate-500 uppercase">Plies & Pieces</span>
-                <p className="font-mono font-bold text-slate-900 mt-0.5">{selectedLay.plies_count} plies • {selectedLay.total_cut_pieces} pcs</p>
-              </div>
-              <div className="p-2.5 rounded-lg bg-[#FAF7F0]/60 border border-black/5">
-                <span className="text-[10px] font-mono text-slate-500 uppercase">Marker Length & Ratio</span>
-                <p className="font-mono font-bold text-slate-900 mt-0.5">{selectedLay.marker_length_meters}m • {selectedLay.ratio_breakdown}</p>
-              </div>
-              <div className="p-2.5 rounded-lg bg-[#FAF7F0]/60 border border-black/5 col-span-2">
-                <span className="text-[10px] font-mono text-slate-500 uppercase">Fabric Roll Barcodes</span>
-                <div className="flex flex-wrap gap-1.5 mt-1">
-                  {selectedLay.fabric_roll_barcodes.map(r => (
-                    <span key={r} className="px-2 py-0.5 rounded bg-white border border-black/10 font-mono text-[10px] font-bold text-[#3A3564]">
-                      {r}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-3 border-t border-black/10 flex justify-end gap-2">
-              <Link
-                href="/cutting/lay-sheets"
-                className="px-4 py-2 rounded-xl bg-[#FAF7F0] hover:bg-slate-100 border border-black/10 text-xs font-bold text-[#3A3564]"
-              >
-                Go to Lay Sheet Ledger
-              </Link>
-              <button
-                onClick={() => setSelectedLay(null)}
-                className="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800"
-              >
-                Close
-              </button>
             </div>
           </div>
+
+          {/* Search, Filter & Add Row Button */}
+          <div className="flex items-center gap-3 w-full lg:w-auto flex-wrap sm:flex-nowrap justify-end">
+            
+            {/* Search */}
+            <div className="relative flex-1 sm:w-60">
+              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                value={taskSearchQuery}
+                onChange={e => setTaskSearchQuery(e.target.value)}
+                placeholder="Search worker, article, task..."
+                className="w-full pl-8 pr-3 py-2 text-xs rounded-xl border border-black/10 bg-white focus:outline-hidden focus:border-[#3A3564]"
+              />
+            </div>
+
+            {/* Status Tabs */}
+            <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-black/10">
+              {(['ALL', 'ASSIGNED', 'IN_PROGRESS', 'COMPLETED'] as const).map(st => (
+                <button
+                  key={st}
+                  type="button"
+                  onClick={() => setStatusFilter(st)}
+                  className={`px-2.5 py-1 text-[11px] font-mono font-bold rounded-lg transition-all cursor-pointer ${
+                    statusFilter === st
+                      ? 'bg-[#3A3564] text-white'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-[#FAF7F0]'
+                  }`}
+                >
+                  {st === 'ALL' ? 'All' : st.replace(/_/g, ' ')}
+                </button>
+              ))}
+            </div>
+
+            {/* + Add Assignment Row Button */}
+            <button
+              type="button"
+              onClick={() => setIsAddTaskOpen(true)}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer shrink-0"
+            >
+              <Plus className="w-4 h-4" />
+              <span>+ Add Task Row</span>
+            </button>
+
+          </div>
         </div>
-      )}
+
+        {/* Spreadsheet Data Table */}
+        <div className="overflow-x-auto">
+          {filteredTasks.length === 0 ? (
+            <div className="py-16 px-4 text-center">
+              <div className="w-14 h-14 rounded-2xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center mx-auto text-[#3A3564] mb-3 shadow-2xs">
+                <TableProperties className="w-7 h-7" />
+              </div>
+              <h3 className="text-base font-bold text-slate-900">No Cutting Tasks Assigned Yet</h3>
+              <p className="text-xs text-slate-500 font-mono mt-1 max-w-md mx-auto">
+                Allocate article piece quotas to registered workers. When assigned, pieces move from <strong>In Hand</strong> to <strong>Pending Cutting</strong> until completed.
+              </p>
+              <button
+                type="button"
+                onClick={() => setIsAddTaskOpen(true)}
+                className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs font-mono font-bold shadow-xs cursor-pointer transition-all"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Assign First Task Row</span>
+              </button>
+            </div>
+          ) : (
+            <table className="w-full text-left text-xs min-w-[900px]">
+              <thead className="bg-[#FAF7F0] text-[#3A3564] font-mono uppercase text-[11px] tracking-wider border-b border-black/10">
+                <tr>
+                  <th className="py-3 px-4 font-bold"># Task Ref</th>
+                  <th className="py-3 px-4 font-bold">Worker &amp; Contact</th>
+                  <th className="py-3 px-4 font-bold">Article &amp; Buyer</th>
+                  <th className="py-3 px-4 font-bold">Station / Table</th>
+                  <th className="py-3 px-4 font-bold text-right">Pieces to Cut</th>
+                  <th className="py-3 px-4 font-bold text-center">Alloted Time</th>
+                  <th className="py-3 px-4 font-bold">Due Timeline</th>
+                  <th className="py-3 px-4 font-bold">Status</th>
+                  <th className="py-3 px-4 font-bold text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-black/5 font-medium">
+                {filteredTasks.map(task => {
+                  const timeline = formatDueTimeline(task.due_time, task.alloted_hours)
+                  const isDone = task.status === 'COMPLETED'
+                  const inProgress = task.status === 'IN_PROGRESS'
+
+                  return (
+                    <tr key={task.id} className="hover:bg-slate-50/80 transition-colors">
+                      
+                      {/* Task Ref */}
+                      <td className="py-3.5 px-4 font-mono font-bold text-slate-900">
+                        <span className="px-2 py-0.5 rounded-md bg-[#FAF7F0] border border-black/10 text-[#3A3564]">
+                          #{task.task_ref}
+                        </span>
+                      </td>
+
+                      {/* Worker & Contact */}
+                      <td className="py-3.5 px-4">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-8 h-8 rounded-xl bg-white border border-black/10 flex items-center justify-center font-bold text-xs text-[#3A3564] shadow-2xs shrink-0">
+                            {task.worker_name.slice(0, 2).toUpperCase()}
+                          </div>
+                          <div>
+                            <div className="font-bold text-slate-900 text-xs">{task.worker_name}</div>
+                            {task.worker_phone && (
+                              <div className="text-[10px] font-mono text-slate-500">
+                                +91 {task.worker_phone}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+
+                      {/* Article & Buyer */}
+                      <td className="py-3.5 px-4">
+                        <div className="font-mono font-bold text-slate-900 text-xs">{task.article_number}</div>
+                        <div className="text-[11px] text-slate-500 truncate max-w-[180px]">
+                          {task.buyer_name} • {task.article_name}
+                        </div>
+                      </td>
+
+                      {/* Table / Station */}
+                      <td className="py-3.5 px-4 font-mono text-xs">
+                        <span className="px-2 py-0.5 rounded-md bg-white border border-black/10 font-bold text-slate-700">
+                          {task.table_number || 'Table 01'}
+                        </span>
+                      </td>
+
+                      {/* Pieces to Cut */}
+                      <td className="py-3.5 px-4 text-right">
+                        <div className="font-mono font-black text-sm text-slate-900">
+                          {task.pieces_to_cut.toLocaleString('en-IN')} <span className="text-xs font-normal text-slate-500">Pcs</span>
+                        </div>
+                        {isDone && (
+                          <div className="text-[10px] font-mono font-bold text-emerald-600">
+                            ✓ 100% Completed
+                          </div>
+                        )}
+                        {inProgress && (
+                          <div className="text-[10px] font-mono font-bold text-indigo-600">
+                            In progress on table
+                          </div>
+                        )}
+                      </td>
+
+                      {/* Alloted Time */}
+                      <td className="py-3.5 px-4 text-center font-mono text-xs font-bold text-slate-700">
+                        <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#FAF7F0] border border-black/10">
+                          <Clock className="w-3 h-3 text-[#3A3564]" />
+                          <span>{task.alloted_hours} Hrs</span>
+                        </div>
+                      </td>
+
+                      {/* Due Timeline */}
+                      <td className="py-3.5 px-4">
+                        <div className={`text-xs font-mono font-bold ${isDone ? 'text-slate-400 line-through' : (timeline.isPast ? 'text-rose-600' : 'text-slate-800')}`}>
+                          {timeline.formatted}
+                        </div>
+                        {!isDone && timeline.isPast && (
+                          <span className="text-[10px] font-mono font-bold text-rose-500">
+                            Past Due Target
+                          </span>
+                        )}
+                      </td>
+
+                      {/* Status Dropdown */}
+                      <td className="py-3.5 px-4">
+                        <select
+                          value={task.status}
+                          onChange={e => handleUpdateStatus(task.id, e.target.value as CuttingAllocationStatus)}
+                          className={`text-xs font-mono font-bold px-2.5 py-1 rounded-lg border transition-all cursor-pointer ${
+                            isDone
+                              ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                              : inProgress
+                              ? 'bg-indigo-50 text-[#3A3564] border-indigo-200'
+                              : 'bg-amber-50 text-amber-800 border-amber-200'
+                          }`}
+                        >
+                          <option value="ASSIGNED">Assigned</option>
+                          <option value="IN_PROGRESS">In Progress</option>
+                          <option value="COMPLETED">Completed</option>
+                        </select>
+                      </td>
+
+                      {/* Actions */}
+                      <td className="py-3.5 px-4 text-right">
+                        <div className="flex items-center justify-end gap-1.5">
+                          {!isDone && (
+                            <button
+                              type="button"
+                              onClick={() => handleUpdateStatus(task.id, 'COMPLETED')}
+                              className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-mono font-bold transition-all flex items-center gap-1 cursor-pointer shadow-2xs"
+                              title="Mark task as complete"
+                            >
+                              <Check className="w-3.5 h-3.5" />
+                              <span>Done</span>
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteTask(task.id, task.task_ref)}
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                            title="Delete allocation"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </td>
+
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          )}
+        </div>
+
+        {/* Spreadsheet Footer Summary */}
+        <div className="p-4 bg-slate-50/80 border-t border-black/10 flex flex-col sm:flex-row items-start sm:items-center justify-between text-xs text-slate-600 font-mono gap-2">
+          <div>
+            Showing <strong>{filteredTasks.length}</strong> task allocations across <strong>{workers.length}</strong> registered workers
+          </div>
+          <div className="flex items-center gap-4">
+            <span>In Hand: <strong className="text-slate-900">{inHandPieces.toLocaleString('en-IN')}</strong></span>
+            <span>•</span>
+            <span>Pending: <strong className="text-[#3A3564]">{pendingCuttingPieces.toLocaleString('en-IN')}</strong></span>
+            <span>•</span>
+            <span>Completed: <strong className="text-emerald-700">{completedCuttingPieces.toLocaleString('en-IN')}</strong></span>
+          </div>
+        </div>
+
+      </div>
+
+      {/* MODALS */}
+
+      {/* 1. Add Worker Modal */}
+      <AddWorkerModal
+        isOpen={isAddWorkerOpen}
+        onClose={() => setIsAddWorkerOpen(false)}
+        onSuccess={() => {
+          refreshFloorData()
+        }}
+      />
+
+      {/* 2. Worker List Modal */}
+      <WorkerListModal
+        isOpen={isWorkerListOpen}
+        onClose={() => setIsWorkerListOpen(false)}
+        workers={workers}
+        onOpenAddModal={() => setIsAddWorkerOpen(true)}
+        onWorkersUpdated={() => {
+          refreshFloorData()
+        }}
+      />
+
+      {/* 3. Add Task Allocation Modal */}
+      <AddTaskAllocationModal
+        isOpen={isAddTaskOpen}
+        onClose={() => setIsAddTaskOpen(false)}
+        workers={workers}
+        selectedBuyer={selectedBuyer}
+        inHandPieces={inHandPieces}
+        onSuccess={() => {
+          refreshFloorData()
+        }}
+        onOpenAddWorkerModal={() => setIsAddWorkerOpen(true)}
+      />
+
     </div>
   )
 }

@@ -195,3 +195,45 @@ export interface CuttingTable {
   current_lay_id?: string
   status: TableStatus
 }
+
+export type CuttingWorkerRole = 
+  | 'CUTTING_MASTER' 
+  | 'SPREADING_OPERATOR' 
+  | 'KNIFE_CUTTER' 
+  | 'BUNDLER' 
+  | 'TABLE_LEAD'
+
+export interface CuttingWorker {
+  id: string
+  worker_name: string
+  phone_number: string
+  role: CuttingWorkerRole | string
+  status: 'ACTIVE' | 'INACTIVE' | 'ON_LEAVE'
+  shift?: 'MORNING' | 'EVENING' | 'NIGHT'
+  assigned_pieces?: number
+  completed_pieces?: number
+  created_at: string
+}
+
+export type CuttingAllocationStatus = 'ASSIGNED' | 'IN_PROGRESS' | 'COMPLETED'
+
+export interface CuttingTaskAllocation {
+  id: string
+  task_ref: string
+  buyer_id?: string
+  buyer_name: string
+  article_number: string
+  article_name: string
+  worker_id: string
+  worker_name: string
+  worker_phone?: string
+  table_number?: string
+  pieces_to_cut: number
+  completed_pieces: number
+  alloted_hours: number
+  due_time: string
+  notes?: string
+  status: CuttingAllocationStatus
+  created_at: string
+  updated_at?: string
+}

@@ -336,3 +336,155 @@ export function savePanelAudit(audit: PanelQcAudit): PanelQcAudit[] {
   emitUpdate()
   return updated
 }
+
+// =============================================================================
+// 10. CUTTING WORKERS (Floor Operators & Shift Leads)
+// =============================================================================
+const WORKERS_KEY = 'zigza_cutting_workers_v1'
+
+export const INITIAL_CUTTING_WORKERS = [
+  {
+    id: 'cw-01',
+    worker_name: 'Ramesh Kumar',
+    phone_number: '9845012345',
+    role: 'CUTTING_MASTER',
+    status: 'ACTIVE' as const,
+    shift: 'MORNING' as const,
+    assigned_pieces: 1500,
+    completed_pieces: 1500,
+    created_at: new Date().toISOString()
+  },
+  {
+    id: 'cw-02',
+    worker_name: 'Suresh Patel',
+    phone_number: '9822167890',
+    role: 'SPREADING_OPERATOR',
+    status: 'ACTIVE' as const,
+    shift: 'MORNING' as const,
+    assigned_pieces: 800,
+    completed_pieces: 0,
+    created_at: new Date().toISOString()
+  },
+  {
+    id: 'cw-03',
+    worker_name: 'Imran Khan',
+    phone_number: '9833454321',
+    role: 'KNIFE_CUTTER',
+    status: 'ACTIVE' as const,
+    shift: 'EVENING' as const,
+    assigned_pieces: 0,
+    completed_pieces: 0,
+    created_at: new Date().toISOString()
+  }
+]
+
+export function getCuttingWorkers(): any[] {
+  if (typeof window === 'undefined') return INITIAL_CUTTING_WORKERS
+  try {
+    const stored = localStorage.getItem(WORKERS_KEY)
+    if (!stored) {
+      localStorage.setItem(WORKERS_KEY, JSON.stringify(INITIAL_CUTTING_WORKERS))
+      return INITIAL_CUTTING_WORKERS
+    }
+    const parsed = JSON.parse(stored)
+    return Array.isArray(parsed) && parsed.length > 0 ? parsed : INITIAL_CUTTING_WORKERS
+  } catch {
+    return INITIAL_CUTTING_WORKERS
+  }
+}
+
+export function saveCuttingWorker(worker: any): any[] {
+  const current = getCuttingWorkers()
+  const index = current.findIndex(w => w.id === worker.id || w.phone_number === worker.phone_number)
+  let updated: any[]
+  if (index >= 0) {
+    updated = [...current]
+    updated[index] = { ...current[index], ...worker, updated_at: new Date().toISOString() }
+  } else {
+    updated = [{ ...worker, created_at: worker.created_at || new Date().toISOString() }, ...current]
+  }
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(WORKERS_KEY, JSON.stringify(updated))
+  }
+  emitUpdate()
+  return updated
+}
+
+export function deleteCuttingWorker(id: string): any[] {
+  const current = getCuttingWorkers()
+  const updated = current.filter(w => w.id !== id)
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(WORKERS_KEY, JSON.stringify(updated))
+  }
+  emitUpdate()
+  return updated
+}
+
+// =============================================================================
+// 11. CUTTING TASK ALLOCATIONS (Spreadsheet Matrix)
+// =============================================================================
+const ALLOCATIONS_KEY = 'zigza_cutting_task_allocations_v1'
+
+export const INITIAL_TASK_ALLOCATIONS: any[] = []
+
+export function getCuttingTaskAllocations(): any[] {
+  if (typeof window === 'undefined') return INITIAL_TASK_ALLOCATIONS
+  try {
+    const stored = localStorage.getItem(ALLOCATIONS_KEY)
+    if (!stored) {
+      localStorage.setItem(ALLOCATIONS_KEY, JSON.stringify(INITIAL_TASK_ALLOCATIONS))
+      return INITIAL_TASK_ALLOCATIONS
+    }
+    const parsed = JSON.parse(stored)
+    return Array.isArray(parsed) ? parsed : INITIAL_TASK_ALLOCATIONS
+  } catch {
+    return INITIAL_TASK_ALLOCATIONS
+  }
+}
+
+export function saveCuttingTaskAllocation(task: any): any[] {
+  const current = getCuttingTaskAllocations()
+  const index = current.findIndex(t => t.id === task.id || t.task_ref === task.task_ref)
+  let updated: any[]
+  if (index >= 0) {
+    updated = [...current]
+    updated[index] = { ...current[index], ...task, updated_at: new Date().toISOString() }
+  } else {
+    updated = [{ ...task, created_at: task.created_at || new Date().toISOString() }, ...current]
+  }
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(ALLOCATIONS_KEY, JSON.stringify(updated))
+  }
+  emitUpdate()
+  return updated
+}
+
+export function updateCuttingTaskStatus(id: string, status: 'ASSIGNED' | 'IN_PROGRESS' | 'COMPLETED'): any[] {
+  const current = getCuttingTaskAllocations()
+  const updated = current.map(t => {
+    if (t.id === id) {
+      return {
+        ...t,
+        status,
+        completed_pieces: status === 'COMPLETED' ? t.pieces_to_cut : (status === 'IN_PROGRESS' ? Math.floor(t.pieces_to_cut * 0.5) : 0),
+        updated_at: new Date().toISOString()
+      }
+    }
+    return t
+  })
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(ALLOCATIONS_KEY, JSON.stringify(updated))
+  }
+  emitUpdate()
+  return updated
+}
+
+export function deleteCuttingTaskAllocation(id: string): any[] {
+  const current = getCuttingTaskAllocations()
+  const updated = current.filter(t => t.id !== id)
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(ALLOCATIONS_KEY, JSON.stringify(updated))
+  }
+  emitUpdate()
+  return updated
+}

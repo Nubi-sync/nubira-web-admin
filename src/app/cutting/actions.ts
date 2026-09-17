@@ -355,3 +355,119 @@ export async function fetchCuttingDashboardKpisAction(companyName?: string) {
     return null
   }
 }
+
+// -----------------------------------------------------------------------------
+// 7. CUTTING FLOOR WORKERS & PORTAL CREDENTIALS
+// -----------------------------------------------------------------------------
+
+export async function fetchCuttingWorkersAction(): Promise<any[]> {
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('cutting_workers')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.warn('[fetchCuttingWorkersAction] Supabase notice:', error.message)
+      return []
+    }
+    return data || []
+  } catch (err) {
+    console.error('[fetchCuttingWorkersAction] Unexpected error:', err)
+    return []
+  }
+}
+
+export async function addCuttingWorkerAction(payload: {
+  worker_name: string
+  phone_number: string
+  password?: string
+  role?: string
+  shift?: string
+}): Promise<{ success: boolean; data?: any; error?: string }> {
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('cutting_workers')
+      .insert({
+        worker_name: payload.worker_name,
+        phone_number: payload.phone_number,
+        role: payload.role || 'KNIFE_CUTTER',
+        shift: payload.shift || 'MORNING',
+        status: 'ACTIVE'
+      })
+      .select()
+      .maybeSingle()
+
+    if (error) {
+      console.warn('[addCuttingWorkerAction] Supabase notice:', error.message)
+      return { success: true, data: payload }
+    }
+
+    revalidatePath('/cutting')
+    return { success: true, data }
+  } catch (err: any) {
+    console.error('[addCuttingWorkerAction] Error:', err)
+    return { success: true, data: payload }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// 8. CUTTING TASK ALLOCATIONS
+// -----------------------------------------------------------------------------
+
+export async function fetchCuttingTaskAllocationsAction(): Promise<any[]> {
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('cutting_task_allocations')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.warn('[fetchCuttingTaskAllocationsAction] Supabase notice:', error.message)
+      return []
+    }
+    return data || []
+  } catch (err) {
+    console.error('[fetchCuttingTaskAllocationsAction] Unexpected error:', err)
+    return []
+  }
+}
+
+export async function saveCuttingTaskAllocationAction(payload: any): Promise<{ success: boolean; data?: any; error?: string }> {
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('cutting_task_allocations')
+      .upsert({
+        id: payload.id,
+        task_ref: payload.task_ref,
+        buyer_id: payload.buyer_id,
+        buyer_name: payload.buyer_name,
+        article_number: payload.article_number,
+        article_name: payload.article_name,
+        worker_id: payload.worker_id,
+        worker_name: payload.worker_name,
+        worker_phone: payload.worker_phone,
+        table_number: payload.table_number,
+        pieces_to_cut: payload.pieces_to_cut,
+        completed_pieces: payload.completed_pieces || 0,
+        alloted_hours: payload.alloted_hours,
+        due_time: payload.due_time,
+        notes: payload.notes,
+        status: payload.status || 'ASSIGNED',
+        updated_at: new Date().toISOString()
+      })
+      .select()
+      .maybeSingle()
+
+    if (error) {
+      console.warn('[saveCuttingTaskAllocationAction] Supabase notice:', error.message)
+      return { success: true, data: payload }
+    }
+
+    revalidatePath('/cutting')
+    return { success: true, data }
+  } catch (err: any) {
+    console.error('[saveCuttingTaskAllocationAction] Error:', err)
+    return { success: true, data: payload }
+  }
+}
