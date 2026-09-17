@@ -400,143 +400,91 @@ export function MerchandisingDashboardClient({
       {/* ========================================================= */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
         
-        {/* CARD 1: ACTIVE ARTICLES (TECH PACK READY) */}
+        {/* CARD 1: ACTIVE ARTICLES */}
         <Link 
           href="/design/tech-packs"
-          className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-[#3A3564]/40 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group relative shadow-2xs select-none hover:-translate-y-0.5"
+          className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-[#3A3564]/40 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group shadow-2xs select-none hover:-translate-y-0.5"
         >
-          <div>
-            <div className="flex items-center justify-between">
-              <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-[#3A3564] group-hover:text-white group-hover:border-[#3A3564] transition-colors">
-                <Layers className="w-5 h-5" />
-              </div>
-              <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#3A3564] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+          <div className="flex items-center justify-between">
+            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-[#3A3564] group-hover:text-white group-hover:border-[#3A3564] transition-colors">
+              <Layers className="w-5 h-5" />
             </div>
-
-            <div className="mt-3.5">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
-                Active Articles
-              </span>
-              <p className="text-[11px] text-slate-400 font-medium truncate mt-0.5">
-                Tech Pack finalized
-              </p>
-            </div>
+            <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#3A3564] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
           </div>
 
-          <div className="mt-4 pt-3 border-t border-slate-100/80">
-            <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none" suppressHydrationWarning>
-              {activeArticlesCount} Articles
+          <div className="mt-4">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
+              Active Articles
+            </span>
+            <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 mt-1 leading-none" suppressHydrationWarning>
+              {activeArticlesCount}
             </h3>
-            <div className="mt-2.5 flex items-center justify-between">
-              <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 tracking-wider shadow-2xs">
-                {activeArticlesCount} Tech Packs Ready
-              </span>
-            </div>
           </div>
         </Link>
 
         {/* CARD 2: ACTIVE BUYER POS */}
         <Link 
           href="/merchandising/orders"
-          className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-[#3A3564]/40 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group relative shadow-2xs select-none hover:-translate-y-0.5"
+          className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-[#3A3564]/40 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group shadow-2xs select-none hover:-translate-y-0.5"
         >
-          <div>
-            <div className="flex items-center justify-between">
-              <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-[#3A3564] group-hover:text-white group-hover:border-[#3A3564] transition-colors">
-                <Briefcase className="w-5 h-5" />
-              </div>
-              <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#3A3564] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+          <div className="flex items-center justify-between">
+            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-[#3A3564] group-hover:text-white group-hover:border-[#3A3564] transition-colors">
+              <Briefcase className="w-5 h-5" />
             </div>
-
-            <div className="mt-3.5">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
-                Active Buyer POs
-              </span>
-              <p className="text-[11px] text-slate-400 font-medium truncate mt-0.5">
-                Order pipeline target
-              </p>
-            </div>
+            <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#3A3564] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
           </div>
 
-          <div className="mt-4 pt-3 border-t border-slate-100/80">
-            <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none" suppressHydrationWarning>
+          <div className="mt-4">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
+              Active Buyer POs
+            </span>
+            <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 mt-1 leading-none" suppressHydrationWarning>
               {totalBookedPcs.toLocaleString('en-IN')}
             </h3>
-            <div className="mt-2.5 flex items-center justify-between">
-              <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 tracking-wider shadow-2xs">
-                {orders.length} Buyer POs
-              </span>
-            </div>
           </div>
         </Link>
 
-        {/* CARD 3: IN ORDER (LINKED BUYER CONTRACTS) */}
+        {/* CARD 3: IN ORDER */}
         <Link 
           href="/merchandising/buyers"
-          className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-emerald-600/40 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group relative shadow-2xs select-none hover:-translate-y-0.5 ring-1 ring-emerald-500/15"
+          className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-[#3A3564]/40 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group shadow-2xs select-none hover:-translate-y-0.5"
         >
-          <div>
-            <div className="flex items-center justify-between">
-              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-emerald-700 group-hover:text-white group-hover:border-emerald-700 transition-colors">
-                <PackageCheck className="w-5 h-5" />
-              </div>
-              <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-emerald-700 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+          <div className="flex items-center justify-between">
+            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-[#3A3564] group-hover:text-white group-hover:border-[#3A3564] transition-colors">
+              <PackageCheck className="w-5 h-5" />
             </div>
-
-            <div className="mt-3.5">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
-                In Order
-              </span>
-              <p className="text-[11px] text-slate-400 font-medium truncate mt-0.5">
-                Contracted &amp; linked volume
-              </p>
-            </div>
+            <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#3A3564] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
           </div>
 
-          <div className="mt-4 pt-3 border-t border-slate-100/80">
-            <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-emerald-950 leading-none" suppressHydrationWarning>
-              In Order {totalInOrderPieces.toLocaleString('en-IN')} Pcs
+          <div className="mt-4">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
+              In Order
+            </span>
+            <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 mt-1 leading-none" suppressHydrationWarning>
+              {totalInOrderPieces.toLocaleString('en-IN')}
             </h3>
-            <div className="mt-2.5 flex items-center justify-between">
-              <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 tracking-wider shadow-2xs">
-                {linkedBuyers.length} of {buyers.length} Buyers Contracted
-              </span>
-            </div>
           </div>
         </Link>
 
-        {/* CARD 4: TIME & ACTION (T&A) GATES */}
+        {/* CARD 4: CRITICAL PATH SLA */}
         <Link 
           href="/merchandising/tna-calendar"
-          className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-[#3A3564]/40 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group relative shadow-2xs select-none hover:-translate-y-0.5"
+          className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-[#3A3564]/40 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group shadow-2xs select-none hover:-translate-y-0.5"
         >
-          <div>
-            <div className="flex items-center justify-between">
-              <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-[#3A3564] group-hover:text-white group-hover:border-[#3A3564] transition-colors">
-                <Calendar className="w-5 h-5" />
-              </div>
-              <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#3A3564] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+          <div className="flex items-center justify-between">
+            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-[#3A3564] group-hover:text-white group-hover:border-[#3A3564] transition-colors">
+              <Calendar className="w-5 h-5" />
             </div>
-
-            <div className="mt-3.5">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
-                Critical Path SLA
-              </span>
-              <p className="text-[11px] text-slate-400 font-medium truncate mt-0.5">
-                T&amp;A milestone gates
-              </p>
-            </div>
+            <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#3A3564] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
           </div>
 
-          <div className="mt-4 pt-3 border-t border-slate-100/80">
-            <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none">
+          <div className="mt-4">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
+              Critical Path SLA
+            </span>
+            <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 mt-1 leading-none">
               {slaPct}%
             </h3>
-            <div className="mt-2.5 flex items-center justify-between">
-              <span className={`text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] ${clearedGates > 0 ? 'text-emerald-800 border border-emerald-200' : 'text-slate-600 border border-black/10'} tracking-wider shadow-2xs`}>
-                {totalGates > 0 ? `${clearedGates} of ${totalGates} Gates Cleared` : '0 Gates Tracked'}
-              </span>
-            </div>
           </div>
         </Link>
 

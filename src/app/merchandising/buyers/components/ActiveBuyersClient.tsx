@@ -172,20 +172,14 @@ export function ActiveBuyersClient({ initialBuyers }: ActiveBuyersClientProps) {
             <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
               <Building2 className="w-5 h-5" />
             </div>
-            <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-              Accounts
-            </span>
           </div>
-          <div className="mt-3.5">
+          <div className="mt-4">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
               Active Buyers
             </span>
             <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 mt-1 leading-none">
               {totalBuyersCount}
             </h3>
-            <p className="text-[11px] text-slate-400 font-medium mt-1">
-              Registered commercial buyers
-            </p>
           </div>
         </div>
 
@@ -195,43 +189,31 @@ export function ActiveBuyersClient({ initialBuyers }: ActiveBuyersClientProps) {
             <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
               <Layers className="w-5 h-5" />
             </div>
-            <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-              Total Target
-            </span>
           </div>
-          <div className="mt-3.5">
+          <div className="mt-4">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
               Contracted Volume
             </span>
             <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 mt-1 leading-none">
-              {totalContractedPcs.toLocaleString('en-IN')} Pcs
+              {totalContractedPcs.toLocaleString('en-IN')}
             </h3>
-            <p className="text-[11px] text-slate-400 font-medium mt-1">
-              Agreed garment piece units
-            </p>
           </div>
         </div>
 
         {/* CARD 3: LINKED IN-ORDER PCS */}
-        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs flex flex-col justify-between ring-1 ring-emerald-500/20">
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-center justify-center shrink-0 shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
               <PackageCheck className="w-5 h-5" />
             </div>
-            <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
+          </div>
+          <div className="mt-4">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
               In Order
             </span>
-          </div>
-          <div className="mt-3.5">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
-              Linked Article Volume
-            </span>
-            <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-emerald-900 mt-1 leading-none">
-              {linkedPcs.toLocaleString('en-IN')} Pcs
+            <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 mt-1 leading-none">
+              {linkedPcs.toLocaleString('en-IN')}
             </h3>
-            <p className="text-[11px] text-emerald-700 font-medium mt-1">
-              {linkedBuyers.length} of {totalBuyersCount} buyers linked with Tech Packs
-            </p>
           </div>
         </div>
 
@@ -241,20 +223,14 @@ export function ActiveBuyersClient({ initialBuyers }: ActiveBuyersClientProps) {
             <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
               <DollarSign className="w-5 h-5" />
             </div>
-            <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-              Gross FOB
-            </span>
           </div>
-          <div className="mt-3.5">
+          <div className="mt-4">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
               Total Contract Value
             </span>
             <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 mt-1 leading-none">
               ₹{totalContractValue.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
             </h3>
-            <p className="text-[11px] text-slate-400 font-medium mt-1">
-              Estimated contract turnover
-            </p>
           </div>
         </div>
 
