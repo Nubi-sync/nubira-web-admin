@@ -41,6 +41,7 @@ import {
 import {
   getCuttingWorkers,
   saveCuttingWorker,
+  deleteCuttingWorker,
   getCuttingTaskAllocations,
   saveCuttingTaskAllocation,
   updateCuttingTaskStatus,
@@ -56,7 +57,7 @@ import { AddWorkerModal } from './AddWorkerModal'
 import { WorkerListModal } from './WorkerListModal'
 import { AddTaskAllocationModal } from './AddTaskAllocationModal'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
-import { saveCuttingTaskAllocationAction, deleteCuttingTaskAllocationAction, fetchCuttingTaskAllocationsAction, fetchCuttingWorkersAction } from '../actions'
+import { saveCuttingTaskAllocationAction, deleteCuttingTaskAllocationAction, fetchCuttingTaskAllocationsAction, fetchCuttingWorkersAction, deleteCuttingWorkerAction } from '../actions'
 
 interface CuttingDashboardClientProps {
   userEmail?: string
@@ -156,6 +157,8 @@ export function CuttingDashboardClient({
   initialAllocations = []
 }: CuttingDashboardClientProps) {
   // Workers & Task Allocations State
+  const [serverWorkers, setServerWorkers] = useState<CuttingWorker[]>(initialWorkers || [])
+  const [serverAllocations, setServerAllocations] = useState<CuttingTaskAllocation[]>(initialAllocations || [])
   const [workers, setWorkers] = useState<CuttingWorker[]>([])
   const [allocations, setAllocations] = useState<CuttingTaskAllocation[]>([])
 
@@ -187,22 +190,59 @@ export function CuttingDashboardClient({
   } | null>(null)
   const [isDeletingTask, setIsDeletingTask] = useState(false)
 
+  // Sync state if props update
+  useEffect(() => {
+    if (initialWorkers && initialWorkers.length > 0) {
+      setServerWorkers(initialWorkers)
+    }
+  }, [initialWorkers])
+
+  useEffect(() => {
+    if (initialAllocations && initialAllocations.length > 0) {
+      setServerAllocations(initialAllocations)
+    }
+  }, [initialAllocations])
+
   // Load and refresh workers & task allocations (merging server and local storage)
   const refreshFloorData = () => {
     const localWorkers = getCuttingWorkers()
     const workerMap = new Map<string, CuttingWorker>()
-    initialWorkers.forEach(w => { if (w?.id || w?.phone_number) workerMap.set(w.phone_number || w.id, w) })
+    serverWorkers.forEach(w => { if (w?.id || w?.phone_number) workerMap.set(w.phone_number || w.id, w) })
     localWorkers.forEach(w => { if (w?.id || w?.phone_number) workerMap.set(w.phone_number || w.id, { ...(workerMap.get(w.phone_number || w.id) || {}), ...w }) })
     setWorkers(Array.from(workerMap.values()))
 
     const localTasks = getCuttingTaskAllocations()
     const taskMap = new Map<string, CuttingTaskAllocation>()
-    initialAllocations.forEach(t => { if (t?.id || t?.task_ref) taskMap.set(t.id || t.task_ref, t) })
+    serverAllocations.forEach(t => { if (t?.id || t?.task_ref) taskMap.set(t.id || t.task_ref, t) })
     localTasks.forEach(t => { if (t?.id || t?.task_ref) taskMap.set(t.id || t.task_ref, { ...(taskMap.get(t.id || t.task_ref) || {}), ...t }) })
     setAllocations(Array.from(taskMap.values()))
 
     const merged = mergeBuyersFromAllSources(initialBuyers)
     setBuyers(merged)
+  }
+
+  // Delete Worker Handler (removes from memory, local storage, and Supabase)
+  const handleDeleteWorker = async (workerId: string, phone?: string) => {
+    const rawDigits = (phone || workerId || '').replace(/\D/g, '')
+    const phone10 = rawDigits.length >= 10 ? rawDigits.slice(-10) : ''
+    const idClean = workerId.trim().toLowerCase()
+
+    setServerWorkers(prev => prev.filter(w => {
+      if (w.id === workerId) return false
+      if (w.worker_name && (w.worker_name.toLowerCase() === idClean || idClean.includes(w.worker_name.toLowerCase()))) return false
+      if (phone10 && w.phone_number && w.phone_number.includes(phone10)) return false
+      return true
+    }))
+
+    setWorkers(prev => prev.filter(w => {
+      if (w.id === workerId) return false
+      if (w.worker_name && (w.worker_name.toLowerCase() === idClean || idClean.includes(w.worker_name.toLowerCase()))) return false
+      if (phone10 && w.phone_number && w.phone_number.includes(phone10)) return false
+      return true
+    }))
+
+    deleteCuttingWorker(workerId)
+    await deleteCuttingWorkerAction(workerId, phone)
   }
 
   useEffect(() => {
@@ -218,22 +258,25 @@ export function CuttingDashboardClient({
         window.removeEventListener(CUTTING_UPDATE_EVENT, refreshFloorData)
       }
     }
-  }, [initialBuyers])
+  }, [initialBuyers, serverWorkers, serverAllocations])
 
   const handleManualSync = async () => {
     setIsSyncing(true)
     try {
-      const [serverTasks, serverWorkers] = await Promise.all([
+      const [freshTasks, freshWorkers] = await Promise.all([
         fetchCuttingTaskAllocationsAction(),
         fetchCuttingWorkersAction()
       ])
+      setServerWorkers(freshWorkers || [])
+      setServerAllocations(freshTasks || [])
+
       const workerMap = new Map<string, CuttingWorker>()
-      serverWorkers.forEach((w: any) => { if (w?.id || w?.phone_number) workerMap.set(w.phone_number || w.id, w) })
+      freshWorkers.forEach((w: any) => { if (w?.id || w?.phone_number) workerMap.set(w.phone_number || w.id, w) })
       getCuttingWorkers().forEach(w => { if (w?.id || w?.phone_number) workerMap.set(w.phone_number || w.id, { ...(workerMap.get(w.phone_number || w.id) || {}), ...w }) })
       setWorkers(Array.from(workerMap.values()))
 
       const taskMap = new Map<string, CuttingTaskAllocation>()
-      serverTasks.forEach((t: any) => { if (t?.id || t?.task_ref) taskMap.set(t.id || t.task_ref, t) })
+      freshTasks.forEach((t: any) => { if (t?.id || t?.task_ref) taskMap.set(t.id || t.task_ref, t) })
       getCuttingTaskAllocations().forEach(t => { if (t?.id || t?.task_ref) taskMap.set(t.id || t.task_ref, { ...(taskMap.get(t.id || t.task_ref) || {}), ...t }) })
       setAllocations(Array.from(taskMap.values()))
 
@@ -952,6 +995,7 @@ export function CuttingDashboardClient({
         onWorkersUpdated={() => {
           refreshFloorData()
         }}
+        onDeleteWorker={handleDeleteWorker}
       />
 
       {/* 3. Add Task Allocation Modal */}

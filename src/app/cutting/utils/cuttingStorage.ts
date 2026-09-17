@@ -378,7 +378,20 @@ export function saveCuttingWorker(worker: any): any[] {
 
 export function deleteCuttingWorker(id: string): any[] {
   const current = getCuttingWorkers()
-  const updated = current.filter(w => w.id !== id)
+  const rawDigits = id.replace(/\D/g, '')
+  const phone10 = rawDigits.length >= 10 ? rawDigits.slice(-10) : ''
+  const idClean = id.trim().toLowerCase()
+
+  const updated = current.filter(w => {
+    if (w.id === id) return false
+    if (w.worker_name && (w.worker_name.toLowerCase() === idClean || idClean.includes(w.worker_name.toLowerCase()))) return false
+    if (w.phone_number) {
+      const wPhoneDigits = w.phone_number.replace(/\D/g, '').slice(-10)
+      if (w.phone_number === id || (phone10 && wPhoneDigits === phone10)) return false
+    }
+    return true
+  })
+
   if (typeof window !== 'undefined') {
     localStorage.setItem(WORKERS_KEY, JSON.stringify(updated))
   }

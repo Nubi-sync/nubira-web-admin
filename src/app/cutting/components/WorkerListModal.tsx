@@ -15,6 +15,7 @@ import { toast } from 'sonner'
 import { CuttingWorker, CuttingWorkerRole } from '../types/cutting'
 import { deleteCuttingWorker, saveCuttingWorker } from '../utils/cuttingStorage'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
+import { deleteCuttingWorkerAction } from '../actions'
 
 interface WorkerListModalProps {
   isOpen: boolean
@@ -22,6 +23,7 @@ interface WorkerListModalProps {
   workers: CuttingWorker[]
   onOpenAddModal: () => void
   onWorkersUpdated: () => void
+  onDeleteWorker?: (workerId: string, phone?: string) => Promise<void>
 }
 
 const ROLE_LABELS: Record<string, string> = {
@@ -35,7 +37,8 @@ export function WorkerListModal({
   onClose,
   workers,
   onOpenAddModal,
-  onWorkersUpdated
+  onWorkersUpdated,
+  onDeleteWorker
 }: WorkerListModalProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [roleFilter, setRoleFilter] = useState<string>('ALL')
@@ -60,11 +63,20 @@ export function WorkerListModal({
     return matchesSearch && matchesRole
   })
 
-  const handleConfirmDeleteWorker = () => {
+  const handleConfirmDeleteWorker = async () => {
     if (!workerToDelete) return
     try {
       setIsDeletingWorker(true)
       deleteCuttingWorker(workerToDelete.id)
+      if (workerToDelete.worker_name) deleteCuttingWorker(workerToDelete.worker_name)
+      if (workerToDelete.phone_number) deleteCuttingWorker(workerToDelete.phone_number)
+
+      if (onDeleteWorker) {
+        await onDeleteWorker(workerToDelete.id, workerToDelete.phone_number)
+      } else {
+        await deleteCuttingWorkerAction(workerToDelete.id, workerToDelete.phone_number)
+      }
+
       toast.success(`Worker "${workerToDelete.worker_name}" removed from roster.`)
       onWorkersUpdated()
     } catch (err) {

@@ -411,6 +411,31 @@ export async function addCuttingWorkerAction(payload: {
   }
 }
 
+export async function deleteCuttingWorkerAction(workerId: string, phoneNumber?: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const rawDigits = (phoneNumber || workerId || '').replace(/\D/g, '')
+    const phone10 = rawDigits.length >= 10 ? rawDigits.slice(-10) : ''
+
+    if (workerId && isUUID(workerId)) {
+      await supabaseAdmin.from('cutting_workers').delete().eq('id', workerId)
+    }
+    if (phone10) {
+      await supabaseAdmin.from('cutting_workers').delete().eq('phone_number', phone10)
+    }
+    if (workerId && !isUUID(workerId)) {
+      await supabaseAdmin.from('cutting_workers').delete().or(`id.eq.${workerId},worker_name.ilike.%${workerId}%`)
+    }
+
+    revalidatePath('/cutting')
+    revalidatePath('/cutting/worker')
+    revalidatePath('/cutting/worker/history')
+    return { success: true }
+  } catch (err: any) {
+    console.error('[deleteCuttingWorkerAction] Error:', err)
+    return { success: false, error: err.message }
+  }
+}
+
 // -----------------------------------------------------------------------------
 // 8. CUTTING TASK ALLOCATIONS
 // -----------------------------------------------------------------------------
