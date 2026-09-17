@@ -284,6 +284,166 @@ export async function fetchApprovedArticlesForTechPackAction(companyName?: strin
   }
 }
 
+export interface TechPackImageInfo {
+  photo_front?: string
+  photo_back?: string
+  color_name?: string
+  category_style?: string
+  garment_type?: string
+  designer_name?: string
+  designer_notes?: string
+  all_photos?: { label: string; url: string }[]
+}
+
+export async function fetchTechPackImagesAction(styleNumber: string, submissionId?: string): Promise<TechPackImageInfo | null> {
+  try {
+    const cleanStyle = (styleNumber || '').trim().toUpperCase()
+
+    // 1. If submissionId is passed, try direct submission fetch
+    if (submissionId) {
+      const { data: sub } = await supabaseAdmin
+        .from('design_submissions')
+        .select('*, design_briefs(*, design_team_members(*))')
+        .eq('id', submissionId)
+        .maybeSingle()
+
+      if (sub) {
+        const parsedNotes = parseConceptsFromNotes(sub.designer_notes)
+        const allPhotos: { label: string; url: string }[] = []
+        if (sub.photo_url_1) allPhotos.push({ label: 'Front Artwork / CAD', url: sub.photo_url_1 })
+        if (sub.photo_url_2) allPhotos.push({ label: 'Back Artwork / CAD', url: sub.photo_url_2 })
+
+        const concepts = parsedNotes.concepts || []
+        let matchedPhotoFront = sub.photo_url_1
+        let matchedPhotoBack = sub.photo_url_2
+        let matchedColor: string | undefined
+        let matchedCat: string | undefined
+
+        for (const c of concepts) {
+          if (c.colorways) {
+            for (let i = 0; i < c.colorways.length; i++) {
+              const cw = c.colorways[i]
+              const baseArt = c.art_number || `#${sub.brief_id?.substring(0, 6)}-${c.concept_number}`
+              const varArt = getVariantArtNumber(baseArt, i, c.colorways.length)
+              if (varArt.toUpperCase() === cleanStyle || baseArt.toUpperCase() === cleanStyle) {
+                if (cw.photo_front) matchedPhotoFront = cw.photo_front
+                if (cw.photo_back) matchedPhotoBack = cw.photo_back
+                matchedColor = cw.color_name
+                matchedCat = (c as any).category_style || c.title
+                break
+              }
+            }
+          }
+        }
+
+        return {
+          photo_front: matchedPhotoFront || undefined,
+          photo_back: matchedPhotoBack || undefined,
+          color_name: matchedColor,
+          category_style: matchedCat || sub.design_briefs?.category,
+          garment_type: sub.design_briefs?.garment_type,
+          designer_name: sub.design_briefs?.design_team_members?.designer_name,
+          designer_notes: parsedNotes.cleanNotes,
+          all_photos: allPhotos
+        }
+      }
+    }
+
+    // 2. Otherwise search across design_briefs & design_submissions
+    const { data: briefs } = await supabaseAdmin
+      .from('design_briefs')
+      .select('*, design_team_members(*), design_submissions(*)')
+      .order('created_at', { ascending: false })
+
+    if (briefs) {
+      for (const briefRow of briefs) {
+        const subs = (briefRow.design_submissions || []) as any[]
+        subs.sort((a, b) => new Date(b.submitted_at).getTime() - new Date(a.submitted_at).getTime())
+        const latestSub = subs[0]
+        if (!latestSub) continue
+
+        const parsedNotes = parseConceptsFromNotes(latestSub.designer_notes)
+        const concepts = parsedNotes.concepts || []
+
+        let parsedConceptsBrief: BriefDesignConceptRequirement[] | undefined
+        if (briefRow.instructions) {
+          const match = briefRow.instructions.match(/\[CONCEPTS_BRIEF:\s*(\[[\s\S]*?\])\]/i)
+          if (match && match[1]) {
+            try {
+              parsedConceptsBrief = JSON.parse(match[1])
+            } catch {}
+          }
+        }
+
+        if (parsedConceptsBrief && parsedConceptsBrief.length > 0) {
+          for (const req of parsedConceptsBrief) {
+            const baseArtNo = req.art_number || (req.notes?.match(/Art No:\s*([^|]+)/i)?.[1]?.trim()) || `#${briefRow.id.substring(0, 6)}-${req.concept_number}`
+            const subConcept = concepts.find(c => c.concept_number === req.concept_number || (c.art_number && c.art_number.toLowerCase() === baseArtNo.toLowerCase()))
+
+            if (subConcept?.colorways && subConcept.colorways.length > 0) {
+              for (let cwIdx = 0; cwIdx < subConcept.colorways.length; cwIdx++) {
+                const cw = subConcept.colorways[cwIdx]
+                const variantArtNo = getVariantArtNumber(baseArtNo, cwIdx, subConcept.colorways.length)
+                if (variantArtNo.toUpperCase() === cleanStyle || baseArtNo.toUpperCase() === cleanStyle) {
+                  const allPhotos: { label: string; url: string }[] = []
+                  if (cw.photo_front || latestSub.photo_url_1) allPhotos.push({ label: 'Front Mockup', url: cw.photo_front || latestSub.photo_url_1 })
+                  if (cw.photo_back || latestSub.photo_url_2) allPhotos.push({ label: 'Back Mockup', url: cw.photo_back || latestSub.photo_url_2 })
+                  return {
+                    photo_front: cw.photo_front || latestSub.photo_url_1 || undefined,
+                    photo_back: cw.photo_back || latestSub.photo_url_2 || undefined,
+                    color_name: cw.color_name,
+                    category_style: req.category_style || briefRow.category,
+                    garment_type: briefRow.garment_type,
+                    designer_name: briefRow.design_team_members?.designer_name,
+                    designer_notes: parsedNotes.cleanNotes,
+                    all_photos: allPhotos
+                  }
+                }
+              }
+            } else {
+              if (baseArtNo.toUpperCase() === cleanStyle) {
+                const allPhotos: { label: string; url: string }[] = []
+                if (latestSub.photo_url_1) allPhotos.push({ label: 'Front Mockup', url: latestSub.photo_url_1 })
+                if (latestSub.photo_url_2) allPhotos.push({ label: 'Back Mockup', url: latestSub.photo_url_2 })
+                return {
+                  photo_front: latestSub.photo_url_1 || undefined,
+                  photo_back: latestSub.photo_url_2 || undefined,
+                  category_style: req.category_style || briefRow.category,
+                  garment_type: briefRow.garment_type,
+                  designer_name: briefRow.design_team_members?.designer_name,
+                  designer_notes: parsedNotes.cleanNotes,
+                  all_photos: allPhotos
+                }
+              }
+            }
+          }
+        } else {
+          const baseArtNo = `#${briefRow.id.substring(0, 6)}`
+          if (baseArtNo.toUpperCase() === cleanStyle) {
+            const allPhotos: { label: string; url: string }[] = []
+            if (latestSub.photo_url_1) allPhotos.push({ label: 'Front Mockup', url: latestSub.photo_url_1 })
+            if (latestSub.photo_url_2) allPhotos.push({ label: 'Back Mockup', url: latestSub.photo_url_2 })
+            return {
+              photo_front: latestSub.photo_url_1 || undefined,
+              photo_back: latestSub.photo_url_2 || undefined,
+              category_style: briefRow.category,
+              garment_type: briefRow.garment_type,
+              designer_name: briefRow.design_team_members?.designer_name,
+              designer_notes: parsedNotes.cleanNotes,
+              all_photos: allPhotos
+            }
+          }
+        }
+      }
+    }
+
+    return null
+  } catch (err) {
+    console.error('[fetchTechPackImagesAction] Error:', err)
+    return null
+  }
+}
+
 export async function createTechPackAction(payload: {
   style_number: string
   style_name?: string

@@ -1,11 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { X, Check, FileText, Loader2 } from 'lucide-react'
+import { X, Check, FileText, Loader2, Plus, Trash2, Package, Eye, Image as ImageIcon, Sparkles, User, Palette } from 'lucide-react'
 import { toast } from 'sonner'
 import { TechPack, GarmentCategory, SizeSystem, EmbellishmentSequence, SeamClass, TechPackStatus, TechPackMaterialRequirement } from '../../types/design'
-import { updateTechPackAction } from '../../actions'
-import { Plus, Trash2, Package } from 'lucide-react'
+import { updateTechPackAction, fetchTechPackImagesAction, TechPackImageInfo } from '../../actions'
 
 interface EditTechPackModalProps {
   isOpen: boolean
@@ -13,6 +12,7 @@ interface EditTechPackModalProps {
   techPack: TechPack | null
   onUpdated?: (techPack: TechPack) => void
   availableBrands?: { id: string; brand_name: string; brand_code: string }[]
+  availableArticles?: any[]
 }
 
 const CATEGORIES: GarmentCategory[] = ['Hoodie', 'T-Shirt', 'Polo', 'Jogger', 'Jacket', 'Kids Romper', 'Suit', 'Pant', 'Ethnic']
@@ -47,7 +47,7 @@ const STATUSES: { label: string; value: TechPackStatus }[] = [
   { label: 'Revise Fit', value: 'REVISE_FIT' }
 ]
 
-export function EditTechPackModal({ isOpen, onClose, techPack, onUpdated, availableBrands }: EditTechPackModalProps) {
+export function EditTechPackModal({ isOpen, onClose, techPack, onUpdated, availableBrands, availableArticles }: EditTechPackModalProps) {
   if (!isOpen || !techPack) return null
 
   return (
@@ -56,6 +56,7 @@ export function EditTechPackModal({ isOpen, onClose, techPack, onUpdated, availa
       techPack={techPack}
       onUpdated={onUpdated}
       availableBrands={availableBrands}
+      availableArticles={availableArticles}
     />
   )
 }
@@ -64,12 +65,14 @@ function EditTechPackModalContent({
   onClose,
   techPack,
   onUpdated,
-  availableBrands
+  availableBrands,
+  availableArticles
 }: {
   onClose: () => void
   techPack: TechPack
   onUpdated?: (techPack: TechPack) => void
   availableBrands?: { id: string; brand_name: string; brand_code: string }[]
+  availableArticles?: any[]
 }) {
   const brandsList = (availableBrands && availableBrands.length > 0)
     ? Array.from(new Set([...availableBrands.map(b => b.brand_name), techPack.brand_name]))
@@ -91,6 +94,11 @@ function EditTechPackModalContent({
   const [materials, setMaterials] = useState<TechPackMaterialRequirement[]>(techPack.materials || [])
   const [instructions, setInstructions] = useState(techPack.instructions || '')
   const [errors, setErrors] = useState<Record<string, string>>({})
+
+  // Article Design Visuals & Lightbox state
+  const [imageInfo, setImageInfo] = useState<TechPackImageInfo | null>(null)
+  const [isLoadingImages, setIsLoadingImages] = useState(false)
+  const [previewPhoto, setPreviewPhoto] = useState<{ url: string; title: string } | null>(null)
 
   // 4 boxes state for adding new BOM item
   const [newMatType, setNewMatType] = useState('')
@@ -116,6 +124,32 @@ function EditTechPackModalContent({
       setInstructions(techPack.instructions || '')
     }
   }, [techPack])
+
+  // Fetch article design mockups and artwork
+  useEffect(() => {
+    let isMounted = true
+    setIsLoadingImages(true)
+    fetchTechPackImagesAction(techPack.style_number, techPack.design_submission_id)
+      .then(res => {
+        if (isMounted) {
+          setImageInfo(res)
+          setIsLoadingImages(false)
+        }
+      })
+      .catch(() => {
+        if (isMounted) setIsLoadingImages(false)
+      })
+    return () => { isMounted = false }
+  }, [techPack.style_number, techPack.design_submission_id])
+
+  const frontPhoto = imageInfo?.photo_front || techPack.cad_front_url
+  const backPhoto = imageInfo?.photo_back || techPack.cad_back_url
+  const allImages = imageInfo?.all_photos && imageInfo.all_photos.length > 0
+    ? imageInfo.all_photos
+    : [
+        ...(frontPhoto ? [{ label: 'Front Artwork / CAD', url: frontPhoto }] : []),
+        ...(backPhoto ? [{ label: 'Back Artwork / CAD', url: backPhoto }] : [])
+      ]
 
   function handleAddNewMaterial() {
     if (!newMatType.trim() && !newMatName.trim()) {
@@ -216,6 +250,91 @@ function EditTechPackModalContent({
 
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-6">
+          {/* Section 0: Article Design Visuals & Mockups */}
+          <div className="bg-[#FAF7F0] border border-black/10 rounded-2xl p-4.5 space-y-3.5 shadow-2xs">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <div className="flex items-center gap-2">
+                <ImageIcon className="w-4 h-4 text-[#3A3564]" />
+                <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-800">
+                  Article Design Artwork &amp; CAD Mockups
+                </h3>
+              </div>
+              <span className="text-[11px] font-mono text-slate-500 font-bold">
+                Style: {styleNumber}
+              </span>
+            </div>
+
+            {isLoadingImages ? (
+              <div className="p-6 bg-white rounded-xl border border-black/10 flex items-center justify-center gap-2 text-xs font-mono text-slate-400">
+                <Loader2 className="w-4 h-4 animate-spin text-[#3A3564]" />
+                <span>Loading article design visuals...</span>
+              </div>
+            ) : allImages.length > 0 ? (
+              <div className="space-y-3">
+                {/* Images Row */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {allImages.map((img, idx) => (
+                    <div
+                      key={idx}
+                      onClick={() => setPreviewPhoto({ url: img.url, title: `${styleNumber} - ${img.label}` })}
+                      className="group relative bg-white rounded-xl border border-black/10 overflow-hidden cursor-pointer p-2 shadow-2xs hover:shadow-md hover:border-[#3A3564] transition-all flex flex-col items-center justify-between"
+                    >
+                      <div className="w-full h-32 flex items-center justify-center overflow-hidden rounded-lg bg-slate-50">
+                        <img
+                          src={img.url}
+                          alt={img.label}
+                          className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-200"
+                        />
+                      </div>
+                      <div className="w-full mt-2 flex items-center justify-between gap-1 text-[11px] font-mono font-bold text-slate-700">
+                        <span className="truncate">{img.label}</span>
+                        <Eye className="w-3.5 h-3.5 text-[#3A3564] shrink-0 opacity-60 group-hover:opacity-100" />
+                      </div>
+                      <div className="absolute inset-0 bg-[#3A3564]/10 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl flex items-center justify-center">
+                        <span className="px-2.5 py-1 bg-black/75 text-white text-[10px] font-bold rounded-md flex items-center gap-1 shadow-sm">
+                          <Eye className="w-3 h-3" /> Zoom
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Concept & Designer Meta Bar */}
+                {(imageInfo?.color_name || imageInfo?.designer_name || imageInfo?.designer_notes) && (
+                  <div className="p-3 bg-white rounded-xl border border-black/10 text-xs space-y-2">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {imageInfo.color_name && (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-100 border border-slate-200 text-slate-800 font-mono font-bold text-[11px]">
+                          <Palette className="w-3 h-3 text-[#3A3564]" />
+                          <span>Colorway: {imageInfo.color_name}</span>
+                        </span>
+                      )}
+                      {imageInfo.designer_name && (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-100 border border-slate-200 text-slate-700 font-mono text-[11px]">
+                          <User className="w-3 h-3 text-[#3A3564]" />
+                          <span>Designer: <strong>{imageInfo.designer_name}</strong></span>
+                        </span>
+                      )}
+                    </div>
+                    {imageInfo.designer_notes && (
+                      <p className="text-[11px] text-slate-600 italic bg-slate-50 p-2 rounded-lg border border-slate-100">
+                        &ldquo;{imageInfo.designer_notes}&rdquo;
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="p-4 bg-white rounded-xl border border-dashed border-slate-200 flex items-center gap-3 text-xs text-slate-500 font-mono">
+                <ImageIcon className="w-5 h-5 text-slate-300 shrink-0" />
+                <div>
+                  <p className="font-semibold text-slate-700">No linked design CAD artwork found for {styleNumber}</p>
+                  <p className="text-[11px] text-slate-400">Artwork will link automatically when approved from Design Studio briefs.</p>
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* Section 1: Basic Information */}
           <div className="bg-slate-50/70 border border-slate-200/80 rounded-2xl p-4.5 space-y-4">
             <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
@@ -557,6 +676,42 @@ function EditTechPackModalContent({
             </button>
           </div>
         </form>
+
+        {/* Full Image Preview Lightbox */}
+        {previewPhoto && (
+          <div
+            className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-in fade-in"
+            onClick={() => setPreviewPhoto(null)}
+          >
+            <div
+              className="bg-white rounded-3xl border border-black/15 shadow-2xl max-w-3xl w-full max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-150"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="px-5 py-3.5 border-b border-black/10 bg-[#FAF7F0] flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <ImageIcon className="w-4 h-4 text-[#3A3564]" />
+                  <h3 className="text-xs font-mono font-bold text-slate-900">
+                    {previewPhoto.title}
+                  </h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setPreviewPhoto(null)}
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-800 hover:bg-black/5 cursor-pointer transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="p-6 bg-slate-100 flex items-center justify-center overflow-auto max-h-[75vh]">
+                <img
+                  src={previewPhoto.url}
+                  alt={previewPhoto.title}
+                  className="max-h-[65vh] max-w-full object-contain rounded-xl shadow-lg bg-white p-2"
+                />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

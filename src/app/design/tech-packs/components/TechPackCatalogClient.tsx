@@ -606,6 +606,7 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands, avail
         onClose={() => setEditingPack(null)}
         techPack={editingPack}
         availableBrands={availableBrands}
+        availableArticles={availableArticles}
         onUpdated={(updatedTp) => {
           setTechPacks(prev => prev.map(p => p.id === updatedTp.id ? updatedTp : p))
         }}
