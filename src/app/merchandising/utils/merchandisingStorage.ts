@@ -209,7 +209,19 @@ export function getActiveBuyers(): ActiveBuyer[] {
       localStorage.setItem(BUYERS_KEY, JSON.stringify(INITIAL_ACTIVE_BUYERS))
       return INITIAL_ACTIVE_BUYERS
     }
-    return JSON.parse(raw)
+    const parsed: ActiveBuyer[] = JSON.parse(raw)
+    // Deduplicate by ID to guarantee uniqueness
+    const uniqueMap = new Map<string, ActiveBuyer>()
+    for (const b of parsed) {
+      if (b && b.id) {
+        uniqueMap.set(b.id, b)
+      }
+    }
+    const result = Array.from(uniqueMap.values())
+    if (result.length !== parsed.length) {
+      localStorage.setItem(BUYERS_KEY, JSON.stringify(result))
+    }
+    return result
   } catch (err) {
     console.error('Failed to load active buyers from localStorage:', err)
     return INITIAL_ACTIVE_BUYERS
@@ -233,7 +245,8 @@ export function saveActiveBuyer(buyer: ActiveBuyer): ActiveBuyer[] {
       total_contract_value: Number(buyer.contracted_volume) * Number(buyer.price_per_piece),
       created_at: buyer.created_at || new Date().toISOString()
     }
-    updated = [newBuyer, ...current]
+    // Filter out any duplicate ID just in case and prepend
+    updated = [newBuyer, ...current.filter(b => b.id !== newBuyer.id)]
   }
   localStorage.setItem(BUYERS_KEY, JSON.stringify(updated))
   emitUpdate()

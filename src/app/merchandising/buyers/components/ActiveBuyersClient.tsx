@@ -437,8 +437,7 @@ export function ActiveBuyersClient({ initialBuyers }: ActiveBuyersClientProps) {
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         onBuyerCreated={newB => {
-          setBuyers(prev => [newB, ...prev])
-          // Automatically prompt linking if desired
+          reloadData()
           setLinkingBuyer(newB)
         }}
       />
@@ -448,7 +447,7 @@ export function ActiveBuyersClient({ initialBuyers }: ActiveBuyersClientProps) {
         buyer={linkingBuyer}
         onClose={() => setLinkingBuyer(null)}
         onArticleLinked={updatedB => {
-          setBuyers(prev => prev.map(b => b.id === updatedB.id ? updatedB : b))
+          reloadData()
         }}
       />
 

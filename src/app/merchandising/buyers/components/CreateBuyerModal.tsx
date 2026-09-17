@@ -98,7 +98,7 @@ export function CreateBuyerModal({ isOpen, onClose, onBuyerCreated }: CreateBuye
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} className="p-5 sm:p-6 overflow-y-auto space-y-4 flex-1">
+        <form onSubmit={handleSubmit} autoComplete="off" className="p-5 sm:p-6 overflow-y-auto space-y-4 flex-1">
           {/* Buyer Name & Code */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div>
@@ -107,6 +107,8 @@ export function CreateBuyerModal({ isOpen, onClose, onBuyerCreated }: CreateBuye
               </label>
               <input
                 type="text"
+                name="commercial_buyer_organization_name"
+                autoComplete="off"
                 required
                 value={buyerName}
                 onChange={e => handleNameChange(e.target.value)}
@@ -120,6 +122,8 @@ export function CreateBuyerModal({ isOpen, onClose, onBuyerCreated }: CreateBuye
               </label>
               <input
                 type="text"
+                name="commercial_buyer_account_code"
+                autoComplete="off"
                 value={buyerCode}
                 onChange={e => setBuyerCode(e.target.value.toUpperCase())}
                 placeholder="BYR-ZARA"
@@ -136,6 +140,8 @@ export function CreateBuyerModal({ isOpen, onClose, onBuyerCreated }: CreateBuye
               </label>
               <input
                 type="text"
+                name="buyer_apparel_brand_label"
+                autoComplete="off"
                 value={brandName}
                 onChange={e => setBrandName(e.target.value)}
                 placeholder="e.g. Zara Man / Inditex"
@@ -148,6 +154,8 @@ export function CreateBuyerModal({ isOpen, onClose, onBuyerCreated }: CreateBuye
               </label>
               <input
                 type="text"
+                name="buyer_contract_target_season"
+                autoComplete="off"
                 value={targetSeason}
                 onChange={e => setTargetSeason(e.target.value)}
                 placeholder="e.g. AW26 or Summer 2026"
@@ -169,6 +177,8 @@ export function CreateBuyerModal({ isOpen, onClose, onBuyerCreated }: CreateBuye
                 </label>
                 <input
                   type="number"
+                  name="buyer_order_volume_pieces"
+                  autoComplete="off"
                   required
                   min={1}
                   value={contractedVolume}
@@ -184,6 +194,8 @@ export function CreateBuyerModal({ isOpen, onClose, onBuyerCreated }: CreateBuye
                 </label>
                 <input
                   type="number"
+                  name="buyer_unit_offered_price"
+                  autoComplete="off"
                   required
                   step="0.01"
                   min={0.01}
@@ -199,6 +211,7 @@ export function CreateBuyerModal({ isOpen, onClose, onBuyerCreated }: CreateBuye
                   Currency
                 </label>
                 <select
+                  name="buyer_contract_fob_currency"
                   value={currency}
                   onChange={e => setCurrency(e.target.value as any)}
                   className="w-full px-3 py-2 rounded-lg border border-black/15 bg-white text-xs sm:text-sm font-bold text-slate-900 focus:outline-hidden focus:border-[#3A3564]"
@@ -228,6 +241,8 @@ export function CreateBuyerModal({ isOpen, onClose, onBuyerCreated }: CreateBuye
               </label>
               <input
                 type="text"
+                name="buyer_commercial_contact_name"
+                autoComplete="off"
                 value={contactPerson}
                 onChange={e => setContactPerson(e.target.value)}
                 placeholder="e.g. Marcus Vance"
@@ -240,6 +255,8 @@ export function CreateBuyerModal({ isOpen, onClose, onBuyerCreated }: CreateBuye
               </label>
               <input
                 type="email"
+                name="buyer_commercial_contact_email"
+                autoComplete="off"
                 value={contactEmail}
                 onChange={e => setContactEmail(e.target.value)}
                 placeholder="buyer@brand.com"
@@ -254,6 +271,7 @@ export function CreateBuyerModal({ isOpen, onClose, onBuyerCreated }: CreateBuye
               Contract Terms / Internal Notes
             </label>
             <textarea
+              name="buyer_contract_terms_notes"
               rows={2}
               value={notes}
               onChange={e => setNotes(e.target.value)}
