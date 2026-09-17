@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { 
   X, 
   Plus, 
@@ -9,13 +9,13 @@ import {
   Clock, 
   Layers, 
   CheckCircle2, 
-  Calendar,
   Building2,
-  TableProperties
+  TableProperties,
+  Check
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { CuttingWorker, CuttingTaskAllocation } from '../types/cutting'
-import { saveCuttingTaskAllocation } from '../utils/cuttingStorage'
+import { saveCuttingTaskAllocation, getCuttingTables, saveCuttingTables } from '../utils/cuttingStorage'
 
 interface AddTaskAllocationModalProps {
   isOpen: boolean
@@ -46,22 +46,45 @@ export function AddTaskAllocationModal({
   const [notes, setNotes] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // Initialize selected article and worker when modal opens
+  // Dynamic Tables List
+  const [tablesList, setTablesList] = useState<string[]>(['Table 01', 'Table 02', 'Table 03', 'Table 04'])
+  const [isAddingNewTable, setIsAddingNewTable] = useState(false)
+  const [newTableInput, setNewTableInput] = useState('')
+
+  const wasOpenRef = useRef(false)
+
+  // Initialize form fields ONLY ONCE when modal is opened
   useEffect(() => {
-    if (isOpen) {
-      if (workers.length > 0 && !workerId) {
+    if (isOpen && !wasOpenRef.current) {
+      wasOpenRef.current = true
+
+      // Load tables from storage or default
+      const savedTables = getCuttingTables()
+      if (savedTables && savedTables.length > 0) {
+        setTablesList(savedTables.map(t => t.table_number || t.table_name))
+      }
+
+      if (workers.length > 0) {
         setWorkerId(workers[0].id)
       }
       if (selectedBuyer?.linked_article_number) {
         setArticleStyle(selectedBuyer.linked_article_number)
-      } else if (availableArticles.length > 0 && !articleStyle) {
+      } else if (availableArticles.length > 0) {
         setArticleStyle(availableArticles[0].style_number)
+      } else {
+        setArticleStyle('DEMO-101-03')
       }
-      if (inHandPieces > 0) {
-        setPieces(String(Math.min(inHandPieces, 1000)))
-      }
+
+      const initialQty = inHandPieces > 0 ? String(Math.min(inHandPieces, 1000)) : '500'
+      setPieces(initialQty)
+      setAllotedHours('4.0')
+      setNotes('')
+      setIsAddingNewTable(false)
+      setNewTableInput('')
+    } else if (!isOpen) {
+      wasOpenRef.current = false
     }
-  }, [isOpen, workers, selectedBuyer, availableArticles, inHandPieces])
+  }, [isOpen])
 
   if (!isOpen) return null
 
@@ -76,6 +99,47 @@ export function AddTaskAllocationModal({
       `, ` + due.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
   }
 
+  // Handle adding a new table
+  const handleAddNewTable = (e?: React.FormEvent) => {
+    if (e) e.preventDefault()
+    let nameToAdd = newTableInput.trim()
+
+    if (!nameToAdd) {
+      // Auto-generate next table number e.g. Table 05
+      const tableCount = tablesList.length + 1
+      nameToAdd = `Table ${tableCount.toString().padStart(2, '0')}`
+    }
+
+    if (!tablesList.includes(nameToAdd)) {
+      const updated = [...tablesList, nameToAdd]
+      setTablesList(updated)
+
+      // Also persist to tables storage
+      try {
+        const existing = getCuttingTables()
+        const newEntry = {
+          id: `tbl-${Date.now()}`,
+          table_number: nameToAdd,
+          table_name: `Automated Vacuum ${nameToAdd}`,
+          length_meters: 36,
+          width_inches: 68,
+          vacuum_type: 'Multi-Zone High Vacuum',
+          auto_cutter_model: 'Gerber Paragon HX-500',
+          status: 'IDLE' as const
+        }
+        saveCuttingTables([...existing, newEntry])
+      } catch {}
+
+      setTableNumber(nameToAdd)
+      toast.success(`${nameToAdd} added and selected.`)
+    } else {
+      setTableNumber(nameToAdd)
+    }
+
+    setNewTableInput('')
+    setIsAddingNewTable(false)
+  }
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -85,16 +149,16 @@ export function AddTaskAllocationModal({
     }
 
     if (!articleStyle.trim()) {
-      toast.error('Please select an article style reference.')
+      toast.error('Please enter an article style reference.')
       return
     }
 
-    if (piecesCount <= 0) {
-      toast.error('Please specify a valid piece count to cut.')
+    if (isNaN(piecesCount) || piecesCount <= 0) {
+      toast.error('Please specify a valid pieces count.')
       return
     }
 
-    if (parsedHours <= 0) {
+    if (isNaN(parsedHours) || parsedHours <= 0) {
       toast.error('Please enter valid alloted hours.')
       return
     }
@@ -126,7 +190,7 @@ export function AddTaskAllocationModal({
       }
 
       saveCuttingTaskAllocation(newTask)
-      toast.success(`Task ${taskRef} allocated to ${selectedWorkerObj.worker_name} (${piecesCount} Pcs)!`)
+      toast.success(`Task #${taskRef} allocated to ${selectedWorkerObj.worker_name} (${piecesCount.toLocaleString('en-IN')} Pcs)!`)
 
       if (onSuccess) onSuccess(newTask)
       onClose()
@@ -197,7 +261,7 @@ export function AddTaskAllocationModal({
                     onClose()
                     if (onOpenAddWorkerModal) onOpenAddWorkerModal()
                   }}
-                  className="px-2.5 py-1 rounded-lg bg-[#3A3564] text-white font-mono font-bold text-[11px]"
+                  className="px-2.5 py-1 rounded-lg bg-[#3A3564] text-white font-mono font-bold text-[11px] cursor-pointer"
                 >
                   Create Worker Now
                 </button>
@@ -225,16 +289,14 @@ export function AddTaskAllocationModal({
             <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
               Article Style Reference <span className="text-red-500">*</span>
             </label>
-            <div className="relative">
-              <input
-                type="text"
-                required
-                value={articleStyle}
-                onChange={e => setArticleStyle(e.target.value.toUpperCase())}
-                placeholder="e.g. HD-2026-01"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-black/10 bg-slate-50 focus:bg-white text-sm font-mono font-bold text-slate-900 focus:outline-hidden focus:border-[#3A3564] transition-all uppercase"
-              />
-            </div>
+            <input
+              type="text"
+              required
+              value={articleStyle}
+              onChange={e => setArticleStyle(e.target.value)}
+              placeholder="e.g. DEMO-101-03"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-black/10 bg-slate-50 focus:bg-white text-sm font-mono font-bold text-slate-900 focus:outline-hidden focus:border-[#3A3564] transition-all"
+            />
             {selectedBuyer && (
               <p className="text-[11px] text-slate-500 font-mono mt-1">
                 Contracted Buyer: <strong>{selectedBuyer.buyer_name}</strong>
@@ -245,7 +307,7 @@ export function AddTaskAllocationModal({
           {/* Pieces & Alloted Hours in 2 Columns */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             
-            {/* Pieces to Cut */}
+            {/* Pieces to Cut (Fully Editable Input) */}
             <div>
               <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
                 Pieces to Cut <span className="text-red-500">*</span>
@@ -257,7 +319,7 @@ export function AddTaskAllocationModal({
                   required
                   value={pieces}
                   onChange={e => setPieces(e.target.value)}
-                  placeholder="500"
+                  placeholder="Enter pieces count"
                   className="w-full px-3.5 py-2.5 rounded-xl border border-black/10 bg-slate-50 focus:bg-white text-sm font-mono font-bold text-slate-900 focus:outline-hidden focus:border-[#3A3564] transition-all"
                 />
                 <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-mono font-bold text-slate-400">
@@ -298,26 +360,77 @@ export function AddTaskAllocationModal({
 
           </div>
 
-          {/* Table / Vacuum Station Allocation */}
+          {/* Table / Vacuum Station Allocation with Add Table Button */}
           <div>
-            <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-              Assigned Cutting Table / Vacuum Station
-            </label>
-            <div className="grid grid-cols-4 gap-2">
-              {['Table 01', 'Table 02', 'Table 03', 'Table 04'].map(tbl => (
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-xs font-mono font-bold uppercase tracking-wider text-slate-700">
+                Assigned Cutting Table / Vacuum Station
+              </label>
+              {!isAddingNewTable && (
+                <button
+                  type="button"
+                  onClick={() => setIsAddingNewTable(true)}
+                  className="text-xs font-mono font-bold text-[#3A3564] hover:underline cursor-pointer inline-flex items-center gap-1"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Add Table</span>
+                </button>
+              )}
+            </div>
+
+            {isAddingNewTable && (
+              <div className="mb-2.5 p-3 bg-[#FAF7F0] border border-black/10 rounded-xl flex items-center gap-2 animate-in fade-in">
+                <input
+                  type="text"
+                  value={newTableInput}
+                  onChange={e => setNewTableInput(e.target.value)}
+                  placeholder={`e.g. Table ${tablesList.length + 1}`}
+                  className="flex-1 px-3 py-1.5 text-xs font-mono font-bold bg-white border border-black/10 rounded-lg focus:outline-hidden focus:border-[#3A3564]"
+                  autoFocus
+                />
+                <button
+                  type="button"
+                  onClick={() => handleAddNewTable()}
+                  className="px-3 py-1.5 bg-[#3A3564] text-white text-xs font-mono font-bold rounded-lg cursor-pointer"
+                >
+                  Save
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsAddingNewTable(false)}
+                  className="p-1.5 text-slate-400 hover:text-slate-600 cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {tablesList.map(tbl => (
                 <button
                   key={tbl}
                   type="button"
                   onClick={() => setTableNumber(tbl)}
-                  className={`py-2 px-1 text-center rounded-xl border font-mono text-xs font-bold transition-all cursor-pointer ${
+                  className={`py-2 px-1 text-center rounded-xl border font-mono text-xs font-bold transition-all cursor-pointer truncate ${
                     tableNumber === tbl
                       ? 'bg-[#3A3564] text-white border-[#3A3564] shadow-xs'
                       : 'bg-[#FAF7F0] text-slate-700 border-black/10 hover:bg-white'
                   }`}
+                  title={tbl}
                 >
                   {tbl}
                 </button>
               ))}
+
+              {/* + Add Table Quick Button */}
+              <button
+                type="button"
+                onClick={() => handleAddNewTable()}
+                className="py-2 px-1 text-center rounded-xl border border-dashed border-black/20 bg-white hover:bg-[#FAF7F0] text-slate-600 font-mono text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>+ Table {tablesList.length + 1}</span>
+              </button>
             </div>
           </div>
 

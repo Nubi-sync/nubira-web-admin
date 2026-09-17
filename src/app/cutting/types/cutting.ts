@@ -213,7 +213,12 @@ export interface CuttingWorker {
   created_at: string
 }
 
-export type CuttingAllocationStatus = 'ASSIGNED' | 'IN_PROGRESS' | 'COMPLETED'
+export type CuttingAllocationStatus = 
+  | 'ASSIGNED' 
+  | 'IN_PROGRESS' 
+  | 'WORKER_COMPLETED' 
+  | 'VERIFIED_COMPLETED' 
+  | 'COMPLETED'
 
 export interface CuttingTaskAllocation {
   id: string

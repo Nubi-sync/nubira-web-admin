@@ -425,14 +425,15 @@ export function saveCuttingTaskAllocation(task: any): any[] {
   return updated
 }
 
-export function updateCuttingTaskStatus(id: string, status: 'ASSIGNED' | 'IN_PROGRESS' | 'COMPLETED'): any[] {
+export function updateCuttingTaskStatus(id: string, status: any): any[] {
   const current = getCuttingTaskAllocations()
   const updated = current.map(t => {
     if (t.id === id) {
+      const isCompleted = status === 'COMPLETED' || status === 'WORKER_COMPLETED' || status === 'VERIFIED_COMPLETED'
       return {
         ...t,
         status,
-        completed_pieces: status === 'COMPLETED' ? t.pieces_to_cut : (status === 'IN_PROGRESS' ? Math.floor(t.pieces_to_cut * 0.5) : 0),
+        completed_pieces: isCompleted ? t.pieces_to_cut : (status === 'IN_PROGRESS' ? Math.floor(t.pieces_to_cut * 0.5) : 0),
         updated_at: new Date().toISOString()
       }
     }
