@@ -94,13 +94,11 @@ export async function login(formData: FormData) {
             email = authUser.user.email
           }
         } else {
-          // 3. Check auth users by metadata username, phone_number, or email prefix
+          // 3. Check auth users by metadata username or email prefix
           const { data: userList } = await adminClient.auth.admin.listUsers({ perPage: 200 })
           const matchedAuth = userList?.users?.find(u =>
-            (phone10 && u.user_metadata?.phone_number === phone10) ||
-            u.user_metadata?.username?.toLowerCase() === cleanEmailKey ||
-            u.email?.toLowerCase().startsWith(`${cleanEmailKey}@`) ||
-            (phone10 && u.email?.toLowerCase().startsWith(`${phone10}@`))
+            (!phone10 && u.user_metadata?.username?.toLowerCase() === cleanEmailKey) ||
+            (!phone10 && u.email?.toLowerCase().startsWith(`${cleanEmailKey}@`))
           )
           if (matchedAuth?.email) {
             email = matchedAuth.email
@@ -200,28 +198,12 @@ export async function login(formData: FormData) {
         const adminClient = createAdminClient(supabaseUrl, serviceRoleKey)
         const cuttingEmail = `${phone10}@cutting.nubira.local`
 
-                // Check if phone matches a cutting worker or design member
+        // Check if phone matches an active cutting worker or design member
         const { data: matchedWorker } = await adminClient
           .from('cutting_workers')
           .select('*')
           .or(`phone_number.eq.${phone10},phone_number.ilike.%${phone10}%`)
           .maybeSingle()
-
-        // Also check cutting_task_allocations if worker name is recorded there
-        let taskWorkerName = ''
-        if (!matchedWorker?.worker_name) {
-          try {
-            const { data: matchedTask } = await adminClient
-              .from('cutting_task_allocations')
-              .select('worker_name')
-              .ilike('worker_phone', `%${phone10}%`)
-              .limit(1)
-              .maybeSingle()
-            if (matchedTask?.worker_name) {
-              taskWorkerName = matchedTask.worker_name
-            }
-          } catch (_) {}
-        }
 
         const { data: matchedDesigner } = await adminClient
           .from('design_team_members')
@@ -229,18 +211,20 @@ export async function login(formData: FormData) {
           .or(`phone_number.eq.${phone10},designer_phone.eq.${phone10}`)
           .maybeSingle()
 
+        // If worker was deleted or not registered in active roster, reject login
+        if (!matchedWorker && !matchedDesigner) {
+          return { error: 'No active worker account found for this mobile number. Please contact your floor administrator.' }
+        }
+
         const targetEmail = matchedWorker?.worker_email || matchedDesigner?.designer_email || cuttingEmail
         const role = matchedDesigner ? 'DESIGNER' : 'CUTTING_WORKER'
+        const fullName = matchedWorker?.worker_name || matchedDesigner?.designer_name || 'Cutting Operator'
 
         const { data: userList } = await adminClient.auth.admin.listUsers()
         const foundAuth = userList?.users?.find(
           u => u.email?.toLowerCase() === targetEmail.toLowerCase() ||
                u.user_metadata?.phone_number === phone10
         )
-
-        const existingName = foundAuth?.user_metadata?.full_name
-        const hasValidExistingName = existingName && existingName !== 'Floor Operator' && existingName !== 'Cutting Operator' && existingName !== 'Cutting Floor Operator'
-        const fullName = matchedWorker?.worker_name || taskWorkerName || (hasValidExistingName ? existingName : (matchedDesigner?.designer_name || 'Cutting Operator'))
 
         if (foundAuth) {
           await adminClient.auth.admin.updateUserById(foundAuth.id, {

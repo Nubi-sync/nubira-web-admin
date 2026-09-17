@@ -154,29 +154,29 @@ export function WorkerDashboardClient({
 
   // Filter tasks strictly belonging to THIS logged in operator
   const myTasks = tasks.filter(t => {
-    // 1. Phone match
-    if (normPhone && t.worker_phone) {
-      const taskPhone = t.worker_phone.replace(/\D/g, '').slice(-10)
-      if (taskPhone === normPhone) return true
+    const taskPhoneNorm = (t.worker_phone || '').replace(/\D/g, '').slice(-10)
+
+    // 1. If user has phone and task has phone, phone MUST match
+    if (normPhone && taskPhoneNorm) {
+      return taskPhoneNorm === normPhone
     }
-    // 2. Worker name match (using real resolved operator name)
-    if (resolvedNormName && t.worker_name) {
-      const taskName = t.worker_name.trim().toLowerCase()
-      if (taskName === resolvedNormName || taskName.includes(resolvedNormName) || resolvedNormName.includes(taskName)) {
-        return true
-      }
-    }
-    // 3. Worker id match
+
+    // 2. Worker auth id match
     if (userId && t.worker_id === userId) return true
+
+    // 3. Match on exact name only if neither has phone or phones match
+    if (resolvedNormName && t.worker_name) {
+      if (taskPhoneNorm && normPhone && taskPhoneNorm !== normPhone) return false
+      const taskName = t.worker_name.trim().toLowerCase()
+      return taskName === resolvedNormName
+    }
 
     return false
   })
 
-  // Fallback: If no strict filter matched because it's local preview, show tasks matching resolved name or all tasks
-  const effectiveTasks = myTasks.length > 0 ? myTasks : tasks.filter(t => {
-    if (!resolvedNormName) return true
-    return t.worker_name?.toLowerCase().includes(resolvedNormName)
-  })
+  // Strictly show this operator's tasks (or all tasks only if SuperAdmin)
+  const isSuperAdmin = userRole === 'PLATFORM_SUPERADMIN' || userRole === 'ADMIN'
+  const effectiveTasks = (isSuperAdmin && myTasks.length === 0) ? tasks : myTasks
 
   // Active current assignments: ASSIGNED, IN_PROGRESS, WORKER_COMPLETED
   const currentTasks = effectiveTasks.filter(t => t.status !== 'VERIFIED_COMPLETED' && t.status !== 'COMPLETED')

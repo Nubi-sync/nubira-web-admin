@@ -415,7 +415,49 @@ export async function deleteCuttingWorkerAction(workerId: string, phoneNumber?: 
   try {
     const rawDigits = (phoneNumber || workerId || '').replace(/\D/g, '')
     const phone10 = rawDigits.length >= 10 ? rawDigits.slice(-10) : ''
+    const internalEmail = phone10 ? `${phone10}@cutting.nubira.local` : ''
 
+    // 1. Gather all auth user IDs to delete
+    const authUserIdsToDelete: string[] = []
+
+    try {
+      let query = supabaseAdmin.from('cutting_workers').select('id, worker_user_id, phone_number')
+      if (workerId && isUUID(workerId)) {
+        query = query.eq('id', workerId)
+      } else if (phone10) {
+        query = query.eq('phone_number', phone10)
+      } else if (workerId) {
+        query = query.or(`id.eq.${workerId},worker_name.ilike.%${workerId}%`)
+      }
+      const { data: matchedRows } = await query
+      matchedRows?.forEach(row => {
+        if (row.worker_user_id) authUserIdsToDelete.push(row.worker_user_id)
+      })
+    } catch (_) {}
+
+    try {
+      const { data: userList } = await supabaseAdmin.auth.admin.listUsers({ perPage: 100 })
+      userList?.users?.forEach(u => {
+        const uPhone = (u.user_metadata?.phone_number || '').replace(/\D/g, '').slice(-10)
+        const isEmailMatch = internalEmail && u.email?.toLowerCase() === internalEmail.toLowerCase()
+        const isPhoneMatch = phone10 && (uPhone === phone10 || u.email?.includes(phone10))
+        const isIdMatch = workerId && u.id === workerId
+        if (isEmailMatch || isPhoneMatch || isIdMatch) {
+          authUserIdsToDelete.push(u.id)
+        }
+      })
+    } catch (_) {}
+
+    // 2. Permanently delete from Supabase Auth
+    for (const uid of Array.from(new Set(authUserIdsToDelete))) {
+      try {
+        await supabaseAdmin.auth.admin.deleteUser(uid)
+      } catch (authDelErr) {
+        console.warn('Could not delete auth user:', uid, authDelErr)
+      }
+    }
+
+    // 3. Delete from cutting_workers database table
     if (workerId && isUUID(workerId)) {
       await supabaseAdmin.from('cutting_workers').delete().eq('id', workerId)
     }
