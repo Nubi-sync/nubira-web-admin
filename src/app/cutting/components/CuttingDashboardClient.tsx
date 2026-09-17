@@ -55,6 +55,7 @@ import {
 import { AddWorkerModal } from './AddWorkerModal'
 import { WorkerListModal } from './WorkerListModal'
 import { AddTaskAllocationModal } from './AddTaskAllocationModal'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { saveCuttingTaskAllocationAction, deleteCuttingTaskAllocationAction, fetchCuttingTaskAllocationsAction, fetchCuttingWorkersAction } from '../actions'
 
 interface CuttingDashboardClientProps {
@@ -173,6 +174,18 @@ export function CuttingDashboardClient({
   // Spreadsheet Filters
   const [taskSearchQuery, setTaskSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<'ACTIVE' | 'NEEDS_VERIFY' | 'COMPLETED' | 'ALL'>('ACTIVE')
+
+  // Delete Task Modal State
+  const [taskToDelete, setTaskToDelete] = useState<{
+    id: string
+    taskRef: string
+    workerName: string
+    buyerName: string
+    articleNumber: string
+    pieces: number
+    table: string
+  } | null>(null)
+  const [isDeletingTask, setIsDeletingTask] = useState(false)
 
   // Load and refresh workers & task allocations (merging server and local storage)
   const refreshFloorData = () => {
@@ -316,12 +329,20 @@ export function CuttingDashboardClient({
   }
 
   // Delete Task Handler
-  const handleDeleteTask = async (taskId: string, taskRef: string) => {
-    if (confirm(`Remove allocation task "${taskRef}"?`)) {
-      const updated = deleteCuttingTaskAllocation(taskId)
+  const handleConfirmDeleteTask = async () => {
+    if (!taskToDelete) return
+    try {
+      setIsDeletingTask(true)
+      const updated = deleteCuttingTaskAllocation(taskToDelete.id)
       setAllocations(updated)
-      await deleteCuttingTaskAllocationAction(taskId)
-      toast.info(`Task ${taskRef} removed.`)
+      await deleteCuttingTaskAllocationAction(taskToDelete.id)
+      toast.info(`Task #${taskToDelete.taskRef} removed from allocations.`)
+    } catch (err) {
+      console.error('Failed to delete task allocation:', err)
+      toast.error('Failed to remove task allocation.')
+    } finally {
+      setIsDeletingTask(false)
+      setTaskToDelete(null)
     }
   }
 
@@ -870,8 +891,16 @@ export function CuttingDashboardClient({
 
                           <button
                             type="button"
-                            onClick={() => handleDeleteTask(task.id, task.task_ref)}
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                            onClick={() => setTaskToDelete({
+                              id: task.id,
+                              taskRef: task.task_ref,
+                              workerName: task.worker_name || 'Unassigned Worker',
+                              buyerName: task.buyer_name || 'General Buyer',
+                              articleNumber: task.article_number || 'Style',
+                              pieces: Number(task.pieces_to_cut) || 0,
+                              table: task.table_number || 'Table 01'
+                            })}
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
                             title="Delete allocation"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -937,6 +966,46 @@ export function CuttingDashboardClient({
         }}
         onOpenAddWorkerModal={() => setIsAddWorkerOpen(true)}
       />
+
+      {/* 4. Delete Task Allocation Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={!!taskToDelete}
+        title="Remove Task Allocation"
+        description={`Are you sure you want to remove cutting task allocation #${taskToDelete?.taskRef}? This allocation will be removed from the floor workstation and database.`}
+        confirmText="Delete Task"
+        cancelText="Keep Allocation"
+        variant="danger"
+        isLoading={isDeletingTask}
+        onConfirm={handleConfirmDeleteTask}
+        onClose={() => {
+          if (!isDeletingTask) setTaskToDelete(null)
+        }}
+      >
+        {taskToDelete && (
+          <div className="p-3.5 rounded-2xl bg-[#FAF7F0] border border-black/10 text-left space-y-2 mt-2 font-mono text-xs">
+            <div className="flex items-center justify-between border-b border-black/5 pb-2">
+              <span className="text-slate-500">Task Reference:</span>
+              <span className="font-bold text-[#3A3564] bg-white px-2 py-0.5 rounded-md border border-black/10">
+                #{taskToDelete.taskRef}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-slate-500">Worker &amp; Station:</span>
+              <span className="font-bold text-slate-800">{taskToDelete.workerName} • {taskToDelete.table}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-slate-500">Buyer / Style:</span>
+              <span className="font-bold text-slate-800 truncate max-w-[200px]">
+                {taskToDelete.buyerName} • {taskToDelete.articleNumber}
+              </span>
+            </div>
+            <div className="flex items-center justify-between border-t border-black/5 pt-2">
+              <span className="text-slate-500">Quantity to Cut:</span>
+              <span className="font-bold text-rose-600">{taskToDelete.pieces.toLocaleString('en-IN')} Pcs</span>
+            </div>
+          </div>
+        )}
+      </ConfirmDialog>
 
     </div>
   )

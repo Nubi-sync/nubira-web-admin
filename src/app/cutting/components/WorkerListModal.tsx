@@ -14,6 +14,7 @@ import {
 import { toast } from 'sonner'
 import { CuttingWorker, CuttingWorkerRole } from '../types/cutting'
 import { deleteCuttingWorker, saveCuttingWorker } from '../utils/cuttingStorage'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 
 interface WorkerListModalProps {
   isOpen: boolean
@@ -38,6 +39,8 @@ export function WorkerListModal({
 }: WorkerListModalProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [roleFilter, setRoleFilter] = useState<string>('ALL')
+  const [workerToDelete, setWorkerToDelete] = useState<CuttingWorker | null>(null)
+  const [isDeletingWorker, setIsDeletingWorker] = useState(false)
 
   if (!isOpen) return null
 
@@ -57,11 +60,19 @@ export function WorkerListModal({
     return matchesSearch && matchesRole
   })
 
-  const handleDelete = (id: string, name: string) => {
-    if (confirm(`Remove worker "${name}" from Cutting Floor roster?`)) {
-      deleteCuttingWorker(id)
-      toast.success(`Worker ${name} removed.`)
+  const handleConfirmDeleteWorker = () => {
+    if (!workerToDelete) return
+    try {
+      setIsDeletingWorker(true)
+      deleteCuttingWorker(workerToDelete.id)
+      toast.success(`Worker "${workerToDelete.worker_name}" removed from roster.`)
       onWorkersUpdated()
+    } catch (err) {
+      console.error('Failed to remove worker:', err)
+      toast.error('Failed to remove worker.')
+    } finally {
+      setIsDeletingWorker(false)
+      setWorkerToDelete(null)
     }
   }
 
@@ -228,8 +239,8 @@ export function WorkerListModal({
 
                       <button
                         type="button"
-                        onClick={() => handleDelete(worker.id, worker.worker_name)}
-                        className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                        onClick={() => setWorkerToDelete(worker)}
+                        className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
                         title="Remove worker"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -254,6 +265,45 @@ export function WorkerListModal({
         </div>
 
       </div>
+
+      {/* Delete Worker Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={!!workerToDelete}
+        title="Remove Floor Worker"
+        description={`Are you sure you want to remove "${workerToDelete?.worker_name}" from the Cutting Floor roster? They will no longer be available for shift task allocations.`}
+        confirmText="Remove Worker"
+        cancelText="Keep Worker"
+        variant="danger"
+        isLoading={isDeletingWorker}
+        onConfirm={handleConfirmDeleteWorker}
+        onClose={() => {
+          if (!isDeletingWorker) setWorkerToDelete(null)
+        }}
+      >
+        {workerToDelete && (
+          <div className="p-3.5 rounded-2xl bg-[#FAF7F0] border border-black/10 text-left space-y-2 mt-2 font-mono text-xs">
+            <div className="flex items-center justify-between border-b border-black/5 pb-2">
+              <span className="text-slate-500">Worker Name:</span>
+              <span className="font-bold text-[#3A3564] bg-white px-2 py-0.5 rounded-md border border-black/10">
+                {workerToDelete.worker_name}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-slate-500">Phone Contact:</span>
+              <span className="font-bold text-slate-800">+91 {workerToDelete.phone_number}</span>
+            </div>
+            <div className="flex items-center justify-between border-t border-black/5 pt-2">
+              <span className="text-slate-500">Specialized Role(s):</span>
+              <span className="font-bold text-slate-800">
+                {(workerToDelete.roles && workerToDelete.roles.length > 0)
+                  ? workerToDelete.roles.map(r => ROLE_LABELS[r] || r).join(', ')
+                  : (workerToDelete.role || 'Knife Cutter')}
+              </span>
+            </div>
+          </div>
+        )}
+      </ConfirmDialog>
+
     </div>
   )
 }

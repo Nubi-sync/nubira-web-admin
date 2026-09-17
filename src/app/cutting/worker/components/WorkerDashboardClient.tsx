@@ -191,7 +191,7 @@ export function WorkerDashboardClient({
   const activePiecesTarget = currentTasks.reduce((sum, t) => sum + (Number(t.pieces_to_cut) || 0), 0)
 
   // Worker Action 1: Start Cutting
-  const handleStartCutting = async (taskId: string, taskRef: string, tableName: string) => {
+  const handleStartCutting = async (taskId: string, taskRef: string, tableName?: string) => {
     const updated = updateCuttingTaskStatus(taskId, 'IN_PROGRESS')
     setTasks(updated)
     const taskObj = updated.find(t => t.id === taskId)
