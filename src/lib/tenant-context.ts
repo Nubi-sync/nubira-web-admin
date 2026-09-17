@@ -78,7 +78,7 @@ export async function resolveUserTenant(user: {
     }
   }
 
-  // 1.5. Check cutting_workers for cutting floor operators
+    // 1.5. Check cutting_workers for cutting floor operators
   try {
     const rawDigits = userEmail.split('@')[0].replace(/\D/g, '')
     const phone10 = rawDigits.length >= 10 ? rawDigits.slice(-10) : rawDigits
@@ -88,15 +88,35 @@ export async function resolveUserTenant(user: {
       .select('*')
 
     if (phone10.length === 10) {
-      workerQuery = workerQuery.or(`worker_user_id.eq.${user.id},worker_email.eq.${userEmail},phone_number.eq.${phone10}`)
+      workerQuery = workerQuery.or(`worker_user_id.eq.${user.id},worker_email.eq.${userEmail},phone_number.eq.${phone10},phone_number.ilike.%${phone10}%`)
     } else {
       workerQuery = workerQuery.or(`worker_user_id.eq.${user.id},worker_email.eq.${userEmail}`)
     }
 
     const { data: matchedWorker } = await workerQuery.limit(1).maybeSingle()
 
-    if (matchedWorker || user.user_metadata?.role === 'CUTTING_WORKER' || userEmail.endsWith('@cutting.nubira.local')) {
-      const workerName = matchedWorker?.worker_name || user.user_metadata?.full_name || 'Cutting Operator'
+    // Also check cutting_task_allocations if worker record hasn't synced yet
+    let taskWorkerName = ''
+    if (!matchedWorker?.worker_name) {
+      try {
+        let taskQuery = supabaseAdmin.from('cutting_task_allocations').select('worker_name, worker_phone, worker_id')
+        if (phone10.length === 10) {
+          taskQuery = taskQuery.or(`worker_id.eq.${user.id},worker_phone.ilike.%${phone10}%`)
+        } else {
+          taskQuery = taskQuery.eq('worker_id', user.id)
+        }
+        const { data: matchedTask } = await taskQuery.limit(1).maybeSingle()
+        if (matchedTask?.worker_name) {
+          taskWorkerName = matchedTask.worker_name
+        }
+      } catch (_) {}
+    }
+
+    if (matchedWorker || taskWorkerName || user.user_metadata?.role === 'CUTTING_WORKER' || userEmail.endsWith('@cutting.nubira.local')) {
+      const metaName = user.user_metadata?.full_name && user.user_metadata.full_name !== 'Floor Operator' && user.user_metadata.full_name !== 'Cutting Operator'
+        ? user.user_metadata.full_name
+        : ''
+      const workerName = matchedWorker?.worker_name || taskWorkerName || metaName || 'Cutting Floor Operator'
       const workerPhone = matchedWorker?.phone_number || user.user_metadata?.phone_number || phone10
       return {
         userId: user.id,

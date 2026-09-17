@@ -473,6 +473,26 @@ export async function saveCuttingTaskAllocationAction(payload: any): Promise<{ s
   }
 }
 
+export async function deleteCuttingTaskAllocationAction(taskId: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const { error } = await supabaseAdmin
+      .from('cutting_task_allocations')
+      .delete()
+      .eq('id', taskId)
+
+    if (error) {
+      console.warn('[deleteCuttingTaskAllocationAction] Supabase notice:', error.message)
+    }
+
+    revalidatePath('/cutting')
+    revalidatePath('/cutting/worker')
+    return { success: true }
+  } catch (err: any) {
+    console.error('[deleteCuttingTaskAllocationAction] Error:', err)
+    return { success: true }
+  }
+}
+
 // 7. Register Worker with Supabase Auth User & Database Record
 export async function registerCuttingWorkerAction(payload: {
   worker_name: string

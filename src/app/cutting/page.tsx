@@ -2,7 +2,13 @@ import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { AdminShell } from '@/components/layout/AdminShell'
 import { CuttingDashboardClient } from './components/CuttingDashboardClient'
-import { fetchLaySheetsAction, fetchCutBundlesAction, fetchCuttingDashboardKpisAction } from './actions'
+import { 
+  fetchLaySheetsAction, 
+  fetchCutBundlesAction, 
+  fetchCuttingDashboardKpisAction,
+  fetchCuttingWorkersAction,
+  fetchCuttingTaskAllocationsAction
+} from './actions'
 import { fetchActiveBuyersAction } from '@/app/merchandising/actions'
 import { resolveUserTenant, isLegacyNubiraTenant } from '@/lib/tenant-context'
 
@@ -24,11 +30,13 @@ export default async function CuttingModulePage() {
   const isLegacy = isLegacyNubiraTenant(tenant)
   const companyFilter = isLegacy ? undefined : tenant.companyName
 
-  const [initialLays, initialBundles, liveKpis, initialBuyers] = await Promise.all([
+  const [initialLays, initialBundles, liveKpis, initialBuyers, initialWorkers, initialAllocations] = await Promise.all([
     fetchLaySheetsAction(companyFilter),
     fetchCutBundlesAction(undefined, companyFilter),
     fetchCuttingDashboardKpisAction(companyFilter),
-    fetchActiveBuyersAction()
+    fetchActiveBuyersAction(),
+    fetchCuttingWorkersAction(),
+    fetchCuttingTaskAllocationsAction()
   ])
 
   return (
@@ -40,6 +48,8 @@ export default async function CuttingModulePage() {
         initialBundles={initialBundles}
         liveKpis={liveKpis}
         initialBuyers={initialBuyers}
+        initialWorkers={initialWorkers}
+        initialAllocations={initialAllocations}
       />
     </AdminShell>
   )

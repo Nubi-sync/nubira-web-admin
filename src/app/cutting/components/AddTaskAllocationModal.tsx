@@ -16,6 +16,7 @@ import {
 import { toast } from 'sonner'
 import { CuttingWorker, CuttingTaskAllocation } from '../types/cutting'
 import { saveCuttingTaskAllocation, getCuttingTables, saveCuttingTables } from '../utils/cuttingStorage'
+import { saveCuttingTaskAllocationAction } from '../actions'
 
 interface AddTaskAllocationModalProps {
   isOpen: boolean
@@ -140,7 +141,7 @@ export function AddTaskAllocationModal({
     setIsAddingNewTable(false)
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     if (!selectedWorkerObj) {
@@ -190,6 +191,7 @@ export function AddTaskAllocationModal({
       }
 
       saveCuttingTaskAllocation(newTask)
+      await saveCuttingTaskAllocationAction(newTask)
       toast.success(`Task #${taskRef} allocated to ${selectedWorkerObj.worker_name} (${piecesCount.toLocaleString('en-IN')} Pcs)!`)
 
       if (onSuccess) onSuccess(newTask)
