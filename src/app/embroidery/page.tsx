@@ -8,6 +8,7 @@ import {
   fetchEmbroideryTaskAllocationsAction
 } from './actions'
 import { fetchActiveBuyersAction } from '@/app/merchandising/actions'
+import { fetchCuttingTaskAllocationsAction } from '@/app/cutting/actions'
 import { resolveUserTenant, isLegacyNubiraTenant } from '@/lib/tenant-context'
 
 export const dynamic = 'force-dynamic'
@@ -33,11 +34,12 @@ export default async function EmbroideryPage() {
   const isLegacy = isLegacyNubiraTenant(tenant)
   const companyFilter = isLegacy ? undefined : tenant.companyName
 
-  const [liveKpis, initialBuyers, initialWorkers, initialAllocations] = await Promise.all([
+  const [liveKpis, initialBuyers, initialWorkers, initialAllocations, initialCuttingAllocations] = await Promise.all([
     fetchEmbroideryDashboardKpisAction(companyFilter),
     fetchActiveBuyersAction(),
     fetchEmbroideryWorkersAction(),
-    fetchEmbroideryTaskAllocationsAction()
+    fetchEmbroideryTaskAllocationsAction(),
+    fetchCuttingTaskAllocationsAction()
   ])
 
   return (
@@ -48,6 +50,7 @@ export default async function EmbroideryPage() {
         initialBuyers={initialBuyers}
         initialWorkers={initialWorkers}
         initialAllocations={initialAllocations}
+        initialCuttingAllocations={initialCuttingAllocations}
         liveKpis={liveKpis}
       />
     </AdminShell>

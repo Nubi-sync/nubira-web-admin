@@ -45,6 +45,11 @@ import {
   mergeEmbroideryTaskAllocations,
   EMBROIDERY_FLOOR_UPDATE_EVENT
 } from '../utils/embroideryFloorStorage'
+import {
+  getCuttingTaskAllocations,
+  mergeCuttingTaskAllocations,
+  CUTTING_UPDATE_EVENT
+} from '@/app/cutting/utils/cuttingStorage'
 import { 
   getActiveBuyers, 
   getOrders, 
@@ -61,6 +66,7 @@ import {
   fetchEmbroideryWorkersAction, 
   deleteEmbroideryWorkerAction 
 } from '../actions'
+import { fetchCuttingTaskAllocationsAction } from '@/app/cutting/actions'
 
 interface EmbroideryDashboardClientProps {
   userEmail?: string
@@ -68,6 +74,7 @@ interface EmbroideryDashboardClientProps {
   initialBuyers?: any[]
   initialWorkers?: EmbroideryWorker[]
   initialAllocations?: EmbroideryTaskAllocation[]
+  initialCuttingAllocations?: any[]
   liveKpis?: any
 }
 
@@ -156,13 +163,16 @@ export function EmbroideryDashboardClient({
   initialBuyers,
   initialWorkers = [],
   initialAllocations = [],
+  initialCuttingAllocations = [],
   liveKpis
 }: EmbroideryDashboardClientProps) {
   // Workers & Task Allocations State
   const [serverWorkers, setServerWorkers] = useState<EmbroideryWorker[]>(initialWorkers || [])
   const [serverAllocations, setServerAllocations] = useState<EmbroideryTaskAllocation[]>(initialAllocations || [])
+  const [serverCuttingAllocations, setServerCuttingAllocations] = useState<any[]>(initialCuttingAllocations || [])
   const [workers, setWorkers] = useState<EmbroideryWorker[]>([])
   const [allocations, setAllocations] = useState<EmbroideryTaskAllocation[]>([])
+  const [cuttingAllocations, setCuttingAllocations] = useState<any[]>([])
 
   // Modal Controls
   const [isAddWorkerOpen, setIsAddWorkerOpen] = useState(false)
@@ -205,7 +215,13 @@ export function EmbroideryDashboardClient({
     }
   }, [initialAllocations])
 
-  // Load and refresh workers & task allocations
+  useEffect(() => {
+    if (initialCuttingAllocations && initialCuttingAllocations.length > 0) {
+      setServerCuttingAllocations(initialCuttingAllocations)
+    }
+  }, [initialCuttingAllocations])
+
+  // Load and refresh workers, embroidery task allocations, and cutting handover allocations
   const refreshFloorData = () => {
     const localWorkers = getEmbroideryWorkers()
     const workerMap = new Map<string, EmbroideryWorker>()
@@ -216,6 +232,10 @@ export function EmbroideryDashboardClient({
     const localTasks = getEmbroideryTaskAllocations()
     const mergedTasks = mergeEmbroideryTaskAllocations(serverAllocations, localTasks)
     setAllocations(mergedTasks)
+
+    const localCutting = getCuttingTaskAllocations()
+    const mergedCutting = mergeCuttingTaskAllocations(serverCuttingAllocations, localCutting)
+    setCuttingAllocations(mergedCutting)
 
     const merged = mergeBuyersFromAllSources(initialBuyers)
     setBuyers(merged)
@@ -252,23 +272,27 @@ export function EmbroideryDashboardClient({
       window.addEventListener('storage', refreshFloorData)
       window.addEventListener(MERCHANDISING_UPDATE_EVENT, refreshFloorData)
       window.addEventListener(EMBROIDERY_FLOOR_UPDATE_EVENT, refreshFloorData)
+      window.addEventListener(CUTTING_UPDATE_EVENT, refreshFloorData)
       return () => {
         window.removeEventListener('storage', refreshFloorData)
         window.removeEventListener(MERCHANDISING_UPDATE_EVENT, refreshFloorData)
         window.removeEventListener(EMBROIDERY_FLOOR_UPDATE_EVENT, refreshFloorData)
+        window.removeEventListener(CUTTING_UPDATE_EVENT, refreshFloorData)
       }
     }
-  }, [initialBuyers, serverWorkers, serverAllocations])
+  }, [initialBuyers, serverWorkers, serverAllocations, serverCuttingAllocations])
 
   const handleManualSync = async () => {
     setIsSyncing(true)
     try {
-      const [freshTasks, freshWorkers] = await Promise.all([
+      const [freshTasks, freshWorkers, freshCutting] = await Promise.all([
         fetchEmbroideryTaskAllocationsAction(),
-        fetchEmbroideryWorkersAction()
+        fetchEmbroideryWorkersAction(),
+        fetchCuttingTaskAllocationsAction()
       ])
       setServerWorkers(freshWorkers || [])
       setServerAllocations(freshTasks || [])
+      setServerCuttingAllocations(freshCutting || [])
 
       const workerMap = new Map<string, EmbroideryWorker>()
       freshWorkers.forEach((w: any) => { if (w?.id || w?.phone_number) workerMap.set(w.phone_number || w.id, w) })
@@ -278,7 +302,10 @@ export function EmbroideryDashboardClient({
       const mergedTasks = mergeEmbroideryTaskAllocations(freshTasks || [], getEmbroideryTaskAllocations())
       setAllocations(mergedTasks)
 
-      toast.success('Embroidery floor & worker sync updated from cloud database.')
+      const mergedCutting = mergeCuttingTaskAllocations(freshCutting || [], getCuttingTaskAllocations())
+      setCuttingAllocations(mergedCutting)
+
+      toast.success('Embroidery floor, workers & cutting handover synced from cloud database.')
     } catch {
       refreshFloorData()
     } finally {
@@ -313,7 +340,20 @@ export function EmbroideryDashboardClient({
   const totalBpoContractedPieces = Math.max(Number(selectedBuyer?.contracted_volume) || 0, bpoOrdersTotal)
   const articleNum = (selectedBuyer?.linked_article_number || matchingBpos[0]?.style_ref || '').trim().toUpperCase()
 
-  // Match allocations for this buyer/article
+  // Match cutting allocations for this buyer/article (ONLY completed & verified cut pieces can be embroidered!)
+  const matchingCuttingAllocations = cuttingAllocations.filter(t => {
+    if (!selectedBuyer && !articleNum) return true
+    const buyerMatch = selectedBuyer ? (t.buyer_name || '').toLowerCase() === (selectedBuyer.buyer_name || '').toLowerCase() : false
+    const articleMatch = articleNum ? (t.article_number || '').trim().toUpperCase() === articleNum : false
+    return buyerMatch || articleMatch
+  })
+
+  // 1. TOTAL CUT PIECES RECEIVED FROM CUTTING FLOOR
+  const totalCutPiecesFromCutting = matchingCuttingAllocations
+    .filter(t => t.status === 'VERIFIED_COMPLETED' || t.status === 'COMPLETED')
+    .reduce((sum, curr) => sum + (Number(curr.completed_pieces || curr.pieces_to_cut) || 0), 0)
+
+  // Match embroidery allocations for this buyer/article
   const matchingAllocations = allocations.filter(t => {
     if (!selectedBuyer && !articleNum) return true
     const buyerMatch = selectedBuyer ? (t.buyer_name || '').toLowerCase() === (selectedBuyer.buyer_name || '').toLowerCase() : false
@@ -321,21 +361,21 @@ export function EmbroideryDashboardClient({
     return buyerMatch || articleMatch
   })
 
-  // 1. COMPLETED EMBROIDERY: Pieces verified and signed off by Head of Dept
+  // 2. COMPLETED EMBROIDERY: Pieces verified and signed off by Head of Dept
   const completedEmbroideryPieces = matchingAllocations
     .filter(t => t.status === 'VERIFIED_COMPLETED' || t.status === 'COMPLETED')
     .reduce((sum, curr) => sum + (Number(curr.completed_pieces || curr.pieces_to_embroider) || 0), 0)
 
-  // 2. PENDING EMBROIDERY: Pieces assigned to worker/machine
+  // 3. PENDING EMBROIDERY: Pieces assigned to worker/machine
   const pendingEmbroideryPieces = matchingAllocations
     .filter(t => t.status !== 'VERIFIED_COMPLETED' && t.status !== 'COMPLETED')
     .reduce((sum, curr) => sum + (Number(curr.pieces_to_embroider) || 0), 0)
 
-  // 3. IN HAND: Unallocated queue waiting for machine assignment
-  const inHandPieces = Math.max(0, totalBpoContractedPieces - pendingEmbroideryPieces - completedEmbroideryPieces)
+  // 4. IN HAND: Unallocated cut pieces received from Cutting floor waiting for machine assignment
+  const inHandPieces = Math.max(0, totalCutPiecesFromCutting - pendingEmbroideryPieces - completedEmbroideryPieces)
 
   const selectedBuyerDisplayText = selectedBuyer
-    ? `${selectedBuyer.buyer_name} (${totalBpoContractedPieces.toLocaleString('en-IN')} Pcs Total)`
+    ? `${selectedBuyer.buyer_name} (${totalCutPiecesFromCutting.toLocaleString('en-IN')} Cut / ${totalBpoContractedPieces.toLocaleString('en-IN')} BPO)`
     : (buyers.length === 0 ? 'No Active Buyers Contracted' : 'Select Buyer Contract')
 
   // Filtered Task Allocations for Spreadsheet
@@ -491,6 +531,9 @@ export function EmbroideryDashboardClient({
                   Article: {selectedBuyer.linked_article_number}
                 </span>
               )}
+              <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-white text-slate-700 border border-black/10 shadow-2xs">
+                Cut Pieces: {totalCutPiecesFromCutting.toLocaleString('en-IN')} / {totalBpoContractedPieces.toLocaleString('en-IN')} Total
+              </span>
             </div>
           </div>
         </div>
@@ -531,29 +574,39 @@ export function EmbroideryDashboardClient({
                       No buyers found
                     </div>
                   ) : (
-                    filteredBuyersList.map(b => (
-                      <button
-                        key={b.id}
-                        type="button"
-                        onClick={() => {
-                          setSelectedBuyerId(b.id)
-                          setIsBuyerMenuOpen(false)
-                        }}
-                        className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer flex items-center justify-between ${
-                          activeSelectedBuyerId === b.id
-                            ? 'bg-[#3A3564] text-white font-bold'
-                            : 'text-slate-700 hover:bg-[#FAF7F0]'
-                        }`}
-                      >
-                        <div className="truncate pr-2">
-                          <div className="font-bold">{b.buyer_name}</div>
-                          <div className={`text-[10px] font-mono mt-0.5 ${activeSelectedBuyerId === b.id ? 'text-indigo-200' : 'text-slate-500'}`}>
-                            {(Number(b.contracted_volume) || 0).toLocaleString('en-IN')} Pcs {b.linked_article_number ? `• ${b.linked_article_number}` : '• Pending Link'}
+                    filteredBuyersList.map(b => {
+                      const bMatchingCutting = cuttingAllocations.filter(ct => 
+                        (ct.buyer_name && b.buyer_name && ct.buyer_name.toLowerCase() === b.buyer_name.toLowerCase()) ||
+                        (b.linked_article_number && ct.article_number && ct.article_number.trim().toUpperCase() === b.linked_article_number.trim().toUpperCase())
+                      )
+                      const bCut = bMatchingCutting
+                        .filter(ct => ct.status === 'VERIFIED_COMPLETED' || ct.status === 'COMPLETED')
+                        .reduce((sum, curr) => sum + (Number(curr.completed_pieces || curr.pieces_to_cut) || 0), 0)
+
+                      return (
+                        <button
+                          key={b.id}
+                          type="button"
+                          onClick={() => {
+                            setSelectedBuyerId(b.id)
+                            setIsBuyerMenuOpen(false)
+                          }}
+                          className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer flex items-center justify-between ${
+                            activeSelectedBuyerId === b.id
+                              ? 'bg-[#3A3564] text-white font-bold'
+                              : 'text-slate-700 hover:bg-[#FAF7F0]'
+                          }`}
+                        >
+                          <div className="truncate pr-2">
+                            <div className="font-bold">{b.buyer_name}</div>
+                            <div className={`text-[10px] font-mono mt-0.5 ${activeSelectedBuyerId === b.id ? 'text-indigo-200' : 'text-slate-500'}`}>
+                              {bCut.toLocaleString('en-IN')} Cut Pcs (of {(Number(b.contracted_volume) || 0).toLocaleString('en-IN')} BPO) {b.linked_article_number ? `• ${b.linked_article_number}` : '• Pending Link'}
+                            </div>
                           </div>
-                        </div>
-                        {activeSelectedBuyerId === b.id && <Check className="w-4 h-4 text-white shrink-0" />}
-                      </button>
-                    ))
+                          {activeSelectedBuyerId === b.id && <Check className="w-4 h-4 text-white shrink-0" />}
+                        </button>
+                      )
+                    })
                   )}
                 </div>
               </div>
@@ -612,7 +665,11 @@ export function EmbroideryDashboardClient({
               {inHandPieces.toLocaleString('en-IN')}
             </div>
             <p className="text-xs font-semibold text-slate-500 mt-1">
-              {selectedBuyer ? `${inHandPieces.toLocaleString('en-IN')} unassigned pcs in queue` : 'Unassigned BPO pieces in queue'}
+              {inHandPieces > 0 
+                ? `${inHandPieces.toLocaleString('en-IN')} cut pcs ready from Cutting Floor` 
+                : (totalCutPiecesFromCutting > 0 
+                    ? `0 cut pcs in hand (${totalCutPiecesFromCutting.toLocaleString('en-IN')} cut pcs assigned/stitched)` 
+                    : '0 cut pcs received from Cutting Floor')}
             </p>
           </div>
         </div>

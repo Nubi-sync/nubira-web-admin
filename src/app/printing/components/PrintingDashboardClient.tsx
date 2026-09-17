@@ -28,7 +28,8 @@ import {
   Calendar,
   Sparkles,
   Flame,
-  FileCheck2
+  FileCheck2,
+  FileText
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { EmptyState } from '@/components/ui/EmptyState'
@@ -48,6 +49,11 @@ import {
   mergePrintingTaskAllocations,
   PRINTING_FLOOR_UPDATE_EVENT
 } from '../utils/printingFloorStorage'
+import {
+  getCuttingTaskAllocations,
+  mergeCuttingTaskAllocations,
+  CUTTING_UPDATE_EVENT
+} from '@/app/cutting/utils/cuttingStorage'
 import { 
   getActiveBuyers, 
   getOrders, 
@@ -64,6 +70,7 @@ import {
   fetchPrintingWorkersAction, 
   deletePrintingWorkerAction 
 } from '../actions'
+import { fetchCuttingTaskAllocationsAction } from '@/app/cutting/actions'
 
 interface PrintingDashboardClientProps {
   userEmail?: string
@@ -71,6 +78,7 @@ interface PrintingDashboardClientProps {
   initialBuyers?: any[]
   initialWorkers?: PrintingWorker[]
   initialAllocations?: PrintingTaskAllocation[]
+  initialCuttingAllocations?: any[]
   liveKpis?: any
 }
 
@@ -159,13 +167,16 @@ export function PrintingDashboardClient({
   initialBuyers,
   initialWorkers = [],
   initialAllocations = [],
+  initialCuttingAllocations = [],
   liveKpis
 }: PrintingDashboardClientProps) {
   // Workers & Task Allocations State
   const [serverWorkers, setServerWorkers] = useState<PrintingWorker[]>(initialWorkers || [])
   const [serverAllocations, setServerAllocations] = useState<PrintingTaskAllocation[]>(initialAllocations || [])
+  const [serverCuttingAllocations, setServerCuttingAllocations] = useState<any[]>(initialCuttingAllocations || [])
   const [workers, setWorkers] = useState<PrintingWorker[]>([])
   const [allocations, setAllocations] = useState<PrintingTaskAllocation[]>([])
+  const [cuttingAllocations, setCuttingAllocations] = useState<any[]>([])
 
   // Modal Controls
   const [isAddWorkerOpen, setIsAddWorkerOpen] = useState(false)
@@ -208,7 +219,13 @@ export function PrintingDashboardClient({
     }
   }, [initialAllocations])
 
-  // Load and refresh workers & task allocations
+  useEffect(() => {
+    if (initialCuttingAllocations && initialCuttingAllocations.length > 0) {
+      setServerCuttingAllocations(initialCuttingAllocations)
+    }
+  }, [initialCuttingAllocations])
+
+  // Load and refresh workers, printing task allocations, and cutting handover allocations
   const refreshFloorData = () => {
     const localWorkers = getPrintingWorkers()
     const workerMap = new Map<string, PrintingWorker>()
@@ -219,6 +236,10 @@ export function PrintingDashboardClient({
     const localTasks = getPrintingTaskAllocations()
     const mergedTasks = mergePrintingTaskAllocations(serverAllocations, localTasks)
     setAllocations(mergedTasks)
+
+    const localCutting = getCuttingTaskAllocations()
+    const mergedCutting = mergeCuttingTaskAllocations(serverCuttingAllocations, localCutting)
+    setCuttingAllocations(mergedCutting)
 
     const merged = mergeBuyersFromAllSources(initialBuyers)
     setBuyers(merged)
@@ -255,23 +276,27 @@ export function PrintingDashboardClient({
       window.addEventListener('storage', refreshFloorData)
       window.addEventListener(MERCHANDISING_UPDATE_EVENT, refreshFloorData)
       window.addEventListener(PRINTING_FLOOR_UPDATE_EVENT, refreshFloorData)
+      window.addEventListener(CUTTING_UPDATE_EVENT, refreshFloorData)
       return () => {
         window.removeEventListener('storage', refreshFloorData)
         window.removeEventListener(MERCHANDISING_UPDATE_EVENT, refreshFloorData)
         window.removeEventListener(PRINTING_FLOOR_UPDATE_EVENT, refreshFloorData)
+        window.removeEventListener(CUTTING_UPDATE_EVENT, refreshFloorData)
       }
     }
-  }, [initialBuyers, serverWorkers, serverAllocations])
+  }, [initialBuyers, serverWorkers, serverAllocations, serverCuttingAllocations])
 
   const handleManualSync = async () => {
     setIsSyncing(true)
     try {
-      const [freshTasks, freshWorkers] = await Promise.all([
+      const [freshTasks, freshWorkers, freshCutting] = await Promise.all([
         fetchPrintingTaskAllocationsAction(),
-        fetchPrintingWorkersAction()
+        fetchPrintingWorkersAction(),
+        fetchCuttingTaskAllocationsAction()
       ])
       setServerWorkers(freshWorkers || [])
       setServerAllocations(freshTasks || [])
+      setServerCuttingAllocations(freshCutting || [])
 
       const workerMap = new Map<string, PrintingWorker>()
       freshWorkers.forEach((w: any) => { if (w?.id || w?.phone_number) workerMap.set(w.phone_number || w.id, w) })
@@ -281,7 +306,10 @@ export function PrintingDashboardClient({
       const mergedTasks = mergePrintingTaskAllocations(freshTasks || [], getPrintingTaskAllocations())
       setAllocations(mergedTasks)
 
-      toast.success('Printing floor & worker sync updated from cloud database.')
+      const mergedCutting = mergeCuttingTaskAllocations(freshCutting || [], getCuttingTaskAllocations())
+      setCuttingAllocations(mergedCutting)
+
+      toast.success('Printing floor, workers & cutting handover synced from cloud database.')
     } catch {
       refreshFloorData()
     } finally {
@@ -316,7 +344,20 @@ export function PrintingDashboardClient({
   const totalBpoContractedPieces = Math.max(Number(selectedBuyer?.contracted_volume) || 0, bpoOrdersTotal)
   const articleNum = (selectedBuyer?.linked_article_number || matchingBpos[0]?.style_ref || '').trim().toUpperCase()
 
-  // Match allocations for this buyer/article
+  // Match cutting allocations for this buyer/article (ONLY completed & verified cut pieces can be printed!)
+  const matchingCuttingAllocations = cuttingAllocations.filter(t => {
+    if (!selectedBuyer && !articleNum) return true
+    const buyerMatch = selectedBuyer ? (t.buyer_name || '').toLowerCase() === (selectedBuyer.buyer_name || '').toLowerCase() : false
+    const articleMatch = articleNum ? (t.article_number || '').trim().toUpperCase() === articleNum : false
+    return buyerMatch || articleMatch
+  })
+
+  // 1. TOTAL CUT PIECES RECEIVED FROM CUTTING FLOOR
+  const totalCutPiecesFromCutting = matchingCuttingAllocations
+    .filter(t => t.status === 'VERIFIED_COMPLETED' || t.status === 'COMPLETED')
+    .reduce((sum, curr) => sum + (Number(curr.completed_pieces || curr.pieces_to_cut) || 0), 0)
+
+  // Match printing allocations for this buyer/article
   const matchingAllocations = allocations.filter(t => {
     if (!selectedBuyer && !articleNum) return true
     const buyerMatch = selectedBuyer ? (t.buyer_name || '').toLowerCase() === (selectedBuyer.buyer_name || '').toLowerCase() : false
@@ -324,21 +365,21 @@ export function PrintingDashboardClient({
     return buyerMatch || articleMatch
   })
 
-  // 1. COMPLETED PRINTING: Pieces verified and signed off by Head of Dept
+  // 2. COMPLETED PRINTING: Pieces verified and signed off by Head of Dept
   const completedPrintingPieces = matchingAllocations
     .filter(t => t.status === 'VERIFIED_COMPLETED' || t.status === 'COMPLETED')
     .reduce((sum, curr) => sum + (Number(curr.completed_pieces || curr.pieces_to_print) || 0), 0)
 
-  // 2. PENDING PRINTING: Pieces assigned to worker/table
+  // 3. PENDING PRINTING: Pieces assigned to worker/table
   const pendingPrintingPieces = matchingAllocations
     .filter(t => t.status !== 'VERIFIED_COMPLETED' && t.status !== 'COMPLETED')
     .reduce((sum, curr) => sum + (Number(curr.pieces_to_print) || 0), 0)
 
-  // 3. IN HAND: Unallocated queue waiting for table assignment
-  const inHandPieces = Math.max(0, totalBpoContractedPieces - pendingPrintingPieces - completedPrintingPieces)
+  // 4. IN HAND: Unallocated cut pieces received from Cutting Floor waiting for print table assignment
+  const inHandPieces = Math.max(0, totalCutPiecesFromCutting - pendingPrintingPieces - completedPrintingPieces)
 
   const selectedBuyerDisplayText = selectedBuyer
-    ? `${selectedBuyer.buyer_name} (${totalBpoContractedPieces.toLocaleString('en-IN')} Pcs Total)`
+    ? `${selectedBuyer.buyer_name} (${totalCutPiecesFromCutting.toLocaleString('en-IN')} Cut / ${totalBpoContractedPieces.toLocaleString('en-IN')} BPO)`
     : (buyers.length === 0 ? 'No Active Buyers Contracted' : 'Select Buyer Contract')
 
   // Filtered Task Allocations for Spreadsheet
@@ -494,6 +535,9 @@ export function PrintingDashboardClient({
                   Article: {selectedBuyer.linked_article_number}
                 </span>
               )}
+              <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-white text-slate-700 border border-black/10 shadow-2xs">
+                Cut Pieces: {totalCutPiecesFromCutting.toLocaleString('en-IN')} / {totalBpoContractedPieces.toLocaleString('en-IN')} Total
+              </span>
             </div>
           </div>
         </div>
@@ -534,29 +578,39 @@ export function PrintingDashboardClient({
                       No buyers found
                     </div>
                   ) : (
-                    filteredBuyersList.map(b => (
-                      <button
-                        key={b.id}
-                        type="button"
-                        onClick={() => {
-                          setSelectedBuyerId(b.id)
-                          setIsBuyerMenuOpen(false)
-                        }}
-                        className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer flex items-center justify-between ${
-                          activeSelectedBuyerId === b.id
-                            ? 'bg-[#3A3564] text-white font-bold'
-                            : 'text-slate-700 hover:bg-[#FAF7F0]'
-                        }`}
-                      >
-                        <div className="truncate pr-2">
-                          <div className="font-bold">{b.buyer_name}</div>
-                          <div className={`text-[10px] font-mono mt-0.5 ${activeSelectedBuyerId === b.id ? 'text-indigo-200' : 'text-slate-500'}`}>
-                            {(Number(b.contracted_volume) || 0).toLocaleString('en-IN')} Pcs {b.linked_article_number ? `• ${b.linked_article_number}` : '• Pending Link'}
+                    filteredBuyersList.map(b => {
+                      const bMatchingCutting = cuttingAllocations.filter(ct => 
+                        (ct.buyer_name && b.buyer_name && ct.buyer_name.toLowerCase() === b.buyer_name.toLowerCase()) ||
+                        (b.linked_article_number && ct.article_number && ct.article_number.trim().toUpperCase() === b.linked_article_number.trim().toUpperCase())
+                      )
+                      const bCut = bMatchingCutting
+                        .filter(ct => ct.status === 'VERIFIED_COMPLETED' || ct.status === 'COMPLETED')
+                        .reduce((sum, curr) => sum + (Number(curr.completed_pieces || curr.pieces_to_cut) || 0), 0)
+
+                      return (
+                        <button
+                          key={b.id}
+                          type="button"
+                          onClick={() => {
+                            setSelectedBuyerId(b.id)
+                            setIsBuyerMenuOpen(false)
+                          }}
+                          className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer flex items-center justify-between ${
+                            activeSelectedBuyerId === b.id
+                              ? 'bg-[#3A3564] text-white font-bold'
+                              : 'text-slate-700 hover:bg-[#FAF7F0]'
+                          }`}
+                        >
+                          <div className="truncate pr-2">
+                            <div className="font-bold">{b.buyer_name}</div>
+                            <div className={`text-[10px] font-mono mt-0.5 ${activeSelectedBuyerId === b.id ? 'text-indigo-200' : 'text-slate-500'}`}>
+                              {bCut.toLocaleString('en-IN')} Cut Pcs (of {(Number(b.contracted_volume) || 0).toLocaleString('en-IN')} BPO) {b.linked_article_number ? `• ${b.linked_article_number}` : '• Pending Link'}
+                            </div>
                           </div>
-                        </div>
-                        {activeSelectedBuyerId === b.id && <Check className="w-4 h-4 text-white shrink-0" />}
-                      </button>
-                    ))
+                          {activeSelectedBuyerId === b.id && <Check className="w-4 h-4 text-white shrink-0" />}
+                        </button>
+                      )
+                    })
                   )}
                 </div>
               </div>
@@ -615,7 +669,11 @@ export function PrintingDashboardClient({
               {inHandPieces.toLocaleString('en-IN')}
             </div>
             <p className="text-xs font-semibold text-slate-500 mt-1">
-              {selectedBuyer ? `${inHandPieces.toLocaleString('en-IN')} unassigned pcs in queue` : 'Unassigned BPO pieces in queue'}
+              {inHandPieces > 0 
+                ? `${inHandPieces.toLocaleString('en-IN')} cut pcs ready from Cutting Floor` 
+                : (totalCutPiecesFromCutting > 0 
+                    ? `0 cut pcs in hand (${totalCutPiecesFromCutting.toLocaleString('en-IN')} cut pcs assigned/printed)` 
+                    : '0 cut pcs received from Cutting Floor')}
             </p>
           </div>
         </div>
@@ -635,7 +693,7 @@ export function PrintingDashboardClient({
               {pendingPrintingPieces.toLocaleString('en-IN')}
             </div>
             <p className="text-xs font-semibold text-slate-500 mt-1">
-              {pendingPrintingPieces > 0 ? `${pendingPrintingPieces.toLocaleString('en-IN')} pcs assigned on floor` : '0 pcs assigned to table'}
+              {pendingPrintingPieces > 0 ? `${pendingPrintingPieces.toLocaleString('en-IN')} pcs assigned on print tables` : '0 pcs assigned to table'}
             </p>
           </div>
         </div>
@@ -660,18 +718,18 @@ export function PrintingDashboardClient({
           </div>
         </div>
 
-        {/* 4. Strike Off (Static Placeholder Metric Box) */}
+        {/* 4. Strike Off (Static Placeholder Box) */}
         <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Strike Off
             </span>
             <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
-              <FileCheck2 className="w-5 h-5" />
+              <FileText className="w-5 h-5" />
             </div>
           </div>
           <div>
-            <div className="text-2xl sm:text-3xl lg:text-4xl font-black font-mono text-slate-900">
+            <div className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 font-[family-name:var(--font-heading)]">
               Approved
             </div>
             <p className="text-xs font-semibold text-slate-500 mt-1">
