@@ -55,6 +55,7 @@ import {
 import { AddWorkerModal } from './AddWorkerModal'
 import { WorkerListModal } from './WorkerListModal'
 import { AddTaskAllocationModal } from './AddTaskAllocationModal'
+import { saveCuttingTaskAllocationAction, deleteCuttingTaskAllocationAction, fetchCuttingTaskAllocationsAction, fetchCuttingWorkersAction } from '../actions'
 
 interface CuttingDashboardClientProps {
   userEmail?: string
@@ -63,6 +64,8 @@ interface CuttingDashboardClientProps {
   initialBundles?: any[]
   liveKpis?: any
   initialBuyers?: any[]
+  initialWorkers?: CuttingWorker[]
+  initialAllocations?: CuttingTaskAllocation[]
 }
 
 function mergeBuyersFromAllSources(serverBuyers: any[] = []): any[] {
@@ -147,7 +150,9 @@ function mergeBuyersFromAllSources(serverBuyers: any[] = []): any[] {
 export function CuttingDashboardClient({ 
   userEmail,
   isSuperAdmin = false,
-  initialBuyers
+  initialBuyers,
+  initialWorkers = [],
+  initialAllocations = []
 }: CuttingDashboardClientProps) {
   // Workers & Task Allocations State
   const [workers, setWorkers] = useState<CuttingWorker[]>([])
@@ -169,10 +174,20 @@ export function CuttingDashboardClient({
   const [taskSearchQuery, setTaskSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<'ACTIVE' | 'NEEDS_VERIFY' | 'COMPLETED' | 'ALL'>('ACTIVE')
 
-  // Load and refresh workers & task allocations
+  // Load and refresh workers & task allocations (merging server and local storage)
   const refreshFloorData = () => {
-    setWorkers(getCuttingWorkers())
-    setAllocations(getCuttingTaskAllocations())
+    const localWorkers = getCuttingWorkers()
+    const workerMap = new Map<string, CuttingWorker>()
+    initialWorkers.forEach(w => { if (w?.id || w?.phone_number) workerMap.set(w.phone_number || w.id, w) })
+    localWorkers.forEach(w => { if (w?.id || w?.phone_number) workerMap.set(w.phone_number || w.id, { ...(workerMap.get(w.phone_number || w.id) || {}), ...w }) })
+    setWorkers(Array.from(workerMap.values()))
+
+    const localTasks = getCuttingTaskAllocations()
+    const taskMap = new Map<string, CuttingTaskAllocation>()
+    initialAllocations.forEach(t => { if (t?.id || t?.task_ref) taskMap.set(t.id || t.task_ref, t) })
+    localTasks.forEach(t => { if (t?.id || t?.task_ref) taskMap.set(t.id || t.task_ref, { ...(taskMap.get(t.id || t.task_ref) || {}), ...t }) })
+    setAllocations(Array.from(taskMap.values()))
+
     const merged = mergeBuyersFromAllSources(initialBuyers)
     setBuyers(merged)
   }
@@ -192,13 +207,29 @@ export function CuttingDashboardClient({
     }
   }, [initialBuyers])
 
-  const handleManualSync = () => {
+  const handleManualSync = async () => {
     setIsSyncing(true)
-    refreshFloorData()
-    setTimeout(() => {
+    try {
+      const [serverTasks, serverWorkers] = await Promise.all([
+        fetchCuttingTaskAllocationsAction(),
+        fetchCuttingWorkersAction()
+      ])
+      const workerMap = new Map<string, CuttingWorker>()
+      serverWorkers.forEach((w: any) => { if (w?.id || w?.phone_number) workerMap.set(w.phone_number || w.id, w) })
+      getCuttingWorkers().forEach(w => { if (w?.id || w?.phone_number) workerMap.set(w.phone_number || w.id, { ...(workerMap.get(w.phone_number || w.id) || {}), ...w }) })
+      setWorkers(Array.from(workerMap.values()))
+
+      const taskMap = new Map<string, CuttingTaskAllocation>()
+      serverTasks.forEach((t: any) => { if (t?.id || t?.task_ref) taskMap.set(t.id || t.task_ref, t) })
+      getCuttingTaskAllocations().forEach(t => { if (t?.id || t?.task_ref) taskMap.set(t.id || t.task_ref, { ...(taskMap.get(t.id || t.task_ref) || {}), ...t }) })
+      setAllocations(Array.from(taskMap.values()))
+
+      toast.success('Cutting floor & worker sync updated from cloud database.')
+    } catch {
+      refreshFloorData()
+    } finally {
       setIsSyncing(false)
-      toast.success('Cutting floor & worker sync updated.')
-    }, 400)
+    }
   }
 
   // Determine active selected buyer
@@ -274,17 +305,22 @@ export function CuttingDashboardClient({
   })
 
   // Head of Dept "Verify & Done" Sign-Off Handler (Clears task from pending and moves pieces to completed)
-  const handleVerifyAndDone = (taskId: string, taskRef: string, pieces: number) => {
+  const handleVerifyAndDone = async (taskId: string, taskRef: string, pieces: number) => {
     const updated = updateCuttingTaskStatus(taskId, 'VERIFIED_COMPLETED')
     setAllocations(updated)
+    const taskObj = updated.find(t => t.id === taskId)
+    if (taskObj) {
+      await saveCuttingTaskAllocationAction(taskObj)
+    }
     toast.success(`Task #${taskRef} verified! ${pieces.toLocaleString('en-IN')} pcs moved from Pending to Completed Cutting.`)
   }
 
   // Delete Task Handler
-  const handleDeleteTask = (taskId: string, taskRef: string) => {
+  const handleDeleteTask = async (taskId: string, taskRef: string) => {
     if (confirm(`Remove allocation task "${taskRef}"?`)) {
       const updated = deleteCuttingTaskAllocation(taskId)
       setAllocations(updated)
+      await deleteCuttingTaskAllocationAction(taskId)
       toast.info(`Task ${taskRef} removed.`)
     }
   }

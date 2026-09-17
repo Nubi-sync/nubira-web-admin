@@ -130,7 +130,7 @@ export async function resolveUserTenant(user: {
         phone: workerPhone,
         cityState: 'India',
         subscriptionTier: 'ENTERPRISE_PLAN',
-        allowedDivisions: ['/cutting/worker'],
+        allowedDivisions: ['/cutting/worker', '/cutting/worker/history', '/cutting/worker/profile'],
         isProvisionedTenant: true,
         accessType: 'FULL_ACCESS',
         isExpired: false,

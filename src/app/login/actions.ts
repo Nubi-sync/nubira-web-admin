@@ -200,12 +200,28 @@ export async function login(formData: FormData) {
         const adminClient = createAdminClient(supabaseUrl, serviceRoleKey)
         const cuttingEmail = `${phone10}@cutting.nubira.local`
 
-        // Check if phone matches a cutting worker or design member
+                // Check if phone matches a cutting worker or design member
         const { data: matchedWorker } = await adminClient
           .from('cutting_workers')
           .select('*')
-          .eq('phone_number', phone10)
+          .or(`phone_number.eq.${phone10},phone_number.ilike.%${phone10}%`)
           .maybeSingle()
+
+        // Also check cutting_task_allocations if worker name is recorded there
+        let taskWorkerName = ''
+        if (!matchedWorker?.worker_name) {
+          try {
+            const { data: matchedTask } = await adminClient
+              .from('cutting_task_allocations')
+              .select('worker_name')
+              .ilike('worker_phone', `%${phone10}%`)
+              .limit(1)
+              .maybeSingle()
+            if (matchedTask?.worker_name) {
+              taskWorkerName = matchedTask.worker_name
+            }
+          } catch (_) {}
+        }
 
         const { data: matchedDesigner } = await adminClient
           .from('design_team_members')
@@ -215,7 +231,7 @@ export async function login(formData: FormData) {
 
         const targetEmail = matchedWorker?.worker_email || matchedDesigner?.designer_email || cuttingEmail
         const role = matchedDesigner ? 'DESIGNER' : 'CUTTING_WORKER'
-        const fullName = matchedWorker?.worker_name || matchedDesigner?.designer_name || 'Floor Operator'
+        const fullName = matchedWorker?.worker_name || taskWorkerName || matchedDesigner?.designer_name || 'Cutting Operator'
 
         const { data: userList } = await adminClient.auth.admin.listUsers()
         const foundAuth = userList?.users?.find(

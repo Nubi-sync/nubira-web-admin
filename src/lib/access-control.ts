@@ -35,7 +35,7 @@ export const ROLE_MODULE_MAPPING: Record<string, DivisionRoute[]> = {
   CUTTING: ['/cutting'],
   CUTTING_MASTER: ['/cutting'],
   SPREADER_OPERATOR: ['/cutting'],
-  CUTTING_WORKER: ['/cutting/worker' as any],
+  CUTTING_WORKER: ['/cutting/worker' as any, '/cutting/worker/history' as any, '/cutting/worker/profile' as any],
   
   // Surface Art
   PRINTING: ['/printing'],
