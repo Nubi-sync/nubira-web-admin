@@ -29,7 +29,8 @@ import {
   Trash2,
   Calendar,
   Sparkles,
-  Maximize2
+  Maximize2,
+  ExternalLink
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { EmptyState } from '@/components/ui/EmptyState'
@@ -167,7 +168,7 @@ export function CuttingDashboardClient({
 
   // Spreadsheet Filters
   const [taskSearchQuery, setTaskSearchQuery] = useState('')
-  const [statusFilter, setStatusFilter] = useState<'ALL' | 'ASSIGNED' | 'IN_PROGRESS' | 'COMPLETED'>('ALL')
+  const [statusFilter, setStatusFilter] = useState<'ACTIVE' | 'NEEDS_VERIFY' | 'COMPLETED' | 'ALL'>('ACTIVE')
 
   // Load and refresh workers & task allocations
   const refreshFloorData = () => {
@@ -236,14 +237,14 @@ export function CuttingDashboardClient({
     return buyerMatch || articleMatch
   })
 
-  // 1. COMPLETED CUTTING: Pieces where worker completed the cut job
+  // 1. COMPLETED CUTTING: Pieces verified and signed off by Head of Dept
   const completedCuttingPieces = matchingAllocations
-    .filter(t => t.status === 'COMPLETED')
+    .filter(t => t.status === 'VERIFIED_COMPLETED' || t.status === 'COMPLETED')
     .reduce((sum, curr) => sum + (Number(curr.completed_pieces || curr.pieces_to_cut) || 0), 0)
 
-  // 2. PENDING CUTTING: Pieces assigned to worker/table in progress
+  // 2. PENDING CUTTING: Pieces assigned to worker/table (Assigned, In-Progress, or Completed awaiting verification)
   const pendingCuttingPieces = matchingAllocations
-    .filter(t => t.status !== 'COMPLETED')
+    .filter(t => t.status !== 'VERIFIED_COMPLETED' && t.status !== 'COMPLETED')
     .reduce((sum, curr) => sum + (Number(curr.pieces_to_cut) || 0), 0)
 
   // 3. IN HAND: Unallocated queue waiting for table assignment
@@ -262,15 +263,22 @@ export function CuttingDashboardClient({
       (task.buyer_name || '').toLowerCase().includes(taskSearchQuery.toLowerCase()) ||
       (task.table_number || '').toLowerCase().includes(taskSearchQuery.toLowerCase())
 
-    const matchesStatus = statusFilter === 'ALL' || task.status === statusFilter
+    let matchesStatus = true
+    if (statusFilter === 'ACTIVE') {
+      matchesStatus = task.status !== 'VERIFIED_COMPLETED' && task.status !== 'COMPLETED'
+    } else if (statusFilter === 'NEEDS_VERIFY') {
+      matchesStatus = task.status === 'WORKER_COMPLETED'
+    } else if (statusFilter === 'COMPLETED') {
+      matchesStatus = task.status === 'VERIFIED_COMPLETED' || task.status === 'COMPLETED'
+    }
     return matchesSearch && matchesStatus
   })
 
-  // Status Change Handler
-  const handleUpdateStatus = (taskId: string, newStatus: CuttingAllocationStatus) => {
-    const updated = updateCuttingTaskStatus(taskId, newStatus)
+  // Head of Dept "Verify & Done" Sign-Off Handler (Clears task from pending and moves pieces to completed)
+  const handleVerifyAndDone = (taskId: string, taskRef: string, pieces: number) => {
+    const updated = updateCuttingTaskStatus(taskId, 'VERIFIED_COMPLETED')
     setAllocations(updated)
-    toast.success(`Task status updated to ${newStatus.replace(/_/g, ' ')}`)
+    toast.success(`Task #${taskRef} verified! ${pieces.toLocaleString('en-IN')} pcs moved from Pending to Completed Cutting.`)
   }
 
   // Delete Task Handler
@@ -377,6 +385,13 @@ export function CuttingDashboardClient({
           >
             <Bot className="w-3.5 h-3.5" />
             <span>Zigza AI</span>
+          </Link>
+          <Link
+            href="/cutting/worker"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer"
+          >
+            <ExternalLink className="w-3.5 h-3.5" />
+            <span>Worker Portal</span>
           </Link>
         </div>
       </div>
@@ -605,19 +620,24 @@ export function CuttingDashboardClient({
             </div>
 
             {/* Status Tabs */}
-            <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-black/10">
-              {(['ALL', 'ASSIGNED', 'IN_PROGRESS', 'COMPLETED'] as const).map(st => (
+            <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-black/10 overflow-x-auto">
+              {[
+                { id: 'ACTIVE', label: 'Active Queue' },
+                { id: 'NEEDS_VERIFY', label: 'Needs Verification' },
+                { id: 'COMPLETED', label: 'Verified & Done' },
+                { id: 'ALL', label: 'All' }
+              ].map(st => (
                 <button
-                  key={st}
+                  key={st.id}
                   type="button"
-                  onClick={() => setStatusFilter(st)}
-                  className={`px-2.5 py-1 text-[11px] font-mono font-bold rounded-lg transition-all cursor-pointer ${
-                    statusFilter === st
+                  onClick={() => setStatusFilter(st.id as any)}
+                  className={`px-2.5 py-1 text-[11px] font-mono font-bold rounded-lg transition-all cursor-pointer whitespace-nowrap ${
+                    statusFilter === st.id
                       ? 'bg-[#3A3564] text-white'
                       : 'text-slate-600 hover:text-slate-900 hover:bg-[#FAF7F0]'
                   }`}
                 >
-                  {st === 'ALL' ? 'All' : st.replace(/_/g, ' ')}
+                  {st.label}
                 </button>
               ))}
             </div>
@@ -642,18 +662,22 @@ export function CuttingDashboardClient({
               <div className="w-14 h-14 rounded-2xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center mx-auto text-[#3A3564] mb-3 shadow-2xs">
                 <TableProperties className="w-7 h-7" />
               </div>
-              <h3 className="text-base font-bold text-slate-900">No Cutting Tasks Assigned Yet</h3>
+              <h3 className="text-base font-bold text-slate-900">No Matching Cutting Tasks</h3>
               <p className="text-xs text-slate-500 font-mono mt-1 max-w-md mx-auto">
-                Allocate article piece quotas to registered workers. When assigned, pieces move from <strong>In Hand</strong> to <strong>Pending Cutting</strong> until completed.
+                {statusFilter === 'NEEDS_VERIFY'
+                  ? 'No tasks currently waiting for Head of Department verification.'
+                  : 'Allocate article piece quotas to registered workers. When assigned, pieces move from In Hand to Pending Cutting.'}
               </p>
-              <button
-                type="button"
-                onClick={() => setIsAddTaskOpen(true)}
-                className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs font-mono font-bold shadow-xs cursor-pointer transition-all"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Assign First Task Row</span>
-              </button>
+              {statusFilter === 'ACTIVE' && (
+                <button
+                  type="button"
+                  onClick={() => setIsAddTaskOpen(true)}
+                  className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs font-mono font-bold shadow-xs cursor-pointer transition-all"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Assign Task Row</span>
+                </button>
+              )}
             </div>
           ) : (
             <table className="w-full text-left text-xs min-w-[900px]">
@@ -673,11 +697,13 @@ export function CuttingDashboardClient({
               <tbody className="divide-y divide-black/5 font-medium">
                 {filteredTasks.map(task => {
                   const timeline = formatDueTimeline(task.due_time, task.alloted_hours)
-                  const isDone = task.status === 'COMPLETED'
-                  const inProgress = task.status === 'IN_PROGRESS'
+                  const isVerified = task.status === 'VERIFIED_COMPLETED' || task.status === 'COMPLETED'
+                  const isWorkerCompleted = task.status === 'WORKER_COMPLETED'
+                  const isInProgress = task.status === 'IN_PROGRESS'
+                  const isAssigned = task.status === 'ASSIGNED'
 
                   return (
-                    <tr key={task.id} className="hover:bg-slate-50/80 transition-colors">
+                    <tr key={task.id} className={`hover:bg-slate-50/80 transition-colors ${isWorkerCompleted ? 'bg-amber-50/20' : ''}`}>
                       
                       {/* Task Ref */}
                       <td className="py-3.5 px-4 font-mono font-bold text-slate-900">
@@ -723,12 +749,17 @@ export function CuttingDashboardClient({
                         <div className="font-mono font-black text-sm text-slate-900">
                           {task.pieces_to_cut.toLocaleString('en-IN')} <span className="text-xs font-normal text-slate-500">Pcs</span>
                         </div>
-                        {isDone && (
+                        {isVerified && (
                           <div className="text-[10px] font-mono font-bold text-emerald-600">
-                            ✓ 100% Completed
+                            ✓ Verified &amp; Completed
                           </div>
                         )}
-                        {inProgress && (
+                        {isWorkerCompleted && (
+                          <div className="text-[10px] font-mono font-bold text-amber-700">
+                            Pending Verification
+                          </div>
+                        )}
+                        {isInProgress && (
                           <div className="text-[10px] font-mono font-bold text-indigo-600">
                             In progress on table
                           </div>
@@ -745,49 +776,70 @@ export function CuttingDashboardClient({
 
                       {/* Due Timeline */}
                       <td className="py-3.5 px-4">
-                        <div className={`text-xs font-mono font-bold ${isDone ? 'text-slate-400 line-through' : (timeline.isPast ? 'text-rose-600' : 'text-slate-800')}`}>
+                        <div className={`text-xs font-mono font-bold ${isVerified ? 'text-slate-400 line-through' : (timeline.isPast ? 'text-rose-600' : 'text-slate-800')}`}>
                           {timeline.formatted}
                         </div>
-                        {!isDone && timeline.isPast && (
+                        {!isVerified && timeline.isPast && (
                           <span className="text-[10px] font-mono font-bold text-rose-500">
                             Past Due Target
                           </span>
                         )}
                       </td>
 
-                      {/* Status Dropdown */}
+                      {/* Status (Live Read-Only badge controlled by worker & head of dept) */}
                       <td className="py-3.5 px-4">
-                        <select
-                          value={task.status}
-                          onChange={e => handleUpdateStatus(task.id, e.target.value as CuttingAllocationStatus)}
-                          className={`text-xs font-mono font-bold px-2.5 py-1 rounded-lg border transition-all cursor-pointer ${
-                            isDone
-                              ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
-                              : inProgress
-                              ? 'bg-indigo-50 text-[#3A3564] border-indigo-200'
-                              : 'bg-amber-50 text-amber-800 border-amber-200'
-                          }`}
-                        >
-                          <option value="ASSIGNED">Assigned</option>
-                          <option value="IN_PROGRESS">In Progress</option>
-                          <option value="COMPLETED">Completed</option>
-                        </select>
+                        {isAssigned && (
+                          <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 text-xs font-mono font-bold">
+                            Assigned
+                          </span>
+                        )}
+                        {isInProgress && (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-50 text-[#3A3564] border border-indigo-200 text-xs font-mono font-bold">
+                            <span className="w-2 h-2 rounded-full bg-indigo-600 animate-pulse" />
+                            In Progress ({task.table_number || 'Table 01'})
+                          </span>
+                        )}
+                        {isWorkerCompleted && (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-100 text-amber-900 border border-amber-300 text-xs font-mono font-bold shadow-2xs">
+                            <Clock className="w-3.5 h-3.5 text-amber-700" />
+                            Awaiting Verification
+                          </span>
+                        )}
+                        {isVerified && (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-mono font-bold">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                            Verified &amp; Moved
+                          </span>
+                        )}
                       </td>
 
-                      {/* Actions */}
+                      {/* Actions: "Verify & Done" button displayed when worker finishes */}
                       <td className="py-3.5 px-4 text-right">
-                        <div className="flex items-center justify-end gap-1.5">
-                          {!isDone && (
+                        <div className="flex items-center justify-end gap-2">
+                          {isWorkerCompleted && (
                             <button
                               type="button"
-                              onClick={() => handleUpdateStatus(task.id, 'COMPLETED')}
-                              className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-mono font-bold transition-all flex items-center gap-1 cursor-pointer shadow-2xs"
-                              title="Mark task as complete"
+                              onClick={() => handleVerifyAndDone(task.id, task.task_ref, task.pieces_to_cut)}
+                              className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-mono font-bold transition-all flex items-center gap-1.5 shadow-sm hover:shadow cursor-pointer"
+                              title="Verify work and move pieces from Pending to Completed Cutting"
                             >
-                              <Check className="w-3.5 h-3.5" />
-                              <span>Done</span>
+                              <CheckCircle2 className="w-4 h-4" />
+                              <span>Verify &amp; Done</span>
                             </button>
                           )}
+
+                          {!isWorkerCompleted && !isVerified && (
+                            <span className="text-[11px] font-mono text-slate-400 italic pr-1">
+                              {isInProgress ? 'Cutting live' : 'Ready on floor'}
+                            </span>
+                          )}
+
+                          {isVerified && (
+                            <span className="text-[11px] font-mono font-bold text-emerald-700 pr-1">
+                              ✓ Done
+                            </span>
+                          )}
+
                           <button
                             type="button"
                             onClick={() => handleDeleteTask(task.id, task.task_ref)}
