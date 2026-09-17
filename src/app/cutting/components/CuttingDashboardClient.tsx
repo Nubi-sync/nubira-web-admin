@@ -792,17 +792,17 @@ export function CuttingDashboardClient({
                   const isAssigned = task.status === 'ASSIGNED'
 
                   return (
-                    <tr key={task.id} className={`hover:bg-slate-50/80 transition-colors ${isWorkerCompleted ? 'bg-amber-50/20' : ''}`}>
+                    <tr key={task.id} className="hover:bg-[#FAF7F0]/40 transition-colors">
                       
                       {/* Task Ref */}
-                      <td className="py-3.5 px-4 font-mono font-bold text-slate-900">
-                        <span className="px-2 py-0.5 rounded-md bg-[#FAF7F0] border border-black/10 text-[#3A3564]">
+                      <td className="py-3.5 px-4 font-mono font-bold text-slate-900 whitespace-nowrap">
+                        <span className="px-2.5 py-1 rounded-lg bg-[#FAF7F0] border border-black/10 text-[#3A3564] font-bold text-xs whitespace-nowrap shadow-2xs">
                           #{task.task_ref}
                         </span>
                       </td>
 
                       {/* Worker & Contact */}
-                      <td className="py-3.5 px-4">
+                      <td className="py-3.5 px-4 whitespace-nowrap">
                         <div className="flex items-center gap-2.5">
                           <div className="w-8 h-8 rounded-xl bg-white border border-black/10 flex items-center justify-center font-bold text-xs text-[#3A3564] shadow-2xs shrink-0">
                             {task.worker_name.slice(0, 2).toUpperCase()}
@@ -827,49 +827,29 @@ export function CuttingDashboardClient({
                       </td>
 
                       {/* Table / Station */}
-                      <td className="py-3.5 px-4 font-mono text-xs">
-                        <span className="px-2 py-0.5 rounded-md bg-white border border-black/10 font-bold text-slate-700">
+                      <td className="py-3.5 px-4 font-mono text-xs whitespace-nowrap">
+                        <span className="px-2.5 py-1 rounded-lg bg-[#FAF7F0] border border-black/10 font-bold text-slate-900 shadow-2xs">
                           {task.table_number || 'Table 01'}
                         </span>
                       </td>
 
                       {/* Pieces to Cut */}
-                      <td className="py-3.5 px-4 text-right">
+                      <td className="py-3.5 px-4 text-right whitespace-nowrap">
                         <div className="font-mono font-black text-sm text-slate-900">
                           {task.pieces_to_cut.toLocaleString('en-IN')} <span className="text-xs font-normal text-slate-500">Pcs</span>
                         </div>
-                        {isVerified && (
-                          <div className="text-[10px] font-mono font-bold text-slate-900">
-                            ✓ Verified &amp; Completed
-                          </div>
-                        )}
-                        {isWorkerCompleted && (
-                          <div className="text-[10px] font-mono font-bold text-amber-700">
-                            Pending Verification
-                          </div>
-                        )}
-                        {isInProgress && (
-                          <div className="text-[10px] font-mono font-bold text-indigo-600">
-                            Cutting In Progress
-                          </div>
-                        )}
-                        {isAssigned && (
-                          <div className="text-[10px] font-mono text-slate-500">
-                            Ready on Floor
-                          </div>
-                        )}
                       </td>
 
                       {/* Alloted Timeline */}
-                      <td className="py-3.5 px-4 font-mono">
-                        <div className="flex items-center gap-1.5 text-xs text-slate-700 font-bold">
+                      <td className="py-3.5 px-4 font-mono text-center whitespace-nowrap">
+                        <div className="inline-flex items-center gap-1.5 text-xs text-slate-700 font-bold">
                           <Clock className="w-3.5 h-3.5 text-[#3A3564]" />
                           <span>{task.alloted_hours} Hrs</span>
                         </div>
                       </td>
 
                       {/* Due Target Timeline */}
-                      <td className="py-3.5 px-4 font-mono text-xs text-slate-700">
+                      <td className="py-3.5 px-4 font-mono text-xs text-slate-700 whitespace-nowrap">
                         {(() => {
                           const due = formatDueTimeline(task.due_time, task.alloted_hours)
                           return (
@@ -881,22 +861,22 @@ export function CuttingDashboardClient({
                       </td>
 
                       {/* Status Badge */}
-                      <td className="py-3.5 px-4">
+                      <td className="py-3.5 px-4 whitespace-nowrap">
                         {isAssigned && (
                           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 text-slate-800 border border-black/10 text-xs font-mono font-bold">
                             Assigned
                           </span>
                         )}
                         {isInProgress && (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-800 border border-indigo-200 text-xs font-mono font-bold">
-                            <Scissors className="w-3.5 h-3.5 text-indigo-600" />
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-50 text-[#3A3564] border border-indigo-200 text-xs font-mono font-bold">
+                            <Scissors className="w-3.5 h-3.5 text-[#3A3564]" />
                             Cutting Live
                           </span>
                         )}
                         {isWorkerCompleted && (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-100 text-amber-900 border border-amber-300 text-xs font-mono font-bold shadow-2xs">
-                            <Clock className="w-3.5 h-3.5 text-amber-700" />
-                            Awaiting Verification
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#FAF7F0] text-slate-900 border border-black/10 text-xs font-mono font-bold shadow-2xs">
+                            <Clock className="w-3.5 h-3.5 text-[#3A3564]" />
+                            Submitted
                           </span>
                         )}
                         {isVerified && (
@@ -907,14 +887,14 @@ export function CuttingDashboardClient({
                         )}
                       </td>
 
-                      {/* Actions: "Verify & Done" button displayed when worker finishes */}
-                      <td className="py-3.5 px-4 text-right">
+                      {/* Actions */}
+                      <td className="py-3.5 px-4 text-right whitespace-nowrap">
                         <div className="flex items-center justify-end gap-2">
                           {isWorkerCompleted && (
                             <button
                               type="button"
                               onClick={() => handleVerifyAndDone(task.id, task.task_ref, task.pieces_to_cut)}
-                              className="px-3 py-1.5 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-mono font-bold transition-all flex items-center gap-1.5 shadow-sm hover:shadow cursor-pointer"
+                              className="px-3.5 py-1.5 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-mono font-bold transition-all flex items-center gap-1.5 shadow-2xs hover:shadow-xs cursor-pointer whitespace-nowrap"
                               title="Verify work and move pieces from Pending to Completed Cutting"
                             >
                               <CheckCircle2 className="w-4 h-4 text-white" />
@@ -923,13 +903,13 @@ export function CuttingDashboardClient({
                           )}
 
                           {!isWorkerCompleted && !isVerified && (
-                            <span className="text-[11px] font-mono text-slate-400 italic pr-1">
+                            <span className="text-[11px] font-mono text-slate-400 italic pr-1 whitespace-nowrap">
                               {isInProgress ? 'Cutting live' : 'Ready on floor'}
                             </span>
                           )}
 
                           {isVerified && (
-                            <span className="text-[11px] font-mono font-bold text-slate-900 pr-1">
+                            <span className="text-[11px] font-mono font-bold text-slate-900 pr-1 whitespace-nowrap">
                               ✓ Done
                             </span>
                           )}
