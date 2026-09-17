@@ -1,9 +1,17 @@
 export type OrderStatus = 
+  | 'IN_CUTTING'
+  | 'IN_PRINTING'
+  | 'IN_EMBROIDERY'
+  | 'IN_SEWING'
+  | 'IRON'
+  | 'WASHING'
+  | 'ALTER'
+  | 'DISPATCHED'
+  | 'COMPLETED'
   | 'BOOKED' 
   | 'IN_FABRIC' 
   | 'IN_PRODUCTION' 
   | 'PACKED' 
-  | 'DISPATCHED' 
   | 'CLOSED'
 
 export type TnaStatus = 

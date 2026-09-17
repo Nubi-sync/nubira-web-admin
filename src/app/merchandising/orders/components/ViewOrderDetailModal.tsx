@@ -107,7 +107,7 @@ export function ViewOrderDetailModal({ isOpen, onClose, order }: ViewOrderDetail
                 <span>{order.ex_factory_date}</span>
               </div>
               <p className="text-[11px] text-slate-500 font-medium mt-0.5">
-                Status: <strong className="uppercase">{order.status.replace('_', ' ')}</strong>
+                Status: <strong className="uppercase">{order.status === 'BOOKED' ? 'IN CUTTING' : order.status.replace('_', ' ')}</strong>
               </p>
             </div>
 

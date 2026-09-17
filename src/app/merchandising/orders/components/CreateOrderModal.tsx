@@ -45,7 +45,8 @@ const DEFAULT_SIZES = ['XS', 'S', 'M', 'L', 'XL']
 function generateAutoPoNumber(buyerCode?: string) {
   const yr = new Date().getFullYear()
   const rand = Math.floor(1000 + Math.random() * 9000)
-  const prefix = buyerCode ? buyerCode.toUpperCase().slice(0, 4) : 'PO'
+  const cleanCode = (buyerCode || '').replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 4)
+  const prefix = cleanCode || 'PO'
   return `${prefix}-${yr}-${rand}`
 }
 
@@ -456,7 +457,7 @@ export function CreateOrderModal({
       unit_fob_price: unitPrice,
       total_contract_value: totalContractValue,
       ex_factory_date: exFactoryDate || new Date(Date.now() + 25*86400000).toISOString().split('T')[0],
-      status: 'BOOKED',
+      status: 'IN_CUTTING',
       color_matrix,
       created_at: new Date().toISOString().split('T')[0],
       embellishment_sequence: embellishmentSeq,

@@ -273,11 +273,32 @@ export function MerchandisingDashboardClient({
   // Extract unique brands
   const uniqueBrands = ['ALL', ...Array.from(new Set(orders.map(o => o.brand_name)))]
 
+  const normalizeStatus = (status?: string): string => {
+    if (!status || status === 'BOOKED') return 'IN_CUTTING'
+    return status
+  }
+
+  const getStatusLabel = (status?: string): string => {
+    const s = normalizeStatus(status)
+    switch (s) {
+      case 'IN_CUTTING': return 'In Cutting'
+      case 'IN_PRINTING': return 'In Printing'
+      case 'IN_EMBROIDERY': return 'In Embroidery'
+      case 'IN_SEWING': return 'In Sewing'
+      case 'IRON': return 'Iron'
+      case 'WASHING': return 'Washing'
+      case 'ALTER': return 'Alter'
+      case 'DISPATCHED': return 'Dispatched'
+      case 'COMPLETED': return 'Completed'
+      default: return s.replace('_', ' ')
+    }
+  }
+
   // Filter orders by brand, style, and status
   const filteredOrders = orders.filter(ord => {
     const matchesBrand = selectedBrand === 'ALL' || ord.brand_name === selectedBrand
     const matchesStyle = selectedStyleId === 'ALL' || ord.id === selectedStyleId
-    const matchesStatus = statusFilter === 'ALL' || ord.status === statusFilter
+    const matchesStatus = statusFilter === 'ALL' || normalizeStatus(ord.status) === statusFilter
     return matchesBrand && matchesStyle && matchesStatus
   })
 
@@ -799,7 +820,7 @@ export function MerchandisingDashboardClient({
 
             {/* Status Filter Tabs */}
             <div className="flex items-center gap-1.5 overflow-x-auto py-3 text-xs font-semibold">
-              {['ALL', 'BOOKED', 'IN_FABRIC', 'IN_PRODUCTION', 'PACKED', 'DISPATCHED'].map(tab => (
+              {['ALL', 'IN_CUTTING', 'IN_PRINTING', 'IN_EMBROIDERY', 'IN_SEWING', 'IRON', 'WASHING', 'ALTER', 'DISPATCHED'].map(tab => (
                 <button
                   key={tab}
                   type="button"
@@ -810,7 +831,7 @@ export function MerchandisingDashboardClient({
                       : 'text-slate-600 bg-[#FAF7F0] border border-black/5 hover:bg-black/5'
                   }`}
                 >
-                  {tab.replace('_', ' ')}
+                  {getStatusLabel(tab)}
                 </button>
               ))}
             </div>
@@ -889,15 +910,9 @@ export function MerchandisingDashboardClient({
                         </td>
                         <td className="py-2.5 px-3 text-center">
                           <span
-                            className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
-                              ord.status === 'PACKED' || ord.status === 'DISPATCHED'
-                                ? 'bg-[#FAF7F0] text-[#3A3564] border border-black/10 font-bold'
-                                : ord.status === 'IN_PRODUCTION'
-                                ? 'bg-slate-100 text-slate-800 border border-slate-200 font-semibold'
-                                : 'bg-slate-50 text-slate-600 border border-slate-200'
-                            }`}
+                            className="inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-[#FAF7F0] text-[#3A3564] border border-black/10"
                           >
-                            {ord.status.replace('_', ' ')}
+                            {getStatusLabel(ord.status)}
                           </span>
                         </td>
                         <td className="py-2.5 px-3 text-right">

@@ -54,7 +54,7 @@ export async function fetchMerchandisingOrdersAction(_companyName?: string): Pro
       .select(`
         *,
         brands ( id, brand_name, brand_code ),
-        design_tech_packs ( id, style_number, category ),
+        design_tech_packs ( id, style_number, category, embellishment_sequence, fabric_composition, target_gsm, cad_front_url, cad_back_url, materials ),
         merchandising_order_ratios ( id, color_name, color_code, size_label, ratio_units, quantity )
       `)
       .order('created_at', { ascending: false })
@@ -96,6 +96,12 @@ export async function fetchMerchandisingOrdersAction(_companyName?: string): Pro
         total_contract_value: Number(row.total_quantity * row.fob_price_per_piece) || 0,
         ex_factory_date: row.ex_factory_date,
         status: mapDbStatusToUI(row.status),
+        embellishment_sequence: row.design_tech_packs?.embellishment_sequence || 'NONE',
+        fabric_composition: row.design_tech_packs?.fabric_composition || '100% Combed Cotton Single Jersey',
+        target_gsm: row.design_tech_packs?.target_gsm || 180,
+        cad_front_url: row.design_tech_packs?.cad_front_url,
+        cad_back_url: row.design_tech_packs?.cad_back_url,
+        bom_materials: row.design_tech_packs?.materials || [],
         color_matrix: colorMatrix.length > 0 ? colorMatrix : [
           { color: 'Standard Colorway', sizes: { S: 500, M: 1000, L: 500 }, total: Number(row.total_quantity) || 2000 }
         ],

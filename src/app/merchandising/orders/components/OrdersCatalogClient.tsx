@@ -60,8 +60,29 @@ export function OrdersCatalogClient({
     return () => window.removeEventListener(MERCHANDISING_UPDATE_EVENT, reloadData)
   }, [initialOrders])
 
+  const normalizeStatus = (status?: string): string => {
+    if (!status || status === 'BOOKED') return 'IN_CUTTING'
+    return status
+  }
+
+  const getStatusLabel = (status?: string): string => {
+    const s = normalizeStatus(status)
+    switch (s) {
+      case 'IN_CUTTING': return 'In Cutting'
+      case 'IN_PRINTING': return 'In Printing'
+      case 'IN_EMBROIDERY': return 'In Embroidery'
+      case 'IN_SEWING': return 'In Sewing'
+      case 'IRON': return 'Iron'
+      case 'WASHING': return 'Washing'
+      case 'ALTER': return 'Alter'
+      case 'DISPATCHED': return 'Dispatched'
+      case 'COMPLETED': return 'Completed'
+      default: return s.replace('_', ' ')
+    }
+  }
+
   const filteredOrders = orders.filter(ord => {
-    const matchesFilter = activeFilter === 'ALL' || ord.status === activeFilter
+    const matchesFilter = activeFilter === 'ALL' || normalizeStatus(ord.status) === activeFilter
     const matchesSearch = 
       ord.po_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
       ord.brand_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -220,7 +241,7 @@ export function OrdersCatalogClient({
         <div className="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white">
           {/* Status Filter Tabs */}
           <div className="flex items-center gap-1.5 overflow-x-auto text-xs font-semibold">
-            {['ALL', 'BOOKED', 'IN_FABRIC', 'IN_PRODUCTION', 'PACKED', 'DISPATCHED'].map(tab => (
+            {['ALL', 'IN_CUTTING', 'IN_PRINTING', 'IN_EMBROIDERY', 'IN_SEWING', 'IRON', 'WASHING', 'ALTER', 'DISPATCHED'].map(tab => (
               <button
                 key={tab}
                 type="button"
@@ -231,7 +252,7 @@ export function OrdersCatalogClient({
                     : 'text-slate-600 bg-[#FAF7F0] border border-black/5 hover:bg-black/5'
                 }`}
               >
-                {tab.replace('_', ' ')}
+                {getStatusLabel(tab)}
               </button>
             ))}
           </div>
@@ -322,15 +343,9 @@ export function OrdersCatalogClient({
                     </td>
                     <td className="py-3 px-4 text-center">
                       <span
-                        className={`inline-block px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
-                          order.status === 'PACKED' || order.status === 'DISPATCHED'
-                            ? 'bg-[#FAF7F0] text-[#3A3564] border border-black/10 font-bold'
-                            : order.status === 'IN_PRODUCTION'
-                            ? 'bg-slate-100 text-slate-800 border border-slate-200 font-semibold'
-                            : 'bg-slate-50 text-slate-600 border border-slate-200'
-                        }`}
+                        className="inline-block px-2.5 py-0.5 rounded text-[10.5px] font-bold uppercase tracking-wider bg-[#FAF7F0] text-[#3A3564] border border-black/10"
                       >
-                        {order.status.replace('_', ' ')}
+                        {getStatusLabel(order.status)}
                       </span>
                     </td>
                     <td className="py-3 px-4 text-right">
