@@ -53,6 +53,14 @@ export interface MerchandisingOrder {
   status: OrderStatus
   color_matrix: ColorSizeMatrixItem[]
   created_at: string
+  embellishment_sequence?: string
+  bom_materials?: any[]
+  fabric_composition?: string
+  target_gsm?: number
+  buyer_code?: string
+  buyer_id?: string
+  cad_front_url?: string
+  cad_back_url?: string
 }
 
 export interface BomCosting {

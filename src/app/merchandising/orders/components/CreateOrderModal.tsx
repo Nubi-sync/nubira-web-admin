@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { 
   X, 
   CheckCircle2, 
@@ -17,13 +17,15 @@ import {
   ChevronDown,
   Loader2,
   Palette,
-  Scale
+  Scale,
+  Package,
+  Scissors
 } from 'lucide-react'
 import { toast } from 'sonner'
-import { MerchandisingOrder, ColorSizeMatrixItem } from '../../types/merchandising'
-import { TechPack } from '@/app/design/types/design'
-import { saveOrder } from '../../utils/merchandisingStorage'
-import { createBuyerOrderAction } from '../../actions'
+import { MerchandisingOrder, ColorSizeMatrixItem, ActiveBuyer } from '../../types/merchandising'
+import { TechPack, TechPackMaterialRequirement } from '@/app/design/types/design'
+import { saveOrder, getActiveBuyers } from '../../utils/merchandisingStorage'
+import { createBuyerOrderAction, fetchActiveBuyersAction } from '../../actions'
 import { fetchTechPacksAction, fetchBrandsAction } from '@/app/design/actions'
 import { getStoredTechPacks } from '@/app/design/utils/designStorage'
 
@@ -33,6 +35,7 @@ interface CreateOrderModalProps {
   onSuccess?: () => void
   availableTechPacks?: TechPack[]
   availableBrands?: { id: string; brand_name: string; brand_code: string }[]
+  availableBuyers?: ActiveBuyer[]
 }
 
 const DEFAULT_SIZES = ['XS', 'S', 'M', 'L', 'XL']
@@ -54,7 +57,6 @@ function distributeQuantity(amount: number, sizes: string[]): Record<string, num
   let allocated = 0
   sizes.forEach((size, idx) => {
     if (idx === sizes.length - 1) {
-      // Allocate remaining to guarantee exact sum match
       result[size] = Math.max(0, amount - allocated)
     } else {
       const ratio = ratios[size] ?? (1 / sizes.length)
@@ -72,7 +74,8 @@ export function CreateOrderModal({
   onClose, 
   onSuccess,
   availableTechPacks: propTechPacks,
-  availableBrands: propBrands
+  availableBrands: propBrands,
+  availableBuyers: propBuyers
 }: CreateOrderModalProps) {
   const [step, setStep] = useState<1 | 2>(1)
   const [error, setError] = useState<string | null>(null)
@@ -81,6 +84,10 @@ export function CreateOrderModal({
   // Loaded specs state
   const [techPacks, setTechPacks] = useState<TechPack[]>([])
   const [brandList, setBrandList] = useState<string[]>([])
+  const [activeBuyers, setActiveBuyers] = useState<ActiveBuyer[]>([])
+
+  // Selection Key: "buyer_<id>" or "tp_<id>" or "__CUSTOM__"
+  const [selectedProductKey, setSelectedProductKey] = useState<string>('')
 
   // Step 1 State
   const [poNumber, setPoNumber] = useState('PO-2026-9901')
@@ -97,13 +104,22 @@ export function CreateOrderModal({
     return d.toISOString().split('T')[0]
   })
 
-  // Step 2 State (Color & Size Matrix) - Starts fresh with 0 pre-populated colors
-  const [colors, setColors] = useState<string[]>([])
-  const [matrixData, setMatrixData] = useState<Record<string, Record<string, number>>>({})
+  // Auto-fetched Tech-Pack details
+  const [embellishmentSeq, setEmbellishmentSeq] = useState<string>('NONE')
+  const [bomMaterials, setBomMaterials] = useState<TechPackMaterialRequirement[]>([])
+  const [fabricComposition, setFabricComposition] = useState<string>('')
+  const [targetGsm, setTargetGsm] = useState<number>(300)
+  const [selectedBuyerRef, setSelectedBuyerRef] = useState<ActiveBuyer | null>(null)
+
+  // Step 2 State (Color & Size Matrix)
+  const [colors, setColors] = useState<string[]>(['Standard'])
+  const [matrixData, setMatrixData] = useState<Record<string, Record<string, number>>>({
+    'Standard': distributeQuantity(1000, DEFAULT_SIZES)
+  })
   const [newColorInput, setNewColorInput] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // Load tech packs and brands once when modal opens
+  // Load tech packs, brands, and buyers when modal opens
   useEffect(() => {
     if (!isOpen) return
 
@@ -112,65 +128,53 @@ export function CreateOrderModal({
 
     async function loadCatalog() {
       try {
-        const [serverTps, serverBrands] = await Promise.all([
+        const [serverTps, serverBrands, serverBuyers] = await Promise.all([
           fetchTechPacksAction(),
-          fetchBrandsAction()
+          fetchBrandsAction(),
+          fetchActiveBuyersAction()
         ])
 
         if (!isMounted) return
 
+        // 1. Tech Packs
         const localTps = getStoredTechPacks()
         const tpMap = new Map<string, TechPack>()
-        
-        // Key STRICTLY by ID so renamed tech packs don't duplicate
-        localTps.forEach(tp => {
-          if (tp.id) tpMap.set(tp.id, tp)
-        })
-        serverTps.forEach(tp => {
-          if (tp.id) tpMap.set(tp.id, tp)
-        })
-
+        localTps.forEach(tp => { if (tp.id) tpMap.set(tp.id, tp) })
+        serverTps.forEach(tp => { if (tp.id) tpMap.set(tp.id, tp) })
         if (propTechPacks && propTechPacks.length > 0) {
-          propTechPacks.forEach(tp => {
-            if (tp.id) tpMap.set(tp.id, tp)
-          })
+          propTechPacks.forEach(tp => { if (tp.id) tpMap.set(tp.id, tp) })
         }
-
-        // Canonical list strictly from map values
         const combinedTps = Array.from(tpMap.values())
         setTechPacks(combinedTps)
 
-        // Sync fresh server records back to localStorage to wipe any old stale style names
-        if (typeof window !== 'undefined' && serverTps.length > 0) {
-          localStorage.setItem('zigza_design_tech_packs_v2', JSON.stringify(serverTps))
+        // 2. Active Buyers
+        const localBuyers = getActiveBuyers()
+        const buyerMap = new Map<string, ActiveBuyer>()
+        localBuyers.forEach(b => { if (b.id) buyerMap.set(b.id, b) })
+        serverBuyers.forEach(b => { if (b.id) buyerMap.set(b.id, b) })
+        if (propBuyers && propBuyers.length > 0) {
+          propBuyers.forEach(b => { if (b.id) buyerMap.set(b.id, b) })
         }
+        const combinedBuyers = Array.from(buyerMap.values())
+        setActiveBuyers(combinedBuyers)
 
-        // Gather real brands from DB and tech packs only (no fake hardcoded brands)
+        // 3. Brands
         const bSet = new Set<string>()
-        serverBrands.forEach(b => {
-          if (b.brand_name && b.brand_name.trim()) bSet.add(b.brand_name.trim())
-        })
-        if (propBrands) {
-          propBrands.forEach(b => {
-            if (b.brand_name && b.brand_name.trim()) bSet.add(b.brand_name.trim())
-          })
-        }
+        serverBrands.forEach(b => { if (b.brand_name?.trim()) bSet.add(b.brand_name.trim()) })
+        combinedBuyers.forEach(b => { if (b.buyer_name?.trim()) bSet.add(b.buyer_name.trim()) })
         combinedTps.forEach(tp => {
-          if (tp.brand_name && tp.brand_name.trim() && tp.brand_name.toUpperCase() !== 'INHOUSE') {
+          if (tp.brand_name?.trim() && tp.brand_name.toUpperCase() !== 'INHOUSE') {
             bSet.add(tp.brand_name.trim())
           }
         })
         setBrandList(Array.from(bSet))
 
-        // Automatically pre-select the active tech pack (prioritize TP-2026-8801)
-        if (combinedTps.length > 0) {
-          const targetTp = combinedTps.find(t => t.style_number.toUpperCase().includes('8801') || t.style_number === 'TP-2026-8801') || combinedTps[0]
-          setSelectedTechPackId(targetTp.id)
-          setStyleRef(targetTp.style_number)
-          setStyleName(`${targetTp.category} Style ${targetTp.style_number} (${targetTp.fabric_composition || '100% Cotton'}, ${targetTp.target_gsm || 380} GSM)`)
-          if (targetTp.brand_name && targetTp.brand_name.toUpperCase() !== 'INHOUSE' && !brandName) {
-            setBrandName(targetTp.brand_name)
-          }
+        // Prioritize pre-selecting the first linked active buyer
+        const firstLinkedBuyer = combinedBuyers.find(b => Boolean(b.linked_article_number))
+        if (firstLinkedBuyer) {
+          handleSelectOption(`buyer_${firstLinkedBuyer.id}`, combinedBuyers, combinedTps)
+        } else if (combinedTps.length > 0) {
+          handleSelectOption(`tp_${combinedTps[0].id}`, combinedBuyers, combinedTps)
         }
       } catch (err) {
         console.error('[CreateOrderModal] Catalog load note:', err)
@@ -183,25 +187,87 @@ export function CreateOrderModal({
     return () => { isMounted = false }
   }, [isOpen])
 
-  if (!isOpen) return null
+  // Handle master selection (Buyer with Linked Article or Tech-Pack)
+  function handleSelectOption(key: string, buyersList = activeBuyers, tpsList = techPacks) {
+    setSelectedProductKey(key)
 
-  // Handle tech pack selection
-  const handleTechPackSelect = (tpId: string) => {
-    setSelectedTechPackId(tpId)
-    if (tpId === '__CUSTOM__') {
+    if (key === '__CUSTOM__' || !key) {
+      setSelectedTechPackId('')
+      setSelectedBuyerRef(null)
       setStyleRef('')
       setStyleName('')
+      setEmbellishmentSeq('NONE')
+      setBomMaterials([])
       return
     }
-    const found = techPacks.find(p => p.id === tpId)
-    if (found) {
-      setStyleRef(found.style_number)
-      setStyleName(`${found.category} Style ${found.style_number} (${found.fabric_composition || '100% Cotton'}, ${found.target_gsm || 380} GSM)`)
-      if (found.brand_name && found.brand_name.toUpperCase() !== 'INHOUSE') {
-        setBrandName(found.brand_name)
+
+    if (key.startsWith('buyer_')) {
+      const buyerId = key.replace('buyer_', '')
+      const b = buyersList.find(x => x.id === buyerId)
+      if (!b) return
+
+      setSelectedBuyerRef(b)
+      setBrandName(b.buyer_name || b.brand_name || '')
+      setStyleRef(b.linked_article_number || '')
+      
+      const qty = Number(b.contracted_volume) || 1000
+      setTotalQuantity(String(qty))
+      
+      const price = Number(b.price_per_piece) || 1450.00
+      setUnitFobPrice(price.toFixed(2))
+
+      // Match linked tech pack
+      const artClean = (b.linked_article_number || '').trim().toUpperCase()
+      const tp = tpsList.find(t => (t.style_number || '').trim().toUpperCase() === artClean)
+
+      if (tp) {
+        setSelectedTechPackId(tp.id)
+        setStyleName(`${tp.category} Style ${tp.style_number} (${tp.fabric_composition || '100% Cotton'}, ${tp.target_gsm || 300} GSM)`)
+        setEmbellishmentSeq(tp.embellishment_sequence || 'NONE')
+        setBomMaterials(tp.materials || [])
+        setFabricComposition(tp.fabric_composition || '100% Cotton')
+        setTargetGsm(tp.target_gsm || 300)
+      } else {
+        setSelectedTechPackId('')
+        setStyleName(`${b.buyer_name} Contract ${b.linked_article_number || ''}`)
+        setEmbellishmentSeq('NONE')
+        setBomMaterials([])
       }
+
+      // Auto-distribute matrix to exact quantity
+      setColors(['Standard'])
+      setMatrixData({
+        'Standard': distributeQuantity(qty, DEFAULT_SIZES)
+      })
+    } else if (key.startsWith('tp_')) {
+      const tpId = key.replace('tp_', '')
+      const tp = tpsList.find(t => t.id === tpId)
+      if (!tp) return
+
+      setSelectedTechPackId(tp.id)
+      setSelectedBuyerRef(null)
+      setStyleRef(tp.style_number)
+      setStyleName(`${tp.category} Style ${tp.style_number} (${tp.fabric_composition || '100% Cotton'}, ${tp.target_gsm || 300} GSM)`)
+      setEmbellishmentSeq(tp.embellishment_sequence || 'NONE')
+      setBomMaterials(tp.materials || [])
+      setFabricComposition(tp.fabric_composition || '100% Cotton')
+      setTargetGsm(tp.target_gsm || 300)
+
+      if (tp.brand_name && tp.brand_name.toUpperCase() !== 'INHOUSE' && !brandName) {
+        setBrandName(tp.brand_name)
+      }
+
+      const qty = parseInt(totalQuantity, 10) || 1000
+      setMatrixData({
+        'Standard': distributeQuantity(qty, DEFAULT_SIZES)
+      })
     }
   }
+
+  // Linked buyers vs unlinked buyers
+  const linkedBuyers = useMemo(() => {
+    return activeBuyers.filter(b => Boolean(b.linked_article_number))
+  }, [activeBuyers])
 
   // Calculate current sum in matrix
   const currentMatrixSum = colors.reduce((acc, color) => {
@@ -223,7 +289,7 @@ export function CreateOrderModal({
       setError('Please specify the Brand / Principal Buyer name')
       return
     }
-    if (!styleRef.trim() || !styleName.trim()) {
+    if (!styleRef.trim()) {
       setError('Please select an Approved Style Tech Pack or specify a Style Reference')
       return
     }
@@ -235,6 +301,14 @@ export function CreateOrderModal({
       setError('Target Ex-Factory Date is required')
       return
     }
+
+    // Auto-sync matrix if single colorway
+    if (colors.length === 1 && currentMatrixSum !== targetQty) {
+      setMatrixData({
+        [colors[0]]: distributeQuantity(targetQty, DEFAULT_SIZES)
+      })
+    }
+
     setStep(2)
   }
 
@@ -250,72 +324,69 @@ export function CreateOrderModal({
   }
 
   const handleAddColor = () => {
-    const trimmed = newColorInput.trim()
-    if (!trimmed) return
-    if (colors.some(c => c.toLowerCase() === trimmed.toLowerCase())) {
-      setError(`Colorway "${trimmed}" is already in the matrix.`)
+    if (!newColorInput.trim()) return
+    const formatted = newColorInput.trim()
+    if (colors.includes(formatted)) {
+      toast.error(`Color "${formatted}" already exists in the matrix`)
       return
     }
 
-    const updatedColors = [...colors, trimmed]
-    const remainingDelta = targetQty - currentMatrixSum
-
-    if (colors.length === 0) {
-      // First color: gets the entire targetQty distributed
-      const allocatedSizes = distributeQuantity(targetQty, DEFAULT_SIZES)
-      setColors(updatedColors)
-      setMatrixData({ [trimmed]: allocatedSizes })
-    } else if (remainingDelta > 0) {
-      // If user pre-edited existing colors down, new color takes the remaining delta!
-      const allocatedSizes = distributeQuantity(remainingDelta, DEFAULT_SIZES)
-      setColors(updatedColors)
-      setMatrixData(prev => ({
-        ...prev,
-        [trimmed]: allocatedSizes
-      }))
-    } else {
-      // Delta is 0 (or sum equals targetQty): split targetQty equally across all colors!
-      const newMatrix: Record<string, Record<string, number>> = {}
-      const perColor = Math.floor(targetQty / updatedColors.length)
-      let allocated = 0
-
-      updatedColors.forEach((c, idx) => {
-        const quota = (idx === updatedColors.length - 1) ? Math.max(0, targetQty - allocated) : perColor
-        allocated += quota
-        newMatrix[c] = distributeQuantity(quota, DEFAULT_SIZES)
-      })
-
-      setColors(updatedColors)
-      setMatrixData(newMatrix)
-    }
-
+    const updatedColors = [...colors, formatted]
+    setColors(updatedColors)
     setNewColorInput('')
-    setError(null)
-  }
 
-  const handleRebalanceAll = () => {
-    if (colors.length === 0 || targetQty <= 0) return
+    // Distribute evenly across all colors
+    const perColorQty = Math.floor(targetQty / updatedColors.length)
     const newMatrix: Record<string, Record<string, number>> = {}
-    const perColor = Math.floor(targetQty / colors.length)
-    let allocated = 0
+    let allocatedTotal = 0
 
-    colors.forEach((c, idx) => {
-      const quota = (idx === colors.length - 1) ? Math.max(0, targetQty - allocated) : perColor
-      allocated += quota
-      newMatrix[c] = distributeQuantity(quota, DEFAULT_SIZES)
+    updatedColors.forEach((c, idx) => {
+      const isLast = idx === updatedColors.length - 1
+      const cQty = isLast ? (targetQty - allocatedTotal) : perColorQty
+      allocatedTotal += cQty
+      newMatrix[c] = distributeQuantity(cQty, DEFAULT_SIZES)
     })
 
     setMatrixData(newMatrix)
-    toast.success(`Re-balanced ${targetQty.toLocaleString()} pcs equally across ${colors.length} colorways.`)
   }
 
-  const handleRemoveColor = (color: string) => {
-    setColors(prev => prev.filter(c => c !== color))
-    setMatrixData(prev => {
-      const copy = { ...prev }
-      delete copy[color]
-      return copy
+  const handleRemoveColor = (colorToRemove: string) => {
+    if (colors.length <= 1) {
+      toast.error('You must keep at least one colorway in the matrix')
+      return
+    }
+    const updated = colors.filter(c => c !== colorToRemove)
+    setColors(updated)
+
+    const perColorQty = Math.floor(targetQty / updated.length)
+    const newMatrix: Record<string, Record<string, number>> = {}
+    let allocatedTotal = 0
+
+    updated.forEach((c, idx) => {
+      const isLast = idx === updated.length - 1
+      const cQty = isLast ? (targetQty - allocatedTotal) : perColorQty
+      allocatedTotal += cQty
+      newMatrix[c] = distributeQuantity(cQty, DEFAULT_SIZES)
     })
+
+    setMatrixData(newMatrix)
+  }
+
+  const handleRebalanceAll = () => {
+    if (colors.length === 0) return
+    const perColorQty = Math.floor(targetQty / colors.length)
+    const newMatrix: Record<string, Record<string, number>> = {}
+    let allocatedTotal = 0
+
+    colors.forEach((c, idx) => {
+      const isLast = idx === colors.length - 1
+      const cQty = isLast ? (targetQty - allocatedTotal) : perColorQty
+      allocatedTotal += cQty
+      newMatrix[c] = distributeQuantity(cQty, DEFAULT_SIZES)
+    })
+
+    setMatrixData(newMatrix)
+    toast.success('Matrix quantities rebalanced evenly!')
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -323,7 +394,7 @@ export function CreateOrderModal({
     setError(null)
 
     if (colors.length === 0) {
-      setError('Please add at least one colorway (e.g. Orange, Green) to the matrix.')
+      setError('Please add at least one colorway to the matrix.')
       return
     }
 
@@ -347,15 +418,15 @@ export function CreateOrderModal({
     setIsSubmitting(true)
 
     const finalBrand = brandName.trim()
-    const finalStyleRef = styleRef.trim().toUpperCase() || 'TP-2026-8801'
+    const finalStyleRef = styleRef.trim().toUpperCase()
 
     const newOrder: MerchandisingOrder = {
       id: `ord-${Date.now()}`,
       po_number: poNumber.trim().toUpperCase(),
       brand_name: finalBrand,
       style_ref: finalStyleRef,
-      style_name: styleName.trim() || 'Custom Bulk Order',
-      tech_pack_id: selectedTechPackId !== '__CUSTOM__' ? selectedTechPackId : undefined,
+      style_name: styleName.trim() || `${finalBrand} ${finalStyleRef}`,
+      tech_pack_id: selectedTechPackId || undefined,
       total_quantity: targetQty,
       currency,
       unit_fob_price: unitPrice,
@@ -363,7 +434,13 @@ export function CreateOrderModal({
       ex_factory_date: exFactoryDate || new Date(Date.now() + 25*86400000).toISOString().split('T')[0],
       status: 'BOOKED',
       color_matrix,
-      created_at: new Date().toISOString().split('T')[0]
+      created_at: new Date().toISOString().split('T')[0],
+      embellishment_sequence: embellishmentSeq,
+      bom_materials: bomMaterials,
+      fabric_composition: fabricComposition,
+      target_gsm: targetGsm,
+      buyer_code: selectedBuyerRef?.buyer_code,
+      buyer_id: selectedBuyerRef?.id
     }
 
     try {
@@ -379,12 +456,22 @@ export function CreateOrderModal({
       })
 
       if (res.success) {
-        toast.success(`PO ${newOrder.po_number} confirmed in Supabase! (T&A Milestones Auto-Generated)`)
+        toast.success(`PO ${newOrder.po_number} confirmed! Specs & BOM dispatched to Cutting Floor.`)
       } else {
-        toast.error(res.error || 'Failed to save to Supabase.')
+        toast.info(`PO ${newOrder.po_number} recorded locally.`)
       }
 
       saveOrder(newOrder)
+
+      // Sync active buyer contracted state if needed
+      if (typeof window !== 'undefined') {
+        try {
+          const rawLays = localStorage.getItem('zigza_cutting_lays_v2')
+          const lays = rawLays ? JSON.parse(rawLays) : []
+          window.dispatchEvent(new Event('storage'))
+        } catch {}
+      }
+
       if (onSuccess) onSuccess()
       onClose()
     } catch (err: any) {
@@ -394,23 +481,25 @@ export function CreateOrderModal({
     }
   }
 
+  if (!isOpen) return null
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200 select-none">
-      <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-black/10 overflow-hidden animate-in zoom-in-95 duration-150">
+      <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-black/10 overflow-hidden animate-in zoom-in-95 duration-150 flex flex-col max-h-[92vh]">
         
-        {/* Header with Stepper Indicator — Zigza Executive standard */}
-        <div className="px-6 py-5 bg-[#FAF7F0] border-b border-black/10 flex items-center justify-between">
+        {/* Header with Stepper Indicator */}
+        <div className="px-6 py-4.5 bg-[#FAF7F0] border-b border-black/10 flex items-center justify-between shrink-0">
           <div>
             <div className="flex items-center gap-2">
               <span className="text-[11px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-white text-[#3A3564] border border-black/10 shadow-2xs">
-                Form 1 • Master Buyer PO Stepper
+                Master Buyer PO Booking
               </span>
               <span className="text-xs font-mono font-semibold text-slate-500">
                 Step {step} of 2
               </span>
             </div>
             <h2 className="text-lg font-bold text-slate-900 mt-1 font-[family-name:var(--font-heading)]">
-              {step === 1 ? '1. Commercial Order Details' : '2. Color & Size Distribution Matrix'}
+              {step === 1 ? '1. Commercial Contract & Specs' : '2. Colorway & Size Distribution'}
             </h2>
           </div>
           <button
@@ -423,7 +512,7 @@ export function CreateOrderModal({
         </div>
 
         {/* Scrollable Form Body */}
-        <div className="p-6 max-h-[72vh] overflow-y-auto space-y-4">
+        <div className="p-6 overflow-y-auto space-y-4 flex-1">
           {error && (
             <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-medium flex items-center gap-2">
               <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
@@ -432,9 +521,65 @@ export function CreateOrderModal({
           )}
 
           {step === 1 ? (
-            /* STEP 1: Commercial Basics */
+            /* STEP 1: Commercial Basics & Auto-Fetched Specs */
             <div className="space-y-4">
               
+              {/* Primary: Select Contracted Buyer & Product Dropdown */}
+              <div className="p-4 rounded-2xl bg-[#FAF7F0] border border-black/10 space-y-2 shadow-2xs">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold uppercase tracking-wider text-slate-800 font-mono flex items-center gap-1.5">
+                    <Building2 className="w-3.5 h-3.5 text-[#3A3564]" />
+                    <span>Select Contracted Buyer &amp; Linked Article <span className="text-rose-500">*</span></span>
+                  </label>
+                  {isLoadingSpecs ? (
+                    <span className="text-[11px] font-mono text-slate-400 flex items-center gap-1">
+                      <Loader2 className="w-3 h-3 animate-spin text-[#3A3564]" /> Loading...
+                    </span>
+                  ) : (
+                    <span className="text-[11px] font-mono font-bold text-[#3A3564]">
+                      {linkedBuyers.length} Linked Buyer Contract{linkedBuyers.length === 1 ? '' : 's'}
+                    </span>
+                  )}
+                </div>
+
+                <div className="relative">
+                  <select
+                    value={selectedProductKey}
+                    onChange={e => handleSelectOption(e.target.value)}
+                    className="w-full px-3.5 py-2.5 bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs sm:text-sm font-bold text-slate-900 outline-none shadow-2xs transition-all appearance-none cursor-pointer"
+                  >
+                    <option value="">-- Choose Contracted Buyer / Article --</option>
+                    
+                    {/* 1. Contracted Buyers (Recommended) */}
+                    {linkedBuyers.length > 0 && (
+                      <optgroup label="Contracted Buyers (Specs Auto-Linked)">
+                        {linkedBuyers.map(b => (
+                          <option key={`buyer_${b.id}`} value={`buyer_${b.id}`}>
+                            {b.buyer_name} — Art #{b.linked_article_number} ({(Number(b.contracted_volume) || 0).toLocaleString('en-IN')} Pcs @ ₹{b.price_per_piece})
+                          </option>
+                        ))}
+                      </optgroup>
+                    )}
+
+                    {/* 2. Other Approved Tech Packs */}
+                    {techPacks.length > 0 && (
+                      <optgroup label="Other Approved Tech-Packs">
+                        {techPacks.map(tp => (
+                          <option key={`tp_${tp.id}`} value={`tp_${tp.id}`}>
+                            {tp.style_number} — {tp.category} ({tp.fabric_composition || '100% Cotton'}, {tp.target_gsm || 300} GSM)
+                          </option>
+                        ))}
+                      </optgroup>
+                    )}
+
+                    <option value="__CUSTOM__">
+                      + Custom Style Reference (Manual Entry)
+                    </option>
+                  </select>
+                  <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
+              </div>
+
               {/* Row 1: PO Number & Brand/Buyer */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
@@ -461,7 +606,7 @@ export function CreateOrderModal({
                       required
                       value={brandName}
                       onChange={e => setBrandName(e.target.value)}
-                      placeholder="e.g. ZARA INTERNATIONAL"
+                      placeholder="e.g. CANDY POP"
                       list="known-brands-list"
                       className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
                     />
@@ -471,73 +616,21 @@ export function CreateOrderModal({
                       ))}
                     </datalist>
                   </div>
-                  {brandList.length > 0 && (
-                    <div className="flex items-center gap-1.5 mt-1.5 overflow-x-auto pb-0.5">
-                      <span className="text-[10px] font-mono text-slate-400 shrink-0">Saved:</span>
-                      {brandList.slice(0, 4).map(b => (
-                        <button
-                          key={b}
-                          type="button"
-                          onClick={() => setBrandName(b)}
-                          className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-[#FAF7F0] text-[#3A3564] border border-black/10 hover:bg-[#3A3564] hover:text-white transition-colors shrink-0 cursor-pointer"
-                        >
-                          {b}
-                        </button>
-                      ))}
-                    </div>
-                  )}
                 </div>
               </div>
 
-              {/* Row 2: Approved Style Tech Pack Selection */}
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-xs font-bold uppercase tracking-wider text-slate-700 font-mono flex items-center gap-1.5">
-                    <Shirt className="w-3.5 h-3.5 text-[#3A3564]" />
-                    <span>Approved Style / Tech Pack <span className="text-rose-500">*</span></span>
-                  </label>
-                  {isLoadingSpecs ? (
-                    <span className="text-[11px] font-mono text-slate-400 flex items-center gap-1">
-                      <Loader2 className="w-3 h-3 animate-spin" /> Loading specs...
-                    </span>
-                  ) : (
-                    <span className="text-[11px] font-mono text-[#3A3564] font-semibold">
-                      {techPacks.length} Tech Pack{techPacks.length === 1 ? '' : 's'} Available
-                    </span>
-                  )}
-                </div>
-
-                <div className="relative">
-                  <select
-                    value={selectedTechPackId}
-                    onChange={e => handleTechPackSelect(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all appearance-none cursor-pointer"
-                  >
-                    {techPacks.map(tp => (
-                      <option key={tp.id} value={tp.id}>
-                        {tp.style_number} — {tp.category} ({tp.fabric_composition || '100% Cotton'}, {tp.target_gsm || 380} GSM) [{tp.status}]
-                      </option>
-                    ))}
-                    <option value="__CUSTOM__">
-                      + Custom Style Reference (Manual Entry)
-                    </option>
-                  </select>
-                  <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                </div>
-              </div>
-
-              {/* Row 3: Style Ref & Target Ex-Factory Date */}
+              {/* Row 2: Style Ref & Target Ex-Factory Date */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
-                    Style Code / Reference <span className="text-rose-500">*</span>
+                    Article / Style Reference <span className="text-rose-500">*</span>
                   </label>
                   <input
                     type="text"
                     required
                     value={styleRef}
                     onChange={e => setStyleRef(e.target.value.toUpperCase())}
-                    placeholder="e.g. TP-2026-8801"
+                    placeholder="e.g. DEMO-101-03"
                     className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-mono uppercase font-bold text-slate-900 outline-none shadow-2xs transition-all"
                   />
                 </div>
@@ -556,22 +649,45 @@ export function CreateOrderModal({
                 </div>
               </div>
 
-              {/* Row 4: Garment Silhouette & Description */}
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
-                  Garment Silhouette & Material Description <span className="text-rose-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={styleName}
-                  onChange={e => setStyleName(e.target.value)}
-                  placeholder="e.g. Heavyweight Relaxed French Terry Hoodie 380 GSM"
-                  className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
-                />
-              </div>
+              {/* Auto-Fetched Tech-Pack Blueprint & Embellishment Flow Card */}
+              {(embellishmentSeq !== 'NONE' || bomMaterials.length > 0 || fabricComposition) && (
+                <div className="p-3.5 rounded-2xl bg-white border border-black/10 space-y-2.5 shadow-2xs">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-[#3A3564]" />
+                      <span>Auto-Fetched Blueprint &amp; Embellishment Flow</span>
+                    </span>
+                    {bomMaterials.length > 0 && (
+                      <span className="text-[10px] font-mono font-bold bg-[#FAF7F0] text-[#3A3564] px-2 py-0.5 rounded border border-black/10">
+                        {bomMaterials.length} BOM Items
+                      </span>
+                    )}
+                  </div>
 
-              {/* Row 5: Currency, FOB Price, Total Quantity */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+                    <div className="p-2.5 bg-[#FAF7F0] rounded-xl border border-black/10">
+                      <span className="text-[10px] font-mono text-slate-500 uppercase block">Embellishment Routing</span>
+                      <span className="font-bold text-[#3A3564] block mt-0.5">
+                        {embellishmentSeq === 'NONE' ? 'No Embroidery, No Printing' :
+                         embellishmentSeq === 'ONLY_PRINTING' ? 'Only Printing' :
+                         embellishmentSeq === 'ONLY_EMBROIDERY' ? 'Only Embroidery' :
+                         embellishmentSeq === 'EMBROIDERY_FIRST_THEN_PRINT' ? 'Embroidery First, Then Printing' :
+                         embellishmentSeq === 'PRINT_FIRST_THEN_EMBROIDERY' ? 'Printing First, Then Embroidery' :
+                         embellishmentSeq}
+                      </span>
+                    </div>
+
+                    <div className="p-2.5 bg-[#FAF7F0] rounded-xl border border-black/10">
+                      <span className="text-[10px] font-mono text-slate-500 uppercase block">Fabric &amp; Weight</span>
+                      <span className="font-bold text-slate-900 block mt-0.5 truncate">
+                        {fabricComposition || 'Combed Cotton'} {targetGsm ? `• ${targetGsm} GSM` : ''}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Row 3: Currency, FOB Price, Total Quantity */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
@@ -630,7 +746,7 @@ export function CreateOrderModal({
 
             </div>
           ) : (
-            /* STEP 2: Color & Size Matrix Entry */
+            /* STEP 2: Color & Size Matrix Entry (Pre-Populated) */
             <div className="space-y-4">
               <div className="flex items-center justify-between p-3.5 rounded-xl bg-[#FAF7F0] border border-black/10 text-xs">
                 <div>
@@ -657,7 +773,7 @@ export function CreateOrderModal({
                   type="text"
                   value={newColorInput}
                   onChange={e => setNewColorInput(e.target.value)}
-                  placeholder="Add Colorway (e.g. Orange, Sage Olive)..."
+                  placeholder="Add Colorway (e.g. Navy Blue, Sage Olive)..."
                   className="flex-1 px-3.5 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs font-medium text-slate-900 outline-none shadow-2xs transition-all"
                   onKeyDown={e => {
                     if (e.key === 'Enter') {
@@ -682,7 +798,7 @@ export function CreateOrderModal({
                     title="Re-distribute total contract quantity equally across all colors"
                   >
                     <Scale className="w-3.5 h-3.5 text-[#3A3564]" />
-                    <span>Even Balance</span>
+                    <span>Auto-Balance</span>
                   </button>
                 )}
               </div>
@@ -701,46 +817,30 @@ export function CreateOrderModal({
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-black/5 text-xs">
-                    {colors.length === 0 ? (
-                      <tr>
-                        <td colSpan={DEFAULT_SIZES.length + 3} className="px-4 py-8 text-center bg-white">
-                          <div className="flex flex-col items-center justify-center space-y-2 text-slate-400">
-                            <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-[#3A3564]">
-                              <Palette className="w-5 h-5" />
-                            </div>
-                            <div className="text-center">
-                              <p className="text-xs font-bold text-slate-800">No Colorways Added Yet</p>
-                              <p className="text-[11px] text-slate-500 mt-1 max-w-sm">
-                                Enter your color name above (e.g. <span className="font-mono font-semibold text-slate-700">Orange</span>, <span className="font-mono font-semibold text-slate-700">Green</span>) and click <span className="font-bold text-[#3A3564]">+ Add Color</span> to automatically distribute the <span className="font-mono font-bold text-slate-800">{targetQty.toLocaleString()} pcs</span> order quantity.
-                              </p>
-                            </div>
-                          </div>
-                        </td>
-                      </tr>
-                    ) : (
-                      colors.map(color => {
-                        const row = matrixData[color] || {}
-                        const rowSum = DEFAULT_SIZES.reduce((acc, s) => acc + (row[s] || 0), 0)
-                        return (
-                          <tr key={color} className="hover:bg-slate-50/50">
-                            <td className="px-3.5 py-2 font-semibold text-slate-900 whitespace-nowrap">
-                              {color}
+                    {colors.map(color => {
+                      const row = matrixData[color] || {}
+                      const rowSum = DEFAULT_SIZES.reduce((acc, s) => acc + (row[s] || 0), 0)
+                      return (
+                        <tr key={color} className="hover:bg-slate-50/50">
+                          <td className="px-3.5 py-2 font-semibold text-slate-900 whitespace-nowrap">
+                            {color}
+                          </td>
+                          {DEFAULT_SIZES.map(size => (
+                            <td key={size} className="px-2 py-2 text-center">
+                              <input
+                                type="number"
+                                min="0"
+                                value={row[size] ?? 0}
+                                onChange={e => handleCellChange(color, size, e.target.value)}
+                                className="w-16 px-2 py-1.5 text-center font-mono rounded-lg border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 bg-white text-slate-900 font-semibold outline-none"
+                              />
                             </td>
-                            {DEFAULT_SIZES.map(size => (
-                              <td key={size} className="px-2 py-2 text-center">
-                                <input
-                                  type="number"
-                                  min="0"
-                                  value={row[size] ?? 0}
-                                  onChange={e => handleCellChange(color, size, e.target.value)}
-                                  className="w-16 px-2 py-1.5 text-center font-mono rounded-lg border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 bg-white text-slate-900 font-semibold outline-none"
-                                />
-                              </td>
-                            ))}
-                            <td className="px-3.5 py-2 text-right font-bold text-[#3A3564] font-mono">
-                              {rowSum.toLocaleString()}
-                            </td>
-                            <td className="px-2 py-2 text-center">
+                          ))}
+                          <td className="px-3.5 py-2 text-right font-bold text-[#3A3564] font-mono">
+                            {rowSum.toLocaleString()}
+                          </td>
+                          <td className="px-2 py-2 text-center">
+                            {colors.length > 1 && (
                               <button
                                 type="button"
                                 onClick={() => handleRemoveColor(color)}
@@ -749,11 +849,11 @@ export function CreateOrderModal({
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
                               </button>
-                            </td>
-                          </tr>
-                        )
-                      })
-                    )}
+                            )}
+                          </td>
+                        </tr>
+                      )
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -761,51 +861,58 @@ export function CreateOrderModal({
           )}
         </div>
 
-        {/* Modal Footer Actions */}
-        <div className="px-6 py-4 bg-[#FAF7F0] border-t border-black/10 flex items-center justify-between">
+        {/* Footer Navigation Buttons */}
+        <div className="px-6 py-4 bg-[#FAF7F0] border-t border-black/10 flex items-center justify-between shrink-0">
           {step === 2 ? (
             <button
               type="button"
               onClick={() => setStep(1)}
-              className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-black/10 hover:bg-slate-100 rounded-xl shadow-2xs cursor-pointer"
+              className="px-4 py-2.5 rounded-xl border border-black/10 text-xs font-semibold text-slate-700 hover:bg-white transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs"
             >
               <ArrowLeft className="w-4 h-4" />
-              <span>Back to Basics</span>
+              <span>Back to Commercial Specs</span>
             </button>
           ) : (
-            <div />
-          )}
-
-          <div className="flex items-center gap-2.5">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-black/10 hover:bg-slate-100 rounded-xl shadow-2xs cursor-pointer"
+              className="px-4 py-2.5 rounded-xl border border-black/10 text-xs font-semibold text-slate-600 hover:bg-white transition-colors cursor-pointer shadow-2xs"
             >
               Cancel
             </button>
-            {step === 1 ? (
-              <button
-                type="button"
-                onClick={handleNextToStep2}
-                className="inline-flex items-center gap-1.5 px-5 py-2 text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] rounded-xl shadow-xs cursor-pointer transition-all"
-              >
-                <span>Continue to Color Matrix</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={handleSubmit}
-                disabled={isSubmitting}
-                className="inline-flex items-center gap-1.5 px-5 py-2 text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] rounded-xl shadow-xs cursor-pointer transition-all disabled:opacity-50"
-              >
-                <CheckCircle2 className="w-4 h-4" />
-                <span>{isSubmitting ? 'Booking Order...' : 'Book Commercial Contract'}</span>
-              </button>
-            )}
-          </div>
+          )}
+
+          {step === 1 ? (
+            <button
+              type="button"
+              onClick={handleNextToStep2}
+              className="px-5 py-2.5 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer"
+            >
+              <span>Continue to Color Matrix</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={handleSubmit}
+              disabled={isSubmitting || currentMatrixSum !== targetQty}
+              className="px-5 py-2.5 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Confirming Order...</span>
+                </>
+              ) : (
+                <>
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>Confirm &amp; Book Buyer PO</span>
+                </>
+              )}
+            </button>
+          )}
         </div>
+
       </div>
     </div>
   )
