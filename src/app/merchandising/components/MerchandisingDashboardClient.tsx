@@ -205,7 +205,7 @@ export function MerchandisingDashboardClient({
               Merchandising &amp; Sourcing Desk
             </h1>
             <p className="text-sm sm:text-base text-slate-600 mt-1">
-              Real-time buyer PO contracts, BOM costing variance, critical path T&amp;A, and container logistics
+              Real-time buyer PO contracts and critical path T&amp;A tracking
             </p>
           </div>
         </div>
@@ -220,22 +220,6 @@ export function MerchandisingDashboardClient({
             <Plus className="w-4 h-4" />
             <span>Book New PO</span>
           </button>
-
-          <Link
-            href="/merchandising/sourcing"
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-black/15 rounded-xl text-xs sm:text-sm font-bold text-slate-700 hover:bg-slate-50 transition-all shadow-2xs"
-          >
-            <Layers className="w-4 h-4 text-[#3A3564]" />
-            <span>Sourcing PR</span>
-          </Link>
-
-          <Link
-            href="/merchandising/shipments"
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-black/15 rounded-xl text-xs sm:text-sm font-bold text-slate-700 hover:bg-slate-50 transition-all shadow-2xs"
-          >
-            <Ship className="w-4 h-4 text-[#3A3564]" />
-            <span>Container Manifest</span>
-          </Link>
         </div>
       </div>
 
@@ -411,7 +395,7 @@ export function MerchandisingDashboardClient({
       {/* ========================================================= */}
       {/* 3. COMMERCIAL LIFECYCLE KPI CARDS                          */}
       {/* ========================================================= */}
-      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3.5 sm:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
         
         {/* CARD 1: ACTIVE BUYER POS */}
         <Link 
@@ -448,77 +432,7 @@ export function MerchandisingDashboardClient({
           </div>
         </Link>
 
-        {/* CARD 2: BOM COST REALIZATION */}
-        <Link 
-          href="/merchandising/costing"
-          className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-[#3A3564]/40 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group relative shadow-2xs select-none hover:-translate-y-0.5"
-        >
-          <div>
-            <div className="flex items-center justify-between">
-              <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-[#3A3564] group-hover:text-white group-hover:border-[#3A3564] transition-colors">
-                <TrendingUp className="w-5 h-5" />
-              </div>
-              <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#3A3564] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
-            </div>
-
-            <div className="mt-3.5">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
-                BOM Cost Target
-              </span>
-              <p className="text-[11px] text-slate-400 font-medium truncate mt-0.5">
-                Cost variance target
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-4 pt-3 border-t border-slate-100/80">
-            <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none">
-              {hasCostings ? `${meanTargetMargin}%` : '0.0%'}
-            </h3>
-            <div className="mt-2.5 flex items-center justify-between">
-              <span className={`text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] ${hasCostings ? 'text-emerald-800 border border-emerald-200' : 'text-slate-500 border border-black/10'} tracking-wider shadow-2xs`}>
-                {hasCostings ? `±${meanVariance}% Variance` : 'No Costing Sheets'}
-              </span>
-            </div>
-          </div>
-        </Link>
-
-        {/* CARD 3: TRIM IN-HOUSE SOURCING */}
-        <Link 
-          href="/merchandising/sourcing"
-          className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-[#3A3564]/40 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group relative shadow-2xs select-none hover:-translate-y-0.5"
-        >
-          <div>
-            <div className="flex items-center justify-between">
-              <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-[#3A3564] group-hover:text-white group-hover:border-[#3A3564] transition-colors">
-                <PackageCheck className="w-5 h-5" />
-              </div>
-              <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#3A3564] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
-            </div>
-
-            <div className="mt-3.5">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
-                Trim In-House
-              </span>
-              <p className="text-[11px] text-slate-400 font-medium truncate mt-0.5">
-                Central store sourcing
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-4 pt-3 border-t border-slate-100/80">
-            <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none">
-              {hasSourcing ? `${trimInHousePct}%` : '0%'}
-            </h3>
-            <div className="mt-2.5 flex items-center justify-between">
-              <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 tracking-wider shadow-2xs">
-                {hasSourcing ? (trimInHousePct === 100 ? 'Zero Line Stop' : `${inHousePrsCount}/${sourcingPrs.length} In-House`) : 'Pending Sourcing'}
-              </span>
-            </div>
-          </div>
-        </Link>
-
-        {/* CARD 4: TIME & ACTION (T&A) GATES */}
+        {/* CARD 2: TIME & ACTION (T&A) GATES */}
         <Link 
           href="/merchandising/tna-calendar"
           className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-[#3A3564]/40 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group relative shadow-2xs select-none hover:-translate-y-0.5"
@@ -548,76 +462,6 @@ export function MerchandisingDashboardClient({
             <div className="mt-2.5 flex items-center justify-between">
               <span className={`text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] ${clearedGates > 0 ? 'text-emerald-800 border border-emerald-200' : 'text-slate-600 border border-black/10'} tracking-wider shadow-2xs`}>
                 {totalGates > 0 ? `${clearedGates} of ${totalGates} Gates Cleared` : '0 Gates Tracked'}
-              </span>
-            </div>
-          </div>
-        </Link>
-
-        {/* CARD 5: EXPORT LOGISTICS & CONTAINERS */}
-        <Link 
-          href="/merchandising/shipments"
-          className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-[#3A3564]/40 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group relative shadow-2xs select-none hover:-translate-y-0.5"
-        >
-          <div>
-            <div className="flex items-center justify-between">
-              <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-[#3A3564] group-hover:text-white group-hover:border-[#3A3564] transition-colors">
-                <Ship className="w-5 h-5" />
-              </div>
-              <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#3A3564] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
-            </div>
-
-            <div className="mt-3.5">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
-                Export Container
-              </span>
-              <p className="text-[11px] text-slate-400 font-medium truncate mt-0.5">
-                FOB booked vessels
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-4 pt-3 border-t border-slate-100/80">
-            <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none">
-              {bookedContainers > 0 ? `${bookedContainers}.0` : '0.0'}
-            </h3>
-            <div className="mt-2.5 flex items-center justify-between">
-              <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 tracking-wider shadow-2xs">
-                {bookedContainers > 0 ? `${bookedContainers} Boxes Booked` : '0 Boxes Booked'}
-              </span>
-            </div>
-          </div>
-        </Link>
-
-        {/* CARD 6: ON-TIME DELIVERY (OTD) */}
-        <Link 
-          href="/merchandising/shipments"
-          className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-[#3A3564]/40 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group relative shadow-2xs select-none hover:-translate-y-0.5"
-        >
-          <div>
-            <div className="flex items-center justify-between">
-              <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-[#3A3564] group-hover:text-white group-hover:border-[#3A3564] transition-colors">
-                <Truck className="w-5 h-5" />
-              </div>
-              <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#3A3564] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
-            </div>
-
-            <div className="mt-3.5">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
-                On-Time Delivery
-              </span>
-              <p className="text-[11px] text-slate-400 font-medium truncate mt-0.5">
-                Ex-factory compliance
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-4 pt-3 border-t border-slate-100/80">
-            <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none">
-              {hasShipments ? '100.0%' : '0.0%'}
-            </h3>
-            <div className="mt-2.5 flex items-center justify-between">
-              <span className={`text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] ${hasShipments ? 'text-emerald-800 border border-emerald-200' : 'text-slate-500 border border-black/10'} tracking-wider shadow-2xs`}>
-                {hasShipments ? 'Port Cut-Off OK' : 'Pending Dispatch'}
               </span>
             </div>
           </div>
@@ -896,12 +740,6 @@ export function MerchandisingDashboardClient({
                         </td>
                         <td className="py-2.5 px-3 text-right">
                           <div className="flex items-center justify-end gap-1.5">
-                            <Link
-                              href="/merchandising/costing"
-                              className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#FAF7F0] hover:bg-[#F2ECE1] text-[#3A3564] border border-black/10 shadow-2xs"
-                            >
-                              BOM Cost
-                            </Link>
                             <Link
                               href="/merchandising/tna-calendar"
                               className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#3A3564] hover:bg-[#2A2649] text-white shadow-2xs"

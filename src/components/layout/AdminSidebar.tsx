@@ -267,10 +267,7 @@ export function AdminSidebar({
         items: [
           { label: 'Desk Dashboard', href: '/merchandising', icon: Briefcase },
           { label: 'Buyer Purchase Orders', href: '/merchandising/orders', icon: ClipboardList },
-          { label: 'BOM & Costing Ledgers', href: '/merchandising/costing', icon: Calculator },
           { label: 'Time & Action (T&A) Planner', href: '/merchandising/tna-calendar', icon: Calendar },
-          { label: 'Trim & Sourcing Requisitions', href: '/merchandising/sourcing', icon: ShoppingCart },
-          { label: 'Shipment & FOB Pipeline', href: '/merchandising/shipments', icon: Ship },
           { label: 'Zigza AI', href: '/merchandising/zigza-ai', icon: Bot },
         ],
       },
