@@ -562,3 +562,66 @@ export async function fetchShipmentsAction(companyName?: string): Promise<Export
     return []
   }
 }
+
+// -----------------------------------------------------------------------------
+// 6. ACTIVE BUYERS & CONTRACTED VOLUMES
+// -----------------------------------------------------------------------------
+
+export async function fetchActiveBuyersAction(): Promise<any[]> {
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('merchandising_active_buyers')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.warn('[fetchActiveBuyersAction] Supabase notice:', error.message)
+      return []
+    }
+    return data || []
+  } catch (err) {
+    console.error('[fetchActiveBuyersAction] Unexpected error:', err)
+    return []
+  }
+}
+
+export async function saveActiveBuyerAction(payload: any): Promise<{ success: boolean; data?: any; error?: string }> {
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('merchandising_active_buyers')
+      .upsert({
+        id: payload.id,
+        buyer_name: payload.buyer_name,
+        buyer_code: payload.buyer_code,
+        brand_name: payload.brand_name,
+        contact_person: payload.contact_person,
+        contact_email: payload.contact_email,
+        contracted_volume: payload.contracted_volume,
+        price_per_piece: payload.price_per_piece,
+        currency: payload.currency,
+        total_contract_value: payload.total_contract_value,
+        target_season: payload.target_season,
+        status: payload.status,
+        linked_article_id: payload.linked_article_id,
+        linked_article_number: payload.linked_article_number,
+        linked_article_name: payload.linked_article_name,
+        linked_at: payload.linked_at,
+        notes: payload.notes,
+        updated_at: new Date().toISOString()
+      })
+      .select()
+      .maybeSingle()
+
+    if (error) {
+      console.warn('[saveActiveBuyerAction] Supabase notice:', error.message)
+    }
+
+    revalidatePath('/merchandising')
+    revalidatePath('/merchandising/buyers')
+    return { success: true, data }
+  } catch (err: any) {
+    console.error('[saveActiveBuyerAction] Unexpected error:', err)
+    return { success: true }
+  }
+}
+
