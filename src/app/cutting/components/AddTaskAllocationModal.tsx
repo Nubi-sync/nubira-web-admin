@@ -292,18 +292,22 @@ export function AddTaskAllocationModal({
             )}
           </div>
 
-          {/* Article & Style Selection */}
+          {/* Article & Style Reference (Read-Only Auto-Assigned) */}
           <div>
-            <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-              Article Style Reference <span className="text-red-500">*</span>
-            </label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-xs font-mono font-bold uppercase tracking-wider text-slate-700">
+                Article Style Reference
+              </label>
+              <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+                Contract Locked
+              </span>
+            </div>
             <input
               type="text"
-              required
+              readOnly
+              tabIndex={-1}
               value={articleStyle}
-              onChange={e => setArticleStyle(e.target.value)}
-              placeholder="e.g. DEMO-101-03"
-              className="w-full px-3.5 py-2.5 rounded-xl border border-black/10 bg-slate-50 focus:bg-white text-sm font-mono font-bold text-slate-900 focus:outline-hidden focus:border-[#3A3564] transition-all"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-black/10 bg-[#FAF7F0] text-sm font-mono font-bold text-slate-900 cursor-not-allowed select-none focus:outline-hidden shadow-2xs"
             />
             {selectedBuyer && (
               <p className="text-[11px] text-slate-500 font-mono mt-1">

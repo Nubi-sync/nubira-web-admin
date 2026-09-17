@@ -362,13 +362,13 @@ export function CuttingDashboardClient({
 
   // Head of Dept "Verify & Done" Sign-Off Handler (Clears task from pending and moves pieces to completed)
   const handleVerifyAndDone = async (taskId: string, taskRef: string, pieces: number) => {
-    const updated = updateCuttingTaskStatus(taskId, 'VERIFIED_COMPLETED')
+    const updated = updateCuttingTaskStatus(taskId, 'VERIFIED_COMPLETED', { completed_pieces: pieces, completed_at: new Date().toISOString() })
     setAllocations(updated)
-    const taskObj = updated.find(t => t.id === taskId)
+    const taskObj = updated.find(t => t.id === taskId || t.task_ref === taskId)
     if (taskObj) {
       await saveCuttingTaskAllocationAction(taskObj)
     }
-    toast.success(`Task #${taskRef} verified! ${pieces.toLocaleString('en-IN')} pcs moved from Pending to Completed Cutting.`)
+    toast.success(`Task #${taskRef} verified! ${pieces.toLocaleString('en-IN')} pcs moved from Pending to Completed Cutting & Worker Workstation History.`)
   }
 
   // Delete Task Handler

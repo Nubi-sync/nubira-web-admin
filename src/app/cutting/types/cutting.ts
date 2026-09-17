@@ -239,6 +239,8 @@ export interface CuttingTaskAllocation {
   completed_pieces: number
   alloted_hours: number
   due_time: string
+  started_at?: string
+  completed_at?: string
   notes?: string
   status: CuttingAllocationStatus
   created_at: string

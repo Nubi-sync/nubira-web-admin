@@ -438,15 +438,26 @@ export function saveCuttingTaskAllocation(task: any): any[] {
   return updated
 }
 
-export function updateCuttingTaskStatus(id: string, status: any): any[] {
+export function updateCuttingTaskStatus(id: string, status: any, extraData?: any): any[] {
   const current = getCuttingTaskAllocations()
   const updated = current.map(t => {
-    if (t.id === id) {
+    if (t.id === id || t.task_ref === id) {
       const isCompleted = status === 'COMPLETED' || status === 'WORKER_COMPLETED' || status === 'VERIFIED_COMPLETED'
+      let dueTime = t.due_time
+      let startedAt = t.started_at
+      if (status === 'IN_PROGRESS' && !startedAt) {
+        startedAt = new Date().toISOString()
+        const hours = Number(t.alloted_hours) || 4.0
+        dueTime = new Date(Date.now() + hours * 3600 * 1000).toISOString()
+      }
       return {
         ...t,
         status,
-        completed_pieces: isCompleted ? t.pieces_to_cut : (status === 'IN_PROGRESS' ? Math.floor(t.pieces_to_cut * 0.5) : 0),
+        started_at: startedAt,
+        due_time: dueTime,
+        completed_pieces: isCompleted ? t.pieces_to_cut : (status === 'IN_PROGRESS' ? (t.completed_pieces || 0) : 0),
+        ...(status === 'VERIFIED_COMPLETED' ? { completed_at: new Date().toISOString() } : {}),
+        ...(extraData || {}),
         updated_at: new Date().toISOString()
       }
     }

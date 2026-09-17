@@ -45,6 +45,15 @@ export function WorkerDashboardClient({
 }: WorkerDashboardClientProps) {
   const [tasks, setTasks] = useState<CuttingTaskAllocation[]>([])
   const [isSyncing, setIsSyncing] = useState(false)
+  const [now, setNow] = useState<number>(Date.now())
+
+  // Real-time 1-second interval ticker for live cutting countdown timer
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setNow(Date.now())
+    }, 1000)
+    return () => clearInterval(timer)
+  }, [])
 
   // Merge server and local task allocations
   const reloadData = () => {
@@ -190,26 +199,65 @@ export function WorkerDashboardClient({
   const totalVerifiedPiecesCut = historyTasks.reduce((sum, t) => sum + (Number(t.completed_pieces || t.pieces_to_cut) || 0), 0)
   const activePiecesTarget = currentTasks.reduce((sum, t) => sum + (Number(t.pieces_to_cut) || 0), 0)
 
-  // Worker Action 1: Start Cutting
-  const handleStartCutting = async (taskId: string, taskRef: string, tableName?: string) => {
-    const updated = updateCuttingTaskStatus(taskId, 'IN_PROGRESS')
-    setTasks(updated)
-    const taskObj = updated.find(t => t.id === taskId)
-    if (taskObj) {
-      await saveCuttingTaskAllocationAction(taskObj)
+  // Real-time Countdown Calculator
+  const getRemainingTime = (dueIso?: string, allotedHours = 4, startedIso?: string) => {
+    if (!dueIso && !startedIso) {
+      const totalSecs = Math.round(allotedHours * 3600)
+      const h = Math.floor(totalSecs / 3600)
+      const m = Math.floor((totalSecs % 3600) / 60)
+      const s = totalSecs % 60
+      return {
+        formatted: `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`,
+        isExpired: false,
+        totalSecondsLeft: totalSecs
+      }
     }
-    toast.success(`Task #${taskRef} started! Table station ${tableName || 'Table 01'} is now active.`)
+
+    const dueTime = dueIso ? new Date(dueIso).getTime() : (new Date(startedIso!).getTime() + allotedHours * 3600 * 1000)
+    const diffMs = dueTime - now
+
+    if (diffMs <= 0) {
+      return {
+        formatted: '00:00:00',
+        isExpired: true,
+        totalSecondsLeft: 0
+      }
+    }
+
+    const diffSecs = Math.floor(diffMs / 1000)
+    const h = Math.floor(diffSecs / 3600)
+    const m = Math.floor((diffSecs % 3600) / 60)
+    const s = diffSecs % 60
+
+    return {
+      formatted: `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`,
+      isExpired: false,
+      totalSecondsLeft: diffSecs
+    }
   }
 
-  // Worker Action 2: Mark Complete (Submit for Head of Dept Verification)
-  const handleMarkComplete = async (taskId: string, taskRef: string, pieces: number) => {
-    const updated = updateCuttingTaskStatus(taskId, 'WORKER_COMPLETED')
+  // Worker Action 1: Start Cutting (Starts 4-Hour / Shift Countdown Timer)
+  const handleStartCutting = async (taskId: string, taskRef: string, tableName?: string, allotedHours = 4) => {
+    const startedAt = new Date().toISOString()
+    const dueTime = new Date(Date.now() + (allotedHours || 4) * 3600 * 1000).toISOString()
+    const updated = updateCuttingTaskStatus(taskId, 'IN_PROGRESS', { started_at: startedAt, due_time: dueTime })
     setTasks(updated)
     const taskObj = updated.find(t => t.id === taskId)
     if (taskObj) {
       await saveCuttingTaskAllocationAction(taskObj)
     }
-    toast.success(`Task #${taskRef} completed (${pieces.toLocaleString('en-IN')} pcs)! Submitted to Head of Dept for Verification & Sign-Off.`)
+    toast.success(`Task #${taskRef} started! ${allotedHours} hr cutting countdown timer is running on ${tableName || 'Table 01'}.`)
+  }
+
+  // Worker Action 2: Finish Work (Submits for Head of Dept Verification & Sign-Off)
+  const handleFinishWork = async (taskId: string, taskRef: string, pieces: number) => {
+    const updated = updateCuttingTaskStatus(taskId, 'WORKER_COMPLETED', { completed_pieces: pieces })
+    setTasks(updated)
+    const taskObj = updated.find(t => t.id === taskId)
+    if (taskObj) {
+      await saveCuttingTaskAllocationAction(taskObj)
+    }
+    toast.success(`Work finished for Task #${taskRef} (${pieces.toLocaleString('en-IN')} pcs)! Submitted to Head of Dept for Verification.`)
   }
 
   // Format Time
@@ -400,6 +448,7 @@ export function WorkerDashboardClient({
             const isAssigned = task.status === 'ASSIGNED'
             const isInProgress = task.status === 'IN_PROGRESS'
             const isWorkerCompleted = task.status === 'WORKER_COMPLETED'
+            const remaining = getRemainingTime(task.due_time, task.alloted_hours, task.started_at)
 
             return (
               <div
@@ -425,20 +474,21 @@ export function WorkerDashboardClient({
                   {/* Live Status Badge */}
                   <div>
                     {isAssigned && (
-                      <span className="px-3 py-1 rounded-xl bg-amber-50 text-amber-800 border border-amber-200 text-xs font-mono font-bold">
+                      <span className="px-3 py-1 rounded-xl bg-amber-50 text-amber-900 border border-amber-200 text-xs font-mono font-bold flex items-center gap-1.5 shadow-2xs">
+                        <span className="w-2 h-2 rounded-full bg-amber-500" />
                         Assigned • Ready on Floor
                       </span>
                     )}
                     {isInProgress && (
-                      <span className="px-3 py-1 rounded-xl bg-indigo-50 text-[#3A3564] border border-indigo-200 text-xs font-mono font-bold flex items-center gap-1.5">
-                        <span className="w-2 h-2 rounded-full bg-indigo-600 animate-pulse" />
-                        Cutting Live ({task.table_number || 'Table 01'})
+                      <span className="px-3 py-1 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 text-xs font-mono font-bold flex items-center gap-2 shadow-2xs">
+                        <span className="w-2 h-2 rounded-full bg-[#3A3564] animate-ping" />
+                        <span>Cutting Live ({task.table_number || 'Table 01'}) • {remaining.formatted}</span>
                       </span>
                     )}
                     {isWorkerCompleted && (
                       <span className="px-3 py-1 rounded-xl bg-amber-100 text-amber-900 border border-amber-300 text-xs font-mono font-bold flex items-center gap-1.5 shadow-2xs">
                         <Clock className="w-3.5 h-3.5 text-amber-700" />
-                        Completed • In Head Review
+                        Pending Dept Head Verification
                       </span>
                     )}
                   </div>
@@ -468,19 +518,48 @@ export function WorkerDashboardClient({
                     <span className="text-[11px] text-slate-500 font-mono">Cutter Bed Station</span>
                   </div>
 
-                  {/* 3. Alloted Hours & Deadline */}
-                  <div className="p-4 rounded-2xl bg-[#FAF7F0]/50 border border-black/5 flex flex-col justify-between">
-                    <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
-                      <Clock className="w-3 h-3 text-[#3A3564]" />
-                      <span>Target Time</span>
-                    </span>
-                    <div className="text-xl font-black font-mono text-slate-900 mt-1">
-                      {task.alloted_hours} Hours
+                  {/* 3. Alloted Hours & Live Countdown Timer */}
+                  {isInProgress ? (
+                    <div className="p-4 rounded-2xl bg-[#FAF7F0]/80 border border-black/10 flex flex-col justify-between shadow-2xs">
+                      <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                        <Clock className="w-3 h-3 text-[#3A3564] animate-spin" />
+                        <span>Timer Remaining</span>
+                      </span>
+                      <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 mt-1 flex items-baseline gap-1.5">
+                        <span>{remaining.formatted}</span>
+                        <span className="text-xs font-normal text-slate-500 font-sans">Left</span>
+                      </div>
+                      <span className="text-[11px] text-slate-900 font-mono font-bold">
+                        Target: {task.alloted_hours} Hrs • Due: {formatDeadline(task.due_time, task.alloted_hours)}
+                      </span>
                     </div>
-                    <span className="text-[11px] text-slate-900 font-mono font-bold">
-                      Due: {formatDeadline(task.due_time, task.alloted_hours)}
-                    </span>
-                  </div>
+                  ) : isWorkerCompleted ? (
+                    <div className="p-4 rounded-2xl bg-[#FAF7F0]/50 border border-black/5 flex flex-col justify-between">
+                      <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
+                        <Clock className="w-3 h-3 text-[#3A3564]" />
+                        <span>Shift Status</span>
+                      </span>
+                      <div className="text-xl sm:text-2xl font-black font-mono text-slate-900 mt-1">
+                        {task.alloted_hours} Hours
+                      </div>
+                      <span className="text-[11px] text-amber-800 font-mono font-bold">
+                        Work Finished • Pending Sign-Off
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="p-4 rounded-2xl bg-[#FAF7F0]/50 border border-black/5 flex flex-col justify-between">
+                      <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
+                        <Clock className="w-3 h-3 text-[#3A3564]" />
+                        <span>Target Time</span>
+                      </span>
+                      <div className="text-xl sm:text-2xl font-black font-mono text-slate-900 mt-1">
+                        {task.alloted_hours} Hours
+                      </div>
+                      <span className="text-[11px] text-slate-900 font-mono font-bold">
+                        Due: {formatDeadline(task.due_time, task.alloted_hours)}
+                      </span>
+                    </div>
+                  )}
 
                 </div>
 
@@ -497,7 +576,7 @@ export function WorkerDashboardClient({
                   {isAssigned && (
                     <button
                       type="button"
-                      onClick={() => handleStartCutting(task.id, task.task_ref, task.table_number)}
+                      onClick={() => handleStartCutting(task.id, task.task_ref, task.table_number, task.alloted_hours)}
                       className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer flex items-center justify-center gap-2"
                     >
                       <Play className="w-4 h-4 fill-current" />
@@ -508,16 +587,16 @@ export function WorkerDashboardClient({
                   {isInProgress && (
                     <button
                       type="button"
-                      onClick={() => handleMarkComplete(task.id, task.task_ref, task.pieces_to_cut)}
+                      onClick={() => handleFinishWork(task.id, task.task_ref, task.pieces_to_cut)}
                       className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer flex items-center justify-center gap-2"
                     >
                       <CheckCircle2 className="w-4 h-4 text-white" />
-                      <span>✓ Mark as Complete ({task.pieces_to_cut.toLocaleString('en-IN')} Pcs Cut)</span>
+                      <span>✓ Finish Work ({task.pieces_to_cut.toLocaleString('en-IN')} Pcs Cut)</span>
                     </button>
                   )}
 
                   {isWorkerCompleted && (
-                    <div className="text-xs font-mono font-bold text-amber-800 flex items-center gap-2 bg-amber-50 px-4 py-2.5 rounded-xl border border-amber-200">
+                    <div className="text-xs font-mono font-bold text-amber-900 flex items-center gap-2 bg-amber-50 px-4 py-2.5 rounded-xl border border-amber-200 shadow-2xs">
                       <Clock className="w-4 h-4 text-amber-700" />
                       <span>Submitted to Head of Dept • Awaiting Verification &amp; Sign-Off</span>
                     </div>
