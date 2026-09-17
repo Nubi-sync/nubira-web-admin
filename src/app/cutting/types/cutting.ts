@@ -203,14 +203,18 @@ export type CuttingWorkerRole =
 
 export interface CuttingWorker {
   id: string
+  worker_user_id?: string
   worker_name: string
   phone_number: string
-  roles: CuttingWorkerRole[]
+  worker_email?: string
+  roles: CuttingWorkerRole[] | string[]
   role?: string
-  status: 'ACTIVE' | 'INACTIVE' | 'ON_LEAVE'
+  status: 'ACTIVE' | 'INACTIVE' | 'ON_LEAVE' | string
   assigned_pieces?: number
   completed_pieces?: number
+  company_name?: string
   created_at: string
+  updated_at?: string
 }
 
 export type CuttingAllocationStatus = 

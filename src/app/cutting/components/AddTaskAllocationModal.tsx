@@ -169,9 +169,10 @@ export function AddTaskAllocationModal({
     try {
       const dueTimestamp = new Date(Date.now() + parsedHours * 3600 * 1000).toISOString()
       const taskRef = `CUT-${Date.now().toString().slice(-4)}`
+      const taskId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `task-${Date.now()}`
 
       const newTask: CuttingTaskAllocation = {
-        id: `task-${Date.now()}`,
+        id: taskId,
         task_ref: taskRef,
         buyer_id: selectedBuyer?.id,
         buyer_name: selectedBuyer?.buyer_name || 'Direct Buyer',
@@ -191,7 +192,12 @@ export function AddTaskAllocationModal({
       }
 
       saveCuttingTaskAllocation(newTask)
-      await saveCuttingTaskAllocationAction(newTask)
+      const serverRes = await saveCuttingTaskAllocationAction(newTask)
+      if (serverRes?.data?.id && serverRes.data.id !== newTask.id) {
+        newTask.id = serverRes.data.id
+        saveCuttingTaskAllocation(newTask)
+      }
+
       toast.success(`Task #${taskRef} allocated to ${selectedWorkerObj.worker_name} (${piecesCount.toLocaleString('en-IN')} Pcs)!`)
 
       if (onSuccess) onSuccess(newTask)

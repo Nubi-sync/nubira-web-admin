@@ -231,13 +231,16 @@ export async function login(formData: FormData) {
 
         const targetEmail = matchedWorker?.worker_email || matchedDesigner?.designer_email || cuttingEmail
         const role = matchedDesigner ? 'DESIGNER' : 'CUTTING_WORKER'
-        const fullName = matchedWorker?.worker_name || taskWorkerName || matchedDesigner?.designer_name || 'Cutting Operator'
 
         const { data: userList } = await adminClient.auth.admin.listUsers()
         const foundAuth = userList?.users?.find(
           u => u.email?.toLowerCase() === targetEmail.toLowerCase() ||
                u.user_metadata?.phone_number === phone10
         )
+
+        const existingName = foundAuth?.user_metadata?.full_name
+        const hasValidExistingName = existingName && existingName !== 'Floor Operator' && existingName !== 'Cutting Operator' && existingName !== 'Cutting Floor Operator'
+        const fullName = matchedWorker?.worker_name || taskWorkerName || (hasValidExistingName ? existingName : (matchedDesigner?.designer_name || 'Cutting Operator'))
 
         if (foundAuth) {
           await adminClient.auth.admin.updateUserById(foundAuth.id, {

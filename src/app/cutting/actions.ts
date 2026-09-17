@@ -433,52 +433,94 @@ export async function fetchCuttingTaskAllocationsAction(): Promise<any[]> {
   }
 }
 
+const isUUID = (val?: string | null) =>
+  Boolean(val && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val))
+
 export async function saveCuttingTaskAllocationAction(payload: any): Promise<{ success: boolean; data?: any; error?: string }> {
   try {
+    // 1. Resolve existing record ID if client provided non-UUID id (e.g. task-1726...)
+    let existingId: string | undefined
+    if (isUUID(payload.id)) {
+      existingId = payload.id
+    } else if (payload.task_ref) {
+      try {
+        const { data: existing } = await supabaseAdmin
+          .from('cutting_task_allocations')
+          .select('id')
+          .eq('task_ref', payload.task_ref)
+          .limit(1)
+          .maybeSingle()
+        if (existing?.id) existingId = existing.id
+      } catch (_) {}
+    }
+
+    // 2. Resolve worker_id to a valid UUID if provided string like cw-1234
+    let validWorkerId: string | null = isUUID(payload.worker_id) ? payload.worker_id : null
+    if (!validWorkerId && (payload.worker_phone || payload.worker_name)) {
+      try {
+        const phone10 = (payload.worker_phone || '').replace(/\D/g, '').slice(-10)
+        let query = supabaseAdmin.from('cutting_workers').select('id')
+        if (phone10) {
+          query = query.or(`phone_number.eq.${phone10},phone_number.ilike.%${phone10}%`)
+        } else if (payload.worker_name) {
+          query = query.ilike('worker_name', payload.worker_name.trim())
+        }
+        const { data: worker } = await query.limit(1).maybeSingle()
+        if (worker?.id && isUUID(worker.id)) validWorkerId = worker.id
+      } catch (_) {}
+    }
+
+    const cleanPayload: any = {
+      ...(existingId ? { id: existingId } : {}),
+      task_ref: payload.task_ref,
+      buyer_id: isUUID(payload.buyer_id) ? payload.buyer_id : null,
+      buyer_name: payload.buyer_name || 'Direct Buyer',
+      article_number: payload.article_number,
+      article_name: payload.article_name || null,
+      worker_id: validWorkerId,
+      worker_name: payload.worker_name,
+      worker_phone: payload.worker_phone || null,
+      table_number: payload.table_number || 'Table 01',
+      pieces_to_cut: Number(payload.pieces_to_cut) || 0,
+      completed_pieces: Number(payload.completed_pieces) || 0,
+      alloted_hours: Number(payload.alloted_hours) || 4.0,
+      due_time: payload.due_time || null,
+      notes: payload.notes || null,
+      status: payload.status || 'ASSIGNED',
+      updated_at: new Date().toISOString()
+    }
+
     const { data, error } = await supabaseAdmin
       .from('cutting_task_allocations')
-      .upsert({
-        id: payload.id,
-        task_ref: payload.task_ref,
-        buyer_id: payload.buyer_id,
-        buyer_name: payload.buyer_name,
-        article_number: payload.article_number,
-        article_name: payload.article_name,
-        worker_id: payload.worker_id,
-        worker_name: payload.worker_name,
-        worker_phone: payload.worker_phone,
-        table_number: payload.table_number,
-        pieces_to_cut: payload.pieces_to_cut,
-        completed_pieces: payload.completed_pieces || 0,
-        alloted_hours: payload.alloted_hours,
-        due_time: payload.due_time,
-        notes: payload.notes,
-        status: payload.status || 'ASSIGNED',
-        updated_at: new Date().toISOString()
-      })
+      .upsert(cleanPayload)
       .select()
       .maybeSingle()
 
     if (error) {
       console.warn('[saveCuttingTaskAllocationAction] Supabase notice:', error.message)
-      return { success: true, data: payload }
+      return { success: false, error: error.message, data: payload }
     }
 
     revalidatePath('/cutting')
     revalidatePath('/cutting/worker')
+    revalidatePath('/cutting/worker/history')
     return { success: true, data }
   } catch (err: any) {
     console.error('[saveCuttingTaskAllocationAction] Error:', err)
-    return { success: true, data: payload }
+    return { success: false, error: err.message, data: payload }
   }
 }
 
 export async function deleteCuttingTaskAllocationAction(taskId: string): Promise<{ success: boolean; error?: string }> {
   try {
-    const { error } = await supabaseAdmin
-      .from('cutting_task_allocations')
-      .delete()
-      .eq('id', taskId)
+    let query = supabaseAdmin.from('cutting_task_allocations').delete()
+    if (isUUID(taskId)) {
+      query = query.eq('id', taskId)
+    } else {
+      query = query.eq('task_ref', taskId)
+    }
+
+    const { error } = await query
 
     if (error) {
       console.warn('[deleteCuttingTaskAllocationAction] Supabase notice:', error.message)
@@ -486,6 +528,7 @@ export async function deleteCuttingTaskAllocationAction(taskId: string): Promise
 
     revalidatePath('/cutting')
     revalidatePath('/cutting/worker')
+    revalidatePath('/cutting/worker/history')
     return { success: true }
   } catch (err: any) {
     console.error('[deleteCuttingTaskAllocationAction] Error:', err)
@@ -573,6 +616,7 @@ export async function registerCuttingWorkerAction(payload: {
 
     revalidatePath('/cutting')
     revalidatePath('/cutting/worker')
+    revalidatePath('/cutting/worker/history')
 
     return {
       success: true,

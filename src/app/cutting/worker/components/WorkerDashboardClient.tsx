@@ -18,6 +18,7 @@ import { toast } from 'sonner'
 import { CuttingTaskAllocation, CuttingWorker } from '../../types/cutting'
 import {
   getCuttingTaskAllocations,
+  getCuttingWorkers,
   updateCuttingTaskStatus,
   CUTTING_UPDATE_EVENT
 } from '../../utils/cuttingStorage'
@@ -99,13 +100,14 @@ export function WorkerDashboardClient({
     }
   }
 
-  // Normalized phone and username for strict user filtering
+  // Normalized phone
   const normPhone = (userPhone || '').replace(/\D/g, '').slice(-10)
-  const normName = (userName || '').trim().toLowerCase()
 
-  // Auto-resolve real name if generic
+  // 1. Auto-resolve real name if generic
   let displayWorkerName = userName || 'Cutting Operator'
-  if (!userName || userName === 'Floor Operator' || userName === 'Cutting Operator' || userName === 'Cutting Floor Operator') {
+  const isGeneric = (n?: string) => !n || ['floor operator', 'cutting operator', 'cutting floor operator'].includes(n.trim().toLowerCase())
+
+  if (isGeneric(userName)) {
     const foundFromTask = tasks.find(t => {
       if (normPhone && t.worker_phone) {
         const tp = t.worker_phone.replace(/\D/g, '').slice(-10)
@@ -114,19 +116,41 @@ export function WorkerDashboardClient({
       if (userId && t.worker_id === userId) return true
       return false
     })
+
     if (foundFromTask?.worker_name) {
       displayWorkerName = foundFromTask.worker_name
-    } else if (initialWorkers.length > 0) {
-      const foundWorker = initialWorkers.find(w => {
+    } else {
+      let foundWorker = initialWorkers.find(w => {
         if (normPhone && w.phone_number) {
           const wp = w.phone_number.replace(/\D/g, '').slice(-10)
           if (wp === normPhone) return true
         }
+        if (userId && (w.worker_user_id === userId || w.id === userId)) return true
         return false
       })
-      if (foundWorker?.worker_name) displayWorkerName = foundWorker.worker_name
+
+      if (!foundWorker) {
+        try {
+          const localWorkers = getCuttingWorkers()
+          foundWorker = localWorkers.find(w => {
+            if (normPhone && w.phone_number) {
+              const wp = w.phone_number.replace(/\D/g, '').slice(-10)
+              if (wp === normPhone) return true
+            }
+            if (userId && (w.worker_user_id === userId || w.id === userId)) return true
+            return false
+          })
+        } catch (_) {}
+      }
+
+      if (foundWorker?.worker_name) {
+        displayWorkerName = foundWorker.worker_name
+      }
     }
   }
+
+  // Normalized resolved real name for strict matching
+  const resolvedNormName = !isGeneric(displayWorkerName) ? displayWorkerName.trim().toLowerCase() : ''
 
   // Filter tasks strictly belonging to THIS logged in operator
   const myTasks = tasks.filter(t => {
@@ -135,9 +159,12 @@ export function WorkerDashboardClient({
       const taskPhone = t.worker_phone.replace(/\D/g, '').slice(-10)
       if (taskPhone === normPhone) return true
     }
-    // 2. Worker name match
-    if (normName && t.worker_name) {
-      if (t.worker_name.trim().toLowerCase() === normName) return true
+    // 2. Worker name match (using real resolved operator name)
+    if (resolvedNormName && t.worker_name) {
+      const taskName = t.worker_name.trim().toLowerCase()
+      if (taskName === resolvedNormName || taskName.includes(resolvedNormName) || resolvedNormName.includes(taskName)) {
+        return true
+      }
     }
     // 3. Worker id match
     if (userId && t.worker_id === userId) return true
@@ -145,10 +172,10 @@ export function WorkerDashboardClient({
     return false
   })
 
-  // Fallback: If no strict filter matched because it's local dev preview, show all tasks for this worker
+  // Fallback: If no strict filter matched because it's local preview, show tasks matching resolved name or all tasks
   const effectiveTasks = myTasks.length > 0 ? myTasks : tasks.filter(t => {
-    if (!normName) return true
-    return t.worker_name?.toLowerCase().includes(normName)
+    if (!resolvedNormName) return true
+    return t.worker_name?.toLowerCase().includes(resolvedNormName)
   })
 
   // Active current assignments: ASSIGNED, IN_PROGRESS, WORKER_COMPLETED
