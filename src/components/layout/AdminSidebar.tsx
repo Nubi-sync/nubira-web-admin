@@ -390,11 +390,6 @@ export function AdminSidebar({
         section: '4. Printing Division',
         items: [
           { label: 'Floor Dashboard', href: '/printing', icon: Printer },
-          { label: 'Screen & Stencil Library', href: '/printing/screens', icon: Layers },
-          { label: 'Table Batch Queue & DTG', href: '/printing/table-runs', icon: Cpu },
-          { label: 'Strike-Off Lab Approvals', href: '/printing/strike-offs', icon: FileCheck2 },
-          { label: 'Ink Kitchen & Recipes', href: '/printing/ink-kitchen', icon: Palette },
-          { label: 'Curing Oven & Fastness QC', href: '/printing/curing-qc', icon: Flame },
           { label: 'Zigza AI', href: '/printing/zigza-ai', icon: Bot },
         ],
       },
@@ -417,11 +412,6 @@ export function AdminSidebar({
         section: '5. Embroidery Division',
         items: [
           { label: 'Floor Dashboard', href: '/embroidery', icon: Sparkles },
-          { label: 'DST Punch File Library', href: '/embroidery/punch-library', icon: FileCode },
-          { label: 'Machine Runs & Hooping', href: '/embroidery/machine-runs', icon: Cpu },
-          { label: 'Stitch Count & Billing', href: '/embroidery/stitch-billing', icon: Calculator },
-          { label: 'Thread Store & Cones Log', href: '/embroidery/thread-store', icon: Boxes },
-          { label: 'Quality & Thread Break QC', href: '/embroidery/embroidery-qc', icon: CheckCircle2 },
           { label: 'Zigza AI', href: '/embroidery/zigza-ai', icon: Bot },
         ],
       },
@@ -806,11 +796,16 @@ export function AdminSidebar({
   }
 
   let divisionProfileHref = '/stitching-sewing/profile'
-  if (pathname?.startsWith('/factory')) divisionProfileHref = '/factory/profile'
+  if (isCuttingWorker || pathname?.startsWith('/cutting/worker')) divisionProfileHref = '/cutting/worker/profile'
+  else if (isPrintingWorker || pathname?.startsWith('/printing/worker')) divisionProfileHref = '/printing/worker/profile'
+  else if (isEmbroideryWorker || pathname?.startsWith('/embroidery/worker')) divisionProfileHref = '/embroidery/worker/profile'
+  else if (isDesignerUser || pathname?.startsWith('/design/designer')) divisionProfileHref = '/design/profile'
+  else if (pathname?.startsWith('/factory')) divisionProfileHref = '/factory/profile'
   else if (pathname?.startsWith('/brands')) divisionProfileHref = '/brands/profile'
   else if (pathname?.startsWith('/washing')) divisionProfileHref = '/washing/profile'
   else if (pathname?.startsWith('/printing')) divisionProfileHref = '/printing/profile'
   else if (pathname?.startsWith('/embroidery')) divisionProfileHref = '/embroidery/profile'
+  else if (pathname?.startsWith('/cutting')) divisionProfileHref = '/cutting/profile'
   else if (pathname?.startsWith('/design')) divisionProfileHref = '/design/profile'
   else if (pathname?.startsWith('/merchandising')) divisionProfileHref = '/merchandising/profile'
   else if (pathname === '/modules' || pathname?.startsWith('/modules')) divisionProfileHref = '/modules/profile'
@@ -822,9 +817,13 @@ export function AdminSidebar({
         ? '/design/designer'
         : (isCuttingWorker
             ? '/cutting/worker'
-            : (isStoreUser 
-                ? '/stitching-sewing/store' 
-                : (activeNavSections[0]?.items[0]?.href || '/stitching-sewing/dashboard'))))
+            : (isPrintingWorker
+                ? '/printing/worker'
+                : (isEmbroideryWorker
+                    ? '/embroidery/worker'
+                    : (isStoreUser 
+                        ? '/stitching-sewing/store' 
+                        : (activeNavSections[0]?.items[0]?.href || '/stitching-sewing/dashboard'))))))
 
   return (
     <>
