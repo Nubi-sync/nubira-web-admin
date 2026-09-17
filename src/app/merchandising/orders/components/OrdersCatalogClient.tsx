@@ -20,6 +20,7 @@ import { MerchandisingOrder } from '../../types/merchandising'
 import { TechPack } from '@/app/design/types/design'
 import { getOrders, MERCHANDISING_UPDATE_EVENT } from '../../utils/merchandisingStorage'
 import { CreateOrderModal } from './CreateOrderModal'
+import { ViewOrderDetailModal } from './ViewOrderDetailModal'
 import { EmptyState } from '@/components/ui/EmptyState'
 
 interface OrdersCatalogClientProps {
@@ -40,7 +41,7 @@ export function OrdersCatalogClient({
   const [activeFilter, setActiveFilter] = useState<string>('ALL')
   const [searchQuery, setSearchQuery] = useState('')
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
-  const [selectedOrderForBreakdown, setSelectedOrderForBreakdown] = useState<MerchandisingOrder | null>(null)
+  const [selectedOrderForView, setSelectedOrderForView] = useState<MerchandisingOrder | null>(null)
 
   const reloadData = () => {
     setOrders(getOrders())
@@ -268,11 +269,11 @@ export function OrdersCatalogClient({
               <thead>
                 <tr className="border-b border-slate-100 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0]">
                   <th className="py-3 px-4">PO Number</th>
-                  <th className="py-3 px-4">Brand / Buyer</th>
-                  <th className="py-3 px-4">Style Description</th>
-                  <th className="py-3 px-4 text-right">Quantity</th>
-                  <th className="py-3 px-4 text-right">FOB Price</th>
-                  <th className="py-3 px-4 text-right">Total Value</th>
+                  <th className="py-3 px-4">Buyer</th>
+                  <th className="py-3 px-4">Article &amp; Style</th>
+                  <th className="py-3 px-4 text-right">Volume</th>
+                  <th className="py-3 px-4">FOB &amp; Value</th>
+                  <th className="py-3 px-4">Route</th>
                   <th className="py-3 px-4">Ex-Factory</th>
                   <th className="py-3 px-4 text-center">Status</th>
                   <th className="py-3 px-4 text-right">Actions</th>
@@ -288,19 +289,33 @@ export function OrdersCatalogClient({
                       {order.brand_name}
                     </td>
                     <td className="py-3 px-4">
-                      <span className="font-bold text-slate-900 block">{order.style_ref}</span>
-                      <span className="text-[11px] text-slate-400 block truncate max-w-[220px]">{order.style_name}</span>
+                      <span className="font-bold text-slate-900 font-mono block">{order.style_ref}</span>
+                      <span className="text-[11px] text-slate-400 block truncate max-w-[200px]">{order.style_name}</span>
                     </td>
                     <td className="py-3 px-4 text-right font-bold text-slate-900 font-mono">
-                      {order.total_quantity.toLocaleString()}
+                      {order.total_quantity.toLocaleString()} Pcs
                     </td>
-                    <td className="py-3 px-4 text-right font-mono text-slate-700">
-                      {order.currency === 'USD' ? '$' : order.currency === 'EUR' ? '€' : '₹'}
-                      {order.unit_fob_price.toFixed(2)}
+                    <td className="py-3 px-4 font-mono">
+                      <div className="font-bold text-slate-900">
+                        {order.currency === 'USD' ? '$' : order.currency === 'EUR' ? '€' : '₹'}
+                        {order.unit_fob_price.toFixed(2)}
+                      </div>
+                      <div className="text-[10px] text-slate-400">
+                        {order.currency === 'USD' ? '$' : order.currency === 'EUR' ? '€' : '₹'}
+                        {order.total_contract_value >= 100000 
+                          ? `${(order.total_contract_value / 100000).toFixed(1)}L` 
+                          : order.total_contract_value.toLocaleString('en-IN')}
+                      </div>
                     </td>
-                    <td className="py-3 px-4 text-right font-bold text-slate-900 font-mono">
-                      {order.currency === 'USD' ? '$' : order.currency === 'EUR' ? '€' : '₹'}
-                      {order.total_contract_value.toLocaleString('en-IN')}
+                    <td className="py-3 px-4 font-mono text-[10px]">
+                      <span className="px-2 py-0.5 rounded bg-[#FAF7F0] text-[#3A3564] border border-black/10 font-bold block max-w-[120px] truncate" title={order.embellishment_sequence || 'Standard Flow'}>
+                        {order.embellishment_sequence === 'NONE' ? 'Cut & Sew' :
+                         order.embellishment_sequence === 'ONLY_PRINTING' ? 'Printing' :
+                         order.embellishment_sequence === 'ONLY_EMBROIDERY' ? 'Embroidery' :
+                         order.embellishment_sequence === 'EMBROIDERY_FIRST_THEN_PRINT' ? 'Emb → Print' :
+                         order.embellishment_sequence === 'PRINT_FIRST_THEN_EMBROIDERY' ? 'Print → Emb' :
+                         order.embellishment_sequence || 'Standard'}
+                      </span>
                     </td>
                     <td className="py-3 px-4 text-slate-700 font-mono font-medium">
                       {order.ex_factory_date}
@@ -321,11 +336,11 @@ export function OrdersCatalogClient({
                     <td className="py-3 px-4 text-right">
                       <button
                         type="button"
-                        onClick={() => setSelectedOrderForBreakdown(order)}
-                        className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-bold text-[#3A3564] bg-[#FAF7F0] hover:bg-[#F2ECE1] border border-black/10 rounded-lg transition-colors shadow-2xs cursor-pointer"
+                        onClick={() => setSelectedOrderForView(order)}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-[#3A3564] bg-[#FAF7F0] hover:bg-[#F2ECE1] border border-black/10 rounded-xl transition-colors shadow-2xs cursor-pointer"
                       >
                         <Eye className="w-3.5 h-3.5" />
-                        Color Ratio
+                        View More
                       </button>
                     </td>
                   </tr>
@@ -336,64 +351,12 @@ export function OrdersCatalogClient({
         )}
       </div>
 
-      {/* Color & Size Ratio Modal Drawer */}
-      {selectedOrderForBreakdown && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-black/10 overflow-hidden">
-            <div className="px-6 py-5 bg-[#FAF7F0] border-b border-black/10 flex items-center justify-between">
-              <div>
-                <span className="text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-white text-[#3A3564] border border-black/10 shadow-2xs">
-                  Size Ratio Breakdown
-                </span>
-                <h3 className="text-base font-bold text-slate-900 mt-1 font-[family-name:var(--font-heading)]">
-                  {selectedOrderForBreakdown.po_number} • {selectedOrderForBreakdown.style_ref}
-                </h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => setSelectedOrderForBreakdown(null)}
-                className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-black/5 cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto text-xs">
-              <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 border border-slate-100 text-slate-700 font-medium">
-                <span>Buyer: <strong className="text-indigo-600 font-bold">{selectedOrderForBreakdown.brand_name}</strong></span>
-                <span>Total Order: <strong className="text-[#3A3564] font-mono font-bold">{selectedOrderForBreakdown.total_quantity.toLocaleString()} pcs</strong></span>
-              </div>
-
-              {selectedOrderForBreakdown.color_matrix?.map((item, idx) => (
-                <div key={idx} className="p-4 rounded-xl border border-black/10 bg-white space-y-2">
-                  <div className="flex items-center justify-between font-bold text-slate-900">
-                    <span>Colorway: {item.color}</span>
-                    <span className="text-[#3A3564] font-mono">{item.total.toLocaleString()} pcs</span>
-                  </div>
-                  <div className="grid grid-cols-5 gap-2 pt-2 border-t border-slate-100">
-                    {Object.entries(item.sizes).map(([size, qty]) => (
-                      <div key={size} className="text-center p-2 rounded-lg bg-[#FAF7F0] border border-black/5">
-                        <div className="text-[10px] text-slate-500 uppercase font-mono font-bold">{size}</div>
-                        <div className="text-xs font-bold text-slate-900 font-mono mt-0.5">{qty.toLocaleString()}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="px-6 py-4 bg-[#FAF7F0] border-t border-black/10 flex justify-end">
-              <button
-                type="button"
-                onClick={() => setSelectedOrderForBreakdown(null)}
-                className="px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-black/10 hover:bg-slate-100 rounded-xl shadow-2xs cursor-pointer"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* View Full Order Details & Matrix Specification Modal */}
+      <ViewOrderDetailModal
+        isOpen={Boolean(selectedOrderForView)}
+        onClose={() => setSelectedOrderForView(null)}
+        order={selectedOrderForView}
+      />
 
       {/* Modal: Form 1 Master Buyer PO */}
       <CreateOrderModal

@@ -54,6 +54,7 @@ import {
   MERCHANDISING_UPDATE_EVENT 
 } from '../utils/merchandisingStorage'
 import { CreateOrderModal } from '../orders/components/CreateOrderModal'
+import { ViewOrderDetailModal } from '../orders/components/ViewOrderDetailModal'
 import { EmptyState } from '@/components/ui/EmptyState'
 
 interface ActivityItem {
@@ -210,6 +211,7 @@ export function MerchandisingDashboardClient({
   const [isSyncing, setIsSyncing] = useState(false)
   const [statusFilter, setStatusFilter] = useState<string>('ALL')
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const [selectedOrderForView, setSelectedOrderForView] = useState<MerchandisingOrder | null>(null)
 
   const reloadData = () => {
     const localOrders = getOrders()
@@ -834,11 +836,11 @@ export function MerchandisingDashboardClient({
                   <thead>
                     <tr className="border-b border-slate-100 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0]">
                       <th className="py-2.5 px-3">PO Number</th>
-                      <th className="py-2.5 px-3">Brand / Buyer</th>
-                      <th className="py-2.5 px-3">Style Description</th>
-                      <th className="py-2.5 px-3 text-right">Total Pcs</th>
-                      <th className="py-2.5 px-3">Unit FOB</th>
-                      <th className="py-2.5 px-3">Order Value</th>
+                      <th className="py-2.5 px-3">Buyer</th>
+                      <th className="py-2.5 px-3">Article &amp; Garment</th>
+                      <th className="py-2.5 px-3 text-right">Volume</th>
+                      <th className="py-2.5 px-3">FOB &amp; Value</th>
+                      <th className="py-2.5 px-3">Route</th>
                       <th className="py-2.5 px-3 text-center">Status</th>
                       <th className="py-2.5 px-3 text-right">Actions</th>
                     </tr>
@@ -853,23 +855,37 @@ export function MerchandisingDashboardClient({
                           {ord.brand_name}
                         </td>
                         <td className="py-2.5 px-3">
-                          <span className="font-bold text-slate-800 block">
+                          <span className="font-bold text-slate-800 font-mono block">
                             {ord.style_ref}
                           </span>
-                          <span className="block text-[10.5px] font-normal text-slate-400 truncate max-w-[200px]">
+                          <span className="block text-[10.5px] font-normal text-slate-400 truncate max-w-[180px]">
                             {ord.style_name}
                           </span>
                         </td>
                         <td className="py-2.5 px-3 text-right font-bold text-slate-900 font-mono" suppressHydrationWarning>
-                          {ord.total_quantity.toLocaleString('en-IN')}
+                          {ord.total_quantity.toLocaleString('en-IN')} Pcs
                         </td>
-                        <td className="py-2.5 px-3 font-mono text-slate-700">
-                          {ord.currency === 'INR' ? '₹' : ord.currency === 'USD' ? '$' : '€'}
-                          {ord.unit_fob_price.toFixed(2)}
+                        <td className="py-2.5 px-3 font-mono">
+                          <div className="font-bold text-slate-900">
+                            {ord.currency === 'INR' ? '₹' : ord.currency === 'USD' ? '$' : '€'}
+                            {ord.unit_fob_price.toFixed(2)}
+                          </div>
+                          <div className="text-[10px] text-slate-400">
+                            {ord.currency === 'INR' ? '₹' : ord.currency === 'USD' ? '$' : '€'}
+                            {ord.total_contract_value >= 100000 
+                              ? `${(ord.total_contract_value / 100000).toFixed(1)}L` 
+                              : ord.total_contract_value.toLocaleString('en-IN')}
+                          </div>
                         </td>
-                        <td className="py-2.5 px-3 font-mono font-bold text-slate-900" suppressHydrationWarning>
-                          {ord.currency === 'INR' ? '₹' : ord.currency === 'USD' ? '$' : '€'}
-                          {ord.total_contract_value.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                        <td className="py-2.5 px-3 font-mono text-[10px]">
+                          <span className="px-1.5 py-0.5 rounded bg-[#FAF7F0] text-[#3A3564] border border-black/10 font-bold block max-w-[110px] truncate" title={ord.embellishment_sequence || 'Standard Flow'}>
+                            {ord.embellishment_sequence === 'NONE' ? 'Cut & Sew' :
+                             ord.embellishment_sequence === 'ONLY_PRINTING' ? 'Printing' :
+                             ord.embellishment_sequence === 'ONLY_EMBROIDERY' ? 'Embroidery' :
+                             ord.embellishment_sequence === 'EMBROIDERY_FIRST_THEN_PRINT' ? 'Emb → Print' :
+                             ord.embellishment_sequence === 'PRINT_FIRST_THEN_EMBROIDERY' ? 'Print → Emb' :
+                             ord.embellishment_sequence || 'Standard'}
+                          </span>
                         </td>
                         <td className="py-2.5 px-3 text-center">
                           <span
@@ -886,9 +902,16 @@ export function MerchandisingDashboardClient({
                         </td>
                         <td className="py-2.5 px-3 text-right">
                           <div className="flex items-center justify-end gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => setSelectedOrderForView(ord)}
+                              className="px-2 py-1 rounded text-[10.5px] font-bold bg-[#FAF7F0] hover:bg-[#F2ECE1] text-[#3A3564] border border-black/10 transition-colors cursor-pointer shadow-2xs"
+                            >
+                              View More
+                            </button>
                             <Link
                               href="/merchandising/tna-calendar"
-                              className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#3A3564] hover:bg-[#2A2649] text-white shadow-2xs"
+                              className="px-2 py-1 rounded text-[10.5px] font-bold bg-[#3A3564] hover:bg-[#2A2649] text-white shadow-2xs"
                             >
                               T&amp;A
                             </Link>
@@ -973,6 +996,13 @@ export function MerchandisingDashboardClient({
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         onSuccess={reloadData}
+      />
+
+      {/* Modal: View Full Order Details & BOM / Matrix */}
+      <ViewOrderDetailModal
+        isOpen={Boolean(selectedOrderForView)}
+        onClose={() => setSelectedOrderForView(null)}
+        order={selectedOrderForView}
       />
 
     </div>

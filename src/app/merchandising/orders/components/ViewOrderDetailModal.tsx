@@ -14,7 +14,8 @@ import {
   IndianRupee, 
   Palette,
   ArrowRight,
-  FileText
+  FileText,
+  Image as ImageIcon
 } from 'lucide-react'
 import { MerchandisingOrder } from '../../types/merchandising'
 
@@ -111,6 +112,39 @@ export function ViewOrderDetailModal({ isOpen, onClose, order }: ViewOrderDetail
             </div>
 
           </div>
+
+          {/* Attached Design Reference & CAD Visuals */}
+          {(order.cad_front_url || order.cad_back_url) && (
+            <div className="bg-white p-4.5 rounded-2xl border border-black/10 space-y-3 shadow-2xs">
+              <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
+                <ImageIcon className="w-4 h-4 text-[#3A3564]" />
+                <span>Attached Design Reference &amp; CAD Artwork</span>
+              </h3>
+
+              <div className="grid grid-cols-2 gap-3">
+                {order.cad_front_url && (
+                  <div className="p-3 bg-[#FAF7F0] rounded-xl border border-black/10 flex flex-col items-center">
+                    <img 
+                      src={order.cad_front_url} 
+                      alt="Front CAD" 
+                      className="h-28 w-auto max-w-full object-contain rounded-lg shadow-2xs bg-white p-1 border border-black/5" 
+                    />
+                    <span className="text-[10.5px] font-mono font-bold text-slate-700 mt-2 uppercase">Front View Design</span>
+                  </div>
+                )}
+                {order.cad_back_url && (
+                  <div className="p-3 bg-[#FAF7F0] rounded-xl border border-black/10 flex flex-col items-center">
+                    <img 
+                      src={order.cad_back_url} 
+                      alt="Back CAD" 
+                      className="h-28 w-auto max-w-full object-contain rounded-lg shadow-2xs bg-white p-1 border border-black/5" 
+                    />
+                    <span className="text-[10.5px] font-mono font-bold text-slate-700 mt-2 uppercase">Back View Design</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Garment Blueprint & Embellishment Routing */}
           <div className="bg-white p-4.5 rounded-2xl border border-black/10 space-y-3 shadow-2xs">

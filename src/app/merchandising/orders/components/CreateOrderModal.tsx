@@ -19,7 +19,9 @@ import {
   Palette,
   Scale,
   Package,
-  Scissors
+  Scissors,
+  Image as ImageIcon,
+  RefreshCw
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { MerchandisingOrder, ColorSizeMatrixItem, ActiveBuyer } from '../../types/merchandising'
@@ -39,6 +41,13 @@ interface CreateOrderModalProps {
 }
 
 const DEFAULT_SIZES = ['XS', 'S', 'M', 'L', 'XL']
+
+function generateAutoPoNumber(buyerCode?: string) {
+  const yr = new Date().getFullYear()
+  const rand = Math.floor(1000 + Math.random() * 9000)
+  const prefix = buyerCode ? buyerCode.toUpperCase().slice(0, 4) : 'PO'
+  return `${prefix}-${yr}-${rand}`
+}
 
 // Standard apparel distribution ratios (XS: 5%, S: 20%, M: 40%, L: 25%, XL: 10%)
 function distributeQuantity(amount: number, sizes: string[]): Record<string, number> {
@@ -90,7 +99,7 @@ export function CreateOrderModal({
   const [selectedProductKey, setSelectedProductKey] = useState<string>('')
 
   // Step 1 State
-  const [poNumber, setPoNumber] = useState('PO-2026-9901')
+  const [poNumber, setPoNumber] = useState(() => generateAutoPoNumber())
   const [brandName, setBrandName] = useState('')
   const [selectedTechPackId, setSelectedTechPackId] = useState<string>('')
   const [styleRef, setStyleRef] = useState('')
@@ -104,11 +113,13 @@ export function CreateOrderModal({
     return d.toISOString().split('T')[0]
   })
 
-  // Auto-fetched Tech-Pack details
+  // Auto-fetched Tech-Pack details & CAD Visuals
   const [embellishmentSeq, setEmbellishmentSeq] = useState<string>('NONE')
   const [bomMaterials, setBomMaterials] = useState<TechPackMaterialRequirement[]>([])
   const [fabricComposition, setFabricComposition] = useState<string>('')
   const [targetGsm, setTargetGsm] = useState<number>(300)
+  const [cadFrontUrl, setCadFrontUrl] = useState<string>('')
+  const [cadBackUrl, setCadBackUrl] = useState<string>('')
   const [selectedBuyerRef, setSelectedBuyerRef] = useState<ActiveBuyer | null>(null)
 
   // Step 2 State (Color & Size Matrix)
@@ -198,6 +209,8 @@ export function CreateOrderModal({
       setStyleName('')
       setEmbellishmentSeq('NONE')
       setBomMaterials([])
+      setCadFrontUrl('')
+      setCadBackUrl('')
       return
     }
 
@@ -216,6 +229,11 @@ export function CreateOrderModal({
       const price = Number(b.price_per_piece) || 1450.00
       setUnitFobPrice(price.toFixed(2))
 
+      // Generate buyer specific auto PO if standard
+      if (!poNumber || poNumber.startsWith('PO-')) {
+        setPoNumber(generateAutoPoNumber(b.buyer_code))
+      }
+
       // Match linked tech pack
       const artClean = (b.linked_article_number || '').trim().toUpperCase()
       const tp = tpsList.find(t => (t.style_number || '').trim().toUpperCase() === artClean)
@@ -227,11 +245,15 @@ export function CreateOrderModal({
         setBomMaterials(tp.materials || [])
         setFabricComposition(tp.fabric_composition || '100% Cotton')
         setTargetGsm(tp.target_gsm || 300)
+        setCadFrontUrl(tp.cad_front_url || '')
+        setCadBackUrl(tp.cad_back_url || '')
       } else {
         setSelectedTechPackId('')
         setStyleName(`${b.buyer_name} Contract ${b.linked_article_number || ''}`)
         setEmbellishmentSeq('NONE')
         setBomMaterials([])
+        setCadFrontUrl('')
+        setCadBackUrl('')
       }
 
       // Auto-distribute matrix to exact quantity
@@ -252,6 +274,8 @@ export function CreateOrderModal({
       setBomMaterials(tp.materials || [])
       setFabricComposition(tp.fabric_composition || '100% Cotton')
       setTargetGsm(tp.target_gsm || 300)
+      setCadFrontUrl(tp.cad_front_url || '')
+      setCadBackUrl(tp.cad_back_url || '')
 
       if (tp.brand_name && tp.brand_name.toUpperCase() !== 'INHOUSE' && !brandName) {
         setBrandName(tp.brand_name)
@@ -440,7 +464,9 @@ export function CreateOrderModal({
       fabric_composition: fabricComposition,
       target_gsm: targetGsm,
       buyer_code: selectedBuyerRef?.buyer_code,
-      buyer_id: selectedBuyerRef?.id
+      buyer_id: selectedBuyerRef?.id,
+      cad_front_url: cadFrontUrl || undefined,
+      cad_back_url: cadBackUrl || undefined
     }
 
     try {
@@ -583,41 +609,96 @@ export function CreateOrderModal({
               {/* Row 1: PO Number & Brand/Buyer */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
-                    Buyer PO Number <span className="text-rose-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={poNumber}
-                    onChange={e => setPoNumber(e.target.value.toUpperCase())}
-                    placeholder="e.g. PO-2026-9901"
-                    className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-mono uppercase font-bold text-[#3A3564] outline-none shadow-2xs transition-all"
-                  />
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="text-xs font-bold uppercase tracking-wider text-slate-700 font-mono">
+                      Buyer PO Number <span className="text-rose-500">*</span>
+                    </label>
+                    <span className="text-[10px] font-mono text-slate-400">Auto-Generated</span>
+                  </div>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      required
+                      readOnly
+                      value={poNumber}
+                      placeholder="e.g. PO-2026-9901"
+                      className="w-full pl-3.5 pr-10 py-2.5 bg-[#FAF7F0] border border-black/10 rounded-xl text-sm font-mono uppercase font-bold text-[#3A3564] outline-none shadow-2xs cursor-not-allowed"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setPoNumber(generateAutoPoNumber(selectedBuyerRef?.buyer_code))}
+                      title="Generate new PO Number"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-[#3A3564] hover:bg-black/5 rounded-lg transition-colors cursor-pointer"
+                    >
+                      <RefreshCw className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
 
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
                     Brand / Principal Buyer <span className="text-rose-500">*</span>
                   </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      required
-                      value={brandName}
-                      onChange={e => setBrandName(e.target.value)}
-                      placeholder="e.g. CANDY POP"
-                      list="known-brands-list"
-                      className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
-                    />
-                    <datalist id="known-brands-list">
-                      {brandList.map(b => (
-                        <option key={b} value={b} />
-                      ))}
-                    </datalist>
-                  </div>
+                  <input
+                    type="text"
+                    required
+                    readOnly={Boolean(selectedBuyerRef || (selectedTechPackId && selectedProductKey !== '__CUSTOM__'))}
+                    value={brandName}
+                    onChange={e => setBrandName(e.target.value)}
+                    placeholder="e.g. CANDY POP"
+                    className={`w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-900 outline-none shadow-2xs transition-all ${
+                      selectedBuyerRef || (selectedTechPackId && selectedProductKey !== '__CUSTOM__')
+                        ? 'bg-[#FAF7F0] border-black/10 cursor-not-allowed'
+                        : 'bg-slate-50/70 hover:bg-white focus:bg-white focus:border-[#3A3564]'
+                    }`}
+                  />
                 </div>
               </div>
+
+              {/* Attached Design Reference CAD Visuals (Clean without extra text box) */}
+              {(cadFrontUrl || cadBackUrl || selectedTechPackId) && (
+                <div className="grid grid-cols-2 gap-3">
+                  {/* Front View CAD */}
+                  <div className="p-3 bg-[#FAF7F0] rounded-2xl border border-black/10 flex flex-col items-center justify-center min-h-[110px] text-center shadow-2xs">
+                    {cadFrontUrl ? (
+                      <div className="w-full flex flex-col items-center">
+                        <img 
+                          src={cadFrontUrl} 
+                          alt="CAD Front" 
+                          className="h-20 w-auto max-w-full object-contain rounded-lg shadow-2xs bg-white p-1 border border-black/5"
+                        />
+                        <span className="text-[10px] font-mono font-bold text-slate-700 mt-1.5 uppercase">Front View CAD</span>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center justify-center py-2 text-slate-400">
+                        <Shirt className="w-7 h-7 text-slate-300 stroke-[1.5]" />
+                        <span className="text-[10.5px] font-mono text-slate-600 font-bold mt-1">Front CAD Preview</span>
+                        <span className="text-[9.5px] text-slate-400">Standard Apparel Outline</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Back View CAD */}
+                  <div className="p-3 bg-[#FAF7F0] rounded-2xl border border-black/10 flex flex-col items-center justify-center min-h-[110px] text-center shadow-2xs">
+                    {cadBackUrl ? (
+                      <div className="w-full flex flex-col items-center">
+                        <img 
+                          src={cadBackUrl} 
+                          alt="CAD Back" 
+                          className="h-20 w-auto max-w-full object-contain rounded-lg shadow-2xs bg-white p-1 border border-black/5"
+                        />
+                        <span className="text-[10px] font-mono font-bold text-slate-700 mt-1.5 uppercase">Back View CAD</span>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center justify-center py-2 text-slate-400">
+                        <Shirt className="w-7 h-7 text-slate-300 stroke-[1.5] -scale-x-100" />
+                        <span className="text-[10.5px] font-mono text-slate-600 font-bold mt-1">Back CAD Preview</span>
+                        <span className="text-[9.5px] text-slate-400">Standard Apparel Outline</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {/* Row 2: Style Ref & Target Ex-Factory Date */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -628,10 +709,15 @@ export function CreateOrderModal({
                   <input
                     type="text"
                     required
+                    readOnly={Boolean(selectedBuyerRef || (selectedTechPackId && selectedProductKey !== '__CUSTOM__'))}
                     value={styleRef}
                     onChange={e => setStyleRef(e.target.value.toUpperCase())}
                     placeholder="e.g. DEMO-101-03"
-                    className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-mono uppercase font-bold text-slate-900 outline-none shadow-2xs transition-all"
+                    className={`w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm font-mono uppercase font-bold text-slate-900 outline-none shadow-2xs transition-all ${
+                      selectedBuyerRef || (selectedTechPackId && selectedProductKey !== '__CUSTOM__')
+                        ? 'bg-[#FAF7F0] border-black/10 cursor-not-allowed'
+                        : 'bg-slate-50/70 hover:bg-white focus:bg-white focus:border-[#3A3564]'
+                    }`}
                   />
                 </div>
 
@@ -649,43 +735,27 @@ export function CreateOrderModal({
                 </div>
               </div>
 
-              {/* Auto-Fetched Tech-Pack Blueprint & Embellishment Flow Card */}
-              {(embellishmentSeq !== 'NONE' || bomMaterials.length > 0 || fabricComposition) && (
-                <div className="p-3.5 rounded-2xl bg-white border border-black/10 space-y-2.5 shadow-2xs">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-                      <Sparkles className="w-3.5 h-3.5 text-[#3A3564]" />
-                      <span>Auto-Fetched Blueprint &amp; Embellishment Flow</span>
-                    </span>
-                    {bomMaterials.length > 0 && (
-                      <span className="text-[10px] font-mono font-bold bg-[#FAF7F0] text-[#3A3564] px-2 py-0.5 rounded border border-black/10">
-                        {bomMaterials.length} BOM Items
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
-                    <div className="p-2.5 bg-[#FAF7F0] rounded-xl border border-black/10">
-                      <span className="text-[10px] font-mono text-slate-500 uppercase block">Embellishment Routing</span>
-                      <span className="font-bold text-[#3A3564] block mt-0.5">
-                        {embellishmentSeq === 'NONE' ? 'No Embroidery, No Printing' :
-                         embellishmentSeq === 'ONLY_PRINTING' ? 'Only Printing' :
-                         embellishmentSeq === 'ONLY_EMBROIDERY' ? 'Only Embroidery' :
-                         embellishmentSeq === 'EMBROIDERY_FIRST_THEN_PRINT' ? 'Embroidery First, Then Printing' :
-                         embellishmentSeq === 'PRINT_FIRST_THEN_EMBROIDERY' ? 'Printing First, Then Embroidery' :
-                         embellishmentSeq}
-                      </span>
-                    </div>
-
-                    <div className="p-2.5 bg-[#FAF7F0] rounded-xl border border-black/10">
-                      <span className="text-[10px] font-mono text-slate-500 uppercase block">Fabric &amp; Weight</span>
-                      <span className="font-bold text-slate-900 block mt-0.5 truncate">
-                        {fabricComposition || 'Combed Cotton'} {targetGsm ? `• ${targetGsm} GSM` : ''}
-                      </span>
-                    </div>
-                  </div>
+              {/* Embellishment Routing & Fabric Weight (Clean 2 boxes without extra header banner) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div className="p-3 bg-[#FAF7F0] rounded-xl border border-black/10 shadow-2xs">
+                  <span className="text-[10px] font-mono text-slate-500 uppercase block font-semibold">Embellishment Routing</span>
+                  <span className="font-bold text-[#3A3564] block mt-1 text-xs">
+                    {embellishmentSeq === 'NONE' ? 'No Embroidery, No Printing (Cut & Sew)' :
+                     embellishmentSeq === 'ONLY_PRINTING' ? 'Only Printing' :
+                     embellishmentSeq === 'ONLY_EMBROIDERY' ? 'Only Embroidery' :
+                     embellishmentSeq === 'EMBROIDERY_FIRST_THEN_PRINT' ? 'Embroidery First, Then Printing' :
+                     embellishmentSeq === 'PRINT_FIRST_THEN_EMBROIDERY' ? 'Printing First, Then Embroidery' :
+                     embellishmentSeq}
+                  </span>
                 </div>
-              )}
+
+                <div className="p-3 bg-[#FAF7F0] rounded-xl border border-black/10 shadow-2xs">
+                  <span className="text-[10px] font-mono text-slate-500 uppercase block font-semibold">Fabric &amp; Weight</span>
+                  <span className="font-bold text-slate-900 block mt-1 text-xs truncate">
+                    {fabricComposition || '100% Combed Cotton'} {targetGsm ? `• ${targetGsm} GSM` : ''}
+                  </span>
+                </div>
+              </div>
 
               {/* Row 3: Currency, FOB Price, Total Quantity */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
@@ -695,8 +765,9 @@ export function CreateOrderModal({
                   </label>
                   <select
                     value={currency}
+                    disabled={Boolean(selectedBuyerRef)}
                     onChange={e => setCurrency(e.target.value as any)}
-                    className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-semibold text-slate-900 outline-none shadow-2xs transition-all cursor-pointer"
+                    className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-semibold text-slate-900 outline-none shadow-2xs transition-all cursor-pointer disabled:bg-[#FAF7F0] disabled:cursor-not-allowed"
                   >
                     <option value="INR">INR (₹)</option>
                     <option value="USD">USD ($)</option>
@@ -713,9 +784,12 @@ export function CreateOrderModal({
                     type="number"
                     step="0.01"
                     required
+                    readOnly={Boolean(selectedBuyerRef)}
                     value={unitFobPrice}
                     onChange={e => setUnitFobPrice(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-mono font-bold text-slate-900 outline-none shadow-2xs transition-all"
+                    className={`w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm font-mono font-bold text-slate-900 outline-none shadow-2xs transition-all ${
+                      selectedBuyerRef ? 'bg-[#FAF7F0] border-black/10 cursor-not-allowed' : 'bg-slate-50/70 hover:bg-white focus:bg-white focus:border-[#3A3564]'
+                    }`}
                   />
                 </div>
 
@@ -728,9 +802,12 @@ export function CreateOrderModal({
                     step="1"
                     min="1"
                     required
+                    readOnly={Boolean(selectedBuyerRef)}
                     value={totalQuantity}
                     onChange={e => setTotalQuantity(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-[#FAF7F0] border border-black/10 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-mono font-bold text-[#3A3564] outline-none shadow-2xs transition-all"
+                    className={`w-full px-3.5 py-2.5 rounded-xl text-sm font-mono font-bold text-[#3A3564] outline-none shadow-2xs transition-all ${
+                      selectedBuyerRef ? 'bg-[#FAF7F0] border border-black/10 cursor-not-allowed' : 'bg-slate-50/70 border border-slate-200 focus:bg-white focus:border-[#3A3564]'
+                    }`}
                   />
                 </div>
               </div>
@@ -746,8 +823,52 @@ export function CreateOrderModal({
 
             </div>
           ) : (
-            /* STEP 2: Color & Size Matrix Entry (Pre-Populated) */
+            /* STEP 2: BOM Sheet & Color / Size Distribution */
             <div className="space-y-4">
+              
+              {/* Uneditable Master Bill of Materials (BOM) Sheet */}
+              <div className="border border-black/10 rounded-2xl overflow-hidden shadow-2xs bg-white">
+                <div className="px-4 py-3 bg-[#FAF7F0] border-b border-black/10 flex items-center justify-between">
+                  <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
+                    <Package className="w-4 h-4 text-[#3A3564]" />
+                    <span>Bill of Materials (BOM) &amp; Trims Sheet</span>
+                  </span>
+                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-white text-[#3A3564] border border-black/10">
+                    {bomMaterials.length} Component{bomMaterials.length === 1 ? '' : 's'} (Read-Only)
+                  </span>
+                </div>
+
+                {bomMaterials.length > 0 ? (
+                  <div className="overflow-x-auto max-h-44">
+                    <table className="w-full text-left text-xs">
+                      <thead className="bg-[#FAF7F0]/80 border-b border-black/5 text-[10px] font-mono font-bold uppercase text-slate-600 sticky top-0 bg-[#FAF7F0]">
+                        <tr>
+                          <th className="py-2 px-3.5">Component</th>
+                          <th className="py-2 px-3.5">Item Description</th>
+                          <th className="py-2 px-3.5">Consumption</th>
+                          <th className="py-2 px-3.5">Placement</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-black/5 text-slate-700">
+                        {bomMaterials.map((mat, idx) => (
+                          <tr key={idx} className="hover:bg-slate-50/50">
+                            <td className="py-2 px-3.5 font-semibold text-slate-900">{mat.component_type}</td>
+                            <td className="py-2 px-3.5">{mat.item_name}</td>
+                            <td className="py-2 px-3.5 font-mono font-bold text-[#3A3564]">{mat.consumption || '1.0 unit'}</td>
+                            <td className="py-2 px-3.5 font-mono text-slate-500">{mat.placement || 'Full Garment'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <div className="p-3.5 text-center text-xs text-slate-500 italic">
+                    Standard garment trim and material specifications applied.
+                  </div>
+                )}
+              </div>
+
+              {/* Metric Balance Bar */}
               <div className="flex items-center justify-between p-3.5 rounded-xl bg-[#FAF7F0] border border-black/10 text-xs">
                 <div>
                   <span className="text-slate-600 font-medium">Target Contract Pcs:</span>{' '}
