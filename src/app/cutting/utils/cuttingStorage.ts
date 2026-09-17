@@ -492,9 +492,76 @@ export function updateCuttingTaskStatus(id: string, status: any, extraData?: any
   return updated
 }
 
+const TASK_STATUS_RANK: Record<string, number> = {
+  ASSIGNED: 1,
+  IN_PROGRESS: 2,
+  WORKER_COMPLETED: 3,
+  VERIFIED_COMPLETED: 4,
+  COMPLETED: 4
+}
+
+export function mergeCuttingTaskAllocations(
+  serverList: any[] = [],
+  localList: any[] = []
+): any[] {
+  const taskMap = new Map<string, any>()
+
+  // 1. Process server allocations first (canonical DB source)
+  serverList.forEach(t => {
+    if (!t) return
+    const key = t.task_ref || t.id
+    if (key) taskMap.set(key, t)
+  })
+
+  // 2. Merge local allocations safely
+  localList.forEach(localT => {
+    if (!localT) return
+    const key = localT.task_ref || localT.id
+    if (!key) return
+
+    const existing = taskMap.get(key)
+    if (!existing) {
+      taskMap.set(key, localT)
+    } else {
+      const serverRank = TASK_STATUS_RANK[existing.status] || 0
+      const localRank = TASK_STATUS_RANK[localT.status] || 0
+      
+      // Higher progression rank always wins (e.g. WORKER_COMPLETED over ASSIGNED)
+      const chosenStatus = serverRank >= localRank ? existing.status : localT.status
+      const chosenCompleted = Math.max(
+        Number(existing.completed_pieces) || 0,
+        Number(localT.completed_pieces) || 0
+      )
+
+      taskMap.set(key, {
+        ...existing,
+        ...localT,
+        id: existing.id || localT.id,
+        task_ref: existing.task_ref || localT.task_ref,
+        status: chosenStatus,
+        completed_pieces: chosenCompleted,
+        due_time: existing.due_time || localT.due_time,
+        started_at: existing.started_at || localT.started_at,
+        updated_at: existing.updated_at || localT.updated_at || new Date().toISOString()
+      })
+    }
+  })
+
+  const merged = Array.from(taskMap.values())
+
+  // Sync back to local storage so stale values never persist
+  if (typeof window !== 'undefined' && merged.length > 0) {
+    try {
+      localStorage.setItem(ALLOCATIONS_KEY, JSON.stringify(merged))
+    } catch (_) {}
+  }
+
+  return merged
+}
+
 export function deleteCuttingTaskAllocation(id: string): any[] {
   const current = getCuttingTaskAllocations()
-  const updated = current.filter(t => t.id !== id)
+  const updated = current.filter(t => t.id !== id && t.task_ref !== id)
   if (typeof window !== 'undefined') {
     localStorage.setItem(ALLOCATIONS_KEY, JSON.stringify(updated))
   }

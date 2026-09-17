@@ -20,6 +20,7 @@ import {
   getCuttingTaskAllocations,
   getCuttingWorkers,
   updateCuttingTaskStatus,
+  mergeCuttingTaskAllocations,
   CUTTING_UPDATE_EVENT
 } from '../../utils/cuttingStorage'
 import { saveCuttingTaskAllocationAction, fetchCuttingTaskAllocationsAction } from '../../actions'
@@ -58,33 +59,8 @@ export function WorkerDashboardClient({
   // Merge server and local task allocations
   const reloadData = () => {
     const localTasks = getCuttingTaskAllocations()
-    const taskMap = new Map<string, CuttingTaskAllocation>()
-
-    // Server tasks
-    initialTasks.forEach(t => {
-      if (t && (t.id || t.task_ref)) {
-        const key = t.id || t.task_ref
-        taskMap.set(key, t)
-      }
-    })
-
-    // Local tasks overlay
-    localTasks.forEach(t => {
-      if (t && (t.id || t.task_ref)) {
-        const key = t.id || t.task_ref
-        taskMap.set(key, { ...(taskMap.get(key) || {}), ...t })
-      }
-    })
-
-    const merged = Array.from(taskMap.values())
+    const merged = mergeCuttingTaskAllocations(initialTasks, localTasks)
     setTasks(merged)
-
-    // Ensure local storage is always populated with the merged active tasks
-    if (merged.length > 0 && typeof window !== 'undefined') {
-      try {
-        localStorage.setItem('zigza_cutting_task_allocations_v1', JSON.stringify(merged))
-      } catch (_) {}
-    }
   }
 
   useEffect(() => {
@@ -105,10 +81,8 @@ export function WorkerDashboardClient({
     try {
       const serverTasks = await fetchCuttingTaskAllocationsAction()
       const localTasks = getCuttingTaskAllocations()
-      const taskMap = new Map<string, CuttingTaskAllocation>()
-      serverTasks.forEach((t: any) => { if (t?.id || t?.task_ref) taskMap.set(t.id || t.task_ref, t) })
-      localTasks.forEach(t => { if (t?.id || t?.task_ref) taskMap.set(t.id || t.task_ref, { ...(taskMap.get(t.id || t.task_ref) || {}), ...t }) })
-      setTasks(Array.from(taskMap.values()))
+      const merged = mergeCuttingTaskAllocations(serverTasks || [], localTasks)
+      setTasks(merged)
       toast.success('Workstation updated with latest floor assignments.')
     } catch {
       reloadData()

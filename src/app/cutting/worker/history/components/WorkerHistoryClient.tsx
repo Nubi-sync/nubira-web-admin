@@ -20,6 +20,7 @@ import { CuttingTaskAllocation, CuttingWorker } from '../../../types/cutting'
 import {
   getCuttingTaskAllocations,
   getCuttingWorkers,
+  mergeCuttingTaskAllocations,
   CUTTING_UPDATE_EVENT
 } from '../../../utils/cuttingStorage'
 import { fetchCuttingTaskAllocationsAction } from '../../../actions'
@@ -50,25 +51,8 @@ export function WorkerHistoryClient({
   // Merge server and local task allocations
   const reloadData = () => {
     const localTasks = getCuttingTaskAllocations()
-    const taskMap = new Map<string, CuttingTaskAllocation>()
-
-    // Server tasks
-    initialTasks.forEach(t => {
-      if (t && (t.id || t.task_ref)) {
-        const key = t.id || t.task_ref
-        taskMap.set(key, t)
-      }
-    })
-
-    // Local tasks overlay
-    localTasks.forEach(t => {
-      if (t && (t.id || t.task_ref)) {
-        const key = t.id || t.task_ref
-        taskMap.set(key, { ...(taskMap.get(key) || {}), ...t })
-      }
-    })
-
-    setTasks(Array.from(taskMap.values()))
+    const merged = mergeCuttingTaskAllocations(initialTasks, localTasks)
+    setTasks(merged)
   }
 
   useEffect(() => {
@@ -89,10 +73,8 @@ export function WorkerHistoryClient({
     try {
       const serverTasks = await fetchCuttingTaskAllocationsAction()
       const localTasks = getCuttingTaskAllocations()
-      const taskMap = new Map<string, CuttingTaskAllocation>()
-      serverTasks.forEach((t: any) => { if (t?.id || t?.task_ref) taskMap.set(t.id || t.task_ref, t) })
-      localTasks.forEach(t => { if (t?.id || t?.task_ref) taskMap.set(t.id || t.task_ref, { ...(taskMap.get(t.id || t.task_ref) || {}), ...t }) })
-      setTasks(Array.from(taskMap.values()))
+      const merged = mergeCuttingTaskAllocations(serverTasks || [], localTasks)
+      setTasks(merged)
       toast.success('Workstation history updated from cloud database.')
     } catch {
       reloadData()

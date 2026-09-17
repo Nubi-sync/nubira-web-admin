@@ -46,6 +46,7 @@ import {
   saveCuttingTaskAllocation,
   updateCuttingTaskStatus,
   deleteCuttingTaskAllocation,
+  mergeCuttingTaskAllocations,
   CUTTING_UPDATE_EVENT
 } from '../utils/cuttingStorage'
 import { 
@@ -212,10 +213,8 @@ export function CuttingDashboardClient({
     setWorkers(Array.from(workerMap.values()))
 
     const localTasks = getCuttingTaskAllocations()
-    const taskMap = new Map<string, CuttingTaskAllocation>()
-    serverAllocations.forEach(t => { if (t?.id || t?.task_ref) taskMap.set(t.id || t.task_ref, t) })
-    localTasks.forEach(t => { if (t?.id || t?.task_ref) taskMap.set(t.id || t.task_ref, { ...(taskMap.get(t.id || t.task_ref) || {}), ...t }) })
-    setAllocations(Array.from(taskMap.values()))
+    const mergedTasks = mergeCuttingTaskAllocations(serverAllocations, localTasks)
+    setAllocations(mergedTasks)
 
     const merged = mergeBuyersFromAllSources(initialBuyers)
     setBuyers(merged)
@@ -275,10 +274,8 @@ export function CuttingDashboardClient({
       getCuttingWorkers().forEach(w => { if (w?.id || w?.phone_number) workerMap.set(w.phone_number || w.id, { ...(workerMap.get(w.phone_number || w.id) || {}), ...w }) })
       setWorkers(Array.from(workerMap.values()))
 
-      const taskMap = new Map<string, CuttingTaskAllocation>()
-      freshTasks.forEach((t: any) => { if (t?.id || t?.task_ref) taskMap.set(t.id || t.task_ref, t) })
-      getCuttingTaskAllocations().forEach(t => { if (t?.id || t?.task_ref) taskMap.set(t.id || t.task_ref, { ...(taskMap.get(t.id || t.task_ref) || {}), ...t }) })
-      setAllocations(Array.from(taskMap.values()))
+      const mergedTasks = mergeCuttingTaskAllocations(freshTasks || [], getCuttingTaskAllocations())
+      setAllocations(mergedTasks)
 
       toast.success('Cutting floor & worker sync updated from cloud database.')
     } catch {
