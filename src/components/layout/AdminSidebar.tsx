@@ -151,15 +151,31 @@ export function AdminSidebar({
     userEmail?.toLowerCase().endsWith('@cutting.nubira.local')
   )
 
+  const isPrintingWorker = (
+    userRole?.toUpperCase() === 'PRINTING_WORKER' ||
+    userEmail?.toLowerCase().includes('@printing.') ||
+    userEmail?.toLowerCase().endsWith('@printing.nubira.local')
+  )
+
+  const isEmbroideryWorker = (
+    userRole?.toUpperCase() === 'EMBROIDERY_WORKER' ||
+    userEmail?.toLowerCase().includes('@embroidery.') ||
+    userEmail?.toLowerCase().endsWith('@embroidery.nubira.local')
+  )
+
   const roleLabel = isAdmin 
     ? 'Super Admin' 
     : (isDesignerUser
         ? 'Creative Designer'
         : (isCuttingWorker
             ? 'Cutting Floor Operator'
-            : (userRole && userRole.toUpperCase() !== 'ADMIN'
-                ? userRole.split('/')[0].trim().replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
-                : (isStoreUser ? 'Store Supervisor' : 'Department Head'))))
+            : (isPrintingWorker
+                ? 'Printing Floor Operator'
+                : (isEmbroideryWorker
+                    ? 'Embroidery Machine Operator'
+                    : (userRole && userRole.toUpperCase() !== 'ADMIN'
+                        ? userRole.split('/')[0].trim().replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+                        : (isStoreUser ? 'Store Supervisor' : 'Department Head'))))))
 
   // Module-specific unique side navigation
   let activeNavSections: NavSection[] = []
@@ -193,6 +209,38 @@ export function AdminSidebar({
         section: 'Account',
         items: [
           { label: 'Operator Profile', href: '/cutting/worker/profile', icon: User },
+        ],
+      },
+    ]
+  } else if (isPrintingWorker || pathname?.startsWith('/printing/worker')) {
+    activeNavSections = [
+      {
+        section: 'Floor Workstation',
+        items: [
+          { label: 'Active Assignments', href: '/printing/worker', icon: Printer },
+          { label: 'Completed History', href: '/printing/worker/history', icon: Clock },
+        ],
+      },
+      {
+        section: 'Account',
+        items: [
+          { label: 'Operator Profile', href: '/printing/worker/profile', icon: User },
+        ],
+      },
+    ]
+  } else if (isEmbroideryWorker || pathname?.startsWith('/embroidery/worker')) {
+    activeNavSections = [
+      {
+        section: 'Floor Workstation',
+        items: [
+          { label: 'Active Assignments', href: '/embroidery/worker', icon: Sparkles },
+          { label: 'Completed History', href: '/embroidery/worker/history', icon: Clock },
+        ],
+      },
+      {
+        section: 'Account',
+        items: [
+          { label: 'Operator Profile', href: '/embroidery/worker/profile', icon: User },
         ],
       },
     ]

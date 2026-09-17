@@ -145,6 +145,16 @@ export function getUserAllowedModules(
     return ['/cutting/worker']
   }
 
+  // 3.7. Printing Floor Worker check
+  if (role === 'PRINTING_WORKER' || email.includes('@printing.') || email.endsWith('@printing.nubira.local')) {
+    return ['/printing/worker']
+  }
+
+  // 3.8. Embroidery Floor Worker check
+  if (role === 'EMBROIDERY_WORKER' || email.includes('@embroidery.') || email.endsWith('@embroidery.nubira.local')) {
+    return ['/embroidery/worker']
+  }
+
   // 4. Role-based module mapping for operational floor staff
   if (ROLE_MODULE_MAPPING[role]) {
     return ROLE_MODULE_MAPPING[role]
@@ -198,6 +208,16 @@ export function getDefaultLandingRoute(
     return '/cutting/worker'
   }
 
+  // Printing Floor Worker always lands on worker portal
+  if (normRole === 'PRINTING_WORKER' || normEmail.includes('@printing.') || normEmail.endsWith('@printing.nubira.local')) {
+    return '/printing/worker'
+  }
+
+  // Embroidery Floor Worker always lands on worker portal
+  if (normRole === 'EMBROIDERY_WORKER' || normEmail.includes('@embroidery.') || normEmail.endsWith('@embroidery.nubira.local')) {
+    return '/embroidery/worker'
+  }
+
   // Single-module operational account lands directly inside their assigned module
   if (allowedModules.length === 1) {
     return allowedModules[0]
@@ -247,6 +267,16 @@ export function isRouteAuthorized(allowedModules: string[], pathname: string): b
   // Permit cutting worker route for cutting workers
   if (allowedModules.includes('/cutting/worker')) {
     if (pathname === '/cutting/worker' || pathname.startsWith('/cutting/worker/')) return true
+  }
+
+  // Permit printing worker route for printing workers
+  if (allowedModules.includes('/printing/worker')) {
+    if (pathname === '/printing/worker' || pathname.startsWith('/printing/worker/')) return true
+  }
+
+  // Permit embroidery worker route for embroidery workers
+  if (allowedModules.includes('/embroidery/worker')) {
+    if (pathname === '/embroidery/worker' || pathname.startsWith('/embroidery/worker/')) return true
   }
 
   // Permit root /allotments and /production-orders paths for users with Stitching & Sewing access

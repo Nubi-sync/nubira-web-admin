@@ -198,9 +198,21 @@ export async function login(formData: FormData) {
         const adminClient = createAdminClient(supabaseUrl, serviceRoleKey)
         const cuttingEmail = `${phone10}@cutting.nubira.local`
 
-        // Check if phone matches an active cutting worker or design member
-        const { data: matchedWorker } = await adminClient
+        // Check if phone matches an active floor worker or design member
+        const { data: matchedCuttingWorker } = await adminClient
           .from('cutting_workers')
+          .select('*')
+          .or(`phone_number.eq.${phone10},phone_number.ilike.%${phone10}%`)
+          .maybeSingle()
+
+        const { data: matchedPrintingWorker } = await adminClient
+          .from('printing_workers')
+          .select('*')
+          .or(`phone_number.eq.${phone10},phone_number.ilike.%${phone10}%`)
+          .maybeSingle()
+
+        const { data: matchedEmbroideryWorker } = await adminClient
+          .from('embroidery_workers')
           .select('*')
           .or(`phone_number.eq.${phone10},phone_number.ilike.%${phone10}%`)
           .maybeSingle()
@@ -212,13 +224,31 @@ export async function login(formData: FormData) {
           .maybeSingle()
 
         // If worker was deleted or not registered in active roster, reject login
-        if (!matchedWorker && !matchedDesigner) {
+        if (!matchedCuttingWorker && !matchedPrintingWorker && !matchedEmbroideryWorker && !matchedDesigner) {
           return { error: 'No active worker account found for this mobile number. Please contact your floor administrator.' }
         }
 
-        const targetEmail = matchedWorker?.worker_email || matchedDesigner?.designer_email || cuttingEmail
-        const role = matchedDesigner ? 'DESIGNER' : 'CUTTING_WORKER'
-        const fullName = matchedWorker?.worker_name || matchedDesigner?.designer_name || 'Cutting Operator'
+        let targetEmail = `${phone10}@cutting.nubira.local`
+        let role = 'CUTTING_WORKER'
+        let fullName = 'Cutting Floor Operator'
+
+        if (matchedDesigner) {
+          targetEmail = matchedDesigner.designer_email || `${phone10}@designer.nubira.local`
+          role = 'DESIGNER'
+          fullName = matchedDesigner.designer_name || 'Creative Designer'
+        } else if (matchedPrintingWorker) {
+          targetEmail = matchedPrintingWorker.worker_email || `${phone10}@printing.nubira.local`
+          role = 'PRINTING_WORKER'
+          fullName = matchedPrintingWorker.worker_name || 'Printing Floor Operator'
+        } else if (matchedEmbroideryWorker) {
+          targetEmail = matchedEmbroideryWorker.worker_email || `${phone10}@embroidery.nubira.local`
+          role = 'EMBROIDERY_WORKER'
+          fullName = matchedEmbroideryWorker.worker_name || 'Embroidery Machine Operator'
+        } else if (matchedCuttingWorker) {
+          targetEmail = matchedCuttingWorker.worker_email || `${phone10}@cutting.nubira.local`
+          role = 'CUTTING_WORKER'
+          fullName = matchedCuttingWorker.worker_name || 'Cutting Floor Operator'
+        }
 
         const { data: userList } = await adminClient.auth.admin.listUsers()
         const foundAuth = userList?.users?.find(

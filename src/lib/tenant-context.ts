@@ -142,6 +142,132 @@ export async function resolveUserTenant(user: {
     console.error('[resolveUserTenant] Error resolving cutting worker:', workerErr)
   }
 
+  // 1.55. Check printing_workers for printing floor operators
+  try {
+    const rawDigits = userEmail.split('@')[0].replace(/\D/g, '')
+    const phone10 = rawDigits.length >= 10 ? rawDigits.slice(-10) : rawDigits
+
+    let workerQuery = supabaseAdmin
+      .from('printing_workers')
+      .select('*')
+
+    if (phone10.length === 10) {
+      workerQuery = workerQuery.or(`worker_user_id.eq.${user.id},worker_email.eq.${userEmail},phone_number.eq.${phone10},phone_number.ilike.%${phone10}%`)
+    } else {
+      workerQuery = workerQuery.or(`worker_user_id.eq.${user.id},worker_email.eq.${userEmail}`)
+    }
+
+    const { data: matchedWorker } = await workerQuery.limit(1).maybeSingle()
+
+    let taskWorkerName = ''
+    if (!matchedWorker?.worker_name) {
+      try {
+        let taskQuery = supabaseAdmin.from('printing_task_allocations').select('worker_name, worker_phone, worker_id')
+        if (phone10.length === 10) {
+          taskQuery = taskQuery.or(`worker_id.eq.${user.id},worker_phone.ilike.%${phone10}%`)
+        } else {
+          taskQuery = taskQuery.eq('worker_id', user.id)
+        }
+        const { data: matchedTask } = await taskQuery.limit(1).maybeSingle()
+        if (matchedTask?.worker_name) {
+          taskWorkerName = matchedTask.worker_name
+        }
+      } catch (_) {}
+    }
+
+    if (matchedWorker || taskWorkerName || user.user_metadata?.role === 'PRINTING_WORKER' || userEmail.endsWith('@printing.nubira.local')) {
+      const metaName = user.user_metadata?.full_name && user.user_metadata.full_name !== 'Floor Operator' && user.user_metadata.full_name !== 'Printing Operator'
+        ? user.user_metadata.full_name
+        : ''
+      const workerName = matchedWorker?.worker_name || taskWorkerName || metaName || 'Printing Floor Operator'
+      const workerPhone = matchedWorker?.phone_number || user.user_metadata?.phone_number || phone10
+      return {
+        userId: user.id,
+        userEmail,
+        role: 'PRINTING_WORKER',
+        isSuperAdmin: false,
+        isPlatformAdmin: false,
+        companyName: 'Nubira Creation',
+        adminDisplayName: workerName,
+        customUsername: `${workerName.toLowerCase().replace(/\s+/g, '_')}_printing`,
+        phone: workerPhone,
+        cityState: 'India',
+        subscriptionTier: 'ENTERPRISE_PLAN',
+        allowedDivisions: ['/printing/worker', '/printing/worker/history', '/printing/worker/profile'],
+        isProvisionedTenant: true,
+        accessType: 'FULL_ACCESS',
+        isExpired: false,
+        tenantStatus: matchedWorker?.status || 'ACTIVE',
+        provisionedAt: matchedWorker?.created_at || '2026-09-17T00:00:00.000Z'
+      }
+    }
+  } catch (workerErr) {
+    console.error('[resolveUserTenant] Error resolving printing worker:', workerErr)
+  }
+
+  // 1.56. Check embroidery_workers for embroidery floor operators
+  try {
+    const rawDigits = userEmail.split('@')[0].replace(/\D/g, '')
+    const phone10 = rawDigits.length >= 10 ? rawDigits.slice(-10) : rawDigits
+
+    let workerQuery = supabaseAdmin
+      .from('embroidery_workers')
+      .select('*')
+
+    if (phone10.length === 10) {
+      workerQuery = workerQuery.or(`worker_user_id.eq.${user.id},worker_email.eq.${userEmail},phone_number.eq.${phone10},phone_number.ilike.%${phone10}%`)
+    } else {
+      workerQuery = workerQuery.or(`worker_user_id.eq.${user.id},worker_email.eq.${userEmail}`)
+    }
+
+    const { data: matchedWorker } = await workerQuery.limit(1).maybeSingle()
+
+    let taskWorkerName = ''
+    if (!matchedWorker?.worker_name) {
+      try {
+        let taskQuery = supabaseAdmin.from('embroidery_task_allocations').select('worker_name, worker_phone, worker_id')
+        if (phone10.length === 10) {
+          taskQuery = taskQuery.or(`worker_id.eq.${user.id},worker_phone.ilike.%${phone10}%`)
+        } else {
+          taskQuery = taskQuery.eq('worker_id', user.id)
+        }
+        const { data: matchedTask } = await taskQuery.limit(1).maybeSingle()
+        if (matchedTask?.worker_name) {
+          taskWorkerName = matchedTask.worker_name
+        }
+      } catch (_) {}
+    }
+
+    if (matchedWorker || taskWorkerName || user.user_metadata?.role === 'EMBROIDERY_WORKER' || userEmail.endsWith('@embroidery.nubira.local')) {
+      const metaName = user.user_metadata?.full_name && user.user_metadata.full_name !== 'Floor Operator' && user.user_metadata.full_name !== 'Embroidery Operator'
+        ? user.user_metadata.full_name
+        : ''
+      const workerName = matchedWorker?.worker_name || taskWorkerName || metaName || 'Embroidery Machine Operator'
+      const workerPhone = matchedWorker?.phone_number || user.user_metadata?.phone_number || phone10
+      return {
+        userId: user.id,
+        userEmail,
+        role: 'EMBROIDERY_WORKER',
+        isSuperAdmin: false,
+        isPlatformAdmin: false,
+        companyName: 'Nubira Creation',
+        adminDisplayName: workerName,
+        customUsername: `${workerName.toLowerCase().replace(/\s+/g, '_')}_embroidery`,
+        phone: workerPhone,
+        cityState: 'India',
+        subscriptionTier: 'ENTERPRISE_PLAN',
+        allowedDivisions: ['/embroidery/worker', '/embroidery/worker/history', '/embroidery/worker/profile'],
+        isProvisionedTenant: true,
+        accessType: 'FULL_ACCESS',
+        isExpired: false,
+        tenantStatus: matchedWorker?.status || 'ACTIVE',
+        provisionedAt: matchedWorker?.created_at || '2026-09-17T00:00:00.000Z'
+      }
+    }
+  } catch (workerErr) {
+    console.error('[resolveUserTenant] Error resolving embroidery worker:', workerErr)
+  }
+
   // 1.6. Check design_team_members for creative designers
   try {
     const rawDigits = userEmail.split('@')[0].replace(/\D/g, '')
