@@ -40,8 +40,10 @@ export const ROLE_MODULE_MAPPING: Record<string, DivisionRoute[]> = {
   // Surface Art
   PRINTING: ['/printing'],
   PRINTING_MASTER: ['/printing'],
+  PRINTING_WORKER: ['/printing/worker' as any, '/printing/worker/history' as any, '/printing/worker/profile' as any],
   EMBROIDERY: ['/embroidery'],
   EMBROIDERY_MASTER: ['/embroidery'],
+  EMBROIDERY_WORKER: ['/embroidery/worker' as any, '/embroidery/worker/history' as any, '/embroidery/worker/profile' as any],
   
   // Core Stitching Backbone
   STITCHING: ['/stitching-sewing'],

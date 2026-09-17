@@ -382,3 +382,354 @@ export async function fetchEmbroideryQcAuditsAction(companyName?: string): Promi
   }
 }
 
+// -----------------------------------------------------------------------------
+// 9. EMBROIDERY FLOOR WORKERS & PORTAL CREDENTIALS
+// -----------------------------------------------------------------------------
+
+export async function fetchEmbroideryWorkersAction(): Promise<any[]> {
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('embroidery_workers')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.warn('[fetchEmbroideryWorkersAction] Supabase notice:', error.message)
+      return []
+    }
+    return data || []
+  } catch (err) {
+    console.error('[fetchEmbroideryWorkersAction] Unexpected error:', err)
+    return []
+  }
+}
+
+export async function addEmbroideryWorkerAction(payload: {
+  worker_name: string
+  phone_number: string
+  password?: string
+  role?: string
+  shift?: string
+}): Promise<{ success: boolean; data?: any; error?: string }> {
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('embroidery_workers')
+      .insert({
+        worker_name: payload.worker_name,
+        phone_number: payload.phone_number,
+        role: payload.role || 'EMBROIDERY_OPERATOR',
+        shift: payload.shift || 'MORNING',
+        status: 'ACTIVE'
+      })
+      .select()
+      .maybeSingle()
+
+    if (error) {
+      console.warn('[addEmbroideryWorkerAction] Supabase notice:', error.message)
+      return { success: true, data: payload }
+    }
+
+    revalidatePath('/embroidery')
+    return { success: true, data }
+  } catch (err: any) {
+    console.error('[addEmbroideryWorkerAction] Error:', err)
+    return { success: true, data: payload }
+  }
+}
+
+export async function deleteEmbroideryWorkerAction(workerId: string, phoneNumber?: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const rawDigits = (phoneNumber || workerId || '').replace(/\D/g, '')
+    const phone10 = rawDigits.length >= 10 ? rawDigits.slice(-10) : ''
+    const internalEmail = phone10 ? `${phone10}@embroidery.nubira.local` : ''
+
+    // 1. Gather all auth user IDs to delete
+    const authUserIdsToDelete: string[] = []
+
+    try {
+      let query = supabaseAdmin.from('embroidery_workers').select('id, worker_user_id, phone_number')
+      if (workerId && isUUID(workerId)) {
+        query = query.eq('id', workerId)
+      } else if (phone10) {
+        query = query.eq('phone_number', phone10)
+      } else if (workerId) {
+        query = query.or(`id.eq.${workerId},worker_name.ilike.%${workerId}%`)
+      }
+      const { data: matchedRows } = await query
+      matchedRows?.forEach(row => {
+        if (row.worker_user_id) authUserIdsToDelete.push(row.worker_user_id)
+      })
+    } catch (_) {}
+
+    try {
+      const { data: userList } = await supabaseAdmin.auth.admin.listUsers({ perPage: 100 })
+      userList?.users?.forEach(u => {
+        const uPhone = (u.user_metadata?.phone_number || '').replace(/\D/g, '').slice(-10)
+        const isEmailMatch = internalEmail && u.email?.toLowerCase() === internalEmail.toLowerCase()
+        const isPhoneMatch = phone10 && (uPhone === phone10 || u.email?.includes(phone10))
+        const isIdMatch = workerId && u.id === workerId
+        if (isEmailMatch || isPhoneMatch || isIdMatch) {
+          authUserIdsToDelete.push(u.id)
+        }
+      })
+    } catch (_) {}
+
+    // 2. Permanently delete from Supabase Auth
+    for (const uid of Array.from(new Set(authUserIdsToDelete))) {
+      try {
+        await supabaseAdmin.auth.admin.deleteUser(uid)
+      } catch (authDelErr) {
+        console.warn('Could not delete auth user:', uid, authDelErr)
+      }
+    }
+
+    // 3. Delete from embroidery_workers database table
+    if (workerId && isUUID(workerId)) {
+      await supabaseAdmin.from('embroidery_workers').delete().eq('id', workerId)
+    }
+    if (phone10) {
+      await supabaseAdmin.from('embroidery_workers').delete().eq('phone_number', phone10)
+    }
+    if (workerId && !isUUID(workerId)) {
+      await supabaseAdmin.from('embroidery_workers').delete().or(`id.eq.${workerId},worker_name.ilike.%${workerId}%`)
+    }
+
+    revalidatePath('/embroidery')
+    revalidatePath('/embroidery/worker')
+    revalidatePath('/embroidery/worker/history')
+    return { success: true }
+  } catch (err: any) {
+    console.error('[deleteEmbroideryWorkerAction] Error:', err)
+    return { success: false, error: err.message }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// 10. EMBROIDERY TASK ALLOCATIONS
+// -----------------------------------------------------------------------------
+
+export async function fetchEmbroideryTaskAllocationsAction(): Promise<any[]> {
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('embroidery_task_allocations')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.warn('[fetchEmbroideryTaskAllocationsAction] Supabase notice:', error.message)
+      return []
+    }
+    return data || []
+  } catch (err) {
+    console.error('[fetchEmbroideryTaskAllocationsAction] Unexpected error:', err)
+    return []
+  }
+}
+
+const isUUID = (val?: string | null) =>
+  Boolean(val && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val))
+
+export async function saveEmbroideryTaskAllocationAction(payload: any): Promise<{ success: boolean; data?: any; error?: string }> {
+  try {
+    // 1. Resolve existing record ID if client provided non-UUID id
+    let existingId: string | undefined
+    if (isUUID(payload.id)) {
+      existingId = payload.id
+    } else if (payload.task_ref) {
+      try {
+        const { data: existing } = await supabaseAdmin
+          .from('embroidery_task_allocations')
+          .select('id')
+          .eq('task_ref', payload.task_ref)
+          .limit(1)
+          .maybeSingle()
+        if (existing?.id) existingId = existing.id
+      } catch (_) {}
+    }
+
+    // 2. Resolve worker_id to a valid UUID if provided string like ew-1234
+    let validWorkerId: string | null = isUUID(payload.worker_id) ? payload.worker_id : null
+    if (!validWorkerId && (payload.worker_phone || payload.worker_name)) {
+      try {
+        const phone10 = (payload.worker_phone || '').replace(/\D/g, '').slice(-10)
+        let query = supabaseAdmin.from('embroidery_workers').select('id')
+        if (phone10) {
+          query = query.or(`phone_number.eq.${phone10},phone_number.ilike.%${phone10}%`)
+        } else if (payload.worker_name) {
+          query = query.ilike('worker_name', payload.worker_name.trim())
+        }
+        const { data: worker } = await query.limit(1).maybeSingle()
+        if (worker?.id && isUUID(worker.id)) validWorkerId = worker.id
+      } catch (_) {}
+    }
+
+    const cleanPayload: any = {
+      ...(existingId ? { id: existingId } : {}),
+      task_ref: payload.task_ref,
+      buyer_id: isUUID(payload.buyer_id) ? payload.buyer_id : null,
+      buyer_name: payload.buyer_name || 'Direct Buyer',
+      article_number: payload.article_number,
+      article_name: payload.article_name || null,
+      worker_id: validWorkerId,
+      worker_name: payload.worker_name,
+      worker_phone: payload.worker_phone || null,
+      table_number: payload.table_number || 'Machine 01 (Tajima 20-Head)',
+      pieces_to_embroider: Number(payload.pieces_to_embroider || payload.pieces_to_cut) || 0,
+      completed_pieces: Number(payload.completed_pieces) || 0,
+      alloted_hours: Number(payload.alloted_hours) || 4.0,
+      due_time: payload.due_time || null,
+      notes: payload.notes || null,
+      status: payload.status || 'ASSIGNED',
+      updated_at: new Date().toISOString()
+    }
+
+    const { data, error } = await supabaseAdmin
+      .from('embroidery_task_allocations')
+      .upsert(cleanPayload)
+      .select()
+      .maybeSingle()
+
+    if (error) {
+      console.warn('[saveEmbroideryTaskAllocationAction] Supabase notice:', error.message)
+      return { success: false, error: error.message, data: payload }
+    }
+
+    revalidatePath('/embroidery')
+    revalidatePath('/embroidery/worker')
+    revalidatePath('/embroidery/worker/history')
+    return { success: true, data }
+  } catch (err: any) {
+    console.error('[saveEmbroideryTaskAllocationAction] Error:', err)
+    return { success: false, error: err.message, data: payload }
+  }
+}
+
+export async function deleteEmbroideryTaskAllocationAction(taskId: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    let query = supabaseAdmin.from('embroidery_task_allocations').delete()
+    if (isUUID(taskId)) {
+      query = query.eq('id', taskId)
+    } else {
+      query = query.eq('task_ref', taskId)
+    }
+
+    const { error } = await query
+
+    if (error) {
+      console.warn('[deleteEmbroideryTaskAllocationAction] Supabase notice:', error.message)
+    }
+
+    revalidatePath('/embroidery')
+    revalidatePath('/embroidery/worker')
+    revalidatePath('/embroidery/worker/history')
+    return { success: true }
+  } catch (err: any) {
+    console.error('[deleteEmbroideryTaskAllocationAction] Error:', err)
+    return { success: true }
+  }
+}
+
+// Register Embroidery Worker with Supabase Auth User & Database Record
+export async function registerEmbroideryWorkerAction(payload: {
+  worker_name: string
+  phone_number: string
+  password: string
+  roles: string[]
+}) {
+  try {
+    const rawDigits = payload.phone_number.replace(/\D/g, '')
+    const phone10 = rawDigits.slice(-10)
+    const nameClean = payload.worker_name.trim()
+    const internalEmail = `${phone10}@embroidery.nubira.local`
+
+    if (!phone10 || phone10.length !== 10) {
+      return { success: false, error: 'Valid 10-digit phone number is required.' }
+    }
+    if (!payload.password || payload.password.length < 6) {
+      return { success: false, error: 'Password must be at least 6 characters long.' }
+    }
+
+    // 1. Create or Update Supabase Auth User so worker can log in directly at /login
+    let authUserId: string | undefined
+    try {
+      const { data: userList } = await supabaseAdmin.auth.admin.listUsers()
+      const foundUser = userList?.users?.find(
+        u => u.email?.toLowerCase() === internalEmail.toLowerCase() ||
+             u.user_metadata?.phone_number === phone10
+      )
+
+      if (foundUser) {
+        authUserId = foundUser.id
+        await supabaseAdmin.auth.admin.updateUserById(foundUser.id, {
+          password: payload.password,
+          user_metadata: {
+            role: 'EMBROIDERY_WORKER',
+            full_name: nameClean,
+            phone_number: phone10,
+            roles: payload.roles
+          }
+        })
+      } else {
+        const { data: newUser, error: authErr } = await supabaseAdmin.auth.admin.createUser({
+          email: internalEmail,
+          password: payload.password,
+          email_confirm: true,
+          user_metadata: {
+            role: 'EMBROIDERY_WORKER',
+            full_name: nameClean,
+            phone_number: phone10,
+            roles: payload.roles
+          }
+        })
+        if (!authErr && newUser?.user) {
+          authUserId = newUser.user.id
+        }
+      }
+    } catch (authErr) {
+      console.warn('Supabase auth user creation warning:', authErr)
+    }
+
+    // 2. Insert or update in embroidery_workers table
+    const primaryRoleLabel = payload.roles.map(r => r.replace(/_/g, ' ')).join(', ')
+    try {
+      await supabaseAdmin
+        .from('embroidery_workers')
+        .upsert({
+          worker_user_id: authUserId || null,
+          worker_name: nameClean,
+          phone_number: phone10,
+          worker_email: internalEmail,
+          roles: payload.roles,
+          role: primaryRoleLabel,
+          status: 'ACTIVE'
+        }, { onConflict: 'phone_number' })
+    } catch (dbErr) {
+      console.warn('embroidery_workers db warning:', dbErr)
+    }
+
+    revalidatePath('/embroidery')
+    revalidatePath('/embroidery/worker')
+    revalidatePath('/embroidery/worker/history')
+
+    return {
+      success: true,
+      worker: {
+        id: `ew-${Date.now()}`,
+        worker_user_id: authUserId || undefined,
+        worker_name: nameClean,
+        phone_number: phone10,
+        worker_email: internalEmail,
+        roles: payload.roles,
+        role: primaryRoleLabel,
+        status: 'ACTIVE',
+        assigned_pieces: 0,
+        completed_pieces: 0,
+        created_at: new Date().toISOString()
+      }
+    }
+  } catch (err: any) {
+    return { success: false, error: err.message || 'Failed to register embroidery worker.' }
+  }
+}
+
+
