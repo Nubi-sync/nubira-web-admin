@@ -24,7 +24,14 @@ import {
   FileSpreadsheet,
   Boxes,
   Users,
-  Building2
+  Building2,
+  Scissors,
+  Printer,
+  Sparkles,
+  Shirt,
+  Flame,
+  Droplets,
+  Wrench
 } from 'lucide-react'
 import { 
   MerchandisingOrder, 
@@ -49,8 +56,6 @@ import {
 import { CreateOrderModal } from '../orders/components/CreateOrderModal'
 import { EmptyState } from '@/components/ui/EmptyState'
 
-type DateFilter = 'today' | 'week' | 'month' | 'all'
-
 interface ActivityItem {
   id: string
   type: 'PO' | 'LAB_DIP' | 'BOM' | 'TRIM' | 'CONTAINER' | 'AQL'
@@ -66,6 +71,110 @@ interface MerchandisingDashboardClientProps {
   initialBomCostings?: BomCosting[]
   initialMilestones?: TnaMilestone[]
   initialShipments?: ExportShipment[]
+}
+
+function calculateBuyerStages(buyer: ActiveBuyer | null) {
+  if (!buyer) {
+    return {
+      inPending: 0,
+      inCutting: 0,
+      inPrinting: 0,
+      inEmbroidery: 0,
+      inSewing: 0,
+      iron: 0,
+      washing: 0,
+      alter: 0
+    }
+  }
+
+  const totalVol = Number(buyer.contracted_volume) || 0
+  const articleNum = buyer.linked_article_number?.trim() || ''
+
+  if (!articleNum) {
+    return {
+      inPending: totalVol,
+      inCutting: 0,
+      inPrinting: 0,
+      inEmbroidery: 0,
+      inSewing: 0,
+      iron: 0,
+      washing: 0,
+      alter: 0
+    }
+  }
+
+  let cutPcs = 0
+  let printPcs = 0
+  let embPcs = 0
+  let sewPcs = 0
+  let ironPcs = 0
+  let washPcs = 0
+  let alterPcs = 0
+
+  if (typeof window !== 'undefined') {
+    try {
+      // 1. Cutting Floor
+      const rawCutting = localStorage.getItem('zigza_cutting_bundles_v3')
+      if (rawCutting) {
+        const bundles = JSON.parse(rawCutting)
+        cutPcs = bundles
+          .filter((b: any) => b.article_number === articleNum || b.style_number === articleNum || b.buyer_code === buyer.buyer_code)
+          .reduce((sum: number, b: any) => sum + (Number(b.quantity) || 0), 0)
+      }
+
+      // 2. Printing Unit
+      const rawPrinting = localStorage.getItem('zigza_printing_runs_v1')
+      if (rawPrinting) {
+        const runs = JSON.parse(rawPrinting)
+        printPcs = runs
+          .filter((r: any) => r.article_number === articleNum || r.style_number === articleNum)
+          .reduce((sum: number, r: any) => sum + (Number(r.completed_pieces || r.target_pieces) || 0), 0)
+      }
+
+      // 3. Embroidery Unit
+      const rawEmb = localStorage.getItem('zigza_embroidery_runs_v1')
+      if (rawEmb) {
+        const runs = JSON.parse(rawEmb)
+        embPcs = runs
+          .filter((r: any) => r.article_number === articleNum || r.style_number === articleNum)
+          .reduce((sum: number, r: any) => sum + (Number(r.completed_pieces || r.target_pieces) || 0), 0)
+      }
+
+      // 4. Washing Division
+      const rawWash = localStorage.getItem('zigza_washing_batches_v1')
+      if (rawWash) {
+        const batches = JSON.parse(rawWash)
+        washPcs = batches
+          .filter((w: any) => w.article_number === articleNum || w.style_number === articleNum)
+          .reduce((sum: number, w: any) => sum + (Number(w.pieces) || 0), 0)
+      }
+
+      // 5. Iron / Finishing
+      const rawIron = localStorage.getItem('zigza_iron_production_logs_v1')
+      if (rawIron) {
+        const logs = JSON.parse(rawIron)
+        ironPcs = logs
+          .filter((l: any) => l.article_number === articleNum || l.style_number === articleNum)
+          .reduce((sum: number, l: any) => sum + (Number(l.passed_pieces || l.pieces) || 0), 0)
+      }
+    } catch (e) {
+      console.warn('Error reading live stage data from floor modules:', e)
+    }
+  }
+
+  const floorSum = cutPcs + printPcs + embPcs + sewPcs + ironPcs + washPcs + alterPcs
+  const inPending = Math.max(0, totalVol - floorSum)
+
+  return {
+    inPending,
+    inCutting: cutPcs,
+    inPrinting: printPcs,
+    inEmbroidery: embPcs,
+    inSewing: sewPcs,
+    iron: ironPcs,
+    washing: washPcs,
+    alter: alterPcs
+  }
 }
 
 export function MerchandisingDashboardClient({
@@ -93,11 +202,11 @@ export function MerchandisingDashboardClient({
   const [sourcingPrs, setSourcingPrs] = useState<SourcingRequisition[]>([])
   const [buyers, setBuyers] = useState<ActiveBuyer[]>([])
   const [techPackArticles, setTechPackArticles] = useState<AvailableTechPackArticle[]>([])
+  const [selectedBuyerId, setSelectedBuyerId] = useState<string>('')
+  const [isBuyerMenuOpen, setIsBuyerMenuOpen] = useState(false)
+  const [buyerSearchQuery, setBuyerSearchQuery] = useState('')
   const [selectedBrand, setSelectedBrand] = useState<string>('ALL')
   const [selectedStyleId, setSelectedStyleId] = useState<string>('ALL')
-  const [isStyleMenuOpen, setIsStyleMenuOpen] = useState(false)
-  const [styleSearchQuery, setStyleSearchQuery] = useState('')
-  const [dateFilter, setDateFilter] = useState<DateFilter>('all')
   const [isSyncing, setIsSyncing] = useState(false)
   const [statusFilter, setStatusFilter] = useState<string>('ALL')
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
@@ -138,6 +247,27 @@ export function MerchandisingDashboardClient({
     }, 600)
   }
 
+  // Determine active selected buyer (auto-selects first buyer if available)
+  const activeSelectedBuyerId = selectedBuyerId && buyers.some(b => b.id === selectedBuyerId)
+    ? selectedBuyerId
+    : (buyers[0]?.id || '')
+
+  const selectedBuyer = buyers.find(b => b.id === activeSelectedBuyerId) || (buyers.length > 0 ? buyers[0] : null)
+
+  const filteredBuyersList = buyers.filter(b => 
+    b.buyer_name.toLowerCase().includes(buyerSearchQuery.toLowerCase()) ||
+    b.buyer_code.toLowerCase().includes(buyerSearchQuery.toLowerCase()) ||
+    (b.brand_name && b.brand_name.toLowerCase().includes(buyerSearchQuery.toLowerCase())) ||
+    (b.linked_article_number && b.linked_article_number.toLowerCase().includes(buyerSearchQuery.toLowerCase()))
+  )
+
+  const selectedBuyerDisplayText = selectedBuyer 
+    ? `${selectedBuyer.buyer_name} (${selectedBuyer.contracted_volume.toLocaleString('en-IN')} Pcs)`
+    : (buyers.length === 0 ? 'No Active Buyers Contracted' : 'Select Buyer Contract')
+
+  // Calculate 8 live process stages for the selected buyer
+  const stageMetrics = calculateBuyerStages(selectedBuyer)
+
   // Extract unique brands
   const uniqueBrands = ['ALL', ...Array.from(new Set(orders.map(o => o.brand_name)))]
 
@@ -149,25 +279,9 @@ export function MerchandisingDashboardClient({
     return matchesBrand && matchesStyle && matchesStatus
   })
 
-  // Styles list for searchable combobox
-  const availableStyles = selectedBrand === 'ALL' 
-    ? orders 
-    : orders.filter(o => o.brand_name === selectedBrand)
-
-  const filteredStylesList = availableStyles.filter(o => 
-    o.style_ref.toLowerCase().includes(styleSearchQuery.toLowerCase()) ||
-    o.style_name.toLowerCase().includes(styleSearchQuery.toLowerCase()) ||
-    o.po_number.toLowerCase().includes(styleSearchQuery.toLowerCase())
-  )
-
-  const selectedStyleDisplayText = selectedStyleId === 'ALL'
-    ? `All Buyer Styles (${availableStyles.length} styles)`
-    : orders.find(o => o.id === selectedStyleId)?.style_ref || 'Selected Style'
-
   // Dynamic calculations
   const totalBookedPcs = orders.reduce((acc, curr) => acc + curr.total_quantity, 0)
   const activeOrdersCount = orders.filter(o => o.status !== 'CLOSED' && o.status !== 'DISPATCHED').length
-  const hasOrders = orders.length > 0
 
   // Tech Pack Active Articles count
   const activeArticlesCount = techPackArticles.length
@@ -176,35 +290,10 @@ export function MerchandisingDashboardClient({
   const linkedBuyers = buyers.filter(b => Boolean(b.linked_article_number))
   const totalInOrderPieces = linkedBuyers.reduce((sum, b) => sum + (Number(b.contracted_volume) || 0), 0)
 
-  // Dynamic Costing metrics
-  const hasCostings = costings.length > 0
-  const meanTargetMargin = hasCostings
-    ? (costings.reduce((sum, c) => sum + (c.target_margin_percent || 15), 0) / costings.length).toFixed(1)
-    : '0.0'
-  const meanVariance = hasCostings
-    ? (costings.reduce((sum, c) => sum + Math.abs(c.variance_percent || 0), 0) / costings.length).toFixed(1)
-    : '0.0'
-
-  // Dynamic Trim In-House metrics
-  const hasSourcing = sourcingPrs.length > 0
-  const inHousePrsCount = sourcingPrs.filter(p => p.fulfillment_status === 'STORE_RECEIVED').length
-  const trimInHousePct = hasSourcing ? Math.round((inHousePrsCount / sourcingPrs.length) * 100) : 0
-
   // Dynamic Critical Path SLA (T&A)
   const totalGates = milestones.length
   const clearedGates = milestones.filter(m => m.status === 'COMPLETED').length
   const slaPct = totalGates > 0 ? ((clearedGates / totalGates) * 100).toFixed(1) : '0.0'
-
-  // Dynamic Export Container / Shipments
-  const bookedContainers = shipments.length
-  const hasShipments = shipments.length > 0
-
-  // Dynamic 5-Stage Live Conversion Health
-  const isFabricInwardCleared = milestones.some(m => m.milestone_name?.toUpperCase().includes('FABRIC INWARD') && m.status === 'COMPLETED')
-  const isCuttingCleared = milestones.some(m => m.milestone_name?.toUpperCase().includes('CUTTING') && m.status === 'COMPLETED')
-  const isSewingCleared = milestones.some(m => m.milestone_name?.toUpperCase().includes('SEWING') && m.status === 'COMPLETED')
-  const isWashingCleared = milestones.some(m => m.milestone_name?.toUpperCase().includes('WASHING') && m.status === 'COMPLETED')
-  const isPackingCleared = milestones.some(m => (m.milestone_name?.toUpperCase().includes('AQL') || m.milestone_name?.toUpperCase().includes('PACK')) && m.status === 'COMPLETED')
 
   // Real commercial activity stream derived from real live orders
   const activities: ActivityItem[] = orders.length === 0
@@ -223,7 +312,7 @@ export function MerchandisingDashboardClient({
     <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto text-[#09090b]">
       
       {/* ========================================================= */}
-      {/* 1. PAGE HEADER CARD (EXACT 6TH BOX THEME)                  */}
+      {/* 1. PAGE HEADER CARD                                       */}
       {/* ========================================================= */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
         <div className="flex items-center gap-3.5">
@@ -262,123 +351,93 @@ export function MerchandisingDashboardClient({
       </div>
 
       {/* ========================================================= */}
-      {/* 2. FILTER & TIME RANGE CONTROL BAR (EXACT 6TH BOX THEME)   */}
+      {/* 2. BUYER SELECTION & SYNC CONTROL BAR                     */}
       {/* ========================================================= */}
-      <div className="bg-white p-4 sm:p-5 rounded-2xl border border-black/10 shadow-2xs flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-3 sm:gap-4">
+      <div className="bg-white p-4 sm:p-5 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
         
-        {/* Brand Selector Pills */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 xl:pb-0 scrollbar-none">
-          <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 shrink-0 mr-1">
-            BRAND:
-          </span>
-          {uniqueBrands.map(brand => (
-            <button
-              key={brand}
-              type="button"
-              onClick={() => {
-                setSelectedBrand(brand)
-                setSelectedStyleId('ALL')
-              }}
-              className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap shadow-2xs ${
-                selectedBrand === brand
-                  ? 'bg-[#3A3564] text-white'
-                  : 'bg-[#FAF7F0] text-slate-700 hover:bg-[#F2ECE1] border border-black/10'
-              }`}
-            >
-              {brand}
-            </button>
-          ))}
+        {/* Left: Active Buyer Info Pill */}
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+            <Building2 className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="text-xs font-mono font-bold uppercase tracking-wider text-slate-400">
+              Selected Buyer Contract
+            </div>
+            <div className="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2">
+              <span>{selectedBuyer ? selectedBuyer.buyer_name : 'No Active Buyers'}</span>
+              {selectedBuyer?.linked_article_number && (
+                <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                  {selectedBuyer.linked_article_number}
+                </span>
+              )}
+            </div>
+          </div>
         </div>
 
-        {/* Right Filter Cluster: Style Picker + Search + Sync */}
-        <div className="flex items-center gap-2.5 flex-wrap xl:flex-nowrap justify-end">
+        {/* Right: Buyer Selector Dropdown (No All Buyer option, auto-selected) & Sync */}
+        <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap justify-end">
           
-          {/* Style Selector Searchable Dropdown */}
-          <div className="relative min-w-[220px]">
+          {/* Buyer Selector Searchable Dropdown */}
+          <div className="relative min-w-[240px] sm:min-w-[280px]">
             <button
               type="button"
-              onClick={() => setIsStyleMenuOpen(!isStyleMenuOpen)}
-              className="w-full flex items-center justify-between gap-2 px-3.5 py-2 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-xs sm:text-sm font-bold text-slate-800 transition-all cursor-pointer shadow-2xs"
+              onClick={() => setIsBuyerMenuOpen(!isBuyerMenuOpen)}
+              className="w-full flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-xs sm:text-sm font-bold text-slate-800 transition-all cursor-pointer shadow-2xs"
             >
               <div className="flex items-center gap-2 truncate">
-                <Layers className="w-3.5 h-3.5 text-[#3A3564] shrink-0" />
-                <span className="truncate">{selectedStyleDisplayText}</span>
+                <Users className="w-4 h-4 text-[#3A3564] shrink-0" />
+                <span className="truncate">{selectedBuyerDisplayText}</span>
               </div>
-              <ChevronDown className={`w-3.5 h-3.5 text-slate-500 shrink-0 transition-transform ${isStyleMenuOpen ? 'rotate-180' : ''}`} />
+              <ChevronDown className={`w-4 h-4 text-slate-500 shrink-0 transition-transform ${isBuyerMenuOpen ? 'rotate-180' : ''}`} />
             </button>
 
-            {isStyleMenuOpen && (
-              <div className="absolute right-0 top-full mt-1.5 w-72 bg-white rounded-xl border border-black/10 shadow-xl z-30 p-2 space-y-1.5 animate-in fade-in zoom-in-95">
+            {isBuyerMenuOpen && (
+              <div className="absolute right-0 top-full mt-1.5 w-80 bg-white rounded-xl border border-black/10 shadow-xl z-30 p-2 space-y-1.5 animate-in fade-in zoom-in-95">
                 <div className="relative">
                   <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
-                    value={styleSearchQuery}
-                    onChange={e => setStyleSearchQuery(e.target.value)}
-                    placeholder="Filter styles or PO #..."
+                    value={buyerSearchQuery}
+                    onChange={e => setBuyerSearchQuery(e.target.value)}
+                    placeholder="Search buyers..."
                     className="w-full pl-8 pr-2.5 py-1.5 text-xs rounded-lg border border-black/10 bg-slate-50 focus:bg-white focus:outline-hidden focus:border-[#3A3564]"
                     autoFocus
                   />
                 </div>
-                <div className="max-h-48 overflow-y-auto space-y-0.5 pt-1">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSelectedStyleId('ALL')
-                      setIsStyleMenuOpen(false)
-                    }}
-                    className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center justify-between ${
-                      selectedStyleId === 'ALL'
-                        ? 'bg-[#3A3564] text-white'
-                        : 'text-slate-700 hover:bg-[#FAF7F0]'
-                    }`}
-                  >
-                    <span>All Buyer Styles</span>
-                    {selectedStyleId === 'ALL' && <Check className="w-3 h-3 text-white" />}
-                  </button>
-
-                  {filteredStylesList.map(st => (
-                    <button
-                      key={st.id}
-                      type="button"
-                      onClick={() => {
-                        setSelectedStyleId(st.id)
-                        setIsStyleMenuOpen(false)
-                      }}
-                      className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs transition-all cursor-pointer flex items-center justify-between ${
-                        selectedStyleId === st.id
-                          ? 'bg-[#3A3564] text-white font-bold'
-                          : 'text-slate-700 hover:bg-[#FAF7F0]'
-                      }`}
-                    >
-                      <div className="truncate pr-2">
-                        <span className="font-mono font-bold">{st.style_ref}</span>
-                        <span className="text-[10px] opacity-75 ml-1.5">({st.po_number})</span>
-                      </div>
-                      {selectedStyleId === st.id && <Check className="w-3 h-3 text-white shrink-0" />}
-                    </button>
-                  ))}
+                <div className="max-h-56 overflow-y-auto space-y-0.5 pt-1">
+                  {filteredBuyersList.length === 0 ? (
+                    <div className="py-3 px-2 text-center text-xs text-slate-400">
+                      No buyers found
+                    </div>
+                  ) : (
+                    filteredBuyersList.map(b => (
+                      <button
+                        key={b.id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedBuyerId(b.id)
+                          setIsBuyerMenuOpen(false)
+                        }}
+                        className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer flex items-center justify-between ${
+                          activeSelectedBuyerId === b.id
+                            ? 'bg-[#3A3564] text-white font-bold'
+                            : 'text-slate-700 hover:bg-[#FAF7F0]'
+                        }`}
+                      >
+                        <div className="truncate pr-2">
+                          <div className="font-bold">{b.buyer_name}</div>
+                          <div className={`text-[10px] font-mono mt-0.5 ${activeSelectedBuyerId === b.id ? 'text-indigo-200' : 'text-slate-500'}`}>
+                            {b.contracted_volume.toLocaleString('en-IN')} Pcs {b.linked_article_number ? `• ${b.linked_article_number}` : '• Pending Link'}
+                          </div>
+                        </div>
+                        {activeSelectedBuyerId === b.id && <Check className="w-4 h-4 text-white shrink-0" />}
+                      </button>
+                    ))
+                  )}
                 </div>
               </div>
             )}
-          </div>
-
-          {/* Time Filter Tabs */}
-          <div className="flex items-center p-1 rounded-xl bg-[#FAF7F0] border border-black/10 shadow-2xs">
-            {(['today', 'week', 'month', 'all'] as const).map(tab => (
-              <button
-                key={tab}
-                type="button"
-                onClick={() => setDateFilter(tab)}
-                className={`px-3 py-1.5 rounded-lg text-[11px] font-bold uppercase transition-all cursor-pointer ${
-                  dateFilter === tab
-                    ? 'bg-[#3A3564] text-white shadow-2xs'
-                    : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                {tab === 'all' ? 'All' : tab}
-              </button>
-            ))}
           </div>
 
           {/* Refresh Sync Button */}
@@ -387,9 +446,9 @@ export function MerchandisingDashboardClient({
             onClick={handleManualSync}
             disabled={isSyncing}
             className="p-2.5 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-[#3A3564] transition-all cursor-pointer shadow-2xs flex items-center justify-center shrink-0"
-            title="Sync latest live updates from commercial database"
+            title="Sync latest live updates from floor modules"
           >
-            <RotateCcw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
+            <RotateCcw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
           </button>
         </div>
 
@@ -491,158 +550,146 @@ export function MerchandisingDashboardClient({
       </div>
 
       {/* ========================================================= */}
-      {/* 4. LIVE CRITICAL PATH CONVERSION FLOW (EXACT 6TH BOX)      */}
+      {/* 4. LIVE BUYER CONTRACT PROCESS TRACKER (8 BOXES)           */}
       {/* ========================================================= */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-2">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
-              <TrendingUp className="w-4 h-4" />
-            </div>
-            <div>
-              <h3 className="text-base font-bold text-slate-900 font-[family-name:var(--font-heading)]">
-                Live Critical Path Milestone Health
-              </h3>
-              <p className="text-xs text-slate-500">Commercial lead-time and factory floor conversion</p>
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 sm:gap-4">
+        
+        {/* BOX 1: IN PENDING */}
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+              <Clock className="w-5 h-5" />
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <span className="text-xs sm:text-sm font-semibold text-slate-500">
-              Total Booked: <strong className="text-slate-900 font-mono" suppressHydrationWarning>{totalBookedPcs.toLocaleString('en-IN')} pcs</strong>
+          <div className="mt-4">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
+              In Pending
             </span>
-            <Link
-              href="/merchandising/tna-calendar"
-              className="text-xs font-bold text-[#3A3564] hover:underline inline-flex items-center gap-1"
-            >
-              Full T&amp;A Calendar <ChevronRight className="w-3.5 h-3.5" />
-            </Link>
+            <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 mt-1 leading-none" suppressHydrationWarning>
+              {stageMetrics.inPending.toLocaleString('en-IN')}
+            </h3>
           </div>
         </div>
 
-        {/* 5 Conversion Flow Stage Cards */}
-        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
-          
-          {/* Flow 1: Fabric Inward */}
-          <div className="bg-white border border-black/10 border-l-4 border-l-[#3A3564] rounded-xl p-3.5 shadow-2xs hover:border-black/25 transition-all flex flex-col justify-between">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 block">
-                1. Fabric Inward
-              </span>
-              <span className={`text-xs font-extrabold font-mono px-2 py-0.5 rounded-full shadow-2xs ${isFabricInwardCleared ? 'text-emerald-800 bg-emerald-50 border border-emerald-200' : 'text-[#3A3564] bg-[#FAF7F0] border border-black/10'}`}>
-                {isFabricInwardCleared ? '100%' : '0%'}
-              </span>
-            </div>
-            <div className="mt-2 flex items-baseline justify-between">
-              <p className="text-lg sm:text-xl font-bold font-[family-name:var(--font-heading)] text-slate-900" suppressHydrationWarning>
-                {isFabricInwardCleared ? `${Math.round(totalBookedPcs * 0.38).toLocaleString('en-IN')}` : '0'} <span className="text-xs font-normal text-slate-400">kg</span>
-              </p>
-              <span className="text-[10px] font-medium text-slate-400">{isFabricInwardCleared ? 'Cleared Lab' : 'Pending Inward'}</span>
-            </div>
-            <div className="w-full bg-slate-100 h-1 rounded-full mt-2.5 overflow-hidden">
-              <div 
-                className="bg-[#3A3564] h-full rounded-full transition-all duration-500" 
-                style={{ width: isFabricInwardCleared ? '100%' : '0%' }}
-              />
+        {/* BOX 2: IN CUTTING */}
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+              <Scissors className="w-5 h-5" />
             </div>
           </div>
-
-          {/* Flow 2: Bulk Cutting */}
-          <div className="bg-white border border-black/10 border-l-4 border-l-[#3A3564] rounded-xl p-3.5 shadow-2xs hover:border-black/25 transition-all flex flex-col justify-between">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 block">
-                2. Bulk Cutting
-              </span>
-              <span className={`text-xs font-extrabold font-mono px-2 py-0.5 rounded-full shadow-2xs ${isCuttingCleared ? 'text-emerald-800 bg-emerald-50 border border-emerald-200' : 'text-[#3A3564] bg-[#FAF7F0] border border-black/10'}`}>
-                {isCuttingCleared ? '100%' : '0%'}
-              </span>
-            </div>
-            <div className="mt-2 flex items-baseline justify-between">
-              <p className="text-lg sm:text-xl font-bold font-[family-name:var(--font-heading)] text-slate-900">
-                {isCuttingCleared ? '100%' : '0%'} <span className="text-xs font-normal text-slate-400">Cut</span>
-              </p>
-              <span className="text-[10px] font-medium text-slate-400">{isCuttingCleared ? 'Ratio OK' : 'Pending Lay'}</span>
-            </div>
-            <div className="w-full bg-slate-100 h-1 rounded-full mt-2.5 overflow-hidden">
-              <div 
-                className="bg-[#3A3564] h-full rounded-full transition-all duration-500" 
-                style={{ width: isCuttingCleared ? '100%' : '0%' }}
-              />
-            </div>
+          <div className="mt-4">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
+              In Cutting
+            </span>
+            <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 mt-1 leading-none" suppressHydrationWarning>
+              {stageMetrics.inCutting.toLocaleString('en-IN')}
+            </h3>
           </div>
-
-          {/* Flow 3: Sewing Floor */}
-          <div className="bg-white border border-black/10 border-l-4 border-l-[#3A3564] rounded-xl p-3.5 shadow-2xs hover:border-black/25 transition-all flex flex-col justify-between">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 block">
-                3. Sewing Floor
-              </span>
-              <span className={`text-xs font-extrabold font-mono px-2 py-0.5 rounded-full shadow-2xs ${isSewingCleared ? 'text-emerald-800 bg-emerald-50 border border-emerald-200' : 'text-[#3A3564] bg-[#FAF7F0] border border-black/10'}`}>
-                {isSewingCleared ? '100%' : '0%'}
-              </span>
-            </div>
-            <div className="mt-2 flex items-baseline justify-between">
-              <p className="text-lg sm:text-xl font-bold font-[family-name:var(--font-heading)] text-slate-900">
-                {isSewingCleared ? '100%' : '0%'} <span className="text-xs font-normal text-slate-400">WIP</span>
-              </p>
-              <span className="text-[10px] font-medium text-slate-400">{isSewingCleared ? 'Output OK' : 'Pending Stitch'}</span>
-            </div>
-            <div className="w-full bg-slate-100 h-1 rounded-full mt-2.5 overflow-hidden">
-              <div 
-                className="bg-[#3A3564] h-full rounded-full transition-all duration-500" 
-                style={{ width: isSewingCleared ? '100%' : '0%' }}
-              />
-            </div>
-          </div>
-
-          {/* Flow 4: Washing & Special Finish */}
-          <div className="bg-white border border-black/10 border-l-4 border-l-[#3A3564] rounded-xl p-3.5 shadow-2xs hover:border-black/25 transition-all flex flex-col justify-between">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 block">
-                4. Washing &amp; Finish
-              </span>
-              <span className={`text-xs font-extrabold font-mono px-2 py-0.5 rounded-full shadow-2xs ${isWashingCleared ? 'text-emerald-800 bg-emerald-50 border border-emerald-200' : 'text-[#3A3564] bg-[#FAF7F0] border border-black/10'}`}>
-                {isWashingCleared ? '100%' : '0%'}
-              </span>
-            </div>
-            <div className="mt-2 flex items-baseline justify-between">
-              <p className="text-lg sm:text-xl font-bold font-[family-name:var(--font-heading)] text-slate-900">
-                {isWashingCleared ? '100%' : '0%'} <span className="text-xs font-normal text-slate-400">Done</span>
-              </p>
-              <span className="text-[10px] font-medium text-slate-400">{isWashingCleared ? 'In Drum' : 'Pending Wash'}</span>
-            </div>
-            <div className="w-full bg-slate-100 h-1 rounded-full mt-2.5 overflow-hidden">
-              <div 
-                className="bg-[#3A3564] h-full rounded-full transition-all duration-500" 
-                style={{ width: isWashingCleared ? '100%' : '0%' }}
-              />
-            </div>
-          </div>
-
-          {/* Flow 5: Final AQL & Carton Pack */}
-          <div className="bg-white border border-black/10 border-l-4 border-l-[#3A3564] rounded-xl p-3.5 shadow-2xs hover:border-black/25 transition-all flex flex-col justify-between">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 block">
-                5. Carton Pack (AQL)
-              </span>
-              <span className={`text-xs font-extrabold font-mono px-2 py-0.5 rounded-full shadow-2xs ${isPackingCleared ? 'text-emerald-800 bg-emerald-50 border border-emerald-200' : 'text-[#3A3564] bg-[#FAF7F0] border border-black/10'}`}>
-                {isPackingCleared ? '100%' : '0%'}
-              </span>
-            </div>
-            <div className="mt-2 flex items-baseline justify-between">
-              <p className="text-lg sm:text-xl font-bold font-[family-name:var(--font-heading)] text-slate-900">
-                {isPackingCleared ? '100%' : '0%'} <span className="text-xs font-normal text-slate-400">Packed</span>
-              </p>
-              <span className="text-[10px] font-medium text-slate-400">{isPackingCleared ? 'AQL 2.5 Passed' : 'Pending AQL'}</span>
-            </div>
-            <div className="w-full bg-slate-100 h-1 rounded-full mt-2.5 overflow-hidden">
-              <div 
-                className="bg-[#3A3564] h-full rounded-full transition-all duration-500" 
-                style={{ width: isPackingCleared ? '100%' : '0%' }}
-              />
-            </div>
-          </div>
-
         </div>
+
+        {/* BOX 3: IN PRINTING */}
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+              <Printer className="w-5 h-5" />
+            </div>
+          </div>
+          <div className="mt-4">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
+              In Printing
+            </span>
+            <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 mt-1 leading-none" suppressHydrationWarning>
+              {stageMetrics.inPrinting.toLocaleString('en-IN')}
+            </h3>
+          </div>
+        </div>
+
+        {/* BOX 4: IN EMBROIDERY */}
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+              <Sparkles className="w-5 h-5" />
+            </div>
+          </div>
+          <div className="mt-4">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
+              In Embroidery
+            </span>
+            <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 mt-1 leading-none" suppressHydrationWarning>
+              {stageMetrics.inEmbroidery.toLocaleString('en-IN')}
+            </h3>
+          </div>
+        </div>
+
+        {/* BOX 5: IN SEWING */}
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+              <Shirt className="w-5 h-5" />
+            </div>
+          </div>
+          <div className="mt-4">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
+              In Sewing
+            </span>
+            <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 mt-1 leading-none" suppressHydrationWarning>
+              {stageMetrics.inSewing.toLocaleString('en-IN')}
+            </h3>
+          </div>
+        </div>
+
+        {/* BOX 6: IRON */}
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+              <Flame className="w-5 h-5" />
+            </div>
+          </div>
+          <div className="mt-4">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
+              Iron
+            </span>
+            <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 mt-1 leading-none" suppressHydrationWarning>
+              {stageMetrics.iron.toLocaleString('en-IN')}
+            </h3>
+          </div>
+        </div>
+
+        {/* BOX 7: WASHING */}
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+              <Droplets className="w-5 h-5" />
+            </div>
+          </div>
+          <div className="mt-4">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
+              Washing
+            </span>
+            <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 mt-1 leading-none" suppressHydrationWarning>
+              {stageMetrics.washing.toLocaleString('en-IN')}
+            </h3>
+          </div>
+        </div>
+
+        {/* BOX 8: ALTER */}
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+              <Wrench className="w-5 h-5" />
+            </div>
+          </div>
+          <div className="mt-4">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
+              Alter
+            </span>
+            <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 mt-1 leading-none" suppressHydrationWarning>
+              {stageMetrics.alter.toLocaleString('en-IN')}
+            </h3>
+          </div>
+        </div>
+
       </div>
 
       {/* ========================================================= */}
