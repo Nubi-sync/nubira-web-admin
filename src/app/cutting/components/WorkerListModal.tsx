@@ -7,14 +7,12 @@ import {
   Search, 
   UserPlus, 
   Phone, 
-  Clock, 
   Trash2, 
   CheckCircle2, 
-  AlertCircle,
-  Briefcase
+  AlertCircle
 } from 'lucide-react'
 import { toast } from 'sonner'
-import { CuttingWorker } from '../types/cutting'
+import { CuttingWorker, CuttingWorkerRole } from '../types/cutting'
 import { deleteCuttingWorker, saveCuttingWorker } from '../utils/cuttingStorage'
 
 interface WorkerListModalProps {
@@ -23,6 +21,12 @@ interface WorkerListModalProps {
   workers: CuttingWorker[]
   onOpenAddModal: () => void
   onWorkersUpdated: () => void
+}
+
+const ROLE_LABELS: Record<string, string> = {
+  CUTTING_MASTER: 'Cutting Master',
+  SPREADING_OPERATOR: 'Spreading Operator',
+  KNIFE_CUTTER: 'Knife Cutter'
 }
 
 export function WorkerListModal({
@@ -38,12 +42,18 @@ export function WorkerListModal({
   if (!isOpen) return null
 
   const filteredWorkers = workers.filter(w => {
+    const q = searchQuery.toLowerCase()
     const matchesSearch = 
-      (w.worker_name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (w.phone_number || '').includes(searchQuery) ||
-      (w.role || '').toLowerCase().includes(searchQuery.toLowerCase())
+      (w.worker_name || '').toLowerCase().includes(q) ||
+      (w.phone_number || '').includes(q) ||
+      (w.roles || []).some(r => r.toLowerCase().includes(q)) ||
+      (w.role || '').toLowerCase().includes(q)
 
-    const matchesRole = roleFilter === 'ALL' || w.role === roleFilter
+    const matchesRole = 
+      roleFilter === 'ALL' || 
+      (w.roles && w.roles.includes(roleFilter as CuttingWorkerRole)) ||
+      (w.role && w.role.includes(roleFilter))
+
     return matchesSearch && matchesRole
   })
 
@@ -60,13 +70,6 @@ export function WorkerListModal({
     saveCuttingWorker({ ...worker, status: nextStatus })
     toast.info(`${worker.worker_name} marked as ${nextStatus.replace(/_/g, ' ')}`)
     onWorkersUpdated()
-  }
-
-  const formatRoleLabel = (roleStr: string) => {
-    return roleStr
-      .replace(/_/g, ' ')
-      .toLowerCase()
-      .replace(/\b\w/g, l => l.toUpperCase())
   }
 
   return (
@@ -89,7 +92,7 @@ export function WorkerListModal({
                 </span>
               </div>
               <p className="text-xs text-slate-500 font-mono">
-                Manage registered floor operators, shift assignments, and credentials
+                Manage registered floor operators, role specializations, and credentials
               </p>
             </div>
           </div>
@@ -101,7 +104,7 @@ export function WorkerListModal({
                 onClose()
                 onOpenAddModal()
               }}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer"
             >
               <UserPlus className="w-3.5 h-3.5" />
               <span>+ Add Worker</span>
@@ -129,19 +132,24 @@ export function WorkerListModal({
             />
           </div>
 
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
-            {['ALL', 'CUTTING_MASTER', 'SPREADING_OPERATOR', 'KNIFE_CUTTER', 'BUNDLER'].map(r => (
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+            {[
+              { id: 'ALL', label: 'All Roles' },
+              { id: 'CUTTING_MASTER', label: 'Cutting Master' },
+              { id: 'SPREADING_OPERATOR', label: 'Spreading Operator' },
+              { id: 'KNIFE_CUTTER', label: 'Knife Cutter' }
+            ].map(r => (
               <button
-                key={r}
+                key={r.id}
                 type="button"
-                onClick={() => setRoleFilter(r)}
-                className={`px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold whitespace-nowrap transition-all cursor-pointer ${
-                  roleFilter === r
+                onClick={() => setRoleFilter(r.id)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold whitespace-nowrap transition-all cursor-pointer ${
+                  roleFilter === r.id
                     ? 'bg-[#3A3564] text-white'
                     : 'bg-white text-slate-700 border border-black/10 hover:bg-slate-100'
                 }`}
               >
-                {r === 'ALL' ? 'All Roles' : formatRoleLabel(r)}
+                {r.label}
               </button>
             ))}
           </div>
@@ -152,22 +160,25 @@ export function WorkerListModal({
           {filteredWorkers.length === 0 ? (
             <div className="py-12 text-center text-slate-400 space-y-2">
               <Users className="w-10 h-10 mx-auto opacity-30 text-slate-400" />
-              <p className="text-sm font-semibold">No workers found matching your query.</p>
+              <p className="text-sm font-semibold">No registered floor workers found.</p>
               <button
                 type="button"
                 onClick={() => {
                   onClose()
                   onOpenAddModal()
                 }}
-                className="inline-flex items-center gap-1 text-xs font-bold text-[#3A3564] hover:underline"
+                className="inline-flex items-center gap-1 text-xs font-bold text-[#3A3564] hover:underline cursor-pointer"
               >
-                <span>Register a new worker</span>
+                <span>+ Register worker now</span>
               </button>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {filteredWorkers.map(worker => {
                 const isOnline = worker.status === 'ACTIVE'
+                const displayRoles = worker.roles && worker.roles.length > 0
+                  ? worker.roles.map(r => ROLE_LABELS[r] || r)
+                  : (worker.role ? [worker.role] : ['Knife Cutter'])
 
                 return (
                   <div
@@ -204,20 +215,21 @@ export function WorkerListModal({
                     </div>
 
                     <div className="flex items-center justify-between pt-2 border-t border-black/5 text-xs">
-                      <div className="flex items-center gap-1.5 font-mono">
-                        <span className="px-2 py-0.5 rounded-md bg-white border border-black/10 text-[11px] font-bold text-[#3A3564]">
-                          {formatRoleLabel(worker.role)}
-                        </span>
-                        <span className="text-slate-400">•</span>
-                        <span className="text-[11px] text-slate-500 font-medium">
-                          {worker.shift ? `${worker.shift} Shift` : 'Morning Shift'}
-                        </span>
+                      <div className="flex items-center gap-1.5 flex-wrap font-mono">
+                        {displayRoles.map((roleName, idx) => (
+                          <span
+                            key={idx}
+                            className="px-2 py-0.5 rounded-md bg-white border border-black/10 text-[11px] font-bold text-[#3A3564]"
+                          >
+                            {roleName}
+                          </span>
+                        ))}
                       </div>
 
                       <button
                         type="button"
                         onClick={() => handleDelete(worker.id, worker.worker_name)}
-                        className="p-1 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                        className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
                         title="Remove worker"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -231,12 +243,11 @@ export function WorkerListModal({
         </div>
 
         {/* Modal Footer */}
-        <div className="p-4 bg-slate-50 border-t border-black/10 flex items-center justify-between text-xs text-slate-500 font-mono">
-          <span>Worker portal login URL: <strong>/cutting/login</strong> (in employee portal)</span>
+        <div className="p-4 bg-slate-50 border-t border-black/10 flex items-center justify-end">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded-xl bg-slate-900 text-white font-bold hover:bg-slate-800 transition-colors"
+            className="px-5 py-2 rounded-xl bg-slate-900 text-white text-xs font-mono font-bold hover:bg-slate-800 transition-colors cursor-pointer"
           >
             Done
           </button>

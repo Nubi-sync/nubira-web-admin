@@ -199,17 +199,15 @@ export interface CuttingTable {
 export type CuttingWorkerRole = 
   | 'CUTTING_MASTER' 
   | 'SPREADING_OPERATOR' 
-  | 'KNIFE_CUTTER' 
-  | 'BUNDLER' 
-  | 'TABLE_LEAD'
+  | 'KNIFE_CUTTER'
 
 export interface CuttingWorker {
   id: string
   worker_name: string
   phone_number: string
-  role: CuttingWorkerRole | string
+  roles: CuttingWorkerRole[]
+  role?: string
   status: 'ACTIVE' | 'INACTIVE' | 'ON_LEAVE'
-  shift?: 'MORNING' | 'EVENING' | 'NIGHT'
   assigned_pieces?: number
   completed_pieces?: number
   created_at: string

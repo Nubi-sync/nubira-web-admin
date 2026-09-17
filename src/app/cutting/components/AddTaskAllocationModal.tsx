@@ -208,11 +208,14 @@ export function AddTaskAllocationModal({
                 onChange={e => setWorkerId(e.target.value)}
                 className="w-full px-3.5 py-2.5 rounded-xl border border-black/10 bg-slate-50 focus:bg-white text-sm font-semibold text-slate-900 focus:outline-hidden focus:border-[#3A3564] transition-all cursor-pointer"
               >
-                {workers.map(w => (
-                  <option key={w.id} value={w.id}>
-                    {w.worker_name} — +91 {w.phone_number} ({w.role.replace(/_/g, ' ')})
-                  </option>
-                ))}
+                {workers.map(w => {
+                  const roleLabel = w.role || (w.roles && w.roles.length > 0 ? w.roles.map(r => r.replace(/_/g, ' ')).join(', ') : 'Knife Cutter')
+                  return (
+                    <option key={w.id} value={w.id}>
+                      {w.worker_name} — +91 {w.phone_number} ({roleLabel})
+                    </option>
+                  )
+                })}
               </select>
             )}
           </div>

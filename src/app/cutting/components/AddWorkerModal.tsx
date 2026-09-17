@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { X, UserPlus, Phone, Lock, Eye, EyeOff, Shield, Clock, CheckCircle2 } from 'lucide-react'
+import { X, UserPlus, Phone, Lock, Eye, EyeOff, Check, CheckCircle2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { CuttingWorker, CuttingWorkerRole } from '../types/cutting'
 import { saveCuttingWorker } from '../utils/cuttingStorage'
@@ -12,12 +12,10 @@ interface AddWorkerModalProps {
   onSuccess?: (worker: CuttingWorker) => void
 }
 
-const ROLES: { value: CuttingWorkerRole; label: string; desc: string }[] = [
-  { value: 'CUTTING_MASTER', label: 'Cutting Master', desc: 'Oversees spread plans, marker placement & cut approvals' },
-  { value: 'SPREADING_OPERATOR', label: 'Spreading Operator', desc: 'Manual & automatic fabric roll spreading across vacuum beds' },
-  { value: 'KNIFE_CUTTER', label: 'Knife Cutter (CNC / Band-Knife)', desc: 'Executes vacuum knife slicing & precision panel cutting' },
-  { value: 'BUNDLER', label: 'QR Bundler & QC Lead', desc: 'Panel bundling, QR tagging & route dispatch' },
-  { value: 'TABLE_LEAD', label: 'Vacuum Station Lead', desc: 'Table utilization, suction pressure & maintenance' }
+const AVAILABLE_ROLES: { id: CuttingWorkerRole; label: string }[] = [
+  { id: 'CUTTING_MASTER', label: 'Cutting Master' },
+  { id: 'SPREADING_OPERATOR', label: 'Spreading Operator' },
+  { id: 'KNIFE_CUTTER', label: 'Knife Cutter' }
 ]
 
 export function AddWorkerModal({ isOpen, onClose, onSuccess }: AddWorkerModalProps) {
@@ -25,8 +23,7 @@ export function AddWorkerModal({ isOpen, onClose, onSuccess }: AddWorkerModalPro
   const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-  const [role, setRole] = useState<CuttingWorkerRole>('KNIFE_CUTTER')
-  const [shift, setShift] = useState<'MORNING' | 'EVENING' | 'NIGHT'>('MORNING')
+  const [selectedRoles, setSelectedRoles] = useState<CuttingWorkerRole[]>(['KNIFE_CUTTER'])
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   if (!isOpen) return null
@@ -35,6 +32,18 @@ export function AddWorkerModal({ isOpen, onClose, onSuccess }: AddWorkerModalPro
     const raw = e.target.value.replace(/\D/g, '')
     if (raw.length <= 10) {
       setPhone(raw)
+    }
+  }
+
+  const toggleRole = (roleId: CuttingWorkerRole) => {
+    if (selectedRoles.includes(roleId)) {
+      if (selectedRoles.length === 1) {
+        toast.info('Worker must have at least one floor role.')
+        return
+      }
+      setSelectedRoles(selectedRoles.filter(r => r !== roleId))
+    } else {
+      setSelectedRoles([...selectedRoles, roleId])
     }
   }
 
@@ -47,7 +56,7 @@ export function AddWorkerModal({ isOpen, onClose, onSuccess }: AddWorkerModalPro
     }
 
     if (phone.length !== 10) {
-      toast.error('Please enter a valid 10-digit Indian mobile number.')
+      toast.error('Please enter a valid 10-digit phone number.')
       return
     }
 
@@ -56,15 +65,24 @@ export function AddWorkerModal({ isOpen, onClose, onSuccess }: AddWorkerModalPro
       return
     }
 
+    if (selectedRoles.length === 0) {
+      toast.error('Please select at least one floor role.')
+      return
+    }
+
     setIsSubmitting(true)
 
     try {
+      const primaryRoleLabel = selectedRoles
+        .map(r => AVAILABLE_ROLES.find(ar => ar.id === r)?.label || r)
+        .join(', ')
+
       const newWorker: CuttingWorker = {
         id: `cw-${Date.now()}`,
         worker_name: name.trim(),
         phone_number: phone.trim(),
-        role,
-        shift,
+        roles: selectedRoles,
+        role: primaryRoleLabel,
         status: 'ACTIVE',
         assigned_pieces: 0,
         completed_pieces: 0,
@@ -80,8 +98,7 @@ export function AddWorkerModal({ isOpen, onClose, onSuccess }: AddWorkerModalPro
       setName('')
       setPhone('')
       setPassword('')
-      setRole('KNIFE_CUTTER')
-      setShift('MORNING')
+      setSelectedRoles(['KNIFE_CUTTER'])
       onClose()
     } catch (err: any) {
       toast.error(err?.message || 'Failed to register worker.')
@@ -102,7 +119,7 @@ export function AddWorkerModal({ isOpen, onClose, onSuccess }: AddWorkerModalPro
             </div>
             <div>
               <h2 className="text-base font-bold text-slate-900 font-[family-name:var(--font-heading)]">
-                Onboard Cutting Floor Worker
+                Add Floor Worker
               </h2>
               <p className="text-xs text-slate-500 font-mono">
                 Create worker credentials for cutting floor portal access
@@ -139,33 +156,30 @@ export function AddWorkerModal({ isOpen, onClose, onSuccess }: AddWorkerModalPro
           {/* Phone Number with fixed +91 */}
           <div>
             <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-              Mobile Phone Number (Login ID) <span className="text-red-500">*</span>
+              Phone Number <span className="text-red-500">*</span>
             </label>
             <div className="relative flex rounded-xl border border-black/10 bg-slate-50 focus-within:bg-white focus-within:border-[#3A3564] transition-all overflow-hidden">
               <span className="inline-flex items-center px-3.5 bg-[#FAF7F0] border-r border-black/10 text-xs font-mono font-bold text-[#3A3564] shrink-0">
-                🇮🇳 +91
+                +91
               </span>
               <input
                 type="tel"
                 required
                 value={phone}
                 onChange={handlePhoneChange}
-                placeholder="98765 43210"
+                placeholder="Enter your phone number"
                 className="w-full px-3.5 py-2.5 text-sm font-mono font-bold text-slate-900 bg-transparent focus:outline-hidden"
               />
               <div className="pr-3 flex items-center pointer-events-none text-slate-400">
                 <Phone className="w-4 h-4" />
               </div>
             </div>
-            <p className="text-[11px] text-slate-500 font-mono mt-1">
-              Enter 10-digit phone number. This will act as the worker's unique login ID.
-            </p>
           </div>
 
           {/* Password */}
           <div>
             <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-              Portal Password <span className="text-red-500">*</span>
+              Password <span className="text-red-500">*</span>
             </label>
             <div className="relative flex rounded-xl border border-black/10 bg-slate-50 focus-within:bg-white focus-within:border-[#3A3564] transition-all overflow-hidden">
               <input
@@ -173,7 +187,7 @@ export function AddWorkerModal({ isOpen, onClose, onSuccess }: AddWorkerModalPro
                 required
                 value={password}
                 onChange={e => setPassword(e.target.value)}
-                placeholder="Min. 6 characters password"
+                placeholder="Enter password (min. 6 characters)"
                 className="w-full px-3.5 py-2.5 text-sm font-mono text-slate-900 bg-transparent focus:outline-hidden"
               />
               <button
@@ -186,51 +200,42 @@ export function AddWorkerModal({ isOpen, onClose, onSuccess }: AddWorkerModalPro
             </div>
           </div>
 
-          {/* Role Selection */}
+          {/* Floor Roles (Max 3, Multi-Select Tag Checkboxes) */}
           <div>
-            <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-              Floor Role & Specialization <span className="text-red-500">*</span>
-            </label>
-            <select
-              value={role}
-              onChange={e => setRole(e.target.value as CuttingWorkerRole)}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-black/10 bg-slate-50 focus:bg-white text-sm font-semibold text-slate-900 focus:outline-hidden focus:border-[#3A3564] transition-all cursor-pointer"
-            >
-              {ROLES.map(r => (
-                <option key={r.value} value={r.value}>
-                  {r.label}
-                </option>
-              ))}
-            </select>
-          </div>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-xs font-mono font-bold uppercase tracking-wider text-slate-700">
+                Floor Roles (Select one or multiple) <span className="text-red-500">*</span>
+              </label>
+              <span className="text-[10px] font-mono text-slate-500 font-bold">
+                {selectedRoles.length} of 3 selected
+              </span>
+            </div>
 
-          {/* Shift Selection */}
-          <div>
-            <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-              Shift Assignment
-            </label>
-            <div className="grid grid-cols-3 gap-2">
-              {[
-                { id: 'MORNING', label: 'Morning', hours: '06:00 - 14:00' },
-                { id: 'EVENING', label: 'Evening', hours: '14:00 - 22:00' },
-                { id: 'NIGHT', label: 'Night', hours: '22:00 - 06:00' }
-              ].map(s => (
-                <button
-                  key={s.id}
-                  type="button"
-                  onClick={() => setShift(s.id as any)}
-                  className={`p-2.5 rounded-xl border text-center transition-all cursor-pointer ${
-                    shift === s.id
-                      ? 'bg-[#3A3564] text-white border-[#3A3564] shadow-xs'
-                      : 'bg-[#FAF7F0] text-slate-700 border-black/10 hover:bg-white'
-                  }`}
-                >
-                  <div className="text-xs font-bold font-mono uppercase">{s.label}</div>
-                  <div className={`text-[10px] font-mono mt-0.5 ${shift === s.id ? 'text-indigo-200' : 'text-slate-500'}`}>
-                    {s.hours}
-                  </div>
-                </button>
-              ))}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              {AVAILABLE_ROLES.map(r => {
+                const isChecked = selectedRoles.includes(r.id)
+                return (
+                  <button
+                    key={r.id}
+                    type="button"
+                    onClick={() => toggleRole(r.id)}
+                    className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex items-center justify-between ${
+                      isChecked
+                        ? 'bg-[#3A3564] text-white border-[#3A3564] shadow-xs'
+                        : 'bg-[#FAF7F0] text-slate-700 border-black/10 hover:bg-white'
+                    }`}
+                  >
+                    <span className="text-xs font-bold font-mono">{r.label}</span>
+                    <div className={`w-4 h-4 rounded-md flex items-center justify-center border transition-all ${
+                      isChecked
+                        ? 'bg-white text-[#3A3564] border-white'
+                        : 'border-slate-300 bg-white'
+                    }`}>
+                      {isChecked && <Check className="w-3 h-3 stroke-[3]" />}
+                    </div>
+                  </button>
+                )
+              })}
             </div>
           </div>
 

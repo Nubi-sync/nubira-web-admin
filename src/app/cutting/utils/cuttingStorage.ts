@@ -340,43 +340,9 @@ export function savePanelAudit(audit: PanelQcAudit): PanelQcAudit[] {
 // =============================================================================
 // 10. CUTTING WORKERS (Floor Operators & Shift Leads)
 // =============================================================================
-const WORKERS_KEY = 'zigza_cutting_workers_v1'
+const WORKERS_KEY = 'zigza_cutting_workers_v2'
 
-export const INITIAL_CUTTING_WORKERS = [
-  {
-    id: 'cw-01',
-    worker_name: 'Ramesh Kumar',
-    phone_number: '9845012345',
-    role: 'CUTTING_MASTER',
-    status: 'ACTIVE' as const,
-    shift: 'MORNING' as const,
-    assigned_pieces: 1500,
-    completed_pieces: 1500,
-    created_at: new Date().toISOString()
-  },
-  {
-    id: 'cw-02',
-    worker_name: 'Suresh Patel',
-    phone_number: '9822167890',
-    role: 'SPREADING_OPERATOR',
-    status: 'ACTIVE' as const,
-    shift: 'MORNING' as const,
-    assigned_pieces: 800,
-    completed_pieces: 0,
-    created_at: new Date().toISOString()
-  },
-  {
-    id: 'cw-03',
-    worker_name: 'Imran Khan',
-    phone_number: '9833454321',
-    role: 'KNIFE_CUTTER',
-    status: 'ACTIVE' as const,
-    shift: 'EVENING' as const,
-    assigned_pieces: 0,
-    completed_pieces: 0,
-    created_at: new Date().toISOString()
-  }
-]
+export const INITIAL_CUTTING_WORKERS: any[] = []
 
 export function getCuttingWorkers(): any[] {
   if (typeof window === 'undefined') return INITIAL_CUTTING_WORKERS
@@ -387,7 +353,7 @@ export function getCuttingWorkers(): any[] {
       return INITIAL_CUTTING_WORKERS
     }
     const parsed = JSON.parse(stored)
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed : INITIAL_CUTTING_WORKERS
+    return Array.isArray(parsed) ? parsed : INITIAL_CUTTING_WORKERS
   } catch {
     return INITIAL_CUTTING_WORKERS
   }
