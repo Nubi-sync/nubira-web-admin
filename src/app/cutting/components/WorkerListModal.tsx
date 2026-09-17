@@ -229,8 +229,8 @@ export function WorkerListModal({
                         onClick={() => handleToggleStatus(worker)}
                         className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full border transition-all cursor-pointer ${
                           isOnline
-                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
-                            : 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100'
+                            ? 'bg-[#FAF7F0] text-slate-900 border-black/10 hover:bg-white'
+                            : 'bg-amber-50 text-amber-900 border-amber-200 hover:bg-amber-100'
                         }`}
                       >
                         {worker.status.replace(/_/g, ' ')}

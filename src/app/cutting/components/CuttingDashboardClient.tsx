@@ -842,7 +842,7 @@ export function CuttingDashboardClient({
                           {task.pieces_to_cut.toLocaleString('en-IN')} <span className="text-xs font-normal text-slate-500">Pcs</span>
                         </div>
                         {isVerified && (
-                          <div className="text-[10px] font-mono font-bold text-emerald-600">
+                          <div className="text-[10px] font-mono font-bold text-slate-900">
                             ✓ Verified &amp; Completed
                           </div>
                         )}
@@ -853,42 +853,47 @@ export function CuttingDashboardClient({
                         )}
                         {isInProgress && (
                           <div className="text-[10px] font-mono font-bold text-indigo-600">
-                            In progress on table
+                            Cutting In Progress
+                          </div>
+                        )}
+                        {isAssigned && (
+                          <div className="text-[10px] font-mono text-slate-500">
+                            Ready on Floor
                           </div>
                         )}
                       </td>
 
-                      {/* Alloted Time */}
-                      <td className="py-3.5 px-4 text-center font-mono text-xs font-bold text-slate-700">
-                        <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#FAF7F0] border border-black/10">
-                          <Clock className="w-3 h-3 text-[#3A3564]" />
+                      {/* Alloted Timeline */}
+                      <td className="py-3.5 px-4 font-mono">
+                        <div className="flex items-center gap-1.5 text-xs text-slate-700 font-bold">
+                          <Clock className="w-3.5 h-3.5 text-[#3A3564]" />
                           <span>{task.alloted_hours} Hrs</span>
                         </div>
                       </td>
 
-                      {/* Due Timeline */}
-                      <td className="py-3.5 px-4">
-                        <div className={`text-xs font-mono font-bold ${isVerified ? 'text-slate-400 line-through' : (timeline.isPast ? 'text-rose-600' : 'text-slate-800')}`}>
-                          {timeline.formatted}
-                        </div>
-                        {!isVerified && timeline.isPast && (
-                          <span className="text-[10px] font-mono font-bold text-rose-500">
-                            Past Due Target
-                          </span>
-                        )}
+                      {/* Due Target Timeline */}
+                      <td className="py-3.5 px-4 font-mono text-xs text-slate-700">
+                        {(() => {
+                          const due = formatDueTimeline(task.due_time, task.alloted_hours)
+                          return (
+                            <span className={due.isPast && !isVerified ? 'text-rose-600 font-bold' : 'text-slate-800 font-bold'}>
+                              {due.formatted}
+                            </span>
+                          )
+                        })()}
                       </td>
 
-                      {/* Status (Live Read-Only badge controlled by worker & head of dept) */}
+                      {/* Status Badge */}
                       <td className="py-3.5 px-4">
                         {isAssigned && (
-                          <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 text-xs font-mono font-bold">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 text-slate-800 border border-black/10 text-xs font-mono font-bold">
                             Assigned
                           </span>
                         )}
                         {isInProgress && (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-50 text-[#3A3564] border border-indigo-200 text-xs font-mono font-bold">
-                            <span className="w-2 h-2 rounded-full bg-indigo-600 animate-pulse" />
-                            In Progress ({task.table_number || 'Table 01'})
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-800 border border-indigo-200 text-xs font-mono font-bold">
+                            <Scissors className="w-3.5 h-3.5 text-indigo-600" />
+                            Cutting Live
                           </span>
                         )}
                         {isWorkerCompleted && (
@@ -898,8 +903,8 @@ export function CuttingDashboardClient({
                           </span>
                         )}
                         {isVerified && (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-mono font-bold">
-                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#FAF7F0] text-slate-900 border border-black/10 text-xs font-mono font-bold">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-[#3A3564]" />
                             Verified &amp; Moved
                           </span>
                         )}
@@ -912,10 +917,10 @@ export function CuttingDashboardClient({
                             <button
                               type="button"
                               onClick={() => handleVerifyAndDone(task.id, task.task_ref, task.pieces_to_cut)}
-                              className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-mono font-bold transition-all flex items-center gap-1.5 shadow-sm hover:shadow cursor-pointer"
+                              className="px-3 py-1.5 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-mono font-bold transition-all flex items-center gap-1.5 shadow-sm hover:shadow cursor-pointer"
                               title="Verify work and move pieces from Pending to Completed Cutting"
                             >
-                              <CheckCircle2 className="w-4 h-4" />
+                              <CheckCircle2 className="w-4 h-4 text-white" />
                               <span>Verify &amp; Done</span>
                             </button>
                           )}
@@ -927,7 +932,7 @@ export function CuttingDashboardClient({
                           )}
 
                           {isVerified && (
-                            <span className="text-[11px] font-mono font-bold text-emerald-700 pr-1">
+                            <span className="text-[11px] font-mono font-bold text-slate-900 pr-1">
                               ✓ Done
                             </span>
                           )}
@@ -969,7 +974,7 @@ export function CuttingDashboardClient({
             <span>•</span>
             <span>Pending: <strong className="text-[#3A3564]">{pendingCuttingPieces.toLocaleString('en-IN')}</strong></span>
             <span>•</span>
-            <span>Completed: <strong className="text-emerald-700">{completedCuttingPieces.toLocaleString('en-IN')}</strong></span>
+            <span>Completed: <strong className="text-slate-900">{completedCuttingPieces.toLocaleString('en-IN')}</strong></span>
           </div>
         </div>
 

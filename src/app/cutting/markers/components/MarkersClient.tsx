@@ -413,7 +413,7 @@ export function MarkersClient() {
                     max="100"
                     value={formData.efficiency_percent}
                     onChange={e => setFormData({ ...formData, efficiency_percent: Number(e.target.value) })}
-                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-mono font-bold text-emerald-600"
+                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-mono font-bold text-slate-900"
                   />
                 </div>
               </div>

@@ -170,7 +170,7 @@ export function BundlesClient({ initialBundles }: BundlesClientProps = {}) {
                 setBundles(updated)
                 localStorage.setItem('zigza_cutting_bundles_v2', JSON.stringify(updated))
               }}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold transition-all shadow-2xs cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2e2a50] text-white text-xs font-bold transition-all shadow-2xs cursor-pointer"
             >
               <CheckCircle2 className="w-3.5 h-3.5" />
               <span>Dispatch All 40 to Printing</span>

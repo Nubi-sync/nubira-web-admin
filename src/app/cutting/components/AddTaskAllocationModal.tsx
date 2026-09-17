@@ -361,7 +361,7 @@ export function AddTaskAllocationModal({
                   Hrs
                 </span>
               </div>
-              <p className="text-[11px] text-emerald-700 font-mono mt-1">
+              <p className="text-[11px] text-slate-900 font-mono mt-1">
                 Due: <strong>{calculateDeadline()}</strong>
               </p>
             </div>

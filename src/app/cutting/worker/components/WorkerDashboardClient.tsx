@@ -511,7 +511,7 @@ export function WorkerDashboardClient({
                       onClick={() => handleMarkComplete(task.id, task.task_ref, task.pieces_to_cut)}
                       className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer flex items-center justify-center gap-2"
                     >
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                      <CheckCircle2 className="w-4 h-4 text-white" />
                       <span>✓ Mark as Complete ({task.pieces_to_cut.toLocaleString('en-IN')} Pcs Cut)</span>
                     </button>
                   )}
