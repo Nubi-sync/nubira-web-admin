@@ -127,3 +127,55 @@ export interface CuringOvenLog {
   status: 'OPTIMAL' | 'TEMP_WARNING' | 'CRITICAL'
   logged_at: string
 }
+
+export type PrintingWorkerRole = 
+  | 'SCREEN_PRINTER' 
+  | 'DTG_TECHNICIAN' 
+  | 'TABLE_OPERATOR'
+
+export interface PrintingWorker {
+  id: string
+  worker_user_id?: string
+  worker_name: string
+  phone_number: string
+  worker_email?: string
+  roles: PrintingWorkerRole[] | string[]
+  role?: string
+  status: 'ACTIVE' | 'INACTIVE' | 'ON_LEAVE' | string
+  assigned_pieces?: number
+  completed_pieces?: number
+  company_name?: string
+  created_at: string
+  updated_at?: string
+}
+
+export type PrintingAllocationStatus = 
+  | 'ASSIGNED' 
+  | 'IN_PROGRESS' 
+  | 'WORKER_COMPLETED' 
+  | 'VERIFIED_COMPLETED' 
+  | 'COMPLETED'
+
+export interface PrintingTaskAllocation {
+  id: string
+  task_ref: string
+  buyer_id?: string
+  buyer_name: string
+  article_number: string
+  article_name: string
+  worker_id: string
+  worker_name: string
+  worker_phone?: string
+  table_number?: string
+  pieces_to_print: number
+  completed_pieces: number
+  alloted_hours: number
+  due_time: string
+  started_at?: string
+  completed_at?: string
+  notes?: string
+  status: PrintingAllocationStatus
+  created_at: string
+  updated_at?: string
+}
+
