@@ -120,3 +120,28 @@ export interface ExportShipment {
   status: ShipmentStatus
   created_at: string
 }
+
+export type BuyerStatus = 'ACTIVE' | 'CONTRACTED' | 'PENDING_LINK'
+
+export interface ActiveBuyer {
+  id: string
+  buyer_name: string
+  buyer_code: string
+  brand_name?: string
+  contact_person?: string
+  contact_email?: string
+  contracted_volume: number
+  price_per_piece: number
+  currency: 'INR' | 'USD' | 'EUR' | 'GBP'
+  total_contract_value: number
+  linked_article_id?: string
+  linked_article_number?: string
+  linked_article_name?: string
+  linked_at?: string
+  target_season?: string
+  status: BuyerStatus
+  notes?: string
+  created_at: string
+  updated_at?: string
+}
+

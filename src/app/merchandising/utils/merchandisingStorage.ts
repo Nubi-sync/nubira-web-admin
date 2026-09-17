@@ -193,3 +193,120 @@ export function saveShipment(shipment: ExportShipment): ExportShipment[] {
   emitUpdate()
   return updated
 }
+
+// ==========================================
+// 6. ACTIVE BUYERS & CONTRACTED VOLUMES
+// ==========================================
+const BUYERS_KEY = 'zigza_merchandising_active_buyers_v1'
+
+export function getActiveBuyers(): ActiveBuyer[] {
+  if (typeof window === 'undefined') return INITIAL_ACTIVE_BUYERS
+  try {
+    const raw = localStorage.getItem(BUYERS_KEY)
+    if (!raw) {
+      localStorage.setItem(BUYERS_KEY, JSON.stringify(INITIAL_ACTIVE_BUYERS))
+      return INITIAL_ACTIVE_BUYERS
+    }
+    return JSON.parse(raw)
+  } catch (err) {
+    console.error('Failed to load active buyers from localStorage:', err)
+    return INITIAL_ACTIVE_BUYERS
+  }
+}
+
+export function saveActiveBuyer(buyer: ActiveBuyer): ActiveBuyer[] {
+  const current = getActiveBuyers()
+  const existsIndex = current.findIndex(b => b.id === buyer.id)
+  let updated: ActiveBuyer[]
+  if (existsIndex >= 0) {
+    updated = [...current]
+    updated[existsIndex] = {
+      ...buyer,
+      total_contract_value: Number(buyer.contracted_volume) * Number(buyer.price_per_piece),
+      updated_at: new Date().toISOString()
+    }
+  } else {
+    const newBuyer: ActiveBuyer = {
+      ...buyer,
+      total_contract_value: Number(buyer.contracted_volume) * Number(buyer.price_per_piece),
+      created_at: buyer.created_at || new Date().toISOString()
+    }
+    updated = [newBuyer, ...current]
+  }
+  localStorage.setItem(BUYERS_KEY, JSON.stringify(updated))
+  emitUpdate()
+  return updated
+}
+
+export function deleteActiveBuyer(buyerId: string): ActiveBuyer[] {
+  const current = getActiveBuyers()
+  const updated = current.filter(b => b.id !== buyerId)
+  localStorage.setItem(BUYERS_KEY, JSON.stringify(updated))
+  emitUpdate()
+  return updated
+}
+
+export function linkArticleToBuyer(
+  buyerId: string, 
+  articleNumber: string, 
+  techPackId?: string, 
+  articleName?: string
+): ActiveBuyer[] {
+  const current = getActiveBuyers()
+  const existsIndex = current.findIndex(b => b.id === buyerId)
+  if (existsIndex < 0) return current
+
+  const target = current[existsIndex]
+  const updatedBuyer: ActiveBuyer = {
+    ...target,
+    linked_article_number: articleNumber,
+    linked_article_id: techPackId || target.linked_article_id,
+    linked_article_name: articleName || target.linked_article_name || `Article ${articleNumber}`,
+    linked_at: new Date().toISOString(),
+    status: 'CONTRACTED',
+    updated_at: new Date().toISOString()
+  }
+
+  const updated = [...current]
+  updated[existsIndex] = updatedBuyer
+  localStorage.setItem(BUYERS_KEY, JSON.stringify(updated))
+  emitUpdate()
+  return updated
+}
+
+export interface AvailableTechPackArticle {
+  id: string
+  art_number: string
+  style_name: string
+  category: string
+  brand_name: string
+  fabric_composition: string
+  target_gsm?: number
+  embellishment_sequence?: string
+  status: string
+}
+
+export function getAvailableTechPackArticles(): AvailableTechPackArticle[] {
+  if (typeof window === 'undefined') return []
+  try {
+    const raw = localStorage.getItem('zigza_design_tech_packs_v2')
+    if (raw) {
+      const parsed = JSON.parse(raw)
+      return (parsed || []).map((tp: any) => ({
+        id: tp.id,
+        art_number: tp.style_number,
+        style_name: tp.style_name || `${tp.category || 'Garment'} Style ${tp.style_number}`,
+        category: tp.category || 'Apparel',
+        brand_name: tp.brand_name || 'Inhouse',
+        fabric_composition: tp.fabric_composition || 'Cotton Blend',
+        target_gsm: tp.target_gsm,
+        embellishment_sequence: tp.embellishment_sequence,
+        status: tp.status || 'APPROVED_BULK'
+      }))
+    }
+  } catch (err) {
+    console.error('Failed to load tech pack articles:', err)
+  }
+  return []
+}
+

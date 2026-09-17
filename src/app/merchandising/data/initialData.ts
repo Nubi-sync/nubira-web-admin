@@ -3,7 +3,8 @@ import {
   BomCosting, 
   TnaMilestone, 
   SourcingRequisition, 
-  ExportShipment 
+  ExportShipment,
+  ActiveBuyer
 } from '../types/merchandising'
 
 export const INITIAL_ORDERS: MerchandisingOrder[] = []
@@ -13,4 +14,6 @@ export const INITIAL_REQUISITIONS: SourcingRequisition[] = []
 export const INITIAL_SOURCING_REQUISITIONS: SourcingRequisition[] = []
 export const INITIAL_SHIPMENTS: ExportShipment[] = []
 export const INITIAL_EXPORT_SHIPMENTS: ExportShipment[] = []
+export const INITIAL_ACTIVE_BUYERS: ActiveBuyer[] = []
+
 

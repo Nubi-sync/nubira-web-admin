@@ -22,15 +22,28 @@ import {
   Check,
   X,
   FileSpreadsheet,
-  Boxes
+  Boxes,
+  Users,
+  Building2
 } from 'lucide-react'
-import { MerchandisingOrder, OrderStatus, BomCosting, TnaMilestone, ExportShipment, SourcingRequisition } from '../types/merchandising'
+import { 
+  MerchandisingOrder, 
+  OrderStatus, 
+  BomCosting, 
+  TnaMilestone, 
+  ExportShipment, 
+  SourcingRequisition,
+  ActiveBuyer
+} from '../types/merchandising'
 import { 
   getOrders, 
   getBomCostings, 
   getTnaMilestones, 
   getSourcingRequisitions, 
   getShipments, 
+  getActiveBuyers,
+  getAvailableTechPackArticles,
+  AvailableTechPackArticle,
   MERCHANDISING_UPDATE_EVENT 
 } from '../utils/merchandisingStorage'
 import { CreateOrderModal } from '../orders/components/CreateOrderModal'
@@ -78,6 +91,8 @@ export function MerchandisingDashboardClient({
     return []
   })
   const [sourcingPrs, setSourcingPrs] = useState<SourcingRequisition[]>([])
+  const [buyers, setBuyers] = useState<ActiveBuyer[]>([])
+  const [techPackArticles, setTechPackArticles] = useState<AvailableTechPackArticle[]>([])
   const [selectedBrand, setSelectedBrand] = useState<string>('ALL')
   const [selectedStyleId, setSelectedStyleId] = useState<string>('ALL')
   const [isStyleMenuOpen, setIsStyleMenuOpen] = useState(false)
@@ -93,18 +108,26 @@ export function MerchandisingDashboardClient({
     const localMilestones = getTnaMilestones()
     const localShipments = getShipments()
     const localSourcing = getSourcingRequisitions()
+    const localBuyers = getActiveBuyers()
+    const localArticles = getAvailableTechPackArticles()
 
     setOrders(localOrders && localOrders.length > 0 ? localOrders : (initialOrders || []))
     setCostings(localCostings && localCostings.length > 0 ? localCostings : (initialBomCostings || []))
     setMilestones(localMilestones && localMilestones.length > 0 ? localMilestones : (initialMilestones || []))
     setShipments(localShipments && localShipments.length > 0 ? localShipments : (initialShipments || []))
     setSourcingPrs(localSourcing || [])
+    setBuyers(localBuyers || [])
+    setTechPackArticles(localArticles || [])
   }
 
   useEffect(() => {
     reloadData()
     window.addEventListener(MERCHANDISING_UPDATE_EVENT, reloadData)
-    return () => window.removeEventListener(MERCHANDISING_UPDATE_EVENT, reloadData)
+    window.addEventListener('zigza_tech_packs_updated', reloadData)
+    return () => {
+      window.removeEventListener(MERCHANDISING_UPDATE_EVENT, reloadData)
+      window.removeEventListener('zigza_tech_packs_updated', reloadData)
+    }
   }, [initialOrders, initialBomCostings, initialMilestones, initialShipments])
 
   const handleManualSync = () => {
@@ -145,6 +168,13 @@ export function MerchandisingDashboardClient({
   const totalBookedPcs = orders.reduce((acc, curr) => acc + curr.total_quantity, 0)
   const activeOrdersCount = orders.filter(o => o.status !== 'CLOSED' && o.status !== 'DISPATCHED').length
   const hasOrders = orders.length > 0
+
+  // Tech Pack Active Articles count
+  const activeArticlesCount = techPackArticles.length
+
+  // Contracted In-Order pieces from linked Active Buyers
+  const linkedBuyers = buyers.filter(b => Boolean(b.linked_article_number))
+  const totalInOrderPieces = linkedBuyers.reduce((sum, b) => sum + (Number(b.contracted_volume) || 0), 0)
 
   // Dynamic Costing metrics
   const hasCostings = costings.length > 0
@@ -212,6 +242,14 @@ export function MerchandisingDashboardClient({
 
         {/* Quick Action Navigation Buttons */}
         <div className="flex items-center gap-2.5 flex-wrap">
+          <Link
+            href="/merchandising/buyers"
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-black/15 rounded-xl text-xs sm:text-sm font-bold text-slate-700 hover:bg-slate-50 transition-all shadow-2xs cursor-pointer"
+          >
+            <Users className="w-4 h-4 text-[#3A3564]" />
+            <span>Active Buyers</span>
+          </Link>
+
           <button
             type="button"
             onClick={() => setIsCreateModalOpen(true)}
@@ -243,161 +281,161 @@ export function MerchandisingDashboardClient({
               }}
               className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap shadow-2xs ${
                 selectedBrand === brand
-                  ? 'bg-[#3A3564] text-white shadow-xs'
+                  ? 'bg-[#3A3564] text-white'
                   : 'bg-[#FAF7F0] text-slate-700 hover:bg-[#F2ECE1] border border-black/10'
               }`}
             >
-              {brand === 'ALL' ? 'All Orders' : brand}
+              {brand}
             </button>
           ))}
         </div>
 
-        {/* Style Dropdown & Date Range Selector */}
-        <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap shrink-0">
+        {/* Right Filter Cluster: Style Picker + Search + Sync */}
+        <div className="flex items-center gap-2.5 flex-wrap xl:flex-nowrap justify-end">
           
-          {/* Searchable Style Filter Combobox */}
-          <div className="relative w-full sm:w-64">
+          {/* Style Selector Searchable Dropdown */}
+          <div className="relative min-w-[220px]">
             <button
               type="button"
               onClick={() => setIsStyleMenuOpen(!isStyleMenuOpen)}
-              className="w-full text-xs font-bold bg-[#FAF7F0] hover:bg-[#F2ECE1] border border-black/10 rounded-xl px-3.5 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 cursor-pointer flex items-center justify-between gap-2 shadow-2xs transition-all"
+              className="w-full flex items-center justify-between gap-2 px-3.5 py-2 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-xs sm:text-sm font-bold text-slate-800 transition-all cursor-pointer shadow-2xs"
             >
               <div className="flex items-center gap-2 truncate">
-                <Search className="w-3.5 h-3.5 text-[#3A3564] shrink-0" />
+                <Layers className="w-3.5 h-3.5 text-[#3A3564] shrink-0" />
                 <span className="truncate">{selectedStyleDisplayText}</span>
               </div>
               <ChevronDown className={`w-3.5 h-3.5 text-slate-500 shrink-0 transition-transform ${isStyleMenuOpen ? 'rotate-180' : ''}`} />
             </button>
 
-            {/* Dropdown Popover */}
             {isStyleMenuOpen && (
-              <>
-                <div 
-                  className="fixed inset-0 z-40"
-                  onClick={() => setIsStyleMenuOpen(false)}
-                />
-                <div className="absolute right-0 top-full mt-1.5 w-80 max-w-[90vw] bg-white border border-black/10 rounded-2xl shadow-xl z-50 p-2.5 animate-in fade-in zoom-in-95 duration-100">
-                  
-                  {/* Search Input */}
-                  <div className="relative mb-2">
-                    <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                    <input
-                      type="text"
-                      autoFocus
-                      value={styleSearchQuery}
-                      onChange={(e) => setStyleSearchQuery(e.target.value)}
-                      placeholder="Search Style, PO, Description..."
-                      className="w-full text-xs pl-8 pr-7 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 text-slate-900 placeholder:text-slate-400 font-semibold"
-                    />
-                    {styleSearchQuery && (
-                      <button
-                        type="button"
-                        onClick={() => setStyleSearchQuery('')}
-                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5"
-                      >
-                        <X className="w-3.5 h-3.5" />
-                      </button>
-                    )}
-                  </div>
+              <div className="absolute right-0 top-full mt-1.5 w-72 bg-white rounded-xl border border-black/10 shadow-xl z-30 p-2 space-y-1.5 animate-in fade-in zoom-in-95">
+                <div className="relative">
+                  <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    value={styleSearchQuery}
+                    onChange={e => setStyleSearchQuery(e.target.value)}
+                    placeholder="Filter styles or PO #..."
+                    className="w-full pl-8 pr-2.5 py-1.5 text-xs rounded-lg border border-black/10 bg-slate-50 focus:bg-white focus:outline-hidden focus:border-[#3A3564]"
+                    autoFocus
+                  />
+                </div>
+                <div className="max-h-48 overflow-y-auto space-y-0.5 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedStyleId('ALL')
+                      setIsStyleMenuOpen(false)
+                    }}
+                    className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center justify-between ${
+                      selectedStyleId === 'ALL'
+                        ? 'bg-[#3A3564] text-white'
+                        : 'text-slate-700 hover:bg-[#FAF7F0]'
+                    }`}
+                  >
+                    <span>All Buyer Styles</span>
+                    {selectedStyleId === 'ALL' && <Check className="w-3 h-3 text-white" />}
+                  </button>
 
-                  {/* Options */}
-                  <div className="max-h-60 overflow-y-auto space-y-1 pr-1">
+                  {filteredStylesList.map(st => (
                     <button
+                      key={st.id}
                       type="button"
                       onClick={() => {
-                        setSelectedStyleId('ALL')
+                        setSelectedStyleId(st.id)
                         setIsStyleMenuOpen(false)
-                        setStyleSearchQuery('')
                       }}
-                      className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between transition-colors cursor-pointer ${
-                        selectedStyleId === 'ALL'
-                          ? 'bg-[#FAF7F0] text-[#3A3564] font-extrabold border border-black/10'
-                          : 'hover:bg-slate-50 text-slate-700'
+                      className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs transition-all cursor-pointer flex items-center justify-between ${
+                        selectedStyleId === st.id
+                          ? 'bg-[#3A3564] text-white font-bold'
+                          : 'text-slate-700 hover:bg-[#FAF7F0]'
                       }`}
                     >
-                      <span>All Buyer Styles ({availableStyles.length} styles)</span>
-                      {selectedStyleId === 'ALL' && <Check className="w-4 h-4 text-[#3A3564] stroke-[2.5]" />}
+                      <div className="truncate pr-2">
+                        <span className="font-mono font-bold">{st.style_ref}</span>
+                        <span className="text-[10px] opacity-75 ml-1.5">({st.po_number})</span>
+                      </div>
+                      {selectedStyleId === st.id && <Check className="w-3 h-3 text-white shrink-0" />}
                     </button>
-
-                    {filteredStylesList.map(ord => {
-                      const isSelected = selectedStyleId === ord.id
-                      return (
-                        <button
-                          key={ord.id}
-                          type="button"
-                          onClick={() => {
-                            setSelectedStyleId(ord.id)
-                            setIsStyleMenuOpen(false)
-                            setStyleSearchQuery('')
-                          }}
-                          className={`w-full text-left px-3 py-2 rounded-xl text-xs transition-colors cursor-pointer flex items-start justify-between gap-2 ${
-                            isSelected
-                              ? 'bg-[#FAF7F0] text-[#3A3564] font-extrabold border border-black/10'
-                              : 'hover:bg-slate-50 text-slate-700 font-semibold'
-                          }`}
-                        >
-                          <div className="min-w-0 flex-1">
-                            <span className="font-extrabold text-slate-900 block truncate">
-                              {ord.style_ref} • {ord.po_number}
-                            </span>
-                            <span className="text-[11px] text-slate-500 block truncate font-medium">
-                              {ord.style_name} ({ord.brand_name})
-                            </span>
-                          </div>
-                          {isSelected && <Check className="w-4 h-4 text-[#3A3564] stroke-[2.5] shrink-0 mt-0.5" />}
-                        </button>
-                      )
-                    })}
-                  </div>
+                  ))}
                 </div>
-              </>
+              </div>
             )}
           </div>
 
-          {/* Date Filter Pills & Sync Button */}
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1 bg-[#FAF7F0] p-1 rounded-xl border border-black/10 shadow-2xs">
-              {[
-                { id: 'today', label: 'Today' },
-                { id: 'week', label: 'This Week' },
-                { id: 'month', label: 'This Month' },
-                { id: 'all', label: 'All Time' }
-              ].map(tab => (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() => setDateFilter(tab.id as DateFilter)}
-                  className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                    dateFilter === tab.id
-                      ? 'bg-white text-[#3A3564] shadow-2xs font-extrabold'
-                      : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-
-            <button
-              type="button"
-              onClick={handleManualSync}
-              disabled={isSyncing}
-              className="p-2.5 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-[#3A3564] transition-all cursor-pointer shadow-2xs flex items-center justify-center shrink-0"
-              title="Sync latest live updates from commercial database"
-            >
-              <RotateCcw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
-            </button>
+          {/* Time Filter Tabs */}
+          <div className="flex items-center p-1 rounded-xl bg-[#FAF7F0] border border-black/10 shadow-2xs">
+            {(['today', 'week', 'month', 'all'] as const).map(tab => (
+              <button
+                key={tab}
+                type="button"
+                onClick={() => setDateFilter(tab)}
+                className={`px-3 py-1.5 rounded-lg text-[11px] font-bold uppercase transition-all cursor-pointer ${
+                  dateFilter === tab
+                    ? 'bg-[#3A3564] text-white shadow-2xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                {tab === 'all' ? 'All' : tab}
+              </button>
+            ))}
           </div>
 
+          {/* Refresh Sync Button */}
+          <button
+            type="button"
+            onClick={handleManualSync}
+            disabled={isSyncing}
+            className="p-2.5 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-[#3A3564] transition-all cursor-pointer shadow-2xs flex items-center justify-center shrink-0"
+            title="Sync latest live updates from commercial database"
+          >
+            <RotateCcw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
+          </button>
         </div>
+
       </div>
 
       {/* ========================================================= */}
       {/* 3. COMMERCIAL LIFECYCLE KPI CARDS                          */}
       {/* ========================================================= */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
         
-        {/* CARD 1: ACTIVE BUYER POS */}
+        {/* CARD 1: ACTIVE ARTICLES (TECH PACK READY) */}
+        <Link 
+          href="/design/tech-packs"
+          className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-[#3A3564]/40 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group relative shadow-2xs select-none hover:-translate-y-0.5"
+        >
+          <div>
+            <div className="flex items-center justify-between">
+              <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-[#3A3564] group-hover:text-white group-hover:border-[#3A3564] transition-colors">
+                <Layers className="w-5 h-5" />
+              </div>
+              <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#3A3564] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+            </div>
+
+            <div className="mt-3.5">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
+                Active Articles
+              </span>
+              <p className="text-[11px] text-slate-400 font-medium truncate mt-0.5">
+                Tech Pack finalized
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-4 pt-3 border-t border-slate-100/80">
+            <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none" suppressHydrationWarning>
+              {activeArticlesCount} Articles
+            </h3>
+            <div className="mt-2.5 flex items-center justify-between">
+              <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 tracking-wider shadow-2xs">
+                {activeArticlesCount} Tech Packs Ready
+              </span>
+            </div>
+          </div>
+        </Link>
+
+        {/* CARD 2: ACTIVE BUYER POS */}
         <Link 
           href="/merchandising/orders"
           className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-[#3A3564]/40 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group relative shadow-2xs select-none hover:-translate-y-0.5"
@@ -432,7 +470,42 @@ export function MerchandisingDashboardClient({
           </div>
         </Link>
 
-        {/* CARD 2: TIME & ACTION (T&A) GATES */}
+        {/* CARD 3: IN ORDER (LINKED BUYER CONTRACTS) */}
+        <Link 
+          href="/merchandising/buyers"
+          className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-emerald-600/40 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group relative shadow-2xs select-none hover:-translate-y-0.5 ring-1 ring-emerald-500/15"
+        >
+          <div>
+            <div className="flex items-center justify-between">
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-emerald-700 group-hover:text-white group-hover:border-emerald-700 transition-colors">
+                <PackageCheck className="w-5 h-5" />
+              </div>
+              <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-emerald-700 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+            </div>
+
+            <div className="mt-3.5">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
+                In Order
+              </span>
+              <p className="text-[11px] text-slate-400 font-medium truncate mt-0.5">
+                Contracted &amp; linked volume
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-4 pt-3 border-t border-slate-100/80">
+            <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-emerald-950 leading-none" suppressHydrationWarning>
+              In Order {totalInOrderPieces.toLocaleString('en-IN')} Pcs
+            </h3>
+            <div className="mt-2.5 flex items-center justify-between">
+              <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 tracking-wider shadow-2xs">
+                {linkedBuyers.length} of {buyers.length} Buyers Contracted
+              </span>
+            </div>
+          </div>
+        </Link>
+
+        {/* CARD 4: TIME & ACTION (T&A) GATES */}
         <Link 
           href="/merchandising/tna-calendar"
           className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-[#3A3564]/40 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group relative shadow-2xs select-none hover:-translate-y-0.5"

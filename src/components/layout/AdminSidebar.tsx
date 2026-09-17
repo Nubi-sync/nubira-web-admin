@@ -266,6 +266,7 @@ export function AdminSidebar({
         section: '2. Merchandising',
         items: [
           { label: 'Desk Dashboard', href: '/merchandising', icon: Briefcase },
+          { label: 'Active Buyers', href: '/merchandising/buyers', icon: Users },
           { label: 'Buyer Purchase Orders', href: '/merchandising/orders', icon: ClipboardList },
           { label: 'Time & Action (T&A) Planner', href: '/merchandising/tna-calendar', icon: Calendar },
           { label: 'Zigza AI', href: '/merchandising/zigza-ai', icon: Bot },
