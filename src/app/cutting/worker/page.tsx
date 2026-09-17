@@ -12,7 +12,19 @@ export const metadata = {
   description: 'Floor operator workstation for assigned cutting quotas, table allocations, and completion sign-offs.'
 }
 
-export default async function CuttingWorkerPage() {
+export default async function CuttingWorkerPage({
+  searchParams
+}: {
+  searchParams?: Promise<{ tab?: string }>
+}) {
+  const params = await searchParams
+  if (params?.tab === 'history') {
+    redirect('/cutting/worker/history')
+  }
+  if (params?.tab === 'profile') {
+    redirect('/cutting/worker/profile')
+  }
+
   const supabase = await createClient()
 
   const {
@@ -33,22 +45,27 @@ export default async function CuttingWorkerPage() {
 
   // Resolve display name if default
   let displayName = tenant.adminDisplayName
-  const normPhone = (tenant.phone || '').replace(/\D/g, '').slice(-10)
+  const normPhone = (tenant.phone || user.user_metadata?.phone_number || '').replace(/\D/g, '').slice(-10)
 
   if (!displayName || displayName === 'Floor Operator' || displayName === 'Cutting Operator' || displayName === 'Cutting Floor Operator') {
-    const matchedWorker = initialWorkers.find((w: any) =>
-      (normPhone && w.phone_number && w.phone_number.replace(/\D/g, '').slice(-10) === normPhone) ||
-      (user.id && w.worker_user_id === user.id)
-    )
-    if (matchedWorker?.worker_name) {
-      displayName = matchedWorker.worker_name
+    const metaName = user.user_metadata?.full_name
+    if (metaName && metaName !== 'Floor Operator' && metaName !== 'Cutting Operator' && metaName !== 'Cutting Floor Operator') {
+      displayName = metaName
     } else {
-      const matchedTask = initialTasks.find((t: any) =>
-        (normPhone && t.worker_phone && t.worker_phone.replace(/\D/g, '').slice(-10) === normPhone) ||
-        (user.id && t.worker_id === user.id)
+      const matchedWorker = initialWorkers.find((w: any) =>
+        (normPhone && w.phone_number && w.phone_number.replace(/\D/g, '').slice(-10) === normPhone) ||
+        (user.id && w.worker_user_id === user.id)
       )
-      if (matchedTask?.worker_name) {
-        displayName = matchedTask.worker_name
+      if (matchedWorker?.worker_name) {
+        displayName = matchedWorker.worker_name
+      } else {
+        const matchedTask = initialTasks.find((t: any) =>
+          (normPhone && t.worker_phone && t.worker_phone.replace(/\D/g, '').slice(-10) === normPhone) ||
+          (user.id && t.worker_id === user.id)
+        )
+        if (matchedTask?.worker_name) {
+          displayName = matchedTask.worker_name
+        }
       }
     }
   }

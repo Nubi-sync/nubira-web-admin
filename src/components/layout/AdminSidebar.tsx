@@ -186,13 +186,13 @@ export function AdminSidebar({
         section: 'Floor Workstation',
         items: [
           { label: 'Active Assignments', href: '/cutting/worker', icon: Scissors },
-          { label: 'Completed History', href: '/cutting/worker?tab=history', icon: Clock },
+          { label: 'Completed History', href: '/cutting/worker/history', icon: Clock },
         ],
       },
       {
         section: 'Account',
         items: [
-          { label: 'Operator Profile', href: '/cutting/worker?tab=profile', icon: User },
+          { label: 'Operator Profile', href: '/cutting/worker/profile', icon: User },
         ],
       },
     ]
