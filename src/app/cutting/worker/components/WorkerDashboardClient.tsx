@@ -240,7 +240,7 @@ export function WorkerDashboardClient({
             href="/cutting/worker/history"
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs"
           >
-            <History className="w-3.5 h-3.5 text-emerald-600" />
+            <History className="w-3.5 h-3.5 text-[#3A3564]" />
             <span>Completed History ({historyTasks.length})</span>
           </Link>
           <button
@@ -270,7 +270,7 @@ export function WorkerDashboardClient({
               <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
                 {userRole ? userRole.replace(/_/g, ' ') : 'Cutting Floor Operator'}
               </span>
-              <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-2xs tracking-wider">
+              <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-slate-900 border border-black/10 shadow-2xs tracking-wider">
                 {activeAssignments.length} Active Tasks
               </span>
             </div>
@@ -287,17 +287,17 @@ export function WorkerDashboardClient({
         </div>
       </div>
 
-      {/* Layer 3: Executive Metrics Strip (Unified 4-Box Grid) */}
+      {/* Layer 3: Executive Metrics Strip */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         
-        {/* Metric 1: Tasks */}
+        {/* Metric 1: Active Jobs */}
         <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
               TASKS
             </span>
             <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
-              <ClipboardList className="w-4 h-4 text-[#3A3564]" />
+              <Briefcase className="w-4 h-4 text-[#3A3564]" />
             </div>
           </div>
           <div className="mt-3">
@@ -310,7 +310,7 @@ export function WorkerDashboardClient({
           </div>
         </div>
 
-        {/* Metric 2: Target */}
+        {/* Metric 2: Total Pieces Assigned */}
         <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
@@ -356,16 +356,16 @@ export function WorkerDashboardClient({
             <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
               CLEARED
             </span>
-            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center shadow-2xs">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+              <CheckCircle2 className="w-4 h-4 text-[#3A3564]" />
             </div>
           </div>
           <div className="mt-3">
             <div className="text-xs font-bold uppercase tracking-wider text-slate-900 font-mono">
               Verified Pieces Cut
             </div>
-            <div className="text-2xl sm:text-3xl font-bold font-mono text-emerald-700 font-[family-name:var(--font-heading)] mt-0.5">
-              {totalVerifiedPiecesCut.toLocaleString('en-IN')} <span className="text-xs font-normal text-emerald-600">Pcs</span>
+            <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
+              {totalVerifiedPiecesCut.toLocaleString('en-IN')} <span className="text-xs font-normal text-slate-500">Pcs</span>
             </div>
           </div>
         </div>
@@ -387,8 +387,8 @@ export function WorkerDashboardClient({
 
         {currentTasks.length === 0 ? (
           <div className="bg-white p-12 rounded-3xl border border-black/10 shadow-2xs text-center space-y-2">
-            <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center mx-auto mb-2">
-              <CheckCircle2 className="w-7 h-7" />
+            <div className="w-14 h-14 rounded-2xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center mx-auto mb-2 shadow-2xs">
+              <CheckCircle2 className="w-7 h-7 text-[#3A3564]" />
             </div>
             <h3 className="text-base font-bold text-slate-900">All Cutting Tasks Cleared</h3>
             <p className="text-xs text-slate-500 font-mono max-w-sm mx-auto">
@@ -477,7 +477,7 @@ export function WorkerDashboardClient({
                     <div className="text-xl font-black font-mono text-slate-900 mt-1">
                       {task.alloted_hours} Hours
                     </div>
-                    <span className="text-[11px] text-emerald-700 font-mono font-bold">
+                    <span className="text-[11px] text-slate-900 font-mono font-bold">
                       Due: {formatDeadline(task.due_time, task.alloted_hours)}
                     </span>
                   </div>
@@ -509,9 +509,9 @@ export function WorkerDashboardClient({
                     <button
                       type="button"
                       onClick={() => handleMarkComplete(task.id, task.task_ref, task.pieces_to_cut)}
-                      className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer flex items-center justify-center gap-2"
+                      className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer flex items-center justify-center gap-2"
                     >
-                      <CheckCircle2 className="w-4 h-4" />
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                       <span>✓ Mark as Complete ({task.pieces_to_cut.toLocaleString('en-IN')} Pcs Cut)</span>
                     </button>
                   )}

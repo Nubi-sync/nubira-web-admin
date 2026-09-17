@@ -245,15 +245,15 @@ export function WorkerHistoryClient({
       {/* Layer 2: Encapsulated Top Header Card */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700 shrink-0 shadow-2xs">
-            <History className="w-6 h-6 text-emerald-700" />
+          <div className="w-12 h-12 rounded-2xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shrink-0 shadow-2xs">
+            <History className="w-6 h-6 text-[#3A3564]" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 Completed &amp; Verified History
               </h1>
-              <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-2xs tracking-wider">
+              <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-slate-900 border border-black/10 shadow-2xs tracking-wider">
                 {historyTasks.length} Signed Off
               </span>
             </div>
@@ -279,16 +279,16 @@ export function WorkerHistoryClient({
             <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
               OUTPUT
             </span>
-            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center shadow-2xs">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+              <CheckCircle2 className="w-4 h-4 text-[#3A3564]" />
             </div>
           </div>
           <div className="mt-3">
             <div className="text-xs font-bold uppercase tracking-wider text-slate-900 font-mono">
               Verified Pieces Cut
             </div>
-            <div className="text-2xl sm:text-3xl font-bold font-mono text-emerald-700 font-[family-name:var(--font-heading)] mt-0.5">
-              {totalVerifiedPiecesCut.toLocaleString('en-IN')} <span className="text-xs font-normal text-emerald-600">Pcs</span>
+            <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
+              {totalVerifiedPiecesCut.toLocaleString('en-IN')} <span className="text-xs font-normal text-slate-500">Pcs</span>
             </div>
           </div>
         </div>
@@ -347,7 +347,7 @@ export function WorkerHistoryClient({
             <div className="text-xs font-bold uppercase tracking-wider text-slate-900 font-mono">
               Sign-Off Desk
             </div>
-            <div className="text-2xl sm:text-3xl font-bold font-mono text-[#3A3564] font-[family-name:var(--font-heading)] mt-0.5">
+            <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
               100% <span className="text-xs font-normal text-slate-500">Verified</span>
             </div>
           </div>
@@ -379,8 +379,8 @@ export function WorkerHistoryClient({
         {/* History Table */}
         {filteredHistory.length === 0 ? (
           <div className="p-12 text-center space-y-2">
-            <div className="w-14 h-14 rounded-2xl bg-slate-100 text-slate-400 border border-slate-200 flex items-center justify-center mx-auto mb-2">
-              <History className="w-7 h-7" />
+            <div className="w-14 h-14 rounded-2xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center mx-auto mb-2 shadow-2xs">
+              <History className="w-7 h-7 text-[#3A3564]" />
             </div>
             <h3 className="text-base font-bold text-slate-900">
               {searchQuery ? 'No matching history records' : 'No Verified History Records Yet'}
@@ -419,15 +419,15 @@ export function WorkerHistoryClient({
                     <td className="py-3.5 px-4 font-mono font-semibold text-slate-700">
                       {task.table_number || 'Table 01'}
                     </td>
-                    <td className="py-3.5 px-4 font-mono font-bold text-right text-emerald-700">
+                    <td className="py-3.5 px-4 font-mono font-bold text-right text-slate-900">
                       +{task.pieces_to_cut.toLocaleString('en-IN')} Pcs
                     </td>
                     <td className="py-3.5 px-4 font-mono text-slate-600">
                       {task.alloted_hours} Hours
                     </td>
                     <td className="py-3.5 px-4">
-                      <span className="inline-flex items-center gap-1.5 text-[11px] font-mono font-bold text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                      <span className="inline-flex items-center gap-1.5 text-[11px] font-mono font-bold text-slate-900 bg-[#FAF7F0] px-2.5 py-1 rounded-lg border border-black/10">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-[#3A3564]" />
                         Verified &amp; Handed Over
                       </span>
                     </td>

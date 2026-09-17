@@ -75,8 +75,8 @@ export function WorkerProfileClient({
               <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 {userName || 'Cutting Floor Operator'}
               </h1>
-              <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-2xs tracking-wider flex items-center gap-1">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+              <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-slate-900 border border-black/10 shadow-2xs tracking-wider flex items-center gap-1">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#3A3564]" />
                 Active Floor Operator
               </span>
             </div>
@@ -121,7 +121,7 @@ export function WorkerProfileClient({
 
             <div className="flex items-center justify-between p-3 rounded-xl bg-[#FAF7F0]/60 border border-black/5">
               <span className="text-slate-500">Authentication</span>
-              <span className="font-bold text-emerald-700">✓ RBAC Secured</span>
+              <span className="font-bold text-slate-900">✓ RBAC Secured</span>
             </div>
           </div>
         </div>
