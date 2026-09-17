@@ -341,7 +341,8 @@ export function CreateTechPackModal({
       cad_back_url: cadBackUrl,
       design_submission_id: submissionId,
       materials,
-      instructions: additionalInstructions.trim() || undefined
+      instructions: additionalInstructions.trim() || undefined,
+      target_cut_date: targetCutDate
     })
 
     setIsSubmitting(false)
@@ -369,11 +370,8 @@ export function CreateTechPackModal({
               <FileText className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-900 font-[family-name:var(--font-heading)] flex items-center gap-2">
-                <span>Create Production Tech-Pack</span>
-                <span className="text-[10px] font-mono font-bold bg-[#3A3564] text-white px-2 py-0.5 rounded-md">
-                  V1.0
-                </span>
+              <h2 className="text-lg font-bold text-slate-900 font-[family-name:var(--font-heading)]">
+                Create Production Tech-Pack
               </h2>
               <p className="text-xs text-slate-600">
                 Generate production specification with BOM, trims, stitches &amp; CAD coordinates

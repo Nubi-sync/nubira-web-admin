@@ -62,11 +62,13 @@ function parseTechPackMetadata(rawFabric?: string | null): {
   fabric: string
   materials?: TechPackMaterialRequirement[]
   instructions?: string
+  target_cut_date?: string
 } {
   if (!rawFabric) return { fabric: '100% Cotton' }
   let cleanFabric = rawFabric
   let materials: TechPackMaterialRequirement[] | undefined
   let instructions: string | undefined
+  let target_cut_date: string | undefined
 
   const bomMatch = cleanFabric.match(/\[BOM_JSON:\s*(\[[\s\S]*?\])\]/i)
   if (bomMatch && bomMatch[1]) {
@@ -74,6 +76,12 @@ function parseTechPackMetadata(rawFabric?: string | null): {
       materials = JSON.parse(bomMatch[1])
       cleanFabric = cleanFabric.replace(/\[BOM_JSON:\s*\[[\s\S]*?\]\]\s*/gi, '')
     } catch {}
+  }
+
+  const cutMatch = cleanFabric.match(/\[TARGET_CUT_DATE:\s*([\s\S]*?)\]/i)
+  if (cutMatch && cutMatch[1]) {
+    target_cut_date = cutMatch[1].trim()
+    cleanFabric = cleanFabric.replace(/\[TARGET_CUT_DATE:\s*[\s\S]*?\]\s*/gi, '')
   }
 
   const instMatch = cleanFabric.match(/\[INSTRUCTIONS:\s*([\s\S]*?)\]\s*$/i)
@@ -85,7 +93,8 @@ function parseTechPackMetadata(rawFabric?: string | null): {
   return {
     fabric: cleanFabric.trim() || '100% Cotton',
     materials,
-    instructions
+    instructions,
+    target_cut_date
   }
 }
 
@@ -127,7 +136,7 @@ export async function fetchTechPacksAction(_companyName?: string): Promise<TechP
         spi: Number(row.spi) || 12,
         seam_class: (row.seam_class as SeamClass) || 'ISO 4915 Class 401 (Chainstitch)',
         status: (row.status === 'DRAFT' || !row.status ? 'APPROVED_BULK' : row.status) as TechPackStatus,
-        target_cut_date: new Date(new Date(row.created_at).getTime() + 14 * 86400000).toISOString().split('T')[0],
+        target_cut_date: meta.target_cut_date || new Date(new Date(row.created_at).getTime() + 14 * 86400000).toISOString().split('T')[0],
         version: Number(row.version) || 1,
         created_at: row.created_at,
         updated_at: row.updated_at,
@@ -350,6 +359,9 @@ export async function createTechPackAction(payload: {
     if (payload.materials && payload.materials.length > 0) {
       finalFabric = `[BOM_JSON: ${JSON.stringify(payload.materials)}] ${finalFabric}`
     }
+    if (payload.target_cut_date && payload.target_cut_date.trim()) {
+      finalFabric = `[TARGET_CUT_DATE: ${payload.target_cut_date.trim()}] ${finalFabric}`
+    }
     if (payload.instructions && payload.instructions.trim()) {
       finalFabric = `${finalFabric} [INSTRUCTIONS: ${payload.instructions.trim()}]`
     }
@@ -374,7 +386,6 @@ export async function createTechPackAction(payload: {
         approved_by_sa: true,
         sa_verdict: 'APPROVED',
         company_name: payload.company_name || 'Nubira Creation',
-        target_cut_date: payload.target_cut_date || null,
         status: payload.status || 'APPROVED_BULK',
         version: 1
       })
@@ -409,7 +420,7 @@ export async function createTechPackAction(payload: {
       spi: Number(data.spi),
       seam_class: data.seam_class as SeamClass,
       status: data.status as TechPackStatus,
-      target_cut_date: new Date(Date.now() + 14 * 86400000).toISOString().split('T')[0],
+      target_cut_date: meta.target_cut_date || payload.target_cut_date || new Date(Date.now() + 14 * 86400000).toISOString().split('T')[0],
       version: data.version,
       created_at: data.created_at,
       updated_at: data.updated_at,
