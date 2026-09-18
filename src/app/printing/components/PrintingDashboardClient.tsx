@@ -1077,7 +1077,7 @@ export function PrintingDashboardClient({
                       {/* 8. Action Controls */}
                       <td className="py-3.5 px-4 text-center">
                         <div className="flex items-center justify-center gap-2">
-                          {!isVerified && (
+                          {isWorkerDone && (
                             <button
                               type="button"
                               onClick={() => handleVerifyAndDone(task.id, task.task_ref, task.pieces_to_print)}
@@ -1087,6 +1087,18 @@ export function PrintingDashboardClient({
                               <CheckCircle2 className="w-3.5 h-3.5" />
                               <span>Verify &amp; Done</span>
                             </button>
+                          )}
+
+                          {!isWorkerDone && !isVerified && (
+                            <span className="text-[11px] font-mono text-slate-400 italic pr-1 whitespace-nowrap">
+                              {task.status === 'IN_PROGRESS' ? 'Printing live' : 'Ready on floor'}
+                            </span>
+                          )}
+
+                          {isVerified && (
+                            <span className="text-[11px] font-mono font-bold text-slate-900 pr-1 whitespace-nowrap">
+                              ✓ Done
+                            </span>
                           )}
                           
                           <button
