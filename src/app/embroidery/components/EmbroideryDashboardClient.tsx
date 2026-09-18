@@ -460,7 +460,7 @@ export function EmbroideryDashboardClient({
       (task.worker_name || '').toLowerCase().includes(taskSearchQuery.toLowerCase()) ||
       (task.article_number || '').toLowerCase().includes(taskSearchQuery.toLowerCase()) ||
       (task.buyer_name || '').toLowerCase().includes(taskSearchQuery.toLowerCase()) ||
-      (task.machine_number || '').toLowerCase().includes(taskSearchQuery.toLowerCase())
+      (task.table_number || task.machine_number || '').toLowerCase().includes(taskSearchQuery.toLowerCase())
 
     let matchesStatus = true
     if (statusFilter === 'ACTIVE') {
