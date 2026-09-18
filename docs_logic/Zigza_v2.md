@@ -349,11 +349,13 @@ The color kitchen mixes the ink formulation to match the buyer's approved color 
 ```mermaid
 flowchart TD
     A["Cut Panels Arrive\n(Barcode Scanned)"] --> B["Strike-Off Sample: Ink, Mesh, Curing Temp"]
-    B -->|Approved| C["Mount Screens & Run Bulk Print"]
-    C --> D["Conveyor Tunnel Curing (160°C)"]
-    D --> E["Shift Production & Defect Log"]
-    E -->|Defect| F["Reject & Request Recut Panel from Division 03"]
-    E -->|Passed| G["Dispatch Printed Bundles to Division 06 — Sewing"]
+    B -->|Approved| C["Task Allocation: Select Worker & Station\n(Strict In-Hand Capped, Zero-Ghost-Piece Lock)"]
+    C --> D["Worker Submits Completed Run (WORKER_COMPLETED)"]
+    D --> E["Supervisor Signs Off: 'Verify & Done' (VERIFIED_COMPLETED)"]
+    E --> F["Conveyor Tunnel Curing (160°C)"]
+    F --> G["Shift Production & Defect Log"]
+    G -->|Defect| H["Reject & Request Recut Panel from Division 03"]
+    G -->|Passed| I["Dispatch to Division 05 (if Print-First) or Division 06 — Sewing"]
 ```
 
 ### Menu Items (8 views)
@@ -376,16 +378,17 @@ flowchart TD
 Embroidery machines run at up to 1,000 stitches per minute across 20 needles simultaneously — a small setup error scales into a large batch of defective panels almost instantly. This division's job is precision execution at speed, and accurate stitch-count billing, since embroidery cost (whether to a buyer or an internal cost center) is calculated directly from stitches run, not pieces.
 
 ### What Happens Here Day to Day
-A digitizer converts the buyer's artwork into a machine stitch file, defining stitch count, color sequence, and the correct backing stabilizer for the fabric. Cut panels are hooped, the machine run is executed and logged — including any thread breaks, which cause downtime — and finished panels are trimmed of loose threads and inspected before being re-banded for dispatch.
+A digitizer converts the buyer's artwork into a machine stitch file, defining stitch count, color sequence, and the correct backing stabilizer for the fabric. Tasks are allocated to registered embroidery operators and machines with strict in-hand queue bounds (preventing phantom piece allocation). Cut panels are hooped, the machine run is executed and logged — including any thread breaks, which cause downtime. Once the operator submits work (`WORKER_COMPLETED`), the supervisor inspects the panels and triggers **"Verify & Done"** (`VERIFIED_COMPLETED`), seamlessly advancing pieces to Printing or Sewing.
 
 ```mermaid
 flowchart TD
     A["Cut Bundles Arrive\n(Barcode Scanned)"] --> B["Digitize Design: Stitch Count, Color Sequence, Backing"]
-    B --> C["Hoop & Frame Panels"]
-    C --> D["Multi-Head Machine Run"]
-    D --> E["Log Run: Stitches Completed, Thread Breaks, Passed Panels"]
-    E --> F["Trim Jump Threads & Inspect"]
-    F --> G["Dispatch to Printing (if dual-technique) or Sewing"]
+    B --> C["Task Allocation: Operator & Machine Assignment\n(Strict In-Hand Capped, Zero-Piece Lock)"]
+    C --> D["Hoop, Frame & Multi-Head Machine Run"]
+    D --> E["Worker Submits Shift Run (WORKER_COMPLETED)"]
+    E --> F["Supervisor 'Verify & Done' Sign-Off (VERIFIED_COMPLETED)"]
+    F --> G["Trim Jump Threads & Final Inspection"]
+    G --> H["Dispatch to Printing (if Embroidery-First) or Sewing Floor"]
 ```
 
 ### Menu Items (8 views)

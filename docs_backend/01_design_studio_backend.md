@@ -62,7 +62,7 @@ CREATE TABLE IF NOT EXISTS public.design_tech_packs (
     base_size VARCHAR(20) DEFAULT 'M',
     fabric_composition TEXT NOT NULL,
     target_gsm INTEGER NOT NULL CHECK (target_gsm BETWEEN 60 AND 800),
-    embellishment_sequence VARCHAR(40) DEFAULT 'NONE', -- 'NONE', 'EMBROIDERY_FIRST_THEN_PRINT', 'PRINT_FIRST_THEN_EMBROIDERY'
+    embellishment_sequence VARCHAR(40) DEFAULT 'NONE', -- 'PRINT_FIRST_THEN_EMBROIDERY', 'EMBROIDERY_FIRST_THEN_PRINT', 'ONLY_PRINTING', 'ONLY_EMBROIDERY', 'NONE'
     cad_front_url TEXT,
     cad_back_url TEXT,
     spi INTEGER DEFAULT 12 CHECK (spi BETWEEN 6 AND 24),

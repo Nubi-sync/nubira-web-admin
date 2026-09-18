@@ -142,6 +142,27 @@ Every row represents a physical multi-head embroidery machine on the floor:
 
 ---
 
+#### Box 3: Task Allocation Table & Floor Worker Assignment Modal
+The Embroidery Floor operates a direct worker-level allocation ledger:
+- **In-Hand Queue Integrity**: In-hand pieces accurately honor the selected process route:
+  - If `EMBROIDERY_FIRST_THEN_PRINT` or `ONLY_EMBROIDERY`: In Hand is derived directly from Cutting Floor cut panels.
+  - If `PRINT_FIRST_THEN_EMBROIDERY`: In Hand is derived from cured printed panels completed in the Printing Unit.
+- **Strict Zero-Piece Lockout (`inHandPieces === 0`)**:
+  - The modal automatically sets `pieces = 0`.
+  - The quantity input is disabled with a high-visibility warning: `⚠️ 0 pieces available In Hand (Allocation Blocked)`.
+  - The submit button is strictly locked with label `"0 Pcs In Hand (Allocation Blocked)"` to prevent allocating phantom pieces.
+- **Strict Maximum/Minimum Capping (`inHandPieces > 0`)**:
+  - Minimum allowed allocation: `1 piece`.
+  - Maximum allowed allocation: exactly `inHandPieces`.
+  - Real-time inline feedback alerts if an entered number exceeds the available queue, locking the submit button.
+- **Dynamic Machine Assignment**: Assign tasks to `Machine 01 (Tajima 20-Head)`, `Machine 02 (Tajima 12-Head)`, `Machine 03 (Barudan 15-Head)`, `Machine 04 (SWF Multi-Head)`, or add new machine lines dynamically.
+- **Two-Step Verification Gate**:
+  - While work is ongoing (`ASSIGNED` / `IN_PROGRESS`), the action column shows live floor status (`Ready on floor` / `Embroidery live`).
+  - The **"Verify & Done"** button **only shows up after the worker submits their completed job** (`WORKER_COMPLETED`).
+  - Upon supervisor sign-off, status transitions to `VERIFIED` (`✓ Done`), instantly advancing completed pieces to the downstream queue.
+
+---
+
 ### SCREEN 2: DST Punch File Master Library (`/embroidery/punch-library`)
 
 Before an embroidery machine can stitch a single millimeter, an embroidery digitizer ("puncher") converts the buyer's flat vector artwork into needle coordinates.

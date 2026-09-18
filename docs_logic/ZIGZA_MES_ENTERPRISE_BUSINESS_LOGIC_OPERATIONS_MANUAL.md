@@ -341,20 +341,22 @@ Garment printing adds high aesthetic value but carries high scrap risk: an uncur
 ```mermaid
 flowchart TD
     A["Cut Bundle Panels Received from Cutting / Embroidery\n(Scanned Bundle Barcode)"] --> B["Form 1: Pre-Production Strike-Off Approval\n(Mesh Count, Ink Formula, Curing Temp, Rub Fastness)"]
-    B -->|Buyer / QA Sign-Off| C["Mount Screens on Automatic Oval / Rotary Printing Tables"]
+    B -->|Buyer / QA Sign-Off| C["Task Allocation: Operator & Table Station Assignment\n(Strict In-Hand Capped, Zero-Ghost-Piece Lock)"]
     C --> D["Bulk Production Run & Conveyor Tunnel Curing\n(160°C for 2.5 mins)"]
-    D --> E["Form 2: Shift Production & Defect Logging\n(Passed Pcs vs Bleed/Smudge/Curing Rejections)"]
-    E -->|Defective Panels| F["Log Rejection / Request Re-Cut Panel from Division 03 End-Bits"]
-    E -->|Passed Printed Bundles| G["Re-Band Bundle & Dispatch to Division 06 (Stitching)"]
+    D --> E["Worker Submits Completed Run (WORKER_COMPLETED)"]
+    E --> F["Supervisor Signs Off: 'Verify & Done' (VERIFIED_COMPLETED)"]
+    F --> G["Shift Production & Defect Logging\n(Passed Pcs vs Bleed/Smudge/Curing Rejections)"]
+    G -->|Defective Panels| H["Log Rejection / Request Re-Cut Panel from Division 03 End-Bits"]
+    G -->|Passed Printed Bundles| I["Re-Band Bundle & Dispatch to 05 (Embroidery) or 06 (Stitching)"]
 ```
 
 ### 4. Complete Menu Navigation Directory (All 8 Views)
-1. **Printing Master Dashboard** (`/printing/dashboard`): Daily impressions printed, machine runtime efficiency, and active strike-off status.
+1. **Printing Master Dashboard** (`/printing`): Daily impressions printed, machine runtime efficiency, task allocation ledger, and active strike-off status.
 2. **Strike-Off Approvals** (`/printing/strike-offs`): History of lab swatches, Pantone color codes, and digital approvals.
 3. **Screen & Mesh Registry** (`/printing/screens`): Inventory of exposed screens, mesh tensions (Newtons/cm), and emulsion types.
-4. **Color Kitchen & Ink Formulations** (`/printing/color-kitchen`): Recipes for specialty inks (high-density, puff, reflective, glitter).
-5. **Curing Oven & Temperature Telemetry** (`/printing/curing`): Temperature logs ensuring every lot reaches required cross-linking temperature.
-6. **Print Rejection & Defect Analysis** (`/printing/rejections`): Defect Pareto tracking (e.g. pinholes, misregistration, crocking).
+4. **Color Kitchen & Ink Formulations** (`/printing/ink-kitchen`): Recipes for specialty inks (high-density, puff, reflective, glitter).
+5. **Curing Oven & Temperature Telemetry** (`/printing/curing-qc`): Temperature logs ensuring every lot reaches required cross-linking temperature.
+6. **Print Table & DTG Runs** (`/printing/table-runs`): Shift scheduling and operator run logging.
 7. **Zigza AI Printing Copilot** (`/printing/zigza-ai`): AI assistant providing ink curing parameter recommendations based on fabric fiber composition.
 8. **Printing Floor Profile** (`/printing/profile`): Printing master credentials and table maintenance logs.
 
@@ -363,7 +365,7 @@ flowchart TD
 ## DIVISION 05: MULTI-HEAD EMBROIDERY FLOOR
 * **URL Prefix**: `/embroidery`
 * **Target Users**: Embroidery Floor Supervisor, Punching / Digitizing Master, Machine Operators
-* **Upstream Inward**: Plain Cut Panels (from Division 03)
+* **Upstream Inward**: Plain Cut Panels (from Division 03) or Pre-Printed Panels (from Division 04)
 * **Downstream Outward**: Precision-stitched embroidered panels dispatched to Printing (Division 04) or Stitching (Division 06)
 
 ### 1. Business Mission & Executive Objectives
@@ -371,22 +373,25 @@ Embroidery machines operate at 800 to 1,000 stitches per minute with up to 20 he
 
 ### 2. Operational Reality & Daily Workflow
 1. The digitizer converts buyer graphic art into machine DST/EMB code, logging stitch count, color sequence, and backing stabilizer type on the **DST Design Program Form**.
-2. Cut panel bundles arrive from Cutting.
-3. Framing operators hoop panels with tear-away or cut-away backing stabilizer.
-4. The supervisor logs the machine run using the **Shift Machine Run Form**, tracking head speeds and thread breakage frequencies.
-5. Finished panels undergo trim inspection to clip jump threads before bundle re-banding.
+2. Cut panel bundles arrive from Cutting (or Printing if Print-First).
+3. The supervisor assigns task quotas to registered operators and multi-head machines with strict piece bounds (`min = 1`, `max = inHandPieces`, with zero-piece allocation locked).
+4. Framing operators hoop panels with tear-away or cut-away backing stabilizer.
+5. The operator completes the machine run and submits work (`WORKER_COMPLETED`).
+6. The supervisor conducts panel quality inspection and triggers **"Verify & Done"** (`VERIFIED_COMPLETED`), seamlessly releasing pieces to downstream queues.
 
 ### 3. Systematic Process Flowchart
 
 ```mermaid
 flowchart TD
-    A["Cut Bundles Inward from Division 03\n(Scanned Bundle Barcode)"] --> B["Form 1: DST Design Specification & Punching Form\n(Total Stitches, Color Way, Thread Density, Backing Stabilizer)"]
-    B --> C["Hooping & Framing Cut Panels with Backing Interlining"]
-    C --> D["Multi-Head Automated Machine Run\n(Tajima / Barudan 20-Head Units)"]
-    D --> E["Form 2: Machine Run & Downtime Logging\n(Stitch Run Duration, Thread Break Frequency, Passed Pcs)"]
-    E --> F["Manual Jump-Thread Trimming & Backing Tear-Away"]
-    F --> G["Quality Check: Hooping Marks & Needle Cut Audit"]
-    G --> H["Re-Band Bundle & Dispatch to 04 (Print) or 06 (Stitching)"]
+    A["Cut Bundles Inward from Division 03 / 04\n(Scanned Bundle Barcode)"] --> B["Form 1: DST Design Specification & Punching Form\n(Total Stitches, Color Way, Thread Density, Backing Stabilizer)"]
+    B --> C["Task Allocation: Operator & Multi-Head Station Assignment\n(Strict In-Hand Capped, Zero-Ghost-Piece Lock)"]
+    C --> D["Hooping & Framing Cut Panels with Backing Interlining"]
+    D --> E["Multi-Head Automated Machine Run\n(Tajima / Barudan 20-Head Units)"]
+    E --> F["Worker Submits Machine Run (WORKER_COMPLETED)"]
+    F --> G["Supervisor Signs Off: 'Verify & Done' (VERIFIED_COMPLETED)"]
+    G --> H["Manual Jump-Thread Trimming & Backing Tear-Away"]
+    H --> I["Quality Check: Hooping Marks & Needle Cut Audit"]
+    I --> J["Re-Band Bundle & Dispatch to 04 (Print) or 06 (Stitching)"]
 ```
 
 ### 4. Complete Menu Navigation Directory (All 8 Views)

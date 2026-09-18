@@ -20,8 +20,12 @@ The **Screen & Digital Printing Unit** executes high-precision garment decoratio
 ## 2. Inward & Outward Data Handshake Contracts
 
 ```
-[ 03. Cutting Floor / 05. Embroidery ]
+[ 03. Cutting Floor / 05. Embroidery Unit ]
 - Serialized Cut Bundles (`cutting_bundles`)
+- Manufacturing Route Directive:
+  * PRINT_FIRST_THEN_EMBROIDERY (Inward from Cutting -> Outward to Embroidery)
+  * EMBROIDERY_FIRST_THEN_PRINT (Inward from Embroidery -> Outward to Stitching)
+  * ONLY_PRINTING (Inward from Cutting -> Outward to Stitching)
 - Panel Orientation Geometry & Notch Marks
 - Print Location Spec (Chest, Back, Sleeve)
              │
@@ -29,12 +33,14 @@ The **Screen & Digital Printing Unit** executes high-precision garment decoratio
 ┌─────────────────────────────────────────────────────────────┐
 │ 04. SCREEN & DIGITAL PRINTING UNIT                          │
 │ - Strike-Off Pantone Shade & Mesh Count Sign-Off            │
+│ - Worker & Table/Station Task Allocation Ledger             │
+│ - Strict In-Hand Queue Capping & Zero Ghost Piece Lockout   │
 │ - Continuous Curing Oven Telemetry Monitoring (160°C Gate)  │
-│ - Shift Run Logging & Defect Pareto Classification          │
+│ - Two-Step Verification Gate (WORKER_COMPLETED -> VERIFIED) │
 └─────────────────────────────────────────────────────────────┘
              │
              ▼ (Barcode Custody Transfer)
-[ 06. STITCHING & SEWING FLOOR ]
+[ 05. EMBROIDERY FLOOR OR 06. STITCHING & SEWING FLOOR ]
 - Printed Cut Bundles (Zero Defect Verified)
 - Defect Replacement Panel Handshake
 ```
@@ -44,7 +50,40 @@ The **Screen & Digital Printing Unit** executes high-precision garment decoratio
 ## 3. Database Schema (PostgreSQL DDL)
 
 ```sql
--- 1. Printing Strike-Off Approvals
+-- 1. Printing Floor Registered Workers
+CREATE TABLE IF NOT EXISTS public.printing_workers (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    worker_name VARCHAR(100) NOT NULL,
+    phone_number VARCHAR(20) NOT NULL UNIQUE,
+    role VARCHAR(50) DEFAULT 'Screen Print Operator',
+    roles TEXT[] DEFAULT '{"Screen Print Operator"}',
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 2. Printing Floor Task Allocations (Strict In-Hand Capped)
+CREATE TABLE IF NOT EXISTS public.printing_task_allocations (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    task_ref VARCHAR(32) NOT NULL UNIQUE, -- e.g. 'PRN-3012'
+    buyer_id UUID REFERENCES public.brands(id),
+    buyer_name VARCHAR(100) NOT NULL,
+    article_number VARCHAR(50) NOT NULL,
+    article_name VARCHAR(150),
+    worker_id UUID NOT NULL REFERENCES public.printing_workers(id) ON DELETE RESTRICT,
+    worker_name VARCHAR(100) NOT NULL,
+    worker_phone VARCHAR(20),
+    table_number VARCHAR(50) NOT NULL DEFAULT 'Print Table 01',
+    pieces_to_print INTEGER NOT NULL CHECK (pieces_to_print > 0),
+    completed_pieces INTEGER NOT NULL DEFAULT 0,
+    alloted_hours NUMERIC(4,1) NOT NULL DEFAULT 4.0,
+    due_time TIMESTAMPTZ NOT NULL,
+    notes TEXT,
+    status VARCHAR(30) DEFAULT 'ASSIGNED', -- 'ASSIGNED', 'IN_PROGRESS', 'WORKER_COMPLETED', 'VERIFIED_COMPLETED'
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 3. Printing Strike-Off Approvals
 CREATE TABLE IF NOT EXISTS public.printing_strike_offs (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     order_id UUID NOT NULL REFERENCES public.merchandising_orders(id) ON DELETE RESTRICT,
@@ -62,7 +101,7 @@ CREATE TABLE IF NOT EXISTS public.printing_strike_offs (
 
 CREATE INDEX idx_printing_strike_off_order ON public.printing_strike_offs(order_id);
 
--- 2. Printing Production Runs
+-- 4. Printing Production Runs
 CREATE TABLE IF NOT EXISTS public.printing_production_runs (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     run_code VARCHAR(32) NOT NULL UNIQUE, -- e.g. 'PRN-2026-031'
@@ -80,7 +119,7 @@ CREATE TABLE IF NOT EXISTS public.printing_production_runs (
     completed_at TIMESTAMPTZ
 );
 
--- 3. Printing Bundle Intake & Piece Reconciliation
+-- 5. Printing Bundle Intake & Piece Reconciliation
 CREATE TABLE IF NOT EXISTS public.printing_bundle_runs (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     production_run_id UUID NOT NULL REFERENCES public.printing_production_runs(id) ON DELETE CASCADE,
@@ -92,7 +131,7 @@ CREATE TABLE IF NOT EXISTS public.printing_bundle_runs (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 4. Printing Defect Log
+-- 6. Printing Defect Log
 CREATE TABLE IF NOT EXISTS public.printing_defect_logs (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     bundle_run_id UUID NOT NULL REFERENCES public.printing_bundle_runs(id) ON DELETE CASCADE,

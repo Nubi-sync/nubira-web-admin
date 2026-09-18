@@ -265,8 +265,42 @@ CREATE TABLE cutting_end_bit_logs (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 5. Quantity Integrity Enforcement (Zero Ghost Piece Constraint)
+-- 5. Cutting Floor Registered Workers
+CREATE TABLE cutting_workers (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  worker_name VARCHAR(100) NOT NULL,
+  phone_number VARCHAR(20) NOT NULL UNIQUE,
+  role VARCHAR(50) DEFAULT 'Knife Cutter',
+  roles TEXT[] DEFAULT '{"Knife Cutter"}',
+  is_active BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 6. Cutting Floor Task Allocations (Strict Remaining Volume Capped)
+CREATE TABLE cutting_task_allocations (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  task_ref VARCHAR(32) NOT NULL UNIQUE, -- e.g. 'CUT-4912'
+  buyer_id UUID REFERENCES brands(id),
+  buyer_name VARCHAR(100) NOT NULL,
+  article_number VARCHAR(50) NOT NULL,
+  article_name VARCHAR(150),
+  worker_id UUID NOT NULL REFERENCES cutting_workers(id) ON DELETE RESTRICT,
+  worker_name VARCHAR(100) NOT NULL,
+  worker_phone VARCHAR(20),
+  table_number VARCHAR(50) NOT NULL DEFAULT 'Table 01',
+  pieces_to_cut INTEGER NOT NULL CHECK (pieces_to_cut > 0),
+  completed_pieces INTEGER NOT NULL DEFAULT 0,
+  alloted_hours NUMERIC(4,1) NOT NULL DEFAULT 4.0,
+  due_time TIMESTAMPTZ NOT NULL,
+  notes TEXT,
+  status VARCHAR(30) DEFAULT 'ASSIGNED', -- 'ASSIGNED', 'IN_PROGRESS', 'WORKER_COMPLETED', 'VERIFIED_COMPLETED'
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 7. Quantity Integrity Enforcement (Zero Ghost Piece Constraint)
 -- The runtime trigger `trg_validate_bundle_allotment_sum` is defined and attached 
 -- to the `allotments` table in `06_stitching_sewing.md` (§7), validating that 
 -- SUM(allotments.allotted_quantity) <= cutting_bundles.piece_count.
+-- Modal validation strictly bounds pieces: min = inHandPieces > 0 ? 1 : 0, max = inHandPieces.
 ```

@@ -167,7 +167,40 @@ The Embroidery Floor portal has **8 dedicated side navigation views**:
 ## 7. Database Schema Blueprint (PostgreSQL / Supabase)
 
 ```sql
--- 1. Embroidery Digitized Design Files
+-- 1. Embroidery Floor Registered Workers
+CREATE TABLE embroidery_workers (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  worker_name VARCHAR(100) NOT NULL,
+  phone_number VARCHAR(20) NOT NULL UNIQUE,
+  role VARCHAR(50) DEFAULT 'Multi-Head Machine Operator',
+  roles TEXT[] DEFAULT '{"Multi-Head Machine Operator"}',
+  is_active BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 2. Embroidery Floor Task Allocations (Strict In-Hand Capped)
+CREATE TABLE embroidery_task_allocations (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  task_ref VARCHAR(32) NOT NULL UNIQUE, -- e.g. 'EMB-5012'
+  buyer_id UUID REFERENCES brands(id),
+  buyer_name VARCHAR(100) NOT NULL,
+  article_number VARCHAR(50) NOT NULL,
+  article_name VARCHAR(150),
+  worker_id UUID NOT NULL REFERENCES embroidery_workers(id) ON DELETE RESTRICT,
+  worker_name VARCHAR(100) NOT NULL,
+  worker_phone VARCHAR(20),
+  table_number VARCHAR(100) NOT NULL DEFAULT 'Machine 01 (Tajima 20-Head)',
+  pieces_to_embroider INTEGER NOT NULL CHECK (pieces_to_embroider > 0),
+  completed_pieces INTEGER NOT NULL DEFAULT 0,
+  alloted_hours NUMERIC(4,1) NOT NULL DEFAULT 4.0,
+  due_time TIMESTAMPTZ NOT NULL,
+  notes TEXT,
+  status VARCHAR(30) DEFAULT 'ASSIGNED', -- 'ASSIGNED', 'IN_PROGRESS', 'WORKER_COMPLETED', 'VERIFIED_COMPLETED'
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 3. Embroidery Digitized Design Files
 CREATE TABLE embroidery_designs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   design_code VARCHAR(60) NOT NULL UNIQUE,
@@ -179,7 +212,7 @@ CREATE TABLE embroidery_designs (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 2. Machine Production Runs (Populated by Form 2)
+-- 4. Machine Production Runs (Populated by Form 2)
 CREATE TABLE embroidery_machine_runs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   machine_number VARCHAR(20) NOT NULL,

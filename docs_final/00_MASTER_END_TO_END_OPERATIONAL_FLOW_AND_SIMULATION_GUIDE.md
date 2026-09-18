@@ -18,12 +18,24 @@
 
 ```mermaid
 flowchart TD
-    D01["01. Design Studio<br/>(Tech-Pack, POM, Specs)"] --> D02["02. Merchandising<br/>(Buyer PO, Costing, T&A)"]
+    D01["01. Design Studio<br/>(Tech-Pack, POM, Route Definition)"] --> D02["02. Merchandising<br/>(Buyer PO, Costing, T&A)"]
     D02 --> D11["11. Central Store<br/>(Fabric Rolls, Trims Inward)"]
-    D11 --> D03["03. Cutting Floor<br/>(CAD Marker, Lay Sheet, Bundles)"]
-    D03 --> D04["04. Printing Unit<br/>(Chest Screen Print)"]
-    D04 --> D05["05. Embroidery<br/>(Sleeve Logo Stitching)"]
-    D05 --> D06["06. Stitching & Sewing<br/>(Line Assembly & Mending)"]
+    D11 --> D03["03. Cutting Floor<br/>(CAD Marker, Lay Sheet, Worker Allotment)"]
+    
+    %% 5-Way Routing Matrix
+    D03 -.->|Route 1: Print First| D04["04. Printing Unit<br/>(Chest Screen Print)"]
+    D04 -.->|Route 1 Step 2| D05["05. Embroidery Floor<br/>(Sleeve Logo Stitching)"]
+    
+    D03 -.->|Route 2: Embroidery First| D05
+    D05 -.->|Route 2 Step 2| D04
+    
+    D03 -.->|Route 3: Only Printing| D04
+    D03 -.->|Route 4: Only Embroidery| D05
+    D03 -.->|Route 5: Plain Solids| D06["06. Stitching & Sewing Floor<br/>(Line Assembly & Mending)"]
+    
+    D04 --> D06
+    D05 --> D06
+    
     D06 --> D07["07. Washing Plant<br/>(Enzyme Bio-Wash & Hydro)"]
     D07 --> D08["08. Steam Ironing<br/>(Buck Press & Finish QC)"]
     D08 --> D10["10. Alteration Desk<br/>(Zero-Scrap Mending / Spotting)"]

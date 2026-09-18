@@ -150,6 +150,25 @@ Tracks each production lot running through the print shop:
 
 ---
 
+#### Box 4: Task Allocation Table & Floor Worker Assignment Modal
+The Printing Floor operates a direct worker-level allocation ledger:
+- **In-Hand Queue Integrity**: In-hand pieces represent cut panels delivered from the Cutting Floor (or Embroidery Floor if `EMBROIDERY_FIRST_THEN_PRINT`).
+- **Strict Zero-Piece Lockout (`inHandPieces === 0`)**:
+  - The modal automatically sets `pieces = 0`.
+  - The quantity input is disabled with a high-visibility warning: `⚠️ 0 pieces available In Hand (Allocation Blocked)`.
+  - The submit button is strictly locked with label `"0 Pcs In Hand (Allocation Blocked)"` to prevent allocating phantom pieces.
+- **Strict Maximum/Minimum Capping (`inHandPieces > 0`)**:
+  - Minimum allowed allocation: `1 piece`.
+  - Maximum allowed allocation: exactly `inHandPieces`.
+  - Real-time inline feedback alerts if an entered number exceeds the available queue, locking the submit button.
+- **Dynamic Station Assignment**: Allocate to `Print Table 01`, `Print Table 02`, `Carousel 01 (M&R 8-Color)`, `DTG Station 01`, or add custom stations on the fly.
+- **Two-Step Verification Gate**:
+  - While work is ongoing (`ASSIGNED` / `IN_PROGRESS`), the action column shows live floor status (`Ready on floor` / `Printing live`).
+  - The **"Verify & Done"** button **only shows up after the worker submits their completed job** (`WORKER_COMPLETED`).
+  - Upon supervisor sign-off, status transitions to `VERIFIED` (`✓ Done`), instantly advancing completed pieces to the downstream queue.
+
+---
+
 ### SCREEN 2: Strike-Off Golden Swatch Desk (`/printing/strike-offs`)
 
 Before printing thousands of panels, the print shop must print 1 test piece on real fabric and get signed approval. This is the **Strike-Off Gate**.

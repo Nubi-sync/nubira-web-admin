@@ -168,7 +168,40 @@ The Printing Unit portal has **8 dedicated side navigation views**:
 ## 7. Database Schema Blueprint (PostgreSQL / Supabase)
 
 ```sql
--- 1. Printing Production Lots
+-- 1. Printing Floor Registered Workers
+CREATE TABLE printing_workers (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  worker_name VARCHAR(100) NOT NULL,
+  phone_number VARCHAR(20) NOT NULL UNIQUE,
+  role VARCHAR(50) DEFAULT 'Screen Print Operator',
+  roles TEXT[] DEFAULT '{"Screen Print Operator"}',
+  is_active BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 2. Printing Floor Task Allocations (Strict In-Hand Capped)
+CREATE TABLE printing_task_allocations (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  task_ref VARCHAR(32) NOT NULL UNIQUE, -- e.g. 'PRN-3012'
+  buyer_id UUID REFERENCES brands(id),
+  buyer_name VARCHAR(100) NOT NULL,
+  article_number VARCHAR(50) NOT NULL,
+  article_name VARCHAR(150),
+  worker_id UUID NOT NULL REFERENCES printing_workers(id) ON DELETE RESTRICT,
+  worker_name VARCHAR(100) NOT NULL,
+  worker_phone VARCHAR(20),
+  table_number VARCHAR(50) NOT NULL DEFAULT 'Print Table 01',
+  pieces_to_print INTEGER NOT NULL CHECK (pieces_to_print > 0),
+  completed_pieces INTEGER NOT NULL DEFAULT 0,
+  alloted_hours NUMERIC(4,1) NOT NULL DEFAULT 4.0,
+  due_time TIMESTAMPTZ NOT NULL,
+  notes TEXT,
+  status VARCHAR(30) DEFAULT 'ASSIGNED', -- 'ASSIGNED', 'IN_PROGRESS', 'WORKER_COMPLETED', 'VERIFIED_COMPLETED'
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 3. Printing Production Lots
 CREATE TABLE printing_production_runs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   run_number VARCHAR(50) NOT NULL UNIQUE,

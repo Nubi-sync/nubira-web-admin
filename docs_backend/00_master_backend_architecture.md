@@ -23,14 +23,21 @@ The **Zigza MES Platform** operates an 11-division physical manufacturing pipeli
 └────────────────────────────────────────────────────────────────────────────────────────────────────────┘
  [ 01. Design Studio ] ───➔ [ 02. Merchandising ] ───➔ [ 11. Central Store ] ───➔ [ 03. Cutting Floor ]
                                                                                            │
-                               ┌───────────────────────────────────────────────────────────┴──────────┐
-                               ▼ (Default Sequence Directive: Embroidery First)                       ▼
-                     [ 05. Embroidery Floor ] ───➔ [ 04. Printing Unit ] ─────────────────────────────┘
-                                                       │
-                                                       ▼
-                                          [ 06. STITCHING & SEWING ] ◄── (Master Operational Benchmark)
-                                                       │
-                               ┌───────────────────────┴──────────────────────────┐
+    ┌──────────────────────────────────────────────────────────────────────────────────────┴───────────┐
+    ▼ (Route 1: PRINT_FIRST_THEN_EMBROIDERY)                                                           │
+ [ 04. Printing Unit ] ───➔ [ 05. Embroidery Floor ] ──────────────────┐                               │
+    ▼ (Route 2: EMBROIDERY_FIRST_THEN_PRINT)                           │                               │
+ [ 05. Embroidery Floor ] ───➔ [ 04. Printing Unit ] ──────────────────┤                               │
+    ▼ (Route 3: ONLY_PRINTING)                                         │                               │
+ [ 04. Printing Unit ] ────────────────────────────────────────────────┤                               │
+    ▼ (Route 4: ONLY_EMBROIDERY)                                       │                               │
+ [ 05. Embroidery Floor ] ─────────────────────────────────────────────┤                               │
+    ▼ (Route 5: NONE - Plain Solids Direct Handover)                   │                               │
+ ──────────────────────────────────────────────────────────────────────┴───────────────────────────────┤
+                                                                                                       ▼
+                                                          [ 06. STITCHING & SEWING ] ◄── (Master Benchmark)
+                                                                       │
+                               ┌───────────────────────────────────────┴──────────┐
                                ▼                                                  ▼
                    [ 07. Industrial Washing ]                          [ 10. Alteration Clinic ]
                                │                                                  ▲
