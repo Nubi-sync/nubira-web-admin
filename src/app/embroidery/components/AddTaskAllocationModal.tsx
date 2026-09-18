@@ -82,7 +82,7 @@ export function AddTaskAllocationModal({
         setArticleStyle('EMB-101-05')
       }
 
-      const initialQty = inHandPieces > 0 ? String(Math.min(inHandPieces, 1000)) : '500'
+      const initialQty = inHandPieces > 0 ? String(Math.min(inHandPieces, 1000)) : '0'
       setPieces(initialQty)
       setAllotedHours('4.0')
       setNotes('')
@@ -98,6 +98,8 @@ export function AddTaskAllocationModal({
   const selectedWorkerObj = workers.find(w => w.id === workerId) || workers[0]
   const parsedHours = parseFloat(allotedHours) || 4.0
   const piecesCount = parseInt(pieces) || 0
+  const isZeroInHand = inHandPieces <= 0
+  const isExceedingInHand = inHandPieces > 0 && piecesCount > inHandPieces
 
   // Calculate projected deadline
   const calculateDeadline = () => {
@@ -133,6 +135,16 @@ export function AddTaskAllocationModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
+    if (isZeroInHand) {
+      toast.error('Cannot allocate task: 0 pieces available In Hand for this contract / process route.')
+      return
+    }
+
+    if (piecesCount > inHandPieces) {
+      toast.error(`Cannot allocate ${piecesCount.toLocaleString('en-IN')} pieces. Maximum available in hand is ${inHandPieces.toLocaleString('en-IN')} pieces.`)
+      return
+    }
+
     if (!selectedWorkerObj) {
       toast.error('Please select or register an embroidery floor worker.')
       return
@@ -144,7 +156,7 @@ export function AddTaskAllocationModal({
     }
 
     if (isNaN(piecesCount) || piecesCount <= 0) {
-      toast.error('Please specify a valid pieces count.')
+      toast.error('Please specify a valid pieces count of at least 1 piece.')
       return
     }
 
@@ -334,20 +346,36 @@ export function AddTaskAllocationModal({
               <div className="relative">
                 <input
                   type="number"
-                  min="1"
+                  min={inHandPieces > 0 ? 1 : 0}
+                  max={Math.max(0, inHandPieces)}
+                  disabled={isZeroInHand}
                   required
                   value={pieces}
                   onChange={e => setPieces(e.target.value)}
                   placeholder="Enter pieces count"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-black/10 bg-slate-50 focus:bg-white text-sm font-mono font-bold text-slate-900 focus:outline-hidden focus:border-[#3A3564] transition-all"
+                  className={`w-full px-3.5 py-2.5 rounded-xl border text-sm font-mono font-bold focus:outline-hidden transition-all ${
+                    isZeroInHand 
+                      ? 'border-red-300 bg-red-50/50 text-red-700 cursor-not-allowed'
+                      : isExceedingInHand
+                        ? 'border-red-500 bg-red-50/30 text-red-900 focus:border-red-500'
+                        : 'border-black/10 bg-slate-50 focus:bg-white text-slate-900 focus:border-[#3A3564]'
+                  }`}
                 />
                 <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-mono font-bold text-slate-400">
                   Pcs
                 </span>
               </div>
-              {inHandPieces > 0 && (
+              {isZeroInHand ? (
+                <p className="text-[11px] text-red-600 font-mono font-semibold mt-1">
+                  ⚠️ 0 pieces available In Hand (Allocation Blocked).
+                </p>
+              ) : isExceedingInHand ? (
+                <p className="text-[11px] text-red-600 font-mono font-semibold mt-1">
+                  ⚠️ Exceeds In Hand queue! Max limit: {inHandPieces.toLocaleString('en-IN')} Pcs.
+                </p>
+              ) : (
                 <p className="text-[11px] text-slate-500 font-mono mt-1">
-                  In Hand Queue: <strong>{inHandPieces.toLocaleString('en-IN')} Pcs available</strong>
+                  In Hand Queue: <strong>{inHandPieces.toLocaleString('en-IN')} Pcs available</strong> (Max limit)
                 </p>
               )}
             </div>
@@ -468,11 +496,19 @@ export function AddTaskAllocationModal({
             </button>
             <button
               type="submit"
-              disabled={isSubmitting || workers.length === 0}
-              className="px-5 py-2.5 rounded-xl bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50 flex items-center gap-2"
+              disabled={isSubmitting || workers.length === 0 || isZeroInHand || isExceedingInHand}
+              className="px-5 py-2.5 rounded-xl bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               <CheckCircle2 className="w-4 h-4" />
-              <span>{isSubmitting ? 'Allocating...' : 'Allocate Task'}</span>
+              <span>
+                {isSubmitting 
+                  ? 'Allocating...' 
+                  : isZeroInHand 
+                    ? '0 Pcs In Hand (Allocation Blocked)' 
+                    : isExceedingInHand
+                      ? 'Exceeds In Hand Limit'
+                      : 'Allocate Task'}
+              </span>
             </button>
           </div>
 
