@@ -9,6 +9,8 @@ import {
 } from './actions'
 import { fetchActiveBuyersAction } from '@/app/merchandising/actions'
 import { fetchCuttingTaskAllocationsAction } from '@/app/cutting/actions'
+import { fetchEmbroideryTaskAllocationsAction } from '@/app/embroidery/actions'
+import { fetchTechPacksAction } from '@/app/design/actions'
 import { resolveUserTenant, isLegacyNubiraTenant } from '@/lib/tenant-context'
 
 export const dynamic = 'force-dynamic'
@@ -34,12 +36,22 @@ export default async function PrintingModulePage() {
   const isLegacy = isLegacyNubiraTenant(tenant)
   const companyFilter = isLegacy ? undefined : tenant.companyName
 
-  const [liveKpis, initialBuyers, initialWorkers, initialAllocations, initialCuttingAllocations] = await Promise.all([
+  const [
+    liveKpis, 
+    initialBuyers, 
+    initialWorkers, 
+    initialAllocations, 
+    initialCuttingAllocations,
+    initialEmbroideryAllocations,
+    initialTechPacks
+  ] = await Promise.all([
     fetchPrintingDashboardKpisAction(companyFilter),
     fetchActiveBuyersAction(),
     fetchPrintingWorkersAction(),
     fetchPrintingTaskAllocationsAction(),
-    fetchCuttingTaskAllocationsAction()
+    fetchCuttingTaskAllocationsAction(),
+    fetchEmbroideryTaskAllocationsAction(),
+    fetchTechPacksAction(companyFilter)
   ])
 
   return (
@@ -51,6 +63,8 @@ export default async function PrintingModulePage() {
         initialWorkers={initialWorkers}
         initialAllocations={initialAllocations}
         initialCuttingAllocations={initialCuttingAllocations}
+        initialEmbroideryAllocations={initialEmbroideryAllocations}
+        initialTechPacks={initialTechPacks}
         liveKpis={liveKpis}
       />
     </AdminShell>

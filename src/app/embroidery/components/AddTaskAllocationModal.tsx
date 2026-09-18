@@ -15,6 +15,7 @@ import { toast } from 'sonner'
 import { EmbroideryWorker, EmbroideryTaskAllocation } from '../types/embroidery'
 import { saveEmbroideryTaskAllocation, getEmbroideryMachines, saveEmbroideryMachines } from '../utils/embroideryFloorStorage'
 import { saveEmbroideryTaskAllocationAction } from '../actions'
+import { EmbroideryRouteDetails } from '@/utils/manufacturingRouting'
 
 interface AddTaskAllocationModalProps {
   isOpen: boolean
@@ -23,6 +24,7 @@ interface AddTaskAllocationModalProps {
   selectedBuyer?: any
   availableArticles?: Array<{ style_number: string; category?: string; fabric_composition?: string }>
   inHandPieces?: number
+  routeDetails?: EmbroideryRouteDetails
   onSuccess?: (task: EmbroideryTaskAllocation) => void
   onOpenAddWorkerModal?: () => void
 }
@@ -34,6 +36,7 @@ export function AddTaskAllocationModal({
   selectedBuyer,
   availableArticles = [],
   inHandPieces = 0,
+  routeDetails,
   onSuccess,
   onOpenAddWorkerModal
 }: AddTaskAllocationModalProps) {
@@ -226,6 +229,30 @@ export function AddTaskAllocationModal({
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4.5 overflow-y-auto">
           
+          {/* Route & In Hand Status Banner */}
+          {routeDetails && (
+            <div className={`p-3.5 rounded-2xl border text-xs font-mono flex items-start gap-2.5 ${
+              !routeDetails.isActive
+                ? 'bg-amber-50 text-amber-900 border-amber-200'
+                : inHandPieces > 0
+                  ? 'bg-emerald-50 text-emerald-900 border-emerald-200'
+                  : 'bg-[#FAF7F0] text-slate-700 border-black/10'
+            }`}>
+              <div className="shrink-0 mt-0.5 font-bold">
+                {!routeDetails.isActive ? '⚠️' : inHandPieces > 0 ? '✅' : 'ℹ️'}
+              </div>
+              <div>
+                <div className="font-bold flex items-center gap-1.5 flex-wrap">
+                  <span>Routing: {routeDetails.routeConfig.shortLabel}</span>
+                  <span className="opacity-75">({routeDetails.badgeLabel})</span>
+                </div>
+                <div className="text-[11px] mt-0.5 opacity-90">
+                  {routeDetails.explanationText}
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Worker Selection */}
           <div>
             <div className="flex items-center justify-between mb-1.5">

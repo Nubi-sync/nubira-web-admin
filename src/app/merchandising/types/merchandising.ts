@@ -156,6 +156,7 @@ export interface ActiveBuyer {
   linked_at?: string
   target_season?: string
   status: BuyerStatus
+  embellishment_sequence?: string
   notes?: string
   created_at: string
   updated_at?: string

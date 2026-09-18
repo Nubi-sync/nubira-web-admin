@@ -29,7 +29,8 @@ import {
   Trash2,
   Calendar,
   Sparkles,
-  Maximize2
+  Maximize2,
+  GitBranch
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { EmptyState } from '@/components/ui/EmptyState'
@@ -54,6 +55,13 @@ import {
   getOrders, 
   MERCHANDISING_UPDATE_EVENT 
 } from '@/app/merchandising/utils/merchandisingStorage'
+import {
+  resolveArticleRoute,
+  setAndSyncArticleRoute,
+  ALL_ROUTE_OPTIONS,
+  EMBELLISHMENT_ROUTE_CONFIGS,
+  EmbellishmentSequence
+} from '@/utils/manufacturingRouting'
 import { AddWorkerModal } from './AddWorkerModal'
 import { WorkerListModal } from './WorkerListModal'
 import { AddTaskAllocationModal } from './AddTaskAllocationModal'
@@ -172,6 +180,7 @@ export function CuttingDashboardClient({
   const [buyers, setBuyers] = useState<any[]>(() => mergeBuyersFromAllSources(initialBuyers))
   const [selectedBuyerId, setSelectedBuyerId] = useState<string>('')
   const [isBuyerMenuOpen, setIsBuyerMenuOpen] = useState(false)
+  const [isRouteMenuOpen, setIsRouteMenuOpen] = useState(false)
   const [buyerSearchQuery, setBuyerSearchQuery] = useState('')
   const [isSyncing, setIsSyncing] = useState(false)
 
@@ -319,6 +328,19 @@ export function CuttingDashboardClient({
     const articleMatch = articleNum ? (t.article_number || '').trim().toUpperCase() === articleNum : false
     return buyerMatch || articleMatch
   })
+
+  // 1. Resolve Manufacturing Route Sequence for this Buyer & Article
+  const activeRoute = resolveArticleRoute(selectedBuyer, articleNum, [], localOrders)
+  const activeRouteConfig = EMBELLISHMENT_ROUTE_CONFIGS[activeRoute] || EMBELLISHMENT_ROUTE_CONFIGS['PRINT_FIRST_THEN_EMBROIDERY']
+
+  // Handler to switch Route sequence on the fly
+  const handleSelectRoute = (newRoute: EmbellishmentSequence) => {
+    if (!selectedBuyer) return
+    setAndSyncArticleRoute(selectedBuyer.id, selectedBuyer.buyer_name, newRoute)
+    setIsRouteMenuOpen(false)
+    refreshFloorData()
+    toast.success(`Routing rule updated to: ${EMBELLISHMENT_ROUTE_CONFIGS[newRoute].shortLabel}`)
+  }
 
   // 1. COMPLETED CUTTING: Pieces verified and signed off by Head of Dept
   const completedCuttingPieces = matchingAllocations
@@ -504,6 +526,48 @@ export function CuttingDashboardClient({
                   Article: {selectedBuyer.linked_article_number}
                 </span>
               )}
+
+              {/* Route Pill with Dropdown Selector */}
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setIsRouteMenuOpen(!isRouteMenuOpen)}
+                  className="inline-flex items-center gap-1.5 text-xs font-mono font-bold px-2.5 py-0.5 rounded-md border border-black/10 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-[#3A3564] cursor-pointer transition-all shadow-2xs"
+                  title="Click to view or change downstream manufacturing process route"
+                >
+                  <GitBranch className="w-3 h-3 text-[#3A3564]" />
+                  <span>Route: {activeRouteConfig.shortLabel}</span>
+                  <ChevronDown className={`w-3 h-3 transition-transform ${isRouteMenuOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {isRouteMenuOpen && (
+                  <div className="absolute left-0 top-full mt-1.5 w-80 bg-white rounded-xl border border-black/10 shadow-xl z-40 p-2 space-y-1 animate-in fade-in zoom-in-95">
+                    <div className="px-2 py-1 text-[11px] font-mono font-bold text-slate-400 uppercase tracking-wider border-b border-black/5">
+                      Select Manufacturing Route
+                    </div>
+                    {ALL_ROUTE_OPTIONS.map(opt => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => handleSelectRoute(opt.value)}
+                        className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer flex items-start justify-between gap-2 ${
+                          activeRoute === opt.value
+                            ? 'bg-[#3A3564] text-white font-bold'
+                            : 'text-slate-700 hover:bg-[#FAF7F0]'
+                        }`}
+                      >
+                        <div>
+                          <div className="font-bold">{opt.shortLabel}</div>
+                          <div className={`text-[10px] mt-0.5 font-mono ${activeRoute === opt.value ? 'text-indigo-200' : 'text-slate-500'}`}>
+                            {opt.flowDescription}
+                          </div>
+                        </div>
+                        {activeRoute === opt.value && <Check className="w-4 h-4 text-white shrink-0 mt-0.5" />}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

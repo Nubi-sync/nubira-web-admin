@@ -635,7 +635,7 @@ export async function fetchActiveBuyersAction(): Promise<any[]> {
           status,
           created_at,
           brands ( id, brand_name, brand_code ),
-          design_tech_packs ( id, style_number, category )
+          design_tech_packs ( id, style_number, category, embellishment_sequence )
         `)
         .order('created_at', { ascending: false })
 
@@ -664,6 +664,7 @@ export async function fetchActiveBuyersAction(): Promise<any[]> {
               linked_article_id: ord.design_tech_packs?.id,
               linked_article_number: ord.design_tech_packs?.style_number || ord.order_number,
               linked_article_name: ord.design_tech_packs?.category || 'Garment Contract',
+              embellishment_sequence: ord.design_tech_packs?.embellishment_sequence || 'PRINT_FIRST_THEN_EMBROIDERY',
               status: 'LINKED',
               created_at: ord.created_at
             })
@@ -673,6 +674,7 @@ export async function fetchActiveBuyersAction(): Promise<any[]> {
             if (!existing.linked_article_number && ord.design_tech_packs?.style_number) {
               existing.linked_article_number = ord.design_tech_packs.style_number
               existing.linked_article_name = ord.design_tech_packs.category
+              existing.embellishment_sequence = ord.design_tech_packs.embellishment_sequence || existing.embellishment_sequence
               existing.status = 'LINKED'
             }
           }

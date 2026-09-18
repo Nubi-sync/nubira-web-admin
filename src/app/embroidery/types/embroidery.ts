@@ -144,6 +144,7 @@ export interface EmbroideryTaskAllocation {
   worker_name: string
   worker_phone?: string
   table_number?: string
+  machine_number?: string
   pieces_to_embroider: number
   completed_pieces: number
   alloted_hours: number

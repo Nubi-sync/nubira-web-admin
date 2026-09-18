@@ -25,7 +25,8 @@ import {
   TableProperties,
   Phone,
   Trash2,
-  Calendar
+  Calendar,
+  GitBranch
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { EmptyState } from '@/components/ui/EmptyState'
@@ -50,11 +51,25 @@ import {
   mergeCuttingTaskAllocations,
   CUTTING_UPDATE_EVENT
 } from '@/app/cutting/utils/cuttingStorage'
+import {
+  getPrintingTaskAllocations,
+  mergePrintingTaskAllocations,
+  PRINTING_FLOOR_UPDATE_EVENT
+} from '@/app/printing/utils/printingFloorStorage'
 import { 
   getActiveBuyers, 
   getOrders, 
   MERCHANDISING_UPDATE_EVENT 
 } from '@/app/merchandising/utils/merchandisingStorage'
+import { 
+  resolveArticleRoute, 
+  calculateEmbroideryRouteDetails, 
+  setAndSyncArticleRoute, 
+  ALL_ROUTE_OPTIONS, 
+  EMBELLISHMENT_ROUTE_CONFIGS, 
+  EmbellishmentSequence,
+  EmbroideryRouteDetails
+} from '@/utils/manufacturingRouting'
 import { AddWorkerModal } from './AddWorkerModal'
 import { WorkerListModal } from './WorkerListModal'
 import { AddTaskAllocationModal } from './AddTaskAllocationModal'
@@ -67,6 +82,7 @@ import {
   deleteEmbroideryWorkerAction 
 } from '../actions'
 import { fetchCuttingTaskAllocationsAction } from '@/app/cutting/actions'
+import { fetchPrintingTaskAllocationsAction } from '@/app/printing/actions'
 
 interface EmbroideryDashboardClientProps {
   userEmail?: string
@@ -75,6 +91,8 @@ interface EmbroideryDashboardClientProps {
   initialWorkers?: EmbroideryWorker[]
   initialAllocations?: EmbroideryTaskAllocation[]
   initialCuttingAllocations?: any[]
+  initialPrintingAllocations?: any[]
+  initialTechPacks?: any[]
   liveKpis?: any
 }
 
@@ -107,6 +125,9 @@ function mergeBuyersFromAllSources(serverBuyers: any[] = []): any[] {
               existing.linked_article_number = b.linked_article_number
               existing.linked_article_name = b.linked_article_name
             }
+            if (b.embellishment_sequence && !existing.embellishment_sequence) {
+              existing.embellishment_sequence = b.embellishment_sequence
+            }
           }
         }
       })
@@ -137,6 +158,7 @@ function mergeBuyersFromAllSources(serverBuyers: any[] = []): any[] {
               linked_article_id: ord.tech_pack_id,
               linked_article_number: ord.style_ref,
               linked_article_name: ord.style_name,
+              embellishment_sequence: ord.embellishment_sequence || 'PRINT_FIRST_THEN_EMBROIDERY',
               status: 'LINKED',
               created_at: ord.created_at
             })
@@ -147,6 +169,9 @@ function mergeBuyersFromAllSources(serverBuyers: any[] = []): any[] {
             if (!existing.linked_article_number && ord.style_ref) {
               existing.linked_article_number = ord.style_ref
               existing.linked_article_name = ord.style_name
+            }
+            if (!existing.embellishment_sequence && ord.embellishment_sequence) {
+              existing.embellishment_sequence = ord.embellishment_sequence
             }
           }
         }
@@ -164,15 +189,21 @@ export function EmbroideryDashboardClient({
   initialWorkers = [],
   initialAllocations = [],
   initialCuttingAllocations = [],
+  initialPrintingAllocations = [],
+  initialTechPacks = [],
   liveKpis
 }: EmbroideryDashboardClientProps) {
   // Workers & Task Allocations State
   const [serverWorkers, setServerWorkers] = useState<EmbroideryWorker[]>(initialWorkers || [])
   const [serverAllocations, setServerAllocations] = useState<EmbroideryTaskAllocation[]>(initialAllocations || [])
   const [serverCuttingAllocations, setServerCuttingAllocations] = useState<any[]>(initialCuttingAllocations || [])
+  const [serverPrintingAllocations, setServerPrintingAllocations] = useState<any[]>(initialPrintingAllocations || [])
+  const [techPacks, setTechPacks] = useState<any[]>(initialTechPacks || [])
+
   const [workers, setWorkers] = useState<EmbroideryWorker[]>([])
   const [allocations, setAllocations] = useState<EmbroideryTaskAllocation[]>([])
   const [cuttingAllocations, setCuttingAllocations] = useState<any[]>([])
+  const [printingAllocations, setPrintingAllocations] = useState<any[]>([])
 
   // Modal Controls
   const [isAddWorkerOpen, setIsAddWorkerOpen] = useState(false)
@@ -183,6 +214,7 @@ export function EmbroideryDashboardClient({
   const [buyers, setBuyers] = useState<any[]>(() => mergeBuyersFromAllSources(initialBuyers))
   const [selectedBuyerId, setSelectedBuyerId] = useState<string>('')
   const [isBuyerMenuOpen, setIsBuyerMenuOpen] = useState(false)
+  const [isRouteMenuOpen, setIsRouteMenuOpen] = useState(false)
   const [buyerSearchQuery, setBuyerSearchQuery] = useState('')
   const [isSyncing, setIsSyncing] = useState(false)
 
@@ -198,30 +230,32 @@ export function EmbroideryDashboardClient({
     buyerName: string
     articleNumber: string
     pieces: number
-    table: string
+    machine: string
   } | null>(null)
   const [isDeletingTask, setIsDeletingTask] = useState(false)
 
   // Sync state if props update
   useEffect(() => {
-    if (initialWorkers && initialWorkers.length > 0) {
-      setServerWorkers(initialWorkers)
-    }
+    if (initialWorkers && initialWorkers.length > 0) setServerWorkers(initialWorkers)
   }, [initialWorkers])
 
   useEffect(() => {
-    if (initialAllocations && initialAllocations.length > 0) {
-      setServerAllocations(initialAllocations)
-    }
+    if (initialAllocations && initialAllocations.length > 0) setServerAllocations(initialAllocations)
   }, [initialAllocations])
 
   useEffect(() => {
-    if (initialCuttingAllocations && initialCuttingAllocations.length > 0) {
-      setServerCuttingAllocations(initialCuttingAllocations)
-    }
+    if (initialCuttingAllocations && initialCuttingAllocations.length > 0) setServerCuttingAllocations(initialCuttingAllocations)
   }, [initialCuttingAllocations])
 
-  // Load and refresh workers, embroidery task allocations, and cutting handover allocations
+  useEffect(() => {
+    if (initialPrintingAllocations && initialPrintingAllocations.length > 0) setServerPrintingAllocations(initialPrintingAllocations)
+  }, [initialPrintingAllocations])
+
+  useEffect(() => {
+    if (initialTechPacks && initialTechPacks.length > 0) setTechPacks(initialTechPacks)
+  }, [initialTechPacks])
+
+  // Load and refresh workers, embroidery task allocations, cutting handover & printing data
   const refreshFloorData = () => {
     const localWorkers = getEmbroideryWorkers()
     const workerMap = new Map<string, EmbroideryWorker>()
@@ -236,6 +270,10 @@ export function EmbroideryDashboardClient({
     const localCutting = getCuttingTaskAllocations()
     const mergedCutting = mergeCuttingTaskAllocations(serverCuttingAllocations, localCutting)
     setCuttingAllocations(mergedCutting)
+
+    const localPrinting = getPrintingTaskAllocations()
+    const mergedPrinting = mergePrintingTaskAllocations(serverPrintingAllocations, localPrinting)
+    setPrintingAllocations(mergedPrinting)
 
     const merged = mergeBuyersFromAllSources(initialBuyers)
     setBuyers(merged)
@@ -273,26 +311,30 @@ export function EmbroideryDashboardClient({
       window.addEventListener(MERCHANDISING_UPDATE_EVENT, refreshFloorData)
       window.addEventListener(EMBROIDERY_FLOOR_UPDATE_EVENT, refreshFloorData)
       window.addEventListener(CUTTING_UPDATE_EVENT, refreshFloorData)
+      window.addEventListener(PRINTING_FLOOR_UPDATE_EVENT, refreshFloorData)
       return () => {
         window.removeEventListener('storage', refreshFloorData)
         window.removeEventListener(MERCHANDISING_UPDATE_EVENT, refreshFloorData)
         window.removeEventListener(EMBROIDERY_FLOOR_UPDATE_EVENT, refreshFloorData)
         window.removeEventListener(CUTTING_UPDATE_EVENT, refreshFloorData)
+        window.removeEventListener(PRINTING_FLOOR_UPDATE_EVENT, refreshFloorData)
       }
     }
-  }, [initialBuyers, serverWorkers, serverAllocations, serverCuttingAllocations])
+  }, [initialBuyers, serverWorkers, serverAllocations, serverCuttingAllocations, serverPrintingAllocations])
 
   const handleManualSync = async () => {
     setIsSyncing(true)
     try {
-      const [freshTasks, freshWorkers, freshCutting] = await Promise.all([
+      const [freshTasks, freshWorkers, freshCutting, freshPrinting] = await Promise.all([
         fetchEmbroideryTaskAllocationsAction(),
         fetchEmbroideryWorkersAction(),
-        fetchCuttingTaskAllocationsAction()
+        fetchCuttingTaskAllocationsAction(),
+        fetchPrintingTaskAllocationsAction()
       ])
       setServerWorkers(freshWorkers || [])
       setServerAllocations(freshTasks || [])
       setServerCuttingAllocations(freshCutting || [])
+      setServerPrintingAllocations(freshPrinting || [])
 
       const workerMap = new Map<string, EmbroideryWorker>()
       freshWorkers.forEach((w: any) => { if (w?.id || w?.phone_number) workerMap.set(w.phone_number || w.id, w) })
@@ -305,7 +347,10 @@ export function EmbroideryDashboardClient({
       const mergedCutting = mergeCuttingTaskAllocations(freshCutting || [], getCuttingTaskAllocations())
       setCuttingAllocations(mergedCutting)
 
-      toast.success('Embroidery floor, workers & cutting handover synced from cloud database.')
+      const mergedPrinting = mergePrintingTaskAllocations(freshPrinting || [], getPrintingTaskAllocations())
+      setPrintingAllocations(mergedPrinting)
+
+      toast.success('Embroidery studio, workers, and upstream routing synchronized.')
     } catch {
       refreshFloorData()
     } finally {
@@ -340,7 +385,11 @@ export function EmbroideryDashboardClient({
   const totalBpoContractedPieces = Math.max(Number(selectedBuyer?.contracted_volume) || 0, bpoOrdersTotal)
   const articleNum = (selectedBuyer?.linked_article_number || matchingBpos[0]?.style_ref || '').trim().toUpperCase()
 
-  // Match cutting allocations for this buyer/article (ONLY completed & verified cut pieces can be embroidered!)
+  // 1. Resolve Manufacturing Route Sequence for this Buyer & Article
+  const activeRoute = resolveArticleRoute(selectedBuyer, articleNum, techPacks, localOrders)
+  const activeRouteConfig = EMBELLISHMENT_ROUTE_CONFIGS[activeRoute] || EMBELLISHMENT_ROUTE_CONFIGS['PRINT_FIRST_THEN_EMBROIDERY']
+
+  // 2. Match upstream cutting allocations
   const matchingCuttingAllocations = cuttingAllocations.filter(t => {
     if (!selectedBuyer && !articleNum) return true
     const buyerMatch = selectedBuyer ? (t.buyer_name || '').toLowerCase() === (selectedBuyer.buyer_name || '').toLowerCase() : false
@@ -348,12 +397,23 @@ export function EmbroideryDashboardClient({
     return buyerMatch || articleMatch
   })
 
-  // 1. TOTAL CUT PIECES RECEIVED FROM CUTTING FLOOR
   const totalCutPiecesFromCutting = matchingCuttingAllocations
     .filter(t => t.status === 'VERIFIED_COMPLETED' || t.status === 'COMPLETED')
     .reduce((sum, curr) => sum + (Number(curr.completed_pieces || curr.pieces_to_cut) || 0), 0)
 
-  // Match embroidery allocations for this buyer/article
+  // 3. Match upstream/peer printing allocations
+  const matchingPrintingAllocations = printingAllocations.filter(t => {
+    if (!selectedBuyer && !articleNum) return true
+    const buyerMatch = selectedBuyer ? (t.buyer_name || '').toLowerCase() === (selectedBuyer.buyer_name || '').toLowerCase() : false
+    const articleMatch = articleNum ? (t.article_number || '').trim().toUpperCase() === articleNum : false
+    return buyerMatch || articleMatch
+  })
+
+  const totalCompletedFromPrinting = matchingPrintingAllocations
+    .filter(t => t.status === 'VERIFIED_COMPLETED' || t.status === 'COMPLETED')
+    .reduce((sum, curr) => sum + (Number(curr.completed_pieces || curr.pieces_to_print) || 0), 0)
+
+  // 4. Match embroidery allocations for this buyer/article
   const matchingAllocations = allocations.filter(t => {
     if (!selectedBuyer && !articleNum) return true
     const buyerMatch = selectedBuyer ? (t.buyer_name || '').toLowerCase() === (selectedBuyer.buyer_name || '').toLowerCase() : false
@@ -361,22 +421,37 @@ export function EmbroideryDashboardClient({
     return buyerMatch || articleMatch
   })
 
-  // 2. COMPLETED EMBROIDERY: Pieces verified and signed off by Head of Dept
   const completedEmbroideryPieces = matchingAllocations
     .filter(t => t.status === 'VERIFIED_COMPLETED' || t.status === 'COMPLETED')
     .reduce((sum, curr) => sum + (Number(curr.completed_pieces || curr.pieces_to_embroider) || 0), 0)
 
-  // 3. PENDING EMBROIDERY: Pieces assigned to worker/machine
   const pendingEmbroideryPieces = matchingAllocations
     .filter(t => t.status !== 'VERIFIED_COMPLETED' && t.status !== 'COMPLETED')
     .reduce((sum, curr) => sum + (Number(curr.pieces_to_embroider) || 0), 0)
 
-  // 4. IN HAND: Unallocated cut pieces received from Cutting floor waiting for machine assignment
-  const inHandPieces = Math.max(0, totalCutPiecesFromCutting - pendingEmbroideryPieces - completedEmbroideryPieces)
+  // 5. Calculate Route Details & Strict In Hand Handover
+  const routeDetails: EmbroideryRouteDetails = calculateEmbroideryRouteDetails({
+    route: activeRoute,
+    completedCutPieces: totalCutPiecesFromCutting,
+    completedPrintingPieces: totalCompletedFromPrinting,
+    pendingEmbroideryPieces,
+    completedEmbroideryPieces
+  })
+
+  const inHandPieces = routeDetails.inHandPieces
 
   const selectedBuyerDisplayText = selectedBuyer
     ? `${selectedBuyer.buyer_name} (${totalCutPiecesFromCutting.toLocaleString('en-IN')} Cut / ${totalBpoContractedPieces.toLocaleString('en-IN')} BPO)`
     : (buyers.length === 0 ? 'No Active Buyers Contracted' : 'Select Buyer Contract')
+
+  // Handler to switch Route sequence on the fly
+  const handleSelectRoute = (newRoute: EmbellishmentSequence) => {
+    if (!selectedBuyer) return
+    setAndSyncArticleRoute(selectedBuyer.id, selectedBuyer.buyer_name, newRoute)
+    setIsRouteMenuOpen(false)
+    refreshFloorData()
+    toast.success(`Routing rule updated to: ${EMBELLISHMENT_ROUTE_CONFIGS[newRoute].shortLabel}`)
+  }
 
   // Filtered Task Allocations for Spreadsheet
   const filteredTasks = allocations.filter(task => {
@@ -385,7 +460,7 @@ export function EmbroideryDashboardClient({
       (task.worker_name || '').toLowerCase().includes(taskSearchQuery.toLowerCase()) ||
       (task.article_number || '').toLowerCase().includes(taskSearchQuery.toLowerCase()) ||
       (task.buyer_name || '').toLowerCase().includes(taskSearchQuery.toLowerCase()) ||
-      (task.table_number || '').toLowerCase().includes(taskSearchQuery.toLowerCase())
+      (task.machine_number || '').toLowerCase().includes(taskSearchQuery.toLowerCase())
 
     let matchesStatus = true
     if (statusFilter === 'ACTIVE') {
@@ -406,7 +481,7 @@ export function EmbroideryDashboardClient({
     if (taskObj) {
       await saveEmbroideryTaskAllocationAction(taskObj)
     }
-    toast.success(`Task #${taskRef} verified! ${pieces.toLocaleString('en-IN')} pcs moved from Pending to Completed Embroidery & Worker Workstation History.`)
+    toast.success(`Task #${taskRef} verified! ${pieces.toLocaleString('en-IN')} pcs completed and unlocked for ${activeRoute === 'EMBROIDERY_FIRST_THEN_PRINT' ? 'Printing Studio' : 'Stitching & Sewing'}.`)
   }
 
   // Delete Task Handler
@@ -454,25 +529,28 @@ export function EmbroideryDashboardClient({
             <>
               <Link
                 href="/modules"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-white text-xs font-mono font-bold text-[#3A3564] transition-colors shadow-2xs"
               >
                 <ChevronLeft className="w-3.5 h-3.5" />
                 <span>Workspace Hub</span>
               </Link>
-              <span className="text-slate-400 font-mono text-xs">/</span>
+              <span className="text-slate-300">/</span>
             </>
           )}
-          <span className="text-xs font-mono font-bold text-slate-900">Division 05 • Embroidery Studio</span>
+          <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500">
+            Division 05 • Embroidery Studio
+          </span>
         </div>
         
         <div className="flex items-center gap-2">
-          <span className="text-[11px] font-mono font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+          <span className="text-[11px] font-mono font-bold px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 uppercase tracking-wider flex items-center gap-1.5 shadow-2xs">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             Multi-Head &amp; Punch Sync Active
           </span>
         </div>
       </div>
 
-      {/* Module Header Card */}
+      {/* Module Title Header Card */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col lg:flex-row justify-between items-start lg:items-center gap-5">
         <div className="flex items-start sm:items-center gap-4">
           <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
@@ -512,17 +590,17 @@ export function EmbroideryDashboardClient({
         </div>
       </div>
 
-      {/* Buyer Selection & Worker Controls Bar */}
+      {/* Buyer Selection & Strict Manufacturing Route Bar */}
       <div className="bg-white p-4 sm:p-5 rounded-2xl border border-black/10 shadow-2xs flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
         
-        {/* Left: Active Buyer Info Pill */}
-        <div className="flex items-center gap-3">
+        {/* Left: Active Buyer Info Pill + Interactive Route Selector */}
+        <div className="flex items-center gap-3 flex-wrap sm:flex-nowrap">
           <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
             <Building2 className="w-5 h-5" />
           </div>
           <div>
             <div className="text-xs font-mono font-bold uppercase tracking-wider text-slate-400">
-              Selected Buyer Contract
+              Selected Buyer Contract &amp; Route
             </div>
             <div className="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2 flex-wrap">
               <span>{selectedBuyer ? selectedBuyer.buyer_name : 'No Active Buyers'}</span>
@@ -531,9 +609,56 @@ export function EmbroideryDashboardClient({
                   Article: {selectedBuyer.linked_article_number}
                 </span>
               )}
-              <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-white text-slate-700 border border-black/10 shadow-2xs">
-                Cut Pieces: {totalCutPiecesFromCutting.toLocaleString('en-IN')} / {totalBpoContractedPieces.toLocaleString('en-IN')} Total
-              </span>
+
+              {/* Route Pill with Dropdown Selector */}
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setIsRouteMenuOpen(!isRouteMenuOpen)}
+                  className={`inline-flex items-center gap-1.5 text-xs font-mono font-bold px-2.5 py-0.5 rounded-md border cursor-pointer transition-all shadow-2xs ${
+                    !routeDetails.isActive
+                      ? 'bg-amber-50 text-amber-800 border-amber-300 hover:bg-amber-100'
+                      : routeDetails.stage === 1
+                        ? 'bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100'
+                        : 'bg-indigo-50 text-indigo-800 border-indigo-300 hover:bg-indigo-100'
+                  }`}
+                  title="Click to view or change manufacturing process route"
+                >
+                  <GitBranch className="w-3 h-3" />
+                  <span>Route: {activeRouteConfig.shortLabel}</span>
+                  <span className="text-[10px] opacity-75">({routeDetails.badgeLabel})</span>
+                  <ChevronDown className={`w-3 h-3 transition-transform ${isRouteMenuOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {isRouteMenuOpen && (
+                  <div className="absolute left-0 top-full mt-1.5 w-80 bg-white rounded-xl border border-black/10 shadow-xl z-40 p-2 space-y-1 animate-in fade-in zoom-in-95">
+                    <div className="px-2 py-1 text-[11px] font-mono font-bold text-slate-400 uppercase tracking-wider border-b border-black/5">
+                      Select Manufacturing Route
+                    </div>
+                    {ALL_ROUTE_OPTIONS.map(opt => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => handleSelectRoute(opt.value)}
+                        className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer flex items-start justify-between gap-2 ${
+                          activeRoute === opt.value
+                            ? 'bg-[#3A3564] text-white font-bold'
+                            : 'text-slate-700 hover:bg-[#FAF7F0]'
+                        }`}
+                      >
+                        <div>
+                          <div className="font-bold">{opt.shortLabel}</div>
+                          <div className={`text-[10px] mt-0.5 font-mono ${activeRoute === opt.value ? 'text-indigo-200' : 'text-slate-500'}`}>
+                            {opt.flowDescription}
+                          </div>
+                        </div>
+                        {activeRoute === opt.value && <Check className="w-4 h-4 text-white shrink-0 mt-0.5" />}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
             </div>
           </div>
         </div>
@@ -648,15 +773,21 @@ export function EmbroideryDashboardClient({
       </div>
 
       {/* 3 Summary Metric Cards (Embroidery has 3 boxes ONLY) */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
         
-        {/* 1. In Hand */}
-        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
+        {/* 1. In Hand (Strict Route Controlled) */}
+        <div className={`bg-white p-5 sm:p-6 rounded-2xl border shadow-2xs hover:shadow-md transition-all flex flex-col justify-between ${
+          !routeDetails.isActive ? 'border-amber-200 bg-amber-50/20' : 'border-black/10'
+        }`}>
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               In Hand
             </span>
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+            <div className={`w-10 h-10 rounded-xl border flex items-center justify-center shadow-2xs ${
+              !routeDetails.isActive 
+                ? 'bg-amber-100 text-amber-800 border-amber-300' 
+                : 'bg-[#FAF7F0] text-[#3A3564] border-black/10'
+            }`}>
               <ShoppingBag className="w-5 h-5" />
             </div>
           </div>
@@ -665,11 +796,13 @@ export function EmbroideryDashboardClient({
               {inHandPieces.toLocaleString('en-IN')}
             </div>
             <p className="text-xs font-semibold text-slate-500 mt-1">
-              {inHandPieces > 0 
-                ? `${inHandPieces.toLocaleString('en-IN')} cut pcs ready from Cutting Floor` 
-                : (totalCutPiecesFromCutting > 0 
-                    ? `0 cut pcs in hand (${totalCutPiecesFromCutting.toLocaleString('en-IN')} cut pcs assigned/stitched)` 
-                    : '0 cut pcs received from Cutting Floor')}
+              {!routeDetails.isActive
+                ? `0 pcs in hand (Article bypassed in route: ${activeRouteConfig.shortLabel})`
+                : inHandPieces > 0 
+                  ? `${inHandPieces.toLocaleString('en-IN')} pcs ready from ${routeDetails.sourceDepartment}`
+                  : routeDetails.sourceCompletedPieces > 0
+                    ? `0 pcs in hand (${routeDetails.sourceCompletedPieces.toLocaleString('en-IN')} pcs assigned to embroidery machines)`
+                    : `0 pcs received from ${routeDetails.sourceDepartment} (Awaiting sign-off)`}
             </p>
           </div>
         </div>
@@ -689,7 +822,7 @@ export function EmbroideryDashboardClient({
               {pendingEmbroideryPieces.toLocaleString('en-IN')}
             </div>
             <p className="text-xs font-semibold text-slate-500 mt-1">
-              {pendingEmbroideryPieces > 0 ? `${pendingEmbroideryPieces.toLocaleString('en-IN')} pcs assigned on machines` : '0 pcs assigned to machine'}
+              {pendingEmbroideryPieces > 0 ? `${pendingEmbroideryPieces.toLocaleString('en-IN')} pcs running on multi-head lines` : '0 pcs assigned to machine'}
             </p>
           </div>
         </div>
@@ -709,7 +842,7 @@ export function EmbroideryDashboardClient({
               {completedEmbroideryPieces.toLocaleString('en-IN')}
             </div>
             <p className="text-xs font-semibold text-slate-500 mt-1">
-              {completedEmbroideryPieces > 0 ? `${completedEmbroideryPieces.toLocaleString('en-IN')} embroidered panels verified & bundled` : '0 embroidered panels verified'}
+              {completedEmbroideryPieces > 0 ? `${completedEmbroideryPieces.toLocaleString('en-IN')} embroidered panels inspected & verified` : '0 embroidered panels verified'}
             </p>
           </div>
         </div>
@@ -737,240 +870,224 @@ export function EmbroideryDashboardClient({
             </div>
           </div>
 
-          {/* Search, Filter & Add Row Button */}
-          <div className="flex items-center gap-3 w-full lg:w-auto flex-wrap sm:flex-nowrap justify-end">
-            
-            {/* Search */}
-            <div className="relative flex-1 sm:w-60">
+          {/* Controls: Search, Status Filters, Add Task Row */}
+          <div className="flex items-center gap-2.5 flex-wrap w-full lg:w-auto">
+            {/* Search Input */}
+            <div className="relative flex-1 sm:w-64">
               <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 value={taskSearchQuery}
                 onChange={e => setTaskSearchQuery(e.target.value)}
-                placeholder="Search worker, article, task..."
-                className="w-full pl-8 pr-3 py-2 text-xs rounded-xl border border-black/10 bg-white focus:outline-hidden focus:border-[#3A3564]"
+                placeholder="Search worker, article, machine..."
+                className="w-full pl-8.5 pr-3 py-2 text-xs rounded-xl border border-black/10 bg-white focus:outline-hidden focus:border-[#3A3564] font-mono"
               />
             </div>
 
-            {/* Status Tabs */}
-            <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-black/10 overflow-x-auto">
-              {[
-                { id: 'ACTIVE', label: 'Active Queue' },
-                { id: 'NEEDS_VERIFY', label: 'Needs Verification' },
-                { id: 'COMPLETED', label: 'Verified & Done' },
-                { id: 'ALL', label: 'All' }
-              ].map(st => (
-                <button
-                  key={st.id}
-                  type="button"
-                  onClick={() => setStatusFilter(st.id as any)}
-                  className={`px-2.5 py-1 text-[11px] font-mono font-bold rounded-lg transition-all cursor-pointer whitespace-nowrap ${
-                    statusFilter === st.id
-                      ? 'bg-[#3A3564] text-white'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-[#FAF7F0]'
-                  }`}
-                >
-                  {st.label}
-                </button>
-              ))}
+            {/* Status Filter Tabs */}
+            <div className="flex items-center p-1 rounded-xl bg-[#FAF7F0] border border-black/10 text-xs font-mono font-bold">
+              <button
+                type="button"
+                onClick={() => setStatusFilter('ACTIVE')}
+                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                  statusFilter === 'ACTIVE'
+                    ? 'bg-[#3A3564] text-white shadow-2xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                Active Queue
+              </button>
+              <button
+                type="button"
+                onClick={() => setStatusFilter('NEEDS_VERIFY')}
+                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                  statusFilter === 'NEEDS_VERIFY'
+                    ? 'bg-[#3A3564] text-white shadow-2xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                Needs Verification
+              </button>
+              <button
+                type="button"
+                onClick={() => setStatusFilter('COMPLETED')}
+                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                  statusFilter === 'COMPLETED'
+                    ? 'bg-[#3A3564] text-white shadow-2xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                Verified &amp; Done
+              </button>
+              <button
+                type="button"
+                onClick={() => setStatusFilter('ALL')}
+                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                  statusFilter === 'ALL'
+                    ? 'bg-[#3A3564] text-white shadow-2xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                All
+              </button>
             </div>
 
-            {/* + Add Assignment Row Button */}
+            {/* Add Task Row Button */}
             <button
               type="button"
               onClick={() => setIsAddTaskOpen(true)}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer shrink-0"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer shrink-0"
             >
               <Plus className="w-4 h-4" />
               <span>+ Add Task Row</span>
             </button>
-
           </div>
         </div>
 
-        {/* Spreadsheet Data Table */}
+        {/* Spreadsheet Matrix Table */}
         <div className="overflow-x-auto">
           {filteredTasks.length === 0 ? (
-            <div className="py-16 px-4 text-center">
-              <div className="w-14 h-14 rounded-2xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center mx-auto text-[#3A3564] mb-3 shadow-2xs">
-                <TableProperties className="w-7 h-7" />
+            <div className="p-12 text-center space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] mx-auto shadow-2xs">
+                <TableProperties className="w-6 h-6" />
               </div>
-              <h3 className="text-base font-bold text-slate-900">No Matching Embroidery Tasks</h3>
-              <p className="text-xs text-slate-500 font-mono mt-1 max-w-md mx-auto">
-                {statusFilter === 'NEEDS_VERIFY'
-                  ? 'No tasks currently waiting for Head of Department verification.'
-                  : 'Allocate article embroidery piece quotas to registered workers. When assigned, pieces move from In Hand to Pending Embroidery.'}
+              <div className="text-base font-bold text-slate-800">
+                No Matching Embroidery Tasks
+              </div>
+              <p className="text-xs text-slate-500 font-mono max-w-md mx-auto">
+                Allocate article embroidery piece quotas to registered workers. When assigned, pieces move from In Hand to Pending Embroidery.
               </p>
-              {statusFilter === 'ACTIVE' && (
-                <button
-                  type="button"
-                  onClick={() => setIsAddTaskOpen(true)}
-                  className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs font-mono font-bold shadow-xs cursor-pointer transition-all"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>Assign Task Row</span>
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={() => setIsAddTaskOpen(true)}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Assign Task Row</span>
+              </button>
             </div>
           ) : (
-            <table className="w-full text-left text-xs min-w-[900px]">
-              <thead className="bg-[#FAF7F0] text-[#3A3564] font-mono uppercase text-[11px] tracking-wider border-b border-black/10">
-                <tr>
-                  <th className="py-3 px-4 font-bold"># Task Ref</th>
-                  <th className="py-3 px-4 font-bold">Worker &amp; Contact</th>
-                  <th className="py-3 px-4 font-bold">Article &amp; Buyer</th>
-                  <th className="py-3 px-4 font-bold">Station / Machine</th>
-                  <th className="py-3 px-4 font-bold text-right">Pieces to Embroider</th>
-                  <th className="py-3 px-4 font-bold text-center">Alloted Time</th>
-                  <th className="py-3 px-4 font-bold">Due Timeline</th>
-                  <th className="py-3 px-4 font-bold">Status</th>
-                  <th className="py-3 px-4 font-bold text-right">Actions</th>
+            <table className="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr className="bg-[#FAF7F0] border-b border-black/10 font-mono uppercase text-[11px] text-slate-600 font-bold tracking-wider">
+                  <th className="py-3.5 px-4">Task #</th>
+                  <th className="py-3.5 px-4">Worker &amp; Contact</th>
+                  <th className="py-3.5 px-4">Buyer &amp; Article</th>
+                  <th className="py-3.5 px-4">Machine / Frame</th>
+                  <th className="py-3.5 px-4 text-right">Quota (Pcs)</th>
+                  <th className="py-3.5 px-4">Due Target</th>
+                  <th className="py-3.5 px-4">Status</th>
+                  <th className="py-3.5 px-4 text-center">Action / Sign-Off</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-black/5 font-medium">
-                {filteredTasks.map(task => {
-                  const timeline = formatDueTimeline(task.due_time, task.alloted_hours)
+              <tbody className="divide-y divide-black/5 font-sans">
+                {filteredTasks.map((task) => {
+                  const timeline = formatDueTimeline(task.due_time || '', task.alloted_hours)
                   const isVerified = task.status === 'VERIFIED_COMPLETED' || task.status === 'COMPLETED'
-                  const isWorkerCompleted = task.status === 'WORKER_COMPLETED'
-                  const isInProgress = task.status === 'IN_PROGRESS'
-                  const isAssigned = task.status === 'ASSIGNED'
+                  const isWorkerDone = task.status === 'WORKER_COMPLETED'
 
                   return (
-                    <tr key={task.id} className="hover:bg-[#FAF7F0]/40 transition-colors">
-                      
-                      {/* Task Ref */}
-                      <td className="py-3.5 px-4 font-mono font-bold text-slate-900 whitespace-nowrap">
-                        <span className="px-2.5 py-1 rounded-lg bg-[#FAF7F0] border border-black/10 text-[#3A3564] font-bold text-xs whitespace-nowrap shadow-2xs">
+                    <tr 
+                      key={task.id}
+                      className={`hover:bg-[#FAF7F0]/60 transition-colors ${
+                        isVerified ? 'bg-slate-50/40 opacity-80' : isWorkerDone ? 'bg-amber-50/30' : ''
+                      }`}
+                    >
+                      {/* 1. Task # */}
+                      <td className="py-3.5 px-4 font-mono font-bold text-[#3A3564]">
+                        <span className="px-2 py-0.5 rounded-md bg-[#FAF7F0] border border-black/10 shadow-2xs">
                           #{task.task_ref}
                         </span>
                       </td>
 
-                      {/* Worker & Contact */}
-                      <td className="py-3.5 px-4 whitespace-nowrap">
-                        <div className="flex items-center gap-2.5">
-                          <div className="w-8 h-8 rounded-xl bg-white border border-black/10 flex items-center justify-center font-bold text-xs text-[#3A3564] shadow-2xs shrink-0">
-                            {task.worker_name.slice(0, 2).toUpperCase()}
-                          </div>
-                          <div>
-                            <div className="font-bold text-slate-900 text-xs">{task.worker_name}</div>
-                            {task.worker_phone && (
-                              <div className="text-[10px] font-mono text-slate-500">
-                                +91 {task.worker_phone}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </td>
-
-                      {/* Article & Buyer */}
+                      {/* 2. Worker */}
                       <td className="py-3.5 px-4">
-                        <div className="font-mono font-bold text-slate-900 text-xs">{task.article_number}</div>
-                        <div className="text-[11px] text-slate-500 truncate max-w-[180px]">
-                          {task.buyer_name} • {task.article_name}
+                        <div className="font-bold text-slate-900">{task.worker_name}</div>
+                        {task.worker_phone && (
+                          <div className="text-[11px] text-slate-500 font-mono flex items-center gap-1 mt-0.5">
+                            <Phone className="w-3 h-3 text-slate-400" />
+                            <span>+91 {task.worker_phone}</span>
+                          </div>
+                        )}
+                      </td>
+
+                      {/* 3. Buyer & Article */}
+                      <td className="py-3.5 px-4">
+                        <div className="font-bold text-slate-900">{task.buyer_name}</div>
+                        <div className="text-[11px] font-mono text-[#3A3564] font-semibold">
+                          {task.article_number}
                         </div>
                       </td>
 
-                      {/* Table / Station */}
-                      <td className="py-3.5 px-4 font-mono text-xs whitespace-nowrap">
-                        <span className="px-2.5 py-1 rounded-lg bg-[#FAF7F0] border border-black/10 font-bold text-slate-900 shadow-2xs">
-                          {task.table_number || 'Machine 01'}
+                      {/* 4. Machine / Station */}
+                      <td className="py-3.5 px-4">
+                        <span className="px-2.5 py-1 rounded-lg bg-white border border-black/10 font-mono font-bold text-slate-700 shadow-2xs">
+                          {task.machine_number || 'Tajima 20-Head #1'}
                         </span>
                       </td>
 
-                      {/* Pieces to Embroider */}
-                      <td className="py-3.5 px-4 text-right whitespace-nowrap">
-                        <div className="font-mono font-black text-sm text-slate-900">
-                          {task.pieces_to_embroider.toLocaleString('en-IN')} <span className="text-xs font-normal text-slate-500">Pcs</span>
+                      {/* 5. Pieces */}
+                      <td className="py-3.5 px-4 text-right font-mono font-bold text-slate-900 text-sm">
+                        {task.pieces_to_embroider.toLocaleString('en-IN')}
+                        <span className="text-[10px] text-slate-400 font-normal ml-1">pcs</span>
+                      </td>
+
+                      {/* 6. Due Timeline */}
+                      <td className="py-3.5 px-4 font-mono text-xs">
+                        <div className={`font-semibold flex items-center gap-1.5 ${timeline.isPast && !isVerified ? 'text-rose-600' : 'text-slate-700'}`}>
+                          <Clock className="w-3.5 h-3.5 shrink-0" />
+                          <span>{timeline.formatted}</span>
                         </div>
                       </td>
 
-                      {/* Alloted Timeline */}
-                      <td className="py-3.5 px-4 font-mono text-center whitespace-nowrap">
-                        <div className="inline-flex items-center gap-1.5 text-xs text-slate-700 font-bold">
-                          <Clock className="w-3.5 h-3.5 text-[#3A3564]" />
-                          <span>{task.alloted_hours} Hrs</span>
-                        </div>
-                      </td>
-
-                      {/* Due Target Timeline */}
-                      <td className="py-3.5 px-4 font-mono text-xs text-slate-700 whitespace-nowrap">
-                        {(() => {
-                          const due = formatDueTimeline(task.due_time, task.alloted_hours)
-                          return (
-                            <span className={due.isPast && !isVerified ? 'text-rose-600 font-bold' : 'text-slate-800 font-bold'}>
-                              {due.formatted}
-                            </span>
-                          )
-                        })()}
-                      </td>
-
-                      {/* Status Badge */}
-                      <td className="py-3.5 px-4 whitespace-nowrap">
-                        {isAssigned && (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 text-slate-800 border border-black/10 text-xs font-mono font-bold">
-                            Assigned
+                      {/* 7. Status Pill */}
+                      <td className="py-3.5 px-4">
+                        {isVerified ? (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-mono text-[10px] font-bold">
+                            <CheckCircle2 className="w-3 h-3" />
+                            <span>VERIFIED</span>
                           </span>
-                        )}
-                        {isInProgress && (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-50 text-[#3A3564] border border-indigo-200 text-xs font-mono font-bold">
-                            <Sparkles className="w-3.5 h-3.5 text-[#3A3564]" />
-                            Stitching Live
+                        ) : isWorkerDone ? (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 font-mono text-[10px] font-bold animate-pulse">
+                            <Clock className="w-3 h-3" />
+                            <span>NEEDS VERIFY</span>
                           </span>
-                        )}
-                        {isWorkerCompleted && (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#FAF7F0] text-slate-900 border border-black/10 text-xs font-mono font-bold shadow-2xs">
-                            <Clock className="w-3.5 h-3.5 text-[#3A3564]" />
-                            Submitted
-                          </span>
-                        )}
-                        {isVerified && (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#FAF7F0] text-slate-900 border border-black/10 text-xs font-mono font-bold">
-                            <CheckCircle2 className="w-3.5 h-3.5 text-[#3A3564]" />
-                            Verified &amp; Moved
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 font-mono text-[10px] font-bold">
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#3A3564]" />
+                            <span>IN PROGRESS</span>
                           </span>
                         )}
                       </td>
 
-                      {/* Actions */}
-                      <td className="py-3.5 px-4 text-right whitespace-nowrap">
-                        <div className="flex items-center justify-end gap-2">
-                          {isWorkerCompleted && (
+                      {/* 8. Action Controls */}
+                      <td className="py-3.5 px-4 text-center">
+                        <div className="flex items-center justify-center gap-2">
+                          {!isVerified && (
                             <button
                               type="button"
                               onClick={() => handleVerifyAndDone(task.id, task.task_ref, task.pieces_to_embroider)}
-                              className="px-3.5 py-1.5 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-mono font-bold transition-all flex items-center gap-1.5 shadow-2xs hover:shadow-xs cursor-pointer whitespace-nowrap"
-                              title="Verify work and move pieces from Pending to Completed Embroidery"
+                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-mono text-[11px] font-bold transition-all shadow-2xs cursor-pointer"
+                              title="Sign off completed embroidered pieces and complete task"
                             >
-                              <CheckCircle2 className="w-4 h-4 text-white" />
+                              <CheckCircle2 className="w-3.5 h-3.5" />
                               <span>Verify &amp; Done</span>
                             </button>
                           )}
-
-                          {!isWorkerCompleted && !isVerified && (
-                            <span className="text-[11px] font-mono text-slate-400 italic pr-1 whitespace-nowrap">
-                              {isInProgress ? 'Stitching live' : 'Ready on machine'}
-                            </span>
-                          )}
-
-                          {isVerified && (
-                            <span className="text-[11px] font-mono font-bold text-slate-900 pr-1 whitespace-nowrap">
-                              ✓ Done
-                            </span>
-                          )}
-
+                          
                           <button
                             type="button"
                             onClick={() => setTaskToDelete({
                               id: task.id,
                               taskRef: task.task_ref,
-                              workerName: task.worker_name || 'Unassigned Worker',
-                              buyerName: task.buyer_name || 'General Buyer',
-                              articleNumber: task.article_number || 'Style',
-                              pieces: Number(task.pieces_to_embroider) || 0,
-                              table: task.table_number || 'Machine 01'
+                              workerName: task.worker_name,
+                              buyerName: task.buyer_name,
+                              articleNumber: task.article_number,
+                              pieces: task.pieces_to_embroider,
+                              machine: task.machine_number || 'Tajima 20-Head #1'
                             })}
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
-                            title="Delete allocation"
+                            className="p-1.5 rounded-lg border border-black/10 bg-white hover:bg-rose-50 text-slate-400 hover:text-rose-600 transition-colors cursor-pointer shadow-2xs"
+                            title="Remove task allocation"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
@@ -1024,6 +1141,7 @@ export function EmbroideryDashboardClient({
         selectedBuyer={selectedBuyer}
         availableArticles={buyers.map(b => ({ style_number: b.linked_article_number || 'EMB-101-05', category: 'Garment Embroidery' }))}
         inHandPieces={inHandPieces}
+        routeDetails={routeDetails}
         onOpenAddWorkerModal={() => setIsAddWorkerOpen(true)}
         onSuccess={newTask => {
           refreshFloorData()
@@ -1062,7 +1180,7 @@ export function EmbroideryDashboardClient({
             </div>
             <div className="flex items-center justify-between border-t border-black/5 pt-2">
               <span className="text-slate-500">Pieces to Embroider:</span>
-              <span className="font-bold text-slate-800">{taskToDelete.pieces.toLocaleString('en-IN')} Pcs ({taskToDelete.table})</span>
+              <span className="font-bold text-slate-800">{taskToDelete.pieces.toLocaleString('en-IN')} Pcs ({taskToDelete.machine})</span>
             </div>
           </div>
         )}
