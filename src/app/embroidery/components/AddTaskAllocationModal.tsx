@@ -231,22 +231,16 @@ export function AddTaskAllocationModal({
           
           {/* Route & In Hand Status Banner */}
           {routeDetails && (
-            <div className={`p-3.5 rounded-2xl border text-xs font-mono flex items-start gap-2.5 ${
-              !routeDetails.isActive
-                ? 'bg-amber-50 text-amber-900 border-amber-200'
-                : inHandPieces > 0
-                  ? 'bg-emerald-50 text-emerald-900 border-emerald-200'
-                  : 'bg-[#FAF7F0] text-slate-700 border-black/10'
-            }`}>
-              <div className="shrink-0 mt-0.5 font-bold">
-                {!routeDetails.isActive ? '⚠️' : inHandPieces > 0 ? '✅' : 'ℹ️'}
+            <div className="p-3.5 rounded-2xl border border-black/10 bg-[#FAF7F0] text-[#3A3564] text-xs font-mono flex items-start gap-2.5 shadow-2xs">
+              <div className="shrink-0 mt-0.5">
+                <TableProperties className="w-4 h-4 text-[#3A3564]" />
               </div>
               <div>
-                <div className="font-bold flex items-center gap-1.5 flex-wrap">
+                <div className="font-bold flex items-center gap-1.5 flex-wrap text-slate-900">
                   <span>Routing: {routeDetails.routeConfig.shortLabel}</span>
-                  <span className="opacity-75">({routeDetails.badgeLabel})</span>
+                  <span className="text-slate-500 font-normal">({routeDetails.badgeLabel})</span>
                 </div>
-                <div className="text-[11px] mt-0.5 opacity-90">
+                <div className="text-[11px] mt-0.5 text-slate-600">
                   {routeDetails.explanationText}
                 </div>
               </div>

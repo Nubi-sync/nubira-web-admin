@@ -621,19 +621,13 @@ export function PrintingDashboardClient({
                 <button
                   type="button"
                   onClick={() => setIsRouteMenuOpen(!isRouteMenuOpen)}
-                  className={`inline-flex items-center gap-1.5 text-xs font-mono font-bold px-2.5 py-0.5 rounded-md border cursor-pointer transition-all shadow-2xs ${
-                    !routeDetails.isActive
-                      ? 'bg-amber-50 text-amber-800 border-amber-300 hover:bg-amber-100'
-                      : routeDetails.stage === 1
-                        ? 'bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100'
-                        : 'bg-indigo-50 text-indigo-800 border-indigo-300 hover:bg-indigo-100'
-                  }`}
+                  className="inline-flex items-center gap-1.5 text-xs font-mono font-bold px-2.5 py-0.5 rounded-md border border-black/10 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-[#3A3564] cursor-pointer transition-all shadow-2xs"
                   title="Click to view or change manufacturing process route"
                 >
-                  <GitBranch className="w-3 h-3" />
+                  <GitBranch className="w-3 h-3 text-[#3A3564]" />
                   <span>Route: {activeRouteConfig.shortLabel}</span>
-                  <span className="text-[10px] opacity-75">({routeDetails.badgeLabel})</span>
-                  <ChevronDown className={`w-3 h-3 transition-transform ${isRouteMenuOpen ? 'rotate-180' : ''}`} />
+                  <span className="text-[10px] text-slate-500 font-normal">({routeDetails.badgeLabel})</span>
+                  <ChevronDown className={`w-3 h-3 text-[#3A3564] transition-transform ${isRouteMenuOpen ? 'rotate-180' : ''}`} />
                 </button>
 
                 {isRouteMenuOpen && (
@@ -782,18 +776,12 @@ export function PrintingDashboardClient({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
         
         {/* 1. In Hand (Strict Route Controlled) */}
-        <div className={`bg-white p-5 sm:p-6 rounded-2xl border shadow-2xs hover:shadow-md transition-all flex flex-col justify-between ${
-          !routeDetails.isActive ? 'border-amber-200 bg-amber-50/20' : 'border-black/10'
-        }`}>
+        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               In Hand
             </span>
-            <div className={`w-10 h-10 rounded-xl border flex items-center justify-center shadow-2xs ${
-              !routeDetails.isActive 
-                ? 'bg-amber-100 text-amber-800 border-amber-300' 
-                : 'bg-[#FAF7F0] text-[#3A3564] border-black/10'
-            }`}>
+            <div className="w-10 h-10 rounded-xl border border-black/10 bg-[#FAF7F0] text-[#3A3564] flex items-center justify-center shadow-2xs">
               <ShoppingBag className="w-5 h-5" />
             </div>
           </div>
