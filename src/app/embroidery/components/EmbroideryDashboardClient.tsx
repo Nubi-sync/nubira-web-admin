@@ -1135,6 +1135,7 @@ export function EmbroideryDashboardClient({
       <AddWorkerModal
         isOpen={isAddWorkerOpen}
         onClose={() => setIsAddWorkerOpen(false)}
+        companyName={companyName}
         onSuccess={newWorker => {
           refreshFloorData()
         }}
@@ -1157,6 +1158,7 @@ export function EmbroideryDashboardClient({
         availableArticles={buyers.map(b => ({ style_number: b.linked_article_number || 'EMB-101-05', category: 'Garment Embroidery' }))}
         inHandPieces={inHandPieces}
         routeDetails={routeDetails}
+        companyName={companyName}
         onOpenAddWorkerModal={() => setIsAddWorkerOpen(true)}
         onSuccess={newTask => {
           refreshFloorData()
