@@ -1,435 +1,918 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import {
-  Flame,
-  Gauge,
-  Layers,
-  CheckCircle2,
-  ArrowRight,
+  ChevronLeft,
+  ShoppingBag,
+  Clock,
   Plus,
-  Thermometer,
-  Calculator,
-  Zap
+  RefreshCw,
+  Building2,
+  Users,
+  Search,
+  ChevronDown,
+  Check,
+  Bot,
+  UserPlus,
+  TableProperties,
+  Trash2,
+  Flame,
+  Wind,
+  Layers,
+  CheckCircle2
 } from 'lucide-react'
-import { EmptyState } from '@/components/ui/EmptyState'
-import {
-  IronTable,
-  IronProductionLog,
-  BoilerTelemetryLog,
-  FinishQcAudit,
-  PackingHandover,
+import { toast } from 'sonner'
+import { 
+  IronWorker, 
+  IronTaskAllocation, 
+  IronAllocationStatus 
 } from '../types/iron'
 import {
-  getIronTables,
-  getIronProductionLogs,
-  getBoilerLogs,
-  getFinishQcAudits,
-  getPackingHandovers,
-  IRON_UPDATE_EVENT,
-} from '../utils/ironStorage'
+  getIronWorkers,
+  saveIronWorker,
+  deleteIronWorker,
+  getIronTaskAllocations,
+  saveIronTaskAllocation,
+  updateIronTaskStatus,
+  deleteIronTaskAllocation,
+  mergeIronTaskAllocations,
+  IRON_FLOOR_UPDATE_EVENT
+} from '../utils/ironFloorStorage'
+import {
+  getCuttingTaskAllocations,
+  mergeCuttingTaskAllocations,
+  CUTTING_UPDATE_EVENT
+} from '@/app/cutting/utils/cuttingStorage'
+import {
+  getWashingTaskAllocations,
+  mergeWashingTaskAllocations,
+  WASHING_FLOOR_UPDATE_EVENT
+} from '@/app/washing/utils/washingFloorStorage'
+import { 
+  getActiveBuyers, 
+  getOrders, 
+  MERCHANDISING_UPDATE_EVENT 
+} from '@/app/merchandising/utils/merchandisingStorage'
+import { AddWorkerModal } from './AddWorkerModal'
+import { WorkerListModal } from './WorkerListModal'
+import { AddTaskAllocationModal } from './AddTaskAllocationModal'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
+import { 
+  saveIronTaskAllocationAction, 
+  deleteIronTaskAllocationAction, 
+  fetchIronTaskAllocationsAction, 
+  fetchIronWorkersAction, 
+  deleteIronWorkerAction 
+} from '../actions'
+import { fetchCuttingTaskAllocationsAction } from '@/app/cutting/actions'
+import { fetchWashingTaskAllocationsAction } from '@/app/washing/actions'
 
 interface IronDashboardClientProps {
-  initialTables?: IronTable[]
-  initialLogs?: IronProductionLog[]
-  initialQcAudits?: FinishQcAudit[]
+  userEmail?: string
+  isSuperAdmin?: boolean
+  initialBuyers?: any[]
+  initialWorkers?: IronWorker[]
+  initialAllocations?: IronTaskAllocation[]
+  initialCuttingAllocations?: any[]
+  initialWashingAllocations?: any[]
+  initialTechPacks?: any[]
+  liveKpis?: any
+  companyName?: string
 }
 
-export function IronDashboardClient({
-  initialTables,
-  initialLogs,
-  initialQcAudits
-}: IronDashboardClientProps = {}) {
-  const router = useRouter()
-  const [tables, setTables] = useState<IronTable[]>(initialTables !== undefined ? initialTables : [])
-  const [logs, setLogs] = useState<IronProductionLog[]>(initialLogs !== undefined ? initialLogs : [])
-  const [boilerLogs, setBoilerLogs] = useState<BoilerTelemetryLog[]>([])
-  const [qcAudits, setQcAudits] = useState<FinishQcAudit[]>(initialQcAudits !== undefined ? initialQcAudits : [])
-  const [handovers, setPackingHandovers] = useState<PackingHandover[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+function mergeBuyersFromAllSources(serverBuyers: any[] = [], companyName?: string): any[] {
+  const buyerMap = new Map<string, any>()
 
-  function loadData() {
-    const isCleanZeroTenant = initialTables !== undefined && initialTables.length === 0
-    const localTables = getIronTables()
-    setTables(initialTables !== undefined ? initialTables : localTables)
-    const localLogs = getIronProductionLogs()
-    setLogs(initialLogs !== undefined ? initialLogs : localLogs)
-    setBoilerLogs(isCleanZeroTenant ? [] : getBoilerLogs())
-    const localQc = getFinishQcAudits()
-    setQcAudits(initialQcAudits !== undefined ? initialQcAudits : localQc)
-    setPackingHandovers(isCleanZeroTenant ? [] : getPackingHandovers())
-    setIsLoading(false)
+  // 1. Process server buyers
+  serverBuyers.forEach(b => {
+    if (b && (b.id || b.buyer_name)) {
+      const key = (b.buyer_name || b.id).trim().toUpperCase()
+      buyerMap.set(key, { ...b })
+    }
+  })
+
+  // 2. Process localStorage active buyers ONLY if matching tenant company
+  if (typeof window !== 'undefined') {
+    try {
+      const targetCompany = (companyName || '').trim().toLowerCase()
+      if (targetCompany) {
+        const localBuyers = getActiveBuyers()
+        localBuyers.forEach(b => {
+          if (b && (b.id || b.buyer_name)) {
+            const bCompany = (b.company_name || '').trim().toLowerCase()
+            if (bCompany !== targetCompany) return
+
+            const key = (b.buyer_name || b.id).trim().toUpperCase()
+            const existing = buyerMap.get(key)
+            if (!existing) {
+              buyerMap.set(key, { ...b })
+            } else {
+              if (Number(b.contracted_volume) > Number(existing.contracted_volume || 0)) {
+                existing.contracted_volume = b.contracted_volume
+              }
+              if (b.linked_article_number && !existing.linked_article_number) {
+                existing.linked_article_number = b.linked_article_number
+                existing.linked_article_name = b.linked_article_name
+              }
+            }
+          }
+        })
+      }
+    } catch {}
+
+    // 3. Process localStorage BPO orders ONLY if matching tenant company
+    try {
+      const targetCompany = (companyName || '').trim().toLowerCase()
+      if (targetCompany) {
+        const localOrders = getOrders()
+        localOrders.forEach(ord => {
+          if (ord && (ord.brand_name || ord.po_number)) {
+            const ordCompany = (ord.company_name || '').trim().toLowerCase()
+            if (ordCompany !== targetCompany) return
+
+            const buyerName = ord.brand_name || 'Direct Buyer'
+            const key = buyerName.trim().toUpperCase()
+            const existing = buyerMap.get(key)
+            const qty = Number(ord.total_quantity) || 0
+            const price = Number(ord.unit_fob_price) || 12.5
+
+            if (!existing) {
+              buyerMap.set(key, {
+                id: ord.buyer_id || `byr-${key.toLowerCase().replace(/[^a-z0-9]/g, '-')}`,
+                buyer_name: buyerName,
+                buyer_code: ord.buyer_code || buyerName.slice(0, 4).toUpperCase(),
+                brand_name: buyerName,
+                contact_person: 'Procurement Lead',
+                contracted_volume: qty,
+                price_per_piece: price,
+                total_contract_value: qty * price,
+                currency: ord.currency || 'INR',
+                linked_article_id: ord.tech_pack_id,
+                linked_article_number: ord.style_ref,
+                linked_article_name: ord.style_name,
+                status: 'LINKED',
+                company_name: ord.company_name,
+                created_at: ord.created_at
+              })
+            } else {
+              if (qty > Number(existing.contracted_volume || 0)) {
+                existing.contracted_volume = qty
+              }
+              if (!existing.linked_article_number && ord.style_ref) {
+                existing.linked_article_number = ord.style_ref
+                existing.linked_article_name = ord.style_name
+              }
+            }
+          }
+        })
+      }
+    } catch (_) {}
+  }
+
+  return Array.from(buyerMap.values())
+}
+
+export function IronDashboardClient({ 
+  userEmail,
+  isSuperAdmin = false,
+  initialBuyers,
+  initialWorkers = [],
+  initialAllocations = [],
+  initialCuttingAllocations = [],
+  initialWashingAllocations = [],
+  companyName
+}: IronDashboardClientProps) {
+  // Workers & Task Allocations State
+  const [workers, setWorkers] = useState<IronWorker[]>([])
+  const [allocations, setAllocations] = useState<IronTaskAllocation[]>([])
+  const [cuttingAllocations, setCuttingAllocations] = useState<any[]>([])
+  const [washingAllocations, setWashingAllocations] = useState<any[]>([])
+
+  // Modal Controls
+  const [isAddWorkerOpen, setIsAddWorkerOpen] = useState(false)
+  const [isWorkerListOpen, setIsWorkerListOpen] = useState(false)
+  const [isAddTaskOpen, setIsAddTaskOpen] = useState(false)
+
+  // Active Buyers for Contract Selection
+  const [buyers, setBuyers] = useState<any[]>(() => mergeBuyersFromAllSources(initialBuyers, companyName))
+  const [selectedBuyerId, setSelectedBuyerId] = useState<string>('')
+  const [isBuyerMenuOpen, setIsBuyerMenuOpen] = useState(false)
+  const [buyerSearchQuery, setBuyerSearchQuery] = useState('')
+  const [isSyncing, setIsSyncing] = useState(false)
+
+  // Spreadsheet Filters
+  const [taskSearchQuery, setTaskSearchQuery] = useState('')
+  const [statusFilter, setStatusFilter] = useState<'ACTIVE' | 'NEEDS_VERIFY' | 'COMPLETED' | 'ALL'>('ACTIVE')
+
+  // Delete Task Modal State
+  const [taskToDelete, setTaskToDelete] = useState<{
+    id: string
+    taskRef: string
+    workerName: string
+    buyerName: string
+    articleNumber: string
+    pieces: number
+    table: string
+  } | null>(null)
+  const [isDeletingTask, setIsDeletingTask] = useState(false)
+
+  // Load and refresh floor state
+  const refreshFloorData = () => {
+    const mergedWorkers = getIronWorkers(companyName)
+    const mergedAllocations = mergeIronTaskAllocations(initialAllocations, companyName)
+    const mergedCutting = mergeCuttingTaskAllocations(initialCuttingAllocations, getCuttingTaskAllocations(companyName), companyName)
+    const mergedWashing = mergeWashingTaskAllocations(initialWashingAllocations, companyName)
+    const mergedBuyers = mergeBuyersFromAllSources(initialBuyers, companyName)
+
+    setWorkers(mergedWorkers)
+    setAllocations(mergedAllocations)
+    setCuttingAllocations(mergedCutting)
+    setWashingAllocations(mergedWashing)
+    setBuyers(mergedBuyers)
   }
 
   useEffect(() => {
-    loadData()
-    const handleUpdate = () => loadData()
-    window.addEventListener(IRON_UPDATE_EVENT, handleUpdate)
-    return () => window.removeEventListener(IRON_UPDATE_EVENT, handleUpdate)
-  }, [initialTables, initialLogs, initialQcAudits])
+    refreshFloorData()
 
-  // KPI Calculations
-  const activeTablesCount = tables.filter(t => t.status === 'ACTIVE').length
-  const totalPressedPieces = logs.reduce((acc, l) => acc + (l.piecesPressed || 0), 0)
-  const totalEarnedWages = logs.reduce((acc, l) => acc + (l.totalEarnedWages || 0), 0)
-  const totalShineDefects = logs.reduce((acc, l) => acc + (l.defectShineCount || 0), 0)
-  const latestBoiler = boilerLogs[0] || { steamPressureBar: 4.5, boilerTempC: 154, condensateTrapStatus: 'NORMAL' }
-  const firstPassRate = totalPressedPieces > 0
-    ? (((totalPressedPieces - totalShineDefects) / totalPressedPieces) * 100).toFixed(1)
-    : '99.1'
+    const handleUpdate = () => refreshFloorData()
+    window.addEventListener(IRON_FLOOR_UPDATE_EVENT, handleUpdate)
+    window.addEventListener(CUTTING_UPDATE_EVENT, handleUpdate)
+    window.addEventListener(WASHING_FLOOR_UPDATE_EVENT, handleUpdate)
+    window.addEventListener(MERCHANDISING_UPDATE_EVENT, handleUpdate)
 
-  const shiftTargetPcs = 7500
-  const shiftProgressPct = Math.min(100, Math.round((totalPressedPieces / shiftTargetPcs) * 100))
+    return () => {
+      window.removeEventListener(IRON_FLOOR_UPDATE_EVENT, handleUpdate)
+      window.removeEventListener(CUTTING_UPDATE_EVENT, handleUpdate)
+      window.removeEventListener(WASHING_FLOOR_UPDATE_EVENT, handleUpdate)
+      window.removeEventListener(MERCHANDISING_UPDATE_EVENT, handleUpdate)
+    }
+  }, [companyName])
+
+  // Handle Manual Refresh Sync
+  const handleManualSync = async () => {
+    setIsSyncing(true)
+    try {
+      const [serverAlloc, serverWork, serverCut, serverWash] = await Promise.all([
+        fetchIronTaskAllocationsAction(companyName),
+        fetchIronWorkersAction(companyName),
+        fetchCuttingTaskAllocationsAction(companyName),
+        fetchWashingTaskAllocationsAction(companyName)
+      ])
+
+      const mergedAlloc = mergeIronTaskAllocations(serverAlloc, companyName)
+      setAllocations(mergedAlloc)
+      setWorkers(serverWork)
+      setCuttingAllocations(serverCut || [])
+      setWashingAllocations(serverWash || [])
+      toast.success('Steam ironing floor matrix synchronized with cloud!')
+    } catch {
+      toast.error('Sync failed, using offline state.')
+    } finally {
+      setIsSyncing(false)
+    }
+  }
+
+  // Active Buyer selection resolution
+  const activeSelectedBuyerId = selectedBuyerId || (buyers.length > 0 ? buyers[0].id : '')
+  const selectedBuyer = buyers.find(b => b.id === activeSelectedBuyerId) || buyers[0]
+
+  const filteredBuyersList = buyers.filter(b => 
+    (b.buyer_name || '').toLowerCase().includes(buyerSearchQuery.toLowerCase()) ||
+    (b.buyer_code || '').toLowerCase().includes(buyerSearchQuery.toLowerCase()) ||
+    (b.linked_article_number || '').toLowerCase().includes(buyerSearchQuery.toLowerCase())
+  )
+
+  // Calculate In Hand, Pending, and Completed metrics
+  let localOrders: any[] = []
+  if (typeof window !== 'undefined') {
+    localOrders = getOrders().filter(o => {
+      if (!companyName) return true
+      return (o.company_name || '').trim().toLowerCase() === companyName.trim().toLowerCase()
+    })
+  }
+
+  const matchingBpos = localOrders.filter(o => 
+    selectedBuyer ? (o.brand_name || '').toLowerCase() === (selectedBuyer.buyer_name || '').toLowerCase() : false
+  )
+
+  const bpoOrdersTotal = matchingBpos.reduce((sum, o) => sum + (Number(o.total_quantity) || 0), 0)
+  const totalBpoContractedPieces = Math.max(Number(selectedBuyer?.contracted_volume) || 0, bpoOrdersTotal)
+  const articleNum = (selectedBuyer?.linked_article_number || matchingBpos[0]?.style_ref || '').trim().toUpperCase()
+
+  // Match upstream washed pieces (or cut pieces if unwashed)
+  const matchingWashingAllocations = washingAllocations.filter(t => {
+    if (!selectedBuyer && !articleNum) return true
+    const buyerMatch = selectedBuyer ? (t.buyer_name || '').toLowerCase() === (selectedBuyer.buyer_name || '').toLowerCase() : false
+    const articleMatch = articleNum ? (t.article_number || '').trim().toUpperCase() === articleNum : false
+    return buyerMatch || articleMatch
+  })
+
+  const totalWashedPieces = matchingWashingAllocations
+    .filter(t => t.status === 'VERIFIED_COMPLETED' || t.status === 'COMPLETED')
+    .reduce((sum, curr) => sum + (Number(curr.completed_pieces || curr.pieces_to_wash) || 0), 0)
+
+  const matchingCuttingAllocations = cuttingAllocations.filter(t => {
+    if (!selectedBuyer && !articleNum) return true
+    const buyerMatch = selectedBuyer ? (t.buyer_name || '').toLowerCase() === (selectedBuyer.buyer_name || '').toLowerCase() : false
+    const articleMatch = articleNum ? (t.article_number || '').trim().toUpperCase() === articleNum : false
+    return buyerMatch || articleMatch
+  })
+
+  const totalCutPieces = matchingCuttingAllocations
+    .filter(t => t.status === 'VERIFIED_COMPLETED' || t.status === 'COMPLETED')
+    .reduce((sum, curr) => sum + (Number(curr.completed_pieces || curr.pieces_to_cut) || 0), 0)
+
+  const upstreamPieces = totalWashedPieces || totalCutPieces || totalBpoContractedPieces
+
+  // Match iron allocations
+  const matchingAllocations = allocations.filter(t => {
+    if (!selectedBuyer && !articleNum) return true
+    const buyerMatch = selectedBuyer ? (t.buyer_name || '').toLowerCase() === (selectedBuyer.buyer_name || '').toLowerCase() : false
+    const articleMatch = articleNum ? (t.article_number || '').trim().toUpperCase() === articleNum : false
+    return buyerMatch || articleMatch
+  })
+
+  const completedIronPieces = matchingAllocations
+    .filter(t => t.status === 'VERIFIED_COMPLETED' || t.status === 'COMPLETED')
+    .reduce((sum, curr) => sum + (Number(curr.completed_pieces || curr.pieces_to_press) || 0), 0)
+
+  const pendingIronPieces = matchingAllocations
+    .filter(t => t.status !== 'VERIFIED_COMPLETED' && t.status !== 'COMPLETED')
+    .reduce((sum, curr) => sum + (Number(curr.pieces_to_press) || 0), 0)
+
+  // In Hand = Total completed upstream pieces minus assigned/completed in iron
+  const assignedOrCompletedIron = matchingAllocations.reduce((sum, curr) => sum + Number(curr.pieces_to_press || 0), 0)
+  const inHandPieces = Math.max(0, upstreamPieces - assignedOrCompletedIron)
+
+  const selectedBuyerDisplayText = selectedBuyer
+    ? `${selectedBuyer.buyer_name} (${upstreamPieces.toLocaleString('en-IN')} Pcs Contracted)`
+    : (buyers.length === 0 ? 'No Active Buyers Contracted' : 'Select Buyer Contract')
+
+  // Filtered Task Allocations for Spreadsheet Table
+  const filteredTasks = allocations.filter(task => {
+    const matchesSearch = 
+      (task.task_ref || '').toLowerCase().includes(taskSearchQuery.toLowerCase()) ||
+      (task.worker_name || '').toLowerCase().includes(taskSearchQuery.toLowerCase()) ||
+      (task.article_number || '').toLowerCase().includes(taskSearchQuery.toLowerCase()) ||
+      (task.buyer_name || '').toLowerCase().includes(taskSearchQuery.toLowerCase()) ||
+      (task.machine_table || '').toLowerCase().includes(taskSearchQuery.toLowerCase())
+
+    let matchesStatus = true
+    if (statusFilter === 'ACTIVE') {
+      matchesStatus = task.status !== 'VERIFIED_COMPLETED'
+    } else if (statusFilter === 'NEEDS_VERIFY') {
+      matchesStatus = task.status === 'COMPLETED'
+    } else if (statusFilter === 'COMPLETED') {
+      matchesStatus = task.status === 'VERIFIED_COMPLETED'
+    }
+    return matchesSearch && matchesStatus
+  })
+
+  // Verify & Done Sign-Off Handler
+  const handleVerifyAndDone = async (taskId: string, taskRef: string, pieces: number) => {
+    const updated = updateIronTaskStatus(taskId, 'VERIFIED_COMPLETED', { completed_pieces: pieces, completed_at: new Date().toISOString() })
+    setAllocations(updated)
+    const taskObj = updated.find(t => t.id === taskId || t.task_ref === taskId)
+    if (taskObj) {
+      await saveIronTaskAllocationAction(taskObj)
+    }
+    toast.success(`Task #${taskRef} verified! ${pieces.toLocaleString('en-IN')} pcs steam pressed & finish QC verified.`)
+  }
+
+  // Delete Task Handler
+  const handleConfirmDeleteTask = async () => {
+    if (!taskToDelete) return
+    try {
+      setIsDeletingTask(true)
+      const updated = deleteIronTaskAllocation(taskToDelete.id)
+      setAllocations(updated)
+      await deleteIronTaskAllocationAction(taskToDelete.id)
+      toast.info(`Task #${taskToDelete.taskRef} removed from allocations.`)
+    } catch (err) {
+      console.error('Failed to delete task allocation:', err)
+      toast.error('Failed to remove task allocation.')
+    } finally {
+      setIsDeletingTask(false)
+      setTaskToDelete(null)
+    }
+  }
 
   return (
-    <div className="space-y-6 select-none">
-      {/* Central Boiler Steam Status Ticker */}
-      <div className="bg-[#FAF7F0] border border-black/10 rounded-2xl p-4 sm:p-5 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
+    <div className="space-y-6 max-w-7xl w-full mx-auto select-none">
+      
+      {/* Navigation Breadcrumb */}
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div className="flex items-center gap-2">
+          {isSuperAdmin && (
+            <>
+              <Link
+                href="/modules"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-white text-xs font-mono font-bold text-[#3A3564] transition-colors shadow-2xs"
+              >
+                <ChevronLeft className="w-3.5 h-3.5" />
+                <span>Workspace Hub</span>
+              </Link>
+              <span className="text-slate-300">/</span>
+            </>
+          )}
+          <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500">
+            Division 08 • Steam Finishing &amp; Ironing
+          </span>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <span className="text-[11px] font-mono font-bold px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 uppercase tracking-wider flex items-center gap-1.5 shadow-2xs">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            Boiler &amp; Vacuum Sync Active
+          </span>
+        </div>
+      </div>
+
+      {/* Module Title Header Card */}
+      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col lg:flex-row justify-between items-start lg:items-center gap-5">
+        <div className="flex items-start sm:items-center gap-4">
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+            <Wind className="w-6 h-6 text-[#3A3564]" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
+                Steam Ironing Floor
+              </h1>
+              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                {workers.length} Pressers Registered
+              </span>
+            </div>
+            <p className="text-xs sm:text-sm font-semibold text-slate-600 mt-1">
+              Industrial boiler telemetry (4.5 Bar steam), vacuum buck table allocation, thermal shine QC, and finished garment sign-offs
+            </p>
+          </div>
+        </div>
+
+        {/* Quick Nav Chips */}
+        <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
+          <Link
+            href="/iron/zigza-ai"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs"
+          >
+            <Bot className="w-3.5 h-3.5" />
+            <span>Zigza AI</span>
+          </Link>
+          <Link
+            href="/iron/profile"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs"
+          >
+            <Users className="w-3.5 h-3.5" />
+            <span>Division Profile</span>
+          </Link>
+        </div>
+      </div>
+
+      {/* Buyer Selection & Workstation Controls Bar */}
+      <div className="bg-white p-4 sm:p-5 rounded-2xl border border-black/10 shadow-2xs flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
+        
+        {/* Left: Active Buyer Info Pill */}
+        <div className="flex items-center gap-3 flex-wrap sm:flex-nowrap">
           <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
-            <Gauge className="w-5 h-5" />
+            <Building2 className="w-5 h-5 text-[#3A3564]" />
           </div>
           <div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-xs font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-white text-[#3A3564] border border-black/10">
-                Boiler Steam Telemetry
-              </span>
-              <span className="text-xs font-bold text-slate-800 font-mono">
-                {latestBoiler.steamPressureBar} Bar Steam Pressure (Optimal: 4.2–4.8 Bar)
-              </span>
+            <div className="text-xs font-mono font-bold uppercase tracking-wider text-slate-400">
+              Selected Buyer Contract
             </div>
-            <p className="text-xs text-slate-600 font-medium mt-1">
-              Central boiler feeding 12 vacuum buck stations • Temp: <strong>{latestBoiler.boilerTempC}°C</strong> • Condensate: <strong>{latestBoiler.condensateTrapStatus}</strong>
-            </p>
+            <div className="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2 flex-wrap">
+              <span>{selectedBuyer ? selectedBuyer.buyer_name : 'No Active Buyers'}</span>
+              {selectedBuyer?.linked_article_number && (
+                <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                  Article: {selectedBuyer.linked_article_number}
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
-        <Link
-          href="/iron/boiler-telemetry"
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-[#3A3564] text-xs font-bold transition-all border border-black/10 shadow-2xs shrink-0 cursor-pointer"
-        >
-          <span>Boiler Gauges</span>
-          <ArrowRight className="w-3.5 h-3.5" />
-        </Link>
-      </div>
-
-      {/* 4 Master KPI Metric Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* KPI 1: Daily Pressed Volume */}
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs relative overflow-hidden group hover:border-black/20 transition-all">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-mono font-bold text-slate-500">
-              Daily Pressed Volume
-            </span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
-              <Flame className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-2xl sm:text-3xl font-black font-mono text-slate-900">
-              {totalPressedPieces.toLocaleString()}
-            </span>
-            <span className="text-xs font-bold text-slate-600">Pcs</span>
-          </div>
-          <p className="text-xs font-medium text-slate-500 mt-1.5">
-            Shift Target: {shiftTargetPcs.toLocaleString()} pcs ({shiftProgressPct}%)
-          </p>
-          <div className="mt-3 w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
-            <div
-              className="bg-[#3A3564] h-1.5 rounded-full transition-all duration-500"
-              style={{ width: `${shiftProgressPct}%` }}
-            />
-          </div>
-        </div>
-
-        {/* KPI 2: Steam Pressure */}
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs relative overflow-hidden group hover:border-black/20 transition-all">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-mono font-bold text-slate-500">
-              Boiler Pressure
-            </span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
-              <Gauge className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-2xl sm:text-3xl font-black font-mono text-slate-900">
-              {latestBoiler.steamPressureBar} Bar
-            </span>
-            <span className="text-xs font-bold text-slate-600 font-mono">Continuous Flow</span>
-          </div>
-          <p className="text-xs font-medium text-slate-500 mt-1.5">
-            Operating band: 4.2 Bar – 4.8 Bar
-          </p>
-          <div className="mt-3 flex items-center gap-1.5 text-[11px] font-semibold text-slate-700 font-mono">
-            <CheckCircle2 className="w-3.5 h-3.5 text-[#3A3564]" />
-            <span>Condensate traps draining cleanly</span>
-          </div>
-        </div>
-
-        {/* KPI 3: Active Vacuum Tables */}
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs relative overflow-hidden group hover:border-black/20 transition-all">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-mono font-bold text-slate-500">
-              Active Vacuum Tables
-            </span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
-              <Layers className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-2xl sm:text-3xl font-black font-mono text-slate-900">
-              {activeTablesCount} / {tables.length}
-            </span>
-            <span className="text-xs font-bold text-slate-600">Online</span>
-          </div>
-          <p className="text-xs font-medium text-slate-500 mt-1.5">
-            12-station vacuum buck layout
-          </p>
-          <div className="mt-3 flex items-center gap-1.5 text-[11px] font-semibold text-slate-600 font-mono">
-            <Zap className="w-3.5 h-3.5 text-[#3A3564]" />
-            <span>Teflon shoe base: 140°C - 160°C</span>
-          </div>
-        </div>
-
-        {/* KPI 4: Finishing First Pass Rate */}
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs relative overflow-hidden group hover:border-black/20 transition-all">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-mono font-bold text-slate-500">
-              First Pass QC Rate
-            </span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
-              <CheckCircle2 className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-2xl sm:text-3xl font-black font-mono text-slate-900">
-              {firstPassRate}%
-            </span>
-            <span className="text-xs font-bold text-slate-600 font-mono">ISO 105-X11</span>
-          </div>
-          <p className="text-xs font-medium text-slate-500 mt-1.5">
-            Zero glaze & shine defect SLA
-          </p>
-          <div className="mt-3 flex items-center gap-1.5 text-[11px] font-semibold text-slate-600 font-mono">
-            <span>Shift Wages: ₹{totalEarnedWages.toLocaleString()}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* 12-Station Steam Vacuum Buck Tables Floor Matrix */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <div className="flex items-center gap-2">
-              <Layers className="w-4 h-4 text-[#3A3564]" />
-              <h2 className="text-base font-black text-slate-900 font-[family-name:var(--font-heading)]">
-                Steam Vacuum Buck Tables Matrix (12 Stations)
-              </h2>
-              <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-md bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-                Live Pressing Layout
-              </span>
-            </div>
-            <p className="text-xs text-slate-500 mt-0.5 font-medium">
-              Station-by-station operational console showing operator assignments, Teflon shoe status, and hourly piece rate.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Link
-              href="/iron/tables"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
+        {/* Right: Buyer Dropdown + View Worker List + Add Worker Buttons */}
+        <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap justify-end">
+          
+          {/* Buyer Selector Searchable Dropdown */}
+          <div className="relative min-w-[220px] sm:min-w-[260px]">
+            <button
+              type="button"
+              onClick={() => setIsBuyerMenuOpen(!isBuyerMenuOpen)}
+              className="w-full flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-xs sm:text-sm font-bold text-slate-800 transition-all cursor-pointer shadow-2xs"
             >
-              <Plus className="w-3.5 h-3.5" />
-              <span>Allot / Log Production</span>
-            </Link>
-          </div>
-        </div>
+              <div className="flex items-center gap-2 truncate">
+                <Users className="w-4 h-4 text-[#3A3564]" />
+                <span className="truncate">{selectedBuyerDisplayText}</span>
+              </div>
+              <ChevronDown className={`w-4 h-4 text-slate-500 shrink-0 transition-transform ${isBuyerMenuOpen ? 'rotate-180' : ''}`} />
+            </button>
 
-        {/* 12 Tables Grid */}
-        {tables.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 pt-1">
-            {tables.map(tbl => {
-              const isActive = tbl.status === 'ACTIVE'
-              const isIdle = tbl.status === 'IDLE'
-
-              return (
-                <div
-                  key={tbl.id}
-                  className="p-4 rounded-xl border border-black/10 bg-white hover:border-black/20 transition-all shadow-2xs space-y-2"
-                >
-                  <div className="flex items-center justify-between mb-1">
-                    <div className="flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-[#3A3564]" />
-                      <span className="text-xs font-black tracking-tight text-slate-900 font-mono">
-                        {tbl.tableNumber}
-                      </span>
-                    </div>
-                    <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-                      {tbl.status}
-                    </span>
-                  </div>
-
-                  <div className="space-y-1.5 text-xs">
-                    <div className="flex justify-between items-center text-slate-700">
-                      <span className="text-slate-500">Operator:</span>
-                      <strong className="font-semibold text-slate-900 truncate max-w-[130px]">
-                        {tbl.operatorName}
-                      </strong>
-                    </div>
-
-                    <div className="flex justify-between items-center text-slate-700 font-mono">
-                      <span className="text-slate-500">Challan Lot:</span>
-                      <span className="font-bold text-[#3A3564] text-[11px]">
-                        {tbl.challanId}
-                      </span>
-                    </div>
-
-                    <div className="text-[11px] font-medium text-slate-600 truncate">
-                      {tbl.articleName}
-                    </div>
-
-                    {isActive && (
-                      <>
-                        <div className="p-2 bg-[#FAF7F0] rounded-lg border border-black/5 flex items-center justify-between font-mono text-[11px]">
-                          <span className="text-slate-500">Pressed:</span>
-                          <strong className="text-slate-900 text-xs">
-                            {tbl.currentPiecesPressed} pcs
-                          </strong>
-                        </div>
-
-                        <div className="flex items-center justify-between text-[11px] font-mono text-slate-500 pt-1 border-t border-slate-100">
-                          <span className="flex items-center gap-1 text-slate-800 font-bold">
-                            <Thermometer className="w-3 h-3 text-[#3A3564]" />
-                            {tbl.ironTempC}°C
-                          </span>
-                          <span className="text-[#3A3564] font-bold">₹{tbl.pieceRate}/pc</span>
-                        </div>
-                      </>
-                    )}
-
-                    {isIdle && (
-                      <div className="py-2 text-center text-xs text-slate-400 italic">
-                        Ready for next bundle lot
-                      </div>
-                    )}
-                  </div>
+            {isBuyerMenuOpen && (
+              <div className="absolute right-0 top-full mt-1.5 w-80 bg-white rounded-xl border border-black/10 shadow-xl z-30 p-2 space-y-1.5 animate-in fade-in zoom-in-95">
+                <div className="relative">
+                  <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    value={buyerSearchQuery}
+                    onChange={e => setBuyerSearchQuery(e.target.value)}
+                    placeholder="Search buyers..."
+                    className="w-full pl-8 pr-2.5 py-1.5 text-xs rounded-lg border border-black/10 bg-slate-50 focus:bg-white focus:outline-hidden focus:border-[#3A3564]"
+                    autoFocus
+                  />
                 </div>
-              )
-            })}
+                <div className="max-h-56 overflow-y-auto space-y-0.5 pt-1">
+                  {filteredBuyersList.length === 0 ? (
+                    <div className="py-3 px-2 text-center text-xs text-slate-400">
+                      No buyers found
+                    </div>
+                  ) : (
+                    filteredBuyersList.map(b => (
+                      <button
+                        key={b.id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedBuyerId(b.id)
+                          setIsBuyerMenuOpen(false)
+                        }}
+                        className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer flex items-center justify-between ${
+                          activeSelectedBuyerId === b.id
+                            ? 'bg-[#3A3564] text-white font-bold'
+                            : 'text-slate-700 hover:bg-[#FAF7F0]'
+                        }`}
+                      >
+                        <div className="truncate pr-2">
+                          <div className="font-bold">{b.buyer_name}</div>
+                          <div className={`text-[10px] font-mono mt-0.5 ${activeSelectedBuyerId === b.id ? 'text-indigo-200' : 'text-slate-500'}`}>
+                            {(Number(b.contracted_volume) || 0).toLocaleString('en-IN')} BPO Pcs {b.linked_article_number ? `• ${b.linked_article_number}` : ''}
+                          </div>
+                        </div>
+                        {activeSelectedBuyerId === b.id && <Check className="w-4 h-4 text-white shrink-0" />}
+                      </button>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
           </div>
-        ) : (
-          <EmptyState
-            variant="seamless"
-            icon={Layers}
-            title="No vacuum buck tables configured"
-            description="Station-by-station pressing tables, operator allocations, and hourly piece-rate telemetry will appear once configured."
-            actionLabel="Allot Vacuum Table"
-            onAction={() => router.push('/iron/tables')}
-          />
-        )}
+
+          {/* Button 1: View Worker List */}
+          <button
+            type="button"
+            onClick={() => setIsWorkerListOpen(true)}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-black/10 bg-white hover:bg-[#FAF7F0] text-xs font-mono font-bold text-slate-800 transition-all cursor-pointer shadow-2xs shrink-0"
+          >
+            <Users className="w-4 h-4 text-[#3A3564]" />
+            <span>View Worker List ({workers.length})</span>
+          </button>
+
+          {/* Button 2: Add Worker */}
+          <button
+            type="button"
+            onClick={() => setIsAddWorkerOpen(true)}
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer shrink-0"
+          >
+            <UserPlus className="w-4 h-4" />
+            <span>+ Add Worker</span>
+          </button>
+
+          {/* Refresh Sync Button */}
+          <button
+            type="button"
+            onClick={handleManualSync}
+            disabled={isSyncing}
+            className="p-2.5 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-[#3A3564] transition-all cursor-pointer shadow-2xs flex items-center justify-center shrink-0"
+            title="Sync latest live floor updates"
+          >
+            <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
+          </button>
+
+        </div>
       </div>
 
-      {/* Shift Production Logs & Wage Ledgers Summary */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <h2 className="text-base font-black text-slate-900 font-[family-name:var(--font-heading)]">
-              Shift Finishing Production Logs & Wage Disbursements
-            </h2>
-            <p className="text-xs text-slate-500 font-medium">
-              Real-time piece-rate earnings ledger calculated as: Verified Passed Pressed Pieces &times; Piece Rate
-            </p>
+      {/* 3 Summary Metric Cards (Ironing 3-box design) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+        
+        {/* 1. In Hand */}
+        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
+              In Hand
+            </span>
+            <div className="w-10 h-10 rounded-xl border border-black/10 bg-[#FAF7F0] text-[#3A3564] flex items-center justify-center shadow-2xs">
+              <ShoppingBag className="w-5 h-5 text-[#3A3564]" />
+            </div>
           </div>
-
-          <div className="flex items-center gap-2">
-            <Link
-              href="/iron/wages"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-white text-[#3A3564] text-xs font-bold transition-all shadow-2xs cursor-pointer"
-            >
-              <Calculator className="w-3.5 h-3.5" />
-              <span>Full Wage Ledger</span>
-            </Link>
+          <div>
+            <div className="text-2xl sm:text-3xl lg:text-4xl font-black font-mono text-slate-900">
+              {inHandPieces.toLocaleString('en-IN')}
+            </div>
+            <p className="text-xs font-semibold text-slate-500 mt-1">
+              {inHandPieces > 0
+                ? `${inHandPieces.toLocaleString('en-IN')} pcs ready for vacuum pressing tables`
+                : '0 pcs in hand (All garments allocated to pressers)'}
+            </p>
           </div>
         </div>
 
-        {/* Production Logs Table */}
-        <div className="overflow-x-auto border border-black/10 rounded-xl">
-          <table className="w-full min-w-[760px] text-left text-xs border-collapse">
-            <thead className="bg-[#FAF7F0]/60 border-b border-black/10 text-slate-600 font-mono uppercase text-[11px] tracking-wider">
-              <tr>
-                <th className="p-3.5">Table Station</th>
-                <th className="p-3.5">Finishing Operator</th>
-                <th className="p-3.5">Challan & Article</th>
-                <th className="p-3.5">Pieces Pressed</th>
-                <th className="p-3.5">Defects (Shine / Water)</th>
-                <th className="p-3.5">Piece Rate</th>
-                <th className="p-3.5 font-mono font-bold text-slate-900">Earned Wages (₹)</th>
-                <th className="p-3.5">Remarks</th>
+        {/* 2. Processing (Pending Pressing) */}
+        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
+              Processing / In Progress
+            </span>
+            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+              <Clock className="w-5 h-5 text-[#3A3564]" />
+            </div>
+          </div>
+          <div>
+            <div className="text-2xl sm:text-3xl lg:text-4xl font-black font-mono text-slate-900">
+              {pendingIronPieces.toLocaleString('en-IN')}
+            </div>
+            <p className="text-xs font-semibold text-slate-500 mt-1">
+              {pendingIronPieces > 0
+                ? `${pendingIronPieces.toLocaleString('en-IN')} pcs running on vacuum buck tables`
+                : '0 pcs in active steam pressing'}
+            </p>
+          </div>
+        </div>
+
+        {/* 3. Complete (Verified Pressed) */}
+        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
+              Complete / Verified
+            </span>
+            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+              <CheckCircle2 className="w-5 h-5 text-[#3A3564]" />
+            </div>
+          </div>
+          <div>
+            <div className="text-2xl sm:text-3xl lg:text-4xl font-black font-mono text-slate-900">
+              {completedIronPieces.toLocaleString('en-IN')}
+            </div>
+            <p className="text-xs font-semibold text-slate-500 mt-1">
+              {completedIronPieces > 0
+                ? `${completedIronPieces.toLocaleString('en-IN')} pressed garments verified & transferred to packing`
+                : '0 pressed garments verified'}
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+      {/* SPREADSHEET MATRIX: Steam Ironing Floor Task Allocation Layout */}
+      <div className="bg-white rounded-3xl border border-black/10 shadow-2xs overflow-hidden space-y-0">
+        
+        {/* Spreadsheet Header Bar */}
+        <div className="p-5 sm:p-6 border-b border-black/10 bg-[#FAF7F0]/40 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-white border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+                <TableProperties className="w-4.5 h-4.5 text-[#3A3564]" />
+              </div>
+              <div>
+                <h2 className="text-lg sm:text-xl font-bold text-slate-900 font-[family-name:var(--font-heading)]">
+                  Steam Ironing Floor Task Allocation Matrix
+                </h2>
+                <p className="text-xs text-slate-500 font-mono">
+                  Distribute garment pressing quotas, assign vacuum buck tables, and set shift completion targets
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Controls: Search, Status Filters, Add Task Row */}
+          <div className="flex items-center gap-2.5 flex-wrap w-full lg:w-auto">
+            {/* Search Input */}
+            <div className="relative flex-1 sm:w-64">
+              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                value={taskSearchQuery}
+                onChange={e => setTaskSearchQuery(e.target.value)}
+                placeholder="Search presser, article, table..."
+                className="w-full pl-8.5 pr-3 py-2 text-xs rounded-xl border border-black/10 bg-white focus:outline-hidden focus:border-[#3A3564] font-mono"
+              />
+            </div>
+
+            {/* Status Filter Tabs */}
+            <div className="flex items-center p-1 rounded-xl bg-[#FAF7F0] border border-black/10 text-xs font-mono font-bold">
+              <button
+                type="button"
+                onClick={() => setStatusFilter('ACTIVE')}
+                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                  statusFilter === 'ACTIVE'
+                    ? 'bg-[#3A3564] text-white shadow-2xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                Active Queue
+              </button>
+              <button
+                type="button"
+                onClick={() => setStatusFilter('NEEDS_VERIFY')}
+                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                  statusFilter === 'NEEDS_VERIFY'
+                    ? 'bg-[#3A3564] text-white shadow-2xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                Needs Verification
+              </button>
+              <button
+                type="button"
+                onClick={() => setStatusFilter('COMPLETED')}
+                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                  statusFilter === 'COMPLETED'
+                    ? 'bg-[#3A3564] text-white shadow-2xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                Verified &amp; Done
+              </button>
+              <button
+                type="button"
+                onClick={() => setStatusFilter('ALL')}
+                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                  statusFilter === 'ALL'
+                    ? 'bg-[#3A3564] text-white shadow-2xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                All
+              </button>
+            </div>
+
+            {/* Add Task Row Button */}
+            <button
+              type="button"
+              onClick={() => setIsAddTaskOpen(true)}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer shrink-0"
+            >
+              <Plus className="w-4 h-4" />
+              <span>+ Add Task Row</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Spreadsheet Matrix Table */}
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr className="border-b border-black/10 bg-[#FAF7F0]/80 text-[11px] font-mono font-bold text-slate-500 uppercase tracking-wider">
+                <th className="py-3 px-4">Task Ref</th>
+                <th className="py-3 px-4">Buyer / Brand</th>
+                <th className="py-3 px-4">Article No</th>
+                <th className="py-3 px-4">Finishing Presser</th>
+                <th className="py-3 px-4">Vacuum Table</th>
+                <th className="py-3 px-4 text-right">Target Pcs</th>
+                <th className="py-3 px-4 text-right">Completed Pcs</th>
+                <th className="py-3 px-4">Soleplate Temp</th>
+                <th className="py-3 px-4 text-center">Status</th>
+                <th className="py-3 px-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-black/5 font-sans">
-              {logs.length > 0 ? (
-                logs.map(log => (
-                  <tr key={log.id} className="hover:bg-[#FAF7F0]/40 transition-colors">
-                    <td className="p-3.5 font-mono font-bold text-[#3A3564]">
-                      {log.tableNumber}
+            <tbody className="divide-y divide-black/5 font-mono">
+              {filteredTasks.length === 0 ? (
+                <tr>
+                  <td colSpan={10} className="py-12 text-center text-slate-400">
+                    <Wind className="w-8 h-8 mx-auto mb-2 text-slate-300" />
+                    <div className="text-sm font-bold text-slate-600">No iron task allocations found</div>
+                    <p className="text-xs text-slate-400 mt-1">
+                      Click &quot;+ Add Task Row&quot; above to allocate garment batches to iron pressers.
+                    </p>
+                  </td>
+                </tr>
+              ) : (
+                filteredTasks.map(task => (
+                  <tr key={task.id} className="hover:bg-[#FAF7F0]/40 transition-colors">
+                    <td className="py-3 px-4 font-bold text-slate-900">
+                      #{task.task_ref}
                     </td>
-                    <td className="p-3.5 font-bold text-slate-900">
-                      {log.operatorName}
+                    <td className="py-3 px-4 font-sans font-semibold text-slate-800">
+                      {task.buyer_name}
                     </td>
-                    <td className="p-3.5">
-                      <div className="font-mono text-slate-700">{log.challanId}</div>
-                      <div className="text-[11px] text-slate-500 truncate max-w-[200px]">
-                        {log.articleName || 'Running Lot'}
-                      </div>
+                    <td className="py-3 px-4 font-bold text-[#3A3564]">
+                      {task.article_number}
                     </td>
-                    <td className="p-3.5 font-mono font-bold text-slate-900">
-                      {log.piecesPressed.toLocaleString()} pcs
-                    </td>
-                    <td className="p-3.5">
-                      {log.defectShineCount > 0 || log.waterStainCount > 0 ? (
-                        <span className="text-slate-800 font-mono font-bold text-[11px]">
-                          Shine: {log.defectShineCount} • Water: {log.waterStainCount}
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 text-slate-800 font-semibold text-[11px] font-mono">
-                          <CheckCircle2 className="w-3 h-3 text-[#3A3564]" />
-                          <span>Zero Defects</span>
-                        </span>
+                    <td className="py-3 px-4 font-sans text-slate-700">
+                      <div className="font-bold">{task.worker_name}</div>
+                      {task.worker_phone && (
+                        <div className="text-[10px] text-slate-400 font-mono">+91 {task.worker_phone}</div>
                       )}
                     </td>
-                    <td className="p-3.5 font-mono text-slate-700">
-                      ₹{log.pieceRate.toFixed(2)}
+                    <td className="py-3 px-4 text-slate-600">
+                      {task.machine_table || 'Table 01'}
                     </td>
-                    <td className="p-3.5 font-mono font-bold text-[#3A3564] text-sm">
-                      ₹{log.totalEarnedWages.toLocaleString()}
+                    <td className="py-3 px-4 text-right font-bold text-slate-900">
+                      {task.pieces_to_press.toLocaleString('en-IN')}
                     </td>
-                    <td className="p-3.5 text-slate-500 text-xs max-w-[200px] truncate">
-                      {log.notes || 'Verified passed by finish QC'}
+                    <td className="py-3 px-4 text-right font-bold text-emerald-700">
+                      {(task.completed_pieces || 0).toLocaleString('en-IN')}
+                    </td>
+                    <td className="py-3 px-4 text-slate-600">
+                      {task.iron_temp_c ? `${task.iron_temp_c}°C` : '150°C'}
+                    </td>
+                    <td className="py-3 px-4 text-center">
+                      <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                        task.status === 'VERIFIED_COMPLETED'
+                          ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                          : task.status === 'COMPLETED'
+                          ? 'bg-blue-50 text-blue-800 border-blue-200'
+                          : task.status === 'IN_PROGRESS'
+                          ? 'bg-amber-50 text-amber-800 border-amber-200'
+                          : 'bg-slate-50 text-slate-700 border-slate-200'
+                      }`}>
+                        {task.status.replace(/_/g, ' ')}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4 text-right">
+                      <div className="flex items-center justify-end gap-1.5">
+                        {task.status === 'COMPLETED' && (
+                          <button
+                            type="button"
+                            onClick={() => handleVerifyAndDone(task.id, task.task_ref, task.pieces_to_press)}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] shadow-2xs transition-all cursor-pointer"
+                          >
+                            <Check className="w-3 h-3" />
+                            <span>Verify &amp; Done</span>
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => setTaskToDelete({
+                            id: task.id,
+                            taskRef: task.task_ref,
+                            workerName: task.worker_name,
+                            buyerName: task.buyer_name,
+                            articleNumber: task.article_number,
+                            pieces: task.pieces_to_press,
+                            table: task.machine_table || 'Table 01'
+                          })}
+                          className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                          title="Delete task allocation"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
-              ) : (
-                <tr>
-                  <td colSpan={8} className="p-0">
-                    <EmptyState
-                      variant="seamless"
-                      icon={Flame}
-                      title="No production pressing logs recorded"
-                      description="Verified pressed pieces, shine and water-spot counts, and operator piece-rate wages will display once logged."
-                      actionLabel="Allot / Log Production"
-                      onAction={() => router.push('/iron/tables')}
-                    />
-                  </td>
-                </tr>
               )}
             </tbody>
           </table>
         </div>
+
       </div>
+
+      {/* Modals */}
+      <AddWorkerModal
+        isOpen={isAddWorkerOpen}
+        onClose={() => setIsAddWorkerOpen(false)}
+        onSuccess={() => {
+          refreshFloorData()
+        }}
+        companyName={companyName}
+      />
+
+      <WorkerListModal
+        isOpen={isWorkerListOpen}
+        onClose={() => setIsWorkerListOpen(false)}
+        workers={workers}
+        onOpenAddModal={() => setIsAddWorkerOpen(true)}
+        onWorkersUpdated={() => {
+          refreshFloorData()
+        }}
+      />
+
+      <AddTaskAllocationModal
+        isOpen={isAddTaskOpen}
+        onClose={() => setIsAddTaskOpen(false)}
+        workers={workers}
+        selectedBuyer={selectedBuyer}
+        inHandPieces={inHandPieces}
+        onSuccess={() => {
+          refreshFloorData()
+        }}
+        onOpenAddWorkerModal={() => setIsAddWorkerOpen(true)}
+        companyName={companyName}
+      />
+
+      {/* Confirm Delete Task Dialog */}
+      <ConfirmDialog
+        isOpen={Boolean(taskToDelete)}
+        title="Remove Task Allocation?"
+        description={`Are you sure you want to remove task #${taskToDelete?.taskRef} (${taskToDelete?.pieces.toLocaleString('en-IN')} pcs of ${taskToDelete?.articleNumber} assigned to ${taskToDelete?.workerName})?`}
+        confirmText={isDeletingTask ? 'Removing...' : 'Remove Task'}
+        cancelText="Cancel"
+        variant="danger"
+        isLoading={isDeletingTask}
+        onConfirm={handleConfirmDeleteTask}
+        onClose={() => setTaskToDelete(null)}
+      />
+
     </div>
   )
 }

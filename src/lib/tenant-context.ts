@@ -78,7 +78,7 @@ export async function resolveUserTenant(user: {
     }
   }
 
-    // 1.5. Check cutting_workers for cutting floor operators
+  // 1.5. Check cutting_workers for cutting floor operators
   try {
     const rawDigits = userEmail.split('@')[0].replace(/\D/g, '')
     const phone10 = rawDigits.length >= 10 ? rawDigits.slice(-10) : rawDigits
@@ -95,7 +95,6 @@ export async function resolveUserTenant(user: {
 
     const { data: matchedWorker } = await workerQuery.limit(1).maybeSingle()
 
-    // Also check cutting_task_allocations if worker record hasn't synced yet
     let taskWorkerName = ''
     if (!matchedWorker?.worker_name) {
       try {
@@ -266,6 +265,132 @@ export async function resolveUserTenant(user: {
     }
   } catch (workerErr) {
     console.error('[resolveUserTenant] Error resolving embroidery worker:', workerErr)
+  }
+
+  // 1.57. Check washing_workers for industrial washing operators
+  try {
+    const rawDigits = userEmail.split('@')[0].replace(/\D/g, '')
+    const phone10 = rawDigits.length >= 10 ? rawDigits.slice(-10) : rawDigits
+
+    let workerQuery = supabaseAdmin
+      .from('washing_workers')
+      .select('*')
+
+    if (phone10.length === 10) {
+      workerQuery = workerQuery.or(`worker_user_id.eq.${user.id},worker_email.eq.${userEmail},phone_number.eq.${phone10},phone_number.ilike.%${phone10}%`)
+    } else {
+      workerQuery = workerQuery.or(`worker_user_id.eq.${user.id},worker_email.eq.${userEmail}`)
+    }
+
+    const { data: matchedWorker } = await workerQuery.limit(1).maybeSingle()
+
+    let taskWorkerName = ''
+    if (!matchedWorker?.worker_name) {
+      try {
+        let taskQuery = supabaseAdmin.from('washing_task_allocations').select('worker_name, worker_phone, worker_id')
+        if (phone10.length === 10) {
+          taskQuery = taskQuery.or(`worker_id.eq.${user.id},worker_phone.ilike.%${phone10}%`)
+        } else {
+          taskQuery = taskQuery.eq('worker_id', user.id)
+        }
+        const { data: matchedTask } = await taskQuery.limit(1).maybeSingle()
+        if (matchedTask?.worker_name) {
+          taskWorkerName = matchedTask.worker_name
+        }
+      } catch (_) {}
+    }
+
+    if (matchedWorker || taskWorkerName || user.user_metadata?.role === 'WASHING_WORKER' || userEmail.endsWith('@washing.nubira.local')) {
+      const metaName = user.user_metadata?.full_name && user.user_metadata.full_name !== 'Floor Operator' && user.user_metadata.full_name !== 'Washing Operator'
+        ? user.user_metadata.full_name
+        : ''
+      const workerName = matchedWorker?.worker_name || taskWorkerName || metaName || 'Washing Floor Operator'
+      const workerPhone = matchedWorker?.phone_number || user.user_metadata?.phone_number || phone10
+      return {
+        userId: user.id,
+        userEmail,
+        role: 'WASHING_WORKER',
+        isSuperAdmin: false,
+        isPlatformAdmin: false,
+        companyName: matchedWorker?.company_name || user.user_metadata?.company_name || user.user_metadata?.company || 'Nubira Creation',
+        adminDisplayName: workerName,
+        customUsername: `${workerName.toLowerCase().replace(/\s+/g, '_')}_washing`,
+        phone: workerPhone,
+        cityState: 'India',
+        subscriptionTier: 'ENTERPRISE_PLAN',
+        allowedDivisions: ['/washing/worker', '/washing/worker/history', '/washing/worker/profile'],
+        isProvisionedTenant: true,
+        accessType: 'FULL_ACCESS',
+        isExpired: false,
+        tenantStatus: matchedWorker?.status || 'ACTIVE',
+        provisionedAt: matchedWorker?.created_at || '2026-09-17T00:00:00.000Z'
+      }
+    }
+  } catch (workerErr) {
+    console.error('[resolveUserTenant] Error resolving washing worker:', workerErr)
+  }
+
+  // 1.58. Check iron_workers for steam ironing pressers
+  try {
+    const rawDigits = userEmail.split('@')[0].replace(/\D/g, '')
+    const phone10 = rawDigits.length >= 10 ? rawDigits.slice(-10) : rawDigits
+
+    let workerQuery = supabaseAdmin
+      .from('iron_workers')
+      .select('*')
+
+    if (phone10.length === 10) {
+      workerQuery = workerQuery.or(`worker_user_id.eq.${user.id},worker_email.eq.${userEmail},phone_number.eq.${phone10},phone_number.ilike.%${phone10}%`)
+    } else {
+      workerQuery = workerQuery.or(`worker_user_id.eq.${user.id},worker_email.eq.${userEmail}`)
+    }
+
+    const { data: matchedWorker } = await workerQuery.limit(1).maybeSingle()
+
+    let taskWorkerName = ''
+    if (!matchedWorker?.worker_name) {
+      try {
+        let taskQuery = supabaseAdmin.from('iron_task_allocations').select('worker_name, worker_phone, worker_id')
+        if (phone10.length === 10) {
+          taskQuery = taskQuery.or(`worker_id.eq.${user.id},worker_phone.ilike.%${phone10}%`)
+        } else {
+          taskQuery = taskQuery.eq('worker_id', user.id)
+        }
+        const { data: matchedTask } = await taskQuery.limit(1).maybeSingle()
+        if (matchedTask?.worker_name) {
+          taskWorkerName = matchedTask.worker_name
+        }
+      } catch (_) {}
+    }
+
+    if (matchedWorker || taskWorkerName || user.user_metadata?.role === 'IRON_WORKER' || userEmail.endsWith('@iron.nubira.local')) {
+      const metaName = user.user_metadata?.full_name && user.user_metadata.full_name !== 'Floor Operator' && user.user_metadata.full_name !== 'Iron Operator' && user.user_metadata.full_name !== 'Finishing Presser'
+        ? user.user_metadata.full_name
+        : ''
+      const workerName = matchedWorker?.worker_name || taskWorkerName || metaName || 'Steam Iron Presser'
+      const workerPhone = matchedWorker?.phone_number || user.user_metadata?.phone_number || phone10
+      return {
+        userId: user.id,
+        userEmail,
+        role: 'IRON_WORKER',
+        isSuperAdmin: false,
+        isPlatformAdmin: false,
+        companyName: matchedWorker?.company_name || user.user_metadata?.company_name || user.user_metadata?.company || 'Nubira Creation',
+        adminDisplayName: workerName,
+        customUsername: `${workerName.toLowerCase().replace(/\s+/g, '_')}_iron`,
+        phone: workerPhone,
+        cityState: 'India',
+        subscriptionTier: 'ENTERPRISE_PLAN',
+        allowedDivisions: ['/iron/worker', '/iron/worker/history', '/iron/worker/profile'],
+        isProvisionedTenant: true,
+        accessType: 'FULL_ACCESS',
+        isExpired: false,
+        tenantStatus: matchedWorker?.status || 'ACTIVE',
+        provisionedAt: matchedWorker?.created_at || '2026-09-17T00:00:00.000Z'
+      }
+    }
+  } catch (workerErr) {
+    console.error('[resolveUserTenant] Error resolving iron worker:', workerErr)
   }
 
   // 1.6. Check design_team_members for creative designers
@@ -455,49 +580,6 @@ export async function resolveUserTenant(user: {
         tenantStatus,
         monthlyBillingInr: Number(tenant.monthly_billing_inr || (tenant.subscription_tier === 'MODULAR' ? 1999 : 4999))
       }
-  // 1.6. Check design_team_members for creative designers
-  try {
-    const rawDigits = userEmail.split('@')[0].replace(/\D/g, '')
-    const phone10 = rawDigits.length >= 10 ? rawDigits.slice(-10) : rawDigits
-
-    let memberQuery = supabaseAdmin
-      .from('design_team_members')
-      .select('*')
-
-    if (phone10.length === 10) {
-      memberQuery = memberQuery.or(`designer_user_id.eq.${user.id},designer_email.eq.${userEmail},phone_number.eq.${phone10},designer_phone.eq.${phone10}`)
-    } else {
-      memberQuery = memberQuery.or(`designer_user_id.eq.${user.id},designer_email.eq.${userEmail}`)
-    }
-
-    const { data: matchedMember } = await memberQuery.limit(1).maybeSingle()
-
-    if (matchedMember) {
-      const company = matchedMember.company_name || 'Nubira Creation'
-      return {
-        userId: user.id,
-        userEmail,
-        role: 'DESIGNER',
-        isSuperAdmin: false,
-        isPlatformAdmin: false,
-        companyName: company,
-        adminDisplayName: matchedMember.designer_name || 'Creative Designer',
-        customUsername: matchedMember.username || `${matchedMember.designer_name.toLowerCase().replace(/\s+/g, '_')}_nubira`,
-        phone: matchedMember.phone_number || matchedMember.designer_phone || '',
-        cityState: 'India',
-        subscriptionTier: 'ENTERPRISE_PLAN',
-        allowedDivisions: ['/design/designer', '/design/profile'],
-        isProvisionedTenant: true,
-        accessType: 'FULL_ACCESS',
-        isExpired: false,
-        tenantStatus: matchedMember.status || 'ACTIVE',
-        provisionedAt: matchedMember.created_at || '2026-09-15T00:00:00.000Z'
-      }
-    }
-  } catch (designerErr) {
-    console.error('[resolveUserTenant] Error resolving design team member:', designerErr)
-  }
-
     }
   } catch (err) {
     console.warn('[resolveUserTenant] Tenant lookup notice:', err)

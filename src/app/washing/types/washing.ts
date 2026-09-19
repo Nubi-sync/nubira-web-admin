@@ -116,3 +116,64 @@ export interface FinishingHandover {
   handoverDate: string
   status: HandoverStatus
 }
+
+// -----------------------------------------------------------------------------
+// Interactive Floor Matrix & Worker Types
+// -----------------------------------------------------------------------------
+
+export type WashingAllocationStatus = 'ASSIGNED' | 'IN_PROGRESS' | 'WORKER_COMPLETED' | 'VERIFIED_COMPLETED'
+
+export type WashingWorkerRole =
+  | 'WASH_MASTER'
+  | 'HYDRO_EXTRACTOR'
+  | 'TUMBLER_OPERATOR'
+  | 'CHEMICAL_MIXER'
+  | 'SHRINKAGE_INSPECTOR'
+  | 'FINISHING_LOADER'
+
+export interface WashingWorker {
+  id: string
+  worker_user_id?: string
+  worker_name: string
+  phone_number: string
+  worker_email?: string
+  role: string
+  roles: string[]
+  assigned_machine?: string
+  shift?: 'MORNING' | 'EVENING' | 'NIGHT'
+  status: 'ACTIVE' | 'INACTIVE'
+  assigned_pieces?: number
+  completed_pieces?: number
+  company_name?: string
+  created_at?: string
+}
+
+export interface WashingTaskAllocation {
+  id: string
+  task_ref: string
+  buyer_id?: string | null
+  buyer_name: string
+  article_number: string
+  article_name?: string | null
+  worker_id?: string | null
+  worker_name: string
+  worker_phone?: string | null
+  table_number?: string // Machine / Washer / Tumbler ID
+  machine_number?: string
+  machine_station?: string
+  wash_type?: string
+  pieces_to_wash: number
+  completed_pieces: number
+  alloted_hours: number
+  due_time?: string | null
+  wash_recipe?: string | null
+  notes?: string | null
+  company_name?: string
+  status: WashingAllocationStatus
+  started_at?: string | null
+  assigned_at?: string
+  completed_at?: string
+  created_at?: string
+  updated_at?: string
+}
+

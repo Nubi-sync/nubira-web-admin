@@ -227,3 +227,336 @@ export async function recordShrinkageAuditAction(payload: {
     return { success: false, error: error.message }
   }
 }
+
+// -----------------------------------------------------------------------------
+// 4. WASHING FLOOR WORKERS
+// -----------------------------------------------------------------------------
+
+const isUUID = (val?: string | null) =>
+  Boolean(val && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val))
+
+export async function fetchWashingWorkersAction(companyName?: string): Promise<any[]> {
+  try {
+    if (!companyName || !companyName.trim()) {
+      return []
+    }
+
+    const { data, error } = await supabaseAdmin
+      .from('washing_workers')
+      .select('*')
+      .eq('company_name', companyName.trim())
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.warn('[fetchWashingWorkersAction] Supabase notice:', error.message)
+      return []
+    }
+
+    return (data || []).map((w: any) => ({
+      id: w.id,
+      worker_user_id: w.worker_user_id || undefined,
+      worker_name: w.worker_name,
+      phone_number: w.phone_number,
+      worker_email: w.worker_email,
+      role: w.role || 'Washer Operator',
+      roles: Array.isArray(w.roles) ? w.roles : ['WASH_MASTER'],
+      assigned_machine: w.assigned_machine || 'Washer 01',
+      shift: w.shift || 'MORNING',
+      status: w.status || 'ACTIVE',
+      assigned_pieces: w.assigned_pieces || 0,
+      completed_pieces: w.completed_pieces || 0,
+      company_name: w.company_name,
+      created_at: w.created_at
+    }))
+  } catch (err) {
+    console.error('[fetchWashingWorkersAction] Unexpected error:', err)
+    return []
+  }
+}
+
+export async function registerWashingWorkerAction(payload: {
+  worker_name: string
+  phone_number: string
+  password: string
+  roles: string[]
+  assigned_machine?: string
+  shift?: 'MORNING' | 'EVENING' | 'NIGHT'
+  company_name?: string
+}) {
+  try {
+    const rawDigits = payload.phone_number.replace(/\D/g, '')
+    const phone10 = rawDigits.slice(-10)
+    const nameClean = payload.worker_name.trim()
+    const internalEmail = `${phone10}@washing.nubira.local`
+
+    if (!phone10 || phone10.length !== 10) {
+      return { success: false, error: 'Valid 10-digit phone number is required.' }
+    }
+    if (!payload.password || payload.password.length < 6) {
+      return { success: false, error: 'Password must be at least 6 characters long.' }
+    }
+
+    // 1. Create or Update Supabase Auth User
+    let authUserId: string | undefined
+    try {
+      const { data: userList } = await supabaseAdmin.auth.admin.listUsers()
+      const foundUser = userList?.users?.find(
+        u => u.email?.toLowerCase() === internalEmail.toLowerCase() ||
+             u.user_metadata?.phone_number === phone10
+      )
+
+      if (foundUser) {
+        authUserId = foundUser.id
+        await supabaseAdmin.auth.admin.updateUserById(foundUser.id, {
+          password: payload.password,
+          user_metadata: {
+            role: 'WASHING_WORKER',
+            full_name: nameClean,
+            phone_number: phone10,
+            roles: payload.roles,
+            assigned_machine: payload.assigned_machine,
+            shift: payload.shift,
+            company_name: payload.company_name
+          }
+        })
+      } else {
+        const { data: newUser, error: authErr } = await supabaseAdmin.auth.admin.createUser({
+          email: internalEmail,
+          password: payload.password,
+          email_confirm: true,
+          user_metadata: {
+            role: 'WASHING_WORKER',
+            full_name: nameClean,
+            phone_number: phone10,
+            roles: payload.roles,
+            assigned_machine: payload.assigned_machine,
+            shift: payload.shift,
+            company_name: payload.company_name
+          }
+        })
+        if (!authErr && newUser?.user) {
+          authUserId = newUser.user.id
+        }
+      }
+    } catch (authErr) {
+      console.warn('Supabase auth user creation warning:', authErr)
+    }
+
+    // 2. Insert or update in washing_workers table
+    const primaryRoleLabel = payload.roles.map(r => r.replace(/_/g, ' ')).join(', ')
+    try {
+      await supabaseAdmin
+        .from('washing_workers')
+        .upsert({
+          worker_user_id: authUserId || null,
+          worker_name: nameClean,
+          phone_number: phone10,
+          worker_email: internalEmail,
+          roles: payload.roles,
+          role: primaryRoleLabel,
+          assigned_machine: payload.assigned_machine || 'Washer 01',
+          shift: payload.shift || 'MORNING',
+          company_name: payload.company_name,
+          status: 'ACTIVE'
+        }, { onConflict: 'phone_number' })
+    } catch (dbErr) {
+      console.warn('washing_workers db warning:', dbErr)
+    }
+
+    revalidatePath('/washing')
+    revalidatePath('/washing/worker')
+    revalidatePath('/washing/worker/history')
+
+    return {
+      success: true,
+      worker: {
+        id: `ww-${Date.now()}`,
+        worker_user_id: authUserId || undefined,
+        worker_name: nameClean,
+        phone_number: phone10,
+        worker_email: internalEmail,
+        roles: payload.roles,
+        role: primaryRoleLabel,
+        assigned_machine: payload.assigned_machine || 'Washer 01',
+        shift: payload.shift || 'MORNING',
+        status: 'ACTIVE' as const,
+        assigned_pieces: 0,
+        completed_pieces: 0,
+        created_at: new Date().toISOString()
+      }
+    }
+  } catch (err: any) {
+    return { success: false, error: err.message || 'Failed to register washing worker.' }
+  }
+}
+
+export async function deleteWashingWorkerAction(workerId: string) {
+  try {
+    const rawDigits = workerId.replace(/\D/g, '')
+    const phone10 = rawDigits.length >= 10 ? rawDigits.slice(-10) : ''
+
+    try {
+      const { data: userList } = await supabaseAdmin.auth.admin.listUsers()
+      if (userList?.users) {
+        const found = userList.users.find(u => {
+          if (workerId && u.id === workerId) return true
+          const uPhone = (u.user_metadata?.phone_number || '').replace(/\D/g, '').slice(-10)
+          if (phone10 && uPhone === phone10) return true
+          if (phone10 && u.email?.startsWith(phone10)) return true
+          return false
+        })
+        if (found) {
+          await supabaseAdmin.auth.admin.deleteUser(found.id)
+        }
+      }
+    } catch (authErr) {
+      console.warn('deleteWashingWorker auth cleanup warning:', authErr)
+    }
+
+    if (workerId && isUUID(workerId)) {
+      await supabaseAdmin.from('washing_workers').delete().eq('id', workerId)
+    }
+    if (phone10) {
+      await supabaseAdmin.from('washing_workers').delete().eq('phone_number', phone10)
+    }
+    if (workerId && !isUUID(workerId)) {
+      await supabaseAdmin.from('washing_workers').delete().or(`id.eq.${workerId},worker_name.ilike.%${workerId}%`)
+    }
+
+    revalidatePath('/washing')
+    revalidatePath('/washing/worker')
+    revalidatePath('/washing/worker/history')
+    return { success: true }
+  } catch (err: any) {
+    console.error('[deleteWashingWorkerAction] Error:', err)
+    return { success: false, error: err.message }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// 5. WASHING TASK ALLOCATIONS
+// -----------------------------------------------------------------------------
+
+export async function fetchWashingTaskAllocationsAction(companyName?: string): Promise<any[]> {
+  try {
+    if (!companyName || !companyName.trim()) {
+      return []
+    }
+
+    const { data, error } = await supabaseAdmin
+      .from('washing_task_allocations')
+      .select('*')
+      .eq('company_name', companyName.trim())
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.warn('[fetchWashingTaskAllocationsAction] Supabase notice:', error.message)
+      return []
+    }
+    return data || []
+  } catch (err) {
+    console.error('[fetchWashingTaskAllocationsAction] Unexpected error:', err)
+    return []
+  }
+}
+
+export async function saveWashingTaskAllocationAction(payload: any): Promise<{ success: boolean; data?: any; error?: string }> {
+  try {
+    let existingId: string | undefined
+    if (isUUID(payload.id)) {
+      existingId = payload.id
+    } else if (payload.task_ref) {
+      try {
+        const { data: existing } = await supabaseAdmin
+          .from('washing_task_allocations')
+          .select('id')
+          .eq('task_ref', payload.task_ref)
+          .limit(1)
+          .maybeSingle()
+        if (existing?.id) existingId = existing.id
+      } catch (_) {}
+    }
+
+    let validWorkerId: string | null = isUUID(payload.worker_id) ? payload.worker_id : null
+    if (!validWorkerId && (payload.worker_phone || payload.worker_name)) {
+      try {
+        const phone10 = (payload.worker_phone || '').replace(/\D/g, '').slice(-10)
+        let query = supabaseAdmin.from('washing_workers').select('id')
+        if (phone10) {
+          query = query.or(`phone_number.eq.${phone10},phone_number.ilike.%${phone10}%`)
+        } else if (payload.worker_name) {
+          query = query.ilike('worker_name', payload.worker_name.trim())
+        }
+        const { data: worker } = await query.limit(1).maybeSingle()
+        if (worker?.id && isUUID(worker.id)) validWorkerId = worker.id
+      } catch (_) {}
+    }
+
+    const cleanPayload: any = {
+      ...(existingId ? { id: existingId } : {}),
+      task_ref: payload.task_ref,
+      buyer_id: isUUID(payload.buyer_id) ? payload.buyer_id : null,
+      buyer_name: payload.buyer_name || 'Direct Buyer',
+      article_number: payload.article_number,
+      article_name: payload.article_name || null,
+      worker_id: validWorkerId,
+      worker_name: payload.worker_name,
+      worker_phone: payload.worker_phone || null,
+      table_number: payload.table_number || payload.machine_number || 'Washer 01 (Tumbler 600kg)',
+      pieces_to_wash: Number(payload.pieces_to_wash || payload.pieces_to_embroider || payload.pieces_to_cut) || 0,
+      completed_pieces: Number(payload.completed_pieces) || 0,
+      alloted_hours: Number(payload.alloted_hours) || 4.0,
+      due_time: payload.due_time || null,
+      wash_recipe: payload.wash_recipe || 'Bio-Enzyme Wash 55°C',
+      notes: payload.notes || null,
+      company_name: payload.company_name,
+      status: payload.status || 'ASSIGNED',
+      updated_at: new Date().toISOString()
+    }
+
+    const { data, error } = await supabaseAdmin
+      .from('washing_task_allocations')
+      .upsert(cleanPayload)
+      .select()
+      .maybeSingle()
+
+    if (error) {
+      console.warn('[saveWashingTaskAllocationAction] Supabase notice:', error.message)
+      return { success: false, error: error.message, data: payload }
+    }
+
+    revalidatePath('/washing')
+    revalidatePath('/washing/worker')
+    revalidatePath('/washing/worker/history')
+    return { success: true, data }
+  } catch (err: any) {
+    console.error('[saveWashingTaskAllocationAction] Error:', err)
+    return { success: false, error: err.message, data: payload }
+  }
+}
+
+export async function deleteWashingTaskAllocationAction(taskId: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    let query = supabaseAdmin.from('washing_task_allocations').delete()
+    if (isUUID(taskId)) {
+      query = query.eq('id', taskId)
+    } else {
+      query = query.eq('task_ref', taskId)
+    }
+
+    const { error } = await query
+
+    if (error) {
+      console.warn('[deleteWashingTaskAllocationAction] Supabase notice:', error.message)
+    }
+
+    revalidatePath('/washing')
+    revalidatePath('/washing/worker')
+    revalidatePath('/washing/worker/history')
+    return { success: true }
+  } catch (err: any) {
+    console.error('[deleteWashingTaskAllocationAction] Error:', err)
+    return { success: true }
+  }
+}
+

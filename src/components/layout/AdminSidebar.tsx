@@ -29,6 +29,7 @@ import {
   Scissors,
   Palette,
   Flame,
+  Wind,
   Wrench,
   FileCheck2,
   Ruler,
@@ -163,6 +164,21 @@ export function AdminSidebar({
     userEmail?.toLowerCase().endsWith('@embroidery.nubira.local')
   )
 
+  const isWashingWorker = (
+    userRole?.toUpperCase() === 'WASHING_WORKER' ||
+    userRole?.toUpperCase() === 'WASHER' ||
+    userEmail?.toLowerCase().includes('@washing.') ||
+    userEmail?.toLowerCase().endsWith('@washing.nubira.local')
+  )
+
+  const isIronWorker = (
+    userRole?.toUpperCase() === 'IRON_WORKER' ||
+    userRole?.toUpperCase() === 'IRON_PRESSER' ||
+    userRole?.toUpperCase() === 'PRESSER' ||
+    userEmail?.toLowerCase().includes('@iron.') ||
+    userEmail?.toLowerCase().endsWith('@iron.nubira.local')
+  )
+
   const roleLabel = isAdmin 
     ? 'Super Admin' 
     : (isDesignerUser
@@ -173,9 +189,13 @@ export function AdminSidebar({
                 ? 'Printing Floor Operator'
                 : (isEmbroideryWorker
                     ? 'Embroidery Machine Operator'
-                    : (userRole && userRole.toUpperCase() !== 'ADMIN'
-                        ? userRole.split('/')[0].trim().replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
-                        : (isStoreUser ? 'Store Supervisor' : 'Department Head'))))))
+                    : (isWashingWorker
+                        ? 'Washing Floor Operator'
+                        : (isIronWorker
+                            ? 'Steam Iron Presser'
+                            : (userRole && userRole.toUpperCase() !== 'ADMIN'
+                                ? userRole.split('/')[0].trim().replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+                                : (isStoreUser ? 'Store Supervisor' : 'Department Head'))))))))
 
   // Module-specific unique side navigation
   let activeNavSections: NavSection[] = []
@@ -241,6 +261,38 @@ export function AdminSidebar({
         section: 'Account',
         items: [
           { label: 'Operator Profile', href: '/embroidery/worker/profile', icon: User },
+        ],
+      },
+    ]
+  } else if (isWashingWorker || pathname?.startsWith('/washing/worker')) {
+    activeNavSections = [
+      {
+        section: 'Floor Workstation',
+        items: [
+          { label: 'Active Assignments', href: '/washing/worker', icon: Waves },
+          { label: 'Completed History', href: '/washing/worker/history', icon: Clock },
+        ],
+      },
+      {
+        section: 'Account',
+        items: [
+          { label: 'Operator Profile', href: '/washing/worker/profile', icon: User },
+        ],
+      },
+    ]
+  } else if (isIronWorker || pathname?.startsWith('/iron/worker')) {
+    activeNavSections = [
+      {
+        section: 'Floor Workstation',
+        items: [
+          { label: 'Active Assignments', href: '/iron/worker', icon: Wind },
+          { label: 'Completed History', href: '/iron/worker/history', icon: Clock },
+        ],
+      },
+      {
+        section: 'Account',
+        items: [
+          { label: 'Operator Profile', href: '/iron/worker/profile', icon: User },
         ],
       },
     ]
@@ -469,12 +521,7 @@ export function AdminSidebar({
       {
         section: '7. Washing Operations',
         items: [
-          { label: 'Washing Dashboard', href: '/washing', icon: Waves },
-          { label: 'Wash Recipes & Chemistry', href: '/washing/recipes', icon: FlaskConical },
-          { label: 'Tumbler & Hydro Runs', href: '/washing/machine-runs', icon: Cpu },
-          { label: 'Liquor Ratio & Water Audit', href: '/washing/liquor-audit', icon: Droplets },
-          { label: 'Shrinkage & Fastness QC', href: '/washing/shrinkage-qc', icon: CheckCircle2 },
-          { label: 'Finishing Handover', href: '/washing/handover', icon: ArrowRight },
+          { label: 'Floor Dashboard', href: '/washing', icon: Waves },
           { label: 'Zigza AI', href: '/washing/zigza-ai', icon: Bot },
         ],
       },
@@ -496,12 +543,7 @@ export function AdminSidebar({
       {
         section: '8. Ironing Operations',
         items: [
-          { label: 'Ironing Dashboard', href: '/iron', icon: Flame },
-          { label: 'Steam Vacuum Buck Tables', href: '/iron/tables', icon: Layers },
-          { label: 'Operator Piece-Rate Wages', href: '/iron/wages', icon: Calculator },
-          { label: 'Boiler Telemetry & Steam Log', href: '/iron/boiler-telemetry', icon: Gauge },
-          { label: 'Inline Finish & Glaze QC', href: '/iron/finish-qc', icon: CheckCircle2 },
-          { label: 'Outward Packing Handover', href: '/iron/handover', icon: Truck },
+          { label: 'Floor Dashboard', href: '/iron', icon: Wind },
           { label: 'Zigza AI', href: '/iron/zigza-ai', icon: Bot },
         ],
       },
@@ -799,10 +841,13 @@ export function AdminSidebar({
   if (isCuttingWorker || pathname?.startsWith('/cutting/worker')) divisionProfileHref = '/cutting/worker/profile'
   else if (isPrintingWorker || pathname?.startsWith('/printing/worker')) divisionProfileHref = '/printing/worker/profile'
   else if (isEmbroideryWorker || pathname?.startsWith('/embroidery/worker')) divisionProfileHref = '/embroidery/worker/profile'
+  else if (isWashingWorker || pathname?.startsWith('/washing/worker')) divisionProfileHref = '/washing/worker/profile'
+  else if (isIronWorker || pathname?.startsWith('/iron/worker')) divisionProfileHref = '/iron/worker/profile'
   else if (isDesignerUser || pathname?.startsWith('/design/designer')) divisionProfileHref = '/design/profile'
   else if (pathname?.startsWith('/factory')) divisionProfileHref = '/factory/profile'
   else if (pathname?.startsWith('/brands')) divisionProfileHref = '/brands/profile'
   else if (pathname?.startsWith('/washing')) divisionProfileHref = '/washing/profile'
+  else if (pathname?.startsWith('/iron')) divisionProfileHref = '/iron/profile'
   else if (pathname?.startsWith('/printing')) divisionProfileHref = '/printing/profile'
   else if (pathname?.startsWith('/embroidery')) divisionProfileHref = '/embroidery/profile'
   else if (pathname?.startsWith('/cutting')) divisionProfileHref = '/cutting/profile'
@@ -821,9 +866,13 @@ export function AdminSidebar({
                 ? '/printing/worker'
                 : (isEmbroideryWorker
                     ? '/embroidery/worker'
-                    : (isStoreUser 
-                        ? '/stitching-sewing/store' 
-                        : (activeNavSections[0]?.items[0]?.href || '/stitching-sewing/dashboard'))))))
+                    : (isWashingWorker
+                        ? '/washing/worker'
+                        : (isIronWorker
+                            ? '/iron/worker'
+                            : (isStoreUser 
+                                ? '/stitching-sewing/store' 
+                                : (activeNavSections[0]?.items[0]?.href || '/stitching-sewing/dashboard'))))))))
 
   return (
     <>

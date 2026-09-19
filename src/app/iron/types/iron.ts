@@ -4,6 +4,58 @@ export type CondensateStatus = 'NORMAL' | 'DRAINING' | 'CLOGGED'
 
 export type FinishQcStatus = 'PASS' | 'REWORK_ALTERATION'
 
+export type IronWorkerRole =
+  | 'FINISHING_PRESSER'
+  | 'STEAM_OPERATOR'
+  | 'VACUUM_TABLE_PRESSER'
+  | 'PACKING_PRESSER'
+  | 'HEAD_PRESSER'
+  | 'QUALITY_PRESSER'
+
+export type IronAllocationStatus =
+  | 'PENDING'
+  | 'IN_PROGRESS'
+  | 'COMPLETED'
+  | 'VERIFIED_COMPLETED'
+  | 'REJECTED'
+
+export interface IronWorker {
+  id: string
+  worker_name: string
+  phone_number: string
+  role?: IronWorkerRole
+  roles?: IronWorkerRole[]
+  worker_user_id?: string
+  is_active?: boolean
+  assigned_table?: string
+  shift?: 'SHIFT_1' | 'SHIFT_2' | 'GENERAL'
+  created_at?: string
+  company_name?: string
+}
+
+export interface IronTaskAllocation {
+  id: string
+  task_ref: string
+  cutting_allocation_id?: string | null
+  article_number: string
+  article_name?: string | null
+  buyer_name: string
+  buyer_id?: string | null
+  worker_id?: string | null
+  worker_name: string
+  worker_phone?: string | null
+  machine_table?: string
+  pieces_to_press: number
+  completed_pieces?: number
+  alloted_hours: number
+  shift?: 'SHIFT_1' | 'SHIFT_2' | 'GENERAL'
+  iron_temp_c?: number
+  status: IronAllocationStatus
+  created_at: string
+  updated_at?: string
+  company_name?: string
+}
+
 export interface IronTable {
   id: string
   tableNumber: string // e.g., Table 01
