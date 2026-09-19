@@ -190,11 +190,16 @@ export function deleteWashingTaskAllocation(id: string): WashingTaskAllocation[]
 export function mergeWashingTaskAllocations(serverList: any[] = [], companyName?: string): WashingTaskAllocation[] {
   if (typeof window === 'undefined') return serverList
   try {
+    const targetComp = (companyName || '').trim().toLowerCase()
+    const scopedServer = targetComp
+      ? serverList.filter(t => (t?.company_name || '').trim().toLowerCase() === targetComp)
+      : serverList
+
     const local = getWashingTaskAllocations(companyName)
     const map = new Map<string, WashingTaskAllocation>()
 
-    // 1. Process server allocations
-    serverList.forEach(s => {
+    // 1. Process server allocations (canonical DB source)
+    scopedServer.forEach(s => {
       if (!s) return
       const key = s.task_ref || s.id
       map.set(key, {
@@ -215,7 +220,7 @@ export function mergeWashingTaskAllocations(serverList: any[] = [], companyName?
         due_time: s.due_time,
         wash_recipe: s.wash_recipe || 'Bio-Enzyme Wash 55°C',
         notes: s.notes,
-        company_name: s.company_name,
+        company_name: s.company_name || companyName,
         status: (s.status as WashingAllocationStatus) || 'ASSIGNED',
         assigned_at: s.assigned_at,
         completed_at: s.completed_at,
@@ -240,7 +245,23 @@ export function mergeWashingTaskAllocations(serverList: any[] = [], companyName?
     })
 
     const merged = Array.from(map.values())
-    localStorage.setItem(ALLOCATIONS_KEY, JSON.stringify(merged))
+    
+    // Sync back to local storage preserving other tenants safely
+    if (typeof window !== 'undefined') {
+      try {
+        if (targetComp) {
+          const rawAll = localStorage.getItem(ALLOCATIONS_KEY)
+          const allParsed: any[] = rawAll ? JSON.parse(rawAll) : []
+          const otherTenantsTasks = Array.isArray(allParsed)
+            ? allParsed.filter(t => (t?.company_name || '').trim().toLowerCase() !== targetComp)
+            : []
+          localStorage.setItem(ALLOCATIONS_KEY, JSON.stringify([...merged, ...otherTenantsTasks]))
+        } else if (merged.length > 0) {
+          localStorage.setItem(ALLOCATIONS_KEY, JSON.stringify(merged))
+        }
+      } catch (_) {}
+    }
+
     return merged
   } catch {
     return serverList

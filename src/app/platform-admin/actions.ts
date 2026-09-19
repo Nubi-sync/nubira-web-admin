@@ -744,10 +744,12 @@ export async function deleteTenantFactoryAction(
           })
 
           // Find floor workers
-          const [cuttingWorkers, printingWorkers, embroideryWorkers, designMembers] = await Promise.all([
+          const [cuttingWorkers, printingWorkers, embroideryWorkers, washingWorkers, ironWorkers, designMembers] = await Promise.all([
             supabaseAdmin.from('cutting_workers').select('worker_user_id, worker_email, phone_number').ilike('company_name', compName),
             supabaseAdmin.from('printing_workers').select('worker_user_id, worker_email, phone_number').ilike('company_name', compName),
             supabaseAdmin.from('embroidery_workers').select('worker_user_id, worker_email, phone_number').ilike('company_name', compName),
+            supabaseAdmin.from('washing_workers').select('worker_user_id, worker_email, phone_number').ilike('company_name', compName),
+            supabaseAdmin.from('iron_workers').select('worker_user_id, worker_email, phone_number').ilike('company_name', compName),
             supabaseAdmin.from('design_team_members').select('designer_user_id, designer_email, phone_number').ilike('company_name', compName),
           ])
 
@@ -761,6 +763,8 @@ export async function deleteTenantFactoryAction(
           addWorkerRecords(cuttingWorkers.data || [], 'worker_user_id', 'worker_email')
           addWorkerRecords(printingWorkers.data || [], 'worker_user_id', 'worker_email')
           addWorkerRecords(embroideryWorkers.data || [], 'worker_user_id', 'worker_email')
+          addWorkerRecords(washingWorkers.data || [], 'worker_user_id', 'worker_email')
+          addWorkerRecords(ironWorkers.data || [], 'worker_user_id', 'worker_email')
           addWorkerRecords(designMembers.data || [], 'designer_user_id', 'designer_email')
 
           userList.users.forEach(u => {
@@ -842,6 +846,17 @@ export async function deleteTenantFactoryAction(
           // Printing floor data
           supabaseAdmin.from('printing_task_allocations').delete().ilike('company_name', compName),
           supabaseAdmin.from('printing_workers').delete().ilike('company_name', compName),
+
+          // Washing floor data
+          supabaseAdmin.from('washing_task_allocations').delete().ilike('company_name', compName),
+          supabaseAdmin.from('washing_workers').delete().ilike('company_name', compName),
+          supabaseAdmin.from('washing_batches').delete().ilike('company_name', compName),
+
+          // Steam Ironing floor data
+          supabaseAdmin.from('iron_task_allocations').delete().ilike('company_name', compName),
+          supabaseAdmin.from('iron_workers').delete().ilike('company_name', compName),
+          supabaseAdmin.from('iron_tables').delete().ilike('company_name', compName),
+          supabaseAdmin.from('iron_production_logs').delete().ilike('company_name', compName),
 
           // Design team & projects
           supabaseAdmin.from('design_team_members').delete().ilike('company_name', compName),
