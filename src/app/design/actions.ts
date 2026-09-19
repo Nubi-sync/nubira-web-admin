@@ -102,12 +102,18 @@ function parseTechPackMetadata(rawFabric?: string | null): {
 // 1. TECH PACKS
 // -----------------------------------------------------------------------------
 
-export async function fetchTechPacksAction(_companyName?: string): Promise<TechPack[]> {
+export async function fetchTechPacksAction(companyName?: string): Promise<TechPack[]> {
   try {
-    const { data, error } = await supabaseAdmin
+    let query = supabaseAdmin
       .from('design_tech_packs')
       .select('*, brands(*)')
       .order('created_at', { ascending: false })
+
+    if (companyName && companyName.trim()) {
+      query = query.or(`company_name.eq.${companyName.trim()},company_name.ilike.%${companyName.trim()}%`)
+    }
+
+    const { data, error } = await query
 
     if (error) {
       console.error('[fetchTechPacksAction] Supabase error:', error)
@@ -116,7 +122,17 @@ export async function fetchTechPacksAction(_companyName?: string): Promise<TechP
 
     if (!data || data.length === 0) return []
 
-    return data.map((row: any) => {
+    let filteredData = data
+    if (companyName && companyName.trim()) {
+      const target = companyName.trim().toLowerCase()
+      filteredData = data.filter((row: any) => {
+        const tc = (row.company_name || '').toLowerCase()
+        const bc = (row.brands?.company_name || '').toLowerCase()
+        return tc === target || tc.includes(target) || bc === target || bc.includes(target)
+      })
+    }
+
+    return filteredData.map((row: any) => {
       const meta = parseTechPackMetadata(row.fabric_composition)
       return {
         id: row.id,

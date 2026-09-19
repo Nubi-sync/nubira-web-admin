@@ -34,9 +34,9 @@ export default async function CuttingModulePage() {
     fetchLaySheetsAction(companyFilter),
     fetchCutBundlesAction(undefined, companyFilter),
     fetchCuttingDashboardKpisAction(companyFilter),
-    fetchActiveBuyersAction(),
-    fetchCuttingWorkersAction(),
-    fetchCuttingTaskAllocationsAction()
+    fetchActiveBuyersAction(companyFilter),
+    fetchCuttingWorkersAction(companyFilter),
+    fetchCuttingTaskAllocationsAction(companyFilter)
   ])
 
   return (

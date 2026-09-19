@@ -317,12 +317,18 @@ export async function recordPrintRunAction(payload: {
 // 7. PRINTING FLOOR WORKERS & PORTAL CREDENTIALS
 // -----------------------------------------------------------------------------
 
-export async function fetchPrintingWorkersAction(): Promise<any[]> {
+export async function fetchPrintingWorkersAction(companyName?: string): Promise<any[]> {
   try {
-    const { data, error } = await supabaseAdmin
+    let query = supabaseAdmin
       .from('printing_workers')
       .select('*')
       .order('created_at', { ascending: false })
+
+    if (companyName && companyName.trim()) {
+      query = query.or(`company_name.eq.${companyName.trim()},company_name.ilike.%${companyName.trim()}%`)
+    }
+
+    const { data, error } = await query
 
     if (error) {
       console.warn('[fetchPrintingWorkersAction] Supabase notice:', error.message)
@@ -341,6 +347,7 @@ export async function addPrintingWorkerAction(payload: {
   password?: string
   role?: string
   shift?: string
+  company_name?: string
 }): Promise<{ success: boolean; data?: any; error?: string }> {
   try {
     const { data, error } = await supabaseAdmin
@@ -350,6 +357,7 @@ export async function addPrintingWorkerAction(payload: {
         phone_number: payload.phone_number,
         role: payload.role || 'SCREEN_PRINTER',
         shift: payload.shift || 'MORNING',
+        company_name: payload.company_name,
         status: 'ACTIVE'
       })
       .select()
@@ -439,12 +447,18 @@ export async function deletePrintingWorkerAction(workerId: string, phoneNumber?:
 // 8. PRINTING TASK ALLOCATIONS
 // -----------------------------------------------------------------------------
 
-export async function fetchPrintingTaskAllocationsAction(): Promise<any[]> {
+export async function fetchPrintingTaskAllocationsAction(companyName?: string): Promise<any[]> {
   try {
-    const { data, error } = await supabaseAdmin
+    let query = supabaseAdmin
       .from('printing_task_allocations')
       .select('*')
       .order('created_at', { ascending: false })
+
+    if (companyName && companyName.trim()) {
+      query = query.or(`company_name.eq.${companyName.trim()},company_name.ilike.%${companyName.trim()}%`)
+    }
+
+    const { data, error } = await query
 
     if (error) {
       console.warn('[fetchPrintingTaskAllocationsAction] Supabase notice:', error.message)
@@ -510,6 +524,7 @@ export async function savePrintingTaskAllocationAction(payload: any): Promise<{ 
       alloted_hours: Number(payload.alloted_hours) || 4.0,
       due_time: payload.due_time || null,
       notes: payload.notes || null,
+      company_name: payload.company_name,
       status: payload.status || 'ASSIGNED',
       updated_at: new Date().toISOString()
     }

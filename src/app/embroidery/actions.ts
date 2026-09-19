@@ -386,12 +386,18 @@ export async function fetchEmbroideryQcAuditsAction(companyName?: string): Promi
 // 9. EMBROIDERY FLOOR WORKERS & PORTAL CREDENTIALS
 // -----------------------------------------------------------------------------
 
-export async function fetchEmbroideryWorkersAction(): Promise<any[]> {
+export async function fetchEmbroideryWorkersAction(companyName?: string): Promise<any[]> {
   try {
-    const { data, error } = await supabaseAdmin
+    let query = supabaseAdmin
       .from('embroidery_workers')
       .select('*')
       .order('created_at', { ascending: false })
+
+    if (companyName && companyName.trim()) {
+      query = query.or(`company_name.eq.${companyName.trim()},company_name.ilike.%${companyName.trim()}%`)
+    }
+
+    const { data, error } = await query
 
     if (error) {
       console.warn('[fetchEmbroideryWorkersAction] Supabase notice:', error.message)
@@ -410,6 +416,7 @@ export async function addEmbroideryWorkerAction(payload: {
   password?: string
   role?: string
   shift?: string
+  company_name?: string
 }): Promise<{ success: boolean; data?: any; error?: string }> {
   try {
     const { data, error } = await supabaseAdmin
@@ -419,6 +426,7 @@ export async function addEmbroideryWorkerAction(payload: {
         phone_number: payload.phone_number,
         role: payload.role || 'EMBROIDERY_OPERATOR',
         shift: payload.shift || 'MORNING',
+        company_name: payload.company_name,
         status: 'ACTIVE'
       })
       .select()
@@ -508,12 +516,18 @@ export async function deleteEmbroideryWorkerAction(workerId: string, phoneNumber
 // 10. EMBROIDERY TASK ALLOCATIONS
 // -----------------------------------------------------------------------------
 
-export async function fetchEmbroideryTaskAllocationsAction(): Promise<any[]> {
+export async function fetchEmbroideryTaskAllocationsAction(companyName?: string): Promise<any[]> {
   try {
-    const { data, error } = await supabaseAdmin
+    let query = supabaseAdmin
       .from('embroidery_task_allocations')
       .select('*')
       .order('created_at', { ascending: false })
+
+    if (companyName && companyName.trim()) {
+      query = query.or(`company_name.eq.${companyName.trim()},company_name.ilike.%${companyName.trim()}%`)
+    }
+
+    const { data, error } = await query
 
     if (error) {
       console.warn('[fetchEmbroideryTaskAllocationsAction] Supabase notice:', error.message)
@@ -579,6 +593,7 @@ export async function saveEmbroideryTaskAllocationAction(payload: any): Promise<
       alloted_hours: Number(payload.alloted_hours) || 4.0,
       due_time: payload.due_time || null,
       notes: payload.notes || null,
+      company_name: payload.company_name,
       status: payload.status || 'ASSIGNED',
       updated_at: new Date().toISOString()
     }

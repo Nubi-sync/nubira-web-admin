@@ -46,11 +46,11 @@ export default async function PrintingModulePage() {
     initialTechPacks
   ] = await Promise.all([
     fetchPrintingDashboardKpisAction(companyFilter),
-    fetchActiveBuyersAction(),
-    fetchPrintingWorkersAction(),
-    fetchPrintingTaskAllocationsAction(),
-    fetchCuttingTaskAllocationsAction(),
-    fetchEmbroideryTaskAllocationsAction(),
+    fetchActiveBuyersAction(companyFilter),
+    fetchPrintingWorkersAction(companyFilter),
+    fetchPrintingTaskAllocationsAction(companyFilter),
+    fetchCuttingTaskAllocationsAction(companyFilter),
+    fetchEmbroideryTaskAllocationsAction(companyFilter),
     fetchTechPacksAction(companyFilter)
   ])
 

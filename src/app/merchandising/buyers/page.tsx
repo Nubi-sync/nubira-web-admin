@@ -2,7 +2,8 @@ import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { AdminShell } from '@/components/layout/AdminShell'
 import { ActiveBuyersClient } from './components/ActiveBuyersClient'
-import { resolveUserTenant } from '@/lib/tenant-context'
+import { fetchActiveBuyersAction } from '../actions'
+import { resolveUserTenant, isLegacyNubiraTenant } from '@/lib/tenant-context'
 
 export const dynamic = 'force-dynamic'
 
@@ -23,10 +24,14 @@ export default async function ActiveBuyersPage() {
   }
 
   const tenant = await resolveUserTenant(user)
+  const isLegacy = isLegacyNubiraTenant(tenant)
+  const companyFilter = isLegacy ? undefined : tenant.companyName
+
+  const initialBuyers = await fetchActiveBuyersAction(companyFilter)
 
   return (
     <AdminShell userEmail={tenant.userEmail} userRole={tenant.role}>
-      <ActiveBuyersClient />
+      <ActiveBuyersClient initialBuyers={initialBuyers} />
     </AdminShell>
   )
 }

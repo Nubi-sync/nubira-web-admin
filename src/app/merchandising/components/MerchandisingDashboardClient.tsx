@@ -72,9 +72,20 @@ interface MerchandisingDashboardClientProps {
   initialBomCostings?: BomCosting[]
   initialMilestones?: TnaMilestone[]
   initialShipments?: ExportShipment[]
+  initialBuyers?: ActiveBuyer[]
+  initialTechPacks?: any[]
+  initialCuttingAllocations?: any[]
+  initialPrintingAllocations?: any[]
+  initialEmbroideryAllocations?: any[]
+  companyName?: string
 }
 
-function calculateBuyerStages(buyer: ActiveBuyer | null) {
+function calculateBuyerStages(
+  buyer: ActiveBuyer | null,
+  cuttingAllocations: any[] = [],
+  printingAllocations: any[] = [],
+  embroideryAllocations: any[] = []
+) {
   if (!buyer) {
     return {
       inPending: 0,
@@ -89,24 +100,46 @@ function calculateBuyerStages(buyer: ActiveBuyer | null) {
   }
 
   const totalVol = Number(buyer.contracted_volume) || 0
-  const articleNum = buyer.linked_article_number?.trim() || ''
+  const articleNum = (buyer.linked_article_number || '').trim().toLowerCase()
+  const buyerName = (buyer.buyer_name || '').trim().toLowerCase()
+  const buyerCode = (buyer.buyer_code || '').trim().toLowerCase()
 
-  if (!articleNum) {
-    return {
-      inPending: totalVol,
-      inCutting: 0,
-      inPrinting: 0,
-      inEmbroidery: 0,
-      inSewing: 0,
-      iron: 0,
-      washing: 0,
-      alter: 0
-    }
-  }
+  // Match Cutting Tasks from server allocations
+  let cutPcs = cuttingAllocations
+    .filter((t: any) => {
+      const art = (t.article_number || '').trim().toLowerCase()
+      const bn = (t.buyer_name || '').trim().toLowerCase()
+      const tr = (t.task_ref || '').trim().toLowerCase()
+      return (articleNum && (art === articleNum || art.includes(articleNum))) || 
+             (buyerName && bn === buyerName) ||
+             (buyerCode && tr.includes(buyerCode))
+    })
+    .reduce((sum: number, t: any) => sum + (Number(t.completed_pieces) || Number(t.pieces_to_cut) || 0), 0)
 
-  let cutPcs = 0
-  let printPcs = 0
-  let embPcs = 0
+  // Match Printing Tasks from server allocations
+  let printPcs = printingAllocations
+    .filter((t: any) => {
+      const art = (t.article_number || '').trim().toLowerCase()
+      const bn = (t.buyer_name || '').trim().toLowerCase()
+      const tr = (t.task_ref || '').trim().toLowerCase()
+      return (articleNum && (art === articleNum || art.includes(articleNum))) || 
+             (buyerName && bn === buyerName) ||
+             (buyerCode && tr.includes(buyerCode))
+    })
+    .reduce((sum: number, t: any) => sum + (Number(t.completed_pieces) || Number(t.pieces_to_print) || 0), 0)
+
+  // Match Embroidery Tasks from server allocations
+  let embPcs = embroideryAllocations
+    .filter((t: any) => {
+      const art = (t.article_number || '').trim().toLowerCase()
+      const bn = (t.buyer_name || '').trim().toLowerCase()
+      const tr = (t.task_ref || '').trim().toLowerCase()
+      return (articleNum && (art === articleNum || art.includes(articleNum))) || 
+             (buyerName && bn === buyerName) ||
+             (buyerCode && tr.includes(buyerCode))
+    })
+    .reduce((sum: number, t: any) => sum + (Number(t.completed_pieces) || Number(t.pieces_to_embroider) || 0), 0)
+
   let sewPcs = 0
   let ironPcs = 0
   let washPcs = 0
@@ -114,57 +147,64 @@ function calculateBuyerStages(buyer: ActiveBuyer | null) {
 
   if (typeof window !== 'undefined') {
     try {
-      // 1. Cutting Floor
-      const rawCutting = localStorage.getItem('zigza_cutting_bundles_v3')
-      if (rawCutting) {
-        const bundles = JSON.parse(rawCutting)
-        cutPcs = bundles
-          .filter((b: any) => b.article_number === articleNum || b.style_number === articleNum || b.buyer_code === buyer.buyer_code)
-          .reduce((sum: number, b: any) => sum + (Number(b.quantity) || 0), 0)
+      // Check client-side allocation arrays if server allocations were empty
+      if (cutPcs === 0) {
+        const rawLocalCut = localStorage.getItem('zigza_cutting_task_allocations_v1')
+        if (rawLocalCut) {
+          const tasks = JSON.parse(rawLocalCut)
+          cutPcs = (tasks || [])
+            .filter((t: any) => {
+              const art = (t.article_number || '').trim().toLowerCase()
+              const bn = (t.buyer_name || '').trim().toLowerCase()
+              return (articleNum && art === articleNum) || (buyerName && bn === buyerName)
+            })
+            .reduce((sum: number, t: any) => sum + (Number(t.completed_pieces) || Number(t.pieces_to_cut) || 0), 0)
+        }
       }
 
-      // 2. Printing Unit
-      const rawPrinting = localStorage.getItem('zigza_printing_runs_v1')
-      if (rawPrinting) {
-        const runs = JSON.parse(rawPrinting)
-        printPcs = runs
-          .filter((r: any) => r.article_number === articleNum || r.style_number === articleNum)
-          .reduce((sum: number, r: any) => sum + (Number(r.completed_pieces || r.target_pieces) || 0), 0)
+      if (printPcs === 0) {
+        const rawLocalPrint = localStorage.getItem('zigza_printing_task_allocations_v1')
+        if (rawLocalPrint) {
+          const tasks = JSON.parse(rawLocalPrint)
+          printPcs = (tasks || [])
+            .filter((t: any) => {
+              const art = (t.article_number || '').trim().toLowerCase()
+              const bn = (t.buyer_name || '').trim().toLowerCase()
+              return (articleNum && art === articleNum) || (buyerName && bn === buyerName)
+            })
+            .reduce((sum: number, t: any) => sum + (Number(t.completed_pieces) || Number(t.pieces_to_print) || 0), 0)
+        }
       }
 
-      // 3. Embroidery Unit
-      const rawEmb = localStorage.getItem('zigza_embroidery_runs_v1')
-      if (rawEmb) {
-        const runs = JSON.parse(rawEmb)
-        embPcs = runs
-          .filter((r: any) => r.article_number === articleNum || r.style_number === articleNum)
-          .reduce((sum: number, r: any) => sum + (Number(r.completed_pieces || r.target_pieces) || 0), 0)
+      if (embPcs === 0) {
+        const rawLocalEmb = localStorage.getItem('zigza_embroidery_task_allocations_v1')
+        if (rawLocalEmb) {
+          const tasks = JSON.parse(rawLocalEmb)
+          embPcs = (tasks || [])
+            .filter((t: any) => {
+              const art = (t.article_number || '').trim().toLowerCase()
+              const bn = (t.buyer_name || '').trim().toLowerCase()
+              return (articleNum && art === articleNum) || (buyerName && bn === buyerName)
+            })
+            .reduce((sum: number, t: any) => sum + (Number(t.completed_pieces) || Number(t.pieces_to_embroider) || 0), 0)
+        }
       }
 
-      // 4. Washing Division
-      const rawWash = localStorage.getItem('zigza_washing_batches_v1')
-      if (rawWash) {
-        const batches = JSON.parse(rawWash)
-        washPcs = batches
-          .filter((w: any) => w.article_number === articleNum || w.style_number === articleNum)
-          .reduce((sum: number, w: any) => sum + (Number(w.pieces) || 0), 0)
-      }
-
-      // 5. Iron / Finishing
-      const rawIron = localStorage.getItem('zigza_iron_production_logs_v1')
-      if (rawIron) {
-        const logs = JSON.parse(rawIron)
-        ironPcs = logs
-          .filter((l: any) => l.article_number === articleNum || l.style_number === articleNum)
-          .reduce((sum: number, l: any) => sum + (Number(l.passed_pieces || l.pieces) || 0), 0)
+      // Check sewing allotments
+      const rawSew = localStorage.getItem('allotments') || localStorage.getItem('zigza_allotments')
+      if (rawSew) {
+        const alts = JSON.parse(rawSew)
+        sewPcs = (alts || [])
+          .filter((a: any) => (articleNum && (a.art_no?.toLowerCase() === articleNum || a.article_no?.toLowerCase() === articleNum)) || (buyerName && a.brand?.toLowerCase() === buyerName))
+          .reduce((sum: number, a: any) => sum + (Number(a.target_qty) || 0), 0)
       }
     } catch (e) {
-      console.warn('Error reading live stage data from floor modules:', e)
+      console.warn('Error calculating live stage metrics:', e)
     }
   }
 
-  const floorSum = cutPcs + printPcs + embPcs + sewPcs + ironPcs + washPcs + alterPcs
-  const inPending = Math.max(0, totalVol - floorSum)
+  const floorActiveTotal = cutPcs + printPcs + embPcs + sewPcs + ironPcs + washPcs + alterPcs
+  const inPending = Math.max(0, totalVol - floorActiveTotal)
 
   return {
     inPending,
@@ -182,7 +222,13 @@ export function MerchandisingDashboardClient({
   initialOrders,
   initialBomCostings,
   initialMilestones,
-  initialShipments
+  initialShipments,
+  initialBuyers,
+  initialTechPacks,
+  initialCuttingAllocations,
+  initialPrintingAllocations,
+  initialEmbroideryAllocations,
+  companyName
 }: MerchandisingDashboardClientProps = {}) {
   const [orders, setOrders] = useState<MerchandisingOrder[]>(() => {
     if (initialOrders && initialOrders.length > 0) return initialOrders
@@ -201,8 +247,27 @@ export function MerchandisingDashboardClient({
     return []
   })
   const [sourcingPrs, setSourcingPrs] = useState<SourcingRequisition[]>([])
-  const [buyers, setBuyers] = useState<ActiveBuyer[]>([])
-  const [techPackArticles, setTechPackArticles] = useState<AvailableTechPackArticle[]>([])
+  const [buyers, setBuyers] = useState<ActiveBuyer[]>(() => {
+    if (initialBuyers && initialBuyers.length > 0) return initialBuyers
+    return []
+  })
+  const [techPackArticles, setTechPackArticles] = useState<AvailableTechPackArticle[]>(() => {
+    if (initialTechPacks && initialTechPacks.length > 0) {
+      return initialTechPacks.map((tp: any) => ({
+        id: tp.id,
+        style_number: tp.style_number,
+        style_name: `${tp.category || 'Apparel'} Style ${tp.style_number}`,
+        brand_name: tp.brands?.brand_name || 'Inhouse',
+        category: tp.category,
+        fabric_composition: tp.fabric_composition,
+        target_gsm: tp.target_gsm,
+        embellishment_sequence: tp.embellishment_sequence,
+        cad_front_url: tp.cad_front_url,
+        cad_back_url: tp.cad_back_url
+      }))
+    }
+    return []
+  })
   const [selectedBuyerId, setSelectedBuyerId] = useState<string>('')
   const [isBuyerMenuOpen, setIsBuyerMenuOpen] = useState(false)
   const [buyerSearchQuery, setBuyerSearchQuery] = useState('')
@@ -227,8 +292,37 @@ export function MerchandisingDashboardClient({
     setMilestones(localMilestones && localMilestones.length > 0 ? localMilestones : (initialMilestones || []))
     setShipments(localShipments && localShipments.length > 0 ? localShipments : (initialShipments || []))
     setSourcingPrs(localSourcing || [])
-    setBuyers(localBuyers || [])
-    setTechPackArticles(localArticles || [])
+    
+    // Prefer server initialBuyers or merge cleanly
+    if (initialBuyers && initialBuyers.length > 0) {
+      const merged = [...initialBuyers]
+      ;(localBuyers || []).forEach((lb: any) => {
+        if (!merged.some(m => m.id === lb.id || (m.buyer_name && m.buyer_name.toLowerCase() === (lb.buyer_name || '').toLowerCase()))) {
+          merged.push(lb)
+        }
+      })
+      setBuyers(merged)
+    } else {
+      setBuyers(localBuyers || [])
+    }
+
+    if (initialTechPacks && initialTechPacks.length > 0) {
+      const serverMapped = initialTechPacks.map((tp: any) => ({
+        id: tp.id,
+        style_number: tp.style_number,
+        style_name: `${tp.category || 'Apparel'} Style ${tp.style_number}`,
+        brand_name: tp.brands?.brand_name || 'Inhouse',
+        category: tp.category,
+        fabric_composition: tp.fabric_composition,
+        target_gsm: tp.target_gsm,
+        embellishment_sequence: tp.embellishment_sequence,
+        cad_front_url: tp.cad_front_url,
+        cad_back_url: tp.cad_back_url
+      }))
+      setTechPackArticles(serverMapped)
+    } else {
+      setTechPackArticles(localArticles || [])
+    }
   }
 
   useEffect(() => {
@@ -239,7 +333,7 @@ export function MerchandisingDashboardClient({
       window.removeEventListener(MERCHANDISING_UPDATE_EVENT, reloadData)
       window.removeEventListener('zigza_tech_packs_updated', reloadData)
     }
-  }, [initialOrders, initialBomCostings, initialMilestones, initialShipments])
+  }, [initialOrders, initialBomCostings, initialMilestones, initialShipments, initialBuyers, initialTechPacks])
 
   const handleManualSync = () => {
     setIsSyncing(true)
@@ -264,11 +358,16 @@ export function MerchandisingDashboardClient({
   )
 
   const selectedBuyerDisplayText = selectedBuyer 
-    ? `${selectedBuyer.buyer_name} (${selectedBuyer.contracted_volume.toLocaleString('en-IN')} Pcs)`
+    ? `${selectedBuyer.buyer_name} (${Number(selectedBuyer.contracted_volume).toLocaleString('en-IN')} Pcs)`
     : (buyers.length === 0 ? 'No Active Buyers Contracted' : 'Select Buyer Contract')
 
-  // Calculate 8 live process stages for the selected buyer
-  const stageMetrics = calculateBuyerStages(selectedBuyer)
+  // Calculate 8 live process stages for the selected buyer using real floor allocations
+  const stageMetrics = calculateBuyerStages(
+    selectedBuyer, 
+    initialCuttingAllocations || [], 
+    initialPrintingAllocations || [], 
+    initialEmbroideryAllocations || []
+  )
 
   // Extract unique brands
   const uniqueBrands = ['ALL', ...Array.from(new Set(orders.map(o => o.brand_name)))]

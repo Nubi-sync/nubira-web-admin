@@ -80,14 +80,14 @@ function parseTechPackMetadata(rawFabric?: string | null): {
 // 1. ORDERS
 // -----------------------------------------------------------------------------
 
-export async function fetchMerchandisingOrdersAction(_companyName?: string): Promise<MerchandisingOrder[]> {
+export async function fetchMerchandisingOrdersAction(companyName?: string): Promise<MerchandisingOrder[]> {
   try {
     const { data, error } = await supabaseAdmin
       .from('merchandising_orders')
       .select(`
         *,
-        brands ( id, brand_name, brand_code ),
-        design_tech_packs ( id, style_number, category, embellishment_sequence, fabric_composition, target_gsm, cad_front_url, cad_back_url ),
+        brands ( id, brand_name, brand_code, company_name ),
+        design_tech_packs ( id, style_number, category, embellishment_sequence, fabric_composition, target_gsm, cad_front_url, cad_back_url, company_name ),
         merchandising_order_ratios ( id, color_name, color_code, size_label, ratio_units, quantity )
       `)
       .order('created_at', { ascending: false })
@@ -99,7 +99,22 @@ export async function fetchMerchandisingOrdersAction(_companyName?: string): Pro
 
     if (!data || data.length === 0) return []
 
-    return data.map((row: any) => {
+    let filteredData = data
+    if (companyName && companyName.trim()) {
+      const target = companyName.trim().toLowerCase()
+      filteredData = data.filter((row: any) => {
+        const orderComp = (row.company_name || '').toLowerCase()
+        const brandComp = (row.brands?.company_name || '').toLowerCase()
+        const brandName = (row.brands?.brand_name || '').toLowerCase()
+        const tpComp = (row.design_tech_packs?.company_name || '').toLowerCase()
+        return orderComp === target || orderComp.includes(target) ||
+               brandComp === target || brandComp.includes(target) ||
+               tpComp === target || tpComp.includes(target) ||
+               brandName === target || brandName.includes(target)
+      })
+    }
+
+    return filteredData.map((row: any) => {
       // Group ratios by color_name
       const colorGroups: Record<string, { sizes: Record<string, number>; total: number }> = {}
       ;(row.merchandising_order_ratios || []).forEach((r: any) => {
@@ -240,6 +255,7 @@ export async function createBuyerOrderAction(payload: {
         order_date: new Date().toISOString().split('T')[0],
         ex_factory_date: payload.ex_factory_date,
         incoterm: payload.incoterm || 'FOB',
+        company_name: payload.company_name || 'Nubira Creation',
         status: 'CONFIRMED'
       })
       .select()
@@ -328,9 +344,11 @@ export async function fetchBomCostingsAction(companyName?: string): Promise<BomC
         merchandising_orders (
           id,
           order_number,
+          company_name,
           design_tech_packs (
             style_number,
-            category
+            category,
+            company_name
           )
         )
       `)
@@ -343,7 +361,17 @@ export async function fetchBomCostingsAction(companyName?: string): Promise<BomC
 
     if (!data || data.length === 0) return []
 
-    return data.map((row: any) => ({
+    let filteredData = data
+    if (companyName && companyName.trim()) {
+      const target = companyName.trim().toLowerCase()
+      filteredData = data.filter((row: any) => {
+        const oc = (row.merchandising_orders?.company_name || '').toLowerCase()
+        const tc = (row.merchandising_orders?.design_tech_packs?.company_name || '').toLowerCase()
+        return oc === target || oc.includes(target) || tc === target || tc.includes(target)
+      })
+    }
+
+    return filteredData.map((row: any) => ({
       id: row.id,
       order_id: row.order_id,
       po_number: row.merchandising_orders?.order_number || 'N/A',
@@ -429,7 +457,8 @@ export async function fetchTnaMilestonesAction(companyName?: string): Promise<Tn
           order_number,
           order_date,
           ex_factory_date,
-          design_tech_packs ( style_number )
+          company_name,
+          design_tech_packs ( style_number, company_name )
         )
       `)
       .order('target_date', { ascending: true })
@@ -440,6 +469,16 @@ export async function fetchTnaMilestonesAction(companyName?: string): Promise<Tn
     }
 
     if (!data || data.length === 0) return []
+
+    let filteredData = data
+    if (companyName && companyName.trim()) {
+      const target = companyName.trim().toLowerCase()
+      filteredData = data.filter((row: any) => {
+        const oc = (row.merchandising_orders?.company_name || '').toLowerCase()
+        const tc = (row.merchandising_orders?.design_tech_packs?.company_name || '').toLowerCase()
+        return oc === target || oc.includes(target) || tc === target || tc.includes(target)
+      })
+    }
 
     const gateRatios: Record<string, number> = {
       'LAB_DIP_APPROVAL': 0.12,
@@ -570,7 +609,7 @@ export async function fetchShipmentsAction(companyName?: string): Promise<Export
       .from('merchandising_shipments')
       .select(`
         *,
-        merchandising_orders ( id, order_number )
+        merchandising_orders ( id, order_number, company_name )
       `)
       .order('created_at', { ascending: false })
 
@@ -581,7 +620,16 @@ export async function fetchShipmentsAction(companyName?: string): Promise<Export
 
     if (!data || data.length === 0) return []
 
-    return data.map((row: any) => ({
+    let filteredData = data
+    if (companyName && companyName.trim()) {
+      const target = companyName.trim().toLowerCase()
+      filteredData = data.filter((row: any) => {
+        const oc = (row.merchandising_orders?.company_name || '').toLowerCase()
+        return oc === target || oc.includes(target)
+      })
+    }
+
+    return filteredData.map((row: any) => ({
       id: row.id,
       shipment_ref: row.shipment_ref,
       order_id: row.order_id,
@@ -608,16 +656,21 @@ export async function fetchShipmentsAction(companyName?: string): Promise<Export
 // 6. ACTIVE BUYERS & CONTRACTED VOLUMES
 // -----------------------------------------------------------------------------
 
-export async function fetchActiveBuyersAction(): Promise<any[]> {
+export async function fetchActiveBuyersAction(companyName?: string): Promise<any[]> {
   try {
     // 1. Try querying dedicated active buyers table
     let buyersList: any[] = []
     try {
-      const { data, error } = await supabaseAdmin
+      let q = supabaseAdmin
         .from('merchandising_active_buyers')
         .select('*')
         .order('created_at', { ascending: false })
 
+      if (companyName && companyName.trim()) {
+        q = q.or(`company_name.eq.${companyName.trim()},company_name.ilike.%${companyName.trim()}%`)
+      }
+
+      const { data, error } = await q
       if (!error && data && data.length > 0) {
         buyersList = [...data]
       }
@@ -633,16 +686,32 @@ export async function fetchActiveBuyersAction(): Promise<any[]> {
           total_quantity,
           fob_price_per_piece,
           status,
+          company_name,
           created_at,
-          brands ( id, brand_name, brand_code ),
-          design_tech_packs ( id, style_number, category, embellishment_sequence )
+          brands ( id, brand_name, brand_code, company_name ),
+          design_tech_packs ( id, style_number, category, embellishment_sequence, company_name )
         `)
         .order('created_at', { ascending: false })
 
       if (!ordErr && orders && orders.length > 0) {
+        let filteredOrders = orders
+        if (companyName && companyName.trim()) {
+          const target = companyName.trim().toLowerCase()
+          filteredOrders = orders.filter((ord: any) => {
+            const oc = (ord.company_name || '').toLowerCase()
+            const bc = (ord.brands?.company_name || '').toLowerCase()
+            const bn = (ord.brands?.brand_name || '').toLowerCase()
+            const tc = (ord.design_tech_packs?.company_name || '').toLowerCase()
+            return oc === target || oc.includes(target) ||
+                   bc === target || bc.includes(target) ||
+                   tc === target || tc.includes(target) ||
+                   bn === target || bn.includes(target)
+          })
+        }
+
         const orderBuyersMap = new Map<string, any>()
 
-        orders.forEach((ord: any) => {
+        filteredOrders.forEach((ord: any) => {
           const buyerName = ord.brands?.brand_name || 'Commercial Buyer'
           const buyerKey = buyerName.trim().toUpperCase()
           const qty = Number(ord.total_quantity) || 0
@@ -665,6 +734,7 @@ export async function fetchActiveBuyersAction(): Promise<any[]> {
               linked_article_number: ord.design_tech_packs?.style_number || ord.order_number,
               linked_article_name: ord.design_tech_packs?.category || 'Garment Contract',
               embellishment_sequence: ord.design_tech_packs?.embellishment_sequence || 'PRINT_FIRST_THEN_EMBROIDERY',
+              company_name: ord.company_name || ord.brands?.company_name || companyName,
               status: 'LINKED',
               created_at: ord.created_at
             })
@@ -700,8 +770,8 @@ export async function fetchActiveBuyersAction(): Promise<any[]> {
       }
     } catch {}
 
-    // 3. Fallback to brands table if empty
-    if (buyersList.length === 0) {
+    // 3. Fallback to brands table ONLY if un-scoped legacy Nubira
+    if (buyersList.length === 0 && (!companyName || companyName === 'Nubira Creation')) {
       try {
         const { data: brands } = await supabaseAdmin.from('brands').select('*')
         if (brands && brands.length > 0) {
@@ -750,6 +820,8 @@ export async function saveActiveBuyerAction(payload: any): Promise<{ success: bo
         linked_article_name: payload.linked_article_name,
         linked_at: payload.linked_at,
         notes: payload.notes,
+        embellishment_sequence: payload.embellishment_sequence,
+        company_name: payload.company_name,
         updated_at: new Date().toISOString()
       })
       .select()

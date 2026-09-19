@@ -52,7 +52,17 @@ export function ActiveBuyersClient({ initialBuyers }: ActiveBuyersClientProps) {
 
   const reloadData = () => {
     const localBuyers = getActiveBuyers()
-    setBuyers(localBuyers)
+    if (initialBuyers && initialBuyers.length > 0) {
+      const merged = [...initialBuyers]
+      ;(localBuyers || []).forEach((lb: any) => {
+        if (!merged.some(m => m.id === lb.id || (m.buyer_name && m.buyer_name.toLowerCase() === (lb.buyer_name || '').toLowerCase()))) {
+          merged.push(lb)
+        }
+      })
+      setBuyers(merged)
+    } else {
+      setBuyers(localBuyers || [])
+    }
   }
 
   useEffect(() => {
