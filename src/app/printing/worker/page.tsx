@@ -2,7 +2,7 @@ import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { AdminShell } from '@/components/layout/AdminShell'
 import { WorkerDashboardClient } from './components/WorkerDashboardClient'
-import { resolveUserTenant } from '@/lib/tenant-context'
+import { resolveUserTenant, isLegacyNubiraTenant } from '@/lib/tenant-context'
 import { fetchPrintingTaskAllocationsAction, fetchPrintingWorkersAction } from '../actions'
 
 export const dynamic = 'force-dynamic'
@@ -36,11 +36,13 @@ export default async function PrintingWorkerPage({
   }
 
   const tenant = await resolveUserTenant(user)
+  const isLegacy = isLegacyNubiraTenant(tenant)
+  const companyFilter = isLegacy ? undefined : tenant.companyName
 
   // Fetch server-side task allocations and workers
   const [initialTasks, initialWorkers] = await Promise.all([
-    fetchPrintingTaskAllocationsAction(),
-    fetchPrintingWorkersAction()
+    fetchPrintingTaskAllocationsAction(companyFilter),
+    fetchPrintingWorkersAction(companyFilter)
   ])
 
   // Resolve display name if default

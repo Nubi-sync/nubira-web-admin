@@ -2,7 +2,7 @@ import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { AdminShell } from '@/components/layout/AdminShell'
 import { WorkerHistoryClient } from './components/WorkerHistoryClient'
-import { resolveUserTenant } from '@/lib/tenant-context'
+import { resolveUserTenant, isLegacyNubiraTenant } from '@/lib/tenant-context'
 import { fetchCuttingTaskAllocationsAction, fetchCuttingWorkersAction } from '../../actions'
 
 export const dynamic = 'force-dynamic'
@@ -24,11 +24,13 @@ export default async function CuttingWorkerHistoryPage() {
   }
 
   const tenant = await resolveUserTenant(user)
+  const isLegacy = isLegacyNubiraTenant(tenant)
+  const companyFilter = isLegacy ? undefined : tenant.companyName
 
   // Fetch server-side task allocations and workers
   const [initialTasks, initialWorkers] = await Promise.all([
-    fetchCuttingTaskAllocationsAction(),
-    fetchCuttingWorkersAction()
+    fetchCuttingTaskAllocationsAction(companyFilter),
+    fetchCuttingWorkersAction(companyFilter)
   ])
 
   // Resolve display name if default
