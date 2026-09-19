@@ -129,7 +129,7 @@ export default async function AllotmentsPage() {
     return true
   })
 
-  const articles = isProvisionedTenant ? [] : (rawArticles || [])
+  const articles = rawArticles || []
 
   // Extract unique allotment IDs and dates for parallel child queries
   const rawList = allotmentsRaw || []

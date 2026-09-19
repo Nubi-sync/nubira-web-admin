@@ -20,7 +20,7 @@ export default async function DispatchPage() {
 
   // Centrally resolve tenant identity
   const tenant = await resolveUserTenant(user)
-  const isProvisionedTenant = !isLegacyNubiraTenant(tenant)
+  const isProvisionedTenant = tenant.isProvisionedTenant
 
   // Restrict Store Supervisors from admin dispatch management
   const userRole = tenant.role.toUpperCase()
@@ -164,8 +164,8 @@ export default async function DispatchPage() {
       )
     : (rawDeliveryChallans || [])
 
-  const countingReports = isProvisionedTenant ? [] : (rawCountingReports || [])
-  const articles = isProvisionedTenant ? [] : (rawArticles || [])
+  const countingReports = rawCountingReports || []
+  const articles = rawArticles || []
   const allotments = isProvisionedTenant
     ? (rawAllotments || []).filter(a => (a.challans as any)?.brand?.toUpperCase().includes(tenant.companyName.toUpperCase()))
     : (rawAllotments || [])

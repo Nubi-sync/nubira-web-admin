@@ -50,11 +50,11 @@ export default async function EmployeesPage({ forcedModule, moduleName }: Employ
     const pCompany = (e.company_name || '').trim().toLowerCase()
     const currentCompany = (tenant.companyName || '').trim().toLowerCase()
     if (pCompany) {
-      if (pCompany !== currentCompany && !(currentCompany.includes('nubira') && pCompany.includes('nubira'))) {
+      if (pCompany !== currentCompany) {
         return false
       }
     } else {
-      if (tenant.isProvisionedTenant && !currentCompany.includes('nubira')) {
+      if (tenant.isProvisionedTenant) {
         return false
       }
     }

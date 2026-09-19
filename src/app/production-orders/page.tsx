@@ -82,7 +82,7 @@ export default async function ProductionOrdersPage() {
     }
     return true
   })
-  const filteredArticles = isProvisionedTenant ? [] : (rawArticles || [])
+  const filteredArticles = rawArticles || []
 
   return (
     <AdminShell userEmail={user.email} userRole={userRole}>
