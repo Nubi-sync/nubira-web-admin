@@ -28,11 +28,20 @@ const supabaseAdmin = createAdminClient(
 
 export async function fetchEmbroideryDashboardKpisAction(companyName?: string) {
   try {
+    let runsQuery = supabaseAdmin.from('embroidery_production_runs').select('*')
+    let designsQuery = supabaseAdmin.from('embroidery_designs').select('*')
+    let machinesQuery = supabaseAdmin.from('embroidery_machines').select('*')
+
+    if (companyName && companyName.trim()) {
+      runsQuery = runsQuery.or(`company_name.eq.${companyName.trim()},company_name.ilike.%${companyName.trim()}%`)
+      designsQuery = designsQuery.or(`company_name.eq.${companyName.trim()},company_name.ilike.%${companyName.trim()}%`)
+      machinesQuery = machinesQuery.or(`company_name.eq.${companyName.trim()},company_name.ilike.%${companyName.trim()}%`)
+    }
 
     const [runsRes, designsRes, machinesRes] = await Promise.all([
-      supabaseAdmin.from('embroidery_production_runs').select('*'),
-      supabaseAdmin.from('embroidery_designs').select('*'),
-      supabaseAdmin.from('embroidery_machines').select('*')
+      runsQuery,
+      designsQuery,
+      machinesQuery
     ])
 
     const runs = runsRes.data || []
@@ -48,19 +57,19 @@ export async function fetchEmbroideryDashboardKpisAction(companyName?: string) {
       totalStitchesToday: totalStitches,
       totalCompletedPanels: totalPanels,
       totalBreaksCount: totalBreaks,
-      activeLinesCount: activeMachinesCount || 1,
+      activeLinesCount: activeMachinesCount || (runs.length > 0 ? 1 : 0),
       totalDesignsCount: designs.length,
-      averageRpm: 850
+      averageRpm: runs.length > 0 ? 850 : 0
     }
   } catch (err: any) {
     console.error('[fetchEmbroideryDashboardKpisAction] error:', err)
     return {
-      totalStitchesToday: 448000,
-      totalCompletedPanels: 25,
-      totalBreaksCount: 1,
-      activeLinesCount: 1,
-      totalDesignsCount: 1,
-      averageRpm: 850
+      totalStitchesToday: 0,
+      totalCompletedPanels: 0,
+      totalBreaksCount: 0,
+      activeLinesCount: 0,
+      totalDesignsCount: 0,
+      averageRpm: 0
     }
   }
 }

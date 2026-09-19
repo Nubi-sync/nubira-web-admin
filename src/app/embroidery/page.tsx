@@ -46,11 +46,11 @@ export default async function EmbroideryPage() {
     initialTechPacks
   ] = await Promise.all([
     fetchEmbroideryDashboardKpisAction(companyFilter),
-    fetchActiveBuyersAction(),
-    fetchEmbroideryWorkersAction(),
-    fetchEmbroideryTaskAllocationsAction(),
-    fetchCuttingTaskAllocationsAction(),
-    fetchPrintingTaskAllocationsAction(),
+    fetchActiveBuyersAction(companyFilter),
+    fetchEmbroideryWorkersAction(companyFilter),
+    fetchEmbroideryTaskAllocationsAction(companyFilter),
+    fetchCuttingTaskAllocationsAction(companyFilter),
+    fetchPrintingTaskAllocationsAction(companyFilter),
     fetchTechPacksAction(companyFilter)
   ])
 
