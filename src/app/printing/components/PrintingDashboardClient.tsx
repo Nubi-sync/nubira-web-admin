@@ -1163,6 +1163,7 @@ export function PrintingDashboardClient({
       <AddWorkerModal
         isOpen={isAddWorkerOpen}
         onClose={() => setIsAddWorkerOpen(false)}
+        companyName={companyName}
         onSuccess={newWorker => {
           refreshFloorData()
         }}
@@ -1185,6 +1186,7 @@ export function PrintingDashboardClient({
         availableArticles={buyers.map(b => ({ style_number: b.linked_article_number || 'PRN-101-04', category: 'Garment Print' }))}
         inHandPieces={inHandPieces}
         routeDetails={routeDetails}
+        companyName={companyName}
         onOpenAddWorkerModal={() => setIsAddWorkerOpen(true)}
         onSuccess={newTask => {
           refreshFloorData()

@@ -27,6 +27,7 @@ interface AddTaskAllocationModalProps {
   routeDetails?: PrintingRouteDetails
   onSuccess?: (task: PrintingTaskAllocation) => void
   onOpenAddWorkerModal?: () => void
+  companyName?: string
 }
 
 export function AddTaskAllocationModal({
@@ -38,7 +39,8 @@ export function AddTaskAllocationModal({
   inHandPieces = 0,
   routeDetails,
   onSuccess,
-  onOpenAddWorkerModal
+  onOpenAddWorkerModal,
+  companyName
 }: AddTaskAllocationModalProps) {
   const [workerId, setWorkerId] = useState('')
   const [articleStyle, setArticleStyle] = useState('')
@@ -189,6 +191,7 @@ export function AddTaskAllocationModal({
         due_time: dueTimestamp,
         notes: notes.trim(),
         status: 'ASSIGNED',
+        company_name: companyName,
         created_at: new Date().toISOString()
       }
 

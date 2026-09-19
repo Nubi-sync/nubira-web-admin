@@ -11,6 +11,7 @@ interface AddWorkerModalProps {
   isOpen: boolean
   onClose: () => void
   onSuccess?: (worker: CuttingWorker) => void
+  companyName?: string
 }
 
 const AVAILABLE_ROLES: { id: CuttingWorkerRole; label: string }[] = [
@@ -19,7 +20,7 @@ const AVAILABLE_ROLES: { id: CuttingWorkerRole; label: string }[] = [
   { id: 'KNIFE_CUTTER', label: 'Knife Cutter' }
 ]
 
-export function AddWorkerModal({ isOpen, onClose, onSuccess }: AddWorkerModalProps) {
+export function AddWorkerModal({ isOpen, onClose, onSuccess, companyName }: AddWorkerModalProps) {
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
@@ -87,6 +88,7 @@ export function AddWorkerModal({ isOpen, onClose, onSuccess }: AddWorkerModalPro
         status: 'ACTIVE',
         assigned_pieces: 0,
         completed_pieces: 0,
+        company_name: companyName,
         created_at: new Date().toISOString()
       }
 
@@ -98,7 +100,8 @@ export function AddWorkerModal({ isOpen, onClose, onSuccess }: AddWorkerModalPro
         worker_name: name.trim(),
         phone_number: phone.trim(),
         password: password.trim(),
-        roles: selectedRoles
+        roles: selectedRoles,
+        company_name: companyName
       })
 
       if (res.success && res.worker) {
