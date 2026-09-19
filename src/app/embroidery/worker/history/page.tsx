@@ -24,11 +24,13 @@ export default async function EmbroideryWorkerHistoryPage() {
   }
 
   const tenant = await resolveUserTenant(user)
+  const isLegacy = isLegacyNubiraTenant(tenant)
+  const companyFilter = isLegacy ? undefined : tenant.companyName
 
   // Fetch server-side task allocations and workers
   const [initialTasks, initialWorkers] = await Promise.all([
-    fetchEmbroideryTaskAllocationsAction(),
-    fetchEmbroideryWorkersAction()
+    fetchEmbroideryTaskAllocationsAction(companyFilter),
+    fetchEmbroideryWorkersAction(companyFilter)
   ])
 
   // Resolve display name if default
