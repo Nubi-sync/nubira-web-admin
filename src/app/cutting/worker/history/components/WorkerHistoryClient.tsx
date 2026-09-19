@@ -33,6 +33,7 @@ interface WorkerHistoryClientProps {
   userRole?: string
   initialTasks?: CuttingTaskAllocation[]
   initialWorkers?: CuttingWorker[]
+  companyName?: string
 }
 
 export function WorkerHistoryClient({
@@ -42,7 +43,8 @@ export function WorkerHistoryClient({
   userId,
   userRole,
   initialTasks = [],
-  initialWorkers = []
+  initialWorkers = [],
+  companyName
 }: WorkerHistoryClientProps) {
   const [tasks, setTasks] = useState<CuttingTaskAllocation[]>([])
   const [searchQuery, setSearchQuery] = useState('')
@@ -71,7 +73,9 @@ export function WorkerHistoryClient({
   const handleManualSync = async () => {
     setIsSyncing(true)
     try {
-      const serverTasks = await fetchCuttingTaskAllocationsAction()
+      const isLegacy = !companyName || companyName === 'Nubira Creation'
+      const companyFilter = isLegacy ? undefined : companyName
+      const serverTasks = await fetchCuttingTaskAllocationsAction(companyFilter)
       const localTasks = getCuttingTaskAllocations()
       const merged = mergeCuttingTaskAllocations(serverTasks || [], localTasks)
       setTasks(merged)

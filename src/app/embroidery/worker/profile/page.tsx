@@ -2,7 +2,7 @@ import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { AdminShell } from '@/components/layout/AdminShell'
 import { WorkerProfileClient } from './components/WorkerProfileClient'
-import { resolveUserTenant } from '@/lib/tenant-context'
+import { resolveUserTenant, isLegacyNubiraTenant } from '@/lib/tenant-context'
 import { fetchEmbroideryWorkersAction, fetchEmbroideryTaskAllocationsAction } from '../../actions'
 
 export const dynamic = 'force-dynamic'
