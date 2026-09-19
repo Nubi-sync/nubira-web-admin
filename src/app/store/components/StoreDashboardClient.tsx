@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useTransition } from 'react'
+import { useState, useMemo, useTransition, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { 
   Warehouse, 
@@ -2569,6 +2569,51 @@ function BomHandoverModal({
   activeAllotments: ActiveAllotment[]
   currentUserName: string
 }) {
+  if (!activeAllotments || activeAllotments.length === 0) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-900/60 backdrop-blur-xs animate-in fade-in">
+        <div className="relative max-w-md w-full bg-white rounded-2xl shadow-2xl border border-black/10 overflow-hidden flex flex-col p-6 text-center space-y-4">
+          <div className="w-12 h-12 rounded-2xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 mx-auto flex items-center justify-center shadow-2xs">
+            <Boxes className="w-6 h-6" />
+          </div>
+          <div>
+            <h3 className="text-base font-extrabold text-slate-900">
+              No Active Floor Allotments
+            </h3>
+            <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">
+              There are currently no active stitching allotments waiting for BOM material handover. All lots have either received their materials or are awaiting cutting completion.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-full py-2.5 px-4 rounded-xl bg-[#3A3564] text-white font-bold text-xs hover:bg-[#2A2649] transition-colors cursor-pointer shadow-sm"
+          >
+            Back to Store Dashboard
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <BomHandoverForm
+      onClose={onClose}
+      activeAllotments={activeAllotments}
+      currentUserName={currentUserName}
+    />
+  )
+}
+
+function BomHandoverForm({
+  onClose,
+  activeAllotments,
+  currentUserName,
+}: {
+  onClose: () => void
+  activeAllotments: ActiveAllotment[]
+  currentUserName: string
+}) {
   const router = useRouter()
   const [selectedAllotmentId, setSelectedAllotmentId] = useState(activeAllotments[0]?.id || '')
   const [supplierChallan, setSupplierChallan] = useState('')
@@ -2580,12 +2625,9 @@ function BomHandoverModal({
   const artNo = selectedAllotment?.article?.art_no || '-'
   const materials = selectedAllotment?.allotment_materials || []
 
-  const [itemStates, setItemStates] = useState<Record<string, BomMaterialItemState>>({})
-
-  // Initialize state per material
-  useMemo(() => {
+  const buildInitialStates = (mats: typeof materials) => {
     const states: Record<string, BomMaterialItemState> = {}
-    materials.forEach(m => {
+    mats.forEach(m => {
       states[m.id] = {
         id: m.id,
         item_name: m.item_name,
@@ -2596,8 +2638,20 @@ function BomHandoverModal({
         remarks: ''
       }
     })
-    setItemStates(states)
-  }, [selectedAllotmentId, materials])
+    return states
+  }
+
+  const [itemStates, setItemStates] = useState<Record<string, BomMaterialItemState>>(() =>
+    buildInitialStates(materials)
+  )
+
+  const handleAllotmentChange = (allotmentId: string) => {
+    setSelectedAllotmentId(allotmentId)
+    const target = activeAllotments.find(a => a.id === allotmentId)
+    if (target) {
+      setItemStates(buildInitialStates(target.allotment_materials || []))
+    }
+  }
 
   const handleSubmit = async () => {
     if (!selectedAllotment) return
@@ -2660,7 +2714,7 @@ function BomHandoverModal({
             </label>
             <select
               value={selectedAllotmentId}
-              onChange={e => setSelectedAllotmentId(e.target.value)}
+              onChange={e => handleAllotmentChange(e.target.value)}
               className="w-full px-3.5 py-2.5 text-xs sm:text-sm font-bold text-slate-900 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564]"
             >
               {activeAllotments.map(al => (
