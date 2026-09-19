@@ -435,6 +435,10 @@ export default function TenantFactoriesPage() {
             setTenants(prev => prev.map(t => t.id === updated.id ? updated : t))
             setSelectedTenantForView(updated)
           }}
+          onTenantDeleted={(deletedId) => {
+            setTenants(prev => prev.filter(t => t.id !== deletedId))
+            setSelectedTenantForView(null)
+          }}
         />
 
       </div>

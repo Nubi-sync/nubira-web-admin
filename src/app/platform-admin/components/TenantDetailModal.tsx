@@ -748,6 +748,17 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
               </button>
             )}
 
+            {/* Delete Company Button */}
+            <button
+              type="button"
+              onClick={() => setShowDeleteConfirm(true)}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-rose-700 bg-rose-50 border border-rose-200 hover:bg-rose-100 hover:border-rose-300 transition-all cursor-pointer shadow-2xs active:scale-95"
+              title={`Permanently delete ${tenant.companyName} from the tenant directory`}
+            >
+              <Trash2 className="w-3.5 h-3.5 text-rose-600" />
+              <span>Delete Company</span>
+            </button>
+
             <button
               type="button"
               onClick={onClose}
@@ -757,6 +768,62 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
             </button>
           </div>
         </div>
+
+        {/* Confirmation Modal: Delete Tenant Permanently */}
+        {showDeleteConfirm && (
+          <div className="fixed inset-0 z-60 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150">
+            <div className="bg-white rounded-3xl border border-rose-200 p-6 sm:p-7 max-w-lg w-full shadow-2xl space-y-4">
+              <div className="flex items-start gap-3.5 text-rose-600">
+                <div className="w-12 h-12 rounded-2xl bg-rose-100 border border-rose-200 flex items-center justify-center shrink-0 shadow-2xs">
+                  <Trash2 className="w-6 h-6 text-rose-600" />
+                </div>
+                <div>
+                  <h4 className="text-lg font-bold text-slate-900 font-[family-name:var(--font-heading)]">
+                    Delete Factory Company Record?
+                  </h4>
+                  <p className="text-xs text-rose-600 font-semibold mt-0.5">
+                    Permanent & Irreversible Workspace Removal
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-rose-50/70 border border-rose-200 text-xs text-rose-950 space-y-2">
+                <p className="leading-relaxed">
+                  You are about to permanently delete <strong>{tenant.companyName}</strong> (Plant Slug: <span className="font-mono font-bold text-rose-900">{tenant.plantSlug}</span>, Admin: <span className="font-mono">{tenant.adminEmail}</span>).
+                </p>
+                <ul className="list-disc pl-4 space-y-1 text-rose-900/90 text-[11px]">
+                  <li>All tenant provisioning records & allotted division mappings will be deleted immediately.</li>
+                  <li>Super Admin access for this company will be terminated.</li>
+                  <li>This company will be removed from the active Tenant Factories directory.</li>
+                </ul>
+              </div>
+
+              <p className="text-xs text-slate-500 font-medium">
+                Are you sure you want to permanently delete this company?
+              </p>
+
+              <div className="flex items-center justify-end gap-2.5 pt-2">
+                <button
+                  type="button"
+                  disabled={isDeleting}
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 cursor-pointer transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  disabled={isDeleting}
+                  onClick={handleDeleteTenant}
+                  className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 shadow-xs cursor-pointer transition-all disabled:opacity-50 active:scale-95"
+                >
+                  {isDeleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                  <span>Yes, Delete Company</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Confirmation Modal: Revoke Access */}
         {showRevokeConfirm && (
