@@ -24,8 +24,7 @@ export default async function PrintingWorkerHistoryPage() {
   }
 
   const tenant = await resolveUserTenant(user)
-  const isLegacy = isLegacyNubiraTenant(tenant)
-  const companyFilter = isLegacy ? undefined : tenant.companyName
+  const companyFilter = tenant.companyName
 
   // Fetch server-side task allocations and workers
   const [initialTasks, initialWorkers] = await Promise.all([
