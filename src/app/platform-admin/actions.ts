@@ -717,32 +717,109 @@ export async function deleteTenantFactoryAction(
       .eq('id', tenantId)
       .maybeSingle()
 
-    // 2. Cascade delete all division data and workers associated with this company
     const compName = tenant?.company_name?.trim()
+    const adminEmail = tenant?.admin_email?.trim()?.toLowerCase()
+
+    // 2. Find and delete all associated Supabase Auth users (Admin user, Supervisors, Linemen, Floor Operators)
+    try {
+      const { data: userList } = await supabaseAdmin.auth.admin.listUsers()
+      if (userList?.users) {
+        const usersToDelete = new Set<string>()
+
+        // Find admin user
+        if (adminEmail) {
+          const adminUser = userList.users.find(u => u.email?.toLowerCase() === adminEmail)
+          if (adminUser) usersToDelete.add(adminUser.id)
+        }
+
+        // Find users associated with company in profiles
+        if (compName) {
+          const { data: companyProfiles } = await supabaseAdmin
+            .from('profiles')
+            .select('id')
+            .ilike('company_name', compName)
+          
+          companyProfiles?.forEach(p => {
+            if (p.id) usersToDelete.add(p.id)
+          })
+
+          // Find floor workers
+          const [cuttingWorkers, printingWorkers, embroideryWorkers, designMembers] = await Promise.all([
+            supabaseAdmin.from('cutting_workers').select('worker_user_id, worker_email, phone_number').ilike('company_name', compName),
+            supabaseAdmin.from('printing_workers').select('worker_user_id, worker_email, phone_number').ilike('company_name', compName),
+            supabaseAdmin.from('embroidery_workers').select('worker_user_id, worker_email, phone_number').ilike('company_name', compName),
+            supabaseAdmin.from('design_team_members').select('designer_user_id, designer_email, phone_number').ilike('company_name', compName),
+          ])
+
+          const workerEmails = new Set<string>()
+          const addWorkerRecords = (list: any[], idField: string, emailField: string) => {
+            list?.forEach(w => {
+              if (w[emailField]) workerEmails.add(w[emailField].toLowerCase())
+              if (w[idField]) usersToDelete.add(w[idField])
+            })
+          }
+          addWorkerRecords(cuttingWorkers.data || [], 'worker_user_id', 'worker_email')
+          addWorkerRecords(printingWorkers.data || [], 'worker_user_id', 'worker_email')
+          addWorkerRecords(embroideryWorkers.data || [], 'worker_user_id', 'worker_email')
+          addWorkerRecords(designMembers.data || [], 'designer_user_id', 'designer_email')
+
+          userList.users.forEach(u => {
+            const uEmail = (u.email || '').toLowerCase()
+            if (workerEmails.has(uEmail)) {
+              usersToDelete.add(u.id)
+            }
+          })
+        }
+
+        // Delete all identified Auth users from Supabase Auth
+        for (const uid of Array.from(usersToDelete)) {
+          try {
+            await supabaseAdmin.auth.admin.deleteUser(uid)
+          } catch (delUserErr) {
+            console.warn('[deleteTenantFactoryAction] Auth delete notice for user:', uid, delUserErr)
+          }
+        }
+      }
+    } catch (authCleanupErr) {
+      console.warn('[deleteTenantFactoryAction] Auth user cleanup notice:', authCleanupErr)
+    }
+
+    // 3. Cascade delete all division data, workers, profiles, and company records
     if (compName) {
       try {
         await Promise.allSettled([
+          // Profiles & Company Profile
+          supabaseAdmin.from('profiles').delete().ilike('company_name', compName),
+          supabaseAdmin.from('company_profile').delete().ilike('company_name', compName),
+
           // Cutting floor data
-          supabaseAdmin.from('cutting_task_allocations').delete().eq('company_name', compName),
-          supabaseAdmin.from('cutting_workers').delete().eq('company_name', compName),
+          supabaseAdmin.from('cutting_task_allocations').delete().ilike('company_name', compName),
+          supabaseAdmin.from('cutting_workers').delete().ilike('company_name', compName),
+          supabaseAdmin.from('cutting_orders').delete().ilike('company_name', compName),
 
           // Embroidery floor data
-          supabaseAdmin.from('embroidery_task_allocations').delete().eq('company_name', compName),
-          supabaseAdmin.from('embroidery_workers').delete().eq('company_name', compName),
+          supabaseAdmin.from('embroidery_task_allocations').delete().ilike('company_name', compName),
+          supabaseAdmin.from('embroidery_workers').delete().ilike('company_name', compName),
 
           // Printing floor data
-          supabaseAdmin.from('printing_task_allocations').delete().eq('company_name', compName),
-          supabaseAdmin.from('printing_workers').delete().eq('company_name', compName),
+          supabaseAdmin.from('printing_task_allocations').delete().ilike('company_name', compName),
+          supabaseAdmin.from('printing_workers').delete().ilike('company_name', compName),
 
-          // Design team members
-          supabaseAdmin.from('design_team_members').delete().eq('company_name', compName),
+          // Design team & projects
+          supabaseAdmin.from('design_team_members').delete().ilike('company_name', compName),
+          supabaseAdmin.from('design_projects').delete().ilike('company_name', compName),
+          supabaseAdmin.from('design_tech_packs').delete().ilike('company_name', compName),
+
+          // Merchandising
+          supabaseAdmin.from('merchandising_orders').delete().ilike('company_name', compName),
+          supabaseAdmin.from('merchandising_buyers').delete().ilike('company_name', compName),
         ])
       } catch (cascadeErr) {
         console.warn('[deleteTenantFactoryAction] Non-blocking cascade cleanup notice:', cascadeErr)
       }
     }
 
-    // 3. Unlink any demo requests that reference this tenant
+    // 4. Unlink any demo requests that reference this tenant
     try {
       await supabaseAdmin
         .from('platform_demo_requests')
@@ -753,7 +830,7 @@ export async function deleteTenantFactoryAction(
         .eq('provisioned_tenant_id', tenantId)
     } catch (_) {}
 
-    // 4. Delete from platform_tenant_factories
+    // 5. Delete from platform_tenant_factories
     const { error: delErr } = await supabaseAdmin
       .from('platform_tenant_factories')
       .delete()
@@ -764,14 +841,14 @@ export async function deleteTenantFactoryAction(
       return { success: false, error: delErr.message }
     }
 
-    // 4. Record audit log entry
+    // 6. Record audit log entry
     try {
       await supabaseAdmin.from('platform_audit_logs').insert([{
         log_code: `DEL-${Date.now().toString().slice(-4)}`,
         actor: 'admin@zigza.in',
         action: 'Tenant Factory Deleted',
         category: 'SECURITY_ALERT',
-        details: `Permanently removed company "${tenant?.company_name || tenantId}" (${tenant?.admin_email || 'N/A'}) from tenant factories registry`,
+        details: `Permanently removed company "${tenant?.company_name || tenantId}" (${tenant?.admin_email || 'N/A'}) and purged all auth credentials & operational data`,
         ip_address: '103.24.12.89',
         location: tenant?.city_state || 'India',
         status: 'SUCCESS'

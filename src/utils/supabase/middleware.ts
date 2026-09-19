@@ -137,7 +137,7 @@ export async function updateSession(request: NextRequest) {
       const isProfileRoute = pathname === '/profile' || pathname.startsWith('/profile') || pathname === '/modules/profile' || pathname.startsWith('/modules/profile')
       
       let isTenantExpired = false
-      if (!isPlatformAdmin && userEmail !== 'team.anga9@gmail.com') {
+      if (!isPlatformAdmin) {
         try {
           const { data: tenantFactory } = await supabase
             .from('platform_tenant_factories')

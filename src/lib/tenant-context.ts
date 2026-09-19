@@ -455,6 +455,49 @@ export async function resolveUserTenant(user: {
         tenantStatus,
         monthlyBillingInr: Number(tenant.monthly_billing_inr || (tenant.subscription_tier === 'MODULAR' ? 1999 : 4999))
       }
+  // 1.6. Check design_team_members for creative designers
+  try {
+    const rawDigits = userEmail.split('@')[0].replace(/\D/g, '')
+    const phone10 = rawDigits.length >= 10 ? rawDigits.slice(-10) : rawDigits
+
+    let memberQuery = supabaseAdmin
+      .from('design_team_members')
+      .select('*')
+
+    if (phone10.length === 10) {
+      memberQuery = memberQuery.or(`designer_user_id.eq.${user.id},designer_email.eq.${userEmail},phone_number.eq.${phone10},designer_phone.eq.${phone10}`)
+    } else {
+      memberQuery = memberQuery.or(`designer_user_id.eq.${user.id},designer_email.eq.${userEmail}`)
+    }
+
+    const { data: matchedMember } = await memberQuery.limit(1).maybeSingle()
+
+    if (matchedMember) {
+      const company = matchedMember.company_name || 'Nubira Creation'
+      return {
+        userId: user.id,
+        userEmail,
+        role: 'DESIGNER',
+        isSuperAdmin: false,
+        isPlatformAdmin: false,
+        companyName: company,
+        adminDisplayName: matchedMember.designer_name || 'Creative Designer',
+        customUsername: matchedMember.username || `${matchedMember.designer_name.toLowerCase().replace(/\s+/g, '_')}_nubira`,
+        phone: matchedMember.phone_number || matchedMember.designer_phone || '',
+        cityState: 'India',
+        subscriptionTier: 'ENTERPRISE_PLAN',
+        allowedDivisions: ['/design/designer', '/design/profile'],
+        isProvisionedTenant: true,
+        accessType: 'FULL_ACCESS',
+        isExpired: false,
+        tenantStatus: matchedMember.status || 'ACTIVE',
+        provisionedAt: matchedMember.created_at || '2026-09-15T00:00:00.000Z'
+      }
+    }
+  } catch (designerErr) {
+    console.error('[resolveUserTenant] Error resolving design team member:', designerErr)
+  }
+
     }
   } catch (err) {
     console.warn('[resolveUserTenant] Tenant lookup notice:', err)
@@ -466,10 +509,11 @@ export async function resolveUserTenant(user: {
   let profileIsHead = false
   let profileAllowedModules: string[] = []
   let profileDesignation = ''
+  let profileCompanyName = ''
   try {
     const { data: prof } = await supabaseAdmin
       .from('profiles')
-      .select('username, role, is_head, allowed_modules, designation')
+      .select('username, role, is_head, allowed_modules, designation, company_name')
       .eq('id', user.id)
       .maybeSingle()
     if (prof) {
@@ -478,111 +522,86 @@ export async function resolveUserTenant(user: {
       profileIsHead = Boolean(prof.is_head)
       profileAllowedModules = Array.isArray(prof.allowed_modules) ? prof.allowed_modules : []
       profileDesignation = prof.designation || ''
+      profileCompanyName = prof.company_name || ''
     }
   } catch (_) {}
 
-  const isHead = profileIsHead || metadata.is_head || profileAllowedModules.length > 0
-  const isSuperAdmin = !isHead && (profileRole?.toUpperCase() === 'SUPERADMIN' || userEmail === 'team.anga9@gmail.com')
-  const effectiveRole = isHead
-    ? (profileDesignation || metadata.designation || profileRole || 'DEPARTMENT_HEAD')
-    : (profileRole || metadata.role || (isSuperAdmin ? 'SUPERADMIN' : 'STAFF')).toUpperCase()
+  // If user has a profile with a company, verify that the company factory still exists in platform_tenant_factories
+  if (profileCompanyName) {
+    try {
+      const { data: matchedFactory } = await supabaseAdmin
+        .from('platform_tenant_factories')
+        .select('*')
+        .ilike('company_name', profileCompanyName.trim())
+        .maybeSingle()
 
-  // If user metadata explicitly designates an organization
-  if (metadata.company) {
-    return {
-      userId: user.id,
-      userEmail,
-      role: effectiveRole,
-      isSuperAdmin,
-      isPlatformAdmin: false,
-      companyName: metadata.company,
-      adminDisplayName: metadata.displayName || 'Plant Head',
-      customUsername: profileUsername || metadata.username || 'client_admin',
-      phone: '',
-      cityState: 'India',
-      subscriptionTier: 'FULL_PLANT_AI',
-      allowedDivisions: isSuperAdmin ? ALL_DEFAULT_DIVISIONS : (profileAllowedModules.length > 0 ? profileAllowedModules : ['/stitching-sewing']),
-      isProvisionedTenant: true,
-      accessType: 'FULL_ACCESS',
-      isExpired: false,
-      tenantStatus: 'ACTIVE',
-      provisionedAt: '2026-09-15T00:00:00.000Z',
-      monthlyBillingInr: 4999
-    }
+      if (matchedFactory) {
+        const isHead = profileIsHead || metadata.is_head || profileAllowedModules.length > 0
+        const isSuperAdmin = !isHead && (profileRole?.toUpperCase() === 'SUPERADMIN' || profileRole?.toUpperCase() === 'ADMIN')
+        const effectiveRole = isHead
+          ? (profileDesignation || metadata.designation || profileRole || 'DEPARTMENT_HEAD')
+          : (profileRole || metadata.role || (isSuperAdmin ? 'SUPERADMIN' : 'STAFF')).toUpperCase()
+
+        const accessType: 'DEMO_TRIAL' | 'FULL_ACCESS' = matchedFactory.access_type || 'FULL_ACCESS'
+        const isSuspended = matchedFactory.status === 'SUSPENDED' || matchedFactory.status === 'EXPIRED'
+        const isPastExpiry = matchedFactory.expires_at ? new Date(matchedFactory.expires_at).getTime() < Date.now() : false
+        const isExpired = isSuspended || isPastExpiry
+
+        return {
+          userId: user.id,
+          userEmail,
+          role: effectiveRole,
+          isSuperAdmin,
+          isPlatformAdmin: false,
+          companyName: matchedFactory.company_name,
+          adminDisplayName: profileUsername || metadata.displayName || 'Staff Member',
+          customUsername: profileUsername || metadata.username || `${userEmail.split('@')[0]}`,
+          phone: metadata.phone || '',
+          cityState: matchedFactory.city_state || 'India',
+          subscriptionTier: matchedFactory.subscription_tier || 'FULL_PLANT_AI',
+          allowedDivisions: isSuperAdmin ? ALL_DEFAULT_DIVISIONS : (profileAllowedModules.length > 0 ? profileAllowedModules : ['/stitching-sewing']),
+          isProvisionedTenant: true,
+          accessType,
+          isExpired,
+          tenantStatus: matchedFactory.status || 'ACTIVE',
+          provisionedAt: matchedFactory.provisioned_at || '2026-09-15T00:00:00.000Z',
+          expiresAt: matchedFactory.expires_at || '2026-10-15T00:00:00.000Z',
+          monthlyBillingInr: Number(matchedFactory.monthly_billing_inr || 4999)
+        }
+      }
+    } catch (_) {}
   }
 
-  // 4. Default Fallback Routing
-  // Only users specifically belonging to Nubira Creation (legacy plant) receive Nubira Creation context
-  const isLegacyNubiraUser =
-    userEmail === 'team.anga9@gmail.com' ||
-    userEmail === 'admin@nubira.local' ||
-    userEmail.endsWith('@nubira.local')
-
-  if (isLegacyNubiraUser) {
-    return {
-      userId: user.id,
-      userEmail,
-      role: effectiveRole || 'STAFF',
-      isSuperAdmin,
-      isPlatformAdmin: false,
-      companyName: 'Nubira Creation',
-      adminDisplayName: profileUsername || 'Nubira Admin',
-      customUsername: profileUsername || 'admin',
-      phone: '+91 98765 43210',
-      cityState: 'Kolkata, West Bengal',
-      subscriptionTier: 'FULL_PLANT_AI',
-      allowedDivisions: ['/stitching-sewing', '/store'],
-      isProvisionedTenant: false,
-      accessType: 'DEMO_TRIAL',
-      isExpired: false,
-      tenantStatus: 'ACTIVE',
-      provisionedAt: '2026-09-15T00:00:00.000Z',
-      expiresAt: '2026-09-22T23:59:59.000Z',
-      monthlyBillingInr: 4999
-    }
-  }
-
-  // Any other external account is an isolated client factory tenant
-  const inferredCompanyName = userEmail.includes('shaw')
-    ? 'Shaw Industries'
-    : userEmail.split('@')[0].replace(/[._-]/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) + ' Enterprise'
-
+  // 4. If account does not belong to any active provisioned tenant factory in platform_tenant_factories,
+  // return a strictly deactivated/expired tenant state to block access.
   return {
     userId: user.id,
     userEmail,
-    role: effectiveRole || 'SUPERADMIN',
-    isSuperAdmin: true,
+    role: 'DEACTIVATED',
+    isSuperAdmin: false,
     isPlatformAdmin: false,
-    companyName: inferredCompanyName,
-    adminDisplayName: profileUsername || metadata.displayName || 'Plant Head',
-    customUsername: profileUsername || metadata.username || `${userEmail.split('@')[0]}_admin`,
+    companyName: 'Account Deactivated',
+    adminDisplayName: 'Deactivated Account',
+    customUsername: profileUsername || metadata.username || 'deactivated',
     phone: '',
     cityState: 'India',
-    subscriptionTier: 'FULL_PLANT_AI',
-    allowedDivisions: ALL_DEFAULT_DIVISIONS,
-    isProvisionedTenant: true,
+    subscriptionTier: 'MODULAR',
+    allowedDivisions: [],
+    isProvisionedTenant: false,
     accessType: 'DEMO_TRIAL',
-    isExpired: false,
-    tenantStatus: 'ACTIVE',
+    isExpired: true,
+    tenantStatus: 'DELETED',
     provisionedAt: '2026-09-15T00:00:00.000Z',
-    expiresAt: '2026-09-22T23:59:59.000Z',
-    monthlyBillingInr: 4999
+    expiresAt: '1970-01-01T00:00:00.000Z',
+    monthlyBillingInr: 0
   }
 }
 
 /**
  * Checks if a resolved tenant profile belongs to the primary legacy plant (Nubira Creation).
- * Used across operational division modules to ensure 100% of historical production data is preserved
- * for team.anga9@gmail.com, while newly registered client factories start with an isolated sandbox.
  */
 export function isLegacyNubiraTenant(tenant: ResolvedTenantProfile): boolean {
   if (!tenant) return false
-  const email = (tenant.userEmail || '').toLowerCase().trim()
   const comp = (tenant.companyName || '').toLowerCase().trim()
-  return (
-    email === 'team.anga9@gmail.com' ||
-    email === 'admin@nubira.local' ||
-    email.endsWith('@nubira.local') ||
-    comp === 'nubira creation'
-  )
+  return comp === 'nubira creation'
 }

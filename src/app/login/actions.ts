@@ -309,6 +309,15 @@ export async function login(formData: FormData) {
       const { resolveUserTenant } = await import('@/lib/tenant-context')
       const { getUserAllowedModules, getDefaultLandingRoute, ALL_DIVISION_ROUTES } = await import('@/lib/access-control')
       const tenant = await resolveUserTenant(authData.user)
+
+      // Block deleted or deactivated organizations immediately
+      if (!tenant.isPlatformAdmin && (tenant.tenantStatus === 'DELETED' || (!tenant.isProvisionedTenant && tenant.role === 'DEACTIVATED'))) {
+        await supabase.auth.signOut()
+        return {
+          error: 'This company account has been deleted or deactivated by platform administration. Please contact support@zigza.in.'
+        }
+      }
+
       const userRole = tenant.role.toUpperCase()
       const allowedModules = tenant.isSuperAdmin
         ? [...ALL_DIVISION_ROUTES, '/modules']
