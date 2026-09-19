@@ -33,6 +33,7 @@ interface WorkerDashboardClientProps {
   userRole?: string
   initialTasks?: CuttingTaskAllocation[]
   initialWorkers?: CuttingWorker[]
+  companyName?: string
 }
 
 export function WorkerDashboardClient({
@@ -42,7 +43,8 @@ export function WorkerDashboardClient({
   userId,
   userRole,
   initialTasks = [],
-  initialWorkers = []
+  initialWorkers = [],
+  companyName
 }: WorkerDashboardClientProps) {
   const [tasks, setTasks] = useState<CuttingTaskAllocation[]>([])
   const [isSyncing, setIsSyncing] = useState(false)
@@ -79,7 +81,9 @@ export function WorkerDashboardClient({
   const handleManualSync = async () => {
     setIsSyncing(true)
     try {
-      const serverTasks = await fetchCuttingTaskAllocationsAction()
+      const isLegacy = !companyName || companyName === 'Nubira Creation'
+      const companyFilter = isLegacy ? undefined : companyName
+      const serverTasks = await fetchCuttingTaskAllocationsAction(companyFilter)
       const localTasks = getCuttingTaskAllocations()
       const merged = mergeCuttingTaskAllocations(serverTasks || [], localTasks)
       setTasks(merged)
