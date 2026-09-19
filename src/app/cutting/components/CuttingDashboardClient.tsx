@@ -1044,6 +1044,7 @@ export function CuttingDashboardClient({
       <AddWorkerModal
         isOpen={isAddWorkerOpen}
         onClose={() => setIsAddWorkerOpen(false)}
+        companyName={companyName}
         onSuccess={() => {
           refreshFloorData()
         }}
@@ -1068,6 +1069,7 @@ export function CuttingDashboardClient({
         workers={workers}
         selectedBuyer={selectedBuyer}
         inHandPieces={inHandPieces}
+        companyName={companyName}
         onSuccess={() => {
           refreshFloorData()
         }}

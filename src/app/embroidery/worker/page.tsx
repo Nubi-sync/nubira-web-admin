@@ -83,6 +83,7 @@ export default async function EmbroideryWorkerPage({
           userRole={tenant.role}
           initialTasks={initialTasks}
           initialWorkers={initialWorkers}
+          companyName={tenant.companyName}
         />
       </div>
     </AdminShell>

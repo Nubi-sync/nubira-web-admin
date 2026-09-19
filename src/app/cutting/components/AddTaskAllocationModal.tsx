@@ -27,6 +27,7 @@ interface AddTaskAllocationModalProps {
   inHandPieces?: number
   onSuccess?: (task: CuttingTaskAllocation) => void
   onOpenAddWorkerModal?: () => void
+  companyName?: string
 }
 
 export function AddTaskAllocationModal({
@@ -37,7 +38,8 @@ export function AddTaskAllocationModal({
   availableArticles = [],
   inHandPieces = 0,
   onSuccess,
-  onOpenAddWorkerModal
+  onOpenAddWorkerModal,
+  companyName
 }: AddTaskAllocationModalProps) {
   const [workerId, setWorkerId] = useState('')
   const [articleStyle, setArticleStyle] = useState('')
@@ -200,6 +202,7 @@ export function AddTaskAllocationModal({
         due_time: dueTimestamp,
         notes: notes.trim(),
         status: 'ASSIGNED',
+        company_name: companyName,
         created_at: new Date().toISOString()
       }
 
