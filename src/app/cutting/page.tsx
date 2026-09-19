@@ -10,7 +10,7 @@ import {
   fetchCuttingTaskAllocationsAction
 } from './actions'
 import { fetchActiveBuyersAction } from '@/app/merchandising/actions'
-import { resolveUserTenant, isLegacyNubiraTenant } from '@/lib/tenant-context'
+import { resolveUserTenant } from '@/lib/tenant-context'
 
 export const dynamic = 'force-dynamic'
 
@@ -27,8 +27,7 @@ export default async function CuttingModulePage() {
 
   // Centrally resolve tenant identity
   const tenant = await resolveUserTenant(user)
-  const isLegacy = isLegacyNubiraTenant(tenant)
-  const companyFilter = isLegacy ? undefined : tenant.companyName
+  const companyFilter = tenant.companyName
 
   const [initialLays, initialBundles, liveKpis, initialBuyers, initialWorkers, initialAllocations] = await Promise.all([
     fetchLaySheetsAction(companyFilter),

@@ -2,7 +2,7 @@ import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { AdminShell } from '@/components/layout/AdminShell'
 import { WorkerHistoryClient } from './components/WorkerHistoryClient'
-import { resolveUserTenant, isLegacyNubiraTenant } from '@/lib/tenant-context'
+import { resolveUserTenant } from '@/lib/tenant-context'
 import { fetchPrintingTaskAllocationsAction, fetchPrintingWorkersAction } from '../../actions'
 
 export const dynamic = 'force-dynamic'
