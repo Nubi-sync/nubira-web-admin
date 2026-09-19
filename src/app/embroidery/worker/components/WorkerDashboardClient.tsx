@@ -33,6 +33,7 @@ interface WorkerDashboardClientProps {
   userRole?: string
   initialTasks?: EmbroideryTaskAllocation[]
   initialWorkers?: EmbroideryWorker[]
+  companyName?: string
 }
 
 export function WorkerDashboardClient({
@@ -42,11 +43,18 @@ export function WorkerDashboardClient({
   userId,
   userRole,
   initialTasks = [],
-  initialWorkers = []
+  initialWorkers = [],
+  companyName
 }: WorkerDashboardClientProps) {
-  const [tasks, setTasks] = useState<EmbroideryTaskAllocation[]>([])
+  const [tasks, setTasks] = useState<EmbroideryTaskAllocation[]>(initialTasks)
   const [isSyncing, setIsSyncing] = useState(false)
   const [now, setNow] = useState<number>(Date.now())
+
+  // Active Tab state: 'TASKS' | 'KPI'
+  const [activeTab, setActiveTab] = useState<'TASKS' | 'KPI'>('TASKS')
+
+  // Selected Task for Details Modal
+  const [selectedTask, setSelectedTask] = useState<EmbroideryTaskAllocation | null>(null)
 
   // Real-time 1-second interval ticker for live embroidery countdown timer
   useEffect(() => {
@@ -79,7 +87,9 @@ export function WorkerDashboardClient({
   const handleManualSync = async () => {
     setIsSyncing(true)
     try {
-      const serverTasks = await fetchEmbroideryTaskAllocationsAction()
+      const isLegacy = !companyName || companyName === 'Nubira Creation'
+      const companyFilter = isLegacy ? undefined : companyName
+      const serverTasks = await fetchEmbroideryTaskAllocationsAction(companyFilter)
       const localTasks = getEmbroideryTaskAllocations()
       const merged = mergeEmbroideryTaskAllocations(serverTasks || [], localTasks)
       setTasks(merged)

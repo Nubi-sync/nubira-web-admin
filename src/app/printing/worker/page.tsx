@@ -83,6 +83,7 @@ export default async function PrintingWorkerPage({
           userRole={tenant.role}
           initialTasks={initialTasks}
           initialWorkers={initialWorkers}
+          companyName={tenant.companyName}
         />
       </div>
     </AdminShell>

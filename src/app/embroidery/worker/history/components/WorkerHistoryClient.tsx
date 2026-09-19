@@ -32,6 +32,7 @@ interface WorkerHistoryClientProps {
   userRole?: string
   initialTasks?: EmbroideryTaskAllocation[]
   initialWorkers?: EmbroideryWorker[]
+  companyName?: string
 }
 
 export function WorkerHistoryClient({
@@ -41,7 +42,8 @@ export function WorkerHistoryClient({
   userId,
   userRole,
   initialTasks = [],
-  initialWorkers = []
+  initialWorkers = [],
+  companyName
 }: WorkerHistoryClientProps) {
   const [tasks, setTasks] = useState<EmbroideryTaskAllocation[]>([])
   const [searchQuery, setSearchQuery] = useState('')
@@ -70,7 +72,9 @@ export function WorkerHistoryClient({
   const handleManualSync = async () => {
     setIsSyncing(true)
     try {
-      const serverTasks = await fetchEmbroideryTaskAllocationsAction()
+      const isLegacy = !companyName || companyName === 'Nubira Creation'
+      const companyFilter = isLegacy ? undefined : companyName
+      const serverTasks = await fetchEmbroideryTaskAllocationsAction(companyFilter)
       const localTasks = getEmbroideryTaskAllocations()
       const merged = mergeEmbroideryTaskAllocations(serverTasks || [], localTasks)
       setTasks(merged)
