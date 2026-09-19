@@ -32,6 +32,7 @@ interface WorkerDashboardClientProps {
   userRole?: string
   initialTasks?: PrintingTaskAllocation[]
   initialWorkers?: PrintingWorker[]
+  companyName?: string
 }
 
 export function WorkerDashboardClient({
@@ -41,7 +42,8 @@ export function WorkerDashboardClient({
   userId,
   userRole,
   initialTasks = [],
-  initialWorkers = []
+  initialWorkers = [],
+  companyName
 }: WorkerDashboardClientProps) {
   const [tasks, setTasks] = useState<PrintingTaskAllocation[]>([])
   const [isSyncing, setIsSyncing] = useState(false)
@@ -78,7 +80,9 @@ export function WorkerDashboardClient({
   const handleManualSync = async () => {
     setIsSyncing(true)
     try {
-      const serverTasks = await fetchPrintingTaskAllocationsAction()
+      const isLegacy = !companyName || companyName === 'Nubira Creation'
+      const companyFilter = isLegacy ? undefined : companyName
+      const serverTasks = await fetchPrintingTaskAllocationsAction(companyFilter)
       const localTasks = getPrintingTaskAllocations()
       const merged = mergePrintingTaskAllocations(serverTasks || [], localTasks)
       setTasks(merged)

@@ -31,6 +31,7 @@ interface WorkerHistoryClientProps {
   userRole?: string
   initialTasks?: PrintingTaskAllocation[]
   initialWorkers?: PrintingWorker[]
+  companyName?: string
 }
 
 export function WorkerHistoryClient({
@@ -40,7 +41,8 @@ export function WorkerHistoryClient({
   userId,
   userRole,
   initialTasks = [],
-  initialWorkers = []
+  initialWorkers = [],
+  companyName
 }: WorkerHistoryClientProps) {
   const [tasks, setTasks] = useState<PrintingTaskAllocation[]>([])
   const [searchQuery, setSearchQuery] = useState('')
@@ -69,7 +71,9 @@ export function WorkerHistoryClient({
   const handleManualSync = async () => {
     setIsSyncing(true)
     try {
-      const serverTasks = await fetchPrintingTaskAllocationsAction()
+      const isLegacy = !companyName || companyName === 'Nubira Creation'
+      const companyFilter = isLegacy ? undefined : companyName
+      const serverTasks = await fetchPrintingTaskAllocationsAction(companyFilter)
       const localTasks = getPrintingTaskAllocations()
       const merged = mergePrintingTaskAllocations(serverTasks || [], localTasks)
       setTasks(merged)

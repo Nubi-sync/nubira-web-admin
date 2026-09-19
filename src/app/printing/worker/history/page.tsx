@@ -71,6 +71,7 @@ export default async function PrintingWorkerHistoryPage() {
           userRole={tenant.role}
           initialTasks={initialTasks}
           initialWorkers={initialWorkers}
+          companyName={tenant.companyName}
         />
       </div>
     </AdminShell>
