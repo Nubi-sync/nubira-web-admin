@@ -2,7 +2,7 @@ import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { AdminShell } from '@/components/layout/AdminShell'
 import { WorkerProfileClient } from './components/WorkerProfileClient'
-import { resolveUserTenant, isLegacyNubiraTenant } from '@/lib/tenant-context'
+import { resolveUserTenant } from '@/lib/tenant-context'
 import { fetchEmbroideryWorkersAction, fetchEmbroideryTaskAllocationsAction } from '../../actions'
 
 export const dynamic = 'force-dynamic'
@@ -24,8 +24,7 @@ export default async function EmbroideryWorkerProfilePage() {
   }
 
   const tenant = await resolveUserTenant(user)
-  const isLegacy = isLegacyNubiraTenant(tenant)
-  const companyFilter = isLegacy ? undefined : tenant.companyName
+  const companyFilter = tenant.companyName
 
   // Fetch server-side workers and tasks
   const [initialWorkers, initialTasks] = await Promise.all([

@@ -51,7 +51,7 @@ export function LinkArticleModal({
     setIsSubmitting(true)
     const updatedList = linkArticleToBuyer(
       buyer.id,
-      selectedArticle.art_number,
+      selectedArticle.art_number || selectedArticle.style_number || '',
       selectedArticle.id,
       selectedArticle.style_name
     )

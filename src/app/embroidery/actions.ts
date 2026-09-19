@@ -397,16 +397,15 @@ export async function fetchEmbroideryQcAuditsAction(companyName?: string): Promi
 
 export async function fetchEmbroideryWorkersAction(companyName?: string): Promise<any[]> {
   try {
-    let query = supabaseAdmin
-      .from('embroidery_workers')
-      .select('*')
-      .order('created_at', { ascending: false })
-
-    if (companyName && companyName.trim()) {
-      query = query.or(`company_name.eq.${companyName.trim()},company_name.ilike.%${companyName.trim()}%`)
+    if (!companyName || !companyName.trim()) {
+      return []
     }
 
-    const { data, error } = await query
+    const { data, error } = await supabaseAdmin
+      .from('embroidery_workers')
+      .select('*')
+      .eq('company_name', companyName.trim())
+      .order('created_at', { ascending: false })
 
     if (error) {
       console.warn('[fetchEmbroideryWorkersAction] Supabase notice:', error.message)
@@ -527,16 +526,15 @@ export async function deleteEmbroideryWorkerAction(workerId: string, phoneNumber
 
 export async function fetchEmbroideryTaskAllocationsAction(companyName?: string): Promise<any[]> {
   try {
-    let query = supabaseAdmin
-      .from('embroidery_task_allocations')
-      .select('*')
-      .order('created_at', { ascending: false })
-
-    if (companyName && companyName.trim()) {
-      query = query.or(`company_name.eq.${companyName.trim()},company_name.ilike.%${companyName.trim()}%`)
+    if (!companyName || !companyName.trim()) {
+      return []
     }
 
-    const { data, error } = await query
+    const { data, error } = await supabaseAdmin
+      .from('embroidery_task_allocations')
+      .select('*')
+      .eq('company_name', companyName.trim())
+      .order('created_at', { ascending: false })
 
     if (error) {
       console.warn('[fetchEmbroideryTaskAllocationsAction] Supabase notice:', error.message)

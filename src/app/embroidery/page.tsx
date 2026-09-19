@@ -11,7 +11,7 @@ import { fetchActiveBuyersAction } from '@/app/merchandising/actions'
 import { fetchCuttingTaskAllocationsAction } from '@/app/cutting/actions'
 import { fetchPrintingTaskAllocationsAction } from '@/app/printing/actions'
 import { fetchTechPacksAction } from '@/app/design/actions'
-import { resolveUserTenant, isLegacyNubiraTenant } from '@/lib/tenant-context'
+import { resolveUserTenant } from '@/lib/tenant-context'
 
 export const dynamic = 'force-dynamic'
 
@@ -33,8 +33,7 @@ export default async function EmbroideryPage() {
 
   // Centrally resolve tenant identity
   const tenant = await resolveUserTenant(user)
-  const isLegacy = isLegacyNubiraTenant(tenant)
-  const companyFilter = isLegacy ? undefined : tenant.companyName
+  const companyFilter = tenant.companyName
 
   const [
     liveKpis, 

@@ -112,47 +112,46 @@ function mergeBuyersFromAllSources(serverBuyers: any[] = [], companyName?: strin
   if (typeof window !== 'undefined') {
     try {
       const targetCompany = (companyName || '').trim().toLowerCase()
-      const isLegacy = !targetCompany || targetCompany === 'nubira creation'
-      const localBuyers = getActiveBuyers()
-      localBuyers.forEach(b => {
-        if (b && (b.id || b.buyer_name)) {
-          const bCompany = (b.company_name || '').trim().toLowerCase()
-          if (!isLegacy) {
+      if (targetCompany) {
+        const localBuyers = getActiveBuyers()
+        localBuyers.forEach(b => {
+          if (b && (b.id || b.buyer_name)) {
+            const bCompany = (b.company_name || '').trim().toLowerCase()
             if (bCompany !== targetCompany) return
+
+            const key = (b.buyer_name || b.id).trim().toUpperCase()
+            const existing = buyerMap.get(key)
+            if (!existing) {
+              buyerMap.set(key, { ...b })
+            } else {
+              if (Number(b.contracted_volume) > Number(existing.contracted_volume || 0)) {
+                existing.contracted_volume = b.contracted_volume
+              }
+              if (b.linked_article_number && !existing.linked_article_number) {
+                existing.linked_article_number = b.linked_article_number
+                existing.linked_article_name = b.linked_article_name
+              }
+              if (b.embellishment_sequence && !existing.embellishment_sequence) {
+                existing.embellishment_sequence = b.embellishment_sequence
+              }
+            }
           }
-          const key = (b.buyer_name || b.id).trim().toUpperCase()
-          const existing = buyerMap.get(key)
-          if (!existing) {
-            buyerMap.set(key, { ...b })
-          } else {
-            if (Number(b.contracted_volume) > Number(existing.contracted_volume || 0)) {
-              existing.contracted_volume = b.contracted_volume
-            }
-            if (b.linked_article_number && !existing.linked_article_number) {
-              existing.linked_article_number = b.linked_article_number
-              existing.linked_article_name = b.linked_article_name
-            }
-            if (b.embellishment_sequence && !existing.embellishment_sequence) {
-              existing.embellishment_sequence = b.embellishment_sequence
-            }
-          }
-        }
-      })
+        })
+      }
     } catch {}
 
     // 3. Process localStorage BPO orders ONLY if matching tenant company
     try {
       const targetCompany = (companyName || '').trim().toLowerCase()
-      const isLegacy = !targetCompany || targetCompany === 'nubira creation'
-      const localOrders = getOrders()
-      localOrders.forEach(ord => {
-        if (ord && (ord.brand_name || ord.po_number)) {
-          const ordCompany = (ord.company_name || '').trim().toLowerCase()
-          if (!isLegacy) {
+      if (targetCompany) {
+        const localOrders = getOrders()
+        localOrders.forEach(ord => {
+          if (ord && (ord.brand_name || ord.po_number)) {
+            const ordCompany = (ord.company_name || '').trim().toLowerCase()
             if (ordCompany !== targetCompany) return
-          }
-          const buyerName = ord.brand_name || 'Direct Buyer'
-          const key = buyerName.trim().toUpperCase()
+
+            const buyerName = ord.brand_name || 'Direct Buyer'
+            const key = buyerName.trim().toUpperCase()
           const existing = buyerMap.get(key)
           const qty = Number(ord.total_quantity) || 0
           const price = Number(ord.unit_fob_price) || 12.5
@@ -340,8 +339,7 @@ export function EmbroideryDashboardClient({
   const handleManualSync = async () => {
     setIsSyncing(true)
     try {
-      const isLegacy = !companyName || companyName === 'Nubira Creation'
-      const companyFilter = isLegacy ? undefined : companyName
+      const companyFilter = companyName
       const [freshTasks, freshWorkers, freshCutting, freshPrinting] = await Promise.all([
         fetchEmbroideryTaskAllocationsAction(companyFilter),
         fetchEmbroideryWorkersAction(companyFilter),

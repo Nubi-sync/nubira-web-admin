@@ -362,16 +362,15 @@ export async function fetchCuttingDashboardKpisAction(companyName?: string) {
 
 export async function fetchCuttingWorkersAction(companyName?: string): Promise<any[]> {
   try {
-    let query = supabaseAdmin
-      .from('cutting_workers')
-      .select('*')
-      .order('created_at', { ascending: false })
-
-    if (companyName && companyName.trim()) {
-      query = query.or(`company_name.eq.${companyName.trim()},company_name.ilike.%${companyName.trim()}%`)
+    if (!companyName || !companyName.trim()) {
+      return []
     }
 
-    const { data, error } = await query
+    const { data, error } = await supabaseAdmin
+      .from('cutting_workers')
+      .select('*')
+      .eq('company_name', companyName.trim())
+      .order('created_at', { ascending: false })
 
     if (error) {
       console.warn('[fetchCuttingWorkersAction] Supabase notice:', error.message)
@@ -492,16 +491,15 @@ export async function deleteCuttingWorkerAction(workerId: string, phoneNumber?: 
 
 export async function fetchCuttingTaskAllocationsAction(companyName?: string): Promise<any[]> {
   try {
-    let query = supabaseAdmin
-      .from('cutting_task_allocations')
-      .select('*')
-      .order('created_at', { ascending: false })
-
-    if (companyName && companyName.trim()) {
-      query = query.or(`company_name.eq.${companyName.trim()},company_name.ilike.%${companyName.trim()}%`)
+    if (!companyName || !companyName.trim()) {
+      return []
     }
 
-    const { data, error } = await query
+    const { data, error } = await supabaseAdmin
+      .from('cutting_task_allocations')
+      .select('*')
+      .eq('company_name', companyName.trim())
+      .order('created_at', { ascending: false })
 
     if (error) {
       console.warn('[fetchCuttingTaskAllocationsAction] Supabase notice:', error.message)

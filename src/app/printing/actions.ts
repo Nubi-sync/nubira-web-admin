@@ -319,16 +319,15 @@ export async function recordPrintRunAction(payload: {
 
 export async function fetchPrintingWorkersAction(companyName?: string): Promise<any[]> {
   try {
-    let query = supabaseAdmin
-      .from('printing_workers')
-      .select('*')
-      .order('created_at', { ascending: false })
-
-    if (companyName && companyName.trim()) {
-      query = query.or(`company_name.eq.${companyName.trim()},company_name.ilike.%${companyName.trim()}%`)
+    if (!companyName || !companyName.trim()) {
+      return []
     }
 
-    const { data, error } = await query
+    const { data, error } = await supabaseAdmin
+      .from('printing_workers')
+      .select('*')
+      .eq('company_name', companyName.trim())
+      .order('created_at', { ascending: false })
 
     if (error) {
       console.warn('[fetchPrintingWorkersAction] Supabase notice:', error.message)
@@ -449,16 +448,15 @@ export async function deletePrintingWorkerAction(workerId: string, phoneNumber?:
 
 export async function fetchPrintingTaskAllocationsAction(companyName?: string): Promise<any[]> {
   try {
-    let query = supabaseAdmin
-      .from('printing_task_allocations')
-      .select('*')
-      .order('created_at', { ascending: false })
-
-    if (companyName && companyName.trim()) {
-      query = query.or(`company_name.eq.${companyName.trim()},company_name.ilike.%${companyName.trim()}%`)
+    if (!companyName || !companyName.trim()) {
+      return []
     }
 
-    const { data, error } = await query
+    const { data, error } = await supabaseAdmin
+      .from('printing_task_allocations')
+      .select('*')
+      .eq('company_name', companyName.trim())
+      .order('created_at', { ascending: false })
 
     if (error) {
       console.warn('[fetchPrintingTaskAllocationsAction] Supabase notice:', error.message)
