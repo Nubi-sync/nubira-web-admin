@@ -50,6 +50,7 @@ export default async function CuttingModulePage() {
         initialBuyers={initialBuyers}
         initialWorkers={initialWorkers}
         initialAllocations={initialAllocations}
+        companyName={tenant.companyName}
       />
     </AdminShell>
   )
