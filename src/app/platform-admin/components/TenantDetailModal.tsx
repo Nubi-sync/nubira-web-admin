@@ -36,7 +36,8 @@ import {
   Send,
   AlertTriangle,
   ShieldAlert,
-  RefreshCw
+  RefreshCw,
+  Trash2
 } from 'lucide-react'
 import { TenantFactory, AccessType } from '../types/platform'
 import { ENTERPRISE_DIVISIONS_CATALOG } from '../data/initialPlatformData'
@@ -44,13 +45,15 @@ import {
   updateTenantAllowedDivisionsAction,
   revokeTenantAccessAction,
   reactivateTenantAccessAction,
-  sendPaymentReminderAction
+  sendPaymentReminderAction,
+  deleteTenantFactoryAction
 } from '../actions'
 import {
   updateTenantDivisions,
   revokeTenantAccess,
   reactivateTenantAccess,
-  recordPaymentReminder
+  recordPaymentReminder,
+  deleteTenantFactory
 } from '../utils/platformStorage'
 
 interface TenantDetailModalProps {
@@ -58,6 +61,7 @@ interface TenantDetailModalProps {
   onClose: () => void
   tenant: TenantFactory | null
   onTenantUpdated?: (updated: TenantFactory) => void
+  onTenantDeleted?: (tenantId: string) => void
 }
 
 const DIVISION_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -75,7 +79,7 @@ const DIVISION_ICONS: Record<string, React.ComponentType<{ className?: string }>
   '/dispatch': Truck,
 }
 
-export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenantUpdated }: TenantDetailModalProps) {
+export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenantUpdated, onTenantDeleted }: TenantDetailModalProps) {
   const [copiedField, setCopiedField] = useState<string | null>(null)
   const [tenantState, setTenantState] = useState<TenantFactory | null>(propTenant)
   const [isEditingDivisions, setIsEditingDivisions] = useState(false)
@@ -83,7 +87,7 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
   const [isSaving, setIsSaving] = useState(false)
   const [saveSuccess, setSaveSuccess] = useState(false)
 
-  // Reminder, Revoke & Reactivate state
+  // Reminder, Revoke, Reactivate & Delete state
   const [isSendingReminder, setIsSendingReminder] = useState(false)
   const [reminderMessage, setReminderMessage] = useState<{ text: string; isError?: boolean } | null>(null)
   const [showRevokeConfirm, setShowRevokeConfirm] = useState(false)
@@ -91,6 +95,8 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
   const [showReactivateModal, setShowReactivateModal] = useState(false)
   const [reactivateType, setReactivateType] = useState<AccessType>('FULL_ACCESS')
   const [isReactivating, setIsReactivating] = useState(false)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   useEffect(() => {
     setTenantState(propTenant)
@@ -100,6 +106,8 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
     setReminderMessage(null)
     setShowRevokeConfirm(false)
     setShowReactivateModal(false)
+    setShowDeleteConfirm(false)
+    setIsDeleting(false)
   }, [propTenant, isOpen])
 
   if (!isOpen || !propTenant) return null
@@ -234,6 +242,26 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
       alert(err?.message || 'Error reactivating workspace')
     } finally {
       setIsReactivating(false)
+    }
+  }
+
+  const handleDeleteTenant = async () => {
+    setIsDeleting(true)
+    try {
+      const res = await deleteTenantFactoryAction(tenant.id)
+      if (res.success) {
+        deleteTenantFactory(tenant.id)
+        setShowDeleteConfirm(false)
+        onTenantDeleted?.(tenant.id)
+        onClose()
+      } else {
+        alert(res.error || 'Failed to delete company from tenant registry.')
+      }
+    } catch (err: any) {
+      console.error('Failed to delete tenant factory:', err)
+      alert(err?.message || 'Error deleting tenant factory')
+    } finally {
+      setIsDeleting(false)
     }
   }
 

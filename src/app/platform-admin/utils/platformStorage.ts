@@ -307,6 +307,37 @@ export function updateTenantDivisions(tenantId: string, allowedDivisions: string
   return updatedTenant
 }
 
+export function deleteTenantFactory(tenantId: string): boolean {
+  if (typeof window === 'undefined') return false
+  const current = getTenantFactories()
+  const updatedList = current.filter(t => t.id !== tenantId)
+  try {
+    localStorage.setItem(STORAGE_KEYS.TENANTS, JSON.stringify(updatedList))
+  } catch (e) {
+    console.error('Failed to delete tenant in storage:', e)
+    return false
+  }
+
+  // Also decouple any linked demo requests in storage
+  try {
+    const demos = getDemoRequests()
+    const updatedDemos = demos.map(d => {
+      if (d.provisionedTenantId === tenantId) {
+        return {
+          ...d,
+          status: 'CONTACTED' as const,
+          provisionedTenantId: undefined
+        }
+      }
+      return d
+    })
+    localStorage.setItem(STORAGE_KEYS.DEMO_REQUESTS, JSON.stringify(updatedDemos))
+  } catch (_) {}
+
+  broadcastUpdate()
+  return true
+}
+
 // ----------------------------------------------------------------------------
 // 3. PLATFORM METRICS
 // ----------------------------------------------------------------------------

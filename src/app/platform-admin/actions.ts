@@ -706,6 +706,64 @@ export async function reactivateTenantAccessAction(
   }
 }
 
+export async function deleteTenantFactoryAction(
+  tenantId: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    // 1. Fetch tenant data first for auditing and logging
+    const { data: tenant } = await supabaseAdmin
+      .from('platform_tenant_factories')
+      .select('id, company_name, admin_email, phone, city_state')
+      .eq('id', tenantId)
+      .maybeSingle()
+
+    // 2. Unlink any demo requests that reference this tenant
+    try {
+      await supabaseAdmin
+        .from('platform_demo_requests')
+        .update({
+          status: 'CONTACTED',
+          provisioned_tenant_id: null
+        })
+        .eq('provisioned_tenant_id', tenantId)
+    } catch (_) {}
+
+    // 3. Delete from platform_tenant_factories
+    const { error: delErr } = await supabaseAdmin
+      .from('platform_tenant_factories')
+      .delete()
+      .eq('id', tenantId)
+
+    if (delErr) {
+      console.error('[deleteTenantFactoryAction] Supabase DB delete error:', delErr)
+      return { success: false, error: delErr.message }
+    }
+
+    // 4. Record audit log entry
+    try {
+      await supabaseAdmin.from('platform_audit_logs').insert([{
+        log_code: `DEL-${Date.now().toString().slice(-4)}`,
+        actor: 'admin@zigza.in',
+        action: 'Tenant Factory Deleted',
+        category: 'SECURITY_ALERT',
+        details: `Permanently removed company "${tenant?.company_name || tenantId}" (${tenant?.admin_email || 'N/A'}) from tenant factories registry`,
+        ip_address: '103.24.12.89',
+        location: tenant?.city_state || 'India',
+        status: 'SUCCESS'
+      }])
+    } catch (_) {}
+
+    revalidatePath('/platform-admin')
+    revalidatePath('/platform-admin/tenants')
+    revalidatePath('/platform-admin/payments')
+    revalidatePath('/platform-admin/provisioning')
+    return { success: true }
+  } catch (err: any) {
+    console.error('[deleteTenantFactoryAction] Fatal:', err)
+    return { success: false, error: err?.message || 'Failed to delete tenant factory' }
+  }
+}
+
 export async function sendPaymentReminderAction(
   tenantId: string
 ): Promise<{ success: boolean; simulated?: boolean; error?: string }> {
