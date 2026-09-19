@@ -41,11 +41,13 @@ import {
   Minus,
   Store,
   UserCheck,
-  Hash
+  Hash,
+  Camera
 } from 'lucide-react'
 import { TvViewButton } from '@/components/ui/TvViewButton'
 import { 
   createTruckInwardGrn, 
+  updateTruckInwardChallanPhoto,
   issueBomMaterials, 
   saveProductionInward, 
   saveFinishedGoodsOutward,
@@ -239,6 +241,7 @@ export function StoreDashboardClient({
   const [isInwardModalOpen, setIsInwardModalOpen] = useState(false)
   const [isOutwardModalOpen, setIsOutwardModalOpen] = useState(false)
   const [activePhoto, setActivePhoto] = useState<{ url: string; title: string } | null>(null)
+  const [attachPhotoTarget, setAttachPhotoTarget] = useState<TruckInward | null>(null)
   const [prefilledLotForInward, setPrefilledLotForInward] = useState<ReadyQcAllotment | null>(null)
 
   // Delete Target State
@@ -1004,14 +1007,34 @@ export function StoreDashboardClient({
                     </div>
 
                     <div className="flex items-center gap-1.5">
-                      {grn.challan_photo_url && (
+                      {grn.challan_photo_url ? (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => setActivePhoto({ url: grn.challan_photo_url!, title: `${grn.party_name} - ${grn.grn_no}` })}
+                            className="p-2 text-[#3A3564] hover:bg-[#FAF7F0] rounded-xl border border-black/10 shadow-2xs transition-colors cursor-pointer"
+                            title="View Paper Challan Slip Photo"
+                          >
+                            <ImageIcon className="w-4 h-4" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setAttachPhotoTarget(grn)}
+                            className="p-2 text-slate-500 hover:text-[#3A3564] hover:bg-[#FAF7F0] rounded-xl border border-black/10 shadow-2xs transition-colors cursor-pointer"
+                            title="Update / Re-take Paper Challan Photo"
+                          >
+                            <Camera className="w-4 h-4" />
+                          </button>
+                        </>
+                      ) : (
                         <button
                           type="button"
-                          onClick={() => setActivePhoto({ url: grn.challan_photo_url!, title: `${grn.party_name} - ${grn.grn_no}` })}
-                          className="p-2 text-[#3A3564] hover:bg-[#FAF7F0] rounded-xl border border-black/10 shadow-2xs transition-colors cursor-pointer"
-                          title="View Paper Challan Slip"
+                          onClick={() => setAttachPhotoTarget(grn)}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-[#3A3564] bg-[#FAF7F0] hover:bg-[#3A3564] hover:text-white border border-[#3A3564]/30 rounded-xl transition-all shadow-2xs cursor-pointer"
+                          title="Attach Physical Paper Slip Photo"
                         >
-                          <ImageIcon className="w-4 h-4" />
+                          <Camera className="w-3.5 h-3.5" />
+                          <span>Attach Slip Photo</span>
                         </button>
                       )}
                       <button
@@ -1646,6 +1669,16 @@ export function StoreDashboardClient({
           articles={articles}
           truckInwards={truckInwards}
           currentUserName={currentUserName}
+        />
+      )}
+
+      {/* ============================================================ */}
+      {/* MODAL 1B: ATTACH / UPDATE PAPER CHALLAN SLIP PHOTO */}
+      {/* ============================================================ */}
+      {attachPhotoTarget && (
+        <AttachChallanPhotoModal
+          onClose={() => setAttachPhotoTarget(null)}
+          truckInward={attachPhotoTarget}
         />
       )}
 
@@ -2550,6 +2583,167 @@ function GrnInwardModal({
             className="px-5 py-2.5 text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] rounded-xl shadow-xs transition-all flex items-center gap-2"
           >
             {isSubmitting ? 'Saving GRN...' : 'Confirm Inward'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ====================================================================
+// SUBCOMPONENT: ATTACH / UPDATE PAPER CHALLAN SLIP PHOTO MODAL
+// ====================================================================
+function AttachChallanPhotoModal({
+  onClose,
+  truckInward,
+}: {
+  onClose: () => void
+  truckInward: TruckInward
+}) {
+  const router = useRouter()
+  const [photoUrl, setPhotoUrl] = useState<string | null>(truckInward.challan_photo_url || null)
+  const [isUploading, setIsUploading] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setIsUploading(true)
+    const reader = new FileReader()
+    reader.onload = () => {
+      setPhotoUrl(reader.result as string)
+      setIsUploading(false)
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const handleSubmit = async () => {
+    if (!photoUrl) {
+      setError('Please select or capture a photo of the paper challan slip.')
+      return
+    }
+
+    setIsSubmitting(true)
+    setError(null)
+
+    const res = await updateTruckInwardChallanPhoto(truckInward.id, photoUrl)
+
+    setIsSubmitting(false)
+    if (res?.error) {
+      setError(res.error)
+    } else {
+      router.refresh()
+      onClose()
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-900/60 backdrop-blur-xs animate-in fade-in">
+      <div className="relative max-w-lg w-full bg-white rounded-2xl shadow-2xl border border-black/10 overflow-hidden flex flex-col max-h-[90vh]">
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-black/10 bg-[#FAF7F0]">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-white text-[#3A3564] border border-black/10 shadow-2xs flex items-center justify-center shrink-0">
+              <Camera className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight">
+                Attach Paper Slip Photo
+              </h3>
+              <p className="text-xs font-medium text-slate-500">
+                Upload physical supplier delivery challan for audit
+              </p>
+            </div>
+          </div>
+          <button onClick={onClose} className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 rounded-xl transition-all">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Form Body - STRICT READ-ONLY DETAILS */}
+        <div className="p-4 sm:p-6 overflow-y-auto space-y-4 flex-1">
+          {error && (
+            <div className="p-3.5 bg-rose-50 text-rose-700 text-xs font-bold rounded-xl border border-rose-200 flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
+
+          {/* Locked Inward Info Strip */}
+          <div className="p-3.5 bg-[#FAF7F0] rounded-xl border border-black/10 space-y-2">
+            <div className="flex items-center justify-between text-xs font-mono font-bold text-[#3A3564]">
+              <span>GRN #{truckInward.grn_no}</span>
+              <span className="px-2 py-0.5 rounded bg-white text-slate-700 border border-black/10 text-[10.5px]">
+                🔒 Items & Quantities Locked
+              </span>
+            </div>
+            <div className="text-xs font-bold text-slate-800">
+              Supplier: <span className="font-extrabold text-slate-900">{truckInward.party_name}</span>
+            </div>
+            <div className="text-xs text-slate-500 flex flex-wrap gap-x-3 gap-y-1">
+              <span>Challan: <strong className="text-slate-700 font-mono">#{truckInward.challan_no || '-'}</strong></span>
+              <span>Vehicle: <strong className="text-slate-700 font-mono">{truckInward.truck_no || 'Direct'}</strong></span>
+              <span>Items: <strong className="text-slate-700 font-mono">{truckInward.total_items} items</strong></span>
+            </div>
+          </div>
+
+          {/* Photo Dropzone / Preview */}
+          <div>
+            <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+              Paper Challan Slip Photo *
+            </label>
+            {photoUrl ? (
+              <div className="relative rounded-xl border border-slate-200 overflow-hidden bg-slate-50 p-2 group">
+                <img
+                  src={photoUrl}
+                  alt="Paper Challan Slip"
+                  className="w-full max-h-64 object-contain rounded-lg bg-white"
+                />
+                <button
+                  type="button"
+                  onClick={() => setPhotoUrl(null)}
+                  className="absolute top-4 right-4 p-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl shadow-md transition-all flex items-center gap-1.5 text-xs font-bold cursor-pointer"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  <span>Remove / Re-take</span>
+                </button>
+              </div>
+            ) : (
+              <label className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-slate-300 hover:border-[#3A3564] rounded-2xl bg-slate-50/50 hover:bg-[#FAF7F0]/40 transition-all cursor-pointer group">
+                <Upload className="w-8 h-8 text-slate-400 group-hover:text-[#3A3564] mb-2 transition-colors" />
+                <span className="text-xs font-bold text-slate-700 group-hover:text-[#3A3564] transition-colors">
+                  {isUploading ? 'Loading Photo...' : 'Click to Upload or Drag Paper Challan Image'}
+                </span>
+                <span className="text-[11px] text-slate-400 mt-1">PNG, JPG, JPEG up to 10MB</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handlePhotoUpload}
+                  className="hidden"
+                />
+              </label>
+            )}
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="p-4 sm:p-5 border-t border-black/10 bg-[#FAF7F0] flex items-center justify-end gap-2.5">
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={isSubmitting}
+            className="px-4 py-2.5 text-xs font-bold text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl transition-all shadow-2xs"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={isSubmitting || !photoUrl}
+            className="px-5 py-2.5 text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] rounded-xl shadow-xs transition-all flex items-center gap-2 disabled:opacity-50"
+          >
+            {isSubmitting ? 'Saving Photo...' : 'Save & Attach Photo'}
           </button>
         </div>
       </div>

@@ -449,6 +449,26 @@ export async function deleteTruckInward(truckInwardId: string) {
   }
 }
 
+export async function updateTruckInwardChallanPhoto(truckInwardId: string, photoUrl: string) {
+  try {
+    const supabase = supabaseAdmin
+    const { error } = await supabase
+      .from('truck_inwards')
+      .update({ challan_photo_url: photoUrl })
+      .eq('id', truckInwardId)
+
+    if (error) return { error: error.message }
+
+    revalidatePath('/store')
+    revalidatePath('/inventory')
+    revalidatePath('/dashboard')
+    revalidatePath('/reports')
+    return { success: true }
+  } catch (err: any) {
+    return { error: err?.message || 'Failed to update slip photo' }
+  }
+}
+
 export async function deleteStoreTransaction(transactionId: string) {
   try {
     const supabase = supabaseAdmin
