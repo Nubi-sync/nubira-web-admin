@@ -201,7 +201,7 @@ export function saveShipment(shipment: ExportShipment): ExportShipment[] {
 // ==========================================
 const BUYERS_KEY = 'zigza_merchandising_active_buyers_v1'
 
-export function getActiveBuyers(): ActiveBuyer[] {
+export function getActiveBuyers(companyName?: string): ActiveBuyer[] {
   if (typeof window === 'undefined') return INITIAL_ACTIVE_BUYERS
   try {
     const raw = localStorage.getItem(BUYERS_KEY)
@@ -217,9 +217,13 @@ export function getActiveBuyers(): ActiveBuyer[] {
         uniqueMap.set(b.id, b)
       }
     }
-    const result = Array.from(uniqueMap.values())
+    let result = Array.from(uniqueMap.values())
     if (result.length !== parsed.length) {
       localStorage.setItem(BUYERS_KEY, JSON.stringify(result))
+    }
+    if (companyName && companyName.trim()) {
+      const target = companyName.trim().toLowerCase()
+      result = result.filter(b => (b.company_name || '').trim().toLowerCase() === target)
     }
     return result
   } catch (err) {

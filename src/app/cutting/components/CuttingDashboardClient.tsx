@@ -136,36 +136,37 @@ function mergeBuyersFromAllSources(serverBuyers: any[] = [], companyName?: strin
           const qty = Number(ord.total_quantity) || 0
           const price = Number(ord.unit_fob_price) || 12.5
 
-          if (!existing) {
-            buyerMap.set(key, {
-              id: ord.buyer_id || `byr-${key.toLowerCase().replace(/[^a-z0-9]/g, '-')}`,
-              buyer_name: buyerName,
-              buyer_code: ord.buyer_code || buyerName.slice(0, 4).toUpperCase(),
-              brand_name: buyerName,
-              contact_person: 'Procurement Lead',
-              contracted_volume: qty,
-              price_per_piece: price,
-              total_contract_value: qty * price,
-              currency: ord.currency || 'INR',
-              linked_article_id: ord.tech_pack_id,
-              linked_article_number: ord.style_ref,
-              linked_article_name: ord.style_name,
-              status: 'LINKED',
-              company_name: ord.company_name,
-              created_at: ord.created_at
-            })
-          } else {
-            if (qty > Number(existing.contracted_volume || 0)) {
-              existing.contracted_volume = qty
-            }
-            if (!existing.linked_article_number && ord.style_ref) {
-              existing.linked_article_number = ord.style_ref
-              existing.linked_article_name = ord.style_name
+            if (!existing) {
+              buyerMap.set(key, {
+                id: ord.buyer_id || `byr-${key.toLowerCase().replace(/[^a-z0-9]/g, '-')}`,
+                buyer_name: buyerName,
+                buyer_code: ord.buyer_code || buyerName.slice(0, 4).toUpperCase(),
+                brand_name: buyerName,
+                contact_person: 'Procurement Lead',
+                contracted_volume: qty,
+                price_per_piece: price,
+                total_contract_value: qty * price,
+                currency: ord.currency || 'INR',
+                linked_article_id: ord.tech_pack_id,
+                linked_article_number: ord.style_ref,
+                linked_article_name: ord.style_name,
+                status: 'LINKED',
+                company_name: ord.company_name,
+                created_at: ord.created_at
+              })
+            } else {
+              if (qty > Number(existing.contracted_volume || 0)) {
+                existing.contracted_volume = qty
+              }
+              if (!existing.linked_article_number && ord.style_ref) {
+                existing.linked_article_number = ord.style_ref
+                existing.linked_article_name = ord.style_name
+              }
             }
           }
-        }
-      })
-    } catch {}
+        })
+      }
+    } catch (_) {}
   }
 
   return Array.from(buyerMap.values())
@@ -229,14 +230,14 @@ export function CuttingDashboardClient({
 
   // Load and refresh workers & task allocations (merging server and local storage)
   const refreshFloorData = () => {
-    const localWorkers = getCuttingWorkers()
+    const localWorkers = getCuttingWorkers(companyName)
     const workerMap = new Map<string, CuttingWorker>()
     serverWorkers.forEach(w => { if (w?.id || w?.phone_number) workerMap.set(w.phone_number || w.id, w) })
     localWorkers.forEach(w => { if (w?.id || w?.phone_number) workerMap.set(w.phone_number || w.id, { ...(workerMap.get(w.phone_number || w.id) || {}), ...w }) })
     setWorkers(Array.from(workerMap.values()))
 
-    const localTasks = getCuttingTaskAllocations()
-    const mergedTasks = mergeCuttingTaskAllocations(serverAllocations, localTasks)
+    const localTasks = getCuttingTaskAllocations(companyName)
+    const mergedTasks = mergeCuttingTaskAllocations(serverAllocations, localTasks, companyName)
     setAllocations(mergedTasks)
 
     const merged = mergeBuyersFromAllSources(initialBuyers, companyName)
@@ -295,10 +296,10 @@ export function CuttingDashboardClient({
 
       const workerMap = new Map<string, CuttingWorker>()
       freshWorkers.forEach((w: any) => { if (w?.id || w?.phone_number) workerMap.set(w.phone_number || w.id, w) })
-      getCuttingWorkers().forEach(w => { if (w?.id || w?.phone_number) workerMap.set(w.phone_number || w.id, { ...(workerMap.get(w.phone_number || w.id) || {}), ...w }) })
+      getCuttingWorkers(companyName).forEach(w => { if (w?.id || w?.phone_number) workerMap.set(w.phone_number || w.id, { ...(workerMap.get(w.phone_number || w.id) || {}), ...w }) })
       setWorkers(Array.from(workerMap.values()))
 
-      const mergedTasks = mergeCuttingTaskAllocations(freshTasks || [], getCuttingTaskAllocations())
+      const mergedTasks = mergeCuttingTaskAllocations(freshTasks || [], getCuttingTaskAllocations(companyName), companyName)
       setAllocations(mergedTasks)
 
       toast.success('Cutting floor & worker sync updated from cloud database.')

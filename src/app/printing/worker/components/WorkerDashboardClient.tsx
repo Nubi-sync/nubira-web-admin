@@ -59,8 +59,8 @@ export function WorkerDashboardClient({
 
   // Merge server and local task allocations
   const reloadData = () => {
-    const localTasks = getPrintingTaskAllocations()
-    const merged = mergePrintingTaskAllocations(initialTasks, localTasks)
+    const localTasks = getPrintingTaskAllocations(companyName)
+    const merged = mergePrintingTaskAllocations(initialTasks, localTasks, companyName)
     setTasks(merged)
   }
 
@@ -75,15 +75,15 @@ export function WorkerDashboardClient({
         window.removeEventListener(PRINTING_FLOOR_UPDATE_EVENT, reloadData)
       }
     }
-  }, [initialTasks])
+  }, [initialTasks, companyName])
 
   const handleManualSync = async () => {
     setIsSyncing(true)
     try {
       const companyFilter = companyName
       const serverTasks = await fetchPrintingTaskAllocationsAction(companyFilter)
-      const localTasks = getPrintingTaskAllocations()
-      const merged = mergePrintingTaskAllocations(serverTasks || [], localTasks)
+      const localTasks = getPrintingTaskAllocations(companyName)
+      const merged = mergePrintingTaskAllocations(serverTasks || [], localTasks, companyName)
       setTasks(merged)
       toast.success('Workstation updated with latest printing assignments.')
     } catch {

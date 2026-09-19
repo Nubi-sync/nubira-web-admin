@@ -21,7 +21,7 @@ const WORKERS_KEY = 'zigza_embroidery_workers_v1'
 
 export const INITIAL_EMBROIDERY_WORKERS: EmbroideryWorker[] = []
 
-export function getEmbroideryWorkers(): EmbroideryWorker[] {
+export function getEmbroideryWorkers(companyName?: string): EmbroideryWorker[] {
   if (typeof window === 'undefined') return INITIAL_EMBROIDERY_WORKERS
   try {
     const stored = localStorage.getItem(WORKERS_KEY)
@@ -30,7 +30,10 @@ export function getEmbroideryWorkers(): EmbroideryWorker[] {
       return INITIAL_EMBROIDERY_WORKERS
     }
     const parsed = JSON.parse(stored)
-    return Array.isArray(parsed) ? parsed : INITIAL_EMBROIDERY_WORKERS
+    const list = Array.isArray(parsed) ? parsed : INITIAL_EMBROIDERY_WORKERS
+    if (!companyName || !companyName.trim()) return list
+    const target = companyName.trim().toLowerCase()
+    return list.filter(w => (w.company_name || '').trim().toLowerCase() === target)
   } catch {
     return INITIAL_EMBROIDERY_WORKERS
   }
@@ -83,7 +86,7 @@ const ALLOCATIONS_KEY = 'zigza_embroidery_task_allocations_v1'
 
 export const INITIAL_TASK_ALLOCATIONS: EmbroideryTaskAllocation[] = []
 
-export function getEmbroideryTaskAllocations(): EmbroideryTaskAllocation[] {
+export function getEmbroideryTaskAllocations(companyName?: string): EmbroideryTaskAllocation[] {
   if (typeof window === 'undefined') return INITIAL_TASK_ALLOCATIONS
   try {
     const stored = localStorage.getItem(ALLOCATIONS_KEY)
@@ -92,7 +95,10 @@ export function getEmbroideryTaskAllocations(): EmbroideryTaskAllocation[] {
       return INITIAL_TASK_ALLOCATIONS
     }
     const parsed = JSON.parse(stored)
-    return Array.isArray(parsed) ? parsed : INITIAL_TASK_ALLOCATIONS
+    const list = Array.isArray(parsed) ? parsed : INITIAL_TASK_ALLOCATIONS
+    if (!companyName || !companyName.trim()) return list
+    const target = companyName.trim().toLowerCase()
+    return list.filter(t => (t.company_name || '').trim().toLowerCase() === target)
   } catch {
     return INITIAL_TASK_ALLOCATIONS
   }
@@ -179,19 +185,28 @@ const TASK_STATUS_RANK: Record<string, number> = {
 
 export function mergeEmbroideryTaskAllocations(
   serverList: any[] = [],
-  localList: any[] = []
+  localList: any[] = [],
+  companyName?: string
 ): EmbroideryTaskAllocation[] {
   const taskMap = new Map<string, any>()
+  const targetCompany = (companyName || '').trim().toLowerCase()
+
+  const scopedServer = targetCompany
+    ? serverList.filter(t => (t?.company_name || '').trim().toLowerCase() === targetCompany)
+    : serverList
+  const scopedLocal = targetCompany
+    ? localList.filter(t => (t?.company_name || '').trim().toLowerCase() === targetCompany)
+    : localList
 
   // 1. Process server allocations first (canonical DB source)
-  serverList.forEach(t => {
+  scopedServer.forEach(t => {
     if (!t) return
     const key = t.task_ref || t.id
     if (key) taskMap.set(key, t)
   })
 
   // 2. Merge local allocations safely
-  localList.forEach(localT => {
+  scopedLocal.forEach(localT => {
     if (!localT) return
     const key = localT.task_ref || localT.id
     if (!key) return
@@ -226,10 +241,19 @@ export function mergeEmbroideryTaskAllocations(
 
   const merged = Array.from(taskMap.values())
 
-  // Sync back to local storage so stale values never persist
-  if (typeof window !== 'undefined' && merged.length > 0) {
+  // Sync back to local storage preserving other tenants
+  if (typeof window !== 'undefined') {
     try {
-      localStorage.setItem(ALLOCATIONS_KEY, JSON.stringify(merged))
+      if (targetCompany) {
+        const rawAll = localStorage.getItem(ALLOCATIONS_KEY)
+        const allParsed: any[] = rawAll ? JSON.parse(rawAll) : []
+        const otherTenantsTasks = Array.isArray(allParsed)
+          ? allParsed.filter(t => (t?.company_name || '').trim().toLowerCase() !== targetCompany)
+          : []
+        localStorage.setItem(ALLOCATIONS_KEY, JSON.stringify([...merged, ...otherTenantsTasks]))
+      } else if (merged.length > 0) {
+        localStorage.setItem(ALLOCATIONS_KEY, JSON.stringify(merged))
+      }
     } catch (_) {}
   }
 

@@ -51,8 +51,8 @@ export function WorkerHistoryClient({
 
   // Merge server and local task allocations
   const reloadData = () => {
-    const localTasks = getEmbroideryTaskAllocations()
-    const merged = mergeEmbroideryTaskAllocations(initialTasks, localTasks)
+    const localTasks = getEmbroideryTaskAllocations(companyName)
+    const merged = mergeEmbroideryTaskAllocations(initialTasks, localTasks, companyName)
     setTasks(merged)
   }
 
@@ -67,15 +67,15 @@ export function WorkerHistoryClient({
         window.removeEventListener(EMBROIDERY_FLOOR_UPDATE_EVENT, reloadData)
       }
     }
-  }, [initialTasks])
+  }, [initialTasks, companyName])
 
   const handleManualSync = async () => {
     setIsSyncing(true)
     try {
       const companyFilter = companyName
       const serverTasks = await fetchEmbroideryTaskAllocationsAction(companyFilter)
-      const localTasks = getEmbroideryTaskAllocations()
-      const merged = mergeEmbroideryTaskAllocations(serverTasks || [], localTasks)
+      const localTasks = getEmbroideryTaskAllocations(companyName)
+      const merged = mergeEmbroideryTaskAllocations(serverTasks || [], localTasks, companyName)
       setTasks(merged)
       toast.success('Workstation history updated from cloud database.')
     } catch {
@@ -116,7 +116,7 @@ export function WorkerHistoryClient({
 
       if (!foundWorker) {
         try {
-          const localWorkers = getEmbroideryWorkers()
+          const localWorkers = getEmbroideryWorkers(companyName)
           foundWorker = localWorkers.find(w => {
             if (normPhone && w.phone_number) {
               const wp = w.phone_number.replace(/\D/g, '').slice(-10)

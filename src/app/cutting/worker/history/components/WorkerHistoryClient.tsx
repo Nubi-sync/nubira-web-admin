@@ -52,8 +52,8 @@ export function WorkerHistoryClient({
 
   // Merge server and local task allocations
   const reloadData = () => {
-    const localTasks = getCuttingTaskAllocations()
-    const merged = mergeCuttingTaskAllocations(initialTasks, localTasks)
+    const localTasks = getCuttingTaskAllocations(companyName)
+    const merged = mergeCuttingTaskAllocations(initialTasks, localTasks, companyName)
     setTasks(merged)
   }
 
@@ -68,15 +68,15 @@ export function WorkerHistoryClient({
         window.removeEventListener(CUTTING_UPDATE_EVENT, reloadData)
       }
     }
-  }, [initialTasks])
+  }, [initialTasks, companyName])
 
   const handleManualSync = async () => {
     setIsSyncing(true)
     try {
       const companyFilter = companyName
       const serverTasks = await fetchCuttingTaskAllocationsAction(companyFilter)
-      const localTasks = getCuttingTaskAllocations()
-      const merged = mergeCuttingTaskAllocations(serverTasks || [], localTasks)
+      const localTasks = getCuttingTaskAllocations(companyName)
+      const merged = mergeCuttingTaskAllocations(serverTasks || [], localTasks, companyName)
       setTasks(merged)
       toast.success('Workstation history updated from cloud database.')
     } catch {
