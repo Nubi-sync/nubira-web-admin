@@ -717,7 +717,32 @@ export async function deleteTenantFactoryAction(
       .eq('id', tenantId)
       .maybeSingle()
 
-    // 2. Unlink any demo requests that reference this tenant
+    // 2. Cascade delete all division data and workers associated with this company
+    const compName = tenant?.company_name?.trim()
+    if (compName) {
+      try {
+        await Promise.allSettled([
+          // Cutting floor data
+          supabaseAdmin.from('cutting_task_allocations').delete().eq('company_name', compName),
+          supabaseAdmin.from('cutting_workers').delete().eq('company_name', compName),
+
+          // Embroidery floor data
+          supabaseAdmin.from('embroidery_task_allocations').delete().eq('company_name', compName),
+          supabaseAdmin.from('embroidery_workers').delete().eq('company_name', compName),
+
+          // Printing floor data
+          supabaseAdmin.from('printing_task_allocations').delete().eq('company_name', compName),
+          supabaseAdmin.from('printing_workers').delete().eq('company_name', compName),
+
+          // Design team members
+          supabaseAdmin.from('design_team_members').delete().eq('company_name', compName),
+        ])
+      } catch (cascadeErr) {
+        console.warn('[deleteTenantFactoryAction] Non-blocking cascade cleanup notice:', cascadeErr)
+      }
+    }
+
+    // 3. Unlink any demo requests that reference this tenant
     try {
       await supabaseAdmin
         .from('platform_demo_requests')
@@ -728,7 +753,7 @@ export async function deleteTenantFactoryAction(
         .eq('provisioned_tenant_id', tenantId)
     } catch (_) {}
 
-    // 3. Delete from platform_tenant_factories
+    // 4. Delete from platform_tenant_factories
     const { error: delErr } = await supabaseAdmin
       .from('platform_tenant_factories')
       .delete()
