@@ -290,7 +290,7 @@ export function EmbroideryDashboardClient({
     const mergedPrinting = mergePrintingTaskAllocations(serverPrintingAllocations, localPrinting)
     setPrintingAllocations(mergedPrinting)
 
-    const merged = mergeBuyersFromAllSources(initialBuyers)
+    const merged = mergeBuyersFromAllSources(initialBuyers, companyName)
     setBuyers(merged)
   }
 
@@ -335,16 +335,18 @@ export function EmbroideryDashboardClient({
         window.removeEventListener(PRINTING_FLOOR_UPDATE_EVENT, refreshFloorData)
       }
     }
-  }, [initialBuyers, serverWorkers, serverAllocations, serverCuttingAllocations, serverPrintingAllocations])
+  }, [initialBuyers, serverWorkers, serverAllocations, serverCuttingAllocations, serverPrintingAllocations, companyName])
 
   const handleManualSync = async () => {
     setIsSyncing(true)
     try {
+      const isLegacy = !companyName || companyName === 'Nubira Creation'
+      const companyFilter = isLegacy ? undefined : companyName
       const [freshTasks, freshWorkers, freshCutting, freshPrinting] = await Promise.all([
-        fetchEmbroideryTaskAllocationsAction(),
-        fetchEmbroideryWorkersAction(),
-        fetchCuttingTaskAllocationsAction(),
-        fetchPrintingTaskAllocationsAction()
+        fetchEmbroideryTaskAllocationsAction(companyFilter),
+        fetchEmbroideryWorkersAction(companyFilter),
+        fetchCuttingTaskAllocationsAction(companyFilter),
+        fetchPrintingTaskAllocationsAction(companyFilter)
       ])
       setServerWorkers(freshWorkers || [])
       setServerAllocations(freshTasks || [])
