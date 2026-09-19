@@ -40,7 +40,7 @@ export default async function StitchingSewingDashboardPage() {
 
   // Centrally resolve the authenticated tenant organization
   const tenant = await resolveUserTenant(user)
-  const isProvisionedTenant = tenant.isProvisionedTenant && tenant.companyName !== 'Nubira Creation'
+  const isProvisionedTenant = tenant.isProvisionedTenant
 
   // Restrict operational floor store supervisors from general admin dashboard
   const userRole = tenant.role.toUpperCase()

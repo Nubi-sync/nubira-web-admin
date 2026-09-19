@@ -787,10 +787,48 @@ export async function deleteTenantFactoryAction(
     // 3. Cascade delete all division data, workers, profiles, and company records
     if (compName) {
       try {
+        // Find tenant challans to clean up linked allotments and logs
+        const { data: tenantChallans } = await supabaseAdmin
+          .from('challans')
+          .select('id')
+          .ilike('brand', `%${compName}%`)
+
+        const challanIds = (tenantChallans || []).map(c => c.id)
+
+        if (challanIds.length > 0) {
+          const { data: tenantAllotments } = await supabaseAdmin
+            .from('allotments')
+            .select('id')
+            .in('challan_id', challanIds)
+
+          const allotmentIds = (tenantAllotments || []).map(a => a.id)
+
+          if (allotmentIds.length > 0) {
+            await Promise.allSettled([
+              supabaseAdmin.from('allotment_variants').delete().in('allotment_id', allotmentIds),
+              supabaseAdmin.from('allotment_materials').delete().in('allotment_id', allotmentIds),
+              supabaseAdmin.from('worker_assignments').delete().in('allotment_id', allotmentIds),
+              supabaseAdmin.from('daily_product').delete().in('allotment_id', allotmentIds),
+              supabaseAdmin.from('qc_logs').delete().in('allotment_id', allotmentIds),
+              supabaseAdmin.from('store_transactions').delete().in('allotment_id', allotmentIds),
+            ])
+          }
+
+          await Promise.allSettled([
+            supabaseAdmin.from('allotments').delete().in('challan_id', challanIds),
+            supabaseAdmin.from('challans').delete().in('id', challanIds),
+            supabaseAdmin.from('delivery_challans').delete().in('challan_id', challanIds),
+          ])
+        }
+
         await Promise.allSettled([
           // Profiles & Company Profile
           supabaseAdmin.from('profiles').delete().ilike('company_name', compName),
           supabaseAdmin.from('company_profile').delete().ilike('company_name', compName),
+
+          // Brands & Vendors
+          supabaseAdmin.from('brands').delete().ilike('brand_name', `%${compName}%`),
+          supabaseAdmin.from('vendors').delete().ilike('brand_name', `%${compName}%`),
 
           // Cutting floor data
           supabaseAdmin.from('cutting_task_allocations').delete().ilike('company_name', compName),

@@ -22,7 +22,7 @@ export default async function ProductionOrdersPage() {
 
   // Centrally resolve tenant identity
   const tenant = await resolveUserTenant(user)
-  const isProvisionedTenant = tenant.isProvisionedTenant && tenant.companyName !== 'Nubira Creation'
+  const isProvisionedTenant = tenant.isProvisionedTenant
 
   // Restrict Store Supervisors from admin production orders
   const userRole = tenant.role.toUpperCase()
@@ -70,9 +70,9 @@ export default async function ProductionOrdersPage() {
     const pCompany = (p.company_name || '').trim().toLowerCase()
     const currentCompany = (tenant.companyName || '').trim().toLowerCase()
     if (pCompany) {
-      return pCompany === currentCompany || (currentCompany.includes('nubira') && pCompany.includes('nubira'))
+      return pCompany === currentCompany
     }
-    return !isProvisionedTenant || currentCompany.includes('nubira')
+    return !isProvisionedTenant
   }
 
   const filteredLinemen = (rawLinemen || []).filter(l => {

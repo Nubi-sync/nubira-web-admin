@@ -22,7 +22,7 @@ export default async function VendorsPage() {
 
   // Centrally resolve tenant identity
   const tenant = await resolveUserTenant(user)
-  const isProvisionedTenant = tenant.isProvisionedTenant && tenant.companyName !== 'Nubira Creation'
+  const isProvisionedTenant = tenant.isProvisionedTenant
 
   // Restrict Store Supervisors from vendor management
   const userRole = tenant.role.toUpperCase()

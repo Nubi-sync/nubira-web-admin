@@ -598,10 +598,8 @@ export async function resolveUserTenant(user: {
 }
 
 /**
- * Checks if a resolved tenant profile belongs to the primary legacy plant (Nubira Creation).
+ * Checks if a resolved tenant profile belongs to the primary legacy plant (Deprecated - all tenants are isolated).
  */
-export function isLegacyNubiraTenant(tenant: ResolvedTenantProfile): boolean {
-  if (!tenant) return false
-  const comp = (tenant.companyName || '').toLowerCase().trim()
-  return comp === 'nubira creation'
+export function isLegacyNubiraTenant(_tenant: ResolvedTenantProfile): boolean {
+  return false
 }

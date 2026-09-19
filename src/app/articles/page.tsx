@@ -21,7 +21,7 @@ export default async function ArticlesPage() {
 
   // Centrally resolve tenant identity
   const tenant = await resolveUserTenant(user)
-  const isProvisionedTenant = tenant.isProvisionedTenant && tenant.companyName !== 'Nubira Creation'
+  const isProvisionedTenant = tenant.isProvisionedTenant
 
   // Restrict Store Supervisors from admin articles management
   const userRole = tenant.role.toUpperCase()
@@ -67,7 +67,7 @@ export default async function ArticlesPage() {
 
     supabase
       .from('profiles')
-      .select('id, username, full_name, role')
+      .select('id, username, full_name, role, company_name')
       .eq('is_active', true)
   ])
 
@@ -79,8 +79,13 @@ export default async function ArticlesPage() {
     ? (rawChallans || []).filter((c: any) => (c.brand || '').toUpperCase().includes(tenant.companyName.toUpperCase()))
     : (rawChallans || [])
 
-  const articles = isProvisionedTenant ? [] : (rawArticles || [])
-  const profiles = isProvisionedTenant ? [] : (rawProfiles || [])
+  const articles = rawArticles || []
+  const profiles = (rawProfiles || []).filter((p: any) => {
+    const pComp = (p.company_name || '').trim().toLowerCase()
+    const tComp = (tenant.companyName || '').trim().toLowerCase()
+    if (pComp) return pComp === tComp
+    return !isProvisionedTenant
+  })
 
   return (
     <AdminShell userEmail={user.email} userRole={userRole}>
