@@ -73,8 +73,7 @@ export function WorkerHistoryClient({
   const handleManualSync = async () => {
     setIsSyncing(true)
     try {
-      const isLegacy = !companyName || companyName === 'Nubira Creation'
-      const companyFilter = isLegacy ? undefined : companyName
+      const companyFilter = companyName
       const serverTasks = await fetchCuttingTaskAllocationsAction(companyFilter)
       const localTasks = getCuttingTaskAllocations()
       const merged = mergeCuttingTaskAllocations(serverTasks || [], localTasks)
