@@ -69,6 +69,7 @@ export interface MerchandisingOrder {
   buyer_id?: string
   cad_front_url?: string
   cad_back_url?: string
+  company_name?: string
 }
 
 export interface BomCosting {
@@ -158,6 +159,7 @@ export interface ActiveBuyer {
   status: BuyerStatus
   embellishment_sequence?: string
   notes?: string
+  company_name?: string
   created_at: string
   updated_at?: string
 }

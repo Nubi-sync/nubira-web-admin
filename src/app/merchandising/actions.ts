@@ -175,6 +175,7 @@ export async function createBuyerOrderAction(payload: {
   season?: string
   incoterm?: string
   color_matrix: Array<{ color: string; sizes: Record<string, number>; total: number }>
+  company_name?: string
 }): Promise<{ success: boolean; data?: any; error?: string }> {
   try {
     // 1. Resolve Brand

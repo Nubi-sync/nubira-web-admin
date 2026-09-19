@@ -291,14 +291,17 @@ export function linkArticleToBuyer(
 
 export interface AvailableTechPackArticle {
   id: string
-  art_number: string
+  art_number?: string
+  style_number?: string
   style_name: string
   category: string
   brand_name: string
   fabric_composition: string
   target_gsm?: number
   embellishment_sequence?: string
-  status: string
+  status?: string
+  cad_front_url?: string
+  cad_back_url?: string
 }
 
 export function getAvailableTechPackArticles(): AvailableTechPackArticle[] {
