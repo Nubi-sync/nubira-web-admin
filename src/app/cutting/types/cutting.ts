@@ -243,6 +243,7 @@ export interface CuttingTaskAllocation {
   completed_at?: string
   notes?: string
   status: CuttingAllocationStatus
+  company_name?: string
   created_at: string
   updated_at?: string
 }

@@ -175,6 +175,7 @@ export interface PrintingTaskAllocation {
   completed_at?: string
   notes?: string
   status: PrintingAllocationStatus
+  company_name?: string
   created_at: string
   updated_at?: string
 }

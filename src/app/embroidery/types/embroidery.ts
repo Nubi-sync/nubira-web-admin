@@ -153,6 +153,7 @@ export interface EmbroideryTaskAllocation {
   completed_at?: string
   notes?: string
   status: EmbroideryAllocationStatus
+  company_name?: string
   created_at: string
   updated_at?: string
 }
