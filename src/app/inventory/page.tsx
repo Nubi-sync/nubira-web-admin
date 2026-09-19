@@ -21,7 +21,7 @@ export default async function InventoryPage() {
 
   // Centrally resolve tenant identity
   const tenant = await resolveUserTenant(user)
-  const isProvisionedTenant = tenant.isProvisionedTenant && tenant.companyName !== 'Nubira Creation'
+  const isProvisionedTenant = tenant.isProvisionedTenant
 
   // Parallel concurrent data fetching for inventory datasets & QC Handshake Approvals
   const [
@@ -164,7 +164,7 @@ export default async function InventoryPage() {
       )
     : (rawPendingQcAllotmentsData || [])
 
-  const articles = isProvisionedTenant ? [] : (rawArticles || [])
+  const articles = rawArticles || []
 
   return (
     <AdminShell userEmail={tenant.userEmail} userRole={tenant.role}>

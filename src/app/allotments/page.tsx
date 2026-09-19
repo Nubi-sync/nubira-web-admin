@@ -24,7 +24,7 @@ export default async function AllotmentsPage() {
 
   // Centrally resolve tenant identity
   const tenant = await resolveUserTenant(user)
-  const isProvisionedTenant = tenant.isProvisionedTenant && tenant.companyName !== 'Nubira Creation'
+  const isProvisionedTenant = tenant.isProvisionedTenant
 
   // Restrict Store Supervisors from admin allotments management
   const userRole = tenant.role.toUpperCase()
@@ -106,10 +106,9 @@ export default async function AllotmentsPage() {
     const pCompany = (p.company_name || '').trim().toLowerCase()
     const currentCompany = (tenant.companyName || '').trim().toLowerCase()
     if (pCompany) {
-      return pCompany === currentCompany || (currentCompany.includes('nubira') && pCompany.includes('nubira'))
+      return pCompany === currentCompany
     }
-    // Profiles without explicit company_name belong to legacy Nubira Creation only
-    return !isProvisionedTenant || currentCompany.includes('nubira')
+    return !isProvisionedTenant
   }
 
   const linemen = (rawLinemen || []).filter(l => {

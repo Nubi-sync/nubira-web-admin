@@ -20,7 +20,7 @@ export default async function ReportsPage() {
 
   // Centrally resolve tenant identity
   const tenant = await resolveUserTenant(user)
-  const isProvisionedTenant = tenant.isProvisionedTenant && tenant.companyName !== 'Nubira Creation'
+  const isProvisionedTenant = tenant.isProvisionedTenant
 
   // Restrict Store Supervisors from admin factory reports
   const userRole = tenant.role.toUpperCase()
