@@ -66,6 +66,7 @@ export default async function PrintingModulePage() {
         initialEmbroideryAllocations={initialEmbroideryAllocations}
         initialTechPacks={initialTechPacks}
         liveKpis={liveKpis}
+        companyName={tenant.companyName}
       />
     </AdminShell>
   )

@@ -94,9 +94,10 @@ interface EmbroideryDashboardClientProps {
   initialPrintingAllocations?: any[]
   initialTechPacks?: any[]
   liveKpis?: any
+  companyName?: string
 }
 
-function mergeBuyersFromAllSources(serverBuyers: any[] = []): any[] {
+function mergeBuyersFromAllSources(serverBuyers: any[] = [], companyName?: string): any[] {
   const buyerMap = new Map<string, any>()
 
   // 1. Process server buyers
@@ -107,12 +108,18 @@ function mergeBuyersFromAllSources(serverBuyers: any[] = []): any[] {
     }
   })
 
-  // 2. Process localStorage active buyers
+  // 2. Process localStorage active buyers ONLY if matching tenant company
   if (typeof window !== 'undefined') {
     try {
+      const targetCompany = (companyName || '').trim().toLowerCase()
+      const isLegacy = !targetCompany || targetCompany === 'nubira creation'
       const localBuyers = getActiveBuyers()
       localBuyers.forEach(b => {
         if (b && (b.id || b.buyer_name)) {
+          const bCompany = (b.company_name || '').trim().toLowerCase()
+          if (!isLegacy) {
+            if (bCompany !== targetCompany) return
+          }
           const key = (b.buyer_name || b.id).trim().toUpperCase()
           const existing = buyerMap.get(key)
           if (!existing) {
@@ -133,11 +140,17 @@ function mergeBuyersFromAllSources(serverBuyers: any[] = []): any[] {
       })
     } catch {}
 
-    // 3. Process localStorage BPO orders
+    // 3. Process localStorage BPO orders ONLY if matching tenant company
     try {
+      const targetCompany = (companyName || '').trim().toLowerCase()
+      const isLegacy = !targetCompany || targetCompany === 'nubira creation'
       const localOrders = getOrders()
       localOrders.forEach(ord => {
         if (ord && (ord.brand_name || ord.po_number)) {
+          const ordCompany = (ord.company_name || '').trim().toLowerCase()
+          if (!isLegacy) {
+            if (ordCompany !== targetCompany) return
+          }
           const buyerName = ord.brand_name || 'Direct Buyer'
           const key = buyerName.trim().toUpperCase()
           const existing = buyerMap.get(key)
@@ -160,6 +173,7 @@ function mergeBuyersFromAllSources(serverBuyers: any[] = []): any[] {
               linked_article_name: ord.style_name,
               embellishment_sequence: ord.embellishment_sequence || 'PRINT_FIRST_THEN_EMBROIDERY',
               status: 'LINKED',
+              company_name: ord.company_name,
               created_at: ord.created_at
             })
           } else {
@@ -191,7 +205,8 @@ export function EmbroideryDashboardClient({
   initialCuttingAllocations = [],
   initialPrintingAllocations = [],
   initialTechPacks = [],
-  liveKpis
+  liveKpis,
+  companyName
 }: EmbroideryDashboardClientProps) {
   // Workers & Task Allocations State
   const [serverWorkers, setServerWorkers] = useState<EmbroideryWorker[]>(initialWorkers || [])
@@ -211,7 +226,7 @@ export function EmbroideryDashboardClient({
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false)
 
   // Active Buyers for Contract Selection
-  const [buyers, setBuyers] = useState<any[]>(() => mergeBuyersFromAllSources(initialBuyers))
+  const [buyers, setBuyers] = useState<any[]>(() => mergeBuyersFromAllSources(initialBuyers, companyName))
   const [selectedBuyerId, setSelectedBuyerId] = useState<string>('')
   const [isBuyerMenuOpen, setIsBuyerMenuOpen] = useState(false)
   const [isRouteMenuOpen, setIsRouteMenuOpen] = useState(false)
