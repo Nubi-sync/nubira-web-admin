@@ -77,9 +77,10 @@ interface CuttingDashboardClientProps {
   initialBuyers?: any[]
   initialWorkers?: CuttingWorker[]
   initialAllocations?: CuttingTaskAllocation[]
+  companyName?: string
 }
 
-function mergeBuyersFromAllSources(serverBuyers: any[] = []): any[] {
+function mergeBuyersFromAllSources(serverBuyers: any[] = [], companyName?: string): any[] {
   const buyerMap = new Map<string, any>()
 
   // 1. Process server buyers
@@ -90,12 +91,18 @@ function mergeBuyersFromAllSources(serverBuyers: any[] = []): any[] {
     }
   })
 
-  // 2. Process localStorage active buyers
+  // 2. Process localStorage active buyers ONLY if matching tenant company
   if (typeof window !== 'undefined') {
     try {
+      const targetCompany = (companyName || '').trim().toLowerCase()
+      const isLegacy = !targetCompany || targetCompany === 'nubira creation'
       const localBuyers = getActiveBuyers()
       localBuyers.forEach(b => {
         if (b && (b.id || b.buyer_name)) {
+          const bCompany = (b.company_name || '').trim().toLowerCase()
+          if (!isLegacy) {
+            if (bCompany !== targetCompany) return
+          }
           const key = (b.buyer_name || b.id).trim().toUpperCase()
           const existing = buyerMap.get(key)
           if (!existing) {
@@ -113,11 +120,17 @@ function mergeBuyersFromAllSources(serverBuyers: any[] = []): any[] {
       })
     } catch {}
 
-    // 3. Process localStorage BPO orders
+    // 3. Process localStorage BPO orders ONLY if matching tenant company
     try {
+      const targetCompany = (companyName || '').trim().toLowerCase()
+      const isLegacy = !targetCompany || targetCompany === 'nubira creation'
       const localOrders = getOrders()
       localOrders.forEach(ord => {
         if (ord && (ord.brand_name || ord.po_number)) {
+          const ordCompany = (ord.company_name || '').trim().toLowerCase()
+          if (!isLegacy) {
+            if (ordCompany !== targetCompany) return
+          }
           const buyerName = ord.brand_name || 'Direct Buyer'
           const key = buyerName.trim().toUpperCase()
           const existing = buyerMap.get(key)
@@ -139,6 +152,7 @@ function mergeBuyersFromAllSources(serverBuyers: any[] = []): any[] {
               linked_article_number: ord.style_ref,
               linked_article_name: ord.style_name,
               status: 'LINKED',
+              company_name: ord.company_name,
               created_at: ord.created_at
             })
           } else {
@@ -163,7 +177,8 @@ export function CuttingDashboardClient({
   isSuperAdmin = false,
   initialBuyers,
   initialWorkers = [],
-  initialAllocations = []
+  initialAllocations = [],
+  companyName
 }: CuttingDashboardClientProps) {
   // Workers & Task Allocations State
   const [serverWorkers, setServerWorkers] = useState<CuttingWorker[]>(initialWorkers || [])
@@ -177,7 +192,7 @@ export function CuttingDashboardClient({
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false)
 
   // Active Buyers for Contract Selection
-  const [buyers, setBuyers] = useState<any[]>(() => mergeBuyersFromAllSources(initialBuyers))
+  const [buyers, setBuyers] = useState<any[]>(() => mergeBuyersFromAllSources(initialBuyers, companyName))
   const [selectedBuyerId, setSelectedBuyerId] = useState<string>('')
   const [isBuyerMenuOpen, setIsBuyerMenuOpen] = useState(false)
   const [isRouteMenuOpen, setIsRouteMenuOpen] = useState(false)
@@ -225,7 +240,7 @@ export function CuttingDashboardClient({
     const mergedTasks = mergeCuttingTaskAllocations(serverAllocations, localTasks)
     setAllocations(mergedTasks)
 
-    const merged = mergeBuyersFromAllSources(initialBuyers)
+    const merged = mergeBuyersFromAllSources(initialBuyers, companyName)
     setBuyers(merged)
   }
 
@@ -266,14 +281,16 @@ export function CuttingDashboardClient({
         window.removeEventListener(CUTTING_UPDATE_EVENT, refreshFloorData)
       }
     }
-  }, [initialBuyers, serverWorkers, serverAllocations])
+  }, [initialBuyers, serverWorkers, serverAllocations, companyName])
 
   const handleManualSync = async () => {
     setIsSyncing(true)
     try {
+      const isLegacy = !companyName || companyName === 'Nubira Creation'
+      const companyFilter = isLegacy ? undefined : companyName
       const [freshTasks, freshWorkers] = await Promise.all([
-        fetchCuttingTaskAllocationsAction(),
-        fetchCuttingWorkersAction()
+        fetchCuttingTaskAllocationsAction(companyFilter),
+        fetchCuttingWorkersAction(companyFilter)
       ])
       setServerWorkers(freshWorkers || [])
       setServerAllocations(freshTasks || [])

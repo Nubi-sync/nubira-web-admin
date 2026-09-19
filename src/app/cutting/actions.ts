@@ -624,6 +624,7 @@ export async function registerCuttingWorkerAction(payload: {
   phone_number: string
   password: string
   roles: string[]
+  company_name?: string
 }) {
   try {
     const rawDigits = payload.phone_number.replace(/\D/g, '')
@@ -655,7 +656,8 @@ export async function registerCuttingWorkerAction(payload: {
             role: 'CUTTING_WORKER',
             full_name: nameClean,
             phone_number: phone10,
-            roles: payload.roles
+            roles: payload.roles,
+            company_name: payload.company_name
           }
         })
       } else {
@@ -667,7 +669,8 @@ export async function registerCuttingWorkerAction(payload: {
             role: 'CUTTING_WORKER',
             full_name: nameClean,
             phone_number: phone10,
-            roles: payload.roles
+            roles: payload.roles,
+            company_name: payload.company_name
           }
         })
         if (!authErr && newUser?.user) {
@@ -690,6 +693,7 @@ export async function registerCuttingWorkerAction(payload: {
           worker_email: internalEmail,
           roles: payload.roles,
           role: primaryRoleLabel,
+          company_name: payload.company_name,
           status: 'ACTIVE'
         }, { onConflict: 'phone_number' })
     } catch (dbErr) {
