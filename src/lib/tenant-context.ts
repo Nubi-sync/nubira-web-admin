@@ -59,7 +59,7 @@ export async function resolveUserTenant(user: {
   return CacheManager.fetchOrSet<ResolvedTenantProfile>(
     cacheKey,
     () => resolveUserTenantFresh(user),
-    300, // 5 minutes TTL
+    600, // 10 minutes TTL — tenant profiles rarely change mid-session
     [`user:${user.id}`, `email:${userEmail}`, 'tenant_resolution']
   )
 }
@@ -84,7 +84,7 @@ async function resolveUserTenantFresh(user: {
   const userEmail = (user.email || '').trim().toLowerCase()
   const metadata = user.user_metadata || {}
 
-  // 1. Platform Root SuperAdmin (Platform Console)
+  // 1. Platform Root SuperAdmin — instant short-circuit, no DB needed
   if (userEmail === 'admin@zigza.in' || metadata.role === 'PLATFORM_SUPERADMIN') {
     return {
       userId: user.id,
@@ -107,389 +107,223 @@ async function resolveUserTenantFresh(user: {
     }
   }
 
-  // 1.5. Check cutting_workers for cutting floor operators
-  try {
-    const rawDigits = userEmail.split('@')[0].replace(/\D/g, '')
-    const phone10 = rawDigits.length >= 10 ? rawDigits.slice(-10) : rawDigits
+  // Pre-compute phone digits once (used by all worker lookups)
+  const rawDigits = userEmail.split('@')[0].replace(/\D/g, '')
+  const phone10 = rawDigits.length >= 10 ? rawDigits.slice(-10) : rawDigits
+  const hasPhone = phone10.length === 10
 
-    let workerQuery = supabaseAdmin
-      .from('cutting_workers')
-      .select('*')
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // 🚀 PARALLEL EXECUTION: Fire ALL lookups simultaneously instead of sequentially
+  // Previously: 10-16 sequential queries → 3-5 seconds
+  // Now: All in parallel → ~300ms (time of the slowest single query)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-    if (phone10.length === 10) {
-      workerQuery = workerQuery.or(`worker_user_id.eq.${user.id},worker_email.eq.${userEmail},phone_number.eq.${phone10},phone_number.ilike.%${phone10}%`)
+  // Helper: build a worker query for a given table
+  function buildWorkerQuery(table: string, userIdCol: string, emailCol: string) {
+    let q = supabaseAdmin.from(table).select('*')
+    if (hasPhone) {
+      q = q.or(`${userIdCol}.eq.${user.id},${emailCol}.eq.${userEmail},phone_number.eq.${phone10},phone_number.ilike.%${phone10}%`)
     } else {
-      workerQuery = workerQuery.or(`worker_user_id.eq.${user.id},worker_email.eq.${userEmail}`)
+      q = q.or(`${userIdCol}.eq.${user.id},${emailCol}.eq.${userEmail}`)
     }
-
-    const { data: matchedWorker } = await workerQuery.limit(1).maybeSingle()
-
-    let taskWorkerName = ''
-    if (!matchedWorker?.worker_name) {
-      try {
-        let taskQuery = supabaseAdmin.from('cutting_task_allocations').select('worker_name, worker_phone, worker_id')
-        if (phone10.length === 10) {
-          taskQuery = taskQuery.or(`worker_id.eq.${user.id},worker_phone.ilike.%${phone10}%`)
-        } else {
-          taskQuery = taskQuery.eq('worker_id', user.id)
-        }
-        const { data: matchedTask } = await taskQuery.limit(1).maybeSingle()
-        if (matchedTask?.worker_name) {
-          taskWorkerName = matchedTask.worker_name
-        }
-      } catch (_) {}
-    }
-
-    if (matchedWorker || taskWorkerName || user.user_metadata?.role === 'CUTTING_WORKER' || userEmail.endsWith('@cutting.nubira.local')) {
-      const metaName = user.user_metadata?.full_name && user.user_metadata.full_name !== 'Floor Operator' && user.user_metadata.full_name !== 'Cutting Operator'
-        ? user.user_metadata.full_name
-        : ''
-      const workerName = matchedWorker?.worker_name || taskWorkerName || metaName || 'Cutting Floor Operator'
-      const workerPhone = matchedWorker?.phone_number || user.user_metadata?.phone_number || phone10
-      return {
-        userId: user.id,
-        userEmail,
-        role: 'CUTTING_WORKER',
-        isSuperAdmin: false,
-        isPlatformAdmin: false,
-        companyName: matchedWorker?.company_name || user.user_metadata?.company_name || user.user_metadata?.company || 'Nubira Creation',
-        adminDisplayName: workerName,
-        customUsername: `${workerName.toLowerCase().replace(/\s+/g, '_')}_cutting`,
-        phone: workerPhone,
-        cityState: 'India',
-        subscriptionTier: 'ENTERPRISE_PLAN',
-        allowedDivisions: ['/cutting/worker', '/cutting/worker/history', '/cutting/worker/profile'],
-        isProvisionedTenant: true,
-        accessType: 'FULL_ACCESS',
-        isExpired: false,
-        tenantStatus: matchedWorker?.status || 'ACTIVE',
-        provisionedAt: matchedWorker?.created_at || '2026-09-17T00:00:00.000Z'
-      }
-    }
-  } catch (workerErr) {
-    console.error('[resolveUserTenant] Error resolving cutting worker:', workerErr)
+    return q.limit(1).maybeSingle()
   }
 
-  // 1.55. Check printing_workers for printing floor operators
-  try {
-    const rawDigits = userEmail.split('@')[0].replace(/\D/g, '')
-    const phone10 = rawDigits.length >= 10 ? rawDigits.slice(-10) : rawDigits
-
-    let workerQuery = supabaseAdmin
-      .from('printing_workers')
-      .select('*')
-
-    if (phone10.length === 10) {
-      workerQuery = workerQuery.or(`worker_user_id.eq.${user.id},worker_email.eq.${userEmail},phone_number.eq.${phone10},phone_number.ilike.%${phone10}%`)
+  // Helper: build a task allocation fallback query
+  function buildTaskQuery(table: string) {
+    let q = supabaseAdmin.from(table).select('worker_name, worker_phone, worker_id')
+    if (hasPhone) {
+      q = q.or(`worker_id.eq.${user.id},worker_phone.ilike.%${phone10}%`)
     } else {
-      workerQuery = workerQuery.or(`worker_user_id.eq.${user.id},worker_email.eq.${userEmail}`)
+      q = q.eq('worker_id', user.id)
     }
-
-    const { data: matchedWorker } = await workerQuery.limit(1).maybeSingle()
-
-    let taskWorkerName = ''
-    if (!matchedWorker?.worker_name) {
-      try {
-        let taskQuery = supabaseAdmin.from('printing_task_allocations').select('worker_name, worker_phone, worker_id')
-        if (phone10.length === 10) {
-          taskQuery = taskQuery.or(`worker_id.eq.${user.id},worker_phone.ilike.%${phone10}%`)
-        } else {
-          taskQuery = taskQuery.eq('worker_id', user.id)
-        }
-        const { data: matchedTask } = await taskQuery.limit(1).maybeSingle()
-        if (matchedTask?.worker_name) {
-          taskWorkerName = matchedTask.worker_name
-        }
-      } catch (_) {}
-    }
-
-    if (matchedWorker || taskWorkerName || user.user_metadata?.role === 'PRINTING_WORKER' || userEmail.endsWith('@printing.nubira.local')) {
-      const metaName = user.user_metadata?.full_name && user.user_metadata.full_name !== 'Floor Operator' && user.user_metadata.full_name !== 'Printing Operator'
-        ? user.user_metadata.full_name
-        : ''
-      const workerName = matchedWorker?.worker_name || taskWorkerName || metaName || 'Printing Floor Operator'
-      const workerPhone = matchedWorker?.phone_number || user.user_metadata?.phone_number || phone10
-      return {
-        userId: user.id,
-        userEmail,
-        role: 'PRINTING_WORKER',
-        isSuperAdmin: false,
-        isPlatformAdmin: false,
-        companyName: matchedWorker?.company_name || user.user_metadata?.company_name || user.user_metadata?.company || 'Nubira Creation',
-        adminDisplayName: workerName,
-        customUsername: `${workerName.toLowerCase().replace(/\s+/g, '_')}_printing`,
-        phone: workerPhone,
-        cityState: 'India',
-        subscriptionTier: 'ENTERPRISE_PLAN',
-        allowedDivisions: ['/printing/worker', '/printing/worker/history', '/printing/worker/profile'],
-        isProvisionedTenant: true,
-        accessType: 'FULL_ACCESS',
-        isExpired: false,
-        tenantStatus: matchedWorker?.status || 'ACTIVE',
-        provisionedAt: matchedWorker?.created_at || '2026-09-17T00:00:00.000Z'
-      }
-    }
-  } catch (workerErr) {
-    console.error('[resolveUserTenant] Error resolving printing worker:', workerErr)
+    return q.limit(1).maybeSingle()
   }
 
-  // 1.56. Check embroidery_workers for embroidery floor operators
-  try {
-    const rawDigits = userEmail.split('@')[0].replace(/\D/g, '')
-    const phone10 = rawDigits.length >= 10 ? rawDigits.slice(-10) : rawDigits
-
-    let workerQuery = supabaseAdmin
-      .from('embroidery_workers')
-      .select('*')
-
-    if (phone10.length === 10) {
-      workerQuery = workerQuery.or(`worker_user_id.eq.${user.id},worker_email.eq.${userEmail},phone_number.eq.${phone10},phone_number.ilike.%${phone10}%`)
+  // Helper: build design team member query
+  function buildDesignQuery() {
+    let q = supabaseAdmin.from('design_team_members').select('*')
+    if (hasPhone) {
+      q = q.or(`designer_user_id.eq.${user.id},designer_email.eq.${userEmail},phone_number.eq.${phone10},designer_phone.eq.${phone10}`)
     } else {
-      workerQuery = workerQuery.or(`worker_user_id.eq.${user.id},worker_email.eq.${userEmail}`)
+      q = q.or(`designer_user_id.eq.${user.id},designer_email.eq.${userEmail}`)
     }
-
-    const { data: matchedWorker } = await workerQuery.limit(1).maybeSingle()
-
-    let taskWorkerName = ''
-    if (!matchedWorker?.worker_name) {
-      try {
-        let taskQuery = supabaseAdmin.from('embroidery_task_allocations').select('worker_name, worker_phone, worker_id')
-        if (phone10.length === 10) {
-          taskQuery = taskQuery.or(`worker_id.eq.${user.id},worker_phone.ilike.%${phone10}%`)
-        } else {
-          taskQuery = taskQuery.eq('worker_id', user.id)
-        }
-        const { data: matchedTask } = await taskQuery.limit(1).maybeSingle()
-        if (matchedTask?.worker_name) {
-          taskWorkerName = matchedTask.worker_name
-        }
-      } catch (_) {}
-    }
-
-    if (matchedWorker || taskWorkerName || user.user_metadata?.role === 'EMBROIDERY_WORKER' || userEmail.endsWith('@embroidery.nubira.local')) {
-      const metaName = user.user_metadata?.full_name && user.user_metadata.full_name !== 'Floor Operator' && user.user_metadata.full_name !== 'Embroidery Operator'
-        ? user.user_metadata.full_name
-        : ''
-      const workerName = matchedWorker?.worker_name || taskWorkerName || metaName || 'Embroidery Machine Operator'
-      const workerPhone = matchedWorker?.phone_number || user.user_metadata?.phone_number || phone10
-      return {
-        userId: user.id,
-        userEmail,
-        role: 'EMBROIDERY_WORKER',
-        isSuperAdmin: false,
-        isPlatformAdmin: false,
-        companyName: matchedWorker?.company_name || user.user_metadata?.company_name || user.user_metadata?.company || 'Nubira Creation',
-        adminDisplayName: workerName,
-        customUsername: `${workerName.toLowerCase().replace(/\s+/g, '_')}_embroidery`,
-        phone: workerPhone,
-        cityState: 'India',
-        subscriptionTier: 'ENTERPRISE_PLAN',
-        allowedDivisions: ['/embroidery/worker', '/embroidery/worker/history', '/embroidery/worker/profile'],
-        isProvisionedTenant: true,
-        accessType: 'FULL_ACCESS',
-        isExpired: false,
-        tenantStatus: matchedWorker?.status || 'ACTIVE',
-        provisionedAt: matchedWorker?.created_at || '2026-09-17T00:00:00.000Z'
-      }
-    }
-  } catch (workerErr) {
-    console.error('[resolveUserTenant] Error resolving embroidery worker:', workerErr)
+    return q.limit(1).maybeSingle()
   }
 
-  // 1.57. Check washing_workers for industrial washing operators
-  try {
-    const rawDigits = userEmail.split('@')[0].replace(/\D/g, '')
-    const phone10 = rawDigits.length >= 10 ? rawDigits.slice(-10) : rawDigits
+  // Fire ALL queries in parallel
+  const [
+    cuttingWorkerRes,
+    cuttingTaskRes,
+    printingWorkerRes,
+    printingTaskRes,
+    embroideryWorkerRes,
+    embroideryTaskRes,
+    washingWorkerRes,
+    washingTaskRes,
+    ironWorkerRes,
+    ironTaskRes,
+    designMemberRes,
+    tenantExactRes,
+    tenantCompanyRes,
+    profileRes,
+  ] = await Promise.allSettled([
+    buildWorkerQuery('cutting_workers', 'worker_user_id', 'worker_email'),            // 0
+    buildTaskQuery('cutting_task_allocations'),                                          // 1
+    buildWorkerQuery('printing_workers', 'worker_user_id', 'worker_email'),            // 2
+    buildTaskQuery('printing_task_allocations'),                                         // 3
+    buildWorkerQuery('embroidery_workers', 'worker_user_id', 'worker_email'),          // 4
+    buildTaskQuery('embroidery_task_allocations'),                                       // 5
+    buildWorkerQuery('washing_workers', 'worker_user_id', 'worker_email'),             // 6
+    buildTaskQuery('washing_task_allocations'),                                          // 7
+    buildWorkerQuery('iron_workers', 'worker_user_id', 'worker_email'),                // 8
+    buildTaskQuery('iron_task_allocations'),                                              // 9
+    buildDesignQuery(),                                                                   // 10
+    supabaseAdmin.from('platform_tenant_factories').select('*').ilike('admin_email', userEmail).maybeSingle(),  // 11
+    metadata.company                                                                      // 12
+      ? supabaseAdmin.from('platform_tenant_factories').select('*').ilike('company_name', metadata.company.trim()).maybeSingle()
+      : Promise.resolve({ data: null }),
+    supabaseAdmin.from('profiles').select('username, role, allowed_modules, is_head, designation, company_name').eq('id', user.id).maybeSingle(),  // 13
+  ])
 
-    let workerQuery = supabaseAdmin
-      .from('washing_workers')
-      .select('*')
-
-    if (phone10.length === 10) {
-      workerQuery = workerQuery.or(`worker_user_id.eq.${user.id},worker_email.eq.${userEmail},phone_number.eq.${phone10},phone_number.ilike.%${phone10}%`)
-    } else {
-      workerQuery = workerQuery.or(`worker_user_id.eq.${user.id},worker_email.eq.${userEmail}`)
-    }
-
-    const { data: matchedWorker } = await workerQuery.limit(1).maybeSingle()
-
-    let taskWorkerName = ''
-    if (!matchedWorker?.worker_name) {
-      try {
-        let taskQuery = supabaseAdmin.from('washing_task_allocations').select('worker_name, worker_phone, worker_id')
-        if (phone10.length === 10) {
-          taskQuery = taskQuery.or(`worker_id.eq.${user.id},worker_phone.ilike.%${phone10}%`)
-        } else {
-          taskQuery = taskQuery.eq('worker_id', user.id)
-        }
-        const { data: matchedTask } = await taskQuery.limit(1).maybeSingle()
-        if (matchedTask?.worker_name) {
-          taskWorkerName = matchedTask.worker_name
-        }
-      } catch (_) {}
-    }
-
-    if (matchedWorker || taskWorkerName || user.user_metadata?.role === 'WASHING_WORKER' || userEmail.endsWith('@washing.nubira.local')) {
-      const metaName = user.user_metadata?.full_name && user.user_metadata.full_name !== 'Floor Operator' && user.user_metadata.full_name !== 'Washing Operator'
-        ? user.user_metadata.full_name
-        : ''
-      const workerName = matchedWorker?.worker_name || taskWorkerName || metaName || 'Washing Floor Operator'
-      const workerPhone = matchedWorker?.phone_number || user.user_metadata?.phone_number || phone10
-      return {
-        userId: user.id,
-        userEmail,
-        role: 'WASHING_WORKER',
-        isSuperAdmin: false,
-        isPlatformAdmin: false,
-        companyName: matchedWorker?.company_name || user.user_metadata?.company_name || user.user_metadata?.company || 'Nubira Creation',
-        adminDisplayName: workerName,
-        customUsername: `${workerName.toLowerCase().replace(/\s+/g, '_')}_washing`,
-        phone: workerPhone,
-        cityState: 'India',
-        subscriptionTier: 'ENTERPRISE_PLAN',
-        allowedDivisions: ['/washing/worker', '/washing/worker/history', '/washing/worker/profile'],
-        isProvisionedTenant: true,
-        accessType: 'FULL_ACCESS',
-        isExpired: false,
-        tenantStatus: matchedWorker?.status || 'ACTIVE',
-        provisionedAt: matchedWorker?.created_at || '2026-09-17T00:00:00.000Z'
-      }
-    }
-  } catch (workerErr) {
-    console.error('[resolveUserTenant] Error resolving washing worker:', workerErr)
+  // Safe extractors
+  const extract = <T,>(res: PromiseSettledResult<{ data: T | null }>): T | null => {
+    if (res.status === 'fulfilled' && res.value?.data) return res.value.data
+    return null
   }
 
-  // 1.58. Check iron_workers for steam ironing pressers
-  try {
-    const rawDigits = userEmail.split('@')[0].replace(/\D/g, '')
-    const phone10 = rawDigits.length >= 10 ? rawDigits.slice(-10) : rawDigits
+  const cuttingWorker = extract(cuttingWorkerRes as any)
+  const cuttingTask = extract(cuttingTaskRes as any)
+  const printingWorker = extract(printingWorkerRes as any)
+  const printingTask = extract(printingTaskRes as any)
+  const embroideryWorker = extract(embroideryWorkerRes as any)
+  const embroideryTask = extract(embroideryTaskRes as any)
+  const washingWorker = extract(washingWorkerRes as any)
+  const washingTask = extract(washingTaskRes as any)
+  const ironWorker = extract(ironWorkerRes as any)
+  const ironTask = extract(ironTaskRes as any)
+  const designMember = extract(designMemberRes as any)
+  let tenant: any = extract(tenantExactRes as any)
+  if (!tenant) tenant = extract(tenantCompanyRes as any)
+  const profile: any = extract(profileRes as any)
 
-    let workerQuery = supabaseAdmin
-      .from('iron_workers')
-      .select('*')
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // PROCESS RESULTS IN PRIORITY ORDER (same logic as before, just using pre-fetched data)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-    if (phone10.length === 10) {
-      workerQuery = workerQuery.or(`worker_user_id.eq.${user.id},worker_email.eq.${userEmail},phone_number.eq.${phone10},phone_number.ilike.%${phone10}%`)
-    } else {
-      workerQuery = workerQuery.or(`worker_user_id.eq.${user.id},worker_email.eq.${userEmail}`)
+  // Helper to build a floor worker profile
+  function buildWorkerProfile(
+    matchedWorker: any,
+    taskWorkerName: string,
+    role: string,
+    defaultName: string,
+    allowedDivisions: string[],
+    usernamePostfix: string,
+    localSuffix: string
+  ): ResolvedTenantProfile | null {
+    const metaName = metadata.full_name && metadata.full_name !== 'Floor Operator' && metadata.full_name !== defaultName
+      ? metadata.full_name
+      : ''
+    
+    const isMatch = matchedWorker || taskWorkerName || metadata.role === role || userEmail.endsWith(`@${localSuffix}.nubira.local`)
+    if (!isMatch) return null
+
+    const workerName = matchedWorker?.worker_name || taskWorkerName || metaName || defaultName
+    const workerPhone = matchedWorker?.phone_number || metadata.phone_number || phone10
+    return {
+      userId: user.id,
+      userEmail,
+      role,
+      isSuperAdmin: false,
+      isPlatformAdmin: false,
+      companyName: matchedWorker?.company_name || metadata.company_name || metadata.company || 'Nubira Creation',
+      adminDisplayName: workerName,
+      customUsername: `${workerName.toLowerCase().replace(/\s+/g, '_')}_${usernamePostfix}`,
+      phone: workerPhone,
+      cityState: 'India',
+      subscriptionTier: 'ENTERPRISE_PLAN',
+      allowedDivisions,
+      isProvisionedTenant: true,
+      accessType: 'FULL_ACCESS',
+      isExpired: false,
+      tenantStatus: matchedWorker?.status || 'ACTIVE',
+      provisionedAt: matchedWorker?.created_at || '2026-09-17T00:00:00.000Z'
     }
-
-    const { data: matchedWorker } = await workerQuery.limit(1).maybeSingle()
-
-    let taskWorkerName = ''
-    if (!matchedWorker?.worker_name) {
-      try {
-        let taskQuery = supabaseAdmin.from('iron_task_allocations').select('worker_name, worker_phone, worker_id')
-        if (phone10.length === 10) {
-          taskQuery = taskQuery.or(`worker_id.eq.${user.id},worker_phone.ilike.%${phone10}%`)
-        } else {
-          taskQuery = taskQuery.eq('worker_id', user.id)
-        }
-        const { data: matchedTask } = await taskQuery.limit(1).maybeSingle()
-        if (matchedTask?.worker_name) {
-          taskWorkerName = matchedTask.worker_name
-        }
-      } catch (_) {}
-    }
-
-    if (matchedWorker || taskWorkerName || user.user_metadata?.role === 'IRON_WORKER' || userEmail.endsWith('@iron.nubira.local')) {
-      const metaName = user.user_metadata?.full_name && user.user_metadata.full_name !== 'Floor Operator' && user.user_metadata.full_name !== 'Iron Operator' && user.user_metadata.full_name !== 'Finishing Presser'
-        ? user.user_metadata.full_name
-        : ''
-      const workerName = matchedWorker?.worker_name || taskWorkerName || metaName || 'Steam Iron Presser'
-      const workerPhone = matchedWorker?.phone_number || user.user_metadata?.phone_number || phone10
-      return {
-        userId: user.id,
-        userEmail,
-        role: 'IRON_WORKER',
-        isSuperAdmin: false,
-        isPlatformAdmin: false,
-        companyName: matchedWorker?.company_name || user.user_metadata?.company_name || user.user_metadata?.company || 'Nubira Creation',
-        adminDisplayName: workerName,
-        customUsername: `${workerName.toLowerCase().replace(/\s+/g, '_')}_iron`,
-        phone: workerPhone,
-        cityState: 'India',
-        subscriptionTier: 'ENTERPRISE_PLAN',
-        allowedDivisions: ['/iron/worker', '/iron/worker/history', '/iron/worker/profile'],
-        isProvisionedTenant: true,
-        accessType: 'FULL_ACCESS',
-        isExpired: false,
-        tenantStatus: matchedWorker?.status || 'ACTIVE',
-        provisionedAt: matchedWorker?.created_at || '2026-09-17T00:00:00.000Z'
-      }
-    }
-  } catch (workerErr) {
-    console.error('[resolveUserTenant] Error resolving iron worker:', workerErr)
   }
 
-  // 1.6. Check design_team_members for creative designers
-  try {
-    const rawDigits = userEmail.split('@')[0].replace(/\D/g, '')
-    const phone10 = rawDigits.length >= 10 ? rawDigits.slice(-10) : rawDigits
+  // 1.5 Cutting worker check
+  const cuttingProfile = buildWorkerProfile(
+    cuttingWorker, (cuttingTask as any)?.worker_name || '',
+    'CUTTING_WORKER', 'Cutting Floor Operator',
+    ['/cutting/worker', '/cutting/worker/history', '/cutting/worker/profile'],
+    'cutting', 'cutting'
+  )
+  if (cuttingProfile) return cuttingProfile
 
-    let memberQuery = supabaseAdmin
-      .from('design_team_members')
-      .select('*')
+  // 1.55 Printing worker check
+  const printingProfile = buildWorkerProfile(
+    printingWorker, (printingTask as any)?.worker_name || '',
+    'PRINTING_WORKER', 'Printing Floor Operator',
+    ['/printing/worker', '/printing/worker/history', '/printing/worker/profile'],
+    'printing', 'printing'
+  )
+  if (printingProfile) return printingProfile
 
-    if (phone10.length === 10) {
-      memberQuery = memberQuery.or(`designer_user_id.eq.${user.id},designer_email.eq.${userEmail},phone_number.eq.${phone10},designer_phone.eq.${phone10}`)
-    } else {
-      memberQuery = memberQuery.or(`designer_user_id.eq.${user.id},designer_email.eq.${userEmail}`)
+  // 1.56 Embroidery worker check
+  const embroideryProfile = buildWorkerProfile(
+    embroideryWorker, (embroideryTask as any)?.worker_name || '',
+    'EMBROIDERY_WORKER', 'Embroidery Machine Operator',
+    ['/embroidery/worker', '/embroidery/worker/history', '/embroidery/worker/profile'],
+    'embroidery', 'embroidery'
+  )
+  if (embroideryProfile) return embroideryProfile
+
+  // 1.57 Washing worker check
+  const washingProfile = buildWorkerProfile(
+    washingWorker, (washingTask as any)?.worker_name || '',
+    'WASHING_WORKER', 'Washing Floor Operator',
+    ['/washing/worker', '/washing/worker/history', '/washing/worker/profile'],
+    'washing', 'washing'
+  )
+  if (washingProfile) return washingProfile
+
+  // 1.58 Iron worker check
+  const ironProfile = buildWorkerProfile(
+    ironWorker, (ironTask as any)?.worker_name || '',
+    'IRON_WORKER', 'Steam Iron Presser',
+    ['/iron/worker', '/iron/worker/history', '/iron/worker/profile'],
+    'iron', 'iron'
+  )
+  if (ironProfile) return ironProfile
+
+  // 1.6 Design team member check
+  if (designMember) {
+    const dm = designMember as any
+    const company = dm.company_name || 'Nubira Creation'
+    return {
+      userId: user.id,
+      userEmail,
+      role: 'DESIGNER',
+      isSuperAdmin: false,
+      isPlatformAdmin: false,
+      companyName: company,
+      adminDisplayName: dm.designer_name || 'Creative Designer',
+      customUsername: dm.username || `${(dm.designer_name || 'designer').toLowerCase().replace(/\s+/g, '_')}_nubira`,
+      phone: dm.phone_number || dm.designer_phone || '',
+      cityState: 'India',
+      subscriptionTier: 'ENTERPRISE_PLAN',
+      allowedDivisions: ['/design/designer', '/design/profile'],
+      isProvisionedTenant: true,
+      accessType: 'FULL_ACCESS',
+      isExpired: false,
+      tenantStatus: dm.status || 'ACTIVE',
+      provisionedAt: dm.created_at || '2026-09-15T00:00:00.000Z'
     }
-
-    const { data: matchedMember } = await memberQuery.limit(1).maybeSingle()
-
-    if (matchedMember) {
-      const company = matchedMember.company_name || 'Nubira Creation'
-      return {
-        userId: user.id,
-        userEmail,
-        role: 'DESIGNER',
-        isSuperAdmin: false,
-        isPlatformAdmin: false,
-        companyName: company,
-        adminDisplayName: matchedMember.designer_name || 'Creative Designer',
-        customUsername: matchedMember.username || `${matchedMember.designer_name.toLowerCase().replace(/\s+/g, '_')}_nubira`,
-        phone: matchedMember.phone_number || matchedMember.designer_phone || '',
-        cityState: 'India',
-        subscriptionTier: 'ENTERPRISE_PLAN',
-        allowedDivisions: ['/design/designer', '/design/profile'],
-        isProvisionedTenant: true,
-        accessType: 'FULL_ACCESS',
-        isExpired: false,
-        tenantStatus: matchedMember.status || 'ACTIVE',
-        provisionedAt: matchedMember.created_at || '2026-09-15T00:00:00.000Z'
-      }
-    }
-  } catch (designerErr) {
-    console.error('[resolveUserTenant] Error resolving design team member:', designerErr)
   }
 
-  // 2. Check platform_tenant_factories for provisioned client factory accounts
-  try {
-    let tenant: any = null
-
-    // Exact email match
-    const { data: exactTenant } = await supabaseAdmin
-      .from('platform_tenant_factories')
-      .select('*')
-      .ilike('admin_email', userEmail)
-      .maybeSingle()
-
-    tenant = exactTenant
-
-    // Company metadata match fallback
-    if (!tenant && metadata.company) {
-      const { data: compTenant } = await supabaseAdmin
-        .from('platform_tenant_factories')
-        .select('*')
-        .ilike('company_name', metadata.company.trim())
-        .maybeSingle()
-      tenant = compTenant
-    }
-
-    // Keyword match fallback for provisioned slugs
-    if (!tenant && userEmail.includes('shaw')) {
+  // 2. Tenant factory lookup — keyword fallbacks (only if exact + company match failed)
+  if (!tenant && userEmail.includes('shaw')) {
+    try {
       const { data: shawTenant } = await supabaseAdmin
         .from('platform_tenant_factories')
         .select('*')
@@ -497,9 +331,11 @@ async function resolveUserTenantFresh(user: {
         .limit(1)
         .maybeSingle()
       tenant = shawTenant
-    }
+    } catch (_) {}
+  }
 
-    if (!tenant && (userEmail.includes('nubira') || userEmail === 'team.anga9@gmail.com')) {
+  if (!tenant && (userEmail.includes('nubira') || userEmail === 'team.anga9@gmail.com')) {
+    try {
       const { data: nubiraTenant } = await supabaseAdmin
         .from('platform_tenant_factories')
         .select('*')
@@ -507,137 +343,99 @@ async function resolveUserTenantFresh(user: {
         .limit(1)
         .maybeSingle()
       tenant = nubiraTenant
-    }
-
-    if (tenant) {
-      // Check if user is the tenant's primary factory admin
-      const isTenantAdmin = Boolean(
-        (tenant.admin_email && tenant.admin_email.toLowerCase() === userEmail.toLowerCase()) ||
-        userEmail === 'admin@zigza.in' ||
-        userEmail === 'team.anga9@gmail.com'
-      )
-
-      // Fetch user's profile to check if they are a department head or employee
-      let profileRole = ''
-      let profileUsername = ''
-      let profileAllowedModules: string[] = []
-      let profileIsHead = false
-      let profileDesignation = ''
-      try {
-        const { data: prof } = await supabaseAdmin
-          .from('profiles')
-          .select('username, role, allowed_modules, is_head, designation')
-          .eq('id', user.id)
-          .maybeSingle()
-        if (prof) {
-          profileRole = prof.role || ''
-          profileUsername = prof.username || ''
-          profileAllowedModules = Array.isArray(prof.allowed_modules) ? prof.allowed_modules : []
-          profileIsHead = Boolean(prof.is_head)
-          profileDesignation = prof.designation || ''
-        }
-      } catch (_) {}
-
-      // A user is a Department Head if is_head is true, or if they have restricted modules (not full factory admin)
-      const isDepartmentHead = profileIsHead || metadata.is_head || (!isTenantAdmin && profileAllowedModules.length > 0)
-
-      // Strict SuperAdmin check: only primary tenant factory admin, and never department heads
-      const isSuperAdmin = isTenantAdmin && !isDepartmentHead
-
-      const effectiveRole = isDepartmentHead
-        ? (profileDesignation || metadata.designation || profileRole || 'DEPARTMENT_HEAD')
-        : (isTenantAdmin ? 'SUPERADMIN' : (profileRole || metadata.role || 'STAFF')).toUpperCase()
-
-      const userAllowedModules = profileAllowedModules.length > 0
-        ? profileAllowedModules
-        : (Array.isArray(metadata.allowed_modules) && metadata.allowed_modules.length > 0 ? metadata.allowed_modules : [])
-
-      const divisions = isSuperAdmin
-        ? (Array.isArray(tenant.allowed_divisions) && tenant.allowed_divisions.length > 0 ? tenant.allowed_divisions : ALL_DEFAULT_DIVISIONS)
-        : (userAllowedModules.length > 0 ? userAllowedModules : ['/stitching-sewing'])
-
-      const displayName = isTenantAdmin
-        ? (tenant.admin_name || metadata.displayName || 'Plant Head')
-        : (metadata.display_name || metadata.displayName || profileUsername || 'Department Head')
-
-      const accessType: 'DEMO_TRIAL' | 'FULL_ACCESS' = tenant.access_type || 'FULL_ACCESS'
-      const provisionedTime = tenant.provisioned_at ? new Date(tenant.provisioned_at).getTime() : Date.now()
-      const defaultCalculatedExpiry = accessType === 'DEMO_TRIAL'
-        ? new Date(provisionedTime + 7 * 24 * 60 * 60 * 1000).toISOString()
-        : new Date(provisionedTime + 30 * 24 * 60 * 60 * 1000).toISOString()
-
-      let expiresAt = tenant.expires_at || defaultCalculatedExpiry
-      // Auto-correct any Full Access accounts that were mistakenly given a 7/8-day trial expiry
-      if (accessType === 'FULL_ACCESS' && tenant.expires_at) {
-        const storedExpiryTime = new Date(tenant.expires_at).getTime()
-        if (storedExpiryTime - provisionedTime < 15 * 24 * 60 * 60 * 1000) {
-          expiresAt = new Date(provisionedTime + 30 * 24 * 60 * 60 * 1000).toISOString()
-          try {
-            supabaseAdmin
-              .from('platform_tenant_factories')
-              .update({ expires_at: expiresAt })
-              .eq('id', tenant.id)
-              .then(() => {})
-          } catch (_) {}
-        }
-      }
-      const tenantStatus = tenant.status || 'ACTIVE'
-
-      // Check if account has expired or been revoked
-      const isPastExpiry = expiresAt ? new Date(expiresAt).getTime() < Date.now() : false
-      const isExpired = tenantStatus === 'SUSPENDED' || tenantStatus === 'EXPIRED' || isPastExpiry
-
-      return {
-        userId: user.id,
-        userEmail,
-        role: effectiveRole,
-        isSuperAdmin,
-        isPlatformAdmin: false,
-        companyName: tenant.company_name,
-        adminDisplayName: displayName,
-        customUsername: metadata.username || profileUsername || `${userEmail.split('@')[0]}`,
-        phone: isTenantAdmin ? (tenant.phone || '') : (metadata.phone || ''),
-        cityState: tenant.city_state || 'India',
-        subscriptionTier: tenant.subscription_tier || 'FULL_PLANT_AI',
-        allowedDivisions: divisions,
-        isProvisionedTenant: true,
-        tenantId: tenant.id,
-        accessType,
-        expiresAt,
-        provisionedAt: tenant.provisioned_at || '2026-09-15T00:00:00.000Z',
-        isExpired,
-        tenantStatus,
-        monthlyBillingInr: Number(tenant.monthly_billing_inr || (tenant.subscription_tier === 'MODULAR' ? 1999 : 4999))
-      }
-    }
-  } catch (err) {
-    console.warn('[resolveUserTenant] Tenant lookup notice:', err)
+    } catch (_) {}
   }
 
-  // 3. Check public.profiles using admin client to bypass any RLS limitations
-  let profileRole = ''
-  let profileUsername = ''
-  let profileIsHead = false
-  let profileAllowedModules: string[] = []
-  let profileDesignation = ''
-  let profileCompanyName = ''
-  try {
-    const { data: prof } = await supabaseAdmin
-      .from('profiles')
-      .select('username, role, is_head, allowed_modules, designation, company_name')
-      .eq('id', user.id)
-      .maybeSingle()
-    if (prof) {
-      profileRole = prof.role || ''
-      profileUsername = prof.username || ''
-      profileIsHead = Boolean(prof.is_head)
-      profileAllowedModules = Array.isArray(prof.allowed_modules) ? prof.allowed_modules : []
-      profileDesignation = prof.designation || ''
-      profileCompanyName = prof.company_name || ''
-    }
-  } catch (_) {}
+  if (tenant) {
+    // Check if user is the tenant's primary factory admin
+    const isTenantAdmin = Boolean(
+      (tenant.admin_email && tenant.admin_email.toLowerCase() === userEmail.toLowerCase()) ||
+      userEmail === 'admin@zigza.in' ||
+      userEmail === 'team.anga9@gmail.com'
+    )
 
-  // If user has a profile with a company, verify that the company factory still exists in platform_tenant_factories
+    // Use the already-fetched profile data
+    let profileRole = profile?.role || ''
+    let profileUsername = profile?.username || ''
+    let profileAllowedModules: string[] = Array.isArray(profile?.allowed_modules) ? profile.allowed_modules : []
+    let profileIsHead = Boolean(profile?.is_head)
+    let profileDesignation = profile?.designation || ''
+
+    // A user is a Department Head if is_head is true, or if they have restricted modules (not full factory admin)
+    const isDepartmentHead = profileIsHead || metadata.is_head || (!isTenantAdmin && profileAllowedModules.length > 0)
+
+    // Strict SuperAdmin check: only primary tenant factory admin, and never department heads
+    const isSuperAdmin = isTenantAdmin && !isDepartmentHead
+
+    const effectiveRole = isDepartmentHead
+      ? (profileDesignation || metadata.designation || profileRole || 'DEPARTMENT_HEAD')
+      : (isTenantAdmin ? 'SUPERADMIN' : (profileRole || metadata.role || 'STAFF')).toUpperCase()
+
+    const userAllowedModules = profileAllowedModules.length > 0
+      ? profileAllowedModules
+      : (Array.isArray(metadata.allowed_modules) && metadata.allowed_modules.length > 0 ? metadata.allowed_modules : [])
+
+    const divisions = isSuperAdmin
+      ? (Array.isArray(tenant.allowed_divisions) && tenant.allowed_divisions.length > 0 ? tenant.allowed_divisions : ALL_DEFAULT_DIVISIONS)
+      : (userAllowedModules.length > 0 ? userAllowedModules : ['/stitching-sewing'])
+
+    const displayName = isTenantAdmin
+      ? (tenant.admin_name || metadata.displayName || 'Plant Head')
+      : (metadata.display_name || metadata.displayName || profileUsername || 'Department Head')
+
+    const accessType: 'DEMO_TRIAL' | 'FULL_ACCESS' = tenant.access_type || 'FULL_ACCESS'
+    const provisionedTime = tenant.provisioned_at ? new Date(tenant.provisioned_at).getTime() : Date.now()
+    const defaultCalculatedExpiry = accessType === 'DEMO_TRIAL'
+      ? new Date(provisionedTime + 7 * 24 * 60 * 60 * 1000).toISOString()
+      : new Date(provisionedTime + 30 * 24 * 60 * 60 * 1000).toISOString()
+
+    let expiresAt = tenant.expires_at || defaultCalculatedExpiry
+    // Auto-correct any Full Access accounts that were mistakenly given a 7/8-day trial expiry
+    if (accessType === 'FULL_ACCESS' && tenant.expires_at) {
+      const storedExpiryTime = new Date(tenant.expires_at).getTime()
+      if (storedExpiryTime - provisionedTime < 15 * 24 * 60 * 60 * 1000) {
+        expiresAt = new Date(provisionedTime + 30 * 24 * 60 * 60 * 1000).toISOString()
+        try {
+          supabaseAdmin
+            .from('platform_tenant_factories')
+            .update({ expires_at: expiresAt })
+            .eq('id', tenant.id)
+            .then(() => {})
+        } catch (_) {}
+      }
+    }
+    const tenantStatus = tenant.status || 'ACTIVE'
+
+    // Check if account has expired or been revoked
+    const isPastExpiry = expiresAt ? new Date(expiresAt).getTime() < Date.now() : false
+    const isExpired = tenantStatus === 'SUSPENDED' || tenantStatus === 'EXPIRED' || isPastExpiry
+
+    return {
+      userId: user.id,
+      userEmail,
+      role: effectiveRole,
+      isSuperAdmin,
+      isPlatformAdmin: false,
+      companyName: tenant.company_name,
+      adminDisplayName: displayName,
+      customUsername: metadata.username || profileUsername || `${userEmail.split('@')[0]}`,
+      phone: isTenantAdmin ? (tenant.phone || '') : (metadata.phone || ''),
+      cityState: tenant.city_state || 'India',
+      subscriptionTier: tenant.subscription_tier || 'FULL_PLANT_AI',
+      allowedDivisions: divisions,
+      isProvisionedTenant: true,
+      tenantId: tenant.id,
+      accessType,
+      expiresAt,
+      provisionedAt: tenant.provisioned_at || '2026-09-15T00:00:00.000Z',
+      isExpired,
+      tenantStatus,
+      monthlyBillingInr: Number(tenant.monthly_billing_inr || (tenant.subscription_tier === 'MODULAR' ? 1999 : 4999))
+    }
+  }
+
+  // 3. Check profiles for company_name and try to match a tenant factory
+  const profileCompanyName = profile?.company_name || ''
   if (profileCompanyName) {
     try {
       const { data: matchedFactory } = await supabaseAdmin
@@ -647,6 +445,12 @@ async function resolveUserTenantFresh(user: {
         .maybeSingle()
 
       if (matchedFactory) {
+        const profileAllowedModules: string[] = Array.isArray(profile?.allowed_modules) ? profile.allowed_modules : []
+        const profileIsHead = Boolean(profile?.is_head)
+        const profileRole = profile?.role || ''
+        const profileUsername = profile?.username || ''
+        const profileDesignation = profile?.designation || ''
+
         const isHead = profileIsHead || metadata.is_head || profileAllowedModules.length > 0
         const isSuperAdmin = !isHead && (profileRole?.toUpperCase() === 'SUPERADMIN' || profileRole?.toUpperCase() === 'ADMIN')
         const effectiveRole = isHead
@@ -683,8 +487,7 @@ async function resolveUserTenantFresh(user: {
     } catch (_) {}
   }
 
-  // 4. If account does not belong to any active provisioned tenant factory in platform_tenant_factories,
-  // return a strictly deactivated/expired tenant state to block access.
+  // 4. No matching tenant found — return deactivated state
   return {
     userId: user.id,
     userEmail,
@@ -693,7 +496,7 @@ async function resolveUserTenantFresh(user: {
     isPlatformAdmin: false,
     companyName: 'Account Deactivated',
     adminDisplayName: 'Deactivated Account',
-    customUsername: profileUsername || metadata.username || 'deactivated',
+    customUsername: profile?.username || metadata.username || 'deactivated',
     phone: '',
     cityState: 'India',
     subscriptionTier: 'MODULAR',

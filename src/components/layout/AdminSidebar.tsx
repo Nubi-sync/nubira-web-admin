@@ -787,7 +787,7 @@ export function AdminSidebar({
       <Link
         key={`${item.href}-${item.label}`}
         href={item.href}
-        prefetch={false}
+        prefetch={true}
         onMouseEnter={() => {
           try {
             router.prefetch(item.href)
