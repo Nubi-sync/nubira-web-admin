@@ -64,9 +64,9 @@ export default async function AllotmentsPage() {
   ])
 
   // Safely fetch allotments with cached action
-  const { rawAllotments, variants, materials, assignments } =
+  const { rawAllotments, variants, materials, assignments, dailyProducts } =
     await fetchFloorAllotmentsDataAction(tenant.companyName)
-  const allotmentsRaw = rawAllotments || []
+  const allotmentsRaw: any[] = rawAllotments || []
 
   const productionOrders = allProductionOrders || []
 

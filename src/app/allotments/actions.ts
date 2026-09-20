@@ -39,7 +39,8 @@ export async function fetchFloorAllotmentsDataAction(companyName?: string) {
           handed_to_qc_at,
           created_at,
           profiles:lineman_id ( id, username ),
-          articles:article_id ( id, art_no, description, stitching_rate, size_rates )
+          articles:article_id ( id, art_no, description, stitching_rate, size_rates ),
+          challans:challan_id ( id, challan_no, brand, fabric_type )
         `)
         .order('created_at', { ascending: false })
         .limit(200)
