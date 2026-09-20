@@ -73,7 +73,7 @@ function AdminShellContent({
   const homeHref = isAdmin 
     ? '/modules' 
     : (isStoreUser 
-        ? '/stitching-sewing/store' 
+        ? '/stitching-sewing/inventory' 
         : (pathname?.startsWith('/stitching-sewing') ? '/stitching-sewing/dashboard' : (pathname?.startsWith('/store') ? '/store' : '/stitching-sewing/dashboard')))
 
   // Close mobile menu on route change

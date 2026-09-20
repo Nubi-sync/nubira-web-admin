@@ -79,7 +79,7 @@ const navSections: NavSection[] = [
     items: [
       { label: 'Dashboard', href: '/stitching-sewing/dashboard', icon: LayoutDashboard },
       { label: 'Supervisor Desk', href: '/modules/supervisor-desk', icon: Wrench },
-      { label: 'Store Dashboard', href: '/stitching-sewing/store', icon: Store },
+      { label: 'Line Store & Inventory', href: '/stitching-sewing/inventory', icon: Store },
       { label: 'Zigza AI', href: '/stitching-sewing/zigza-ai', icon: Bot },
     ],
   },
@@ -88,7 +88,6 @@ const navSections: NavSection[] = [
     items: [
       { label: 'Production Chart', href: '/stitching-sewing/production-orders', icon: Layers },
       { label: 'Target Allotments', href: '/stitching-sewing/allotments', icon: ClipboardList },
-      { label: 'Godown & Inventory', href: '/stitching-sewing/inventory', icon: Warehouse },
       { label: 'Dispatch & Challans', href: '/dispatch', icon: Truck },
     ],
   },
@@ -309,13 +308,13 @@ export function AdminSidebar({
       {
         section: 'Godown Shift',
         items: [
-          { label: 'Store Dashboard', href: '/stitching-sewing/store', icon: Store },
+          { label: 'Line Store & Inventory', href: '/stitching-sewing/inventory', icon: Store },
         ],
       },
       {
         section: 'Account',
         items: [
-          { label: 'Profile', href: '/stitching-sewing/store', icon: User },
+          { label: 'Profile', href: '/stitching-sewing/profile', icon: User },
         ],
       },
     ]
@@ -486,7 +485,7 @@ export function AdminSidebar({
         section: '6. Sewing Operations',
         items: [
           { label: 'Floor Dashboard', href: '/stitching-sewing/dashboard', icon: LayoutDashboard },
-          { label: 'Store Dashboard', href: '/stitching-sewing/store', icon: Store },
+          { label: 'Line Store & Inventory', href: '/stitching-sewing/inventory', icon: Store },
           { label: 'Zigza AI', href: '/stitching-sewing/zigza-ai', icon: Bot },
         ],
       },
@@ -495,7 +494,6 @@ export function AdminSidebar({
         items: [
           { label: 'Production Chart', href: '/stitching-sewing/production-orders', icon: Layers },
           { label: 'Target Allotments', href: '/stitching-sewing/allotments', icon: ClipboardList },
-          { label: 'Godown & Inventory', href: '/stitching-sewing/inventory', icon: Warehouse },
           { label: 'Dispatch & Challans', href: '/stitching-sewing/dispatch', icon: Truck },
         ],
       },
@@ -608,7 +606,7 @@ export function AdminSidebar({
         ],
       },
     ]
-  } else if (pathname === '/store' || (pathname?.startsWith('/store') && !pathname?.startsWith('/stitching-sewing/store'))) {
+  } else if (pathname === '/store' || pathname?.startsWith('/store')) {
     activeNavSections = [
       {
         section: 'Workspace Hub',
@@ -871,7 +869,7 @@ export function AdminSidebar({
                         : (isIronWorker
                             ? '/iron/worker'
                             : (isStoreUser 
-                                ? '/stitching-sewing/store' 
+                                ? '/stitching-sewing/inventory' 
                                 : (activeNavSections[0]?.items[0]?.href || '/stitching-sewing/dashboard'))))))))
 
   return (

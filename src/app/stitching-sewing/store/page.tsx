@@ -1,2 +1,2 @@
-export { default } from '@/app/store/page'
+export { default } from '@/app/inventory/page'
 export const dynamic = 'force-dynamic'
