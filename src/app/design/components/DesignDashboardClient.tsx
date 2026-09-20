@@ -351,7 +351,7 @@ export function DesignDashboardClient({
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
               STAGE 01
             </span>
             <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
@@ -359,10 +359,10 @@ export function DesignDashboardClient({
             </div>
           </div>
           <div className="mt-3">
-            <div className="text-xs font-bold uppercase tracking-wider text-slate-900 font-mono">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-600">
               Active Briefs
             </div>
-            <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
+            <div className="text-2xl sm:text-3xl font-bold text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
               {activeBriefsCount}
             </div>
           </div>
@@ -370,7 +370,7 @@ export function DesignDashboardClient({
 
         <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
               STAGE 02
             </span>
             <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
@@ -378,10 +378,10 @@ export function DesignDashboardClient({
             </div>
           </div>
           <div className="mt-3">
-            <div className="text-xs font-bold uppercase tracking-wider text-slate-900 font-mono">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-600">
               Pending PH Review
             </div>
-            <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
+            <div className="text-2xl sm:text-3xl font-bold text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
               {pendingPHCount}
             </div>
           </div>
@@ -389,7 +389,7 @@ export function DesignDashboardClient({
 
         <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-700 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-700 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
               STAGE 03
             </span>
             <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
@@ -397,10 +397,10 @@ export function DesignDashboardClient({
             </div>
           </div>
           <div className="mt-3">
-            <div className="text-xs font-bold uppercase tracking-wider text-slate-900 font-mono">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-600">
               Forwarded to SA
             </div>
-            <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
+            <div className="text-2xl sm:text-3xl font-bold text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
               {pendingSACount}
             </div>
           </div>
@@ -408,7 +408,7 @@ export function DesignDashboardClient({
 
         <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-700 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-700 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
               CATALOG
             </span>
             <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
@@ -416,10 +416,10 @@ export function DesignDashboardClient({
             </div>
           </div>
           <div className="mt-3">
-            <div className="text-xs font-bold uppercase tracking-wider text-slate-900 font-mono">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-600">
               Tech-Packs Ready
             </div>
-            <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
+            <div className="text-2xl sm:text-3xl font-bold text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
               {techPacksCount}
             </div>
           </div>
@@ -482,7 +482,7 @@ export function DesignDashboardClient({
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-left border-collapse text-sm">
                 <thead>
-                  <tr className="border-b border-slate-100 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0]">
+                  <tr className="border-b border-slate-100 text-[11px] font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0]">
                     <th className="py-3 px-4">Article Number (Art #)</th>
                     <th className="py-3 px-4">Garment &amp; Theme</th>
                     <th className="py-3 px-4">Designer</th>
@@ -576,14 +576,14 @@ export function DesignDashboardClient({
 
                         designRows.push({
                           rowKey: brief.id,
-                          brief,
                           conceptNumber: 1,
                           artNumber: artNo,
                           garmentType: brief.garment_type,
                           category: brief.category,
                           colors: brief.target_colors || [],
                           photos,
-                          status: brief.status
+                          status: brief.status,
+                          brief
                         })
                       }
                     })
@@ -591,7 +591,7 @@ export function DesignDashboardClient({
                     if (designRows.length === 0) {
                       return (
                         <tr>
-                          <td colSpan={6} className="py-8 text-center text-slate-400 font-mono text-xs">
+                          <td colSpan={6} className="py-8 text-center text-slate-400 text-xs">
                             No designs found.
                           </td>
                         </tr>
@@ -607,10 +607,10 @@ export function DesignDashboardClient({
                           {/* 1. Article Number (Art #) */}
                           <td className="py-3.5 px-4">
                             <div className="space-y-0.5">
-                              <span className="font-mono font-bold text-slate-900 text-sm block">
+                              <span className="font-bold text-slate-900 text-sm block font-[family-name:var(--font-heading)]">
                                 {row.artNumber}
                               </span>
-                              <span className="text-[11px] font-mono text-slate-400 font-medium block">
+                              <span className="text-[11px] text-slate-400 font-medium block">
                                 #{row.conceptNumber} &bull; #{brief.id.substring(0, 6)}
                               </span>
                             </div>
@@ -634,32 +634,32 @@ export function DesignDashboardClient({
                                   {brief.designer_name}
                                 </span>
                                 {brief.designer_phone && (
-                                  <span className="text-[11px] text-slate-400 font-mono">
+                                  <span className="text-[11px] text-slate-400 font-medium">
                                     +91 {brief.designer_phone}
                                   </span>
                                 )}
                               </div>
                             ) : (
-                              <span className="text-xs text-slate-400 italic font-mono">Unassigned</span>
+                              <span className="text-xs text-slate-400 italic font-medium">Unassigned</span>
                             )}
                           </td>
 
                           {/* 4. Colors & Scope */}
                           <td className="py-3.5 px-4">
                             <div className="space-y-1">
-                              <div className="text-xs font-bold text-slate-800 font-mono flex items-center gap-1">
+                              <div className="text-xs font-bold text-slate-800 flex items-center gap-1">
                                 <Palette className="w-3 h-3 text-[#3A3564]" />
                                 <span>{row.colors.length} Color{row.colors.length === 1 ? '' : 's'}</span>
                               </div>
                               <div className="flex flex-wrap items-center gap-1">
                                 {row.colors.slice(0, 3).map((c, i) => (
-                                  <span key={i} className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-white border border-black/10 text-[10px] font-mono text-slate-700">
+                                  <span key={i} className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-white border border-black/10 text-[10px] font-medium text-slate-700">
                                     <span className="w-2 h-2 rounded-full border border-black/10" style={{ backgroundColor: getColorSwatchInfo(c).bg }} />
                                     <span>{c}</span>
                                   </span>
                                 ))}
                                 {row.colors.length > 3 && (
-                                  <span className="text-[10px] font-mono text-slate-400">+{row.colors.length - 3}</span>
+                                  <span className="text-[10px] font-medium text-slate-400">+{row.colors.length - 3}</span>
                                 )}
                               </div>
                             </div>
@@ -667,7 +667,7 @@ export function DesignDashboardClient({
 
                           {/* 5. Status Badge */}
                           <td className="py-3.5 px-4">
-                            <span className={`text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full border ${stCfg.badgeClass}`}>
+                            <span className={`text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full border ${stCfg.badgeClass}`}>
                               {stCfg.label}
                             </span>
                           </td>
@@ -744,23 +744,23 @@ export function DesignDashboardClient({
                     <div key={`${brief.id}-${req.concept_number}`} className="p-4 space-y-3">
                       <div className="flex items-start justify-between gap-2">
                         <div>
-                          <span className="font-mono font-bold text-slate-900 text-sm block mb-0.5">
+                          <span className="font-bold text-slate-900 text-sm block mb-0.5 font-[family-name:var(--font-heading)]">
                             {artNo}
                           </span>
                           <h3 className="font-bold text-slate-900 text-base font-[family-name:var(--font-heading)]">
                             {garment}
                           </h3>
                           <p className="text-xs text-slate-500 font-medium">
-                            {cat} Style &bull; <span className="font-mono text-[11px] text-slate-400">#{req.concept_number} &bull; #{brief.id.substring(0, 6)}</span>
+                            {cat} Style &bull; <span className="text-[11px] text-slate-400 font-medium">#{req.concept_number} &bull; #{brief.id.substring(0, 6)}</span>
                           </p>
                         </div>
 
-                        <span className={`text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full border shrink-0 ${stCfg.badgeClass}`}>
+                        <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full border shrink-0 ${stCfg.badgeClass}`}>
                           {stCfg.label}
                         </span>
                       </div>
 
-                      <div className="flex items-center justify-between text-xs font-mono text-slate-600 bg-[#FAF7F0] p-2.5 rounded-xl border border-black/5">
+                      <div className="flex items-center justify-between text-xs font-medium text-slate-600 bg-[#FAF7F0] p-2.5 rounded-xl border border-black/5">
                         <div>
                           <span className="text-slate-400 block text-[10px] uppercase font-bold">Designer</span>
                           <span className="font-bold text-slate-800">{brief.designer_name || 'Unassigned'}</span>
@@ -827,10 +827,10 @@ export function DesignDashboardClient({
               <div className="px-6 py-5 bg-[#FAF7F0] border-b border-black/10 flex items-center justify-between">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className={`text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full border shadow-2xs ${STATUS_CONFIG[brief.status]?.badgeClass}`}>
+                    <span className={`text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full border shadow-2xs ${STATUS_CONFIG[brief.status]?.badgeClass}`}>
                       {STATUS_CONFIG[brief.status]?.label}
                     </span>
-                    <span className="text-xs font-mono font-bold text-slate-900">
+                    <span className="text-xs font-bold text-slate-900 font-[family-name:var(--font-heading)]">
                       ART NO: {currentArtNo}
                     </span>
                   </div>
@@ -864,7 +864,7 @@ export function DesignDashboardClient({
                         <div key={cwIdx} className="space-y-3">
                           {/* Colorway Label & Individual Review Verdict Selectors */}
                           <div className="flex items-center justify-between border-b border-slate-100 pb-2.5 flex-wrap gap-2">
-                            <div className="flex items-center gap-2 font-mono text-xs font-bold text-slate-900">
+                            <div className="flex items-center gap-2 text-xs font-bold text-slate-900 font-[family-name:var(--font-heading)]">
                               <span
                                 className="w-3.5 h-3.5 rounded-full border border-black/20 shrink-0 shadow-2xs"
                                 style={{ backgroundColor: sw.bg }}
@@ -874,7 +874,7 @@ export function DesignDashboardClient({
 
                             <div className="flex items-center gap-2">
                               {variantArtNo && (
-                                <span className="font-mono font-bold text-slate-900 text-xs bg-[#FAF7F0] px-2.5 py-0.5 rounded-md border border-black/10">
+                                <span className="font-bold text-slate-900 text-xs bg-[#FAF7F0] px-2.5 py-0.5 rounded-md border border-black/10 font-[family-name:var(--font-heading)]">
                                   {variantArtNo}
                                 </span>
                               )}
@@ -929,12 +929,12 @@ export function DesignDashboardClient({
                                   <Eye className="w-4 h-4" />
                                   <span>Full View</span>
                                 </div>
-                                <span className="absolute bottom-2 left-2 text-[10px] font-mono font-bold bg-white/95 text-slate-800 px-2 py-0.5 rounded-md border border-black/10 shadow-2xs">
+                                <span className="absolute bottom-2 left-2 text-[10px] font-bold bg-white/95 text-slate-800 px-2 py-0.5 rounded-md border border-black/10 shadow-2xs">
                                   Front View
                                 </span>
                               </div>
                             ) : (
-                              <div className="aspect-square rounded-2xl border border-dashed border-slate-200 bg-slate-50 flex items-center justify-center text-xs text-slate-400 font-mono">
+                              <div className="aspect-square rounded-2xl border border-dashed border-slate-200 bg-slate-50 flex items-center justify-center text-xs text-slate-400 font-medium">
                                 No Front Artwork
                               </div>
                             )}
@@ -954,7 +954,7 @@ export function DesignDashboardClient({
                                   <Eye className="w-4 h-4" />
                                   <span>Full View</span>
                                 </div>
-                                <span className="absolute bottom-2 left-2 text-[10px] font-mono font-bold bg-white/95 text-slate-800 px-2 py-0.5 rounded-md border border-black/10 shadow-2xs">
+                                <span className="absolute bottom-2 left-2 text-[10px] font-bold bg-white/95 text-slate-800 px-2 py-0.5 rounded-md border border-black/10 shadow-2xs">
                                   Back View
                                 </span>
                               </div>
@@ -979,7 +979,7 @@ export function DesignDashboardClient({
                         <Eye className="w-4 h-4" />
                         <span>Full View</span>
                       </div>
-                      <span className="absolute bottom-2 left-2 text-[10px] font-mono font-bold bg-white/95 text-slate-800 px-2 py-0.5 rounded-md border border-black/10 shadow-2xs">
+                      <span className="absolute bottom-2 left-2 text-[10px] font-bold bg-white/95 text-slate-800 px-2 py-0.5 rounded-md border border-black/10 shadow-2xs">
                         Front View
                       </span>
                     </div>
@@ -998,7 +998,7 @@ export function DesignDashboardClient({
                           <Eye className="w-4 h-4" />
                           <span>Full View</span>
                         </div>
-                        <span className="absolute bottom-2 left-2 text-[10px] font-mono font-bold bg-white/95 text-slate-800 px-2 py-0.5 rounded-md border border-black/10 shadow-2xs">
+                        <span className="absolute bottom-2 left-2 text-[10px] font-bold bg-white/95 text-slate-800 px-2 py-0.5 rounded-md border border-black/10 shadow-2xs">
                           Back View
                         </span>
                       </div>
@@ -1006,14 +1006,14 @@ export function DesignDashboardClient({
                   </div>
                 ) : (
                   <div className="text-center py-10 px-4 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-                    <p className="text-xs text-slate-400 font-mono">No artwork has been submitted for this design yet.</p>
+                    <p className="text-xs text-slate-400 font-medium">No artwork has been submitted for this design yet.</p>
                   </div>
                 )}
 
                 {/* Designer Notes */}
                 {brief.latest_submission?.designer_notes && (
                   <div className="p-3.5 rounded-2xl bg-[#FAF7F0] border border-black/10">
-                    <span className="text-[10px] font-mono uppercase font-bold text-slate-400 block mb-1">
+                    <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
                       Designer Notes:
                     </span>
                     <p className="text-xs text-slate-700 italic">
@@ -1025,7 +1025,7 @@ export function DesignDashboardClient({
                 {/* Provisional Head Feedback Input */}
                 {brief.latest_submission && (
                   <div className="space-y-1.5 pt-2">
-                    <label className="text-xs font-bold text-slate-800 uppercase font-mono block">
+                    <label className="text-xs font-bold text-slate-800 uppercase block">
                       Provisional Head Review Notes / Feedback:
                     </label>
                     <textarea
