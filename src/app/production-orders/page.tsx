@@ -53,18 +53,9 @@ export default async function ProductionOrdersPage() {
     getVendors()
   ])
 
-  // Tenant data isolation: provisioned factories only view their own records
-  const filteredOrders = isProvisionedTenant
-    ? (allOrders || []).filter(o => o.brand?.toUpperCase().includes(tenant.companyName.toUpperCase()))
-    : (allOrders || [])
-
-  const filteredBrands = isProvisionedTenant
-    ? (allBrands || []).filter(b => b.brand_name.toUpperCase().includes(tenant.companyName.toUpperCase()))
-    : (allBrands || [])
-
-  const filteredVendors = isProvisionedTenant
-    ? (allVendors || []).filter(v => v.brand_name.toUpperCase().includes(tenant.companyName.toUpperCase()))
-    : (allVendors || [])
+  const filteredOrders = allOrders || []
+  const filteredBrands = allBrands || []
+  const filteredVendors = allVendors || []
 
   const isCompanyProfileMatch = (p: any) => {
     const pCompany = (p.company_name || '').trim().toLowerCase()

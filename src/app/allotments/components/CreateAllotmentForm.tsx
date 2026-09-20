@@ -2,7 +2,7 @@
 'use client'
 
 import { useState, useMemo, useEffect } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { createDetailedAllotment, VariantPayload, MaterialPayload } from '../actions'
 import { 
   ClipboardList,
@@ -201,6 +201,7 @@ export function CreateAllotmentForm({
   articles: Article[]
   productionOrders?: any[]
 }) {
+  const router = useRouter()
   const [autoLoadedOrder, setAutoLoadedOrder] = useState<any>(null)
   const [linemanId, setLinemanId] = useState('')
   const [articleId, setArticleId] = useState('')
@@ -506,27 +507,8 @@ export function CreateAllotmentForm({
         themeBg: themeBg
       })
 
-      // Smart Color-Line BOM Checklist:
-      const approxMeters = Math.max(Math.ceil((smartOpt.totalPcs || 100) * 0.4), 10)
-      const threadCones = Math.max(Math.ceil((smartOpt.totalPcs || 100) / 100), 2)
-      const newMaterials: any[] = [
-        {
-          id: 'mat_fab_' + Date.now(),
-          item_name: `${smartOpt.colorName} Fabric Lot (${smartOpt.fabricType || 'Sinker'})`,
-          required_qty: `${approxMeters} Meters`,
-          admin_issued: false,
-          source: 'CLIENT' as const
-        },
-        {
-          id: 'mat_thread_' + Date.now(),
-          item_name: `Matching Sewing Thread (${smartOpt.colorName})`,
-          required_qty: `${threadCones} Cones`,
-          admin_issued: false,
-          source: 'FACTORY_STORE' as const
-        }
-      ]
-
-      // Filter inward GRN trims: only include items matching this color, or common trims
+      // Real Inward Store Materials (Only populate if physically inwarded in Store)
+      const newMaterials: any[] = []
       const knownColors = ['NAVY', 'BLUE', 'BLACK', 'WHITE', 'BROWN', 'MUSHROOM', 'DUTCH BLUE', 'SCUBA', 'GREEN', 'RED', 'YELLOW', 'ORANGE', 'PINK', 'GREY', 'GRAY', 'BEIGE', 'MAROON', 'LILAC', 'RUST', 'PURPLE', 'CHARCOAL', 'OLIVE']
       const activeColorUpper = smartOpt.colorName.toUpperCase()
 
@@ -535,8 +517,6 @@ export function CreateAllotmentForm({
           const bName = (b.item_name || b.name || '').trim()
           if (!bName) return
           const upper = bName.toUpperCase()
-          const bType = (b.material_type || '').toUpperCase()
-          if (bType === 'FABRIC' || upper.includes('FABRIC') || upper.includes('SEWING THREAD')) return
 
           let itemColor: string | null = null
           for (const c of knownColors) {
@@ -553,38 +533,12 @@ export function CreateAllotmentForm({
           newMaterials.push({
             id: `mat_inward_${idx}_` + Date.now(),
             item_name: bName,
-            required_qty: `${(smartOpt.totalPcs || 0).toLocaleString('en-IN')} pcs`,
+            required_qty: b.quantity ? `${b.quantity} ${b.unit || ''}`.trim() : `${(smartOpt.totalPcs || 0).toLocaleString('en-IN')} pcs`,
             admin_issued: false,
             source: (b.material_type === 'ACCESSORY' || upper.includes('THREAD')) ? 'FACTORY_STORE' : 'CLIENT'
           })
         })
       }
-
-      if (!newMaterials.some(m => m.item_name.toLowerCase().includes('brand label') || m.item_name.toLowerCase().includes('neck label'))) {
-        newMaterials.push({
-          id: 'mat_neck_' + Date.now(),
-          item_name: `${smartOpt.brand || 'Main Brand'} Neck Label`,
-          required_qty: `${(smartOpt.totalPcs || 0).toLocaleString('en-IN')} pcs`,
-          admin_issued: false,
-          source: 'CLIENT' as const
-        })
-      }
-
-      newMaterials.push({
-        id: 'mat_size_' + Date.now(),
-        item_name: `Size Labels (${finalSizes.join(', ')})`,
-        required_qty: `${(smartOpt.totalPcs || 0).toLocaleString('en-IN')} pcs`,
-        admin_issued: false,
-        source: 'CLIENT' as const
-      })
-
-      newMaterials.push({
-        id: 'mat_poly_' + Date.now(),
-        item_name: `Master Polybags (10x14)`,
-        required_qty: `${(smartOpt.totalPcs || 0).toLocaleString('en-IN')} pcs`,
-        admin_issued: false,
-        source: 'CLIENT' as const
-      })
 
       setMaterials(newMaterials)
     } else if (smartOpt.type === 'FULL_CHALLAN') {
@@ -602,6 +556,23 @@ export function CreateAllotmentForm({
         badgeColor: '#0F172A',
         themeBg: '#F8FAFC'
       })
+
+      // Real Inward Store Materials for Full Challan
+      const newMaterials: any[] = []
+      if (smartOpt.bomDetails && smartOpt.bomDetails.length > 0) {
+        smartOpt.bomDetails.forEach((b: any, idx: number) => {
+          const bName = (b.item_name || b.name || '').trim()
+          if (!bName) return
+          newMaterials.push({
+            id: `mat_inward_${idx}_` + Date.now(),
+            item_name: bName,
+            required_qty: b.quantity ? `${b.quantity} ${b.unit || ''}`.trim() : `${(smartOpt.totalPcs || 0).toLocaleString('en-IN')} pcs`,
+            admin_issued: false,
+            source: (b.material_type === 'ACCESSORY' || bName.toUpperCase().includes('THREAD')) ? 'FACTORY_STORE' : 'CLIENT'
+          })
+        })
+      }
+      setMaterials(newMaterials)
     }
 
     setIsTargetModalOpen(false)
@@ -1222,12 +1193,28 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
     } else {
       setSuccess(true)
       setIsPending(false)
-      // Reset form fields
+      // Reset form fields completely
+      setLinemanId('')
+      setArticleId('')
+      setSelectedTargetSummary(null)
+      setSelectedTargetBomDetails([])
       setManagerName('')
       setProductionOrderNo('')
       setClientChallanNo('')
       setSamplePhotos([])
-      setColorRows(colorRows.map(r => ({ ...r, quantities: {} })))
+      setMaterials([])
+      setTouchedLineman(false)
+      setTouchedArticle(false)
+      setHasAttemptedSubmit(false)
+      setColorRows([
+        { id: '1', color: 'Navy Blue', quantities: {} },
+        { id: '2', color: 'Black', quantities: {} }
+      ])
+      // Clear URL params so form doesn't automatically re-populate from URL
+      if (typeof window !== 'undefined') {
+        window.history.replaceState({}, '', window.location.pathname)
+      }
+      router.refresh()
       setTimeout(() => setSuccess(false), 3500)
     }
   }
@@ -2203,22 +2190,35 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
               type="button"
               onClick={handleAutoGenerateBOM}
               className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-[13px] font-bold transition-all shadow-2xs cursor-pointer border border-black/15 bg-white hover:bg-[#FAF7F0] text-[#3A3564] shrink-0"
+              title="Click to calculate estimated fabric meters, thread cones, and labels from matrix"
             >
               <Sparkles className="w-4 h-4 text-[#3A3564]" />
-              <span>Auto-Calculate BOM from Matrix</span>
+              <span>Calculate Standard Estimates (Optional)</span>
             </button>
           </div>
 
-          {/* Checklist Grid or Empty State */}
+          {/* Checklist Grid or Professional Empty State */}
           {materials.length === 0 ? (
-            <div className="p-6 text-center rounded-xl border border-dashed border-slate-300 bg-[#FAF7F0]/40 space-y-2">
-              <div className="w-10 h-10 rounded-full bg-white border border-black/10 text-[#3A3564] flex items-center justify-center mx-auto shadow-2xs">
-                <Boxes className="w-5 h-5 text-[#3A3564]" />
+            <div className="p-6 sm:p-8 text-center rounded-2xl border border-dashed border-slate-300 bg-slate-50/60 space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-white border border-black/10 text-slate-400 flex items-center justify-center mx-auto shadow-2xs">
+                <Boxes className="w-6 h-6 text-slate-500" />
               </div>
-              <h4 className="text-sm font-bold text-slate-800">No Raw Materials in Checklist</h4>
-              <p className="text-xs text-slate-500 max-w-md mx-auto">
-                Fill in the Size & Color Ratio Matrix above and click <strong className="text-[#3A3564]">Auto-Calculate BOM from Matrix</strong> to isolate active color thread & trims, or type custom materials below.
-              </p>
+              <div className="space-y-1">
+                <h4 className="text-sm font-bold text-slate-800">No Inwarded Materials Found in Store</h4>
+                <p className="text-xs text-slate-500 max-w-md mx-auto">
+                  Physical raw materials or trims have not been inwarded (GRN) in Store for this order yet. Once items are inwarded in Store, they will appear here automatically.
+                </p>
+              </div>
+              <div className="pt-1">
+                <button
+                  type="button"
+                  onClick={handleAutoGenerateBOM}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-2xs cursor-pointer border border-black/15 bg-white hover:bg-[#FAF7F0] text-[#3A3564]"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-[#3A3564]" />
+                  <span>Calculate Standard Estimates (Optional)</span>
+                </button>
+              </div>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">

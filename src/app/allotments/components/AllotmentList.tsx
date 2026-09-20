@@ -107,8 +107,9 @@ export type Allotment = {
   priority?: 'NORMAL' | 'RUSH' | 'CRITICAL'
   client_challan_no?: string
   sample_photos?: string[]
-  profiles: { username: string }
-  articles: { art_no: string; description?: string; stitching_rate?: number | string }
+  profiles?: { username: string }
+  articles?: { art_no: string; description?: string; stitching_rate?: number | string } | null
+  challans?: { id: string; challan_no: string; brand?: string; fabric_type?: string } | null
   variants?: VariantItem[]
   materials?: MaterialItem[]
   assignments?: WorkerAssignmentItem[]
@@ -287,13 +288,16 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim()
       list = list.filter(a => {
-        const art = (a.articles?.art_no || '').toLowerCase()
-        const desc = (a.articles?.description || '').toLowerCase()
-        const lineman = (a.profiles?.username || '').toLowerCase()
+        const art = ((a as any).art_no || a.articles?.art_no || '').toLowerCase()
+        const desc = ((a as any).description || a.articles?.description || '').toLowerCase()
+        const lineman = ((a as any).lineman_name || a.profiles?.username || '').toLowerCase()
         const date = (a.allotment_date || '').toLowerCase()
         const orderNo = (a.production_order_no || '').toLowerCase()
+        const clientChallan = (a.client_challan_no || '').toLowerCase()
+        const brand = ((a as any).brand || a.challans?.brand || '').toLowerCase()
+        const challanNo = ((a as any).challan_no || a.challans?.challan_no || '').toLowerCase()
         const variantColors = (a.variants || []).map((v: any) => (v.color || '').toLowerCase()).join(' ')
-        return art.includes(q) || desc.includes(q) || lineman.includes(q) || date.includes(q) || orderNo.includes(q) || variantColors.includes(q)
+        return art.includes(q) || desc.includes(q) || lineman.includes(q) || date.includes(q) || orderNo.includes(q) || clientChallan.includes(q) || brand.includes(q) || challanNo.includes(q) || variantColors.includes(q)
       })
     }
 
@@ -475,7 +479,7 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                       {/* Date & Lineman */}
                       <td className="px-5 py-3.5">
                         <span className="font-bold text-slate-900 block">
-                          {al.profiles?.username || 'Lineman'}
+                          {(al as any).lineman_name || al.profiles?.username || 'Lineman'}
                         </span>
                         <span className="text-[11px] text-slate-400 font-mono">
                           {al.allotment_date || 'N/A'}
@@ -486,7 +490,7 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                       <td className="px-4 py-3.5">
                         <div className="flex items-center gap-1.5 flex-wrap">
                           <span className="font-extrabold text-slate-900 font-mono">
-                            {al.articles?.art_no || 'N/A'}
+                            {al.production_order_no || al.client_challan_no || (al as any).art_no || al.articles?.art_no || (al.challans?.challan_no ? `Challan #${al.challans.challan_no}` : 'Job Allotment')}
                           </span>
                           {al.priority === 'CRITICAL' && (
                             <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-extrabold bg-rose-50 text-rose-700 border border-rose-200 shadow-2xs">
@@ -501,8 +505,12 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                             </span>
                           )}
                         </div>
-                        <div className="text-[11px] text-slate-500 font-medium truncate max-w-[180px]">
-                          {cleanDescription(al.articles?.description)}
+                        <div className="text-[11px] text-slate-500 font-medium truncate max-w-[200px]">
+                          {al.client_challan_no ? (
+                            <span>Challan #{al.client_challan_no} {al.brand ? `• ${al.brand}` : ''}</span>
+                          ) : (
+                            cleanDescription((al as any).description || al.articles?.description) || (al.challans?.brand ? `${al.challans.brand} • ${al.challans.fabric_type || 'Garment'}` : (al.production_order_no ? `Order Ref: ${al.production_order_no}` : 'Garment Batch'))
+                          )}
                         </div>
                       </td>
 

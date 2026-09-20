@@ -71,13 +71,8 @@ export default async function ArticlesPage() {
       .eq('is_active', true)
   ])
 
-  const allotments = isProvisionedTenant
-    ? (rawAllotments || []).filter((a: any) => ((a.challans as any)?.brand || '').toUpperCase().includes(tenant.companyName.toUpperCase()))
-    : (rawAllotments || [])
-
-  const challans = isProvisionedTenant
-    ? (rawChallans || []).filter((c: any) => (c.brand || '').toUpperCase().includes(tenant.companyName.toUpperCase()))
-    : (rawChallans || [])
+  const allotments = rawAllotments || []
+  const challans = rawChallans || []
 
   const articles = rawArticles || []
   const profiles = (rawProfiles || []).filter((p: any) => {

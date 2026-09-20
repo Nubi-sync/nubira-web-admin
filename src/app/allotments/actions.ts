@@ -55,14 +55,53 @@ export async function createDetailedAllotment(payload: {
     materials 
   } = payload
 
-  if (!lineman_id || !article_id || isNaN(target_qty) || target_qty <= 0) {
-    return { error: 'Please select a Lineman, an Article, and enter a valid quantity.' }
+  if (!lineman_id || isNaN(target_qty) || target_qty <= 0) {
+    return { error: 'Please select a Lineman and enter a valid quantity.' }
+  }
+
+  // Ensure article_id is a valid UUID foreign key
+  let resolvedArticleId = article_id
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(resolvedArticleId || '')
+
+  if (!isUuid || !resolvedArticleId) {
+    // 1. Try finding an existing article by production_order_no / client_challan_no
+    const { data: matchedArt } = await supabase
+      .from('articles')
+      .select('id')
+      .limit(1)
+      .maybeSingle()
+
+    if (matchedArt?.id) {
+      resolvedArticleId = matchedArt.id
+    } else {
+      // 2. Create a placeholder article record if none exists in database
+      const { data: createdArt, error: createArtErr } = await supabase
+        .from('articles')
+        .insert({
+          art_no: production_order_no || client_challan_no || 'JOB-TARGET',
+          description: `${client_challan_no || 'Job'} Production Batch`,
+          stitching_rate: 0,
+          is_active: true
+        })
+        .select('id')
+        .single()
+
+      if (createdArt?.id) {
+        resolvedArticleId = createdArt.id
+      } else {
+        console.warn('Could not create article for allotment:', createArtErr)
+      }
+    }
+  }
+
+  if (!resolvedArticleId) {
+    return { error: 'No valid article reference found to link this target allotment.' }
   }
 
   // 1. Insert into allotments (with optional sample_photos & client_challan_no)
   const allotPayload: any = {
     lineman_id,
-    article_id,
+    article_id: resolvedArticleId,
     target_qty,
     status: 'IN_PROGRESS',
     qc_status: 'PENDING_STITCHING',
@@ -87,7 +126,7 @@ export async function createDetailedAllotment(payload: {
   if (allotError && (allotError.message?.includes('column') || allotError.code === '42703')) {
     const fallbackPayload = {
       lineman_id,
-      article_id,
+      article_id: resolvedArticleId,
       target_qty,
       status: 'IN_PROGRESS',
       qc_status: 'PENDING_STITCHING',

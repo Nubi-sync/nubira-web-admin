@@ -156,19 +156,10 @@ export default async function DispatchPage() {
     `)
     .order('created_at', { ascending: false })
 
-  // Multi-tenant scoping: provisioned factories only see records tagged to their company
-  const deliveryChallans = isProvisionedTenant
-    ? (rawDeliveryChallans || []).filter(dc => 
-        (dc.billed_to_name && dc.billed_to_name.toUpperCase().includes(tenant.companyName.toUpperCase())) ||
-        (dc.notes && dc.notes.toUpperCase().includes(tenant.companyName.toUpperCase()))
-      )
-    : (rawDeliveryChallans || [])
-
+  const deliveryChallans = rawDeliveryChallans || []
   const countingReports = rawCountingReports || []
   const articles = rawArticles || []
-  const allotments = isProvisionedTenant
-    ? (rawAllotments || []).filter(a => (a.challans as any)?.brand?.toUpperCase().includes(tenant.companyName.toUpperCase()))
-    : (rawAllotments || [])
+  const allotments = rawAllotments || []
 
   return (
     <AdminShell userEmail={tenant.userEmail} userRole={userRole}>

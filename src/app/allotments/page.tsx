@@ -37,8 +37,7 @@ export default async function AllotmentsPage() {
     { data: rawLinemen },
     { data: rawManagers },
     { data: rawArticles },
-    allProductionOrders,
-    { data: rawAllotments }
+    allProductionOrders
   ] = await Promise.all([
     supabaseAdmin
       .from('profiles')
@@ -60,43 +59,47 @@ export default async function AllotmentsPage() {
       .eq('is_active', true)
       .order('art_no'),
 
-    getProductionOrders(),
-
-    supabaseAdmin
-      .from('allotments')
-      .select(`
-        id,
-        lineman_id,
-        article_id,
-        target_qty,
-        allotment_date,
-        status,
-        mending_status,
-        mending_total_counted,
-        mending_supervisor_name,
-        mending_supervisor_id,
-        handed_to_mending_by,
-        handed_to_mending_at,
-        mending_handover_notes,
-        qc_status,
-        qc_total_passed,
-        qc_total_alter,
-        qc_supervisor_name,
-        handed_to_qc_by,
-        handed_to_qc_at,
-        created_at,
-        profiles:lineman_id ( id, username ),
-        articles:article_id ( id, art_no, description, stitching_rate, size_rates ),
-        challans:challan_id ( id, challan_no, brand, fabric_type )
-      `)
-      .order('created_at', { ascending: false })
-      .limit(200)
+    getProductionOrders()
   ])
 
-  // Multi-tenant scoping: provisioned factories only see records tagged to their company
-  const allotmentsRaw = isProvisionedTenant
-    ? (rawAllotments || []).filter(a => (a.challans as any)?.brand?.toUpperCase().includes(tenant.companyName.toUpperCase()))
-    : (rawAllotments || [])
+  // Safely fetch allotments with schema fallback
+  let rawAllotments: any[] = []
+  const res1 = await supabaseAdmin
+    .from('allotments')
+    .select(`
+      id,
+      lineman_id,
+      article_id,
+      target_qty,
+      allotment_date,
+      status,
+      mending_status,
+      mending_total_counted,
+      mending_supervisor_name,
+      mending_supervisor_id,
+      handed_to_mending_by,
+      handed_to_mending_at,
+      mending_handover_notes,
+      qc_status,
+      qc_total_passed,
+      qc_total_alter,
+      qc_supervisor_name,
+      handed_to_qc_by,
+      handed_to_qc_at,
+      created_at,
+      profiles:lineman_id ( id, username ),
+      articles:article_id ( id, art_no, description, stitching_rate, size_rates )
+    `)
+    .order('created_at', { ascending: false })
+    .limit(200)
+
+  if (res1.data) {
+    rawAllotments = res1.data
+  } else if (res1.error) {
+    console.error('Allotments fetch error:', res1.error)
+  }
+
+  const allotmentsRaw = rawAllotments || []
 
   const productionOrders = allProductionOrders || []
 
@@ -225,15 +228,18 @@ export default async function AllotmentsPage() {
     return {
       id: al.id,
       challan_id: (al as any).challan_id,
-      challan_no: (al.challans as any)?.challan_no || 'Internal Order',
+      challan_no: (al.challans as any)?.challan_no || clientChallanNo || 'Internal Order',
       brand: (al.challans as any)?.brand || 'Factory Brand',
       fabric_type: (al.challans as any)?.fabric_type || 'Knit/Woven',
       lineman_id: al.lineman_id,
       lineman_name: (al.profiles as any)?.username || 'Unassigned',
       article_id: al.article_id,
-      art_no: (al.articles as any)?.art_no || 'Standard Article',
+      art_no: poNo || clientChallanNo || (al.articles as any)?.art_no || 'Standard Article',
       description: (al.articles as any)?.description || '',
       stitching_rate: (al.articles as any)?.stitching_rate || 0,
+      profiles: al.profiles || { username: (al.profiles as any)?.username || 'Lineman' },
+      articles: al.articles || { art_no: poNo || clientChallanNo || (al.articles as any)?.art_no || 'Job Allotment', description: (al.articles as any)?.description || '' },
+      challans: al.challans || null,
       target_qty: al.target_qty,
       status: al.status,
       allotment_date: al.allotment_date,

@@ -121,6 +121,38 @@ function formatDisplayDate(dateStr?: string | null): string {
   return dateStr
 }
 
+function formatDisplayDateTime(dateStr?: string | null): string {
+  if (!dateStr) return '-'
+  try {
+    const d = new Date(dateStr)
+    if (isNaN(d.getTime())) return formatDisplayDate(dateStr)
+    const timeStr = d.toLocaleTimeString('en-IN', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    })
+    const dateFormatted = formatDisplayDate(d.toISOString().split('T')[0])
+    return `${dateFormatted} at ${timeStr}`
+  } catch (_) {
+    return formatDisplayDate(dateStr)
+  }
+}
+
+function formatDisplayTime(dateStr?: string | null): string {
+  if (!dateStr) return ''
+  try {
+    const d = new Date(dateStr)
+    if (isNaN(d.getTime())) return ''
+    return d.toLocaleTimeString('en-IN', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    })
+  } catch (_) {
+    return ''
+  }
+}
+
 interface ProductionOrdersClientProps {
   initialOrders: ChallanGroupedOrder[]
   articlesList: any[]
@@ -1774,6 +1806,12 @@ export function ProductionOrdersClient({
 
                       <div className="flex items-center gap-3 text-xs sm:text-[13px] text-slate-600 mt-2 flex-wrap">
                         <span>Challan Date: <strong className="text-slate-900 font-mono font-bold">{formatDisplayDate(challan.challan_date)}</strong></span>
+                        {challan.created_at && (
+                          <span className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-slate-100 text-slate-700 font-mono text-[11px] sm:text-xs border border-slate-200">
+                            <Clock className="w-3 h-3 text-slate-500 shrink-0" />
+                            <span>Created: <strong className="text-slate-900 font-bold">{formatDisplayDateTime(challan.created_at)}</strong></span>
+                          </span>
+                        )}
                         {challan.delivery_date && (
                           <span>• Delivery: <strong className="text-slate-900 font-mono font-bold">{formatDisplayDate(challan.delivery_date)}</strong></span>
                         )}
