@@ -35,9 +35,12 @@ const MODULE_ROLE_OPTIONS: Record<string, Array<{ value: string; label: string }
     { value: 'EMBROIDERY_MASTER', label: 'Punch Digitizer / Unit Master' },
   ],
   '/stitching-sewing': [
+    { value: 'PRODUCTION_MANAGER', label: 'Production Manager (Floor & Line Incharge)' },
     { value: 'LINEMAN', label: 'Lineman (Floor Allotment & Machine Line)' },
-    { value: 'PRODUCTION_MANAGER', label: 'Stitching Supervisor (Floor & Line Balancing)' },
     { value: 'STITCHING', label: 'Tailor / Stitching Operator' },
+    { value: 'QC', label: 'Floor QC Inspector (Inline & End-Line QC)' },
+    { value: 'MENDING', label: 'Mending / Alteration Tailor (Stitch Repair)' },
+    { value: 'STORE', label: 'Store Keeper (BOM & Trims Handover)' },
   ],
   '/washing': [
     { value: 'WASHING', label: 'Washing Tumbler Operator' },
@@ -74,7 +77,7 @@ const DIVISION_LABELS: Record<string, string> = {
   '/cutting': '03. Cutting Floor',
   '/printing': '04. Printing Unit',
   '/embroidery': '05. Embroidery Unit',
-  '/stitching-sewing': '06. Stitching Floor',
+  '/stitching-sewing': 'Stitching Floor',
   '/washing': '07. Washing Unit',
   '/iron': '08. Steam Pressing',
   '/ready-goods': '09. Ready Goods & QC',
@@ -154,6 +157,7 @@ export function CreateEmployeeForm({ forcedModule, moduleTitle, allowedDivisions
         {/* Hidden dummy fields to absorb aggressive browser autofill */}
         <input type="text" name="prevent_autofill_user" tabIndex={-1} className="hidden" autoComplete="off" />
         <input type="password" name="prevent_autofill_pwd" tabIndex={-1} className="hidden" autoComplete="new-password" />
+        <input type="hidden" name="forcedModule" value={forcedModule || ''} />
 
         {/* Username */}
         <div>

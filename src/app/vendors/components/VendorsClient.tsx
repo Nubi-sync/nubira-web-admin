@@ -786,7 +786,7 @@ export function VendorsClient({ brands: initialBrands, vendors: initialVendors }
                     type="text"
                     name="brand_name"
                     required
-                    placeholder="e.g. OLLYPOP, FIRST SMILE"
+                    placeholder="Enter Brand / Buyer Name"
                     className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 uppercase"
                   />
                 </div>

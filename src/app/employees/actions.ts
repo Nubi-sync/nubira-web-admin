@@ -2,11 +2,14 @@
 
 import { revalidatePath } from 'next/cache'
 import { supabaseAdmin } from '@/utils/supabase/admin'
+import { createClient } from '@/utils/supabase/server'
+import { resolveUserTenant } from '@/lib/tenant-context'
 
 export async function createEmployee(formData: FormData) {
   const rawUsername = formData.get('username') as string
   const password = formData.get('password') as string
   const role = formData.get('role') as string
+  const forcedModule = (formData.get('forcedModule') as string) || ''
 
   if (!rawUsername || !password || !role) {
     return { error: 'All fields (Username/Name, Password, Role) are required.' }
@@ -30,6 +33,11 @@ export async function createEmployee(formData: FormData) {
   const fakeEmail = `${authEmailKey}@nubira.local`
 
   try {
+    const supabase = await createClient()
+    const { data: { user: currentUser } } = await supabase.auth.getUser()
+    const tenant = currentUser ? await resolveUserTenant(currentUser) : null
+    const companyName = tenant?.companyName || 'Nubira Creation'
+
     // 2. Check if username already exists in profiles (case-insensitive)
     const { data: existingProfile } = await supabaseAdmin
       .from('profiles')
@@ -44,7 +52,10 @@ export async function createEmployee(formData: FormData) {
 
     // 3. Create user in Supabase Auth
     const { ROLE_MODULE_MAPPING } = await import('@/lib/access-control')
-    const allowedModules = ROLE_MODULE_MAPPING[role] || (role === 'ADMIN' ? ['/modules'] : ['/stitching-sewing'])
+    const baseModules = ROLE_MODULE_MAPPING[role] || (role === 'ADMIN' ? ['/modules'] : ['/stitching-sewing'])
+    const allowedModules = forcedModule
+      ? Array.from(new Set([forcedModule, ...baseModules]))
+      : baseModules
 
     let authUserId: string | null = null
     const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
@@ -55,7 +66,8 @@ export async function createEmployee(formData: FormData) {
         username: displayName,
         display_name: displayName,
         role: role,
-        allowed_modules: allowedModules
+        allowed_modules: allowedModules,
+        company_name: companyName,
       }
     })
 
@@ -67,7 +79,13 @@ export async function createEmployee(formData: FormData) {
         if (matched) {
           await supabaseAdmin.auth.admin.updateUserById(matched.id, {
             password: password,
-            user_metadata: { username: displayName, display_name: displayName, role: role, allowed_modules: allowedModules }
+            user_metadata: { 
+              username: displayName, 
+              display_name: displayName, 
+              role: role, 
+              allowed_modules: allowedModules,
+              company_name: companyName,
+            }
           })
           authUserId = matched.id
         } else {
@@ -90,6 +108,7 @@ export async function createEmployee(formData: FormData) {
       username: displayName,
       role: role,
       allowed_modules: allowedModules,
+      company_name: companyName,
       is_head: false, // Explicitly false: this is a floor worker, NOT a Department Head
       is_active: true
     })

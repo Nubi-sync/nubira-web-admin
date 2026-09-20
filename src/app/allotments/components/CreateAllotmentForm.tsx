@@ -303,8 +303,15 @@ export function CreateAllotmentForm({
     }
 
     (productionOrders || []).forEach((ch: any) => {
-      const chArticles: any[] = ch.articles || []
-      if (chArticles.length === 0) return
+      let chArticles: any[] = ch.articles || []
+      if (chArticles.length === 0 && ch.notes) {
+        try {
+          const parsed = JSON.parse(ch.notes)
+          chArticles = parsed.article_lines || parsed || []
+        } catch (_) {}
+      }
+
+      if (chArticles.length === 0 && !ch.total_pcs) return
 
       const firstArtCode = (chArticles[0]?.art_no || '').trim().toUpperCase()
       const matchedDbArt = articles.find(a => a.art_no?.trim().toUpperCase() === firstArtCode) || articles[0]
@@ -457,7 +464,7 @@ export function CreateAllotmentForm({
     }
 
     if (smartOpt.type === 'COLOR_LINE' && smartOpt.colorName) {
-      const tierEntries = Object.entries(smartOpt.sizeBreakdown)
+      const tierEntries = Object.entries(smartOpt.sizeBreakdown || {})
       const allIndividualSizes: string[] = []
       const perCellQtys: Record<string, number> = {}
 
@@ -466,11 +473,12 @@ export function CreateAllotmentForm({
         const perSubSizeQty = Math.round(Number(tierPcs) / (subSizes.length || 1))
         subSizes.forEach(s => {
           if (!allIndividualSizes.includes(s)) allIndividualSizes.push(s)
-          perCellQtys[s] = perSubSizeQty
+          perCellQtys[s] = (perCellQtys[s] || 0) + perSubSizeQty
         })
       })
 
-      setSelectedSizes(allIndividualSizes)
+      const finalSizes = allIndividualSizes.length > 0 ? allIndividualSizes : ['S', 'M', 'L', 'XL']
+      setSelectedSizes(finalSizes)
       setColorRows([
         {
           id: '1',
@@ -491,16 +499,16 @@ export function CreateAllotmentForm({
       }
 
       setSelectedTargetSummary({
-        title: `${smartOpt.challanNo} (${smartOpt.brand}) • ${smartOpt.colorName} LINE`,
-        subtitle: `${allIndividualSizes.length} Sizes (${allIndividualSizes.join(', ')}) • Continuous Sewing`,
-        totalPcs: smartOpt.totalPcs,
+        title: `${smartOpt.challanNo} (${smartOpt.brand || 'Factory'}) • ${smartOpt.colorName} LINE`,
+        subtitle: `${finalSizes.length} Sizes (${finalSizes.join(', ')}) • Continuous Sewing`,
+        totalPcs: smartOpt.totalPcs || Object.values(perCellQtys).reduce((a, b) => a + b, 0),
         badgeColor: themeColor,
         themeBg: themeBg
       })
 
       // Smart Color-Line BOM Checklist:
-      const approxMeters = Math.max(Math.ceil(smartOpt.totalPcs * 0.4), 10)
-      const threadCones = Math.max(Math.ceil(smartOpt.totalPcs / 100), 2)
+      const approxMeters = Math.max(Math.ceil((smartOpt.totalPcs || 100) * 0.4), 10)
+      const threadCones = Math.max(Math.ceil((smartOpt.totalPcs || 100) / 100), 2)
       const newMaterials: any[] = [
         {
           id: 'mat_fab_' + Date.now(),
@@ -539,14 +547,13 @@ export function CreateAllotmentForm({
           }
 
           if (itemColor && !activeColorUpper.includes(itemColor) && !itemColor.includes(activeColorUpper)) {
-            // Isolate out trims belonging to other colors
             return
           }
 
           newMaterials.push({
             id: `mat_inward_${idx}_` + Date.now(),
             item_name: bName,
-            required_qty: `${smartOpt.totalPcs.toLocaleString('en-IN')} pcs`,
+            required_qty: `${(smartOpt.totalPcs || 0).toLocaleString('en-IN')} pcs`,
             admin_issued: false,
             source: (b.material_type === 'ACCESSORY' || upper.includes('THREAD')) ? 'FACTORY_STORE' : 'CLIENT'
           })
@@ -557,7 +564,7 @@ export function CreateAllotmentForm({
         newMaterials.push({
           id: 'mat_neck_' + Date.now(),
           item_name: `${smartOpt.brand || 'Main Brand'} Neck Label`,
-          required_qty: `${smartOpt.totalPcs.toLocaleString('en-IN')} pcs`,
+          required_qty: `${(smartOpt.totalPcs || 0).toLocaleString('en-IN')} pcs`,
           admin_issued: false,
           source: 'CLIENT' as const
         })
@@ -565,8 +572,8 @@ export function CreateAllotmentForm({
 
       newMaterials.push({
         id: 'mat_size_' + Date.now(),
-        item_name: `Size Labels (${allIndividualSizes.join(', ')})`,
-        required_qty: `${smartOpt.totalPcs.toLocaleString('en-IN')} pcs`,
+        item_name: `Size Labels (${finalSizes.join(', ')})`,
+        required_qty: `${(smartOpt.totalPcs || 0).toLocaleString('en-IN')} pcs`,
         admin_issued: false,
         source: 'CLIENT' as const
       })
@@ -574,7 +581,7 @@ export function CreateAllotmentForm({
       newMaterials.push({
         id: 'mat_poly_' + Date.now(),
         item_name: `Master Polybags (10x14)`,
-        required_qty: `${smartOpt.totalPcs.toLocaleString('en-IN')} pcs`,
+        required_qty: `${(smartOpt.totalPcs || 0).toLocaleString('en-IN')} pcs`,
         admin_issued: false,
         source: 'CLIENT' as const
       })
@@ -589,7 +596,7 @@ export function CreateAllotmentForm({
 
       const colorNames = (smartOpt.fullChallanColorRows || []).map((r: any) => r.color).join(', ')
       setSelectedTargetSummary({
-        title: `${smartOpt.challanNo} (${smartOpt.brand}) • ENTIRE CHALLAN BATCH`,
+        title: `${smartOpt.challanNo} (${smartOpt.brand || 'Factory'}) • ENTIRE CHALLAN BATCH`,
         subtitle: `Colors (${colorNames || 'All Lines'}) & ${sizesToUse.length} Sizes Combined`,
         totalPcs: smartOpt.totalPcs,
         badgeColor: '#0F172A',
@@ -648,12 +655,20 @@ export function CreateAllotmentForm({
       setTouchedLineman(true)
     }
 
-    if (targetKey && smartChallanOptions.length > 0) {
+    if (targetKey) {
       const rawDecoded = decodeURIComponent(targetKey)
       const decodedKey = rawDecoded.replace(/\+/g, ' ').trim()
       const normKey = decodedKey.toUpperCase()
 
-      // 1. Direct key match (exact or with + replaced by space)
+      // Extract UUID and Color from targetKey
+      const uuidMatch = normKey.match(/([0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12})/i)
+      const targetChallanId = uuidMatch ? uuidMatch[1].toUpperCase() : ''
+      let targetColor = ''
+      if (normKey.startsWith('COLOR_')) {
+        targetColor = normKey.replace('COLOR_', '').replace(`_${targetChallanId}`, '').trim()
+      }
+
+      // 1. Direct match in smartChallanOptions
       let matchedOpt = smartChallanOptions.find(o => 
         o.key === decodedKey || 
         o.key === rawDecoded ||
@@ -661,19 +676,100 @@ export function CreateAllotmentForm({
         o.challanId === decodedKey
       )
 
-      // 2. Fuzzy / color match within the challan (e.g. target_key=COLOR_BABY+PINK_096e...)
-      if (!matchedOpt) {
+      // 2. Fuzzy / color + challan ID match
+      if (!matchedOpt && targetChallanId) {
         matchedOpt = smartChallanOptions.find(o => {
-          if (!o.challanId || !normKey.includes(o.challanId.toUpperCase())) return false
+          if (!o.challanId || o.challanId.toUpperCase() !== targetChallanId) return false
           if (normKey.startsWith('FULL_CHALLAN') && o.type === 'FULL_CHALLAN') return true
-          if (o.colorName && normKey.includes(o.colorName.toUpperCase())) return true
+          if (targetColor && o.colorName) {
+            const oCol = o.colorName.toUpperCase()
+            if (oCol === targetColor || oCol.includes(targetColor) || targetColor.includes(oCol)) return true
+          }
           return false
         })
       }
 
-      // 3. Fallback: match by challan ID
-      if (!matchedOpt) {
-        matchedOpt = smartChallanOptions.find(o => o.challanId && normKey.includes(o.challanId.toUpperCase()))
+      // 3. Fallback: match by challan ID in smartChallanOptions
+      if (!matchedOpt && targetChallanId) {
+        matchedOpt = smartChallanOptions.find(o => o.challanId && o.challanId.toUpperCase() === targetChallanId)
+      }
+
+      // 4. Fallback: match directly from productionOrders list if smartChallanOptions hadn't built it
+      if (!matchedOpt && (targetChallanId || normKey)) {
+        const rawCh = (productionOrders || []).find((c: any) => 
+          (c.id && c.id.toUpperCase() === targetChallanId) ||
+          (c.challan_no && normKey.includes(c.challan_no.toUpperCase()))
+        )
+
+        if (rawCh) {
+          let rArticles = rawCh.articles || []
+          if (rArticles.length === 0 && rawCh.notes) {
+            try {
+              const p = JSON.parse(rawCh.notes)
+              rArticles = p.article_lines || p || []
+            } catch (_) {}
+          }
+
+          const distinctSizes: string[] = []
+          const colorBreakdownMap: Record<string, { totalPcs: number; sizeBreakdown: Record<string, number> }> = {}
+
+          rArticles.forEach((art: any) => {
+            const cName = (art.color_pattern || art.description || 'Standard').trim().toUpperCase()
+            const sz = (art.size_range || 'Free Size').trim()
+            const pcs = Number(art.total_pcs) || 0
+            const sub = expandGarmentSizeTier(sz)
+            sub.forEach(s => { if (!distinctSizes.includes(s)) distinctSizes.push(s) })
+
+            if (!colorBreakdownMap[cName]) colorBreakdownMap[cName] = { totalPcs: 0, sizeBreakdown: {} }
+            colorBreakdownMap[cName].totalPcs += pcs
+            colorBreakdownMap[cName].sizeBreakdown[sz] = (colorBreakdownMap[cName].sizeBreakdown[sz] || 0) + pcs
+          })
+
+          const matchingColorEntry = targetColor 
+            ? Object.entries(colorBreakdownMap).find(([c]) => c === targetColor || c.includes(targetColor) || targetColor.includes(c))
+            : Object.entries(colorBreakdownMap)[0]
+
+          if (matchingColorEntry && normKey.startsWith('COLOR_')) {
+            matchedOpt = {
+              key: `COLOR_${matchingColorEntry[0]}_${rawCh.id}`,
+              challanId: rawCh.id,
+              type: 'COLOR_LINE',
+              colorName: matchingColorEntry[0],
+              challanNo: rawCh.challan_no || 'CHALLAN',
+              brand: rawCh.brand || '',
+              fabricType: rawCh.fabric_type || '',
+              deliveryDate: rawCh.delivery_date,
+              totalPcs: matchingColorEntry[1].totalPcs,
+              sizeBreakdown: matchingColorEntry[1].sizeBreakdown,
+              assignedLinemanId: urlLinemanId || '',
+              bomDetails: rawCh.bom_details || [],
+              label: `${rawCh.challan_no} • ${matchingColorEntry[0]} LINE`
+            }
+          } else {
+            matchedOpt = {
+              key: `FULL_CHALLAN_${rawCh.id}`,
+              challanId: rawCh.id,
+              type: 'FULL_CHALLAN',
+              challanNo: rawCh.challan_no || 'CHALLAN',
+              brand: rawCh.brand || '',
+              fabricType: rawCh.fabric_type || '',
+              deliveryDate: rawCh.delivery_date,
+              totalPcs: rawCh.total_pcs || 0,
+              sizeBreakdown: {},
+              fullChallanSizes: distinctSizes.length > 0 ? distinctSizes : ['Free Size'],
+              fullChallanColorRows: Object.entries(colorBreakdownMap).map(([c, d], idx) => {
+                const subPcs = Math.round(d.totalPcs / (distinctSizes.length || 1))
+                return {
+                  id: String(idx + 1),
+                  color: c,
+                  quantities: Object.fromEntries(distinctSizes.map(s => [s, subPcs]))
+                }
+              }),
+              bomDetails: rawCh.bom_details || [],
+              label: `${rawCh.challan_no} • ENTIRE CHALLAN`
+            }
+          }
+        }
       }
 
       if (matchedOpt) {
@@ -702,7 +798,7 @@ export function CreateAllotmentForm({
         }
       }
     }
-  }, [searchParams, smartChallanOptions, articles])
+  }, [searchParams, smartChallanOptions, articles, productionOrders])
 
   // Selected article details
   const selectedArticle = useMemo(() => {
@@ -1761,7 +1857,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                   type="text"
                   value={clientChallanNo}
                   onChange={(e) => setClientChallanNo(e.target.value)}
-                  placeholder="e.g. CH-8921 / Buyer DC # / Order Ref"
+                  placeholder="Enter Client / Buyer Challan No."
                   className="w-full py-2.5 pl-10 pr-3.5 text-sm rounded-xl border border-slate-200 transition-all outline-none bg-slate-50/70 hover:bg-white focus:bg-white focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 font-mono text-slate-900"
                 />
                 <FileText className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />

@@ -58,18 +58,18 @@ export const ROLE_MODULE_MAPPING: Record<string, DivisionRoute[]> = {
   IRONING_MASTER: ['/iron'],
   
   // Quality & Packing
-  QC: ['/ready-goods'],
+  QC: ['/stitching-sewing', '/ready-goods'],
   PACKING: ['/ready-goods'],
   AQL_INSPECTOR: ['/ready-goods'],
   
   // Alteration Clinic
-  MENDING: ['/alter'],
-  ALTERATION: ['/alter'],
-  REPAIR_TAILOR: ['/alter'],
+  MENDING: ['/stitching-sewing', '/alter'],
+  ALTERATION: ['/stitching-sewing', '/alter'],
+  REPAIR_TAILOR: ['/stitching-sewing', '/alter'],
   
   // Materials & Warehouse
-  STORE: ['/store'],
-  STORE_SUPERVISOR: ['/store'],
+  STORE: ['/stitching-sewing', '/store'],
+  STORE_SUPERVISOR: ['/stitching-sewing', '/store'],
   GODOWN: ['/store'],
   
   // Outward Logistics
