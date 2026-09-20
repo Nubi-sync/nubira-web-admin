@@ -49,14 +49,10 @@ export default async function EmployeesPage({ forcedModule, moduleName }: Employ
     if (e.id === user.id || e.role === 'PLATFORM_SUPERADMIN') return false
     const pCompany = (e.company_name || '').trim().toLowerCase()
     const currentCompany = (tenant.companyName || '').trim().toLowerCase()
-    if (pCompany) {
-      if (pCompany !== currentCompany) {
-        return false
-      }
-    } else {
-      if (tenant.isProvisionedTenant) {
-        return false
-      }
+    
+    // Strict tenant isolation: only show staff belonging to this exact company
+    if (pCompany !== currentCompany) {
+      return false
     }
     return true
   })

@@ -68,9 +68,29 @@ const ROLE_BADGE_STYLES: Record<string, { bg: string; text: string; label: strin
     label: 'STORE'
   },
   LINEMAN: {
-    bg: '#F1F5F9',
-    text: '#334155',
+    bg: '#FAF7F0',
+    text: '#3A3564',
     label: 'LINEMAN'
+  },
+  STITCHING: {
+    bg: '#FAF7F0',
+    text: '#3A3564',
+    label: 'TAILOR'
+  },
+  STITCHING_SUPERVISOR: {
+    bg: '#0F766E',
+    text: '#FFFFFF',
+    label: 'PROD MANAGER'
+  },
+  ALTERATION: {
+    bg: '#0369A1',
+    text: '#FFFFFF',
+    label: 'ALTERATION'
+  },
+  REPAIR_TAILOR: {
+    bg: '#0369A1',
+    text: '#FFFFFF',
+    label: 'REPAIR'
   }
 }
 
