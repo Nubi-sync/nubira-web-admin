@@ -635,3 +635,368 @@ export async function deleteFloorAccessoryReissue(id: string) {
     return { error: err?.message || 'Failed to delete floor re-issue record' }
   }
 }
+
+// ============================================================================
+// CENTRAL FABRIC INVENTORY & MATERIAL FLOW SERVER ACTIONS
+// ============================================================================
+
+export async function fetchCentralFabricInventory(companyName?: string) {
+  try {
+    const supabase = supabaseAdmin
+    let query = supabase
+      .from('central_fabric_inventory')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    if (companyName && companyName.trim()) {
+      query = query.ilike('company_name', companyName.trim())
+    }
+
+    const { data, error } = await query
+    if (error) {
+      console.error('Error fetching central fabric inventory:', error)
+      return { data: [], error: error.message }
+    }
+    return { data: data || [], error: null }
+  } catch (err: any) {
+    return { data: [], error: err?.message || 'Failed to fetch fabric inventory' }
+  }
+}
+
+export async function upsertFabricInventoryEntry(payload: {
+  id?: string
+  fabric_type: string
+  color: string
+  supplier_name?: string | null
+  total_meters: number
+  total_weight_kg?: number
+  total_rolls?: number
+  rack_location?: string
+  booked_for_article?: string | null
+  booked_meters?: number
+  notes?: string | null
+  company_name?: string
+}) {
+  try {
+    const supabase = supabaseAdmin
+    const company = payload.company_name?.trim() || 'NUBIRA CREATION'
+
+    if (!payload.fabric_type?.trim() || !payload.color?.trim()) {
+      return { error: 'Fabric type and color are required.' }
+    }
+
+    const rowData: any = {
+      company_name: company,
+      fabric_type: payload.fabric_type.trim(),
+      color: payload.color.trim(),
+      supplier_name: payload.supplier_name?.trim() || null,
+      total_meters: Number(payload.total_meters) || 0,
+      total_weight_kg: Number(payload.total_weight_kg) || 0,
+      total_rolls: Number(payload.total_rolls) || 0,
+      rack_location: payload.rack_location?.trim() || 'RACK-01',
+      booked_for_article: payload.booked_for_article?.trim() || null,
+      booked_meters: Number(payload.booked_meters) || 0,
+      notes: payload.notes?.trim() || null,
+      updated_at: new Date().toISOString(),
+    }
+
+    if (payload.id) {
+      const { data, error } = await supabase
+        .from('central_fabric_inventory')
+        .update(rowData)
+        .eq('id', payload.id)
+        .select()
+        .single()
+      if (error) return { error: error.message }
+      revalidatePath('/store')
+      return { data, success: true }
+    } else {
+      const { data, error } = await supabase
+        .from('central_fabric_inventory')
+        .insert({
+          ...rowData,
+          created_at: new Date().toISOString(),
+        })
+        .select()
+        .single()
+      if (error) return { error: error.message }
+      revalidatePath('/store')
+      return { data, success: true }
+    }
+  } catch (err: any) {
+    return { error: err?.message || 'Failed to save fabric inventory' }
+  }
+}
+
+export async function bookFabricForArticle(inventoryId: string, articleNo: string, meters: number) {
+  try {
+    const supabase = supabaseAdmin
+    if (!inventoryId || !articleNo || meters <= 0) {
+      return { error: 'Invalid inventory, article, or meters to book.' }
+    }
+
+    const { data: current, error: fetchErr } = await supabase
+      .from('central_fabric_inventory')
+      .select('total_meters, booked_meters')
+      .eq('id', inventoryId)
+      .single()
+
+    if (fetchErr || !current) {
+      return { error: fetchErr?.message || 'Inventory record not found.' }
+    }
+
+    const newBooked = (Number(current.booked_meters) || 0) + Number(meters)
+    if (newBooked > Number(current.total_meters)) {
+      return { error: `Cannot book ${meters}m. Only ${Number(current.total_meters) - (Number(current.booked_meters) || 0)}m available.` }
+    }
+
+    const { error: updateErr } = await supabase
+      .from('central_fabric_inventory')
+      .update({
+        booked_for_article: articleNo.trim(),
+        booked_meters: newBooked,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', inventoryId)
+
+    if (updateErr) return { error: updateErr.message }
+
+    revalidatePath('/store')
+    return { success: true }
+  } catch (err: any) {
+    return { error: err?.message || 'Failed to book fabric' }
+  }
+}
+
+export async function createMaterialIssueChallan(payload: {
+  from_division: string
+  to_division: string
+  article_no?: string | null
+  buyer_name?: string | null
+  fabric_type?: string | null
+  color?: string | null
+  quantity: number
+  unit?: string
+  rolls_count?: number
+  issued_by?: string | null
+  notes?: string | null
+  company_name?: string
+}) {
+  try {
+    const supabase = supabaseAdmin
+    const company = payload.company_name?.trim() || 'NUBIRA CREATION'
+
+    if (!payload.from_division || !payload.to_division || Number(payload.quantity) <= 0) {
+      return { error: 'Source, destination, and quantity are required.' }
+    }
+
+    const challanNo = `ISS-${new Date().getFullYear()}-${Date.now().toString().slice(-6)}`
+
+    const { data, error } = await supabase
+      .from('central_material_issues')
+      .insert({
+        company_name: company,
+        issue_challan_no: challanNo,
+        from_division: payload.from_division.toUpperCase(),
+        to_division: payload.to_division.toUpperCase(),
+        article_no: payload.article_no?.trim() || null,
+        buyer_name: payload.buyer_name?.trim() || null,
+        fabric_type: payload.fabric_type?.trim() || null,
+        color: payload.color?.trim() || null,
+        quantity: Number(payload.quantity),
+        unit: payload.unit?.toLowerCase() || 'meters',
+        rolls_count: Number(payload.rolls_count) || 0,
+        issued_by: payload.issued_by?.trim() || 'Central Store',
+        status: 'ISSUED',
+        issue_date: new Date().toISOString().split('T')[0],
+        notes: payload.notes?.trim() || null,
+        created_at: new Date().toISOString(),
+      })
+      .select()
+      .single()
+
+    if (error) return { error: error.message }
+
+    revalidatePath('/store')
+    revalidatePath('/cutting/store')
+    revalidatePath('/printing/store')
+    revalidatePath('/embroidery/store')
+    revalidatePath('/washing/store')
+    revalidatePath('/iron/store')
+    return { data, success: true, challanNo }
+  } catch (err: any) {
+    return { error: err?.message || 'Failed to create material issue challan' }
+  }
+}
+
+export async function acknowledgeMaterialReceipt(payload: {
+  issue_id: string
+  division_code: string
+  received_quantity: number
+  shortage_quantity?: number
+  unit?: string
+  received_by?: string | null
+  rack_location?: string | null
+  notes?: string | null
+  company_name?: string
+}) {
+  try {
+    const supabase = supabaseAdmin
+    const company = payload.company_name?.trim() || 'NUBIRA CREATION'
+
+    if (!payload.issue_id || !payload.division_code || Number(payload.received_quantity) <= 0) {
+      return { error: 'Issue reference, division, and received quantity are required.' }
+    }
+
+    // 1. Insert receipt record
+    const { data: receiptData, error: receiptError } = await supabase
+      .from('central_material_receipts')
+      .insert({
+        company_name: company,
+        issue_id: payload.issue_id,
+        division_code: payload.division_code.toUpperCase(),
+        received_quantity: Number(payload.received_quantity),
+        shortage_quantity: Number(payload.shortage_quantity) || 0,
+        unit: payload.unit?.toLowerCase() || 'meters',
+        received_by: payload.received_by?.trim() || 'Floor Manager',
+        rack_location: payload.rack_location?.trim() || 'FLOOR-IN',
+        notes: payload.notes?.trim() || null,
+        received_at: new Date().toISOString(),
+      })
+      .select()
+      .single()
+
+    if (receiptError) return { error: receiptError.message }
+
+    // 2. Update issue status
+    await supabase
+      .from('central_material_issues')
+      .update({
+        status: 'RECEIVED',
+        received_by: payload.received_by?.trim() || 'Floor Manager',
+        received_date: new Date().toISOString().split('T')[0],
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', payload.issue_id)
+
+    revalidatePath('/store')
+    revalidatePath('/cutting/store')
+    revalidatePath('/printing/store')
+    revalidatePath('/embroidery/store')
+    revalidatePath('/washing/store')
+    revalidatePath('/iron/store')
+    return { data: receiptData, success: true }
+  } catch (err: any) {
+    return { error: err?.message || 'Failed to acknowledge material receipt' }
+  }
+}
+
+export async function fetchMaterialIssuesByDivision(division?: string, companyName?: string) {
+  try {
+    const supabase = supabaseAdmin
+    let query = supabase
+      .from('central_material_issues')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    if (companyName && companyName.trim()) {
+      query = query.ilike('company_name', companyName.trim())
+    }
+
+    if (division && division.trim()) {
+      const d = division.trim().toUpperCase()
+      query = query.or(`from_division.eq.${d},to_division.eq.${d}`)
+    }
+
+    const { data, error } = await query
+    if (error) return { data: [], error: error.message }
+    return { data: data || [], error: null }
+  } catch (err: any) {
+    return { data: [], error: err?.message || 'Failed to fetch material issues' }
+  }
+}
+
+export async function fetchMaterialReceiptsByDivision(division?: string, companyName?: string) {
+  try {
+    const supabase = supabaseAdmin
+    let query = supabase
+      .from('central_material_receipts')
+      .select('*, issue:central_material_issues(*)')
+      .order('received_at', { ascending: false })
+
+    if (companyName && companyName.trim()) {
+      query = query.ilike('company_name', companyName.trim())
+    }
+
+    if (division && division.trim()) {
+      query = query.eq('division_code', division.trim().toUpperCase())
+    }
+
+    const { data, error } = await query
+    if (error) return { data: [], error: error.message }
+    return { data: data || [], error: null }
+  } catch (err: any) {
+    return { data: [], error: err?.message || 'Failed to fetch material receipts' }
+  }
+}
+
+export async function fetchCentralStoreKpis(companyName?: string) {
+  try {
+    const [fabricRes, issuesRes, receiptsRes, trucksRes] = await Promise.all([
+      fetchCentralFabricInventory(companyName),
+      fetchMaterialIssuesByDivision(undefined, companyName),
+      fetchMaterialReceiptsByDivision(undefined, companyName),
+      supabaseAdmin
+        .from('truck_inwards')
+        .select('id', { count: 'exact' })
+    ])
+
+    const fabrics = fabricRes.data || []
+    const issues = issuesRes.data || []
+    const receipts = receiptsRes.data || []
+
+    const totalFabricMeters = fabrics.reduce((sum: number, f: any) => sum + (Number(f.total_meters) || 0), 0)
+    const totalFabricRolls = fabrics.reduce((sum: number, f: any) => sum + (Number(f.total_rolls) || 0), 0)
+    const totalWeightKg = fabrics.reduce((sum: number, f: any) => sum + (Number(f.total_weight_kg) || 0), 0)
+    const totalBookedMeters = fabrics.reduce((sum: number, f: any) => sum + (Number(f.booked_meters) || 0), 0)
+    const totalAvailableMeters = Math.max(0, totalFabricMeters - totalBookedMeters)
+
+    const activeIssuesCount = issues.filter((i: any) => i.status === 'ISSUED' || i.status === 'IN_TRANSIT').length
+    const completedReceiptsCount = receipts.length
+    const totalTrucksInward = trucksRes.count || 0
+
+    return {
+      kpis: {
+        totalFabricMeters,
+        totalFabricRolls,
+        totalWeightKg,
+        totalAvailableMeters,
+        totalBookedMeters,
+        activeIssuesCount,
+        completedReceiptsCount,
+        totalTrucksInward,
+      },
+      fabrics,
+      issues,
+      receipts,
+    }
+  } catch (err: any) {
+    console.error('Error fetching central store KPIs:', err)
+    return {
+      kpis: {
+        totalFabricMeters: 0,
+        totalFabricRolls: 0,
+        totalWeightKg: 0,
+        totalAvailableMeters: 0,
+        totalBookedMeters: 0,
+        activeIssuesCount: 0,
+        completedReceiptsCount: 0,
+        totalTrucksInward: 0,
+      },
+      fabrics: [],
+      issues: [],
+      receipts: [],
+    }
+  }
+}
+

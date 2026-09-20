@@ -168,3 +168,88 @@ export interface CentralStoreMetrics {
   fourPointAuditPassRate: number
   lowStockTrimsCount: number
 }
+
+// ============================================================================
+// Production Material Flow & Central Fabric Inventory Types
+// ============================================================================
+
+export type MaterialFlowDivision = 
+  | 'MERCHANDISE'
+  | 'CUTTING'
+  | 'PRINTING'
+  | 'EMBROIDERY'
+  | 'SEWING'
+  | 'WASHING'
+  | 'IRONING'
+  | 'PACKING'
+
+export interface CentralFabricInventoryRow {
+  id: string
+  company_name?: string
+  fabric_type: string
+  color: string
+  supplier_name?: string | null
+  total_meters: number
+  total_weight_kg: number
+  total_rolls: number
+  rack_location: string
+  booked_for_article?: string | null
+  booked_meters: number
+  available_meters: number
+  notes?: string | null
+  last_updated_by?: string | null
+  created_at?: string
+  updated_at?: string
+}
+
+export interface MaterialIssueRecord {
+  id: string
+  company_name?: string
+  issue_challan_no: string
+  from_division: MaterialFlowDivision | string
+  to_division: MaterialFlowDivision | string
+  article_no?: string | null
+  buyer_name?: string | null
+  fabric_type?: string | null
+  color?: string | null
+  quantity: number
+  unit: string
+  rolls_count?: number
+  issued_by?: string | null
+  received_by?: string | null
+  status: 'ISSUED' | 'IN_TRANSIT' | 'RECEIVED' | 'REJECTED'
+  issue_date?: string
+  received_date?: string | null
+  notes?: string | null
+  created_at?: string
+  updated_at?: string
+}
+
+export interface MaterialReceiptRecord {
+  id: string
+  company_name?: string
+  issue_id?: string | null
+  division_code: MaterialFlowDivision | string
+  received_quantity: number
+  shortage_quantity: number
+  unit: string
+  received_by?: string | null
+  rack_location?: string | null
+  notes?: string | null
+  received_at?: string
+  created_at?: string
+  updated_at?: string
+  issue?: MaterialIssueRecord | null
+}
+
+export interface CentralStoreHubKpis {
+  totalFabricMeters: number
+  totalFabricRolls: number
+  totalWeightKg: number
+  totalAvailableMeters: number
+  totalBookedMeters: number
+  activeIssuesCount: number
+  completedReceiptsCount: number
+  totalTrucksInward: number
+}
+
