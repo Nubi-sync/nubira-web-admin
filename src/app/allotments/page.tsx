@@ -98,9 +98,7 @@ export default async function AllotmentsPage() {
     ? (rawAllotments || []).filter(a => (a.challans as any)?.brand?.toUpperCase().includes(tenant.companyName.toUpperCase()))
     : (rawAllotments || [])
 
-  const productionOrders = isProvisionedTenant
-    ? (allProductionOrders || []).filter(o => o.brand?.toUpperCase().includes(tenant.companyName.toUpperCase()))
-    : (allProductionOrders || [])
+  const productionOrders = allProductionOrders || []
 
   const isCompanyProfileMatch = (p: any) => {
     const pCompany = (p.company_name || '').trim().toLowerCase()

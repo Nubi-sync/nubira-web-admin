@@ -2760,7 +2760,7 @@ export function ProductionOrdersClient({
                           <input
                             type="text"
                             required
-                            placeholder="e.g. JOB-457"
+                            placeholder="Enter Challan No."
                             value={formChallanNo}
                             onChange={e => setFormChallanNo(e.target.value)}
                             className={`w-full px-3.5 py-2.5 bg-white border rounded-xl text-xs sm:text-sm font-bold text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 ${
@@ -2801,7 +2801,7 @@ export function ProductionOrdersClient({
                       type="text"
                       list="brands-datalist"
                       required
-                      placeholder="e.g. OLLYPOP"
+                      placeholder="Enter Brand / Buyer Name"
                       value={formBrand}
                       onChange={e => setFormBrand(e.target.value)}
                       className="w-full px-3.5 py-2.5 bg-white border border-black/10 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
@@ -2852,7 +2852,7 @@ export function ProductionOrdersClient({
                     </label>
                     <input
                       type="text"
-                      placeholder="e.g. PRINTED SINKER"
+                      placeholder="Enter Fabric Quality / Type"
                       value={formFabric}
                       onChange={e => setFormFabric(e.target.value)}
                       className="w-full px-3.5 py-2.5 bg-white border border-black/10 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
@@ -2892,7 +2892,7 @@ export function ProductionOrdersClient({
                     </label>
                     <input
                       type="text"
-                      placeholder="e.g. Body+Rib N.P, Ext=3=27, 2=18, 1=9..."
+                      placeholder="Enter special instructions or remarks..."
                       value={formNotes}
                       onChange={e => setFormNotes(e.target.value)}
                       className="w-full px-3.5 py-2.5 bg-white border border-black/10 rounded-xl text-xs sm:text-sm font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
@@ -2976,7 +2976,7 @@ export function ProductionOrdersClient({
                               <input
                                 type="text"
                                 required
-                                placeholder="e.g. 9437"
+                                placeholder="Art No"
                                 value={line.art_no}
                                 onChange={e => handleLineChange(idx, 'art_no', e.target.value)}
                                 className="w-full px-3 py-1.5 bg-white border border-black/10 rounded-xl text-xs sm:text-sm font-bold text-slate-900 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
@@ -2988,7 +2988,7 @@ export function ProductionOrdersClient({
                               <input
                                 type="text"
                                 required
-                                placeholder="e.g. ROBIN BLUE"
+                                placeholder="Colour / Shade"
                                 value={line.color_pattern}
                                 onChange={e => handleLineChange(idx, 'color_pattern', e.target.value)}
                                 className="w-full px-3 py-1.5 bg-white border border-black/10 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
@@ -2999,7 +2999,7 @@ export function ProductionOrdersClient({
                             <td className="py-2.5 px-2">
                               <input
                                 type="text"
-                                placeholder="e.g. SUIT"
+                                placeholder="Category"
                                 value={line.category || ''}
                                 onChange={e => handleLineChange(idx, 'category', e.target.value)}
                                 className="w-full px-2.5 py-1.5 bg-white border border-black/10 rounded-xl text-xs font-semibold text-slate-700 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
@@ -3010,7 +3010,7 @@ export function ProductionOrdersClient({
                             <td className="py-2.5 px-3">
                               <input
                                 type="text"
-                                placeholder="e.g. PANT"
+                                placeholder="Product / Pattern"
                                 value={line.product || line.pattern_no || ''}
                                 onChange={e => {
                                   handleLineChange(idx, 'product', e.target.value)
@@ -3025,7 +3025,7 @@ export function ProductionOrdersClient({
                               <input
                                 type="text"
                                 required
-                                placeholder="e.g. L, XL, 22"
+                                placeholder="Size (e.g. L, 32)"
                                 value={line.size_range}
                                 onChange={e => handleLineChange(idx, 'size_range', e.target.value)}
                                 className="w-full px-3 py-1.5 bg-white border border-black/10 rounded-xl text-xs sm:text-sm font-bold text-slate-900 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
@@ -3040,7 +3040,7 @@ export function ProductionOrdersClient({
                                   type="number"
                                   step="0.25"
                                   min={0}
-                                  placeholder="Optional"
+                                  placeholder="0.00"
                                   value={line.stitching_rate !== undefined && line.stitching_rate !== null ? line.stitching_rate : ''}
                                   onChange={e => handleLineChange(idx, 'stitching_rate', e.target.value)}
                                   className="w-full pl-6 pr-2.5 py-1.5 bg-white border border-black/10 rounded-xl text-xs sm:text-sm font-bold text-right text-slate-900 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-[#3A3564] font-mono"
@@ -3053,7 +3053,7 @@ export function ProductionOrdersClient({
                               <input
                                 type="number"
                                 min={0}
-                                placeholder="384"
+                                placeholder="0"
                                 value={line.order_qty !== undefined && line.order_qty !== '' ? line.order_qty : ''}
                                 onChange={e => handleLineChange(idx, 'order_qty', e.target.value)}
                                 className="w-full px-3 py-1.5 bg-slate-50 border border-black/10 rounded-xl text-xs sm:text-sm font-semibold text-right text-slate-700 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-[#3A3564] font-mono"
@@ -3066,7 +3066,7 @@ export function ProductionOrdersClient({
                                 type="number"
                                 min={1}
                                 required
-                                placeholder="392"
+                                placeholder="0"
                                 value={line.total_pcs || ''}
                                 onChange={e => handleLineChange(idx, 'total_pcs', e.target.value)}
                                 className="w-full px-3 py-1.5 bg-[#FAF7F0] border border-black/15 rounded-xl text-xs sm:text-sm font-extrabold text-right text-slate-900 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-[#3A3564] font-mono"
@@ -3080,7 +3080,7 @@ export function ProductionOrdersClient({
                                 onChange={e => handleLineChange(idx, 'assigned_lineman_id', e.target.value)}
                                 className="w-full bg-slate-50 border border-black/10 rounded-xl px-2.5 py-1.5 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#3A3564] cursor-pointer"
                               >
-                                <option value="">Assign later...</option>
+                                <option value="">Select Lineman (Optional)</option>
                                 {linemenList.map(lm => (
                                   <option key={lm.id} value={lm.id}>
                                     {lm.username}
@@ -3139,7 +3139,7 @@ export function ProductionOrdersClient({
                 {bomItems.length === 0 ? (
                   <div className="p-5 bg-white border border-dashed border-black/15 rounded-xl text-center">
                     <p className="text-xs sm:text-[13px] text-slate-500">
-                      No BOM material lots added yet. Click <strong>"+ Add Material Lot"</strong> to specify fabric roll lots (e.g. Mushroom T-03) or brand labels.
+                      No BOM materials or fabric lots added. Click <strong>"+ Add Material Lot"</strong> to attach lots to this challan.
                     </p>
                   </div>
                 ) : (
@@ -3151,7 +3151,7 @@ export function ProductionOrdersClient({
                             type="text"
                             value={bom.item_name}
                             onChange={e => handleBomChange(bIdx, 'item_name', e.target.value)}
-                            placeholder="Material Name (e.g. Body Fabric)"
+                            placeholder="Material name"
                             className="w-full text-xs sm:text-sm font-bold text-slate-900 bg-transparent border-none p-0 focus:outline-none placeholder-slate-300"
                           />
                           <div className="flex items-center gap-2 mt-2">
@@ -3159,7 +3159,7 @@ export function ProductionOrdersClient({
                               type="text"
                               value={bom.lot_no || ''}
                               onChange={e => handleBomChange(bIdx, 'lot_no', e.target.value)}
-                              placeholder="Lot # (e.g. T-03)"
+                              placeholder="Lot #"
                               className="text-xs font-semibold text-slate-700 bg-slate-50 px-2.5 py-1 rounded-lg border border-black/10 w-24 focus:outline-none placeholder-slate-300 font-mono"
                             />
                             <select

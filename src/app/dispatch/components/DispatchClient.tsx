@@ -1068,7 +1068,7 @@ export function DispatchClient({
                       type="text" 
                       name="buyer_name" 
                       required 
-                      placeholder="e.g. OLLYPOP INDUSTRIES" 
+                      placeholder="Enter Buyer / Consignee Name" 
                       className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] transition-all" 
                     />
                   </div>
@@ -1079,7 +1079,7 @@ export function DispatchClient({
                     <input 
                       type="text" 
                       name="vendor_name" 
-                      placeholder="e.g. Enter Vendor / Unit Name" 
+                      placeholder="Enter Vendor / Unit Name" 
                       className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] transition-all" 
                     />
                   </div>
