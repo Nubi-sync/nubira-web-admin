@@ -29,7 +29,6 @@ export default async function IronDashboardPage() {
   const companyFilter = tenant.companyName
 
   const [
-    { data: profile },
     liveData,
     workers,
     allocations,
@@ -37,11 +36,6 @@ export default async function IronDashboardPage() {
     washingAllocations,
     buyers
   ] = await Promise.all([
-    supabase
-      .from('profiles')
-      .select('id, username, role')
-      .eq('id', user.id)
-      .single(),
     fetchIronDashboardDataAction(companyFilter),
     fetchIronWorkersAction(companyFilter),
     fetchIronTaskAllocationsAction(companyFilter),
@@ -51,7 +45,7 @@ export default async function IronDashboardPage() {
   ])
 
   return (
-    <AdminShell userEmail={user.email} userRole={profile?.role || tenant.role}>
+    <AdminShell userEmail={user.email} userRole={tenant.role}>
       <div className="p-4 sm:p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto">
         <IronDashboardClient
           userEmail={user.email}

@@ -28,18 +28,12 @@ export default async function WashingDashboardPage() {
   const companyFilter = tenant.companyName
 
   const [
-    { data: profile },
     liveData,
     workers,
     allocations,
     cuttingAllocations,
     buyers
   ] = await Promise.all([
-    supabase
-      .from('profiles')
-      .select('id, username, role')
-      .eq('id', user.id)
-      .single(),
     fetchWashingDashboardDataAction(companyFilter),
     fetchWashingWorkersAction(companyFilter),
     fetchWashingTaskAllocationsAction(companyFilter),
@@ -48,7 +42,7 @@ export default async function WashingDashboardPage() {
   ])
 
   return (
-    <AdminShell userEmail={user.email} userRole={profile?.role || tenant.role}>
+    <AdminShell userEmail={user.email} userRole={tenant.role}>
       <div className="p-4 sm:p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto">
         <WashingDashboardClient
           userEmail={user.email}
