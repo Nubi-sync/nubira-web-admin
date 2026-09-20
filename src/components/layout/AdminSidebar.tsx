@@ -415,6 +415,7 @@ export function AdminSidebar({
         section: '3. Cutting Floor',
         items: [
           { label: 'Floor Dashboard', href: '/cutting', icon: Scissors },
+          { label: 'Floor Store & Material', href: '/cutting/store', icon: Store },
           { label: 'Spreading & Lay Plans', href: '/cutting/lay-sheets', icon: Layers },
           { label: 'CAD Markers & Nesting', href: '/cutting/markers', icon: Maximize2 },
           { label: 'Cutting Orders & Queue', href: '/cutting/orders', icon: Cpu },
@@ -441,6 +442,7 @@ export function AdminSidebar({
         section: '4. Printing Division',
         items: [
           { label: 'Floor Dashboard', href: '/printing', icon: Printer },
+          { label: 'Floor Store & Material', href: '/printing/store', icon: Store },
           { label: 'Zigza AI', href: '/printing/zigza-ai', icon: Bot },
         ],
       },
@@ -463,6 +465,7 @@ export function AdminSidebar({
         section: '5. Embroidery Division',
         items: [
           { label: 'Floor Dashboard', href: '/embroidery', icon: Sparkles },
+          { label: 'Floor Store & Material', href: '/embroidery/store', icon: Store },
           { label: 'Zigza AI', href: '/embroidery/zigza-ai', icon: Bot },
         ],
       },
@@ -520,6 +523,7 @@ export function AdminSidebar({
         section: '7. Washing Operations',
         items: [
           { label: 'Floor Dashboard', href: '/washing', icon: Waves },
+          { label: 'Floor Store & Material', href: '/washing/store', icon: Store },
           { label: 'Zigza AI', href: '/washing/zigza-ai', icon: Bot },
         ],
       },
@@ -542,6 +546,7 @@ export function AdminSidebar({
         section: '8. Ironing Operations',
         items: [
           { label: 'Floor Dashboard', href: '/iron', icon: Wind },
+          { label: 'Floor Store & Material', href: '/iron/store', icon: Store },
           { label: 'Zigza AI', href: '/iron/zigza-ai', icon: Bot },
         ],
       },
@@ -617,12 +622,12 @@ export function AdminSidebar({
       {
         section: '11. Central Store & Godown',
         items: [
-          { label: 'Store Dashboard', href: '/store', icon: Store },
-          { label: 'Fabric Godown & 4-Point QC', href: '/store/fabric-godown', icon: Layers },
-          { label: 'Trims & Accessories Whse', href: '/store/trims-warehouse', icon: Tag },
-          { label: 'Truck Inward Gate (GRN)', href: '/store/truck-inwards', icon: Truck },
-          { label: 'Material Issues to Floor', href: '/store/material-issues', icon: ArrowRight },
-          { label: 'Finished Export Bay 3-5', href: '/store/finished-godown', icon: Warehouse },
+          { label: 'Store Hub', href: '/store', icon: Store },
+          { label: 'Fabric Godown & QC', href: '/store/fabric-godown', icon: Layers },
+          { label: 'Trims Warehouse', href: '/store/trims-warehouse', icon: Tag },
+          { label: 'Truck Inwards (GRN)', href: '/store/truck-inwards', icon: Truck },
+          { label: 'Material Issues', href: '/store/material-issues', icon: ArrowRight },
+          { label: 'Finished Export Bay', href: '/store/finished-godown', icon: Warehouse },
           { label: 'Zigza AI Copilot', href: '/store/zigza-ai', icon: Bot },
         ],
       },
