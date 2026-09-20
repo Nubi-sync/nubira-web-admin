@@ -5,12 +5,9 @@ import { AdminShell } from '@/components/layout/AdminShell'
 import { SupervisorDeskClient } from './SupervisorDeskClient'
 import { resolveUserTenant } from '@/lib/tenant-context'
 
-export const dynamic = 'force-dynamic'
+import { fetchSupervisorDeskDataAction } from './actions'
 
-const supabaseAdmin = createAdminClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+export const dynamic = 'force-dynamic'
 
 export default async function SupervisorDeskPage() {
   const supabase = await createClient()
@@ -31,58 +28,9 @@ export default async function SupervisorDeskPage() {
     tenant.userEmail.endsWith('@nubira.local')
   const userRole = tenant.role.toUpperCase()
 
-  // 2. Fetch active floor allotments with relations
-  const { data: rawAllotmentsData, error: allotmentsErr } = await supabaseAdmin
-    .from('allotments')
-    .select(`
-      id,
-      challan_id,
-      lineman_id,
-      article_id,
-      target_qty,
-      status,
-      priority,
-      allotment_date,
-      mending_status,
-      mending_total_counted,
-      mending_supervisor_name,
-      handed_to_mending_by,
-      handed_to_mending_at,
-      mending_handover_notes,
-      qc_status,
-      qc_total_passed,
-      qc_total_alter,
-      qc_supervisor_name,
-      handed_to_qc_by,
-      handed_to_qc_at,
-      qc_handover_notes,
-      store_inward_status,
-      total_bags_packed,
-      created_at,
-      profiles:lineman_id ( id, username, role ),
-      articles:article_id ( id, art_no, description ),
-      challans:challan_id ( id, challan_no, brand, fabric_type ),
-      allotment_variants ( id, allotment_id, color, size, quantity, completed_qty ),
-      allotment_materials ( id, allotment_id, item_name, required_qty, admin_issued, notes )
-    `)
-    .order('created_at', { ascending: false })
-
-  if (allotmentsErr) {
-    console.error('Error fetching allotments in supervisor-desk:', allotmentsErr)
-  }
-
-  // 3. Fetch linemen profiles
-  const { data: rawLinemenProfiles } = await supabaseAdmin
-    .from('profiles')
-    .select('id, username, role')
-    .eq('role', 'LINEMAN')
-    .order('username')
-
-  // 4. Fetch all profiles for reference
-  const { data: rawAllProfiles } = await supabaseAdmin
-    .from('profiles')
-    .select('id, username, role')
-    .order('username')
+  // 2. Fetch cached supervisor desk datasets
+  const { rawAllotmentsData, rawLinemenProfiles, rawAllProfiles } =
+    await fetchSupervisorDeskDataAction(tenant.companyName)
 
   // Multi-tenant scoping: Client factories only view allotments matching their company
   const allotmentsData = !isLegacyNubira

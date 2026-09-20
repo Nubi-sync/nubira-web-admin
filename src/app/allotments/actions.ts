@@ -3,6 +3,98 @@
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/utils/supabase/server'
 import { supabaseAdmin } from '@/utils/supabase/admin'
+import { CacheManager } from '@/lib/cache/cache-manager'
+
+// ----------------------------------------------------------------------
+// FETCH FLOOR ALLOTMENTS DATA (Cached)
+// ----------------------------------------------------------------------
+export async function fetchFloorAllotmentsDataAction(companyName?: string) {
+  const normComp = (companyName || 'all').toLowerCase().replace(/[^a-z0-9]/g, '_')
+  const cacheKey = `company:${normComp}:allotments:list`
+
+  return CacheManager.fetchOrSet(
+    cacheKey,
+    async () => {
+      const res1 = await supabaseAdmin
+        .from('allotments')
+        .select(`
+          id,
+          lineman_id,
+          article_id,
+          target_qty,
+          allotment_date,
+          status,
+          mending_status,
+          mending_total_counted,
+          mending_supervisor_name,
+          mending_supervisor_id,
+          handed_to_mending_by,
+          handed_to_mending_at,
+          mending_handover_notes,
+          qc_status,
+          qc_total_passed,
+          qc_total_alter,
+          qc_supervisor_name,
+          handed_to_qc_by,
+          handed_to_qc_at,
+          created_at,
+          profiles:lineman_id ( id, username ),
+          articles:article_id ( id, art_no, description, stitching_rate, size_rates )
+        `)
+        .order('created_at', { ascending: false })
+        .limit(200)
+
+      const rawAllotments = res1.data || []
+      const allotmentIds = rawAllotments.map((a: any) => a.id)
+      const allotmentDates = Array.from(new Set(rawAllotments.map((a: any) => a.allotment_date).filter(Boolean)))
+
+      const [
+        { data: vData },
+        { data: mData },
+        { data: aData },
+        { data: dailyProducts }
+      ] = await Promise.all([
+        allotmentIds.length > 0
+          ? supabaseAdmin
+              .from('allotment_variants')
+              .select('id, allotment_id, color, size, quantity, completed_qty')
+              .in('allotment_id', allotmentIds)
+          : Promise.resolve({ data: [] }),
+
+        allotmentIds.length > 0
+          ? supabaseAdmin
+              .from('allotment_materials')
+              .select('id, allotment_id, item_name, required_qty, admin_issued, lineman_received, lineman_received_at, notes')
+              .in('allotment_id', allotmentIds)
+          : Promise.resolve({ data: [] }),
+
+        allotmentIds.length > 0
+          ? supabaseAdmin
+              .from('worker_assignments')
+              .select('id, allotment_id, lineman_id, article_id, worker_name, assigned_qty, completed_qty, color, size, status, notes, assigned_at, completed_at, entry_date')
+              .in('allotment_id', allotmentIds)
+          : Promise.resolve({ data: [] }),
+
+        allotmentDates.length > 0
+          ? supabaseAdmin
+              .from('daily_product')
+              .select('lineman_id, article_id, quantity, entry_date')
+              .in('entry_date', allotmentDates)
+          : Promise.resolve({ data: [] })
+      ])
+
+      return {
+        rawAllotments,
+        variants: vData || [],
+        materials: mData || [],
+        assignments: aData || [],
+        dailyProducts: dailyProducts || []
+      }
+    },
+    90,
+    [`company:${normComp}:allotments`, 'allotments']
+  )
+}
 
 export type VariantPayload = {
   color: string
@@ -298,6 +390,8 @@ export async function createDetailedAllotment(payload: {
     }
   }
 
+  await CacheManager.invalidateTag('allotments')
+  await CacheManager.invalidateTag('production_orders')
   revalidatePath('/allotments')
   revalidatePath('/stitching-sewing/allotments')
   revalidatePath('/stitching-sewing/dashboard')
@@ -350,6 +444,8 @@ export async function updateAllotmentStatus(allotmentId: string, newStatus: stri
     return { error: error.message }
   }
 
+  await CacheManager.invalidateTag('allotments')
+  await CacheManager.invalidateTag('production_orders')
   revalidatePath('/allotments')
   revalidatePath('/stitching-sewing/allotments')
   revalidatePath('/stitching-sewing/dashboard')
@@ -383,6 +479,8 @@ export async function deleteAllotment(allotmentId: string) {
       return { error: error.message }
     }
 
+    await CacheManager.invalidateTag('allotments')
+    await CacheManager.invalidateTag('production_orders')
     revalidatePath('/allotments')
     revalidatePath('/stitching-sewing/allotments')
     revalidatePath('/production-orders')
@@ -413,6 +511,7 @@ export async function toggleMaterialIssue(materialId: string, issued: boolean) {
     return { error: error.message }
   }
 
+  await CacheManager.invalidateTag('allotments')
   revalidatePath('/allotments')
   revalidatePath('/stitching-sewing/allotments')
   return { success: true }
@@ -465,6 +564,7 @@ export async function createFloorAlert(payload: {
     console.warn('Floor alert insert error (table may be pending migration):', error.message)
   }
 
+  await CacheManager.invalidateTag('allotments')
   revalidatePath('/allotments')
   revalidatePath('/stitching-sewing/allotments')
   revalidatePath('/stitching-sewing/dashboard')
@@ -487,6 +587,7 @@ export async function resolveFloorAlert(alertId: string, resolvedBy: string = 'P
     console.warn('Floor alert resolve error:', error.message)
   }
 
+  await CacheManager.invalidateTag('allotments')
   revalidatePath('/allotments')
   revalidatePath('/stitching-sewing/allotments')
   revalidatePath('/stitching-sewing/dashboard')

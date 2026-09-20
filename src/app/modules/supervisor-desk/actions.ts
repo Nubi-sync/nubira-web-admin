@@ -2,11 +2,96 @@
 
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
+import { CacheManager } from '@/lib/cache/cache-manager'
 
 const supabaseAdmin = createAdminClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
+
+async function invalidateDeskCache() {
+  await Promise.allSettled([
+    CacheManager.invalidateTag('supervisor_desk'),
+    CacheManager.invalidateTag('allotments')
+  ])
+}
+
+// ---------------------------------------------------------------------------
+// FETCH SUPERVISOR DESK DATA (Cached)
+// ---------------------------------------------------------------------------
+export async function fetchSupervisorDeskDataAction(companyName?: string) {
+  const normComp = (companyName || 'all').toLowerCase().replace(/[^a-z0-9]/g, '_')
+  const cacheKey = `company:${normComp}:supervisor_desk:data`
+
+  return CacheManager.fetchOrSet(
+    cacheKey,
+    async () => {
+      const [
+        { data: rawAllotmentsData, error: allotmentsErr },
+        { data: rawLinemenProfiles },
+        { data: rawAllProfiles }
+      ] = await Promise.all([
+        supabaseAdmin
+          .from('allotments')
+          .select(`
+            id,
+            challan_id,
+            lineman_id,
+            article_id,
+            target_qty,
+            status,
+            priority,
+            allotment_date,
+            mending_status,
+            mending_total_counted,
+            mending_supervisor_name,
+            handed_to_mending_by,
+            handed_to_mending_at,
+            mending_handover_notes,
+            qc_status,
+            qc_total_passed,
+            qc_total_alter,
+            qc_supervisor_name,
+            handed_to_qc_by,
+            handed_to_qc_at,
+            qc_handover_notes,
+            store_inward_status,
+            total_bags_packed,
+            created_at,
+            profiles:lineman_id ( id, username, role ),
+            articles:article_id ( id, art_no, description ),
+            challans:challan_id ( id, challan_no, brand, fabric_type ),
+            allotment_variants ( id, allotment_id, color, size, quantity, completed_qty ),
+            allotment_materials ( id, allotment_id, item_name, required_qty, admin_issued, notes )
+          `)
+          .order('created_at', { ascending: false }),
+
+        supabaseAdmin
+          .from('profiles')
+          .select('id, username, role')
+          .eq('role', 'LINEMAN')
+          .order('username'),
+
+        supabaseAdmin
+          .from('profiles')
+          .select('id, username, role')
+          .order('username')
+      ])
+
+      if (allotmentsErr) {
+        console.error('Error fetching allotments in supervisor-desk:', allotmentsErr)
+      }
+
+      return {
+        rawAllotmentsData: rawAllotmentsData || [],
+        rawLinemenProfiles: rawLinemenProfiles || [],
+        rawAllProfiles: rawAllProfiles || []
+      }
+    },
+    60,
+    [`company:${normComp}:supervisor_desk`, 'supervisor_desk', 'allotments']
+  )
+}
 
 // ---------------------------------------------------------------------------
 // 1. LINEMAN DESK: ADVANCE STITCHING LOT TO MENDING TABLE
@@ -44,8 +129,7 @@ export async function adminAdvanceToMending(payload: {
       })
       .eq('id', allotment_id)
 
-    if (error) throw error
-
+    await invalidateDeskCache()
     revalidatePath('/modules/supervisor-desk')
     revalidatePath('/stitching-sewing/supervisor-desk')
     revalidatePath('/stitching-sewing/dashboard')
@@ -139,8 +223,7 @@ export async function adminHandoverToQc(payload: {
       })
       .eq('id', allotment_id)
 
-    if (error) throw error
-
+    await invalidateDeskCache()
     revalidatePath('/modules/supervisor-desk')
     revalidatePath('/stitching-sewing/supervisor-desk')
     revalidatePath('/stitching-sewing/dashboard')
@@ -221,8 +304,7 @@ export async function adminPassQc(payload: {
       .update(updateData)
       .eq('id', allotment_id)
 
-    if (error) throw error
-
+    await invalidateDeskCache()
     revalidatePath('/modules/supervisor-desk')
     revalidatePath('/stitching-sewing/supervisor-desk')
     revalidatePath('/stitching-sewing/dashboard')
@@ -293,8 +375,7 @@ export async function adminSendToAlteration(payload: {
       })
       .eq('id', allotment_id)
 
-    if (error) throw error
-
+    await invalidateDeskCache()
     revalidatePath('/modules/supervisor-desk')
     revalidatePath('/stitching-sewing/supervisor-desk')
     revalidatePath('/stitching-sewing/dashboard')
@@ -369,8 +450,7 @@ export async function adminStoreInward(payload: {
       })
       .eq('id', allotment_id)
 
-    if (error) throw error
-
+    await invalidateDeskCache()
     revalidatePath('/modules/supervisor-desk')
     revalidatePath('/stitching-sewing/supervisor-desk')
     revalidatePath('/store')
@@ -425,6 +505,7 @@ export async function adminCompleteLinemanBundle(payload: {
       })
     }
 
+    await invalidateDeskCache()
     revalidatePath('/modules/supervisor-desk')
     revalidatePath('/stitching-sewing/supervisor-desk')
     revalidatePath('/stitching-sewing/dashboard')
@@ -456,8 +537,7 @@ export async function adminReassignLineman(payload: {
       })
       .eq('id', allotment_id)
 
-    if (error) throw error
-
+    await invalidateDeskCache()
     revalidatePath('/modules/supervisor-desk')
     revalidatePath('/stitching-sewing/supervisor-desk')
     revalidatePath('/stitching-sewing/dashboard')
@@ -522,6 +602,7 @@ export async function adminIssueMaterial(payload: {
       }
     }
 
+    await invalidateDeskCache()
     revalidatePath('/modules/supervisor-desk')
     revalidatePath('/stitching-sewing/supervisor-desk')
     revalidatePath('/stitching-sewing/store')
@@ -588,8 +669,7 @@ export async function adminDispatchAllotment(payload: {
       })
       .eq('id', allotment_id)
 
-    if (error) throw error
-
+    await invalidateDeskCache()
     revalidatePath('/modules/supervisor-desk')
     revalidatePath('/stitching-sewing/supervisor-desk')
     revalidatePath('/stitching-sewing/dashboard')

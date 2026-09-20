@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation'
 import { CreateAllotmentForm } from './components/CreateAllotmentForm'
 import { AllotmentList } from './components/AllotmentList'
 import { getProductionOrders } from '@/app/production-orders/actions'
+import { fetchFloorAllotmentsDataAction } from './actions'
 import Link from 'next/link'
 import { resolveUserTenant } from '@/lib/tenant-context'
 
@@ -62,43 +63,9 @@ export default async function AllotmentsPage() {
     getProductionOrders(tenant.companyName)
   ])
 
-  // Safely fetch allotments with schema fallback
-  let rawAllotments: any[] = []
-  const res1 = await supabaseAdmin
-    .from('allotments')
-    .select(`
-      id,
-      lineman_id,
-      article_id,
-      target_qty,
-      allotment_date,
-      status,
-      mending_status,
-      mending_total_counted,
-      mending_supervisor_name,
-      mending_supervisor_id,
-      handed_to_mending_by,
-      handed_to_mending_at,
-      mending_handover_notes,
-      qc_status,
-      qc_total_passed,
-      qc_total_alter,
-      qc_supervisor_name,
-      handed_to_qc_by,
-      handed_to_qc_at,
-      created_at,
-      profiles:lineman_id ( id, username ),
-      articles:article_id ( id, art_no, description, stitching_rate, size_rates )
-    `)
-    .order('created_at', { ascending: false })
-    .limit(200)
-
-  if (res1.data) {
-    rawAllotments = res1.data
-  } else if (res1.error) {
-    console.error('Allotments fetch error:', res1.error)
-  }
-
+  // Safely fetch allotments with cached action
+  const { rawAllotments, variants, materials, assignments } =
+    await fetchFloorAllotmentsDataAction(tenant.companyName)
   const allotmentsRaw = rawAllotments || []
 
   const productionOrders = allProductionOrders || []
@@ -131,50 +98,6 @@ export default async function AllotmentsPage() {
   })
 
   const articles = rawArticles || []
-
-  // Extract unique allotment IDs and dates for parallel child queries
-  const rawList = allotmentsRaw || []
-  const allotmentIds = rawList.map(a => a.id)
-  const allotmentDates = Array.from(new Set(rawList.map(a => a.allotment_date).filter(Boolean)))
-
-  const [
-    { data: vData },
-    { data: mData },
-    { data: aData },
-    { data: dailyProducts }
-  ] = await Promise.all([
-    allotmentIds.length > 0
-      ? supabaseAdmin
-          .from('allotment_variants')
-          .select('id, allotment_id, color, size, quantity, completed_qty')
-          .in('allotment_id', allotmentIds)
-      : Promise.resolve({ data: [] }),
-
-    allotmentIds.length > 0
-      ? supabaseAdmin
-          .from('allotment_materials')
-          .select('id, allotment_id, item_name, required_qty, admin_issued, lineman_received, lineman_received_at, notes')
-          .in('allotment_id', allotmentIds)
-      : Promise.resolve({ data: [] }),
-
-    allotmentIds.length > 0
-      ? supabaseAdmin
-          .from('worker_assignments')
-          .select('id, allotment_id, lineman_id, article_id, worker_name, assigned_qty, completed_qty, color, size, status, notes, assigned_at, completed_at, entry_date')
-          .in('allotment_id', allotmentIds)
-      : Promise.resolve({ data: [] }),
-
-    allotmentDates.length > 0
-      ? supabaseAdmin
-          .from('daily_product')
-          .select('lineman_id, article_id, quantity, entry_date')
-          .in('entry_date', allotmentDates)
-      : Promise.resolve({ data: [] })
-  ])
-
-  const variants = vData || []
-  const materials = mData || []
-  const assignments = aData || []
 
   const allotments = (allotmentsRaw || []).map(al => {
     const alVariants = variants.filter(v => v.allotment_id === al.id)

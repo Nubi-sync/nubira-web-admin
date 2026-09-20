@@ -10,6 +10,7 @@ import { createClient } from '@/utils/supabase/server'
 import { supabaseAdmin } from '@/utils/supabase/admin'
 import { resolveUserTenant, ALL_DEFAULT_DIVISIONS } from '@/lib/tenant-context'
 import { DEPARTMENT_HEADS_CATALOG, ALL_DIVISION_ROUTES } from '@/lib/access-control'
+import { CacheManager } from '@/lib/cache/cache-manager'
 
 export interface DepartmentHeadItem {
   id: string
@@ -67,10 +68,15 @@ export async function fetchCompanyDepartmentHeadsAction(): Promise<{
 
     const tenant = await resolveUserTenant(user)
     const company = tenant.companyName || 'Apparel Factory'
+    const normComp = company.toLowerCase().replace(/[^a-z0-9]/g, '_')
+    const cacheKey = `company:${normComp}:access_control:department_heads`
 
-    // Fetch all profiles belonging to this tenant/company or marked as heads
-    // Gracefully handle schema differences (allowed_modules, designation, is_head)
-    let profilesList: any[] = []
+    return CacheManager.fetchOrSet(
+      cacheKey,
+      async () => {
+        // Fetch all profiles belonging to this tenant/company or marked as heads
+        // Gracefully handle schema differences (allowed_modules, designation, is_head)
+        let profilesList: any[] = []
     try {
       const { data, error } = await supabaseAdmin
         .from('profiles')
@@ -158,14 +164,18 @@ export async function fetchCompanyDepartmentHeadsAction(): Promise<{
     // Multi-module or executive heads overseeing multiple divisions
     const unassignedExecutives = mappedHeads.filter(h => h.allowedModules.length > 1)
 
-    return {
-      success: true,
-      divisions: divisionsResult,
-      allowedDivisions: configuredDivisions,
-      unassignedExecutives,
-      tenantName: company,
-      isSuperAdmin: tenant.isSuperAdmin
-    }
+        return {
+          success: true,
+          divisions: divisionsResult,
+          allowedDivisions: configuredDivisions,
+          unassignedExecutives,
+          tenantName: company,
+          isSuperAdmin: tenant.isSuperAdmin
+        }
+      },
+      120,
+      [`company:${normComp}:access_control`, 'access_control', 'tenant']
+    )
   } catch (err: any) {
     console.error('[fetchCompanyDepartmentHeadsAction] Error:', err)
     return {
@@ -265,6 +275,8 @@ export async function appointOrUpdateDepartmentHeadAction(payload: {
         })
       }
 
+      await CacheManager.invalidateTag('access_control')
+      await CacheManager.invalidateTag('tenant')
       revalidatePath('/modules/access-control')
       revalidatePath('/modules')
       return { success: true, headId: payload.headId }
@@ -358,6 +370,8 @@ export async function appointOrUpdateDepartmentHeadAction(payload: {
       return { success: false, error: `Failed to save profile: ${insertErr.message}` }
     }
 
+    await CacheManager.invalidateTag('access_control')
+    await CacheManager.invalidateTag('tenant')
     revalidatePath('/modules/access-control')
     revalidatePath('/modules')
     return { success: true, headId: authUserId }
@@ -385,6 +399,8 @@ export async function resetDepartmentHeadPasswordAction(
 
     if (error) throw error
 
+    await CacheManager.invalidateTag('access_control')
+    await CacheManager.invalidateTag('tenant')
     revalidatePath('/modules/access-control')
     return { success: true }
   } catch (err: any) {
@@ -407,6 +423,8 @@ export async function toggleDepartmentHeadStatusAction(
 
     if (error) throw error
 
+    await CacheManager.invalidateTag('access_control')
+    await CacheManager.invalidateTag('tenant')
     revalidatePath('/modules/access-control')
     return { success: true }
   } catch (err: any) {
@@ -444,6 +462,8 @@ export async function vacateDepartmentHeadAction(
         .eq('id', headId)
     }
 
+    await CacheManager.invalidateTag('access_control')
+    await CacheManager.invalidateTag('tenant')
     revalidatePath('/modules/access-control')
     return { success: true }
   } catch (err: any) {
@@ -461,6 +481,8 @@ export async function deleteDepartmentHeadAction(headId: string): Promise<{ succ
       await supabaseAdmin.auth.admin.deleteUser(headId)
     } catch (_) {}
 
+    await CacheManager.invalidateTag('access_control')
+    await CacheManager.invalidateTag('tenant')
     revalidatePath('/modules/access-control')
     revalidatePath('/modules')
     return { success: true }

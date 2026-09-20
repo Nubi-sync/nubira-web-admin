@@ -2,6 +2,7 @@
 
 import { createClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { CacheManager } from '@/lib/cache/cache-manager'
 
 export async function createDeliveryChallan(formData: FormData) {
   const supabase = await createClient()
@@ -101,6 +102,7 @@ export async function createDeliveryChallan(formData: FormData) {
     }
   }
 
+  await CacheManager.invalidateTag('dispatch')
   revalidatePath('/dispatch')
   revalidatePath('/inventory')
   revalidatePath('/reports')
@@ -137,6 +139,7 @@ export async function recordCountingAudit(formData: FormData) {
     throw new Error(error.message)
   }
 
+  await CacheManager.invalidateTag('dispatch')
   revalidatePath('/dispatch')
   revalidatePath('/reports')
 }
@@ -169,6 +172,7 @@ export async function approveDeliveryChallan(challanId: string) {
     })
     .eq('delivery_challan_id', challanId)
 
+  await CacheManager.invalidateTag('dispatch')
   revalidatePath('/dispatch')
   revalidatePath('/')
 }
