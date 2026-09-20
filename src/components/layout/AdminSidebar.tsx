@@ -79,7 +79,7 @@ const navSections: NavSection[] = [
     items: [
       { label: 'Dashboard', href: '/stitching-sewing/dashboard', icon: LayoutDashboard },
       { label: 'Supervisor Desk', href: '/modules/supervisor-desk', icon: Wrench },
-      { label: 'Line Store & Inventory', href: '/stitching-sewing/inventory', icon: Store },
+      { label: 'Store Dashboard', href: '/stitching-sewing/store', icon: Store },
       { label: 'Zigza AI', href: '/stitching-sewing/zigza-ai', icon: Bot },
     ],
   },
@@ -88,6 +88,7 @@ const navSections: NavSection[] = [
     items: [
       { label: 'Production Chart', href: '/stitching-sewing/production-orders', icon: Layers },
       { label: 'Target Allotments', href: '/stitching-sewing/allotments', icon: ClipboardList },
+      { label: 'Godown & Inventory', href: '/stitching-sewing/inventory', icon: Warehouse },
       { label: 'Dispatch & Challans', href: '/dispatch', icon: Truck },
     ],
   },
@@ -308,7 +309,8 @@ export function AdminSidebar({
       {
         section: 'Godown Shift',
         items: [
-          { label: 'Line Store & Inventory', href: '/stitching-sewing/inventory', icon: Store },
+          { label: 'Store Dashboard', href: '/stitching-sewing/store', icon: Store },
+          { label: 'Godown & Inventory', href: '/stitching-sewing/inventory', icon: Warehouse },
         ],
       },
       {
@@ -489,7 +491,7 @@ export function AdminSidebar({
         section: '6. Sewing Operations',
         items: [
           { label: 'Floor Dashboard', href: '/stitching-sewing/dashboard', icon: LayoutDashboard },
-          { label: 'Line Store (Trims)', href: '/stitching-sewing/inventory', icon: Store },
+          { label: 'Store Dashboard', href: '/stitching-sewing/store', icon: Store },
           { label: 'Zigza AI', href: '/stitching-sewing/zigza-ai', icon: Bot },
         ],
       },
@@ -498,6 +500,7 @@ export function AdminSidebar({
         items: [
           { label: 'Production Chart', href: '/stitching-sewing/production-orders', icon: Layers },
           { label: 'Target Allotments', href: '/stitching-sewing/allotments', icon: ClipboardList },
+          { label: 'Godown & Inventory', href: '/stitching-sewing/inventory', icon: Warehouse },
           { label: 'Dispatch & Challans', href: '/stitching-sewing/dispatch', icon: Truck },
         ],
       },
@@ -612,7 +615,7 @@ export function AdminSidebar({
         ],
       },
     ]
-  } else if (pathname === '/store' || pathname?.startsWith('/store')) {
+  } else if (pathname === '/store' || (pathname?.startsWith('/store') && !pathname?.startsWith('/stitching-sewing/store'))) {
     activeNavSections = [
       {
         section: 'Workspace Hub',
@@ -624,13 +627,13 @@ export function AdminSidebar({
         section: '11. Central Store & Godown',
         items: [
           { label: 'Central Hub (Cloth Stock)', href: '/store', icon: Store },
-          { label: 'Merchandise (Fabric Booking)', href: '/merchandising/store', icon: Briefcase },
-          { label: 'Cutting Floor (Rolls Inward)', href: '/cutting/store', icon: Scissors },
-          { label: 'Printing Floor (Panels)', href: '/printing/store', icon: Printer },
-          { label: 'Embroidery Floor (Panels)', href: '/embroidery/store', icon: Sparkles },
-          { label: 'Sewing Floor (Trims & Kits)', href: '/stitching-sewing/inventory', icon: Layers },
-          { label: 'Washing Floor (Garments)', href: '/washing/store', icon: Waves },
-          { label: 'Ironing Floor (Steam & Press)', href: '/iron/store', icon: Wind },
+          { label: 'Merchandise Store', href: '/store/merchandise', icon: Briefcase },
+          { label: 'Cutting Floor Store', href: '/store/cutting', icon: Scissors },
+          { label: 'Printing Floor Store', href: '/store/printing', icon: Printer },
+          { label: 'Embroidery Floor Store', href: '/store/embroidery', icon: Sparkles },
+          { label: 'Sewing Floor Store', href: '/store/sewing', icon: Layers },
+          { label: 'Washing Floor Store', href: '/store/washing', icon: Waves },
+          { label: 'Ironing Floor Store', href: '/store/iron', icon: Wind },
           { label: 'Gate Inwards (Truck GRN)', href: '/store/truck-inwards', icon: Truck },
           { label: 'Finished Vault (Export Bay)', href: '/store/finished-godown', icon: Warehouse },
           { label: 'Fabric Godown & QC', href: '/store/fabric-godown', icon: Layers },
@@ -863,6 +866,7 @@ export function AdminSidebar({
   else if (pathname?.startsWith('/cutting')) divisionProfileHref = '/cutting/profile'
   else if (pathname?.startsWith('/design')) divisionProfileHref = '/design/profile'
   else if (pathname?.startsWith('/merchandising')) divisionProfileHref = '/merchandising/profile'
+  else if (pathname === '/store' || (pathname?.startsWith('/store') && !pathname?.startsWith('/stitching-sewing/store'))) divisionProfileHref = '/store/profile'
   else if (pathname === '/modules' || pathname?.startsWith('/modules')) divisionProfileHref = '/modules/profile'
   const isProfileActive = pathname === divisionProfileHref || pathname === '/modules/profile' || pathname === '/profile'
 
@@ -881,7 +885,7 @@ export function AdminSidebar({
                         : (isIronWorker
                             ? '/iron/worker'
                             : (isStoreUser 
-                                ? '/stitching-sewing/inventory' 
+                                ? '/stitching-sewing/store' 
                                 : (activeNavSections[0]?.items[0]?.href || '/stitching-sewing/dashboard'))))))))
 
   return (
