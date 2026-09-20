@@ -80,11 +80,20 @@ export function deleteIronWorker(id: string): IronWorker[] {
 }
 
 // =============================================================================
-// 2. IRON TASK ALLOCATIONS (Spreadsheet Matrix)
+// 2. IRONING TASK ALLOCATIONS (Spreadsheet Matrix)
 // =============================================================================
 const ALLOCATIONS_KEY = 'zigza_iron_task_allocations_v1'
 
 export const INITIAL_TASK_ALLOCATIONS: IronTaskAllocation[] = []
+
+export function isLegacyIronTask(t: any): boolean {
+  if (!t) return true
+  const rawRef = (t?.task_ref || t?.id || '').trim().toUpperCase()
+  const ref = rawRef.replace(/^#/, '')
+  if (ref.startsWith('BA-') || ref.startsWith('IRN-TSK') || ref.includes('IRN-TSK')) return true
+  if (t?.article_number && t.article_number.trim() === 'DEMO-101') return true
+  return false
+}
 
 export function getIronTaskAllocations(companyName?: string): IronTaskAllocation[] {
   if (typeof window === 'undefined') return INITIAL_TASK_ALLOCATIONS
@@ -95,7 +104,12 @@ export function getIronTaskAllocations(companyName?: string): IronTaskAllocation
       return INITIAL_TASK_ALLOCATIONS
     }
     const parsed = JSON.parse(stored)
-    const list = Array.isArray(parsed) ? parsed : INITIAL_TASK_ALLOCATIONS
+    let list = Array.isArray(parsed) ? parsed : INITIAL_TASK_ALLOCATIONS
+    const filtered = list.filter(t => !isLegacyIronTask(t))
+    if (filtered.length !== list.length) {
+      localStorage.setItem(ALLOCATIONS_KEY, JSON.stringify(filtered))
+      list = filtered
+    }
     if (!companyName || !companyName.trim()) return list
     const target = companyName.trim().toLowerCase()
     return list.filter(t => (t.company_name || '').trim().toLowerCase() === target)
