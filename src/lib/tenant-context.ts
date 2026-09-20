@@ -1,4 +1,5 @@
 import { createClient as createAdminClient } from '@supabase/supabase-js'
+import { CacheManager } from './cache/cache-manager'
 
 const supabaseAdmin = createAdminClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -45,9 +46,37 @@ export interface ResolvedTenantProfile {
 
 /**
  * Centrally resolves the active tenant organization, company name, role,
- * and permissions for any authenticated user.
+ * and permissions for any authenticated user with high-performance multi-tier caching.
  */
 export async function resolveUserTenant(user: {
+  id: string
+  email?: string
+  user_metadata?: any
+}): Promise<ResolvedTenantProfile> {
+  const userEmail = (user.email || '').trim().toLowerCase()
+  const cacheKey = `tenant:user:${user.id}:${userEmail}`
+
+  return CacheManager.fetchOrSet<ResolvedTenantProfile>(
+    cacheKey,
+    () => resolveUserTenantFresh(user),
+    300, // 5 minutes TTL
+    [`user:${user.id}`, `email:${userEmail}`, 'tenant_resolution']
+  )
+}
+
+/**
+ * Clears the cached tenant profile for a specific user.
+ */
+export async function invalidateUserTenantCache(userId: string, userEmail?: string) {
+  if (userId) {
+    await CacheManager.invalidateTag(`user:${userId}`)
+  }
+  if (userEmail) {
+    await CacheManager.invalidateTag(`email:${userEmail.trim().toLowerCase()}`)
+  }
+}
+
+async function resolveUserTenantFresh(user: {
   id: string
   email?: string
   user_metadata?: any

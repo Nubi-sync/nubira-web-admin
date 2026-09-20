@@ -634,10 +634,6 @@ export function AdminSidebar({
           { label: 'Sewing Floor Store', href: '/store/sewing', icon: Layers },
           { label: 'Washing Floor Store', href: '/store/washing', icon: Waves },
           { label: 'Ironing Floor Store', href: '/store/iron', icon: Wind },
-          { label: 'Gate Inwards (Truck GRN)', href: '/store/truck-inwards', icon: Truck },
-          { label: 'Finished Vault (Export Bay)', href: '/store/finished-godown', icon: Warehouse },
-          { label: 'Fabric Godown & QC', href: '/store/fabric-godown', icon: Layers },
-          { label: 'Trims Warehouse', href: '/store/trims-warehouse', icon: Tag },
           { label: 'Zigza AI Copilot', href: '/store/zigza-ai', icon: Bot },
         ],
       },
@@ -791,7 +787,12 @@ export function AdminSidebar({
       <Link
         key={`${item.href}-${item.label}`}
         href={item.href}
-        prefetch={true}
+        prefetch={false}
+        onMouseEnter={() => {
+          try {
+            router.prefetch(item.href)
+          } catch (_) {}
+        }}
         onClick={(e) => handleNavClick(e, item.href)}
         title={!isExpanded ? item.label : undefined}
         className={`relative flex items-center rounded-xl text-sm outline-none focus-visible:ring-2 focus-visible:ring-[#3A3564] cursor-pointer ${

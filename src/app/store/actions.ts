@@ -3,6 +3,7 @@
 import { createClient } from '@/utils/supabase/server'
 import { supabaseAdmin } from '@/utils/supabase/admin'
 import { revalidatePath } from 'next/cache'
+import { CacheManager } from '@/lib/cache/cache-manager'
 
 // ----------------------------------------------------
 // 1. CREATE ACCESSORY CHALLAN INWARD (TRUCK INWARD / GRN)
@@ -641,26 +642,36 @@ export async function deleteFloorAccessoryReissue(id: string) {
 // ============================================================================
 
 export async function fetchCentralFabricInventory(companyName?: string) {
-  try {
-    const supabase = supabaseAdmin
-    let query = supabase
-      .from('central_fabric_inventory')
-      .select('*')
-      .order('created_at', { ascending: false })
+  const normComp = (companyName || 'all').toLowerCase().replace(/[^a-z0-9]/g, '_')
+  const cacheKey = `company:${normComp}:store:fabric_inventory`
 
-    if (companyName && companyName.trim()) {
-      query = query.ilike('company_name', companyName.trim())
-    }
+  return CacheManager.fetchOrSet(
+    cacheKey,
+    async () => {
+      try {
+        const supabase = supabaseAdmin
+        let query = supabase
+          .from('central_fabric_inventory')
+          .select('*')
+          .order('created_at', { ascending: false })
 
-    const { data, error } = await query
-    if (error) {
-      console.error('Error fetching central fabric inventory:', error)
-      return { data: [], error: error.message }
-    }
-    return { data: data || [], error: null }
-  } catch (err: any) {
-    return { data: [], error: err?.message || 'Failed to fetch fabric inventory' }
-  }
+        if (companyName && companyName.trim()) {
+          query = query.ilike('company_name', companyName.trim())
+        }
+
+        const { data, error } = await query
+        if (error) {
+          console.error('Error fetching central fabric inventory:', error)
+          return { data: [], error: error.message }
+        }
+        return { data: data || [], error: null }
+      } catch (err: any) {
+        return { data: [], error: err?.message || 'Failed to fetch fabric inventory' }
+      }
+    },
+    60, // 60 seconds TTL
+    [`company:${normComp}:store`, 'store_fabrics']
+  )
 }
 
 export async function upsertFabricInventoryEntry(payload: {
@@ -708,6 +719,7 @@ export async function upsertFabricInventoryEntry(payload: {
         .select()
         .single()
       if (error) return { error: error.message }
+      await CacheManager.invalidateCompanyModule(company, 'store')
       revalidatePath('/store')
       return { data, success: true }
     } else {
@@ -720,6 +732,7 @@ export async function upsertFabricInventoryEntry(payload: {
         .select()
         .single()
       if (error) return { error: error.message }
+      await CacheManager.invalidateCompanyModule(company, 'store')
       revalidatePath('/store')
       return { data, success: true }
     }
@@ -817,6 +830,7 @@ export async function createMaterialIssueChallan(payload: {
 
     if (error) return { error: error.message }
 
+    await CacheManager.invalidateCompanyModule(company, 'store')
     revalidatePath('/store')
     revalidatePath('/cutting/store')
     revalidatePath('/printing/store')
@@ -879,6 +893,7 @@ export async function acknowledgeMaterialReceipt(payload: {
       })
       .eq('id', payload.issue_id)
 
+    await CacheManager.invalidateCompanyModule(company, 'store')
     revalidatePath('/store')
     revalidatePath('/cutting/store')
     revalidatePath('/printing/store')
@@ -941,62 +956,72 @@ export async function fetchMaterialReceiptsByDivision(division?: string, company
 }
 
 export async function fetchCentralStoreKpis(companyName?: string) {
-  try {
-    const [fabricRes, issuesRes, receiptsRes, trucksRes] = await Promise.all([
-      fetchCentralFabricInventory(companyName),
-      fetchMaterialIssuesByDivision(undefined, companyName),
-      fetchMaterialReceiptsByDivision(undefined, companyName),
-      supabaseAdmin
-        .from('truck_inwards')
-        .select('id', { count: 'exact' })
-    ])
+  const normComp = (companyName || 'all').toLowerCase().replace(/[^a-z0-9]/g, '_')
+  const cacheKey = `company:${normComp}:store:kpis`
 
-    const fabrics = fabricRes.data || []
-    const issues = issuesRes.data || []
-    const receipts = receiptsRes.data || []
+  return CacheManager.fetchOrSet(
+    cacheKey,
+    async () => {
+      try {
+        const [fabricRes, issuesRes, receiptsRes, trucksRes] = await Promise.all([
+          fetchCentralFabricInventory(companyName),
+          fetchMaterialIssuesByDivision(undefined, companyName),
+          fetchMaterialReceiptsByDivision(undefined, companyName),
+          supabaseAdmin
+            .from('truck_inwards')
+            .select('id', { count: 'exact' })
+        ])
 
-    const totalFabricMeters = fabrics.reduce((sum: number, f: any) => sum + (Number(f.total_meters) || 0), 0)
-    const totalFabricRolls = fabrics.reduce((sum: number, f: any) => sum + (Number(f.total_rolls) || 0), 0)
-    const totalWeightKg = fabrics.reduce((sum: number, f: any) => sum + (Number(f.total_weight_kg) || 0), 0)
-    const totalBookedMeters = fabrics.reduce((sum: number, f: any) => sum + (Number(f.booked_meters) || 0), 0)
-    const totalAvailableMeters = Math.max(0, totalFabricMeters - totalBookedMeters)
+        const fabrics = fabricRes.data || []
+        const issues = issuesRes.data || []
+        const receipts = receiptsRes.data || []
 
-    const activeIssuesCount = issues.filter((i: any) => i.status === 'ISSUED' || i.status === 'IN_TRANSIT').length
-    const completedReceiptsCount = receipts.length
-    const totalTrucksInward = trucksRes.count || 0
+        const totalFabricMeters = fabrics.reduce((sum: number, f: any) => sum + (Number(f.total_meters) || 0), 0)
+        const totalFabricRolls = fabrics.reduce((sum: number, f: any) => sum + (Number(f.total_rolls) || 0), 0)
+        const totalWeightKg = fabrics.reduce((sum: number, f: any) => sum + (Number(f.total_weight_kg) || 0), 0)
+        const totalBookedMeters = fabrics.reduce((sum: number, f: any) => sum + (Number(f.booked_meters) || 0), 0)
+        const totalAvailableMeters = Math.max(0, totalFabricMeters - totalBookedMeters)
 
-    return {
-      kpis: {
-        totalFabricMeters,
-        totalFabricRolls,
-        totalWeightKg,
-        totalAvailableMeters,
-        totalBookedMeters,
-        activeIssuesCount,
-        completedReceiptsCount,
-        totalTrucksInward,
-      },
-      fabrics,
-      issues,
-      receipts,
-    }
-  } catch (err: any) {
-    console.error('Error fetching central store KPIs:', err)
-    return {
-      kpis: {
-        totalFabricMeters: 0,
-        totalFabricRolls: 0,
-        totalWeightKg: 0,
-        totalAvailableMeters: 0,
-        totalBookedMeters: 0,
-        activeIssuesCount: 0,
-        completedReceiptsCount: 0,
-        totalTrucksInward: 0,
-      },
-      fabrics: [],
-      issues: [],
-      receipts: [],
-    }
-  }
+        const activeIssuesCount = issues.filter((i: any) => i.status === 'ISSUED' || i.status === 'IN_TRANSIT').length
+        const completedReceiptsCount = receipts.length
+        const totalTrucksInward = trucksRes.count || 0
+
+        return {
+          kpis: {
+            totalFabricMeters,
+            totalFabricRolls,
+            totalWeightKg,
+            totalAvailableMeters,
+            totalBookedMeters,
+            activeIssuesCount,
+            completedReceiptsCount,
+            totalTrucksInward,
+          },
+          fabrics,
+          issues,
+          receipts,
+        }
+      } catch (err: any) {
+        console.error('Error fetching central store KPIs:', err)
+        return {
+          kpis: {
+            totalFabricMeters: 0,
+            totalFabricRolls: 0,
+            totalWeightKg: 0,
+            totalAvailableMeters: 0,
+            totalBookedMeters: 0,
+            activeIssuesCount: 0,
+            completedReceiptsCount: 0,
+            totalTrucksInward: 0,
+          },
+          fabrics: [],
+          issues: [],
+          receipts: [],
+        }
+      }
+    },
+    60, // 60 seconds TTL
+    [`company:${normComp}:store`, 'store_kpis']
+  )
 }
 
