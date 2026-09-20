@@ -516,26 +516,34 @@ export async function deleteCuttingWorkerAction(workerId: string, phoneNumber?: 
 // -----------------------------------------------------------------------------
 
 export async function fetchCuttingTaskAllocationsAction(companyName?: string): Promise<any[]> {
-  try {
-    if (!companyName || !companyName.trim()) {
-      return []
-    }
+  const normComp = (companyName || 'all').toLowerCase().replace(/[^a-z0-9]/g, '_')
+  return CacheManager.fetchOrSet<any[]>(
+    `company:${normComp}:cutting:allocations`,
+    async () => {
+      try {
+        if (!companyName || !companyName.trim()) {
+          return []
+        }
 
-    const { data, error } = await supabaseAdmin
-      .from('cutting_task_allocations')
-      .select('*')
-      .eq('company_name', companyName.trim())
-      .order('created_at', { ascending: false })
+        const { data, error } = await supabaseAdmin
+          .from('cutting_task_allocations')
+          .select('*')
+          .eq('company_name', companyName.trim())
+          .order('created_at', { ascending: false })
 
-    if (error) {
-      console.warn('[fetchCuttingTaskAllocationsAction] Supabase notice:', error.message)
-      return []
-    }
-    return data || []
-  } catch (err) {
-    console.error('[fetchCuttingTaskAllocationsAction] Unexpected error:', err)
-    return []
-  }
+        if (error) {
+          console.warn('[fetchCuttingTaskAllocationsAction] Supabase notice:', error.message)
+          return []
+        }
+        return data || []
+      } catch (err) {
+        console.error('[fetchCuttingTaskAllocationsAction] Unexpected error:', err)
+        return []
+      }
+    },
+    30, // 30 seconds TTL
+    [`company:${normComp}:cutting`, 'cutting_allocations']
+  )
 }
 
 const isUUID = (val?: string | null) =>
@@ -607,6 +615,7 @@ export async function saveCuttingTaskAllocationAction(payload: any): Promise<{ s
       return { success: false, error: error.message, data: payload }
     }
 
+    await CacheManager.invalidateCompanyModule(payload.company_name || 'all', 'cutting')
     revalidatePath('/cutting')
     revalidatePath('/cutting/worker')
     revalidatePath('/cutting/worker/history')
@@ -632,6 +641,7 @@ export async function deleteCuttingTaskAllocationAction(taskId: string): Promise
       console.warn('[deleteCuttingTaskAllocationAction] Supabase notice:', error.message)
     }
 
+    await CacheManager.invalidateTag('cutting_allocations')
     revalidatePath('/cutting')
     revalidatePath('/cutting/worker')
     revalidatePath('/cutting/worker/history')

@@ -2,6 +2,7 @@
 
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
+import { CacheManager } from '@/lib/cache/cache-manager'
 import { 
   MerchandisingOrder, 
   BomCosting, 
@@ -658,145 +659,155 @@ export async function fetchShipmentsAction(companyName?: string): Promise<Export
 // -----------------------------------------------------------------------------
 
 export async function fetchActiveBuyersAction(companyName?: string): Promise<any[]> {
-  try {
-    // 1. Try querying dedicated active buyers table
-    let buyersList: any[] = []
-    try {
-      let q = supabaseAdmin
-        .from('merchandising_active_buyers')
-        .select('*')
-        .order('created_at', { ascending: false })
+  const normComp = (companyName || 'all').toLowerCase().replace(/[^a-z0-9]/g, '_')
+  const cacheKey = `company:${normComp}:merchandising:buyers`
 
-      if (companyName && companyName.trim()) {
-        q = q.or(`company_name.eq.${companyName.trim()},company_name.ilike.%${companyName.trim()}%`)
-      }
-
-      const { data, error } = await q
-      if (!error && data && data.length > 0) {
-        buyersList = [...data]
-      }
-    } catch {}
-
-    // 2. Fetch live BPO orders to guarantee every buyer with an order is represented with their exact volume & article
-    try {
-      const { data: orders, error: ordErr } = await supabaseAdmin
-        .from('merchandising_orders')
-        .select(`
-          id,
-          order_number,
-          total_quantity,
-          fob_price_per_piece,
-          status,
-          company_name,
-          created_at,
-          brands ( id, brand_name, brand_code, company_name ),
-          design_tech_packs ( id, style_number, category, embellishment_sequence, company_name )
-        `)
-        .order('created_at', { ascending: false })
-
-      if (!ordErr && orders && orders.length > 0) {
-        let filteredOrders = orders
-        if (companyName && companyName.trim()) {
-          const target = companyName.trim().toLowerCase()
-          filteredOrders = orders.filter((ord: any) => {
-            const oc = (ord.company_name || '').toLowerCase()
-            const bc = (ord.brands?.company_name || '').toLowerCase()
-            const bn = (ord.brands?.brand_name || '').toLowerCase()
-            const tc = (ord.design_tech_packs?.company_name || '').toLowerCase()
-            return oc === target || oc.includes(target) ||
-                   bc === target || bc.includes(target) ||
-                   tc === target || tc.includes(target) ||
-                   bn === target || bn.includes(target)
-          })
-        }
-
-        const orderBuyersMap = new Map<string, any>()
-
-        filteredOrders.forEach((ord: any) => {
-          const buyerName = ord.brands?.brand_name || 'Commercial Buyer'
-          const buyerKey = buyerName.trim().toUpperCase()
-          const qty = Number(ord.total_quantity) || 0
-          const price = Number(ord.fob_price_per_piece) || 12.5
-
-          const existing = orderBuyersMap.get(buyerKey)
-          if (!existing) {
-            orderBuyersMap.set(buyerKey, {
-              id: ord.brands?.id || `buyer-${ord.id}`,
-              buyer_name: buyerName,
-              buyer_code: ord.brands?.brand_code || buyerName.slice(0, 4).toUpperCase(),
-              brand_name: buyerName,
-              contact_person: 'Procurement Lead',
-              contact_email: `buyer@${buyerName.toLowerCase().replace(/[^a-z0-9]/g, '')}.com`,
-              contracted_volume: qty,
-              price_per_piece: price,
-              total_contract_value: qty * price,
-              currency: 'INR',
-              linked_article_id: ord.design_tech_packs?.id,
-              linked_article_number: ord.design_tech_packs?.style_number || ord.order_number,
-              linked_article_name: ord.design_tech_packs?.category || 'Garment Contract',
-              embellishment_sequence: ord.design_tech_packs?.embellishment_sequence || 'PRINT_FIRST_THEN_EMBROIDERY',
-              company_name: ord.company_name || ord.brands?.company_name || companyName,
-              status: 'LINKED',
-              created_at: ord.created_at
-            })
-          } else {
-            existing.contracted_volume += qty
-            existing.total_contract_value += qty * price
-            if (!existing.linked_article_number && ord.design_tech_packs?.style_number) {
-              existing.linked_article_number = ord.design_tech_packs.style_number
-              existing.linked_article_name = ord.design_tech_packs.category
-              existing.embellishment_sequence = ord.design_tech_packs.embellishment_sequence || existing.embellishment_sequence
-              existing.status = 'LINKED'
-            }
-          }
-        })
-
-        // Merge order-derived buyers into buyersList
-        orderBuyersMap.forEach((ordBuyer, key) => {
-          const idx = buyersList.findIndex(b => (b.buyer_name || '').trim().toUpperCase() === key)
-          if (idx >= 0) {
-            if (ordBuyer.contracted_volume > (Number(buyersList[idx].contracted_volume) || 0)) {
-              buyersList[idx].contracted_volume = ordBuyer.contracted_volume
-              buyersList[idx].total_contract_value = ordBuyer.total_contract_value
-            }
-            if (!buyersList[idx].linked_article_number && ordBuyer.linked_article_number) {
-              buyersList[idx].linked_article_number = ordBuyer.linked_article_number
-              buyersList[idx].linked_article_name = ordBuyer.linked_article_name
-              buyersList[idx].status = 'LINKED'
-            }
-          } else {
-            buyersList.push(ordBuyer)
-          }
-        })
-      }
-    } catch {}
-
-    // 3. Fallback to brands table ONLY if un-scoped legacy Nubira
-    if (buyersList.length === 0 && (!companyName || companyName === 'Nubira Creation')) {
+  return CacheManager.fetchOrSet<any[]>(
+    cacheKey,
+    async () => {
       try {
-        const { data: brands } = await supabaseAdmin.from('brands').select('*')
-        if (brands && brands.length > 0) {
-          buyersList = brands.map((b: any) => ({
-            id: b.id,
-            buyer_name: b.brand_name,
-            buyer_code: b.brand_code || b.brand_name.slice(0, 4).toUpperCase(),
-            brand_name: b.brand_name,
-            contact_person: 'Commercial Lead',
-            contracted_volume: 5000,
-            price_per_piece: 12.5,
-            total_contract_value: 62500,
-            currency: 'INR',
-            status: 'PENDING_LINK'
-          }))
-        }
-      } catch {}
-    }
+        // 1. Try querying dedicated active buyers table
+        let buyersList: any[] = []
+        try {
+          let q = supabaseAdmin
+            .from('merchandising_active_buyers')
+            .select('*')
+            .order('created_at', { ascending: false })
 
-    return buyersList
-  } catch (err) {
-    console.error('[fetchActiveBuyersAction] Unexpected error:', err)
-    return []
-  }
+          if (companyName && companyName.trim()) {
+            q = q.or(`company_name.eq.${companyName.trim()},company_name.ilike.%${companyName.trim()}%`)
+          }
+
+          const { data, error } = await q
+          if (!error && data && data.length > 0) {
+            buyersList = [...data]
+          }
+        } catch {}
+
+        // 2. Fetch live BPO orders to guarantee every buyer with an order is represented with their exact volume & article
+        try {
+          const { data: orders, error: ordErr } = await supabaseAdmin
+            .from('merchandising_orders')
+            .select(`
+              id,
+              order_number,
+              total_quantity,
+              fob_price_per_piece,
+              status,
+              company_name,
+              created_at,
+              brands ( id, brand_name, brand_code, company_name ),
+              design_tech_packs ( id, style_number, category, embellishment_sequence, company_name )
+            `)
+            .order('created_at', { ascending: false })
+
+          if (!ordErr && orders && orders.length > 0) {
+            let filteredOrders = orders
+            if (companyName && companyName.trim()) {
+              const target = companyName.trim().toLowerCase()
+              filteredOrders = orders.filter((ord: any) => {
+                const oc = (ord.company_name || '').toLowerCase()
+                const bc = (ord.brands?.company_name || '').toLowerCase()
+                const bn = (ord.brands?.brand_name || '').toLowerCase()
+                const tc = (ord.design_tech_packs?.company_name || '').toLowerCase()
+                return oc === target || oc.includes(target) ||
+                       bc === target || bc.includes(target) ||
+                       tc === target || tc.includes(target) ||
+                       bn === target || bn.includes(target)
+              })
+            }
+
+            const orderBuyersMap = new Map<string, any>()
+
+            filteredOrders.forEach((ord: any) => {
+              const buyerName = ord.brands?.brand_name || 'Commercial Buyer'
+              const buyerKey = buyerName.trim().toUpperCase()
+              const qty = Number(ord.total_quantity) || 0
+              const price = Number(ord.fob_price_per_piece) || 12.5
+
+              const existing = orderBuyersMap.get(buyerKey)
+              if (!existing) {
+                orderBuyersMap.set(buyerKey, {
+                  id: ord.brands?.id || `buyer-${ord.id}`,
+                  buyer_name: buyerName,
+                  buyer_code: ord.brands?.brand_code || buyerName.slice(0, 4).toUpperCase(),
+                  brand_name: buyerName,
+                  contact_person: 'Procurement Lead',
+                  contact_email: `buyer@${buyerName.toLowerCase().replace(/[^a-z0-9]/g, '')}.com`,
+                  contracted_volume: qty,
+                  price_per_piece: price,
+                  total_contract_value: qty * price,
+                  currency: 'INR',
+                  linked_article_id: ord.design_tech_packs?.id,
+                  linked_article_number: ord.design_tech_packs?.style_number || ord.order_number,
+                  linked_article_name: ord.design_tech_packs?.category || 'Garment Contract',
+                  embellishment_sequence: ord.design_tech_packs?.embellishment_sequence || 'PRINT_FIRST_THEN_EMBROIDERY',
+                  company_name: ord.company_name || ord.brands?.company_name || companyName,
+                  status: 'LINKED',
+                  created_at: ord.created_at
+                })
+              } else {
+                existing.contracted_volume += qty
+                existing.total_contract_value += qty * price
+                if (!existing.linked_article_number && ord.design_tech_packs?.style_number) {
+                  existing.linked_article_number = ord.design_tech_packs.style_number
+                  existing.linked_article_name = ord.design_tech_packs.category
+                  existing.embellishment_sequence = ord.design_tech_packs.embellishment_sequence || existing.embellishment_sequence
+                  existing.status = 'LINKED'
+                }
+              }
+            })
+
+            // Merge order-derived buyers into buyersList
+            orderBuyersMap.forEach((ordBuyer, key) => {
+              const idx = buyersList.findIndex(b => (b.buyer_name || '').trim().toUpperCase() === key)
+              if (idx >= 0) {
+                if (ordBuyer.contracted_volume > (Number(buyersList[idx].contracted_volume) || 0)) {
+                  buyersList[idx].contracted_volume = ordBuyer.contracted_volume
+                  buyersList[idx].total_contract_value = ordBuyer.total_contract_value
+                }
+                if (!buyersList[idx].linked_article_number && ordBuyer.linked_article_number) {
+                  buyersList[idx].linked_article_number = ordBuyer.linked_article_number
+                  buyersList[idx].linked_article_name = ordBuyer.linked_article_name
+                  buyersList[idx].status = 'LINKED'
+                }
+              } else {
+                buyersList.push(ordBuyer)
+              }
+            })
+          }
+        } catch {}
+
+        // 3. Fallback to brands table ONLY if un-scoped legacy Nubira
+        if (buyersList.length === 0 && (!companyName || companyName === 'Nubira Creation')) {
+          try {
+            const { data: brands } = await supabaseAdmin.from('brands').select('*')
+            if (brands && brands.length > 0) {
+              buyersList = brands.map((b: any) => ({
+                id: b.id,
+                buyer_name: b.brand_name,
+                buyer_code: b.brand_code || b.brand_name.slice(0, 4).toUpperCase(),
+                brand_name: b.brand_name,
+                contact_person: 'Commercial Lead',
+                contracted_volume: 5000,
+                price_per_piece: 12.5,
+                total_contract_value: 62500,
+                currency: 'INR',
+                status: 'PENDING_LINK'
+              }))
+            }
+          } catch {}
+        }
+
+        return buyersList
+      } catch (err) {
+        console.error('[fetchActiveBuyersAction] Unexpected error:', err)
+        return []
+      }
+    },
+    60, // 60s TTL
+    [`company:${normComp}:merchandising`, 'merchandising_buyers']
+  )
 }
 
 export async function saveActiveBuyerAction(payload: any): Promise<{ success: boolean; data?: any; error?: string }> {
@@ -832,6 +843,7 @@ export async function saveActiveBuyerAction(payload: any): Promise<{ success: bo
       console.warn('[saveActiveBuyerAction] Supabase notice:', error.message)
     }
 
+    await CacheManager.invalidateCompanyModule(payload.company_name || 'all', 'merchandising')
     revalidatePath('/merchandising')
     revalidatePath('/merchandising/buyers')
     return { success: true, data }
