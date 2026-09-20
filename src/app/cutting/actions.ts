@@ -3,6 +3,7 @@
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
 import { CutBundle, HandoverDestination, LaySheet } from './types/cutting'
+import { CacheManager } from '@/lib/cache/cache-manager'
 
 const supabaseAdmin = createAdminClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -11,67 +12,77 @@ const supabaseAdmin = createAdminClient(
 
 // 1. Fetch Lay Sheets with Commercial Order Handshake
 export async function fetchLaySheetsAction(companyName?: string): Promise<LaySheet[]> {
-  try {
-    const { data: sheets, error } = await supabaseAdmin
-      .from('cutting_lay_sheets')
-      .select(`
-        *,
-        merchandising_orders:order_id (
-          id,
-          order_number,
-          currency,
-          fob_price_per_piece,
-          total_quantity,
-          brands:buyer_id (brand_name),
-          design_tech_packs:tech_pack_id (style_number, category, fabric_composition)
-        ),
-        cutting_lay_rolls (
-          id,
-          roll_id,
-          plies_from_roll,
-          meters_consumed,
-          remnant_length_m,
-          store_fabric_rolls:roll_id (
-            roll_barcode,
-            fabric_name,
-            shade_group,
-            usable_width_inches
-          )
-        )
-      `)
-      .order('created_at', { ascending: false })
+  const normComp = (companyName || 'all').toLowerCase().replace(/[^a-z0-9]/g, '_')
+  const cacheKey = `company:${normComp}:cutting:laysheets`
 
-    if (error) {
-      console.warn('fetchLaySheetsAction error:', error.message)
-      return []
-    }
+  return CacheManager.fetchOrSet<LaySheet[]>(
+    cacheKey,
+    async () => {
+      try {
+        const { data: sheets, error } = await supabaseAdmin
+          .from('cutting_lay_sheets')
+          .select(`
+            *,
+            merchandising_orders:order_id (
+              id,
+              order_number,
+              currency,
+              fob_price_per_piece,
+              total_quantity,
+              brands:buyer_id (brand_name),
+              design_tech_packs:tech_pack_id (style_number, category, fabric_composition)
+            ),
+            cutting_lay_rolls (
+              id,
+              roll_id,
+              plies_from_roll,
+              meters_consumed,
+              remnant_length_m,
+              store_fabric_rolls:roll_id (
+                roll_barcode,
+                fabric_name,
+                shade_group,
+                usable_width_inches
+              )
+            )
+          `)
+          .order('created_at', { ascending: false })
 
-    const filteredSheets = sheets || []
+        if (error) {
+          console.warn('fetchLaySheetsAction error:', error.message)
+          return []
+        }
 
-    return filteredSheets.map((sheet: any) => ({
-      id: sheet.id,
-      lay_number: sheet.lay_sheet_number,
-      po_number: sheet.merchandising_orders?.order_number || 'PO-PENDING',
-      brand_name: sheet.merchandising_orders?.brands?.brand_name || companyName || 'Primary Factory',
-      style_ref: sheet.merchandising_orders?.design_tech_packs?.style_number || 'N/A',
-      style_name: sheet.merchandising_orders?.design_tech_packs?.category || 'Standard Garment',
-      table_number: sheet.cutting_table_id,
-      fabric_roll_barcodes: (sheet.cutting_lay_rolls || []).map((r: any) => r.store_fabric_rolls?.roll_barcode || 'ROL-ROLL'),
-      shell_fabric: sheet.cutting_lay_rolls?.[0]?.store_fabric_rolls?.fabric_name || 'Standard Fabric',
-      gsm: 380,
-      plies_count: sheet.total_plies,
-      marker_length_meters: Number(sheet.marker_length_m),
-      total_cut_pieces: sheet.actual_cut_pieces || sheet.expected_pieces,
-      ratio_breakdown: sheet.size_ratio_text,
-      fabric_weight_kg: 45.3,
-      cutting_master: 'In-House Cutting Master',
-      status: sheet.status,
-      created_at: sheet.created_at ? new Date(sheet.created_at).toISOString().split('T')[0] : '2026-09-12'
-    }))
-  } catch (err: any) {
-    console.error('fetchLaySheetsAction uncaught error:', err)
-    return []
-  }
+        const filteredSheets = sheets || []
+
+        return filteredSheets.map((sheet: any) => ({
+          id: sheet.id,
+          lay_number: sheet.lay_sheet_number,
+          po_number: sheet.merchandising_orders?.order_number || 'PO-PENDING',
+          brand_name: sheet.merchandising_orders?.brands?.brand_name || companyName || 'Primary Factory',
+          style_ref: sheet.merchandising_orders?.design_tech_packs?.style_number || 'N/A',
+          style_name: sheet.merchandising_orders?.design_tech_packs?.category || 'Standard Garment',
+          table_number: sheet.cutting_table_id,
+          fabric_roll_barcodes: (sheet.cutting_lay_rolls || []).map((r: any) => r.store_fabric_rolls?.roll_barcode || 'ROL-ROLL'),
+          shell_fabric: sheet.cutting_lay_rolls?.[0]?.store_fabric_rolls?.fabric_name || 'Standard Fabric',
+          gsm: 380,
+          plies_count: sheet.total_plies,
+          marker_length_meters: Number(sheet.marker_length_m),
+          total_cut_pieces: sheet.actual_cut_pieces || sheet.expected_pieces,
+          ratio_breakdown: sheet.size_ratio_text,
+          fabric_weight_kg: 45.3,
+          cutting_master: 'In-House Cutting Master',
+          status: sheet.status,
+          created_at: sheet.created_at ? new Date(sheet.created_at).toISOString().split('T')[0] : '2026-09-12'
+        }))
+      } catch (err: any) {
+        console.error('fetchLaySheetsAction uncaught error:', err)
+        return []
+      }
+    },
+    45, // 45 seconds TTL
+    [`company:${normComp}:cutting`, 'cutting_lays']
+  )
 }
 
 // 2. Create Lay Sheet and Atomically Serialize Component Bundles (The Root Seed)
@@ -327,33 +338,41 @@ export async function fetchEndBitLogsAction(companyName?: string) {
 
 // 6. Fetch Executive Cutting Floor KPIs
 export async function fetchCuttingDashboardKpisAction(companyName?: string) {
-  try {
-    const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
-    if (isNonNubira) {
-      return {
-        total_lays: 0,
-        total_plies: 0,
-        total_cut_pieces: 0,
-        avg_marker_efficiency: 0,
-        active_tables: 0
+  const normComp = (companyName || 'all').toLowerCase().replace(/[^a-z0-9]/g, '_')
+  return CacheManager.fetchOrSet(
+    `company:${normComp}:cutting:kpis`,
+    async () => {
+      try {
+        const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
+        if (isNonNubira) {
+          return {
+            total_lays: 0,
+            total_plies: 0,
+            total_cut_pieces: 0,
+            avg_marker_efficiency: 0,
+            active_tables: 0
+          }
+        }
+
+        const { data: kpis, error } = await supabaseAdmin
+          .from('view_cutting_floor_kpis')
+          .select('*')
+          .single()
+
+        if (error) {
+          console.warn('fetchCuttingDashboardKpisAction view error:', error.message)
+          return null
+        }
+
+        return kpis
+      } catch (err: any) {
+        console.error('fetchCuttingDashboardKpisAction error:', err)
+        return null
       }
-    }
-
-    const { data: kpis, error } = await supabaseAdmin
-      .from('view_cutting_floor_kpis')
-      .select('*')
-      .single()
-
-    if (error) {
-      console.warn('fetchCuttingDashboardKpisAction view error:', error.message)
-      return null
-    }
-
-    return kpis
-  } catch (err: any) {
-    console.error('fetchCuttingDashboardKpisAction error:', err)
-    return null
-  }
+    },
+    45,
+    [`company:${normComp}:cutting`, 'cutting_kpis']
+  )
 }
 
 // -----------------------------------------------------------------------------
@@ -361,26 +380,33 @@ export async function fetchCuttingDashboardKpisAction(companyName?: string) {
 // -----------------------------------------------------------------------------
 
 export async function fetchCuttingWorkersAction(companyName?: string): Promise<any[]> {
-  try {
-    if (!companyName || !companyName.trim()) {
-      return []
-    }
+  const normComp = (companyName || 'all').toLowerCase().replace(/[^a-z0-9]/g, '_')
+  return CacheManager.fetchOrSet<any[]>(
+    `company:${normComp}:cutting:workers`,
+    async () => {
+      try {
+        if (!companyName || !companyName.trim()) {
+          return []
+        }
 
-    const { data, error } = await supabaseAdmin
-      .from('cutting_workers')
-      .select('*')
-      .eq('company_name', companyName.trim())
-      .order('created_at', { ascending: false })
+        const { data, error } = await supabaseAdmin
+          .from('cutting_workers')
+          .select('*')
+          .eq('company_name', companyName.trim())
+          .order('created_at', { ascending: false })
 
-    if (error) {
-      console.warn('[fetchCuttingWorkersAction] Supabase notice:', error.message)
-      return []
-    }
-    return data || []
-  } catch (err) {
-    console.error('[fetchCuttingWorkersAction] Unexpected error:', err)
-    return []
-  }
+        if (error) {
+          console.warn('[fetchCuttingWorkersAction] Supabase notice:', error.message)
+          return []
+        }
+        return data || []
+      } catch (err) {
+        return []
+      }
+    },
+    60,
+    [`company:${normComp}:cutting`, 'cutting_workers']
+  )
 }
 
 export async function addCuttingWorkerAction(payload: {

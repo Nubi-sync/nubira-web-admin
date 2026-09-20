@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { checkRateLimit } from '@/lib/rate-limit'
+import { CacheManager } from '@/lib/cache/cache-manager'
 
 export async function updateSession(request: NextRequest) {
   const pathname = request.nextUrl.pathname
@@ -139,17 +140,26 @@ export async function updateSession(request: NextRequest) {
       let isTenantExpired = false
       if (!isPlatformAdmin) {
         try {
-          const { data: tenantFactory } = await supabase
-            .from('platform_tenant_factories')
-            .select('status, expires_at')
-            .ilike('admin_email', userEmail)
-            .maybeSingle()
+          const factoryStatus = await CacheManager.fetchOrSet<{ isExpired: boolean }>(
+            `mw:tenant_status:${userEmail}`,
+            async () => {
+              const { data: tenantFactory } = await supabase
+                .from('platform_tenant_factories')
+                .select('status, expires_at')
+                .ilike('admin_email', userEmail)
+                .maybeSingle()
 
-          if (tenantFactory) {
-            const isSuspended = tenantFactory.status === 'SUSPENDED' || tenantFactory.status === 'EXPIRED'
-            const isPastExpiry = tenantFactory.expires_at ? new Date(tenantFactory.expires_at).getTime() < Date.now() : false
-            isTenantExpired = isSuspended || isPastExpiry
-          }
+              if (tenantFactory) {
+                const isSuspended = tenantFactory.status === 'SUSPENDED' || tenantFactory.status === 'EXPIRED'
+                const isPastExpiry = tenantFactory.expires_at ? new Date(tenantFactory.expires_at).getTime() < Date.now() : false
+                return { isExpired: isSuspended || isPastExpiry }
+              }
+              return { isExpired: false }
+            },
+            180, // 3 minutes TTL
+            [`email:${userEmail}`, 'tenant_status']
+          )
+          isTenantExpired = factoryStatus?.isExpired || false
         } catch (_) {}
       }
 
