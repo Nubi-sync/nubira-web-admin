@@ -23,17 +23,10 @@ export default async function AlterModulePage() {
   const isLegacy = isLegacyNubiraTenant(tenant)
   const companyFilter = isLegacy ? undefined : tenant.companyName
 
-  const [{ data: profile }, liveData] = await Promise.all([
-    supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single(),
-    fetchAlterDashboardDataAction(companyFilter)
-  ])
+  const liveData = await fetchAlterDashboardDataAction(companyFilter)
 
   return (
-    <AdminShell userEmail={user.email} userRole={profile?.role}>
+    <AdminShell userEmail={user.email} userRole={tenant.role}>
       <ClinicDashboardClient
         userEmail={user.email}
         initialTickets={liveData.tickets}

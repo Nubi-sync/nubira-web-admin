@@ -2,6 +2,7 @@
 
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
+import { CacheManager } from '@/lib/cache/cache-manager'
 import {
   ReadyGoodsCarton,
   AqlAudit,
@@ -22,83 +23,93 @@ export async function fetchReadyGoodsDashboardDataAction(companyName?: string): 
   cartons: ReadyGoodsCarton[]
   aqlAudits: AqlAudit[]
 }> {
-  try {
-    const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
-    const targetComp = (companyName || '').toUpperCase()
+  const normComp = (companyName || 'all').toLowerCase().replace(/[^a-z0-9]/g, '_')
+  const cacheKey = `company:${normComp}:ready_goods:dashboard`
 
-    const [cartonsRes, aqlRes] = await Promise.all([
-      supabaseAdmin
-        .from('ready_goods_cartons')
-        .select('*, order:merchandising_orders(po_number, brand_buyer, style_name, brands:buyer_id(brand_name)), bundles:ready_goods_carton_bundles(bundle_id, pieces_from_bundle)')
-        .order('created_at', { ascending: false })
-        .limit(50),
-      supabaseAdmin
-        .from('ready_goods_aql_audits')
-        .select('*, carton:ready_goods_cartons(carton_barcode, order_id, order:merchandising_orders(brand_buyer, brands:buyer_id(brand_name)))')
-        .order('created_at', { ascending: false })
-        .limit(50)
-    ])
+  return CacheManager.fetchOrSet(
+    cacheKey,
+    async () => {
+      try {
+        const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
+        const targetComp = (companyName || '').toUpperCase()
 
-    const rawCartons = cartonsRes.data || []
-    const rawAql = aqlRes.data || []
+        const [cartonsRes, aqlRes] = await Promise.all([
+          supabaseAdmin
+            .from('ready_goods_cartons')
+            .select('*, order:merchandising_orders(po_number, brand_buyer, style_name, brands:buyer_id(brand_name)), bundles:ready_goods_carton_bundles(bundle_id, pieces_from_bundle)')
+            .order('created_at', { ascending: false })
+            .limit(50),
+          supabaseAdmin
+            .from('ready_goods_aql_audits')
+            .select('*, carton:ready_goods_cartons(carton_barcode, order_id, order:merchandising_orders(brand_buyer, brands:buyer_id(brand_name)))')
+            .order('created_at', { ascending: false })
+            .limit(50)
+        ])
 
-    const cartons: ReadyGoodsCarton[] = rawCartons.map((c: any) => {
-      const gross = Number(c.gross_weight_kg) || 12.5
-      const expected = 12.4
-      const bundles = (c.bundles || []).map((b: any) => b.bundle_id?.slice(0, 8) || 'BDL')
+        const rawCartons = cartonsRes.data || []
+        const rawAql = aqlRes.data || []
 
-      return {
-        id: c.id,
-        cartonNumber: c.carton_barcode || `CTN-${c.id?.slice(0, 5)}`,
-        orderId: c.order_id,
-        orderNumber: c.order?.po_number || 'PO-PENDING',
-        buyer: c.order?.brands?.brand_name || c.order?.brand_buyer || 'In-House Brand',
-        styleName: c.order?.style_name || 'Standard Garment',
-        color: 'Standard Color',
-        totalPieces: c.total_pieces || 0,
-        sizeBreakdown: { M: Math.floor((c.total_pieces || 0) / 2), L: Math.ceil((c.total_pieces || 0) / 2) },
-        packedBundleIds: bundles,
-        measuredGrossWeightKg: gross,
-        expectedGrossWeightKg: expected,
-        weightVarianceKg: Number((gross - expected).toFixed(2)),
-        status: (c.status as CartonStatus) || 'PACKED',
-        godownBay: 'BAY_3',
-        dimensionsCm: `${c.length_cm || 60}x${c.width_cm || 40}x${c.height_cm || 30}`,
-        cbmVolume: Number(c.cbm) || 0.072,
-        sealedBy: 'Pack Supervisor',
-        createdAt: c.created_at || new Date().toISOString(),
-        updatedAt: c.updated_at
+        const cartons: ReadyGoodsCarton[] = rawCartons.map((c: any) => {
+          const gross = Number(c.gross_weight_kg) || 12.5
+          const expected = 12.4
+          const bundles = (c.bundles || []).map((b: any) => b.bundle_id?.slice(0, 8) || 'BDL')
+
+          return {
+            id: c.id,
+            cartonNumber: c.carton_barcode || `CTN-${c.id?.slice(0, 5)}`,
+            orderId: c.order_id,
+            orderNumber: c.order?.po_number || 'PO-PENDING',
+            buyer: c.order?.brands?.brand_name || c.order?.brand_buyer || 'In-House Brand',
+            styleName: c.order?.style_name || 'Standard Garment',
+            color: 'Standard Color',
+            totalPieces: c.total_pieces || 0,
+            sizeBreakdown: { M: Math.floor((c.total_pieces || 0) / 2), L: Math.ceil((c.total_pieces || 0) / 2) },
+            packedBundleIds: bundles,
+            measuredGrossWeightKg: gross,
+            expectedGrossWeightKg: expected,
+            weightVarianceKg: Number((gross - expected).toFixed(2)),
+            status: (c.status as CartonStatus) || 'PACKED',
+            godownBay: 'BAY_3',
+            dimensionsCm: `${c.length_cm || 60}x${c.width_cm || 40}x${c.height_cm || 30}`,
+            cbmVolume: Number(c.cbm) || 0.072,
+            sealedBy: 'Pack Supervisor',
+            createdAt: c.created_at || new Date().toISOString(),
+            updatedAt: c.updated_at
+          }
+        })
+
+        const aqlAudits: AqlAudit[] = rawAql.map((a: any) => {
+          const isPass = a.verdict === 'PASS'
+          return {
+            id: a.id,
+            auditNumber: `AQL-${a.id?.slice(0, 6)}`,
+            orderId: a.carton?.order_id || 'N/A',
+            orderNumber: a.carton?.order?.po_number || 'PO-PENDING',
+            cartonId: a.carton_id,
+            cartonNumber: a.carton?.carton_barcode || 'CTN-PACKED',
+            inspectorId: a.inspector_id || 'INSP-01',
+            inspectorName: 'Quality Lead Auditor',
+            lotSizePieces: 1200,
+            sampleSizeAudited: a.sample_size || 80,
+            criticalDefects: a.critical_defects || 0,
+            majorDefects: a.major_defects || 0,
+            minorDefects: a.minor_defects || 0,
+            auditDecision: (isPass ? 'PASS' : 'REJECT_QUARANTINE') as AqlAuditDecision,
+            defects: [],
+            remarks: a.audit_notes || 'ISO 2859-1 Level II Audit Completed',
+            auditDate: a.created_at ? a.created_at.split('T')[0] : new Date().toISOString().split('T')[0]
+          }
+        })
+
+        return { cartons, aqlAudits }
+      } catch (error) {
+        console.error('fetchReadyGoodsDashboardDataAction error:', error)
+        return { cartons: [], aqlAudits: [] }
       }
-    })
-
-    const aqlAudits: AqlAudit[] = rawAql.map((a: any) => {
-      const isPass = a.verdict === 'PASS'
-      return {
-        id: a.id,
-        auditNumber: `AQL-${a.id?.slice(0, 6)}`,
-        orderId: a.carton?.order_id || 'N/A',
-        orderNumber: a.carton?.order?.po_number || 'PO-PENDING',
-        cartonId: a.carton_id,
-        cartonNumber: a.carton?.carton_barcode || 'CTN-PACKED',
-        inspectorId: a.inspector_id || 'INSP-01',
-        inspectorName: 'Quality Lead Auditor',
-        lotSizePieces: 1200,
-        sampleSizeAudited: a.sample_size || 80,
-        criticalDefects: a.critical_defects || 0,
-        majorDefects: a.major_defects || 0,
-        minorDefects: a.minor_defects || 0,
-        auditDecision: (isPass ? 'PASS' : 'REJECT_QUARANTINE') as AqlAuditDecision,
-        defects: [],
-        remarks: a.audit_notes || 'ISO 2859-1 Level II Audit Completed',
-        auditDate: a.created_at ? a.created_at.split('T')[0] : new Date().toISOString().split('T')[0]
-      }
-    })
-
-    return { cartons, aqlAudits }
-  } catch (error) {
-    console.error('fetchReadyGoodsDashboardDataAction error:', error)
-    return { cartons: [], aqlAudits: [] }
-  }
+    },
+    60,
+    [`company:${normComp}:ready_goods`, 'ready_goods_dashboard']
+  )
 }
 
 // -----------------------------------------------------------------------------

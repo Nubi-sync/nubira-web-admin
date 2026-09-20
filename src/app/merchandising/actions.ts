@@ -82,87 +82,100 @@ function parseTechPackMetadata(rawFabric?: string | null): {
 // -----------------------------------------------------------------------------
 
 export async function fetchMerchandisingOrdersAction(companyName?: string): Promise<MerchandisingOrder[]> {
-  try {
-    const { data, error } = await supabaseAdmin
-      .from('merchandising_orders')
-      .select(`
-        *,
-        brands ( id, brand_name, brand_code, company_name ),
-        design_tech_packs ( id, style_number, category, embellishment_sequence, fabric_composition, target_gsm, cad_front_url, cad_back_url, company_name ),
-        merchandising_order_ratios ( id, color_name, color_code, size_label, ratio_units, quantity )
-      `)
-      .order('created_at', { ascending: false })
+  const normComp = (companyName || 'all').toLowerCase().replace(/[^a-z0-9]/g, '_')
+  const cacheKey = `company:${normComp}:merchandising:orders`
 
-    if (error) {
-      console.error('[fetchMerchandisingOrdersAction] Error:', error)
-      return []
-    }
+  return CacheManager.fetchOrSet<MerchandisingOrder[]>(
+    cacheKey,
+    async () => {
+      try {
+        const { data, error } = await supabaseAdmin
+          .from('merchandising_orders')
+          .select(`
+            *,
+            brands ( id, brand_name, brand_code, company_name ),
+            design_tech_packs ( id, style_number, category, embellishment_sequence, fabric_composition, target_gsm, cad_front_url, cad_back_url, company_name ),
+            merchandising_order_ratios ( id, color_name, color_code, size_label, ratio_units, quantity )
+          `)
+          .order('created_at', { ascending: false })
 
-    if (!data || data.length === 0) return []
-
-    let filteredData = data
-    if (companyName && companyName.trim()) {
-      const target = companyName.trim().toLowerCase()
-      filteredData = data.filter((row: any) => {
-        const orderComp = (row.company_name || '').toLowerCase()
-        const brandComp = (row.brands?.company_name || '').toLowerCase()
-        const brandName = (row.brands?.brand_name || '').toLowerCase()
-        const tpComp = (row.design_tech_packs?.company_name || '').toLowerCase()
-        return orderComp === target || orderComp.includes(target) ||
-               brandComp === target || brandComp.includes(target) ||
-               tpComp === target || tpComp.includes(target) ||
-               brandName === target || brandName.includes(target)
-      })
-    }
-
-    return filteredData.map((row: any) => {
-      // Group ratios by color_name
-      const colorGroups: Record<string, { sizes: Record<string, number>; total: number }> = {}
-      ;(row.merchandising_order_ratios || []).forEach((r: any) => {
-        if (!colorGroups[r.color_name]) {
-          colorGroups[r.color_name] = { sizes: {}, total: 0 }
+        if (error) {
+          console.error('[fetchMerchandisingOrdersAction] Error:', error)
+          return []
         }
-        colorGroups[r.color_name].sizes[r.size_label] = r.quantity
-        colorGroups[r.color_name].total += r.quantity
-      })
 
-      const colorMatrix: ColorSizeMatrixItem[] = Object.entries(colorGroups).map(([color, val]) => ({
-        color,
-        sizes: val.sizes,
-        total: val.total
-      }))
+        if (!data || data.length === 0) return []
 
-      const meta = parseTechPackMetadata(row.design_tech_packs?.fabric_composition)
+        let filteredData = data
+        if (companyName && companyName.trim()) {
+          const target = companyName.trim().toLowerCase()
+          filteredData = data.filter((row: any) => {
+            const orderComp = (row.company_name || '').toLowerCase()
+            const brandComp = (row.brands?.company_name || '').toLowerCase()
+            const brandName = (row.brands?.brand_name || '').toLowerCase()
+            const tpComp = (row.design_tech_packs?.company_name || '').toLowerCase()
+            return orderComp === target || orderComp.includes(target) ||
+                   brandComp === target || brandComp.includes(target) ||
+                   tpComp === target || tpComp.includes(target) ||
+                   brandName === target || brandName.includes(target)
+          })
+        }
 
-      return {
-        id: row.id,
-        po_number: row.order_number,
-        brand_name: row.brands?.brand_name || 'Direct Buyer',
-        style_ref: row.design_tech_packs?.style_number || 'Standard Style',
-        style_name: `${row.design_tech_packs?.category || 'Garment'} ${row.order_number} Export Edition`,
-        tech_pack_id: row.tech_pack_id,
-        total_quantity: Number(row.total_quantity) || 0,
-        currency: (row.currency as any) || 'INR',
-        unit_fob_price: Number(row.fob_price_per_piece) || 0,
-        total_contract_value: Number(row.total_quantity * row.fob_price_per_piece) || 0,
-        ex_factory_date: row.ex_factory_date,
-        status: mapDbStatusToUI(row.status),
-        embellishment_sequence: row.design_tech_packs?.embellishment_sequence || 'NONE',
-        fabric_composition: meta.fabric || '100% Combed Cotton Single Jersey',
-        target_gsm: row.design_tech_packs?.target_gsm || 180,
-        cad_front_url: row.design_tech_packs?.cad_front_url,
-        cad_back_url: row.design_tech_packs?.cad_back_url,
-        bom_materials: meta.materials || [],
-        color_matrix: colorMatrix.length > 0 ? colorMatrix : [
-          { color: 'Standard Colorway', sizes: { S: 500, M: 1000, L: 500 }, total: Number(row.total_quantity) || 2000 }
-        ],
-        created_at: row.created_at
+        return filteredData.map((row: any) => {
+          // Group ratios by color_name
+          const colorGroups: Record<string, { sizes: Record<string, number>; total: number }> = {}
+          ;(row.merchandising_order_ratios || []).forEach((r: any) => {
+            if (!colorGroups[r.color_name]) {
+              colorGroups[r.color_name] = { sizes: {}, total: 0 }
+            }
+            colorGroups[r.color_name].sizes[r.size_label] = r.quantity
+            colorGroups[r.color_name].total += r.quantity
+          })
+
+          const colorMatrix: ColorSizeMatrixItem[] = Object.entries(colorGroups).map(([color, val]) => ({
+            color,
+            sizes: val.sizes,
+            total: val.total
+          }))
+
+          const meta = parseTechPackMetadata(row.design_tech_packs?.fabric_composition)
+          const totalQty = Number(row.total_quantity) || 0
+          const unitPrice = Number(row.fob_price_per_piece) || 0
+
+          return {
+            id: row.id,
+            po_number: row.order_number,
+            brand_name: row.brands?.brand_name || 'Direct Buyer',
+            buyer_code: row.brands?.brand_code || 'BUYER',
+            style_ref: row.design_tech_packs?.style_number || 'ST-DIRECT',
+            style_name: `${row.design_tech_packs?.category || 'Garment'} Collection`,
+            total_quantity: totalQty,
+            unit_fob_price: unitPrice,
+            total_contract_value: totalQty * unitPrice,
+            currency: (row.currency || 'INR') as 'INR' | 'USD' | 'EUR' | 'GBP',
+            ex_factory_date: row.ex_factory_date || new Date(Date.now() + 60 * 86400000).toISOString().split('T')[0],
+            status: mapDbStatusToUI(row.status),
+            company_name: row.company_name || 'Nubira Creation',
+            cad_front_url: row.design_tech_packs?.cad_front_url,
+            cad_back_url: row.design_tech_packs?.cad_back_url,
+            fabric_composition: meta.fabric || 'Cotton Blend',
+            target_gsm: Number(row.design_tech_packs?.target_gsm) || 300,
+            embellishment_sequence: row.design_tech_packs?.embellishment_sequence || 'NONE',
+            bom_materials: meta.materials || [],
+            color_matrix: colorMatrix.length > 0 ? colorMatrix : [
+              { color: 'Standard Colorway', sizes: { S: 500, M: 1000, L: 500 }, total: totalQty || 2000 }
+            ],
+            created_at: row.created_at
+          }
+        })
+      } catch (err) {
+        console.error('[fetchMerchandisingOrdersAction] Unexpected error:', err)
+        return []
       }
-    })
-  } catch (err) {
-    console.error('[fetchMerchandisingOrdersAction] Unexpected error:', err)
-    return []
-  }
+    },
+    60,
+    [`company:${normComp}:merchandising`, 'merchandising_orders']
+  )
 }
 
 export async function createBuyerOrderAction(payload: {
@@ -330,6 +343,10 @@ export async function createBuyerOrderAction(payload: {
     revalidatePath('/merchandising/tna-calendar')
     revalidatePath('/merchandising/costing')
 
+    await CacheManager.invalidateTag('merchandising_orders')
+    await CacheManager.invalidateTag('merchandising_tna')
+    await CacheManager.invalidateCompanyModule(payload.company_name || 'all', 'merchandising')
+
     return { success: true, data: order }
   } catch (err: any) {
     console.error('[createBuyerOrderAction] Unexpected error:', err)
@@ -338,63 +355,73 @@ export async function createBuyerOrderAction(payload: {
 }
 
 export async function fetchBomCostingsAction(companyName?: string): Promise<BomCosting[]> {
-  try {
-    const { data, error } = await supabaseAdmin
-      .from('merchandising_bom_costings')
-      .select(`
-        *,
-        merchandising_orders (
-          id,
-          order_number,
-          company_name,
-          design_tech_packs (
-            style_number,
-            category,
-            company_name
-          )
-        )
-      `)
-      .order('created_at', { ascending: false })
+  const normComp = (companyName || 'all').toLowerCase().replace(/[^a-z0-9]/g, '_')
+  const cacheKey = `company:${normComp}:merchandising:bom`
 
-    if (error) {
-      console.warn('[fetchBomCostingsAction] Notice fetching merchandising_bom_costings:', error.message)
-      return []
-    }
+  return CacheManager.fetchOrSet<BomCosting[]>(
+    cacheKey,
+    async () => {
+      try {
+        const { data, error } = await supabaseAdmin
+          .from('merchandising_bom_costings')
+          .select(`
+            *,
+            merchandising_orders (
+              id,
+              order_number,
+              company_name,
+              design_tech_packs (
+                style_number,
+                category,
+                company_name
+              )
+            )
+          `)
+          .order('created_at', { ascending: false })
 
-    if (!data || data.length === 0) return []
+        if (error) {
+          console.warn('[fetchBomCostingsAction] Notice fetching merchandising_bom_costings:', error.message)
+          return []
+        }
 
-    let filteredData = data
-    if (companyName && companyName.trim()) {
-      const target = companyName.trim().toLowerCase()
-      filteredData = data.filter((row: any) => {
-        const oc = (row.merchandising_orders?.company_name || '').toLowerCase()
-        const tc = (row.merchandising_orders?.design_tech_packs?.company_name || '').toLowerCase()
-        return oc === target || oc.includes(target) || tc === target || tc.includes(target)
-      })
-    }
+        if (!data || data.length === 0) return []
 
-    return filteredData.map((row: any) => ({
-      id: row.id,
-      order_id: row.order_id,
-      po_number: row.merchandising_orders?.order_number || 'N/A',
-      style_ref: row.merchandising_orders?.design_tech_packs?.style_number || 'N/A',
-      style_name: `${row.merchandising_orders?.design_tech_packs?.category || 'Garment'} Export Production`,
-      fabric_cost: Number(row.fabric_cost_per_pc) || 0,
-      trims_accessories_cost: Number(row.trims_cost_per_pc) || 0,
-      embellishment_cost: Number(row.embellishment_cost_per_pc) || 0,
-      cmt_sewing_rate: Number(row.cmt_cost_per_pc) || 0,
-      washing_finishing_cost: Number(row.washing_cost_per_pc) || 0,
-      packaging_cost: Number(row.packaging_cost_per_pc) || 0,
-      factory_overhead_percent: Number(row.factory_overhead_pct) || 12.0,
-      net_fob_cost: Number(row.planned_fob_rate) || 0,
-      target_margin_percent: Number(row.target_margin_pct) || 15.0,
-      actual_realized_cost: Number(row.actual_realized_cost) || 0,
-      variance_percent: Number(row.variance_pct) || 0.0
-    }))
-  } catch (err) {
-    console.error('[fetchBomCostingsAction] Unexpected error:', err)
-    return []
-  }
+        let filteredData = data
+        if (companyName && companyName.trim()) {
+          const target = companyName.trim().toLowerCase()
+          filteredData = data.filter((row: any) => {
+            const oc = (row.merchandising_orders?.company_name || '').toLowerCase()
+            const tc = (row.merchandising_orders?.design_tech_packs?.company_name || '').toLowerCase()
+            return oc === target || oc.includes(target) || tc === target || tc.includes(target)
+          })
+        }
+
+        return filteredData.map((row: any) => ({
+          id: row.id,
+          order_id: row.order_id,
+          po_number: row.merchandising_orders?.order_number || 'N/A',
+          style_ref: row.merchandising_orders?.design_tech_packs?.style_number || 'N/A',
+          style_name: `${row.merchandising_orders?.design_tech_packs?.category || 'Garment'} Export Production`,
+          fabric_cost: Number(row.fabric_cost_per_pc) || 0,
+          trims_accessories_cost: Number(row.trims_cost_per_pc) || 0,
+          embellishment_cost: Number(row.embellishment_cost_per_pc) || 0,
+          cmt_sewing_rate: Number(row.cmt_cost_per_pc) || 0,
+          washing_finishing_cost: Number(row.washing_cost_per_pc) || 0,
+          packaging_cost: Number(row.packaging_cost_per_pc) || 0,
+          factory_overhead_percent: Number(row.factory_overhead_pct) || 12.0,
+          net_fob_cost: Number(row.planned_fob_rate) || 0,
+          target_margin_percent: Number(row.target_margin_pct) || 15.0,
+          actual_realized_cost: Number(row.actual_realized_cost) || 0,
+          variance_percent: Number(row.variance_pct) || 0.0
+        }))
+      } catch (err) {
+        console.error('[fetchBomCostingsAction] Unexpected error:', err)
+        return []
+      }
+    },
+    60,
+    [`company:${normComp}:merchandising`, 'merchandising_bom']
+  )
 }
 
 export async function createBomCostingAction(payload: {
@@ -449,86 +476,96 @@ export async function createBomCostingAction(payload: {
 // -----------------------------------------------------------------------------
 
 export async function fetchTnaMilestonesAction(companyName?: string): Promise<TnaMilestone[]> {
-  try {
-    const { data, error } = await supabaseAdmin
-      .from('merchandising_tna_milestones')
-      .select(`
-        *,
-        merchandising_orders (
-          id,
-          order_number,
-          order_date,
-          ex_factory_date,
-          company_name,
-          design_tech_packs ( style_number, company_name )
-        )
-      `)
-      .order('target_date', { ascending: true })
+  const normComp = (companyName || 'all').toLowerCase().replace(/[^a-z0-9]/g, '_')
+  const cacheKey = `company:${normComp}:merchandising:tna`
 
-    if (error) {
-      console.error('[fetchTnaMilestonesAction] Error:', error)
-      return []
-    }
+  return CacheManager.fetchOrSet<TnaMilestone[]>(
+    cacheKey,
+    async () => {
+      try {
+        const { data, error } = await supabaseAdmin
+          .from('merchandising_tna_milestones')
+          .select(`
+            *,
+            merchandising_orders (
+              id,
+              order_number,
+              order_date,
+              ex_factory_date,
+              company_name,
+              design_tech_packs ( style_number, company_name )
+            )
+          `)
+          .order('target_date', { ascending: true })
 
-    if (!data || data.length === 0) return []
+        if (error) {
+          console.error('[fetchTnaMilestonesAction] Error:', error)
+          return []
+        }
 
-    let filteredData = data
-    if (companyName && companyName.trim()) {
-      const target = companyName.trim().toLowerCase()
-      filteredData = data.filter((row: any) => {
-        const oc = (row.merchandising_orders?.company_name || '').toLowerCase()
-        const tc = (row.merchandising_orders?.design_tech_packs?.company_name || '').toLowerCase()
-        return oc === target || oc.includes(target) || tc === target || tc.includes(target)
-      })
-    }
+        if (!data || data.length === 0) return []
 
-    const gateRatios: Record<string, number> = {
-      'LAB_DIP_APPROVAL': 0.12,
-      'FABRIC_INWARD': 0.28,
-      'PPS_APPROVAL': 0.40,
-      'CUTTING_START': 0.52,
-      'SEWING_COMPLETE': 0.72,
-      'WASHING_COMPLETE': 0.84,
-      'FINAL_AQL_AUDIT': 0.92,
-      'EX_FACTORY': 1.00
-    }
+        let filteredData = data
+        if (companyName && companyName.trim()) {
+          const target = companyName.trim().toLowerCase()
+          filteredData = data.filter((row: any) => {
+            const oc = (row.merchandising_orders?.company_name || '').toLowerCase()
+            const tc = (row.merchandising_orders?.design_tech_packs?.company_name || '').toLowerCase()
+            return oc === target || oc.includes(target) || tc === target || tc.includes(target)
+          })
+        }
 
-    const addDays = (startDateStr: string, daysToAdd: number): string => {
-      const d = new Date(startDateStr)
-      d.setDate(d.getDate() + daysToAdd)
-      return d.toISOString().split('T')[0]
-    }
+        const gateRatios: Record<string, number> = {
+          'LAB_DIP_APPROVAL': 0.12,
+          'FABRIC_INWARD': 0.28,
+          'PPS_APPROVAL': 0.40,
+          'CUTTING_START': 0.52,
+          'SEWING_COMPLETE': 0.72,
+          'WASHING_COMPLETE': 0.84,
+          'FINAL_AQL_AUDIT': 0.92,
+          'EX_FACTORY': 1.00
+        }
 
-    return data.map((row: any, idx: number) => {
-      const orderDate = row.merchandising_orders?.order_date || new Date().toISOString().split('T')[0]
-      const exFactoryDate = row.merchandising_orders?.ex_factory_date || addDays(orderDate, 25)
-      
-      let plannedDate = row.target_date
-      // If the target date was seeded in the past before the order was created, forward-schedule it properly
-      if (plannedDate && plannedDate < orderDate) {
-        const diffTime = Math.max(1, new Date(exFactoryDate).getTime() - new Date(orderDate).getTime())
-        const totalDays = Math.max(1, Math.round(diffTime / (1000 * 60 * 60 * 24)))
-        const ratio = gateRatios[row.gate_name] ?? ((idx + 1) / data.length)
-        plannedDate = ratio === 1.00 ? exFactoryDate : addDays(orderDate, Math.max(idx + 1, Math.round(totalDays * ratio)))
+        const addDays = (startDate: Date, daysToAdd: number): string => {
+          const d = new Date(startDate)
+          d.setDate(d.getDate() + daysToAdd)
+          return d.toISOString().split('T')[0]
+        }
+
+        return filteredData.map((row: any, idx: number) => {
+          let plannedDate = row.target_date
+
+          // Fallback calculation if target_date is not present
+          if (!plannedDate && row.merchandising_orders?.order_date && row.merchandising_orders?.ex_factory_date) {
+            const orderDate = new Date(row.merchandising_orders.order_date)
+            const exFactoryDate = row.merchandising_orders.ex_factory_date
+            const diffTime = Math.max(1, new Date(exFactoryDate).getTime() - orderDate.getTime())
+            const totalDays = Math.max(1, Math.round(diffTime / (1000 * 60 * 60 * 24)))
+            const ratio = gateRatios[row.gate_name] ?? ((idx + 1) / data.length)
+            plannedDate = ratio === 1.00 ? exFactoryDate : addDays(orderDate, Math.max(idx + 1, Math.round(totalDays * ratio)))
+          }
+
+          return {
+            id: row.id,
+            order_id: row.order_id,
+            po_number: row.merchandising_orders?.order_number || 'N/A',
+            style_ref: row.merchandising_orders?.design_tech_packs?.style_number || 'Standard Style',
+            milestone_name: row.gate_name.replace(/_/g, ' '),
+            planned_date: plannedDate,
+            actual_date: row.actual_date || null,
+            status: mapDbTnaStatusToUI(row.status),
+            delay_reason: row.delay_reason || null,
+            sort_order: idx + 1
+          }
+        })
+      } catch (err) {
+        console.error('[fetchTnaMilestonesAction] Unexpected error:', err)
+        return []
       }
-
-      return {
-        id: row.id,
-        order_id: row.order_id,
-        po_number: row.merchandising_orders?.order_number || 'N/A',
-        style_ref: row.merchandising_orders?.design_tech_packs?.style_number || 'Standard Style',
-        milestone_name: row.gate_name.replace(/_/g, ' '),
-        planned_date: plannedDate,
-        actual_date: row.actual_date || null,
-        status: mapDbTnaStatusToUI(row.status),
-        delay_reason: row.delay_reason || null,
-        sort_order: idx + 1
-      }
-    })
-  } catch (err) {
-    console.error('[fetchTnaMilestonesAction] Unexpected error:', err)
-    return []
-  }
+    },
+    60,
+    [`company:${normComp}:merchandising`, 'merchandising_tna']
+  )
 }
 
 export async function updateTnaMilestoneAction(payload: {
@@ -606,52 +643,62 @@ export async function fetchSourcingRequisitionsAction(companyName?: string): Pro
 // -----------------------------------------------------------------------------
 
 export async function fetchShipmentsAction(companyName?: string): Promise<ExportShipment[]> {
-  try {
-    const { data, error } = await supabaseAdmin
-      .from('merchandising_shipments')
-      .select(`
-        *,
-        merchandising_orders ( id, order_number, company_name )
-      `)
-      .order('created_at', { ascending: false })
+  const normComp = (companyName || 'all').toLowerCase().replace(/[^a-z0-9]/g, '_')
+  const cacheKey = `company:${normComp}:merchandising:shipments`
 
-    if (error) {
-      console.error('[fetchShipmentsAction] Error:', error)
-      return []
-    }
+  return CacheManager.fetchOrSet<ExportShipment[]>(
+    cacheKey,
+    async () => {
+      try {
+        const { data, error } = await supabaseAdmin
+          .from('merchandising_shipments')
+          .select(`
+            *,
+            merchandising_orders ( id, order_number, company_name )
+          `)
+          .order('created_at', { ascending: false })
 
-    if (!data || data.length === 0) return []
+        if (error) {
+          console.error('[fetchShipmentsAction] Error:', error)
+          return []
+        }
 
-    let filteredData = data
-    if (companyName && companyName.trim()) {
-      const target = companyName.trim().toLowerCase()
-      filteredData = data.filter((row: any) => {
-        const oc = (row.merchandising_orders?.company_name || '').toLowerCase()
-        return oc === target || oc.includes(target)
-      })
-    }
+        if (!data || data.length === 0) return []
 
-    return filteredData.map((row: any) => ({
-      id: row.id,
-      shipment_ref: row.shipment_ref,
-      order_id: row.order_id,
-      po_number: row.merchandising_orders?.order_number || 'N/A',
-      forwarder_name: row.forwarder_name,
-      carrier_vessel: `${row.forwarder_name} Express (Voyage 042E)`,
-      container_number: row.container_number || 'MSKU-892182-1',
-      booking_cbm: Number(row.total_cbm) || 54.0,
-      port_of_loading: row.port_of_loading,
-      port_of_discharge: row.port_of_discharge,
-      etd_date: row.etd_date,
-      eta_date: row.eta_date,
-      bl_number: row.bill_of_lading_no || undefined,
-      status: (row.status as ShipmentStatus) || 'BOOKED',
-      created_at: row.created_at
-    }))
-  } catch (err) {
-    console.error('[fetchShipmentsAction] Unexpected error:', err)
-    return []
-  }
+        let filteredData = data
+        if (companyName && companyName.trim()) {
+          const target = companyName.trim().toLowerCase()
+          filteredData = data.filter((row: any) => {
+            const oc = (row.merchandising_orders?.company_name || '').toLowerCase()
+            return oc === target || oc.includes(target)
+          })
+        }
+
+        return filteredData.map((row: any) => ({
+          id: row.id,
+          shipment_ref: row.shipment_ref,
+          order_id: row.order_id,
+          po_number: row.merchandising_orders?.order_number || 'N/A',
+          forwarder_name: row.forwarder_name,
+          carrier_vessel: `${row.forwarder_name} Express (Voyage 042E)`,
+          container_number: row.container_number || 'MSKU-892182-1',
+          booking_cbm: Number(row.total_cbm) || 54.0,
+          port_of_loading: row.port_of_loading,
+          port_of_discharge: row.port_of_discharge,
+          etd_date: row.etd_date,
+          eta_date: row.eta_date,
+          bl_number: row.bill_of_lading_no || undefined,
+          status: (row.status as ShipmentStatus) || 'BOOKED',
+          created_at: row.created_at
+        }))
+      } catch (err) {
+        console.error('[fetchShipmentsAction] Unexpected error:', err)
+        return []
+      }
+    },
+    60,
+    [`company:${normComp}:merchandising`, 'merchandising_shipments']
+  )
 }
 
 // -----------------------------------------------------------------------------

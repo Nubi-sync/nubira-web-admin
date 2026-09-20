@@ -907,52 +907,74 @@ export async function acknowledgeMaterialReceipt(payload: {
 }
 
 export async function fetchMaterialIssuesByDivision(division?: string, companyName?: string) {
-  try {
-    const supabase = supabaseAdmin
-    let query = supabase
-      .from('central_material_issues')
-      .select('*')
-      .order('created_at', { ascending: false })
+  const normComp = (companyName || 'all').toLowerCase().replace(/[^a-z0-9]/g, '_')
+  const normDiv = (division || 'all').toLowerCase().replace(/[^a-z0-9]/g, '_')
+  const cacheKey = `company:${normComp}:store:issues:${normDiv}`
 
-    if (companyName && companyName.trim()) {
-      query = query.ilike('company_name', companyName.trim())
-    }
+  return CacheManager.fetchOrSet(
+    cacheKey,
+    async () => {
+      try {
+        const supabase = supabaseAdmin
+        let query = supabase
+          .from('central_material_issues')
+          .select('*')
+          .order('created_at', { ascending: false })
 
-    if (division && division.trim()) {
-      const d = division.trim().toUpperCase()
-      query = query.or(`from_division.eq.${d},to_division.eq.${d}`)
-    }
+        if (companyName && companyName.trim()) {
+          query = query.ilike('company_name', companyName.trim())
+        }
 
-    const { data, error } = await query
-    if (error) return { data: [], error: error.message }
-    return { data: data || [], error: null }
-  } catch (err: any) {
-    return { data: [], error: err?.message || 'Failed to fetch material issues' }
-  }
+        if (division && division.trim()) {
+          const d = division.trim().toUpperCase()
+          query = query.or(`from_division.eq.${d},to_division.eq.${d}`)
+        }
+
+        const { data, error } = await query
+        if (error) return { data: [], error: error.message }
+        return { data: data || [], error: null }
+      } catch (err: any) {
+        return { data: [], error: err?.message || 'Failed to fetch material issues' }
+      }
+    },
+    60,
+    [`company:${normComp}:store`, 'store_issues']
+  )
 }
 
 export async function fetchMaterialReceiptsByDivision(division?: string, companyName?: string) {
-  try {
-    const supabase = supabaseAdmin
-    let query = supabase
-      .from('central_material_receipts')
-      .select('*, issue:central_material_issues(*)')
-      .order('received_at', { ascending: false })
+  const normComp = (companyName || 'all').toLowerCase().replace(/[^a-z0-9]/g, '_')
+  const normDiv = (division || 'all').toLowerCase().replace(/[^a-z0-9]/g, '_')
+  const cacheKey = `company:${normComp}:store:receipts:${normDiv}`
 
-    if (companyName && companyName.trim()) {
-      query = query.ilike('company_name', companyName.trim())
-    }
+  return CacheManager.fetchOrSet(
+    cacheKey,
+    async () => {
+      try {
+        const supabase = supabaseAdmin
+        let query = supabase
+          .from('central_material_receipts')
+          .select('*, issue:central_material_issues(*)')
+          .order('received_at', { ascending: false })
 
-    if (division && division.trim()) {
-      query = query.eq('division_code', division.trim().toUpperCase())
-    }
+        if (companyName && companyName.trim()) {
+          query = query.ilike('company_name', companyName.trim())
+        }
 
-    const { data, error } = await query
-    if (error) return { data: [], error: error.message }
-    return { data: data || [], error: null }
-  } catch (err: any) {
-    return { data: [], error: err?.message || 'Failed to fetch material receipts' }
-  }
+        if (division && division.trim()) {
+          query = query.eq('division_code', division.trim().toUpperCase())
+        }
+
+        const { data, error } = await query
+        if (error) return { data: [], error: error.message }
+        return { data: data || [], error: null }
+      } catch (err: any) {
+        return { data: [], error: err?.message || 'Failed to fetch material receipts' }
+      }
+    },
+    60,
+    [`company:${normComp}:store`, 'store_receipts']
+  )
 }
 
 export async function fetchCentralStoreKpis(companyName?: string) {

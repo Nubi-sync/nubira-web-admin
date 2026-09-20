@@ -2,6 +2,7 @@
 
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
+import { CacheManager } from '@/lib/cache/cache-manager'
 import {
   AlterationTicket,
   RepairStation,
@@ -26,100 +27,110 @@ export async function fetchAlterDashboardDataAction(companyName?: string): Promi
   tickets: AlterationTicket[]
   scrapLogs: ScrapRequisition[]
 }> {
-  try {
-    const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
-    const targetComp = (companyName || '').toUpperCase()
+  const normComp = (companyName || 'all').toLowerCase().replace(/[^a-z0-9]/g, '_')
+  const cacheKey = `company:${normComp}:alter:dashboard`
 
-    const [ticketsRes, scrapRes] = await Promise.all([
-      supabaseAdmin
-        .from('alteration_tickets')
-        .select('*, allotment:allotments(art_no, color, challan_id, challans(id, brand)), bundle:cutting_bundles(bundle_barcode, size)')
-        .order('created_at', { ascending: false })
-        .limit(50),
-      supabaseAdmin
-        .from('alteration_scrap_logs')
-        .select('*, ticket:alteration_tickets(ticket_number, allotment:allotments(challans(id, brand)))')
-        .order('created_at', { ascending: false })
-        .limit(50)
-    ])
+  return CacheManager.fetchOrSet(
+    cacheKey,
+    async () => {
+      try {
+        const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
+        const targetComp = (companyName || '').toUpperCase()
 
-    const rawTickets = isNonNubira
-      ? (ticketsRes.data || []).filter((t: any) => {
-          const brand = (t.allotment?.challans?.brand || '').toUpperCase()
-          return brand.length > 0 && brand.includes(targetComp)
+        const [ticketsRes, scrapRes] = await Promise.all([
+          supabaseAdmin
+            .from('alteration_tickets')
+            .select('*, allotment:allotments(art_no, color, challan_id, challans(id, brand)), bundle:cutting_bundles(bundle_barcode, size)')
+            .order('created_at', { ascending: false })
+            .limit(50),
+          supabaseAdmin
+            .from('alteration_scrap_logs')
+            .select('*, ticket:alteration_tickets(ticket_number, allotment:allotments(challans(id, brand)))')
+            .order('created_at', { ascending: false })
+            .limit(50)
+        ])
+
+        const rawTickets = isNonNubira
+          ? (ticketsRes.data || []).filter((t: any) => {
+              const brand = (t.allotment?.challans?.brand || '').toUpperCase()
+              return brand.length > 0 && brand.includes(targetComp)
+            })
+          : (ticketsRes.data || [])
+
+        const rawScrap = isNonNubira
+          ? (scrapRes.data || []).filter((s: any) => {
+              const brand = (s.ticket?.allotment?.challans?.brand || '').toUpperCase()
+              return brand.length > 0 && brand.includes(targetComp)
+            })
+          : (scrapRes.data || [])
+
+        const tickets: AlterationTicket[] = rawTickets.map((t: any) => {
+          const statusMap: Record<string, ResolutionStatus> = {
+            INTAKE: 'IN_REWORK',
+            IN_REPAIR: 'IN_REWORK',
+            SECONDARY_QC_PASSED: 'REPAIRED_PASSED',
+            CONDEMNED_SCRAP: 'DECLARED_SCRAP'
+          }
+
+          const defectMap: Record<string, DefectType> = {
+            OPEN_SEAM: 'SEAM_OPEN',
+            SKIP_STITCH: 'SKIP_STITCH',
+            ASYMMETRY: 'PUCKERING',
+            BROKEN_THREAD: 'SKIP_STITCH',
+            OIL_STAIN: 'OIL_STAIN'
+          }
+
+          return {
+            id: t.id,
+            ticketNumber: t.ticket_number || `ALT-${t.id?.slice(0, 5)}`,
+            garmentBarcode: t.bundle?.bundle_barcode || 'N/A',
+            orderNumber: t.allotment?.challan_id ? `CH-${t.allotment.challan_id}` : 'N/A',
+            buyer: t.allotment?.challans?.brand || 'Standard Buyer',
+            styleName: t.allotment?.art_no || 'Standard Style',
+            size: t.bundle?.size || 'Standard',
+            color: t.allotment?.color || 'Standard',
+            sourceDivision: 'SEWING_LINE' as DefectSource,
+            defectType: defectMap[t.defect_category] || 'SEAM_OPEN',
+            defectDescription: `Triage: ${t.defect_category} (${t.defect_severity || 'MAJOR'})`,
+            linemanEmployeeId: 'EMP-LINE-01',
+            linemanName: 'Floor Lineman',
+            assignedStation: 'Mending Station 01' as AssignedStation,
+            menderEmployeeId: t.repair_tailor_id,
+            menderName: 'Master Tailor',
+            inspectorId: t.secondary_qc_inspector_id,
+            inspectorName: 'Quality Inspector',
+            resolutionStatus: statusMap[t.status] || 'IN_REWORK',
+            repairCost: 0,
+            createdAt: t.created_at || new Date().toISOString(),
+            clearedAt: t.resolved_at
+          }
         })
-      : (ticketsRes.data || [])
 
-    const rawScrap = isNonNubira
-      ? (scrapRes.data || []).filter((s: any) => {
-          const brand = (s.ticket?.allotment?.challans?.brand || '').toUpperCase()
-          return brand.length > 0 && brand.includes(targetComp)
-        })
-      : (scrapRes.data || [])
+        const scrapLogs: ScrapRequisition[] = rawScrap.map((s: any) => ({
+          id: s.id,
+          scrapCode: `SCRP-${s.id?.slice(0, 5)}`,
+          ticketNumber: s.ticket?.ticket_number || `ALT-${s.ticket_id?.slice(0, 5) || '000'}`,
+          orderNumber: s.ticket?.allotment?.challans?.id ? `CH-${s.ticket.allotment.challans.id}` : 'N/A',
+          buyer: s.ticket?.allotment?.challans?.brand || 'Standard Buyer',
+          styleName: s.ticket?.allotment?.art_no || 'Standard Style',
+          size: 'Standard',
+          color: s.ticket?.allotment?.color || 'Standard',
+          scrapReason: 'FABRIC_TORN' as ScrapReason,
+          salvageWeightKg: Number(s.fabric_weight_kg) || 0,
+          reCutAuthorized: true,
+          sentToCuttingAt: s.created_at || new Date().toISOString(),
+          authorizedBy: 'Plant Production Manager'
+        }))
 
-    const tickets: AlterationTicket[] = rawTickets.map((t: any) => {
-      const statusMap: Record<string, ResolutionStatus> = {
-        INTAKE: 'IN_REWORK',
-        IN_REPAIR: 'IN_REWORK',
-        SECONDARY_QC_PASSED: 'REPAIRED_PASSED',
-        CONDEMNED_SCRAP: 'DECLARED_SCRAP'
+        return { tickets, scrapLogs }
+      } catch (error) {
+        console.error('fetchAlterDashboardDataAction error:', error)
+        return { tickets: [], scrapLogs: [] }
       }
-
-      const defectMap: Record<string, DefectType> = {
-        OPEN_SEAM: 'SEAM_OPEN',
-        SKIP_STITCH: 'SKIP_STITCH',
-        ASYMMETRY: 'PUCKERING',
-        BROKEN_THREAD: 'SKIP_STITCH',
-        OIL_STAIN: 'OIL_STAIN'
-      }
-
-      return {
-        id: t.id,
-        ticketNumber: t.ticket_number || `ALT-${t.id?.slice(0, 5)}`,
-        garmentBarcode: t.bundle?.bundle_barcode || 'N/A',
-        orderNumber: t.allotment?.challan_id ? `CH-${t.allotment.challan_id}` : 'N/A',
-        buyer: t.allotment?.challans?.brand || 'Standard Buyer',
-        styleName: t.allotment?.art_no || 'Standard Style',
-        size: t.bundle?.size || 'Standard',
-        color: t.allotment?.color || 'Standard',
-        sourceDivision: 'SEWING_LINE' as DefectSource,
-        defectType: defectMap[t.defect_category] || 'SEAM_OPEN',
-        defectDescription: `Triage: ${t.defect_category} (${t.defect_severity || 'MAJOR'})`,
-        linemanEmployeeId: 'EMP-LINE-01',
-        linemanName: 'Floor Lineman',
-        assignedStation: 'Mending Station 01' as AssignedStation,
-        menderEmployeeId: t.repair_tailor_id,
-        menderName: 'Master Tailor',
-        inspectorId: t.secondary_qc_inspector_id,
-        inspectorName: 'Quality Inspector',
-        resolutionStatus: statusMap[t.status] || 'IN_REWORK',
-        repairCost: 0,
-        createdAt: t.created_at || new Date().toISOString(),
-        clearedAt: t.resolved_at
-      }
-    })
-
-    const scrapLogs: ScrapRequisition[] = rawScrap.map((s: any) => ({
-      id: s.id,
-      scrapCode: `SCRP-${s.id?.slice(0, 5)}`,
-      ticketNumber: s.ticket?.ticket_number || `ALT-${s.ticket_id?.slice(0, 5) || '000'}`,
-      orderNumber: s.ticket?.allotment?.challans?.id ? `CH-${s.ticket.allotment.challans.id}` : 'N/A',
-      buyer: s.ticket?.allotment?.challans?.brand || 'Standard Buyer',
-      styleName: s.ticket?.allotment?.art_no || 'Standard Style',
-      size: 'Standard',
-      color: s.ticket?.allotment?.color || 'Standard',
-      scrapReason: 'FABRIC_TORN' as ScrapReason,
-      salvageWeightKg: Number(s.fabric_weight_kg) || 0,
-      reCutAuthorized: true,
-      sentToCuttingAt: s.created_at || new Date().toISOString(),
-      authorizedBy: 'Plant Production Manager'
-    }))
-
-    return { tickets, scrapLogs }
-  } catch (error) {
-    console.error('fetchAlterDashboardDataAction error:', error)
-    return { tickets: [], scrapLogs: [] }
-  }
+    },
+    60,
+    [`company:${normComp}:alter`, 'alter_dashboard']
+  )
 }
 
 // -----------------------------------------------------------------------------

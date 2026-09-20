@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import { DispatchClient } from './components/DispatchClient'
 import Link from 'next/link'
 import { resolveUserTenant, isLegacyNubiraTenant } from '@/lib/tenant-context'
+import { CacheManager } from '@/lib/cache/cache-manager'
 
 export const dynamic = 'force-dynamic'
 
@@ -28,138 +29,110 @@ export default async function DispatchPage() {
     redirect('/store')
   }
 
-  // 1. Fetch Articles
-  const { data: rawArticles } = await supabase
-    .from('articles')
-    .select('id, art_no, description')
-    .eq('is_active', true)
-    .order('art_no')
+  const normComp = (tenant.companyName || 'all').toLowerCase().replace(/[^a-z0-9]/g, '_')
+  const cacheKey = `company:${normComp}:dispatch:page_data`
 
-  // 2. Fetch Delivery Challans with items (with fallback for schema flexibility)
-  let rawDeliveryChallans: any[] | null = null
-  const { data: dcWithVendor, error: dcErr } = await supabase
-    .from('delivery_challans')
-    .select(`
-      id,
-      challan_no,
-      buyer_name,
-      vendor_id,
-      vendor_name,
-      destination,
-      vehicle_no,
-      driver_name,
-      driver_phone,
-      total_pieces,
-      delivery_date,
-      created_at,
-      status,
-      notes,
-      spot_notes,
-      billed_to_name,
-      billed_to_address,
-      billed_to_gstin,
-      shipping_to_name,
-      shipping_to_address,
-      total_bags,
-      total_order_qty,
-      total_delivery_qty,
-      total_balance_qty,
-      challan_items (
-        id,
-        article_id,
-        color,
-        size,
-        quantity,
-        category,
-        product_type,
-        order_qty,
-        delivery_qty,
-        balance_qty,
-        article:articles(art_no, description)
-      )
-    `)
-    .order('created_at', { ascending: false })
+  const { articles, deliveryChallans, countingReports, allotments } = await CacheManager.fetchOrSet(
+    cacheKey,
+    async () => {
+      const [
+        { data: rawArticles },
+        dcRes,
+        { data: rawCountingReports },
+        { data: rawAllotments }
+      ] = await Promise.all([
+        // 1. Fetch Articles
+        supabase
+          .from('articles')
+          .select('id, art_no, description')
+          .eq('is_active', true)
+          .order('art_no'),
 
-  if (!dcErr && dcWithVendor) {
-    rawDeliveryChallans = dcWithVendor
-  } else {
-    const { data: dcFallback } = await supabase
-      .from('delivery_challans')
-      .select(`
-        id,
-        challan_no,
-        buyer_name,
-        destination,
-        vehicle_no,
-        driver_name,
-        driver_phone,
-        total_pieces,
-        delivery_date,
-        created_at,
-        status,
-        notes,
-        spot_notes,
-        billed_to_name,
-        billed_to_address,
-        billed_to_gstin,
-        shipping_to_name,
-        shipping_to_address,
-        total_bags,
-        total_order_qty,
-        total_delivery_qty,
-        total_balance_qty,
-        challan_items (
-          id,
-          article_id,
-          color,
-          size,
-          quantity,
-          category,
-          product_type,
-          order_qty,
-          delivery_qty,
-          balance_qty,
-          article:articles(art_no, description)
-        )
-      `)
-      .order('created_at', { ascending: false })
-    rawDeliveryChallans = dcFallback
-  }
+        // 2. Fetch Delivery Challans with items
+        supabase
+          .from('delivery_challans')
+          .select(`
+            id,
+            challan_no,
+            buyer_name,
+            vendor_id,
+            vendor_name,
+            destination,
+            vehicle_no,
+            driver_name,
+            driver_phone,
+            total_pieces,
+            delivery_date,
+            created_at,
+            status,
+            notes,
+            spot_notes,
+            billed_to_name,
+            billed_to_address,
+            billed_to_gstin,
+            shipping_to_name,
+            shipping_to_address,
+            total_bags,
+            total_order_qty,
+            total_delivery_qty,
+            total_balance_qty,
+            challan_items (
+              id,
+              article_id,
+              color,
+              size,
+              quantity,
+              category,
+              product_type,
+              order_qty,
+              delivery_qty,
+              balance_qty,
+              article:articles(art_no, description)
+            )
+          `)
+          .order('created_at', { ascending: false }),
 
-  // 3. Fetch Counting Reports
-  const { data: rawCountingReports } = await supabase
-    .from('counting_reports')
-    .select(`
-      id,
-      article_id,
-      color,
-      size,
-      counted_qty,
-      expected_qty,
-      remarks,
-      entry_date,
-      created_at,
-      article:articles(art_no, description)
-    `)
-    .order('created_at', { ascending: false })
+        // 3. Fetch Counting Reports
+        supabase
+          .from('counting_reports')
+          .select(`
+            id,
+            article_id,
+            color,
+            size,
+            counted_qty,
+            expected_qty,
+            remarks,
+            entry_date,
+            created_at,
+            article:articles(art_no, description)
+          `)
+          .order('created_at', { ascending: false }),
 
-  // 4. Fetch Allotments for Cut Qty reconciliation
-  const { data: rawAllotments } = await supabase
-    .from('allotments')
-    .select(`
-      id,
-      article_id,
-      target_qty,
-      allotment_date,
-      article:articles(art_no, description),
-      challans:challan_id(brand)
-    `)
-    .order('created_at', { ascending: false })
+        // 4. Fetch Allotments for Cut Qty reconciliation
+        supabase
+          .from('allotments')
+          .select(`
+            id,
+            article_id,
+            target_qty,
+            allotment_date,
+            article:articles(art_no, description),
+            challans:challan_id(brand)
+          `)
+          .order('created_at', { ascending: false })
+      ])
 
-  const deliveryChallans = rawDeliveryChallans || []
-  const countingReports = rawCountingReports || []
-  const articles = rawArticles || []
-  const allotments = rawAllotments || []
+      return {
+        articles: rawArticles || [],
+        deliveryChallans: dcRes?.data || [],
+        countingReports: rawCountingReports || [],
+        allotments: rawAllotments || []
+      }
+    },
+    60,
+    [`company:${normComp}:dispatch`, 'dispatch_data']
+  )
 
   return (
     <AdminShell userEmail={tenant.userEmail} userRole={userRole}>

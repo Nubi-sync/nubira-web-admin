@@ -2,6 +2,7 @@
 
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
+import { CacheManager } from '@/lib/cache/cache-manager'
 import {
   IronTable,
   IronProductionLog,
@@ -25,90 +26,110 @@ export async function fetchIronDashboardDataAction(companyName?: string): Promis
   logs: IronProductionLog[]
   qcAudits: FinishQcAudit[]
 }> {
-  try {
-    const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
-    const targetComp = (companyName || '').toUpperCase()
+  const normComp = (companyName || 'all').toLowerCase().replace(/[^a-z0-9]/g, '_')
+  const cacheKey = `company:${normComp}:iron:dashboard`
 
-    const [tablesRes, logsRes, defectsRes] = await Promise.all([
-      supabaseAdmin.from('iron_tables').select('*').order('table_code', { ascending: true }),
-      supabaseAdmin
-        .from('iron_production_logs')
-        .select('*, table:iron_tables(table_code), order:merchandising_orders(po_number, style_name, brands:buyer_id(brand_name))')
-        .order('created_at', { ascending: false })
-        .limit(50),
-      supabaseAdmin
-        .from('iron_defect_audits')
-        .select('*, iron_log:iron_production_logs(log_number, order:merchandising_orders(brands:buyer_id(brand_name)))')
-        .order('created_at', { ascending: false })
-        .limit(50)
-    ])
+  return CacheManager.fetchOrSet(
+    cacheKey,
+    async () => {
+      try {
+        const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
+        const targetComp = (companyName || '').toUpperCase()
 
-    const rawTables = tablesRes.data || []
-    const rawLogs = logsRes.data || []
-    const rawDefects = defectsRes.data || []
+        const [tablesRes, logsRes, defectsRes] = await Promise.all([
+          supabaseAdmin.from('iron_tables').select('*').order('table_code', { ascending: true }),
+          supabaseAdmin
+            .from('iron_production_logs')
+            .select('*, table:iron_tables(table_code), order:merchandising_orders(po_number, style_name, brands:buyer_id(brand_name))')
+            .order('created_at', { ascending: false })
+            .limit(50),
+          supabaseAdmin
+            .from('iron_defect_audits')
+            .select('*, iron_log:iron_production_logs(log_number, order:merchandising_orders(brands:buyer_id(brand_name)))')
+            .order('created_at', { ascending: false })
+            .limit(50)
+        ])
 
-    const tables: IronTable[] = rawTables.map((t: any, idx: number) => ({
-      id: t.id,
-      tableNumber: t.table_code || `Table ${(idx + 1).toString().padStart(2, '0')}`,
-      operatorName: 'Unassigned',
-      challanId: 'IDLE',
-      articleName: 'Ready for lot assignment',
-      targetHourlyPcs: 60,
-      pieceRate: 2.20,
-      currentPiecesPressed: 0,
-      status: (t.is_active ? 'ACTIVE' : 'IDLE') as TableStatus,
-      ironTempC: 150,
-      vacuumActive: true,
-      teflonShoeVerified: true,
-      shiftStartTime: '08:00 AM'
-    }))
+        const rawTables = tablesRes.data || []
+        const rawLogs = logsRes.data || []
+        const rawDefects = defectsRes.data || []
 
-    const logs: IronProductionLog[] = rawLogs.map((l: any) => {
-      const pressed = Number(l.garments_pressed) || 0
-      const rate = 2.20
-      return {
-        id: l.id,
-        tableNumber: l.table?.table_code || 'Table 01',
-        operatorName: 'Finishing Presser',
-        challanId: l.order?.po_number || 'CH-PENDING',
-        articleName: l.order?.style_name || 'Standard Garment',
-        piecesPressed: pressed,
-        defectShineCount: 0,
-        waterStainCount: 0,
-        pieceRate: rate,
-        totalEarnedWages: Number((pressed * rate).toFixed(2)),
-        shiftDate: l.created_at ? l.created_at.split('T')[0] : new Date().toISOString().split('T')[0],
-        shiftType: (l.shift === 'NIGHT' ? 'SHIFT_2' : 'SHIFT_1') as 'SHIFT_1' | 'SHIFT_2',
-        notes: `Steam boiler: ${l.boiler_pressure_bar || 4.5} Bar`
+        const tables: IronTable[] = rawTables.map((t: any, idx: number) => ({
+          id: t.id,
+          tableNumber: t.table_code || `Table ${(idx + 1).toString().padStart(2, '0')}`,
+          operatorName: 'Unassigned',
+          challanId: 'IDLE',
+          articleName: 'Ready for lot assignment',
+          targetHourlyPcs: 60,
+          pieceRate: 2.20,
+          currentPiecesPressed: 0,
+          status: (t.is_active ? 'ACTIVE' : 'IDLE') as TableStatus,
+          ironTempC: 150,
+          vacuumActive: true,
+          teflonShoeVerified: true,
+          shiftStartTime: '08:00 AM'
+        }))
+
+        const logs: IronProductionLog[] = rawLogs.map((l: any) => {
+          const piecesPressed = l.garments_pressed || 0
+          const pieceRate = Number(l.piece_rate) || 2.20
+          return {
+            id: l.id,
+            logNumber: l.log_number || `IRN-${l.id?.slice(0, 5)}`,
+            tableNumber: l.table?.table_code || 'Table 01',
+            operatorName: l.operator_name || 'Finishing Presser',
+            operatorId: l.operator_id,
+            challanId: l.order?.po_number || 'CH-PENDING',
+            articleName: l.order?.style_name || 'Standard Garment',
+            piecesPressed,
+            defectShineCount: l.defect_shine_count || 0,
+            waterStainCount: l.water_stain_count || 0,
+            pieceRate,
+            totalEarnedWages: piecesPressed * pieceRate,
+            shiftDate: l.shift_date || (l.created_at ? l.created_at.split('T')[0] : new Date().toISOString().split('T')[0]),
+            shiftType: (l.shift === 'SHIFT_2' ? 'SHIFT_2' : 'SHIFT_1') as 'SHIFT_1' | 'SHIFT_2',
+            notes: l.notes,
+            garmentsPressed: piecesPressed,
+            boilerPressureBar: Number(l.boiler_pressure_bar) || 4.2,
+            vacuumPressureMbar: -120,
+            steamTrapStatus: 'NORMAL',
+            shift: l.shift || 'SHIFT_1',
+            durationMinutes: l.total_minutes_spent || 60,
+            status: l.status || 'COMPLETED',
+            timestamp: l.created_at || new Date().toISOString()
+          }
+        })
+
+        const qcAudits: FinishQcAudit[] = rawDefects.map((d: any) => {
+          const isGlaze = d.defect_type === 'SHINE_GLAZE'
+          const isWater = d.defect_type === 'WATER_SPOT'
+          return {
+            id: d.id,
+            auditCode: `FQC-${d.id?.slice(0, 5)}`,
+            tableNumber: 'Table 01',
+            operatorName: 'Finishing Presser',
+            challanId: 'N/A',
+            articleName: 'Standard Garment',
+            samplePcs: 20,
+            glazeDefects: isGlaze ? (Number(d.defect_count) || 1) : 0,
+            waterSpots: isWater ? (Number(d.defect_count) || 1) : 0,
+            unalignedSeams: 0,
+            qcStatus: (d.disposition === 'SCRAP' || Number(d.defect_count) > 2 ? 'REWORK_ALTERATION' : 'PASS') as FinishQcStatus,
+            auditorName: 'QC Inspector',
+            timestamp: d.created_at || new Date().toISOString(),
+            actionTaken: d.disposition || 'STEAM_RE_WORK'
+          }
+        })
+
+        return { tables, logs, qcAudits }
+      } catch (error) {
+        console.error('fetchIronDashboardDataAction error:', error)
+        return { tables: [], logs: [], qcAudits: [] }
       }
-    })
-
-    const qcAudits: FinishQcAudit[] = rawDefects.map((d: any) => {
-      const isGlaze = d.defect_type === 'THERMAL_SHINE_GLAZE'
-      const isWater = d.defect_type === 'WATER_DROP_STAIN'
-      return {
-        id: d.id,
-        auditCode: `FQC-${d.id?.slice(0, 5)}`,
-        tableNumber: 'Table 01',
-        operatorName: 'Finishing Presser',
-        challanId: 'N/A',
-        articleName: 'Standard Garment',
-        samplePcs: 20,
-        glazeDefects: isGlaze ? (Number(d.defect_count) || 1) : 0,
-        waterSpots: isWater ? (Number(d.defect_count) || 1) : 0,
-        unalignedSeams: 0,
-        qcStatus: (d.disposition === 'SCRAP' || Number(d.defect_count) > 2 ? 'REWORK_ALTERATION' : 'PASS') as FinishQcStatus,
-        auditorName: 'QC Inspector',
-        timestamp: d.created_at || new Date().toISOString(),
-        actionTaken: d.disposition || 'STEAM_RE_WORK'
-      }
-    })
-
-    return { tables, logs, qcAudits }
-  } catch (error) {
-    console.error('fetchIronDashboardDataAction error:', error)
-    return { tables: [], logs: [], qcAudits: [] }
-  }
+    },
+    60,
+    [`company:${normComp}:iron`, 'iron_dashboard']
+  )
 }
 
 // -----------------------------------------------------------------------------
@@ -210,42 +231,52 @@ const isUUID = (val?: string | null) =>
   Boolean(val && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val))
 
 export async function fetchIronWorkersAction(companyName?: string): Promise<any[]> {
-  try {
-    if (!companyName || !companyName.trim()) {
-      return []
-    }
+  const normComp = (companyName || 'all').toLowerCase().replace(/[^a-z0-9]/g, '_')
+  const cacheKey = `company:${normComp}:iron:workers`
 
-    const { data, error } = await supabaseAdmin
-      .from('iron_workers')
-      .select('*')
-      .eq('company_name', companyName.trim())
-      .order('created_at', { ascending: false })
+  return CacheManager.fetchOrSet<any[]>(
+    cacheKey,
+    async () => {
+      try {
+        if (!companyName || !companyName.trim()) {
+          return []
+        }
 
-    if (error) {
-      console.warn('[fetchIronWorkersAction] Supabase notice:', error.message)
-      return []
-    }
+        const { data, error } = await supabaseAdmin
+          .from('iron_workers')
+          .select('*')
+          .eq('company_name', companyName.trim())
+          .order('created_at', { ascending: false })
 
-    return (data || []).map((w: any) => ({
-      id: w.id,
-      worker_user_id: w.worker_user_id || undefined,
-      worker_name: w.worker_name,
-      phone_number: w.phone_number,
-      worker_email: w.worker_email,
-      role: w.role || 'Finishing Presser',
-      roles: Array.isArray(w.roles) ? w.roles : ['FINISHING_PRESSER'],
-      assigned_table: w.assigned_table || 'Table 01',
-      shift: w.shift || 'SHIFT_1',
-      status: w.status || 'ACTIVE',
-      assigned_pieces: w.assigned_pieces || 0,
-      completed_pieces: w.completed_pieces || 0,
-      company_name: w.company_name,
-      created_at: w.created_at
-    }))
-  } catch (err) {
-    console.error('[fetchIronWorkersAction] Unexpected error:', err)
-    return []
-  }
+        if (error) {
+          console.warn('[fetchIronWorkersAction] Supabase notice:', error.message)
+          return []
+        }
+
+        return (data || []).map((w: any) => ({
+          id: w.id,
+          worker_user_id: w.worker_user_id || undefined,
+          worker_name: w.worker_name,
+          phone_number: w.phone_number,
+          worker_email: w.worker_email,
+          role: w.role || 'Finishing Presser',
+          roles: Array.isArray(w.roles) ? w.roles : ['FINISHING_PRESSER'],
+          assigned_table: w.assigned_table || 'Table 01',
+          shift: w.shift || 'SHIFT_1',
+          status: w.status || 'ACTIVE',
+          assigned_pieces: w.assigned_pieces || 0,
+          completed_pieces: w.completed_pieces || 0,
+          company_name: w.company_name,
+          created_at: w.created_at
+        }))
+      } catch (err) {
+        console.error('[fetchIronWorkersAction] Unexpected error:', err)
+        return []
+      }
+    },
+    120,
+    [`company:${normComp}:iron`, 'iron_workers']
+  )
 }
 
 export async function registerIronWorkerAction(payload: {
@@ -411,26 +442,36 @@ export async function deleteIronWorkerAction(workerId: string) {
 // -----------------------------------------------------------------------------
 
 export async function fetchIronTaskAllocationsAction(companyName?: string): Promise<any[]> {
-  try {
-    if (!companyName || !companyName.trim()) {
-      return []
-    }
+  const normComp = (companyName || 'all').toLowerCase().replace(/[^a-z0-9]/g, '_')
+  const cacheKey = `company:${normComp}:iron:allocations`
 
-    const { data, error } = await supabaseAdmin
-      .from('iron_task_allocations')
-      .select('*')
-      .eq('company_name', companyName.trim())
-      .order('created_at', { ascending: false })
+  return CacheManager.fetchOrSet<any[]>(
+    cacheKey,
+    async () => {
+      try {
+        if (!companyName || !companyName.trim()) {
+          return []
+        }
 
-    if (error) {
-      console.warn('[fetchIronTaskAllocationsAction] Supabase notice:', error.message)
-      return []
-    }
-    return data || []
-  } catch (err) {
-    console.error('[fetchIronTaskAllocationsAction] Unexpected error:', err)
-    return []
-  }
+        const { data, error } = await supabaseAdmin
+          .from('iron_task_allocations')
+          .select('*')
+          .eq('company_name', companyName.trim())
+          .order('created_at', { ascending: false })
+
+        if (error) {
+          console.warn('[fetchIronTaskAllocationsAction] Supabase notice:', error.message)
+          return []
+        }
+        return data || []
+      } catch (err) {
+        console.error('[fetchIronTaskAllocationsAction] Unexpected error:', err)
+        return []
+      }
+    },
+    30,
+    [`company:${normComp}:iron`, 'iron_allocations']
+  )
 }
 
 export async function saveIronTaskAllocationAction(payload: any): Promise<{ success: boolean; data?: any; error?: string }> {
@@ -501,6 +542,8 @@ export async function saveIronTaskAllocationAction(payload: any): Promise<{ succ
     revalidatePath('/iron')
     revalidatePath('/iron/worker')
     revalidatePath('/iron/worker/history')
+    await CacheManager.invalidateTag('iron_allocations')
+    await CacheManager.invalidateCompanyModule(payload.company_name || 'all', 'iron')
     return { success: true, data }
   } catch (err: any) {
     console.error('[saveIronTaskAllocationAction] Error:', err)
@@ -526,6 +569,7 @@ export async function deleteIronTaskAllocationAction(taskId: string): Promise<{ 
     revalidatePath('/iron')
     revalidatePath('/iron/worker')
     revalidatePath('/iron/worker/history')
+    await CacheManager.invalidateTag('iron_allocations')
     return { success: true }
   } catch (err: any) {
     console.error('[deleteIronTaskAllocationAction] Error:', err)

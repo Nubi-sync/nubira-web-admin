@@ -2,6 +2,7 @@
 
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
+import { CacheManager } from '@/lib/cache/cache-manager'
 import {
   WashBatch,
   WashRecipe,
@@ -26,97 +27,108 @@ export async function fetchWashingDashboardDataAction(companyName?: string): Pro
   recipes: WashRecipe[]
   shrinkageQc: ShrinkageQcRecord[]
 }> {
-  try {
-    const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
-    const targetComp = (companyName || '').toUpperCase()
+  const normComp = (companyName || 'all').toLowerCase().replace(/[^a-z0-9]/g, '_')
+  const cacheKey = `company:${normComp}:washing:dashboard`
 
-    const [batchesRes, recipesRes, shrinkageRes] = await Promise.all([
-      supabaseAdmin
-        .from('washing_batches')
-        .select('*, order:merchandising_orders(po_number, style_name, brands:buyer_id(brand_name)), recipe:washing_recipes(recipe_code, wash_type)')
-        .order('started_at', { ascending: false })
-        .limit(50),
-      supabaseAdmin.from('washing_recipes').select('*').order('recipe_code', { ascending: true }),
-      supabaseAdmin
-        .from('washing_shrinkage_alerts')
-        .select('*, batch:washing_batches(batch_number, order:merchandising_orders(brands:buyer_id(brand_name)))')
-        .order('created_at', { ascending: false })
-        .limit(50)
-    ])
+  return CacheManager.fetchOrSet(
+    cacheKey,
+    async () => {
+      try {
+        const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
+        const targetComp = (companyName || '').toUpperCase()
 
-    const rawBatches = batchesRes.data || []
-    const rawRecipes = recipesRes.data || []
-    const rawShrinkage = shrinkageRes.data || []
+        const [batchesRes, recipesRes, shrinkageRes] = await Promise.all([
+          supabaseAdmin
+            .from('washing_batches')
+            .select('*, order:merchandising_orders(po_number, style_name, brands:buyer_id(brand_name)), recipe:washing_recipes(recipe_code, wash_type)')
+            .order('started_at', { ascending: false })
+            .limit(50),
+          supabaseAdmin.from('washing_recipes').select('*').order('recipe_code', { ascending: true }),
+          supabaseAdmin
+            .from('washing_shrinkage_alerts')
+            .select('*, batch:washing_batches(batch_number, order:merchandising_orders(brands:buyer_id(brand_name)))')
+            .order('created_at', { ascending: false })
+            .limit(50)
+        ])
 
-    const batches: WashBatch[] = rawBatches.map((b: any) => ({
-      id: b.id,
-      batchNumber: b.batch_number || `WB-${b.id?.slice(0, 5)}`,
-      challanId: b.order?.po_number || 'CH-PENDING',
-      articleName: b.order?.style_name || 'Standard Garment',
-      color: 'Standard Color',
-      totalPieces: b.total_garments || 0,
-      washerMachineId: b.machine_id || 'Washer 01',
-      operatorName: 'Floor Operator',
-      recipeName: b.recipe?.wash_type || 'Bio-Enzyme Wash 55°C',
-      dryWeightKg: Number(b.dry_input_weight_kg) || 0,
-      waterVolumeLiters: (Number(b.dry_input_weight_kg) || 0) * 5,
-      tumblerTempC: 65,
-      cycleDurationMinutes: 45,
-      measuredShrinkageLengthPct: 1.1,
-      measuredShrinkageWidthPct: 0.9,
-      colorfastnessRating: 4.5,
-      status: (b.status as WashBatchStatus) || 'WASHING',
-      startedAt: b.started_at || new Date().toISOString()
-    }))
+        const rawBatches = batchesRes.data || []
+        const rawRecipes = recipesRes.data || []
+        const rawShrinkage = shrinkageRes.data || []
 
-    const recipes: WashRecipe[] = rawRecipes.map((r: any) => ({
-      id: r.id,
-      recipeCode: r.recipe_code,
-      recipeName: `${r.wash_type} (${r.liquor_ratio || '1:10'})`,
-      category: 'BIO_POLISH',
-      enzymeType: 'Neutral Cellulase Enzyme',
-      enzymeDoseGpl: 1.5,
-      aceticAcidGpl: 0.8,
-      softenerGpl: 2.0,
-      temperatureC: r.wash_temperature_c || 55,
-      cycleMinutes: r.cycle_time_minutes || 45,
-      phTarget: String(r.ph_target || '5.5'),
-      liquorRatio: r.liquor_ratio || '1:10',
-      targetHandFeel: 'Peach Finish / Ultra-Soft',
-      approvedBy: 'Lab Chemist',
-      status: 'ACTIVE'
-    }))
+        const batches: WashBatch[] = rawBatches.map((b: any) => ({
+          id: b.id,
+          batchNumber: b.batch_number || `WB-${b.id?.slice(0, 5)}`,
+          challanId: b.order?.po_number || 'CH-PENDING',
+          articleName: b.order?.style_name || 'Standard Garment',
+          color: 'Standard Color',
+          totalPieces: b.total_garments || 0,
+          washerMachineId: b.machine_id || 'Washer 01',
+          operatorName: 'Floor Operator',
+          recipeName: b.recipe?.wash_type || 'Bio-Enzyme Wash 55°C',
+          stage: b.status === 'COMPLETED' ? 'CYCLE_COMPLETED' : 'WASH_CYCLE',
+          cycleTimeMinutes: 45,
+          waterLitersConsumed: 450,
+          temperatureC: 55,
+          phLevel: 5.5,
+          status: (b.status === 'IN_PROGRESS' ? 'RUNNING' : b.status || 'QUEUED') as WashBatchStatus,
+          startTime: b.started_at || new Date().toISOString(),
+          endTime: b.completed_at || undefined,
+          dryerMachineId: 'Dryer 01',
+          dryerTemperatureC: 75,
+          dryerMinutes: 30,
+          hydroExtractorMinutes: 10
+        }))
 
-    const shrinkageQc: ShrinkageQcRecord[] = rawShrinkage.map((s: any) => {
-      const lenShrink = Number(s.length_shrinkage_percent) || 0
-      const widShrink = Number(s.width_shrinkage_percent) || 0
-      const isFail = !s.is_within_spec || lenShrink > 2.5 || widShrink > 2.5
-      return {
-        id: s.id,
-        qcCode: `SQC-${s.id?.slice(0, 5)}`,
-        batchId: s.batch_id,
-        batchNumber: s.batch?.batch_number || 'WB-BATCH',
-        articleName: 'French Terry Hoodie',
-        samplePiecesTested: 10,
-        preWashLengthCm: Number(s.pre_wash_length_cm) || 70,
-        postWashLengthCm: Number(s.post_wash_length_cm) || 69,
-        avgLengthShrinkPct: lenShrink,
-        preWashWidthCm: Number(s.pre_wash_width_cm) || 55,
-        postWashWidthCm: Number(s.post_wash_width_cm) || 54.5,
-        avgWidthShrinkPct: widShrink,
-        colorfastnessRating: 4.5,
-        qcStatus: (isFail ? 'CRITICAL_FAIL' : 'PASS') as QcVerdict,
-        cuttingAlertSent: isFail,
-        auditorName: 'QC Inspector',
-        auditDate: s.created_at || new Date().toISOString()
+        const recipes: WashRecipe[] = rawRecipes.map((r: any) => ({
+          id: r.id,
+          recipeCode: r.recipe_code,
+          washType: r.wash_type || 'Bio-Enzyme Wash',
+          enzymeGpl: 1.5,
+          detergentGpl: 1.0,
+          softenerGpl: 2.0,
+          temperatureC: r.wash_temperature_c || 55,
+          cycleMinutes: r.cycle_time_minutes || 45,
+          phTarget: String(r.ph_target || '5.5'),
+          liquorRatio: r.liquor_ratio || '1:10',
+          targetHandFeel: 'Peach Finish / Ultra-Soft',
+          approvedBy: 'Lab Chemist',
+          status: 'ACTIVE'
+        }))
+
+        const shrinkageQc: ShrinkageQcRecord[] = rawShrinkage.map((s: any) => {
+          const lenShrink = Number(s.length_shrinkage_percent) || 0
+          const widShrink = Number(s.width_shrinkage_percent) || 0
+          const isFail = !s.is_within_spec || lenShrink > 2.5 || widShrink > 2.5
+          return {
+            id: s.id,
+            qcCode: `SQC-${s.id?.slice(0, 5)}`,
+            batchId: s.batch_id,
+            batchNumber: s.batch?.batch_number || 'WB-BATCH',
+            articleName: 'French Terry Hoodie',
+            samplePiecesTested: 10,
+            preWashLengthCm: Number(s.pre_wash_length_cm) || 70,
+            postWashLengthCm: Number(s.post_wash_length_cm) || 69,
+            avgLengthShrinkPct: lenShrink,
+            preWashWidthCm: Number(s.pre_wash_width_cm) || 55,
+            postWashWidthCm: Number(s.post_wash_width_cm) || 54.5,
+            avgWidthShrinkPct: widShrink,
+            colorfastnessRating: 4.5,
+            qcStatus: (isFail ? 'CRITICAL_FAIL' : 'PASS') as QcVerdict,
+            cuttingAlertSent: isFail,
+            auditorName: 'QC Inspector',
+            auditDate: s.created_at || new Date().toISOString()
+          }
+        })
+
+        return { batches, recipes, shrinkageQc }
+      } catch (error) {
+        console.error('fetchWashingDashboardDataAction error:', error)
+        return { batches: [], recipes: [], shrinkageQc: [] }
       }
-    })
-
-    return { batches, recipes, shrinkageQc }
-  } catch (error) {
-    console.error('fetchWashingDashboardDataAction error:', error)
-    return { batches: [], recipes: [], shrinkageQc: [] }
-  }
+    },
+    60,
+    [`company:${normComp}:washing`, 'washing_dashboard']
+  )
 }
 
 // -----------------------------------------------------------------------------
@@ -236,42 +248,52 @@ const isUUID = (val?: string | null) =>
   Boolean(val && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val))
 
 export async function fetchWashingWorkersAction(companyName?: string): Promise<any[]> {
-  try {
-    if (!companyName || !companyName.trim()) {
-      return []
-    }
+  const normComp = (companyName || 'all').toLowerCase().replace(/[^a-z0-9]/g, '_')
+  const cacheKey = `company:${normComp}:washing:workers`
 
-    const { data, error } = await supabaseAdmin
-      .from('washing_workers')
-      .select('*')
-      .eq('company_name', companyName.trim())
-      .order('created_at', { ascending: false })
+  return CacheManager.fetchOrSet<any[]>(
+    cacheKey,
+    async () => {
+      try {
+        if (!companyName || !companyName.trim()) {
+          return []
+        }
 
-    if (error) {
-      console.warn('[fetchWashingWorkersAction] Supabase notice:', error.message)
-      return []
-    }
+        const { data, error } = await supabaseAdmin
+          .from('washing_workers')
+          .select('*')
+          .eq('company_name', companyName.trim())
+          .order('created_at', { ascending: false })
 
-    return (data || []).map((w: any) => ({
-      id: w.id,
-      worker_user_id: w.worker_user_id || undefined,
-      worker_name: w.worker_name,
-      phone_number: w.phone_number,
-      worker_email: w.worker_email,
-      role: w.role || 'Washer Operator',
-      roles: Array.isArray(w.roles) ? w.roles : ['WASH_MASTER'],
-      assigned_machine: w.assigned_machine || 'Washer 01',
-      shift: w.shift || 'MORNING',
-      status: w.status || 'ACTIVE',
-      assigned_pieces: w.assigned_pieces || 0,
-      completed_pieces: w.completed_pieces || 0,
-      company_name: w.company_name,
-      created_at: w.created_at
-    }))
-  } catch (err) {
-    console.error('[fetchWashingWorkersAction] Unexpected error:', err)
-    return []
-  }
+        if (error) {
+          console.warn('[fetchWashingWorkersAction] Supabase notice:', error.message)
+          return []
+        }
+
+        return (data || []).map((w: any) => ({
+          id: w.id,
+          worker_user_id: w.worker_user_id || undefined,
+          worker_name: w.worker_name,
+          phone_number: w.phone_number,
+          worker_email: w.worker_email,
+          role: w.role || 'Washer Operator',
+          roles: Array.isArray(w.roles) ? w.roles : ['WASH_MASTER'],
+          assigned_machine: w.assigned_machine || 'Washer 01',
+          shift: w.shift || 'MORNING',
+          status: w.status || 'ACTIVE',
+          assigned_pieces: w.assigned_pieces || 0,
+          completed_pieces: w.completed_pieces || 0,
+          company_name: w.company_name,
+          created_at: w.created_at
+        }))
+      } catch (err) {
+        console.error('[fetchWashingWorkersAction] Unexpected error:', err)
+        return []
+      }
+    },
+    120,
+    [`company:${normComp}:washing`, 'washing_workers']
+  )
 }
 
 export async function registerWashingWorkerAction(payload: {
@@ -438,26 +460,36 @@ export async function deleteWashingWorkerAction(workerId: string) {
 // -----------------------------------------------------------------------------
 
 export async function fetchWashingTaskAllocationsAction(companyName?: string): Promise<any[]> {
-  try {
-    if (!companyName || !companyName.trim()) {
-      return []
-    }
+  const normComp = (companyName || 'all').toLowerCase().replace(/[^a-z0-9]/g, '_')
+  const cacheKey = `company:${normComp}:washing:allocations`
 
-    const { data, error } = await supabaseAdmin
-      .from('washing_task_allocations')
-      .select('*')
-      .eq('company_name', companyName.trim())
-      .order('created_at', { ascending: false })
+  return CacheManager.fetchOrSet<any[]>(
+    cacheKey,
+    async () => {
+      try {
+        if (!companyName || !companyName.trim()) {
+          return []
+        }
 
-    if (error) {
-      console.warn('[fetchWashingTaskAllocationsAction] Supabase notice:', error.message)
-      return []
-    }
-    return data || []
-  } catch (err) {
-    console.error('[fetchWashingTaskAllocationsAction] Unexpected error:', err)
-    return []
-  }
+        const { data, error } = await supabaseAdmin
+          .from('washing_task_allocations')
+          .select('*')
+          .eq('company_name', companyName.trim())
+          .order('created_at', { ascending: false })
+
+        if (error) {
+          console.warn('[fetchWashingTaskAllocationsAction] Supabase notice:', error.message)
+          return []
+        }
+        return data || []
+      } catch (err) {
+        console.error('[fetchWashingTaskAllocationsAction] Unexpected error:', err)
+        return []
+      }
+    },
+    30,
+    [`company:${normComp}:washing`, 'washing_allocations']
+  )
 }
 
 export async function saveWashingTaskAllocationAction(payload: any): Promise<{ success: boolean; data?: any; error?: string }> {
@@ -528,6 +560,8 @@ export async function saveWashingTaskAllocationAction(payload: any): Promise<{ s
     revalidatePath('/washing')
     revalidatePath('/washing/worker')
     revalidatePath('/washing/worker/history')
+    await CacheManager.invalidateTag('washing_allocations')
+    await CacheManager.invalidateCompanyModule(payload.company_name || 'all', 'washing')
     return { success: true, data }
   } catch (err: any) {
     console.error('[saveWashingTaskAllocationAction] Error:', err)
@@ -553,6 +587,7 @@ export async function deleteWashingTaskAllocationAction(taskId: string): Promise
     revalidatePath('/washing')
     revalidatePath('/washing/worker')
     revalidatePath('/washing/worker/history')
+    await CacheManager.invalidateTag('washing_allocations')
     return { success: true }
   } catch (err: any) {
     console.error('[deleteWashingTaskAllocationAction] Error:', err)

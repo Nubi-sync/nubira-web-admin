@@ -7,6 +7,7 @@ import { LogOut, LayoutDashboard, Building2, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import { TvViewButton } from '@/components/ui/TvViewButton'
 import { resolveUserTenant } from '@/lib/tenant-context'
+import { CacheManager } from '@/lib/cache/cache-manager'
 
 export const dynamic = 'force-dynamic'
 
@@ -48,19 +49,35 @@ export default async function StitchingSewingDashboardPage() {
     redirect('/stitching-sewing/store')
   }
 
-  // Parallel concurrent data fetching for all floor operational datasets
-  const [
-    { data: art },
-    { data: allot },
-    { data: chal },
-    { data: varData },
-    { data: pData },
-    { data: qData },
-    { data: sData },
-    { data: dData },
-    { data: mData },
-    { data: wData },
-  ] = await Promise.all([
+  const normComp = (tenant.companyName || 'all').toLowerCase().replace(/[^a-z0-9]/g, '_')
+  const cacheKey = `company:${normComp}:stitching:dashboard_data`
+
+  const {
+    articlesData,
+    allotmentsData,
+    challansData,
+    variantsData,
+    prodData,
+    qcData,
+    storeData,
+    dispatchData,
+    materialsData,
+    workerAssignmentsData,
+  } = await CacheManager.fetchOrSet(
+    cacheKey,
+    async () => {
+      const [
+        { data: art },
+        { data: allot },
+        { data: chal },
+        { data: varData },
+        { data: pData },
+        { data: qData },
+        { data: sData },
+        { data: dData },
+        { data: mData },
+        { data: wData },
+      ] = await Promise.all([
     supabaseAdmin
       .from('articles')
       .select('id, art_no, description, stitching_rate, size_rates')
@@ -184,18 +201,24 @@ export default async function StitchingSewingDashboardPage() {
       `)
       .order('assigned_at', { ascending: false })
       .limit(500)
-  ])
+      ])
 
-  const articlesData = art || []
-  const allotmentsData = allot || []
-  const challansData = chal || []
-  const variantsData = varData || []
-  const prodData = pData || []
-  const qcData = qData || []
-  const storeData = sData || []
-  const dispatchData = dData || []
-  const materialsData = mData || []
-  const workerAssignmentsData = wData || []
+      return {
+        articlesData: art || [],
+        allotmentsData: allot || [],
+        challansData: chal || [],
+        variantsData: varData || [],
+        prodData: pData || [],
+        qcData: qData || [],
+        storeData: sData || [],
+        dispatchData: dData || [],
+        materialsData: mData || [],
+        workerAssignmentsData: wData || [],
+      }
+    },
+    60,
+    [`company:${normComp}:stitching`, 'stitching_dashboard']
+  )
 
   // Synthesize Multi-Stage Activity Stream
   const activities: Array<{

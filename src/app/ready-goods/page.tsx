@@ -23,17 +23,10 @@ export default async function ReadyGoodsModulePage() {
   const isLegacy = isLegacyNubiraTenant(tenant)
   const companyFilter = isLegacy ? undefined : tenant.companyName
 
-  const [{ data: profile }, liveData] = await Promise.all([
-    supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single(),
-    fetchReadyGoodsDashboardDataAction(companyFilter)
-  ])
+  const liveData = await fetchReadyGoodsDashboardDataAction(companyFilter)
 
   return (
-    <AdminShell userEmail={user.email} userRole={profile?.role}>
+    <AdminShell userEmail={user.email} userRole={tenant.role}>
       <ReadyGoodsDashboardClient
         userEmail={user.email}
         initialCartons={liveData.cartons}
