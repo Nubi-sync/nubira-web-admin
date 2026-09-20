@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/utils/supabase/server'
 import { supabaseAdmin } from '@/utils/supabase/admin'
+import { CacheManager } from '@/lib/cache/cache-manager'
 
 export type BrandRecord = {
   id: string
@@ -40,44 +41,58 @@ export type VendorRecord = {
 // GET ALL BRANDS
 // ----------------------------------------------------------------------
 export async function getBrands(): Promise<BrandRecord[]> {
-  try {
-    const supabase = supabaseAdmin
-    const { data, error } = await supabase
-      .from('brands')
-      .select('*')
-      .order('brand_name', { ascending: true })
+  return CacheManager.fetchOrSet<BrandRecord[]>(
+    'global:brands',
+    async () => {
+      try {
+        const supabase = supabaseAdmin
+        const { data, error } = await supabase
+          .from('brands')
+          .select('*')
+          .order('brand_name', { ascending: true })
 
-    if (error || !data) {
-      return []
-    }
+        if (error || !data) {
+          return []
+        }
 
-    return data as BrandRecord[]
-  } catch (err) {
-    console.error('Error fetching brands:', err)
-    return []
-  }
+        return data as BrandRecord[]
+      } catch (err) {
+        console.error('Error fetching brands:', err)
+        return []
+      }
+    },
+    300,
+    ['brands']
+  )
 }
 
 // ----------------------------------------------------------------------
 // GET ALL VENDORS
 // ----------------------------------------------------------------------
 export async function getVendors(): Promise<VendorRecord[]> {
-  try {
-    const supabase = supabaseAdmin
-    const { data, error } = await supabase
-      .from('vendors')
-      .select('*')
-      .order('vendor_name', { ascending: true })
+  return CacheManager.fetchOrSet<VendorRecord[]>(
+    'global:vendors',
+    async () => {
+      try {
+        const supabase = supabaseAdmin
+        const { data, error } = await supabase
+          .from('vendors')
+          .select('*')
+          .order('vendor_name', { ascending: true })
 
-    if (error || !data) {
-      return []
-    }
+        if (error || !data) {
+          return []
+        }
 
-    return data as VendorRecord[]
-  } catch (err) {
-    console.error('Error fetching vendors:', err)
-    return []
-  }
+        return data as VendorRecord[]
+      } catch (err) {
+        console.error('Error fetching vendors:', err)
+        return []
+      }
+    },
+    300,
+    ['vendors']
+  )
 }
 
 // ----------------------------------------------------------------------
@@ -147,6 +162,7 @@ export async function createVendor(formData: FormData) {
     return { error: error.message }
   }
 
+  await CacheManager.invalidateTag('vendors')
   revalidatePath('/vendors')
   revalidatePath('/stitching-sewing/vendors')
   revalidatePath('/production-orders')
@@ -178,6 +194,7 @@ export async function updateVendor(vendorId: string, payload: Partial<VendorReco
     return { error: error.message }
   }
 
+  await CacheManager.invalidateTag('vendors')
   revalidatePath('/vendors')
   revalidatePath('/stitching-sewing/vendors')
   revalidatePath('/production-orders')
@@ -206,6 +223,7 @@ export async function toggleVendorStatus(vendorId: string, currentIsActive: bool
     return { error: error.message }
   }
 
+  await CacheManager.invalidateTag('vendors')
   revalidatePath('/vendors')
   revalidatePath('/stitching-sewing/vendors')
   revalidatePath('/stitching-sewing/dashboard')
@@ -241,6 +259,7 @@ export async function createBrand(brandName: string, brandCode: string, contactP
     return { error: error.message }
   }
 
+  await CacheManager.invalidateTag('brands')
   revalidatePath('/vendors')
   revalidatePath('/stitching-sewing/vendors')
   revalidatePath('/production-orders')
@@ -269,6 +288,7 @@ export async function deleteVendor(vendorId: string) {
     return { error: error.message }
   }
 
+  await CacheManager.invalidateTag('vendors')
   revalidatePath('/vendors')
   revalidatePath('/stitching-sewing/vendors')
   revalidatePath('/production-orders')

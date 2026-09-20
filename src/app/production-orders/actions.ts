@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/utils/supabase/server'
 import { supabaseAdmin } from '@/utils/supabase/admin'
+import { CacheManager } from '@/lib/cache/cache-manager'
 
 /**
  * Strictly sanitizes a date string to ensure it is a valid PostgreSQL DATE (YYYY-MM-DD) between years 1990 and 2099.
@@ -126,11 +127,17 @@ export type ChallanGroupedOrder = {
 // ----------------------------------------------------------------------
 // GET PRODUCTION ORDERS / CHALLANS (Hierarchical & Grouped)
 // ----------------------------------------------------------------------
-export async function getProductionOrders(): Promise<ChallanGroupedOrder[]> {
-  const supabase = supabaseAdmin
+export async function getProductionOrders(companyName?: string): Promise<ChallanGroupedOrder[]> {
+  const normComp = (companyName || 'all').toLowerCase().replace(/[^a-z0-9]/g, '_')
+  const cacheKey = `company:${normComp}:production_orders`
 
-  try {
-    // 1. Fetch all challans, allotments, materials & variants concurrently in parallel
+  return CacheManager.fetchOrSet<ChallanGroupedOrder[]>(
+    cacheKey,
+    async () => {
+      const supabase = supabaseAdmin
+
+      try {
+        // 1. Fetch all challans, allotments, materials & variants concurrently in parallel
     const [
       { data: challansList, error: chErr },
       { data: allotments, error: alErr },
@@ -401,11 +408,15 @@ export async function getProductionOrders(): Promise<ChallanGroupedOrder[]> {
       }
     }
 
-    return challanGroups
-  } catch (err) {
-    console.error('Error fetching production orders:', err)
-    return []
-  }
+        return challanGroups
+      } catch (err) {
+        console.error('Error fetching production orders:', err)
+        return []
+      }
+    },
+    120,
+    [`company:${normComp}:production_orders`, 'production_orders']
+  )
 }
 
 // ----------------------------------------------------------------------
@@ -717,6 +728,7 @@ export async function createChallan(payload: CreateChallanPayload) {
       console.warn('Auto-allotment creation warning:', allotErr)
     }
 
+    await CacheManager.invalidateTag('production_orders')
     revalidatePath('/production-orders')
     revalidatePath('/allotments')
     revalidatePath('/articles')
@@ -926,6 +938,7 @@ export async function updateChallan(payload: UpdateChallanPayload) {
       console.warn('Sync existing allotments warning:', allotUpdateErr)
     }
 
+    await CacheManager.invalidateTag('production_orders')
     revalidatePath('/production-orders')
     revalidatePath('/allotments')
     revalidatePath('/articles')
@@ -979,6 +992,7 @@ export async function updateOrderStatus(orderOrChallanId: string, newStatus: str
     await supabase.from('allotments').update({ status: newStatus }).eq('id', orderOrChallanId)
   }
 
+  await CacheManager.invalidateTag('production_orders')
   revalidatePath('/production-orders')
   revalidatePath('/allotments')
   revalidatePath('/')
@@ -1000,6 +1014,7 @@ export async function assignLinemanToArticle(allotmentId: string, linemanId: str
     return { error: error.message }
   }
 
+  await CacheManager.invalidateTag('production_orders')
   revalidatePath('/production-orders')
   revalidatePath('/allotments')
   return { success: true }
@@ -1134,6 +1149,7 @@ export async function allotEntireChallan(challanId: string, linemanId: string) {
       } catch (_) {}
     }
 
+    await CacheManager.invalidateTag('production_orders')
     revalidatePath('/production-orders')
     revalidatePath('/allotments')
     revalidatePath('/')
@@ -1323,6 +1339,7 @@ export async function allotChallanByColor(challanId: string, colorName: string, 
       }
     }
 
+    await CacheManager.invalidateTag('production_orders')
     revalidatePath('/production-orders')
     revalidatePath('/allotments')
     revalidatePath('/')
@@ -1378,6 +1395,7 @@ export async function deleteProductionOrder(challanOrAllotmentId: string, isChal
       await supabase.from('allotments').delete().eq('id', challanOrAllotmentId)
     }
 
+    await CacheManager.invalidateTag('production_orders')
     revalidatePath('/production-orders')
     revalidatePath('/allotments')
     revalidatePath('/')
@@ -2021,6 +2039,7 @@ export async function createBulkChallans(payloads: CreateChallanPayload[]): Prom
       }
     }
 
+    await CacheManager.invalidateTag('production_orders')
     revalidatePath('/production-orders')
     revalidatePath('/allotments')
     revalidatePath('/articles')
@@ -2247,6 +2266,7 @@ export async function allotFullChallanDirectly(challanId: string, linemanId: str
       await supabase.from('challans').update({ status: 'IN_PROGRESS' }).eq('id', challanId)
     }
 
+    await CacheManager.invalidateTag('production_orders')
     revalidatePath('/production-orders')
     revalidatePath('/allotments')
     revalidatePath('/dashboard')
@@ -2420,6 +2440,7 @@ export async function allotColorGroupDirectly(challanId: string, colorName: stri
       await supabase.from('challans').update({ status: 'PARTIALLY_ALLOTTED' }).eq('id', challanId)
     }
 
+    await CacheManager.invalidateTag('production_orders')
     revalidatePath('/production-orders')
     revalidatePath('/allotments')
     revalidatePath('/dashboard')
@@ -2457,6 +2478,7 @@ export async function unallotChallanDirectly(challanId: string) {
       .update({ status: 'PENDING' })
       .eq('id', challanId)
 
+    await CacheManager.invalidateTag('production_orders')
     revalidatePath('/production-orders')
     revalidatePath('/allotments')
     revalidatePath('/dashboard')
@@ -2560,6 +2582,7 @@ export async function updateChallanLineRate(params: {
       }
     }
 
+    await CacheManager.invalidateTag('production_orders')
     revalidatePath('/production-orders')
     revalidatePath('/articles')
     revalidatePath('/allotments')

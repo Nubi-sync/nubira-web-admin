@@ -65,34 +65,32 @@ export async function fetchWashingDashboardDataAction(companyName?: string): Pro
           washerMachineId: b.machine_id || 'Washer 01',
           operatorName: 'Floor Operator',
           recipeName: b.recipe?.wash_type || 'Bio-Enzyme Wash 55°C',
-          stage: b.status === 'COMPLETED' ? 'CYCLE_COMPLETED' : 'WASH_CYCLE',
-          cycleTimeMinutes: 45,
-          waterLitersConsumed: 450,
-          temperatureC: 55,
-          phLevel: 5.5,
-          status: (b.status === 'IN_PROGRESS' ? 'RUNNING' : b.status || 'QUEUED') as WashBatchStatus,
-          startTime: b.started_at || new Date().toISOString(),
-          endTime: b.completed_at || undefined,
-          dryerMachineId: 'Dryer 01',
-          dryerTemperatureC: 75,
-          dryerMinutes: 30,
-          hydroExtractorMinutes: 10
+          dryWeightKg: Number(b.dry_weight_kg) || 480,
+          waterVolumeLiters: Number(b.water_volume_liters) || 2400,
+          tumblerTempC: Number(b.tumbler_temp_c) || 65,
+          cycleDurationMinutes: Number(b.cycle_duration_minutes) || 45,
+          status: (b.status === 'COMPLETED' ? 'PASSED' : b.status === 'FAILED' ? 'FAILED' : 'WASHING') as WashBatchStatus,
+          startedAt: b.started_at || new Date().toISOString(),
+          completedAt: b.completed_at || undefined,
+          notes: b.notes
         }))
 
         const recipes: WashRecipe[] = rawRecipes.map((r: any) => ({
           id: r.id,
           recipeCode: r.recipe_code,
-          washType: r.wash_type || 'Bio-Enzyme Wash',
-          enzymeGpl: 1.5,
-          detergentGpl: 1.0,
-          softenerGpl: 2.0,
+          recipeName: r.recipe_name || r.wash_type || 'Bio-Enzyme Wash 55°C',
+          category: (r.category || 'BIO_POLISH') as any,
+          enzymeType: r.enzyme_type || 'Neutral Cellulase Enzyme',
+          enzymeDoseGpl: Number(r.enzyme_gpl || r.enzyme_dose_gpl) || 1.5,
+          aceticAcidGpl: Number(r.acetic_acid_gpl) || 0.8,
+          softenerGpl: Number(r.softener_gpl) || 2.0,
           temperatureC: r.wash_temperature_c || 55,
           cycleMinutes: r.cycle_time_minutes || 45,
           phTarget: String(r.ph_target || '5.5'),
-          liquorRatio: r.liquor_ratio || '1:10',
-          targetHandFeel: 'Peach Finish / Ultra-Soft',
-          approvedBy: 'Lab Chemist',
-          status: 'ACTIVE'
+          liquorRatio: r.liquor_ratio || '1 : 5.0',
+          targetHandFeel: r.target_hand_feel || 'Peach Finish / Ultra-Soft',
+          approvedBy: r.approved_by || 'Lab Chemist',
+          status: (r.status === 'ARCHIVED' ? 'ARCHIVED' : 'ACTIVE') as 'ACTIVE' | 'ARCHIVED'
         }))
 
         const shrinkageQc: ShrinkageQcRecord[] = rawShrinkage.map((s: any) => {

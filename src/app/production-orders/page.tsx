@@ -48,7 +48,7 @@ export default async function ProductionOrdersPage() {
       .select('id, username, role, company_name, allowed_modules')
       .eq('role', 'LINEMAN')
       .order('username'),
-    getProductionOrders(),
+    getProductionOrders(tenant.companyName),
     getBrands(),
     getVendors()
   ])
