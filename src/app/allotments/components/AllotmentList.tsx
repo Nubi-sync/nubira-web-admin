@@ -106,6 +106,7 @@ export type Allotment = {
   target_hours?: number
   priority?: 'NORMAL' | 'RUSH' | 'CRITICAL'
   client_challan_no?: string
+  brand?: string
   sample_photos?: string[]
   profiles?: { username: string }
   articles?: { art_no: string; description?: string; stitching_rate?: number | string } | null
