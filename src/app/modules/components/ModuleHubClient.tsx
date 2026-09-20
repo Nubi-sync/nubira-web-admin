@@ -27,6 +27,7 @@ interface ModuleHubClientProps {
   userEmail: string
   userName: string
   userRole: string
+  companyName?: string
   allowedModules?: string[]
 }
 
@@ -164,7 +165,7 @@ const MODULES: ModuleCardData[] = [
   },
 ]
 
-export function ModuleHubClient({ userEmail, userName, userRole, allowedModules }: ModuleHubClientProps) {
+export function ModuleHubClient({ userEmail, userName, userRole, companyName, allowedModules }: ModuleHubClientProps) {
   const [launchingId, setLaunchingId] = useState<string | null>(null)
 
   const isModuleAllowed = (modHref: string) => {
@@ -188,6 +189,18 @@ export function ModuleHubClient({ userEmail, userName, userRole, allowedModules 
     setLaunchingId(mod.id)
   }
 
+  const resolvedCompany = companyName && companyName.trim() && companyName !== 'Account Deactivated'
+    ? companyName.trim()
+    : ''
+
+  const headingTitle = resolvedCompany
+    ? `Welcome, ${resolvedCompany}`
+    : 'Enterprise Workspace Hub'
+
+  const headingSubtitle = resolvedCompany
+    ? `Central manufacturing execution and floor operations hub for ${resolvedCompany}`
+    : `Central manufacturing execution hub across ${visibleModules.length === MODULES.length ? 'all 12 apparel production divisions' : 'your authorized division modules'}`
+
   return (
     <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto select-none">
       
@@ -200,14 +213,14 @@ export function ModuleHubClient({ userEmail, userName, userRole, allowedModules 
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
               <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
-                Enterprise Workspace Hub
+                {headingTitle}
               </h1>
               <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs tracking-wider">
                 {visibleModules.length} Operating Units
               </span>
             </div>
             <p className="text-sm sm:text-base text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)]">
-              Central manufacturing execution hub across {visibleModules.length === MODULES.length ? 'all 12 apparel production divisions' : 'your authorized division modules'}
+              {headingSubtitle}
             </p>
           </div>
         </div>

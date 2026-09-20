@@ -42,6 +42,7 @@ export default async function ModulesHubPage() {
         userEmail={tenant.userEmail}
         userName={tenant.adminDisplayName || tenant.customUsername || 'Administrator'}
         userRole={tenant.isSuperAdmin ? 'Enterprise Master' : (userRole || 'Plant Administrator')}
+        companyName={tenant.companyName}
         allowedModules={allowedModules}
       />
     </AdminShell>
