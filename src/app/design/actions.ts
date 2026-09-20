@@ -2,6 +2,7 @@
 
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
+import { CacheManager } from '@/lib/cache/cache-manager'
 import { 
   TechPack, 
   SampleApproval, 
@@ -103,70 +104,80 @@ function parseTechPackMetadata(rawFabric?: string | null): {
 // -----------------------------------------------------------------------------
 
 export async function fetchTechPacksAction(companyName?: string): Promise<TechPack[]> {
-  try {
-    let query = supabaseAdmin
-      .from('design_tech_packs')
-      .select('*, brands(*)')
-      .order('created_at', { ascending: false })
+  const normComp = (companyName || 'all').toLowerCase().replace(/[^a-z0-9]/g, '_')
+  const cacheKey = `company:${normComp}:design:techpacks`
 
-    if (companyName && companyName.trim()) {
-      query = query.or(`company_name.eq.${companyName.trim()},company_name.ilike.%${companyName.trim()}%`)
-    }
+  return CacheManager.fetchOrSet<TechPack[]>(
+    cacheKey,
+    async () => {
+      try {
+        let query = supabaseAdmin
+          .from('design_tech_packs')
+          .select('*, brands(*)')
+          .order('created_at', { ascending: false })
 
-    const { data, error } = await query
+        if (companyName && companyName.trim()) {
+          query = query.or(`company_name.eq.${companyName.trim()},company_name.ilike.%${companyName.trim()}%`)
+        }
 
-    if (error) {
-      console.error('[fetchTechPacksAction] Supabase error:', error)
-      return []
-    }
+        const { data, error } = await query
 
-    if (!data || data.length === 0) return []
+        if (error) {
+          console.error('[fetchTechPacksAction] Supabase error:', error)
+          return []
+        }
 
-    let filteredData = data
-    if (companyName && companyName.trim()) {
-      const target = companyName.trim().toLowerCase()
-      filteredData = data.filter((row: any) => {
-        const tc = (row.company_name || '').toLowerCase()
-        const bc = (row.brands?.company_name || '').toLowerCase()
-        return tc === target || tc.includes(target) || bc === target || bc.includes(target)
-      })
-    }
+        if (!data || data.length === 0) return []
 
-    return filteredData.map((row: any) => {
-      const meta = parseTechPackMetadata(row.fabric_composition)
-      return {
-        id: row.id,
-        style_number: row.style_number,
-        style_name: `${row.category} Style ${row.style_number}`,
-        brand_name: row.brands?.brand_name || 'Inhouse',
-        category: mapCategoryToUI(row.category),
-        size_system: (row.size_system as SizeSystem) || 'ALPHA_ADULT',
-        base_size: row.base_size || 'M',
-        fabric_composition: meta.fabric,
-        materials: meta.materials,
-        instructions: meta.instructions,
-        target_gsm: Number(row.target_gsm) || 300,
-        embellishment_sequence: (row.embellishment_sequence as EmbellishmentSequence) || 'NONE',
-        cad_front_url: row.cad_front_url || undefined,
-        cad_back_url: row.cad_back_url || undefined,
-        spi: Number(row.spi) || 12,
-        seam_class: (row.seam_class as SeamClass) || 'ISO 4915 Class 401 (Chainstitch)',
-        status: (row.status === 'DRAFT' || !row.status ? 'APPROVED_BULK' : row.status) as TechPackStatus,
-        target_cut_date: meta.target_cut_date || new Date(new Date(row.created_at).getTime() + 14 * 86400000).toISOString().split('T')[0],
-        version: Number(row.version) || 1,
-        created_at: row.created_at,
-        updated_at: row.updated_at,
-        design_submission_id: row.design_submission_id || undefined,
-        created_by_ph: row.created_by_ph || undefined,
-        approved_by_sa: Boolean(row.approved_by_sa),
-        sa_verdict: row.sa_verdict || 'PENDING',
-        company_name: row.company_name || 'Nubira Creation'
+        let filteredData = data
+        if (companyName && companyName.trim()) {
+          const target = companyName.trim().toLowerCase()
+          filteredData = data.filter((row: any) => {
+            const tc = (row.company_name || '').toLowerCase()
+            const bc = (row.brands?.company_name || '').toLowerCase()
+            return tc === target || tc.includes(target) || bc === target || bc.includes(target)
+          })
+        }
+
+        return filteredData.map((row: any) => {
+          const meta = parseTechPackMetadata(row.fabric_composition)
+          return {
+            id: row.id,
+            style_number: row.style_number,
+            style_name: `${row.category} Style ${row.style_number}`,
+            brand_name: row.brands?.brand_name || 'Inhouse',
+            category: mapCategoryToUI(row.category),
+            size_system: (row.size_system as SizeSystem) || 'ALPHA_ADULT',
+            base_size: row.base_size || 'M',
+            fabric_composition: meta.fabric,
+            materials: meta.materials,
+            instructions: meta.instructions,
+            target_gsm: Number(row.target_gsm) || 300,
+            embellishment_sequence: (row.embellishment_sequence as EmbellishmentSequence) || 'NONE',
+            cad_front_url: row.cad_front_url || undefined,
+            cad_back_url: row.cad_back_url || undefined,
+            spi: Number(row.spi) || 12,
+            seam_class: (row.seam_class as SeamClass) || 'ISO 4915 Class 401 (Chainstitch)',
+            status: (row.status === 'DRAFT' || !row.status ? 'APPROVED_BULK' : row.status) as TechPackStatus,
+            target_cut_date: meta.target_cut_date || new Date(new Date(row.created_at).getTime() + 14 * 86400000).toISOString().split('T')[0],
+            version: Number(row.version) || 1,
+            created_at: row.created_at,
+            updated_at: row.updated_at,
+            design_submission_id: row.design_submission_id || undefined,
+            created_by_ph: row.created_by_ph || undefined,
+            approved_by_sa: Boolean(row.approved_by_sa),
+            sa_verdict: row.sa_verdict || 'PENDING',
+            company_name: row.company_name || 'Nubira Creation'
+          }
+        })
+      } catch (err) {
+        console.error('[fetchTechPacksAction] Unexpected error:', err)
+        return []
       }
-    })
-  } catch (err) {
-    console.error('[fetchTechPacksAction] Unexpected error:', err)
-    return []
-  }
+    },
+    60,
+    [`company:${normComp}:design`, 'tech_packs']
+  )
 }
 
 export async function fetchApprovedArticlesForTechPackAction(companyName?: string): Promise<AvailableArticleOption[]> {
@@ -576,6 +587,9 @@ export async function createTechPackAction(payload: {
     revalidatePath('/design')
     revalidatePath('/design/tech-packs')
 
+    await CacheManager.invalidateTag('tech_packs')
+    await CacheManager.invalidateCompanyModule(payload.company_name || 'all', 'design')
+
     const meta = parseTechPackMetadata(data.fabric_composition)
 
     const createdPack: TechPack = {
@@ -768,48 +782,58 @@ export async function deleteTechPackAction(id: string): Promise<{ success: boole
 // -----------------------------------------------------------------------------
 
 export async function fetchDesignTeamMembersAction(companyName?: string, phUserId?: string): Promise<DesignTeamMember[]> {
-  try {
-    let query = supabaseAdmin
-      .from('design_team_members')
-      .select('*')
-      .order('created_at', { ascending: false })
+  const normComp = (companyName || 'all').toLowerCase().replace(/[^a-z0-9]/g, '_')
+  const cacheKey = `company:${normComp}:design:team:${phUserId || 'all'}`
 
-    if (companyName) {
-      query = query.eq('company_name', companyName)
-    }
-    if (phUserId) {
-      query = query.eq('ph_user_id', phUserId)
-    }
+  return CacheManager.fetchOrSet<DesignTeamMember[]>(
+    cacheKey,
+    async () => {
+      try {
+        let query = supabaseAdmin
+          .from('design_team_members')
+          .select('*')
+          .order('created_at', { ascending: false })
 
-    const { data, error } = await query
+        if (companyName) {
+          query = query.eq('company_name', companyName)
+        }
+        if (phUserId) {
+          query = query.eq('ph_user_id', phUserId)
+        }
 
-    if (error) {
-      console.error('[fetchDesignTeamMembersAction] Supabase error:', error)
-      return []
-    }
+        const { data, error } = await query
 
-    return (data || []).map((row: any) => {
-      const fallbackPhone = (row.designer_email?.includes('@designer.nubira.local') ? row.designer_email.split('@')[0] : null)
-      const phone = row.phone_number || row.designer_phone || (fallbackPhone && /^\d{10}$/.test(fallbackPhone) ? fallbackPhone : undefined)
-      return {
-        id: row.id,
-        ph_user_id: row.ph_user_id,
-        designer_user_id: row.designer_user_id || undefined,
-        designer_name: row.designer_name,
-        phone_number: phone,
-        username: row.username || undefined,
-        designer_email: row.designer_email,
-        designer_phone: phone,
-        company_name: row.company_name,
-        status: row.status,
-        created_at: row.created_at,
-        updated_at: row.updated_at
+        if (error) {
+          console.error('[fetchDesignTeamMembersAction] Supabase error:', error)
+          return []
+        }
+
+        return (data || []).map((row: any) => {
+          const fallbackPhone = (row.designer_email?.includes('@designer.nubira.local') ? row.designer_email.split('@')[0] : null)
+          const phone = row.phone_number || row.designer_phone || (fallbackPhone && /^\d{10}$/.test(fallbackPhone) ? fallbackPhone : undefined)
+          return {
+            id: row.id,
+            ph_user_id: row.ph_user_id,
+            designer_user_id: row.designer_user_id || undefined,
+            designer_name: row.designer_name,
+            phone_number: phone,
+            username: row.username || undefined,
+            designer_email: row.designer_email,
+            designer_phone: phone,
+            company_name: row.company_name,
+            status: row.status,
+            created_at: row.created_at,
+            updated_at: row.updated_at
+          }
+        })
+      } catch (err) {
+        console.error('[fetchDesignTeamMembersAction] Unexpected error:', err)
+        return []
       }
-    })
-  } catch (err) {
-    console.error('[fetchDesignTeamMembersAction] Unexpected error:', err)
-    return []
-  }
+    },
+    120,
+    [`company:${normComp}:design`, 'design_team']
+  )
 }
 
 export async function addDesignTeamMemberAction(payload: {
@@ -1258,145 +1282,146 @@ export async function fetchDesignBriefsAction(filters?: {
   designerUserId?: string
   status?: string
 }): Promise<DesignBrief[]> {
-  try {
-    let query = supabaseAdmin
-      .from('design_briefs')
-      .select('*, design_team_members(*), design_submissions(*)')
-      .order('created_at', { ascending: false })
+  const normComp = (filters?.companyName || 'all').toLowerCase().replace(/[^a-z0-9]/g, '_')
+  const filterKey = `${filters?.phUserId || '_'}:${filters?.designerMemberId || '_'}:${filters?.designerEmail || '_'}:${filters?.designerUserId || '_'}:${filters?.status || '_'}`
+  const cacheKey = `company:${normComp}:design:briefs:${filterKey}`
 
-    if (filters?.companyName && !filters?.designerEmail && !filters?.designerUserId) {
-      query = query.eq('company_name', filters.companyName)
-    }
-    if (filters?.phUserId) {
-      query = query.eq('ph_user_id', filters.phUserId)
-    }
-    if (filters?.designerMemberId) {
-      query = query.eq('designer_member_id', filters.designerMemberId)
-    }
-    if (filters?.status) {
-      query = query.eq('status', filters.status)
-    }
+  return CacheManager.fetchOrSet<DesignBrief[]>(
+    cacheKey,
+    async () => {
+      try {
+        let query = supabaseAdmin
+          .from('design_briefs')
+          .select('*, design_team_members(*), design_submissions(*)')
+          .order('created_at', { ascending: false })
 
-    const { data, error } = await query
+        if (filters?.companyName && !filters?.designerEmail && !filters?.designerUserId) {
+          query = query.eq('company_name', filters.companyName)
+        }
+        if (filters?.phUserId) {
+          query = query.eq('ph_user_id', filters.phUserId)
+        }
+        if (filters?.designerMemberId) {
+          query = query.eq('designer_member_id', filters.designerMemberId)
+        }
+        if (filters?.status) {
+          query = query.eq('status', filters.status)
+        }
 
-    if (error) {
-      console.error('[fetchDesignBriefsAction] Supabase error:', error)
-      return []
-    }
+        const { data, error } = await query
 
-    let filteredData = data || []
-    if (filters?.designerEmail || filters?.designerUserId) {
-      const emailLower = filters.designerEmail?.toLowerCase()
-      const rawDigits = emailLower ? emailLower.split('@')[0].replace(/\D/g, '') : ''
-      const phone10 = rawDigits.length >= 10 ? rawDigits.slice(-10) : rawDigits
+        if (error) {
+          console.error('[fetchDesignBriefsAction] Supabase error:', error)
+          return []
+        }
 
-      filteredData = filteredData.filter((row: any) => {
-        const m = row.design_team_members
-        if (!m) return false
-        if (filters.designerUserId && (m.designer_user_id === filters.designerUserId || m.id === filters.designerUserId)) return true
-        if (emailLower && m.designer_email?.toLowerCase() === emailLower) return true
-        if (phone10 && (m.phone_number === phone10 || m.designer_phone === phone10)) return true
-        return false
-      })
-    }
+        let filteredData = data || []
+        if (filters?.designerEmail || filters?.designerUserId) {
+          const emailLower = filters.designerEmail?.toLowerCase()
+          const rawDigits = emailLower ? emailLower.split('@')[0].replace(/\D/g, '') : ''
+          const phone10 = rawDigits.length >= 10 ? rawDigits.slice(-10) : rawDigits
 
-    return filteredData.map((row: any) => {
-      // Find latest submission
-      const subs = (row.design_submissions || []) as any[]
-      subs.sort((a, b) => new Date(b.submitted_at).getTime() - new Date(a.submitted_at).getTime())
-      const latestSub = subs[0]
+          filteredData = filteredData.filter((row: any) => {
+            const m = row.design_team_members
+            if (!m) return false
+            if (filters.designerUserId && (m.designer_user_id === filters.designerUserId || m.id === filters.designerUserId)) return true
+            if (emailLower && m.designer_email?.toLowerCase() === emailLower) return true
+            if (phone10 && (m.phone_number === phone10 || m.designer_phone === phone10)) return true
+            return false
+          })
+        }
 
-      // Extract concepts brief from instructions if serialized
-      let parsedConceptsBrief: BriefDesignConceptRequirement[] | undefined
-      if (row.instructions) {
-        const conceptsMatch = row.instructions.match(/\[CONCEPTS_BRIEF:\s*(\[[\s\S]*?\])\]/i)
-        if (conceptsMatch && conceptsMatch[1]) {
-          try {
-            parsedConceptsBrief = JSON.parse(conceptsMatch[1])
-          } catch (e) {
-            // Ignore parse error
+        return filteredData.map((row: any) => {
+          // Find latest submission
+          const subs = (row.design_submissions || []) as any[]
+          subs.sort((a, b) => new Date(b.submitted_at).getTime() - new Date(a.submitted_at).getTime())
+          const latestSub = subs[0]
+
+          // Extract concepts brief from instructions if serialized
+          let parsedConceptsBrief: BriefDesignConceptRequirement[] | undefined
+          if (row.instructions) {
+            const conceptsMatch = row.instructions.match(/\[CONCEPTS_BRIEF:\s*(\[[\s\S]*?\])\]/i)
+            if (conceptsMatch && conceptsMatch[1]) {
+              try {
+                parsedConceptsBrief = JSON.parse(conceptsMatch[1])
+              } catch (e) {
+                // Ignore parse error
+              }
+            }
           }
-        }
-      }
 
-      // Extract target designs quota from metadata or instructions
-      let targetDesigns = parsedConceptsBrief?.length || 1
-      if (row.num_designs) {
-        targetDesigns = Number(row.num_designs) || targetDesigns
-      } else if (row.instructions) {
-        const match = row.instructions.match(/\[TARGET:\s*(\d+)\s*(?:Designs)?\]/i)
-        if (match && match[1]) {
-          targetDesigns = parseInt(match[1], 10) || targetDesigns
-        }
-      }
+          // Extract target designs quota from metadata or instructions
+          let targetDesigns = parsedConceptsBrief?.length || 1
+          if (row.num_designs) {
+            targetDesigns = Number(row.num_designs) || targetDesigns
+          }
 
-      // Extract target colors list from metadata
-      let targetColors: string[] | undefined
-      if (parsedConceptsBrief && parsedConceptsBrief.length > 0) {
-        const set = new Set<string>()
-        parsedConceptsBrief.forEach(c => c.colors.forEach((col: string) => { if (col) set.add(col) }))
-        targetColors = Array.from(set)
-      } else if (row.instructions) {
-        const colMatch = row.instructions.match(/\[COLORS:\s*([^\]]+)\]/i)
-        if (colMatch && colMatch[1]) {
-          targetColors = colMatch[1].split(',').map((s: string) => s.trim()).filter(Boolean)
-        }
-      }
+          // Extract colors
+          let targetColors: string[] = []
+          if (row.instructions) {
+            const colorsMatch = row.instructions.match(/\[COLORS:\s*([^\]]+)\]/i)
+            if (colorsMatch && colorsMatch[1]) {
+              targetColors = colorsMatch[1].split(',').map((c: string) => c.trim()).filter(Boolean)
+            }
+          }
 
-      const cleanInstructions = row.instructions
-        ? row.instructions
-            .replace(/\[CONCEPTS_BRIEF:\s*\[[\s\S]*?\]\]\s*/gi, '')
-            .replace(/\[TARGET:\s*\d+\s*(?:Designs)?\]\s*/gi, '')
-            .replace(/\[COLORS:\s*[^\]]+\]\s*/gi, '')
-            .trim() || undefined
-        : undefined
+          const cleanInstructions = row.instructions
+            ? row.instructions
+                .replace(/\[CONCEPTS_BRIEF:\s*\[[\s\S]*?\]\]\s*/gi, '')
+                .replace(/\[COLORS:\s*[^\]]+\]\s*/gi, '')
+                .trim() || undefined
+            : undefined
 
-      return {
-        id: row.id,
-        ph_user_id: row.ph_user_id,
-        designer_member_id: row.designer_member_id || undefined,
-        designer_name: row.design_team_members?.designer_name || undefined,
-        designer_email: row.design_team_members?.designer_email || undefined,
-        designer_phone: row.design_team_members?.phone_number || row.design_team_members?.designer_phone || undefined,
-        garment_type: row.garment_type,
-        category: row.category,
-        max_colors: row.max_colors,
-        chart_colors: row.max_colors,
-        target_colors: targetColors,
-        target_designs: targetDesigns,
-        num_designs: targetDesigns,
-        design_concepts_brief: parsedConceptsBrief,
-        submissions_count: subs.length,
-        instructions: cleanInstructions,
-        status: row.status as BriefStatus,
-        company_name: row.company_name,
-        created_at: row.created_at,
-        updated_at: row.updated_at,
-        latest_submission: latestSub ? (() => {
-          const parsedSub = parseConceptsFromNotes(latestSub.designer_notes)
           return {
-            id: latestSub.id,
-            brief_id: latestSub.brief_id,
-            designer_member_id: latestSub.designer_member_id || undefined,
-            photo_url_1: latestSub.photo_url_1,
-            photo_url_2: latestSub.photo_url_2 || undefined,
-            concepts: parsedSub.concepts,
-            designer_notes: parsedSub.cleanNotes,
-            ph_verdict: latestSub.ph_verdict as PHVerdict,
-            ph_feedback: latestSub.ph_feedback || undefined,
-            sa_verdict: latestSub.sa_verdict as SAVerdict || undefined,
-            sa_notes: latestSub.sa_notes || undefined,
-            company_name: latestSub.company_name,
-            submitted_at: latestSub.submitted_at,
-            reviewed_at: latestSub.reviewed_at || undefined
+            id: row.id,
+            ph_user_id: row.ph_user_id,
+            designer_member_id: row.designer_member_id || undefined,
+            designer_name: row.design_team_members?.designer_name || undefined,
+            designer_email: row.design_team_members?.designer_email || undefined,
+            designer_phone: row.design_team_members?.phone_number || row.design_team_members?.designer_phone || undefined,
+            garment_type: row.garment_type,
+            category: row.category,
+            max_colors: row.max_colors,
+            chart_colors: row.max_colors,
+            target_colors: targetColors,
+            target_designs: targetDesigns,
+            num_designs: targetDesigns,
+            design_concepts_brief: parsedConceptsBrief,
+            submissions_count: subs.length,
+            instructions: cleanInstructions,
+            status: row.status as BriefStatus,
+            company_name: row.company_name,
+            created_at: row.created_at,
+            updated_at: row.updated_at,
+            latest_submission: latestSub ? (() => {
+              const parsedSub = parseConceptsFromNotes(latestSub.designer_notes)
+              return {
+                id: latestSub.id,
+                brief_id: latestSub.brief_id,
+                designer_member_id: latestSub.designer_member_id || undefined,
+                photo_url_1: latestSub.photo_url_1,
+                photo_url_2: latestSub.photo_url_2 || undefined,
+                concepts: parsedSub.concepts,
+                designer_notes: parsedSub.cleanNotes,
+                ph_verdict: latestSub.ph_verdict as PHVerdict,
+                ph_feedback: latestSub.ph_feedback || undefined,
+                sa_verdict: latestSub.sa_verdict as SAVerdict || undefined,
+                sa_notes: latestSub.sa_notes || undefined,
+                company_name: latestSub.company_name,
+                submitted_at: latestSub.submitted_at,
+                reviewed_at: latestSub.reviewed_at || undefined
+              }
+            })() : undefined
           }
-        })() : undefined
+        })
+      } catch (err) {
+        console.error('[fetchDesignBriefsAction] Unexpected error:', err)
+        return []
       }
-    })
-  } catch (err) {
-    console.error('[fetchDesignBriefsAction] Unexpected error:', err)
-    return []
-  }
+    },
+    60,
+    [`company:${normComp}:design`, 'design_briefs']
+  )
 }
 
 export async function deleteDesignBriefAction(
@@ -2822,21 +2847,29 @@ export async function deleteMaterialAction(id: string): Promise<{ success: boole
 // -----------------------------------------------------------------------------
 
 export async function fetchBrandsAction(_companyName?: string): Promise<{ id: string; brand_name: string; brand_code: string }[]> {
-  try {
-    const { data, error } = await supabaseAdmin
-      .from('brands')
-      .select('id, brand_name, brand_code')
-      .eq('is_active', true)
-      .order('brand_name')
+  const cacheKey = `global:brands`
+  return CacheManager.fetchOrSet(
+    cacheKey,
+    async () => {
+      try {
+        const { data, error } = await supabaseAdmin
+          .from('brands')
+          .select('id, brand_name, brand_code')
+          .eq('is_active', true)
+          .order('brand_name')
 
-    if (error) {
-      console.error('[fetchBrandsAction] DB error:', error)
-      return []
-    }
+        if (error) {
+          console.error('[fetchBrandsAction] DB error:', error)
+          return []
+        }
 
-    return data || []
-  } catch (err) {
-    console.error('[fetchBrandsAction] Unexpected error:', err)
-    return []
-  }
+        return data || []
+      } catch (err) {
+        console.error('[fetchBrandsAction] Unexpected error:', err)
+        return []
+      }
+    },
+    300,
+    ['brands']
+  )
 }

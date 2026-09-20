@@ -2,6 +2,7 @@
 
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
+import { CacheManager } from '@/lib/cache/cache-manager'
 import {
   PrintingProductionRun,
   StrikeOffTest,
@@ -18,52 +19,61 @@ const supabaseAdmin = createAdminClient(
 
 // 1. Fetch Executive Printing Floor KPIs
 export async function fetchPrintingDashboardKpisAction(companyName?: string) {
-  try {
+  const normComp = (companyName || 'all').toLowerCase().replace(/[^a-z0-9]/g, '_')
+  const cacheKey = `company:${normComp}:printing:kpis`
 
-    const { data: kpiView, error: viewError } = await supabaseAdmin
-      .from('view_printing_floor_kpis')
-      .select('*')
-      .single()
+  return CacheManager.fetchOrSet(
+    cacheKey,
+    async () => {
+      try {
+        const { data: kpiView, error: viewError } = await supabaseAdmin
+          .from('view_printing_floor_kpis')
+          .select('*')
+          .single()
 
-    if (!viewError && kpiView) {
-      return {
-        totalStrikeOffs: Number(kpiView.total_strike_offs || 0),
-        approvedStrikeOffs: Number(kpiView.approved_strike_offs || 0),
-        strikeOffApprovalRate: Number(kpiView.strike_off_approval_rate_pct || 0),
-        activeRuns: Number(kpiView.active_production_runs || 0),
-        completedRuns: Number(kpiView.completed_production_runs || 0),
-        totalPanelsPrinted: Number(kpiView.total_panels_printed || 0),
-        totalPanelsRejected: Number(kpiView.total_panels_rejected || 0),
-        rejectionRatePct: Number(kpiView.printing_rejection_rate_pct || 0),
-        optimalOvensCount: Number(kpiView.optimal_ovens_count || 0),
-        thermalAlarmCount: Number(kpiView.thermal_alarm_count || 0)
+        if (!viewError && kpiView) {
+          return {
+            totalStrikeOffs: Number(kpiView.total_strike_offs || 0),
+            approvedStrikeOffs: Number(kpiView.approved_strike_offs || 0),
+            strikeOffApprovalRate: Number(kpiView.strike_off_approval_rate_pct || 0),
+            activeRuns: Number(kpiView.active_production_runs || 0),
+            completedRuns: Number(kpiView.completed_production_runs || 0),
+            totalPanelsPrinted: Number(kpiView.total_panels_printed || 0),
+            totalPanelsRejected: Number(kpiView.total_panels_rejected || 0),
+            rejectionRatePct: Number(kpiView.printing_rejection_rate_pct || 0),
+            optimalOvensCount: Number(kpiView.optimal_ovens_count || 0),
+            thermalAlarmCount: Number(kpiView.thermal_alarm_count || 0)
+          }
+        }
+
+        // Fallback live aggregates if view not created yet
+        const { count: strikeOffsCount } = await supabaseAdmin.from('printing_strike_offs').select('*', { count: 'exact', head: true })
+        const { data: runs } = await supabaseAdmin.from('printing_production_runs').select('total_panels_printed, total_rejections, status')
+
+        const totalPrinted = (runs || []).reduce((acc, r) => acc + (r.total_panels_printed || 0), 0)
+        const totalRejected = (runs || []).reduce((acc, r) => acc + (r.total_rejections || 0), 0)
+        const activeRuns = (runs || []).filter(r => r.status === 'PRINTING' || r.status === 'RUNNING').length
+
+        return {
+          totalStrikeOffs: strikeOffsCount || 0,
+          approvedStrikeOffs: strikeOffsCount || 0,
+          strikeOffApprovalRate: strikeOffsCount && strikeOffsCount > 0 ? 100.0 : 0.0,
+          activeRuns: activeRuns || 0,
+          completedRuns: 0,
+          totalPanelsPrinted: totalPrinted || 0,
+          totalPanelsRejected: totalRejected || 0,
+          rejectionRatePct: totalPrinted > 0 ? Number(((totalRejected / (totalPrinted + totalRejected)) * 100).toFixed(2)) : 0.0,
+          optimalOvensCount: 0,
+          thermalAlarmCount: 0
+        }
+      } catch (err: any) {
+        console.warn('fetchPrintingDashboardKpisAction caught error:', err)
+        return null
       }
-    }
-
-    // Fallback live aggregates if view not created yet
-    const { count: strikeOffsCount } = await supabaseAdmin.from('printing_strike_offs').select('*', { count: 'exact', head: true })
-    const { data: runs } = await supabaseAdmin.from('printing_production_runs').select('total_panels_printed, total_rejections, status')
-
-    const totalPrinted = (runs || []).reduce((acc, r) => acc + (r.total_panels_printed || 0), 0)
-    const totalRejected = (runs || []).reduce((acc, r) => acc + (r.total_rejections || 0), 0)
-    const activeRuns = (runs || []).filter(r => r.status === 'PRINTING' || r.status === 'RUNNING').length
-
-    return {
-      totalStrikeOffs: strikeOffsCount || 0,
-      approvedStrikeOffs: strikeOffsCount || 0,
-      strikeOffApprovalRate: strikeOffsCount && strikeOffsCount > 0 ? 100.0 : 0.0,
-      activeRuns: activeRuns || 0,
-      completedRuns: 0,
-      totalPanelsPrinted: totalPrinted || 0,
-      totalPanelsRejected: totalRejected || 0,
-      rejectionRatePct: totalPrinted > 0 ? Number(((totalRejected / (totalPrinted + totalRejected)) * 100).toFixed(2)) : 0.0,
-      optimalOvensCount: 0,
-      thermalAlarmCount: 0
-    }
-  } catch (err: any) {
-    console.warn('fetchPrintingDashboardKpisAction caught error:', err)
-    return null
-  }
+    },
+    60,
+    [`company:${normComp}:printing`, 'printing_kpis']
+  )
 }
 
 // 2. Fetch Production Runs
@@ -318,26 +328,36 @@ export async function recordPrintRunAction(payload: {
 // -----------------------------------------------------------------------------
 
 export async function fetchPrintingWorkersAction(companyName?: string): Promise<any[]> {
-  try {
-    if (!companyName || !companyName.trim()) {
-      return []
-    }
+  const normComp = (companyName || 'all').toLowerCase().replace(/[^a-z0-9]/g, '_')
+  const cacheKey = `company:${normComp}:printing:workers`
 
-    const { data, error } = await supabaseAdmin
-      .from('printing_workers')
-      .select('*')
-      .eq('company_name', companyName.trim())
-      .order('created_at', { ascending: false })
+  return CacheManager.fetchOrSet<any[]>(
+    cacheKey,
+    async () => {
+      try {
+        if (!companyName || !companyName.trim()) {
+          return []
+        }
 
-    if (error) {
-      console.warn('[fetchPrintingWorkersAction] Supabase notice:', error.message)
-      return []
-    }
-    return data || []
-  } catch (err) {
-    console.error('[fetchPrintingWorkersAction] Unexpected error:', err)
-    return []
-  }
+        const { data, error } = await supabaseAdmin
+          .from('printing_workers')
+          .select('*')
+          .eq('company_name', companyName.trim())
+          .order('created_at', { ascending: false })
+
+        if (error) {
+          console.warn('[fetchPrintingWorkersAction] Supabase notice:', error.message)
+          return []
+        }
+        return data || []
+      } catch (err) {
+        console.error('[fetchPrintingWorkersAction] Unexpected error:', err)
+        return []
+      }
+    },
+    120,
+    [`company:${normComp}:printing`, 'printing_workers']
+  )
 }
 
 export async function addPrintingWorkerAction(payload: {
@@ -447,26 +467,36 @@ export async function deletePrintingWorkerAction(workerId: string, phoneNumber?:
 // -----------------------------------------------------------------------------
 
 export async function fetchPrintingTaskAllocationsAction(companyName?: string): Promise<any[]> {
-  try {
-    if (!companyName || !companyName.trim()) {
-      return []
-    }
+  const normComp = (companyName || 'all').toLowerCase().replace(/[^a-z0-9]/g, '_')
+  const cacheKey = `company:${normComp}:printing:allocations`
 
-    const { data, error } = await supabaseAdmin
-      .from('printing_task_allocations')
-      .select('*')
-      .eq('company_name', companyName.trim())
-      .order('created_at', { ascending: false })
+  return CacheManager.fetchOrSet<any[]>(
+    cacheKey,
+    async () => {
+      try {
+        if (!companyName || !companyName.trim()) {
+          return []
+        }
 
-    if (error) {
-      console.warn('[fetchPrintingTaskAllocationsAction] Supabase notice:', error.message)
-      return []
-    }
-    return data || []
-  } catch (err) {
-    console.error('[fetchPrintingTaskAllocationsAction] Unexpected error:', err)
-    return []
-  }
+        const { data, error } = await supabaseAdmin
+          .from('printing_task_allocations')
+          .select('*')
+          .eq('company_name', companyName.trim())
+          .order('created_at', { ascending: false })
+
+        if (error) {
+          console.warn('[fetchPrintingTaskAllocationsAction] Supabase notice:', error.message)
+          return []
+        }
+        return data || []
+      } catch (err) {
+        console.error('[fetchPrintingTaskAllocationsAction] Unexpected error:', err)
+        return []
+      }
+    },
+    30,
+    [`company:${normComp}:printing`, 'printing_allocations']
+  )
 }
 
 const isUUID = (val?: string | null) =>
@@ -541,6 +571,8 @@ export async function savePrintingTaskAllocationAction(payload: any): Promise<{ 
     revalidatePath('/printing')
     revalidatePath('/printing/worker')
     revalidatePath('/printing/worker/history')
+    await CacheManager.invalidateTag('printing_allocations')
+    await CacheManager.invalidateCompanyModule(payload.company_name || 'all', 'printing')
     return { success: true, data }
   } catch (err: any) {
     console.error('[savePrintingTaskAllocationAction] Error:', err)
@@ -566,6 +598,7 @@ export async function deletePrintingTaskAllocationAction(taskId: string): Promis
     revalidatePath('/printing')
     revalidatePath('/printing/worker')
     revalidatePath('/printing/worker/history')
+    await CacheManager.invalidateTag('printing_allocations')
     return { success: true }
   } catch (err: any) {
     console.error('[deletePrintingTaskAllocationAction] Error:', err)

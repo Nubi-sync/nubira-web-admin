@@ -2,6 +2,7 @@
 
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
+import { CacheManager } from '@/lib/cache/cache-manager'
 import {
   EmbroideryDesign,
   EmbroideryMachineRun,
@@ -27,51 +28,61 @@ const supabaseAdmin = createAdminClient(
 // -----------------------------------------------------------------------------
 
 export async function fetchEmbroideryDashboardKpisAction(companyName?: string) {
-  try {
-    let runsQuery = supabaseAdmin.from('embroidery_production_runs').select('*')
-    let designsQuery = supabaseAdmin.from('embroidery_designs').select('*')
-    let machinesQuery = supabaseAdmin.from('embroidery_machines').select('*')
+  const normComp = (companyName || 'all').toLowerCase().replace(/[^a-z0-9]/g, '_')
+  const cacheKey = `company:${normComp}:embroidery:kpis`
 
-    if (companyName && companyName.trim()) {
-      runsQuery = runsQuery.or(`company_name.eq.${companyName.trim()},company_name.ilike.%${companyName.trim()}%`)
-      designsQuery = designsQuery.or(`company_name.eq.${companyName.trim()},company_name.ilike.%${companyName.trim()}%`)
-      machinesQuery = machinesQuery.or(`company_name.eq.${companyName.trim()},company_name.ilike.%${companyName.trim()}%`)
-    }
+  return CacheManager.fetchOrSet(
+    cacheKey,
+    async () => {
+      try {
+        let runsQuery = supabaseAdmin.from('embroidery_production_runs').select('*')
+        let designsQuery = supabaseAdmin.from('embroidery_designs').select('*')
+        let machinesQuery = supabaseAdmin.from('embroidery_machines').select('*')
 
-    const [runsRes, designsRes, machinesRes] = await Promise.all([
-      runsQuery,
-      designsQuery,
-      machinesQuery
-    ])
+        if (companyName && companyName.trim()) {
+          runsQuery = runsQuery.or(`company_name.eq.${companyName.trim()},company_name.ilike.%${companyName.trim()}%`)
+          designsQuery = designsQuery.or(`company_name.eq.${companyName.trim()},company_name.ilike.%${companyName.trim()}%`)
+          machinesQuery = machinesQuery.or(`company_name.eq.${companyName.trim()},company_name.ilike.%${companyName.trim()}%`)
+        }
 
-    const runs = runsRes.data || []
-    const designs = designsRes.data || []
-    const machines = machinesRes.data || []
+        const [runsRes, designsRes, machinesRes] = await Promise.all([
+          runsQuery,
+          designsQuery,
+          machinesQuery
+        ])
 
-    const totalStitches = runs.reduce((acc: number, r: any) => acc + (Number(r.total_stitches_run) || 0), 0)
-    const totalPanels = runs.reduce((acc: number, r: any) => acc + (Number(r.total_panels_completed) || 0), 0)
-    const totalBreaks = runs.reduce((acc: number, r: any) => acc + (Number(r.thread_breaks_count) || 0), 0)
-    const activeMachinesCount = machines.filter((m: any) => m.is_active).length
+        const runs = runsRes.data || []
+        const designs = designsRes.data || []
+        const machines = machinesRes.data || []
 
-    return {
-      totalStitchesToday: totalStitches,
-      totalCompletedPanels: totalPanels,
-      totalBreaksCount: totalBreaks,
-      activeLinesCount: activeMachinesCount || (runs.length > 0 ? 1 : 0),
-      totalDesignsCount: designs.length,
-      averageRpm: runs.length > 0 ? 850 : 0
-    }
-  } catch (err: any) {
-    console.error('[fetchEmbroideryDashboardKpisAction] error:', err)
-    return {
-      totalStitchesToday: 0,
-      totalCompletedPanels: 0,
-      totalBreaksCount: 0,
-      activeLinesCount: 0,
-      totalDesignsCount: 0,
-      averageRpm: 0
-    }
-  }
+        const totalStitches = runs.reduce((acc: number, r: any) => acc + (Number(r.total_stitches_run) || 0), 0)
+        const totalPanels = runs.reduce((acc: number, r: any) => acc + (Number(r.total_panels_completed) || 0), 0)
+        const totalBreaks = runs.reduce((acc: number, r: any) => acc + (Number(r.thread_breaks_count) || 0), 0)
+        const activeMachinesCount = machines.filter((m: any) => m.is_active).length
+
+        return {
+          totalStitchesToday: totalStitches,
+          totalCompletedPanels: totalPanels,
+          totalBreaksCount: totalBreaks,
+          activeLinesCount: activeMachinesCount || (runs.length > 0 ? 1 : 0),
+          totalDesignsCount: designs.length,
+          averageRpm: runs.length > 0 ? 850 : 0
+        }
+      } catch (err: any) {
+        console.error('[fetchEmbroideryDashboardKpisAction] error:', err)
+        return {
+          totalStitchesToday: 0,
+          totalCompletedPanels: 0,
+          totalBreaksCount: 0,
+          activeLinesCount: 0,
+          totalDesignsCount: 0,
+          averageRpm: 0
+        }
+      }
+    },
+    60,
+    [`company:${normComp}:embroidery`, 'embroidery_kpis']
+  )
 }
 
 // -----------------------------------------------------------------------------
@@ -396,26 +407,36 @@ export async function fetchEmbroideryQcAuditsAction(companyName?: string): Promi
 // -----------------------------------------------------------------------------
 
 export async function fetchEmbroideryWorkersAction(companyName?: string): Promise<any[]> {
-  try {
-    if (!companyName || !companyName.trim()) {
-      return []
-    }
+  const normComp = (companyName || 'all').toLowerCase().replace(/[^a-z0-9]/g, '_')
+  const cacheKey = `company:${normComp}:embroidery:workers`
 
-    const { data, error } = await supabaseAdmin
-      .from('embroidery_workers')
-      .select('*')
-      .eq('company_name', companyName.trim())
-      .order('created_at', { ascending: false })
+  return CacheManager.fetchOrSet<any[]>(
+    cacheKey,
+    async () => {
+      try {
+        if (!companyName || !companyName.trim()) {
+          return []
+        }
 
-    if (error) {
-      console.warn('[fetchEmbroideryWorkersAction] Supabase notice:', error.message)
-      return []
-    }
-    return data || []
-  } catch (err) {
-    console.error('[fetchEmbroideryWorkersAction] Unexpected error:', err)
-    return []
-  }
+        const { data, error } = await supabaseAdmin
+          .from('embroidery_workers')
+          .select('*')
+          .eq('company_name', companyName.trim())
+          .order('created_at', { ascending: false })
+
+        if (error) {
+          console.warn('[fetchEmbroideryWorkersAction] Supabase notice:', error.message)
+          return []
+        }
+        return data || []
+      } catch (err) {
+        console.error('[fetchEmbroideryWorkersAction] Unexpected error:', err)
+        return []
+      }
+    },
+    120,
+    [`company:${normComp}:embroidery`, 'embroidery_workers']
+  )
 }
 
 export async function addEmbroideryWorkerAction(payload: {
@@ -525,26 +546,36 @@ export async function deleteEmbroideryWorkerAction(workerId: string, phoneNumber
 // -----------------------------------------------------------------------------
 
 export async function fetchEmbroideryTaskAllocationsAction(companyName?: string): Promise<any[]> {
-  try {
-    if (!companyName || !companyName.trim()) {
-      return []
-    }
+  const normComp = (companyName || 'all').toLowerCase().replace(/[^a-z0-9]/g, '_')
+  const cacheKey = `company:${normComp}:embroidery:allocations`
 
-    const { data, error } = await supabaseAdmin
-      .from('embroidery_task_allocations')
-      .select('*')
-      .eq('company_name', companyName.trim())
-      .order('created_at', { ascending: false })
+  return CacheManager.fetchOrSet<any[]>(
+    cacheKey,
+    async () => {
+      try {
+        if (!companyName || !companyName.trim()) {
+          return []
+        }
 
-    if (error) {
-      console.warn('[fetchEmbroideryTaskAllocationsAction] Supabase notice:', error.message)
-      return []
-    }
-    return data || []
-  } catch (err) {
-    console.error('[fetchEmbroideryTaskAllocationsAction] Unexpected error:', err)
-    return []
-  }
+        const { data, error } = await supabaseAdmin
+          .from('embroidery_task_allocations')
+          .select('*')
+          .eq('company_name', companyName.trim())
+          .order('created_at', { ascending: false })
+
+        if (error) {
+          console.warn('[fetchEmbroideryTaskAllocationsAction] Supabase notice:', error.message)
+          return []
+        }
+        return data || []
+      } catch (err) {
+        console.error('[fetchEmbroideryTaskAllocationsAction] Unexpected error:', err)
+        return []
+      }
+    },
+    30,
+    [`company:${normComp}:embroidery`, 'embroidery_allocations']
+  )
 }
 
 const isUUID = (val?: string | null) =>
@@ -619,6 +650,8 @@ export async function saveEmbroideryTaskAllocationAction(payload: any): Promise<
     revalidatePath('/embroidery')
     revalidatePath('/embroidery/worker')
     revalidatePath('/embroidery/worker/history')
+    await CacheManager.invalidateTag('embroidery_allocations')
+    await CacheManager.invalidateCompanyModule(payload.company_name || 'all', 'embroidery')
     return { success: true, data }
   } catch (err: any) {
     console.error('[saveEmbroideryTaskAllocationAction] Error:', err)
@@ -644,6 +677,7 @@ export async function deleteEmbroideryTaskAllocationAction(taskId: string): Prom
     revalidatePath('/embroidery')
     revalidatePath('/embroidery/worker')
     revalidatePath('/embroidery/worker/history')
+    await CacheManager.invalidateTag('embroidery_allocations')
     return { success: true }
   } catch (err: any) {
     console.error('[deleteEmbroideryTaskAllocationAction] Error:', err)
