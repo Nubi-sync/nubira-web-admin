@@ -201,7 +201,7 @@ export function CuttingDashboardClient({
 
   // Spreadsheet Filters
   const [taskSearchQuery, setTaskSearchQuery] = useState('')
-  const [statusFilter, setStatusFilter] = useState<'ACTIVE' | 'NEEDS_VERIFY' | 'COMPLETED' | 'ALL'>('ACTIVE')
+  const [statusFilter, setStatusFilter] = useState<'ALL' | 'ACTIVE' | 'NEEDS_VERIFY' | 'COMPLETED'>('ALL')
 
   // Delete Task Modal State
   const [taskToDelete, setTaskToDelete] = useState<{
@@ -791,10 +791,10 @@ export function CuttingDashboardClient({
             {/* Status Tabs */}
             <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-black/10 overflow-x-auto">
               {[
+                { id: 'ALL', label: 'All' },
                 { id: 'ACTIVE', label: 'Active Queue' },
                 { id: 'NEEDS_VERIFY', label: 'Needs Verification' },
-                { id: 'COMPLETED', label: 'Verified & Done' },
-                { id: 'ALL', label: 'All' }
+                { id: 'COMPLETED', label: 'Verified & Done' }
               ].map(st => (
                 <button
                   key={st.id}

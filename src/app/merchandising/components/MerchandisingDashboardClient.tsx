@@ -401,16 +401,52 @@ export function MerchandisingDashboardClient({
     return matchesBrand && matchesStyle && matchesStatus
   })
 
+  // Orders matching selected buyer contract
+  const buyerMatchingOrders = orders.filter(o => {
+    if (!selectedBuyer) return true
+    const sName = (selectedBuyer.buyer_name || '').trim().toLowerCase()
+    const sArt = (selectedBuyer.linked_article_number || '').trim().toLowerCase()
+    const sId = selectedBuyer.id
+
+    const oBuyerId = (o as any).buyer_id || (o as any).active_buyer_id
+    const oBrand = (o.brand_name || '').trim().toLowerCase()
+    const oBuyer = ((o as any).buyer_name || '').trim().toLowerCase()
+    const oStyle = (o.style_ref || '').trim().toLowerCase()
+    const oArt = ((o as any).article_no || '').trim().toLowerCase()
+
+    return (sId && oBuyerId === sId) ||
+           (sName && (oBrand === sName || oBuyer === sName)) ||
+           (sArt && (oStyle === sArt || oArt === sArt))
+  })
+
   // Dynamic calculations
   const totalBookedPcs = orders.reduce((acc, curr) => acc + curr.total_quantity, 0)
   const activeOrdersCount = orders.filter(o => o.status !== 'CLOSED' && o.status !== 'DISPATCHED').length
 
-  // Tech Pack Active Articles count
-  const activeArticlesCount = techPackArticles.length
+  // Dynamic calculations for Active Buyer PO pieces
+  const activeBuyerPoPieces = selectedBuyer
+    ? (buyerMatchingOrders.length > 0
+        ? buyerMatchingOrders.reduce((sum, o) => sum + (Number(o.total_quantity) || 0), 0)
+        : (Number(selectedBuyer.contracted_volume) || 0))
+    : totalBookedPcs
 
   // Contracted In-Order pieces from linked Active Buyers
   const linkedBuyers = buyers.filter(b => Boolean(b.linked_article_number))
   const totalInOrderPieces = linkedBuyers.reduce((sum, b) => sum + (Number(b.contracted_volume) || 0), 0)
+  const activeBuyerInOrderPieces = selectedBuyer
+    ? (Number(selectedBuyer.contracted_volume) || totalInOrderPieces)
+    : totalInOrderPieces
+
+  // Tech Pack Active Articles count
+  const activeArticlesCount = selectedBuyer
+    ? (techPackArticles.filter(tp => {
+        const sArt = (selectedBuyer.linked_article_number || '').trim().toLowerCase()
+        const sBrand = (selectedBuyer.buyer_name || '').trim().toLowerCase()
+        const tpNum = (tp.style_number || '').trim().toLowerCase()
+        const tpBrand = (tp.brand_name || '').trim().toLowerCase()
+        return (sArt && tpNum === sArt) || (sBrand && tpBrand === sBrand)
+      }).length || (selectedBuyer.linked_article_number ? 1 : techPackArticles.length))
+    : techPackArticles.length
 
   // Dynamic Critical Path SLA (T&A)
   const totalGates = milestones.length
@@ -620,7 +656,7 @@ export function MerchandisingDashboardClient({
               Active Buyer POs
             </span>
             <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 mt-1 leading-none" suppressHydrationWarning>
-              {totalBookedPcs.toLocaleString('en-IN')}
+              {activeBuyerPoPieces.toLocaleString('en-IN')}
             </h3>
           </div>
         </Link>
@@ -642,7 +678,7 @@ export function MerchandisingDashboardClient({
               In Order
             </span>
             <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 mt-1 leading-none" suppressHydrationWarning>
-              {totalInOrderPieces.toLocaleString('en-IN')}
+              {activeBuyerInOrderPieces.toLocaleString('en-IN')}
             </h3>
           </div>
         </Link>

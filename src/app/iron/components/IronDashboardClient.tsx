@@ -203,7 +203,7 @@ export function IronDashboardClient({
 
   // Spreadsheet Filters
   const [taskSearchQuery, setTaskSearchQuery] = useState('')
-  const [statusFilter, setStatusFilter] = useState<'ACTIVE' | 'NEEDS_VERIFY' | 'COMPLETED' | 'ALL'>('ACTIVE')
+  const [statusFilter, setStatusFilter] = useState<'ALL' | 'ACTIVE' | 'NEEDS_VERIFY' | 'COMPLETED'>('ALL')
 
   // Delete Task Modal State
   const [taskToDelete, setTaskToDelete] = useState<{
@@ -701,6 +701,17 @@ export function IronDashboardClient({
             <div className="flex items-center p-1 rounded-xl bg-[#FAF7F0] border border-black/10 text-xs font-mono font-bold">
               <button
                 type="button"
+                onClick={() => setStatusFilter('ALL')}
+                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                  statusFilter === 'ALL'
+                    ? 'bg-[#3A3564] text-white shadow-2xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                All
+              </button>
+              <button
+                type="button"
                 onClick={() => setStatusFilter('ACTIVE')}
                 className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
                   statusFilter === 'ACTIVE'
@@ -731,17 +742,6 @@ export function IronDashboardClient({
                 }`}
               >
                 Verified &amp; Done
-              </button>
-              <button
-                type="button"
-                onClick={() => setStatusFilter('ALL')}
-                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                  statusFilter === 'ALL'
-                    ? 'bg-[#3A3564] text-white shadow-2xs'
-                    : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                All
               </button>
             </div>
 
