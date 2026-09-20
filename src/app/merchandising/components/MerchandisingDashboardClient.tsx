@@ -80,12 +80,21 @@ interface MerchandisingDashboardClientProps {
   companyName?: string
 }
 
-function calculateBuyerStages(
+export function calculateBuyerStages(
   buyer: ActiveBuyer | null,
   cuttingAllocations: any[] = [],
   printingAllocations: any[] = [],
   embroideryAllocations: any[] = []
-) {
+): {
+  inPending: number
+  inCutting: number
+  inPrinting: number
+  inEmbroidery: number
+  inSewing: number
+  iron: number
+  washing: number
+  alter: number
+} {
   if (!buyer) {
     return {
       inPending: 0,
@@ -104,41 +113,71 @@ function calculateBuyerStages(
   const buyerName = (buyer.buyer_name || '').trim().toLowerCase()
   const buyerCode = (buyer.buyer_code || '').trim().toLowerCase()
 
-  // Match Cutting Tasks from server allocations
-  let cutPcs = cuttingAllocations
-    .filter((t: any) => {
-      const art = (t.article_number || '').trim().toLowerCase()
-      const bn = (t.buyer_name || '').trim().toLowerCase()
-      const tr = (t.task_ref || '').trim().toLowerCase()
-      return (articleNum && (art === articleNum || art.includes(articleNum))) || 
-             (buyerName && bn === buyerName) ||
-             (buyerCode && tr.includes(buyerCode))
-    })
-    .reduce((sum: number, t: any) => sum + (Number(t.completed_pieces) || Number(t.pieces_to_cut) || 0), 0)
+  const matchFilter = (t: any) => {
+    const art = (t.article_number || '').trim().toLowerCase()
+    const bn = (t.buyer_name || '').trim().toLowerCase()
+    const tr = (t.task_ref || '').trim().toLowerCase()
+    return (articleNum && (art === articleNum || art.includes(articleNum))) || 
+           (buyerName && bn === buyerName) ||
+           (buyerCode && tr.includes(buyerCode))
+  }
 
-  // Match Printing Tasks from server allocations
-  let printPcs = printingAllocations
-    .filter((t: any) => {
-      const art = (t.article_number || '').trim().toLowerCase()
-      const bn = (t.buyer_name || '').trim().toLowerCase()
-      const tr = (t.task_ref || '').trim().toLowerCase()
-      return (articleNum && (art === articleNum || art.includes(articleNum))) || 
-             (buyerName && bn === buyerName) ||
-             (buyerCode && tr.includes(buyerCode))
-    })
-    .reduce((sum: number, t: any) => sum + (Number(t.completed_pieces) || Number(t.pieces_to_print) || 0), 0)
+  // Get matching tasks from props or localStorage
+  let cutTasks = cuttingAllocations.filter(matchFilter)
+  let printTasks = printingAllocations.filter(matchFilter)
+  let embTasks = embroideryAllocations.filter(matchFilter)
 
-  // Match Embroidery Tasks from server allocations
-  let embPcs = embroideryAllocations
-    .filter((t: any) => {
-      const art = (t.article_number || '').trim().toLowerCase()
-      const bn = (t.buyer_name || '').trim().toLowerCase()
-      const tr = (t.task_ref || '').trim().toLowerCase()
-      return (articleNum && (art === articleNum || art.includes(articleNum))) || 
-             (buyerName && bn === buyerName) ||
-             (buyerCode && tr.includes(buyerCode))
-    })
-    .reduce((sum: number, t: any) => sum + (Number(t.completed_pieces) || Number(t.pieces_to_embroider) || 0), 0)
+  if (typeof window !== 'undefined') {
+    try {
+      if (cutTasks.length === 0) {
+        const raw = localStorage.getItem('zigza_cutting_task_allocations_v1')
+        if (raw) cutTasks = JSON.parse(raw).filter(matchFilter)
+      }
+      if (printTasks.length === 0) {
+        const raw = localStorage.getItem('zigza_printing_task_allocations_v1')
+        if (raw) printTasks = JSON.parse(raw).filter(matchFilter)
+      }
+      if (embTasks.length === 0) {
+        const raw = localStorage.getItem('zigza_embroidery_task_allocations_v1')
+        if (raw) embTasks = JSON.parse(raw).filter(matchFilter)
+      }
+    } catch (_) {}
+  }
+
+  // 1. Cutting Floor: Pieces actively on the cutting floor
+  const totalCutAssigned = cutTasks.reduce((s, t) => s + (Number(t.pieces_to_cut) || 0), 0)
+  const cutActivePending = cutTasks
+    .filter(t => t.status !== 'VERIFIED_COMPLETED' && t.status !== 'COMPLETED')
+    .reduce((s, t) => s + (Number(t.pieces_to_cut) || 0), 0)
+  
+  // 2. Printing Floor: Pieces actively on printing tables
+  const totalPrintAssigned = printTasks.reduce((s, t) => s + (Number(t.pieces_to_print) || 0), 0)
+  const printActivePending = printTasks
+    .filter(t => t.status !== 'VERIFIED_COMPLETED' && t.status !== 'COMPLETED')
+    .reduce((s, t) => s + (Number(t.pieces_to_print) || 0), 0)
+
+  // 3. Embroidery Floor: Pieces actively in embroidery studio
+  const totalEmbAssigned = embTasks.reduce((s, t) => s + (Number(t.pieces_to_embroider) || 0), 0)
+  const embActive = embTasks.reduce((s, t) => s + (Number(t.completed_pieces || t.pieces_to_embroider) || 0), 0)
+
+  // Calculate physical floor location without duplicate counting:
+  // When completed pieces in cutting move to printing/embroidery, they leave cutting
+  let inCutting = cutActivePending
+  let inPrinting = printActivePending
+
+  const completedCutSentDownstream = totalPrintAssigned || totalEmbAssigned
+  if (completedCutSentDownstream < totalCutAssigned) {
+    const unallocatedCutFinished = totalCutAssigned - completedCutSentDownstream
+    inCutting += unallocatedCutFinished
+  }
+
+  const completedPrintSentDownstream = totalEmbAssigned
+  if (completedPrintSentDownstream < totalPrintAssigned) {
+    const unallocatedPrintFinished = totalPrintAssigned - completedPrintSentDownstream
+    inPrinting += unallocatedPrintFinished
+  }
+
+  const inEmbroidery = embActive
 
   let sewPcs = 0
   let ironPcs = 0
@@ -147,50 +186,6 @@ function calculateBuyerStages(
 
   if (typeof window !== 'undefined') {
     try {
-      // Check client-side allocation arrays if server allocations were empty
-      if (cutPcs === 0) {
-        const rawLocalCut = localStorage.getItem('zigza_cutting_task_allocations_v1')
-        if (rawLocalCut) {
-          const tasks = JSON.parse(rawLocalCut)
-          cutPcs = (tasks || [])
-            .filter((t: any) => {
-              const art = (t.article_number || '').trim().toLowerCase()
-              const bn = (t.buyer_name || '').trim().toLowerCase()
-              return (articleNum && art === articleNum) || (buyerName && bn === buyerName)
-            })
-            .reduce((sum: number, t: any) => sum + (Number(t.completed_pieces) || Number(t.pieces_to_cut) || 0), 0)
-        }
-      }
-
-      if (printPcs === 0) {
-        const rawLocalPrint = localStorage.getItem('zigza_printing_task_allocations_v1')
-        if (rawLocalPrint) {
-          const tasks = JSON.parse(rawLocalPrint)
-          printPcs = (tasks || [])
-            .filter((t: any) => {
-              const art = (t.article_number || '').trim().toLowerCase()
-              const bn = (t.buyer_name || '').trim().toLowerCase()
-              return (articleNum && art === articleNum) || (buyerName && bn === buyerName)
-            })
-            .reduce((sum: number, t: any) => sum + (Number(t.completed_pieces) || Number(t.pieces_to_print) || 0), 0)
-        }
-      }
-
-      if (embPcs === 0) {
-        const rawLocalEmb = localStorage.getItem('zigza_embroidery_task_allocations_v1')
-        if (rawLocalEmb) {
-          const tasks = JSON.parse(rawLocalEmb)
-          embPcs = (tasks || [])
-            .filter((t: any) => {
-              const art = (t.article_number || '').trim().toLowerCase()
-              const bn = (t.buyer_name || '').trim().toLowerCase()
-              return (articleNum && art === articleNum) || (buyerName && bn === buyerName)
-            })
-            .reduce((sum: number, t: any) => sum + (Number(t.completed_pieces) || Number(t.pieces_to_embroider) || 0), 0)
-        }
-      }
-
-      // Check sewing allotments
       const rawSew = localStorage.getItem('allotments') || localStorage.getItem('zigza_allotments')
       if (rawSew) {
         const alts = JSON.parse(rawSew)
@@ -199,18 +194,18 @@ function calculateBuyerStages(
           .reduce((sum: number, a: any) => sum + (Number(a.target_qty) || 0), 0)
       }
     } catch (e) {
-      console.warn('Error calculating live stage metrics:', e)
+      console.warn('Error calculating live sewing metrics:', e)
     }
   }
 
-  const floorActiveTotal = cutPcs + printPcs + embPcs + sewPcs + ironPcs + washPcs + alterPcs
+  const floorActiveTotal = inCutting + inPrinting + inEmbroidery + sewPcs + ironPcs + washPcs + alterPcs
   const inPending = Math.max(0, totalVol - floorActiveTotal)
 
   return {
     inPending,
-    inCutting: cutPcs,
-    inPrinting: printPcs,
-    inEmbroidery: embPcs,
+    inCutting,
+    inPrinting,
+    inEmbroidery,
     inSewing: sewPcs,
     iron: ironPcs,
     washing: washPcs,
