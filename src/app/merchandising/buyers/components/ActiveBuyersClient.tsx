@@ -29,6 +29,12 @@ import {
   MERCHANDISING_UPDATE_EVENT,
   getAvailableTechPackArticles
 } from '../../utils/merchandisingStorage'
+import { 
+  fetchActiveBuyersAction, 
+  saveActiveBuyerAction, 
+  deleteActiveBuyerAction 
+} from '../../actions'
+import { useRouter } from 'next/navigation'
 import { CreateBuyerModal } from './CreateBuyerModal'
 import { LinkArticleModal } from './LinkArticleModal'
 import { ViewContractModal } from './ViewContractModal'
@@ -36,13 +42,17 @@ import { EmptyState } from '@/components/ui/EmptyState'
 
 interface ActiveBuyersClientProps {
   initialBuyers?: ActiveBuyer[]
+  companyName?: string
+  initialTechPacks?: any[]
 }
 
-export function ActiveBuyersClient({ initialBuyers }: ActiveBuyersClientProps) {
-  const [buyers, setBuyers] = useState<ActiveBuyer[]>(() => {
-    if (initialBuyers && initialBuyers.length > 0) return initialBuyers
-    return []
-  })
+export function ActiveBuyersClient({ 
+  initialBuyers = [], 
+  companyName,
+  initialTechPacks = []
+}: ActiveBuyersClientProps) {
+  const router = useRouter()
+  const [buyers, setBuyers] = useState<ActiveBuyer[]>(initialBuyers)
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'LINKED' | 'PENDING_LINK'>('ALL')
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
@@ -50,45 +60,76 @@ export function ActiveBuyersClient({ initialBuyers }: ActiveBuyersClientProps) {
   const [viewingBuyer, setViewingBuyer] = useState<ActiveBuyer | null>(null)
   const [isSyncing, setIsSyncing] = useState(false)
 
-  const reloadData = () => {
-    const localBuyers = getActiveBuyers()
+  // Keep state in sync with server revalidations
+  useEffect(() => {
     if (initialBuyers && initialBuyers.length > 0) {
-      const merged = [...initialBuyers]
-      ;(localBuyers || []).forEach((lb: any) => {
-        if (!merged.some(m => m.id === lb.id || (m.buyer_name && m.buyer_name.toLowerCase() === (lb.buyer_name || '').toLowerCase()))) {
-          merged.push(lb)
-        }
-      })
-      setBuyers(merged)
-    } else {
-      setBuyers(localBuyers || [])
+      setBuyers(initialBuyers)
+    }
+  }, [initialBuyers])
+
+  const reloadData = async () => {
+    setIsSyncing(true)
+    try {
+      const fresh = await fetchActiveBuyersAction(companyName)
+      if (fresh && Array.isArray(fresh)) {
+        setBuyers(fresh)
+      }
+    } catch (err) {
+      console.error('Failed to reload buyers from server:', err)
+    } finally {
+      setIsSyncing(false)
+      router.refresh()
     }
   }
 
   useEffect(() => {
-    reloadData()
+    // Initial sync with background server updates
     window.addEventListener(MERCHANDISING_UPDATE_EVENT, reloadData)
     window.addEventListener('zigza_tech_packs_updated', reloadData)
+
+    // One-time safety migration: sync any legacy localStorage buyers to Supabase
+    const local = getActiveBuyers()
+    if (local && local.length > 0) {
+      local.forEach(async (lb: any) => {
+        if (!initialBuyers.some(ib => ib.id === lb.id || (ib.buyer_name && ib.buyer_name.toLowerCase() === (lb.buyer_name || '').toLowerCase()))) {
+          try {
+            await saveActiveBuyerAction({
+              ...lb,
+              company_name: companyName || 'Demo Industries'
+            })
+          } catch {}
+        }
+      })
+    }
+
     return () => {
       window.removeEventListener(MERCHANDISING_UPDATE_EVENT, reloadData)
       window.removeEventListener('zigza_tech_packs_updated', reloadData)
     }
   }, [])
 
-  const handleManualSync = () => {
-    setIsSyncing(true)
-    reloadData()
-    setTimeout(() => setIsSyncing(false), 500)
+  const handleManualSync = async () => {
+    await reloadData()
   }
 
-  const handleDelete = (id: string, name: string) => {
+  const handleDelete = async (id: string, name: string) => {
     if (confirm(`Are you sure you want to remove buyer contract "${name}"?`)) {
-      const updated = deleteActiveBuyer(id)
-      setBuyers(updated)
+      setBuyers(prev => prev.filter(b => b.id !== id))
+      deleteActiveBuyer(id)
+      try {
+        const res = await deleteActiveBuyerAction(id, companyName)
+        if (!res.success) {
+          console.warn('Failed to delete buyer from database:', res.error)
+          await reloadData()
+        }
+      } catch (err) {
+        console.error('Failed to delete buyer:', err)
+        await reloadData()
+      }
     }
   }
 
-  const handleUnlink = (buyer: ActiveBuyer) => {
+  const handleUnlink = async (buyer: ActiveBuyer) => {
     if (confirm(`Unlink article "${buyer.linked_article_number}" from ${buyer.buyer_name}?`)) {
       const updatedBuyer: ActiveBuyer = {
         ...buyer,
@@ -96,10 +137,17 @@ export function ActiveBuyersClient({ initialBuyers }: ActiveBuyersClientProps) {
         linked_article_number: undefined,
         linked_article_name: undefined,
         linked_at: undefined,
-        status: 'PENDING_LINK'
+        status: 'PENDING_LINK',
+        company_name: buyer.company_name || companyName
       }
-      const list = saveActiveBuyer(updatedBuyer)
-      setBuyers(list)
+      setBuyers(prev => prev.map(b => b.id === buyer.id ? updatedBuyer : b))
+      saveActiveBuyer(updatedBuyer)
+      try {
+        await saveActiveBuyerAction(updatedBuyer)
+      } catch (err) {
+        console.error('Failed to unlink article in database:', err)
+        await reloadData()
+      }
     }
   }
 
@@ -424,18 +472,23 @@ export function ActiveBuyersClient({ initialBuyers }: ActiveBuyersClientProps) {
       {/* Modals */}
       <CreateBuyerModal
         isOpen={isCreateModalOpen}
+        companyName={companyName}
         onClose={() => setIsCreateModalOpen(false)}
         onBuyerCreated={newB => {
-          reloadData()
+          setBuyers(prev => [newB, ...prev.filter(b => b.id !== newB.id)])
           setLinkingBuyer(newB)
+          reloadData()
         }}
       />
 
       <LinkArticleModal
         isOpen={Boolean(linkingBuyer)}
         buyer={linkingBuyer}
+        availableArticles={initialTechPacks}
+        companyName={companyName}
         onClose={() => setLinkingBuyer(null)}
         onArticleLinked={updatedB => {
+          setBuyers(prev => prev.map(b => b.id === updatedB.id ? updatedB : b))
           reloadData()
         }}
       />

@@ -888,15 +888,40 @@ export async function saveActiveBuyerAction(payload: any): Promise<{ success: bo
 
     if (error) {
       console.warn('[saveActiveBuyerAction] Supabase notice:', error.message)
+      return { success: false, error: error.message }
     }
 
     await CacheManager.invalidateCompanyModule(payload.company_name || 'all', 'merchandising')
+    await CacheManager.invalidateTag('merchandising_buyers')
     revalidatePath('/merchandising')
     revalidatePath('/merchandising/buyers')
     return { success: true, data }
   } catch (err: any) {
     console.error('[saveActiveBuyerAction] Unexpected error:', err)
+    return { success: false, error: err?.message || 'Failed to save active buyer' }
+  }
+}
+
+export async function deleteActiveBuyerAction(id: string, companyName?: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const { error } = await supabaseAdmin
+      .from('merchandising_active_buyers')
+      .delete()
+      .eq('id', id)
+
+    if (error) {
+      console.warn('[deleteActiveBuyerAction] Supabase notice:', error.message)
+      return { success: false, error: error.message }
+    }
+
+    await CacheManager.invalidateCompanyModule(companyName || 'all', 'merchandising')
+    await CacheManager.invalidateTag('merchandising_buyers')
+    revalidatePath('/merchandising')
+    revalidatePath('/merchandising/buyers')
     return { success: true }
+  } catch (err: any) {
+    console.error('[deleteActiveBuyerAction] Unexpected error:', err)
+    return { success: false, error: err?.message || 'Failed to delete active buyer' }
   }
 }
 

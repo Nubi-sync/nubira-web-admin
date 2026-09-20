@@ -4,14 +4,16 @@ import React, { useState } from 'react'
 import { X, Building2, Layers, DollarSign, User, Mail, Calendar, Sparkles } from 'lucide-react'
 import { ActiveBuyer } from '../../types/merchandising'
 import { saveActiveBuyer } from '../../utils/merchandisingStorage'
+import { saveActiveBuyerAction } from '../../actions'
 
 interface CreateBuyerModalProps {
   isOpen: boolean
+  companyName?: string
   onClose: () => void
   onBuyerCreated: (buyer: ActiveBuyer) => void
 }
 
-export function CreateBuyerModal({ isOpen, onClose, onBuyerCreated }: CreateBuyerModalProps) {
+export function CreateBuyerModal({ isOpen, companyName, onClose, onBuyerCreated }: CreateBuyerModalProps) {
   const [buyerName, setBuyerName] = useState('')
   const [buyerCode, setBuyerCode] = useState('')
   const [brandName, setBrandName] = useState('')
@@ -39,7 +41,7 @@ export function CreateBuyerModal({ isOpen, onClose, onBuyerCreated }: CreateBuye
   const totalValue = volumeNum * priceNum
   const currencySymbol = currency === 'INR' ? '₹' : currency === 'USD' ? '$' : currency === 'EUR' ? '€' : '£'
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!buyerName.trim() || volumeNum <= 0 || priceNum <= 0) return
 
@@ -58,7 +60,14 @@ export function CreateBuyerModal({ isOpen, onClose, onBuyerCreated }: CreateBuye
       target_season: targetSeason.trim() || undefined,
       status: 'PENDING_LINK',
       notes: notes.trim() || undefined,
+      company_name: companyName,
       created_at: new Date().toISOString()
+    }
+
+    try {
+      await saveActiveBuyerAction(newBuyer)
+    } catch (err) {
+      console.error('Failed to save buyer to database:', err)
     }
 
     saveActiveBuyer(newBuyer)

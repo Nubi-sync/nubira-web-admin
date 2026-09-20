@@ -8,10 +8,13 @@ import {
   getAvailableTechPackArticles, 
   linkArticleToBuyer 
 } from '../../utils/merchandisingStorage'
+import { saveActiveBuyerAction } from '../../actions'
 
 interface LinkArticleModalProps {
   isOpen: boolean
   buyer: ActiveBuyer | null
+  availableArticles?: any[]
+  companyName?: string
   onClose: () => void
   onArticleLinked: (updatedBuyer: ActiveBuyer) => void
 }
@@ -19,6 +22,8 @@ interface LinkArticleModalProps {
 export function LinkArticleModal({
   isOpen,
   buyer,
+  availableArticles,
+  companyName,
   onClose,
   onArticleLinked
 }: LinkArticleModalProps) {
@@ -28,38 +33,68 @@ export function LinkArticleModal({
 
   useEffect(() => {
     if (isOpen) {
-      const list = getAvailableTechPackArticles()
+      let list: AvailableTechPackArticle[] = []
+      if (availableArticles && availableArticles.length > 0) {
+        list = availableArticles.map((tp: any) => ({
+          id: tp.id,
+          art_number: tp.style_number,
+          style_number: tp.style_number,
+          style_name: tp.style_name || `${tp.category || 'Garment'} Style ${tp.style_number}`,
+          category: tp.category || 'Apparel',
+          brand_name: tp.brand_name || tp.brands?.brand_name || 'Inhouse',
+          fabric_composition: tp.fabric_composition || 'Cotton Blend',
+          target_gsm: tp.target_gsm,
+          embellishment_sequence: tp.embellishment_sequence,
+          status: tp.status || 'APPROVED_BULK'
+        }))
+      } else {
+        list = getAvailableTechPackArticles()
+      }
       setArticles(list)
       if (buyer?.linked_article_id) {
         setSelectedArticleId(buyer.linked_article_id)
       } else if (list.length > 0) {
         // default select matching or first
-        const match = list.find(a => a.art_number === buyer?.linked_article_number)
+        const match = list.find(a => a.art_number === buyer?.linked_article_number || a.style_number === buyer?.linked_article_number)
         setSelectedArticleId(match ? match.id : list[0].id)
       }
     }
-  }, [isOpen, buyer])
+  }, [isOpen, buyer, availableArticles])
 
   if (!isOpen || !buyer) return null
 
   const selectedArticle = articles.find(a => a.id === selectedArticleId || a.art_number === selectedArticleId)
 
-  const handleLink = (e: React.FormEvent) => {
+  const handleLink = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!selectedArticle) return
 
     setIsSubmitting(true)
-    const updatedList = linkArticleToBuyer(
+    const updatedBuyer: ActiveBuyer = {
+      ...buyer,
+      linked_article_id: selectedArticle.id,
+      linked_article_number: selectedArticle.art_number || selectedArticle.style_number || '',
+      linked_article_name: selectedArticle.style_name || selectedArticle.category || '',
+      embellishment_sequence: selectedArticle.embellishment_sequence,
+      linked_at: new Date().toISOString(),
+      status: 'LINKED',
+      company_name: buyer.company_name || companyName
+    }
+
+    try {
+      await saveActiveBuyerAction(updatedBuyer)
+    } catch (err) {
+      console.error('Failed to link article to buyer in database:', err)
+    }
+
+    linkArticleToBuyer(
       buyer.id,
       selectedArticle.art_number || selectedArticle.style_number || '',
       selectedArticle.id,
       selectedArticle.style_name
     )
 
-    const updated = updatedList.find(b => b.id === buyer.id)
-    if (updated) {
-      onArticleLinked(updated)
-    }
+    onArticleLinked(updatedBuyer)
     setIsSubmitting(false)
     onClose()
   }

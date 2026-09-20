@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { AdminShell } from '@/components/layout/AdminShell'
 import { ActiveBuyersClient } from './components/ActiveBuyersClient'
 import { fetchActiveBuyersAction } from '../actions'
+import { fetchTechPacksAction } from '@/app/design/actions'
 import { resolveUserTenant, isLegacyNubiraTenant } from '@/lib/tenant-context'
 
 export const dynamic = 'force-dynamic'
@@ -27,11 +28,18 @@ export default async function ActiveBuyersPage() {
   const isLegacy = isLegacyNubiraTenant(tenant)
   const companyFilter = isLegacy ? undefined : tenant.companyName
 
-  const initialBuyers = await fetchActiveBuyersAction(companyFilter)
+  const [initialBuyers, techPacks] = await Promise.all([
+    fetchActiveBuyersAction(companyFilter),
+    fetchTechPacksAction(companyFilter).catch(() => [])
+  ])
 
   return (
     <AdminShell userEmail={tenant.userEmail} userRole={tenant.role}>
-      <ActiveBuyersClient initialBuyers={initialBuyers} />
+      <ActiveBuyersClient 
+        initialBuyers={initialBuyers} 
+        companyName={companyFilter}
+        initialTechPacks={techPacks}
+      />
     </AdminShell>
   )
 }
