@@ -409,6 +409,15 @@ const ALLOCATIONS_KEY = 'zigza_cutting_task_allocations_v1'
 
 export const INITIAL_TASK_ALLOCATIONS: any[] = []
 
+export function isLegacyCuttingTask(t: any): boolean {
+  if (!t) return true
+  const rawRef = (t?.task_ref || t?.id || '').trim().toUpperCase()
+  const ref = rawRef.replace(/^#/, '')
+  if (ref.startsWith('BA-') || ref.includes('BA-CUT')) return true
+  if (t?.article_number && t.article_number.trim() === 'DEMO-101') return true
+  return false
+}
+
 export function getCuttingTaskAllocations(companyName?: string): any[] {
   if (typeof window === 'undefined') return INITIAL_TASK_ALLOCATIONS
   try {
@@ -418,7 +427,15 @@ export function getCuttingTaskAllocations(companyName?: string): any[] {
       return INITIAL_TASK_ALLOCATIONS
     }
     const parsed = JSON.parse(stored)
-    const list = Array.isArray(parsed) ? parsed : INITIAL_TASK_ALLOCATIONS
+    let list = Array.isArray(parsed) ? parsed : INITIAL_TASK_ALLOCATIONS
+    
+    // Automatically purge legacy/deprecated task IDs (e.g. BA-CUT-*, #BA-CUT-*, DEMO-101)
+    const filtered = list.filter(t => !isLegacyCuttingTask(t))
+    if (filtered.length !== list.length) {
+      localStorage.setItem(ALLOCATIONS_KEY, JSON.stringify(filtered))
+      list = filtered
+    }
+
     if (!companyName || !companyName.trim()) return list
     const target = companyName.trim().toLowerCase()
     return list.filter(t => (t.company_name || '').trim().toLowerCase() === target)
@@ -428,6 +445,7 @@ export function getCuttingTaskAllocations(companyName?: string): any[] {
 }
 
 export function saveCuttingTaskAllocation(task: any): any[] {
+  if (isLegacyCuttingTask(task)) return getCuttingTaskAllocations()
   const current = getCuttingTaskAllocations()
   const index = current.findIndex(t => t.id === task.id || t.task_ref === task.task_ref)
   let updated: any[]
@@ -468,7 +486,7 @@ export function updateCuttingTaskStatus(id: string, status: any, extraData?: any
         status,
         started_at: startedAt,
         due_time: dueTime,
-        completed_pieces: isCompleted ? t.pieces_to_cut : (status === 'IN_PROGRESS' ? (t.completed_pieces || 0) : 0),
+        completed_pieces: isCompleted ? (Number(extraData?.completed_pieces) || t.pieces_to_cut) : (status === 'IN_PROGRESS' ? (t.completed_pieces || 0) : 0),
         ...(status === 'VERIFIED_COMPLETED' ? { completed_at: new Date().toISOString() } : {}),
         ...(extraData || {}),
         updated_at: new Date().toISOString()
@@ -491,19 +509,13 @@ export function updateCuttingTaskStatus(id: string, status: any, extraData?: any
     updated = [newTask, ...updated]
   }
 
+  updated = updated.filter(t => !isLegacyCuttingTask(t))
+
   if (typeof window !== 'undefined') {
     localStorage.setItem(ALLOCATIONS_KEY, JSON.stringify(updated))
   }
   emitUpdate()
   return updated
-}
-
-const TASK_STATUS_RANK: Record<string, number> = {
-  ASSIGNED: 1,
-  IN_PROGRESS: 2,
-  WORKER_COMPLETED: 3,
-  VERIFIED_COMPLETED: 4,
-  COMPLETED: 4
 }
 
 export function mergeCuttingTaskAllocations(
@@ -514,50 +526,46 @@ export function mergeCuttingTaskAllocations(
   const taskMap = new Map<string, any>()
   const targetCompany = (companyName || '').trim().toLowerCase()
 
-  const scopedServer = targetCompany
+  const scopedServer = (targetCompany
     ? serverList.filter(t => (t?.company_name || '').trim().toLowerCase() === targetCompany)
     : serverList
-  const scopedLocal = targetCompany
+  ).filter(t => !isLegacyCuttingTask(t))
+
+  const scopedLocal = (targetCompany
     ? localList.filter(t => (t?.company_name || '').trim().toLowerCase() === targetCompany)
     : localList
+  ).filter(t => !isLegacyCuttingTask(t))
 
   // 1. Process server allocations first (canonical DB source)
   scopedServer.forEach(t => {
     if (!t) return
-    const key = t.task_ref || t.id
+    const key = (t.task_ref || t.id || '').trim().toUpperCase()
     if (key) taskMap.set(key, t)
   })
 
-  // 2. Merge local allocations safely
+  // 2. Merge local allocations safely without overriding authoritative server state
   scopedLocal.forEach(localT => {
-    if (!localT) return
-    const key = localT.task_ref || localT.id
+    if (!localT || isLegacyCuttingTask(localT)) return
+    const key = (localT.task_ref || localT.id || '').trim().toUpperCase()
     if (!key) return
 
     const existing = taskMap.get(key)
     if (!existing) {
-      taskMap.set(key, localT)
+      // Only keep local task if server list was empty (offline) or task is fresh
+      if (scopedServer.length === 0) {
+        taskMap.set(key, localT)
+      }
     } else {
-      const serverRank = TASK_STATUS_RANK[existing.status] || 0
-      const localRank = TASK_STATUS_RANK[localT.status] || 0
-      
-      // Higher progression rank always wins (e.g. WORKER_COMPLETED over ASSIGNED)
-      const chosenStatus = serverRank >= localRank ? existing.status : localT.status
-      const chosenCompleted = Math.max(
-        Number(existing.completed_pieces) || 0,
-        Number(localT.completed_pieces) || 0
-      )
-
+      // Preserve canonical server status & pieces
       taskMap.set(key, {
-        ...existing,
         ...localT,
+        ...existing,
         id: existing.id || localT.id,
         task_ref: existing.task_ref || localT.task_ref,
-        status: chosenStatus,
-        completed_pieces: chosenCompleted,
-        due_time: existing.due_time || localT.due_time,
-        started_at: existing.started_at || localT.started_at,
-        updated_at: existing.updated_at || localT.updated_at || new Date().toISOString()
+        status: existing.status,
+        completed_pieces: Number(existing.completed_pieces) || 0,
+        pieces_to_cut: Number(existing.pieces_to_cut) || Number(localT.pieces_to_cut) || 0,
+        updated_at: existing.updated_at || new Date().toISOString()
       })
     }
   })
@@ -571,10 +579,10 @@ export function mergeCuttingTaskAllocations(
         const rawAll = localStorage.getItem(ALLOCATIONS_KEY)
         const allParsed: any[] = rawAll ? JSON.parse(rawAll) : []
         const otherTenantsTasks = Array.isArray(allParsed)
-          ? allParsed.filter(t => (t?.company_name || '').trim().toLowerCase() !== targetCompany)
+          ? allParsed.filter(t => (t?.company_name || '').trim().toLowerCase() !== targetCompany && !isLegacyCuttingTask(t))
           : []
         localStorage.setItem(ALLOCATIONS_KEY, JSON.stringify([...merged, ...otherTenantsTasks]))
-      } else if (merged.length > 0) {
+      } else {
         localStorage.setItem(ALLOCATIONS_KEY, JSON.stringify(merged))
       }
     } catch (_) {}

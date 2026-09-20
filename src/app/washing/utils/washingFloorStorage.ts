@@ -86,6 +86,15 @@ const ALLOCATIONS_KEY = 'zigza_washing_task_allocations_v1'
 
 export const INITIAL_TASK_ALLOCATIONS: WashingTaskAllocation[] = []
 
+export function isLegacyWashingTask(t: any): boolean {
+  if (!t) return true
+  const rawRef = (t?.task_ref || t?.id || '').trim().toUpperCase()
+  const ref = rawRef.replace(/^#/, '')
+  if (ref.startsWith('BA-') || ref.startsWith('WSH-TSK') || ref.includes('WSH-TSK')) return true
+  if (t?.article_number && t.article_number.trim() === 'DEMO-101') return true
+  return false
+}
+
 export function getWashingTaskAllocations(companyName?: string): WashingTaskAllocation[] {
   if (typeof window === 'undefined') return INITIAL_TASK_ALLOCATIONS
   try {
@@ -95,7 +104,12 @@ export function getWashingTaskAllocations(companyName?: string): WashingTaskAllo
       return INITIAL_TASK_ALLOCATIONS
     }
     const parsed = JSON.parse(stored)
-    const list = Array.isArray(parsed) ? parsed : INITIAL_TASK_ALLOCATIONS
+    let list = Array.isArray(parsed) ? parsed : INITIAL_TASK_ALLOCATIONS
+    const filtered = list.filter(t => !isLegacyWashingTask(t))
+    if (filtered.length !== list.length) {
+      localStorage.setItem(ALLOCATIONS_KEY, JSON.stringify(filtered))
+      list = filtered
+    }
     if (!companyName || !companyName.trim()) return list
     const target = companyName.trim().toLowerCase()
     return list.filter(t => (t.company_name || '').trim().toLowerCase() === target)
