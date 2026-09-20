@@ -4,6 +4,29 @@ import { revalidatePath } from 'next/cache'
 import { supabaseAdmin } from '@/utils/supabase/admin'
 import { createClient } from '@/utils/supabase/server'
 import { resolveUserTenant } from '@/lib/tenant-context'
+import { CacheManager } from '@/lib/cache/cache-manager'
+
+// ----------------------------------------------------------------------
+// FETCH EMPLOYEES (Cached)
+// ----------------------------------------------------------------------
+export async function fetchEmployeesAction(companyName?: string) {
+  const normComp = (companyName || 'all').toLowerCase().replace(/[^a-z0-9]/g, '_')
+  const cacheKey = `company:${normComp}:employees:list`
+
+  return CacheManager.fetchOrSet(
+    cacheKey,
+    async () => {
+      const { data } = await supabaseAdmin
+        .from('profiles')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(300)
+      return data || []
+    },
+    180,
+    [`company:${normComp}:employees`, 'employees']
+  )
+}
 
 export async function createEmployee(formData: FormData) {
   const rawUsername = formData.get('username') as string
@@ -118,6 +141,7 @@ export async function createEmployee(formData: FormData) {
       return { error: `Failed to save employee profile: ${profileError.message}` }
     }
 
+    await CacheManager.invalidateTag('employees')
     revalidatePath('/employees')
     revalidatePath('/stitching-sewing/employees')
     revalidatePath('/')
@@ -138,6 +162,7 @@ export async function toggleEmployeeStatus(userId: string, currentStatus: boolea
     return { error: error.message }
   }
   
+  await CacheManager.invalidateTag('employees')
   revalidatePath('/employees')
   revalidatePath('/stitching-sewing/employees')
   return { success: true }
@@ -166,6 +191,7 @@ export async function updateEmployeeRole(userId: string, newRole: string) {
     })
   } catch (_) {}
   
+  await CacheManager.invalidateTag('employees')
   revalidatePath('/employees')
   revalidatePath('/stitching-sewing/employees')
   return { success: true }
@@ -184,6 +210,7 @@ export async function resetEmployeePassword(userId: string, newPassword: string)
     return { error: error.message }
   }
 
+  await CacheManager.invalidateTag('employees')
   revalidatePath('/employees')
   return { success: true }
 }
@@ -202,6 +229,7 @@ export async function deleteEmployee(userId: string) {
       console.warn('Auth delete error:', authError.message)
     }
 
+    await CacheManager.invalidateTag('employees')
     revalidatePath('/employees')
     return { success: true }
   } catch (err: any) {

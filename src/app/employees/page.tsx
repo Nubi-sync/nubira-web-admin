@@ -3,6 +3,7 @@ import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { CreateEmployeeForm } from './components/CreateEmployeeForm'
 import { EmployeeList } from './components/EmployeeList'
+import { fetchEmployeesAction } from './actions'
 import { Users } from 'lucide-react'
 import Link from 'next/link'
 import { TvViewButton } from '@/components/ui/TvViewButton'
@@ -35,12 +36,8 @@ export default async function EmployeesPage({ forcedModule, moduleName }: Employ
   // If user is a Department Head (not SuperAdmin/Admin), strictly scope them to their assigned department
   const effectiveModule = forcedModule || (!isSuperAdmin ? (tenant.allowedDivisions?.[0] || '/stitching-sewing') : undefined)
 
-  // Fetch employees
-  const { data: rawEmployees } = await supabase
-    .from('profiles')
-    .select('*')
-    .order('created_at', { ascending: false })
-    .limit(300)
+  // Fetch employees (cached)
+  const rawEmployees = await fetchEmployeesAction(tenant.companyName)
 
   const { ROLE_MODULE_MAPPING } = await import('@/lib/access-control')
 
