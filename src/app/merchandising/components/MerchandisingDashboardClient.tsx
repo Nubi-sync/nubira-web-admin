@@ -144,40 +144,46 @@ export function calculateBuyerStages(
     } catch (_) {}
   }
 
-  // 1. Cutting Floor: Pieces actively on the cutting floor
-  const totalCutAssigned = cutTasks.reduce((s, t) => s + (Number(t.pieces_to_cut) || 0), 0)
+  // 1. Cutting Floor: Finished & Active on table
+  const totalCutFinished = cutTasks
+    .filter(t => t.status === 'VERIFIED_COMPLETED' || t.status === 'COMPLETED')
+    .reduce((s, t) => s + (Number(t.completed_pieces || t.pieces_to_cut) || 0), 0)
   const cutActivePending = cutTasks
     .filter(t => t.status !== 'VERIFIED_COMPLETED' && t.status !== 'COMPLETED')
     .reduce((s, t) => s + (Number(t.pieces_to_cut) || 0), 0)
-  
-  // 2. Printing Floor: Pieces actively on printing tables
-  const totalPrintAssigned = printTasks.reduce((s, t) => s + (Number(t.pieces_to_print) || 0), 0)
+
+  // 2. Printing Floor: Finished & Active on table
+  const totalPrintFinished = printTasks
+    .filter(t => t.status === 'VERIFIED_COMPLETED' || t.status === 'COMPLETED')
+    .reduce((s, t) => s + (Number(t.completed_pieces || t.pieces_to_print) || 0), 0)
   const printActivePending = printTasks
     .filter(t => t.status !== 'VERIFIED_COMPLETED' && t.status !== 'COMPLETED')
     .reduce((s, t) => s + (Number(t.pieces_to_print) || 0), 0)
 
-  // 3. Embroidery Floor: Pieces actively in embroidery studio
-  const totalEmbAssigned = embTasks.reduce((s, t) => s + (Number(t.pieces_to_embroider) || 0), 0)
-  const embActive = embTasks.reduce((s, t) => s + (Number(t.completed_pieces || t.pieces_to_embroider) || 0), 0)
+  // 3. Embroidery Floor: Finished & Active on machines
+  const totalEmbFinished = embTasks
+    .filter(t => t.status === 'VERIFIED_COMPLETED' || t.status === 'COMPLETED')
+    .reduce((s, t) => s + (Number(t.completed_pieces || t.pieces_to_embroider) || 0), 0)
+  const embActivePending = embTasks
+    .filter(t => t.status !== 'VERIFIED_COMPLETED' && t.status !== 'COMPLETED')
+    .reduce((s, t) => s + (Number(t.pieces_to_embroider) || 0), 0)
 
-  // Calculate physical floor location without duplicate counting:
-  // When completed pieces in cutting move to printing/embroidery, they leave cutting
-  let inCutting = cutActivePending
-  let inPrinting = printActivePending
+  // Calculate physical floor location matching floor In-Hand balances:
+  // In Cutting: pieces currently on cutting tables + any cut pieces not yet transferred
+  const totalAllocatedToCut = totalCutFinished + cutActivePending
+  const inCutting = cutActivePending
 
-  const completedCutSentDownstream = totalPrintAssigned || totalEmbAssigned
-  if (completedCutSentDownstream < totalCutAssigned) {
-    const unallocatedCutFinished = totalCutAssigned - completedCutSentDownstream
-    inCutting += unallocatedCutFinished
-  }
+  // In Printing: pieces currently on printing tables + In-Hand cut panels ready to print
+  const inHandPrinting = totalCutFinished > 0 
+    ? Math.max(0, totalCutFinished - (printActivePending + totalPrintFinished))
+    : 0
+  const inPrinting = printActivePending + inHandPrinting
 
-  const completedPrintSentDownstream = totalEmbAssigned
-  if (completedPrintSentDownstream < totalPrintAssigned) {
-    const unallocatedPrintFinished = totalPrintAssigned - completedPrintSentDownstream
-    inPrinting += unallocatedPrintFinished
-  }
-
-  const inEmbroidery = embActive
+  // In Embroidery: pieces on embroidery frames + In-Hand printed panels ready to frame + completed
+  const inHandEmbroidery = totalPrintFinished > 0
+    ? Math.max(0, totalPrintFinished - (embActivePending + totalEmbFinished))
+    : 0
+  const inEmbroidery = embActivePending + inHandEmbroidery + totalEmbFinished
 
   let sewPcs = 0
   let ironPcs = 0
@@ -198,8 +204,8 @@ export function calculateBuyerStages(
     }
   }
 
-  const floorActiveTotal = inCutting + inPrinting + inEmbroidery + sewPcs + ironPcs + washPcs + alterPcs
-  const inPending = Math.max(0, totalVol - floorActiveTotal)
+  // Contract pieces not yet launched to cutting floor
+  const inPending = Math.max(0, totalVol - totalAllocatedToCut)
 
   return {
     inPending,
