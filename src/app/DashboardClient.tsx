@@ -331,7 +331,7 @@ export default function DashboardClient({
   const [expandedLinemen, setExpandedLinemen] = useState<Record<string, boolean>>({})
   const [articleCardTabs, setArticleCardTabs] = useState<Record<string, 'matrix' | 'workers'>>({})
 
-  // Real-time live synchronization with mobile floor apps via Supabase WebSockets (Optimized with Visibility & Debounce)
+  // Real-time live synchronization with mobile floor apps via Supabase WebSockets & Heartbeat Polling
   useEffect(() => {
     const supabase = createClient()
     let hasPendingUpdates = false
@@ -357,6 +357,13 @@ export default function DashboardClient({
 
     document.addEventListener('visibilitychange', handleVisibilityChange)
 
+    // Periodic heartbeat poll every 8s to guarantee auto-sync with mobile app even if web sockets drop
+    const pollInterval = setInterval(() => {
+      if (!document.hidden) {
+        router.refresh()
+      }
+    }, 8000)
+
     const channel = supabase
       .channel('realtime-dashboard-client')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'allotments' }, triggerRefresh)
@@ -367,10 +374,14 @@ export default function DashboardClient({
       .on('postgres_changes', { event: '*', schema: 'public', table: 'daily_product' }, triggerRefresh)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'challans' }, triggerRefresh)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'truck_inwards' }, triggerRefresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'allotment_variants' }, triggerRefresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'allotment_materials' }, triggerRefresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'articles' }, triggerRefresh)
       .subscribe()
 
     return () => {
       if (debounceTimer) clearTimeout(debounceTimer)
+      clearInterval(pollInterval)
       document.removeEventListener('visibilitychange', handleVisibilityChange)
       supabase.removeChannel(channel)
     }

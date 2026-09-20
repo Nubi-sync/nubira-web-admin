@@ -48,228 +48,154 @@ export default async function StitchingSewingDashboardPage() {
     redirect('/stitching-sewing/store')
   }
 
-  let articlesData: any[] = []
-  let allotmentsData: any[] = []
-  let challansData: any[] = []
-  let variantsData: any[] = []
-  let prodData: any[] = []
-  let qcData: any[] = []
-  let storeData: any[] = []
-  let dispatchData: any[] = []
-  let materialsData: any[] = []
-  let workerAssignmentsData: any[] = []
+  // Parallel concurrent data fetching for all floor operational datasets
+  const [
+    { data: art },
+    { data: allot },
+    { data: chal },
+    { data: varData },
+    { data: pData },
+    { data: qData },
+    { data: sData },
+    { data: dData },
+    { data: mData },
+    { data: wData },
+  ] = await Promise.all([
+    supabaseAdmin
+      .from('articles')
+      .select('id, art_no, description, stitching_rate, size_rates')
+      .eq('is_active', true)
+      .order('art_no'),
 
-  if (!isProvisionedTenant) {
-    // 1. Primary Factory (Nubira Creation / Plant 1) — Load all legacy plant operational records
-    const [
-      { data: art },
-      { data: allot },
-      { data: chal },
-      { data: varData },
-      { data: pData },
-      { data: qData },
-      { data: sData },
-      { data: dData },
-      { data: mData },
-      { data: wData },
-    ] = await Promise.all([
-      supabaseAdmin
-        .from('articles')
-        .select('id, art_no, description, stitching_rate, size_rates')
-        .eq('is_active', true)
-        .order('art_no'),
+    supabaseAdmin
+      .from('allotments')
+      .select(`
+        id,
+        challan_id,
+        lineman_id,
+        article_id,
+        target_qty,
+        status,
+        allotment_date,
+        mending_status,
+        mending_total_counted,
+        mending_supervisor_name,
+        mending_supervisor_id,
+        handed_to_mending_by,
+        handed_to_mending_at,
+        mending_handover_notes,
+        qc_status,
+        qc_total_passed,
+        qc_total_alter,
+        qc_supervisor_name,
+        handed_to_qc_by,
+        handed_to_qc_at,
+        created_at,
+        profiles:lineman_id ( id, username ),
+        articles:article_id ( id, art_no, description, size_rates, stitching_rate ),
+        challans:challan_id ( id, challan_no, brand, fabric_type )
+      `)
+      .order('created_at', { ascending: false })
+      .limit(300),
 
-      supabaseAdmin
-        .from('allotments')
-        .select(`
-          id,
-          challan_id,
-          lineman_id,
-          article_id,
-          target_qty,
-          status,
-          allotment_date,
-          mending_status,
-          mending_total_counted,
-          mending_supervisor_name,
-          mending_supervisor_id,
-          handed_to_mending_by,
-          handed_to_mending_at,
-          mending_handover_notes,
-          qc_status,
-          qc_total_passed,
-          qc_total_alter,
-          qc_supervisor_name,
-          handed_to_qc_by,
-          handed_to_qc_at,
-          created_at,
-          profiles:lineman_id ( id, username ),
-          articles:article_id ( id, art_no, description, size_rates, stitching_rate ),
-          challans:challan_id ( id, challan_no, brand, fabric_type )
-        `)
-        .order('created_at', { ascending: false })
-        .limit(200),
+    supabaseAdmin
+      .from('challans')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(200),
 
-      supabaseAdmin
-        .from('challans')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(100),
+    supabaseAdmin
+      .from('allotment_variants')
+      .select('*')
+      .limit(1000),
 
-      supabaseAdmin
-        .from('allotment_variants')
-        .select('*')
-        .limit(500),
+    supabaseAdmin
+      .from('daily_product')
+      .select(`
+        id,
+        quantity,
+        entry_date,
+        created_at,
+        article_id,
+        lineman_id,
+        article:article_id ( id, art_no, description )
+      `)
+      .order('created_at', { ascending: false })
+      .limit(300),
 
-      supabaseAdmin
-        .from('daily_product')
-        .select(`
-          id,
-          quantity,
-          entry_date,
-          created_at,
-          article_id,
-          lineman_id,
-          article:article_id ( id, art_no, description )
-        `)
-        .order('created_at', { ascending: false })
-        .limit(200),
+    supabaseAdmin
+      .from('qc_logs')
+      .select(`
+        id,
+        qty_passed,
+        qty_rejected,
+        stage,
+        defect_type,
+        entry_date,
+        created_at,
+        article_id,
+        article:article_id ( id, art_no, description )
+      `)
+      .order('created_at', { ascending: false })
+      .limit(300),
 
-      supabaseAdmin
-        .from('qc_logs')
-        .select(`
-          id,
-          qty_passed,
-          qty_rejected,
-          stage,
-          defect_type,
-          entry_date,
-          created_at,
-          article_id,
-          article:article_id ( id, art_no, description )
-        `)
-        .order('created_at', { ascending: false })
-        .limit(200),
+    supabaseAdmin
+      .from('store_transactions')
+      .select(`
+        id,
+        type,
+        quantity,
+        party_name,
+        created_at,
+        article:article_id ( art_no, description )
+      `)
+      .order('created_at', { ascending: false })
+      .limit(300),
 
-      supabaseAdmin
-        .from('store_transactions')
-        .select(`
-          id,
-          type,
-          quantity,
-          party_name,
-          created_at,
-          article:article_id ( art_no, description )
-        `)
-        .order('created_at', { ascending: false })
-        .limit(200),
+    supabaseAdmin
+      .from('delivery_challans')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(200),
 
-      supabaseAdmin
-        .from('delivery_challans')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(100),
+    supabaseAdmin
+      .from('allotment_materials')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(300),
 
-      supabaseAdmin
-        .from('allotment_materials')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(200),
+    supabaseAdmin
+      .from('worker_assignments')
+      .select(`
+        id,
+        allotment_id,
+        lineman_id,
+        article_id,
+        worker_name,
+        assigned_qty,
+        completed_qty,
+        color,
+        size,
+        status,
+        notes,
+        assigned_at,
+        completed_at,
+        entry_date
+      `)
+      .order('assigned_at', { ascending: false })
+      .limit(500)
+  ])
 
-      supabaseAdmin
-        .from('worker_assignments')
-        .select(`
-          id,
-          allotment_id,
-          lineman_id,
-          article_id,
-          worker_name,
-          assigned_qty,
-          completed_qty,
-          color,
-          size,
-          status,
-          notes,
-          assigned_at,
-          completed_at,
-          entry_date
-        `)
-        .order('assigned_at', { ascending: false })
-        .limit(500)
-    ])
-
-    articlesData = art || []
-    allotmentsData = allot || []
-    challansData = chal || []
-    variantsData = varData || []
-    prodData = pData || []
-    qcData = qData || []
-    storeData = sData || []
-    dispatchData = dData || []
-    materialsData = mData || []
-    workerAssignmentsData = wData || []
-  } else {
-    // 2. Client Tenant Factory (e.g. Shaw Industries) — Query strictly scoped records
-    try {
-      const { data: tenantChallans } = await supabaseAdmin
-        .from('challans')
-        .select('*')
-        .ilike('brand', `%${tenant.companyName}%`)
-        .order('created_at', { ascending: false })
-
-      if (tenantChallans && tenantChallans.length > 0) {
-        challansData = tenantChallans
-        const challanIds = tenantChallans.map(c => c.id)
-
-        const { data: tenantAllotments } = await supabaseAdmin
-          .from('allotments')
-          .select(`
-            id,
-            challan_id,
-            lineman_id,
-            article_id,
-            target_qty,
-            status,
-            allotment_date,
-            mending_status,
-            mending_total_counted,
-            mending_supervisor_name,
-            mending_supervisor_id,
-            handed_to_mending_by,
-            handed_to_mending_at,
-            mending_handover_notes,
-            qc_status,
-            qc_total_passed,
-            qc_total_alter,
-            qc_supervisor_name,
-            handed_to_qc_by,
-            handed_to_qc_at,
-            created_at,
-            profiles:lineman_id ( id, username ),
-            articles:article_id ( id, art_no, description, size_rates, stitching_rate ),
-            challans:challan_id ( id, challan_no, brand, fabric_type )
-          `)
-          .in('challan_id', challanIds)
-          .order('created_at', { ascending: false })
-
-        allotmentsData = tenantAllotments || []
-
-        if (allotmentsData.length > 0) {
-          const allotmentIds = allotmentsData.map(a => a.id)
-          const [{ data: varData }, { data: matData }, { data: workData }] = await Promise.all([
-            supabaseAdmin.from('allotment_variants').select('*').in('allotment_id', allotmentIds),
-            supabaseAdmin.from('allotment_materials').select('*').in('allotment_id', allotmentIds),
-            supabaseAdmin.from('worker_assignments').select('*').in('allotment_id', allotmentIds)
-          ])
-          variantsData = varData || []
-          materialsData = matData || []
-          workerAssignmentsData = workData || []
-        }
-      }
-    } catch (err) {
-      console.warn('[StitchingSewingDashboardPage] Tenant scoping notice:', err)
-    }
-  }
+  const articlesData = art || []
+  const allotmentsData = allot || []
+  const challansData = chal || []
+  const variantsData = varData || []
+  const prodData = pData || []
+  const qcData = qData || []
+  const storeData = sData || []
+  const dispatchData = dData || []
+  const materialsData = mData || []
+  const workerAssignmentsData = wData || []
 
   // Synthesize Multi-Stage Activity Stream
   const activities: Array<{
