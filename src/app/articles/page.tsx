@@ -2,6 +2,7 @@ import { AdminShell } from '@/components/layout/AdminShell'
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { ArticlesClient } from './components/ArticlesClient'
+import { fetchArticlesPageDataAction } from './actions'
 import Link from 'next/link'
 
 import { resolveUserTenant } from '@/lib/tenant-context'
@@ -29,47 +30,9 @@ export default async function ArticlesPage() {
     redirect('/store')
   }
 
-  // Parallel concurrent data fetching for Articles and Lineman Allotment History
-  const [
-    { data: rawArticles },
-    { data: rawAllotments },
-    { data: rawChallans },
-    { data: rawProfiles }
-  ] = await Promise.all([
-    supabase
-      .from('articles')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(2000),
-
-    supabase
-      .from('allotments')
-      .select(`
-        id,
-        challan_id,
-        article_id,
-        lineman_id,
-        target_qty,
-        status,
-        allotment_date,
-        created_at,
-        profiles:lineman_id ( id, username, full_name, role ),
-        articles:article_id ( id, art_no ),
-        challans:challan_id ( id, challan_no, brand, fabric_type )
-      `)
-      .order('created_at', { ascending: false }),
-
-    supabase
-      .from('challans')
-      .select('id, challan_no, brand, fabric_type, challan_date, notes, created_at')
-      .order('created_at', { ascending: false })
-      .limit(100),
-
-    supabase
-      .from('profiles')
-      .select('id, username, full_name, role, company_name')
-      .eq('is_active', true)
-  ])
+  // Cached concurrent data fetching for Articles and Lineman Allotment History
+  const { rawArticles, rawAllotments, rawChallans, rawProfiles } =
+    await fetchArticlesPageDataAction(tenant.companyName)
 
   const allotments = rawAllotments || []
   const challans = rawChallans || []

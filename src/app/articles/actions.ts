@@ -3,6 +3,70 @@
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/utils/supabase/server'
 import { supabaseAdmin } from '@/utils/supabase/admin'
+import { CacheManager } from '@/lib/cache/cache-manager'
+
+// ----------------------------------------------------------------------
+// FETCH ARTICLES PAGE DATA (Cached)
+// ----------------------------------------------------------------------
+export async function fetchArticlesPageDataAction(companyName?: string) {
+  const normComp = (companyName || 'all').toLowerCase().replace(/[^a-z0-9]/g, '_')
+  const cacheKey = `company:${normComp}:articles:page_data`
+
+  return CacheManager.fetchOrSet(
+    cacheKey,
+    async () => {
+      const [
+        { data: rawArticles },
+        { data: rawAllotments },
+        { data: rawChallans },
+        { data: rawProfiles }
+      ] = await Promise.all([
+        supabaseAdmin
+          .from('articles')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(2000),
+
+        supabaseAdmin
+          .from('allotments')
+          .select(`
+            id,
+            challan_id,
+            article_id,
+            lineman_id,
+            target_qty,
+            status,
+            allotment_date,
+            created_at,
+            profiles:lineman_id ( id, username, full_name, role ),
+            articles:article_id ( id, art_no ),
+            challans:challan_id ( id, challan_no, brand, fabric_type )
+          `)
+          .order('created_at', { ascending: false }),
+
+        supabaseAdmin
+          .from('challans')
+          .select('id, challan_no, brand, fabric_type, challan_date, notes, created_at')
+          .order('created_at', { ascending: false })
+          .limit(100),
+
+        supabaseAdmin
+          .from('profiles')
+          .select('id, username, full_name, role, company_name')
+          .eq('is_active', true)
+      ])
+
+      return {
+        rawArticles: rawArticles || [],
+        rawAllotments: rawAllotments || [],
+        rawChallans: rawChallans || [],
+        rawProfiles: rawProfiles || []
+      }
+    },
+    120,
+    [`company:${normComp}:articles`, 'articles']
+  )
+}
 
 export async function createArticle(formData: FormData) {
   const supabase = await createClient()
@@ -56,6 +120,7 @@ export async function createArticle(formData: FormData) {
     return { error: error.message }
   }
 
+  await CacheManager.invalidateTag('articles')
   revalidatePath('/articles')
   revalidatePath('/stitching-sewing/articles')
   revalidatePath('/allotments')
@@ -107,6 +172,7 @@ export async function updateArticleRate(articleId: string, oldRate: number, newR
     console.error('Failed to log rate history:', historyError)
   }
 
+  await CacheManager.invalidateTag('articles')
   revalidatePath('/articles')
   revalidatePath('/stitching-sewing/articles')
   revalidatePath('/allotments')
@@ -127,6 +193,7 @@ export async function toggleArticleArchive(articleId: string, currentIsActive: b
     return { error: error.message }
   }
 
+  await CacheManager.invalidateTag('articles')
   revalidatePath('/articles')
   revalidatePath('/stitching-sewing/articles')
   revalidatePath('/allotments')
@@ -149,6 +216,7 @@ export async function bulkArchiveArticles(articleIds: string[]) {
     return { error: error.message }
   }
 
+  await CacheManager.invalidateTag('articles')
   revalidatePath('/articles')
   revalidatePath('/stitching-sewing/articles')
   revalidatePath('/stitching-sewing/dashboard')
@@ -169,6 +237,7 @@ export async function bulkRestoreArticles(articleIds: string[]) {
     return { error: error.message }
   }
 
+  await CacheManager.invalidateTag('articles')
   revalidatePath('/articles')
   revalidatePath('/stitching-sewing/articles')
   revalidatePath('/stitching-sewing/dashboard')
@@ -238,6 +307,7 @@ export async function deleteArticle(articleId: string) {
       return { error: error.message }
     }
 
+    await CacheManager.invalidateTag('articles')
     revalidatePath('/articles')
     revalidatePath('/stitching-sewing/articles')
     revalidatePath('/allotments')
@@ -303,6 +373,7 @@ export async function bulkDeleteArticles(articleIds: string[]) {
       return { error: error.message }
     }
 
+    await CacheManager.invalidateTag('articles')
     revalidatePath('/articles')
     revalidatePath('/stitching-sewing/articles')
     revalidatePath('/allotments')

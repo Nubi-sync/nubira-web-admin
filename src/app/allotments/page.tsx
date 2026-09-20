@@ -59,7 +59,7 @@ export default async function AllotmentsPage() {
       .eq('is_active', true)
       .order('art_no'),
 
-    getProductionOrders()
+    getProductionOrders(tenant.companyName)
   ])
 
   // Safely fetch allotments with schema fallback
