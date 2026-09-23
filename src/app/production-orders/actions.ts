@@ -808,6 +808,10 @@ export async function updateChallan(payload: UpdateChallanPayload) {
       return { error: 'Challan not found in database.' }
     }
 
+    const { data: { user } } = await supabase.auth.getUser()
+    const tenant = user ? await resolveUserTenant(user) : null
+    const companyName = tenant?.companyName || currentChallan?.company_name || brand || 'Nubira Creation'
+
     // 3. Process and sync articles in master catalog
     const processedLines = []
     for (let idx = 0; idx < article_lines.length; idx++) {
@@ -839,6 +843,7 @@ export async function updateChallan(payload: UpdateChallanPayload) {
             is_active: true,
             size_rates: {
               ...(lineRate && sizeKey ? { [sizeKey]: lineRate } : {}),
+              company_name: companyName,
               _meta: {
                 base_art: cleanArtNo,
                 sub_art: cleanSubArt,
@@ -846,7 +851,8 @@ export async function updateChallan(payload: UpdateChallanPayload) {
                 fabric: fabric_type,
                 party: brand,
                 size: line.size_range,
-                picture_url: line.picture_url || ''
+                picture_url: line.picture_url || '',
+                company_name: companyName
               }
             }
           })
