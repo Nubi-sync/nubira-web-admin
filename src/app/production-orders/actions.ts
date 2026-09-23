@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { createClient } from '@/utils/supabase/server'
 import { supabaseAdmin } from '@/utils/supabase/admin'
 import { CacheManager } from '@/lib/cache/cache-manager'
+import { resolveUserTenant } from '@/lib/tenant-context'
 
 /**
  * Strictly sanitizes a date string to ensure it is a valid PostgreSQL DATE (YYYY-MM-DD) between years 1990 and 2099.
@@ -450,6 +451,10 @@ export async function createChallan(payload: CreateChallanPayload) {
   const grandTotalPcs = article_lines.reduce((acc, row) => acc + (Number(row.total_pcs) || 0), 0)
 
   try {
+    const { data: { user } } = await supabase.auth.getUser()
+    const tenant = user ? await resolveUserTenant(user) : null
+    const companyName = tenant?.companyName || brand || 'Nubira Creation'
+
     const cleanChallanNo = challan_no.trim().toUpperCase()
 
     // Enforce Industry Standard: Unique Challan Number check
@@ -497,6 +502,7 @@ export async function createChallan(payload: CreateChallanPayload) {
             is_active: true,
             size_rates: {
               ...(lineRate && sizeKey ? { [sizeKey]: lineRate } : {}),
+              company_name: companyName,
               _meta: {
                 base_art: cleanArtNo,
                 sub_art: cleanSubArt,
@@ -504,7 +510,8 @@ export async function createChallan(payload: CreateChallanPayload) {
                 fabric: fabric_type,
                 party: brand,
                 size: line.size_range,
-                picture_url: line.picture_url || ''
+                picture_url: line.picture_url || '',
+                company_name: companyName
               }
             }
           })

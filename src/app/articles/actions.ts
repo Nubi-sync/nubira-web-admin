@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { createClient } from '@/utils/supabase/server'
 import { supabaseAdmin } from '@/utils/supabase/admin'
 import { CacheManager } from '@/lib/cache/cache-manager'
+import { resolveUserTenant } from '@/lib/tenant-context'
 
 // ----------------------------------------------------------------------
 // FETCH ARTICLES PAGE DATA (Cached)
@@ -15,17 +16,23 @@ export async function fetchArticlesPageDataAction(companyName?: string) {
   return CacheManager.fetchOrSet(
     cacheKey,
     async () => {
+      let articlesQuery = supabaseAdmin
+        .from('articles')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(2000)
+
+      if (companyName && companyName.trim() && companyName.toLowerCase() !== 'nubira creation') {
+        articlesQuery = articlesQuery.or(`size_rates->>company_name.eq.${companyName.trim()},size_rates->_meta->>company_name.eq.${companyName.trim()}`)
+      }
+
       const [
         { data: rawArticles },
         { data: rawAllotments },
         { data: rawChallans },
         { data: rawProfiles }
       ] = await Promise.all([
-        supabaseAdmin
-          .from('articles')
-          .select('*')
-          .order('created_at', { ascending: false })
-          .limit(2000),
+        articlesQuery,
 
         supabaseAdmin
           .from('allotments')
@@ -71,6 +78,10 @@ export async function fetchArticlesPageDataAction(companyName?: string) {
 export async function createArticle(formData: FormData) {
   const supabase = await createClient()
   
+  const { data: { user } } = await supabase.auth.getUser()
+  const tenant = user ? await resolveUserTenant(user) : null
+  const companyName = tenant?.companyName || 'Nubira Creation'
+
   const art_no = (formData.get('art_no') as string)?.trim().toUpperCase()
   const description = (formData.get('description') as string)?.trim() || ''
   const stitching_rate_str = formData.get('stitching_rate') as string
@@ -78,7 +89,7 @@ export async function createArticle(formData: FormData) {
   
   const parsedRate = parseFloat(stitching_rate_str)
   const stitching_rate = !isNaN(parsedRate) && parsedRate >= 0 ? parsedRate : 0
-  let size_rates: Record<string, number> = {}
+  let size_rates: Record<string, any> = {}
   if (size_rates_str) {
     try {
       size_rates = JSON.parse(size_rates_str)
@@ -88,6 +99,12 @@ export async function createArticle(formData: FormData) {
   if (!art_no) {
     return { error: 'Please enter a valid Article Number (Art No).' }
   }
+
+  size_rates.company_name = companyName
+  if (!size_rates._meta) {
+    size_rates._meta = {}
+  }
+  size_rates._meta.company_name = companyName
 
   const insertPayload: any = {
     art_no: art_no,

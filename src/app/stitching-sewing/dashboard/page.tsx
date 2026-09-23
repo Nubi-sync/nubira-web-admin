@@ -6,7 +6,7 @@ import DashboardClient from '@/app/DashboardClient'
 import { LogOut, LayoutDashboard, Building2, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import { TvViewButton } from '@/components/ui/TvViewButton'
-import { resolveUserTenant } from '@/lib/tenant-context'
+import { resolveUserTenant, isLegacyNubiraTenant } from '@/lib/tenant-context'
 import { CacheManager } from '@/lib/cache/cache-manager'
 
 export const dynamic = 'force-dynamic'
@@ -42,6 +42,7 @@ export default async function StitchingSewingDashboardPage() {
   // Centrally resolve the authenticated tenant organization
   const tenant = await resolveUserTenant(user)
   const isProvisionedTenant = tenant.isProvisionedTenant
+  const isLegacy = isLegacyNubiraTenant(tenant)
 
   // Restrict operational floor store supervisors from general admin dashboard
   const userRole = tenant.role.toUpperCase()
@@ -51,6 +52,16 @@ export default async function StitchingSewingDashboardPage() {
 
   const normComp = (tenant.companyName || 'all').toLowerCase().replace(/[^a-z0-9]/g, '_')
   const cacheKey = `company:${normComp}:stitching:dashboard_data`
+
+  let articlesQuery = supabaseAdmin
+    .from('articles')
+    .select('id, art_no, description, stitching_rate, size_rates')
+    .eq('is_active', true)
+    .order('art_no')
+
+  if (!isLegacy && tenant.companyName) {
+    articlesQuery = articlesQuery.or(`size_rates->>company_name.eq.${tenant.companyName},size_rates->_meta->>company_name.eq.${tenant.companyName}`)
+  }
 
   const {
     articlesData,
@@ -78,11 +89,7 @@ export default async function StitchingSewingDashboardPage() {
         { data: mData },
         { data: wData },
       ] = await Promise.all([
-    supabaseAdmin
-      .from('articles')
-      .select('id, art_no, description, stitching_rate, size_rates')
-      .eq('is_active', true)
-      .order('art_no'),
+        articlesQuery,
 
     supabaseAdmin
       .from('allotments')
