@@ -776,22 +776,6 @@ export function AdminSidebar({
       .filter((sec) => sec.items.length > 0 && sec.section !== 'Workspace Hub')
   }
 
-  // Ensure "Live Notifications" is always present in every module's primary section
-  activeNavSections = activeNavSections.map((sec) => {
-    const hasLiveNotif = sec.items.some(it => it.href === '#live-notifications')
-    if (!hasLiveNotif && sec.section !== 'Account') {
-      const updatedItems = [...sec.items]
-      // Insert after the first item (Dashboard / Overview)
-      updatedItems.splice(1, 0, {
-        label: 'Live Notifications',
-        href: '#live-notifications',
-        icon: Bell
-      })
-      return { ...sec, items: updatedItems }
-    }
-    return sec
-  })
-
   // Fast, eager open when cursor moves towards side nav
   const handleMouseEnter = () => {
     if (leaveTimerRef.current) {
