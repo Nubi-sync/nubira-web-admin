@@ -155,6 +155,11 @@ export function getUserAllowedModules(
     return ['/embroidery/worker']
   }
 
+  // 3.9. Stitching Floor Worker / Tailor check
+  if (role === 'STITCHING_WORKER' || role === 'TAILOR' || email.includes('@stitching.') || email.endsWith('@stitching.nubira.local')) {
+    return ['/stitching-sewing/worker', '/stitching-sewing/worker/history', '/stitching-sewing/worker/profile']
+  }
+
   // 4. Role-based module mapping for operational floor staff
   if (ROLE_MODULE_MAPPING[role]) {
     return ROLE_MODULE_MAPPING[role]
@@ -218,6 +223,11 @@ export function getDefaultLandingRoute(
     return '/embroidery/worker'
   }
 
+  // Stitching Floor Worker always lands on tailor workstation
+  if (normRole === 'STITCHING_WORKER' || normRole === 'TAILOR' || normEmail.includes('@stitching.') || normEmail.endsWith('@stitching.nubira.local')) {
+    return '/stitching-sewing/worker'
+  }
+
   // Single-module operational account lands directly inside their assigned module
   if (allowedModules.length === 1) {
     return allowedModules[0]
@@ -277,6 +287,11 @@ export function isRouteAuthorized(allowedModules: string[], pathname: string): b
   // Permit embroidery worker route for embroidery workers
   if (allowedModules.includes('/embroidery/worker')) {
     if (pathname === '/embroidery/worker' || pathname.startsWith('/embroidery/worker/')) return true
+  }
+
+  // Permit stitching worker route for stitching workers
+  if (allowedModules.includes('/stitching-sewing/worker')) {
+    if (pathname === '/stitching-sewing/worker' || pathname.startsWith('/stitching-sewing/worker/')) return true
   }
 
   // Permit root /allotments and /production-orders paths for users with Stitching & Sewing access

@@ -180,6 +180,14 @@ export function AdminSidebar({
     userEmail?.toLowerCase().endsWith('@iron.nubira.local')
   )
 
+  const isStitchingWorker = (
+    userRole?.toUpperCase() === 'STITCHING_WORKER' ||
+    userRole?.toUpperCase() === 'TAILOR' ||
+    userRole?.toUpperCase() === 'SEWING_OPERATOR' ||
+    userEmail?.toLowerCase().includes('@stitching.') ||
+    userEmail?.toLowerCase().endsWith('@stitching.nubira.local')
+  )
+
   const roleLabel = isAdmin 
     ? 'Super Admin' 
     : (isDesignerUser
@@ -194,9 +202,11 @@ export function AdminSidebar({
                         ? 'Washing Floor Operator'
                         : (isIronWorker
                             ? 'Steam Iron Presser'
-                            : (userRole && userRole.toUpperCase() !== 'ADMIN'
-                                ? userRole.split('/')[0].trim().replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
-                                : (isStoreUser ? 'Store Supervisor' : 'Department Head'))))))))
+                            : (isStitchingWorker
+                                ? 'Tailor / Sewing Operator'
+                                : (userRole && userRole.toUpperCase() !== 'ADMIN'
+                                    ? userRole.split('/')[0].trim().replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+                                    : (isStoreUser ? 'Store Supervisor' : 'Department Head')))))))))
 
   // Module-specific unique side navigation
   let activeNavSections: NavSection[] = []
@@ -294,6 +304,22 @@ export function AdminSidebar({
         section: 'Account',
         items: [
           { label: 'Operator Profile', href: '/iron/worker/profile', icon: User },
+        ],
+      },
+    ]
+  } else if (isStitchingWorker || pathname?.startsWith('/stitching-sewing/worker')) {
+    activeNavSections = [
+      {
+        section: 'Floor Workstation',
+        items: [
+          { label: 'Active Assignments', href: '/stitching-sewing/worker', icon: Scissors },
+          { label: 'Completed History', href: '/stitching-sewing/worker/history', icon: Clock },
+        ],
+      },
+      {
+        section: 'Account',
+        items: [
+          { label: 'Operator Profile', href: '/stitching-sewing/worker/profile', icon: User },
         ],
       },
     ]
@@ -481,41 +507,73 @@ export function AdminSidebar({
       },
     ]
   } else if (pathname?.startsWith('/stitching-sewing')) {
-    activeNavSections = [
-      {
-        section: 'Workspace Hub',
-        items: [
-          { label: 'All Modules', href: '/modules', icon: LayoutGrid },
-        ],
-      },
-      {
-        section: '6. Sewing Operations',
-        items: [
-          { label: 'Floor Dashboard', href: '/stitching-sewing/dashboard', icon: LayoutDashboard },
-          { label: 'Store Dashboard', href: '/stitching-sewing/store', icon: Store },
-          { label: 'Zigza AI', href: '/stitching-sewing/zigza-ai', icon: Bot },
-        ],
-      },
-      {
-        section: 'Production',
-        items: [
-          { label: 'Production Chart', href: '/stitching-sewing/production-orders', icon: Layers },
-          { label: 'Target Allotments', href: '/stitching-sewing/allotments', icon: ClipboardList },
-          { label: 'Godown & Inventory', href: '/stitching-sewing/inventory', icon: Warehouse },
-          { label: 'Dispatch & Challans', href: '/stitching-sewing/dispatch', icon: Truck },
-        ],
-      },
-      {
-        section: 'Manage',
-        items: [
-          { label: 'Supervisor Profile', href: '/stitching-sewing/profile', icon: User },
-          { label: 'Brands & Vendors', href: '/stitching-sewing/vendors', icon: Building2 },
-          { label: 'Employees', href: '/stitching-sewing/employees', icon: Users },
-          { label: 'Articles', href: '/stitching-sewing/articles', icon: Tag },
-          { label: 'Reports & Analytics', href: '/stitching-sewing/reports', icon: FileText },
-        ],
-      },
-    ]
+    const isCustomStitching = (
+      userEmail?.toLowerCase() === 'aj@nubiracreation.com' ||
+      userEmail?.toLowerCase() === 'team.anga9@gmail.com' ||
+      userEmail?.toLowerCase().includes('nubira')
+    )
+
+    if (isCustomStitching) {
+      activeNavSections = [
+        {
+          section: 'Workspace Hub',
+          items: [
+            { label: 'All Modules', href: '/modules', icon: LayoutGrid },
+          ],
+        },
+        {
+          section: '6. Sewing Operations',
+          items: [
+            { label: 'Floor Dashboard', href: '/stitching-sewing/dashboard', icon: LayoutDashboard },
+            { label: 'Supervisor Desk', href: '/modules/supervisor-desk', icon: Wrench },
+            { label: 'Store Dashboard', href: '/stitching-sewing/store', icon: Store },
+            { label: 'Zigza AI', href: '/stitching-sewing/zigza-ai', icon: Bot },
+          ],
+        },
+        {
+          section: 'Production',
+          items: [
+            { label: 'Production Chart', href: '/stitching-sewing/production-orders', icon: Layers },
+            { label: 'Target Allotments', href: '/stitching-sewing/allotments', icon: ClipboardList },
+            { label: 'Godown & Inventory', href: '/stitching-sewing/inventory', icon: Warehouse },
+            { label: 'Dispatch & Challans', href: '/dispatch', icon: Truck },
+          ],
+        },
+        {
+          section: 'Manage',
+          items: [
+            { label: 'Profile', href: '/stitching-sewing/profile', icon: User },
+            { label: 'Brands & Vendors', href: '/stitching-sewing/vendors', icon: Building2 },
+            { label: 'Employees', href: '/stitching-sewing/employees', icon: Users },
+            { label: 'Articles', href: '/stitching-sewing/articles', icon: Tag },
+            { label: 'Reports & Analytics', href: '/stitching-sewing/reports', icon: FileText },
+          ],
+        },
+      ]
+    } else {
+      activeNavSections = [
+        {
+          section: 'Workspace Hub',
+          items: [
+            { label: 'All Modules', href: '/modules', icon: LayoutGrid },
+          ],
+        },
+        {
+          section: '6. Sewing Operations',
+          items: [
+            { label: 'Floor Dashboard', href: '/stitching-sewing/dashboard', icon: Scissors },
+            { label: 'Floor Store (Bundles)', href: '/stitching-sewing/store', icon: Store },
+            { label: 'Zigza AI', href: '/stitching-sewing/zigza-ai', icon: Bot },
+          ],
+        },
+        {
+          section: 'Account',
+          items: [
+            { label: 'Division Profile', href: '/stitching-sewing/profile', icon: User },
+          ],
+        },
+      ]
+    }
   } else if (pathname?.startsWith('/washing')) {
     activeNavSections = [
       {
