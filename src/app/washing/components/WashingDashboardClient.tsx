@@ -32,7 +32,6 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { subscribeToFloorEvents, broadcastFloorEvent } from '@/utils/floorRealtime'
-import { getUnreadNotificationCount, FLOOR_NOTIFICATIONS_UPDATE_EVENT } from '@/utils/floorNotificationsStorage'
 import { 
   WashingWorker, 
   WashingTaskAllocation, 
@@ -194,7 +193,6 @@ export function WashingDashboardClient({
   const [isAddWorkerOpen, setIsAddWorkerOpen] = useState(false)
   const [isWorkerListOpen, setIsWorkerListOpen] = useState(false)
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false)
-  const [unreadCount, setUnreadCount] = useState(0)
   const [wsStatus, setWsStatus] = useState<'connected' | 'connecting' | 'offline'>('offline')
 
   // Active Buyers for Contract Selection
@@ -248,24 +246,14 @@ export function WashingDashboardClient({
     }
   }, [companyName])
 
-  // Real-time WebSocket sync & notifications subscription
+  // Real-time WebSocket sync
   useEffect(() => {
-    setUnreadCount(getUnreadNotificationCount(companyName, 'washing'))
-    const handleNotifUpdate = () => {
-      setUnreadCount(getUnreadNotificationCount(companyName, 'washing'))
-    }
-
-    if (typeof window !== 'undefined') {
-      window.addEventListener(FLOOR_NOTIFICATIONS_UPDATE_EVENT, handleNotifUpdate)
-    }
-
     const unsub = subscribeToFloorEvents({
       companyName,
       onStatusChange: (status) => setWsStatus(status),
       onRefresh: () => refreshFloorData(),
       onEvent: (event) => {
         refreshFloorData()
-        handleNotifUpdate()
         if (event.sourceModule !== 'washing' || event.eventType === 'PROGRESS_SUBMITTED') {
           toast.info(event.title, { description: event.message })
         }
@@ -273,9 +261,6 @@ export function WashingDashboardClient({
     })
 
     return () => {
-      if (typeof window !== 'undefined') {
-        window.removeEventListener(FLOOR_NOTIFICATIONS_UPDATE_EVENT, handleNotifUpdate)
-      }
       unsub()
     }
   }, [companyName])

@@ -30,7 +30,6 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { subscribeToFloorEvents, broadcastFloorEvent } from '@/utils/floorRealtime'
-import { getUnreadNotificationCount, FLOOR_NOTIFICATIONS_UPDATE_EVENT } from '@/utils/floorNotificationsStorage'
 import { StitchingWorker, StitchingTaskAllocation, StitchingTaskStatus } from '../types/stitching'
 import {
   getStitchingWorkers,
@@ -201,7 +200,6 @@ export function StitchingDashboardClient({
   const [isAddWorkerOpen, setIsAddWorkerOpen] = useState(false)
   const [isWorkerListOpen, setIsWorkerListOpen] = useState(false)
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false)
-  const [unreadCount, setUnreadCount] = useState(0)
   const [wsStatus, setWsStatus] = useState<'connected' | 'connecting' | 'offline'>('offline')
   const [isSyncing, setIsSyncing] = useState(false)
 
@@ -249,24 +247,14 @@ export function StitchingDashboardClient({
     }
   }, [initialWorkers, initialTasks, companyName])
 
-  // Real-time WebSocket sync & notifications subscription
+  // Real-time WebSocket sync
   useEffect(() => {
-    setUnreadCount(getUnreadNotificationCount(companyName, 'stitching'))
-    const handleNotifUpdate = () => {
-      setUnreadCount(getUnreadNotificationCount(companyName, 'stitching'))
-    }
-
-    if (typeof window !== 'undefined') {
-      window.addEventListener(FLOOR_NOTIFICATIONS_UPDATE_EVENT, handleNotifUpdate)
-    }
-
     const unsub = subscribeToFloorEvents({
       companyName,
       onStatusChange: (status) => setWsStatus(status),
       onRefresh: () => reloadData(),
       onEvent: (event) => {
         reloadData()
-        handleNotifUpdate()
         if (event.sourceModule !== 'stitching' || event.eventType === 'PROGRESS_SUBMITTED') {
           toast.info(event.title, { description: event.message })
         }
@@ -274,9 +262,6 @@ export function StitchingDashboardClient({
     })
 
     return () => {
-      if (typeof window !== 'undefined') {
-        window.removeEventListener(FLOOR_NOTIFICATIONS_UPDATE_EVENT, handleNotifUpdate)
-      }
       unsub()
     }
   }, [companyName])
