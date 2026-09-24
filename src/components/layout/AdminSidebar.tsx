@@ -81,7 +81,7 @@ const navSections: NavSection[] = [
     items: [
       { label: 'Dashboard', href: '/stitching-sewing/dashboard', icon: LayoutDashboard },
       { label: 'Notification', href: '/stitching-sewing/notifications', icon: Bell },
-      { label: 'Supervisor Desk', href: '/modules/supervisor-desk', icon: Wrench },
+      { label: 'Supervisor Desk', href: '/stitching-sewing/supervisor-desk', icon: Wrench },
       { label: 'Store Dashboard', href: '/stitching-sewing/store', icon: Store },
       { label: 'Zigza AI', href: '/stitching-sewing/zigza-ai', icon: Bot },
     ],
@@ -381,7 +381,6 @@ export function AdminSidebar({
         items: [
           { label: 'All Modules', href: '/modules', icon: LayoutGrid },
           { label: 'Department Heads', href: '/modules/access-control', icon: ShieldCheck },
-          { label: 'Supervisor Operations', href: '/modules/supervisor-desk', icon: Wrench },
           { label: 'SA Design Approvals', href: '/design/sa-approvals', icon: ShieldCheck },
           { label: 'Company Profile', href: '/modules/profile', icon: Building2 },
         ],
@@ -552,7 +551,7 @@ export function AdminSidebar({
           items: [
             { label: 'Floor Dashboard', href: '/stitching-sewing/dashboard', icon: LayoutDashboard },
             { label: 'Notification', href: '/stitching-sewing/notifications', icon: Bell },
-            { label: 'Supervisor Desk', href: '/modules/supervisor-desk', icon: Wrench },
+            { label: 'Supervisor Desk', href: '/stitching-sewing/supervisor-desk', icon: Wrench },
             { label: 'Store Dashboard', href: '/stitching-sewing/store', icon: Store },
             { label: 'Zigza AI', href: '/stitching-sewing/zigza-ai', icon: Bot },
           ],

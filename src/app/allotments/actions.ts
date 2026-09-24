@@ -392,9 +392,12 @@ export async function createDetailedAllotment(payload: {
   }
 
   await CacheManager.invalidateTag('allotments')
+  await CacheManager.invalidateTag('supervisor_desk')
   await CacheManager.invalidateTag('production_orders')
   revalidatePath('/allotments')
   revalidatePath('/stitching-sewing/allotments')
+  revalidatePath('/stitching-sewing/supervisor-desk')
+  revalidatePath('/modules/supervisor-desk')
   revalidatePath('/stitching-sewing/dashboard')
   return { success: true }
   } catch (globalErr: any) {
@@ -446,9 +449,11 @@ export async function updateAllotmentStatus(allotmentId: string, newStatus: stri
   }
 
   await CacheManager.invalidateTag('allotments')
+  await CacheManager.invalidateTag('supervisor_desk')
   await CacheManager.invalidateTag('production_orders')
   revalidatePath('/allotments')
   revalidatePath('/stitching-sewing/allotments')
+  revalidatePath('/stitching-sewing/supervisor-desk')
   revalidatePath('/stitching-sewing/dashboard')
   return { success: true }
 }
@@ -481,9 +486,11 @@ export async function deleteAllotment(allotmentId: string) {
     }
 
     await CacheManager.invalidateTag('allotments')
+    await CacheManager.invalidateTag('supervisor_desk')
     await CacheManager.invalidateTag('production_orders')
     revalidatePath('/allotments')
     revalidatePath('/stitching-sewing/allotments')
+    revalidatePath('/stitching-sewing/supervisor-desk')
     revalidatePath('/production-orders')
     revalidatePath('/stitching-sewing/production-orders')
     revalidatePath('/articles')
@@ -513,8 +520,10 @@ export async function toggleMaterialIssue(materialId: string, issued: boolean) {
   }
 
   await CacheManager.invalidateTag('allotments')
+  await CacheManager.invalidateTag('supervisor_desk')
   revalidatePath('/allotments')
   revalidatePath('/stitching-sewing/allotments')
+  revalidatePath('/stitching-sewing/supervisor-desk')
   return { success: true }
 }
 

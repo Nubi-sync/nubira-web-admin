@@ -48,6 +48,7 @@ import {
   adminCompleteLinemanBundle,
   adminReassignLineman,
   adminIssueMaterial,
+  adminIssueAllMaterials,
   adminDispatchAllotment
 } from './actions'
 
@@ -86,6 +87,8 @@ interface AllotmentItem {
   status: string
   allotment_date?: string
   priority?: string
+  production_order_no?: string
+  client_challan_no?: string
   mending_status?: string
   mending_total_counted?: number
   mending_supervisor_name?: string
@@ -117,6 +120,50 @@ interface SupervisorDeskClientProps {
   currentUserName: string
   currentUserRole: string
   companyName?: string
+}
+
+// Helper to resolve accurate Challan, Article and Brand from allotment + material metadata
+function getAllotmentDetails(item: AllotmentItem | null, companyFallback = 'Factory Brand') {
+  if (!item) return { challanNo: '', articleNo: '', brand: companyFallback, noteMeta: {} }
+
+  let noteMeta: any = {}
+  if (item.allotment_materials && item.allotment_materials.length > 0) {
+    for (const m of item.allotment_materials) {
+      if (m.notes) {
+        try {
+          const parsed = JSON.parse(m.notes)
+          if (parsed && typeof parsed === 'object') {
+            noteMeta = { ...noteMeta, ...parsed }
+          }
+        } catch (_) {}
+      }
+    }
+  }
+
+  const challanNo =
+    noteMeta.client_challan_no ||
+    (item as any).client_challan_no ||
+    item.challans?.challan_no ||
+    noteMeta.production_order_no ||
+    (item as any).production_order_no ||
+    (item.articles?.art_no ? `${item.articles.art_no}` : '') ||
+    `LOT-${item.id.slice(0, 6).toUpperCase()}`
+
+  const articleNo =
+    noteMeta.art_no ||
+    (item as any).art_no ||
+    item.articles?.art_no ||
+    noteMeta.production_order_no ||
+    (item as any).production_order_no ||
+    'Standard Article'
+
+  const brand =
+    item.challans?.brand ||
+    noteMeta.brand ||
+    (item as any).brand ||
+    companyFallback
+
+  return { challanNo, articleNo, brand, noteMeta }
 }
 
 export function SupervisorDeskClient({
@@ -241,11 +288,14 @@ export function SupervisorDeskClient({
       // Search
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase()
-        const challan = item.challans?.challan_no?.toLowerCase() || ''
-        const art = item.articles?.art_no?.toLowerCase() || ''
-        const brand = item.challans?.brand?.toLowerCase() || ''
-        const lineman = item.profiles?.username?.toLowerCase() || ''
-        if (!challan.includes(q) && !art.includes(q) && !brand.includes(q) && !lineman.includes(q)) {
+        const { challanNo, articleNo, brand } = getAllotmentDetails(item, companyName)
+        const lineman = (item.profiles?.username || '').toLowerCase()
+        if (
+          !challanNo.toLowerCase().includes(q) &&
+          !articleNo.toLowerCase().includes(q) &&
+          !brand.toLowerCase().includes(q) &&
+          !lineman.includes(q)
+        ) {
           return false
         }
       }
@@ -279,7 +329,7 @@ export function SupervisorDeskClient({
 
       return true
     })
-  }, [initialAllotments, activeStation, storeSubTab, searchQuery, selectedLinemanFilter])
+  }, [initialAllotments, activeStation, storeSubTab, searchQuery, selectedLinemanFilter, companyName])
 
   // ---------------------------------------------------------------------------
   // Action Handlers
@@ -293,6 +343,7 @@ export function SupervisorDeskClient({
   const handleSubmitMendingAdvance = () => {
     if (!selectedAllotmentForMendingAdvance) return
     const sup = mendingSupervisors.find(s => s.id === targetMendingSupervisorId)
+    const { challanNo, articleNo } = getAllotmentDetails(selectedAllotmentForMendingAdvance, companyName)
     startTransition(async () => {
       const res = await adminAdvanceToMending({
         allotment_id: selectedAllotmentForMendingAdvance.id,
@@ -304,7 +355,7 @@ export function SupervisorDeskClient({
       if (res.error) {
         toast.error(res.error)
       } else {
-        toast.success(`Lot #${selectedAllotmentForMendingAdvance.challans?.challan_no || selectedAllotmentForMendingAdvance.id.slice(0, 8)} stitched and forwarded to Mending Floor.`)
+        toast.success(`Lot Challan #${challanNo} (${articleNo}) stitched and forwarded to Mending Floor.`)
         setSelectedAllotmentForMendingAdvance(null)
         router.refresh()
       }
@@ -421,6 +472,21 @@ export function SupervisorDeskClient({
     })
   }
 
+  const handleIssueAllMaterials = (allotmentId: string) => {
+    startTransition(async () => {
+      const res = await adminIssueAllMaterials({
+        allotment_id: allotmentId,
+        operator_name: currentUserName
+      })
+      if (res.error) {
+        toast.error(res.error)
+      } else {
+        toast.success(res.message || 'All production materials handed over to Lineman!')
+        router.refresh()
+      }
+    })
+  }
+
   const handleOpenReassignModal = (item: AllotmentItem) => {
     setReassignModalAllotment(item)
     setSelectedNewLinemanId(linemenProfiles[0]?.id || '')
@@ -469,7 +535,8 @@ export function SupervisorDeskClient({
 
   const handleOpenDispatchModal = (item: AllotmentItem) => {
     setDispatchModalAllotment(item)
-    setDispatchChallanNo(`DC-${item.challans?.challan_no || item.id.slice(0, 6)}`)
+    const { challanNo } = getAllotmentDetails(item, companyName)
+    setDispatchChallanNo(`DC-${challanNo}`)
     setDispatchGatePass(`GP-${Math.floor(1000 + Math.random() * 9000)}`)
     setDispatchBags(item.total_bags_packed || 1)
   }
@@ -505,11 +572,18 @@ export function SupervisorDeskClient({
               href="/modules"
               className="text-[#57564E] hover:text-[#14140F] transition-colors"
             >
-              Workspace Hub (/modules)
+              Workspace Hub
+            </Link>
+            <span className="text-[#57564E]/40">/</span>
+            <Link
+              href="/stitching-sewing/dashboard"
+              className="text-[#57564E] hover:text-[#14140F] transition-colors"
+            >
+              Sewing Floor
             </Link>
             <span className="text-[#57564E]/40">/</span>
             <span className="text-[#14140F] font-bold">
-              Floor Supervisor Hub
+              Supervisor Desk
             </span>
             <span className="text-[#57564E]/40">•</span>
             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[11px] font-mono font-semibold bg-[#FAF7F0] text-[#3A3564] border border-black/10">
@@ -802,7 +876,7 @@ export function SupervisorDeskClient({
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#57564E]/60" />
             <input
               type="text"
-              placeholder="Search by Challan #, Style, Lineman..."
+              placeholder="Search by Challan #, Article #, Lineman..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               className="w-full pl-9 pr-4 py-2 bg-white border border-black/10 rounded-lg text-xs font-mono text-[#14140F] placeholder-[#57564E]/60 focus:outline-none focus:border-[#3A3564] focus:ring-1 focus:ring-[#3A3564]"
@@ -881,24 +955,25 @@ export function SupervisorDeskClient({
           </div>
           <div className="pt-2">
             <Link
-              href="/modules"
+              href="/stitching-sewing/dashboard"
               className="inline-flex items-center gap-2 px-4 py-2 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-[#3A3564] border border-black/10 rounded-lg text-xs font-bold transition-all shadow-2xs"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Back to Workspace Hub</span>
+              <span>Back to Sewing Floor</span>
             </Link>
           </div>
         </div>
       ) : (
         <div className="space-y-4">
           {filteredAllotments.map(item => {
-            const challanNo = item.challans?.challan_no || item.id.slice(0, 8)
-            const style = item.articles?.art_no || 'Standard'
-            const brand = item.challans?.brand || companyName
+            const { challanNo, articleNo, brand } = getAllotmentDetails(item, companyName)
             const lineman = item.profiles?.username || 'Unassigned'
             const target = item.target_qty || 0
             const variants = item.allotment_variants || []
             const materials = item.allotment_materials || []
+
+            const unissuedMaterials = materials.filter(m => !m.admin_issued)
+            const isStoreHandoverPending = materials.length > 0 && unissuedMaterials.length > 0
 
             return (
               <div
@@ -911,11 +986,11 @@ export function SupervisorDeskClient({
                       <FileText className="w-3.5 h-3.5" />
                       Challan #{challanNo}
                     </span>
-                    <span className="text-xs font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-semibold">
-                      Style: {style}
+                    <span className="text-xs font-mono px-2.5 py-1 rounded-md bg-[#FAF7F0] text-[#3A3564] border border-black/10 font-bold">
+                      Article: {articleNo}
                     </span>
                     {brand && (
-                      <span className="text-xs font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-700">
+                      <span className="text-xs font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-medium">
                         {brand}
                       </span>
                     )}
@@ -923,6 +998,21 @@ export function SupervisorDeskClient({
                       <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-rose-50 text-rose-700 border border-rose-200 font-bold uppercase">
                         High Priority
                       </span>
+                    )}
+
+                    {/* Store Handover Status Tag */}
+                    {activeStation === 'LINEMAN' && (
+                      isStoreHandoverPending ? (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[11px] font-mono font-bold bg-amber-50 text-amber-800 border border-amber-200 animate-pulse">
+                          <Clock className="w-3.5 h-3.5 text-amber-600" />
+                          Waiting for Store Handover ({unissuedMaterials.length} items pending)
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[11px] font-mono font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                          Materials Handed Over
+                        </span>
+                      )
                     )}
                   </div>
 
@@ -934,6 +1024,30 @@ export function SupervisorDeskClient({
                   </div>
                 </div>
 
+                {/* Lineman Floor Alert Banner if Store Handover is Pending */}
+                {activeStation === 'LINEMAN' && isStoreHandoverPending && (
+                  <div className="bg-amber-50/80 border border-amber-200 rounded-xl p-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs font-mono">
+                    <div className="flex items-center gap-2.5 text-amber-900">
+                      <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+                      <div>
+                        <span className="font-bold block sm:inline">Store Material Handover Required:</span>
+                        <span className="text-amber-800 sm:ml-1">
+                          Trims & BOM have not been released from Store yet for Lineman <strong>{lineman}</strong>.
+                        </span>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      disabled={isPending}
+                      onClick={() => handleIssueAllMaterials(item.id)}
+                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-bold transition-all shadow-2xs shrink-0 cursor-pointer"
+                    >
+                      <Sparkles className="w-3.5 h-3.5" />
+                      <span>1-Click Handover All ({unissuedMaterials.length} Items)</span>
+                    </button>
+                  </div>
+                )}
+
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs font-mono">
                   <div>
                     <span className="text-[#57564E]/70 block">Assigned Lineman</span>
@@ -942,7 +1056,13 @@ export function SupervisorDeskClient({
                   <div>
                     <span className="text-[#57564E]/70 block">Current Floor Stage</span>
                     <span className="font-bold text-[#3A3564]">
-                      {activeStation === 'LINEMAN' && 'Lineman Floor Sewing'}
+                      {activeStation === 'LINEMAN' && (
+                        isStoreHandoverPending ? (
+                          <span className="text-amber-700">Awaiting Store Handover</span>
+                        ) : (
+                          'Lineman Floor Sewing'
+                        )
+                      )}
                       {activeStation === 'MENDING' && 'Mending Audit Queue'}
                       {activeStation === 'QC' && '3-Stage Quality Check'}
                       {activeStation === 'STORE' && (storeSubTab === 'INWARD' ? 'Godown Inward' : 'Trims Issuance')}
@@ -957,6 +1077,54 @@ export function SupervisorDeskClient({
                   </div>
                 </div>
 
+                {/* Assigned Color & Size Ratio Breakdown */}
+                {variants.length > 0 && (
+                  <div className="p-3 bg-[#FAF7F0] border border-black/10 rounded-xl space-y-2">
+                    <div className="flex items-center justify-between gap-2 flex-wrap text-xs font-mono">
+                      <div className="flex items-center gap-1.5 font-bold text-[#14140F]">
+                        <Layers className="w-3.5 h-3.5 text-[#3A3564]" />
+                        <span>Assigned Color & Size Breakdown:</span>
+                      </div>
+                      <span className="text-[11px] text-[#57564E] font-semibold">
+                        Total: {variants.reduce((sum, v) => sum + (v.quantity || 0), 0)} Pcs
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {variants.map((v) => {
+                        const isComplete = (v.completed_qty || 0) >= v.quantity && v.quantity > 0
+                        return (
+                          <div
+                            key={v.id}
+                            className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs font-mono transition-all ${
+                              isComplete
+                                ? 'bg-emerald-50 text-emerald-900 border-emerald-300'
+                                : 'bg-white text-slate-800 border-black/10 shadow-2xs'
+                            }`}
+                          >
+                            {v.color && (
+                              <span className="font-bold text-[#3A3564] uppercase">
+                                {v.color}
+                              </span>
+                            )}
+                            <span className="px-1.5 py-0.5 rounded bg-slate-100 font-extrabold text-slate-700">
+                              {v.size}
+                            </span>
+                            <span className="font-bold tabular-nums">
+                              {v.quantity} pcs
+                            </span>
+                            {v.completed_qty > 0 && (
+                              <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 font-bold">
+                                ✓ {v.completed_qty}/{v.quantity}
+                              </span>
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
+
                 {/* STATION SPECIFIC OVERRIDE ACTIONS */}
                 <div className="flex items-center justify-end gap-2 pt-2 border-t border-black/5 flex-wrap">
                   {activeStation === 'LINEMAN' && (
@@ -964,21 +1132,25 @@ export function SupervisorDeskClient({
                       <button
                         type="button"
                         onClick={() => handleOpenReassignModal(item)}
-                        className="px-3.5 py-2 bg-white hover:bg-[#FAF7F0] text-[#14140F] border border-black/10 rounded-lg text-xs font-semibold transition-all shadow-2xs"
+                        className="px-3.5 py-2 bg-white hover:bg-[#FAF7F0] text-[#14140F] border border-black/10 rounded-lg text-xs font-semibold transition-all shadow-2xs cursor-pointer"
                       >
                         Reassign Line
                       </button>
                       <button
                         type="button"
                         onClick={() => handleOpenBundleModal(item)}
-                        className="px-3.5 py-2 bg-white hover:bg-[#FAF7F0] text-[#14140F] border border-black/10 rounded-lg text-xs font-semibold transition-all shadow-2xs"
+                        className="px-3.5 py-2 bg-white hover:bg-[#FAF7F0] text-[#14140F] border border-black/10 rounded-lg text-xs font-semibold transition-all shadow-2xs cursor-pointer"
                       >
                         Log Bundles
                       </button>
                       <button
                         type="button"
                         onClick={() => handleOpenMendingAdvanceModal(item)}
-                        className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#3A3564] hover:bg-[#2B274C] text-white rounded-lg text-xs font-semibold transition-all shadow-2xs"
+                        className={`inline-flex items-center gap-1.5 px-4 py-2 text-white rounded-lg text-xs font-semibold transition-all shadow-2xs cursor-pointer ${
+                          isStoreHandoverPending
+                            ? 'bg-[#3A3564]/80 hover:bg-[#3A3564]'
+                            : 'bg-[#3A3564] hover:bg-[#2B274C]'
+                        }`}
                       >
                         <span>Handover to Mending</span>
                         <ArrowRight className="w-3.5 h-3.5" />
@@ -990,7 +1162,7 @@ export function SupervisorDeskClient({
                     <button
                       type="button"
                       onClick={() => handleOpenMendingModal(item)}
-                      className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#3A3564] hover:bg-[#2B274C] text-white rounded-lg text-xs font-semibold transition-all shadow-2xs"
+                      className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#3A3564] hover:bg-[#2B274C] text-white rounded-lg text-xs font-semibold transition-all shadow-2xs cursor-pointer"
                     >
                       <span>Verify Count & Handover to QC</span>
                       <ArrowRight className="w-3.5 h-3.5" />
@@ -1001,7 +1173,7 @@ export function SupervisorDeskClient({
                     <button
                       type="button"
                       onClick={() => handleOpenQcModal(item)}
-                      className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#3A3564] hover:bg-[#2B274C] text-white rounded-lg text-xs font-semibold transition-all shadow-2xs"
+                      className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#3A3564] hover:bg-[#2B274C] text-white rounded-lg text-xs font-semibold transition-all shadow-2xs cursor-pointer"
                     >
                       <span>Inspect & Pass QC</span>
                       <ArrowRight className="w-3.5 h-3.5" />
@@ -1013,27 +1185,76 @@ export function SupervisorDeskClient({
                       <button
                         type="button"
                         onClick={() => handleStoreInward(item)}
-                        className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#3A3564] hover:bg-[#2B274C] text-white rounded-lg text-xs font-semibold transition-all shadow-2xs"
+                        className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#3A3564] hover:bg-[#2B274C] text-white rounded-lg text-xs font-semibold transition-all shadow-2xs cursor-pointer"
                       >
                         <PackageCheck className="w-3.5 h-3.5" />
                         <span>Inward to Godown</span>
                       </button>
                     ) : (
-                      materials.map(mat => (
-                        <button
-                          key={mat.id}
-                          type="button"
-                          disabled={mat.admin_issued}
-                          onClick={() => handleIssueMaterial(mat.id, item.id)}
-                          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                            mat.admin_issued
-                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                              : 'bg-[#3A3564] text-white hover:bg-[#2B274C]'
-                          }`}
-                        >
-                          {mat.admin_issued ? `Issued: ${mat.item_name}` : `Issue ${mat.item_name}`}
-                        </button>
-                      ))
+                      <div className="w-full space-y-3 pt-1">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3 rounded-xl bg-[#FAF7F0] border border-black/10">
+                          <div className="space-y-0.5">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-mono font-bold text-[#14140F]">
+                                BOM & Trims Material Handover
+                              </span>
+                              {unissuedMaterials.length > 0 ? (
+                                <span className="px-2 py-0.5 rounded bg-amber-100 text-amber-800 text-[10px] font-mono font-bold">
+                                  {unissuedMaterials.length} Pending Handover
+                                </span>
+                              ) : (
+                                <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-mono font-bold">
+                                  100% Handed Over
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-[11px] font-mono text-[#57564E]">
+                              Target Lineman: <strong className="text-[#14140F]">{lineman}</strong>
+                            </p>
+                          </div>
+
+                          {unissuedMaterials.length > 0 ? (
+                            <button
+                              type="button"
+                              disabled={isPending}
+                              onClick={() => handleIssueAllMaterials(item.id)}
+                              className="inline-flex items-center gap-2 px-4 py-2 bg-[#2E6B4F] hover:bg-[#24533D] text-white rounded-lg text-xs font-bold transition-all shadow-xs cursor-pointer shrink-0"
+                            >
+                              <Sparkles className="w-4 h-4" />
+                              <span>1-Click Handover All to {lineman}</span>
+                            </button>
+                          ) : (
+                            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold shrink-0">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                              <span>All Materials Issued to Lineman</span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* List of Material Items */}
+                        <div className="flex items-center gap-2 flex-wrap">
+                          {materials.map(mat => (
+                            <button
+                              key={mat.id}
+                              type="button"
+                              disabled={mat.admin_issued}
+                              onClick={() => handleIssueMaterial(mat.id, item.id)}
+                              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-mono font-medium transition-all ${
+                                mat.admin_issued
+                                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 cursor-default'
+                                  : 'bg-white hover:bg-[#FAF7F0] text-[#14140F] border border-black/15 shadow-2xs cursor-pointer'
+                              }`}
+                            >
+                              {mat.admin_issued ? (
+                                <Check className="w-3 h-3 text-emerald-600" />
+                              ) : (
+                                <span className="w-2 h-2 rounded-full bg-amber-500" />
+                              )}
+                              <span>{mat.item_name} ({mat.required_qty})</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
                     )
                   )}
 
@@ -1041,7 +1262,7 @@ export function SupervisorDeskClient({
                     <button
                       type="button"
                       onClick={() => handleOpenDispatchModal(item)}
-                      className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#3A3564] hover:bg-[#2B274C] text-white rounded-lg text-xs font-semibold transition-all shadow-2xs"
+                      className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#3A3564] hover:bg-[#2B274C] text-white rounded-lg text-xs font-semibold transition-all shadow-2xs cursor-pointer"
                     >
                       <Truck className="w-3.5 h-3.5" />
                       <span>Issue Delivery Gate Pass</span>
@@ -1075,7 +1296,7 @@ export function SupervisorDeskClient({
               </button>
             </div>
             <p className="text-xs text-[#57564E]">
-              Confirm advancement of Challan #{selectedAllotmentForMendingAdvance.challans?.challan_no || selectedAllotmentForMendingAdvance.id.slice(0, 8)} to Mending Floor.
+              Confirm advancement of Challan #{getAllotmentDetails(selectedAllotmentForMendingAdvance, companyName).challanNo} ({getAllotmentDetails(selectedAllotmentForMendingAdvance, companyName).articleNo}) to Mending Floor.
             </p>
             <div className="space-y-3">
               <div>
@@ -1365,8 +1586,28 @@ export function SupervisorDeskClient({
               </button>
             </div>
             <p className="text-xs text-[#57564E]">
-              Mark all cut ratio bundle tickets complete for Challan #{bundleCompleteModalAllotment.challans?.challan_no || bundleCompleteModalAllotment.id.slice(0, 8)}.
+              Mark all cut ratio bundle tickets complete for Challan #{getAllotmentDetails(bundleCompleteModalAllotment, companyName).challanNo} ({getAllotmentDetails(bundleCompleteModalAllotment, companyName).articleNo}).
             </p>
+
+            {/* List Variants in Modal */}
+            {bundleCompleteModalAllotment.allotment_variants && bundleCompleteModalAllotment.allotment_variants.length > 0 && (
+              <div className="p-3 bg-[#FAF7F0] border border-black/10 rounded-xl space-y-2 max-h-48 overflow-y-auto">
+                <span className="text-[11px] font-mono font-bold text-[#57564E] block">
+                  Assigned Cut Bundles ({bundleCompleteModalAllotment.allotment_variants.length} Size Cuts):
+                </span>
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  {bundleCompleteModalAllotment.allotment_variants.map(v => (
+                    <span
+                      key={v.id}
+                      className="px-2 py-1 rounded bg-white border border-black/10 text-xs font-mono font-bold text-[#14140F]"
+                    >
+                      {v.color ? `${v.color} • ` : ''}{v.size}: {v.quantity} pcs
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="flex items-center justify-end gap-2 pt-3 border-t border-black/10">
               <button
                 type="button"

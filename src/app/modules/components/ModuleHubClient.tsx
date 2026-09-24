@@ -255,36 +255,6 @@ export function ModuleHubClient({ userEmail, userName, userRole, companyName, al
         </div>
       </div>
 
-      {/* Floor Supervisor & Operations Hub Banner - Styled to Zigza Design System */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4 transition-all">
-        <div className="flex items-start sm:items-center gap-3.5">
-          <div className="w-11 h-11 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center shrink-0 text-[#3A3564]">
-            <Wrench className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2.5 flex-wrap">
-              <h2 className="text-base sm:text-lg font-bold tracking-tight text-[#14140F]">
-                Floor Supervisor Operations & Absentee Override Hub
-              </h2>
-              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 tracking-wider">
-                Executive Control
-              </span>
-            </div>
-            <p className="text-xs sm:text-sm text-[#57564E] font-normal mt-1">
-              Direct access to Lineman lines, Mending verification, QC inspection, Store issuance, and Dispatch gates.
-            </p>
-          </div>
-        </div>
-
-        <Link
-          href="/modules/supervisor-desk"
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#3A3564] hover:bg-[#2B274C] text-white font-medium text-xs sm:text-sm rounded-xl transition-all shadow-2xs shrink-0 cursor-pointer"
-        >
-          <span>Open Floor Stations</span>
-          <ArrowRight className="w-4 h-4" />
-        </Link>
-      </div>
-
       {/* 2. Equalized Enterprise Module Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
         {visibleModules.map((mod) => {
