@@ -112,7 +112,7 @@ export function ModuleNotificationPageClient({
   }, [notifications, currentModule])
 
   const unreadEvents = useMemo(() => {
-    return notifications.filter(n => !n.read)
+    return notifications.filter(n => !n.isRead)
   }, [notifications])
 
   const filteredNotifications = useMemo(() => {
@@ -356,7 +356,7 @@ export function ModuleNotificationPageClient({
         ) : (
           filteredNotifications.map((notif) => {
             const SourceIcon = MODULE_ICONS[notif.sourceModule] || Layers
-            const isUnread = !notif.read
+            const isUnread = !notif.isRead
 
             return (
               <div

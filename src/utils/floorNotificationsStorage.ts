@@ -7,6 +7,8 @@ export type FloorModule =
   | 'stitching' 
   | 'washing' 
   | 'iron' 
+  | 'ready-goods'
+  | 'alter'
   | 'all'
 
 export type FloorEventType = 
