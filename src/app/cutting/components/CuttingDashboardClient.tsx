@@ -194,6 +194,9 @@ export function CuttingDashboardClient({
   const [isAddWorkerOpen, setIsAddWorkerOpen] = useState(false)
   const [isWorkerListOpen, setIsWorkerListOpen] = useState(false)
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false)
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false)
+  const [unreadCount, setUnreadCount] = useState(0)
+  const [wsStatus, setWsStatus] = useState<'connected' | 'connecting' | 'offline'>('offline')
 
   // Active Buyers for Contract Selection
   const [buyers, setBuyers] = useState<any[]>(() => mergeBuyersFromAllSources(initialBuyers, companyName))
@@ -286,6 +289,38 @@ export function CuttingDashboardClient({
       }
     }
   }, [initialBuyers, serverWorkers, serverAllocations, companyName])
+
+  // Real-time WebSocket sync & notifications subscription
+  useEffect(() => {
+    setUnreadCount(getUnreadNotificationCount(companyName, 'cutting'))
+    const handleNotifUpdate = () => {
+      setUnreadCount(getUnreadNotificationCount(companyName, 'cutting'))
+    }
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener(FLOOR_NOTIFICATIONS_UPDATE_EVENT, handleNotifUpdate)
+    }
+
+    const unsub = subscribeToFloorEvents({
+      companyName,
+      onStatusChange: (status) => setWsStatus(status),
+      onRefresh: () => refreshFloorData(),
+      onEvent: (event) => {
+        refreshFloorData()
+        handleNotifUpdate()
+        if (event.sourceModule !== 'cutting' || event.eventType === 'PROGRESS_SUBMITTED') {
+          toast.info(event.title, { description: event.message })
+        }
+      }
+    })
+
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener(FLOOR_NOTIFICATIONS_UPDATE_EVENT, handleNotifUpdate)
+      }
+      unsub()
+    }
+  }, [companyName])
 
   const handleManualSync = async () => {
     setIsSyncing(true)
@@ -431,6 +466,22 @@ export function CuttingDashboardClient({
     if (taskObj) {
       await saveCuttingTaskAllocationAction(taskObj)
     }
+
+    // Broadcast across floor WebSockets to downstream modules & notification feed
+    broadcastFloorEvent({
+      eventType: 'TASK_VERIFIED',
+      sourceModule: 'cutting',
+      targetModule: activeRoute === 'PRINT_FIRST_THEN_EMBROIDERY' ? 'printing' : 'embroidery',
+      companyName,
+      title: 'Cutting Verified & Transferred',
+      message: `Task #${taskRef} verified! ${pieces.toLocaleString('en-IN')} pcs of Article ${taskObj?.article_number || articleNum} ready for ${activeRoute === 'PRINT_FIRST_THEN_EMBROIDERY' ? 'Printing Studio' : 'Embroidery Studio'}.`,
+      articleNumber: taskObj?.article_number || articleNum,
+      workerName: taskObj?.worker_name,
+      pieces,
+      taskRef,
+      status: 'VERIFIED_COMPLETED'
+    })
+
     toast.success(`Task #${taskRef} verified! ${pieces.toLocaleString('en-IN')} pcs moved from Pending to Completed Cutting & Worker Workstation History.`)
   }
 
@@ -472,7 +523,7 @@ export function CuttingDashboardClient({
   return (
     <div className="p-4 sm:p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto select-none">
       
-      {/* Navigation Breadcrumb */}
+      {/* Navigation Breadcrumb & Live Notifications Bar */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-2">
           {isSuperAdmin && (
@@ -490,7 +541,31 @@ export function CuttingDashboardClient({
           <span className="text-xs font-mono font-bold text-slate-900">Division 03 • Cutting Floor</span>
         </div>
         
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
+          {/* Live Notification Side Nav Trigger Button */}
+          <button
+            type="button"
+            onClick={() => setIsNotificationOpen(true)}
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border border-black/10 bg-white hover:bg-[#FAF7F0] text-xs font-bold text-slate-800 transition-all cursor-pointer shadow-2xs relative"
+            title="Open Live Floor Activity & Notifications"
+          >
+            <div className="relative">
+              <Bell className="w-4 h-4 text-[#3A3564]" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[#3A3564]" />
+              )}
+            </div>
+            <span className="flex items-center gap-1.5">
+              <span className={`w-1.5 h-1.5 rounded-full ${wsStatus === 'connected' ? 'bg-emerald-500 animate-pulse' : 'bg-amber-400'}`} />
+              <span>Live Feed</span>
+            </span>
+            {unreadCount > 0 && (
+              <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-[#3A3564] text-white">
+                {unreadCount}
+              </span>
+            )}
+          </button>
+
           <span className="text-[11px] font-mono font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
             Vacuum &amp; Worker Portal Sync Active
           </span>
@@ -1164,6 +1239,14 @@ export function CuttingDashboardClient({
           </div>
         )}
       </ConfirmDialog>
+
+      {/* Live Floor Activity & Notifications Drawer */}
+      <FloorNotificationDrawer
+        isOpen={isNotificationOpen}
+        onClose={() => setIsNotificationOpen(false)}
+        currentModule="cutting"
+        companyName={companyName}
+      />
 
     </div>
   )

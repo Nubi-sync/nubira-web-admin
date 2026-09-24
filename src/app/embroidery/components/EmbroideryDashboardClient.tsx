@@ -26,9 +26,13 @@ import {
   Phone,
   Trash2,
   Calendar,
-  GitBranch
+  GitBranch,
+  Bell
 } from 'lucide-react'
 import { toast } from 'sonner'
+import { FloorNotificationDrawer } from '@/components/notifications/FloorNotificationDrawer'
+import { subscribeToFloorEvents, broadcastFloorEvent } from '@/utils/floorRealtime'
+import { getUnreadNotificationCount, FLOOR_NOTIFICATIONS_UPDATE_EVENT } from '@/utils/floorNotificationsStorage'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { 
   EmbroideryWorker, 
@@ -224,6 +228,9 @@ export function EmbroideryDashboardClient({
   const [isAddWorkerOpen, setIsAddWorkerOpen] = useState(false)
   const [isWorkerListOpen, setIsWorkerListOpen] = useState(false)
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false)
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false)
+  const [unreadCount, setUnreadCount] = useState(0)
+  const [wsStatus, setWsStatus] = useState<'connected' | 'connecting' | 'offline'>('offline')
 
   // Active Buyers for Contract Selection
   const [buyers, setBuyers] = useState<any[]>(() => mergeBuyersFromAllSources(initialBuyers, companyName))
@@ -336,6 +343,38 @@ export function EmbroideryDashboardClient({
       }
     }
   }, [initialBuyers, serverWorkers, serverAllocations, serverCuttingAllocations, serverPrintingAllocations, companyName])
+
+  // Real-time WebSocket sync & notifications subscription
+  useEffect(() => {
+    setUnreadCount(getUnreadNotificationCount(companyName, 'embroidery'))
+    const handleNotifUpdate = () => {
+      setUnreadCount(getUnreadNotificationCount(companyName, 'embroidery'))
+    }
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener(FLOOR_NOTIFICATIONS_UPDATE_EVENT, handleNotifUpdate)
+    }
+
+    const unsub = subscribeToFloorEvents({
+      companyName,
+      onStatusChange: (status) => setWsStatus(status),
+      onRefresh: () => refreshFloorData(),
+      onEvent: (event) => {
+        refreshFloorData()
+        handleNotifUpdate()
+        if (event.sourceModule !== 'embroidery' || event.eventType === 'PROGRESS_SUBMITTED') {
+          toast.info(event.title, { description: event.message })
+        }
+      }
+    })
+
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener(FLOOR_NOTIFICATIONS_UPDATE_EVENT, handleNotifUpdate)
+      }
+      unsub()
+    }
+  }, [companyName])
 
   const handleManualSync = async () => {
     setIsSyncing(true)
