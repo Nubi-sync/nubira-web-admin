@@ -121,7 +121,7 @@ export function getUserAllowedModules(
 
   // 2. Enterprise SuperAdmins & Master Factory Owners
   if (role === 'SUPERADMIN' || role === 'ADMIN' || email === 'team.anga9@gmail.com') {
-    return [...ALL_DIVISION_ROUTES, '/modules']
+    return ['/platform-admin', ...ALL_DIVISION_ROUTES, '/modules']
   }
 
   // 3. Explicitly assigned modules in profile (source of truth) or user_metadata

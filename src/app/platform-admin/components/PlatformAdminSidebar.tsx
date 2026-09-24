@@ -49,13 +49,6 @@ const navSections: NavSection[] = [
       { label: 'Security & Audit Logs', href: '/platform-admin/audit-logs', icon: ShieldCheck },
     ],
   },
-  {
-    section: 'Root Master',
-    items: [
-      { label: 'SuperAdmin Profile', href: '/platform-admin/profile', icon: User },
-      { label: 'Enterprise Modules', href: '/platform-admin/modules', icon: Layers },
-    ],
-  },
 ]
 
 export function PlatformAdminSidebar({
