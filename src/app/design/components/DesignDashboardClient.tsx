@@ -25,7 +25,6 @@ import {
   Bell
 } from 'lucide-react'
 import { toast } from 'sonner'
-import { FloorNotificationDrawer } from '@/components/notifications/FloorNotificationDrawer'
 import { subscribeToFloorEvents, broadcastFloorEvent } from '@/utils/floorRealtime'
 import { getUnreadNotificationCount, FLOOR_NOTIFICATIONS_UPDATE_EVENT } from '@/utils/floorNotificationsStorage'
 import { 
@@ -129,7 +128,6 @@ export function DesignDashboardClient({
   const [previewPhoto, setPreviewPhoto] = useState<string | null>(null)
 
   // Realtime & Drawer State
-  const [isNotificationOpen, setIsNotificationOpen] = useState(false)
   const [unreadCount, setUnreadCount] = useState(0)
   const [wsStatus, setWsStatus] = useState<'connected' | 'connecting' | 'offline'>('offline')
 
