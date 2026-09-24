@@ -35,7 +35,6 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { subscribeToFloorEvents, broadcastFloorEvent } from '@/utils/floorRealtime'
-import { getUnreadNotificationCount, FLOOR_NOTIFICATIONS_UPDATE_EVENT } from '@/utils/floorNotificationsStorage'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { 
   CuttingWorker, 

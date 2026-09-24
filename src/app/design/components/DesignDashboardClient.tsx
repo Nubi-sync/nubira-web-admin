@@ -26,7 +26,6 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { subscribeToFloorEvents, broadcastFloorEvent } from '@/utils/floorRealtime'
-import { getUnreadNotificationCount, FLOOR_NOTIFICATIONS_UPDATE_EVENT } from '@/utils/floorNotificationsStorage'
 import { 
   DesignBrief, 
   BriefStatus, 
@@ -128,7 +127,6 @@ export function DesignDashboardClient({
   const [previewPhoto, setPreviewPhoto] = useState<string | null>(null)
 
   // Realtime & Drawer State
-  const [unreadCount, setUnreadCount] = useState(0)
   const [wsStatus, setWsStatus] = useState<'connected' | 'connecting' | 'offline'>('offline')
 
   // Delete State
@@ -154,24 +152,14 @@ export function DesignDashboardClient({
     }
   }
 
-  // Real-time WebSocket sync & notifications subscription
+  // Real-time WebSocket sync
   useEffect(() => {
-    setUnreadCount(getUnreadNotificationCount(companyName, 'design'))
-    const handleNotifUpdate = () => {
-      setUnreadCount(getUnreadNotificationCount(companyName, 'design'))
-    }
-
-    if (typeof window !== 'undefined') {
-      window.addEventListener(FLOOR_NOTIFICATIONS_UPDATE_EVENT, handleNotifUpdate)
-    }
-
     const unsub = subscribeToFloorEvents({
       companyName,
       onStatusChange: (status) => setWsStatus(status),
       onRefresh: () => reloadData(),
       onEvent: (event) => {
         reloadData()
-        handleNotifUpdate()
         if (event.sourceModule !== 'design') {
           toast.info(event.title, { description: event.message })
         }
@@ -179,9 +167,6 @@ export function DesignDashboardClient({
     })
 
     return () => {
-      if (typeof window !== 'undefined') {
-        window.removeEventListener(FLOOR_NOTIFICATIONS_UPDATE_EVENT, handleNotifUpdate)
-      }
       unsub()
     }
   }, [companyName])
