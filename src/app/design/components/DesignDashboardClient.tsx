@@ -21,9 +21,13 @@ import {
   Trash2,
   X,
   Settings,
-  RefreshCw
+  RefreshCw,
+  Bell
 } from 'lucide-react'
 import { toast } from 'sonner'
+import { FloorNotificationDrawer } from '@/components/notifications/FloorNotificationDrawer'
+import { subscribeToFloorEvents, broadcastFloorEvent } from '@/utils/floorRealtime'
+import { getUnreadNotificationCount, FLOOR_NOTIFICATIONS_UPDATE_EVENT } from '@/utils/floorNotificationsStorage'
 import { 
   DesignBrief, 
   BriefStatus, 
@@ -34,7 +38,9 @@ import {
 import { 
   reviewDesignSubmissionAction, 
   saReviewDesignSubmissionAction, 
-  deleteDesignBriefAction 
+  deleteDesignBriefAction,
+  fetchDesignBriefsAction,
+  fetchTechPacksAction
 } from '../actions'
 import { AllocateBriefModal } from './AllocateBriefModal'
 import { EmptyState } from '@/components/ui/EmptyState'

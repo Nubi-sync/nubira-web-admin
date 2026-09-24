@@ -78,8 +78,12 @@ class FloorRealtimeManager {
         }
       })
 
-      // 2. Listen to PostgreSQL changes on floor tables across all departments
+      // 2. Listen to PostgreSQL changes on tables across design, merchandising, and all factory floors
       const tables = [
+        'design_briefs',
+        'tech_packs',
+        'orders',
+        'buyers',
         'cutting_task_allocations',
         'printing_task_allocations',
         'embroidery_task_allocations',
@@ -91,7 +95,9 @@ class FloorRealtimeManager {
       tables.forEach(tableName => {
         channel.on('postgres_changes', { event: '*', schema: 'public', table: tableName }, (change) => {
           let mod: FloorModule = 'cutting'
-          if (tableName.includes('printing')) mod = 'printing'
+          if (tableName.includes('brief') || tableName.includes('tech_pack')) mod = 'design'
+          else if (tableName.includes('order') || tableName.includes('buyer')) mod = 'merchandising'
+          else if (tableName.includes('printing')) mod = 'printing'
           else if (tableName.includes('embroidery')) mod = 'embroidery'
           else if (tableName.includes('stitching')) mod = 'stitching'
           else if (tableName.includes('washing')) mod = 'washing'

@@ -1,4 +1,13 @@
-export type FloorModule = 'cutting' | 'printing' | 'embroidery' | 'stitching' | 'washing' | 'iron' | 'all'
+export type FloorModule = 
+  | 'design'
+  | 'merchandising'
+  | 'cutting' 
+  | 'printing' 
+  | 'embroidery' 
+  | 'stitching' 
+  | 'washing' 
+  | 'iron' 
+  | 'all'
 
 export type FloorEventType = 
   | 'TASK_ALLOCATED' 
@@ -7,6 +16,11 @@ export type FloorEventType =
   | 'TASK_VERIFIED' 
   | 'STAGE_TRANSFER' 
   | 'TASK_DELETED'
+  | 'BRIEF_CREATED'
+  | 'BRIEF_REVIEWED'
+  | 'TECHPACK_CREATED'
+  | 'ORDER_CREATED'
+  | 'BUYER_CREATED'
 
 export interface FloorRealtimeEvent {
   id: string

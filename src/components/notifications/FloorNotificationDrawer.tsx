@@ -18,7 +18,9 @@ import {
   Radio,
   User,
   ShieldCheck,
-  FileCheck2
+  FileCheck2,
+  Palette,
+  Briefcase
 } from 'lucide-react'
 import {
   FloorRealtimeEvent,
@@ -138,6 +140,10 @@ export function FloorNotificationDrawer({
 
   const getModuleBadge = (mod?: FloorModule) => {
     switch (mod) {
+      case 'design':
+        return { label: 'DESIGN STUDIO', bg: 'bg-teal-50 text-teal-700 border-teal-200' }
+      case 'merchandising':
+        return { label: 'MERCHANDISING', bg: 'bg-blue-50 text-blue-700 border-blue-200' }
       case 'cutting':
         return { label: 'CUTTING', bg: 'bg-emerald-50 text-emerald-700 border-emerald-200' }
       case 'printing':
@@ -157,6 +163,10 @@ export function FloorNotificationDrawer({
 
   const getModuleIcon = (mod?: FloorModule) => {
     switch (mod) {
+      case 'design':
+        return <Palette className="w-3.5 h-3.5" />
+      case 'merchandising':
+        return <Briefcase className="w-3.5 h-3.5" />
       case 'cutting':
         return <Scissors className="w-3.5 h-3.5" />
       case 'printing':
