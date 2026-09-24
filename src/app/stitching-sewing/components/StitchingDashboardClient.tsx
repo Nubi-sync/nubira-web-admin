@@ -295,7 +295,15 @@ export function StitchingDashboardClient({
   // ---------------------------------------------------------------------------
   // UPSTREAM ROUTE & IN-HAND READY PIECES RESOLUTION
   // ---------------------------------------------------------------------------
-  const selectedBuyer = buyers.find(b => b.id === selectedBuyerId) || (buyers.length > 0 ? buyers[0] : null)
+  const activeSelectedBuyerId = selectedBuyerId === 'ALL'
+    ? 'ALL'
+    : (selectedBuyerId && buyers.some(b => b.id === selectedBuyerId)
+        ? selectedBuyerId
+        : (buyers[0]?.id || ''))
+
+  const selectedBuyer = activeSelectedBuyerId === 'ALL'
+    ? null
+    : (buyers.find(b => b.id === activeSelectedBuyerId) || (buyers.length > 0 ? buyers[0] : null))
   const activeStyleRef = selectedBuyer?.linked_article_number || selectedBuyer?.buyer_code || ''
   const activeRoute: EmbellishmentSequence = resolveArticleRoute(selectedBuyer, activeStyleRef, techPacks)
 
@@ -373,7 +381,25 @@ export function StitchingDashboardClient({
   const activeTailorsCount = workers.filter(w => w.status === 'ACTIVE').length
   const completionRate = totalTargetPieces > 0 ? Math.round((totalCompletedPieces / totalTargetPieces) * 100) : 0
 
+  // Dynamically filter task allocations by selected buyer
   const filteredTasks = tasks.filter(t => {
+    // 1. Dynamic Buyer & Article Filter
+    if (selectedBuyer) {
+      const selectedBuyerName = (selectedBuyer.buyer_name || selectedBuyer.brand_name || '').trim().toLowerCase()
+      const taskBuyerName = (t.buyer_name || '').trim().toLowerCase()
+      const taskBuyerId = t.buyer_id || ''
+      const taskArticle = (t.article_name || t.article_number || '').trim().toUpperCase()
+
+      const matchesBuyer = (
+        (taskBuyerId && taskBuyerId === selectedBuyer.id) ||
+        (selectedBuyerName && taskBuyerName && taskBuyerName === selectedBuyerName) ||
+        (activeStyleRef && taskArticle && taskArticle === activeStyleRef.trim().toUpperCase())
+      )
+
+      if (!matchesBuyer) return false
+    }
+
+    // 2. Search filter
     const matchesSearch =
       t.task_ref.toLowerCase().includes(searchQuery.toLowerCase()) ||
       t.lot_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -468,7 +494,7 @@ export function StitchingDashboardClient({
               <div className="flex items-center gap-2 truncate">
                 <Building2 className="w-4 h-4 text-[#3A3564]" />
                 <span className="truncate">
-                  {selectedBuyer ? (selectedBuyer.buyer_name || selectedBuyer.brand_name) : 'All Contracts / Buyers'}
+                  {selectedBuyer ? (selectedBuyer.buyer_name || selectedBuyer.brand_name) : (activeSelectedBuyerId === 'ALL' ? `All Buyers (${tasks.length} Active Lots)` : 'All Contracts / Buyers')}
                 </span>
               </div>
               <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0" />
@@ -485,7 +511,27 @@ export function StitchingDashboardClient({
                     className="w-full px-2.5 py-1.5 text-xs rounded-lg bg-slate-50 border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#3A3564]"
                   />
                 </div>
-                <div className="max-h-48 overflow-y-auto divide-y divide-slate-100">
+                <div className="max-h-48 overflow-y-auto space-y-0.5 pt-1">
+                  {/* All Buyers Option */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedBuyerId('ALL')
+                      setIsBuyerMenuOpen(false)
+                    }}
+                    className={`w-full text-left px-2.5 py-2 text-xs rounded-lg transition-all flex items-center justify-between cursor-pointer border-b border-black/5 mb-1 ${
+                      activeSelectedBuyerId === 'ALL' ? 'bg-[#3A3564] text-white font-bold' : 'hover:bg-slate-50 text-slate-700'
+                    }`}
+                  >
+                    <div>
+                      <div className="font-bold">All Buyers &amp; Contracts</div>
+                      <div className={`text-[10px] font-mono mt-0.5 ${activeSelectedBuyerId === 'ALL' ? 'text-indigo-200' : 'text-slate-500'}`}>
+                        Show all {tasks.length} floor task allocations
+                      </div>
+                    </div>
+                    {activeSelectedBuyerId === 'ALL' && <Check className="w-4 h-4 text-white shrink-0" />}
+                  </button>
+
                   {buyers
                     .filter(b => (b.buyer_name || b.brand_name || '').toLowerCase().includes(buyerSearchQuery.toLowerCase()))
                     .map(b => (
@@ -497,15 +543,16 @@ export function StitchingDashboardClient({
                           setIsBuyerMenuOpen(false)
                         }}
                         className={`w-full text-left px-2.5 py-2 text-xs rounded-lg transition-colors flex items-center justify-between cursor-pointer ${
-                          selectedBuyerId === b.id ? 'bg-[#FAF7F0] font-bold text-[#3A3564]' : 'hover:bg-slate-50 text-slate-700'
+                          activeSelectedBuyerId === b.id ? 'bg-[#FAF7F0] font-bold text-[#3A3564]' : 'hover:bg-slate-50 text-slate-700'
                         }`}
                       >
                         <span className="truncate">{b.buyer_name || b.brand_name}</span>
                         {b.linked_article_number && (
-                          <span className="text-[10px] font-mono px-1.5 py-0.2 bg-slate-100 rounded text-slate-500">
+                          <span className="text-[10px] font-mono px-1.5 py-0.5 bg-slate-100 rounded text-slate-500">
                             {b.linked_article_number}
                           </span>
                         )}
+                        {activeSelectedBuyerId === b.id && <Check className="w-3.5 h-3.5 text-[#3A3564] shrink-0 ml-1" />}
                       </button>
                     ))}
                 </div>
