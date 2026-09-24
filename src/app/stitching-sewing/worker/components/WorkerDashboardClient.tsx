@@ -165,7 +165,7 @@ export function WorkerDashboardClient({
         task_ref: submittingTask.task_ref,
         lot_number: submittingTask.lot_number,
         article_name: submittingTask.article_name,
-        operation_type: submittingTask.operation_type,
+        operation_type: submittingTask.operation_type || 'Full Assembly',
         worker_id: submittingTask.worker_id,
         worker_name: submittingTask.worker_name,
         completed_pieces: completedNum,
