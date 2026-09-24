@@ -31,7 +31,6 @@ import {
   Bell
 } from 'lucide-react'
 import { toast } from 'sonner'
-import { FloorNotificationDrawer } from '@/components/notifications/FloorNotificationDrawer'
 import { subscribeToFloorEvents, broadcastFloorEvent } from '@/utils/floorRealtime'
 import { getUnreadNotificationCount, FLOOR_NOTIFICATIONS_UPDATE_EVENT } from '@/utils/floorNotificationsStorage'
 import { 
@@ -195,7 +194,6 @@ export function WashingDashboardClient({
   const [isAddWorkerOpen, setIsAddWorkerOpen] = useState(false)
   const [isWorkerListOpen, setIsWorkerListOpen] = useState(false)
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false)
-  const [isNotificationOpen, setIsNotificationOpen] = useState(false)
   const [unreadCount, setUnreadCount] = useState(0)
   const [wsStatus, setWsStatus] = useState<'connected' | 'connecting' | 'offline'>('offline')
 
@@ -487,30 +485,6 @@ export function WashingDashboardClient({
         </div>
         
         <div className="flex items-center gap-2.5">
-          {/* Live Notification Side Nav Trigger Button */}
-          <button
-            type="button"
-            onClick={() => setIsNotificationOpen(true)}
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border border-black/10 bg-white hover:bg-[#FAF7F0] text-xs font-bold text-slate-800 transition-all cursor-pointer shadow-2xs relative"
-            title="Open Live Floor Activity & Notifications"
-          >
-            <div className="relative">
-              <Bell className="w-4 h-4 text-[#3A3564]" />
-              {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[#3A3564]" />
-              )}
-            </div>
-            <span className="flex items-center gap-1.5">
-              <span className={`w-1.5 h-1.5 rounded-full ${wsStatus === 'connected' ? 'bg-emerald-500 animate-pulse' : 'bg-amber-400'}`} />
-              <span>Live Feed</span>
-            </span>
-            {unreadCount > 0 && (
-              <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-[#3A3564] text-white">
-                {unreadCount}
-              </span>
-            )}
-          </button>
-
           <span className="text-[11px] font-mono font-bold px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 uppercase tracking-wider flex items-center gap-1.5 shadow-2xs">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             Tumbler &amp; Hydro Sync Active
@@ -1023,15 +997,6 @@ export function WashingDashboardClient({
         onConfirm={handleConfirmDeleteTask}
         onClose={() => setTaskToDelete(null)}
       />
-
-      {/* Live Floor Activity & Notifications Drawer */}
-      <FloorNotificationDrawer
-        isOpen={isNotificationOpen}
-        onClose={() => setIsNotificationOpen(false)}
-        currentModule="washing"
-        companyName={companyName}
-      />
-
     </div>
   )
 }

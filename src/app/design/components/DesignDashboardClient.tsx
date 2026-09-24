@@ -381,22 +381,6 @@ export function DesignDashboardClient({
 
         {/* Quick Nav Actions */}
         <div className="flex flex-wrap items-center gap-2 self-stretch sm:self-auto justify-end">
-          {/* Real-time Live Feed Notification Button */}
-          <button
-            onClick={() => setIsNotificationOpen(true)}
-            className="relative inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs cursor-pointer"
-            title="Open Live Department Feed & Audit Log"
-          >
-            <Bell className="w-3.5 h-3.5 text-[#3A3564]" />
-            <span>Live Feed</span>
-            {unreadCount > 0 && (
-              <span className="inline-flex items-center justify-center px-1.5 py-0.2 text-[10px] font-black text-white bg-rose-500 rounded-full animate-pulse">
-                {unreadCount}
-              </span>
-            )}
-            <span className={`w-2 h-2 rounded-full ${wsStatus === 'connected' ? 'bg-emerald-500 animate-pulse' : 'bg-amber-400'}`} />
-          </button>
-
           <Link
             href="/design/tech-packs"
             className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#FAF7F0] border border-black/10 text-xs font-bold text-slate-800 hover:bg-slate-100 transition-all shadow-2xs cursor-pointer"
@@ -1274,14 +1258,6 @@ export function DesignDashboardClient({
         onClose={() => {
           if (!isDeleting) setBriefToDelete(null)
         }}
-      />
-
-      {/* Floor Realtime Notification Side Nav Drawer */}
-      <FloorNotificationDrawer
-        isOpen={isNotificationOpen}
-        onClose={() => setIsNotificationOpen(false)}
-        companyName={companyName}
-        currentModule="design"
       />
     </div>
   )
