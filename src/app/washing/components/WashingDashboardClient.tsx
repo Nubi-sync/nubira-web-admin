@@ -195,6 +195,9 @@ export function WashingDashboardClient({
   const [isAddWorkerOpen, setIsAddWorkerOpen] = useState(false)
   const [isWorkerListOpen, setIsWorkerListOpen] = useState(false)
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false)
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false)
+  const [unreadCount, setUnreadCount] = useState(0)
+  const [wsStatus, setWsStatus] = useState<'connected' | 'connecting' | 'offline'>('offline')
 
   // Active Buyers for Contract Selection
   const [buyers, setBuyers] = useState<any[]>(() => mergeBuyersFromAllSources(initialBuyers, companyName))
@@ -244,6 +247,38 @@ export function WashingDashboardClient({
       window.removeEventListener(WASHING_FLOOR_UPDATE_EVENT, handleUpdate)
       window.removeEventListener(CUTTING_UPDATE_EVENT, handleUpdate)
       window.removeEventListener(MERCHANDISING_UPDATE_EVENT, handleUpdate)
+    }
+  }, [companyName])
+
+  // Real-time WebSocket sync & notifications subscription
+  useEffect(() => {
+    setUnreadCount(getUnreadNotificationCount(companyName, 'washing'))
+    const handleNotifUpdate = () => {
+      setUnreadCount(getUnreadNotificationCount(companyName, 'washing'))
+    }
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener(FLOOR_NOTIFICATIONS_UPDATE_EVENT, handleNotifUpdate)
+    }
+
+    const unsub = subscribeToFloorEvents({
+      companyName,
+      onStatusChange: (status) => setWsStatus(status),
+      onRefresh: () => refreshFloorData(),
+      onEvent: (event) => {
+        refreshFloorData()
+        handleNotifUpdate()
+        if (event.sourceModule !== 'washing' || event.eventType === 'PROGRESS_SUBMITTED') {
+          toast.info(event.title, { description: event.message })
+        }
+      }
+    })
+
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener(FLOOR_NOTIFICATIONS_UPDATE_EVENT, handleNotifUpdate)
+      }
+      unsub()
     }
   }, [companyName])
 
@@ -391,6 +426,22 @@ export function WashingDashboardClient({
     if (taskObj) {
       await saveWashingTaskAllocationAction(taskObj)
     }
+
+    // Broadcast over floor WebSockets
+    broadcastFloorEvent({
+      eventType: 'TASK_VERIFIED',
+      sourceModule: 'washing',
+      targetModule: 'iron',
+      companyName,
+      title: 'Washing Verified & Transferred',
+      message: `Task #${taskRef} verified! ${pieces.toLocaleString('en-IN')} washed garments of Article ${taskObj?.article_number || articleNum} ready for Steam Ironing Floor.`,
+      articleNumber: taskObj?.article_number || articleNum,
+      workerName: taskObj?.worker_name,
+      pieces,
+      taskRef,
+      status: 'VERIFIED_COMPLETED'
+    })
+
     toast.success(`Task #${taskRef} verified! ${pieces.toLocaleString('en-IN')} pcs washed & dried successfully.`)
   }
 
@@ -435,7 +486,31 @@ export function WashingDashboardClient({
           </span>
         </div>
         
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
+          {/* Live Notification Side Nav Trigger Button */}
+          <button
+            type="button"
+            onClick={() => setIsNotificationOpen(true)}
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border border-black/10 bg-white hover:bg-[#FAF7F0] text-xs font-bold text-slate-800 transition-all cursor-pointer shadow-2xs relative"
+            title="Open Live Floor Activity & Notifications"
+          >
+            <div className="relative">
+              <Bell className="w-4 h-4 text-[#3A3564]" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[#3A3564]" />
+              )}
+            </div>
+            <span className="flex items-center gap-1.5">
+              <span className={`w-1.5 h-1.5 rounded-full ${wsStatus === 'connected' ? 'bg-emerald-500 animate-pulse' : 'bg-amber-400'}`} />
+              <span>Live Feed</span>
+            </span>
+            {unreadCount > 0 && (
+              <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-[#3A3564] text-white">
+                {unreadCount}
+              </span>
+            )}
+          </button>
+
           <span className="text-[11px] font-mono font-bold px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 uppercase tracking-wider flex items-center gap-1.5 shadow-2xs">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             Tumbler &amp; Hydro Sync Active
@@ -947,6 +1022,14 @@ export function WashingDashboardClient({
         isLoading={isDeletingTask}
         onConfirm={handleConfirmDeleteTask}
         onClose={() => setTaskToDelete(null)}
+      />
+
+      {/* Live Floor Activity & Notifications Drawer */}
+      <FloorNotificationDrawer
+        isOpen={isNotificationOpen}
+        onClose={() => setIsNotificationOpen(false)}
+        currentModule="washing"
+        companyName={companyName}
       />
 
     </div>

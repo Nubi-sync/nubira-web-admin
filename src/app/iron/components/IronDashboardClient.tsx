@@ -17,12 +17,15 @@ import {
   UserPlus,
   TableProperties,
   Trash2,
-  Flame,
   Wind,
   Layers,
-  CheckCircle2
+  CheckCircle2,
+  Bell
 } from 'lucide-react'
 import { toast } from 'sonner'
+import { FloorNotificationDrawer } from '@/components/notifications/FloorNotificationDrawer'
+import { subscribeToFloorEvents, broadcastFloorEvent } from '@/utils/floorRealtime'
+import { getUnreadNotificationCount, FLOOR_NOTIFICATIONS_UPDATE_EVENT } from '@/utils/floorNotificationsStorage'
 import { 
   IronWorker, 
   IronTaskAllocation, 
@@ -193,6 +196,9 @@ export function IronDashboardClient({
   const [isAddWorkerOpen, setIsAddWorkerOpen] = useState(false)
   const [isWorkerListOpen, setIsWorkerListOpen] = useState(false)
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false)
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false)
+  const [unreadCount, setUnreadCount] = useState(0)
+  const [wsStatus, setWsStatus] = useState<'connected' | 'connecting' | 'offline'>('offline')
 
   // Active Buyers for Contract Selection
   const [buyers, setBuyers] = useState<any[]>(() => mergeBuyersFromAllSources(initialBuyers, companyName))
@@ -246,6 +252,38 @@ export function IronDashboardClient({
       window.removeEventListener(CUTTING_UPDATE_EVENT, handleUpdate)
       window.removeEventListener(WASHING_FLOOR_UPDATE_EVENT, handleUpdate)
       window.removeEventListener(MERCHANDISING_UPDATE_EVENT, handleUpdate)
+    }
+  }, [companyName])
+
+  // Real-time WebSocket sync & notifications subscription
+  useEffect(() => {
+    setUnreadCount(getUnreadNotificationCount(companyName, 'iron'))
+    const handleNotifUpdate = () => {
+      setUnreadCount(getUnreadNotificationCount(companyName, 'iron'))
+    }
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener(FLOOR_NOTIFICATIONS_UPDATE_EVENT, handleNotifUpdate)
+    }
+
+    const unsub = subscribeToFloorEvents({
+      companyName,
+      onStatusChange: (status) => setWsStatus(status),
+      onRefresh: () => refreshFloorData(),
+      onEvent: (event) => {
+        refreshFloorData()
+        handleNotifUpdate()
+        if (event.sourceModule !== 'iron' || event.eventType === 'PROGRESS_SUBMITTED') {
+          toast.info(event.title, { description: event.message })
+        }
+      }
+    })
+
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener(FLOOR_NOTIFICATIONS_UPDATE_EVENT, handleNotifUpdate)
+      }
+      unsub()
     }
   }, [companyName])
 
@@ -407,6 +445,19 @@ export function IronDashboardClient({
     const taskObj = updated.find(t => t.id === taskId || t.task_ref === taskId)
     if (taskObj) {
       await saveIronTaskAllocationAction(taskObj)
+
+      // Broadcast WebSocket floor event
+      broadcastFloorEvent({
+        eventType: 'TASK_VERIFIED',
+        sourceModule: 'iron',
+        title: 'Garments Steam Ironed & QC Passed',
+        message: `${pieces.toLocaleString('en-IN')} pcs of Article ${taskObj.article_number} passed finish QC and ready for dispatch.`,
+        articleNumber: taskObj.article_number,
+        buyerName: taskObj.buyer_name,
+        workerName: taskObj.worker_name,
+        pieces: pieces,
+        companyName
+      })
     }
     toast.success(`Task #${taskRef} verified! ${pieces.toLocaleString('en-IN')} pcs steam pressed & finish QC verified.`)
   }
@@ -453,6 +504,22 @@ export function IronDashboardClient({
         </div>
         
         <div className="flex items-center gap-2">
+          {/* Real-time Live Feed Notification Button */}
+          <button
+            onClick={() => setIsNotificationOpen(true)}
+            className="relative inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border border-black/10 bg-white hover:bg-[#FAF7F0] text-xs font-mono font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
+            title="Open Live Department Feed & Audit Log"
+          >
+            <Bell className="w-3.5 h-3.5 text-[#3A3564]" />
+            <span>Live Feed</span>
+            {unreadCount > 0 && (
+              <span className="inline-flex items-center justify-center px-1.5 py-0.2 text-[10px] font-black text-white bg-rose-500 rounded-full animate-pulse">
+                {unreadCount}
+              </span>
+            )}
+            <span className={`w-2 h-2 rounded-full ${wsStatus === 'connected' ? 'bg-emerald-500 animate-pulse' : 'bg-amber-400'}`} />
+          </button>
+
           <span className="text-[11px] font-mono font-bold px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 uppercase tracking-wider flex items-center gap-1.5 shadow-2xs">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             Boiler &amp; Vacuum Sync Active
@@ -964,6 +1031,14 @@ export function IronDashboardClient({
         isLoading={isDeletingTask}
         onConfirm={handleConfirmDeleteTask}
         onClose={() => setTaskToDelete(null)}
+      />
+
+      {/* Floor Realtime Notification Side Nav Drawer */}
+      <FloorNotificationDrawer
+        isOpen={isNotificationOpen}
+        onClose={() => setIsNotificationOpen(false)}
+        companyName={companyName}
+        currentModule="iron"
       />
 
     </div>

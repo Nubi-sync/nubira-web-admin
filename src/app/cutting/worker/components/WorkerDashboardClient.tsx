@@ -12,9 +12,13 @@ import {
   History,
   Briefcase,
   AlertCircle,
-  ClipboardList
+  ClipboardList,
+  Bell
 } from 'lucide-react'
 import { toast } from 'sonner'
+import { FloorNotificationDrawer } from '@/components/notifications/FloorNotificationDrawer'
+import { subscribeToFloorEvents, broadcastFloorEvent } from '@/utils/floorRealtime'
+import { getUnreadNotificationCount, FLOOR_NOTIFICATIONS_UPDATE_EVENT } from '@/utils/floorNotificationsStorage'
 import { CuttingTaskAllocation, CuttingWorker } from '../../types/cutting'
 import {
   getCuttingTaskAllocations,
@@ -49,6 +53,9 @@ export function WorkerDashboardClient({
   const [tasks, setTasks] = useState<CuttingTaskAllocation[]>([])
   const [isSyncing, setIsSyncing] = useState(false)
   const [now, setNow] = useState<number>(Date.now())
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false)
+  const [unreadCount, setUnreadCount] = useState(0)
+  const [wsStatus, setWsStatus] = useState<'connected' | 'connecting' | 'offline'>('offline')
 
   // Real-time 1-second interval ticker for live cutting countdown timer
   useEffect(() => {
@@ -77,6 +84,38 @@ export function WorkerDashboardClient({
       }
     }
   }, [initialTasks, companyName])
+
+  // Real-time WebSocket sync & notifications subscription
+  useEffect(() => {
+    setUnreadCount(getUnreadNotificationCount(companyName, 'cutting'))
+    const handleNotifUpdate = () => {
+      setUnreadCount(getUnreadNotificationCount(companyName, 'cutting'))
+    }
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener(FLOOR_NOTIFICATIONS_UPDATE_EVENT, handleNotifUpdate)
+    }
+
+    const unsub = subscribeToFloorEvents({
+      companyName,
+      onStatusChange: (status) => setWsStatus(status),
+      onRefresh: () => reloadData(),
+      onEvent: (event) => {
+        reloadData()
+        handleNotifUpdate()
+        if (event.eventType === 'TASK_ALLOCATED' || event.eventType === 'TASK_VERIFIED') {
+          toast.info(event.title, { description: event.message })
+        }
+      }
+    })
+
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener(FLOOR_NOTIFICATIONS_UPDATE_EVENT, handleNotifUpdate)
+      }
+      unsub()
+    }
+  }, [companyName])
 
   const handleManualSync = async () => {
     setIsSyncing(true)
@@ -288,6 +327,19 @@ export function WorkerDashboardClient({
     const taskObj = updatedTasks.find(t => t.id === taskId || t.task_ref === taskRef)
     if (taskObj) {
       await saveCuttingTaskAllocationAction(taskObj)
+
+      // Broadcast WebSocket floor event
+      broadcastFloorEvent({
+        eventType: 'PROGRESS_SUBMITTED',
+        sourceModule: 'cutting',
+        title: `Work Finished: ${taskObj.worker_name || 'Operator'}`,
+        message: `${taskObj.worker_name || 'Operator'} cut ${pieces.toLocaleString('en-IN')} pcs of Article ${taskObj.article_number} (Lot ${taskObj.lot_number || taskRef}). Ready for verification.`,
+        articleNumber: taskObj.article_number,
+        buyerName: taskObj.buyer_name,
+        workerName: taskObj.worker_name,
+        pieces: pieces,
+        companyName
+      })
     }
 
     toast.success(`Work finished for Task #${taskRef} (${pieces.toLocaleString('en-IN')} pcs)! Submitted to Head of Dept for Verification.`)
@@ -317,6 +369,22 @@ export function WorkerDashboardClient({
         </div>
 
         <div className="flex items-center gap-2">
+          {/* Real-time Live Feed Notification Button */}
+          <button
+            onClick={() => setIsNotificationOpen(true)}
+            className="relative inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-black/10 bg-white hover:bg-[#FAF7F0] text-xs font-mono font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
+            title="Open Live Department Feed & Audit Log"
+          >
+            <Bell className="w-3.5 h-3.5 text-[#3A3564]" />
+            <span>Live Feed</span>
+            {unreadCount > 0 && (
+              <span className="inline-flex items-center justify-center px-1.5 py-0.2 text-[10px] font-black text-white bg-rose-500 rounded-full animate-pulse">
+                {unreadCount}
+              </span>
+            )}
+            <span className={`w-2 h-2 rounded-full ${wsStatus === 'connected' ? 'bg-emerald-500 animate-pulse' : 'bg-amber-400'}`} />
+          </button>
+
           <Link
             href="/cutting/worker/history"
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs"
@@ -641,6 +709,14 @@ export function WorkerDashboardClient({
           })
         )}
       </div>
+
+      {/* Floor Realtime Notification Side Nav Drawer */}
+      <FloorNotificationDrawer
+        isOpen={isNotificationOpen}
+        onClose={() => setIsNotificationOpen(false)}
+        companyName={companyName}
+        currentModule="cutting"
+      />
 
     </div>
   )
