@@ -37,7 +37,6 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { subscribeToFloorEvents, broadcastFloorEvent } from '@/utils/floorRealtime'
-import { getUnreadNotificationCount, FLOOR_NOTIFICATIONS_UPDATE_EVENT } from '@/utils/floorNotificationsStorage'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { 
   PrintingWorker, 
@@ -233,7 +232,6 @@ export function PrintingDashboardClient({
   const [isAddWorkerOpen, setIsAddWorkerOpen] = useState(false)
   const [isWorkerListOpen, setIsWorkerListOpen] = useState(false)
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false)
-  const [unreadCount, setUnreadCount] = useState(0)
   const [wsStatus, setWsStatus] = useState<'connected' | 'connecting' | 'offline'>('offline')
 
   // Active Buyers for Contract Selection
@@ -348,24 +346,14 @@ export function PrintingDashboardClient({
     }
   }, [initialBuyers, serverWorkers, serverAllocations, serverCuttingAllocations, serverEmbroideryAllocations, companyName])
 
-  // Real-time WebSocket sync & notifications subscription
+  // Real-time WebSocket sync
   useEffect(() => {
-    setUnreadCount(getUnreadNotificationCount(companyName, 'printing'))
-    const handleNotifUpdate = () => {
-      setUnreadCount(getUnreadNotificationCount(companyName, 'printing'))
-    }
-
-    if (typeof window !== 'undefined') {
-      window.addEventListener(FLOOR_NOTIFICATIONS_UPDATE_EVENT, handleNotifUpdate)
-    }
-
     const unsub = subscribeToFloorEvents({
       companyName,
       onStatusChange: (status) => setWsStatus(status),
       onRefresh: () => refreshFloorData(),
       onEvent: (event) => {
         refreshFloorData()
-        handleNotifUpdate()
         if (event.sourceModule !== 'printing' || event.eventType === 'PROGRESS_SUBMITTED') {
           toast.info(event.title, { description: event.message })
         }
@@ -373,9 +361,6 @@ export function PrintingDashboardClient({
     })
 
     return () => {
-      if (typeof window !== 'undefined') {
-        window.removeEventListener(FLOOR_NOTIFICATIONS_UPDATE_EVENT, handleNotifUpdate)
-      }
       unsub()
     }
   }, [companyName])
