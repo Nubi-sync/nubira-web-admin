@@ -18,6 +18,7 @@ export interface FloorRealtimeEvent {
   title: string
   message: string
   articleNumber?: string
+  buyerName?: string
   workerName?: string
   pieces?: number
   taskRef?: string

@@ -333,7 +333,7 @@ export function WorkerDashboardClient({
         eventType: 'PROGRESS_SUBMITTED',
         sourceModule: 'cutting',
         title: `Work Finished: ${taskObj.worker_name || 'Operator'}`,
-        message: `${taskObj.worker_name || 'Operator'} cut ${pieces.toLocaleString('en-IN')} pcs of Article ${taskObj.article_number} (Lot ${taskObj.lot_number || taskRef}). Ready for verification.`,
+        message: `${taskObj.worker_name || 'Operator'} cut ${pieces.toLocaleString('en-IN')} pcs of Article ${taskObj.article_number} (Lot ${taskRef}). Ready for verification.`,
         articleNumber: taskObj.article_number,
         buyerName: taskObj.buyer_name,
         workerName: taskObj.worker_name,
