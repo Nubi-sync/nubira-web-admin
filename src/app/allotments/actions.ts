@@ -399,6 +399,8 @@ export async function createDetailedAllotment(payload: {
   revalidatePath('/stitching-sewing/supervisor-desk')
   revalidatePath('/modules/supervisor-desk')
   revalidatePath('/stitching-sewing/dashboard')
+  revalidatePath('/production-orders')
+  revalidatePath('/stitching-sewing/production-orders')
   return { success: true }
   } catch (globalErr: any) {
     console.error('Fatal error in createDetailedAllotment:', globalErr)
@@ -455,6 +457,8 @@ export async function updateAllotmentStatus(allotmentId: string, newStatus: stri
   revalidatePath('/stitching-sewing/allotments')
   revalidatePath('/stitching-sewing/supervisor-desk')
   revalidatePath('/stitching-sewing/dashboard')
+  revalidatePath('/production-orders')
+  revalidatePath('/stitching-sewing/production-orders')
   return { success: true }
 }
 
