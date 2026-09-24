@@ -3,6 +3,8 @@ import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { redirect } from 'next/navigation'
 import { AdminShell } from '@/components/layout/AdminShell'
 import DashboardClient from '@/app/DashboardClient'
+import { StitchingDashboardClient } from '../components/StitchingDashboardClient'
+import { fetchStitchingWorkersAction, fetchStitchingTaskAllocationsAction } from '../actions'
 import { LogOut, LayoutDashboard, Building2, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import { TvViewButton } from '@/components/ui/TvViewButton'
@@ -50,6 +52,25 @@ export default async function StitchingSewingDashboardPage() {
     redirect('/stitching-sewing/store')
   }
 
+  // For Standard Factories: Render base streamlined Stitching Floor (Dashboard + Manage Workers + Allocations)
+  if (!isLegacy) {
+    const [workers, tasks] = await Promise.all([
+      fetchStitchingWorkersAction(tenant.companyName),
+      fetchStitchingTaskAllocationsAction(tenant.companyName)
+    ])
+
+    return (
+      <AdminShell userEmail={tenant.userEmail} userRole={tenant.role}>
+        <StitchingDashboardClient
+          companyName={tenant.companyName}
+          initialWorkers={workers}
+          initialTasks={tasks}
+        />
+      </AdminShell>
+    )
+  }
+
+  // For Custom Factory Plan (Nubira Creation): Full 6-Stage Deep Manufacturing Suite
   const normComp = (tenant.companyName || 'all').toLowerCase().replace(/[^a-z0-9]/g, '_')
   const cacheKey = `company:${normComp}:stitching:dashboard_data`
 
@@ -58,10 +79,6 @@ export default async function StitchingSewingDashboardPage() {
     .select('id, art_no, description, stitching_rate, size_rates')
     .eq('is_active', true)
     .order('art_no')
-
-  if (!isLegacy && tenant.companyName) {
-    articlesQuery = articlesQuery.or(`size_rates->>company_name.eq.${tenant.companyName},size_rates->_meta->>company_name.eq.${tenant.companyName}`)
-  }
 
   const {
     articlesData,
