@@ -5,6 +5,11 @@ import { AdminShell } from '@/components/layout/AdminShell'
 import DashboardClient from '@/app/DashboardClient'
 import { StitchingDashboardClient } from '../components/StitchingDashboardClient'
 import { fetchStitchingWorkersAction, fetchStitchingTaskAllocationsAction } from '../actions'
+import { fetchActiveBuyersAction } from '@/app/merchandising/actions'
+import { fetchCuttingTaskAllocationsAction } from '@/app/cutting/actions'
+import { fetchPrintingTaskAllocationsAction } from '@/app/printing/actions'
+import { fetchEmbroideryTaskAllocationsAction } from '@/app/embroidery/actions'
+import { fetchTechPacksAction } from '@/app/design/actions'
 import { LogOut, LayoutDashboard, Building2, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import { TvViewButton } from '@/components/ui/TvViewButton'
@@ -65,17 +70,35 @@ export default async function StitchingSewingDashboardPage() {
 
   // For Standard Factories: Render base streamlined Stitching Floor (Dashboard + Manage Workers + Allocations)
   if (!isCustomPlant) {
-    const [workers, tasks] = await Promise.all([
+    const [
+      buyers,
+      workers,
+      tasks,
+      cuttingAllocations,
+      printingAllocations,
+      embroideryAllocations,
+      techPacks
+    ] = await Promise.all([
+      fetchActiveBuyersAction(tenant.companyName),
       fetchStitchingWorkersAction(tenant.companyName),
-      fetchStitchingTaskAllocationsAction(tenant.companyName)
+      fetchStitchingTaskAllocationsAction(tenant.companyName),
+      fetchCuttingTaskAllocationsAction(tenant.companyName),
+      fetchPrintingTaskAllocationsAction(tenant.companyName),
+      fetchEmbroideryTaskAllocationsAction(tenant.companyName),
+      fetchTechPacksAction(tenant.companyName)
     ])
 
     return (
       <AdminShell userEmail={tenant.userEmail} userRole={tenant.role}>
         <StitchingDashboardClient
           companyName={tenant.companyName}
+          initialBuyers={buyers}
           initialWorkers={workers}
           initialTasks={tasks}
+          initialCuttingAllocations={cuttingAllocations}
+          initialPrintingAllocations={printingAllocations}
+          initialEmbroideryAllocations={embroideryAllocations}
+          initialTechPacks={techPacks}
         />
       </AdminShell>
     )
