@@ -8,7 +8,6 @@ import { AdminSidebar } from './AdminSidebar'
 import { TvModeProvider, useTvMode } from '@/context/TvModeContext'
 import { TvTopBar } from './TvTopBar'
 import { AiCopilotWidget } from '../chat/AiCopilotWidget'
-import { UniversalNotificationSideNav } from '@/components/notifications/UniversalNotificationSideNav'
 
 function MobileTopBar({ onMenuToggle, logoHref = '/modules' }: { onMenuToggle: () => void; logoHref?: string }) {
   return (
@@ -137,9 +136,6 @@ function AdminShellContent({
 
         {/* AI Copilot Chatbot Widget (Only for Admins) */}
         {!isTvMode && !isStoreUser && <AiCopilotWidget />}
-
-        {/* Universal Notification Side Nav (Docked Floating Tab & Real-time Audit Drawer) */}
-        <UniversalNotificationSideNav companyName={companyName} />
       </main>
     </div>
   )
