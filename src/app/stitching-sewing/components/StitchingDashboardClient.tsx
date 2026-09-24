@@ -520,7 +520,7 @@ export function StitchingDashboardClient({
         </div>
 
         {/* Quick Nav Chips */}
-        <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
+        <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto justify-start lg:justify-end">
           <Link
             href="/stitching-sewing/production-orders"
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs"
@@ -552,109 +552,35 @@ export function StitchingDashboardClient({
         </div>
       </div>
 
-      {/* 3. Buyer Selection & Worker Controls Bar (Unified Tab Matching Screenshot 1) */}
-      <div className="bg-white p-4 sm:p-5 rounded-2xl border border-black/10 shadow-2xs flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
+      {/* 3. Buyer Selection & Process Context Bar */}
+      <div className="bg-white p-4 sm:p-5 rounded-2xl border border-black/10 shadow-2xs flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-4">
         
-        {/* Left: Active Buyer Info Pill */}
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
-            <Building2 className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="text-xs font-mono font-bold uppercase tracking-wider text-slate-400">
-              SELECTED BUYER CONTRACT &amp; ROUTE
-            </div>
-            <div className="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2 flex-wrap">
-              <span>{selectedBuyer ? (selectedBuyer.buyer_name || selectedBuyer.brand_name) : (activeSelectedBuyerId === 'ALL' ? 'All Buyers & Contracts' : 'No Active Buyers')}</span>
-              {activeStyleRef && (
-                <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-                  Article: {activeStyleRef}
-                </span>
-              )}
-            </div>
-
-            {/* Subline: Route Dropdown + Ready in Hand */}
-            <div className="flex items-center gap-2 mt-1 flex-wrap">
-              {/* Route Pill with Dropdown Selector */}
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => setIsRouteMenuOpen(!isRouteMenuOpen)}
-                  className="inline-flex items-center gap-1.5 text-xs font-mono font-bold px-2.5 py-0.5 rounded-md border border-black/10 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-[#3A3564] cursor-pointer transition-all shadow-2xs"
-                  title="Click to view or change manufacturing process route"
-                >
-                  <GitBranch className="w-3 h-3 text-[#3A3564]" />
-                  <span>Route: {EMBELLISHMENT_ROUTE_CONFIGS[activeRoute]?.shortLabel || 'Standard'} <span className="text-[10px] text-slate-500 font-normal">({routeDetails.badgeLabel})</span></span>
-                  <ChevronDown className={`w-3 h-3 transition-transform ${isRouteMenuOpen ? 'rotate-180' : ''}`} />
-                </button>
-
-                {isRouteMenuOpen && (
-                  <div className="absolute left-0 top-full mt-1.5 w-80 bg-white rounded-xl border border-black/10 shadow-xl z-40 p-2 space-y-1 animate-in fade-in zoom-in-95">
-                    <div className="px-2 py-1 text-[11px] font-mono font-bold text-slate-400 uppercase tracking-wider border-b border-black/5">
-                      Select Manufacturing Route
-                    </div>
-                    {ALL_ROUTE_OPTIONS.map(opt => (
-                      <button
-                        key={opt.value}
-                        type="button"
-                        onClick={() => handleSelectRoute(opt.value)}
-                        className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer flex items-start justify-between gap-2 ${
-                          activeRoute === opt.value
-                            ? 'bg-[#3A3564] text-white font-bold'
-                            : 'text-slate-700 hover:bg-[#FAF7F0]'
-                        }`}
-                      >
-                        <div>
-                          <div className="font-bold">{opt.shortLabel}</div>
-                          <div className={`text-[10px] mt-0.5 font-mono ${activeRoute === opt.value ? 'text-indigo-200' : 'text-slate-500'}`}>
-                            {opt.flowDescription}
-                          </div>
-                        </div>
-                        {activeRoute === opt.value && <Check className="w-4 h-4 text-white shrink-0 mt-0.5" />}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Ready in Hand Badge (Critical Stitching Element Preserved) */}
-              <div 
-                className="inline-flex items-center gap-1.5 text-xs font-mono font-bold px-2.5 py-0.5 rounded-md border border-emerald-200 bg-emerald-50 text-emerald-800 shadow-2xs"
-                title={`Upstream intake ready for sewing line: ${inHandPieces} pcs`}
-              >
-                <span>Ready in Hand:</span>
-                <span className="font-black text-emerald-900">{inHandPieces.toLocaleString('en-IN')} pcs</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Right: Buyer Dropdown + View Worker List + Add Worker + Assign Sewing Task + Refresh Sync */}
-        <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap justify-end">
+        {/* Left: Interactive Context Selectors */}
+        <div className="flex items-center gap-3 flex-wrap">
           
-          {/* Buyer Selector Searchable Dropdown */}
+          {/* Buyer Selector Dropdown */}
           <div className="relative min-w-[200px] sm:min-w-[240px]">
             <button
               type="button"
               onClick={() => setIsBuyerMenuOpen(!isBuyerMenuOpen)}
-              className="w-full flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-xs sm:text-sm font-bold text-slate-800 transition-all cursor-pointer shadow-2xs"
+              className="w-full flex items-center justify-between gap-2.5 px-3.5 py-2 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-xs sm:text-sm font-bold text-slate-800 transition-all cursor-pointer shadow-2xs"
             >
               <div className="flex items-center gap-2 truncate">
-                <Users className="w-4 h-4 text-[#3A3564] shrink-0" />
+                <Building2 className="w-4 h-4 text-[#3A3564] shrink-0" />
                 <span className="truncate">{selectedBuyerDisplayText}</span>
               </div>
-              <ChevronDown className={`w-4 h-4 text-slate-500 shrink-0 transition-transform ${isBuyerMenuOpen ? 'rotate-180' : ''}`} />
+              <ChevronDown className={`w-3.5 h-3.5 text-slate-500 shrink-0 transition-transform ${isBuyerMenuOpen ? 'rotate-180' : ''}`} />
             </button>
 
             {isBuyerMenuOpen && (
-              <div className="absolute right-0 top-full mt-1.5 w-80 bg-white rounded-xl border border-black/10 shadow-xl z-30 p-2 space-y-1.5 animate-in fade-in zoom-in-95">
+              <div className="absolute left-0 top-full mt-1.5 w-80 bg-white rounded-xl border border-black/10 shadow-xl z-30 p-2 space-y-1.5 animate-in fade-in zoom-in-95">
                 <div className="relative">
                   <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
                     value={buyerSearchQuery}
                     onChange={e => setBuyerSearchQuery(e.target.value)}
-                    placeholder="Search buyers..."
+                    placeholder="Search buyers & contracts..."
                     className="w-full pl-8 pr-2.5 py-1.5 text-xs rounded-lg border border-black/10 bg-slate-50 focus:bg-white focus:outline-hidden focus:border-[#3A3564]"
                     autoFocus
                   />
@@ -716,38 +642,97 @@ export function StitchingDashboardClient({
             )}
           </div>
 
-          {/* Button 1: View Worker List */}
+          {/* Article / Style Tag if active */}
+          {activeStyleRef && (
+            <div className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-[#3A3564] shadow-2xs">
+              <span className="text-slate-400 font-normal">Style:</span>
+              <span>{activeStyleRef}</span>
+            </div>
+          )}
+
+          {/* Route Pill with Dropdown Selector */}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setIsRouteMenuOpen(!isRouteMenuOpen)}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-black/10 bg-white hover:bg-[#FAF7F0] text-xs font-mono font-bold text-[#3A3564] cursor-pointer transition-all shadow-2xs"
+              title="Click to view or change manufacturing process route"
+            >
+              <GitBranch className="w-3.5 h-3.5 text-[#3A3564]" />
+              <span>{routeDetails.badgeLabel}</span>
+              <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${isRouteMenuOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            {isRouteMenuOpen && (
+              <div className="absolute left-0 top-full mt-1.5 w-80 bg-white rounded-xl border border-black/10 shadow-xl z-40 p-2 space-y-1 animate-in fade-in zoom-in-95">
+                <div className="px-2 py-1 text-[11px] font-mono font-bold text-slate-400 uppercase tracking-wider border-b border-black/5">
+                  Select Manufacturing Route
+                </div>
+                {ALL_ROUTE_OPTIONS.map(opt => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => handleSelectRoute(opt.value)}
+                    className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer flex items-start justify-between gap-2 ${
+                      activeRoute === opt.value
+                        ? 'bg-[#3A3564] text-white font-bold'
+                        : 'text-slate-700 hover:bg-[#FAF7F0]'
+                    }`}
+                  >
+                    <div>
+                      <div className="font-bold">{opt.shortLabel}</div>
+                      <div className={`text-[10px] mt-0.5 font-mono ${activeRoute === opt.value ? 'text-indigo-200' : 'text-slate-500'}`}>
+                        {opt.flowDescription}
+                      </div>
+                    </div>
+                    {activeRoute === opt.value && <Check className="w-4 h-4 text-white shrink-0 mt-0.5" />}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Upstream Ready in Hand Badge */}
+          <div 
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-emerald-200 bg-emerald-50 text-xs font-mono font-bold text-emerald-800 shadow-2xs"
+            title={`Upstream intake ready for sewing line: ${inHandPieces} pcs`}
+          >
+            <span>Ready in Hand:</span>
+            <span className="font-black text-emerald-900">{inHandPieces.toLocaleString('en-IN')} pcs</span>
+          </div>
+
+        </div>
+
+        {/* Right: Tailor Management & Task Actions */}
+        <div className="flex items-center gap-2.5 flex-wrap justify-end">
           <button
             type="button"
             onClick={() => setIsWorkerListOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-black/10 bg-white hover:bg-[#FAF7F0] text-xs font-bold text-slate-800 transition-all cursor-pointer shadow-2xs shrink-0"
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-black/10 bg-white hover:bg-[#FAF7F0] text-xs sm:text-sm font-bold text-slate-800 transition-all cursor-pointer shadow-2xs shrink-0"
           >
             <Users className="w-4 h-4 text-[#3A3564]" />
-            <span>View Worker List ({workers.length})</span>
+            <span>Manage Tailors ({workers.length})</span>
           </button>
 
-          {/* Button 2: Add Worker */}
           <button
             type="button"
             onClick={() => setIsAddWorkerOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-xs font-bold text-[#3A3564] transition-all cursor-pointer shadow-2xs shrink-0"
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-xs sm:text-sm font-bold text-[#3A3564] transition-all cursor-pointer shadow-2xs shrink-0"
             title="Register a new tailor or sewing operator"
           >
             <UserPlus className="w-4 h-4 text-[#3A3564]" />
-            <span>+ Add Worker</span>
+            <span>+ Add Tailor</span>
           </button>
 
-          {/* Button 3: Assign Sewing Task */}
           <button
             type="button"
             onClick={() => setIsAddTaskOpen(true)}
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs font-bold transition-all shadow-xs cursor-pointer shrink-0"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs sm:text-sm font-bold transition-all shadow-xs cursor-pointer shrink-0"
           >
             <Plus className="w-4 h-4" />
             <span>+ Assign Sewing Task</span>
           </button>
 
-          {/* Refresh Sync Button */}
           <button
             type="button"
             onClick={handleManualRefresh}
@@ -757,8 +742,8 @@ export function StitchingDashboardClient({
           >
             <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
           </button>
-
         </div>
+
       </div>
 
       {/* 4. Metric KPI Cards */}
