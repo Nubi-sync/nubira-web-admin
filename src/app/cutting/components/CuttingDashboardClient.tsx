@@ -311,11 +311,15 @@ export function CuttingDashboardClient({
   }
 
   // Determine active selected buyer
-  const activeSelectedBuyerId = selectedBuyerId && buyers.some(b => b.id === selectedBuyerId)
-    ? selectedBuyerId
-    : (buyers[0]?.id || '')
+  const activeSelectedBuyerId = selectedBuyerId === 'ALL'
+    ? 'ALL'
+    : (selectedBuyerId && buyers.some(b => b.id === selectedBuyerId)
+        ? selectedBuyerId
+        : (buyers[0]?.id || ''))
 
-  const selectedBuyer = buyers.find(b => b.id === activeSelectedBuyerId) || (buyers.length > 0 ? buyers[0] : null)
+  const selectedBuyer = activeSelectedBuyerId === 'ALL'
+    ? null
+    : (buyers.find(b => b.id === activeSelectedBuyerId) || (buyers.length > 0 ? buyers[0] : null))
 
   const filteredBuyersList = buyers.filter(b =>
     (b.buyer_name || '').toLowerCase().includes(buyerSearchQuery.toLowerCase()) ||
@@ -332,9 +336,11 @@ export function CuttingDashboardClient({
          o.brand_name.toLowerCase() === (selectedBuyer.buyer_name || selectedBuyer.brand_name).toLowerCase()) ||
         (o.buyer_id && o.buyer_id === selectedBuyer.id)
       )
-    : []
+    : localOrders
   const bpoOrdersTotal = matchingBpos.reduce((sum, o) => sum + (Number(o.total_quantity) || 0), 0)
-  const totalBpoContractedPieces = Math.max(Number(selectedBuyer?.contracted_volume) || 0, bpoOrdersTotal)
+  const totalBpoContractedPieces = selectedBuyer
+    ? Math.max(Number(selectedBuyer?.contracted_volume) || 0, bpoOrdersTotal)
+    : buyers.reduce((sum, b) => sum + (Number(b.contracted_volume) || 0), 0)
   const articleNum = (selectedBuyer?.linked_article_number || matchingBpos[0]?.style_ref || '').trim().toUpperCase()
 
   // Match allocations for this buyer/article
@@ -373,10 +379,27 @@ export function CuttingDashboardClient({
 
   const selectedBuyerDisplayText = selectedBuyer
     ? `${selectedBuyer.buyer_name} (${totalBpoContractedPieces.toLocaleString('en-IN')} Pcs Total)`
-    : (buyers.length === 0 ? 'No Active Buyers Contracted' : 'Select Buyer Contract')
+    : (activeSelectedBuyerId === 'ALL' ? `All Buyers (${allocations.length} Active Lots)` : (buyers.length === 0 ? 'No Active Buyers Contracted' : 'Select Buyer Contract'))
 
-  // Filtered Task Allocations for Spreadsheet
+  // Filtered Task Allocations for Spreadsheet — dynamically filtered by selected buyer contract
   const filteredTasks = allocations.filter(task => {
+    // 1. Dynamic Buyer & Article Filter
+    if (selectedBuyer) {
+      const selectedBuyerName = (selectedBuyer.buyer_name || selectedBuyer.brand_name || '').trim().toLowerCase()
+      const taskBuyerName = (task.buyer_name || '').trim().toLowerCase()
+      const taskBuyerId = task.buyer_id || ''
+      const taskArticle = (task.article_number || '').trim().toUpperCase()
+
+      const matchesBuyer = (
+        (taskBuyerId && taskBuyerId === selectedBuyer.id) ||
+        (selectedBuyerName && taskBuyerName && taskBuyerName === selectedBuyerName) ||
+        (articleNum && taskArticle && taskArticle === articleNum)
+      )
+
+      if (!matchesBuyer) return false
+    }
+
+    // 2. Search query filter
     const matchesSearch = 
       (task.task_ref || '').toLowerCase().includes(taskSearchQuery.toLowerCase()) ||
       (task.worker_name || '').toLowerCase().includes(taskSearchQuery.toLowerCase()) ||
@@ -384,6 +407,7 @@ export function CuttingDashboardClient({
       (task.buyer_name || '').toLowerCase().includes(taskSearchQuery.toLowerCase()) ||
       (task.table_number || '').toLowerCase().includes(taskSearchQuery.toLowerCase())
 
+    // 3. Status filter
     let matchesStatus = true
     if (statusFilter === 'ACTIVE') {
       matchesStatus = task.status !== 'VERIFIED_COMPLETED' && task.status !== 'COMPLETED'
@@ -619,6 +643,28 @@ export function CuttingDashboardClient({
                   />
                 </div>
                 <div className="max-h-56 overflow-y-auto space-y-0.5 pt-1">
+                  {/* All Buyers Option */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedBuyerId('ALL')
+                      setIsBuyerMenuOpen(false)
+                    }}
+                    className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer flex items-center justify-between border-b border-black/5 mb-1 ${
+                      activeSelectedBuyerId === 'ALL'
+                        ? 'bg-[#3A3564] text-white font-bold'
+                        : 'text-slate-700 hover:bg-[#FAF7F0]'
+                    }`}
+                  >
+                    <div>
+                      <div className="font-bold">All Buyers &amp; Contracts</div>
+                      <div className={`text-[10px] font-mono mt-0.5 ${activeSelectedBuyerId === 'ALL' ? 'text-indigo-200' : 'text-slate-500'}`}>
+                        Show all {allocations.length} floor task allocations
+                      </div>
+                    </div>
+                    {activeSelectedBuyerId === 'ALL' && <Check className="w-4 h-4 text-white shrink-0" />}
+                  </button>
+
                   {filteredBuyersList.length === 0 ? (
                     <div className="py-3 px-2 text-center text-xs text-slate-400">
                       No buyers found
