@@ -25,6 +25,7 @@ export default async function SupervisorDeskPage() {
   const isLegacyNubira =
     tenant.companyName.toLowerCase() === 'nubira creation' ||
     tenant.userEmail === 'team.anga9@gmail.com' ||
+    tenant.userEmail === 'aj@nubiracreation.com' ||
     tenant.userEmail.endsWith('@nubira.local')
   const userRole = tenant.role.toUpperCase()
 

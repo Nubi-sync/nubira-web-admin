@@ -64,6 +64,7 @@ function AdminShellContent({
   const isAdmin = (
     userEmail?.toLowerCase() === 'admin@zigza.in' ||
     userEmail?.toLowerCase() === 'team.anga9@gmail.com' ||
+    userEmail?.toLowerCase() === 'aj@nubiracreation.com' ||
     userRole?.toUpperCase() === 'ADMIN' ||
     userRole?.toUpperCase() === 'SUPERADMIN' ||
     userRole?.toUpperCase() === 'PLATFORM_SUPERADMIN' ||

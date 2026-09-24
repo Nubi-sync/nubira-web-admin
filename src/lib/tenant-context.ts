@@ -334,7 +334,7 @@ async function resolveUserTenantFresh(user: {
     } catch (_) {}
   }
 
-  if (!tenant && (userEmail.includes('nubira') || userEmail === 'team.anga9@gmail.com')) {
+  if (!tenant && (userEmail.includes('nubira') || userEmail === 'team.anga9@gmail.com' || userEmail === 'aj@nubiracreation.com' || userEmail.startsWith('aj@'))) {
     try {
       const { data: nubiraTenant } = await supabaseAdmin
         .from('platform_tenant_factories')
@@ -351,7 +351,8 @@ async function resolveUserTenantFresh(user: {
     const isTenantAdmin = Boolean(
       (tenant.admin_email && tenant.admin_email.toLowerCase() === userEmail.toLowerCase()) ||
       userEmail === 'admin@zigza.in' ||
-      userEmail === 'team.anga9@gmail.com'
+      userEmail === 'team.anga9@gmail.com' ||
+      userEmail === 'aj@nubiracreation.com'
     )
 
     // Use the already-fetched profile data

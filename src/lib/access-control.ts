@@ -120,7 +120,7 @@ export function getUserAllowedModules(
   }
 
   // 2. Enterprise SuperAdmins & Master Factory Owners
-  if (role === 'SUPERADMIN' || role === 'ADMIN' || email === 'team.anga9@gmail.com') {
+  if (role === 'SUPERADMIN' || role === 'ADMIN' || email === 'team.anga9@gmail.com' || email === 'aj@nubiracreation.com') {
     return ['/platform-admin', ...ALL_DIVISION_ROUTES, '/modules']
   }
 
@@ -194,7 +194,7 @@ export function getDefaultLandingRoute(
   }
 
   // Enterprise SuperAdmin & Factory Owners land on modules hub
-  if (normRole === 'SUPERADMIN' || normRole === 'ADMIN' || normEmail === 'team.anga9@gmail.com') {
+  if (normRole === 'SUPERADMIN' || normRole === 'ADMIN' || normEmail === 'team.anga9@gmail.com' || normEmail === 'aj@nubiracreation.com') {
     return '/modules'
   }
 

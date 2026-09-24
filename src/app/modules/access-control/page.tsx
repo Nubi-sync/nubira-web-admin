@@ -29,7 +29,8 @@ export default async function AccessControlPage() {
     userRole === 'ADMIN' ||
     userRole === 'PLATFORM_SUPERADMIN' ||
     user.email === 'admin@zigza.in' ||
-    user.email === 'team.anga9@gmail.com'
+    user.email === 'team.anga9@gmail.com' ||
+    user.email === 'aj@nubiracreation.com'
   )
 
   if (!isAuthorizedAdmin) {
