@@ -27,9 +27,13 @@ import {
   Trash2,
   Calendar,
   FlaskConical,
-  Droplets
+  Droplets,
+  Bell
 } from 'lucide-react'
 import { toast } from 'sonner'
+import { FloorNotificationDrawer } from '@/components/notifications/FloorNotificationDrawer'
+import { subscribeToFloorEvents, broadcastFloorEvent } from '@/utils/floorRealtime'
+import { getUnreadNotificationCount, FLOOR_NOTIFICATIONS_UPDATE_EVENT } from '@/utils/floorNotificationsStorage'
 import { 
   WashingWorker, 
   WashingTaskAllocation, 

@@ -560,6 +560,22 @@ export function EmbroideryDashboardClient({
     if (taskObj) {
       await saveEmbroideryTaskAllocationAction(taskObj)
     }
+
+    // Broadcast over floor WebSockets
+    broadcastFloorEvent({
+      eventType: 'TASK_VERIFIED',
+      sourceModule: 'embroidery',
+      targetModule: activeRoute === 'EMBROIDERY_FIRST_THEN_PRINT' ? 'printing' : 'stitching',
+      companyName,
+      title: 'Embroidery Verified & Completed',
+      message: `Task #${taskRef} verified! ${pieces.toLocaleString('en-IN')} embroidered panels of Article ${taskObj?.article_number || articleNum} ready for ${activeRoute === 'EMBROIDERY_FIRST_THEN_PRINT' ? 'Printing Studio' : 'Stitching & Sewing'}.`,
+      articleNumber: taskObj?.article_number || articleNum,
+      workerName: taskObj?.worker_name,
+      pieces,
+      taskRef,
+      status: 'VERIFIED_COMPLETED'
+    })
+
     toast.success(`Task #${taskRef} verified! ${pieces.toLocaleString('en-IN')} pcs completed and unlocked for ${activeRoute === 'EMBROIDERY_FIRST_THEN_PRINT' ? 'Printing Studio' : 'Stitching & Sewing'}.`)
   }
 
@@ -621,7 +637,31 @@ export function EmbroideryDashboardClient({
           </span>
         </div>
         
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
+          {/* Live Notification Side Nav Trigger Button */}
+          <button
+            type="button"
+            onClick={() => setIsNotificationOpen(true)}
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border border-black/10 bg-white hover:bg-[#FAF7F0] text-xs font-bold text-slate-800 transition-all cursor-pointer shadow-2xs relative"
+            title="Open Live Floor Activity & Notifications"
+          >
+            <div className="relative">
+              <Bell className="w-4 h-4 text-[#3A3564]" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[#3A3564]" />
+              )}
+            </div>
+            <span className="flex items-center gap-1.5">
+              <span className={`w-1.5 h-1.5 rounded-full ${wsStatus === 'connected' ? 'bg-emerald-500 animate-pulse' : 'bg-amber-400'}`} />
+              <span>Live Feed</span>
+            </span>
+            {unreadCount > 0 && (
+              <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-[#3A3564] text-white">
+                {unreadCount}
+              </span>
+            )}
+          </button>
+
           <span className="text-[11px] font-mono font-bold px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 uppercase tracking-wider flex items-center gap-1.5 shadow-2xs">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             Multi-Head &amp; Punch Sync Active
@@ -1286,6 +1326,14 @@ export function EmbroideryDashboardClient({
           </div>
         )}
       </ConfirmDialog>
+
+      {/* Live Floor Activity & Notifications Drawer */}
+      <FloorNotificationDrawer
+        isOpen={isNotificationOpen}
+        onClose={() => setIsNotificationOpen(false)}
+        currentModule="embroidery"
+        companyName={companyName}
+      />
 
     </div>
   )

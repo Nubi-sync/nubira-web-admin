@@ -20,9 +20,13 @@ import {
   Trash2,
   Activity,
   AlertCircle,
-  Check
+  Check,
+  Bell
 } from 'lucide-react'
 import { toast } from 'sonner'
+import { FloorNotificationDrawer } from '@/components/notifications/FloorNotificationDrawer'
+import { subscribeToFloorEvents, broadcastFloorEvent } from '@/utils/floorRealtime'
+import { getUnreadNotificationCount, FLOOR_NOTIFICATIONS_UPDATE_EVENT } from '@/utils/floorNotificationsStorage'
 import { StitchingWorker, StitchingTaskAllocation, StitchingTaskStatus } from '../types/stitching'
 import {
   getStitchingWorkers,
@@ -193,6 +197,9 @@ export function StitchingDashboardClient({
   const [isAddWorkerOpen, setIsAddWorkerOpen] = useState(false)
   const [isWorkerListOpen, setIsWorkerListOpen] = useState(false)
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false)
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false)
+  const [unreadCount, setUnreadCount] = useState(0)
+  const [wsStatus, setWsStatus] = useState<'connected' | 'connecting' | 'offline'>('offline')
   const [isSyncing, setIsSyncing] = useState(false)
 
   const reloadData = () => {
@@ -239,6 +246,38 @@ export function StitchingDashboardClient({
     }
   }, [initialWorkers, initialTasks, companyName])
 
+  // Real-time WebSocket sync & notifications subscription
+  useEffect(() => {
+    setUnreadCount(getUnreadNotificationCount(companyName, 'stitching'))
+    const handleNotifUpdate = () => {
+      setUnreadCount(getUnreadNotificationCount(companyName, 'stitching'))
+    }
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener(FLOOR_NOTIFICATIONS_UPDATE_EVENT, handleNotifUpdate)
+    }
+
+    const unsub = subscribeToFloorEvents({
+      companyName,
+      onStatusChange: (status) => setWsStatus(status),
+      onRefresh: () => reloadData(),
+      onEvent: (event) => {
+        reloadData()
+        handleNotifUpdate()
+        if (event.sourceModule !== 'stitching' || event.eventType === 'PROGRESS_SUBMITTED') {
+          toast.info(event.title, { description: event.message })
+        }
+      }
+    })
+
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener(FLOOR_NOTIFICATIONS_UPDATE_EVENT, handleNotifUpdate)
+      }
+      unsub()
+    }
+  }, [companyName])
+
   // Select default buyer
   useEffect(() => {
     if (buyers.length > 0 && !selectedBuyerId) {
@@ -275,6 +314,24 @@ export function StitchingDashboardClient({
     try {
       updateStitchingTaskStatus(taskId, newStatus, undefined, undefined, companyName)
       await updateStitchingTaskStatusAction(taskId, newStatus)
+
+      const t = tasks.find(item => item.id === taskId)
+      if (newStatus === 'COMPLETED') {
+        broadcastFloorEvent({
+          eventType: 'TASK_VERIFIED',
+          sourceModule: 'stitching',
+          targetModule: 'washing',
+          companyName,
+          title: 'Sewing Completed & Transferred',
+          message: `Task #${t?.task_ref || taskId} completed (${t?.completed_quantity || t?.target_quantity || ''} pcs of Article ${t?.article_name || activeStyleRef}). Transferred to Industrial Washing.`,
+          articleNumber: t?.article_name || activeStyleRef,
+          workerName: t?.worker_name,
+          pieces: t?.completed_quantity || t?.target_quantity,
+          taskRef: t?.task_ref,
+          status: 'COMPLETED'
+        })
+      }
+
       toast.success(`Task status updated to ${newStatus.replace('_', ' ')}.`)
       reloadData()
     } catch {
@@ -416,7 +473,7 @@ export function StitchingDashboardClient({
   return (
     <div className="p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6 max-w-7xl w-full mx-auto text-[#09090b]">
       
-      {/* 1. Breadcrumbs */}
+      {/* 1. Breadcrumbs & Live Notifications Bar */}
       <div className="flex items-center justify-between gap-3 text-xs font-medium text-slate-400">
         <div className="flex items-center gap-2">
           <Link href="/modules" className="hover:text-[#3A3564] transition-colors">
@@ -428,15 +485,41 @@ export function StitchingDashboardClient({
           <span className="font-bold text-slate-900">Stitching & Sewing Assembly Floor</span>
         </div>
 
-        <button
-          type="button"
-          onClick={handleManualRefresh}
-          disabled={isSyncing}
-          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition-colors shadow-2xs cursor-pointer disabled:opacity-50"
-        >
-          <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin text-[#3A3564]' : ''}`} />
-          <span className="text-[11px] font-semibold">{isSyncing ? 'Syncing...' : 'Live Sync'}</span>
-        </button>
+        <div className="flex items-center gap-2">
+          {/* Live Notification Side Nav Trigger Button */}
+          <button
+            type="button"
+            onClick={() => setIsNotificationOpen(true)}
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-[#FAF7F0] text-xs font-bold text-slate-800 transition-all cursor-pointer shadow-2xs relative"
+            title="Open Live Floor Activity & Notifications"
+          >
+            <div className="relative">
+              <Bell className="w-4 h-4 text-[#3A3564]" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[#3A3564]" />
+              )}
+            </div>
+            <span className="flex items-center gap-1.5">
+              <span className={`w-1.5 h-1.5 rounded-full ${wsStatus === 'connected' ? 'bg-emerald-500 animate-pulse' : 'bg-amber-400'}`} />
+              <span>Live Feed</span>
+            </span>
+            {unreadCount > 0 && (
+              <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-[#3A3564] text-white">
+                {unreadCount}
+              </span>
+            )}
+          </button>
+
+          <button
+            type="button"
+            onClick={handleManualRefresh}
+            disabled={isSyncing}
+            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition-colors shadow-2xs cursor-pointer disabled:opacity-50"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin text-[#3A3564]' : ''}`} />
+            <span className="text-[11px] font-semibold">{isSyncing ? 'Syncing...' : 'Live Sync'}</span>
+          </button>
+        </div>
       </div>
 
       {/* 2. Top Header Card */}
@@ -927,6 +1010,14 @@ export function StitchingDashboardClient({
         onSuccess={() => {
           reloadData()
         }}
+        companyName={companyName}
+      />
+
+      {/* Live Floor Activity & Notifications Drawer */}
+      <FloorNotificationDrawer
+        isOpen={isNotificationOpen}
+        onClose={() => setIsNotificationOpen(false)}
+        currentModule="stitching"
         companyName={companyName}
       />
 
