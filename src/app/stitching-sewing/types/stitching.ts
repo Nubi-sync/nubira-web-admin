@@ -31,7 +31,7 @@ export interface StitchingWorker {
   worker_name: string
   phone_number: string
   worker_email?: string
-  roles: StitchingWorkerRole[]
+  roles?: StitchingWorkerRole[]
   role?: string
   assigned_machine?: string
   machine_specialty?: MachineSpecialty | string
@@ -49,14 +49,17 @@ export interface StitchingTaskAllocation {
   task_ref: string
   lot_number: string
   po_number?: string
+  buyer_id?: string
+  buyer_name?: string
   article_name: string
   style_number?: string
-  operation_type: string
-  machine_type: string
+  source_department?: string
+  operation_type?: string
+  machine_type?: string
   target_quantity: number
   completed_quantity: number
   rejected_quantity?: number
-  piece_rate_inr: number
+  piece_rate_inr?: number
   alloted_hours?: number
   worker_id: string
   worker_name: string

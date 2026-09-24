@@ -295,6 +295,103 @@ export function calculateEmbroideryRouteDetails(params: {
 }
 
 /**
+ * Stitching & Sewing Floor (Division 06) Floor Handover Details
+ * Resolves whether cut pieces come directly from Cutting Floor, or from Printing / Embroidery
+ * depending on the embellishment route set in the tech pack.
+ */
+export interface StitchingRouteDetails {
+  sourceDepartment: 'Cutting Floor' | 'Printing Studio' | 'Embroidery Studio'
+  sourceCompletedPieces: number
+  inHandPieces: number
+  routeConfig: RouteOption
+  explanationText: string
+  badgeLabel: string
+}
+
+export function calculateStitchingRouteDetails(params: {
+  route: EmbellishmentSequence
+  completedCutPieces: number
+  completedPrintingPieces: number
+  completedEmbroideryPieces: number
+  pendingStitchingPieces: number
+  completedStitchingPieces: number
+}): StitchingRouteDetails {
+  const {
+    route,
+    completedCutPieces,
+    completedPrintingPieces,
+    completedEmbroideryPieces,
+    pendingStitchingPieces,
+    completedStitchingPieces
+  } = params
+
+  const config = EMBELLISHMENT_ROUTE_CONFIGS[route] || EMBELLISHMENT_ROUTE_CONFIGS['NONE']
+
+  if (route === 'NONE') {
+    // Cut & Sew Direct (Bypasses Printing & Embroidery)
+    const available = Math.max(0, completedCutPieces - pendingStitchingPieces - completedStitchingPieces)
+    return {
+      sourceDepartment: 'Cutting Floor',
+      sourceCompletedPieces: completedCutPieces,
+      inHandPieces: available,
+      routeConfig: config,
+      explanationText: `${completedCutPieces.toLocaleString('en-IN')} cut pcs received directly from Cutting Floor (Cut & Sew Direct)`,
+      badgeLabel: 'Step 1: Cutting ➔ Sewing (Direct)'
+    }
+  }
+
+  if (route === 'ONLY_PRINTING') {
+    // Cutting -> Printing -> Sewing
+    const available = Math.max(0, completedPrintingPieces - pendingStitchingPieces - completedStitchingPieces)
+    return {
+      sourceDepartment: 'Printing Studio',
+      sourceCompletedPieces: completedPrintingPieces,
+      inHandPieces: available,
+      routeConfig: config,
+      explanationText: `${completedPrintingPieces.toLocaleString('en-IN')} printed panels received from Printing Studio (Step 2/2 completed)`,
+      badgeLabel: 'Step 2: Printing ➔ Sewing'
+    }
+  }
+
+  if (route === 'ONLY_EMBROIDERY') {
+    // Cutting -> Embroidery -> Sewing
+    const available = Math.max(0, completedEmbroideryPieces - pendingStitchingPieces - completedStitchingPieces)
+    return {
+      sourceDepartment: 'Embroidery Studio',
+      sourceCompletedPieces: completedEmbroideryPieces,
+      inHandPieces: available,
+      routeConfig: config,
+      explanationText: `${completedEmbroideryPieces.toLocaleString('en-IN')} embroidered panels received from Embroidery Studio (Step 2/2 completed)`,
+      badgeLabel: 'Step 2: Embroidery ➔ Sewing'
+    }
+  }
+
+  if (route === 'PRINT_FIRST_THEN_EMBROIDERY') {
+    // Cutting -> Printing -> Embroidery -> Sewing
+    const available = Math.max(0, completedEmbroideryPieces - pendingStitchingPieces - completedStitchingPieces)
+    return {
+      sourceDepartment: 'Embroidery Studio',
+      sourceCompletedPieces: completedEmbroideryPieces,
+      inHandPieces: available,
+      routeConfig: config,
+      explanationText: `${completedEmbroideryPieces.toLocaleString('en-IN')} fully printed & embroidered panels received from Embroidery Studio`,
+      badgeLabel: 'Step 3: Embroidery ➔ Sewing (Print ➔ Emb ➔ Sew)'
+    }
+  }
+
+  // EMBROIDERY_FIRST_THEN_PRINT (Cutting -> Embroidery -> Printing -> Sewing)
+  const available = Math.max(0, completedPrintingPieces - pendingStitchingPieces - completedStitchingPieces)
+  return {
+    sourceDepartment: 'Printing Studio',
+    sourceCompletedPieces: completedPrintingPieces,
+    inHandPieces: available,
+    routeConfig: config,
+    explanationText: `${completedPrintingPieces.toLocaleString('en-IN')} fully embroidered & printed panels received from Printing Studio`,
+    badgeLabel: 'Step 3: Printing ➔ Sewing (Emb ➔ Print ➔ Sew)'
+  }
+}
+
+/**
  * Helper to update and synchronize route changes across all floor modules
  */
 export function setAndSyncArticleRoute(buyerId: string, buyerName: string, newRoute: EmbellishmentSequence) {
@@ -335,6 +432,7 @@ export function setAndSyncArticleRoute(buyerId: string, buyerName: string, newRo
     window.dispatchEvent(new Event(CUTTING_UPDATE_EVENT))
     window.dispatchEvent(new Event(PRINTING_FLOOR_UPDATE_EVENT))
     window.dispatchEvent(new Event(EMBROIDERY_FLOOR_UPDATE_EVENT))
+    window.dispatchEvent(new Event('stitching_floor_updated'))
   } catch (err) {
     console.error('Failed to sync article route:', err)
   }

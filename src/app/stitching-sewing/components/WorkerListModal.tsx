@@ -134,9 +134,6 @@ export function WorkerListModal({
                       <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 font-semibold">
                         {w.status || 'ACTIVE'}
                       </span>
-                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-purple-50 text-purple-800 border border-purple-200 font-bold">
-                        ₹{w.piece_rate_inr || 12}/pc
-                      </span>
                     </div>
                     <div className="flex items-center gap-3 text-xs text-slate-500 mt-0.5 flex-wrap">
                       <span className="flex items-center gap-1 font-mono text-[11px] text-slate-600">
@@ -145,10 +142,8 @@ export function WorkerListModal({
                       </span>
                       <span>•</span>
                       <span className="text-slate-600 font-medium truncate max-w-[220px]">
-                        {w.machine_specialty || w.assigned_machine || 'Single Needle'}
+                        Floor Workstation Access Enabled
                       </span>
-                      <span>•</span>
-                      <span className="text-slate-400 capitalize">{w.shift?.toLowerCase()} shift</span>
                     </div>
                   </div>
                 </div>
