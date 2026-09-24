@@ -19,7 +19,8 @@ import {
   Printer,
   Trash2,
   Activity,
-  AlertCircle
+  AlertCircle,
+  Check
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { StitchingWorker, StitchingTaskAllocation, StitchingTaskStatus } from '../types/stitching'
@@ -388,7 +389,7 @@ export function StitchingDashboardClient({
       const selectedBuyerName = (selectedBuyer.buyer_name || selectedBuyer.brand_name || '').trim().toLowerCase()
       const taskBuyerName = (t.buyer_name || '').trim().toLowerCase()
       const taskBuyerId = t.buyer_id || ''
-      const taskArticle = (t.article_name || t.article_number || '').trim().toUpperCase()
+      const taskArticle = (t.article_name || (t as any).article_number || '').trim().toUpperCase()
 
       const matchesBuyer = (
         (taskBuyerId && taskBuyerId === selectedBuyer.id) ||
