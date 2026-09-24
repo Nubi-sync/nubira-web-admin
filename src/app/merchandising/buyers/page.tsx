@@ -25,8 +25,7 @@ export default async function ActiveBuyersPage() {
   }
 
   const tenant = await resolveUserTenant(user)
-  const isLegacy = isLegacyNubiraTenant(tenant)
-  const companyFilter = isLegacy ? undefined : tenant.companyName
+  const companyFilter = tenant.companyName
 
   const [initialBuyers, techPacks] = await Promise.all([
     fetchActiveBuyersAction(companyFilter),

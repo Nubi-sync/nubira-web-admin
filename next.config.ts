@@ -66,6 +66,20 @@ const nextConfig: NextConfig = {
       ],
     },
   },
+  async redirects() {
+    return [
+      {
+        source: '/stitching%20sewing/:path*',
+        destination: '/stitching-sewing/:path*',
+        permanent: true,
+      },
+      {
+        source: '/stitching sewing/:path*',
+        destination: '/stitching-sewing/:path*',
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       {

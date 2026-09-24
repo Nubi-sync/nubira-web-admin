@@ -26,10 +26,19 @@ export default async function StoreDashboardPage() {
     fetchCentralStoreKpis(companyFilter),
     supabase
       .from('truck_inwards')
-      .select('id, party_name, challan_no, truck_no, garment_type, article_no, status, inward_date')
+      .select('id, party_name, challan_no, truck_no, garment_type, article_no, status, inward_date, notes')
       .order('inward_date', { ascending: false })
-      .limit(30)
+      .limit(60)
   ])
+
+  const targetComp = (companyFilter || '').trim().toLowerCase()
+  const initialTruckInwards = (truckInwardsRes.data || []).filter((t: any) => {
+    if (!targetComp) return false
+    const party = (t.party_name || '').toLowerCase()
+    const notes = (t.notes || '').toLowerCase()
+    const comp = ((t as any).company_name || '').toLowerCase()
+    return party === targetComp || party.includes(targetComp) || notes.includes(targetComp) || comp.includes(targetComp)
+  })
 
   return (
     <AdminShell userEmail={tenant.userEmail} userRole={tenant.role}>
@@ -40,7 +49,7 @@ export default async function StoreDashboardPage() {
         initialFabrics={kpisData.fabrics || []}
         initialIssues={kpisData.issues || []}
         initialReceipts={kpisData.receipts || []}
-        initialTruckInwards={truckInwardsRes.data || []}
+        initialTruckInwards={initialTruckInwards}
         kpis={kpisData.kpis}
       />
     </AdminShell>

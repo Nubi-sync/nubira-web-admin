@@ -16,14 +16,40 @@ export async function fetchArticlesPageDataAction(companyName?: string) {
   return CacheManager.fetchOrSet(
     cacheKey,
     async () => {
+      const target = (companyName || '').trim().toLowerCase()
+
       let articlesQuery = supabaseAdmin
         .from('articles')
         .select('*')
         .order('created_at', { ascending: false })
         .limit(2000)
 
-      if (companyName && companyName.trim() && companyName.toLowerCase() !== 'nubira creation') {
-        articlesQuery = articlesQuery.or(`size_rates->>company_name.eq.${companyName.trim()},size_rates->_meta->>company_name.eq.${companyName.trim()}`)
+      let allotmentsQuery = supabaseAdmin
+        .from('allotments')
+        .select(`
+          id,
+          challan_id,
+          article_id,
+          lineman_id,
+          target_qty,
+          status,
+          allotment_date,
+          created_at,
+          profiles:lineman_id ( id, username, full_name, role ),
+          articles:article_id ( id, art_no ),
+          challans:challan_id ( id, challan_no, brand, fabric_type )
+        `)
+        .order('created_at', { ascending: false })
+
+      let challansQuery = supabaseAdmin
+        .from('challans')
+        .select('id, challan_no, brand, fabric_type, challan_date, notes, created_at')
+        .order('created_at', { ascending: false })
+        .limit(100)
+
+      if (target) {
+        articlesQuery = articlesQuery.or(`size_rates->>company_name.ilike.%${target}%,size_rates->_meta->>company_name.ilike.%${target}%,description.ilike.%${target}%`)
+        challansQuery = challansQuery.or(`brand.ilike.%${target}%,notes.ilike.%${target}%`)
       }
 
       const [
@@ -33,40 +59,34 @@ export async function fetchArticlesPageDataAction(companyName?: string) {
         { data: rawProfiles }
       ] = await Promise.all([
         articlesQuery,
-
-        supabaseAdmin
-          .from('allotments')
-          .select(`
-            id,
-            challan_id,
-            article_id,
-            lineman_id,
-            target_qty,
-            status,
-            allotment_date,
-            created_at,
-            profiles:lineman_id ( id, username, full_name, role ),
-            articles:article_id ( id, art_no ),
-            challans:challan_id ( id, challan_no, brand, fabric_type )
-          `)
-          .order('created_at', { ascending: false }),
-
-        supabaseAdmin
-          .from('challans')
-          .select('id, challan_no, brand, fabric_type, challan_date, notes, created_at')
-          .order('created_at', { ascending: false })
-          .limit(100),
-
+        allotmentsQuery,
+        challansQuery,
         supabaseAdmin
           .from('profiles')
           .select('id, username, full_name, role, company_name')
           .eq('is_active', true)
       ])
 
+      const filteredAllotments = (rawAllotments || []).filter((al: any) => {
+        if (!target) return true
+        const brand = ((al.challans as any)?.brand || '').toLowerCase()
+        const notes = ((al.challans as any)?.notes || '').toLowerCase()
+        const comp = ((al as any).company_name || '').toLowerCase()
+        return brand === target || brand.includes(target) || notes.includes(target) || comp.includes(target)
+      })
+
+      const filteredChallans = (rawChallans || []).filter((ch: any) => {
+        if (!target) return true
+        const brand = (ch.brand || '').toLowerCase()
+        const notes = (ch.notes || '').toLowerCase()
+        const comp = ((ch as any).company_name || '').toLowerCase()
+        return brand === target || brand.includes(target) || notes.includes(target) || comp.includes(target)
+      })
+
       return {
         rawArticles: rawArticles || [],
-        rawAllotments: rawAllotments || [],
-        rawChallans: rawChallans || [],
+        rawAllotments: filteredAllotments,
+        rawChallans: filteredChallans,
         rawProfiles: rawProfiles || []
       }
     },

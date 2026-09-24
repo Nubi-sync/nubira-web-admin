@@ -80,21 +80,29 @@ export default async function MaterialIssuesPage() {
       .limit(80),
   ])
 
-  // Multi-tenant scoping: Client factories only view records tagged for their company
-  const targetCompany = tenant.companyName.toUpperCase()
-
-  const filteredTruckInwards = isLegacy
-    ? (truckInwardsData || [])
-    : (truckInwardsData || []).filter((t: any) =>
-        (t.supplier_name || '').toUpperCase().includes(targetCompany) ||
-        (t.receiver_name || '').toUpperCase().includes(targetCompany)
+  // Multi-tenant scoping: Each account strictly accesses only their company's data
+  const targetCompany = (tenant.companyName || '').trim().toLowerCase()
+  const isTargetMatch = (...values: (string | null | undefined)[]) => {
+    if (!targetCompany) return false
+    return values.some(v => {
+      if (!v) return false
+      const s = v.trim().toLowerCase()
+      return (
+        s === targetCompany ||
+        s.includes(`[company:${targetCompany}]`) ||
+        s.includes(`[company: ${targetCompany}]`) ||
+        s.includes(targetCompany)
       )
+    })
+  }
 
-  const filteredActiveAllotments = isLegacy
-    ? (activeAllotmentsData || [])
-    : (activeAllotmentsData || []).filter((al: any) =>
-        ((al.challans as any)?.brand || '').toUpperCase().includes(targetCompany)
-      )
+  const filteredTruckInwards = (truckInwardsData || []).filter((t: any) =>
+    isTargetMatch(t.party_name, t.receiver_name, t.notes, (t as any).company_name)
+  )
+
+  const filteredActiveAllotments = (activeAllotmentsData || []).filter((al: any) =>
+    isTargetMatch((al.challans as any)?.brand, (al.challans as any)?.notes, (al as any).company_name)
+  )
 
   return (
     <AdminShell userEmail={tenant.userEmail} userRole={tenant.role}>

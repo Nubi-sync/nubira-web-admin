@@ -123,11 +123,29 @@ export default async function DispatchPage() {
           .order('created_at', { ascending: false })
       ])
 
+      const targetComp = (tenant.companyName || '').trim().toLowerCase()
+      const isTargetMatch = (...values: (string | null | undefined)[]) => {
+        if (!targetComp) return true
+        return values.some(v => {
+          if (!v) return false
+          const s = v.trim().toLowerCase()
+          return s === targetComp || s.includes(targetComp)
+        })
+      }
+
+      const filteredDc = (dcRes?.data || []).filter((dc: any) =>
+        isTargetMatch(dc.buyer_name, dc.billed_to_name, dc.shipping_to_name, dc.notes, dc.spot_notes, dc.company_name)
+      )
+
+      const filteredAllotments = (rawAllotments || []).filter((al: any) =>
+        isTargetMatch((al.challans as any)?.brand, al.company_name)
+      )
+
       return {
         articles: rawArticles || [],
-        deliveryChallans: dcRes?.data || [],
+        deliveryChallans: filteredDc,
         countingReports: rawCountingReports || [],
-        allotments: rawAllotments || []
+        allotments: filteredAllotments
       }
     },
     60,

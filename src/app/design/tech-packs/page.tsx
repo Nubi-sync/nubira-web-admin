@@ -20,8 +20,7 @@ export default async function TechPacksPage() {
   }
 
   const tenant = await resolveUserTenant(user)
-  const isLegacy = isLegacyNubiraTenant(tenant)
-  const companyFilter = isLegacy ? undefined : tenant.companyName
+  const companyFilter = tenant.companyName
 
   const [initialTechPacks, brands, availableArticles] = await Promise.all([
     fetchTechPacksAction(companyFilter),

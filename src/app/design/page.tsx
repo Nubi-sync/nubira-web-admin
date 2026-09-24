@@ -24,8 +24,7 @@ export default async function DesignModulePage() {
 
   // Centrally resolve tenant identity
   const tenant = await resolveUserTenant(user)
-  const isLegacy = isLegacyNubiraTenant(tenant)
-  const companyFilter = isLegacy ? undefined : tenant.companyName
+  const companyFilter = tenant.companyName
 
   const [initialBriefs, initialTechPacks, teamMembers] = await Promise.all([
     fetchDesignBriefsAction({ companyName: companyFilter }),

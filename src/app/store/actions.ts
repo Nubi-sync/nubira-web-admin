@@ -4,6 +4,7 @@ import { createClient } from '@/utils/supabase/server'
 import { supabaseAdmin } from '@/utils/supabase/admin'
 import { revalidatePath } from 'next/cache'
 import { CacheManager } from '@/lib/cache/cache-manager'
+import { resolveUserTenant } from '@/lib/tenant-context'
 
 // ----------------------------------------------------
 // 1. CREATE ACCESSORY CHALLAN INWARD (TRUCK INWARD / GRN)
@@ -35,6 +36,8 @@ export async function createTruckInwardGrn(payload: CreateTruckInwardPayload) {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
+    const tenant = user ? await resolveUserTenant(user) : null
+    const companyName = tenant?.companyName || 'Nubira Creation'
     const currentUserName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Store Supervisor'
     const currentUserId = user?.id
 
@@ -66,6 +69,10 @@ export async function createTruckInwardGrn(payload: CreateTruckInwardPayload) {
       }
     })
 
+    const baseNotes = payload.notes?.trim() || ''
+    const companyTag = `[Company: ${companyName}]`
+    const finalNotes = baseNotes.includes(companyTag) ? baseNotes : (baseNotes ? `${baseNotes} ${companyTag}` : companyTag)
+
     // 1. Insert into truck_inwards with fallback resilience for garment_type
     const insertPayload: any = {
       grn_no: grnNo,
@@ -81,7 +88,7 @@ export async function createTruckInwardGrn(payload: CreateTruckInwardPayload) {
       status: overallStatus,
       challan_photo_url: payload.challan_photo_url || null,
       line_items: lineItemsJson,
-      notes: payload.notes?.trim() || null,
+      notes: finalNotes,
       receiver_name: currentUserName,
       received_by: currentUserId,
     }
@@ -985,13 +992,20 @@ export async function fetchCentralStoreKpis(companyName?: string) {
     cacheKey,
     async () => {
       try {
+        let truckQuery = supabaseAdmin
+          .from('truck_inwards')
+          .select('id', { count: 'exact' })
+
+        if (companyName && companyName.trim()) {
+          const c = companyName.trim()
+          truckQuery = truckQuery.or(`party_name.ilike.%${c}%,notes.ilike.%${c}%`)
+        }
+
         const [fabricRes, issuesRes, receiptsRes, trucksRes] = await Promise.all([
           fetchCentralFabricInventory(companyName),
           fetchMaterialIssuesByDivision(undefined, companyName),
           fetchMaterialReceiptsByDivision(undefined, companyName),
-          supabaseAdmin
-            .from('truck_inwards')
-            .select('id', { count: 'exact' })
+          truckQuery
         ])
 
         const fabrics = fabricRes.data || []

@@ -19,8 +19,7 @@ export default async function MerchandisingTnaPage() {
   }
 
   const tenant = await resolveUserTenant(user)
-  const isLegacy = isLegacyNubiraTenant(tenant)
-  const companyFilter = isLegacy ? undefined : tenant.companyName
+  const companyFilter = tenant.companyName
 
   const initialMilestones = await fetchTnaMilestonesAction(companyFilter)
 
