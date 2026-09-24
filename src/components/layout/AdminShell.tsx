@@ -8,6 +8,7 @@ import { AdminSidebar } from './AdminSidebar'
 import { TvModeProvider, useTvMode } from '@/context/TvModeContext'
 import { TvTopBar } from './TvTopBar'
 import { AiCopilotWidget } from '../chat/AiCopilotWidget'
+import { UniversalNotificationSideNav } from '@/components/notifications/UniversalNotificationSideNav'
 
 function MobileTopBar({ onMenuToggle, logoHref = '/modules' }: { onMenuToggle: () => void; logoHref?: string }) {
   return (
@@ -42,11 +43,13 @@ function MobileTopBar({ onMenuToggle, logoHref = '/modules' }: { onMenuToggle: (
 function AdminShellContent({ 
   children, 
   userEmail,
-  userRole
+  userRole,
+  companyName
 }: { 
   children: React.ReactNode
   userEmail?: string 
   userRole?: string
+  companyName?: string
 }) {
   const { isTvMode } = useTvMode()
   const pathname = usePathname()
@@ -108,6 +111,7 @@ function AdminShellContent({
         <AdminSidebar 
           userEmail={userEmail} 
           userRole={userRole}
+          companyName={companyName}
           isMobileOpen={isMobileMenuOpen}
           onMobileClose={() => setIsMobileMenuOpen(false)}
         />
@@ -133,6 +137,9 @@ function AdminShellContent({
 
         {/* AI Copilot Chatbot Widget (Only for Admins) */}
         {!isTvMode && !isStoreUser && <AiCopilotWidget />}
+
+        {/* Universal Notification Side Nav (Docked Floating Tab & Real-time Audit Drawer) */}
+        <UniversalNotificationSideNav companyName={companyName} />
       </main>
     </div>
   )
@@ -141,15 +148,17 @@ function AdminShellContent({
 export function AdminShell({ 
   children, 
   userEmail,
-  userRole
+  userRole,
+  companyName
 }: { 
   children: React.ReactNode
   userEmail?: string 
   userRole?: string
+  companyName?: string
 }) {
   return (
     <TvModeProvider>
-      <AdminShellContent userEmail={userEmail} userRole={userRole}>
+      <AdminShellContent userEmail={userEmail} userRole={userRole} companyName={companyName}>
         {children}
       </AdminShellContent>
     </TvModeProvider>

@@ -52,8 +52,10 @@ import {
   Gauge,
   PackageCheck,
   AlertTriangle,
-  Settings
+  Settings,
+  Bell
 } from 'lucide-react'
+import { getUnreadNotificationCount, FLOOR_NOTIFICATIONS_UPDATE_EVENT } from '@/utils/floorNotificationsStorage'
 
 type NavItem = {
   label: string
@@ -71,6 +73,7 @@ const navSections: NavSection[] = [
     section: 'Workspace Hub',
     items: [
       { label: 'All Modules', href: '/modules', icon: LayoutGrid },
+      { label: 'Live Notifications', href: '#live-notifications', icon: Bell },
       { label: 'SA Design Approvals', href: '/design/sa-approvals', icon: Sparkles },
     ],
   },
@@ -78,6 +81,7 @@ const navSections: NavSection[] = [
     section: 'Sewing Floor',
     items: [
       { label: 'Dashboard', href: '/stitching-sewing/dashboard', icon: LayoutDashboard },
+      { label: 'Live Notifications', href: '#live-notifications', icon: Bell },
       { label: 'Supervisor Desk', href: '/modules/supervisor-desk', icon: Wrench },
       { label: 'Store Dashboard', href: '/stitching-sewing/store', icon: Store },
       { label: 'Zigza AI', href: '/stitching-sewing/zigza-ai', icon: Bot },
@@ -107,6 +111,7 @@ const navSections: NavSection[] = [
 interface AdminSidebarProps {
   userEmail?: string
   userRole?: string
+  companyName?: string
   isMobileOpen?: boolean
   onMobileClose?: () => void
 }
@@ -114,6 +119,7 @@ interface AdminSidebarProps {
 export function AdminSidebar({ 
   userEmail = 'admin@nubira.local',
   userRole,
+  companyName,
   isMobileOpen = false,
   onMobileClose
 }: AdminSidebarProps) {
@@ -123,6 +129,22 @@ export function AdminSidebar({
   const [navigatingTo, setNavigatingTo] = useState<string | null>(null)
   const [isHovered, setIsHovered] = useState(false)
   const leaveTimerRef = useRef<NodeJS.Timeout | null>(null)
+
+  const [unreadCount, setUnreadCount] = useState(0)
+
+  // Listen to floor notifications update for real-time badge
+  useEffect(() => {
+    const updateCount = () => {
+      setUnreadCount(getUnreadNotificationCount(companyName))
+    }
+    updateCount()
+    window.addEventListener(FLOOR_NOTIFICATIONS_UPDATE_EVENT, updateCount)
+    window.addEventListener('storage', updateCount)
+    return () => {
+      window.removeEventListener(FLOOR_NOTIFICATIONS_UPDATE_EVENT, updateCount)
+      window.removeEventListener('storage', updateCount)
+    }
+  }, [companyName])
 
   const isStoreUser = (
     userRole?.toUpperCase() === 'STORE' ||
@@ -744,6 +766,22 @@ export function AdminSidebar({
       .filter((sec) => sec.items.length > 0 && sec.section !== 'Workspace Hub')
   }
 
+  // Ensure "Live Notifications" is always present in every module's primary section
+  activeNavSections = activeNavSections.map((sec) => {
+    const hasLiveNotif = sec.items.some(it => it.href === '#live-notifications')
+    if (!hasLiveNotif && sec.section !== 'Account') {
+      const updatedItems = [...sec.items]
+      // Insert after the first item (Dashboard / Overview)
+      updatedItems.splice(1, 0, {
+        label: 'Live Notifications',
+        href: '#live-notifications',
+        icon: Bell
+      })
+      return { ...sec, items: updatedItems }
+    }
+    return sec
+  })
+
   // Fast, eager open when cursor moves towards side nav
   const handleMouseEnter = () => {
     if (leaveTimerRef.current) {
@@ -823,6 +861,13 @@ export function AdminSidebar({
   }
 
   function handleNavClick(e: React.MouseEvent, href: string) {
+    if (href === '#live-notifications') {
+      e.preventDefault()
+      window.dispatchEvent(new CustomEvent('open-floor-notifications'))
+      onMobileClose?.()
+      return
+    }
+
     const isCurrentActive = checkIsCurrentActive(href, pathname)
 
     if (isCurrentActive) {
@@ -839,18 +884,21 @@ export function AdminSidebar({
   // Render navigation item
   function renderNavItem(item: NavItem, isExpanded: boolean) {
     const Icon = item.icon
-    const isActive = checkIsCurrentActive(item.href, pathname)
+    const isLiveNotifications = item.href === '#live-notifications'
+    const isActive = !isLiveNotifications && checkIsCurrentActive(item.href, pathname)
     const isLoading = navigatingTo === item.href
 
     return (
       <Link
         key={`${item.href}-${item.label}`}
         href={item.href}
-        prefetch={true}
+        prefetch={!isLiveNotifications}
         onMouseEnter={() => {
-          try {
-            router.prefetch(item.href)
-          } catch (_) {}
+          if (!isLiveNotifications) {
+            try {
+              router.prefetch(item.href)
+            } catch (_) {}
+          }
         }}
         onClick={(e) => handleNavClick(e, item.href)}
         title={!isExpanded ? item.label : undefined}
@@ -859,11 +907,13 @@ export function AdminSidebar({
             ? 'px-3 py-2.5 justify-between w-full transition-all duration-200 ease-out' 
             : 'w-10 h-10 mx-auto justify-center transition-all duration-500 ease-in-out'
         } ${
-          isActive
-            ? 'font-bold text-[#3A3564] bg-[#FAF7F0] border border-black/10 shadow-2xs'
-            : isLoading
-              ? 'font-semibold text-[#3A3564] bg-[#FAF7F0]/80 border border-black/15 shadow-2xs'
-              : 'font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+          isLiveNotifications
+            ? 'font-semibold text-slate-800 bg-amber-50/70 hover:bg-amber-100/80 border border-amber-300/50 shadow-2xs'
+            : isActive
+              ? 'font-bold text-[#3A3564] bg-[#FAF7F0] border border-black/10 shadow-2xs'
+              : isLoading
+                ? 'font-semibold text-[#3A3564] bg-[#FAF7F0]/80 border border-black/15 shadow-2xs'
+                : 'font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50'
         }`}
       >
         {/* Left active accent bar */}
@@ -883,7 +933,14 @@ export function AdminSidebar({
               <Loader2 className="w-[18px] h-[18px] text-[#3A3564] animate-spin" />
             </div>
           ) : (
-            <Icon className={`w-[18px] h-[18px] shrink-0 ${isActive ? 'text-[#3A3564]' : 'text-slate-500'}`} />
+            <div className="relative shrink-0 flex items-center justify-center">
+              <Icon className={`w-[18px] h-[18px] shrink-0 ${
+                isLiveNotifications ? 'text-amber-600' : isActive ? 'text-[#3A3564]' : 'text-slate-500'
+              }`} />
+              {isLiveNotifications && (
+                <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-white animate-pulse" />
+              )}
+            </div>
           )}
 
           {/* Label: expands quickly on open, fades out gracefully on close */}
@@ -895,6 +952,18 @@ export function AdminSidebar({
             {item.label}
           </span>
         </div>
+
+        {/* Live notification badge & indicator when expanded */}
+        {isLiveNotifications && isExpanded && (
+          <div className="flex items-center gap-1.5 shrink-0 ml-auto">
+            {unreadCount > 0 && (
+              <span className="px-1.5 py-0.5 rounded-full bg-rose-500 text-white text-[10px] font-mono font-bold shadow-xs">
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </span>
+            )}
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" title="Live WS Connected" />
+          </div>
+        )}
 
         {/* Loading Spinner only (pill boxes completely removed) */}
         {isLoading && (
@@ -991,6 +1060,45 @@ export function AdminSidebar({
               />
             </div>
           </Link>
+        </div>
+
+        {/* Dedicated Quick Action: Live Floor Notifications Feed */}
+        <div className="px-2.5 pt-3 pb-1 border-b border-slate-100 shrink-0">
+          <button
+            type="button"
+            onClick={() => {
+              window.dispatchEvent(new CustomEvent('open-floor-notifications'))
+              onMobileClose?.()
+            }}
+            className={`group relative flex items-center rounded-xl cursor-pointer border transition-all duration-200 ${
+              isHovered
+                ? 'w-full px-3 py-2 justify-between bg-gradient-to-r from-amber-50/80 via-white to-amber-50/40 hover:from-amber-100/90 hover:to-white border-amber-300/60 hover:border-amber-400 shadow-2xs'
+                : 'w-10 h-10 mx-auto justify-center bg-amber-50/80 hover:bg-amber-100/90 border-amber-300/60 shadow-2xs'
+            }`}
+            title="Open Live Floor Notifications & Audit Trail"
+          >
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="relative shrink-0 flex items-center justify-center">
+                <Bell className="w-4 h-4 text-amber-700 group-hover:scale-110 transition-transform" />
+                <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-white animate-pulse" />
+              </div>
+              <div className={`overflow-hidden whitespace-nowrap transition-all flex items-center gap-1.5 ${
+                isHovered ? 'max-w-[140px] opacity-100' : 'max-w-0 opacity-0'
+              }`}>
+                <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-800">
+                  Live Feed
+                </span>
+                <span className="text-[9px] font-mono px-1 py-0.2 rounded bg-emerald-100 text-emerald-800 font-bold border border-emerald-300">
+                  LIVE
+                </span>
+              </div>
+            </div>
+            {isHovered && unreadCount > 0 && (
+              <span className="px-1.5 py-0.5 rounded-full bg-rose-500 text-white text-[10px] font-mono font-bold shadow-xs shrink-0 animate-pulse">
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </span>
+            )}
+          </button>
         </div>
 
         {/* Navigation Sections */}
@@ -1115,6 +1223,36 @@ export function AdminSidebar({
                 </button>
               )}
             </div>
+          </div>
+
+          {/* Quick Action: Live Feed */}
+          <div className="p-3 border-b border-slate-100">
+            <button
+              type="button"
+              onClick={() => {
+                window.dispatchEvent(new CustomEvent('open-floor-notifications'))
+                onMobileClose?.()
+              }}
+              className="w-full flex items-center justify-between px-3 py-2 rounded-xl bg-gradient-to-r from-amber-50 via-white to-amber-50/40 border border-amber-300/60 shadow-xs cursor-pointer hover:bg-amber-100/60 transition-colors"
+            >
+              <div className="flex items-center gap-2.5">
+                <div className="relative shrink-0">
+                  <Bell className="w-4 h-4 text-amber-700" />
+                  <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-white animate-pulse" />
+                </div>
+                <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-800">
+                  Live Floor Feed
+                </span>
+                <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 font-bold border border-emerald-300">
+                  LIVE
+                </span>
+              </div>
+              {unreadCount > 0 && (
+                <span className="px-1.5 py-0.5 rounded-full bg-rose-500 text-white text-[10px] font-mono font-bold shadow-xs">
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </span>
+              )}
+            </button>
           </div>
 
           {/* Navigation */}
