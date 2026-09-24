@@ -271,7 +271,7 @@ export function WorkerDashboardClient({
         {/* Card 2: Total Stitched Pieces */}
         <div className="bg-white rounded-2xl p-5 border border-black/10 shadow-2xs">
           <div className="flex items-center justify-between text-xs text-slate-500 font-medium">
-            <span>Completed Stitches</span>
+            <span>Completed Output</span>
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
           </div>
           <div className="text-2xl sm:text-3xl font-bold font-[family-name:var(--font-heading)] text-slate-900 mt-2 font-mono">
@@ -279,14 +279,14 @@ export function WorkerDashboardClient({
           </div>
         </div>
 
-        {/* Card 3: Piece-Rate Earnings */}
+        {/* Card 3: Completed Lots */}
         <div className="bg-white rounded-2xl p-5 border border-black/10 shadow-2xs">
           <div className="flex items-center justify-between text-xs text-slate-500 font-medium">
-            <span>Piece-Rate Earnings</span>
-            <DollarSign className="w-4 h-4 text-purple-600" />
+            <span>Completed Lots</span>
+            <TrendingUp className="w-4 h-4 text-[#3A3564]" />
           </div>
           <div className="text-2xl sm:text-3xl font-bold font-[family-name:var(--font-heading)] text-[#3A3564] mt-2 font-mono">
-            ₹{totalEarningsInr.toLocaleString()}
+            {completedTasks.length} <span className="text-xs font-normal text-slate-400">batches</span>
           </div>
         </div>
 
@@ -404,13 +404,15 @@ export function WorkerDashboardClient({
                       </div>
                     </div>
 
-                    {/* Rates & Meta */}
+                    {/* Meta */}
                     <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-                      <span className="font-mono font-bold text-[#3A3564]">
-                        Rate: ₹{t.piece_rate_inr || 12}/pc
+                      <span className="font-medium text-slate-600">
+                        {t.source_department || 'Cutting Floor'}
                       </span>
-                      <span className="font-mono">
-                        Target Value: ₹{((t.target_quantity || 0) * (t.piece_rate_inr || 12)).toLocaleString()}
+                      <span className="font-mono text-slate-400">
+                        {t.target_quantity - t.completed_quantity > 0 
+                          ? `${t.target_quantity - t.completed_quantity} pcs remaining`
+                          : 'Target completed'}
                       </span>
                     </div>
 
@@ -505,14 +507,6 @@ export function WorkerDashboardClient({
                   onChange={(e) => setRejectPieces(e.target.value)}
                   className="w-full px-3.5 py-2 text-sm font-mono rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] text-slate-900"
                 />
-              </div>
-
-              {/* Wage Calculation Preview */}
-              <div className="p-3.5 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-between text-xs">
-                <span className="text-slate-600 font-medium">Calculated Wage for this batch:</span>
-                <span className="font-mono font-bold text-sm text-[#3A3564]">
-                  ₹{((parseInt(submitPieces) || 0) * (submittingTask.piece_rate_inr || 12)).toLocaleString()}
-                </span>
               </div>
 
               <div>

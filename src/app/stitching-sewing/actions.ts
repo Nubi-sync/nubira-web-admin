@@ -401,6 +401,24 @@ export async function updateStitchingTaskStatusAction(
   }
 }
 
+export async function deleteStitchingTaskAllocationAction(taskId: string) {
+  try {
+    if (isUUID(taskId)) {
+      await supabaseAdmin.from('stitching_task_allocations').delete().eq('id', taskId)
+    } else {
+      await supabaseAdmin.from('stitching_task_allocations').delete().eq('task_ref', taskId)
+    }
+
+    revalidatePath('/stitching-sewing')
+    revalidatePath('/stitching-sewing/dashboard')
+    revalidatePath('/stitching-sewing/worker')
+    return { success: true }
+  } catch (err: any) {
+    console.error('[deleteStitchingTaskAllocationAction] Error:', err)
+    return { success: false, error: err.message }
+  }
+}
+
 export async function submitStitchingWorkerProgressAction(payload: {
   taskId: string
   taskRef?: string
