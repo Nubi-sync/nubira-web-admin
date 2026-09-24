@@ -513,8 +513,20 @@ async function resolveUserTenantFresh(user: {
 }
 
 /**
- * Checks if a resolved tenant profile belongs to the primary legacy plant (Deprecated - all tenants are isolated).
+ * Checks if a resolved tenant profile belongs to the custom/flagship Nubira Creation plant or CUSTOM tier.
  */
-export function isLegacyNubiraTenant(_tenant: ResolvedTenantProfile): boolean {
-  return false
+export function isLegacyNubiraTenant(tenant: ResolvedTenantProfile): boolean {
+  if (!tenant) return false
+  const comp = (tenant.companyName || '').toLowerCase()
+  const email = (tenant.userEmail || '').toLowerCase()
+  return (
+    !tenant.isProvisionedTenant ||
+    comp.includes('nubira') ||
+    email === 'aj@nubiracreation.com' ||
+    email === 'team.anga9@gmail.com' ||
+    email === 'admin@zigza.in' ||
+    email.endsWith('@nubira.local') ||
+    email.includes('nubira') ||
+    tenant.subscriptionTier === 'CUSTOM'
+  )
 }

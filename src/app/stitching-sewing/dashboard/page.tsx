@@ -52,8 +52,19 @@ export default async function StitchingSewingDashboardPage() {
     redirect('/stitching-sewing/store')
   }
 
+  // Check if current tenant has the Custom 6-Stage Deep Manufacturing Suite
+  const isCustomPlant = (
+    isLegacy ||
+    tenant.subscriptionTier === 'CUSTOM' ||
+    (tenant.companyName && tenant.companyName.toLowerCase().includes('nubira')) ||
+    tenant.userEmail?.toLowerCase() === 'aj@nubiracreation.com' ||
+    tenant.userEmail?.toLowerCase() === 'team.anga9@gmail.com' ||
+    tenant.userEmail?.toLowerCase() === 'admin@zigza.in' ||
+    tenant.userEmail?.toLowerCase().includes('nubira')
+  )
+
   // For Standard Factories: Render base streamlined Stitching Floor (Dashboard + Manage Workers + Allocations)
-  if (!isLegacy) {
+  if (!isCustomPlant) {
     const [workers, tasks] = await Promise.all([
       fetchStitchingWorkersAction(tenant.companyName),
       fetchStitchingTaskAllocationsAction(tenant.companyName)
