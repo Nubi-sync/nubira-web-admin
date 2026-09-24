@@ -73,7 +73,6 @@ const navSections: NavSection[] = [
     section: 'Workspace Hub',
     items: [
       { label: 'All Modules', href: '/modules', icon: LayoutGrid },
-      { label: 'Live Notifications', href: '#live-notifications', icon: Bell },
       { label: 'SA Design Approvals', href: '/design/sa-approvals', icon: Sparkles },
     ],
   },
@@ -81,7 +80,7 @@ const navSections: NavSection[] = [
     section: 'Sewing Floor',
     items: [
       { label: 'Dashboard', href: '/stitching-sewing/dashboard', icon: LayoutDashboard },
-      { label: 'Live Notifications', href: '#live-notifications', icon: Bell },
+      { label: 'Notification', href: '/stitching-sewing/notifications', icon: Bell },
       { label: 'Supervisor Desk', href: '/modules/supervisor-desk', icon: Wrench },
       { label: 'Store Dashboard', href: '/stitching-sewing/store', icon: Store },
       { label: 'Zigza AI', href: '/stitching-sewing/zigza-ai', icon: Bot },
@@ -416,6 +415,7 @@ export function AdminSidebar({
         section: '1. Design Studio',
         items: [
           { label: 'Studio Dashboard', href: '/design', icon: Palette },
+          { label: 'Notification', href: '/design/notifications', icon: Bell },
           { label: 'Tech-Pack Catalog', href: '/design/tech-packs', icon: FileCheck2 },
           { label: 'Team Management', href: '/design/team', icon: Users },
           { label: 'PH Settings', href: '/design/settings', icon: Settings },
@@ -441,6 +441,7 @@ export function AdminSidebar({
         section: '2. Merchandising',
         items: [
           { label: 'Desk Dashboard', href: '/merchandising', icon: Briefcase },
+          { label: 'Notification', href: '/merchandising/notifications', icon: Bell },
           { label: 'Floor Store (Fabric)', href: '/merchandising/store', icon: Store },
           { label: 'Active Buyers', href: '/merchandising/buyers', icon: Users },
           { label: 'Buyer Purchase Orders', href: '/merchandising/orders', icon: ClipboardList },
@@ -467,6 +468,7 @@ export function AdminSidebar({
         section: '3. Cutting Floor',
         items: [
           { label: 'Floor Dashboard', href: '/cutting', icon: Scissors },
+          { label: 'Notification', href: '/cutting/notifications', icon: Bell },
           { label: 'Floor Store (Rolls)', href: '/cutting/store', icon: Store },
           { label: 'Spreading & Lay Plans', href: '/cutting/lay-sheets', icon: Layers },
           { label: 'CAD Markers & Nesting', href: '/cutting/markers', icon: Maximize2 },
@@ -494,6 +496,7 @@ export function AdminSidebar({
         section: '4. Printing Division',
         items: [
           { label: 'Floor Dashboard', href: '/printing', icon: Printer },
+          { label: 'Notification', href: '/printing/notifications', icon: Bell },
           { label: 'Floor Store (Panels)', href: '/printing/store', icon: Store },
           { label: 'Zigza AI', href: '/printing/zigza-ai', icon: Bot },
         ],
@@ -517,6 +520,7 @@ export function AdminSidebar({
         section: '5. Embroidery Division',
         items: [
           { label: 'Floor Dashboard', href: '/embroidery', icon: Sparkles },
+          { label: 'Notification', href: '/embroidery/notifications', icon: Bell },
           { label: 'Floor Store (Panels)', href: '/embroidery/store', icon: Store },
           { label: 'Zigza AI', href: '/embroidery/zigza-ai', icon: Bot },
         ],
@@ -547,6 +551,7 @@ export function AdminSidebar({
           section: '6. Sewing Operations',
           items: [
             { label: 'Floor Dashboard', href: '/stitching-sewing/dashboard', icon: LayoutDashboard },
+            { label: 'Notification', href: '/stitching-sewing/notifications', icon: Bell },
             { label: 'Supervisor Desk', href: '/modules/supervisor-desk', icon: Wrench },
             { label: 'Store Dashboard', href: '/stitching-sewing/store', icon: Store },
             { label: 'Zigza AI', href: '/stitching-sewing/zigza-ai', icon: Bot },
@@ -584,6 +589,7 @@ export function AdminSidebar({
           section: '6. Sewing Operations',
           items: [
             { label: 'Floor Dashboard', href: '/stitching-sewing/dashboard', icon: Scissors },
+            { label: 'Notification', href: '/stitching-sewing/notifications', icon: Bell },
             { label: 'Floor Store (Bundles)', href: '/stitching-sewing/store', icon: Store },
             { label: 'Zigza AI', href: '/stitching-sewing/zigza-ai', icon: Bot },
           ],
@@ -608,6 +614,7 @@ export function AdminSidebar({
         section: '7. Washing Operations',
         items: [
           { label: 'Floor Dashboard', href: '/washing', icon: Waves },
+          { label: 'Notification', href: '/washing/notifications', icon: Bell },
           { label: 'Floor Store (Garments)', href: '/washing/store', icon: Store },
           { label: 'Zigza AI', href: '/washing/zigza-ai', icon: Bot },
         ],
@@ -631,6 +638,7 @@ export function AdminSidebar({
         section: '8. Ironing Operations',
         items: [
           { label: 'Floor Dashboard', href: '/iron', icon: Wind },
+          { label: 'Notification', href: '/iron/notifications', icon: Bell },
           { label: 'Floor Store (Press)', href: '/iron/store', icon: Store },
           { label: 'Zigza AI', href: '/iron/zigza-ai', icon: Bot },
         ],
@@ -654,6 +662,7 @@ export function AdminSidebar({
         section: '9. Ready Goods & Packing',
         items: [
           { label: 'Packing Dashboard', href: '/ready-goods', icon: Boxes },
+          { label: 'Notification', href: '/ready-goods/notifications', icon: Bell },
           { label: 'AQL 2.5 Inspection', href: '/ready-goods/aql-inspection', icon: CheckCircle2 },
           { label: 'Hangtag & Polybag', href: '/ready-goods/tagging-polybag', icon: Tag },
           { label: 'Carton Packing Manifest', href: '/ready-goods/carton-packing', icon: PackageCheck },
@@ -681,6 +690,7 @@ export function AdminSidebar({
         section: '10. Alteration & Quality Recovery',
         items: [
           { label: 'Clinic Dashboard', href: '/alter', icon: Wrench },
+          { label: 'Notification', href: '/alter/notifications', icon: Bell },
           { label: 'Defect Intake & Pareto', href: '/alter/defect-intake', icon: AlertTriangle },
           { label: 'Master Mending Stations', href: '/alter/repair-stations', icon: Scissors },
           { label: 'Chemical Spotting & Clean', href: '/alter/spot-cleaning', icon: Droplets },
@@ -861,13 +871,6 @@ export function AdminSidebar({
   }
 
   function handleNavClick(e: React.MouseEvent, href: string) {
-    if (href === '#live-notifications') {
-      e.preventDefault()
-      window.dispatchEvent(new CustomEvent('open-floor-notifications'))
-      onMobileClose?.()
-      return
-    }
-
     const isCurrentActive = checkIsCurrentActive(href, pathname)
 
     if (isCurrentActive) {
@@ -884,21 +887,18 @@ export function AdminSidebar({
   // Render navigation item
   function renderNavItem(item: NavItem, isExpanded: boolean) {
     const Icon = item.icon
-    const isLiveNotifications = item.href === '#live-notifications'
-    const isActive = !isLiveNotifications && checkIsCurrentActive(item.href, pathname)
+    const isNotification = item.label === 'Notification'
+    const isActive = checkIsCurrentActive(item.href, pathname)
     const isLoading = navigatingTo === item.href
 
     return (
       <Link
         key={`${item.href}-${item.label}`}
         href={item.href}
-        prefetch={!isLiveNotifications}
         onMouseEnter={() => {
-          if (!isLiveNotifications) {
-            try {
-              router.prefetch(item.href)
-            } catch (_) {}
-          }
+          try {
+            router.prefetch(item.href)
+          } catch (_) {}
         }}
         onClick={(e) => handleNavClick(e, item.href)}
         title={!isExpanded ? item.label : undefined}
@@ -907,13 +907,11 @@ export function AdminSidebar({
             ? 'px-3 py-2.5 justify-between w-full transition-all duration-200 ease-out' 
             : 'w-10 h-10 mx-auto justify-center transition-all duration-500 ease-in-out'
         } ${
-          isLiveNotifications
-            ? 'font-semibold text-slate-800 bg-amber-50/70 hover:bg-amber-100/80 border border-amber-300/50 shadow-2xs'
-            : isActive
-              ? 'font-bold text-[#3A3564] bg-[#FAF7F0] border border-black/10 shadow-2xs'
-              : isLoading
-                ? 'font-semibold text-[#3A3564] bg-[#FAF7F0]/80 border border-black/15 shadow-2xs'
-                : 'font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+          isActive
+            ? 'font-bold text-[#3A3564] bg-[#FAF7F0] border border-black/10 shadow-2xs'
+            : isLoading
+              ? 'font-semibold text-[#3A3564] bg-[#FAF7F0]/80 border border-black/15 shadow-2xs'
+              : 'font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50'
         }`}
       >
         {/* Left active accent bar */}
@@ -935,10 +933,10 @@ export function AdminSidebar({
           ) : (
             <div className="relative shrink-0 flex items-center justify-center">
               <Icon className={`w-[18px] h-[18px] shrink-0 ${
-                isLiveNotifications ? 'text-amber-600' : isActive ? 'text-[#3A3564]' : 'text-slate-500'
+                isActive ? 'text-[#3A3564]' : 'text-slate-500'
               }`} />
-              {isLiveNotifications && (
-                <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-white animate-pulse" />
+              {isNotification && unreadCount > 0 && !isExpanded && (
+                <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[#3A3564] ring-2 ring-white" />
               )}
             </div>
           )}
@@ -953,16 +951,11 @@ export function AdminSidebar({
           </span>
         </div>
 
-        {/* Live notification badge & indicator when expanded */}
-        {isLiveNotifications && isExpanded && (
-          <div className="flex items-center gap-1.5 shrink-0 ml-auto">
-            {unreadCount > 0 && (
-              <span className="px-1.5 py-0.5 rounded-full bg-rose-500 text-white text-[10px] font-mono font-bold shadow-xs">
-                {unreadCount > 99 ? '99+' : unreadCount}
-              </span>
-            )}
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" title="Live WS Connected" />
-          </div>
+        {/* Notification unread badge when expanded */}
+        {isNotification && isExpanded && unreadCount > 0 && (
+          <span className="px-1.5 py-0.5 rounded-full bg-[#3A3564] text-white text-[10px] font-mono font-bold shadow-xs shrink-0 ml-auto">
+            {unreadCount > 99 ? '99+' : unreadCount}
+          </span>
         )}
 
         {/* Loading Spinner only (pill boxes completely removed) */}
@@ -1060,45 +1053,6 @@ export function AdminSidebar({
               />
             </div>
           </Link>
-        </div>
-
-        {/* Dedicated Quick Action: Live Floor Notifications Feed */}
-        <div className="px-2.5 pt-3 pb-1 border-b border-slate-100 shrink-0">
-          <button
-            type="button"
-            onClick={() => {
-              window.dispatchEvent(new CustomEvent('open-floor-notifications'))
-              onMobileClose?.()
-            }}
-            className={`group relative flex items-center rounded-xl cursor-pointer border transition-all duration-200 ${
-              isHovered
-                ? 'w-full px-3 py-2 justify-between bg-gradient-to-r from-amber-50/80 via-white to-amber-50/40 hover:from-amber-100/90 hover:to-white border-amber-300/60 hover:border-amber-400 shadow-2xs'
-                : 'w-10 h-10 mx-auto justify-center bg-amber-50/80 hover:bg-amber-100/90 border-amber-300/60 shadow-2xs'
-            }`}
-            title="Open Live Floor Notifications & Audit Trail"
-          >
-            <div className="flex items-center gap-2.5 min-w-0">
-              <div className="relative shrink-0 flex items-center justify-center">
-                <Bell className="w-4 h-4 text-amber-700 group-hover:scale-110 transition-transform" />
-                <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-white animate-pulse" />
-              </div>
-              <div className={`overflow-hidden whitespace-nowrap transition-all flex items-center gap-1.5 ${
-                isHovered ? 'max-w-[140px] opacity-100' : 'max-w-0 opacity-0'
-              }`}>
-                <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-800">
-                  Live Feed
-                </span>
-                <span className="text-[9px] font-mono px-1 py-0.2 rounded bg-emerald-100 text-emerald-800 font-bold border border-emerald-300">
-                  LIVE
-                </span>
-              </div>
-            </div>
-            {isHovered && unreadCount > 0 && (
-              <span className="px-1.5 py-0.5 rounded-full bg-rose-500 text-white text-[10px] font-mono font-bold shadow-xs shrink-0 animate-pulse">
-                {unreadCount > 99 ? '99+' : unreadCount}
-              </span>
-            )}
-          </button>
         </div>
 
         {/* Navigation Sections */}
@@ -1223,36 +1177,6 @@ export function AdminSidebar({
                 </button>
               )}
             </div>
-          </div>
-
-          {/* Quick Action: Live Feed */}
-          <div className="p-3 border-b border-slate-100">
-            <button
-              type="button"
-              onClick={() => {
-                window.dispatchEvent(new CustomEvent('open-floor-notifications'))
-                onMobileClose?.()
-              }}
-              className="w-full flex items-center justify-between px-3 py-2 rounded-xl bg-gradient-to-r from-amber-50 via-white to-amber-50/40 border border-amber-300/60 shadow-xs cursor-pointer hover:bg-amber-100/60 transition-colors"
-            >
-              <div className="flex items-center gap-2.5">
-                <div className="relative shrink-0">
-                  <Bell className="w-4 h-4 text-amber-700" />
-                  <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-white animate-pulse" />
-                </div>
-                <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-800">
-                  Live Floor Feed
-                </span>
-                <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 font-bold border border-emerald-300">
-                  LIVE
-                </span>
-              </div>
-              {unreadCount > 0 && (
-                <span className="px-1.5 py-0.5 rounded-full bg-rose-500 text-white text-[10px] font-mono font-bold shadow-xs">
-                  {unreadCount > 99 ? '99+' : unreadCount}
-                </span>
-              )}
-            </button>
           </div>
 
           {/* Navigation */}
