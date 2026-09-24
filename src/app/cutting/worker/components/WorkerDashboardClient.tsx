@@ -352,21 +352,6 @@ export function WorkerDashboardClient({
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Real-time Live Feed Notification Button */}
-          <button
-            onClick={() => setIsNotificationOpen(true)}
-            className="relative inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-black/10 bg-white hover:bg-[#FAF7F0] text-xs font-mono font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
-            title="Open Live Department Feed & Audit Log"
-          >
-            <Bell className="w-3.5 h-3.5 text-[#3A3564]" />
-            <span>Live Feed</span>
-            {unreadCount > 0 && (
-              <span className="inline-flex items-center justify-center px-1.5 py-0.2 text-[10px] font-black text-white bg-rose-500 rounded-full animate-pulse">
-                {unreadCount}
-              </span>
-            )}
-            <span className={`w-2 h-2 rounded-full ${wsStatus === 'connected' ? 'bg-emerald-500 animate-pulse' : 'bg-amber-400'}`} />
-          </button>
 
           <Link
             href="/cutting/worker/history"
@@ -692,14 +677,6 @@ export function WorkerDashboardClient({
           })
         )}
       </div>
-
-      {/* Floor Realtime Notification Side Nav Drawer */}
-      <FloorNotificationDrawer
-        isOpen={isNotificationOpen}
-        onClose={() => setIsNotificationOpen(false)}
-        companyName={companyName}
-        currentModule="cutting"
-      />
 
     </div>
   )
