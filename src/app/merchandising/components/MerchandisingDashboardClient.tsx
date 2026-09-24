@@ -31,8 +31,13 @@ import {
   Shirt,
   Flame,
   Droplets,
-  Wrench
+  Wrench,
+  Bell
 } from 'lucide-react'
+import { toast } from 'sonner'
+import { FloorNotificationDrawer } from '@/components/notifications/FloorNotificationDrawer'
+import { subscribeToFloorEvents, broadcastFloorEvent } from '@/utils/floorRealtime'
+import { getUnreadNotificationCount, FLOOR_NOTIFICATIONS_UPDATE_EVENT } from '@/utils/floorNotificationsStorage'
 import { 
   MerchandisingOrder, 
   OrderStatus, 
@@ -278,6 +283,9 @@ export function MerchandisingDashboardClient({
   const [statusFilter, setStatusFilter] = useState<string>('ALL')
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [selectedOrderForView, setSelectedOrderForView] = useState<MerchandisingOrder | null>(null)
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false)
+  const [unreadCount, setUnreadCount] = useState(0)
+  const [wsStatus, setWsStatus] = useState<'connected' | 'connecting' | 'offline'>('offline')
 
   const reloadData = () => {
     const localOrders = getOrders()
@@ -335,6 +343,38 @@ export function MerchandisingDashboardClient({
       window.removeEventListener('zigza_tech_packs_updated', reloadData)
     }
   }, [initialOrders, initialBomCostings, initialMilestones, initialShipments, initialBuyers, initialTechPacks])
+
+  // Real-time WebSocket sync & notifications subscription
+  useEffect(() => {
+    setUnreadCount(getUnreadNotificationCount(companyName, 'merchandising'))
+    const handleNotifUpdate = () => {
+      setUnreadCount(getUnreadNotificationCount(companyName, 'merchandising'))
+    }
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener(FLOOR_NOTIFICATIONS_UPDATE_EVENT, handleNotifUpdate)
+    }
+
+    const unsub = subscribeToFloorEvents({
+      companyName,
+      onStatusChange: (status) => setWsStatus(status),
+      onRefresh: () => reloadData(),
+      onEvent: (event) => {
+        reloadData()
+        handleNotifUpdate()
+        if (event.sourceModule !== 'merchandising') {
+          toast.info(event.title, { description: event.message })
+        }
+      }
+    })
+
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener(FLOOR_NOTIFICATIONS_UPDATE_EVENT, handleNotifUpdate)
+      }
+      unsub()
+    }
+  }, [companyName])
 
   const handleManualSync = () => {
     setIsSyncing(true)
@@ -490,6 +530,22 @@ export function MerchandisingDashboardClient({
 
         {/* Quick Action Navigation Buttons */}
         <div className="flex items-center gap-2.5 flex-wrap">
+          {/* Real-time Live Feed Notification Button */}
+          <button
+            onClick={() => setIsNotificationOpen(true)}
+            className="relative inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-black/15 rounded-xl text-xs sm:text-sm font-bold text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs cursor-pointer"
+            title="Open Live Department Feed & Audit Log"
+          >
+            <Bell className="w-4 h-4 text-[#3A3564]" />
+            <span>Live Feed</span>
+            {unreadCount > 0 && (
+              <span className="inline-flex items-center justify-center px-1.5 py-0.2 text-[10px] font-black text-white bg-rose-500 rounded-full animate-pulse">
+                {unreadCount}
+              </span>
+            )}
+            <span className={`w-2 h-2 rounded-full ${wsStatus === 'connected' ? 'bg-emerald-500 animate-pulse' : 'bg-amber-400'}`} />
+          </button>
+
           <Link
             href="/merchandising/buyers"
             className="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-black/15 rounded-xl text-xs sm:text-sm font-bold text-slate-700 hover:bg-slate-50 transition-all shadow-2xs cursor-pointer"
@@ -1146,7 +1202,17 @@ export function MerchandisingDashboardClient({
       <CreateOrderModal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
-        onSuccess={reloadData}
+        onSuccess={() => {
+          reloadData()
+          broadcastFloorEvent({
+            eventType: 'ORDER_CREATED',
+            sourceModule: 'merchandising',
+            title: 'New Buyer PO Booked',
+            message: `New Purchase Order contract booked in Merchandising desk. Ready for production launching.`,
+            buyerName: selectedBuyer?.buyer_name,
+            companyName
+          })
+        }}
       />
 
       {/* Modal: View Full Order Details & BOM / Matrix */}
@@ -1154,6 +1220,14 @@ export function MerchandisingDashboardClient({
         isOpen={Boolean(selectedOrderForView)}
         onClose={() => setSelectedOrderForView(null)}
         order={selectedOrderForView}
+      />
+
+      {/* Floor Realtime Notification Side Nav Drawer */}
+      <FloorNotificationDrawer
+        isOpen={isNotificationOpen}
+        onClose={() => setIsNotificationOpen(false)}
+        companyName={companyName}
+        currentModule="merchandising"
       />
 
     </div>

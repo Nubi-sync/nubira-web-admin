@@ -128,6 +128,11 @@ export function DesignDashboardClient({
   // Photo Lightbox
   const [previewPhoto, setPreviewPhoto] = useState<string | null>(null)
 
+  // Realtime & Drawer State
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false)
+  const [unreadCount, setUnreadCount] = useState(0)
+  const [wsStatus, setWsStatus] = useState<'connected' | 'connecting' | 'offline'>('offline')
+
   // Delete State
   const [briefToDelete, setBriefToDelete] = useState<{
     brief: DesignBrief
@@ -136,6 +141,52 @@ export function DesignDashboardClient({
     garmentType?: string
   } | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
+
+  // Auto-refresh handler for live sync
+  const reloadData = async () => {
+    try {
+      const [serverBriefs, serverTechPacks] = await Promise.all([
+        fetchDesignBriefsAction({ companyName }),
+        fetchTechPacksAction(companyName)
+      ])
+      if (serverBriefs) setBriefs(serverBriefs)
+      if (serverTechPacks) setTechPacks(serverTechPacks)
+    } catch (err) {
+      console.warn('Error refreshing design data:', err)
+    }
+  }
+
+  // Real-time WebSocket sync & notifications subscription
+  useEffect(() => {
+    setUnreadCount(getUnreadNotificationCount(companyName, 'design'))
+    const handleNotifUpdate = () => {
+      setUnreadCount(getUnreadNotificationCount(companyName, 'design'))
+    }
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener(FLOOR_NOTIFICATIONS_UPDATE_EVENT, handleNotifUpdate)
+    }
+
+    const unsub = subscribeToFloorEvents({
+      companyName,
+      onStatusChange: (status) => setWsStatus(status),
+      onRefresh: () => reloadData(),
+      onEvent: (event) => {
+        reloadData()
+        handleNotifUpdate()
+        if (event.sourceModule !== 'design') {
+          toast.info(event.title, { description: event.message })
+        }
+      }
+    })
+
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener(FLOOR_NOTIFICATIONS_UPDATE_EVENT, handleNotifUpdate)
+      }
+      unsub()
+    }
+  }, [companyName])
 
   const activeTeamMembers = (teamMembers || []).filter(m => m.status === 'ACTIVE')
   const existingGarments = Array.from(new Set(briefs.map(b => b.garment_type).filter(Boolean)))
@@ -233,6 +284,18 @@ export function DesignDashboardClient({
             latest_submission: updatedSub
           }
         }))
+
+        // Broadcast real-time WebSocket event
+        broadcastFloorEvent({
+          eventType: 'BRIEF_REVIEWED',
+          sourceModule: 'design',
+          title: nextStatus === 'PH_APPROVED' ? 'Design Concept PH Approved' : 'Design Revision Requested',
+          message: `${selectedBriefForView.garment_type} (Concept #${modalActiveConceptTab}) reviewed by Provisional Head: ${nextStatus === 'PH_APPROVED' ? 'Approved for SA cross-check' : 'Revisions needed'}.`,
+          articleNumber: selectedBriefForView.latest_submission?.concepts?.[0]?.art_number,
+          workerName: selectedBriefForView.designer_name,
+          companyName
+        })
+
         setSelectedBriefForView(null)
         setPhFeedback('')
       } else {
@@ -318,6 +381,22 @@ export function DesignDashboardClient({
 
         {/* Quick Nav Actions */}
         <div className="flex flex-wrap items-center gap-2 self-stretch sm:self-auto justify-end">
+          {/* Real-time Live Feed Notification Button */}
+          <button
+            onClick={() => setIsNotificationOpen(true)}
+            className="relative inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs cursor-pointer"
+            title="Open Live Department Feed & Audit Log"
+          >
+            <Bell className="w-3.5 h-3.5 text-[#3A3564]" />
+            <span>Live Feed</span>
+            {unreadCount > 0 && (
+              <span className="inline-flex items-center justify-center px-1.5 py-0.2 text-[10px] font-black text-white bg-rose-500 rounded-full animate-pulse">
+                {unreadCount}
+              </span>
+            )}
+            <span className={`w-2 h-2 rounded-full ${wsStatus === 'connected' ? 'bg-emerald-500 animate-pulse' : 'bg-amber-400'}`} />
+          </button>
+
           <Link
             href="/design/tech-packs"
             className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#FAF7F0] border border-black/10 text-xs font-bold text-slate-800 hover:bg-slate-100 transition-all shadow-2xs cursor-pointer"
@@ -1144,6 +1223,14 @@ export function DesignDashboardClient({
         onClose={() => setIsCreateOpen(false)}
         onSuccess={newBrief => {
           setBriefs(prev => [newBrief, ...prev])
+          broadcastFloorEvent({
+            eventType: 'BRIEF_CREATED',
+            sourceModule: 'design',
+            title: 'New Design Brief Allocated',
+            message: `Brief for ${newBrief.garment_type} (${newBrief.category || 'Apparel'}) allocated to designer ${newBrief.designer_name || 'Design Team'}.`,
+            workerName: newBrief.designer_name,
+            companyName
+          })
         }}
         teamMembers={teamMembers}
         currentUserId={currentUserId}
@@ -1187,6 +1274,14 @@ export function DesignDashboardClient({
         onClose={() => {
           if (!isDeleting) setBriefToDelete(null)
         }}
+      />
+
+      {/* Floor Realtime Notification Side Nav Drawer */}
+      <FloorNotificationDrawer
+        isOpen={isNotificationOpen}
+        onClose={() => setIsNotificationOpen(false)}
+        companyName={companyName}
+        currentModule="design"
       />
     </div>
   )
