@@ -137,7 +137,7 @@ export default async function StitchingStoreDashboardPage() {
         priority,
         created_at,
         article:articles(id, art_no, description),
-        lineman:profiles!allotments_lineman_id_fkey(id, username),
+        lineman:profiles!allotments_lineman_id_fkey(id, username, company_name),
         challans(id, challan_no, brand, fabric_type),
         allotment_variants(id, color, size, quantity),
         allotment_materials(id, allotment_id, item_name, required_qty, admin_issued, lineman_received, notes, created_at)
@@ -163,7 +163,7 @@ export default async function StitchingStoreDashboardPage() {
         admin_approved_by,
         created_at,
         article:articles(id, art_no, description),
-        lineman:profiles!allotments_lineman_id_fkey(id, username),
+        lineman:profiles!allotments_lineman_id_fkey(id, username, company_name),
         challans(id, challan_no, brand, fabric_type),
         allotment_variants(id, color, size, quantity)
       `)
@@ -220,24 +220,61 @@ export default async function StitchingStoreDashboardPage() {
     })
   }
 
-  const rawStoreTransactions = (storeTransactionsData || []).filter((tx: any) =>
-    isTargetMatch(tx.party_name, tx.notes, (tx as any).company_name)
-  )
+  const rawActiveAllotments = (activeAllotmentsData || []).filter((al: any) => {
+    const matNotes = (al.allotment_materials || []).map((m: any) => m.notes || '').join(' ')
+    const linemanComp = ((al.lineman as any)?.company_name || '').toLowerCase()
+    return (
+      isTargetMatch(
+        (al.challans as any)?.brand,
+        (al.challans as any)?.notes,
+        (al as any).company_name,
+        linemanComp,
+        matNotes
+      ) ||
+      !linemanComp ||
+      linemanComp === targetCompany ||
+      linemanComp.includes(targetCompany)
+    )
+  })
 
-  const rawAccessories = (accessoriesData || []).filter((ac: any) =>
-    isTargetMatch(ac.party_name, ac.notes, (ac as any).company_name)
-  )
+  const rawReadyQcAllotments = (readyQcAllotmentsData || []).filter((al: any) => {
+    const matNotes = (al.allotment_materials || []).map((m: any) => m.notes || '').join(' ')
+    const linemanComp = ((al.lineman as any)?.company_name || '').toLowerCase()
+    return (
+      isTargetMatch(
+        (al.challans as any)?.brand,
+        (al.challans as any)?.notes,
+        (al as any).company_name,
+        linemanComp,
+        matNotes
+      ) ||
+      !linemanComp ||
+      linemanComp === targetCompany ||
+      linemanComp.includes(targetCompany)
+    )
+  })
+
+  const validAllotmentIds = new Set<string>()
+  rawActiveAllotments.forEach((al: any) => validAllotmentIds.add(al.id))
+  rawReadyQcAllotments.forEach((al: any) => validAllotmentIds.add(al.id))
+
+  const rawStoreTransactions = (storeTransactionsData || []).filter((tx: any) => {
+    if (tx.allotment_id && validAllotmentIds.has(tx.allotment_id)) return true
+    return isTargetMatch(tx.party_name, tx.notes, (tx as any).company_name)
+  })
+
+  const rawAccessories = (accessoriesData || []).filter((ac: any) => {
+    if (isTargetMatch(ac.party_name, ac.notes, (ac as any).company_name)) return true
+    if (ac.notes) {
+      for (const id of validAllotmentIds) {
+        if (ac.notes.includes(id)) return true
+      }
+    }
+    return false
+  })
 
   const rawTruckInwards = (truckInwardsData || []).filter((t: any) =>
     isTargetMatch(t.party_name, t.receiver_name, t.notes, (t as any).company_name)
-  )
-
-  const rawActiveAllotments = (activeAllotmentsData || []).filter((al: any) =>
-    isTargetMatch((al.challans as any)?.brand, (al.challans as any)?.notes, (al as any).company_name)
-  )
-
-  const rawReadyQcAllotments = (readyQcAllotmentsData || []).filter((al: any) =>
-    isTargetMatch((al.challans as any)?.brand, (al.challans as any)?.notes, (al as any).company_name)
   )
 
   const rawFloorReissues = (floorReissuesData || []).filter((fr: any) =>

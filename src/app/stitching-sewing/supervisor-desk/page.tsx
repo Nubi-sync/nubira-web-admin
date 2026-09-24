@@ -43,6 +43,7 @@ export default async function StitchingSupervisorDeskPage() {
     const comp = ((a as any).company_name || '').toLowerCase()
     const notes = ((a.challans as any)?.notes || '').toLowerCase()
     const linemanComp = ((a.profiles as any)?.company_name || '').toLowerCase()
+    const isLinemanMatch = a.lineman_id ? isCompanyLineman.has(a.lineman_id) : false
     const matNotes = (a.allotment_materials || []).map((m: any) => m.notes || '').join(' ').toLowerCase()
     const isMatMatch = matNotes.includes(targetCompany)
 

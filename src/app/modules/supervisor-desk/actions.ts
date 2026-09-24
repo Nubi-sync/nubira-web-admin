@@ -666,7 +666,7 @@ export async function adminIssueAllMaterials(payload: {
         unit: 'pcs',
         party_name: `Issued to Line by ${stamp}`,
         entry_date: todayStr,
-        notes: `Complete 1-Click Handover for Allotment #${allotment_id}`
+        notes: `Complete 1-Click Handover for Allotment #${allotment_id} • [Company: ${stamp}]`
       }
     })
 

@@ -73,7 +73,20 @@ export async function createTruckInwardGrn(payload: CreateTruckInwardPayload) {
     const companyTag = `[Company: ${companyName}]`
     const finalNotes = baseNotes.includes(companyTag) ? baseNotes : (baseNotes ? `${baseNotes} ${companyTag}` : companyTag)
 
-    // 1. Insert into truck_inwards with fallback resilience for garment_type
+    // Check if currentUserId is a valid profile in public.profiles to satisfy foreign key constraint
+    let validProfileId: string | null = null
+    if (currentUserId) {
+      const { data: prof } = await supabaseAdmin
+        .from('profiles')
+        .select('id')
+        .eq('id', currentUserId)
+        .maybeSingle()
+      if (prof?.id) {
+        validProfileId = prof.id
+      }
+    }
+
+    // 1. Insert into truck_inwards with fallback resilience for garment_type and received_by
     const insertPayload: any = {
       grn_no: grnNo,
       party_name: payload.party_name.trim(),
@@ -90,7 +103,7 @@ export async function createTruckInwardGrn(payload: CreateTruckInwardPayload) {
       line_items: lineItemsJson,
       notes: finalNotes,
       receiver_name: currentUserName,
-      received_by: currentUserId,
+      received_by: validProfileId,
     }
 
     let { data: insertedInward, error: inwardError } = await supabase
@@ -107,6 +120,18 @@ export async function createTruckInwardGrn(payload: CreateTruckInwardPayload) {
           ? `${insertPayload.notes} [Garment: ${payload.garment_type.trim()}]`
           : `[Garment: ${payload.garment_type.trim()}]`
       }
+      const retry = await supabase
+        .from('truck_inwards')
+        .insert(insertPayload)
+        .select('id, grn_no')
+        .single()
+      insertedInward = retry.data
+      inwardError = retry.error
+    }
+
+    // Graceful fallback if received_by foreign key fails
+    if (inwardError && (inwardError.message?.toLowerCase().includes('received_by') || inwardError.code === '23503')) {
+      delete insertPayload.received_by
       const retry = await supabase
         .from('truck_inwards')
         .insert(insertPayload)
