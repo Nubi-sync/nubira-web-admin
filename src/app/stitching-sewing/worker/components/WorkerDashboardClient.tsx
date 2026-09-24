@@ -20,9 +20,7 @@ import {
   Bell
 } from 'lucide-react'
 import { toast } from 'sonner'
-import { FloorNotificationDrawer } from '@/components/notifications/FloorNotificationDrawer'
 import { subscribeToFloorEvents, broadcastFloorEvent } from '@/utils/floorRealtime'
-import { getUnreadNotificationCount, FLOOR_NOTIFICATIONS_UPDATE_EVENT } from '@/utils/floorNotificationsStorage'
 import { StitchingTaskAllocation, StitchingWorker } from '../../types/stitching'
 import {
   getStitchingTaskAllocations,
@@ -67,8 +65,6 @@ export function WorkerDashboardClient({
   const [rejectPieces, setRejectPieces] = useState<string>('0')
   const [submitNotes, setSubmitNotes] = useState<string>('')
   const [isProcessing, setIsProcessing] = useState(false)
-  const [isNotificationOpen, setIsNotificationOpen] = useState(false)
-  const [unreadCount, setUnreadCount] = useState(0)
   const [wsStatus, setWsStatus] = useState<'connected' | 'connecting' | 'offline'>('offline')
 
   const reloadData = () => {
@@ -89,24 +85,14 @@ export function WorkerDashboardClient({
     }
   }, [initialTasks, companyName])
 
-  // Real-time WebSocket sync & notifications subscription
+  // Real-time WebSocket sync
   useEffect(() => {
-    setUnreadCount(getUnreadNotificationCount(companyName, 'stitching'))
-    const handleNotifUpdate = () => {
-      setUnreadCount(getUnreadNotificationCount(companyName, 'stitching'))
-    }
-
-    if (typeof window !== 'undefined') {
-      window.addEventListener(FLOOR_NOTIFICATIONS_UPDATE_EVENT, handleNotifUpdate)
-    }
-
     const unsub = subscribeToFloorEvents({
       companyName,
       onStatusChange: (status) => setWsStatus(status),
       onRefresh: () => reloadData(),
       onEvent: (event) => {
         reloadData()
-        handleNotifUpdate()
         if (event.eventType === 'TASK_ALLOCATED' || event.eventType === 'TASK_VERIFIED') {
           toast.info(event.title, { description: event.message })
         }
@@ -114,9 +100,6 @@ export function WorkerDashboardClient({
     })
 
     return () => {
-      if (typeof window !== 'undefined') {
-        window.removeEventListener(FLOOR_NOTIFICATIONS_UPDATE_EVENT, handleNotifUpdate)
-      }
       unsub()
     }
   }, [companyName])
@@ -287,21 +270,6 @@ export function WorkerDashboardClient({
         </div>
 
         <div className="flex items-center gap-2.5 self-stretch sm:self-auto justify-end flex-wrap">
-          {/* Real-time Live Feed Notification Button */}
-          <button
-            onClick={() => setIsNotificationOpen(true)}
-            className="relative inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-black/10 bg-white hover:bg-[#FAF7F0] text-xs font-mono font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
-            title="Open Live Department Feed & Audit Log"
-          >
-            <Bell className="w-3.5 h-3.5 text-[#3A3564]" />
-            <span>Live Feed</span>
-            {unreadCount > 0 && (
-              <span className="inline-flex items-center justify-center px-1.5 py-0.2 text-[10px] font-black text-white bg-rose-500 rounded-full animate-pulse">
-                {unreadCount}
-              </span>
-            )}
-            <span className={`w-2 h-2 rounded-full ${wsStatus === 'connected' ? 'bg-emerald-500 animate-pulse' : 'bg-amber-400'}`} />
-          </button>
 
           <button
             type="button"
@@ -611,14 +579,6 @@ export function WorkerDashboardClient({
           </div>
         </div>
       )}
-
-      {/* Floor Realtime Notification Side Nav Drawer */}
-      <FloorNotificationDrawer
-        isOpen={isNotificationOpen}
-        onClose={() => setIsNotificationOpen(false)}
-        companyName={companyName}
-        currentModule="stitching"
-      />
 
     </div>
   )

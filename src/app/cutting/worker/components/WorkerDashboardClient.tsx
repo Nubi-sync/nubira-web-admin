@@ -16,9 +16,7 @@ import {
   Bell
 } from 'lucide-react'
 import { toast } from 'sonner'
-import { FloorNotificationDrawer } from '@/components/notifications/FloorNotificationDrawer'
 import { subscribeToFloorEvents, broadcastFloorEvent } from '@/utils/floorRealtime'
-import { getUnreadNotificationCount, FLOOR_NOTIFICATIONS_UPDATE_EVENT } from '@/utils/floorNotificationsStorage'
 import { CuttingTaskAllocation, CuttingWorker } from '../../types/cutting'
 import {
   getCuttingTaskAllocations,
@@ -53,8 +51,6 @@ export function WorkerDashboardClient({
   const [tasks, setTasks] = useState<CuttingTaskAllocation[]>([])
   const [isSyncing, setIsSyncing] = useState(false)
   const [now, setNow] = useState<number>(Date.now())
-  const [isNotificationOpen, setIsNotificationOpen] = useState(false)
-  const [unreadCount, setUnreadCount] = useState(0)
   const [wsStatus, setWsStatus] = useState<'connected' | 'connecting' | 'offline'>('offline')
 
   // Real-time 1-second interval ticker for live cutting countdown timer
@@ -85,24 +81,14 @@ export function WorkerDashboardClient({
     }
   }, [initialTasks, companyName])
 
-  // Real-time WebSocket sync & notifications subscription
+  // Real-time WebSocket sync
   useEffect(() => {
-    setUnreadCount(getUnreadNotificationCount(companyName, 'cutting'))
-    const handleNotifUpdate = () => {
-      setUnreadCount(getUnreadNotificationCount(companyName, 'cutting'))
-    }
-
-    if (typeof window !== 'undefined') {
-      window.addEventListener(FLOOR_NOTIFICATIONS_UPDATE_EVENT, handleNotifUpdate)
-    }
-
     const unsub = subscribeToFloorEvents({
       companyName,
       onStatusChange: (status) => setWsStatus(status),
       onRefresh: () => reloadData(),
       onEvent: (event) => {
         reloadData()
-        handleNotifUpdate()
         if (event.eventType === 'TASK_ALLOCATED' || event.eventType === 'TASK_VERIFIED') {
           toast.info(event.title, { description: event.message })
         }
@@ -110,9 +96,6 @@ export function WorkerDashboardClient({
     })
 
     return () => {
-      if (typeof window !== 'undefined') {
-        window.removeEventListener(FLOOR_NOTIFICATIONS_UPDATE_EVENT, handleNotifUpdate)
-      }
       unsub()
     }
   }, [companyName])
