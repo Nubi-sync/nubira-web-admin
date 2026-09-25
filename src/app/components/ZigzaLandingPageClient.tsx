@@ -105,6 +105,15 @@ export function ZigzaLandingPageClient({
     return () => clearInterval(pipelineTimer)
   }, [])
 
+  // Subtle Ambient Cycle for Trust Pillar Cards (1.5s per card - faster tempo)
+  const [activeTrustCard, setActiveTrustCard] = useState(0)
+  useEffect(() => {
+    const trustTimer = setInterval(() => {
+      setActiveTrustCard(prev => (prev + 1) % 3)
+    }, 1500)
+    return () => clearInterval(trustTimer)
+  }, [])
+
   // Demo Form State: Plan, Company Name, Plant Location, Owner Name, Phone, Business Email, Estimated Machines, Custom Requirements
   const [demoForm, setDemoForm] = useState({
     plan: 'FULL_PLANT_AI' as 'MODULAR' | 'FULL_PLANT_AI' | 'CUSTOM',
@@ -1045,366 +1054,173 @@ export function ZigzaLandingPageClient({
       </section>
 
       {/* =================================================================== */}
-      {/* 6. SOLUTIONS TAILORED FOR FACTORY ROLES (INTERACTIVE TABS)          */}
       {/* =================================================================== */}
-      <section id="roles" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">
-            Built for Every Stakeholder on the Factory Floor
-          </h2>
-          <p className="text-base sm:text-lg text-slate-600 mt-3 leading-relaxed">
-            Tailored interfaces engineered for the specific daily goals of each factory role.
-          </p>
+      {/* 6. TRUSTED ACROSS APPAREL MANUFACTURING HUBS (NATIONWIDE MAP)       */}
+      {/* =================================================================== */}
+      <section id="roles" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto scroll-mt-20">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+          
+          {/* Left Column: Why Trust Zigza - High Contrast, Prominent Typography & Subtle Active State */}
+          <div className="lg:col-span-5 space-y-6">
+            <div className="space-y-3">
+              <h2 className="text-3xl sm:text-4xl lg:text-[42px] font-extrabold text-slate-900 tracking-tight leading-[1.15]">
+                Trusted Across India&apos;s Garment Hubs
+              </h2>
 
-          {/* Tactile Segmented Role Switcher Buttons */}
-          <div className="mt-8 sm:mt-10 flex justify-center">
-            <div className="inline-flex p-1.5 bg-[#EAE8DF] border border-black/20 rounded-2xl shadow-inner max-w-full overflow-x-auto gap-1.5">
-              {(
-                [
-                  { key: 'MD', label: 'Factory Owners', icon: Users },
-                  { key: 'CUTTING', label: 'Cutting Masters', icon: Scissors },
-                  { key: 'STORE', label: 'Store Managers', icon: Truck },
-                  { key: 'LINEMAN', label: 'Stitching Linemen', icon: Layers },
-                  { key: 'QC', label: 'QC Inspectors', icon: ClipboardCheck }
-                ] as const
-              ).map(tab => (
-                <button
-                  key={tab.key}
-                  type="button"
-                  onClick={() => setActiveRoleTab(tab.key)}
-                  className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 cursor-pointer whitespace-nowrap ${
-                    activeRoleTab === tab.key
-                      ? 'bg-white text-slate-950 shadow-md border border-black/15 scale-[1.02] ring-1 ring-black/5'
-                      : 'text-slate-600 hover:text-slate-950 hover:bg-white/50 border border-transparent'
-                  }`}
-                >
-                  <tab.icon className={`w-4 h-4 ${activeRoleTab === tab.key ? 'text-[#3A3564]' : 'text-slate-400'}`} />
-                  <span>{tab.label}</span>
-                </button>
-              ))}
+              <p className="text-base sm:text-lg text-slate-700 leading-relaxed font-normal">
+                From local stitching lines to multi-tier export factories — Zigza simplifies daily production, piece-rate wages, and floor tracking.
+              </p>
+            </div>
+
+            {/* Core Trust Pillars with subtle ambient cycle animation */}
+            <div className="space-y-3.5 pt-1">
+              {[
+                {
+                  id: 0,
+                  icon: Building2,
+                  title: 'Floor-Ready Workflows',
+                  desc: 'Pre-built for fabric lay ratios, job-work challans, and contractor piece rates.'
+                },
+                {
+                  id: 1,
+                  icon: ShieldCheck,
+                  title: 'Strict Data Privacy',
+                  desc: 'Buyer margins, worker payouts, and tech packs stay 100% confidential.'
+                },
+                {
+                  id: 2,
+                  icon: Zap,
+                  title: 'Offline-First Sync',
+                  desc: 'Log daily cuts and sewing handovers continuously, even during Wi-Fi drops.'
+                }
+              ].map((pillar, idx) => {
+                const isCurrent = activeTrustCard === idx;
+                return (
+                  <div
+                    key={pillar.id}
+                    onClick={() => setActiveTrustCard(idx)}
+                    onMouseEnter={() => setActiveTrustCard(idx)}
+                    className={`p-4 sm:p-5 rounded-2xl border transition-all duration-200 cursor-pointer flex items-start gap-4 ${
+                      isCurrent
+                        ? 'bg-white border-[#3A3564] shadow-md -translate-y-0.5 ring-1 ring-[#3A3564]/15'
+                        : 'bg-white/80 border-slate-200 hover:border-slate-400 hover:bg-white'
+                    }`}
+                  >
+                    {/* Outline Icon Badge */}
+                    <div
+                      className={`w-11 h-11 rounded-xl border-2 flex items-center justify-center shrink-0 transition-all duration-200 mt-0.5 ${
+                        isCurrent
+                          ? 'bg-[#FAF7F0] border-[#3A3564] text-[#3A3564] shadow-2xs scale-105'
+                          : 'bg-white border-slate-300 text-slate-700'
+                      }`}
+                    >
+                      <pillar.icon className="w-5 h-5" strokeWidth={1.8} />
+                    </div>
+
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <h3 className="text-base sm:text-[17px] font-bold text-slate-900 tracking-tight">
+                          {pillar.title}
+                        </h3>
+                        {isCurrent && (
+                          <span className="w-2.5 h-2.5 rounded-full bg-[#3A3564] shrink-0 animate-pulse" />
+                        )}
+                      </div>
+                      <p className="text-sm sm:text-[14.5px] text-slate-600 mt-1 leading-relaxed">
+                        {pillar.desc}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
-        </div>
 
-        {/* Role Showcase Card: Slim black outline, 2-column layout with real floor UI mockup */}
-        <div className="max-w-5xl mx-auto bg-white border border-black rounded-2xl p-6 sm:p-8 lg:p-10 shadow-sm transition-all overflow-hidden">
-          <div key={activeRoleTab} className="role-tab-animated-pane">
-            {activeRoleTab === 'MD' && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-              <div className="lg:col-span-7 space-y-4">
-                <span className="inline-flex items-center gap-1.5 text-[11px] font-mono font-bold uppercase tracking-wider text-[#3A3564] bg-[#FAF7F0] border border-black/15 px-3 py-1 rounded-md">
-                  Executive Suite · Plant Leadership
+          {/* Right Column: Generated Minimalist Outline Map with Hand-Drawn Green Trust Notes */}
+          <div className="lg:col-span-7 flex items-center justify-center relative">
+            <div className="relative w-full max-w-[560px] aspect-square flex items-center justify-center">
+              
+              {/* Map Image */}
+              <img
+                src="/india_outline_map.png"
+                alt="India Garment Manufacturing Network"
+                className="w-full h-full object-contain mix-blend-multiply select-none pointer-events-none"
+                loading="lazy"
+              />
+
+              {/* Green Handwritten Note 1 (Top-Left pointing to North line) */}
+              <div className="absolute top-[2%] left-[2%] sm:top-[5%] sm:left-[6%] z-20 pointer-events-none select-none flex flex-col items-start -rotate-3">
+                <span className="font-['Caveat',cursive] text-emerald-700 font-bold text-xl sm:text-2xl leading-tight tracking-wide drop-shadow-2xs">
+                  Zero ghost pieces! ⚡
                 </span>
-                <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-                  360° Real-Time Floor Visibility From Cloth to Cash
-                </h3>
-                <p className="text-sm sm:text-[15px] text-slate-600 leading-relaxed">
-                  Gain live visibility into active buyer orders, machine line throughput, and piece-rate labor 
-                  expenses across all factory floors. Eliminate morning paper register disputes and ghost piece losses.
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                  <div className="p-3.5 bg-[#FAF7F0] border border-black/10 rounded-xl flex items-start gap-2.5">
-                    <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5" />
-                    <span className="text-xs sm:text-[13px] font-semibold text-slate-800 leading-snug">
-                      Live WIP piece count tracking & bottleneck line alerts
-                    </span>
-                  </div>
-                  <div className="p-3.5 bg-[#FAF7F0] border border-black/10 rounded-xl flex items-start gap-2.5">
-                    <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5" />
-                    <span className="text-xs sm:text-[13px] font-semibold text-slate-800 leading-snug">
-                      Automated daily payroll sync without paper register loss
-                    </span>
-                  </div>
-                </div>
+                <svg className="w-14 h-8 sm:w-16 sm:h-9 text-emerald-600 mt-0.5 ml-4 overflow-visible" viewBox="0 0 70 40" fill="none">
+                  <path
+                    d="M 6 4 C 20 8, 38 16, 52 30"
+                    stroke="currentColor"
+                    strokeWidth="2.4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M 38 28 L 54 32 L 48 18"
+                    stroke="currentColor"
+                    strokeWidth="2.4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
               </div>
 
-              {/* Right Side UI Preview: Executive Dashboard Snapshot */}
-              <div className="lg:col-span-5 bg-[#FAF7F0] border border-black/15 rounded-xl p-5 shadow-xs font-mono">
-                <div className="flex items-center justify-between pb-3 mb-3 border-b border-black/10 text-xs">
-                  <span className="font-bold text-slate-900 flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                    PLANT OVERVIEW
-                  </span>
-                  <span className="text-slate-500 text-[11px]">SHIFT 1 ACTIVE</span>
-                </div>
-                <div className="space-y-2.5 text-xs">
-                  <div className="bg-white p-3 rounded-lg border border-black/10 flex items-center justify-between">
-                    <span className="text-slate-600 font-sans">WIP on Floor:</span>
-                    <span className="font-bold text-slate-900">14,820 Pcs (98.8%)</span>
-                  </div>
-                  <div className="bg-white p-3 rounded-lg border border-black/10 flex items-center justify-between">
-                    <span className="text-slate-600 font-sans">Stitched Today:</span>
-                    <span className="font-bold text-emerald-700">4,120 Units</span>
-                  </div>
-                  <div className="bg-white p-3 rounded-lg border border-black/10 flex items-center justify-between">
-                    <span className="text-slate-600 font-sans">Active Bottleneck:</span>
-                    <span className="font-bold text-amber-700">Line 4 (Collar)</span>
-                  </div>
-                </div>
-                <div className="mt-3 pt-3 border-t border-black/10 text-[11px] text-slate-600 font-sans flex items-center gap-1.5">
-                  <Check className="w-3.5 h-3.5 text-[#3A3564] stroke-[2.5]" />
-                  <span>Real-time payroll & order delivery sync</span>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeRoleTab === 'CUTTING' && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-              <div className="lg:col-span-7 space-y-4">
-                <span className="inline-flex items-center gap-1.5 text-[11px] font-mono font-bold uppercase tracking-wider text-[#3A3564] bg-[#FAF7F0] border border-black/15 px-3 py-1 rounded-md">
-                  Cutting Department · Lay Planning
+              {/* Green Handwritten Note 2 (Top-Right pointing to East/Central) */}
+              <div className="absolute top-[6%] right-[2%] sm:top-[8%] sm:right-[4%] z-20 pointer-events-none select-none flex flex-col items-end rotate-2">
+                <span className="font-['Caveat',cursive] text-emerald-700 font-bold text-xl sm:text-2xl leading-tight tracking-wide drop-shadow-2xs text-right">
+                  100% confidential! 🔒
                 </span>
-                <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-                  1-Click Excel Order Ingestion & Size Lay Matrix
-                </h3>
-                <p className="text-sm sm:text-[15px] text-slate-600 leading-relaxed">
-                  Upload raw buyer spreadsheets to auto-generate multi-article lay plans in seconds. Eliminate hours 
-                  of manual ratio math (1:9, L/XXL, 22x26) and generate barcode bundle allotment cards in 1 click.
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                  <div className="p-3.5 bg-[#FAF7F0] border border-black/10 rounded-xl flex items-start gap-2.5">
-                    <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5" />
-                    <span className="text-xs sm:text-[13px] font-semibold text-slate-800 leading-snug">
-                      Instant size & color ratio breakdown without calculator math
-                    </span>
-                  </div>
-                  <div className="p-3.5 bg-[#FAF7F0] border border-black/10 rounded-xl flex items-start gap-2.5">
-                    <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5" />
-                    <span className="text-xs sm:text-[13px] font-semibold text-slate-800 leading-snug">
-                      Automated bundle ticket generation for linemen
-                    </span>
-                  </div>
-                </div>
+                <svg className="w-14 h-8 sm:w-16 sm:h-9 text-emerald-600 mt-0.5 mr-5 overflow-visible" viewBox="0 0 70 40" fill="none">
+                  <path
+                    d="M 62 4 C 48 8, 32 16, 16 30"
+                    stroke="currentColor"
+                    strokeWidth="2.4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M 18 18 L 14 32 L 30 28"
+                    stroke="currentColor"
+                    strokeWidth="2.4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
               </div>
 
-              {/* Right Side UI Preview: Cutting Lay Matrix Mockup */}
-              <div className="lg:col-span-5 bg-[#FAF7F0] border border-black/15 rounded-xl p-5 shadow-xs font-mono">
-                <div className="flex items-center justify-between pb-3 mb-3 border-b border-black/10 text-xs">
-                  <span className="font-bold text-slate-900 flex items-center gap-1.5">
-                    <Scissors className="w-3.5 h-3.5 text-[#3A3564]" />
-                    LAY MATRIX ENGINE
-                  </span>
-                  <span className="text-slate-500 text-[11px]">ORDER #Z-8419</span>
-                </div>
-                <div className="space-y-2 text-xs">
-                  <div className="bg-white p-2.5 rounded-lg border border-black/10 flex justify-between">
-                    <span className="text-slate-600 font-sans">Article / Plies:</span>
-                    <span className="font-bold text-slate-900">Polo Shirt • 24 Plies</span>
-                  </div>
-                  <div className="grid grid-cols-4 gap-1.5 text-center text-[11px]">
-                    <div className="bg-white p-1.5 rounded border border-black/10">
-                      <div className="text-slate-400">S</div>
-                      <div className="font-bold text-slate-900">120</div>
-                    </div>
-                    <div className="bg-white p-1.5 rounded border border-black/10">
-                      <div className="text-slate-400">M</div>
-                      <div className="font-bold text-slate-900">240</div>
-                    </div>
-                    <div className="bg-white p-1.5 rounded border border-black/10">
-                      <div className="text-slate-400">L</div>
-                      <div className="font-bold text-slate-900">240</div>
-                    </div>
-                    <div className="bg-white p-1.5 rounded border border-black/10">
-                      <div className="text-slate-400">XL</div>
-                      <div className="font-bold text-slate-900">120</div>
-                    </div>
-                  </div>
-                  <div className="bg-white p-2.5 rounded-lg border border-black/10 flex justify-between">
-                    <span className="text-slate-600 font-sans">Bundles Ready:</span>
-                    <span className="font-bold text-emerald-700">12 Bundles (720 Pcs)</span>
-                  </div>
-                </div>
-                <div className="mt-3 pt-3 border-t border-black/10 text-[11px] text-slate-600 font-sans flex items-center gap-1.5">
-                  <Check className="w-3.5 h-3.5 text-[#3A3564] stroke-[2.5]" />
-                  <span>0 Manual ratio mistakes • Ready for linemen</span>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeRoleTab === 'STORE' && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-              <div className="lg:col-span-7 space-y-4">
-                <span className="inline-flex items-center gap-1.5 text-[11px] font-mono font-bold uppercase tracking-wider text-[#3A3564] bg-[#FAF7F0] border border-black/15 px-3 py-1 rounded-md">
-                  Warehouse & Gate · Store Inward
+              {/* Green Handwritten Note 3 (Bottom-Left pointing to South wages) */}
+              <div className="absolute bottom-[4%] left-[2%] sm:bottom-[8%] sm:left-[6%] z-20 pointer-events-none select-none flex flex-col items-start -rotate-2">
+                <svg className="w-14 h-8 sm:w-16 sm:h-9 text-emerald-600 mb-0.5 ml-10 overflow-visible" viewBox="0 0 70 40" fill="none">
+                  <path
+                    d="M 8 32 C 22 24, 40 16, 54 6"
+                    stroke="currentColor"
+                    strokeWidth="2.4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M 40 5 L 56 6 L 50 20"
+                    stroke="currentColor"
+                    strokeWidth="2.4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                <span className="font-['Caveat',cursive] text-emerald-700 font-bold text-xl sm:text-2xl leading-tight tracking-wide drop-shadow-2xs">
+                  Daily piece rates synced! ✓
                 </span>
-                <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-                  Mobile Delivery Slip OCR & Fabric Roll Barcoding
-                </h3>
-                <p className="text-sm sm:text-[15px] text-slate-600 leading-relaxed">
-                  Photograph supplier paper challans directly at the truck gate. Automatically tag fabric rolls 
-                  with unique barcode labels (Sinker, Rib, Fleece) and flag missing accessories before production begins.
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                  <div className="p-3.5 bg-[#FAF7F0] border border-black/10 rounded-xl flex items-start gap-2.5">
-                    <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5" />
-                    <span className="text-xs sm:text-[13px] font-semibold text-slate-800 leading-snug">
-                      Camera capture converts paper challan slips into inventory
-                    </span>
-                  </div>
-                  <div className="p-3.5 bg-[#FAF7F0] border border-black/10 rounded-xl flex items-start gap-2.5">
-                    <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5" />
-                    <span className="text-xs sm:text-[13px] font-semibold text-slate-800 leading-snug">
-                      Automatic trim and accessory due follow-up tracking
-                    </span>
-                  </div>
-                </div>
               </div>
 
-              {/* Right Side UI Preview: Gate Inward GRN Card */}
-              <div className="lg:col-span-5 bg-[#FAF7F0] border border-black/15 rounded-xl p-5 shadow-xs font-mono">
-                <div className="flex items-center justify-between pb-3 mb-3 border-b border-black/10 text-xs">
-                  <span className="font-bold text-slate-900 flex items-center gap-1.5">
-                    <Truck className="w-3.5 h-3.5 text-[#3A3564]" />
-                    GATE INWARD GRN
-                  </span>
-                  <span className="text-slate-500 text-[11px]">CHALLAN #1042</span>
-                </div>
-                <div className="space-y-2.5 text-xs">
-                  <div className="bg-white p-2.5 rounded-lg border border-black/10 flex justify-between">
-                    <span className="text-slate-600 font-sans">Mill Supplier:</span>
-                    <span className="font-bold text-slate-900">Vardhman Mills</span>
-                  </div>
-                  <div className="bg-white p-2.5 rounded-lg border border-black/10 flex justify-between">
-                    <span className="text-slate-600 font-sans">Fabric / Weight:</span>
-                    <span className="font-bold text-slate-900">Sinker 180 GSM • 42.5 Kg</span>
-                  </div>
-                  <div className="bg-white p-2.5 rounded-lg border border-black/10 flex justify-between">
-                    <span className="text-slate-600 font-sans">Pending Trims:</span>
-                    <span className="font-bold text-amber-700">2,400 Mtr Elastic Due</span>
-                  </div>
-                </div>
-                <div className="mt-3 pt-3 border-t border-black/10 text-[11px] text-slate-600 font-sans flex items-center gap-1.5">
-                  <Check className="w-3.5 h-3.5 text-[#3A3564] stroke-[2.5]" />
-                  <span>Barcode printed & inventory updated live</span>
-                </div>
-              </div>
             </div>
-          )}
-
-          {activeRoleTab === 'LINEMAN' && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-              <div className="lg:col-span-7 space-y-4">
-                <span className="inline-flex items-center gap-1.5 text-[11px] font-mono font-bold uppercase tracking-wider text-[#3A3564] bg-[#FAF7F0] border border-black/15 px-3 py-1 rounded-md">
-                  Sewing Floor · Linemen & Operators
-                </span>
-                <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-                  Transparent Daily Wage Records & Zero Ticket Disputes
-                </h3>
-                <p className="text-sm sm:text-[15px] text-slate-600 leading-relaxed">
-                  Give operators full visibility into completed bundles and daily earnings right on their mobile phone. 
-                  Eliminate lost paper tickets and conflicting piece accounts at weekly salary payout.
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                  <div className="p-3.5 bg-[#FAF7F0] border border-black/10 rounded-xl flex items-start gap-2.5">
-                    <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5" />
-                    <span className="text-xs sm:text-[13px] font-semibold text-slate-800 leading-snug">
-                      Real-time piece-rate earnings ledger verified on supervisor scan
-                    </span>
-                  </div>
-                  <div className="p-3.5 bg-[#FAF7F0] border border-black/10 rounded-xl flex items-start gap-2.5">
-                    <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5" />
-                    <span className="text-xs sm:text-[13px] font-semibold text-slate-800 leading-snug">
-                      Color-split bundle assignment without missing pieces
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Right Side UI Preview: Lineman Wage Portal Screen */}
-              <div className="lg:col-span-5 bg-[#FAF7F0] border border-black/15 rounded-xl p-5 shadow-xs font-mono">
-                <div className="flex items-center justify-between pb-3 mb-3 border-b border-black/10 text-xs">
-                  <span className="font-bold text-slate-900 flex items-center gap-1.5">
-                    <Layers className="w-3.5 h-3.5 text-[#3A3564]" />
-                    OPERATOR WAGE PORTAL
-                  </span>
-                  <span className="text-slate-500 text-[11px]">LINE 3 • SHIFT 1</span>
-                </div>
-                <div className="space-y-2.5 text-xs">
-                  <div className="bg-white p-2.5 rounded-lg border border-black/10 flex justify-between">
-                    <span className="text-slate-600 font-sans">Operator Name:</span>
-                    <span className="font-bold text-slate-900">Ramesh Kumar</span>
-                  </div>
-                  <div className="bg-white p-2.5 rounded-lg border border-black/10 flex justify-between">
-                    <span className="text-slate-600 font-sans">Bundles Stitched:</span>
-                    <span className="font-bold text-slate-900">18 Bundles (540 Pcs)</span>
-                  </div>
-                  <div className="bg-white p-2.5 rounded-lg border border-black/10 flex justify-between">
-                    <span className="text-slate-600 font-sans">Today's Earnings:</span>
-                    <span className="font-bold text-emerald-700">₹1,512.00 (₹2.80/pc)</span>
-                  </div>
-                </div>
-                <div className="mt-3 pt-3 border-t border-black/10 text-[11px] text-slate-600 font-sans flex items-center gap-1.5">
-                  <Check className="w-3.5 h-3.5 text-[#3A3564] stroke-[2.5]" />
-                  <span>Mobile verified • No salary dispute at week-end</span>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeRoleTab === 'QC' && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-              <div className="lg:col-span-7 space-y-4">
-                <span className="inline-flex items-center gap-1.5 text-[11px] font-mono font-bold uppercase tracking-wider text-[#3A3564] bg-[#FAF7F0] border border-black/15 px-3 py-1 rounded-md">
-                  Finishing & Quality · Audit Checkpoints
-                </span>
-                <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-                  1-Tap Lightbox Audit & Instant Defect Routing
-                </h3>
-                <p className="text-sm sm:text-[15px] text-slate-600 leading-relaxed">
-                  Log passed garments and categorize defects (oil stains, open seams, tension faults) with 1 tap at 
-                  lightbox inspection stations. Instantly re-route alteration tickets back to the responsible operator.
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                  <div className="p-3.5 bg-[#FAF7F0] border border-black/10 rounded-xl flex items-start gap-2.5">
-                    <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5" />
-                    <span className="text-xs sm:text-[13px] font-semibold text-slate-800 leading-snug">
-                      1-Tap pass logging and defect category tagging
-                    </span>
-                  </div>
-                  <div className="p-3.5 bg-[#FAF7F0] border border-black/10 rounded-xl flex items-start gap-2.5">
-                    <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5" />
-                    <span className="text-xs sm:text-[13px] font-semibold text-slate-800 leading-snug">
-                      Instant tailor accountability for speedy rework
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Right Side UI Preview: Lightbox Audit Screen */}
-              <div className="lg:col-span-5 bg-[#FAF7F0] border border-black/15 rounded-xl p-5 shadow-xs font-mono">
-                <div className="flex items-center justify-between pb-3 mb-3 border-b border-black/10 text-xs">
-                  <span className="font-bold text-slate-900 flex items-center gap-1.5">
-                    <ClipboardCheck className="w-3.5 h-3.5 text-[#3A3564]" />
-                    LIGHTBOX AUDIT BAY 2
-                  </span>
-                  <span className="text-slate-500 text-[11px]">LOT #819</span>
-                </div>
-                <div className="space-y-2.5 text-xs">
-                  <div className="bg-white p-2.5 rounded-lg border border-black/10 flex justify-between">
-                    <span className="text-slate-600 font-sans">Inspection Status:</span>
-                    <span className="font-bold text-emerald-700">138 Passed (97.2%)</span>
-                  </div>
-                  <div className="bg-white p-2.5 rounded-lg border border-black/10 flex justify-between">
-                    <span className="text-slate-600 font-sans">Defects Logged:</span>
-                    <span className="font-bold text-red-600">4 Alterations</span>
-                  </div>
-                  <div className="bg-white p-2.5 rounded-lg border border-black/10 flex justify-between">
-                    <span className="text-slate-600 font-sans">Auto Re-Routed:</span>
-                    <span className="font-bold text-slate-900">Tailor #8 (Line 2)</span>
-                  </div>
-                </div>
-                <div className="mt-3 pt-3 border-t border-black/10 text-[11px] text-slate-600 font-sans flex items-center gap-1.5">
-                  <Check className="w-3.5 h-3.5 text-[#3A3564] stroke-[2.5]" />
-                  <span>1-Tap defect tagging • Real-time re-work cycle</span>
-                </div>
-              </div>
-            </div>
-          )}
           </div>
-        </div>
 
+        </div>
       </section>
 
       {/* =================================================================== */}
