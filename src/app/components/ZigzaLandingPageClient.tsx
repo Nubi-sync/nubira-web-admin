@@ -295,7 +295,7 @@ export function ZigzaLandingPageClient({
           {/* Brand Logo */}
           <Link href="/" className="group flex items-center cursor-pointer select-none shrink-0">
             <img 
-              src="/z i g z a (7).png" 
+              src="/z i g z a (8).png" 
               alt="Zigza" 
               className="h-[36px] sm:h-[46px] lg:h-[50px] w-auto object-contain transition-transform duration-150 group-hover:scale-[1.02]"
             />
@@ -2076,7 +2076,7 @@ export function ZigzaLandingPageClient({
             <div className="col-span-2 space-y-4">
               <Link href="/" className="inline-block group">
                 <img 
-                  src="/z i g z a (7).png" 
+                  src="/z i g z a (8).png" 
                   alt="Zigza" 
                   className="h-8 sm:h-9 w-auto object-contain group-hover:opacity-90 transition-opacity duration-150"
                 />
@@ -2279,7 +2279,7 @@ export function ZigzaLandingPageClient({
 
             <div className="flex items-center gap-3 mb-2">
               <img 
-                src="/z i g z a (7).png" 
+                src="/z i g z a (8).png" 
                 alt="Zigza" 
                 className="h-7 sm:h-8 w-auto object-contain"
               />
