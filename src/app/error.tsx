@@ -22,9 +22,9 @@ export default function RootError({
       <header className="px-6 py-4 sm:px-10 flex items-center justify-between border-b border-black/10 bg-white/70 backdrop-blur-md">
         <div className="inline-flex items-center gap-2">
           <img 
-            src="/z i g z a (2).png" 
+            src="/z i g z a (6)4.png" 
             alt="Zigza" 
-            className="h-7 w-auto object-contain rounded-md"
+            className="h-7 w-auto object-contain"
           />
         </div>
         <Link

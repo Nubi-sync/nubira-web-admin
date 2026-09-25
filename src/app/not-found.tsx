@@ -36,9 +36,9 @@ export default function NotFound() {
       <header className="px-6 py-5 sm:px-10 flex items-center justify-between border-b border-slate-200/80 bg-white/70 backdrop-blur-md">
         <Link href="/" className="inline-flex items-center gap-2 group">
           <img 
-            src="/z i g z a (2).png" 
-            alt="zigza." 
-            className="h-7 w-auto object-contain rounded-md transition-opacity group-hover:opacity-85"
+            src="/z i g z a (6)4.png" 
+            alt="Zigza" 
+            className="h-7 w-auto object-contain transition-opacity group-hover:opacity-85"
           />
         </Link>
         <Link
