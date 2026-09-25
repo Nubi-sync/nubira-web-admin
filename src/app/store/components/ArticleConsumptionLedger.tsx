@@ -75,7 +75,7 @@ export function ArticleConsumptionLedger({
 }: ArticleConsumptionLedgerProps) {
   const [expandedArticle, setExpandedArticle] = useState<string | null>(null)
   const [expandedAllotmentIds, setExpandedAllotmentIds] = useState<Record<string, boolean>>({})
-  const [bufferPct, setBufferPct] = useState<number>(5)
+  const [bufferPct, setBufferPct] = useState<number>(0)
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [claims, setClaims] = useState<BufferReplacementClaim[]>([])
   const [expandedHistoryArt, setExpandedHistoryArt] = useState<Record<string, boolean>>({})

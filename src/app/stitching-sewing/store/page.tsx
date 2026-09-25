@@ -137,7 +137,7 @@ export default async function StitchingStoreDashboardPage() {
         priority,
         created_at,
         article:articles(id, art_no, description),
-        lineman:profiles!allotments_lineman_id_fkey(id, username),
+        lineman:profiles!allotments_lineman_id_fkey(id, username, company_name),
         challans(id, challan_no, brand, fabric_type),
         allotment_variants(id, color, size, quantity),
         allotment_materials(id, allotment_id, item_name, required_qty, admin_issued, lineman_received, notes, created_at)
@@ -163,7 +163,7 @@ export default async function StitchingStoreDashboardPage() {
         admin_approved_by,
         created_at,
         article:articles(id, art_no, description),
-        lineman:profiles!allotments_lineman_id_fkey(id, username),
+        lineman:profiles!allotments_lineman_id_fkey(id, username, company_name),
         challans(id, challan_no, brand, fabric_type),
         allotment_variants(id, color, size, quantity)
       `)
@@ -204,43 +204,111 @@ export default async function StitchingStoreDashboardPage() {
       .limit(200)
   ])
 
-  // Multi-tenant scoping: Client factories only view records tagged for their company
-  const targetCompany = tenant.companyName.toUpperCase()
-
-  const rawStoreTransactions = isLegacy
-    ? (storeTransactionsData || [])
-    : (storeTransactionsData || []).filter((tx: any) =>
-        (tx.party_name || '').toUpperCase().includes(targetCompany) ||
-        (tx.notes || '').toUpperCase().includes(targetCompany)
+  // Multi-tenant scoping: Each account strictly accesses only their company's data
+  const targetCompany = (tenant.companyName || '').trim().toLowerCase()
+  const isTargetMatch = (...values: (string | null | undefined)[]) => {
+    if (!targetCompany) return false
+    return values.some(v => {
+      if (!v) return false
+      const s = v.trim().toLowerCase()
+      return (
+        s === targetCompany ||
+        s.includes(`[company:${targetCompany}]`) ||
+        s.includes(`[company: ${targetCompany}]`) ||
+        s.includes(targetCompany)
       )
+    })
+  }
 
-  const rawAccessories = isLegacy
-    ? (accessoriesData || [])
-    : (accessoriesData || []).filter((ac: any) =>
-        (ac.party_name || '').toUpperCase().includes(targetCompany) ||
-        (ac.notes || '').toUpperCase().includes(targetCompany)
-      )
+  const rawActiveAllotments = (activeAllotmentsData || []).filter((al: any) => {
+    const matNotes = (al.allotment_materials || []).map((m: any) => m.notes || '').join(' ')
+    const linemanComp = ((al.lineman as any)?.company_name || '').toLowerCase()
+    return (
+      isTargetMatch(
+        (al.challans as any)?.brand,
+        (al.challans as any)?.notes,
+        (al as any).company_name,
+        linemanComp,
+        matNotes
+      ) ||
+      !linemanComp ||
+      linemanComp === targetCompany ||
+      linemanComp.includes(targetCompany)
+    )
+  })
 
-  const rawTruckInwards = isLegacy
-    ? (truckInwardsData || [])
-    : (truckInwardsData || []).filter((t: any) =>
-        (t.supplier_name || '').toUpperCase().includes(targetCompany) ||
-        (t.receiver_name || '').toUpperCase().includes(targetCompany)
-      )
+  const rawReadyQcAllotments = (readyQcAllotmentsData || []).filter((al: any) => {
+    const matNotes = (al.allotment_materials || []).map((m: any) => m.notes || '').join(' ')
+    const linemanComp = ((al.lineman as any)?.company_name || '').toLowerCase()
+    return (
+      isTargetMatch(
+        (al.challans as any)?.brand,
+        (al.challans as any)?.notes,
+        (al as any).company_name,
+        linemanComp,
+        matNotes
+      ) ||
+      !linemanComp ||
+      linemanComp === targetCompany ||
+      linemanComp.includes(targetCompany)
+    )
+  })
 
-  const rawActiveAllotments = isLegacy
-    ? (activeAllotmentsData || [])
-    : (activeAllotmentsData || []).filter((al: any) =>
-        ((al.challans as any)?.brand || '').toUpperCase().includes(targetCompany)
-      )
+  const validAllotmentIds = new Set<string>()
+  rawActiveAllotments.forEach((al: any) => validAllotmentIds.add(al.id))
+  rawReadyQcAllotments.forEach((al: any) => validAllotmentIds.add(al.id))
 
-  const rawReadyQcAllotments = isLegacy
-    ? (readyQcAllotmentsData || [])
-    : (readyQcAllotmentsData || []).filter((al: any) =>
-        ((al.challans as any)?.brand || '').toUpperCase().includes(targetCompany)
-      )
+  const rawStoreTransactions = (storeTransactionsData || []).filter((tx: any) => {
+    if (tx.allotment_id && validAllotmentIds.has(tx.allotment_id)) return true
+    return isTargetMatch(tx.party_name, tx.notes, (tx as any).company_name)
+  })
 
-  const articles = isLegacy ? ((articlesData as any) || []) : (articlesData || [])
+  const rawAccessories = (accessoriesData || []).filter((ac: any) => {
+    if (isTargetMatch(ac.party_name, ac.notes, (ac as any).company_name)) return true
+    if (ac.notes) {
+      for (const id of validAllotmentIds) {
+        if (ac.notes.includes(id)) return true
+      }
+    }
+    return false
+  })
+
+  const rawTruckInwards = (truckInwardsData || []).filter((t: any) =>
+    isTargetMatch(t.party_name, t.receiver_name, t.notes, (t as any).company_name)
+  )
+
+  const rawFloorReissues = (floorReissuesData || []).filter((fr: any) =>
+    isTargetMatch(fr.notes, (fr as any).company_name)
+  )
+
+  const rawWorkerAssignments = (workerAssignmentsData || []).filter((wa: any) =>
+    isTargetMatch((wa as any).company_name)
+  )
+
+  // Filter articles: only include styles associated with this company
+  const validArticleIds = new Set<string>()
+  const validArtNos = new Set<string>()
+
+  rawActiveAllotments.forEach((al: any) => {
+    if (al.article?.id) validArticleIds.add(al.article.id)
+    if (al.article?.art_no) validArtNos.add(al.article.art_no.toUpperCase())
+  })
+  rawReadyQcAllotments.forEach((al: any) => {
+    if (al.article?.id) validArticleIds.add(al.article.id)
+    if (al.article?.art_no) validArtNos.add(al.article.art_no.toUpperCase())
+  })
+  rawTruckInwards.forEach((t: any) => {
+    if (t.article_no) validArtNos.add(t.article_no.toUpperCase())
+  })
+
+  const articles = (articlesData || []).filter((art: any) => {
+    const artRatesComp = (art.size_rates?.company_name || art.size_rates?._meta?.company_name || '').trim().toLowerCase()
+    if (artRatesComp && artRatesComp === targetCompany) return true
+    if (isTargetMatch(art.description)) return true
+    if (validArticleIds.has(art.id)) return true
+    if (art.art_no && validArtNos.has(art.art_no.toUpperCase())) return true
+    return false
+  })
   const storeTransactions = (rawStoreTransactions as any[]).map((tx: any) => ({
     ...tx,
     article: Array.isArray(tx.article) ? tx.article[0] : tx.article,

@@ -28,10 +28,8 @@ export default async function MerchandisingPage() {
     redirect('/login')
   }
 
-  // Centrally resolve tenant identity
   const tenant = await resolveUserTenant(user)
-  const isLegacy = isLegacyNubiraTenant(tenant)
-  const companyFilter = isLegacy ? undefined : tenant.companyName
+  const companyFilter = tenant.companyName
 
   const [
     initialOrders, 

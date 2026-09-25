@@ -20,77 +20,76 @@ async function invalidateDeskCache() {
 // FETCH SUPERVISOR DESK DATA (Cached)
 // ---------------------------------------------------------------------------
 export async function fetchSupervisorDeskDataAction(companyName?: string) {
-  const normComp = (companyName || 'all').toLowerCase().replace(/[^a-z0-9]/g, '_')
-  const cacheKey = `company:${normComp}:supervisor_desk:data`
+  try {
+    const [
+      { data: rawAllotmentsData, error: allotmentsErr },
+      { data: rawLinemenProfiles },
+      { data: rawAllProfiles }
+    ] = await Promise.all([
+      supabaseAdmin
+        .from('allotments')
+        .select(`
+          id,
+          challan_id,
+          lineman_id,
+          article_id,
+          target_qty,
+          status,
+          priority,
+          allotment_date,
+          mending_status,
+          mending_total_counted,
+          mending_supervisor_name,
+          handed_to_mending_by,
+          handed_to_mending_at,
+          mending_handover_notes,
+          qc_status,
+          qc_total_passed,
+          qc_total_alter,
+          qc_supervisor_name,
+          handed_to_qc_by,
+          handed_to_qc_at,
+          qc_handover_notes,
+          store_inward_status,
+          total_bags_packed,
+          created_at,
+          profiles:lineman_id ( id, username, role, company_name ),
+          articles:article_id ( id, art_no, description ),
+          challans:challan_id ( id, challan_no, brand, fabric_type ),
+          allotment_variants ( id, allotment_id, color, size, quantity, completed_qty ),
+          allotment_materials ( id, allotment_id, item_name, required_qty, admin_issued, notes )
+        `)
+        .order('created_at', { ascending: false }),
 
-  return CacheManager.fetchOrSet(
-    cacheKey,
-    async () => {
-      const [
-        { data: rawAllotmentsData, error: allotmentsErr },
-        { data: rawLinemenProfiles },
-        { data: rawAllProfiles }
-      ] = await Promise.all([
-        supabaseAdmin
-          .from('allotments')
-          .select(`
-            id,
-            challan_id,
-            lineman_id,
-            article_id,
-            target_qty,
-            status,
-            priority,
-            allotment_date,
-            mending_status,
-            mending_total_counted,
-            mending_supervisor_name,
-            handed_to_mending_by,
-            handed_to_mending_at,
-            mending_handover_notes,
-            qc_status,
-            qc_total_passed,
-            qc_total_alter,
-            qc_supervisor_name,
-            handed_to_qc_by,
-            handed_to_qc_at,
-            qc_handover_notes,
-            store_inward_status,
-            total_bags_packed,
-            created_at,
-            profiles:lineman_id ( id, username, role ),
-            articles:article_id ( id, art_no, description ),
-            challans:challan_id ( id, challan_no, brand, fabric_type ),
-            allotment_variants ( id, allotment_id, color, size, quantity, completed_qty ),
-            allotment_materials ( id, allotment_id, item_name, required_qty, admin_issued, notes )
-          `)
-          .order('created_at', { ascending: false }),
+      supabaseAdmin
+        .from('profiles')
+        .select('id, username, role, company_name')
+        .eq('role', 'LINEMAN')
+        .order('username'),
 
-        supabaseAdmin
-          .from('profiles')
-          .select('id, username, role')
-          .eq('role', 'LINEMAN')
-          .order('username'),
+      supabaseAdmin
+        .from('profiles')
+        .select('id, username, role, company_name')
+        .order('username')
+    ])
 
-        supabaseAdmin
-          .from('profiles')
-          .select('id, username, role')
-          .order('username')
-      ])
+    if (allotmentsErr) {
+      console.error('Error fetching allotments in supervisor-desk:', allotmentsErr)
+    }
 
-      if (allotmentsErr) {
-        console.error('Error fetching allotments in supervisor-desk:', allotmentsErr)
-      }
-
-      return {
-        rawAllotmentsData: rawAllotmentsData || [],
-        rawLinemenProfiles: rawLinemenProfiles || [],
-        rawAllProfiles: rawAllProfiles || []
-      }
-    },
-    60,
-    [`company:${normComp}:supervisor_desk`, 'supervisor_desk', 'allotments']
-  )
+    return {
+      rawAllotmentsData: rawAllotmentsData || [],
+      rawLinemenProfiles: rawLinemenProfiles || [],
+      rawAllProfiles: rawAllProfiles || []
+    }
+  } catch (err) {
+    console.error('Fatal fetch error in fetchSupervisorDeskDataAction:', err)
+    return {
+      rawAllotmentsData: [],
+      rawLinemenProfiles: [],
+      rawAllProfiles: []
+    }
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -610,6 +609,85 @@ export async function adminIssueMaterial(payload: {
   } catch (err: any) {
     console.error('Error in adminIssueMaterial:', err)
     return { error: err.message || 'Failed to issue raw material' }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// 8.1 STORE DESK: 1-CLICK ALL MATERIALS / TRIMS BULK HANDOVER
+// ---------------------------------------------------------------------------
+export async function adminIssueAllMaterials(payload: {
+  allotment_id: string
+  operator_name?: string
+}) {
+  try {
+    const { allotment_id, operator_name } = payload
+    if (!allotment_id) return { error: 'Invalid allotment ID' }
+
+    const stamp = operator_name || 'Admin Store Override'
+    const nowIso = new Date().toISOString()
+    const todayStr = nowIso.split('T')[0]
+
+    // Fetch all materials for this allotment
+    const { data: materials, error: matFetchErr } = await supabaseAdmin
+      .from('allotment_materials')
+      .select('id, item_name, required_qty, admin_issued')
+      .eq('allotment_id', allotment_id)
+
+    if (matFetchErr) throw matFetchErr
+
+    const unissued = (materials || []).filter(m => !m.admin_issued)
+    if (unissued.length === 0) {
+      return { success: true, message: 'All materials are already issued.' }
+    }
+
+    // Update all materials to admin_issued: true
+    const { error: updateErr } = await supabaseAdmin
+      .from('allotment_materials')
+      .update({
+        admin_issued: true,
+        notes: JSON.stringify({
+          store_verified: true,
+          store_verified_at: nowIso,
+          issued_by: stamp,
+          status: 'ISSUED'
+        })
+      })
+      .eq('allotment_id', allotment_id)
+
+    if (updateErr) throw updateErr
+
+    // Log OUT in accessories table for all unissued items
+    const outwardRows = unissued.map(m => {
+      const parsedQty = parseInt(String(m.required_qty).replace(/[^0-9]/g, ''), 10) || 1
+      return {
+        item_name: m.item_name || 'Production Trim',
+        action: 'OUT',
+        quantity: parsedQty,
+        unit: 'pcs',
+        party_name: `Issued to Line by ${stamp}`,
+        entry_date: todayStr,
+        notes: `Complete 1-Click Handover for Allotment #${allotment_id} • [Company: ${stamp}]`
+      }
+    })
+
+    if (outwardRows.length > 0) {
+      try {
+        await supabaseAdmin.from('accessories').insert(outwardRows)
+      } catch (accErr) {
+        console.warn('accessories OUT bulk logging warning:', accErr)
+      }
+    }
+
+    await invalidateDeskCache()
+    revalidatePath('/modules/supervisor-desk')
+    revalidatePath('/stitching-sewing/supervisor-desk')
+    revalidatePath('/stitching-sewing/store')
+    revalidatePath('/stitching-sewing/allotments')
+    revalidatePath('/allotments')
+    return { success: true, message: `Successfully issued all ${unissued.length} materials to Lineman!` }
+  } catch (err: any) {
+    console.error('Error in adminIssueAllMaterials:', err)
+    return { error: err.message || 'Failed to issue all materials' }
   }
 }
 

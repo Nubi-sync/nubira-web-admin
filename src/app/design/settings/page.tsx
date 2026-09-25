@@ -23,8 +23,7 @@ export default async function PHSettingsPage() {
   }
 
   const tenant = await resolveUserTenant(user)
-  const isLegacy = isLegacyNubiraTenant(tenant)
-  const companyFilter = isLegacy ? undefined : tenant.companyName
+  const companyFilter = tenant.companyName
   const companyName = tenant.companyName || 'Nubira Creation'
 
   const [initialBodyCodes, initialBOMCodes, initialTemplates] = await Promise.all([

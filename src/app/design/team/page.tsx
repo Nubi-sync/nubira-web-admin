@@ -20,8 +20,7 @@ export default async function DesignTeamPage() {
 
   // Centrally resolve tenant identity
   const tenant = await resolveUserTenant(user)
-  const isLegacy = isLegacyNubiraTenant(tenant)
-  const companyFilter = isLegacy ? undefined : tenant.companyName
+  const companyFilter = tenant.companyName
   const companyName = tenant.companyName || 'Nubira Creation'
 
   const initialMembers = await fetchDesignTeamMembersAction(companyFilter)

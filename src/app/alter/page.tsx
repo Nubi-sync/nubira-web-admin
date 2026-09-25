@@ -20,8 +20,7 @@ export default async function AlterModulePage() {
   }
 
   const tenant = await resolveUserTenant(user)
-  const isLegacy = isLegacyNubiraTenant(tenant)
-  const companyFilter = isLegacy ? undefined : tenant.companyName
+  const companyFilter = tenant.companyName
 
   const liveData = await fetchAlterDashboardDataAction(companyFilter)
 

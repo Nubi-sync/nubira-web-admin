@@ -4,6 +4,7 @@ import { createClient } from '@/utils/supabase/server'
 import { supabaseAdmin } from '@/utils/supabase/admin'
 import { revalidatePath } from 'next/cache'
 import { CacheManager } from '@/lib/cache/cache-manager'
+import { resolveUserTenant } from '@/lib/tenant-context'
 
 // ----------------------------------------------------
 // 1. CREATE ACCESSORY CHALLAN INWARD (TRUCK INWARD / GRN)
@@ -35,6 +36,8 @@ export async function createTruckInwardGrn(payload: CreateTruckInwardPayload) {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
+    const tenant = user ? await resolveUserTenant(user) : null
+    const companyName = tenant?.companyName || 'Nubira Creation'
     const currentUserName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Store Supervisor'
     const currentUserId = user?.id
 
@@ -66,7 +69,24 @@ export async function createTruckInwardGrn(payload: CreateTruckInwardPayload) {
       }
     })
 
-    // 1. Insert into truck_inwards with fallback resilience for garment_type
+    const baseNotes = payload.notes?.trim() || ''
+    const companyTag = `[Company: ${companyName}]`
+    const finalNotes = baseNotes.includes(companyTag) ? baseNotes : (baseNotes ? `${baseNotes} ${companyTag}` : companyTag)
+
+    // Check if currentUserId is a valid profile in public.profiles to satisfy foreign key constraint
+    let validProfileId: string | null = null
+    if (currentUserId) {
+      const { data: prof } = await supabaseAdmin
+        .from('profiles')
+        .select('id')
+        .eq('id', currentUserId)
+        .maybeSingle()
+      if (prof?.id) {
+        validProfileId = prof.id
+      }
+    }
+
+    // 1. Insert into truck_inwards with fallback resilience for garment_type and received_by
     const insertPayload: any = {
       grn_no: grnNo,
       party_name: payload.party_name.trim(),
@@ -81,9 +101,9 @@ export async function createTruckInwardGrn(payload: CreateTruckInwardPayload) {
       status: overallStatus,
       challan_photo_url: payload.challan_photo_url || null,
       line_items: lineItemsJson,
-      notes: payload.notes?.trim() || null,
+      notes: finalNotes,
       receiver_name: currentUserName,
-      received_by: currentUserId,
+      received_by: validProfileId,
     }
 
     let { data: insertedInward, error: inwardError } = await supabase
@@ -100,6 +120,18 @@ export async function createTruckInwardGrn(payload: CreateTruckInwardPayload) {
           ? `${insertPayload.notes} [Garment: ${payload.garment_type.trim()}]`
           : `[Garment: ${payload.garment_type.trim()}]`
       }
+      const retry = await supabase
+        .from('truck_inwards')
+        .insert(insertPayload)
+        .select('id, grn_no')
+        .single()
+      insertedInward = retry.data
+      inwardError = retry.error
+    }
+
+    // Graceful fallback if received_by foreign key fails
+    if (inwardError && (inwardError.message?.toLowerCase().includes('received_by') || inwardError.code === '23503')) {
+      delete insertPayload.received_by
       const retry = await supabase
         .from('truck_inwards')
         .insert(insertPayload)
@@ -985,13 +1017,20 @@ export async function fetchCentralStoreKpis(companyName?: string) {
     cacheKey,
     async () => {
       try {
+        let truckQuery = supabaseAdmin
+          .from('truck_inwards')
+          .select('id', { count: 'exact' })
+
+        if (companyName && companyName.trim()) {
+          const c = companyName.trim()
+          truckQuery = truckQuery.or(`party_name.ilike.%${c}%,notes.ilike.%${c}%`)
+        }
+
         const [fabricRes, issuesRes, receiptsRes, trucksRes] = await Promise.all([
           fetchCentralFabricInventory(companyName),
           fetchMaterialIssuesByDivision(undefined, companyName),
           fetchMaterialReceiptsByDivision(undefined, companyName),
-          supabaseAdmin
-            .from('truck_inwards')
-            .select('id', { count: 'exact' })
+          truckQuery
         ])
 
         const fabrics = fabricRes.data || []

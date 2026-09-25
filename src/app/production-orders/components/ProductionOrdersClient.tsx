@@ -1213,7 +1213,12 @@ export function ProductionOrdersClient({
         }
         colorMap[cName].totalPcs += pcsPerColor
         colorMap[cName].sizeBreakdown[sizeTier] = (colorMap[cName].sizeBreakdown[sizeTier] || 0) + pcsPerColor
-        if (art.assigned_lineman_id && art.assigned_lineman_id !== '') {
+        const assignedColors: string[] = (art as any).assigned_colors || []
+        const isColorMatch = assignedColors.length === 0
+          ? (art.color_pattern && (art.color_pattern.toUpperCase() === cName.toUpperCase() || cName.toUpperCase().includes(art.color_pattern.toUpperCase())))
+          : assignedColors.some((ac: string) => ac === cName.toUpperCase() || cName.toUpperCase().includes(ac) || ac.includes(cName.toUpperCase()))
+
+        if (art.assigned_lineman_id && art.assigned_lineman_id !== '' && isColorMatch) {
           colorMap[cName].assignedLinemanId = art.assigned_lineman_id
           colorMap[cName].assignedLinemanName = art.assigned_lineman_name
         }

@@ -20,8 +20,7 @@ export default async function BundlesPage() {
   }
 
   const tenant = await resolveUserTenant(user)
-  const isLegacy = isLegacyNubiraTenant(tenant)
-  const companyFilter = isLegacy ? undefined : tenant.companyName
+  const companyFilter = tenant.companyName
 
   const initialBundles = await fetchCutBundlesAction(undefined, companyFilter)
 

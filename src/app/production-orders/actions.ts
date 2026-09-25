@@ -256,7 +256,38 @@ export async function getProductionOrders(companyName?: string): Promise<Challan
     if (challansList && challansList.length > 0) {
       for (const ch of challansList) {
         let articles: any[] = []
-        const chAllotments = (allotments || []).filter((a: any) => a.challan_id === ch.id)
+        const chNo = (ch.challan_no || '').trim().toUpperCase()
+        const chArtNos = new Set<string>()
+        if (ch.notes) {
+          try {
+            const pNotes = JSON.parse(ch.notes)
+            const rLines = pNotes.article_lines || pNotes
+            if (Array.isArray(rLines)) {
+              rLines.forEach((l: any) => {
+                if (l.art_no) chArtNos.add(String(l.art_no).trim().toUpperCase())
+                if (l.full_art_code) chArtNos.add(String(l.full_art_code).trim().toUpperCase())
+              })
+            }
+          } catch (_) {}
+        }
+
+        const chAllotments = (allotments || []).filter((a: any) => {
+          if (a.challan_id === ch.id) return true
+          const mat = materials?.find((m: any) => m.allotment_id === a.id)
+          let meta: any = {}
+          if (mat?.notes) {
+            try { meta = JSON.parse(mat.notes) } catch (_) {}
+          }
+          const alChNo = (meta.client_challan_no || meta.challan_no || a.client_challan_no || (a.challans as any)?.challan_no || '').trim().toUpperCase()
+          if (chNo && alChNo && (chNo === alChNo || alChNo.includes(chNo) || chNo.includes(alChNo))) return true
+
+          // Match by article number (e.g. 5225)
+          const art = (Array.isArray(a.articles) ? a.articles[0] : a.articles) || {}
+          const alArtNo = (art.art_no || meta.art_no || '').trim().toUpperCase()
+          if (alArtNo && chArtNos.has(alArtNo)) return true
+
+          return false
+        })
 
         // 1. If structured article lines exist in challan notes, map them to live floor allotment status
         if (ch.notes) {
@@ -280,27 +311,49 @@ export async function getProductionOrders(companyName?: string): Promise<Challan
                 const matchingAl = chAllotments.find((al: any) => {
                   const art = (Array.isArray(al.articles) ? al.articles[0] : al.articles) || {}
                   const alArtNo = (art.art_no || '').trim().toUpperCase()
-                  const isArtMatch = alArtNo === baseArtNo || alArtNo === cleanArtNo || alArtNo === fullArtCode
-                  if (!isArtMatch) return false
+                  const mat = materials?.find((m: any) => m.allotment_id === al.id)
+                  let meta: any = {}
+                  if (mat?.notes) {
+                    try { meta = JSON.parse(mat.notes) } catch (_) {}
+                  }
+                  const metaArtNo = (meta.art_no || '').trim().toUpperCase()
 
                   // Check variant color match if variants exist
                   const alVars = variants?.filter((v: any) => v.allotment_id === al.id) || []
                   if (alVars.length > 0) {
-                    return alVars.some((v: any) => (v.color || '').trim().toUpperCase() === colorPattern.toUpperCase())
+                    const hasColor = alVars.some((v: any) => {
+                      const vCol = (v.color || '').trim().toUpperCase()
+                      const cp = colorPattern.toUpperCase()
+                      return vCol === cp || vCol.includes(cp) || cp.includes(vCol)
+                    })
+                    if (hasColor) return true
                   }
 
                   // Fallback: check materials notes color_focus
-                  const mat = materials?.find((m: any) => m.allotment_id === al.id)
-                  if (mat?.notes) {
-                    try {
-                      const metaNotes = JSON.parse(mat.notes)
-                      if (metaNotes.color_focus && metaNotes.color_focus.toUpperCase() !== 'ALL') {
-                        return metaNotes.color_focus.toUpperCase() === colorPattern.toUpperCase()
-                      }
-                    } catch (_) {}
+                  if (meta.color_focus && meta.color_focus.toUpperCase() !== 'ALL') {
+                    const cf = meta.color_focus.toUpperCase()
+                    const cp = colorPattern.toUpperCase()
+                    if (cf === cp || cf.includes(cp) || cp.includes(cf)) return true
+                  }
+                  if (meta.color_pattern) {
+                    const cp1 = meta.color_pattern.toUpperCase()
+                    const cp2 = colorPattern.toUpperCase()
+                    if (cp1 === cp2 || cp1.includes(cp2) || cp2.includes(cp1)) return true
                   }
 
-                  return true
+                  // Check if article number string itself embeds the color (e.g. JOB-744-PINK)
+                  if (colorPattern && colorPattern.toUpperCase() !== 'STANDARD') {
+                    const cp = colorPattern.toUpperCase()
+                    if (alArtNo.includes(cp) || metaArtNo.includes(cp)) return true
+                  }
+
+                  const isArtMatch = !cleanArtNo || 
+                                    alArtNo === baseArtNo || alArtNo === cleanArtNo || alArtNo === fullArtCode ||
+                                    metaArtNo === baseArtNo || metaArtNo === cleanArtNo || metaArtNo === fullArtCode ||
+                                    (baseArtNo && alArtNo.includes(baseArtNo)) || (cleanArtNo && alArtNo.includes(cleanArtNo)) ||
+                                    (baseArtNo && metaArtNo.includes(baseArtNo)) || (cleanArtNo && metaArtNo.includes(cleanArtNo))
+
+                  return isArtMatch
                 })
 
                 let linemanId = ''
@@ -308,6 +361,7 @@ export async function getProductionOrders(companyName?: string): Promise<Challan
                 let lineStatus = 'PENDING'
                 let allotmentId = ''
                 let completedQty = 0
+                let assignedColors: string[] = []
 
                 if (matchingAl) {
                   allotmentId = matchingAl.id
@@ -318,8 +372,19 @@ export async function getProductionOrders(companyName?: string): Promise<Challan
                     lineStatus = matchingAl.status === 'QC_PASSED' ? 'QC_PASSED' : (matchingAl.status === 'DISPATCHED' ? 'DISPATCHED' : 'IN_PROGRESS')
                   }
                   
-                  // Check completed qty from variants
+                  // Check completed qty and colors from variants
                   const alVars = variants?.filter((v: any) => v.allotment_id === matchingAl.id) || []
+                  assignedColors = Array.from(new Set(alVars.map((v: any) => (v.color || '').trim().toUpperCase()).filter(Boolean)))
+                  
+                  // Also look for color from materials
+                  if (assignedColors.length === 0) {
+                    const alMats = materials?.filter((m: any) => m.allotment_id === matchingAl.id) || []
+                    alMats.forEach((m: any) => {
+                      const match = (m.item_name || '').match(/\(([^)]+)\)/)
+                      if (match && match[1]) assignedColors.push(match[1].trim().toUpperCase())
+                    })
+                  }
+
                   const vMatch = alVars.find((v: any) => 
                     (v.color || '').toUpperCase() === colorPattern.toUpperCase() && 
                     (v.size || '').toUpperCase() === sizeRange.toUpperCase()
@@ -344,6 +409,7 @@ export async function getProductionOrders(companyName?: string): Promise<Challan
                   completed_qty: completedQty,
                   assigned_lineman_id: linemanId,
                   assigned_lineman_name: linemanName,
+                  assigned_colors: assignedColors,
                   picture_url: line.picture_url || '',
                   stitching_rate: line.stitching_rate && Number(line.stitching_rate) > 0 ? Number(line.stitching_rate) : undefined,
                   status: lineStatus,
@@ -371,7 +437,7 @@ export async function getProductionOrders(companyName?: string): Promise<Challan
 
         // Determine dynamic Challan status based on active floor allotments
         const totalLines = articles.length
-        const allottedLines = articles.filter(a => a.assigned_lineman_id && a.status !== 'PLANNED' && a.status !== 'PENDING').length
+        const totalAllottedPcs = (chAllotments || []).reduce((sum: number, al: any) => sum + (Number(al.target_qty) || 0), 0)
         const completedLines = articles.filter(a => a.status === 'QC_PASSED' || a.status === 'COMPLETED').length
         const dispatchedLines = articles.filter(a => a.status === 'DISPATCHED').length
 
@@ -380,9 +446,9 @@ export async function getProductionOrders(companyName?: string): Promise<Challan
           challanStatus = 'DISPATCHED'
         } else if (ch.status === 'QC_PASSED' || (completedLines === totalLines && totalLines > 0)) {
           challanStatus = 'QC_PASSED'
-        } else if (allottedLines === totalLines && totalLines > 0) {
+        } else if (totalAllottedPcs >= totalPcs && totalPcs > 0) {
           challanStatus = 'IN_PROGRESS'
-        } else if (allottedLines > 0) {
+        } else if (totalAllottedPcs > 0) {
           challanStatus = 'PARTIALLY_ALLOTTED'
         } else {
           challanStatus = 'PENDING'
