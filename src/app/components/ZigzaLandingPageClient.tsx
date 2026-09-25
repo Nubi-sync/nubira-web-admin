@@ -110,7 +110,7 @@ export function ZigzaLandingPageClient({
   useEffect(() => {
     const trustTimer = setInterval(() => {
       setActiveTrustCard(prev => (prev + 1) % 3)
-    }, 1500)
+    }, 2000)
     return () => clearInterval(trustTimer)
   }, [])
 
@@ -1136,33 +1136,34 @@ export function ZigzaLandingPageClient({
             </div>
           </div>
 
-          {/* Right Column: Generated Minimalist Outline Map with Hand-Drawn Green Trust Notes */}
+          {/* Right Column: Generated Minimalist Outline Map with 4 Well-Positioned Hand-Drawn Green Trust Notes */}
           <div className="lg:col-span-7 flex items-center justify-center relative">
-            <div className="relative w-full max-w-[560px] aspect-square flex items-center justify-center">
+            <div className="relative w-full max-w-[600px] aspect-square flex items-center justify-center p-4">
               
-              {/* Map Image */}
+              {/* Scaled Map Image Centered With Clear Buffer Margins */}
               <img
                 src="/india_outline_map.png"
                 alt="India Garment Manufacturing Network"
-                className="w-full h-full object-contain mix-blend-multiply select-none pointer-events-none"
+                className="w-[84%] h-[84%] object-contain mix-blend-multiply select-none pointer-events-none"
                 loading="lazy"
               />
 
-              {/* Green Handwritten Note 1 (Top-Left pointing to North line) */}
-              <div className="absolute top-[2%] left-[2%] sm:top-[5%] sm:left-[6%] z-20 pointer-events-none select-none flex flex-col items-start -rotate-3">
-                <span className="font-['Caveat',cursive] text-emerald-700 font-bold text-xl sm:text-2xl leading-tight tracking-wide drop-shadow-2xs">
-                  Zero ghost pieces! ⚡
+              {/* Note 1: Top-Left (North-West - Zero Ghost Pieces) */}
+              <div className="absolute top-[0%] left-[-2%] sm:left-[0%] z-20 pointer-events-none select-none flex flex-col items-start -rotate-3">
+                <span className="font-['Caveat',cursive] text-emerald-700 font-bold text-2xl sm:text-[26px] md:text-[28px] leading-tight tracking-wide flex items-center gap-1.5 drop-shadow-2xs">
+                  <span>Zero ghost pieces!</span>
+                  <Zap className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600 shrink-0" strokeWidth={2.4} />
                 </span>
-                <svg className="w-14 h-8 sm:w-16 sm:h-9 text-emerald-600 mt-0.5 ml-4 overflow-visible" viewBox="0 0 70 40" fill="none">
+                <svg className="w-14 h-8 sm:w-16 sm:h-9 text-emerald-600 mt-0.5 ml-6 overflow-visible" viewBox="0 0 70 40" fill="none">
                   <path
-                    d="M 6 4 C 20 8, 38 16, 52 30"
+                    d="M 6 4 C 20 10, 40 20, 56 28"
                     stroke="currentColor"
                     strokeWidth="2.4"
                     strokeLinecap="round"
                     strokeLinejoin="round"
                   />
                   <path
-                    d="M 38 28 L 54 32 L 48 18"
+                    d="M 40 26 L 58 30 L 52 14"
                     stroke="currentColor"
                     strokeWidth="2.4"
                     strokeLinecap="round"
@@ -1171,21 +1172,22 @@ export function ZigzaLandingPageClient({
                 </svg>
               </div>
 
-              {/* Green Handwritten Note 2 (Top-Right pointing to East/Central) */}
-              <div className="absolute top-[6%] right-[2%] sm:top-[8%] sm:right-[4%] z-20 pointer-events-none select-none flex flex-col items-end rotate-2">
-                <span className="font-['Caveat',cursive] text-emerald-700 font-bold text-xl sm:text-2xl leading-tight tracking-wide drop-shadow-2xs text-right">
-                  100% confidential! 🔒
+              {/* Note 2: Top-Right (North-East - 100% Confidential) */}
+              <div className="absolute top-[0%] right-[-2%] sm:right-[0%] z-20 pointer-events-none select-none flex flex-col items-end rotate-3">
+                <span className="font-['Caveat',cursive] text-emerald-700 font-bold text-2xl sm:text-[26px] md:text-[28px] leading-tight tracking-wide flex items-center gap-1.5 drop-shadow-2xs text-right">
+                  <span>100% confidential!</span>
+                  <Lock className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600 shrink-0" strokeWidth={2.4} />
                 </span>
-                <svg className="w-14 h-8 sm:w-16 sm:h-9 text-emerald-600 mt-0.5 mr-5 overflow-visible" viewBox="0 0 70 40" fill="none">
+                <svg className="w-14 h-8 sm:w-16 sm:h-9 text-emerald-600 mt-0.5 mr-6 overflow-visible" viewBox="0 0 70 40" fill="none">
                   <path
-                    d="M 62 4 C 48 8, 32 16, 16 30"
+                    d="M 64 4 C 50 10, 30 20, 14 28"
                     stroke="currentColor"
                     strokeWidth="2.4"
                     strokeLinecap="round"
                     strokeLinejoin="round"
                   />
                   <path
-                    d="M 18 18 L 14 32 L 30 28"
+                    d="M 18 14 L 12 30 L 30 26"
                     stroke="currentColor"
                     strokeWidth="2.4"
                     strokeLinecap="round"
@@ -1194,27 +1196,52 @@ export function ZigzaLandingPageClient({
                 </svg>
               </div>
 
-              {/* Green Handwritten Note 3 (Bottom-Left pointing to South wages) */}
-              <div className="absolute bottom-[4%] left-[2%] sm:bottom-[8%] sm:left-[6%] z-20 pointer-events-none select-none flex flex-col items-start -rotate-2">
+              {/* Note 3: Bottom-Left (South-West - Daily Wages Synced) */}
+              <div className="absolute bottom-[4%] left-[-2%] sm:left-[0%] z-20 pointer-events-none select-none flex flex-col items-start -rotate-2">
                 <svg className="w-14 h-8 sm:w-16 sm:h-9 text-emerald-600 mb-0.5 ml-10 overflow-visible" viewBox="0 0 70 40" fill="none">
                   <path
-                    d="M 8 32 C 22 24, 40 16, 54 6"
+                    d="M 8 32 C 24 22, 42 14, 58 6"
                     stroke="currentColor"
                     strokeWidth="2.4"
                     strokeLinecap="round"
                     strokeLinejoin="round"
                   />
                   <path
-                    d="M 40 5 L 56 6 L 50 20"
+                    d="M 42 5 L 60 6 L 54 20"
                     stroke="currentColor"
                     strokeWidth="2.4"
                     strokeLinecap="round"
                     strokeLinejoin="round"
                   />
                 </svg>
-                <span className="font-['Caveat',cursive] text-emerald-700 font-bold text-xl sm:text-2xl leading-tight tracking-wide drop-shadow-2xs">
-                  Daily piece rates synced! ✓
+                <span className="font-['Caveat',cursive] text-emerald-700 font-bold text-2xl sm:text-[26px] md:text-[28px] leading-tight tracking-wide flex items-center gap-1.5 drop-shadow-2xs">
+                  <span>Daily wages synced!</span>
+                  <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600 shrink-0" strokeWidth={2.4} />
                 </span>
+              </div>
+
+              {/* Note 4: Bottom-Right (South-East - 1-Tap Bundle Scan) */}
+              <div className="absolute bottom-[20%] right-[-2%] sm:right-[0%] z-20 pointer-events-none select-none flex flex-col items-end rotate-2">
+                <span className="font-['Caveat',cursive] text-emerald-700 font-bold text-2xl sm:text-[26px] md:text-[28px] leading-tight tracking-wide flex items-center gap-1.5 drop-shadow-2xs text-right">
+                  <span>1-Tap bundle scan!</span>
+                  <QrCode className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600 shrink-0" strokeWidth={2.4} />
+                </span>
+                <svg className="w-14 h-8 sm:w-16 sm:h-9 text-emerald-600 mt-0.5 mr-8 overflow-visible" viewBox="0 0 70 40" fill="none">
+                  <path
+                    d="M 62 28 C 46 22, 28 14, 12 6"
+                    stroke="currentColor"
+                    strokeWidth="2.4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M 18 20 L 10 6 L 28 5"
+                    stroke="currentColor"
+                    strokeWidth="2.4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
               </div>
 
             </div>
