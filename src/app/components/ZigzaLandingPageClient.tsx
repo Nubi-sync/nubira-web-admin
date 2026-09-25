@@ -18,6 +18,7 @@ import {
   Calculator,
   ChevronDown,
   ChevronUp,
+  ChevronRight,
   X,
   ExternalLink,
   Smartphone,
@@ -41,6 +42,63 @@ import {
 } from 'lucide-react'
 import { saveDemoRequest } from '../platform-admin/utils/platformStorage'
 import { submitDemoRequestAction, checkContactInUseAction } from '../platform-admin/actions'
+
+// Smooth Easing Animated Counter for Live Metrics
+function AnimatedCounter({ 
+  value, 
+  prefix = '', 
+  suffix = '', 
+  decimals = 0,
+  className = '',
+  duration = 900
+}: { 
+  value: number
+  prefix?: string
+  suffix?: string
+  decimals?: number
+  className?: string
+  duration?: number
+}) {
+  const [displayValue, setDisplayValue] = useState(value)
+
+  useEffect(() => {
+    let startVal = displayValue
+    let endVal = value
+    if (Math.abs(startVal - endVal) < 0.001) return
+
+    let startTime: number | null = null
+    let animId: number
+
+    const step = (timestamp: number) => {
+      if (!startTime) startTime = timestamp
+      const elapsed = timestamp - startTime
+      const progress = Math.min(elapsed / duration, 1)
+      // Ease out cubic: smooth decelerating count-up
+      const ease = 1 - Math.pow(1 - progress, 3)
+      const current = startVal + (endVal - startVal) * ease
+      setDisplayValue(current)
+
+      if (progress < 1) {
+        animId = requestAnimationFrame(step)
+      } else {
+        setDisplayValue(endVal)
+      }
+    }
+
+    animId = requestAnimationFrame(step)
+    return () => cancelAnimationFrame(animId)
+  }, [value, duration])
+
+  const formatted = decimals > 0 
+    ? displayValue.toFixed(decimals) 
+    : Math.round(displayValue).toLocaleString()
+
+  return (
+    <span className={className}>
+      {prefix}{formatted}{suffix}
+    </span>
+  )
+}
 
 function IndiaFlag({ className = "w-5 h-3.5" }: { className?: string }) {
   return (
@@ -96,12 +154,12 @@ export function ZigzaLandingPageClient({
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  // Sequential 5-Step Factory Pipeline Animation (1.2s per box)
+  // Sequential 8-Step Factory Pipeline Animation (1.4s per box)
   const [activePipelineStep, setActivePipelineStep] = useState(0)
   useEffect(() => {
     const pipelineTimer = setInterval(() => {
-      setActivePipelineStep(prev => (prev + 1) % 5)
-    }, 1200)
+      setActivePipelineStep(prev => (prev + 1) % 8)
+    }, 1400)
     return () => clearInterval(pipelineTimer)
   }, [])
 
@@ -113,6 +171,18 @@ export function ZigzaLandingPageClient({
     }, 2000)
     return () => clearInterval(trustTimer)
   }, [])
+
+  // Interactive Hero Mockup: Active Department Tab & 10s Live Floor Simulation Cycle
+  const [mockupTab, setMockupTab] = useState<'cutting' | 'sewing' | 'qc'>('cutting')
+  const [mockupTick, setMockupTick] = useState(0)
+
+  useEffect(() => {
+    // 10-11 second total cycle: 3 event ticks spread evenly, then resets back to 0
+    const tickTimer = setInterval(() => {
+      setMockupTick(prev => (prev + 1) % 4)
+    }, 2800)
+    return () => clearInterval(tickTimer)
+  }, [mockupTab])
 
   // Demo Form State: Plan, Company Name, Plant Location, Owner Name, Phone, Business Email, Estimated Machines, Custom Requirements
   const [demoForm, setDemoForm] = useState({
@@ -516,124 +586,373 @@ export function ZigzaLandingPageClient({
 
         {/* Live MES Interactive Visual Dashboard Mockup */}
         <div className="mt-8 sm:mt-12 max-w-5xl mx-auto">
-          <div className="bg-white border border-black rounded-xl sm:rounded-2xl overflow-hidden">
+          <div className="bg-white border border-[#3A3564]/15 rounded-2xl sm:rounded-3xl shadow-xl shadow-[#3A3564]/5 overflow-hidden transition-all duration-300">
             
-            {/* Mockup Header Bar */}
-            <div className="bg-[var(--steel-dark,#1F3A63)] px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between text-white border-b border-slate-700">
-              <div className="flex items-center gap-2 min-w-0">
-                <div className="flex gap-1.5 shrink-0">
-                  <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-rose-500 inline-block" />
-                  <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-amber-500 inline-block" />
-                  <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-emerald-500 inline-block" />
+            {/* macOS Dark Blue Window Header Bar */}
+            <div className="bg-[#1B2A4A] px-4 sm:px-6 py-3 border-b border-slate-700/80 flex items-center justify-between gap-4">
+              <div className="flex items-center gap-2 sm:gap-3">
+                {/* macOS Colored Window Control Dots */}
+                <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                  <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-[#FF5F56] border border-[#E0443E]/60 inline-block shadow-2xs" />
+                  <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-[#FFBD2E] border border-[#DEA123]/60 inline-block shadow-2xs" />
+                  <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-[#27C93F] border border-[#1AAB29]/60 inline-block shadow-2xs" />
                 </div>
-                <span className="text-[10px] sm:text-xs font-bold tracking-tight text-slate-300 ml-1 sm:ml-2 truncate">
-                  Zigza MES • Live Plant Operations Control Center
-                </span>
+                {/* Interactive Station Tabs (Linked to JOB-457 · OLLYPOP Kids 2-Pc) */}
+                <div className="flex items-center gap-1 sm:gap-1.5 ml-1 sm:ml-3">
+                  <button
+                    type="button"
+                    onClick={() => { setMockupTab('cutting'); setMockupTick(0) }}
+                    className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                      mockupTab === 'cutting'
+                        ? 'bg-white/20 text-white shadow-2xs backdrop-blur-xs'
+                        : 'text-slate-300 hover:text-white hover:bg-white/10'
+                    }`}
+                  >
+                    Cutting & Inward
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setMockupTab('sewing'); setMockupTick(0) }}
+                    className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                      mockupTab === 'sewing'
+                        ? 'bg-white/20 text-white shadow-2xs backdrop-blur-xs'
+                        : 'text-slate-300 hover:text-white hover:bg-white/10'
+                    }`}
+                  >
+                    Sewing Lines
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setMockupTab('qc'); setMockupTick(0) }}
+                    className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                      mockupTab === 'qc'
+                        ? 'bg-white/20 text-white shadow-2xs backdrop-blur-xs'
+                        : 'text-slate-300 hover:text-white hover:bg-white/10'
+                    }`}
+                  >
+                    QC & Packing
+                  </button>
+                </div>
               </div>
-              <div className="flex items-center gap-1.5 text-[8px] sm:text-[10px] font-bold uppercase tracking-wider bg-emerald-900/60 border border-emerald-500/40 text-emerald-300 px-2 sm:px-2.5 py-0.5 rounded-full shrink-0">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="hidden sm:inline">Floor Active</span>
-                <span className="sm:hidden">Active</span>
+
+              {/* Real-Time Sync Indicator & 10s Loop Timer */}
+              <div className="flex items-center gap-2 text-xs font-medium text-slate-300 shrink-0">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="hidden sm:inline font-medium">Live Floor Sync</span>
+                <span className="text-[11px] font-mono text-slate-400">
+                  {mockupTick === 0 ? '· Synced' : `· +${mockupTick} Events`}
+                </span>
               </div>
             </div>
 
             {/* Mockup Body Content */}
-            <div className="p-3 sm:p-6 bg-[var(--bg,#EEF1F5)] space-y-3 sm:space-y-5">
+            <div className="p-4 sm:p-6 bg-[#FAFAF8] space-y-4 sm:space-y-5">
               
-              {/* Top Stats Strip */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3.5">
-                <div className="p-2.5 sm:p-3.5 bg-white border border-[var(--border,#E2E8F0)] rounded-lg sm:rounded-xl shadow-2xs">
-                  <span className="text-[9px] sm:text-[10px] font-extrabold uppercase text-[var(--ink-soft,#5B6B7C)]">Active Job Work</span>
-                  <p className="text-base sm:text-xl font-black text-[var(--ink,#1C2733)] mt-0.5 sm:mt-1">JOB-457</p>
-                  <span className="text-[9px] sm:text-[10px] font-bold text-[var(--steel,#2B4C7E)]">OLLYPOP Kids 2-Pc</span>
-                </div>
+              {/* 4 Executive Metric Cards (Smooth AnimatedCounter with cubic easing) */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                {mockupTab === 'cutting' && (
+                  <>
+                    <div className="p-3.5 sm:p-4 bg-white border border-slate-200/80 rounded-xl shadow-2xs hover:border-[#3A3564]/30 transition-colors">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Active Job Work</span>
+                      <p className="text-base sm:text-xl font-black text-slate-900 mt-1 font-mono">JOB-457</p>
+                      <span className="text-[11px] font-medium text-[#3A3564] font-semibold">OLLYPOP Kids 2-Pc</span>
+                    </div>
 
-                <div className="p-2.5 sm:p-3.5 bg-white border border-[var(--border,#E2E8F0)] rounded-lg sm:rounded-xl shadow-2xs">
-                  <span className="text-[9px] sm:text-[10px] font-extrabold uppercase text-[var(--ink-soft,#5B6B7C)]">Cutting Sets</span>
-                  <p className="text-base sm:text-xl font-black text-[var(--steel,#2B4C7E)] mt-0.5 sm:mt-1">1,650 Sets</p>
-                  <span className="text-[9px] sm:text-[10px] font-bold text-[var(--ink-soft,#5B6B7C)]">14,850 Pieces</span>
-                </div>
+                    <div className="p-3.5 sm:p-4 bg-white border border-slate-200/80 rounded-xl shadow-2xs hover:border-[#3A3564]/30 transition-colors">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Cutting Volume</span>
+                      <p className="text-base sm:text-xl font-black text-[#3A3564] mt-1 font-mono">
+                        <AnimatedCounter value={1650 + mockupTick * 14} duration={900} suffix=" Sets" />
+                      </p>
+                      <span className="text-[11px] font-medium text-slate-500 font-mono">
+                        <AnimatedCounter value={14850 + mockupTick * 126} duration={900} suffix=" Pieces" />
+                      </span>
+                    </div>
 
-                <div className="p-2.5 sm:p-3.5 bg-white border border-[var(--border,#E2E8F0)] rounded-lg sm:rounded-xl shadow-2xs">
-                  <span className="text-[9px] sm:text-[10px] font-extrabold uppercase text-[var(--ink-soft,#5B6B7C)]">QC Pass Rate</span>
-                  <p className="text-base sm:text-xl font-black text-[var(--green,#1F9D63)] mt-0.5 sm:mt-1">98.4%</p>
-                  <span className="text-[9px] sm:text-[10px] font-bold text-[var(--green,#1F9D63)]">14,612 Passed</span>
-                </div>
+                    <div className="p-3.5 sm:p-4 bg-white border border-slate-200/80 rounded-xl shadow-2xs hover:border-[#3A3564]/30 transition-colors">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Fabric Rolls Inward</span>
+                      <p className="text-base sm:text-xl font-black text-[#F59E0B] mt-1 font-mono">
+                        <AnimatedCounter value={18 + (mockupTick >= 2 ? 1 : 0)} duration={900} suffix=" Rolls" />
+                      </p>
+                      <span className="text-[11px] font-medium text-slate-500">100% Lay Ratio</span>
+                    </div>
 
-                <div className="p-2.5 sm:p-3.5 bg-white border border-[var(--border,#E2E8F0)] rounded-lg sm:rounded-xl shadow-2xs">
-                  <span className="text-[9px] sm:text-[10px] font-extrabold uppercase text-[var(--ink-soft,#5B6B7C)]">Linemen Active</span>
-                  <p className="text-base sm:text-xl font-black text-[var(--amber,#C8802B)] mt-0.5 sm:mt-1">24 Stations</p>
-                  <span className="text-[9px] sm:text-[10px] font-bold text-[var(--amber,#C8802B)]">Piece Rate Synced</span>
-                </div>
+                    <div className="p-3.5 sm:p-4 bg-white border border-slate-200/80 rounded-xl shadow-2xs hover:border-[#3A3564]/30 transition-colors">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">QC Pass Rate</span>
+                      <p className="text-base sm:text-xl font-black text-emerald-600 mt-1 font-mono">
+                        <AnimatedCounter value={98.4 + mockupTick * 0.1} decimals={1} duration={900} suffix="%" />
+                      </p>
+                      <span className="text-[11px] font-medium text-slate-500 font-mono">
+                        <AnimatedCounter value={14612 + mockupTick * 25} duration={900} suffix=" Passed" />
+                      </span>
+                    </div>
+                  </>
+                )}
+
+                {mockupTab === 'sewing' && (
+                  <>
+                    <div className="p-3.5 sm:p-4 bg-white border border-slate-200/80 rounded-xl shadow-2xs hover:border-[#3A3564]/30 transition-colors">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Active Sewing Lines</span>
+                      <p className="text-base sm:text-xl font-black text-slate-900 mt-1 font-mono">24 Stations</p>
+                      <span className="text-[11px] font-medium text-[#3A3564] font-semibold">12 Overlock · 12 Flatlock</span>
+                    </div>
+
+                    <div className="p-3.5 sm:p-4 bg-white border border-slate-200/80 rounded-xl shadow-2xs hover:border-[#3A3564]/30 transition-colors">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Bundles in Sewing</span>
+                      <p className="text-base sm:text-xl font-black text-[#3A3564] mt-1 font-mono">
+                        <AnimatedCounter value={320 + mockupTick * 6} duration={900} /> <span className="text-xs font-semibold text-slate-500">/ 450</span>
+                      </p>
+                      <span className="text-[11px] font-medium text-emerald-600 font-semibold">QR Barcode Tracked</span>
+                    </div>
+
+                    <div className="p-3.5 sm:p-4 bg-white border border-slate-200/80 rounded-xl shadow-2xs hover:border-[#3A3564]/30 transition-colors">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Line Output Today</span>
+                      <p className="text-base sm:text-xl font-black text-[#F59E0B] mt-1 font-mono">
+                        <AnimatedCounter value={8420 + mockupTick * 35} duration={900} suffix=" Pcs" />
+                      </p>
+                      <span className="text-[11px] font-medium text-slate-500">Avg 350 Pcs/Hr Pace</span>
+                    </div>
+
+                    <div className="p-3.5 sm:p-4 bg-white border border-slate-200/80 rounded-xl shadow-2xs hover:border-[#3A3564]/30 transition-colors">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Piece Wages Logged</span>
+                      <p className="text-base sm:text-xl font-black text-emerald-600 mt-1 font-mono">
+                        <AnimatedCounter value={46280 + mockupTick * 195} duration={900} prefix="₹" />
+                      </p>
+                      <span className="text-[11px] font-medium text-slate-500">Auto-Synced to Ledger</span>
+                    </div>
+                  </>
+                )}
+
+                {mockupTab === 'qc' && (
+                  <>
+                    <div className="p-3.5 sm:p-4 bg-white border border-slate-200/80 rounded-xl shadow-2xs hover:border-[#3A3564]/30 transition-colors">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total QC Audited</span>
+                      <p className="text-base sm:text-xl font-black text-slate-900 mt-1 font-mono">
+                        <AnimatedCounter value={14612 + mockupTick * 28} duration={900} suffix=" Pcs" />
+                      </p>
+                      <span className="text-[11px] font-medium text-[#3A3564] font-semibold">1st & 2nd Stage Audit</span>
+                    </div>
+
+                    <div className="p-3.5 sm:p-4 bg-white border border-slate-200/80 rounded-xl shadow-2xs hover:border-[#3A3564]/30 transition-colors">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">First-Pass Rate</span>
+                      <p className="text-base sm:text-xl font-black text-emerald-600 mt-1 font-mono">
+                        <AnimatedCounter value={98.4 + (mockupTick >= 2 ? 0.2 : 0)} decimals={1} duration={900} suffix="%" />
+                      </p>
+                      <span className="text-[11px] font-medium text-emerald-600 font-semibold">0 Critical Defects</span>
+                    </div>
+
+                    <div className="p-3.5 sm:p-4 bg-white border border-slate-200/80 rounded-xl shadow-2xs hover:border-[#3A3564]/30 transition-colors">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Cartons Packed</span>
+                      <p className="text-base sm:text-xl font-black text-[#F59E0B] mt-1 font-mono">
+                        <AnimatedCounter value={185 + mockupTick} duration={900} suffix=" Boxes" />
+                      </p>
+                      <span className="text-[11px] font-medium text-slate-500">QR Master Cartons</span>
+                    </div>
+
+                    <div className="p-3.5 sm:p-4 bg-white border border-slate-200/80 rounded-xl shadow-2xs hover:border-[#3A3564]/30 transition-colors">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Ready for Dispatch</span>
+                      <p className="text-base sm:text-xl font-black text-[#3A3564] mt-1 font-mono">
+                        <AnimatedCounter value={14400 + mockupTick * 80} duration={900} suffix=" Pcs" />
+                      </p>
+                      <span className="text-[11px] font-medium text-slate-500">Gate Pass Generated</span>
+                    </div>
+                  </>
+                )}
               </div>
 
-              {/* Multi-Article Size Grid Simulation — hidden on very small screens, horizontal scroll on medium */}
-              <div className="bg-white border border-[var(--border,#E2E8F0)] rounded-lg sm:rounded-xl p-3 sm:p-4 shadow-2xs">
-                <div className="flex items-center justify-between mb-2 sm:mb-2.5 gap-2">
+              {/* Dynamic Live Journal Table (Always exactly 4 rows in view; new rows enter at top and oldest drops off) */}
+              <div className="bg-white border border-slate-200/80 rounded-xl sm:rounded-2xl p-4 sm:p-5 shadow-2xs">
+                <div className="flex items-center justify-between mb-3 gap-2">
                   <div className="flex items-center gap-2 min-w-0">
-                    <FileSpreadsheet className="w-4 h-4 text-[var(--steel,#2B4C7E)] shrink-0" />
-                    <span className="text-[10px] sm:text-xs font-black text-[var(--ink,#1C2733)] uppercase tracking-wider truncate">
-                      Cutting Lot Size Breakdown Matrix
+                    {mockupTab === 'cutting' && <FileSpreadsheet className="w-4 h-4 text-[#3A3564] shrink-0" />}
+                    {mockupTab === 'sewing' && <Scissors className="w-4 h-4 text-[#3A3564] shrink-0" />}
+                    {mockupTab === 'qc' && <PackageCheck className="w-4 h-4 text-[#3A3564] shrink-0" />}
+                    <span className="text-xs sm:text-sm font-bold text-slate-900 truncate">
+                      {mockupTab === 'cutting' && 'Cutting Lot Breakdown Matrix'}
+                      {mockupTab === 'sewing' && 'Live Line Allocation & Piece-Rate Log'}
+                      {mockupTab === 'qc' && 'End-Line QC & Carton Packing Stream'}
                     </span>
                   </div>
-                  <span className="hidden sm:inline text-[10px] font-bold bg-[var(--steel-mist,#EEF3FA)] text-[var(--steel,#2B4C7E)] px-2 py-0.5 rounded shrink-0">
-                    Ratio 1:9 Auto-Calculated
+                  <span className="text-[11px] font-semibold text-slate-500 bg-[#FAF7F0] border border-[#3A3564]/10 px-2.5 py-0.5 rounded-full shrink-0">
+                    {mockupTab === 'cutting' && 'Ratio 1:9 Auto-Calculated'}
+                    {mockupTab === 'sewing' && '24 Stations Live Sync'}
+                    {mockupTab === 'qc' && '100% Weight & QR Verified'}
                   </span>
                 </div>
 
                 <div className="overflow-x-auto -mx-1">
-                  <table className="w-full text-[10px] sm:text-[11px] text-left min-w-[480px]">
+                  <table className="w-full text-xs text-left min-w-[500px]">
                     <thead>
-                      <tr className="border-b border-[var(--border,#E2E8F0)] text-[var(--ink-soft,#5B6B7C)]">
-                        <th className="py-1.5 px-2 font-bold">Art No</th>
-                        <th className="py-1.5 px-2 font-bold">Sub</th>
-                        <th className="py-1.5 px-2 font-bold">Color</th>
-                        <th className="py-1.5 px-2 font-bold">Size</th>
-                        <th className="py-1.5 px-2 font-bold text-right">Sets</th>
-                        <th className="py-1.5 px-2 font-bold text-right">Pcs</th>
-                        <th className="py-1.5 px-2 font-bold text-center">Status</th>
+                      <tr className="border-b border-slate-100 text-slate-400 font-semibold text-[11px] uppercase tracking-wider">
+                        {mockupTab === 'cutting' && (
+                          <>
+                            <th className="py-2 px-3">Article</th>
+                            <th className="py-2 px-3">Colorway</th>
+                            <th className="py-2 px-3">Size Ratio</th>
+                            <th className="py-2 px-3 text-right">Sets</th>
+                            <th className="py-2 px-3 text-right">Total Pcs</th>
+                            <th className="py-2 px-3 text-center">Stage</th>
+                          </>
+                        )}
+                        {mockupTab === 'sewing' && (
+                          <>
+                            <th className="py-2 px-3">Station</th>
+                            <th className="py-2 px-3">Operator</th>
+                            <th className="py-2 px-3">Operation</th>
+                            <th className="py-2 px-3">Bundle QR</th>
+                            <th className="py-2 px-3 text-right">Done</th>
+                            <th className="py-2 px-3 text-center">Wage Synced</th>
+                          </>
+                        )}
+                        {mockupTab === 'qc' && (
+                          <>
+                            <th className="py-2 px-3">Carton #</th>
+                            <th className="py-2 px-3">Colorway / Size</th>
+                            <th className="py-2 px-3">Pieces</th>
+                            <th className="py-2 px-3">Inspector</th>
+                            <th className="py-2 px-3 text-center">Barcode</th>
+                            <th className="py-2 px-3 text-center">Status</th>
+                          </>
+                        )}
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100 font-semibold text-[var(--ink,#1C2733)]">
-                      <tr>
-                        <td className="py-2 px-2 font-bold font-mono text-[var(--steel,#2B4C7E)]">2027</td>
-                        <td className="py-2 px-2 text-[var(--ink-soft,#5B6B7C)]">-</td>
-                        <td className="py-2 px-2 font-bold text-blue-700">SKY BLUE</td>
-                        <td className="py-2 px-2 font-mono">L/XXL</td>
-                        <td className="py-2 px-2 text-right font-mono">550</td>
-                        <td className="py-2 px-2 text-right font-bold text-[var(--green,#1F9D63)]">4,950</td>
-                        <td className="py-2 px-2 text-center">
-                          <span className="px-2 py-0.5 rounded-full text-[9px] sm:text-[9.5px] font-extrabold bg-[var(--green-mist,#E6F6EE)] text-[var(--green,#1F9D63)]">
-                            STITCHING
-                          </span>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td className="py-2 px-2 font-bold font-mono text-[var(--steel,#2B4C7E)]">2027</td>
-                        <td className="py-2 px-2 text-[var(--ink-soft,#5B6B7C)]">B</td>
-                        <td className="py-2 px-2 font-bold text-amber-700">MUSTARD</td>
-                        <td className="py-2 px-2 font-mono">22X26</td>
-                        <td className="py-2 px-2 text-right font-mono">600</td>
-                        <td className="py-2 px-2 text-right font-bold text-[var(--green,#1F9D63)]">5,400</td>
-                        <td className="py-2 px-2 text-center">
-                          <span className="px-2 py-0.5 rounded-full text-[9px] sm:text-[9.5px] font-extrabold bg-blue-50 text-blue-700">
-                            QC READY
-                          </span>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td className="py-2 px-2 font-bold font-mono text-[var(--steel,#2B4C7E)]">2027</td>
-                        <td className="py-2 px-2 text-[var(--ink-soft,#5B6B7C)]">C</td>
-                        <td className="py-2 px-2 font-bold text-slate-700">CHARCOAL</td>
-                        <td className="py-2 px-2 font-mono">28X32</td>
-                        <td className="py-2 px-2 text-right font-mono">500</td>
-                        <td className="py-2 px-2 text-right font-bold text-[var(--green,#1F9D63)]">4,500</td>
-                        <td className="py-2 px-2 text-center">
-                          <span className="px-2 py-0.5 rounded-full text-[9px] sm:text-[9.5px] font-extrabold bg-amber-50 text-amber-700">
-                            DISPATCH BAY
-                          </span>
-                        </td>
-                      </tr>
+                    <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
+                      {/* CUTTING ROWS (Exactly 4 rows displayed) */}
+                      {mockupTab === 'cutting' && (() => {
+                        const baseRows = [
+                          { id: 'c-1', c1: '2027-A', c2: 'Sky Blue', c2Color: 'text-blue-700', c3: 'L / XXL', c4: '550', c5: '4,950', badge: 'Stitching', badgeCls: 'bg-blue-50 text-blue-700 border-blue-200/60', isNew: false },
+                          { id: 'c-2', c1: '2027-B', c2: 'Mustard', c2Color: 'text-amber-700', c3: '22 × 26', c4: '600', c5: '5,400', badge: 'QC Audit', badgeCls: 'bg-emerald-50 text-emerald-700 border-emerald-200/60', isNew: false },
+                          { id: 'c-3', c1: '2027-C', c2: 'Charcoal', c2Color: 'text-slate-800', c3: '28 × 32', c4: '500', c5: '4,500', badge: 'Dispatch Bay', badgeCls: 'bg-amber-50 text-amber-800 border-amber-200/60', isNew: false },
+                          { id: 'c-4', c1: '2027-D', c2: 'Dusty Rose', c2Color: 'text-rose-700', c3: 'M / XL', c4: '420', c5: '3,780', badge: 'Spreading', badgeCls: 'bg-purple-50 text-purple-700 border-purple-200/60', isNew: false }
+                        ]
+                        const incoming = [
+                          { id: 'c-in-1', c1: '2027-E', c2: 'Olive Green', c2Color: 'text-emerald-700', c3: '24 × 28', c4: '+25', c5: '+225', badge: 'Lay Cut #19', badgeCls: 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold', isNew: true },
+                          { id: 'c-in-2', c1: '2027-A (Re-cut)', c2: 'Sky Blue', c2Color: 'text-blue-700', c3: 'Pocket Ply', c4: '+10', c5: '+90', badge: 'Bundle QR', badgeCls: 'bg-blue-100 text-blue-800 border-blue-300 font-bold', isNew: true },
+                          { id: 'c-in-3', c1: '2027-F', c2: 'Navy Blue', c2Color: 'text-indigo-700', c3: '30 × 34', c4: '+30', c5: '+270', badge: 'Inward Scan', badgeCls: 'bg-purple-100 text-purple-800 border-purple-300 font-bold', isNew: true }
+                        ]
+                        let displayRows = baseRows
+                        if (mockupTick === 1) displayRows = [incoming[0], baseRows[0], baseRows[1], baseRows[2]]
+                        if (mockupTick === 2) displayRows = [incoming[1], incoming[0], baseRows[0], baseRows[1]]
+                        if (mockupTick === 3) displayRows = [incoming[2], incoming[1], incoming[0], baseRows[0]]
+
+                        return displayRows.slice(0, 4).map((r) => (
+                          <tr 
+                            key={r.id} 
+                            className={`transition-all duration-700 ease-out ${
+                              r.isNew 
+                                ? 'bg-emerald-50/80 animate-in fade-in duration-700' 
+                                : 'hover:bg-[#FAF7F0]/40'
+                            }`}
+                          >
+                            <td className="py-2.5 px-3 font-bold font-mono text-[#3A3564]">
+                              <span className="flex items-center gap-1.5">
+                                {r.isNew && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block" />}
+                                {r.c1}
+                              </span>
+                            </td>
+                            <td className={`py-2.5 px-3 font-semibold ${r.c2Color}`}>{r.c2}</td>
+                            <td className="py-2.5 px-3 font-mono text-slate-600">{r.c3}</td>
+                            <td className="py-2.5 px-3 text-right font-mono font-semibold">{r.c4}</td>
+                            <td className="py-2.5 px-3 text-right font-bold text-emerald-600 font-mono">{r.c5}</td>
+                            <td className="py-2.5 px-3 text-center">
+                              <span className={`px-2.5 py-0.5 rounded-full text-[10px] border transition-colors duration-500 ${r.badgeCls}`}>
+                                {r.badge}
+                              </span>
+                            </td>
+                          </tr>
+                        ))
+                      })()}
+
+                      {/* SEWING ROWS (Exactly 4 rows displayed) */}
+                      {mockupTab === 'sewing' && (() => {
+                        const baseRows = [
+                          { id: 's-1', c1: 'Line 04', c2: 'Aslam Khan', c3: 'Front Body + Rib', c4: 'QR-8821', c5: '180 Pcs', badge: '₹1,080 Logged', badgeCls: 'bg-emerald-50 text-emerald-700 border-emerald-200/60', isNew: false },
+                          { id: 's-2', c1: 'Line 07', c2: 'Ramesh Dev', c3: 'Sleeve Attachment', c4: 'QR-8822', c5: '165 Pcs', badge: '₹990 Logged', badgeCls: 'bg-emerald-50 text-emerald-700 border-emerald-200/60', isNew: false },
+                          { id: 's-3', c1: 'Line 12', c2: 'Sunita Roy', c3: 'Bottom Hem Lock', c4: 'QR-8823', c5: '190 Pcs', badge: '₹1,140 Logged', badgeCls: 'bg-emerald-50 text-emerald-700 border-emerald-200/60', isNew: false },
+                          { id: 's-4', c1: 'Line 18', c2: 'Md. Parvez', c3: 'Collar Assembly', c4: 'QR-8824', c5: '150 Pcs', badge: '₹900 Logged', badgeCls: 'bg-emerald-50 text-emerald-700 border-emerald-200/60', isNew: false }
+                        ]
+                        const incoming = [
+                          { id: 's-in-1', c1: 'Line 02', c2: 'Karan Sharma', c3: 'Side Seam Lock', c4: 'QR-8825', c5: '+25 Pcs', badge: '+₹150 Logged', badgeCls: 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold', isNew: true },
+                          { id: 's-in-2', c1: 'Line 09', c2: 'Deepak S.', c3: 'Pocket Stitch', c4: 'QR-8826', c5: '+20 Pcs', badge: '+₹120 Logged', badgeCls: 'bg-blue-100 text-blue-800 border-blue-300 font-bold', isNew: true },
+                          { id: 's-in-3', c1: 'Line 15', c2: 'Fatima Bi', c3: 'Cuff Overlock', c4: 'QR-8827', c5: '+30 Pcs', badge: '+₹180 Logged', badgeCls: 'bg-purple-100 text-purple-800 border-purple-300 font-bold', isNew: true }
+                        ]
+                        let displayRows = baseRows
+                        if (mockupTick === 1) displayRows = [incoming[0], baseRows[0], baseRows[1], baseRows[2]]
+                        if (mockupTick === 2) displayRows = [incoming[1], incoming[0], baseRows[0], baseRows[1]]
+                        if (mockupTick === 3) displayRows = [incoming[2], incoming[1], incoming[0], baseRows[0]]
+
+                        return displayRows.slice(0, 4).map((r) => (
+                          <tr 
+                            key={r.id} 
+                            className={`transition-all duration-700 ease-out ${
+                              r.isNew 
+                                ? 'bg-emerald-50/80 animate-in fade-in duration-700' 
+                                : 'hover:bg-[#FAF7F0]/40'
+                            }`}
+                          >
+                            <td className="py-2.5 px-3 font-bold font-mono text-[#3A3564]">
+                              <span className="flex items-center gap-1.5">
+                                {r.isNew && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block" />}
+                                {r.c1}
+                              </span>
+                            </td>
+                            <td className="py-2.5 px-3 font-semibold text-slate-900">{r.c2}</td>
+                            <td className="py-2.5 px-3 font-mono text-slate-600">{r.c3}</td>
+                            <td className="py-2.5 px-3 font-mono text-indigo-700 font-semibold">{r.c4}</td>
+                            <td className="py-2.5 px-3 text-right font-bold text-emerald-600 font-mono">{r.c5}</td>
+                            <td className="py-2.5 px-3 text-center">
+                              <span className={`px-2.5 py-0.5 rounded-full text-[10px] border transition-colors duration-500 ${r.badgeCls}`}>
+                                {r.badge}
+                              </span>
+                            </td>
+                          </tr>
+                        ))
+                      })()}
+
+                      {/* QC & PACKING ROWS (Exactly 4 rows displayed) */}
+                      {mockupTab === 'qc' && (() => {
+                        const baseRows = [
+                          { id: 'q-1', c1: 'BOX-185', c2: 'Sky Blue (L/XXL)', c2Color: 'text-blue-700', c3: '80 Pcs', c4: 'Anita QC', c5: 'BARCODE OK', badge: 'Carton Sealed', badgeCls: 'bg-emerald-50 text-emerald-700 border-emerald-200/60', isNew: false },
+                          { id: 'q-2', c1: 'BOX-184', c2: 'Mustard (22×26)', c2Color: 'text-amber-700', c3: '80 Pcs', c4: 'Anita QC', c5: 'BARCODE OK', badge: 'Carton Sealed', badgeCls: 'bg-emerald-50 text-emerald-700 border-emerald-200/60', isNew: false },
+                          { id: 'q-3', c1: 'BOX-183', c2: 'Charcoal (28×32)', c2Color: 'text-slate-800', c3: '80 Pcs', c4: 'Vikram QC', c5: 'BARCODE OK', badge: 'Gate Pass Ready', badgeCls: 'bg-blue-50 text-blue-700 border-blue-200/60', isNew: false },
+                          { id: 'q-4', c1: 'BOX-182', c2: 'Sky Blue (M/XL)', c2Color: 'text-blue-700', c3: '80 Pcs', c4: 'Vikram QC', c5: 'BARCODE OK', badge: 'Dispatch Bay', badgeCls: 'bg-amber-50 text-amber-800 border-amber-200/60', isNew: false }
+                        ]
+                        const incoming = [
+                          { id: 'q-in-1', c1: 'BOX-186', c2: 'Mustard (28×32)', c2Color: 'text-amber-700', c3: '80 Pcs', c4: 'Anita QC', c5: 'WEIGHT PASS', badge: 'Just Sealed', badgeCls: 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold', isNew: true },
+                          { id: 'q-in-2', c1: 'BOX-187', c2: 'Charcoal (L/XXL)', c2Color: 'text-slate-800', c3: '80 Pcs', c4: 'Vikram QC', c5: 'PASS AUDIT', badge: 'Weight Verified', badgeCls: 'bg-blue-100 text-blue-800 border-blue-300 font-bold', isNew: true },
+                          { id: 'q-in-3', c1: 'BOX-188', c2: 'Sky Blue (22×26)', c2Color: 'text-blue-700', c3: '80 Pcs', c4: 'Anita QC', c5: 'DISPATCH OK', badge: 'Gate Pass #457', badgeCls: 'bg-purple-100 text-purple-800 border-purple-300 font-bold', isNew: true }
+                        ]
+                        let displayRows = baseRows
+                        if (mockupTick === 1) displayRows = [incoming[0], baseRows[0], baseRows[1], baseRows[2]]
+                        if (mockupTick === 2) displayRows = [incoming[1], incoming[0], baseRows[0], baseRows[1]]
+                        if (mockupTick === 3) displayRows = [incoming[2], incoming[1], incoming[0], baseRows[0]]
+
+                        return displayRows.slice(0, 4).map((r) => (
+                          <tr 
+                            key={r.id} 
+                            className={`transition-all duration-700 ease-out ${
+                              r.isNew 
+                                ? 'bg-emerald-50/80 animate-in fade-in duration-700' 
+                                : 'hover:bg-[#FAF7F0]/40'
+                            }`}
+                          >
+                            <td className="py-2.5 px-3 font-bold font-mono text-[#3A3564]">
+                              <span className="flex items-center gap-1.5">
+                                {r.isNew && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block" />}
+                                {r.c1}
+                              </span>
+                            </td>
+                            <td className={`py-2.5 px-3 font-semibold ${r.c2Color}`}>{r.c2}</td>
+                            <td className="py-2.5 px-3 font-mono text-slate-600">{r.c3}</td>
+                            <td className="py-2.5 px-3 font-semibold text-slate-800">{r.c4}</td>
+                            <td className="py-2.5 px-3 text-center font-bold text-emerald-600 font-mono text-[11px]">{r.c5}</td>
+                            <td className="py-2.5 px-3 text-center">
+                              <span className={`px-2.5 py-0.5 rounded-full text-[10px] border transition-colors duration-500 ${r.badgeCls}`}>
+                                {r.badge}
+                              </span>
+                            </td>
+                          </tr>
+                        ))
+                      })()}
                     </tbody>
                   </table>
                 </div>
@@ -959,95 +1278,180 @@ export function ZigzaLandingPageClient({
       {/* =================================================================== */}
       {/* 5. 5-STEP FACTORY FLOW PIPELINE (FLOW CHART)                       */}
       {/* =================================================================== */}
+      {/* =================================================================== */}
+      {/* 5. 10-STEP FACTORY FLOW PIPELINE (END-TO-END APPAREL WORKFLOW)     */}
+      {/* =================================================================== */}
       <section id="workflow" className="py-16 sm:py-24 bg-white border-y border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
+          <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">
-              The 5-Step Synchronized Factory Pipeline
+              The 8-Step Synchronized Factory Pipeline
             </h2>
             <p className="text-base sm:text-lg text-slate-600 mt-3 leading-relaxed">
-              From raw cloth arrival to buyer truck exit — every milestone is verified in real time.
+              From CAD tech pack to buyer delivery truck — every garment milestone is verified in real time.
             </p>
           </div>
 
-          {/* Connected Process Track with Flowing Animation */}
-          <div className="relative">
+          {/* 8 Connected Process Boxes with Continuous Connecting Flow Lines */}
+          <div className="flex flex-col">
             
-            {/* Continuous Black Connecting Line running across all 5 boxes */}
-            <div className="hidden lg:block absolute top-[36px] left-[5%] right-[5%] h-[1.5px] bg-black z-0 pointer-events-none">
-              {/* Traveling Bead gliding along the line from box to box */}
-              <div 
-                className="absolute -top-[5px] w-3.5 h-3.5 rounded-full bg-[#3A3564] border-2 border-white shadow-md transition-all duration-[600ms] ease-in-out z-20"
-                style={{ left: `calc(${activePipelineStep * 20 + 10}% - 7px)` }}
-              />
-            </div>
+            {/* ROW 1: Stages 01 to 04 (Pre-Production & Cutting) */}
+            <div className="relative mb-6 lg:mb-0">
+              {/* Continuous Horizontal Connecting Line (Running across gaps between cards at badge height) */}
+              <div className="hidden lg:block absolute top-[44px] left-[6%] right-[6%] h-[2px] bg-slate-900/60 z-0 pointer-events-none" />
 
-            {/* 5 Connected Boxes with Sequential Spin & Flow */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 lg:gap-5 items-stretch relative z-10">
-              {[
-                {
-                  step: '01',
-                  title: 'Store Inward',
-                  desc: 'Photo OCR capture of supplier paper challans and fabric roll barcode tagging.'
-                },
-                {
-                  step: '02',
-                  title: 'Cutting Matrix',
-                  desc: 'Auto-converts buyer order Excel sheets into size lay ratios in 1 click.'
-                },
-                {
-                  step: '03',
-                  title: 'Line Allotment',
-                  desc: 'Color-split bundle assignment to linemen with live piece-rate wage sync.'
-                },
-                {
-                  step: '04',
-                  title: 'Quality Audit',
-                  desc: '1-Tap lightbox pass and defect logging with instant tailor rework routing.'
-                },
-                {
-                  step: '05',
-                  title: 'Carton Dispatch',
-                  desc: 'Piece-count carton packing reconciliation and official delivery challans.'
-                }
-              ].map((stage, idx) => {
-                const isActive = activePipelineStep === idx;
-                return (
-                  <div
-                    key={stage.step}
-                    onClick={() => setActivePipelineStep(idx)}
-                    className={`cursor-pointer bg-white rounded-2xl border border-black p-5 sm:p-6 transition-all duration-500 flex flex-col justify-between ${
-                      isActive
-                        ? 'shadow-lg ring-1 ring-black -translate-y-1 bg-[#FCFBF9]'
-                        : 'hover:shadow-md'
-                    }`}
-                  >
-                    <div>
-                      {/* Number Circle (cream bg, indigo text, slim black outline) + Header beside it */}
-                      <div className="flex items-center gap-3 mb-3">
-                        <span
-                          key={isActive ? `active-${idx}` : `idle-${idx}`}
-                          className={`w-8 h-8 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/80 font-mono font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs ${
-                            isActive ? 'animate-spin-once ring-2 ring-[#3A3564]/30' : ''
-                          }`}
-                        >
-                          {stage.step}
-                        </span>
-                        <h3 className="text-[15px] sm:text-base font-bold text-slate-900 tracking-tight">
-                          {stage.title}
-                        </h3>
+              {/* 4 Cards in Row 1 */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6 items-stretch relative z-10">
+                {[
+                  {
+                    step: '01',
+                    title: 'Design & Sampling',
+                    desc: 'CAD tech packs, digital pattern specs, and instant sample revisions.'
+                  },
+                  {
+                    step: '02',
+                    title: 'Merchandising & PO',
+                    desc: 'Buyer purchase orders, fabric consumption, and target margin costing.'
+                  },
+                  {
+                    step: '03',
+                    title: 'Central Fabric Store',
+                    desc: 'Barcode roll inwarding, trim inventory, and lot-wise issue slips.'
+                  },
+                  {
+                    step: '04',
+                    title: 'Cutting & Lay Matrix',
+                    desc: '1-Click Excel lay ratios and automated QR bundle tag generation.'
+                  }
+                ].map((stage, idx) => {
+                  const isActive = activePipelineStep === idx;
+                  return (
+                    <div
+                      key={stage.step}
+                      onClick={() => setActivePipelineStep(idx)}
+                      className={`cursor-pointer bg-white rounded-2xl p-6 sm:p-7 transition-all duration-300 flex flex-col justify-between min-h-[175px] sm:min-h-[185px] ${
+                        isActive
+                          ? 'border-2 border-solid border-[#3A3564] shadow-md ring-1 ring-[#3A3564]/30 -translate-y-1 bg-[#FAF7F0]/40'
+                          : 'border-2 border-dashed border-black/60 hover:border-black hover:shadow-2xs'
+                      }`}
+                    >
+                      <div>
+                        {/* Number Badge + Step Title */}
+                        <div className="flex items-center gap-3 mb-3.5 sm:mb-4">
+                          <span
+                            key={isActive ? `active-${idx}` : `idle-${idx}`}
+                            className={`w-8 h-8 rounded-full font-mono font-bold text-xs flex items-center justify-center shrink-0 transition-all ${
+                              isActive 
+                                ? 'bg-[#3A3564] text-white shadow-2xs animate-spin-once' 
+                                : 'bg-[#FAF7F0] text-[#3A3564] border border-[#3A3564]/20'
+                            }`}
+                          >
+                            {stage.step}
+                          </span>
+                          <h3 className="text-base sm:text-[17px] font-bold text-slate-900 tracking-tight leading-snug">
+                            {stage.title}
+                          </h3>
+                        </div>
+
+                        {/* Spacious & Readable Micro-Copy */}
+                        <p className="text-xs sm:text-[13.5px] text-slate-600 leading-relaxed font-normal">
+                          {stage.desc}
+                        </p>
                       </div>
-
-                      {/* Clear Description (No truncation) */}
-                      <p className="text-xs sm:text-[13px] text-slate-600 leading-relaxed">
-                        {stage.desc}
-                      </p>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
+
+            {/* Elegant Vector Connecting Line from Stage 04 (Row 1) to Stage 05 (Row 2) */}
+            <div className="hidden lg:block relative w-full h-9 pointer-events-none z-0">
+              <svg 
+                className="w-full h-full overflow-visible" 
+                viewBox="0 0 1000 36" 
+                preserveAspectRatio="none"
+              >
+                <path
+                  d="M 882 0 C 882 14, 860 18, 830 18 L 170 18 C 140 18, 118 22, 118 36"
+                  fill="none"
+                  stroke="rgba(15, 23, 42, 0.6)"
+                  strokeWidth="2"
+                  vectorEffect="non-scaling-stroke"
+                />
+              </svg>
+            </div>
+
+            {/* ROW 2: Stages 05 to 08 (Floor Production & Logistics) */}
+            <div className="relative">
+              {/* Continuous Horizontal Connecting Line (Running across gaps between cards at badge height) */}
+              <div className="hidden lg:block absolute top-[44px] left-[6%] right-[6%] h-[2px] bg-slate-900/60 z-0 pointer-events-none" />
+
+              {/* 4 Cards in Row 2 */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6 items-stretch relative z-10">
+                {[
+                  {
+                    step: '05',
+                    title: 'Printing & Embroidery',
+                    desc: 'Job-work challans, machine allocation, and gate pass tracking.'
+                  },
+                  {
+                    step: '06',
+                    title: 'Stitching Lines',
+                    desc: 'Live line loading, mobile QR bundle scans, and piece-rate wages.'
+                  },
+                  {
+                    step: '07',
+                    title: 'Washing & Finishing',
+                    desc: 'Wash formulas, shrinkage control, steam ironing, and hangtags.'
+                  },
+                  {
+                    step: '08',
+                    title: 'Packing & Dispatch',
+                    desc: 'Carton piece-count audits, buyer packing lists, and verified truck exit.'
+                  }
+                ].map((stage, idx) => {
+                  const globalIdx = idx + 4;
+                  const isActive = activePipelineStep === globalIdx;
+                  return (
+                    <div
+                      key={stage.step}
+                      onClick={() => setActivePipelineStep(globalIdx)}
+                      className={`cursor-pointer bg-white rounded-2xl p-6 sm:p-7 transition-all duration-300 flex flex-col justify-between min-h-[175px] sm:min-h-[185px] ${
+                        isActive
+                          ? 'border-2 border-solid border-[#3A3564] shadow-md ring-1 ring-[#3A3564]/30 -translate-y-1 bg-[#FAF7F0]/40'
+                          : 'border-2 border-dashed border-black/60 hover:border-black hover:shadow-2xs'
+                      }`}
+                    >
+                      <div>
+                        {/* Number Badge + Step Title */}
+                        <div className="flex items-center gap-3 mb-3.5 sm:mb-4">
+                          <span
+                            key={isActive ? `active-${globalIdx}` : `idle-${globalIdx}`}
+                            className={`w-8 h-8 rounded-full font-mono font-bold text-xs flex items-center justify-center shrink-0 transition-all ${
+                              isActive 
+                                ? 'bg-[#3A3564] text-white shadow-2xs animate-spin-once' 
+                                : 'bg-[#FAF7F0] text-[#3A3564] border border-[#3A3564]/20'
+                            }`}
+                          >
+                            {stage.step}
+                          </span>
+                          <h3 className="text-base sm:text-[17px] font-bold text-slate-900 tracking-tight leading-snug">
+                            {stage.title}
+                          </h3>
+                        </div>
+
+                        {/* Spacious & Readable Micro-Copy */}
+                        <p className="text-xs sm:text-[13.5px] text-slate-600 leading-relaxed font-normal">
+                          {stage.desc}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
           </div>
 
         </div>
@@ -1058,192 +1462,91 @@ export function ZigzaLandingPageClient({
       {/* 6. TRUSTED ACROSS APPAREL MANUFACTURING HUBS (NATIONWIDE MAP)       */}
       {/* =================================================================== */}
       <section id="roles" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto scroll-mt-20">
+        
+        {/* Centered Section Header */}
+        <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-[1.15]">
+            Trusted Across India&apos;s Garment Hubs
+          </h2>
+          <p className="text-base sm:text-lg text-slate-600 mt-4 leading-relaxed font-normal">
+            From local stitching lines to multi-tier export factories — Zigza simplifies daily production, piece-rate wages, and floor tracking.
+          </p>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
           
-          {/* Left Column: Why Trust Zigza - High Contrast, Prominent Typography & Subtle Active State */}
-          <div className="lg:col-span-5 space-y-6">
-            <div className="space-y-3">
-              <h2 className="text-3xl sm:text-4xl lg:text-[42px] font-extrabold text-slate-900 tracking-tight leading-[1.15]">
-                Trusted Across India&apos;s Garment Hubs
-              </h2>
-
-              <p className="text-base sm:text-lg text-slate-700 leading-relaxed font-normal">
-                From local stitching lines to multi-tier export factories — Zigza simplifies daily production, piece-rate wages, and floor tracking.
-              </p>
-            </div>
-
-            {/* Core Trust Pillars with subtle ambient cycle animation */}
-            <div className="space-y-3.5 pt-1">
-              {[
-                {
-                  id: 0,
-                  icon: Building2,
-                  title: 'Floor-Ready Workflows',
-                  desc: 'Pre-built for fabric lay ratios, job-work challans, and contractor piece rates.'
-                },
-                {
-                  id: 1,
-                  icon: ShieldCheck,
-                  title: 'Strict Data Privacy',
-                  desc: 'Buyer margins, worker payouts, and tech packs stay 100% confidential.'
-                },
-                {
-                  id: 2,
-                  icon: Zap,
-                  title: 'Offline-First Sync',
-                  desc: 'Log daily cuts and sewing handovers continuously, even during Wi-Fi drops.'
-                }
-              ].map((pillar, idx) => {
-                const isCurrent = activeTrustCard === idx;
-                return (
+          {/* Left Column: 3 Core Trust Pillars */}
+          <div className="lg:col-span-5 space-y-4">
+            {[
+              {
+                id: 0,
+                icon: Building2,
+                title: 'Floor-Ready Workflows',
+                desc: 'Pre-built for fabric lay ratios, job-work challans, and contractor piece rates.'
+              },
+              {
+                id: 1,
+                icon: ShieldCheck,
+                title: 'Strict Data Privacy',
+                desc: 'Buyer margins, worker payouts, and tech packs stay 100% confidential.'
+              },
+              {
+                id: 2,
+                icon: Zap,
+                title: 'Offline-First Sync',
+                desc: 'Log daily cuts and sewing handovers continuously, even during Wi-Fi drops.'
+              }
+            ].map((pillar, idx) => {
+              const isCurrent = activeTrustCard === idx;
+              return (
+                <div
+                  key={pillar.id}
+                  onClick={() => setActiveTrustCard(idx)}
+                  onMouseEnter={() => setActiveTrustCard(idx)}
+                  className={`p-4 sm:p-5 rounded-2xl border transition-all duration-200 cursor-pointer flex items-start gap-4 ${
+                    isCurrent
+                      ? 'bg-white border-[#3A3564] shadow-md -translate-y-0.5 ring-1 ring-[#3A3564]/15'
+                      : 'bg-white/80 border-slate-200 hover:border-slate-400 hover:bg-white'
+                  }`}
+                >
+                  {/* Outline Icon Badge */}
                   <div
-                    key={pillar.id}
-                    onClick={() => setActiveTrustCard(idx)}
-                    onMouseEnter={() => setActiveTrustCard(idx)}
-                    className={`p-4 sm:p-5 rounded-2xl border transition-all duration-200 cursor-pointer flex items-start gap-4 ${
+                    className={`w-11 h-11 rounded-xl border-2 flex items-center justify-center shrink-0 transition-all duration-200 mt-0.5 ${
                       isCurrent
-                        ? 'bg-white border-[#3A3564] shadow-md -translate-y-0.5 ring-1 ring-[#3A3564]/15'
-                        : 'bg-white/80 border-slate-200 hover:border-slate-400 hover:bg-white'
+                        ? 'bg-[#FAF7F0] border-[#3A3564] text-[#3A3564] shadow-2xs scale-105'
+                        : 'bg-white border-slate-300 text-slate-700'
                     }`}
                   >
-                    {/* Outline Icon Badge */}
-                    <div
-                      className={`w-11 h-11 rounded-xl border-2 flex items-center justify-center shrink-0 transition-all duration-200 mt-0.5 ${
-                        isCurrent
-                          ? 'bg-[#FAF7F0] border-[#3A3564] text-[#3A3564] shadow-2xs scale-105'
-                          : 'bg-white border-slate-300 text-slate-700'
-                      }`}
-                    >
-                      <pillar.icon className="w-5 h-5" strokeWidth={1.8} />
-                    </div>
-
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between gap-2">
-                        <h3 className="text-base sm:text-[17px] font-bold text-slate-900 tracking-tight">
-                          {pillar.title}
-                        </h3>
-                        {isCurrent && (
-                          <span className="w-2.5 h-2.5 rounded-full bg-[#3A3564] shrink-0 animate-pulse" />
-                        )}
-                      </div>
-                      <p className="text-sm sm:text-[14.5px] text-slate-600 mt-1 leading-relaxed">
-                        {pillar.desc}
-                      </p>
-                    </div>
+                    <pillar.icon className="w-5 h-5" strokeWidth={1.8} />
                   </div>
-                );
-              })}
-            </div>
+
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <h3 className="text-base sm:text-[17px] font-bold text-slate-900 tracking-tight">
+                        {pillar.title}
+                      </h3>
+                      {isCurrent && (
+                        <span className="w-2.5 h-2.5 rounded-full bg-[#3A3564] shrink-0 animate-pulse" />
+                      )}
+                    </div>
+                    <p className="text-sm sm:text-[14.5px] text-slate-600 mt-1 leading-relaxed">
+                      {pillar.desc}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
 
-          {/* Right Column: Generated Minimalist Outline Map with 4 Well-Positioned Hand-Drawn Green Trust Notes */}
-          <div className="lg:col-span-7 flex items-center justify-center relative">
-            <div className="relative w-full max-w-[600px] aspect-square flex items-center justify-center p-4">
-              
-              {/* Scaled Map Image Centered With Clear Buffer Margins */}
+          {/* Right Column: Clean, Much Larger India Map with NO Green Handwriting */}
+          <div className="lg:col-span-7 flex items-center justify-center">
+            <div className="w-full max-w-[680px] lg:max-w-[720px] flex items-center justify-center p-2 sm:p-4">
               <img
                 src="/india_outline_map.png"
                 alt="India Garment Manufacturing Network"
-                className="w-[84%] h-[84%] object-contain mix-blend-multiply select-none pointer-events-none"
+                className="w-full h-auto max-h-[580px] object-contain mix-blend-multiply select-none pointer-events-none drop-shadow-xs"
                 loading="lazy"
               />
-
-              {/* Note 1: Top-Left (North-West - Zero Ghost Pieces) */}
-              <div className="absolute top-[0%] left-[-2%] sm:left-[0%] z-20 pointer-events-none select-none flex flex-col items-start -rotate-3">
-                <span className="font-['Caveat',cursive] text-emerald-700 font-bold text-2xl sm:text-[26px] md:text-[28px] leading-tight tracking-wide flex items-center gap-1.5 drop-shadow-2xs">
-                  <span>Zero ghost pieces!</span>
-                  <Zap className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600 shrink-0" strokeWidth={2.4} />
-                </span>
-                <svg className="w-14 h-8 sm:w-16 sm:h-9 text-emerald-600 mt-0.5 ml-6 overflow-visible" viewBox="0 0 70 40" fill="none">
-                  <path
-                    d="M 6 4 C 20 10, 40 20, 56 28"
-                    stroke="currentColor"
-                    strokeWidth="2.4"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M 40 26 L 58 30 L 52 14"
-                    stroke="currentColor"
-                    strokeWidth="2.4"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </div>
-
-              {/* Note 2: Top-Right (North-East - 100% Confidential) */}
-              <div className="absolute top-[0%] right-[-2%] sm:right-[0%] z-20 pointer-events-none select-none flex flex-col items-end rotate-3">
-                <span className="font-['Caveat',cursive] text-emerald-700 font-bold text-2xl sm:text-[26px] md:text-[28px] leading-tight tracking-wide flex items-center gap-1.5 drop-shadow-2xs text-right">
-                  <span>100% confidential!</span>
-                  <Lock className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600 shrink-0" strokeWidth={2.4} />
-                </span>
-                <svg className="w-14 h-8 sm:w-16 sm:h-9 text-emerald-600 mt-0.5 mr-6 overflow-visible" viewBox="0 0 70 40" fill="none">
-                  <path
-                    d="M 64 4 C 50 10, 30 20, 14 28"
-                    stroke="currentColor"
-                    strokeWidth="2.4"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M 18 14 L 12 30 L 30 26"
-                    stroke="currentColor"
-                    strokeWidth="2.4"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </div>
-
-              {/* Note 3: Bottom-Left (South-West - Daily Wages Synced) */}
-              <div className="absolute bottom-[4%] left-[-2%] sm:left-[0%] z-20 pointer-events-none select-none flex flex-col items-start -rotate-2">
-                <svg className="w-14 h-8 sm:w-16 sm:h-9 text-emerald-600 mb-0.5 ml-10 overflow-visible" viewBox="0 0 70 40" fill="none">
-                  <path
-                    d="M 8 32 C 24 22, 42 14, 58 6"
-                    stroke="currentColor"
-                    strokeWidth="2.4"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M 42 5 L 60 6 L 54 20"
-                    stroke="currentColor"
-                    strokeWidth="2.4"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                <span className="font-['Caveat',cursive] text-emerald-700 font-bold text-2xl sm:text-[26px] md:text-[28px] leading-tight tracking-wide flex items-center gap-1.5 drop-shadow-2xs">
-                  <span>Daily wages synced!</span>
-                  <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600 shrink-0" strokeWidth={2.4} />
-                </span>
-              </div>
-
-              {/* Note 4: Bottom-Right (South-East - 1-Tap Bundle Scan) */}
-              <div className="absolute bottom-[20%] right-[-2%] sm:right-[0%] z-20 pointer-events-none select-none flex flex-col items-end rotate-2">
-                <span className="font-['Caveat',cursive] text-emerald-700 font-bold text-2xl sm:text-[26px] md:text-[28px] leading-tight tracking-wide flex items-center gap-1.5 drop-shadow-2xs text-right">
-                  <span>1-Tap bundle scan!</span>
-                  <QrCode className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600 shrink-0" strokeWidth={2.4} />
-                </span>
-                <svg className="w-14 h-8 sm:w-16 sm:h-9 text-emerald-600 mt-0.5 mr-8 overflow-visible" viewBox="0 0 70 40" fill="none">
-                  <path
-                    d="M 62 28 C 46 22, 28 14, 12 6"
-                    stroke="currentColor"
-                    strokeWidth="2.4"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M 18 20 L 10 6 L 28 5"
-                    stroke="currentColor"
-                    strokeWidth="2.4"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </div>
-
             </div>
           </div>
 
