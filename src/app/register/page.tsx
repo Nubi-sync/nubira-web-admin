@@ -221,7 +221,7 @@ export default function RegisterFreeTrialPage() {
   }
 
   return (
-    <div className="min-h-screen w-full flex flex-col justify-between items-center bg-[#FAFAF8] text-[#14140F] relative overflow-x-hidden p-4 sm:p-6 lg:p-8 font-sans selection:bg-[#3A3564] selection:text-white">
+    <div className="min-h-screen w-full flex flex-col justify-between items-center bg-[#FAFAF8] text-[#14140F] relative overflow-x-hidden p-3 sm:p-5 lg:px-8 lg:py-3.5 font-sans selection:bg-[#3A3564] selection:text-white">
       
       {/* Background Layer: Authentic Indian Factory Floor Line-Art Sketch (identical to /login) */}
       <div 
@@ -712,7 +712,7 @@ export default function RegisterFreeTrialPage() {
       </main>
 
       {/* Minimal Footer Signature Bar (matching login page exactly) */}
-      <footer className="w-full max-w-5xl py-4 border-t border-slate-200/80 z-10">
+      <footer className="w-full max-w-4xl lg:max-w-5xl py-3 border-t border-slate-200/80 z-10">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
           <div className="flex items-center gap-2">
             <span className="text-proudly-india-black">

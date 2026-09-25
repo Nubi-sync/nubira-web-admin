@@ -127,7 +127,7 @@ export async function registerFreeTrialAction(payload: FreeTrialPayload): Promis
         await supabaseAdmin.from('profiles').upsert({
           id: authUserId,
           username: customUsername,
-          role: 'SUPERADMIN',
+          role: 'ADMIN',
           company_name: companyName,
           is_active: true,
           allowed_modules: selectedDivisions
