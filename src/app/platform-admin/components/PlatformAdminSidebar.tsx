@@ -191,7 +191,7 @@ export function PlatformAdminSidebar({
                   : 'opacity-0 max-w-0 duration-500 ease-in-out'
               }`}>
                 <img 
-                  src="/z i g z a (6)4.png" 
+                  src="/z i g z a (7).png" 
                   alt="Zigza" 
                   className="h-8 w-auto object-contain"
                 />
@@ -303,7 +303,7 @@ export function PlatformAdminSidebar({
                 className="w-7 h-7 object-contain rounded-lg shadow-xs"
               />
               <img
-                src="/z i g z a (6)4.png"
+                src="/z i g z a (7).png"
                 alt="Zigza"
                 className="h-7 w-auto object-contain ml-1"
               />
