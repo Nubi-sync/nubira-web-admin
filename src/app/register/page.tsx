@@ -253,9 +253,9 @@ export default function RegisterFreeTrialPage() {
         </Link>
       </header>
 
-      {/* Centered Modal Card with Black Outline */}
+      {/* Centered Modal Card with Minimal Outline (No heavy shadow) */}
       <main className="z-10 w-full max-w-xl my-auto py-4 sm:py-6 flex items-center justify-center">
-        <div className="w-full bg-white rounded-3xl border-2 border-black/85 shadow-2xl overflow-hidden p-6 sm:p-9 relative">
+        <div className="w-full bg-white rounded-3xl border border-black/10 shadow-2xs overflow-hidden p-6 sm:p-9 relative">
           
           {/* Multi-Step Stepper Header */}
           <div className="mb-6 pb-5 border-b border-slate-100">
@@ -341,8 +341,8 @@ export default function RegisterFreeTrialPage() {
                     required
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    placeholder="Sumit Shaw"
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:border-black focus:ring-1 focus:ring-black text-sm text-slate-900 placeholder:text-slate-400 transition-all font-medium"
+                    placeholder="Enter your name"
+                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 shadow-2xs transition-all font-medium"
                   />
                 </div>
               </div>
@@ -359,8 +359,8 @@ export default function RegisterFreeTrialPage() {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="team.anga9@gmail.com"
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:border-black focus:ring-1 focus:ring-black text-sm text-slate-900 placeholder:text-slate-400 transition-all font-medium"
+                    placeholder="Enter your work email"
+                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 shadow-2xs transition-all font-medium"
                   />
                 </div>
                 <span className="text-[11px] text-slate-400 block mt-1">
@@ -373,7 +373,7 @@ export default function RegisterFreeTrialPage() {
                 <label className="block text-xs font-bold text-slate-800 mb-1.5 uppercase tracking-wide">
                   Mobile Phone Number *
                 </label>
-                <div className="flex rounded-xl border border-slate-300 overflow-hidden focus-within:border-black focus-within:ring-1 focus-within:ring-black transition-all bg-white shadow-2xs">
+                <div className="flex rounded-xl border border-slate-200 overflow-hidden focus-within:border-[#3A3564] focus-within:ring-2 focus-within:ring-[#3A3564]/10 transition-all bg-white shadow-2xs">
                   <div className="flex items-center gap-1.5 px-3.5 bg-slate-50 border-r border-slate-200 text-slate-700 font-mono font-bold text-xs sm:text-sm select-none shrink-0">
                     <IndiaFlag className="w-4 h-3" />
                     <span>+91</span>
@@ -383,7 +383,7 @@ export default function RegisterFreeTrialPage() {
                     required
                     value={phone}
                     onChange={(e) => handlePhoneChange(e.target.value)}
-                    placeholder="8877445633"
+                    placeholder="Enter 10-digit mobile number"
                     maxLength={10}
                     className="w-full px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none bg-transparent font-mono font-medium"
                   />
@@ -402,8 +402,8 @@ export default function RegisterFreeTrialPage() {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Minimum 6 characters"
-                    className="w-full pl-10 pr-10 py-3 rounded-xl border border-slate-300 focus:outline-none focus:border-black focus:ring-1 focus:ring-black text-sm text-slate-900 placeholder:text-slate-400 transition-all font-medium"
+                    placeholder="Enter your password"
+                    className="w-full pl-10 pr-10 py-3 rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 shadow-2xs transition-all font-medium"
                   />
                   <button
                     type="button"
@@ -428,7 +428,7 @@ export default function RegisterFreeTrialPage() {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="Re-enter your password"
-                    className="w-full pl-10 pr-10 py-3 rounded-xl border border-slate-300 focus:outline-none focus:border-black focus:ring-1 focus:ring-black text-sm text-slate-900 placeholder:text-slate-400 transition-all font-medium"
+                    className="w-full pl-10 pr-10 py-3 rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 shadow-2xs transition-all font-medium"
                   />
                   <button
                     type="button"
@@ -671,13 +671,24 @@ export default function RegisterFreeTrialPage() {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="w-full max-w-5xl py-3 flex items-center justify-between text-xs text-slate-500 z-10 border-t border-black/10">
-        <div className="flex items-center gap-2">
-          <span>Proudly Made in India</span>
-          <IndiaFlag className="w-4 h-3 rounded-2xs shrink-0" />
+      {/* Minimal Footer Signature Bar (matching login page exactly) */}
+      <footer className="w-full max-w-5xl py-4 border-t border-slate-200/80 z-10">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+          <div className="flex items-center gap-2">
+            <span className="text-proudly-india-black">
+              Proudly Made in India
+            </span>
+            <IndiaFlag className="w-5 h-3.5 rounded-xs shrink-0" />
+          </div>
+
+          <div className="flex items-center gap-6 text-xs text-slate-500">
+            <Link href="/privacy" className="hover:text-slate-900 transition-colors">Privacy</Link>
+            <Link href="/terms" className="hover:text-slate-900 transition-colors">Terms</Link>
+            <Link href="/security" className="hover:text-slate-900 transition-colors">Security</Link>
+          </div>
+
+          <p suppressHydrationWarning>© {new Date().getFullYear()} Zigza MES. All rights reserved.</p>
         </div>
-        <span>© {new Date().getFullYear()} Zigza MES Platform</span>
       </footer>
 
     </div>
