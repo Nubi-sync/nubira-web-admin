@@ -26,7 +26,8 @@ import {
   GitBranch,
   ClipboardList,
   Warehouse,
-  Bot
+  Bot,
+  ShoppingBag
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { subscribeToFloorEvents, broadcastFloorEvent } from '@/utils/floorRealtime'
@@ -421,9 +422,10 @@ export function StitchingDashboardClient({
     toast.success(`Routing rule updated to: ${EMBELLISHMENT_ROUTE_CONFIGS[newRoute].shortLabel}`)
   }
 
-  // Derived Metrics
-  const totalTargetPieces = tasks.reduce((sum, t) => sum + (t.target_quantity || 0), 0)
-  const totalCompletedPieces = tasks.reduce((sum, t) => sum + (t.completed_quantity || 0), 0)
+  // Derived Metrics (dynamically scoped to selected buyer contract or all tasks)
+  const totalTargetPieces = matchingStitching.reduce((sum, t) => sum + (t.target_quantity || 0), 0)
+  const totalCompletedPieces = completedStitchingPieces
+  const totalPendingPieces = pendingStitchingPieces
   const activeTailorsCount = workers.filter(w => w.status === 'ACTIVE').length
   const completionRate = totalTargetPieces > 0 ? Math.round((totalCompletedPieces / totalTargetPieces) * 100) : 0
 
@@ -749,93 +751,111 @@ export function StitchingDashboardClient({
       {/* 4. Metric KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         
-        {/* Metric 1: Tasks in Queue */}
-        <div className="bg-white rounded-2xl p-5 border border-black/10 shadow-2xs flex flex-col justify-between">
+        {/* Metric 1: In Hand (Strict Upstream Route Controlled) */}
+        <div className="bg-white rounded-2xl p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564]">
-              <Layers className="w-5 h-5" />
+            <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
+              In Hand
+            </span>
+            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+              <ShoppingBag className="w-5 h-5" />
             </div>
-            <span className="text-xs text-slate-500 font-medium">Floor Allocations</span>
           </div>
           <div className="mt-4">
-            <div className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-              Active Lots & Tasks
+            <div className="text-2xl sm:text-3xl lg:text-4xl font-black font-mono text-slate-900">
+              {inHandPieces.toLocaleString('en-IN')}
             </div>
-            <div className="text-2xl sm:text-3xl font-bold font-[family-name:var(--font-heading)] text-slate-900 mt-1 font-mono">
-              {tasks.length}
+            <p className="text-xs font-semibold text-slate-500 mt-1">
+              {inHandPieces > 0
+                ? `${inHandPieces.toLocaleString('en-IN')} pcs ready from ${routeDetails.sourceDepartment}`
+                : routeDetails.sourceCompletedPieces > 0
+                  ? `0 pcs in hand (${routeDetails.sourceCompletedPieces.toLocaleString('en-IN')} pcs assigned to lines)`
+                  : `0 pcs received from ${routeDetails.sourceDepartment} (Awaiting sign-off)`}
+            </p>
+          </div>
+          <div className="pt-3 border-t border-slate-100 mt-3 text-xs text-slate-500 font-mono flex items-center justify-between">
+            <span>{routeDetails.badgeLabel}</span>
+            <span className="text-emerald-700 font-bold">Intake Queue</span>
+          </div>
+        </div>
+
+        {/* Metric 2: Pending Sewing */}
+        <div className="bg-white rounded-2xl p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
+              Pending Sewing
+            </span>
+            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+              <Clock className="w-5 h-5" />
             </div>
+          </div>
+          <div className="mt-4">
+            <div className="text-2xl sm:text-3xl lg:text-4xl font-black font-mono text-slate-900">
+              {totalPendingPieces.toLocaleString('en-IN')}
+            </div>
+            <p className="text-xs font-semibold text-slate-500 mt-1">
+              {totalPendingPieces > 0 ? `${totalPendingPieces.toLocaleString('en-IN')} pcs active on sewing lines` : '0 pcs assigned to tailors'}
+            </p>
           </div>
           <div className="pt-3 border-t border-slate-100 mt-3 text-xs text-slate-500 flex items-center justify-between">
-            <span>In-Progress: {tasks.filter(t => t.status === 'IN_PROGRESS').length}</span>
-            <span>Pending: {tasks.filter(t => t.status === 'PENDING').length}</span>
+            <span>In-Progress: {matchingStitching.filter(t => t.status === 'IN_PROGRESS').length}</span>
+            <span>Pending: {matchingStitching.filter(t => t.status === 'PENDING').length}</span>
           </div>
         </div>
 
-        {/* Metric 2: Active Tailors */}
-        <div className="bg-white rounded-2xl p-5 border border-black/10 shadow-2xs flex flex-col justify-between">
+        {/* Metric 3: Assembled Output */}
+        <div className="bg-white rounded-2xl p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564]">
-              <Users className="w-5 h-5" />
-            </div>
-            <span className="text-xs text-slate-500 font-medium">Floor Roster</span>
-          </div>
-          <div className="mt-4">
-            <div className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-              Registered Tailors
-            </div>
-            <div className="text-2xl sm:text-3xl font-bold font-[family-name:var(--font-heading)] text-slate-900 mt-1 font-mono">
-              {activeTailorsCount}
-            </div>
-          </div>
-          <div className="pt-3 border-t border-slate-100 mt-3 text-xs text-slate-500">
-            {workers.length} tailors on floor roster
-          </div>
-        </div>
-
-        {/* Metric 3: Output Pieces */}
-        <div className="bg-white rounded-2xl p-5 border border-black/10 shadow-2xs flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564]">
-              <TrendingUp className="w-5 h-5" />
-            </div>
-            <span className="text-xs text-slate-500 font-medium">{completionRate}% Completed</span>
-          </div>
-          <div className="mt-4">
-            <div className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+            <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Assembled Output
+            </span>
+            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+              <Scissors className="w-5 h-5" />
             </div>
-            <div className="text-2xl sm:text-3xl font-bold font-[family-name:var(--font-heading)] text-slate-900 mt-1 font-mono">
-              {totalCompletedPieces.toLocaleString('en-IN')} <span className="text-sm font-normal text-slate-400">/ {totalTargetPieces.toLocaleString('en-IN')} pcs</span>
+          </div>
+          <div className="mt-4">
+            <div className="text-2xl sm:text-3xl lg:text-4xl font-black font-mono text-slate-900">
+              {totalCompletedPieces.toLocaleString('en-IN')}
             </div>
+            <p className="text-xs font-semibold text-slate-500 mt-1">
+              {totalCompletedPieces > 0 ? `${totalCompletedPieces.toLocaleString('en-IN')} assembled garments completed` : '0 garments assembled'}
+            </p>
           </div>
           <div className="pt-3 border-t border-slate-100 mt-3">
-            <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
-              <div
-                className="h-full bg-[#3A3564] rounded-full transition-all duration-500"
-                style={{ width: `${Math.min(completionRate, 100)}%` }}
-              />
-            </div>
+            {totalTargetPieces > 0 ? (
+              <div className="flex items-center justify-between text-xs text-slate-500">
+                <span>{completionRate}% of quota</span>
+                <span className="font-mono font-bold text-slate-700">{totalCompletedPieces} / {totalTargetPieces} pcs</span>
+              </div>
+            ) : (
+              <div className="text-xs text-slate-400">
+                Awaiting line production sign-off
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Metric 4: Floor Efficiency */}
-        <div className="bg-white rounded-2xl p-5 border border-black/10 shadow-2xs flex flex-col justify-between">
+        {/* Metric 4: Floor Roster */}
+        <div className="bg-white rounded-2xl p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564]">
-              <Activity className="w-5 h-5" />
+            <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
+              Floor Roster
+            </span>
+            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+              <Users className="w-5 h-5" />
             </div>
-            <span className="text-xs text-slate-500 font-medium">Floor Efficiency</span>
           </div>
           <div className="mt-4">
-            <div className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-              Sewing Completion Rate
+            <div className="text-2xl sm:text-3xl lg:text-4xl font-black font-mono text-slate-900">
+              {workers.length}
             </div>
-            <div className="text-2xl sm:text-3xl font-bold font-[family-name:var(--font-heading)] text-slate-900 mt-1 font-mono text-[#3A3564]">
-              {completionRate}%
-            </div>
+            <p className="text-xs font-semibold text-slate-500 mt-1">
+              {activeTailorsCount} active tailors on roster
+            </p>
           </div>
-          <div className="pt-3 border-t border-slate-100 mt-3 text-xs text-slate-500">
-            Across {totalCompletedPieces.toLocaleString('en-IN')} assembled garments
+          <div className="pt-3 border-t border-slate-100 mt-3 text-xs text-slate-500 flex items-center justify-between">
+            <span>{matchingStitching.length} allocated lots</span>
+            <span className="font-mono text-[#3A3564] font-bold">Line Active</span>
           </div>
         </div>
 
