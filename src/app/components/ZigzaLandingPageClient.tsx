@@ -163,14 +163,6 @@ export function ZigzaLandingPageClient({
     return () => clearInterval(pipelineTimer)
   }, [])
 
-  // Subtle Ambient Cycle for Trust Pillar Cards (1.5s per card - faster tempo)
-  const [activeTrustCard, setActiveTrustCard] = useState(0)
-  useEffect(() => {
-    const trustTimer = setInterval(() => {
-      setActiveTrustCard(prev => (prev + 1) % 3)
-    }, 2000)
-    return () => clearInterval(trustTimer)
-  }, [])
 
   // Interactive Hero Mockup: Active Department Tab & 10s Live Floor Simulation Cycle
   const [mockupTab, setMockupTab] = useState<'cutting' | 'sewing' | 'qc'>('cutting')
@@ -533,17 +525,16 @@ export function ZigzaLandingPageClient({
       {/* =================================================================== */}
       <section className="relative pt-10 sm:pt-16 pb-16 sm:pb-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto overflow-hidden">
         <div className="text-center max-w-4xl mx-auto space-y-5">
-          {/* Main Hero Headline: Restored keyword underline on Garment Factories */}
+          {/* Main Hero Headline: High-converting, relatable positioning */}
           <h1 className="text-4xl sm:text-5xl lg:text-[58px] font-semibold tracking-tight text-[#14140F] leading-[1.08]">
-            The Manufacturing OS for Modern <span className="text-[#3A3564] underline decoration-[#C8802B] decoration-4 underline-offset-8">Garment Factories</span>
+            The Smarter Way to Run Your <span className="text-[#3A3564] underline decoration-[#C8802B] decoration-4 underline-offset-8">Garment Business</span>
           </h1>
 
           {/* Subtitle */}
           <div className="relative max-w-2xl mx-auto">
-            {/* Subtitle: Body Large, Slate, capped line length */}
+            {/* Subtitle: Clean, direct value proposition */}
             <p className="text-base sm:text-lg text-[#57564E] leading-relaxed font-normal">
-              Connect fabric roll inward, automated cutting matrices, smart lineman piece-rate allotments, 
-              live 3-stage QC, and buyer dispatch challans into one synchronized floor.
+              Replace messy paper slips and endless phone calls with one simple system. Get live order progress, cut fabric waste, and ship to buyers without last-minute panic.
             </p>
           </div>
 
@@ -567,19 +558,19 @@ export function ZigzaLandingPageClient({
             </Link>
           </div>
 
-          {/* Key Metric Feature Flags: Monochrome thin-line check icons, Slate color */}
+          {/* Key Metric Feature Flags: Clear customer benefits */}
           <div className="pt-3 sm:pt-4 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-6 text-xs sm:text-[13px] font-normal text-[#57564E]">
             <div className="flex items-center gap-2">
               <Check className="w-3.5 h-3.5 text-[#57564E]" />
-              <span>1-Click Excel challan ingestion</span>
+              <span>Zero missing pieces across lines</span>
             </div>
             <div className="flex items-center gap-2">
               <Check className="w-3.5 h-3.5 text-[#57564E]" />
-              <span>Android mobile floor companion</span>
+              <span>Works on any Android phone — no costly hardware</span>
             </div>
             <div className="flex items-center gap-2">
               <Check className="w-3.5 h-3.5 text-[#57564E]" />
-              <span>Automated piece-rate wage ledger</span>
+              <span>Instant tailor wages with zero disputes</span>
             </div>
           </div>
         </div>
@@ -701,7 +692,7 @@ export function ZigzaLandingPageClient({
                       <p className="text-base sm:text-xl font-black text-[#3A3564] mt-1 font-mono">
                         <AnimatedCounter value={320 + mockupTick * 6} duration={900} /> <span className="text-xs font-semibold text-slate-500">/ 450</span>
                       </p>
-                      <span className="text-[11px] font-medium text-emerald-600 font-semibold">QR Barcode Tracked</span>
+                      <span className="text-[11px] font-medium text-emerald-600 font-semibold">100% Accounted For</span>
                     </div>
 
                     <div className="p-3.5 sm:p-4 bg-white border border-slate-200/80 rounded-xl shadow-2xs hover:border-[#3A3564]/30 transition-colors">
@@ -745,7 +736,7 @@ export function ZigzaLandingPageClient({
                       <p className="text-base sm:text-xl font-black text-[#F59E0B] mt-1 font-mono">
                         <AnimatedCounter value={185 + mockupTick} duration={900} suffix=" Boxes" />
                       </p>
-                      <span className="text-[11px] font-medium text-slate-500">QR Master Cartons</span>
+                      <span className="text-[11px] font-medium text-slate-500">Master Cartons Verified</span>
                     </div>
 
                     <div className="p-3.5 sm:p-4 bg-white border border-slate-200/80 rounded-xl shadow-2xs hover:border-[#3A3564]/30 transition-colors">
@@ -775,7 +766,7 @@ export function ZigzaLandingPageClient({
                   <span className="text-[11px] font-semibold text-slate-500 bg-[#FAF7F0] border border-[#3A3564]/10 px-2.5 py-0.5 rounded-full shrink-0">
                     {mockupTab === 'cutting' && 'Ratio 1:9 Auto-Calculated'}
                     {mockupTab === 'sewing' && '24 Stations Live Sync'}
-                    {mockupTab === 'qc' && '100% Weight & QR Verified'}
+                    {mockupTab === 'qc' && '100% Audit Verified'}
                   </span>
                 </div>
 
@@ -798,7 +789,7 @@ export function ZigzaLandingPageClient({
                             <th className="py-2 px-3">Station</th>
                             <th className="py-2 px-3">Operator</th>
                             <th className="py-2 px-3">Operation</th>
-                            <th className="py-2 px-3">Bundle QR</th>
+                            <th className="py-2 px-3">Bundle Tag</th>
                             <th className="py-2 px-3 text-right">Done</th>
                             <th className="py-2 px-3 text-center">Wage Synced</th>
                           </>
@@ -809,7 +800,7 @@ export function ZigzaLandingPageClient({
                             <th className="py-2 px-3">Colorway / Size</th>
                             <th className="py-2 px-3">Pieces</th>
                             <th className="py-2 px-3">Inspector</th>
-                            <th className="py-2 px-3 text-center">Barcode</th>
+                            <th className="py-2 px-3 text-center">Audit Status</th>
                             <th className="py-2 px-3 text-center">Status</th>
                           </>
                         )}
@@ -826,8 +817,8 @@ export function ZigzaLandingPageClient({
                         ]
                         const incoming = [
                           { id: 'c-in-1', c1: '2027-E', c2: 'Olive Green', c2Color: 'text-emerald-700', c3: '24 × 28', c4: '+25', c5: '+225', badge: 'Lay Cut #19', badgeCls: 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold', isNew: true },
-                          { id: 'c-in-2', c1: '2027-A (Re-cut)', c2: 'Sky Blue', c2Color: 'text-blue-700', c3: 'Pocket Ply', c4: '+10', c5: '+90', badge: 'Bundle QR', badgeCls: 'bg-blue-100 text-blue-800 border-blue-300 font-bold', isNew: true },
-                          { id: 'c-in-3', c1: '2027-F', c2: 'Navy Blue', c2Color: 'text-indigo-700', c3: '30 × 34', c4: '+30', c5: '+270', badge: 'Inward Scan', badgeCls: 'bg-purple-100 text-purple-800 border-purple-300 font-bold', isNew: true }
+                          { id: 'c-in-2', c1: '2027-A (Re-cut)', c2: 'Sky Blue', c2Color: 'text-blue-700', c3: 'Pocket Ply', c4: '+10', c5: '+90', badge: 'Cut Bundle', badgeCls: 'bg-blue-100 text-blue-800 border-blue-300 font-bold', isNew: true },
+                          { id: 'c-in-3', c1: '2027-F', c2: 'Navy Blue', c2Color: 'text-indigo-700', c3: '30 × 34', c4: '+30', c5: '+270', badge: 'Gate Inward', badgeCls: 'bg-purple-100 text-purple-800 border-purple-300 font-bold', isNew: true }
                         ]
                         let displayRows = baseRows
                         if (mockupTick === 1) displayRows = [incoming[0], baseRows[0], baseRows[1], baseRows[2]]
@@ -865,15 +856,15 @@ export function ZigzaLandingPageClient({
                       {/* SEWING ROWS (Exactly 4 rows displayed) */}
                       {mockupTab === 'sewing' && (() => {
                         const baseRows = [
-                          { id: 's-1', c1: 'Line 04', c2: 'Aslam Khan', c3: 'Front Body + Rib', c4: 'QR-8821', c5: '180 Pcs', badge: '₹1,080 Logged', badgeCls: 'bg-emerald-50 text-emerald-700 border-emerald-200/60', isNew: false },
-                          { id: 's-2', c1: 'Line 07', c2: 'Ramesh Dev', c3: 'Sleeve Attachment', c4: 'QR-8822', c5: '165 Pcs', badge: '₹990 Logged', badgeCls: 'bg-emerald-50 text-emerald-700 border-emerald-200/60', isNew: false },
-                          { id: 's-3', c1: 'Line 12', c2: 'Sunita Roy', c3: 'Bottom Hem Lock', c4: 'QR-8823', c5: '190 Pcs', badge: '₹1,140 Logged', badgeCls: 'bg-emerald-50 text-emerald-700 border-emerald-200/60', isNew: false },
-                          { id: 's-4', c1: 'Line 18', c2: 'Md. Parvez', c3: 'Collar Assembly', c4: 'QR-8824', c5: '150 Pcs', badge: '₹900 Logged', badgeCls: 'bg-emerald-50 text-emerald-700 border-emerald-200/60', isNew: false }
+                          { id: 's-1', c1: 'Line 04', c2: 'Aslam Khan', c3: 'Front Body + Rib', c4: 'BDL-8821', c5: '180 Pcs', badge: '₹1,080 Logged', badgeCls: 'bg-emerald-50 text-emerald-700 border-emerald-200/60', isNew: false },
+                          { id: 's-2', c1: 'Line 07', c2: 'Ramesh Dev', c3: 'Sleeve Attachment', c4: 'BDL-8822', c5: '165 Pcs', badge: '₹990 Logged', badgeCls: 'bg-emerald-50 text-emerald-700 border-emerald-200/60', isNew: false },
+                          { id: 's-3', c1: 'Line 12', c2: 'Sunita Roy', c3: 'Bottom Hem Lock', c4: 'BDL-8823', c5: '190 Pcs', badge: '₹1,140 Logged', badgeCls: 'bg-emerald-50 text-emerald-700 border-emerald-200/60', isNew: false },
+                          { id: 's-4', c1: 'Line 18', c2: 'Md. Parvez', c3: 'Collar Assembly', c4: 'BDL-8824', c5: '150 Pcs', badge: '₹900 Logged', badgeCls: 'bg-emerald-50 text-emerald-700 border-emerald-200/60', isNew: false }
                         ]
                         const incoming = [
-                          { id: 's-in-1', c1: 'Line 02', c2: 'Karan Sharma', c3: 'Side Seam Lock', c4: 'QR-8825', c5: '+25 Pcs', badge: '+₹150 Logged', badgeCls: 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold', isNew: true },
-                          { id: 's-in-2', c1: 'Line 09', c2: 'Deepak S.', c3: 'Pocket Stitch', c4: 'QR-8826', c5: '+20 Pcs', badge: '+₹120 Logged', badgeCls: 'bg-blue-100 text-blue-800 border-blue-300 font-bold', isNew: true },
-                          { id: 's-in-3', c1: 'Line 15', c2: 'Fatima Bi', c3: 'Cuff Overlock', c4: 'QR-8827', c5: '+30 Pcs', badge: '+₹180 Logged', badgeCls: 'bg-purple-100 text-purple-800 border-purple-300 font-bold', isNew: true }
+                          { id: 's-in-1', c1: 'Line 02', c2: 'Karan Sharma', c3: 'Side Seam Lock', c4: 'BDL-8825', c5: '+25 Pcs', badge: '+₹150 Logged', badgeCls: 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold', isNew: true },
+                          { id: 's-in-2', c1: 'Line 09', c2: 'Deepak S.', c3: 'Pocket Stitch', c4: 'BDL-8826', c5: '+20 Pcs', badge: '+₹120 Logged', badgeCls: 'bg-blue-100 text-blue-800 border-blue-300 font-bold', isNew: true },
+                          { id: 's-in-3', c1: 'Line 15', c2: 'Fatima Bi', c3: 'Cuff Overlock', c4: 'BDL-8827', c5: '+30 Pcs', badge: '+₹180 Logged', badgeCls: 'bg-purple-100 text-purple-800 border-purple-300 font-bold', isNew: true }
                         ]
                         let displayRows = baseRows
                         if (mockupTick === 1) displayRows = [incoming[0], baseRows[0], baseRows[1], baseRows[2]]
@@ -911,10 +902,10 @@ export function ZigzaLandingPageClient({
                       {/* QC & PACKING ROWS (Exactly 4 rows displayed) */}
                       {mockupTab === 'qc' && (() => {
                         const baseRows = [
-                          { id: 'q-1', c1: 'BOX-185', c2: 'Sky Blue (L/XXL)', c2Color: 'text-blue-700', c3: '80 Pcs', c4: 'Anita QC', c5: 'BARCODE OK', badge: 'Carton Sealed', badgeCls: 'bg-emerald-50 text-emerald-700 border-emerald-200/60', isNew: false },
-                          { id: 'q-2', c1: 'BOX-184', c2: 'Mustard (22×26)', c2Color: 'text-amber-700', c3: '80 Pcs', c4: 'Anita QC', c5: 'BARCODE OK', badge: 'Carton Sealed', badgeCls: 'bg-emerald-50 text-emerald-700 border-emerald-200/60', isNew: false },
-                          { id: 'q-3', c1: 'BOX-183', c2: 'Charcoal (28×32)', c2Color: 'text-slate-800', c3: '80 Pcs', c4: 'Vikram QC', c5: 'BARCODE OK', badge: 'Gate Pass Ready', badgeCls: 'bg-blue-50 text-blue-700 border-blue-200/60', isNew: false },
-                          { id: 'q-4', c1: 'BOX-182', c2: 'Sky Blue (M/XL)', c2Color: 'text-blue-700', c3: '80 Pcs', c4: 'Vikram QC', c5: 'BARCODE OK', badge: 'Dispatch Bay', badgeCls: 'bg-amber-50 text-amber-800 border-amber-200/60', isNew: false }
+                          { id: 'q-1', c1: 'BOX-185', c2: 'Sky Blue (L/XXL)', c2Color: 'text-blue-700', c3: '80 Pcs', c4: 'Anita QC', c5: 'AUDIT PASS', badge: 'Carton Sealed', badgeCls: 'bg-emerald-50 text-emerald-700 border-emerald-200/60', isNew: false },
+                          { id: 'q-2', c1: 'BOX-184', c2: 'Mustard (22×26)', c2Color: 'text-amber-700', c3: '80 Pcs', c4: 'Anita QC', c5: 'AUDIT PASS', badge: 'Carton Sealed', badgeCls: 'bg-emerald-50 text-emerald-700 border-emerald-200/60', isNew: false },
+                          { id: 'q-3', c1: 'BOX-183', c2: 'Charcoal (28×32)', c2Color: 'text-slate-800', c3: '80 Pcs', c4: 'Vikram QC', c5: 'AUDIT PASS', badge: 'Gate Pass Ready', badgeCls: 'bg-blue-50 text-blue-700 border-blue-200/60', isNew: false },
+                          { id: 'q-4', c1: 'BOX-182', c2: 'Sky Blue (M/XL)', c2Color: 'text-blue-700', c3: '80 Pcs', c4: 'Vikram QC', c5: 'AUDIT PASS', badge: 'Dispatch Bay', badgeCls: 'bg-amber-50 text-amber-800 border-amber-200/60', isNew: false }
                         ]
                         const incoming = [
                           { id: 'q-in-1', c1: 'BOX-186', c2: 'Mustard (28×32)', c2Color: 'text-amber-700', c3: '80 Pcs', c4: 'Anita QC', c5: 'WEIGHT PASS', badge: 'Just Sealed', badgeCls: 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold', isNew: true },
@@ -975,7 +966,7 @@ export function ZigzaLandingPageClient({
               Why Garment Factories Are Switching from Paper to Zigza
             </h2>
             <p className="text-base sm:text-lg text-slate-600 mt-3 leading-relaxed">
-              Compare traditional manual paper registers with Zigza's synchronized floor execution.
+              Compare traditional manual paper registers with Zigza's modern factory system.
             </p>
           </div>
 
@@ -1052,7 +1043,7 @@ export function ZigzaLandingPageClient({
               {/* Card Header */}
               <div className="flex items-center gap-2.5 pb-4 border-b border-rose-200 mb-6">
                 <AlertTriangle className="w-5 h-5 text-rose-600 shrink-0" />
-                <h3 className="text-lg sm:text-xl font-bold text-slate-900">Traditional Factory Friction</h3>
+                <h3 className="text-lg sm:text-xl font-bold text-slate-900">Traditional Paper Friction</h3>
               </div>
 
               {/* 4 Pain Points - Proper Spacing for Readability */}
@@ -1060,9 +1051,9 @@ export function ZigzaLandingPageClient({
                 <div className="flex items-start gap-3.5">
                   <X className="w-4 h-4 text-rose-600 shrink-0 mt-1 stroke-[2.5]" />
                   <div>
-                    <h4 className="text-[15px] sm:text-base font-bold text-slate-900">Lost Paper Challans & Slips</h4>
+                    <h4 className="text-[15px] sm:text-base font-bold text-slate-900">Lost Paper Slips & Fabric Shortages</h4>
                     <p className="text-sm text-slate-600 mt-1 leading-relaxed">
-                      Misplaced slips cause fabric shortages, billing confusion, and supplier disputes.
+                      Misplaced challans cause unrecorded fabric leaks, billing confusion, and supplier arguments.
                     </p>
                   </div>
                 </div>
@@ -1070,9 +1061,9 @@ export function ZigzaLandingPageClient({
                 <div className="flex items-start gap-3.5">
                   <X className="w-4 h-4 text-rose-600 shrink-0 mt-1 stroke-[2.5]" />
                   <div>
-                    <h4 className="text-[15px] sm:text-base font-bold text-slate-900">Lineman Wage Disputes</h4>
+                    <h4 className="text-[15px] sm:text-base font-bold text-slate-900">Daily Tailor Wage Disputes</h4>
                     <p className="text-sm text-slate-600 mt-1 leading-relaxed">
-                      Daily arguments at payout time over bundle piece counts and missing stitched units.
+                      Hours wasted arguing over lost paper coupons, unstitched bundles, and disputed piece counts.
                     </p>
                   </div>
                 </div>
@@ -1080,9 +1071,9 @@ export function ZigzaLandingPageClient({
                 <div className="flex items-start gap-3.5">
                   <X className="w-4 h-4 text-rose-600 shrink-0 mt-1 stroke-[2.5]" />
                   <div>
-                    <h4 className="text-[15px] sm:text-base font-bold text-slate-900">Late QC Defect Discovery</h4>
+                    <h4 className="text-[15px] sm:text-base font-bold text-slate-900">Defects Caught Late at Packing</h4>
                     <p className="text-sm text-slate-600 mt-1 leading-relaxed">
-                      Defects caught late at packing bay, causing emergency rework and delayed buyer dispatch.
+                      Stitching faults discovered right before dispatch, forcing emergency rework and delivery delays.
                     </p>
                   </div>
                 </div>
@@ -1090,9 +1081,9 @@ export function ZigzaLandingPageClient({
                 <div className="flex items-start gap-3.5">
                   <X className="w-4 h-4 text-rose-600 shrink-0 mt-1 stroke-[2.5]" />
                   <div>
-                    <h4 className="text-[15px] sm:text-base font-bold text-slate-900">Zero Real-Time WIP Visibility</h4>
+                    <h4 className="text-[15px] sm:text-base font-bold text-slate-900">Zero Live Production Visibility</h4>
                     <p className="text-sm text-slate-600 mt-1 leading-relaxed">
-                      Owners lack live visibility into cutting pace and floor bottlenecks during the shift.
+                      Owners find out about floor bottlenecks and delayed orders only after shifts end.
                     </p>
                   </div>
                 </div>
@@ -1104,7 +1095,7 @@ export function ZigzaLandingPageClient({
               {/* Card Header */}
               <div className="flex items-center gap-2.5 pb-4 border-b border-emerald-200 mb-6">
                 <Check className="w-5 h-5 text-emerald-600 shrink-0 stroke-[2.5]" />
-                <h3 className="text-lg sm:text-xl font-bold text-slate-900">The Zigza Digital Solution</h3>
+                <h3 className="text-lg sm:text-xl font-bold text-slate-900">The Zigza Digital System</h3>
               </div>
 
               {/* 4 Solutions - Proper Spacing for Readability */}
@@ -1112,9 +1103,9 @@ export function ZigzaLandingPageClient({
                 <div className="flex items-start gap-3.5">
                   <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-1 stroke-[2.5]" />
                   <div>
-                    <h4 className="text-[15px] sm:text-base font-bold text-slate-900">Digital Gate Inward (Store GRN)</h4>
+                    <h4 className="text-[15px] sm:text-base font-bold text-slate-900">Digital Inward & Instant Roll Logs</h4>
                     <p className="text-sm text-slate-600 mt-1 leading-relaxed">
-                      Photograph paper challans on mobile and reconcile cloth roll barcodes instantly.
+                      Snap supplier challans on phone to record fabric rolls instantly with zero paper loss.
                     </p>
                   </div>
                 </div>
@@ -1122,9 +1113,9 @@ export function ZigzaLandingPageClient({
                 <div className="flex items-start gap-3.5">
                   <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-1 stroke-[2.5]" />
                   <div>
-                    <h4 className="text-[15px] sm:text-base font-bold text-slate-900">1-Click Excel Challan Import</h4>
+                    <h4 className="text-[15px] sm:text-base font-bold text-slate-900">Dispute-Free Piece-Rate Payouts</h4>
                     <p className="text-sm text-slate-600 mt-1 leading-relaxed">
-                      Buyer sheets auto-map to size breakdown matrices without manual calculation errors.
+                      Bundles credited automatically per tailor with full transparency and zero manual tallying.
                     </p>
                   </div>
                 </div>
@@ -1132,9 +1123,9 @@ export function ZigzaLandingPageClient({
                 <div className="flex items-start gap-3.5">
                   <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-1 stroke-[2.5]" />
                   <div>
-                    <h4 className="text-[15px] sm:text-base font-bold text-slate-900">Dispute-Free Piece-Rate Wages</h4>
+                    <h4 className="text-[15px] sm:text-base font-bold text-slate-900">Live Checkpoint Quality Control</h4>
                     <p className="text-sm text-slate-600 mt-1 leading-relaxed">
-                      Automated bundle credits per lineman with transparent mobile app verification.
+                      Catch and flag defects directly on the line so tailors fix them immediately.
                     </p>
                   </div>
                 </div>
@@ -1142,9 +1133,9 @@ export function ZigzaLandingPageClient({
                 <div className="flex items-start gap-3.5">
                   <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-1 stroke-[2.5]" />
                   <div>
-                    <h4 className="text-[15px] sm:text-base font-bold text-slate-900">3-Stage Live QC Routing</h4>
+                    <h4 className="text-[15px] sm:text-base font-bold text-slate-900">Live Order Progress on Your Phone</h4>
                     <p className="text-sm text-slate-600 mt-1 leading-relaxed">
-                      Tag defects on mobile at audit checkpoints and dispatch instant rework to tailors.
+                      Track exact hourly production, line pace, and shipment readiness from anywhere, anytime.
                     </p>
                   </div>
                 </div>
@@ -1162,67 +1153,67 @@ export function ZigzaLandingPageClient({
       <section id="modules" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="text-center max-w-3xl mx-auto mb-14 sm:mb-16">
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">
-            Specialized Engines Engineered for Floor Precision
+            Everything You Need to Run Your Garment Factory
           </h2>
           <p className="text-base sm:text-lg text-slate-600 mt-3 leading-relaxed">
-            Every department in your garment factory gets dedicated tools connected to one live database.
+            Simple, powerful tools for every team on your floor — from fabric inward to final buyer dispatch.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 items-stretch">
           {[
             {
-              title: 'Truck Inward & Store GRN',
+              title: 'Fabric Inward & Trims Store',
               icon: Truck,
               features: [
-                'Photo capture for supplier delivery challans',
-                'Fabric roll barcode tracking (Sinker, Rib, Lycra)',
-                'Live trims & accessories balance reconciliation',
+                'Photo capture of supplier challans right at the gate',
+                'Digital roll inwarding with lot and shade records',
+                'Accurate stock counts for buttons, zippers, and threads',
               ],
             },
             {
-              title: '1-Click Excel Ingestion',
+              title: 'Buyer Orders & Tech Packs',
               icon: FileSpreadsheet,
               features: [
-                'Direct import of buyer purchase spreadsheets',
-                'Auto-calculated size & color breakdown matrix',
-                'Zero manual entry errors or ratio mismatches',
+                'Store digital patterns, measurement specs, and tech packs',
+                'Import buyer purchase orders and size tables in 1 click',
+                'Automatic fabric consumption and target margin costing',
               ],
             },
             {
-              title: 'Smart Allotment & Wages',
+              title: 'Cutting Room & Lay Matrix',
               icon: Scissors,
               features: [
-                'Lot allotment across linemen by color & size',
-                'Real-time QR barcode scan per stitched unit',
-                'Automated, dispute-free piece-rate wage ledger',
+                '1-Click lay ratios based on actual fabric roll length',
+                'Automatic bundle creation with printable cut-piece tags',
+                'Prevent cutting errors and reduce fabric waste to a minimum',
               ],
             },
             {
-              title: 'Mobile Floor Supervisor',
-              icon: Smartphone,
+              title: 'Stitching Lines & Wages',
+              icon: Users,
               features: [
-                'Fast scanner companion for Android smartphones',
-                'Continuous offline logging during WiFi dropouts',
-                'Live line output pace & bottleneck alerts',
+                'Smooth line loading with daily targets by color and size',
+                'Quick mobile piece logging on standard Android smartphones',
+                'Dispute-free piece-rate wages calculated automatically',
               ],
             },
             {
-              title: '3-Stage Quality Control',
+              title: 'Quality Checks & Alteration',
               icon: ClipboardCheck,
               features: [
-                '1-Tap defect tagging at lightbox checkpoints',
-                'Instant alteration routing directly back to tailors',
-                'Operator defect tracking & pass-rate analytics',
+                'Quick defect tagging directly at table and end-of-line checks',
+                'Instant routing of rejected pieces back to the original tailor',
+                'Identify line defects early to fix issues before packing',
               ],
             },
             {
               title: 'Carton Packing & Dispatch',
               icon: PackageCheck,
               features: [
-                'Auto-generated carton packing lists & piece counts',
-                'Buyer delivery challans with transport metadata',
-                'Finished goods inventory deducted at gate exit',
+                'Auto-generated carton packing lists with piece-count audits',
+                'Zero-error buyer delivery challans and transport invoices',
+                'Verified gate pass and truck exit confirmation on your phone',
               ],
             },
           ].map((engine) => {
@@ -1317,12 +1308,12 @@ export function ZigzaLandingPageClient({
                   {
                     step: '03',
                     title: 'Central Fabric Store',
-                    desc: 'Barcode roll inwarding, trim inventory, and lot-wise issue slips.'
+                    desc: 'Digital roll inwarding, trim inventory, and lot-wise issue slips.'
                   },
                   {
                     step: '04',
                     title: 'Cutting & Lay Matrix',
-                    desc: '1-Click Excel lay ratios and automated QR bundle tag generation.'
+                    desc: '1-Click Excel lay ratios and automated bundle tag generation.'
                   }
                 ].map((stage, idx) => {
                   const isActive = activePipelineStep === idx;
@@ -1393,12 +1384,12 @@ export function ZigzaLandingPageClient({
                   {
                     step: '05',
                     title: 'Printing & Embroidery',
-                    desc: 'Job-work challans, machine allocation, and gate pass tracking.'
+                    desc: 'Job-work challans, machine allocation, and gate pass dispatch.'
                   },
                   {
                     step: '06',
                     title: 'Stitching Lines',
-                    desc: 'Live line loading, mobile QR bundle scans, and piece-rate wages.'
+                    desc: 'Smooth line loading, mobile bundle logging, and piece-rate wages.'
                   },
                   {
                     step: '07',
@@ -1469,14 +1460,14 @@ export function ZigzaLandingPageClient({
             Trusted Across India&apos;s Garment Hubs
           </h2>
           <p className="text-base sm:text-lg text-slate-600 mt-4 leading-relaxed font-normal">
-            From local stitching lines to multi-tier export factories — Zigza simplifies daily production, piece-rate wages, and floor tracking.
+            From local stitching lines to multi-tier export factories — Zigza simplifies daily production, piece-rate wages, and floor operations.
           </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
           
-          {/* Left Column: 3 Core Trust Pillars */}
-          <div className="lg:col-span-5 space-y-4">
+          {/* Left Column: 4 Core Trust Pillars with Dotted Borders */}
+          <div className="lg:col-span-5 space-y-3.5 sm:space-y-4">
             {[
               {
                 id: 0,
@@ -1495,47 +1486,33 @@ export function ZigzaLandingPageClient({
                 icon: Zap,
                 title: 'Offline-First Sync',
                 desc: 'Log daily cuts and sewing handovers continuously, even during Wi-Fi drops.'
+              },
+              {
+                id: 3,
+                icon: CheckCircle2,
+                title: 'Zero Ghost Pieces',
+                desc: 'Every piece accounted for from cutting table to buyer carton with zero discrepancy.'
               }
-            ].map((pillar, idx) => {
-              const isCurrent = activeTrustCard === idx;
-              return (
-                <div
-                  key={pillar.id}
-                  onClick={() => setActiveTrustCard(idx)}
-                  onMouseEnter={() => setActiveTrustCard(idx)}
-                  className={`p-4 sm:p-5 rounded-2xl border transition-all duration-200 cursor-pointer flex items-start gap-4 ${
-                    isCurrent
-                      ? 'bg-white border-[#3A3564] shadow-md -translate-y-0.5 ring-1 ring-[#3A3564]/15'
-                      : 'bg-white/80 border-slate-200 hover:border-slate-400 hover:bg-white'
-                  }`}
-                >
-                  {/* Outline Icon Badge */}
-                  <div
-                    className={`w-11 h-11 rounded-xl border-2 flex items-center justify-center shrink-0 transition-all duration-200 mt-0.5 ${
-                      isCurrent
-                        ? 'bg-[#FAF7F0] border-[#3A3564] text-[#3A3564] shadow-2xs scale-105'
-                        : 'bg-white border-slate-300 text-slate-700'
-                    }`}
-                  >
-                    <pillar.icon className="w-5 h-5" strokeWidth={1.8} />
-                  </div>
-
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between gap-2">
-                      <h3 className="text-base sm:text-[17px] font-bold text-slate-900 tracking-tight">
-                        {pillar.title}
-                      </h3>
-                      {isCurrent && (
-                        <span className="w-2.5 h-2.5 rounded-full bg-[#3A3564] shrink-0 animate-pulse" />
-                      )}
-                    </div>
-                    <p className="text-sm sm:text-[14.5px] text-slate-600 mt-1 leading-relaxed">
-                      {pillar.desc}
-                    </p>
-                  </div>
+            ].map((pillar) => (
+              <div
+                key={pillar.id}
+                className="bg-white rounded-2xl border-2 border-dotted border-black/60 p-4 sm:p-5 flex items-start gap-4 transition-all duration-200 hover:border-black hover:shadow-xs"
+              >
+                {/* Outline Icon Badge */}
+                <div className="w-11 h-11 rounded-xl bg-[#FAF7F0] border border-black/15 text-[#3A3564] flex items-center justify-center shrink-0 mt-0.5">
+                  <pillar.icon className="w-5 h-5" strokeWidth={1.8} />
                 </div>
-              );
-            })}
+
+                <div className="flex-1">
+                  <h3 className="text-base sm:text-[17px] font-bold text-slate-900 tracking-tight">
+                    {pillar.title}
+                  </h3>
+                  <p className="text-sm sm:text-[14px] text-slate-600 mt-1 leading-relaxed">
+                    {pillar.desc}
+                  </p>
+                </div>
+              </div>
+            ))}
           </div>
 
           {/* Right Column: Clean, Much Larger India Map with NO Green Handwriting */}
