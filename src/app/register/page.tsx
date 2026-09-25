@@ -13,7 +13,6 @@ import {
   User,
   Eye,
   EyeOff,
-  Sparkles,
   Layers,
   KeyRound,
   Building2,
@@ -843,10 +842,9 @@ export default function RegisterFreeTrialPage() {
               </div>
 
               <div>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-bold bg-amber-50 text-amber-800 border border-amber-300 mb-2">
-                  <Sparkles className="w-3.5 h-3.5" />
-                  7-Day Trial Plan Activated
-                </span>
+                <p className="text-xs font-semibold text-emerald-600 mb-1">
+                  7 Days Activated
+                </p>
                 <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-[family-name:var(--font-heading)]">
                   Welcome, {createdCompany}!
                 </h2>
@@ -855,25 +853,13 @@ export default function RegisterFreeTrialPage() {
                 </p>
               </div>
 
-              {/* Account Confirmation Details Card */}
-              <div className="p-4 bg-[#FAF7F0] border border-black/15 rounded-2xl text-left text-xs space-y-2.5">
-                <div className="flex items-center justify-between pb-2 border-b border-black/5">
-                  <span className="text-slate-500 font-medium">Factory Name</span>
-                  <span className="font-bold text-slate-900">{createdCompany}</span>
-                </div>
-                <div className="flex items-center justify-between pb-2 border-b border-black/5">
-                  <span className="text-slate-500 font-medium">Super Admin</span>
-                  <span className="font-semibold text-slate-900">{fullName}</span>
-                </div>
-                <div className="flex items-center justify-between pb-2 border-b border-black/5">
+              {/* Minimal Account Confirmation Slip (Only Necessary Info) */}
+              <div className="p-3.5 bg-[#FAF7F0] border border-black/15 rounded-xl text-left text-xs space-y-2">
+                <div className="flex items-center justify-between pb-1.5 border-b border-black/5">
                   <span className="text-slate-500 font-medium">Admin Email</span>
-                  <span className="font-mono text-slate-700">{email}</span>
+                  <span className="font-mono font-bold text-slate-900">{email}</span>
                 </div>
-                <div className="flex items-center justify-between pb-2 border-b border-black/5">
-                  <span className="text-slate-500 font-medium">Registered Phone</span>
-                  <span className="font-mono text-slate-700">+91 {phone}</span>
-                </div>
-                <div className="flex items-center justify-between pb-2 border-b border-black/5">
+                <div className="flex items-center justify-between pb-1.5 border-b border-black/5">
                   <span className="text-slate-500 font-medium">Active Divisions</span>
                   <span className="font-bold text-[#3A3564]">{selectedDivisions.length} of 12 Units Live</span>
                 </div>
@@ -881,10 +867,6 @@ export default function RegisterFreeTrialPage() {
                   <span className="text-slate-500 font-medium">Trial Validity</span>
                   <span className="font-bold text-emerald-700 font-mono">7 Days Remaining</span>
                 </div>
-              </div>
-
-              <div className="p-3 bg-blue-50 border border-blue-200/70 rounded-xl text-left text-[11.5px] text-blue-800 leading-relaxed">
-                <span className="font-bold text-blue-900">Factory Name Notice:</span> Your industry name has been initialized as <span className="font-bold">{createdCompany}</span> based on your first name, and can be edited anytime under your <Link href="/modules/profile" className="underline font-bold">Profile</Link>.
               </div>
 
               {/* Action Buttons */}
