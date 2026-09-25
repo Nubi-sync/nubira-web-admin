@@ -1032,7 +1032,7 @@ export function AdminSidebar({
               <img 
                 src="/z i g z a (8).png" 
                 alt="Zigza" 
-                className="h-8 w-auto object-contain"
+                className="h-9 sm:h-10 w-auto object-contain"
               />
             </div>
           </Link>
@@ -1141,7 +1141,7 @@ export function AdminSidebar({
               <img 
                 src="/z i g z a (8).png" 
                 alt="Zigza" 
-                className="h-8 w-auto object-contain"
+                className="h-9 sm:h-10 w-auto object-contain"
               />
             </Link>
 

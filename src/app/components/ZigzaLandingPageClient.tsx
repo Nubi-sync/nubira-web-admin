@@ -293,11 +293,11 @@ export function ZigzaLandingPageClient({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[68px] sm:h-[88px] flex items-center justify-between gap-3">
           
           {/* Brand Logo */}
-          <Link href="/" className="group flex items-center cursor-pointer select-none shrink-0">
+          <Link href="/" className="group flex items-center cursor-pointer select-none shrink-0 py-1">
             <img 
               src="/z i g z a (8).png" 
               alt="Zigza" 
-              className="h-[36px] sm:h-[46px] lg:h-[50px] w-auto object-contain transition-transform duration-150 group-hover:scale-[1.02]"
+              className="h-[46px] sm:h-[58px] lg:h-[64px] w-auto object-contain transition-transform duration-150 group-hover:scale-[1.02]"
             />
           </Link>
 
@@ -2078,7 +2078,7 @@ export function ZigzaLandingPageClient({
                 <img 
                   src="/z i g z a (8).png" 
                   alt="Zigza" 
-                  className="h-8 sm:h-9 w-auto object-contain group-hover:opacity-90 transition-opacity duration-150"
+                  className="h-10 sm:h-12 w-auto object-contain group-hover:opacity-90 transition-opacity duration-150"
                 />
               </Link>
               <p className="text-sm text-slate-600 leading-relaxed max-w-sm font-normal">
@@ -2281,7 +2281,7 @@ export function ZigzaLandingPageClient({
               <img 
                 src="/z i g z a (8).png" 
                 alt="Zigza" 
-                className="h-7 sm:h-8 w-auto object-contain"
+                className="h-9 sm:h-10 w-auto object-contain"
               />
               <h3 className="text-xl sm:text-2xl font-bold text-slate-900">
                 Request a Live Demo

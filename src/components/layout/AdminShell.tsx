@@ -27,7 +27,7 @@ function MobileTopBar({ onMenuToggle, logoHref = '/modules' }: { onMenuToggle: (
         <img 
           src="/z i g z a (8).png" 
           alt="Zigza" 
-          className="h-8 sm:h-9 w-auto object-contain"
+          className="h-9 sm:h-10 w-auto object-contain"
         />
       </Link>
 
