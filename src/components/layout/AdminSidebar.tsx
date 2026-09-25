@@ -1030,7 +1030,7 @@ export function AdminSidebar({
                 : 'opacity-0 max-w-0 duration-500 ease-in-out'
             }`}>
               <img 
-                src="/z i g z a (6)4.png" 
+                src="/z i g z a (7).png" 
                 alt="Zigza" 
                 className="h-8 w-auto object-contain"
               />
@@ -1139,7 +1139,7 @@ export function AdminSidebar({
           <div className="p-4 pb-3.5 border-b border-slate-200 flex items-center justify-between">
             <Link href={homeHref} className="flex items-center gap-2.5">
               <img 
-                src="/z i g z a (6)4.png" 
+                src="/z i g z a (7).png" 
                 alt="Zigza" 
                 className="h-8 w-auto object-contain"
               />
