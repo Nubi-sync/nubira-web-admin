@@ -464,9 +464,19 @@ export default function RegisterFreeTrialPage() {
 
               {/* Field 4: Set Password */}
               <div>
-                <label className="block text-xs font-bold text-slate-800 mb-1.5 uppercase tracking-wide">
-                  Set Password *
-                </label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-bold text-slate-800 uppercase tracking-wide">
+                    Set Password *
+                  </label>
+                  {password.length > 0 && (
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[11px] font-semibold text-slate-400">Strength:</span>
+                      <span className={`text-[11px] font-extrabold ${strengthTextColor}`}>
+                        {strengthLabel}
+                      </span>
+                    </div>
+                  )}
+                </div>
                 <div className="relative">
                   <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
@@ -475,7 +485,11 @@ export default function RegisterFreeTrialPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter your password"
-                    className="w-full pl-10 pr-10 py-3 rounded-xl border border-slate-300 bg-slate-50/50 focus:bg-white text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#3A3564] focus:ring-1 focus:ring-[#3A3564] transition-all font-medium"
+                    className={`w-full pl-10 pr-10 py-3 rounded-xl border bg-slate-50/50 focus:bg-white text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none transition-all font-medium ${
+                      password.length > 0 && !hasMinLength
+                        ? 'border-rose-400 focus:border-rose-500 focus:ring-1 focus:ring-rose-500'
+                        : 'border-slate-300 focus:border-[#3A3564] focus:ring-1 focus:ring-[#3A3564]'
+                    }`}
                   />
                   <button
                     type="button"
@@ -485,13 +499,71 @@ export default function RegisterFreeTrialPage() {
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
+
+                {/* Live Password Strength Meter & 5-Word Recommendation */}
+                {password.length > 0 && (
+                  <div className="mt-2 space-y-1.5 animate-in fade-in duration-200">
+                    {/* Segmented Strength Bar */}
+                    <div className="grid grid-cols-4 gap-1.5 h-1.5 w-full">
+                      <div className={`h-full rounded-full transition-all duration-300 ${strengthScore >= 1 ? strengthBarColor : 'bg-slate-200'}`} />
+                      <div className={`h-full rounded-full transition-all duration-300 ${strengthScore >= 2 ? strengthBarColor : 'bg-slate-200'}`} />
+                      <div className={`h-full rounded-full transition-all duration-300 ${strengthScore >= 3 ? strengthBarColor : 'bg-slate-200'}`} />
+                      <div className={`h-full rounded-full transition-all duration-300 ${strengthScore >= 4 ? strengthBarColor : 'bg-slate-200'}`} />
+                    </div>
+
+                    {/* 5-Word Dynamic Recommendation */}
+                    <div className="flex items-center justify-between text-[11px] pt-0.5">
+                      <span className="text-slate-600 font-medium">
+                        💡 {recommendationTip}
+                      </span>
+                      <span className={`font-mono text-[10.5px] ${hasMinLength ? 'text-emerald-600 font-semibold' : 'text-slate-400'}`}>
+                        {password.length} chars (min 6)
+                      </span>
+                    </div>
+
+                    {/* 5 Recommendation Criteria Badges */}
+                    <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                      {passwordCriteria.map((c) => (
+                        <span
+                          key={c.id}
+                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-mono font-semibold transition-all ${
+                            c.met
+                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-300'
+                              : 'bg-slate-100 text-slate-500 border border-slate-200'
+                          }`}
+                        >
+                          {c.met ? '✓' : '•'} {c.label}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
-              {/* Field 5: Confirm Password */}
+              {/* Field 5: Confirm Password (Live Matching) */}
               <div>
-                <label className="block text-xs font-bold text-slate-800 mb-1.5 uppercase tracking-wide">
-                  Confirm Password *
-                </label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-bold text-slate-800 uppercase tracking-wide">
+                    Confirm Password *
+                  </label>
+                  {confirmPassword.length > 0 && (
+                    <span className={`text-[11px] font-bold flex items-center gap-1 animate-in fade-in duration-200 ${
+                      passwordsMatch ? 'text-emerald-600' : 'text-rose-600'
+                    }`}>
+                      {passwordsMatch ? (
+                        <>
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          <span>Passwords match</span>
+                        </>
+                      ) : (
+                        <>
+                          <AlertCircle className="w-3.5 h-3.5" />
+                          <span>Passwords do not match</span>
+                        </>
+                      )}
+                    </span>
+                  )}
+                </div>
                 <div className="relative">
                   <KeyRound className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
@@ -500,7 +572,13 @@ export default function RegisterFreeTrialPage() {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="Re-enter your password"
-                    className="w-full pl-10 pr-10 py-3 rounded-xl border border-slate-300 bg-slate-50/50 focus:bg-white text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#3A3564] focus:ring-1 focus:ring-[#3A3564] transition-all font-medium"
+                    className={`w-full pl-10 pr-10 py-3 rounded-xl border bg-slate-50/50 focus:bg-white text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none transition-all font-medium ${
+                      confirmPassword.length === 0
+                        ? 'border-slate-300 focus:border-[#3A3564] focus:ring-1 focus:ring-[#3A3564]'
+                        : passwordsMatch
+                          ? 'border-emerald-500 bg-emerald-50/15 focus:border-emerald-600 focus:ring-1 focus:ring-emerald-500'
+                          : 'border-rose-400 bg-rose-50/20 focus:border-rose-500 focus:ring-1 focus:ring-rose-500'
+                    }`}
                   />
                   <button
                     type="button"
