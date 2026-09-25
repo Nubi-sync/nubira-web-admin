@@ -25,9 +25,9 @@ function MobileTopBar({ onMenuToggle, logoHref = '/modules' }: { onMenuToggle: (
       {/* Center: Brand Logo */}
       <Link href={logoHref} className="flex items-center">
         <img 
-          src="/z i g z a (2).png" 
-          alt="zigza." 
-          className="h-9 sm:h-10 w-auto object-contain rounded-xl overflow-hidden shadow-2xs"
+          src="/z i g z a (6)4.png" 
+          alt="Zigza" 
+          className="h-8 sm:h-9 w-auto object-contain"
         />
       </Link>
 
